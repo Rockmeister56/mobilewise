@@ -3,182 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New Clients Inc - AI Voice Assistant Demo</title>
+    <title>NCI Client Website</title>
     <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- NCI Header -->
-    <header class="nci-header">
-        <div class="container">
-            <div class="nci-logo">
-                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 50'%3E%3Crect width='100' height='50' fill='%23003366'/%3E%3Ctext x='50' y='30' text-anchor='middle' fill='white' font-family='Arial' font-size='16' font-weight='bold'%3ENCI%3C/text%3E%3C/svg%3E" alt="NCI Logo">
-                <span>New Clients, Inc.</span>
-            </div>
-            <nav class="nci-nav">
-                <ul>
-                    <li><a href="#home">Home</a></li>
-                    <li><a href="#about">About NCI</a></li>
-                    <li><a href="#services">Products & Services</a></li>
-                    <li><a href="#testimonials">Testimonials</a></li>
-                    <li><a href="#contact">Contact</a></li>
-                </ul>
-            </nav>
-            <div class="nci-phone">1-888-639-2543</div>
+    <!-- CLIENT'S NCI BACKGROUND WEBSITE -->
+    <div class="client-website">
+        <div class="client-header">
+            <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1755211174291_NCI2.PNG" alt="NCI Logo" class="client-logo">
+            <h1>New Clients Inc</h1>
         </div>
-    </header>
-
-    <!-- Hero Section -->
-    <section class="hero-section">
-        <div class="hero-overlay"></div>
-        <div class="hero-content">
-            <h1>Powering Your Future</h1>
-            <p>Tips for Buying or Selling a Practice</p>
-            <button class="cta-button">FIND OUT HOW</button>
+        <div class="client-content">
+            <h2>Professional Accounting Services</h2>
+            <p>Welcome to New Clients Inc - Your trusted accounting partner</p>
         </div>
-    </section>
-
-    <!-- Animated AI Chat Button -->
-    <div id="aiChatButton" class="ai-chat-button" onclick="openAIVoiceBot()">
-        <div class="chat-icon">🤖</div>
-        <div class="chat-text">AI Assistant</div>
     </div>
 
-    <!-- Modal Backdrop -->
-    <div id="modalBackdrop" class="modal-backdrop hidden" onclick="closeAIVoiceBot()"></div>
+    <!-- AI ACTIVATION BUTTON -->
+    <button id="aiActivateBtn" class="ai-activate-button" onclick="openAIChat()">
+        🎤 AI
+    </button>
 
-    <!-- AI Voice Bot Modal -->
-    <div id="aiVoiceBotModal" class="ai-voice-bot-modal hidden">
-        <div class="modal-layout">
-            <!-- Black Left Sidebar -->
-            <div class="sidebar-menu">
-                <div class="menu-header">
-                    <div class="nci-logo-small">
-                        <div class="logo-box">NCI</div>
-                    </div>
-                    <h3>AI Assistant</h3>
+    <!-- AI CHAT POPUP OVERLAY -->
+    <div id="aiOverlay" class="ai-overlay hidden">
+        <div class="ai-popup">
+            <!-- BLACK TRANSPARENT SIDEBAR -->
+            <div class="sidebar">
+                <!-- NCI LOGO AT TOP -->
+                <div class="sidebar-logo">
+                    <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1755208928390_logo3.PNG" alt="NCI Logo">
                 </div>
-                <div class="menu-options">
-                    <button class="menu-btn" onclick="activateAIVoice()">
-                        <span class="menu-icon">🎤</span>
-                        Activate AI Voice
-                    </button>
-                    <button class="menu-btn" onclick="setAppointment()">
-                        <span class="menu-icon">📅</span>
-                        Set Appointment
-                    </button>
-                    <button class="menu-btn" onclick="requestCall()">
-                        <span class="menu-icon">📞</span>
-                        Request a Call
-                    </button>
-                    <button class="menu-btn" onclick="sendMessage()">
-                        <span class="menu-icon">💬</span>
-                        Send Message
-                    </button>
-                    <button class="menu-btn" onclick="startVideoReview()">
-                        <span class="menu-icon">🎥</span>
-                        Video Review
-                    </button>
+
+                <!-- MENU BUTTONS WITH BLUE BORDERS -->
+                <div class="menu-buttons">
+                    <button class="menu-btn">Activate AI Voice</button>
+                    <button class="menu-btn">Set Appointment</button>
+                    <button class="menu-btn">Request a Call</button>
+                    <button class="menu-btn">Send Message</button>
+                    <button class="menu-btn">Video Review</button>
+                </div>
+
+                <!-- SIDEBAR AVATAR -->
+                <div class="sidebar-avatar">
+                    <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/avatars/avatar_1755209453856_avatar%20right.png" alt="AI Assistant">
                 </div>
             </div>
 
-            <!-- White Right Chat Area -->
+            <!-- CHAT AREA -->
             <div class="chat-area">
-                <!-- Top Shortcut Buttons -->
-                <div class="shortcut-buttons">
-                    <button class="shortcut-btn" onclick="quickTopic('Tax Prep')">
-                        📊 Tax Prep
-                    </button>
-                    <button class="shortcut-btn" onclick="quickTopic('Bookkeeping')">
-                        📚 Bookkeeping
-                    </button>
-                    <button class="shortcut-btn" onclick="quickTopic('Business Consulting')">
-                        💼 Business Consulting
-                    </button>
-                    <button class="shortcut-btn" onclick="quickTopic('Practice Growth')">
-                        📈 Practice Growth
-                    </button>
+                <!-- TOPIC SUGGESTION BUTTONS -->
+                <div class="topic-buttons">
+                    <button class="topic-btn" onclick="askTopic('Tax Prep')">📊 Tax Prep</button>
+                    <button class="topic-btn" onclick="askTopic('Bookkeeping')">📚 Bookkeeping</button>
+                    <button class="topic-btn" onclick="askTopic('Business')">💼 Business</button>
+                    <button class="topic-btn" onclick="askTopic('Growth')">📈 Growth</button>
                 </div>
 
-                <!-- Chat Header -->
+                <!-- CHAT HEADER -->
                 <div class="chat-header">
-                    <div class="assistant-info">
-                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%234A90E2'/%3E%3Ctext x='50' y='60' text-anchor='middle' fill='white' font-family='Arial' font-size='40'%3E👩‍💼%3C/text%3E%3C/svg%3E" alt="AI Assistant" class="assistant-avatar">
-                        <div>
-                            <h4>AI Accounting Assistant</h4>
-                            <span class="status">Online • Ready to help</span>
-                        </div>
+                    <div class="avatar-info">
+                        <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/avatars/avatar_1754861585921_AI%20assist%20left2.png" class="chat-avatar" alt="AI">
+                        <h3>🎤 AI Assistant</h3>
                     </div>
-                    <button class="close-btn" onclick="closeAIVoiceBot()">×</button>
+                    <button class="close-btn" onclick="closeAIChat()">❌</button>
                 </div>
 
-                <!-- Chat Messages -->
-                <div class="chat-messages" id="chatMessages">
-                    <div class="message ai-message">
-                        <div class="message-content">
-                            <p>Hi! I'm your AI accounting assistant for New Clients Inc. I can help with:</p>
-                            <ul>
-                                <li>Tax preparation and planning</li>
-                                <li>Bookkeeping services</li>
-                                <li>Business consulting</li>
-                                <li>Practice development</li>
-                            </ul>
-                            <p>How can I assist you today?</p>
+                <!-- VOICE INDICATOR -->
+                <div id="voiceIndicator" class="voice-indicator hidden">
+                    🎤 Listening... speak now
+                </div>
+
+                <!-- CHAT MESSAGES -->
+                <div id="chatMessages" class="chat-messages">
+                    <div class="ai-message">
+                        <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/avatars/avatar_1754861585921_AI%20assist%20left2.png" class="message-avatar" alt="AI">
+                        <div class="message-bubble">
+                            Hi! I'm your AI assistant for New Clients Inc. I can help with accounting questions, appointments, or testimonials. How can I help you today?
                         </div>
                     </div>
                 </div>
 
-                <!-- Chat Input -->
-                <div class="chat-input-area">
-                    <div class="input-container">
-                        <input type="text" id="chatInput" placeholder="Ask about accounting services or click mic to speak..." />
-                        <button class="mic-btn" id="micButton" onclick="toggleVoiceInput()">🎤</button>
-                        <button class="send-btn" onclick="sendChatMessage()">→</button>
-                    </div>
-                    <div class="voice-status" id="voiceStatus">Click microphone to speak</div>
+                <!-- CHAT INPUT -->
+                <div class="chat-input">
+                    <input type="text" id="chatInput" placeholder="Ask about accounting or click mic to speak..." onkeypress="if(event.key==='Enter') sendMessage()">
+                    <button id="micBtn" class="mic-btn" onclick="toggleVoice()">🎤</button>
+                    <button class="send-btn" onclick="sendMessage()">➤</button>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Voice Interview Modal -->
-    <div id="voiceInterviewModal" class="voice-interview-modal hidden">
-        <div class="interview-content">
-            <div class="interview-header">
-                <h3>🎤 Voice Interview</h3>
-                <button class="close-btn" onclick="closeVoiceInterview()">×</button>
-            </div>
-            <div class="interview-area">
-                <div class="interview-status" id="interviewStatus">Ready to start interview</div>
-                <div class="interview-question" id="currentQuestion"></div>
-                <div class="interview-controls">
-                    <button id="startInterview" class="interview-btn" onclick="startVoiceInterview()">Start Interview</button>
-                    <button id="stopInterview" class="interview-btn hidden" onclick="stopVoiceInterview()">End Interview</button>
-                </div>
-                <div class="interview-progress">
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="progressFill"></div>
-                    </div>
-                    <span id="progressText">0/5 questions</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Video Testimonial Modal -->
-    <div id="videoTestimonialModal" class="video-modal hidden">
-        <div class="video-modal-content">
-            <div class="video-header">
-                <h3>🎥 Share Your Experience</h3>
-                <button class="close-btn" onclick="closeVideoModal()">×</button>
-            </div>
-            <div class="video-container">
-                <video id="userVideo" autoplay muted></video>
-                <div class="video-controls">
-                    <button id="startRecording" class="record-btn">Start Recording</button>
-                    <button id="stopRecording" class="record-btn hidden">Stop Recording</button>
-                </div>
-                <div class="recording-status" id="recordingStatus">Ready to record</div>
             </div>
         </div>
     </div>
