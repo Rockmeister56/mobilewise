@@ -309,34 +309,23 @@ VoiceBot.activateMicrophone = function() {
 VoiceBot.activateVoice = function() {
     console.log('🎤 Voice activation clicked!');
     
-    // Enable voice in config
-    this.config.voiceEnabled = true;
-    
-   // Play avatar video when clicked
-if (this.elements.avatarVideo) {
-    this.elements.avatarVideo.currentTime = 0;
-    this.elements.avatarVideo.style.display = 'block';
-    this.elements.avatarVideo.play().then(() => {
-        console.log('✅ Avatar video is now playing!');
-    }).catch(error => {
-        console.log('❌ Avatar video play failed:', error);
-    });
-}
-    
-    // Add visual feedback
-    const button = document.getElementById('voiceActivationButton');
-    if (button) {
-        button.style.transform = 'scale(0.95)';
-        setTimeout(() => {
-            button.style.transform = 'scale(1)';
-        }, 150);
+    const avatarVideo = document.getElementById('avatarVideo');
+    if (avatarVideo) {
+        // Show and play the avatar
+        avatarVideo.style.display = 'block';
+        avatarVideo.currentTime = 0;
+        avatarVideo.muted = false; // Enable sound
+        avatarVideo.loop = false; // No looping
+        avatarVideo.play().then(() => {
+            console.log('✅ Avatar now visible and playing with sound!');
+        }).catch(error => {
+            console.log('❌ Avatar play failed:', error);
+        });
     }
     
-    // TODO: Initialize VAPI connection here
-    this.initializeVAPI();
+    // Enable voice in config
+    this.config.voiceEnabled = true;
 };
-
-
 
 VoiceBot.initializeVAPI = function() {
     console.log('🔌 Initializing VAPI connection...');
