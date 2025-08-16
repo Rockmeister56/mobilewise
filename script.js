@@ -95,14 +95,14 @@ function showStaticAvatar() {
     VoiceBot.showStaticAvatar();
 }
 
-VoiceBot.showStaticAvatar = function() {
-    if (this.elements.avatarVideo && this.elements.staticAvatar) {
-        this.elements.avatarVideo.style.display = 'none';
-        this.elements.staticAvatar.style.display = 'block';
-        this.config.avatarVideoPlayed = true;
-        console.log('👤 Switched to static avatar');
-    }
-};
+// VoiceBot.showStaticAvatar = function() {
+//     if (this.elements.avatarVideo && this.elements.staticAvatar) {
+//         this.elements.avatarVideo.style.display = 'none';
+//         this.elements.staticAvatar.style.display = 'block';
+//         this.config.avatarVideoPlayed = true;
+//         console.log('👤 Switched to static avatar');
+//     }
+// };
 
 // ===========================================
 // EVENT BINDING AND HANDLERS
@@ -309,6 +309,7 @@ VoiceBot.activateVoice = function() {
    // Play avatar video when clicked
 if (this.elements.avatarVideo) {
     this.elements.avatarVideo.currentTime = 0;
+    this.elements.avatarVideo.style.display = 'block';
     this.elements.avatarVideo.play().then(() => {
         console.log('✅ Avatar video is now playing!');
     }).catch(error => {
