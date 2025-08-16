@@ -345,6 +345,20 @@ VoiceBot.updateVoiceStatus = function(active) {
     }
 };
 
+VoiceBot.playAvatar = function() {
+    console.log('🎤 Microphone clicked - Playing avatar video');
+    
+    const avatarVideo = document.getElementById('avatarVideo');
+    if (avatarVideo) {
+        avatarVideo.currentTime = 0; // Start from beginning
+        avatarVideo.play().then(() => {
+            console.log('✅ Avatar video playing');
+        }).catch(error => {
+            console.log('❌ Video play error:', error);
+        });
+    }
+};
+
 // ===========================================
 // FORM HANDLING
 // ===========================================
