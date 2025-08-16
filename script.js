@@ -81,7 +81,7 @@ VoiceBot.setupAvatarVideo = function() {
         // Play video on load
         this.elements.avatarVideo.play().catch(error => {
             console.log('Auto-play blocked, showing static avatar');
-            this.showStaticAvatar();
+            showStaticAvatar();
         });
 
         // Handle video end
@@ -90,10 +90,9 @@ VoiceBot.setupAvatarVideo = function() {
         });
 
         // Handle video error
-        this.elements.avatarVideo.addEventListener('error', () => {
-            console.log('Video error, showing static avatar');
-            this.showStaticAvatar();
-        });
+        this.elements.avatarVideo.addEventListener('ended', () => {
+    showStaticAvatar(); // ✅ CALLS GLOBAL FUNCTION
+});
     }
 };
 
