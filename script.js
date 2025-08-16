@@ -336,6 +336,27 @@ if (this.elements.avatarVideo) {
     this.initializeVAPI();
 };
 
+showStaticAvatar() {
+    console.log('🔄 Switching to static avatar');
+    
+    if (this.elements.avatarVideo && this.elements.staticAvatar) {
+        // Hide video avatar
+        this.elements.avatarVideo.style.display = 'none';
+        this.elements.avatarVideo.pause();
+        
+        // Show static avatar
+        this.elements.staticAvatar.style.display = 'block';
+        this.elements.staticAvatar.style.cursor = 'pointer';
+        
+        // Mark as switched
+        this.isAvatarVideoPlayed = true;
+        
+        console.log('✅ Static avatar is now visible');
+    } else {
+        console.log('❌ Avatar elements not found');
+    }
+}
+
 VoiceBot.initializeVAPI = function() {
     console.log('🔌 Initializing VAPI connection...');
     
