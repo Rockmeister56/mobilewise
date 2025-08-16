@@ -198,10 +198,6 @@ VoiceBot.generateVoiceChatSlide = function() {
              alt="Voice Activation" 
              class="slide-graphic glow">
         
-        <button class="activate-mic-btn pulse" id="activateMicBtn" onclick="VoiceBot.activateMicrophone()">
-            🎤 ACTIVATE MIC HERE
-        </button>
-        
         <p class="instruction-text">
             Click the microphone to start<br>
             your AI voice conversation
@@ -296,32 +292,8 @@ VoiceBot.setActiveMenuItem = function(activeItem) {
 // ===========================================
 
 VoiceBot.activateMicrophone = function() {
-    console.log('🎤 Microphone clicked - Playing avatar video with audio');
-    
-    // Show and play avatar video with audio
-    const video = this.elements.avatarVideo;
-    const staticAvatar = this.elements.staticAvatar;
-    
-    if (video) {
-        // Hide static avatar, show video
-        staticAvatar.style.display = 'none';
-        video.style.display = 'block';
-        
-        // Play with audio (user clicked, so browsers allow it)
-        video.muted = false;
-        video.currentTime = 0; // Start from beginning
-        
-        video.play()
-            .then(() => {
-                console.log('🔊 Avatar speaking with audio!');
-                // TODO: Add voice recognition here after video ends
-            })
-            .catch(error => {
-                console.log('Video playback failed:', error);
-                // Fallback to static avatar
-                this.showStaticAvatar();
-            });
-    }
+    console.log('🎤 Microphone activation - functionality to be added');
+    alert('Voice functionality will be added in the next phase!');
 };
 
 // ===========================================
@@ -430,21 +402,6 @@ VoiceBot.finishReview = function() {
     alert('Thank you for your review! Your videos will be processed shortly.');
 };
 
-function testAvatarVideo() {
-    console.log('Testing avatar video...');
-    const video = document.getElementById('avatarVideo');
-    const img = document.getElementById('staticAvatar');
-    
-    if (video && img) {
-        img.style.display = 'none';
-        video.style.display = 'block';
-        video.play();
-        console.log('Video should be playing now');
-    } else {
-        console.log('Elements not found!', {video, img});
-    }
-}
-
 // ===========================================
 // RESPONSIVE AND UTILITY FUNCTIONS
 // ===========================================
@@ -498,30 +455,6 @@ VoiceBot.customizeForClient = function(clientConfig) {
     console.log('🎨 Client customization applied:', clientConfig);
 };
 
-// ===========================================
-// AVATAR AUDIO HANDLING
-// ===========================================
-
-VoiceBot.enableAudioAndReplay = function() {
-    const video = this.elements.avatarVideo;
-    if (video && video.muted) {
-        video.muted = false;
-        video.currentTime = 0; // Restart from beginning
-        video.play()
-            .then(() => {
-                console.log('🔊 Audio enabled - video replaying with sound');
-            })
-            .catch(error => {
-                console.log('Audio playback failed:', error);
-                video.muted = true; // Fallback to muted
-            });
-    }
-};
-
-// Global function for HTML onclick
-function enableAudioAndReplay() {
-    VoiceBot.enableAudioAndReplay();
-}
 
 VoiceBot.updateLogo = function(logoUrl) {
     const logo = document.querySelector('.nci-logo');
