@@ -410,15 +410,19 @@
             </div>
 
             <!-- AVATAR SECTION - NOW AT BOTTOM OF SIDEBAR -->
-     <div class="avatar-section">
+<div class="avatar-section">
+    <!-- Hidden video for later playback -->
     <video class="avatar-video" id="avatarVideo" style="display: none;" onended="showStaticAvatar()">
         <source src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1755291727816.mp4" type="video/mp4">
+        Your browser does not support the video tag.
     </video>
+    
+    <!-- Static image shown by default -->
     <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/avatars/avatar_1755209453856_avatar right.png" 
          alt="AI Assistant" 
          class="avatar-img"
          id="staticAvatar">
-  </div>
+</div>
         </div>
 
         <!-- Main Function Area -->
@@ -439,12 +443,6 @@
     </div>
 
     <!-- Link to External JavaScript File -->
-   <script>
-// Paste the entire JavaScript code here
-const VoiceBot = {
-    // ... all the JavaScript code I provided earlier
-};
-// ... rest of the JavaScript
-</script>
+    <script src="nci-voicebot.js"></script>
 </body>
 </html>
