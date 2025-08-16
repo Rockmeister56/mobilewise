@@ -98,7 +98,8 @@ VoiceBot.setupAvatarVideo = function() {
 
 // Global function for video onended (called from HTML)
 function showStaticAvatar() {
-    VoiceBot.showStaticAvatar();
+    // VoiceBot.showStaticAvatar(); // Method doesn't exist yet
+console.log('Video ended - static avatar should show');
 }
 
 // Comment out these lines that force static avatar:
