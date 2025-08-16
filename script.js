@@ -297,6 +297,55 @@ VoiceBot.activateMicrophone = function() {
 };
 
 // ===========================================
+// VOICE ACTIVATION FUNCTIONALITY
+// ===========================================
+
+VoiceBot.activateVoice = function() {
+    console.log('🎤 Voice activation clicked!');
+    
+    // Enable voice in config
+    this.config.voiceEnabled = true;
+    
+    // Play avatar video if not already played
+    if (this.elements.avatarVideo && !this.config.avatarVideoPlayed) {
+        this.elements.avatarVideo.play().catch(error => {
+            console.log('Video play failed:', error);
+        });
+    }
+    
+    // Add visual feedback
+    const button = document.getElementById('voiceActivationButton');
+    if (button) {
+        button.style.transform = 'scale(0.95)';
+        setTimeout(() => {
+            button.style.transform = 'scale(1)';
+        }, 150);
+    }
+    
+    // TODO: Initialize VAPI connection here
+    this.initializeVAPI();
+};
+
+VoiceBot.initializeVAPI = function() {
+    console.log('🔌 Initializing VAPI connection...');
+    
+    // Placeholder for VAPI integration
+    // This is where you'll add your VAPI connection code
+    alert('Voice activation successful! (VAPI integration ready to be added)');
+    
+    // Update UI to show voice is active
+    this.updateVoiceStatus(true);
+};
+
+VoiceBot.updateVoiceStatus = function(active) {
+    const instruction = document.querySelector('.instruction-text');
+    if (instruction && active) {
+        instruction.innerHTML = 'Voice activated! 🎤<br>Listening for your input...';
+        instruction.style.color = '#4CAF50';
+    }
+};
+
+// ===========================================
 // FORM HANDLING
 // ===========================================
 
