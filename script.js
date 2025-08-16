@@ -306,12 +306,15 @@ VoiceBot.activateVoice = function() {
     // Enable voice in config
     this.config.voiceEnabled = true;
     
-    // Play avatar video if not already played
-    if (this.elements.avatarVideo && !this.config.avatarVideoPlayed) {
-        this.elements.avatarVideo.play().catch(error => {
-            console.log('Video play failed:', error);
-        });
-    }
+   // Play avatar video when clicked
+if (this.elements.avatarVideo) {
+    this.elements.avatarVideo.currentTime = 0;
+    this.elements.avatarVideo.play().then(() => {
+        console.log('✅ Avatar video is now playing!');
+    }).catch(error => {
+        console.log('❌ Avatar video play failed:', error);
+    });
+}
     
     // Add visual feedback
     const button = document.getElementById('voiceActivationButton');
