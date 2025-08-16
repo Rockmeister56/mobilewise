@@ -3,96 +3,458 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NCI Client Website</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>NCI AI Voice Bot - Professional Template</title>
+    <style>
+        /* ===========================================
+           NCI AI VOICE BOT - TEMPLATE STYLES
+           Easy Client Customization Section
+           =========================================== */
+        
+        :root {
+            /* BRAND COLORS - Change these for different clients */
+            --primary-color: #2196F3;      /* NCI Blue */
+            --secondary-color: #4CAF50;    /* Green accents */
+            --sidebar-bg: rgba(0, 0, 0, 0.9);
+            --main-bg: linear-gradient(135deg, #0f1419, #1a1a2e);
+            --text-color: #ffffff;
+            
+            /* DIMENSIONS - Fixed for consistent experience */
+            --container-width: 820px;
+            --container-height: 550px;
+            --sidebar-width: 205px;
+            --main-width: 615px;
+        }
+
+        /* ===========================================
+           CORE STRUCTURE STYLES
+           =========================================== */
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .voice-bot-container {
+            width: var(--container-width);
+            height: var(--container-height);
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 15px;
+            display: flex;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        /* ===========================================
+           SIDEBAR MENU STYLES
+           =========================================== */
+        
+        .sidebar {
+            width: var(--sidebar-width);
+            height: var(--container-height);
+            background: var(--sidebar-bg);
+            border-right: 2px solid var(--primary-color);
+            display: flex;
+            flex-direction: column;
+            padding: 20px 0;
+            transition: left 0.3s ease;
+        }
+
+        .logo-section {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 0 20px;
+        }
+
+        .nci-logo {
+            width: 80px;
+            height: auto;
+            margin-bottom: 10px;
+            border-radius: 8px;
+        }
+
+        .company-name {
+            color: var(--primary-color);
+            font-size: 14px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .menu-items {
+            flex-grow: 1;
+            padding: 0 10px;
+            margin-bottom: 20px;
+        }
+
+        .menu-item {
+            display: block;
+            color: var(--text-color);
+            text-decoration: none;
+            padding: 15px 20px;
+            margin: 5px 0;
+            border-radius: 8px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .menu-item:hover {
+            border-color: var(--primary-color);
+            background: rgba(33, 150, 243, 0.1);
+            transform: translateX(5px);
+        }
+
+        .menu-item.active {
+            border-color: var(--secondary-color);
+            background: rgba(76, 175, 80, 0.15);
+            color: var(--secondary-color);
+            font-weight: bold;
+        }
+
+        /* ===========================================
+           AVATAR SECTION - NOW AT BOTTOM
+           =========================================== */
+        
+        .avatar-section {
+            text-align: center;
+            padding: 0 20px 20px 20px;
+            border-top: 1px solid rgba(33, 150, 243, 0.3);
+            margin-top: 10px;
+            padding-top: 20px;
+        }
+
+        .avatar-video {
+    width: 120px;
+    height: auto;
+    /* Removed border-radius, border, and box-shadow */
+    /* Black background will blend with sidebar */
+}
+
+.avatar-img {
+    width: 120px;
+    height: auto;
+    /* Removed border-radius, border, and box-shadow */
+    /* Black background will blend with sidebar */
+    display: none; /* Initially hidden, shown after video */
+}
+
+        /* ===========================================
+           MAIN FUNCTION AREA STYLES
+           =========================================== */
+        
+        .main-area {
+            width: var(--main-width);
+            height: var(--container-height);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            background: var(--main-bg);
+            position: relative;
+        }
+        .activate-mic-btn {
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    border: none;
+    padding: 20px 40px;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 8px 25px rgba(33, 150, 243, 0.4);
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 20px 0;
+}
+
+.activate-mic-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 35px rgba(33, 150, 243, 0.6);
+}
+
+.pulse {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 8px 25px rgba(33, 150, 243, 0.4); }
+    50% { box-shadow: 0 12px 35px rgba(33, 150, 243, 0.6); }
+    100% { box-shadow: 0 8px 25px rgba(33, 150, 243, 0.4); }
+}
+
+        .slide-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            width: 100%;
+        }
+
+        .slide-graphic {
+            width: 400px;
+            height: auto;
+            max-width: 90%;
+            margin-bottom: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(33, 150, 243, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .slide-graphic:hover {
+            transform: scale(1.02);
+        }
+
+        .instruction-text {
+            color: var(--text-color);
+            font-size: 18px;
+            text-align: center;
+            opacity: 0.9;
+            font-weight: 500;
+            line-height: 1.4;
+            margin-top: 20px;
+        }
+
+        /* ===========================================
+           MOBILE HAMBURGER MENU
+           =========================================== */
+        
+        .hamburger {
+            display: none;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: var(--primary-color);
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .hamburger:hover {
+            background: var(--secondary-color);
+            transform: scale(1.1);
+        }
+
+        .hamburger span {
+            display: block;
+            width: 25px;
+            height: 3px;
+            background: white;
+            margin: 4px 0;
+            transition: 0.3s;
+            border-radius: 2px;
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(-45deg) translate(-6px, 6px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(45deg) translate(-6px, -6px);
+        }
+
+        /* ===========================================
+           MOBILE RESPONSIVE STYLES
+           =========================================== */
+        
+        @media (max-width: 900px) {
+            .voice-bot-container {
+                width: 95%;
+                max-width: 820px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+                align-items: flex-start;
+                padding-top: 20px;
+            }
+
+            .voice-bot-container {
+                width: 100%;
+                height: 90vh;
+                max-height: 600px;
+                border-radius: 15px;
+                position: relative;
+            }
+
+            .hamburger {
+                display: block;
+            }
+
+            .sidebar {
+                position: absolute;
+                left: -100%;
+                top: 0;
+                z-index: 999;
+                box-shadow: 5px 0 15px rgba(0, 0, 0, 0.3);
+                border-radius: 0 15px 15px 0;
+            }
+
+            .sidebar.active {
+                left: 0;
+            }
+
+            .main-area {
+                width: 100%;
+                padding: 70px 20px 20px 20px;
+            }
+
+            .slide-graphic {
+                width: 90%;
+                max-width: 300px;
+                margin-bottom: 25px;
+            }
+
+            .instruction-text {
+                font-size: 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .voice-bot-container {
+                height: 95vh;
+                border-radius: 10px;
+            }
+
+            .slide-graphic {
+                width: 95%;
+                max-width: 250px;
+                margin-bottom: 20px;
+            }
+
+            .main-area {
+                padding: 60px 15px 15px 15px;
+            }
+
+            .instruction-text {
+                font-size: 14px;
+            }
+        }
+
+        /* ===========================================
+           LOADING AND ANIMATION STYLES
+           =========================================== */
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .glow {
+            box-shadow: 0 10px 30px rgba(33, 150, 243, 0.4);
+        }
+    </style>
 </head>
 <body>
-    <!-- CLIENT'S NCI BACKGROUND WEBSITE -->
-    <div class="client-website">
-        <div class="client-header">
-            <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1755211174291_NCI2.PNG" alt="NCI Logo" class="client-logo">
-            <h1>New Clients Inc</h1>
-        </div>
-        <div class="client-content">
-            <h2>Professional Accounting Services</h2>
-            <p>Welcome to New Clients Inc - Your trusted accounting partner</p>
-        </div>
-    </div>
+    <div class="voice-bot-container fade-in">
+        <!-- Mobile Hamburger Menu -->
+        <button class="hamburger" id="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
 
-    <!-- AI ACTIVATION BUTTON -->
-    <button id="aiActivateBtn" class="ai-activate-button" onclick="openAIChat()">
-        🎤 AI
-    </button>
-
-    <!-- AI CHAT POPUP OVERLAY -->
-    <div id="aiOverlay" class="ai-overlay hidden">
-        <div class="ai-popup">
-            <!-- BLACK TRANSPARENT SIDEBAR -->
-            <div class="sidebar">
-                <!-- NCI LOGO AT TOP -->
-                <div class="sidebar-logo">
-                    <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1755208928390_logo3.PNG" alt="NCI Logo">
-                </div>
-
-                <!-- MENU BUTTONS WITH BLUE BORDERS -->
-                <div class="menu-buttons">
-                    <button class="menu-btn">Activate AI Voice</button>
-                    <button class="menu-btn">Set Appointment</button>
-                    <button class="menu-btn">Request a Call</button>
-                    <button class="menu-btn">Send Message</button>
-                    <button class="menu-btn">Video Review</button>
-                </div>
-
-                <!-- SIDEBAR AVATAR -->
-                <div class="sidebar-avatar">
-                    <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/avatars/avatar_1755209453856_avatar%20right.png" alt="AI Assistant">
-                </div>
+        <!-- Sidebar Menu -->
+        <div class="sidebar" id="sidebar">
+            <div class="logo-section">
+                <!-- CLIENT CUSTOMIZATION: Replace logo URL here -->
+                <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1755208928390_logo3.PNG" 
+                     alt="NCI Logo" 
+                     class="nci-logo">
+                <div class="company-name">New Clients Inc</div>
             </div>
 
-            <!-- CHAT AREA -->
-            <div class="chat-area">
-                <!-- TOPIC SUGGESTION BUTTONS -->
-                <div class="topic-buttons">
-                    <button class="topic-btn" onclick="askTopic('Tax Prep')">📊 Tax Prep</button>
-                    <button class="topic-btn" onclick="askTopic('Bookkeeping')">📚 Bookkeeping</button>
-                    <button class="topic-btn" onclick="askTopic('Business')">💼 Business</button>
-                    <button class="topic-btn" onclick="askTopic('Growth')">📈 Growth</button>
-                </div>
+            <div class="menu-items">
+                <a href="#" class="menu-item active" data-slide="voice-chat">
+                    🎤 AI Voice Chat
+                </a>
+                <a href="#" class="menu-item" data-slide="request-call">
+                    📞 Request a Call
+                </a>
+                <a href="#" class="menu-item" data-slide="send-message">
+                    💬 Send Message
+                </a>
+                <a href="#" class="menu-item" data-slide="leave-review">
+                    ⭐ Leave a Review
+                </a>
+            </div>
 
-                <!-- CHAT HEADER -->
-                <div class="chat-header">
-                    <div class="avatar-info">
-                        <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/avatars/avatar_1754861585921_AI%20assist%20left2.png" class="chat-avatar" alt="AI">
-                        <h3>🎤 AI Assistant</h3>
-                    </div>
-                    <button class="close-btn" onclick="closeAIChat()">❌</button>
-                </div>
+            <!-- AVATAR SECTION - NOW AT BOTTOM OF SIDEBAR -->
+     <div class="avatar-section">
+    <video class="avatar-video" id="avatarVideo" style="display: none;" onended="showStaticAvatar()">
+        <source src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1755291727816.mp4" type="video/mp4">
+    </video>
+    <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/avatars/avatar_1755209453856_avatar right.png" 
+         alt="AI Assistant" 
+         class="avatar-img"
+         id="staticAvatar">
+  </div>
+        </div>
 
-                <!-- VOICE INDICATOR -->
-                <div id="voiceIndicator" class="voice-indicator hidden">
-                    🎤 Listening... speak now
-                </div>
-
-                <!-- CHAT MESSAGES -->
-                <div id="chatMessages" class="chat-messages">
-                    <div class="ai-message">
-                        <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/avatars/avatar_1754861585921_AI%20assist%20left2.png" class="message-avatar" alt="AI">
-                        <div class="message-bubble">
-                            Hi! I'm your AI assistant for New Clients Inc. I can help with accounting questions, appointments, or testimonials. How can I help you today?
-                        </div>
-                    </div>
-                </div>
-
-                <!-- CHAT INPUT -->
-                <div class="chat-input">
-                    <input type="text" id="chatInput" placeholder="Ask about accounting or click mic to speak..." onkeypress="if(event.key==='Enter') sendMessage()">
-                    <button id="micBtn" class="mic-btn" onclick="toggleVoice()">🎤</button>
-                    <button class="send-btn" onclick="sendMessage()">➤</button>
-                </div>
+        <!-- Main Function Area -->
+        <div class="main-area" id="mainArea">
+            <div class="slide-content" id="slideContent">
+                <!-- CLIENT CUSTOMIZATION: Replace slide graphic URL here -->
+                <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1755253677674_slide1-graphic.PNG" 
+                     alt="Voice Activation" 
+                     class="slide-graphic glow">
+                
+                <!-- TEXT INSTEAD OF BUTTON -->
+                <p class="instruction-text">
+                    Click the microphone to start<br>
+                    your AI voice conversation
+                </p>
             </div>
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <!-- Link to External JavaScript File -->
+   <script>
+// Paste the entire JavaScript code here
+const VoiceBot = {
+    // ... all the JavaScript code I provided earlier
+};
+// ... rest of the JavaScript
+</script>
+<script>
+console.log('JavaScript is loading...');
+function testClick() {
+    alert('Button clicked!');
+    const video = document.getElementById('avatarVideo');
+    const img = document.getElementById('staticAvatar');
+    console.log('Video element:', video);
+    console.log('Image element:', img);
+}
+</script>
 </body>
 </html>
