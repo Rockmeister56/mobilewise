@@ -54,23 +54,40 @@ const VoiceBot = {
     },
 
     // Cache DOM elements for performance
-    cacheDOMElements() {
-        this.elements.hamburger = document.getElementById('hamburger');
-        this.elements.sidebar = document.getElementById('sidebar');
-        this.elements.mainArea = document.getElementById('mainArea');
-        this.elements.slideContent = document.getElementById('slideContent');
-        this.elements.menuItems = document.querySelectorAll('.menu-item');
-        this.elements.avatarVideo = document.getElementById('avatarVideo');
-        this.elements.staticAvatar = document.getElementById('staticAvatar');
-        // Force avatar video to be ready for click
-if (this.elements.avatarVideo) {
-    this.elements.avatarVideo.style.display = 'block';
-    this.elements.avatarVideo.style.cursor = 'pointer';
-    this.elements.avatarVideo.muted = true; // Helps with autoplay policies
-    this.elements.avatarVideo.load(); // Preload the video
-}
+cacheDOMElements() {
+    this.elements.hamburger = document.getElementById('hamburger');
+    this.elements.sidebar = document.getElementById('sidebar');
+    this.elements.mainArea = document.getElementById('mainArea');
+    this.elements.slideContent = document.getElementById('slideContent');
+    this.elements.menuItems = document.querySelectorAll('.menu-item');
+    this.elements.avatarVideo = document.getElementById('avatarVideo');
+    this.elements.staticAvatar = document.getElementById('staticAvatar');
+    
+    // 🚨 CRITICAL: Prevent auto-play and setup avatar properly
+    if (this.elements.avatarVideo) {
+        // DISABLE ALL AUTO-PLAY BEHAVIOR
+        this.elements.avatarVideo.autoplay = false;  // ⚡ CRITICAL FIX!
+        this.elements.avatarVideo.muted = true;
+        this.elements.avatarVideo.loop = false;      // ⚡ PREVENT LOOPING!
+        this.elements.avatarVideo.preload = 'metadata'; // Load metadata only
+        
+        // FORCE PAUSE AND RESET
+        this.elements.avatarVideo.pause();           // ⚡ FORCE PAUSE!
+        this.elements.avatarVideo.currentTime = 0;   // ⚡ RESET TO START!
+        
+        // SETUP FOR CLICK INTERACTION
+        this.elements.avatarVideo.style.display = 'block';
+        this.elements.avatarVideo.style.cursor = 'pointer';
+        
+        console.log('✅ Avatar video setup: AUTO-PLAY DISABLED');
     }
-};
+    
+    // Setup static avatar as fallback
+    if (this.elements.staticAvatar) {
+        this.elements.staticAvatar.style.cursor = 'pointer';
+        this.elements.staticAvatar.style.display = 'none'; // Hidden initially
+    }
+}
 
 // ===========================================
 // AVATAR VIDEO FUNCTIONALITY
