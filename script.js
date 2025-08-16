@@ -62,6 +62,13 @@ const VoiceBot = {
         this.elements.menuItems = document.querySelectorAll('.menu-item');
         this.elements.avatarVideo = document.getElementById('avatarVideo');
         this.elements.staticAvatar = document.getElementById('staticAvatar');
+        // Force avatar video to be ready for click
+if (this.elements.avatarVideo) {
+    this.elements.avatarVideo.style.display = 'block';
+    this.elements.avatarVideo.style.cursor = 'pointer';
+    this.elements.avatarVideo.muted = true; // Helps with autoplay policies
+    this.elements.avatarVideo.load(); // Preload the video
+}
     }
 };
 
@@ -95,14 +102,13 @@ function showStaticAvatar() {
     VoiceBot.showStaticAvatar();
 }
 
-// VoiceBot.showStaticAvatar = function() {
-//     if (this.elements.avatarVideo && this.elements.staticAvatar) {
-//         this.elements.avatarVideo.style.display = 'none';
-//         this.elements.staticAvatar.style.display = 'block';
-//         this.config.avatarVideoPlayed = true;
-//         console.log('👤 Switched to static avatar');
-//     }
-// };
+// Comment out these lines that force static avatar:
+// if (this.elements.avatarVideo && this.elements.staticAvatar) {
+//     this.elements.avatarVideo.style.display = 'none';
+//     this.elements.staticAvatar.style.display = 'block';
+//     this.isAvatarVideoPlayed = true;
+//     console.log('🔄 Switched to static avatar');
+// }
 
 // ===========================================
 // EVENT BINDING AND HANDLERS
