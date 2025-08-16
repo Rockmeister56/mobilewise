@@ -202,7 +202,9 @@ VoiceBot.generateVoiceChatSlide = function() {
     return `
         <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1755253677674_slide1-graphic.PNG" 
              alt="Voice Activation" 
-             class="slide-graphic glow">
+             class="slide-graphic glow"
+             onclick="VoiceBot.activateVoice()"
+             style="cursor: pointer;">
         
         <p class="instruction-text">
             Click the microphone to start<br>
@@ -312,6 +314,7 @@ VoiceBot.activateVoice = function() {
     const avatarVideo = document.getElementById('avatarVideo');
     if (avatarVideo) {
         // Show and play the avatar
+        avatarVideo.style.visibility = 'visible'; // Make it visible
         avatarVideo.style.display = 'block';
         avatarVideo.currentTime = 0;
         avatarVideo.muted = false; // Enable sound

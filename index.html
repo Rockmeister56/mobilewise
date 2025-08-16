@@ -158,9 +158,10 @@
     user-select: none;
 }
 
-/* Hide avatar until activated */
+/* Initially hide avatar - but allow it to be shown */
 #avatarVideo {
-    display: none !important;
+    display: block;
+    visibility: hidden; /* Use visibility instead of display */
 }
 
 #staticAvatar {
