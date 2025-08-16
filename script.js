@@ -10,6 +10,17 @@
 // GLOBAL VARIABLES AND CONFIGURATION
 // ===========================================
 
+// ===========================================
+// ELEVENLABS CONFIGURATION - ADD THIS FIRST
+// ===========================================
+const ELEVENLABS_API_KEY = 'sk_9e7fa2741be74e8cc4af95744fe078712c1e8201cdcada93';
+const VOICE_ID = 'zGjIP4SZlMnY9m93k97r'; // Hope voice
+
+// CHAT SYSTEM VARIABLES - ADD THESE TOO
+let recognition = null;
+let isListening = false;
+let isVoiceChatMode = false;
+
 const VoiceBot = {
     // Configuration
     config: {
@@ -96,6 +107,38 @@ VoiceBot.setupAvatarVideo = function() {
     }
 };
 
+// ===========================================
+// SPEECH RECOGNITION SETUP - ADD THIS ENTIRE SECTION
+// ===========================================
+VoiceBot.initializeSpeechRecognition = function() {
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        recognition.continuous = false;
+        recognition.interimResults = true;
+        recognition.lang = 'en-US';
+
+        recognition.onresult = function(event) {
+            const transcript = event.results[0][0].transcript.trim();
+            console.log('🎤 Speech recognized:', transcript);
+            
+            if (isVoiceChatMode) {
+                handleVoiceChatInput(transcript);
+            }
+        };
+
+        recognition.onend = function() {
+            isListening = false;
+            updateListenButton();
+        };
+
+        recognition.onerror = function(event) {
+            console.log('Speech recognition error:', event.error);
+            isListening = false;
+            updateListenButton();
+        };
+    }
+};
+
 // Global function for video onended (called from HTML)
 function showStaticAvatar() {
     // VoiceBot.showStaticAvatar(); // Method doesn't exist yet
@@ -125,7 +168,14 @@ VoiceBot.bindEvents = function() {
         item.addEventListener('click', (e) => {
             e.preventDefault();
             const slideType = item.dataset.slide;
-            this.loadSlide(slideType);
+            
+            // 🚀 NEW: If it's AI Voice Chat, open chat interface!
+            if (slideType === 'voice-chat') {
+                this.startQuestionChat();
+            } else {
+                this.loadSlide(slideType);
+            }
+            
             this.setActiveMenuItem(item);
             this.closeMobileMenu();
         });
@@ -141,6 +191,376 @@ VoiceBot.bindEvents = function() {
 
     // Keyboard shortcuts
     document.addEventListener('keydown', (e) => this.handleKeyboardShortcuts(e));
+};
+
+// ===========================================
+// ELEVENLABS VOICE FUNCTION - ADD THIS
+// ===========================================
+async function speakWithElevenLabs(message) {
+    try {
+        console.log('🎤 Generating ElevenLabs voice for:', message);
+        
+        const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'audio/mpeg',
+                'Content-Type': 'application/json',
+                'xi-api-key': ELEVENLABS_API_KEY
+            },
+            body: JSON.stringify({
+                text: message,
+                model_id: 'eleven_monolingual_v1',
+                voice_settings: {
+                    stability: 0.5,
+                    similarity_boost: 0.75,
+                    style: 0.0,
+                    use_speaker_boost: true
+                }
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`ElevenLabs API error: ${response.status}`);
+        }
+        
+        const audioBlob = await response.blob();
+        const audioUrl = URL.createObjectURL(audioBlob);
+        const audio = new Audio(audioUrl);
+        audio.volume = 0.9;
+        
+        audio.onended = () => {
+            URL.revokeObjectURL(audioUrl);
+            console.log('✅ ElevenLabs voice completed');
+        };
+        
+        await audio.play();
+        console.log('🎵 ElevenLabs audio playing...');
+        
+    } catch (error) {
+        console.log('ElevenLabs failed:', error);
+        // Fallback to browser speech if needed
+        if (window.speechSynthesis) {
+            const utterance = new SpeechSynthesisUtterance(message);
+            window.speechSynthesis.speak(utterance);
+        }
+    }
+}
+
+// ===========================================
+// CHAT INTERFACE SYSTEM - ADD THIS ENTIRE SECTION
+// ===========================================
+VoiceBot.startQuestionChat = function() {
+    this.closeAllAIInterfaces();
+    this.createEnhancedChatInterface();
+    
+    setTimeout(() => {
+        this.addAIMessage("Hi! I'm your mortgage expert with a headset ready to help! You can type questions or click the microphone to speak with me! 🎤");
+        this.addAIMessage("I can help with: Loan types, qualification, down payments, interest rates, and more!");
+        this.showMortgageQuickOptions(); // ← YOUR QUICK BUTTONS!
+        speakWithElevenLabs("Hi! I'm your mortgage expert ready to help! You can type questions or click the microphone to speak with me!");
+    }, 500);
+};
+
+VoiceBot.createEnhancedChatInterface = function() {
+    const chatHTML = `
+        <div id="aiChatInterface" style="
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 90%; max-width: 500px; height: 600px; background: white; 
+            border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            z-index: 10000; display: flex; flex-direction: column;
+        ">
+            <!-- Enhanced Header with Avatar -->
+            <div style="
+                background: linear-gradient(135deg, #2196F3, #1976D2); color: white; 
+                padding: 15px; border-radius: 15px 15px 0 0; position: relative;
+                display: flex; align-items: center; justify-content: space-between;
+            ">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/avatars/avatar_1754810337622_AI%20assist%20head%20left.png" 
+                         style="width: 40px; height: 40px; border-radius: 50%; border: 2px solid white;">
+                    <h3 style="margin: 0; font-size: 18px;">🎤 AI Voice-Bot</h3>
+                </div>
+                
+                <button onclick="VoiceBot.closeAllAIInterfaces()" style="
+                    background: none; border: none; color: white; font-size: 20px; cursor: pointer;
+                ">❌</button>
+            </div>
+            
+            <!-- Chat Messages -->
+            <div id="chatMessages" style="
+                flex: 1; padding: 15px; overflow-y: auto; background: #f8f9fa;
+            "></div>
+            
+            <!-- Voice Indicator -->
+            <div id="voiceIndicator" style="
+                display: none; padding: 10px; background: #e8f5e8; border-top: 1px solid #ddd;
+                text-align: center; color: #4CAF50; font-weight: bold;
+            ">
+                🎤 Listening... (speak now)
+            </div>
+            
+            <!-- Enhanced Input Area with Custom Mic -->
+            <div style="padding: 15px; border-top: 1px solid #eee; background: white; border-radius: 0 0 15px 15px;">
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <input type="text" id="userChatInput" placeholder="Ask about mortgages or click mic to speak..." 
+                           style="flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 20px; font-size: 14px;"
+                           onkeypress="if(event.key==='Enter') VoiceBot.sendChatMessage()">
+                    
+                    <!-- Custom Mic Button -->
+                    <button id="voiceChatButton" onclick="VoiceBot.toggleVoiceChat()" style="
+                        background: none; border: none; cursor: pointer; padding: 5px;
+                        transition: all 0.3s; border-radius: 50%;
+                    " title="Click to speak">
+                        <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1754909837912_mic4.PNG" 
+                             style="width: 50px; height: 50px;" id="micIcon">
+                    </button>
+                    
+                    <button onclick="VoiceBot.sendChatMessage()" style="
+                        background: #2196F3; color: white; border: none; border-radius: 50%;
+                        width: 45px; height: 45px; cursor: pointer; font-size: 16px;
+                    ">➤</button>
+                </div>
+                <div style="margin-top: 8px; font-size: 12px; color: #666; text-align: center;">
+                    💡 Tip: Click the microphone and speak your question!
+                </div>
+            </div>
+        </div>
+        
+        <div id="aiBackdrop" onclick="VoiceBot.closeAllAIInterfaces()" style="
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); z-index: 9999;
+        "></div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', chatHTML);
+    isVoiceChatMode = true;
+    document.getElementById('userChatInput').focus();
+};
+
+// ===========================================
+// CHAT MESSAGING FUNCTIONS - ADD THIS
+// ===========================================
+VoiceBot.sendChatMessage = function() {
+    const input = document.getElementById('userChatInput');
+    if (!input) return;
+    
+    const message = input.value.trim();
+    if (!message) return;
+    
+    this.addUserMessage(message);
+    input.value = '';
+    
+    setTimeout(() => {
+        const response = this.getSmartAIResponse(message);
+        this.addAIMessage(response);
+        speakWithElevenLabs(response); // Use ElevenLabs for responses
+    }, 800);
+};
+
+VoiceBot.addAIMessage = function(message) {
+    const chatMessages = document.getElementById('chatMessages');
+    if (!chatMessages) return;
+    
+    chatMessages.insertAdjacentHTML('beforeend', `
+        <div style="margin-bottom: 15px;">
+            <div style="display: flex; align-items: flex-start; gap: 10px;">
+                <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/avatars/avatar_1754810337622_AI%20assist%20head%20left.png" 
+                     style="width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;">
+                <div style="
+                    background: #e8f5e8; padding: 12px 16px; border-radius: 15px 15px 15px 5px;
+                    max-width: 75%; font-size: 14px; line-height: 1.4; word-wrap: break-word;
+                ">${message}</div>
+            </div>
+        </div>
+    `);
+    this.scrollChatToBottom();
+};
+
+VoiceBot.addUserMessage = function(message) {
+    const chatMessages = document.getElementById('chatMessages');
+    if (!chatMessages) return;
+    
+    chatMessages.insertAdjacentHTML('beforeend', `
+        <div style="margin-bottom: 15px; text-align: right;">
+            <div style="display: flex; align-items: flex-start; gap: 10px; justify-content: flex-end;">
+                <div style="
+                    background: #2196f3; color: white; padding: 12px 16px; 
+                    border-radius: 15px 15px 5px 15px; max-width: 75%; 
+                    font-size: 14px; line-height: 1.4; word-wrap: break-word;
+                ">${message}</div>
+                <div style="
+                    background: #2196f3; color: white; border-radius: 50%; 
+                    width: 30px; height: 30px; display: flex; align-items: center; 
+                    justify-content: center; font-size: 14px; flex-shrink: 0;
+                ">👤</div>
+            </div>
+        </div>
+    `);
+    this.scrollChatToBottom();
+};
+
+// ===========================================
+// QUICK TOPIC BUTTONS - YOUR REQUESTED FEATURE!
+// ===========================================
+VoiceBot.showMortgageQuickOptions = function() {
+    const options = `
+        <div style="margin: 15px 0;">
+            <p style="font-size: 12px; color: #666; margin-bottom: 8px;">Quick topics:</p>
+            <button onclick="VoiceBot.askQuickQuestion('What credit score do I need?')" class="chat-quick-btn">📊 Credit Score</button>
+            <button onclick="VoiceBot.askQuickQuestion('What loan types are available?')" class="chat-quick-btn">🏠 Loan Types</button>
+            <button onclick="VoiceBot.askQuickQuestion('How much down payment?')" class="chat-quick-btn">💰 Down Payment</button>
+            <button onclick="VoiceBot.askQuickQuestion('What are current rates?')" class="chat-quick-btn">📈 Interest Rates</button>
+        </div>
+        
+        <style>
+            .chat-quick-btn {
+                background: #e3f2fd; border: 1px solid #2196f3; border-radius: 20px;
+                padding: 6px 12px; margin: 2px; font-size: 11px; cursor: pointer;
+                color: #1976d2; transition: all 0.3s;
+            }
+            .chat-quick-btn:hover {
+                background: #2196f3; color: white; transform: scale(1.05);
+            }
+        </style>
+    `;
+    
+    const chatMessages = document.getElementById('chatMessages');
+    if (chatMessages) {
+        chatMessages.insertAdjacentHTML('beforeend', options);
+        this.scrollChatToBottom();
+    }
+};
+
+VoiceBot.askQuickQuestion = function(question) {
+    this.addUserMessage(question);
+    setTimeout(() => {
+        const response = this.getSmartAIResponse(question);
+        this.addAIMessage(response);
+        speakWithElevenLabs(response);
+    }, 800);
+};
+
+// ===========================================
+// VOICE CHAT FUNCTIONS - ADD THIS
+// ===========================================
+VoiceBot.toggleVoiceChat = function() {
+    if (isListening) {
+        this.stopVoiceChatListening();
+    } else {
+        this.startVoiceChatListening();
+    }
+};
+
+VoiceBot.startVoiceChatListening = function() {
+    if (!recognition) {
+        this.addAIMessage("Sorry, voice recognition isn't supported in your browser. Please type your question instead.");
+        return;
+    }
+    
+    isListening = true;
+    const indicator = document.getElementById('voiceIndicator');
+    const micIcon = document.getElementById('micIcon');
+    
+    if (indicator) indicator.style.display = 'block';
+    if (micIcon) {
+        micIcon.style.filter = 'brightness(0.7) sepia(1) hue-rotate(340deg) saturate(2)';
+    }
+    
+    try {
+        recognition.start();
+        console.log('✅ Speech recognition started');
+    } catch (error) {
+        console.log('Recognition start error:', error);
+        this.stopVoiceChatListening();
+    }
+};
+
+VoiceBot.stopVoiceChatListening = function() {
+    isListening = false;
+    if (recognition) {
+        try {
+            recognition.stop();
+        } catch (error) {
+            console.log('Recognition stop error:', error);
+        }
+    }
+    updateListenButton();
+};
+
+// Global functions needed for speech recognition
+function updateListenButton() {
+    const indicator = document.getElementById('voiceIndicator');
+    const micIcon = document.getElementById('micIcon');
+    
+    if (indicator) indicator.style.display = 'none';
+    if (micIcon) {
+        micIcon.style.filter = 'none';
+    }
+}
+
+function handleVoiceChatInput(transcript) {
+    VoiceBot.addUserMessage(transcript);
+    
+    setTimeout(() => {
+        const response = VoiceBot.getSmartAIResponse(transcript);
+        VoiceBot.addAIMessage(response);
+        speakWithElevenLabs(response);
+    }, 800);
+    
+    VoiceBot.stopVoiceChatListening();
+}
+
+// ===========================================
+// AI RESPONSE SYSTEM - ADD THIS
+// ===========================================
+VoiceBot.getSmartAIResponse = function(message) {
+    const msg = message.toLowerCase();
+    
+    const responses = {
+        "hello": "Hello! How can I help with your mortgage questions today?",
+        "hi": "Hi there! What mortgage questions can I answer for you?",
+        "rate": "Current rates for a 30-year fixed mortgage start at 6.25%. Would you like me to check your specific rate?",
+        "document": "Based on your application, we need your W-2, recent pay stubs, and bank statements. Is there a specific document you're asking about?",
+        "closing": "Your closing is scheduled for March 15th. All required documents should be submitted by March 10th.",
+        "payment": "Your estimated monthly payment is $1,850 including principal, interest, taxes, and insurance.",
+        "qualification": "You need good credit, stable income, acceptable debt-to-income ratio, and down payment. Most programs require 580+ credit score.",
+        "credit score": "Credit requirements: Conventional (620+), FHA (580+), VA (no minimum), USDA (640+). Higher scores get better rates!",
+        "down payment": "Down payments range from 0-20%. FHA needs just 3.5%, conventional starts at 3%, VA and USDA can be 0%.",
+        "loan types": "Main types are: Conventional (3% down, 620+ credit), FHA (3.5% down, 580+ credit), VA (0% down for veterans), and USDA (0% down, rural areas)."
+    };
+    
+    for (const [key, value] of Object.entries(responses)) {
+        if (msg.includes(key)) {
+            return value;
+        }
+    }
+    
+    return "Great question! I'm here to help with mortgages, loan types, qualification, rates, and home buying. Could you be more specific? For example, ask me 'What credit score do I need?' or 'What are current rates?'";
+};
+
+// ===========================================
+// UTILITY FUNCTIONS - ADD THIS
+// ===========================================
+VoiceBot.scrollChatToBottom = function() {
+    const chatMessages = document.getElementById('chatMessages');
+    if (chatMessages) {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+};
+
+VoiceBot.closeAllAIInterfaces = function() {
+    const interfaces = ['aiChatInterface', 'aiBackdrop'];
+    interfaces.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) element.remove();
+    });
+    
+    if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+    }
+    
+    isListening = false;
+    isVoiceChatMode = false;
 };
 
 // ===========================================
@@ -330,16 +750,7 @@ VoiceBot.activateVoice = function() {
     this.config.voiceEnabled = true;
 };
 
-VoiceBot.initializeVAPI = function() {
-    console.log('🔌 Initializing VAPI connection...');
-    
-    // Placeholder for VAPI integration
-    // This is where you'll add your VAPI connection code
-    alert('Voice activation successful! (VAPI integration ready to be added)');
-    
-    // Update UI to show voice is active
-    this.updateVoiceStatus(true);
-};
+VoiceBot.init
 
 VoiceBot.updateVoiceStatus = function(active) {
     const instruction = document.querySelector('.instruction-text');
