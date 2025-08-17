@@ -328,6 +328,18 @@ VoiceBot.generateChatSlide = function() {
             border: 1px solid #ddd; border-radius: 10px; padding: 15px; 
             margin-bottom: 15px;
         ">
+            <!-- Initial AI Messages -->
+            <div style="margin-bottom: 15px;">
+                <div style="display: flex; align-items: flex-start; gap: 10px;">
+                    <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/avatars/avatar_1754810337622_AI%20assist%20head%20left.png" 
+                         style="width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;">
+                    <div style="
+                        background: #e8f5e8; padding: 12px 16px; border-radius: 15px 15px 15px 5px;
+                        max-width: 75%; font-size: 14px; line-height: 1.4; word-wrap: break-word;
+                    ">Hi! I'm your mortgage expert ready to help! You can type questions or click the microphone to speak with me! 🎤</div>
+                </div>
+            </div>
+        </div>
 
         <!-- Voice Indicator Banner - IMPROVED -->
 <div id="voiceIndicator" style="
