@@ -136,15 +136,16 @@ function initializeSpeechRecognition() {
         };
 
         recognition.onend = function() {
-            console.log('🎤 Speech recognition ended');
-            isListening = false;
-            
-            if (isAudioMode && !currentAudio) {
-                setTimeout(() => {
-                    startListening();
-                }, 2000);
-            }
-        };
+    console.log('🎤 Speech recognition ended');
+    isListening = false;
+    recognitionActive = false; // Mark as inactive
+    
+    if (isAudioMode && !currentAudio) {
+        setTimeout(() => {
+            startListening();
+        }, 2000);
+    }
+};
 
         recognition.onerror = function(event) {
             console.log('🚫 Speech recognition error:', event.error);
