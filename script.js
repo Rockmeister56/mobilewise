@@ -203,6 +203,11 @@ VoiceBot.loadSlide = function(slideType) {
         // Bind new event listeners for the loaded slide
         this.bindSlideEvents(slideType);
         
+        // 🚀 NEW: Auto-initialize chat if it's the chat slide
+        if (slideType === 'chat-interface') {
+            this.initializeChatSlide();
+        }
+        
     }, 200);
 };
 
@@ -336,14 +341,22 @@ VoiceBot.generateChatSlide = function() {
             </div>
         </div>
 
-        <!-- Voice Indicator -->
-        <div id="voiceIndicator" style="
-            display: none; padding: 10px; background: #e8f5e8; border: 1px solid #4CAF50;
-            border-radius: 8px; text-align: center; color: #4CAF50; font-weight: bold; margin-bottom: 10px;
-        ">
-            🎤 Listening... (speak now)
-        </div>
+        <!-- Voice Indicator Banner - IMPROVED -->
+<div id="voiceIndicator" style="
+    display: none; padding: 12px; background: #e8f5e8; border: 2px solid #4CAF50;
+    border-radius: 8px; text-align: center; color: #4CAF50; font-weight: bold; 
+    margin-bottom: 15px; font-size: 16px; animation: pulse 1.5s infinite;
+">
+    🎤 Listening... (speak now)
+</div>
 
+<style>
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+</style>
         <!-- Input Area -->
         <div style="display: flex; gap: 10px; align-items: center;">
             <input type="text" id="userChatInput" placeholder="Ask about mortgages or click mic to speak..." 
@@ -380,6 +393,20 @@ VoiceBot.generateChatSlide = function() {
             }
         </style>
     `;
+};
+
+// ===========================================
+// AUTO-WELCOME MESSAGE - ADD THIS FUNCTION
+// ===========================================
+VoiceBot.initializeChatSlide = function() {
+    console.log('🎤 Initializing chat slide...');
+    
+    // Add welcome message automatically
+    setTimeout(() => {
+        const welcomeMessage = "Hi! I'm your mortgage expert with a headset ready to help! You can type questions or click the microphone to speak with me!";
+        this.addAIMessage(welcomeMessage);
+        this.speakResponse(welcomeMessage);
+    }, 500);
 };
 
 
@@ -786,9 +813,67 @@ VoiceBot.scrollChatToBottom = function() {
     }
 };
 
+// ===========================================
+// IMPROVED VOICE FUNCTIONALITY - REPLACE EXISTING
+// ===========================================
 VoiceBot.toggleVoiceChat = function() {
-    // Voice functionality to be added later
-    console.log('Voice chat clicked - functionality coming soon!');
+    const indicator = document.getElementById('voiceIndicator');
+    const micButton = document.getElementById('voiceChatButton');
+    const micImg = document.getElementById('micIcon');
+    
+    if (!isListening) {
+        // Start listening
+        isListening = true;
+        console.log('🎤 Voice listening started...');
+        
+        // Show voice indicator banner
+        if (indicator) {
+            indicator.style.display = 'block';
+            indicator.innerHTML = '🎤 Listening... (speak now)';
+        }
+        
+        // Change mic button to red/recording state
+        if (micButton) {
+            micButton.style.background = '#f44336';
+            micButton.title = 'Click to stop listening';
+        }
+        if (micImg) {
+            micImg.style.filter = 'brightness(0) saturate(100%) invert(100%)'; // Make white
+        }
+        
+        // Auto-stop after 5 seconds (you can adjust this)
+        setTimeout(() => {
+            if (isListening) {
+                this.stopVoiceChat();
+            }
+        }, 5000);
+        
+    } else {
+        this.stopVoiceChat();
+    }
+};
+
+VoiceBot.stopVoiceChat = function() {
+    isListening = false;
+    console.log('🎤 Voice listening stopped.');
+    
+    const indicator = document.getElementById('voiceIndicator');
+    const micButton = document.getElementById('voiceChatButton');
+    const micImg = document.getElementById('micIcon');
+    
+    // Hide voice indicator banner
+    if (indicator) {
+        indicator.style.display = 'none';
+    }
+    
+    // Reset mic button to normal state
+    if (micButton) {
+        micButton.style.background = 'none';
+        micButton.title = 'Click to speak';
+    }
+    if (micImg) {
+        micImg.style.filter = 'none'; // Reset to normal
+    }
 };
 
 // Export for global access (if needed)
