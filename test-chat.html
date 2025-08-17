@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NCI Business Chat Interface</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a2e;
+            overflow: hidden;
+        }
+
+        .interface-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .background-interface {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .background-interface img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Chat Container - Positioned over the interface */
+        .chat-container {
+            position: absolute;
+            top: 50%;
+            left: 60%;
+            transform: translate(-50%, -50%);
+            width: 577px;
+            height: 524px;
+            background: rgba(20, 20, 35, 0.95);
+            border: 2px solid #8B7355;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Splash Screen */
+        .splash-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(10, 10, 20, 0.98);
+            border-radius: 15px;
+            z-index: 10;
+        }
+
+        .splash-screen img {
+            width: 300px;
+            height: auto;
+            margin-bottom: 20px;
+        }
+
+        .activate-mic-btn {
+            background: linear-gradient(135deg, #00D4FF, #0099CC);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
+        }
+
+        .activate-mic-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.4);
+        }
+
+        /* Main Chat Interface */
+        .chat-interface {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #0066ff, #4CAF50);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 600;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        /* Quick Buttons */
+        .quick-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+            justify-content: center;
+        }
+
+        .quick-btn {
+            background: rgba(33, 150, 243, 0.1);
+            border: 1px solid #2196f3;
+            border-radius: 20px;
+            padding: 8px 12px;
+            font-size: 11px;
+            cursor: pointer;
+            color: #64B5F6;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .quick-btn:hover {
+            background: #2196f3;
+            color: white;
+            transform: scale(1.05);
+        }
+
+        /* Voice Banner */
+        .voice-banner {
+            background: rgba(76, 175, 80, 0.2);
+            border: 2px solid #4CAF50;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            color: #4CAF50;
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        /* Chat Messages Area */
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #444;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            scroll-behavior: smooth;
+        }
+
+        .chat-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chat-messages::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+
+        /* Message Bubbles */
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .user-message {
+            justify-content: flex-end;
+        }
+
+        .ai-message {
+            justify-content: flex-start;
+        }
+
+        .message-bubble {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 15px;
+            font-size: 14px;
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+
+        .user-message .message-bubble {
+            background: #2196f3;
+            color: white;
+            border-radius: 15px 15px 5px 15px;
+        }
+
+        .ai-message .message-bubble {
+            background: rgba(232, 245, 232, 0.9);
+            color: #333;
+            border-radius: 15px 15px 15px 5px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .ai-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        /* Audio Controls */
+        .audio-controls {
+            display: flex;
+            justify-content: center;
+            padding: 10px 0;
+        }
+
+        .audio-off-btn {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(244, 67, 54, 0.3);
+        }
+
+        .audio-off-btn:hover {
+            background: #d32f2f;
+            transform: translateY(-2px);
+        }
+
+        /* Text Controls */
+        .text-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .text-input-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        #textInput {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #555;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 14px;
+            outline: none;
+        }
+
+        #textInput::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        #textInput:focus {
+            border-color: #2196f3;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .send-btn {
+            background: #2196f3;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .send-btn:hover {
+            background: #1976d2;
+            transform: translateY(-2px);
+        }
+
+        .reinitiate-audio-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            align-self: center;
+            box-shadow: 0 3px 10px rgba(76, 175, 80, 0.3);
+        }
+
+        .reinitiate-audio-btn:hover {
+            background: #388e3c;
+            transform: translateY(-2px);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .chat-container {
+                width: 90vw;
+                height: 80vh;
+                left: 50%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="interface-container">
+        <!-- Background Interface -->
+        <div class="background-interface">
+            <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1755410028254_interface%20with%20chat%20area.PNG" alt="NCI Interface">
+        </div>
+
+        <!-- Chat Area Container (577x524) -->
+        <div class="chat-container" id="chatContainer">
+            
+            <!-- Splash Screen Overlay -->
+            <div class="splash-screen" id="splashScreen">
+                <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1755253677674_slide1-graphic.PNG" alt="Activate Mic">
+                <button class="activate-mic-btn" id="activateMicBtn">Click to Activate Mic</button>
+            </div>
+
+            <!-- Main Chat Interface -->
+            <div class="chat-interface" id="chatInterface" style="display: none;">
+                
+                <!-- Chat Header -->
+                <div class="chat-header">
+                    🤖 NCI Business AI Assistant
+                </div>
+
+                <!-- Quick Topic Buttons -->
+                <div class="quick-buttons">
+                    <button class="quick-btn" onclick="askQuickQuestion('How can you help grow my business?')">📈 Business Growth</button>
+                    <button class="quick-btn" onclick="askQuickQuestion('What marketing services do you offer?')">🎯 Marketing Services</button>
+                    <button class="quick-btn" onclick="askQuickQuestion('Do you handle bookkeeping and taxes?')">📊 Accounting Services</button>
+                    <button class="quick-btn" onclick="askQuickQuestion('What are your pricing packages?')">💰 Pricing</button>
+                </div>
+
+                <!-- Voice Listening Banner -->
+                <div class="voice-banner" id="voiceBanner" style="display: none;">
+                    🎤 Listening... What can I help you with?
+                </div>
+
+                <!-- Chat Messages Area -->
+                <div class="chat-messages" id="chatMessages">
+                    <!-- Messages will be added here by JavaScript -->
+                </div>
+
+                <!-- Audio Mode Controls -->
+                <div class="audio-controls" id="audioControls" style="display: none;">
+                    <button class="audio-off-btn" id="audioOffBtn">🔴 Audio Off</button>
+                </div>
+
+                <!-- Text Mode Controls -->
+                <div class="text-controls" id="textControls" style="display: none;">
+                    <div class="text-input-row">
+                        <input type="text" id="textInput" placeholder="Type your message..." onkeypress="if(event.key==='Enter') sendTextMessage()">
+                        <button class="send-btn" id="sendBtn" onclick="sendTextMessage()">Send</button>
+                    </div>
+                    <button class="reinitiate-audio-btn" id="reinitiateAudioBtn">🎤 Reinitiate Audio</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+   <script src="test-chat.js"></script>
+</body>
+</html>
