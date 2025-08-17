@@ -133,22 +133,18 @@ VoiceBot.bindEvents = function() {
     }
 
     // Menu item clicks
-    this.elements.menuItems.forEach(item => {
-        item.addEventListener('click', (e) => {
-            e.preventDefault();
-            const slideType = item.dataset.slide;
-            
-            // 🚀 NEW: If AI Voice Chat, load chat slide
-            if (slideType === 'voice-chat') {
-                this.loadSlide('chat-interface');
-            } else {
-                this.loadSlide(slideType);
-            }
-            
-            this.setActiveMenuItem(item);
-            this.closeMobileMenu();
-        });
+this.elements.menuItems.forEach(item => {
+    item.addEventListener('click', (e) => {
+        e.preventDefault();
+        const slideType = item.dataset.slide;
+        
+        // 🚀 FIXED: Load the correct slide type directly
+        this.loadSlide(slideType);
+        
+        this.setActiveMenuItem(item);
+        this.closeMobileMenu();
     });
+});
 
     // Close mobile menu when clicking outside
     document.addEventListener('click', (e) => {
@@ -203,9 +199,10 @@ VoiceBot.loadSlide = function(slideType) {
         // Bind new event listeners for the loaded slide
         this.bindSlideEvents(slideType);
         
-        // 🚀 NEW: Auto-initialize chat if it's the chat slide
-        if (slideType === 'chat-interface') {
-            this.initializeChatSlide();
+        // 🚀 ONLY initialize for voice-chat or chat-interface
+        if (slideType === 'voice-chat' || slideType === 'chat-interface') {
+            // Don't call initializeChatSlide - let HTML handle the welcome message
+            console.log('✅ Chat slide loaded with built-in welcome message');
         }
         
     }, 200);
@@ -213,8 +210,8 @@ VoiceBot.loadSlide = function(slideType) {
 
 VoiceBot.generateSlideContent = function(slideType) {
     const slides = {
-        'voice-chat': this.generateVoiceChatSlide(),
-        'chat-interface': this.generateChatSlide(), // ← ADD THIS LINE
+        'voice-chat': this.generateChatSlide(), // ← CHANGE THIS
+        'chat-interface': this.generateChatSlide(), // Keep this
         'request-call': this.generateRequestCallSlide(),
         'send-message': this.generateSendMessageSlide(),
         'leave-review': this.generateLeaveReviewSlide()
@@ -322,13 +319,23 @@ VoiceBot.generateChatSlide = function() {
             <div style="border-bottom: 1px solid #ddd; margin: 15px 0;"></div>
         </div>
 
-        <!-- Chat Messages Container - EMPTY (no initial message) -->
+        <!-- Chat Messages Container -->
         <div id="chatMessages" style="
             height: 300px; overflow-y: auto; background: #f8f9fa; 
             border: 1px solid #ddd; border-radius: 10px; padding: 15px; 
             margin-bottom: 15px;
         ">
-            <!-- Messages will be added by JavaScript only -->
+            <!-- Single Initial AI Message - CORRECTED CONTENT -->
+            <div style="margin-bottom: 15px;">
+                <div style="display: flex; align-items: flex-start; gap: 10px;">
+                    <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/avatars/avatar_1754810337622_AI%20assist%20head%20left.png" 
+                         style="width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;">
+                    <div style="
+                        background: #e8f5e8; padding: 12px 16px; border-radius: 15px 15px 15px 5px;
+                        max-width: 75%; font-size: 14px; line-height: 1.4; word-wrap: break-word;
+                    ">Hi! I'm your business expert ready to help with accounting and marketing! You can type questions or click the microphone to speak with me! What would you like to know about growing your business? 🎤</div>
+                </div>
+            </div>
         </div>
 
         <!-- Voice Indicator Banner -->
@@ -388,15 +395,9 @@ VoiceBot.generateChatSlide = function() {
 // ===========================================
 VoiceBot.initializeChatSlide = function() {
     console.log('🎤 Initializing chat slide...');
-    
-    // Add welcome message automatically
-    setTimeout(() => {
-        const welcomeMessage = "Hi! I'm your mortgage expert with a headset ready to help! You can type questions or click the microphone to speak with me!";
-        this.addAIMessage(welcomeMessage);
-        this.speakResponse(welcomeMessage);
-    }, 500);
+    // Temporarily disable auto-welcome to fix duplicate issue
+    // The welcome message will come from HTML for now
 };
-
 
 // ===========================================
 // MENU MANAGEMENT
