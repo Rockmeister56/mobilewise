@@ -4,8 +4,6 @@
 const ELEVENLABS_API_KEY = 'sk_9e7fa2741be74e8cc4af95744fe078712c1e8201cdcada93';
 const VOICE_ID = 'zGjIP4SZlMnY9m93k97r';
 
-let recognitionActive = false; // Add this line only
-
 // ===========================================
 // GLOBAL VARIABLES
 // ===========================================
@@ -136,16 +134,15 @@ function initializeSpeechRecognition() {
         };
 
         recognition.onend = function() {
-    console.log('🎤 Speech recognition ended');
-    isListening = false;
-    recognitionActive = false; // Mark as inactive
-    
-    if (isAudioMode && !currentAudio) {
-        setTimeout(() => {
-            startListening();
-        }, 2000);
-    }
-};
+            console.log('🎤 Speech recognition ended');
+            isListening = false;
+            
+            if (isAudioMode && !currentAudio) {
+                setTimeout(() => {
+                    startListening();
+                }, 2000);
+            }
+        };
 
         recognition.onerror = function(event) {
             console.log('🚫 Speech recognition error:', event.error);
@@ -208,29 +205,30 @@ async function activateMicrophone() {
 }
 
 function startListening() {
-    // SURGICAL FIX: Check if already active first
-    if (recognitionActive || isListening) {
-        console.log('🚫 Recognition already active, skipping...');
+    if (!recognition || isListening) {
+        console.log('🚫 Cannot start listening - recognition not available or already listening');
         return;
     }
     
-    if (!recognition || !micPermissionGranted) {
-        console.log('🚫 Cannot start listening');
+    // Only check micPermissionGranted, don't require new permission
+    if (!micPermissionGranted) {
+        console.log('🚫 Microphone permission not granted yet');
         return;
     }
     
     try {
         console.log('🎤 Starting speech recognition...');
         recognition.start();
-        recognitionActive = true; // Mark as active
     } catch (error) {
         console.log('❌ Error starting recognition:', error);
-        recognitionActive = false;
-        setTimeout(() => {
-            if (isAudioMode && !isListening) {
-                startListening();
-            }
-        }, 2000);
+        // Don't retry if it's a permission error
+        if (error.name !== 'NotAllowedError') {
+            setTimeout(() => {
+                if (isAudioMode && !isListening) {
+                    startListening();
+                }
+            }, 2000);
+        }
     }
 }
 
