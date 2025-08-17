@@ -314,52 +314,35 @@ VoiceBot.generateChatSlide = function() {
         <!-- Quick Topic Buttons -->
         <div style="margin-bottom: 20px;">
             <div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 15px;">
-                <button onclick="VoiceBot.askQuickQuestion('What credit score do I need?')" class="chat-quick-btn">📊 Credit Score</button>
-                <button onclick="VoiceBot.askQuickQuestion('What loan types are available?')" class="chat-quick-btn">🏠 Loan Types</button>
-                <button onclick="VoiceBot.askQuickQuestion('How much down payment do I need?')" class="chat-quick-btn">💰 Down Payment</button>
-                <button onclick="VoiceBot.askQuickQuestion('What are current interest rates?')" class="chat-quick-btn">📈 Interest Rates</button>
+                <button onclick="VoiceBot.askQuickQuestion('How can you help grow my business?')" class="chat-quick-btn">📈 Business Growth</button>
+                <button onclick="VoiceBot.askQuickQuestion('What marketing services do you offer?')" class="chat-quick-btn">🎯 Marketing Services</button>
+                <button onclick="VoiceBot.askQuickQuestion('Do you handle bookkeeping and taxes?')" class="chat-quick-btn">📊 Accounting Services</button>
+                <button onclick="VoiceBot.askQuickQuestion('What are your pricing packages?')" class="chat-quick-btn">💰 Pricing</button>
             </div>
             <div style="border-bottom: 1px solid #ddd; margin: 15px 0;"></div>
         </div>
 
-        <!-- Chat Messages Container -->
+        <!-- Chat Messages Container - EMPTY (no initial message) -->
         <div id="chatMessages" style="
             height: 300px; overflow-y: auto; background: #f8f9fa; 
             border: 1px solid #ddd; border-radius: 10px; padding: 15px; 
             margin-bottom: 15px;
         ">
-            <!-- Initial AI Messages -->
-            <div style="margin-bottom: 15px;">
-                <div style="display: flex; align-items: flex-start; gap: 10px;">
-                    <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/avatars/avatar_1754810337622_AI%20assist%20head%20left.png" 
-                         style="width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;">
-                    <div style="
-                        background: #e8f5e8; padding: 12px 16px; border-radius: 15px 15px 15px 5px;
-                        max-width: 75%; font-size: 14px; line-height: 1.4; word-wrap: break-word;
-                    ">Hi! I'm your mortgage expert ready to help! You can type questions or click the microphone to speak with me! 🎤</div>
-                </div>
-            </div>
+            <!-- Messages will be added by JavaScript only -->
         </div>
 
-        <!-- Voice Indicator Banner - IMPROVED -->
-<div id="voiceIndicator" style="
-    display: none; padding: 12px; background: #e8f5e8; border: 2px solid #4CAF50;
-    border-radius: 8px; text-align: center; color: #4CAF50; font-weight: bold; 
-    margin-bottom: 15px; font-size: 16px; animation: pulse 1.5s infinite;
-">
-    🎤 Listening... (speak now)
-</div>
+        <!-- Voice Indicator Banner -->
+        <div id="voiceIndicator" style="
+            display: none; padding: 12px; background: #e8f5e8; border: 2px solid #4CAF50;
+            border-radius: 8px; text-align: center; color: #4CAF50; font-weight: bold; 
+            margin-bottom: 15px; font-size: 16px; animation: pulse 1.5s infinite;
+        ">
+            🎤 Listening... (speak now)
+        </div>
 
-<style>
-@keyframes pulse {
-    0% { opacity: 1; }
-    50% { opacity: 0.7; }
-    100% { opacity: 1; }
-}
-</style>
         <!-- Input Area -->
         <div style="display: flex; gap: 10px; align-items: center;">
-            <input type="text" id="userChatInput" placeholder="Ask about mortgages or click mic to speak..." 
+            <input type="text" id="userChatInput" placeholder="Ask about our accounting & marketing services or click mic to speak..." 
                    style="flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 20px; font-size: 14px;"
                    onkeypress="if(event.key==='Enter') VoiceBot.sendChatMessage()">
             
@@ -390,6 +373,11 @@ VoiceBot.generateChatSlide = function() {
             }
             .chat-quick-btn:hover {
                 background: #2196f3; color: white; transform: scale(1.05);
+            }
+            @keyframes pulse {
+                0% { opacity: 1; }
+                50% { opacity: 0.7; }
+                100% { opacity: 1; }
             }
         </style>
     `;
