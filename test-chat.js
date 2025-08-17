@@ -36,6 +36,38 @@ const businessResponses = {
 };
 
 // ===========================================
+// MORTGAGE SITE SOLUTION: MICROPHONE PERMISSION FIX
+// ===========================================
+function initializeMicrophonePermission() {
+    let permissionRequested = false;
+    
+    document.addEventListener('click', async function requestMicOnce(e) {
+        if (permissionRequested) return;
+        
+        // Check for voice-related buttons
+        if (e.target.closest('#activateMicBtn') || 
+            e.target.closest('#reinitiateAudioBtn') ||
+            e.target.closest('#audioOffBtn')) {
+            
+            permissionRequested = true;
+            console.log('🎤 Requesting microphone permission on first click (no more popups)...');
+            
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                stream.getTracks().forEach(track => track.stop()); // Stop immediately
+                console.log('✅ Microphone permission granted! No more popups.');
+                micPermissionGranted = true;
+            } catch (error) {
+                console.log('❌ Microphone permission denied:', error);
+            }
+            
+            // Remove this listener after first use
+            document.removeEventListener('click', requestMicOnce);
+        }
+    });
+}
+
+// ===========================================
 // WAIT FOR DOM TO BE READY
 // ===========================================
 function initializeWhenReady() {
@@ -48,6 +80,9 @@ function initializeWhenReady() {
 
 function initialize() {
     console.log('🚀 Initializing NCI Business Chat...');
+    
+    // MORTGAGE SITE FIX: Initialize microphone permission handler
+    initializeMicrophonePermission();
     
     // Wait a bit more to ensure all elements are rendered
     setTimeout(() => {
@@ -108,15 +143,18 @@ function bindEventListeners() {
 }
 
 // ===========================================
-// SPEECH RECOGNITION SETUP
+// SPEECH RECOGNITION SETUP - MORTGAGE SITE CONFIG
 // ===========================================
 function initializeSpeechRecognition() {
     console.log('🎤 Initializing speech recognition...');
     
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
         recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-        recognition.continuous = false;
-        recognition.interimResults = false;
+        
+        // 🔥 CRITICAL FIX: Change these settings
+        recognition.continuous = false;        
+        recognition.interimResults = false;    // ← Change from TRUE to FALSE
+        recognition.maxAlternatives = 1;       // ← Change from 3 to 1
         recognition.lang = 'en-US';
 
         recognition.onstart = function() {
@@ -125,11 +163,14 @@ function initializeSpeechRecognition() {
         };
 
         recognition.onresult = function(event) {
-            const transcript = event.results[0][0].transcript.trim();
-            console.log('🎤 Voice input received:', transcript);
-            
-            if (transcript && transcript.length > 0) {
-                handleVoiceInput(transcript);
+            // 🔥 ONLY process if it's a FINAL result
+            if (event.results[0].isFinal) {
+                const transcript = event.results[0][0].transcript.trim();
+                console.log('🎤 FINAL Voice input received:', transcript);
+                
+                if (transcript && transcript.length > 0) {
+                    handleVoiceInput(transcript);
+                }
             }
         };
 
@@ -137,7 +178,8 @@ function initializeSpeechRecognition() {
             console.log('🎤 Speech recognition ended');
             isListening = false;
             
-            if (isAudioMode && !currentAudio) {
+            // MORTGAGE SITE FIX: Improved restart logic
+            if (isAudioMode && !currentAudio && micPermissionGranted) {
                 setTimeout(() => {
                     startListening();
                 }, 2000);
@@ -148,71 +190,69 @@ function initializeSpeechRecognition() {
             console.log('🚫 Speech recognition error:', event.error);
             isListening = false;
             
-            if (event.error === 'no-speech' && isAudioMode) {
+            // MORTGAGE SITE FIX: Don't restart on permission errors
+            if (event.error !== 'not-allowed' && event.error === 'no-speech' && isAudioMode && micPermissionGranted) {
                 setTimeout(() => {
-                    if (isAudioMode && !currentAudio) {
+                    if (isAudioMode && !currentAudio && micPermissionGranted) {
                         startListening();
                     }
                 }, 3000);
             }
         };
         
-        console.log('✅ Speech recognition initialized');
+        console.log('✅ Speech recognition initialized with fixed settings');
     } else {
         console.log('❌ Speech recognition not supported');
     }
 }
 
 // ===========================================
-// MICROPHONE ACTIVATION
+// MICROPHONE ACTIVATION - SIMPLIFIED
 // ===========================================
 async function activateMicrophone() {
     console.log('🎤 Activating microphone...');
     
-    try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        console.log('✅ Microphone permission granted');
-        
-        stream.getTracks().forEach(track => track.stop());
-        micPermissionGranted = true;
-        
-        const splashScreen = document.getElementById('splashScreen');
-        const chatInterface = document.getElementById('chatInterface');
-        
-        if (splashScreen) splashScreen.style.display = 'none';
-        if (chatInterface) chatInterface.style.display = 'flex';
-        
-        console.log('✅ Interface switched to chat mode');
-        
-        isAudioMode = true;
-        showAudioMode();
-        showVoiceBanner();
-        
-        setTimeout(() => {
-            startListening();
-        }, 1000);
-        
-        setTimeout(() => {
-            const greeting = "What can I help you with?";
-            addAIMessage(greeting);
-            speakResponse(greeting);
-        }, 1500);
-        
-    } catch (error) {
-        console.log('❌ Microphone permission denied:', error);
-        alert('Microphone access is required for voice chat. Please allow microphone access and try again.');
-    }
+    // Skip permission request - handled by click listener
+    const splashScreen = document.getElementById('splashScreen');
+    const chatInterface = document.getElementById('chatInterface');
+    
+    if (splashScreen) splashScreen.style.display = 'none';
+    if (chatInterface) chatInterface.style.display = 'flex';
+    
+    console.log('✅ Interface switched to chat mode');
+    
+    isAudioMode = true;
+    showAudioMode();
+    showVoiceBanner();
+    
+    setTimeout(() => {
+        startListening();
+    }, 1000);
+    
+    setTimeout(() => {
+        const greeting = "What can I help you with?";
+        addAIMessage(greeting);
+        speakResponse(greeting);
+    }, 1500);
 }
 
+// ===========================================
+// FIXED SPEECH RECOGNITION START
+// ===========================================
 function startListening() {
-    if (!recognition || isListening) {
-        console.log('🚫 Cannot start listening - recognition not available or already listening');
+    if (!recognition) {
+        console.log('🚫 No recognition available');
         return;
     }
     
-    // Only check micPermissionGranted, don't require new permission
+    if (isListening) {
+        console.log('🚫 Already listening');
+        return;
+    }
+    
+    // MORTGAGE SITE FIX: Only start if we have permission
     if (!micPermissionGranted) {
-        console.log('🚫 Microphone permission not granted yet');
+        console.log('🚫 No microphone permission granted yet');
         return;
     }
     
@@ -221,14 +261,11 @@ function startListening() {
         recognition.start();
     } catch (error) {
         console.log('❌ Error starting recognition:', error);
-        // Don't retry if it's a permission error
-        if (error.name !== 'NotAllowedError') {
-            setTimeout(() => {
-                if (isAudioMode && !isListening) {
-                    startListening();
-                }
-            }, 2000);
-        }
+        setTimeout(() => {
+            if (isAudioMode && !isListening && micPermissionGranted) {
+                startListening();
+            }
+        }, 2000);
     }
 }
 
@@ -283,9 +320,12 @@ function switchToAudioMode() {
     const textInput = document.getElementById('textInput');
     if (textInput) textInput.value = '';
     
-    setTimeout(() => {
-        startListening();
-    }, 500);
+    // MORTGAGE SITE FIX: Only restart if permission granted
+    if (micPermissionGranted) {
+        setTimeout(() => {
+            startListening();
+        }, 500);
+    }
 }
 
 // ===========================================
@@ -452,7 +492,8 @@ async function speakResponse(message) {
             currentAudio = null;
             console.log('✅ ElevenLabs audio completed');
             
-            if (isAudioMode && !isListening) {
+            // MORTGAGE SITE FIX: Only restart if permission granted
+            if (isAudioMode && !isListening && micPermissionGranted) {
                 setTimeout(() => {
                     startListening();
                 }, 1000);
@@ -490,7 +531,8 @@ function fallbackSpeech(message) {
             currentAudio = null;
             console.log('✅ Browser speech completed');
             
-            if (isAudioMode && !isListening) {
+            // MORTGAGE SITE FIX: Only restart if permission granted
+            if (isAudioMode && !isListening && micPermissionGranted) {
                 setTimeout(() => {
                     startListening();
                 }, 1000);
@@ -519,4 +561,4 @@ function stopCurrentAudio() {
 // ===========================================
 initializeWhenReady();
 
-console.log('📁 NCI Business Chat JavaScript Loaded!');
+console.log('📁 NCI Business Chat JavaScript Loaded with Mortgage Site Fixes!');
