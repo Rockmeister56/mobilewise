@@ -4,6 +4,8 @@
 const ELEVENLABS_API_KEY = 'sk_9e7fa2741be74e8cc4af95744fe078712c1e8201cdcada93';
 const VOICE_ID = 'zGjIP4SZlMnY9m93k97r';
 
+let recognitionActive = false; // Add this line only
+
 // ===========================================
 // GLOBAL VARIABLES
 // ===========================================
@@ -12,7 +14,6 @@ let isListening = false;
 let isAudioMode = false;
 let currentAudio = null;
 let micPermissionGranted = false;
-let recognitionActive = false; // NEW: Track if recognition is active
 
 // ===========================================
 // BUSINESS RESPONSES DATABASE
@@ -121,10 +122,8 @@ function initializeSpeechRecognition() {
         recognition.lang = 'en-US';
 
         recognition.onstart = function() {
-            console.log('[DEBUG] Mic active. Permission granted.');
+            console.log('🎤 Speech recognition started');
             isListening = true;
-            recognitionActive = true;
-            micPermissionGranted = true; // Cache permission granted
         };
 
         recognition.onresult = function(event) {
@@ -137,12 +136,10 @@ function initializeSpeechRecognition() {
         };
 
         recognition.onend = function() {
-            console.log('[DEBUG] Mic stopped.');
+            console.log('🎤 Speech recognition ended');
             isListening = false;
-            recognitionActive = false;
             
-            // Only restart if in audio mode, no audio playing, and permission already granted
-            if (isAudioMode && !currentAudio && micPermissionGranted) {
+            if (isAudioMode && !currentAudio) {
                 setTimeout(() => {
                     startListening();
                 }, 2000);
@@ -150,14 +147,12 @@ function initializeSpeechRecognition() {
         };
 
         recognition.onerror = function(event) {
-            console.error('[DEBUG] Mic error:', event.error);
+            console.log('🚫 Speech recognition error:', event.error);
             isListening = false;
-            recognitionActive = false;
             
-            // Don't restart on permission errors to prevent popup loops
-            if (event.error !== 'not-allowed' && event.error === 'no-speech' && isAudioMode && micPermissionGranted) {
+            if (event.error === 'no-speech' && isAudioMode) {
                 setTimeout(() => {
-                    if (isAudioMode && !currentAudio && micPermissionGranted) {
+                    if (isAudioMode && !currentAudio) {
                         startListening();
                     }
                 }, 3000);
@@ -211,43 +206,30 @@ async function activateMicrophone() {
     }
 }
 
-// ===========================================
-// FIXED SPEECH RECOGNITION START
-// ===========================================
 function startListening() {
-    console.log("[DEBUG] Attempting to start voice chat...");
-    
-    if (!recognition) {
-        console.error("[DEBUG] Recognition API not loaded!");
+    // SURGICAL FIX: Check if already active first
+    if (recognitionActive || isListening) {
+        console.log('🚫 Recognition already active, skipping...');
         return;
     }
     
-    // CRITICAL FIX: Skip if recognition is already active and permission granted
-    if (recognitionActive && micPermissionGranted) {
-        console.warn("[DEBUG] Mic already active. Skipping restart.");
-        return;
-    }
-    
-    if (isListening) {
-        console.warn("[DEBUG] Already listening. Skipping.");
-        return;
-    }
-    
-    // Only proceed if we have cached permission
-    if (!micPermissionGranted) {
-        console.warn("[DEBUG] No cached mic permission. Skipping.");
+    if (!recognition || !micPermissionGranted) {
+        console.log('🚫 Cannot start listening');
         return;
     }
     
     try {
-        console.log("[DEBUG] Starting recognition...");
+        console.log('🎤 Starting speech recognition...');
         recognition.start();
-        recognitionActive = true;
-        isListening = true;
+        recognitionActive = true; // Mark as active
     } catch (error) {
-        console.log('❌ Recognition error:', error);
+        console.log('❌ Error starting recognition:', error);
         recognitionActive = false;
-        isListening = false;
+        setTimeout(() => {
+            if (isAudioMode && !isListening) {
+                startListening();
+            }
+        }, 2000);
     }
 }
 
@@ -256,7 +238,6 @@ function stopListening() {
         console.log('🛑 Stopping speech recognition...');
         recognition.stop();
         isListening = false;
-        recognitionActive = false;
     }
 }
 
@@ -303,12 +284,9 @@ function switchToAudioMode() {
     const textInput = document.getElementById('textInput');
     if (textInput) textInput.value = '';
     
-    // CRITICAL FIX: Only restart if we have cached permission
-    if (micPermissionGranted) {
-        setTimeout(() => {
-            startListening();
-        }, 500);
-    }
+    setTimeout(() => {
+        startListening();
+    }, 500);
 }
 
 // ===========================================
@@ -475,8 +453,7 @@ async function speakResponse(message) {
             currentAudio = null;
             console.log('✅ ElevenLabs audio completed');
             
-            // CRITICAL FIX: Only restart if we have cached permission
-            if (isAudioMode && !isListening && micPermissionGranted) {
+            if (isAudioMode && !isListening) {
                 setTimeout(() => {
                     startListening();
                 }, 1000);
@@ -514,8 +491,7 @@ function fallbackSpeech(message) {
             currentAudio = null;
             console.log('✅ Browser speech completed');
             
-            // CRITICAL FIX: Only restart if we have cached permission
-            if (isAudioMode && !isListening && micPermissionGranted) {
+            if (isAudioMode && !isListening) {
                 setTimeout(() => {
                     startListening();
                 }, 1000);
