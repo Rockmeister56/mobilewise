@@ -138,8 +138,12 @@ this.elements.menuItems.forEach(item => {
         e.preventDefault();
         const slideType = item.dataset.slide;
         
-        // 🚀 FIXED: Load the correct slide type directly
-        this.loadSlide(slideType);
+        // 🚀 FIXED: If AI Voice Chat, load chat slide
+        if (slideType === 'voice-chat') {
+            this.loadSlide('chat-interface');
+        } else {
+            this.loadSlide(slideType);
+        }
         
         this.setActiveMenuItem(item);
         this.closeMobileMenu();
@@ -210,8 +214,8 @@ VoiceBot.loadSlide = function(slideType) {
 
 VoiceBot.generateSlideContent = function(slideType) {
     const slides = {
-        'voice-chat': this.generateChatSlide(), // ← CHANGE THIS
-        'chat-interface': this.generateChatSlide(), // Keep this
+        'voice-chat': this.generateVoiceChatSlide(), // ← FIXED - Now refresh goes to home screen
+        'chat-interface': this.generateChatSlide(), // Chat functionality
         'request-call': this.generateRequestCallSlide(),
         'send-message': this.generateSendMessageSlide(),
         'leave-review': this.generateLeaveReviewSlide()
@@ -676,43 +680,65 @@ if (document.readyState === 'loading') {
 // ===========================================
 
 VoiceBot.sendChatMessage = function() {
+    console.log('🗨️ sendChatMessage called');
     const input = document.getElementById('userChatInput');
-    if (!input) return;
+    if (!input) {
+        console.log('❌ Input not found');
+        return;
+    }
     
     const message = input.value.trim();
-    if (!message) return;
+    if (!message) {
+        console.log('❌ No message to send');
+        return;
+    }
     
+    console.log('✅ Adding user message:', message);
     this.addUserMessage(message);
     input.value = '';
     
     setTimeout(() => {
         const response = this.getAIResponse(message);
+        console.log('✅ Adding AI response:', response);
         this.addAIMessage(response);
         this.speakResponse(response);
     }, 800);
 };
 
-VoiceBot.addUserMessage = function(message) {
-    const chatMessages = document.getElementById('chatMessages');
-    if (!chatMessages) return;
+VoiceBot.toggleVoiceChat = function() {
+    console.log('🎤 toggleVoiceChat called');
+    const indicator = document.getElementById('voiceIndicator');
+    const micButton = document.getElementById('voiceChatButton');
     
-    chatMessages.insertAdjacentHTML('beforeend', `
-        <div style="margin-bottom: 15px; text-align: right;">
-            <div style="display: flex; align-items: flex-start; gap: 10px; justify-content: flex-end;">
-                <div style="
-                    background: #2196f3; color: white; padding: 12px 16px; 
-                    border-radius: 15px 15px 5px 15px; max-width: 75%; 
-                    font-size: 14px; line-height: 1.4; word-wrap: break-word;
-                ">${message}</div>
-                <div style="
-                    background: #2196f3; color: white; border-radius: 50%; 
-                    width: 30px; height: 30px; display: flex; align-items: center; 
-                    justify-content: center; font-size: 14px; flex-shrink: 0;
-                ">👤</div>
-            </div>
-        </div>
-    `);
-    this.scrollChatToBottom();
+    if (!isListening) {
+        // Start listening
+        isListening = true;
+        console.log('🎤 Voice listening started...');
+        
+        // Show voice indicator banner
+        if (indicator) {
+            indicator.style.display = 'block';
+            indicator.innerHTML = '🎤 Listening... (speak now)';
+            console.log('✅ Voice indicator shown');
+        } else {
+            console.log('❌ Voice indicator not found');
+        }
+        
+        // Change button color to show it's active
+        if (micButton) {
+            micButton.style.background = '#f44336';
+        }
+        
+        // Auto-stop after 5 seconds
+        setTimeout(() => {
+            if (isListening) {
+                this.stopVoiceChat();
+            }
+        }, 5000);
+        
+    } else {
+        this.stopVoiceChat();
+    }
 };
 
 VoiceBot.addAIMessage = function(message) {
