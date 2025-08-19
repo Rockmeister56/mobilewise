@@ -136,6 +136,96 @@ function bindEventListeners() {
 }
 
 // ===========================================
+// AUDIO LEVEL DETECTION & VISUALIZATION
+// ===========================================
+
+async function initializeAudioVisualization() {
+    try {
+        console.log('🎤 Initializing audio visualization...');
+        
+        // Get microphone access
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        
+        // Create audio context
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        analyser = audioContext.createAnalyser();
+        microphone = audioContext.createMediaStreamSource(stream);
+        
+        // Configure analyser
+        analyser.fftSize = 256;
+        analyser.smoothingTimeConstant = 0.8;
+        microphone.connect(analyser);
+        
+        // Start visualization loop
+        visualizeAudioLevels();
+        
+        console.log('✅ Audio visualization initialized!');
+    } catch (error) {
+        console.log('❌ Audio visualization error:', error);
+        // Fallback to fake animation
+        startFakeVisualization();
+    }
+}
+
+function visualizeAudioLevels() {
+    if (!analyser) return;
+    
+    const dataArray = new Uint8Array(analyser.frequencyBinCount);
+    analyser.getByteFrequencyData(dataArray);
+    
+    // Calculate average audio level
+    const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
+    const normalizedLevel = average / 255; // Convert to 0-1 range
+    
+    // Update voice bars with real audio data
+    updateVoiceBarsWithAudio(normalizedLevel);
+    
+    // Continue loop
+    requestAnimationFrame(visualizeAudioLevels);
+}
+
+function updateVoiceBarsWithAudio(audioLevel) {
+    const bars = document.querySelectorAll('.voice-bar');
+    const amplifiedLevel = Math.min(audioLevel * 3, 1); // Amplify for better visual
+    
+    bars.forEach((bar, index) => {
+        const threshold = (index + 1) * 0.15; // Each bar has different sensitivity
+        const randomVariation = Math.random() * 0.3; // Add some natural variation
+        const finalLevel = amplifiedLevel + randomVariation;
+        
+        if (finalLevel > threshold) {
+            const height = 8 + (finalLevel * 25);
+            bar.style.height = `${height}px`;
+            bar.style.backgroundColor = `hsl(${120 + (finalLevel * 60)}, 70%, 50%)`; // Green to yellow
+            bar.style.opacity = '1';
+        } else {
+            bar.style.height = '4px';
+            bar.style.backgroundColor = '#444';
+            bar.style.opacity = '0.4';
+        }
+    });
+}
+
+function startFakeVisualization() {
+    // Fallback animation if audio access fails
+    setInterval(() => {
+        const bars = document.querySelectorAll('.voice-bar');
+        bars.forEach((bar, index) => {
+            const randomHeight = 4 + Math.random() * 20;
+            bar.style.height = `${randomHeight}px`;
+            bar.style.backgroundColor = `hsl(${Math.random() * 60 + 100}, 60%, 50%)`;
+        });
+    }, 150);
+}
+
+// Initialize when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(() => {
+        initializeAudioVisualization();
+    }, 1000); // Wait 1 second for everything to load
+});
+
+// ===========================================
 // VOICE PRELOADER SYSTEM
 // ===========================================
 let voicesLoaded = false;
