@@ -401,36 +401,39 @@
     z-index: 1000;
 }
 
-/* Speed selector styling */
-.voice-speed-selector {
-    background: #4a90e2;        /* Blue color instead of red */
-    border: none;
-    border-radius: 25px;
-    color: white;
-    padding: 8px 12px;
-    font-size: 12px;
-    font-weight: 500;
-    cursor: pointer;
-    min-width: 100px;
-    height: 40px;               /* Match Audio Off button height */
-    outline: none;
+.speed-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 5px;
 }
 
-.voice-speed-selector:hover {
-    background: #357abd;        /* Darker blue on hover */
+.speed-btn {
+    background: #4a90e2;
+    border: none;
+    border-radius: 15px;
+    color: white;
+    padding: 6px 12px;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.speed-btn:hover {
+    background: #357abd;
     transform: translateY(-1px);
 }
 
-.voice-speed-selector:focus {
-    background: #357abd;
-    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.3);
+.speed-display {
+    color: white;
+    font-size: 11px;
+    font-weight: 500;
+    min-width: 60px;
+    text-align: center;
 }
 
-/* Make sure Audio Off button has same height */
-#audioOffButton {
-    height: 40px;
-    margin: 0;
-}
     </style>
 </head>
 <body>
@@ -494,12 +497,6 @@
         <button onclick="adjustVoiceSpeed('faster')" class="speed-btn faster-btn">
             🚀 Faster
         </button>
-    </div>
-    
-    <!-- Audio Off button -->
-    <button id="audioOffButton" onclick="stopCurrentAudio(); switchToTextMode();">
-        🔇 Audio Off
-    </button>
 </div>
                 <!-- Text Mode Controls -->
                 <div class="text-controls" id="textControls" style="display: none;">
