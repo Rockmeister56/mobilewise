@@ -22,6 +22,7 @@ let dataArray = null;
 let animationId = null;
 let canvas = null;
 let canvasCtx = null;
+let voiceSpeed = 0.9; // Default professional speed
 
 // ===========================================
 // BUSINESS RESPONSES DATABASE
@@ -717,6 +718,31 @@ function getVoices() {
     });
 }
 
+function updateVoiceSpeed() {
+    const speedSelector = document.getElementById('voiceSpeed');
+    if (speedSelector) {
+        voiceSpeed = parseFloat(speedSelector.value);
+        console.log('🎵 Voice speed updated to:', voiceSpeed);
+        
+        // Optional: Test the new speed immediately
+        testVoiceSpeed();
+    }
+}
+
+function testVoiceSpeed() {
+    const testMessage = "Voice speed updated successfully!";
+    const voices = window.speechSynthesis.getVoices();
+    const voice = findBestVoice(voices);
+    
+    const utterance = new SpeechSynthesisUtterance(testMessage);
+    if (voice) utterance.voice = voice;
+    utterance.rate = voiceSpeed;  // Use the new speed!
+    utterance.pitch = 1.0;
+    utterance.volume = 0.8;
+    
+    window.speechSynthesis.speak(utterance);
+}
+
 function speakWithVoice(message, voices) {
     // Stop any current speech
     window.speechSynthesis.cancel();
@@ -730,7 +756,7 @@ function speakWithVoice(message, voices) {
         console.log('🎵 Selected voice:', bestVoice.name, bestVoice.lang);
     }
     
-    utterance.rate = 0.9;
+    utterance.rate = voiceSpeed;
     utterance.pitch = 1.0;
     utterance.volume = 0.8;
     
@@ -815,6 +841,25 @@ function stopCurrentAudio() {
         currentAudio = null;
         console.log('🛑 Audio stopped');
     }
+}
+
+// ADD this enhanced mute function that USES your existing logic
+function muteAIVoice() {
+    console.log('🔇 MUTING AI Voice...');
+    
+    // Use your existing audio stopping logic
+    stopCurrentAudio();
+    
+    // Reset speaking flags
+    isSpeaking = false;
+    
+    // Update UI
+    updateHeaderBanner('🔇 AI Voice Muted');
+    
+    // Optional: Switch to text mode UI
+    switchToTextMode();
+    
+    console.log('✅ AI Voice MUTED using existing audio control!');
 }
 
 // ===========================================
