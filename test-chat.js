@@ -751,6 +751,30 @@ function speakWithVoice(message, voices) {
     window.speechSynthesis.speak(utterance);
 }
 
+function findBestVoice(voices) {
+    console.log('🎵 Available voices:', voices.map(v => `${v.name} (${v.lang})`));
+    
+    // EXACT Edge voice names from your console output
+    const preferredVoices = [
+        'Microsoft Aria Online (Natural) - English (United States)',  // Best quality!
+        'Microsoft Zira - English (United States)',                   // Backup female
+        'Microsoft Libby Online (Natural) - English (United Kingdom)' // UK female
+    ];
+    
+    // Try exact matches first
+    for (const preferredName of preferredVoices) {
+        const voice = voices.find(v => v.name === preferredName);
+        if (voice) {
+            console.log('✅ Found PERFECT FEMALE voice:', voice.name);
+            return voice;
+        }
+    }
+    
+    // This should NOT happen, but just in case
+    console.log('❌ Fallback - something went wrong');
+    return voices.find(v => v.name.includes('Zira')) || voices[0];
+}
+
 // ❌ COMMENT OUT THIS ENTIRE FUNCTION - IT'S CAUSING THE POPUP:
 /*
 function restartRecognition() {
@@ -770,90 +794,6 @@ function restartRecognition() {
 }
 */
 
-function findBestVoice(voices) {
-    console.log('🎵 Available voices:', voices.map(v => `${v.name} (${v.lang})`));
-    
-    // Priority list for female voices
-    const preferredVoices = [
-        // Microsoft Edge voices
-        'Microsoft Zira - English (United States)',
-        'Microsoft Eva - English (United States)', 
-        'Microsoft Aria - English (United States)',
-        'Microsoft Jenny - English (United States)',
-        
-        // Chrome/Google voices
-        'Google US English Female',
-        'Chrome Female',
-        'Google Female',
-        
-        // System voices
-        'Samantha',
-        'Victoria',
-        'Karen'
-    ];
-    
-    // Find exact matches first
-    for (const preferredName of preferredVoices) {
-        const voice = voices.find(v => v.name === preferredName);
-        if (voice) {
-            console.log('✅ Found preferred voice:', voice.name);
-            return voice;
-        }
-    }
-    
-    // Fallback to any English female voice
-    const englishFemale = voices.find(v => 
-        v.lang.startsWith('en') && 
-        (v.name.toLowerCase().includes('female') || 
-         v.name.toLowerCase().includes('zira') ||
-         v.name.toLowerCase().includes('eva'))
-    );
-    
-    return englishFemale || voices.find(v => v.lang.startsWith('en')) || null;
-}
-
-function findBestVoice(voices) {
-    console.log('🎵 Available voices:', voices.map(v => `${v.name} (${v.lang})`));
-    
-    // EDGE-SPECIFIC female voices (exact names matter!)
-    const preferredVoices = [
-        'Microsoft Zira Desktop - English (United States)',
-        'Microsoft Zira - English (United States)', 
-        'Microsoft Eva Desktop - English (United States)',
-        'Microsoft Eva - English (United States)',
-        'Microsoft Aria Desktop - English (United States)',
-        'Microsoft Aria - English (United States)'
-    ];
-    
-    // Try exact matches first
-    for (const preferredName of preferredVoices) {
-        const voice = voices.find(v => v.name === preferredName);
-        if (voice) {
-            console.log('✅ Found FEMALE voice:', voice.name);
-            return voice;
-        }
-    }
-    
-    // EXCLUDE male voices explicitly
-    const femaleVoice = voices.find(v => 
-        v.lang.startsWith('en') && 
-        !v.name.toLowerCase().includes('david') &&
-        !v.name.toLowerCase().includes('mark') &&
-        !v.name.toLowerCase().includes('james') &&
-        (v.name.toLowerCase().includes('zira') ||
-         v.name.toLowerCase().includes('eva') ||
-         v.name.toLowerCase().includes('aria') ||
-         v.name.toLowerCase().includes('female'))
-    );
-    
-    if (femaleVoice) {
-        console.log('✅ Found female voice:', femaleVoice.name);
-        return femaleVoice;
-    }
-    
-    console.log('❌ No female voice found, using first available');
-    return voices[0];
-}
 
 // ===================================================
 // 🎯 TOP BANNER DYNAMIC TEXT SYSTEM
