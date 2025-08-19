@@ -810,11 +810,9 @@ async function fallbackSpeech(message) {
         return;
     }
 
-    // Wait for voices to be loaded with preloader
-    const voices = await preloadVoices();
-    
-    // Now safely call speakWithVoice
-    await speakWithVoice(message, voices);
+    // Wait for voices to be loaded
+    const voices = await getVoices();
+    speakWithVoice(message, voices);
 }
 
 // Promise-based voice loading
