@@ -813,60 +813,47 @@ function findBestVoice(voices) {
 }
 
 function findBestVoice(voices) {
-    // Priority order for voice selection
-    const voicePreferences = [
-        // High-quality voices (varies by OS)
-        { keywords: ['Google'], lang: 'en-US' },
-        { keywords: ['Microsoft', 'Zira'], lang: 'en-US' },
-        { keywords: ['Samantha'], lang: 'en-US' },
-        { keywords: ['Karen'], lang: 'en-AU' },
-        { keywords: ['Alex'], lang: 'en-US' },
-        { keywords: ['Victoria'], lang: 'en-US' },
-        // Fallback to any English voice
-        { keywords: [], lang: 'en' }
+    console.log('🎵 Available voices:', voices.map(v => `${v.name} (${v.lang})`));
+    
+    // EDGE-SPECIFIC female voices (exact names matter!)
+    const preferredVoices = [
+        'Microsoft Zira Desktop - English (United States)',
+        'Microsoft Zira - English (United States)', 
+        'Microsoft Eva Desktop - English (United States)',
+        'Microsoft Eva - English (United States)',
+        'Microsoft Aria Desktop - English (United States)',
+        'Microsoft Aria - English (United States)'
     ];
     
-    for (const preference of voicePreferences) {
-        const voice = voices.find(v => {
-            const matchesLang = v.lang.startsWith(preference.lang);
-            const matchesKeywords = preference.keywords.length === 0 || 
-                preference.keywords.some(keyword => v.name.includes(keyword));
-            return matchesLang && matchesKeywords;
-        });
-        
+    // Try exact matches first
+    for (const preferredName of preferredVoices) {
+        const voice = voices.find(v => v.name === preferredName);
         if (voice) {
+            console.log('✅ Found FEMALE voice:', voice.name);
             return voice;
         }
     }
     
-    return null;
-}
-
-function stopCurrentAudio() {
-    if (window.speechSynthesis) {
-        window.speechSynthesis.cancel();
-        console.log('🛑 Speech stopped');
+    // EXCLUDE male voices explicitly
+    const femaleVoice = voices.find(v => 
+        v.lang.startsWith('en') && 
+        !v.name.toLowerCase().includes('david') &&
+        !v.name.toLowerCase().includes('mark') &&
+        !v.name.toLowerCase().includes('james') &&
+        (v.name.toLowerCase().includes('zira') ||
+         v.name.toLowerCase().includes('eva') ||
+         v.name.toLowerCase().includes('aria') ||
+         v.name.toLowerCase().includes('female'))
+    );
+    
+    if (femaleVoice) {
+        console.log('✅ Found female voice:', femaleVoice.name);
+        return femaleVoice;
     }
-    currentAudio = null;
+    
+    console.log('❌ No female voice found, using first available');
+    return voices[0];
 }
-
-// Preload voices on page load
-function preloadVoices() {
-    getVoices().then(voices => {
-        console.log('🎵 Voices preloaded:', voices.length);
-    });
-}
-
-function debugAvailableVoices() {
-    const voices = window.speechSynthesis.getVoices();
-    console.log('🔍 VOICE DEBUG - Available voices:');
-    voices.forEach((voice, index) => {
-        console.log(`${index}: ${voice.name} | ${voice.lang} | ${voice.gender || 'unknown'}`);
-    });
-}
-
-// Call this in your console to see what Edge offers
-// debugAvailableVoices();
 
 // ===================================================
 // 🎯 TOP BANNER DYNAMIC TEXT SYSTEM
