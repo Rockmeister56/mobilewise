@@ -751,6 +751,25 @@ function speakWithVoice(message, voices) {
     window.speechSynthesis.speak(utterance);
 }
 
+// ❌ COMMENT OUT THIS ENTIRE FUNCTION - IT'S CAUSING THE POPUP:
+/*
+function restartRecognition() {
+    if (isSpeaking) {
+        console.log('⏸️ Skipping recognition restart - AI is speaking');
+        return;
+    }
+    
+    console.log('🔄 Restarting speech recognition...');
+    if (recognition && micPermissionGranted) {
+        try {
+            recognition.start();  // ← THIS IS THE POPUP TRIGGER!
+        } catch (error) {
+            console.log('Recognition restart error:', error);
+        }
+    }
+}
+*/
+
 function findBestVoice(voices) {
     console.log('🎵 Available voices:', voices.map(v => `${v.name} (${v.lang})`));
     
@@ -775,26 +794,6 @@ function findBestVoice(voices) {
     return voices.find(v => v.name.includes('Zira')) || voices[0];
 }
 
-// ❌ COMMENT OUT THIS ENTIRE FUNCTION - IT'S CAUSING THE POPUP:
-/*
-function restartRecognition() {
-    if (isSpeaking) {
-        console.log('⏸️ Skipping recognition restart - AI is speaking');
-        return;
-    }
-    
-    console.log('🔄 Restarting speech recognition...');
-    if (recognition && micPermissionGranted) {
-        try {
-            recognition.start();  // ← THIS IS THE POPUP TRIGGER!
-        } catch (error) {
-            console.log('Recognition restart error:', error);
-        }
-    }
-}
-*/
-
-
 // ===================================================
 // 🎯 TOP BANNER DYNAMIC TEXT SYSTEM
 // ===================================================
@@ -809,10 +808,8 @@ function updateHeaderBanner(message) {
 }
 
 // Call this during initialization
-document.addEventListener('DOMContentLoaded', function() {
-    initializeWaveform();
-    preloadVoices();
-});
+document.addEventListener('DOMContentLoaded', preloadVoices);
+initializeWaveform();
 
 function stopCurrentAudio() {
     if (currentAudio) {
