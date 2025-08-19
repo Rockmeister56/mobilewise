@@ -11,7 +11,13 @@ let recognition = null;
 let isListening = false;
 let isAudioMode = false;
 let currentAudio = null;
-let micPermissionGranted = false;
+let hasStartedOnce = false; // 🔥 NEW: Track if we've started recognition
+let persistentMicStream = null; // Holds the microphone permission
+let isSpeaking = false; // Prevent recognition restarts during speech
+let audioContext = null;
+let analyser = null;
+let microphone = null;
+let voiceMeterActive = false;
 
 // ===========================================
 // BUSINESS RESPONSES DATABASE
@@ -36,39 +42,27 @@ const businessResponses = {
 };
 
 // ===========================================
-// MORTGAGE SITE SOLUTION: MICROPHONE PERMISSION FIX
+// 🔥 HOLD MIC OPEN (NO POPUPS)
 // ===========================================
-function initializeMicrophonePermission() {
-    let permissionRequested = false;
-    
-    document.addEventListener('click', async function requestMicOnce(e) {
-        if (permissionRequested) return;
+async function initializeMicrophonePermission() {
+    try {
+        micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        console.log('🎤 Mic permission GRANTED and HELD OPEN');
+        micPermissionGranted = true;
         
-        // Check for voice-related buttons
-        if (e.target.closest('#activateMicBtn') || 
-            e.target.closest('#reinitiateAudioBtn') ||
-            e.target.closest('#audioOffBtn')) {
-            
-            permissionRequested = true;
-            console.log('🎤 Requesting microphone permission on first click (no more popups)...');
-            
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                stream.getTracks().forEach(track => track.stop()); // Stop immediately
-                console.log('✅ Microphone permission granted! No more popups.');
-                micPermissionGranted = true;
-            } catch (error) {
-                console.log('❌ Microphone permission denied:', error);
-            }
-            
-            // Remove this listener after first use
-            document.removeEventListener('click', requestMicOnce);
-        }
-    });
+        micStream.getTracks().forEach(track => {
+            track.onended = () => {
+                console.error('🚨 MIC TRACK ENDED!');
+            };
+        });
+    } catch (error) {
+        console.log('❌ Mic permission denied:', error);
+        micPermissionGranted = false;
+    }
 }
 
 // ===========================================
-// WAIT FOR DOM TO BE READY
+// INITIALIZATION
 // ===========================================
 function initializeWhenReady() {
     if (document.readyState === 'loading') {
@@ -81,10 +75,6 @@ function initializeWhenReady() {
 function initialize() {
     console.log('🚀 Initializing NCI Business Chat...');
     
-    // MORTGAGE SITE FIX: Initialize microphone permission handler
-    initializeMicrophonePermission();
-    
-    // Wait a bit more to ensure all elements are rendered
     setTimeout(() => {
         initializeSpeechRecognition();
         bindEventListeners();
@@ -95,7 +85,6 @@ function initialize() {
 function bindEventListeners() {
     console.log('🔧 Binding event listeners...');
     
-    // Check if elements exist before binding
     const activateMicBtn = document.getElementById('activateMicBtn');
     const audioOffBtn = document.getElementById('audioOffBtn');
     const reinitiateAudioBtn = document.getElementById('reinitiateAudioBtn');
@@ -113,8 +102,6 @@ function bindEventListeners() {
     if (activateMicBtn) {
         activateMicBtn.addEventListener('click', activateMicrophone);
         console.log('✅ Activate mic button bound');
-    } else {
-        console.log('❌ Activate mic button not found');
     }
     
     if (audioOffBtn) {
@@ -143,7 +130,7 @@ function bindEventListeners() {
 }
 
 // ===========================================
-// SPEECH RECOGNITION SETUP - MORTGAGE SITE CONFIG
+// 🔥 FIXED SPEECH RECOGNITION - NO MORE POPUPS
 // ===========================================
 function initializeSpeechRecognition() {
     console.log('🎤 Initializing speech recognition...');
@@ -151,22 +138,27 @@ function initializeSpeechRecognition() {
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
         recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
         
-        // 🔥 CRITICAL FIX: Change these settings
-        recognition.continuous = false;        
-        recognition.interimResults = false;    // ← Change from TRUE to FALSE
-        recognition.maxAlternatives = 1;       // ← Change from 3 to 1
+        recognition.continuous = true;
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
         recognition.lang = 'en-US';
 
         recognition.onstart = function() {
             console.log('🎤 Speech recognition started');
             isListening = true;
+            hasStartedOnce = true;
         };
 
         recognition.onresult = function(event) {
-            // 🔥 ONLY process if it's a FINAL result
-            if (event.results[0].isFinal) {
-                const transcript = event.results[0][0].transcript.trim();
+            if (event.results.length > 0 && event.results[event.results.length - 1].isFinal) {
+                const transcript = event.results[event.results.length - 1][0].transcript.trim();
                 console.log('🎤 FINAL Voice input received:', transcript);
+                
+                // 🔥 DON'T STOP - JUST IGNORE WHILE AI IS SPEAKING
+                if (isSpeaking) {
+                    console.log('🚫 Ignoring input - AI is speaking');
+                    return;
+                }
                 
                 if (transcript && transcript.length > 0) {
                     handleVoiceInput(transcript);
@@ -175,44 +167,163 @@ function initializeSpeechRecognition() {
         };
 
         recognition.onend = function() {
-            console.log('🎤 Speech recognition ended');
-            isListening = false;
-            
-            // MORTGAGE SITE FIX: Improved restart logic
-            if (isAudioMode && !currentAudio && micPermissionGranted) {
-                setTimeout(() => {
-                    startListening();
-                }, 2000);
+    console.log('🎤 Speech recognition ended unexpectedly');
+    isListening = false;
+    
+    // 🔥 GENTLE RESTART - Only after AI finishes speaking
+    if (isAudioMode && micPermissionGranted && !isSpeaking) {
+        console.log('🔄 Gentle restart - waiting for AI to finish...');
+        setTimeout(() => {
+            if (!isListening && !isSpeaking && isAudioMode) {
+                try {
+                    recognition.start();
+                    console.log('✅ Recognition gently restarted');
+                } catch (error) {
+                    console.log('⚠️ Gentle restart failed:', error.message);
+                }
             }
-        };
+        }, 1000); // Conservative 1-second delay
+    }
+};
 
         recognition.onerror = function(event) {
             console.log('🚫 Speech recognition error:', event.error);
             isListening = false;
             
-            // MORTGAGE SITE FIX: Don't restart on permission errors
-            if (event.error !== 'not-allowed' && event.error === 'no-speech' && isAudioMode && micPermissionGranted) {
+            if (event.error === 'not-allowed') {
+                console.log('❌ Microphone permission denied');
+                micPermissionGranted = false;
+                return;
+            }
+            
+            // Restart on any other error
+            if (isAudioMode && micPermissionGranted) {
                 setTimeout(() => {
-                    if (isAudioMode && !currentAudio && micPermissionGranted) {
-                        startListening();
+                    if (!isListening) {
+                        recognition.start();
                     }
-                }, 3000);
+                }, 1000);
             }
         };
         
-        console.log('✅ Speech recognition initialized with fixed settings');
+        console.log('✅ Speech recognition initialized with continuous mode');
     } else {
         console.log('❌ Speech recognition not supported');
     }
 }
 
 // ===========================================
-// MICROPHONE ACTIVATION - SIMPLIFIED
+// 🎤 SHARED VOICE METER SYSTEM
+// ===========================================
+async function initializeVoiceMeter() {
+    // DON'T request new mic stream - use the one speech recognition already has
+    try {
+        // Wait for speech recognition to get permission first
+        if (!persistentMicStream) {
+            console.log('⏳ Waiting for speech recognition to get mic access...');
+            return false;
+        }
+        
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        analyser = audioContext.createAnalyser();
+        microphone = audioContext.createMediaStreamSource(persistentMicStream);
+        
+        analyser.fftSize = 256;
+        microphone.connect(analyser);
+        
+        console.log('🎤 Voice meter using SHARED mic stream - no extra permission!');
+        return true;
+    } catch (error) {
+        console.log('❌ Voice meter failed:', error);
+        return false;
+    }
+}
+
+function startVoiceMeter() {
+    if (!analyser || voiceMeterActive) return;
+    
+    voiceMeterActive = true;
+    const bufferLength = analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+    
+    function updateMeter() {
+        if (!voiceMeterActive) return;
+        
+        analyser.getByteFrequencyData(dataArray);
+        
+        // Calculate average volume
+        let sum = 0;
+        for (let i = 0; i < bufferLength; i++) {
+            sum += dataArray[i];
+        }
+        const average = sum / bufferLength;
+        const volume = Math.min(100, (average / 255) * 100);
+        
+        // Update the voice meter visual
+        updateVoiceMeterDisplay(volume);
+        
+        requestAnimationFrame(updateMeter);
+    }
+    
+    updateMeter();
+}
+
+function updateVoiceMeterDisplay(volume) {
+    const banner = document.querySelector('.voice-banner');
+    if (!banner) return;
+    
+    if (volume > 5) { // Speaking detected
+        // Create voice meter bars
+        const bars = Math.floor(volume / 10);
+        const meterHTML = '🎤 ' + '█'.repeat(Math.max(1, bars)) + '░'.repeat(10 - bars);
+        banner.innerHTML = `<span class="listening-text">${meterHTML} Speaking...</span>`;
+    } else {
+        // Static listening state
+        banner.innerHTML = '<span class="listening-text">🎤 Listening... What can I help you with?</span>';
+    }
+}
+
+function stopVoiceMeter() {
+    voiceMeterActive = false;
+}
+
+// ===========================================
+// VOICE BANNER CONTROL
+// ===========================================
+function showVoiceBanner() {
+    console.log('✅ Voice banner shown');
+    const banner = document.querySelector('.voice-banner');
+    if (banner) {
+        banner.style.display = 'block';
+        banner.innerHTML = '<span class="listening-text">🎤 Listening... What can I help you with?</span>';
+        
+        // Initialize and start voice meter
+        initializeVoiceMeter().then(success => {
+            if (success) {
+                startVoiceMeter();
+            }
+        });
+    }
+}
+
+// ===========================================
+// MICROPHONE ACTIVATION
 // ===========================================
 async function activateMicrophone() {
     console.log('🎤 Activating microphone...');
     
-    // Skip permission request - handled by click listener
+    // 🔥 START RECOGNITION FIRST - BEFORE ANY PERMISSION REQUESTS!
+    isAudioMode = true;
+    if (recognition && !isListening) {
+        console.log('🎤 Starting recognition BEFORE any permission requests...');
+        try {
+            recognition.start(); // This will ask for permission once
+        } catch (error) {
+            console.log('❌ Recognition start failed:', error);
+        }
+    }
+    
+    // Switch interface immediately
     const splashScreen = document.getElementById('splashScreen');
     const chatInterface = document.getElementById('chatInterface');
     
@@ -221,59 +332,26 @@ async function activateMicrophone() {
     
     console.log('✅ Interface switched to chat mode');
     
-    isAudioMode = true;
+    // Set audio mode UI
     showAudioMode();
     showVoiceBanner();
     
-    setTimeout(() => {
-        startListening();
-    }, 1000);
+    // Mark permission as granted (recognition.start() already asked for it)
+    micPermissionGranted = true;
     
+    // Add greeting
     setTimeout(() => {
         const greeting = "What can I help you with?";
         addAIMessage(greeting);
         speakResponse(greeting);
-    }, 1500);
+    }, 1000);
 }
 
-// ===========================================
-// FIXED SPEECH RECOGNITION START
-// ===========================================
-function startListening() {
-    if (!recognition) {
-        console.log('🚫 No recognition available');
-        return;
-    }
-    
-    if (isListening) {
-        console.log('🚫 Already listening');
-        return;
-    }
-    
-    // MORTGAGE SITE FIX: Only start if we have permission
-    if (!micPermissionGranted) {
-        console.log('🚫 No microphone permission granted yet');
-        return;
-    }
-    
-    try {
-        console.log('🎤 Starting speech recognition...');
-        recognition.start();
-    } catch (error) {
-        console.log('❌ Error starting recognition:', error);
-        setTimeout(() => {
-            if (isAudioMode && !isListening && micPermissionGranted) {
-                startListening();
-            }
-        }, 2000);
-    }
-}
-
-function stopListening() {
-    if (recognition && isListening) {
-        console.log('🛑 Stopping speech recognition...');
-        recognition.stop();
-        isListening = false;
+function stopPersistentMicrophone() {
+    if (persistentMicStream) {
+        persistentMicStream.getTracks().forEach(track => track.stop());
+        persistentMicStream = null;
+        console.log('🛑 Persistent microphone stream stopped');
     }
 }
 
@@ -301,7 +379,13 @@ function showTextMode() {
 function switchToTextMode() {
     console.log('📝 User switched to text mode');
     isAudioMode = false;
-    stopListening();
+    
+    // Stop recognition when switching to text mode
+    if (recognition && isListening) {
+        recognition.stop();
+        isListening = false;
+    }
+    
     hideVoiceBanner();
     showTextMode();
     
@@ -320,32 +404,15 @@ function switchToAudioMode() {
     const textInput = document.getElementById('textInput');
     if (textInput) textInput.value = '';
     
-    // MORTGAGE SITE FIX: Only restart if permission granted
-    if (micPermissionGranted) {
-        setTimeout(() => {
-            startListening();
-        }, 500);
-    }
+    // ❌ COMMENTED OUT - THIS WAS CAUSING THE SECOND PERMISSION POPUP:
+    // Only start if not already listening
+    // if (micPermissionGranted && !isListening) {
+    //     setTimeout(() => {
+    //         startRecognitionOnce();
+    //     }, 1000);
+    // }
 }
 
-// ===========================================
-// VOICE BANNER CONTROL
-// ===========================================
-function showVoiceBanner() {
-    const banner = document.getElementById('voiceBanner');
-    if (banner) {
-        banner.style.display = 'block';
-        console.log('✅ Voice banner shown');
-    }
-}
-
-function hideVoiceBanner() {
-    const banner = document.getElementById('voiceBanner');
-    if (banner) {
-        banner.style.display = 'none';
-        console.log('✅ Voice banner hidden');
-    }
-}
 
 // ===========================================
 // MESSAGE HANDLING
@@ -384,7 +451,7 @@ function processUserInput(message) {
 }
 
 // ===========================================
-// GLOBAL FUNCTIONS (for onclick handlers)
+// GLOBAL FUNCTIONS
 // ===========================================
 window.askQuickQuestion = function(question) {
     console.log('⚡ Quick question asked:', question);
@@ -451,97 +518,158 @@ function getAIResponse(message) {
 }
 
 // ===========================================
-// ELEVENLABS VOICE SYNTHESIS
+// IMPROVED BROWSER VOICE SYNTHESIS
 // ===========================================
 async function speakResponse(message) {
     console.log('🎵 Speaking response:', message);
     
-    try {
-        const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}`, {
-            method: 'POST',
-            headers: {
-                'Accept': 'audio/mpeg',
-                'Content-Type': 'application/json',
-                'xi-api-key': ELEVENLABS_API_KEY
-            },
-            body: JSON.stringify({
-                text: message,
-                model_id: 'eleven_monolingual_v1',
-                voice_settings: {
-                    stability: 0.5,
-                    similarity_boost: 0.75,
-                    style: 0.0,
-                    use_speaker_boost: true
-                }
-            })
-        });
-        
-        if (!response.ok) {
-            throw new Error(`ElevenLabs API error: ${response.status}`);
-        }
-        
-        const audioBlob = await response.blob();
-        const audioUrl = URL.createObjectURL(audioBlob);
-        const audio = new Audio(audioUrl);
-        audio.volume = 0.9;
-        
-        currentAudio = audio;
-        
-        audio.onended = () => {
-            URL.revokeObjectURL(audioUrl);
-            currentAudio = null;
-            console.log('✅ ElevenLabs audio completed');
-            
-            // MORTGAGE SITE FIX: Only restart if permission granted
-            if (isAudioMode && !isListening && micPermissionGranted) {
-                setTimeout(() => {
-                    startListening();
-                }, 1000);
-            }
-        };
-        
-        audio.onerror = (error) => {
-            console.log('❌ Audio playback error:', error);
-            URL.revokeObjectURL(audioUrl);
-            currentAudio = null;
-            fallbackSpeech(message);
-        };
-        
-        await audio.play();
-        console.log('🎵 ElevenLabs audio playing...');
-        
-    } catch (error) {
-        console.log('❌ ElevenLabs failed:', error);
-        fallbackSpeech(message);
-    }
+    // Use browser voice synthesis
+    await fallbackSpeech(message);
 }
 
-function fallbackSpeech(message) {
-    console.log('🔄 Using browser speech fallback');
+async function fallbackSpeech(message) {
+    console.log('🔄 Using improved browser speech');
     
-    if (window.speechSynthesis) {
-        const utterance = new SpeechSynthesisUtterance(message);
-        utterance.rate = 0.9;
-        utterance.pitch = 1.0;
-        utterance.volume = 0.8;
+    if (!window.speechSynthesis) {
+        console.log('❌ Speech synthesis not supported');
+        return;
+    }
+
+    // Wait for voices to be loaded
+    const voices = await getVoices();
+    speakWithVoice(message, voices);
+}
+
+// Promise-based voice loading
+function getVoices() {
+    return new Promise((resolve) => {
+        let voices = window.speechSynthesis.getVoices();
         
-        currentAudio = utterance;
+        if (voices.length > 0) {
+            resolve(voices);
+            return;
+        }
         
-        utterance.onend = () => {
-            currentAudio = null;
-            console.log('✅ Browser speech completed');
-            
-            // MORTGAGE SITE FIX: Only restart if permission granted
-            if (isAudioMode && !isListening && micPermissionGranted) {
-                setTimeout(() => {
-                    startListening();
-                }, 1000);
+        // Wait for voices to load
+        const voicesChangedHandler = () => {
+            voices = window.speechSynthesis.getVoices();
+            if (voices.length > 0) {
+                window.speechSynthesis.removeEventListener('voiceschanged', voicesChangedHandler);
+                resolve(voices);
             }
         };
         
-        window.speechSynthesis.speak(utterance);
+        window.speechSynthesis.addEventListener('voiceschanged', voicesChangedHandler);
+        
+        // Fallback timeout
+        setTimeout(() => {
+            voices = window.speechSynthesis.getVoices();
+            resolve(voices);
+        }, 1000);
+    });
+}
+
+function speakWithVoice(message, voices) {
+    // Stop any current speech
+    window.speechSynthesis.cancel();
+    
+    const utterance = new SpeechSynthesisUtterance(message);
+    
+    // Your existing voice selection code...
+    let bestVoice = findBestVoice(voices);
+    if (bestVoice) {
+        utterance.voice = bestVoice;
+        console.log('🎵 Selected voice:', bestVoice.name, bestVoice.lang);
+    }
+    
+    utterance.rate = 0.9;
+    utterance.pitch = 1.0;
+    utterance.volume = 0.8;
+    
+    // 🔥 SET THE isSpeaking FLAG
+    utterance.onstart = () => {
+        isSpeaking = true;
+        console.log('🎵 Speech started - blocking mic restarts');
+    };
+    
+    utterance.onend = () => {
+    isSpeaking = false;
+    currentAudio = null;
+    console.log('✅ Speech finished - mic restarts allowed');
+    
+};
+    
+    currentAudio = utterance;
+    window.speechSynthesis.speak(utterance);
+}
+
+// ❌ COMMENT OUT THIS ENTIRE FUNCTION - IT'S CAUSING THE POPUP:
+/*
+function restartRecognition() {
+    if (isSpeaking) {
+        console.log('⏸️ Skipping recognition restart - AI is speaking');
+        return;
+    }
+    
+    console.log('🔄 Restarting speech recognition...');
+    if (recognition && micPermissionGranted) {
+        try {
+            recognition.start();  // ← THIS IS THE POPUP TRIGGER!
+        } catch (error) {
+            console.log('Recognition restart error:', error);
+        }
     }
 }
+*/
+
+function findBestVoice(voices) {
+    // Priority order for voice selection
+    const voicePreferences = [
+        // High-quality voices (varies by OS)
+        { keywords: ['Google'], lang: 'en-US' },
+        { keywords: ['Microsoft', 'Zira'], lang: 'en-US' },
+        { keywords: ['Samantha'], lang: 'en-US' },
+        { keywords: ['Karen'], lang: 'en-AU' },
+        { keywords: ['Alex'], lang: 'en-US' },
+        { keywords: ['Victoria'], lang: 'en-US' },
+        // Fallback to any English voice
+        { keywords: [], lang: 'en' }
+    ];
+    
+    for (const preference of voicePreferences) {
+        const voice = voices.find(v => {
+            const matchesLang = v.lang.startsWith(preference.lang);
+            const matchesKeywords = preference.keywords.length === 0 || 
+                preference.keywords.some(keyword => v.name.includes(keyword));
+            return matchesLang && matchesKeywords;
+        });
+        
+        if (voice) {
+            return voice;
+        }
+    }
+    
+    return null;
+}
+
+function stopCurrentAudio() {
+    if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+        console.log('🛑 Speech stopped');
+    }
+    currentAudio = null;
+}
+
+// Preload voices on page load
+function preloadVoices() {
+    getVoices().then(voices => {
+        console.log('🎵 Voices preloaded:', voices.length);
+    });
+}
+
+// Call this during initialization
+document.addEventListener('DOMContentLoaded', preloadVoices);
+
 
 function stopCurrentAudio() {
     if (currentAudio) {
@@ -561,4 +689,4 @@ function stopCurrentAudio() {
 // ===========================================
 initializeWhenReady();
 
-console.log('📁 NCI Business Chat JavaScript Loaded with Mortgage Site Fixes!');
+console.log('📁 NCI Business Chat JavaScript Loaded - ULTIMATE MIC FIX!');
