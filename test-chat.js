@@ -771,27 +771,48 @@ function restartRecognition() {
 */
 
 function findBestVoice(voices) {
-    console.log('🎵 Available voices:', voices.map(v => `${v.name} (${v.lang})`));
-    
-    // EXACT Edge voice names from your console output
-    const preferredVoices = [
-        'Microsoft Aria Online (Natural) - English (United States)',  // Best quality!
-        'Microsoft Zira - English (United States)',                   // Backup female
-        'Microsoft Libby Online (Natural) - English (United Kingdom)' // UK female
+    // Priority order for voice selection
+    const voicePreferences = [
+        // High-quality voices (varies by OS)
+        { keywords: ['Google'], lang: 'en-US' },
+        { keywords: ['Microsoft', 'Zira'], lang: 'en-US' },
+        { keywords: ['Samantha'], lang: 'en-US' },
+        { keywords: ['Karen'], lang: 'en-AU' },
+        { keywords: ['Alex'], lang: 'en-US' },
+        { keywords: ['Victoria'], lang: 'en-US' },
+        // Fallback to any English voice
+        { keywords: [], lang: 'en' }
     ];
     
-    // Try exact matches first
-    for (const preferredName of preferredVoices) {
-        const voice = voices.find(v => v.name === preferredName);
+    for (const preference of voicePreferences) {
+        const voice = voices.find(v => {
+            const matchesLang = v.lang.startsWith(preference.lang);
+            const matchesKeywords = preference.keywords.length === 0 || 
+                preference.keywords.some(keyword => v.name.includes(keyword));
+            return matchesLang && matchesKeywords;
+        });
+        
         if (voice) {
-            console.log('✅ Found PERFECT FEMALE voice:', voice.name);
             return voice;
         }
     }
     
-    // This should NOT happen, but just in case
-    console.log('❌ Fallback - something went wrong');
-    return voices.find(v => v.name.includes('Zira')) || voices[0];
+    return null;
+}
+
+function stopCurrentAudio() {
+    if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+        console.log('🛑 Speech stopped');
+    }
+    currentAudio = null;
+}
+
+// Preload voices on page load
+function preloadVoices() {
+    getVoices().then(voices => {
+        console.log('🎵 Voices preloaded:', voices.length);
+    });
 }
 
 // ===================================================
