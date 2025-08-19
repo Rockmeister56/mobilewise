@@ -23,6 +23,7 @@ let animationId = null;
 let canvas = null;
 let canvasCtx = null;
 let voiceSpeed = 0.9; // Default professional speed
+let currentMode = 'voice'; // Default to voice mode
 
 // ===========================================
 // BUSINESS RESPONSES DATABASE
