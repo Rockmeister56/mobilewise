@@ -752,22 +752,27 @@ function speakWithVoice(message, voices) {
 }
 
 function findBestVoice(voices) {
+    console.log('🎵 Available voices:', voices.map(v => `${v.name} (${v.lang})`));
+    
+    // EXACT Edge voice names from your console output
     const preferredVoices = [
-        'Microsoft Libby Online (Natural) - English (United Kingdom)', // 🇬🇧 POSH BRITISH!
-        'Microsoft Aria Online (Natural) - English (United States)',   // 🇺🇸 Professional backup
-        'Microsoft Heather Online - English (Canada)',                 // 🍁 Canadian elegance
-        'Microsoft Zira - English (United States)'                     // 🇺🇸 Classic backup
+        'Microsoft Aria Online (Natural) - English (United States)',  // Best quality!
+        'Microsoft Zira - English (United States)',                   // Backup female
+        'Microsoft Libby Online (Natural) - English (United Kingdom)' // UK female
     ];
     
+    // Try exact matches first
     for (const preferredName of preferredVoices) {
         const voice = voices.find(v => v.name === preferredName);
         if (voice) {
-            console.log('✅ Selected voice:', voice.name);
+            console.log('✅ Found PERFECT FEMALE voice:', voice.name);
             return voice;
         }
     }
     
-    return voices[0];
+    // This should NOT happen, but just in case
+    console.log('❌ Fallback - something went wrong');
+    return voices.find(v => v.name.includes('Zira')) || voices[0];
 }
 
 // ❌ COMMENT OUT THIS ENTIRE FUNCTION - IT'S CAUSING THE POPUP:
@@ -803,6 +808,9 @@ function updateHeaderBanner(message) {
     }
 }
 
+// Call this during initialization
+document.addEventListener('DOMContentLoaded', preloadVoices);
+initializeWaveform();
 
 function stopCurrentAudio() {
     if (currentAudio) {
