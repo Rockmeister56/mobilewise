@@ -135,106 +135,6 @@ function bindEventListeners() {
 }
 
 // ===========================================
-// VOICE PRELOADER SYSTEM
-// ===========================================
-let voicesLoaded = false;
-let voiceLoadPromise = null;
-
-// Preload voices when page loads
-function preloadVoices() {
-    if (voiceLoadPromise) {
-        return voiceLoadPromise; // Return existing promise
-    }
-    
-    voiceLoadPromise = new Promise((resolve) => {
-        console.log('🎵 Preloading voices...');
-        
-        function checkVoices() {
-            const voices = window.speechSynthesis.getVoices();
-            if (voices.length > 0) {
-                voicesLoaded = true;
-                console.log('✅ Voices loaded:', voices.length, 'available');
-                resolve(voices);
-                return true;
-            }
-            return false;
-        }
-        
-        // Check immediately
-        if (checkVoices()) return;
-        
-        // Listen for voices to load
-        const voicesChangedHandler = () => {
-            if (checkVoices()) {
-                window.speechSynthesis.removeEventListener('voiceschanged', voicesChangedHandler);
-            }
-        };
-        
-        window.speechSynthesis.addEventListener('voiceschanged', voicesChangedHandler);
-        
-        // Fallback timeout
-        setTimeout(() => {
-            const voices = window.speechSynthesis.getVoices();
-            voicesLoaded = true;
-            console.log('⚠️ Voice loading timeout - using available voices:', voices.length);
-            resolve(voices);
-        }, 2000);
-    });
-    
-    return voiceLoadPromise;
-}
-
-// Enhanced speakWithVoice function with preloader check
-async function speakWithVoice(message, voices) {
-    console.log('🎵 speakWithVoice called with:', message);
-    
-    // Ensure voices are loaded
-    if (!voicesLoaded) {
-        console.log('⏳ Voices not loaded yet, waiting...');
-        voices = await preloadVoices();
-    }
-    
-    // Stop any current speech
-    window.speechSynthesis.cancel();
-    
-    const utterance = new SpeechSynthesisUtterance(message);
-    
-    // Find best voice
-    let bestVoice = findBestVoice(voices);
-    if (bestVoice) {
-        utterance.voice = bestVoice;
-        console.log('✅ Selected voice:', bestVoice.name);
-    }
-    
-    // Use dynamic speed
-    utterance.rate = voiceSpeed || 1.0;
-    utterance.pitch = 1.0;
-    utterance.volume = 0.8;
-    
-    // Set speaking flags
-    utterance.onstart = () => {
-        isSpeaking = true;
-        console.log('🎵 Speech started at speed:', utterance.rate);
-    };
-    
-    utterance.onend = () => {
-        isSpeaking = false;
-        currentAudio = null;
-        console.log('✅ Speech finished');
-        updateHeaderBanner('🔊 AI is listening...');
-    };
-    
-    currentAudio = utterance;
-    window.speechSynthesis.speak(utterance);
-}
-
-// Initialize voices when page loads
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 Initializing voice system...');
-    preloadVoices();
-});
-
-// ===========================================
 // 🔥 FIXED SPEECH RECOGNITION - NO MORE POPUPS
 // ===========================================
 function initializeSpeechRecognition() {
@@ -586,48 +486,22 @@ function showTextMode() {
 }
 
 function switchToTextMode() {
-    console.log('Switching to text mode...');
-    currentMode = 'text';
+    console.log('📝 User switched to text mode');
+    isAudioMode = false;
     
-    // Stop any current audio first
-    stopCurrentAudio();
-    
-    // Hide speed controls when switching to text mode
-    const speedControls = document.querySelector('.speed-controls');
-    if (speedControls) {
-        speedControls.style.display = 'none';
-        console.log('🔇 Speed controls hidden');
+    // Stop recognition when switching to text mode
+    if (recognition && isListening) {
+        recognition.stop();
+        isListening = false;
     }
     
-    // Hide voice banner and reset header
     hideVoiceBanner();
+    showTextMode();
     
-    // Reset header text to original state
-    const headerTitle = document.querySelector('.header-title');
-    const headerSubtitle = document.querySelector('.header-subtitle');
-    
-    if (headerTitle) {
-        headerTitle.textContent = 'Mobile-Wise AI Assistant';
+    const textInput = document.getElementById('textInput');
+    if (textInput) {
+        setTimeout(() => textInput.focus(), 100);
     }
-    if (headerSubtitle) {
-        headerSubtitle.textContent = 'Your intelligent form builder companion';
-    }
-    
-    // Update send button for text mode
-    const sendButton = document.getElementById('sendButton');
-    if (sendButton) {
-        sendButton.innerHTML = '<i class="fas fa-paper-plane"></i>';
-        sendButton.onclick = sendMessage;
-    }
-    
-    // Reset speaking flags
-    isSpeaking = false;
-    currentAudio = null;
-    
-    // Update header banner to indicate text mode
-    updateHeaderBanner('💬 Text Chat Mode');
-    
-    console.log('✅ Switched to text mode - speed controls hidden, audio stopped');
 }
 
 function switchToAudioMode() {
@@ -844,42 +718,37 @@ function getVoices() {
     });
 }
 
-// NEW SIMPLE SYSTEM - replaces both functions above
-voiceSpeed = 1.0; // Start at normal speed
-const speedLevels = [0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3];
-const speedNames = ['Very Slow', 'Slow', 'Relaxed', 'Normal', 'Fast', 'Faster', 'Very Fast'];
-let currentSpeedIndex = 3; // Start at "Normal" (1.0)
-
-function adjustVoiceSpeed(direction) {
-    if (direction === 'faster' && currentSpeedIndex < speedLevels.length - 1) {
-        currentSpeedIndex++;
-    } else if (direction === 'slower' && currentSpeedIndex > 0) {
-        currentSpeedIndex--;
+function speakWithVoice(message, voices) {
+    // Stop any current speech
+    window.speechSynthesis.cancel();
+    
+    const utterance = new SpeechSynthesisUtterance(message);
+    
+    // Your existing voice selection code...
+    let bestVoice = findBestVoice(voices);
+    if (bestVoice) {
+        utterance.voice = bestVoice;
+        console.log('🎵 Selected voice:', bestVoice.name, bestVoice.lang);
     }
     
-    voiceSpeed = speedLevels[currentSpeedIndex];
-    const speedName = speedNames[currentSpeedIndex];
-    
-    // Update display
-    document.getElementById('speedDisplay').textContent = speedName;
-    
-    console.log('🎵 Voice speed:', speedName, `(${voiceSpeed}x)`);
-    
-    // Optional: Test the new speed
-    testVoiceSpeed();
-}
-
-function testVoiceSpeed() {
-    const testMessage = `Speed set to ${speedNames[currentSpeedIndex]}`;
-    const voices = window.speechSynthesis.getVoices();
-    const voice = findBestVoice(voices);
-    
-    const utterance = new SpeechSynthesisUtterance(testMessage);
-    if (voice) utterance.voice = voice;
-    utterance.rate = voiceSpeed;
+    utterance.rate = 0.9;
     utterance.pitch = 1.0;
     utterance.volume = 0.8;
     
+    // 🔥 SET THE isSpeaking FLAG
+    utterance.onstart = () => {
+        isSpeaking = true;
+        console.log('🎵 Speech started - blocking mic restarts');
+    };
+    
+   utterance.onend = () => {
+    isSpeaking = false;
+    currentAudio = null;
+    console.log('✅ Speech finished - mic restarts allowed');
+    updateHeaderBanner('🔊 AI is listening...');
+};
+    
+    currentAudio = utterance;
     window.speechSynthesis.speak(utterance);
 }
 
