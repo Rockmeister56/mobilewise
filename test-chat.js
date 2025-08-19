@@ -752,28 +752,22 @@ function speakWithVoice(message, voices) {
 }
 
 function findBestVoice(voices) {
-    // SILENT voice selection - no console spam!
-    
-    // Target ONLY the best Edge voices
     const preferredVoices = [
-        'Microsoft Aria Online (Natural) - English (United States)',  // Perfect quality!
-        'Microsoft Zira - English (United States)',                   // Backup
-        'Microsoft Libby Online (Natural) - English (United Kingdom)' // UK backup
+        'Microsoft Libby Online (Natural) - English (United Kingdom)', // 🇬🇧 POSH BRITISH!
+        'Microsoft Aria Online (Natural) - English (United States)',   // 🇺🇸 Professional backup
+        'Microsoft Heather Online - English (Canada)',                 // 🍁 Canadian elegance
+        'Microsoft Zira - English (United States)'                     // 🇺🇸 Classic backup
     ];
     
-    // Find the exact voice we want
     for (const preferredName of preferredVoices) {
         const voice = voices.find(v => v.name === preferredName);
         if (voice) {
-            console.log('✅ Selected voice:', voice.name); // Only log the winner!
+            console.log('✅ Selected voice:', voice.name);
             return voice;
         }
     }
     
-    // Fallback (should never happen)
-    const fallback = voices.find(v => v.name.includes('Aria') || v.name.includes('Zira'));
-    console.log('⚠️ Using fallback voice:', fallback?.name || 'default');
-    return fallback || voices[0];
+    return voices[0];
 }
 
 // ❌ COMMENT OUT THIS ENTIRE FUNCTION - IT'S CAUSING THE POPUP:
