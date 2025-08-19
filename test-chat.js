@@ -617,14 +617,6 @@ function hideVoiceBanner() {
     }
 }
 
-function showVoiceBanner() {
-    console.log('Showing voice banner...');
-    const voiceVisualizerContainer = document.getElementById('voiceVisualizerContainer');
-    if (voiceVisualizerContainer) {
-        voiceVisualizerContainer.style.display = 'flex';
-    }
-}
-
 function addAIMessage(message) {
     const chatMessages = document.getElementById('chatMessages');
     if (!chatMessages) return;
