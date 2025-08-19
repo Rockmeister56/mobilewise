@@ -398,18 +398,12 @@ function stopVoiceMeter() {
 // VOICE BANNER CONTROL
 // ===========================================
 function showVoiceBanner() {
-    console.log('✅ Voice banner shown');
-    const banner = document.querySelector('.voice-banner');
-    if (banner) {
-        banner.style.display = 'block';
-        banner.innerHTML = '<span class="listening-text">🎤 Listening... What can I help you with?</span>';
-        
-        // Initialize and start voice meter
-        initializeVoiceMeter().then(success => {
-            if (success) {
-                startVoiceMeter();
-            }
-        });
+    const voiceContainer = document.getElementById('voiceVisualizerContainer');
+    if (voiceContainer) {
+        voiceContainer.style.display = 'flex';
+        console.log('✅ Voice visualizer container shown');
+    } else {
+        console.log('❌ Voice visualizer container not found');
     }
 }
 
@@ -513,6 +507,29 @@ function switchToAudioMode() {
     isAudioMode = true;
     showAudioMode();
     showVoiceBanner();
+
+    // ===================================================
+// 🎤 VOICE BANNER DISPLAY FUNCTIONS
+// ===================================================
+function showVoiceBanner() {
+    console.log('🎤 Showing voice banner...');
+    const voiceContainer = document.getElementById('voiceVisualizerContainer');
+    if (voiceContainer) {
+        voiceContainer.style.display = 'flex';
+        console.log('✅ Voice visualizer container shown');
+    } else {
+        console.log('❌ Voice visualizer container not found');
+    }
+}
+
+function hideVoiceBanner() {
+    console.log('🔽 Hiding voice banner...');
+    const voiceContainer = document.getElementById('voiceVisualizerContainer');
+    if (voiceContainer) {
+        voiceContainer.style.display = 'none';
+        console.log('✅ Voice visualizer container hidden');
+    }
+}
     
     const textInput = document.getElementById('textInput');
     if (textInput) textInput.value = '';
