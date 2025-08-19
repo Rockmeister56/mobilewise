@@ -809,8 +809,10 @@ function updateHeaderBanner(message) {
 }
 
 // Call this during initialization
-document.addEventListener('DOMContentLoaded', preloadVoices);
-initializeWaveform();
+document.addEventListener('DOMContentLoaded', function() {
+    initializeWaveform(); // Initialize your original waveform system
+    preloadVoices();       // Keep voice preloading too
+});
 
 function stopCurrentAudio() {
     if (currentAudio) {
