@@ -22,7 +22,6 @@ let dataArray = null;
 let animationId = null;
 let canvas = null;
 let canvasCtx = null;
-let voiceSpeed = 0.9; // Default professional speed
 
 // ===========================================
 // BUSINESS RESPONSES DATABASE
@@ -816,25 +815,6 @@ function stopCurrentAudio() {
         currentAudio = null;
         console.log('🛑 Audio stopped');
     }
-}
-
-// ADD this enhanced mute function that USES your existing logic
-function muteAIVoice() {
-    console.log('🔇 MUTING AI Voice...');
-    
-    // Use your existing audio stopping logic
-    stopCurrentAudio();
-    
-    // Reset speaking flags
-    isSpeaking = false;
-    
-    // Update UI
-    updateHeaderBanner('🔇 AI Voice Muted');
-    
-    // Optional: Switch to text mode UI
-    switchToTextMode();
-    
-    console.log('✅ AI Voice MUTED using existing audio control!');
 }
 
 // ===========================================
