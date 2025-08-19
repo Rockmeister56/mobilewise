@@ -18,6 +18,10 @@ let audioContext = null;
 let analyser = null;
 let microphone = null;
 let voiceMeterActive = false;
+let dataArray = null;
+let animationId = null;
+let canvas = null;
+let canvasCtx = null;
 
 // ===========================================
 // BUSINESS RESPONSES DATABASE
@@ -212,6 +216,109 @@ function initializeSpeechRecognition() {
     }
 }
 
+// ===================================================
+// 🎛️ VOICE WAVEFORM VISUALIZATION SYSTEM
+// ===================================================
+function initializeWaveform() {
+    canvas = document.getElementById('voiceWaveform');
+    if (!canvas) return;
+    
+    canvasCtx = canvas.getContext('2d');
+    console.log('🎛️ Waveform canvas initialized');
+}
+
+// Start the live waveform visualization
+async function startWaveformVisualization() {
+    try {
+        // Get microphone access
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        
+        // Create audio context
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        analyser = audioContext.createAnalyser();
+        microphone = audioContext.createMediaStreamSource(stream);
+        
+        // Configure analyser
+        analyser.fftSize = 256;
+        analyser.smoothingTimeConstant = 0.8;
+        microphone.connect(analyser);
+        
+        // Setup data array
+        const bufferLength = analyser.frequencyBinCount;
+        dataArray = new Uint8Array(bufferLength);
+        
+        console.log('🎛️ Waveform audio context started');
+        
+        // Show waveform, hide text
+        document.getElementById('voiceVisualizerContainer').classList.add('waveform-active');
+        
+        // Start animation
+        animateWaveform();
+        
+    } catch (error) {
+        console.error('❌ Waveform initialization failed:', error);
+    }
+}
+
+// Animate the waveform bars
+function animateWaveform() {
+    if (!analyser || !canvasCtx) return;
+    
+    animationId = requestAnimationFrame(animateWaveform);
+    
+    // Get frequency data
+    analyser.getByteFrequencyData(dataArray);
+    
+    // Clear canvas
+    canvasCtx.fillStyle = 'rgba(0,0,0,0.1)';
+    canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Draw waveform bars
+    const barWidth = canvas.width / dataArray.length * 2;
+    let barHeight;
+    let x = 0;
+    
+    for (let i = 0; i < dataArray.length; i++) {
+        barHeight = (dataArray[i] / 255) * canvas.height;
+        
+        // Create gradient based on intensity
+        const intensity = dataArray[i] / 255;
+        let color;
+        
+        if (intensity < 0.3) {
+            color = `rgba(102, 255, 102, ${intensity + 0.3})`; // Green
+        } else if (intensity < 0.7) {
+            color = `rgba(255, 255, 102, ${intensity + 0.3})`; // Yellow
+        } else {
+            color = `rgba(255, 102, 102, ${intensity + 0.3})`; // Red
+        }
+        
+        canvasCtx.fillStyle = color;
+        canvasCtx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+        
+        x += barWidth + 1;
+    }
+}
+
+// Stop waveform visualization
+function stopWaveformVisualization() {
+    if (animationId) {
+        cancelAnimationFrame(animationId);
+        animationId = null;
+    }
+    
+    if (audioContext && audioContext.state !== 'closed') {
+        audioContext.close();
+        audioContext = null;
+    }
+    
+    // Hide waveform, show text
+    document.getElementById('voiceVisualizerContainer').classList.remove('waveform-active');
+    
+    console.log('🎛️ Waveform visualization stopped');
+}
+
+
 // ===========================================
 // 🎤 SHARED VOICE METER SYSTEM
 // ===========================================
@@ -312,6 +419,9 @@ function showVoiceBanner() {
 async function activateMicrophone() {
     console.log('🎤 Activating microphone...');
     
+    // 🎛️ START WAVEFORM VISUALIZATION FIRST
+    await startWaveformVisualization();
+    
     // 🔥 START RECOGNITION FIRST - BEFORE ANY PERMISSION REQUESTS!
     isAudioMode = true;
     if (recognition && !isListening) {
@@ -334,7 +444,7 @@ async function activateMicrophone() {
     
     // Set audio mode UI
     showAudioMode();
-    showVoiceBanner();
+    showVoiceBanner(); // This will show your new waveform container
     
     // Mark permission as granted (recognition.start() already asked for it)
     micPermissionGranted = true;
@@ -353,6 +463,9 @@ function stopPersistentMicrophone() {
         persistentMicStream = null;
         console.log('🛑 Persistent microphone stream stopped');
     }
+    
+    // 🎛️ STOP WAVEFORM VISUALIZATION
+    stopWaveformVisualization();
 }
 
 // ===========================================
@@ -669,7 +782,7 @@ function preloadVoices() {
 
 // Call this during initialization
 document.addEventListener('DOMContentLoaded', preloadVoices);
-
+initializeWaveform();
 
 function stopCurrentAudio() {
     if (currentAudio) {
