@@ -787,6 +787,18 @@ function findBestVoice(voices) {
     return fallback || voices[0];
 }
 
+function debugAvailableVoices() {
+    const voices = window.speechSynthesis.getVoices();
+    const englishVoices = voices.filter(v => v.lang.startsWith('en'));
+    
+    console.log('🔍 ENGLISH VOICES ONLY:');
+    englishVoices.forEach((voice, index) => {
+        const marker = voice.name.includes('Aria') ? '👑' : 
+                      voice.name.includes('Zira') ? '✅' : '⚪';
+        console.log(`${marker} ${voice.name}`);
+    });
+}
+
 function stopCurrentAudio() {
     if (window.speechSynthesis) {
         window.speechSynthesis.cancel();
