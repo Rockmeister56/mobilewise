@@ -763,33 +763,28 @@ function restartRecognition() {
 */
 
 function findBestVoice(voices) {
-    // Priority order for voice selection
-    const voicePreferences = [
-        // High-quality voices (varies by OS)
-        { keywords: ['Google'], lang: 'en-US' },
-        { keywords: ['Microsoft', 'Zira'], lang: 'en-US' },
-        { keywords: ['Samantha'], lang: 'en-US' },
-        { keywords: ['Karen'], lang: 'en-AU' },
-        { keywords: ['Alex'], lang: 'en-US' },
-        { keywords: ['Victoria'], lang: 'en-US' },
-        // Fallback to any English voice
-        { keywords: [], lang: 'en' }
+    // SILENT voice selection - no console spam!
+    
+    // Target ONLY the best Edge voices
+    const preferredVoices = [
+        'Microsoft Aria Online (Natural) - English (United States)',  // Perfect quality!
+        'Microsoft Zira - English (United States)',                   // Backup
+        'Microsoft Libby Online (Natural) - English (United Kingdom)' // UK backup
     ];
     
-    for (const preference of voicePreferences) {
-        const voice = voices.find(v => {
-            const matchesLang = v.lang.startsWith(preference.lang);
-            const matchesKeywords = preference.keywords.length === 0 || 
-                preference.keywords.some(keyword => v.name.includes(keyword));
-            return matchesLang && matchesKeywords;
-        });
-        
+    // Find the exact voice we want
+    for (const preferredName of preferredVoices) {
+        const voice = voices.find(v => v.name === preferredName);
         if (voice) {
+            console.log('✅ Selected voice:', voice.name); // Only log the winner!
             return voice;
         }
     }
     
-    return null;
+    // Fallback (should never happen)
+    const fallback = voices.find(v => v.name.includes('Aria') || v.name.includes('Zira'));
+    console.log('⚠️ Using fallback voice:', fallback?.name || 'default');
+    return fallback || voices[0];
 }
 
 function stopCurrentAudio() {
