@@ -349,16 +349,6 @@
     transition: all 0.3s ease;
 }
 
-.voice-bar {
-    width: 4px;
-    height: 8px;
-    background-color: #666;
-    margin: 0 2px;
-    border-radius: 2px;
-    transition: all 0.2s ease;
-    opacity: 0.3;
-}
-
 .listening-text {
     color: white;
     font-weight: 500;
@@ -382,110 +372,6 @@
 .waveform-active .waveform-canvas {
     opacity: 1;
 }
-
-.voice-speed-selector {
-    background: rgba(220, 53, 69, 0.8);
-    border: none;
-    border-radius: 25px;
-    color: white;
-    padding: 8px 12px;
-    font-size: 12px;
-    font-weight: 500;
-    cursor: pointer;
-    min-width: 100px;
-    margin-right: 10px;
-}
-
-.voice-speed-selector:hover {
-    background: rgba(220, 53, 69, 1);
-}
-
-.speed-btn:hover {
-    background: #357abd;
-    transform: translateY(-1px);
-}
-
-.speed-display {
-    color: white;
-    font-size: 11px;
-    font-weight: 500;
-    min-width: 60px;
-    text-align: center;
-}
-
-/* Main container for ALL voice controls */
-.voice-controls-container {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    z-index: 1000;
-}
-
-/* Speed controls wrapper */
-.speed-controls {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: rgba(0, 0, 0, 0.3);
-    border-radius: 25px;
-    padding: 5px 10px;
-}
-
-/* Individual speed buttons */
-.speed-btn {
-    background: #4a90e2;
-    border: none;
-    border-radius: 15px;
-    color: white;
-    padding: 8px 12px;
-    font-size: 11px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-    height: 32px;
-}
-
-.speed-btn:hover {
-    background: #357abd;
-    transform: translateY(-1px);
-}
-
-/* Speed display text */
-.speed-display {
-    color: white;
-    font-size: 11px;
-    font-weight: 500;
-    min-width: 50px;
-    text-align: center;
-}
-
-/* Audio Off button styling */
-#audioOffButton {
-    background: #dc3545;
-    border: none;
-    border-radius: 25px;
-    color: white;
-    padding: 8px 16px;
-    font-size: 12px;
-    font-weight: 500;
-    cursor: pointer;
-    height: 42px;
-    transition: all 0.2s;
-}
-
-#audioOffButton:hover {
-    background: #c82333;
-    transform: translateY(-1px);
-}
-
-/* Hide speed controls when in text mode */
-.text-mode .speed-controls {
-    display: none !important;
-}
-
     </style>
 </head>
 <body>
@@ -539,17 +425,6 @@
                     <button class="audio-off-btn" id="audioOffBtn">🔴 Audio Off</button>
                 </div>
 
-               <div class="voice-controls-container">
-    <!-- Speed control buttons -->
-    <div class="speed-controls">
-        <button onclick="adjustVoiceSpeed('slower')" class="speed-btn slower-btn">
-            🐌 Slower
-        </button>
-        <span id="speedDisplay" class="speed-display">Normal</span>
-        <button onclick="adjustVoiceSpeed('faster')" class="speed-btn faster-btn">
-            🚀 Faster
-        </button>
-</div>
                 <!-- Text Mode Controls -->
                 <div class="text-controls" id="textControls" style="display: none;">
                     <div class="text-input-row">

@@ -23,8 +23,6 @@ let animationId = null;
 let canvas = null;
 let canvasCtx = null;
 let voiceSpeed = 0.9; // Default professional speed
-let currentMode = 'voice'; // Default to voice mode
-let micPermissionGranted = true;
 
 // ===========================================
 // BUSINESS RESPONSES DATABASE
@@ -135,96 +133,6 @@ function bindEventListeners() {
         console.log('✅ Text input enter key bound');
     }
 }
-
-// ===========================================
-// AUDIO LEVEL DETECTION & VISUALIZATION
-// ===========================================
-
-async function initializeAudioVisualization() {
-    try {
-        console.log('🎤 Initializing audio visualization...');
-        
-        // Get microphone access
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        
-        // Create audio context
-        audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        analyser = audioContext.createAnalyser();
-        microphone = audioContext.createMediaStreamSource(stream);
-        
-        // Configure analyser
-        analyser.fftSize = 256;
-        analyser.smoothingTimeConstant = 0.8;
-        microphone.connect(analyser);
-        
-        // Start visualization loop
-        visualizeAudioLevels();
-        
-        console.log('✅ Audio visualization initialized!');
-    } catch (error) {
-        console.log('❌ Audio visualization error:', error);
-        // Fallback to fake animation
-        startFakeVisualization();
-    }
-}
-
-function visualizeAudioLevels() {
-    if (!analyser) return;
-    
-    const dataArray = new Uint8Array(analyser.frequencyBinCount);
-    analyser.getByteFrequencyData(dataArray);
-    
-    // Calculate average audio level
-    const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
-    const normalizedLevel = average / 255; // Convert to 0-1 range
-    
-    // Update voice bars with real audio data
-    updateVoiceBarsWithAudio(normalizedLevel);
-    
-    // Continue loop
-    requestAnimationFrame(visualizeAudioLevels);
-}
-
-function updateVoiceBarsWithAudio(audioLevel) {
-    const bars = document.querySelectorAll('.voice-bar');
-    const amplifiedLevel = Math.min(audioLevel * 3, 1); // Amplify for better visual
-    
-    bars.forEach((bar, index) => {
-        const threshold = (index + 1) * 0.15; // Each bar has different sensitivity
-        const randomVariation = Math.random() * 0.3; // Add some natural variation
-        const finalLevel = amplifiedLevel + randomVariation;
-        
-        if (finalLevel > threshold) {
-            const height = 8 + (finalLevel * 25);
-            bar.style.height = `${height}px`;
-            bar.style.backgroundColor = `hsl(${120 + (finalLevel * 60)}, 70%, 50%)`; // Green to yellow
-            bar.style.opacity = '1';
-        } else {
-            bar.style.height = '4px';
-            bar.style.backgroundColor = '#444';
-            bar.style.opacity = '0.4';
-        }
-    });
-}
-
-function startFakeVisualization() {
-    // Fallback animation if audio access fails
-    setInterval(() => {
-        const bars = document.querySelectorAll('.voice-bar');
-        bars.forEach((bar, index) => {
-            const randomHeight = 4 + Math.random() * 20;
-            bar.style.height = `${randomHeight}px`;
-            bar.style.backgroundColor = `hsl(${Math.random() * 60 + 100}, 60%, 50%)`;
-        });
-    }, 150);
-}
-
-// Initialize when page loads
-document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(() => {
-        initializeAudioVisualization();
-    }, 1000); // Wait 1 second for everything to load
-});
 
 // ===========================================
 // VOICE PRELOADER SYSTEM
@@ -869,59 +777,6 @@ function scrollChatToBottom() {
 }
 
 // ===========================================
-// VOICE VISUALIZATION SYSTEM - RESTORE
-// ===========================================
-
-function createVoiceBars() {
-    const container = document.getElementById('voiceVisualizerContainer');
-    if (container) {
-        container.innerHTML = `
-            <div class="voice-bar" id="bar1"></div>
-            <div class="voice-bar" id="bar2"></div>
-            <div class="voice-bar" id="bar3"></div>
-            <div class="voice-bar" id="bar4"></div>
-            <div class="voice-bar" id="bar5"></div>
-        `;
-        container.style.display = 'flex';
-        console.log('✅ Voice bars recreated!');
-    }
-}
-
-function visualizeVoiceInput(audioLevel) {
-    const bars = document.querySelectorAll('.voice-bar');
-    const normalizedLevel = Math.min(audioLevel * 2, 1); // Amplify the visual
-    
-    bars.forEach((bar, index) => {
-        const threshold = (index + 1) * 0.2; // Each bar has different threshold
-        if (normalizedLevel > threshold) {
-            bar.style.height = `${20 + (normalizedLevel * 30)}px`;
-            bar.style.opacity = '1';
-            bar.style.backgroundColor = '#4CAF50'; // Green when active
-        } else {
-            bar.style.height = '8px';
-            bar.style.opacity = '0.3';
-            bar.style.backgroundColor = '#666'; // Gray when inactive
-        }
-    });
-}
-
-function updateVoiceVisualizer() {
-    // Animate bars even when not actively listening
-    const bars = document.querySelectorAll('.voice-bar');
-    bars.forEach((bar, index) => {
-        const randomHeight = 8 + Math.random() * 15;
-        bar.style.height = `${randomHeight}px`;
-        bar.style.transition = 'all 0.3s ease';
-    });
-}
-
-// Initialize voice bars
-createVoiceBars();
-
-// Start visualization loop
-setInterval(updateVoiceVisualizer, 200);
-
-// ===========================================
 // AI RESPONSE GENERATION
 // ===========================================
 function getAIResponse(message) {
@@ -955,11 +810,9 @@ async function fallbackSpeech(message) {
         return;
     }
 
-    // Wait for voices to be loaded with preloader
-    const voices = await preloadVoices();
-    
-    // Now safely call speakWithVoice
-    await speakWithVoice(message, voices);
+    // Wait for voices to be loaded
+    const voices = await getVoices();
+    speakWithVoice(message, voices);
 }
 
 // Promise-based voice loading
