@@ -831,24 +831,49 @@ function updateHeaderBanner(message) {
 document.addEventListener('DOMContentLoaded', preloadVoices);
 initializeWaveform();
 
+function stopCurrentAudio() {
+    if (currentAudio) {
+        if (currentAudio instanceof Audio) {
+            currentAudio.pause();
+            currentAudio.currentTime = 0;
+        } else if (window.speechSynthesis) {
+            window.speechSynthesis.cancel();
+        }
+        currentAudio = null;
+        console.log('🛑 Audio stopped');
+    }
+}
 
+function stopCurrentAudio() {
+    if (currentAudio) {
+        if (currentAudio instanceof Audio) {
+            currentAudio.pause();
+            currentAudio.currentTime = 0;
+        } else if (window.speechSynthesis) {
+            window.speechSynthesis.cancel();
+        }
+        currentAudio = null;
+        console.log('🛑 Audio stopped');
+    }
+}
+
+// ADD this enhanced mute function that USES your existing logic
 function muteAIVoice() {
-    console.log('🔇 MUTING AI Voice immediately...');
+    console.log('🔇 MUTING AI Voice...');
     
-    // INSTANTLY stop all speech synthesis
-    window.speechSynthesis.cancel();
+    // Use your existing audio stopping logic
+    stopCurrentAudio();
     
     // Reset speaking flags
     isSpeaking = false;
-    currentAudio = null;
     
-    // Update UI to show muted state
+    // Update UI
     updateHeaderBanner('🔇 AI Voice Muted');
     
-    // Optional: Switch to text mode UI as well
+    // Optional: Switch to text mode UI
     switchToTextMode();
     
-    console.log('✅ AI Voice STOPPED!');
+    console.log('✅ AI Voice MUTED using existing audio control!');
 }
 
 // ===========================================
