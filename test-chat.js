@@ -486,22 +486,48 @@ function showTextMode() {
 }
 
 function switchToTextMode() {
-    console.log('📝 User switched to text mode');
-    isAudioMode = false;
+    console.log('Switching to text mode...');
+    currentMode = 'text';
     
-    // Stop recognition when switching to text mode
-    if (recognition && isListening) {
-        recognition.stop();
-        isListening = false;
+    // Stop any current audio first
+    stopCurrentAudio();
+    
+    // Hide speed controls when switching to text mode
+    const speedControls = document.querySelector('.speed-controls');
+    if (speedControls) {
+        speedControls.style.display = 'none';
+        console.log('🔇 Speed controls hidden');
     }
     
+    // Hide voice banner and reset header
     hideVoiceBanner();
-    showTextMode();
     
-    const textInput = document.getElementById('textInput');
-    if (textInput) {
-        setTimeout(() => textInput.focus(), 100);
+    // Reset header text to original state
+    const headerTitle = document.querySelector('.header-title');
+    const headerSubtitle = document.querySelector('.header-subtitle');
+    
+    if (headerTitle) {
+        headerTitle.textContent = 'Mobile-Wise AI Assistant';
     }
+    if (headerSubtitle) {
+        headerSubtitle.textContent = 'Your intelligent form builder companion';
+    }
+    
+    // Update send button for text mode
+    const sendButton = document.getElementById('sendButton');
+    if (sendButton) {
+        sendButton.innerHTML = '<i class="fas fa-paper-plane"></i>';
+        sendButton.onclick = sendMessage;
+    }
+    
+    // Reset speaking flags
+    isSpeaking = false;
+    currentAudio = null;
+    
+    // Update header banner to indicate text mode
+    updateHeaderBanner('💬 Text Chat Mode');
+    
+    console.log('✅ Switched to text mode - speed controls hidden, audio stopped');
 }
 
 function switchToAudioMode() {
