@@ -349,6 +349,15 @@
     transition: all 0.3s ease;
 }
 
+#voiceVisualizerContainer {
+    display: flex !important;
+    position: fixed;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1001; /* Higher than voice controls */
+}
+
 .listening-text {
     color: white;
     font-weight: 500;
