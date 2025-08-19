@@ -135,6 +135,106 @@ function bindEventListeners() {
 }
 
 // ===========================================
+// VOICE PRELOADER SYSTEM
+// ===========================================
+let voicesLoaded = false;
+let voiceLoadPromise = null;
+
+// Preload voices when page loads
+function preloadVoices() {
+    if (voiceLoadPromise) {
+        return voiceLoadPromise; // Return existing promise
+    }
+    
+    voiceLoadPromise = new Promise((resolve) => {
+        console.log('🎵 Preloading voices...');
+        
+        function checkVoices() {
+            const voices = window.speechSynthesis.getVoices();
+            if (voices.length > 0) {
+                voicesLoaded = true;
+                console.log('✅ Voices loaded:', voices.length, 'available');
+                resolve(voices);
+                return true;
+            }
+            return false;
+        }
+        
+        // Check immediately
+        if (checkVoices()) return;
+        
+        // Listen for voices to load
+        const voicesChangedHandler = () => {
+            if (checkVoices()) {
+                window.speechSynthesis.removeEventListener('voiceschanged', voicesChangedHandler);
+            }
+        };
+        
+        window.speechSynthesis.addEventListener('voiceschanged', voicesChangedHandler);
+        
+        // Fallback timeout
+        setTimeout(() => {
+            const voices = window.speechSynthesis.getVoices();
+            voicesLoaded = true;
+            console.log('⚠️ Voice loading timeout - using available voices:', voices.length);
+            resolve(voices);
+        }, 2000);
+    });
+    
+    return voiceLoadPromise;
+}
+
+// Enhanced speakWithVoice function with preloader check
+async function speakWithVoice(message, voices) {
+    console.log('🎵 speakWithVoice called with:', message);
+    
+    // Ensure voices are loaded
+    if (!voicesLoaded) {
+        console.log('⏳ Voices not loaded yet, waiting...');
+        voices = await preloadVoices();
+    }
+    
+    // Stop any current speech
+    window.speechSynthesis.cancel();
+    
+    const utterance = new SpeechSynthesisUtterance(message);
+    
+    // Find best voice
+    let bestVoice = findBestVoice(voices);
+    if (bestVoice) {
+        utterance.voice = bestVoice;
+        console.log('✅ Selected voice:', bestVoice.name);
+    }
+    
+    // Use dynamic speed
+    utterance.rate = voiceSpeed || 1.0;
+    utterance.pitch = 1.0;
+    utterance.volume = 0.8;
+    
+    // Set speaking flags
+    utterance.onstart = () => {
+        isSpeaking = true;
+        console.log('🎵 Speech started at speed:', utterance.rate);
+    };
+    
+    utterance.onend = () => {
+        isSpeaking = false;
+        currentAudio = null;
+        console.log('✅ Speech finished');
+        updateHeaderBanner('🔊 AI is listening...');
+    };
+    
+    currentAudio = utterance;
+    window.speechSynthesis.speak(utterance);
+}
+
+// Initialize voices when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Initializing voice system...');
+    preloadVoices();
+});
+
+// ===========================================
 // 🔥 FIXED SPEECH RECOGNITION - NO MORE POPUPS
 // ===========================================
 function initializeSpeechRecognition() {
@@ -710,9 +810,11 @@ async function fallbackSpeech(message) {
         return;
     }
 
-    // Wait for voices to be loaded
-    const voices = await getVoices();
-    speakWithVoice(message, voices);
+    // Wait for voices to be loaded with preloader
+    const voices = await preloadVoices();
+    
+    // Now safely call speakWithVoice
+    await speakWithVoice(message, voices);
 }
 
 // Promise-based voice loading
