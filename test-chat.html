@@ -482,7 +482,12 @@
                     <!-- Messages will be added here by JavaScript -->
                 </div>
 
-                <div class="voice-controls-container">
+                <!-- Audio Mode Controls -->
+                <div class="audio-controls" id="audioControls" style="display: none;">
+                    <button class="audio-off-btn" id="audioOffBtn">🔴 Audio Off</button>
+                </div>
+
+               <div class="voice-controls-container">
     <!-- Speed control buttons -->
     <div class="speed-controls">
         <button onclick="adjustVoiceSpeed('slower')" class="speed-btn slower-btn">
@@ -492,12 +497,6 @@
         <button onclick="adjustVoiceSpeed('faster')" class="speed-btn faster-btn">
             🚀 Faster
         </button>
-    </div>
-    
-    <!-- Audio Off button -->
-    <button id="audioOffButton" onclick="stopCurrentAudio(); switchToTextMode();">
-        🔇 Audio Off
-    </button>
 </div>
                 <!-- Text Mode Controls -->
                 <div class="text-controls" id="textControls" style="display: none;">
