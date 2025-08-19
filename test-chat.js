@@ -771,6 +771,48 @@ function restartRecognition() {
 */
 
 function findBestVoice(voices) {
+    console.log('🎵 Available voices:', voices.map(v => `${v.name} (${v.lang})`));
+    
+    // Priority list for female voices
+    const preferredVoices = [
+        // Microsoft Edge voices
+        'Microsoft Zira - English (United States)',
+        'Microsoft Eva - English (United States)', 
+        'Microsoft Aria - English (United States)',
+        'Microsoft Jenny - English (United States)',
+        
+        // Chrome/Google voices
+        'Google US English Female',
+        'Chrome Female',
+        'Google Female',
+        
+        // System voices
+        'Samantha',
+        'Victoria',
+        'Karen'
+    ];
+    
+    // Find exact matches first
+    for (const preferredName of preferredVoices) {
+        const voice = voices.find(v => v.name === preferredName);
+        if (voice) {
+            console.log('✅ Found preferred voice:', voice.name);
+            return voice;
+        }
+    }
+    
+    // Fallback to any English female voice
+    const englishFemale = voices.find(v => 
+        v.lang.startsWith('en') && 
+        (v.name.toLowerCase().includes('female') || 
+         v.name.toLowerCase().includes('zira') ||
+         v.name.toLowerCase().includes('eva'))
+    );
+    
+    return englishFemale || voices.find(v => v.lang.startsWith('en')) || null;
+}
+
+function findBestVoice(voices) {
     // Priority order for voice selection
     const voicePreferences = [
         // High-quality voices (varies by OS)
