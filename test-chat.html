@@ -374,6 +374,30 @@
     opacity: 1;
 }
 
+.voice-bar {
+    width: 4px;
+    height: 8px;
+    background-color: #666;
+    margin: 0 2px;
+    border-radius: 2px;
+    transition: all 0.2s ease;
+    opacity: 0.3;
+}
+
+#voiceVisualizerContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1001;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 10px;
+    border-radius: 15px;
+}
+
 .voice-speed-selector {
     background: rgba(220, 53, 69, 0.8);
     border: none;

@@ -777,6 +777,59 @@ function scrollChatToBottom() {
 }
 
 // ===========================================
+// VOICE VISUALIZATION SYSTEM - RESTORE
+// ===========================================
+
+function createVoiceBars() {
+    const container = document.getElementById('voiceVisualizerContainer');
+    if (container) {
+        container.innerHTML = `
+            <div class="voice-bar" id="bar1"></div>
+            <div class="voice-bar" id="bar2"></div>
+            <div class="voice-bar" id="bar3"></div>
+            <div class="voice-bar" id="bar4"></div>
+            <div class="voice-bar" id="bar5"></div>
+        `;
+        container.style.display = 'flex';
+        console.log('✅ Voice bars recreated!');
+    }
+}
+
+function visualizeVoiceInput(audioLevel) {
+    const bars = document.querySelectorAll('.voice-bar');
+    const normalizedLevel = Math.min(audioLevel * 2, 1); // Amplify the visual
+    
+    bars.forEach((bar, index) => {
+        const threshold = (index + 1) * 0.2; // Each bar has different threshold
+        if (normalizedLevel > threshold) {
+            bar.style.height = `${20 + (normalizedLevel * 30)}px`;
+            bar.style.opacity = '1';
+            bar.style.backgroundColor = '#4CAF50'; // Green when active
+        } else {
+            bar.style.height = '8px';
+            bar.style.opacity = '0.3';
+            bar.style.backgroundColor = '#666'; // Gray when inactive
+        }
+    });
+}
+
+function updateVoiceVisualizer() {
+    // Animate bars even when not actively listening
+    const bars = document.querySelectorAll('.voice-bar');
+    bars.forEach((bar, index) => {
+        const randomHeight = 8 + Math.random() * 15;
+        bar.style.height = `${randomHeight}px`;
+        bar.style.transition = 'all 0.3s ease';
+    });
+}
+
+// Initialize voice bars
+createVoiceBars();
+
+// Start visualization loop
+setInterval(updateVoiceVisualizer, 200);
+
+// ===========================================
 // AI RESPONSE GENERATION
 // ===========================================
 function getAIResponse(message) {
@@ -810,9 +863,11 @@ async function fallbackSpeech(message) {
         return;
     }
 
-    // Wait for voices to be loaded
-    const voices = await getVoices();
-    speakWithVoice(message, voices);
+    // Wait for voices to be loaded with preloader
+    const voices = await preloadVoices();
+    
+    // Now safely call speakWithVoice
+    await speakWithVoice(message, voices);
 }
 
 // Promise-based voice loading
