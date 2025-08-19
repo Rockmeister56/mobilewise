@@ -438,6 +438,7 @@ async function activateMicrophone() {
     
     // Set audio mode UI
     showAudioMode();
+    updateHeaderBanner('🎤 Microphone Active - How can we help your business?');
     showVoiceBanner(); // This will show your new waveform container
     
     // Mark permission as granted (recognition.start() already asked for it)
@@ -652,6 +653,7 @@ function getAIResponse(message) {
 // ===========================================
 async function speakResponse(message) {
     console.log('🎵 Speaking response:', message);
+    updateHeaderBanner('👩‍💼 AI responding...');
     
     // Use browser voice synthesis
     await fallbackSpeech(message);
@@ -722,11 +724,11 @@ function speakWithVoice(message, voices) {
         console.log('🎵 Speech started - blocking mic restarts');
     };
     
-    utterance.onend = () => {
+   utterance.onend = () => {
     isSpeaking = false;
     currentAudio = null;
     console.log('✅ Speech finished - mic restarts allowed');
-    
+    updateHeaderBanner('🔊 AI is listening...');
 };
     
     currentAudio = utterance;
@@ -795,6 +797,19 @@ function preloadVoices() {
     getVoices().then(voices => {
         console.log('🎵 Voices preloaded:', voices.length);
     });
+}
+
+// ===================================================
+// 🎯 TOP BANNER DYNAMIC TEXT SYSTEM
+// ===================================================
+function updateHeaderBanner(message) {
+    const headerTitle = document.getElementById('chatHeaderTitle');
+    if (headerTitle) {
+        headerTitle.textContent = message;
+        console.log('📝 Header banner updated:', message);
+    } else {
+        console.log('❌ Header banner element not found');
+    }
 }
 
 // Call this during initialization
