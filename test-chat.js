@@ -752,27 +752,28 @@ function speakWithVoice(message, voices) {
 }
 
 function findBestVoice(voices) {
-    console.log('🎵 Available voices:', voices.map(v => `${v.name} (${v.lang})`));
+    // SILENT voice selection - no console spam!
     
-    // EXACT Edge voice names from your console output
+    // Target ONLY the best Edge voices
     const preferredVoices = [
-        'Microsoft Aria Online (Natural) - English (United States)',  // Best quality!
-        'Microsoft Zira - English (United States)',                   // Backup female
-        'Microsoft Libby Online (Natural) - English (United Kingdom)' // UK female
+        'Microsoft Aria Online (Natural) - English (United States)',  // Perfect quality!
+        'Microsoft Zira - English (United States)',                   // Backup
+        'Microsoft Libby Online (Natural) - English (United Kingdom)' // UK backup
     ];
     
-    // Try exact matches first
+    // Find the exact voice we want
     for (const preferredName of preferredVoices) {
         const voice = voices.find(v => v.name === preferredName);
         if (voice) {
-            console.log('✅ Found PERFECT FEMALE voice:', voice.name);
+            console.log('✅ Selected voice:', voice.name); // Only log the winner!
             return voice;
         }
     }
     
-    // This should NOT happen, but just in case
-    console.log('❌ Fallback - something went wrong');
-    return voices.find(v => v.name.includes('Zira')) || voices[0];
+    // Fallback (should never happen)
+    const fallback = voices.find(v => v.name.includes('Aria') || v.name.includes('Zira'));
+    console.log('⚠️ Using fallback voice:', fallback?.name || 'default');
+    return fallback || voices[0];
 }
 
 // ❌ COMMENT OUT THIS ENTIRE FUNCTION - IT'S CAUSING THE POPUP:
