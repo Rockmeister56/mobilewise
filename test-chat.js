@@ -718,62 +718,42 @@ function getVoices() {
     });
 }
 
-function updateVoiceSpeed() {
-    const speedSelector = document.getElementById('voiceSpeed');
-    if (speedSelector) {
-        voiceSpeed = parseFloat(speedSelector.value);
-        console.log('🎵 Voice speed updated to:', voiceSpeed);
-        
-        // Optional: Test the new speed immediately
-        testVoiceSpeed();
+// NEW SIMPLE SYSTEM - replaces both functions above
+voiceSpeed = 1.0; // Start at normal speed
+const speedLevels = [0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3];
+const speedNames = ['Very Slow', 'Slow', 'Relaxed', 'Normal', 'Fast', 'Faster', 'Very Fast'];
+let currentSpeedIndex = 3; // Start at "Normal" (1.0)
+
+function adjustVoiceSpeed(direction) {
+    if (direction === 'faster' && currentSpeedIndex < speedLevels.length - 1) {
+        currentSpeedIndex++;
+    } else if (direction === 'slower' && currentSpeedIndex > 0) {
+        currentSpeedIndex--;
     }
+    
+    voiceSpeed = speedLevels[currentSpeedIndex];
+    const speedName = speedNames[currentSpeedIndex];
+    
+    // Update display
+    document.getElementById('speedDisplay').textContent = speedName;
+    
+    console.log('🎵 Voice speed:', speedName, `(${voiceSpeed}x)`);
+    
+    // Optional: Test the new speed
+    testVoiceSpeed();
 }
 
 function testVoiceSpeed() {
-    const testMessage = "Voice speed updated successfully!";
+    const testMessage = `Speed set to ${speedNames[currentSpeedIndex]}`;
     const voices = window.speechSynthesis.getVoices();
     const voice = findBestVoice(voices);
     
     const utterance = new SpeechSynthesisUtterance(testMessage);
     if (voice) utterance.voice = voice;
-    utterance.rate = voiceSpeed;  // Use the new speed!
-    utterance.pitch = 1.0;
-    utterance.volume = 0.8;
-    
-    window.speechSynthesis.speak(utterance);
-}
-
-function speakWithVoice(message, voices) {
-    // Stop any current speech
-    window.speechSynthesis.cancel();
-    
-    const utterance = new SpeechSynthesisUtterance(message);
-    
-    // Your existing voice selection code...
-    let bestVoice = findBestVoice(voices);
-    if (bestVoice) {
-        utterance.voice = bestVoice;
-        console.log('🎵 Selected voice:', bestVoice.name, bestVoice.lang);
-    }
-    
     utterance.rate = voiceSpeed;
     utterance.pitch = 1.0;
     utterance.volume = 0.8;
     
-    // 🔥 SET THE isSpeaking FLAG
-    utterance.onstart = () => {
-        isSpeaking = true;
-        console.log('🎵 Speech started - blocking mic restarts');
-    };
-    
-   utterance.onend = () => {
-    isSpeaking = false;
-    currentAudio = null;
-    console.log('✅ Speech finished - mic restarts allowed');
-    updateHeaderBanner('🔊 AI is listening...');
-};
-    
-    currentAudio = utterance;
     window.speechSynthesis.speak(utterance);
 }
 
