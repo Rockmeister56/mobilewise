@@ -857,6 +857,17 @@ function preloadVoices() {
     });
 }
 
+function debugAvailableVoices() {
+    const voices = window.speechSynthesis.getVoices();
+    console.log('🔍 VOICE DEBUG - Available voices:');
+    voices.forEach((voice, index) => {
+        console.log(`${index}: ${voice.name} | ${voice.lang} | ${voice.gender || 'unknown'}`);
+    });
+}
+
+// Call this in your console to see what Edge offers
+// debugAvailableVoices();
+
 // ===================================================
 // 🎯 TOP BANNER DYNAMIC TEXT SYSTEM
 // ===================================================
