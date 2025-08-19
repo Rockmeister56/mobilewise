@@ -11,17 +11,12 @@ let recognition = null;
 let isListening = false;
 let isAudioMode = false;
 let currentAudio = null;
+let micPermissionGranted = false;
+let micStream = null;
 let hasStartedOnce = false; // 🔥 NEW: Track if we've started recognition
 let persistentMicStream = null; // Holds the microphone permission
 let isSpeaking = false; // Prevent recognition restarts during speech
-let audioContext = null;
-let analyser = null;
-let microphone = null;
-let voiceMeterActive = false;
-let dataArray = null;
-let animationId = null;
-let canvas = null;
-let canvasCtx = null;
+let recognitionStarting = false; // Prevent multiple simultaneous starts
 
 // ===========================================
 // BUSINESS RESPONSES DATABASE
@@ -158,12 +153,6 @@ function initializeSpeechRecognition() {
                 const transcript = event.results[event.results.length - 1][0].transcript.trim();
                 console.log('🎤 FINAL Voice input received:', transcript);
                 
-                // 🔥 DON'T STOP - JUST IGNORE WHILE AI IS SPEAKING
-                if (isSpeaking) {
-                    console.log('🚫 Ignoring input - AI is speaking');
-                    return;
-                }
-                
                 if (transcript && transcript.length > 0) {
                     handleVoiceInput(transcript);
                 }
@@ -171,42 +160,50 @@ function initializeSpeechRecognition() {
         };
 
         recognition.onend = function() {
-    console.log('🎤 Speech recognition ended unexpectedly');
-    isListening = false;
-    
-    // 🔥 GENTLE RESTART - Only after AI finishes speaking
-    if (isAudioMode && micPermissionGranted && !isSpeaking) {
-        console.log('🔄 Gentle restart - waiting for AI to finish...');
-        setTimeout(() => {
-            if (!isListening && !isSpeaking && isAudioMode) {
-                try {
-                    recognition.start();
-                    console.log('✅ Recognition gently restarted');
-                } catch (error) {
-                    console.log('⚠️ Gentle restart failed:', error.message);
-                }
+            console.log('🎤 Speech recognition ended unexpectedly');
+            isListening = false;
+            
+            // Don't restart if AI is speaking
+            if (isSpeaking) {
+                console.log('⏸️ Not restarting - AI is speaking');
+                return;
             }
-        }, 1000); // Conservative 1-second delay
-    }
-};
+            
+            // Only restart if still in audio mode
+            if (isAudioMode && micPermissionGranted) {
+                console.log('⚠️ Restarting recognition due to unexpected end...');
+                setTimeout(() => {
+                    try {
+                        recognition.start();
+                    } catch (error) {
+                        console.log('Recognition restart error:', error);
+                    }
+                }, 1000);
+            }
+        };
 
         recognition.onerror = function(event) {
             console.log('🚫 Speech recognition error:', event.error);
             isListening = false;
             
+            // Don't restart on permission errors
             if (event.error === 'not-allowed') {
                 console.log('❌ Microphone permission denied');
                 micPermissionGranted = false;
                 return;
             }
             
-            // Restart on any other error
-            if (isAudioMode && micPermissionGranted) {
-                setTimeout(() => {
-                    if (!isListening) {
-                        recognition.start();
-                    }
-                }, 1000);
+            // Only restart for network errors
+            if (event.error === 'network' || event.error === 'service-not-allowed') {
+                if (isAudioMode && micPermissionGranted && !isSpeaking) {
+                    setTimeout(() => {
+                        try {
+                            recognition.start();
+                        } catch (error) {
+                            console.log('Error recovery failed:', error);
+                        }
+                    }, 3000);
+                }
             }
         };
         
@@ -216,194 +213,42 @@ function initializeSpeechRecognition() {
     }
 }
 
-// ===================================================
-// 🎛️ VOICE WAVEFORM VISUALIZATION SYSTEM
-// ===================================================
-function initializeWaveform() {
-    canvas = document.getElementById('voiceWaveform');
-    if (!canvas) return;
+// ===========================================
+// 🔥 START RECOGNITION WITH CALL LOCK
+// ===========================================
+async function startRecognitionOnce() {
+    console.log('🎤 startRecognitionOnce called, isListening:', isListening, 'recognitionStarting:', recognitionStarting);
     
-    canvasCtx = canvas.getContext('2d');
-    console.log('🎛️ Waveform canvas initialized');
-}
-
-// Start the live waveform visualization
-async function startWaveformVisualization() {
-    try {
-        // Get microphone access
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        
-        // Create audio context
-        audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        analyser = audioContext.createAnalyser();
-        microphone = audioContext.createMediaStreamSource(stream);
-        
-        // Configure analyser
-        analyser.fftSize = 256;
-        analyser.smoothingTimeConstant = 0.8;
-        microphone.connect(analyser);
-        
-        // Setup data array
-        const bufferLength = analyser.frequencyBinCount;
-        dataArray = new Uint8Array(bufferLength);
-        
-        console.log('🎛️ Waveform audio context started');
-        
-        // Show waveform, hide text
-        document.getElementById('voiceVisualizerContainer').classList.add('waveform-active');
-        
-        // Start animation
-        animateWaveform();
-        
-    } catch (error) {
-        console.error('❌ Waveform initialization failed:', error);
+    // Prevent multiple simultaneous calls
+    if (recognitionStarting) {
+        console.log('🚫 Recognition already starting - skipping this call');
+        return;
     }
-}
+    
+    // Don't start if already listening or no permission
+    if (isListening || !recognition || !micPermissionGranted || !isAudioMode) {
+        console.log('🚫 Cannot start recognition - requirements not met');
+        return;
+    }
 
-// Animate the waveform bars
-function animateWaveform() {
-    if (!analyser || !canvasCtx) return;
+    recognitionStarting = true; // Lock to prevent other calls
     
-    animationId = requestAnimationFrame(animateWaveform);
-    
-    // Get frequency data
-    analyser.getByteFrequencyData(dataArray);
-    
-    // Clear canvas
-    canvasCtx.fillStyle = 'rgba(0,0,0,0.1)';
-    canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
-    
-    // Draw waveform bars
-    const barWidth = canvas.width / dataArray.length * 2;
-    let barHeight;
-    let x = 0;
-    
-    for (let i = 0; i < dataArray.length; i++) {
-        barHeight = (dataArray[i] / 255) * canvas.height;
+    try {
+        console.log('🎤 Starting continuous speech recognition...');
+        recognition.start();
+        isListening = true;
+    } catch (error) {
+        console.log('❌ Error starting recognition:', error);
         
-        // Create gradient based on intensity
-        const intensity = dataArray[i] / 255;
-        let color;
-        
-        if (intensity < 0.3) {
-            color = `rgba(102, 255, 102, ${intensity + 0.3})`; // Green
-        } else if (intensity < 0.7) {
-            color = `rgba(255, 255, 102, ${intensity + 0.3})`; // Yellow
+        // If it's already started, that's actually fine
+        if (error.message && error.message.includes('already started')) {
+            console.log('✅ Recognition already running - this is fine');
+            isListening = true;
         } else {
-            color = `rgba(255, 102, 102, ${intensity + 0.3})`; // Red
+            isListening = false;
         }
-        
-        canvasCtx.fillStyle = color;
-        canvasCtx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
-        
-        x += barWidth + 1;
-    }
-}
-
-// Stop waveform visualization
-function stopWaveformVisualization() {
-    if (animationId) {
-        cancelAnimationFrame(animationId);
-        animationId = null;
-    }
-    
-    if (audioContext && audioContext.state !== 'closed') {
-        audioContext.close();
-        audioContext = null;
-    }
-    
-    // Hide waveform, show text
-    document.getElementById('voiceVisualizerContainer').classList.remove('waveform-active');
-    
-    console.log('🎛️ Waveform visualization stopped');
-}
-
-
-// ===========================================
-// 🎤 SHARED VOICE METER SYSTEM
-// ===========================================
-async function initializeVoiceMeter() {
-    // DON'T request new mic stream - use the one speech recognition already has
-    try {
-        // Wait for speech recognition to get permission first
-        if (!persistentMicStream) {
-            console.log('⏳ Waiting for speech recognition to get mic access...');
-            return false;
-        }
-        
-        audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        analyser = audioContext.createAnalyser();
-        microphone = audioContext.createMediaStreamSource(persistentMicStream);
-        
-        analyser.fftSize = 256;
-        microphone.connect(analyser);
-        
-        console.log('🎤 Voice meter using SHARED mic stream - no extra permission!');
-        return true;
-    } catch (error) {
-        console.log('❌ Voice meter failed:', error);
-        return false;
-    }
-}
-
-function startVoiceMeter() {
-    if (!analyser || voiceMeterActive) return;
-    
-    voiceMeterActive = true;
-    const bufferLength = analyser.frequencyBinCount;
-    const dataArray = new Uint8Array(bufferLength);
-    
-    function updateMeter() {
-        if (!voiceMeterActive) return;
-        
-        analyser.getByteFrequencyData(dataArray);
-        
-        // Calculate average volume
-        let sum = 0;
-        for (let i = 0; i < bufferLength; i++) {
-            sum += dataArray[i];
-        }
-        const average = sum / bufferLength;
-        const volume = Math.min(100, (average / 255) * 100);
-        
-        // Update the voice meter visual
-        updateVoiceMeterDisplay(volume);
-        
-        requestAnimationFrame(updateMeter);
-    }
-    
-    updateMeter();
-}
-
-function updateVoiceMeterDisplay(volume) {
-    const banner = document.querySelector('.voice-banner');
-    if (!banner) return;
-    
-    if (volume > 5) { // Speaking detected
-        // Create voice meter bars
-        const bars = Math.floor(volume / 10);
-        const meterHTML = '🎤 ' + '█'.repeat(Math.max(1, bars)) + '░'.repeat(10 - bars);
-        banner.innerHTML = `<span class="listening-text">${meterHTML} Speaking...</span>`;
-    } else {
-        // Static listening state
-        banner.innerHTML = '<span class="listening-text">🎤 Listening... What can I help you with?</span>';
-    }
-}
-
-function stopVoiceMeter() {
-    voiceMeterActive = false;
-}
-
-// ===========================================
-// VOICE BANNER CONTROL
-// ===========================================
-function showVoiceBanner() {
-    const voiceContainer = document.getElementById('voiceVisualizerContainer');
-    if (voiceContainer) {
-        voiceContainer.style.display = 'flex';
-        console.log('✅ Voice visualizer container shown');
-    } else {
-        console.log('❌ Voice visualizer container not found');
+    } finally {
+        recognitionStarting = false; // Unlock after attempt
     }
 }
 
@@ -413,43 +258,27 @@ function showVoiceBanner() {
 async function activateMicrophone() {
     console.log('🎤 Activating microphone...');
     
-    // 🎛️ START WAVEFORM VISUALIZATION FIRST
-    await startWaveformVisualization();
-    
-    // 🔥 START RECOGNITION FIRST - BEFORE ANY PERMISSION REQUESTS!
-    isAudioMode = true;
-    if (recognition && !isListening) {
-        console.log('🎤 Starting recognition BEFORE any permission requests...');
-        try {
-            recognition.start(); // This will ask for permission once
-        } catch (error) {
-            console.log('❌ Recognition start failed:', error);
-        }
+    try {
+        // Get persistent microphone permission
+        micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        console.log('🎤 Mic permission GRANTED and HELD OPEN');
+        micPermissionGranted = true;
+        
+        // Store the persistent stream
+        persistentMicStream = micStream;
+        
+        // Switch to audio mode
+        switchToAudioMode();
+        
+        // Start recognition with existing permission
+        setTimeout(() => {
+            startRecognitionOnce();
+        }, 1000);
+        
+    } catch (error) {
+        console.log('❌ Microphone access denied:', error);
+        alert('Microphone access was denied. You can still type messages!');
     }
-    
-    // Switch interface immediately
-    const splashScreen = document.getElementById('splashScreen');
-    const chatInterface = document.getElementById('chatInterface');
-    
-    if (splashScreen) splashScreen.style.display = 'none';
-    if (chatInterface) chatInterface.style.display = 'flex';
-    
-    console.log('✅ Interface switched to chat mode');
-    
-    // Set audio mode UI
-    showAudioMode();
-    updateHeaderBanner('🎤 Microphone Active - How can we help your business?');
-    showVoiceBanner(); // This will show your new waveform container
-    
-    // Mark permission as granted (recognition.start() already asked for it)
-    micPermissionGranted = true;
-    
-    // Add greeting
-    setTimeout(() => {
-        const greeting = "What can I help you with?";
-        addAIMessage(greeting);
-        speakResponse(greeting);
-    }, 1000);
 }
 
 function stopPersistentMicrophone() {
@@ -458,9 +287,6 @@ function stopPersistentMicrophone() {
         persistentMicStream = null;
         console.log('🛑 Persistent microphone stream stopped');
     }
-    
-    // 🎛️ STOP WAVEFORM VISUALIZATION
-    stopWaveformVisualization();
 }
 
 // ===========================================
@@ -508,42 +334,36 @@ function switchToAudioMode() {
     isAudioMode = true;
     showAudioMode();
     showVoiceBanner();
-
-    // ===================================================
-// 🎤 VOICE BANNER DISPLAY FUNCTIONS
-// ===================================================
-function showVoiceBanner() {
-    console.log('🎤 Showing voice banner...');
-    const voiceContainer = document.getElementById('voiceVisualizerContainer');
-    if (voiceContainer) {
-        voiceContainer.style.display = 'flex';
-        console.log('✅ Voice visualizer container shown');
-    } else {
-        console.log('❌ Voice visualizer container not found');
-    }
-}
-
-function hideVoiceBanner() {
-    console.log('🔽 Hiding voice banner...');
-    const voiceContainer = document.getElementById('voiceVisualizerContainer');
-    if (voiceContainer) {
-        voiceContainer.style.display = 'none';
-        console.log('✅ Voice visualizer container hidden');
-    }
-}
     
     const textInput = document.getElementById('textInput');
     if (textInput) textInput.value = '';
     
-    // ❌ COMMENTED OUT - THIS WAS CAUSING THE SECOND PERMISSION POPUP:
     // Only start if not already listening
-    // if (micPermissionGranted && !isListening) {
-    //     setTimeout(() => {
-    //         startRecognitionOnce();
-    //     }, 1000);
-    // }
+    if (micPermissionGranted && !isListening) {
+        setTimeout(() => {
+            startRecognitionOnce();
+        }, 1000);
+    }
 }
 
+// ===========================================
+// VOICE BANNER CONTROL
+// ===========================================
+function showVoiceBanner() {
+    const banner = document.getElementById('voiceBanner');
+    if (banner) {
+        banner.style.display = 'block';
+        console.log('✅ Voice banner shown');
+    }
+}
+
+function hideVoiceBanner() {
+    const banner = document.getElementById('voiceBanner');
+    if (banner) {
+        banner.style.display = 'none';
+        console.log('✅ Voice banner hidden');
+    }
+}
 
 // ===========================================
 // MESSAGE HANDLING
@@ -609,22 +429,6 @@ function addUserMessage(message) {
     console.log('✅ User message added:', message);
 }
 
-function hideVoiceBanner() {
-    console.log('Hiding voice banner...');
-    const voiceVisualizerContainer = document.getElementById('voiceVisualizerContainer');
-    if (voiceVisualizerContainer) {
-        voiceVisualizerContainer.style.display = 'none';
-    }
-}
-
-function showVoiceBanner() {
-    console.log('Showing voice banner...');
-    const voiceVisualizerContainer = document.getElementById('voiceVisualizerContainer');
-    if (voiceVisualizerContainer) {
-        voiceVisualizerContainer.style.display = 'flex';
-    }
-}
-
 function addAIMessage(message) {
     const chatMessages = document.getElementById('chatMessages');
     if (!chatMessages) return;
@@ -669,7 +473,6 @@ function getAIResponse(message) {
 // ===========================================
 async function speakResponse(message) {
     console.log('🎵 Speaking response:', message);
-    updateHeaderBanner('👩‍💼 AI responding...');
     
     // Use browser voice synthesis
     await fallbackSpeech(message);
@@ -740,19 +543,21 @@ function speakWithVoice(message, voices) {
         console.log('🎵 Speech started - blocking mic restarts');
     };
     
-   utterance.onend = () => {
-    isSpeaking = false;
-    currentAudio = null;
-    console.log('✅ Speech finished - mic restarts allowed');
-    updateHeaderBanner('🔊 AI is listening...');
-};
+    utterance.onend = () => {
+        isSpeaking = false;
+        currentAudio = null;
+        console.log('✅ Speech finished - mic restarts allowed');
+    };
+    
+    utterance.onerror = (event) => {
+        isSpeaking = false; // Reset on error
+        console.log('❌ Speech error:', event.error);
+    };
     
     currentAudio = utterance;
     window.speechSynthesis.speak(utterance);
 }
 
-// ❌ COMMENT OUT THIS ENTIRE FUNCTION - IT'S CAUSING THE POPUP:
-/*
 function restartRecognition() {
     if (isSpeaking) {
         console.log('⏸️ Skipping recognition restart - AI is speaking');
@@ -762,13 +567,12 @@ function restartRecognition() {
     console.log('🔄 Restarting speech recognition...');
     if (recognition && micPermissionGranted) {
         try {
-            recognition.start();  // ← THIS IS THE POPUP TRIGGER!
+            recognition.start();
         } catch (error) {
             console.log('Recognition restart error:', error);
         }
     }
 }
-*/
 
 function findBestVoice(voices) {
     // Priority order for voice selection
@@ -815,22 +619,9 @@ function preloadVoices() {
     });
 }
 
-// ===================================================
-// 🎯 TOP BANNER DYNAMIC TEXT SYSTEM
-// ===================================================
-function updateHeaderBanner(message) {
-    const headerTitle = document.getElementById('chatHeaderTitle');
-    if (headerTitle) {
-        headerTitle.textContent = message;
-        console.log('📝 Header banner updated:', message);
-    } else {
-        console.log('❌ Header banner element not found');
-    }
-}
-
 // Call this during initialization
 document.addEventListener('DOMContentLoaded', preloadVoices);
-initializeWaveform();
+
 
 function stopCurrentAudio() {
     if (currentAudio) {
