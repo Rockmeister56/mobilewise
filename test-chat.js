@@ -252,13 +252,6 @@ async function startWaveformVisualization() {
         // Show waveform, hide text
         document.getElementById('voiceVisualizerContainer').classList.add('waveform-active');
         
-        // ✅ STEP 2 INTEGRATION: Change text when listening starts
-        const listeningText = document.getElementById('staticListeningText');
-        if (listeningText) {
-            listeningText.textContent = '🔊 AI is listening...';
-            console.log('📝 Banner updated: AI is listening');
-        }
-        
         // Start animation
         animateWaveform();
         
@@ -660,13 +653,6 @@ function getAIResponse(message) {
 async function speakResponse(message) {
     console.log('🎵 Speaking response:', message);
     
-    // ✅ STEP 3 INTEGRATION: Change text when AI starts speaking
-    const listeningText = document.getElementById('staticListeningText');
-    if (listeningText) {
-        listeningText.textContent = '🤖 AI responding...';
-        console.log('📝 Banner updated: AI responding');
-    }
-    
     // Use browser voice synthesis
     await fallbackSpeech(message);
 }
@@ -735,17 +721,12 @@ function speakWithVoice(message, voices) {
         isSpeaking = true;
         console.log('🎵 Speech started - blocking mic restarts');
     };
-  utterance.onend = () => {
+    
+    utterance.onend = () => {
     isSpeaking = false;
     currentAudio = null;
     console.log('✅ Speech finished - mic restarts allowed');
     
-    // ✅ STEP 4 INTEGRATION: Reset to listening state
-    const listeningText = document.getElementById('staticListeningText');
-    if (listeningText) {
-        listeningText.textContent = '🔊 AI is listening...';
-        console.log('📝 Banner reset: Back to listening mode');
-    }
 };
     
     currentAudio = utterance;
