@@ -831,18 +831,6 @@ function updateHeaderBanner(message) {
 document.addEventListener('DOMContentLoaded', preloadVoices);
 initializeWaveform();
 
-function stopCurrentAudio() {
-    if (currentAudio) {
-        if (currentAudio instanceof Audio) {
-            currentAudio.pause();
-            currentAudio.currentTime = 0;
-        } else if (window.speechSynthesis) {
-            window.speechSynthesis.cancel();
-        }
-        currentAudio = null;
-        console.log('🛑 Audio stopped');
-    }
-}
 
 function muteAIVoice() {
     console.log('🔇 MUTING AI Voice immediately...');
