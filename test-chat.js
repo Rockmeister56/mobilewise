@@ -844,6 +844,25 @@ function stopCurrentAudio() {
     }
 }
 
+function muteAIVoice() {
+    console.log('🔇 MUTING AI Voice immediately...');
+    
+    // INSTANTLY stop all speech synthesis
+    window.speechSynthesis.cancel();
+    
+    // Reset speaking flags
+    isSpeaking = false;
+    currentAudio = null;
+    
+    // Update UI to show muted state
+    updateHeaderBanner('🔇 AI Voice Muted');
+    
+    // Optional: Switch to text mode UI as well
+    switchToTextMode();
+    
+    console.log('✅ AI Voice STOPPED!');
+}
+
 // ===========================================
 // INITIALIZE WHEN READY
 // ===========================================
