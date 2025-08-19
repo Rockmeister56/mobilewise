@@ -651,24 +651,13 @@ function showVoiceBanner() {
 }
 
 function hideVoiceBanner() {
-    console.log('🔽 Hiding voice banner...');
-    const voiceContainer = document.getElementById('voiceVisualizerContainer');
-    if (voiceContainer) {
-        voiceContainer.style.display = 'none';
-        console.log('✅ Voice visualizer container hidden');
+    console.log('Hiding voice banner (but keeping voice visualizer bars)...');
+    // Only hide the banner text, NOT the voice bars
+    const voiceBanner = document.querySelector('.voice-banner-text');
+    if (voiceBanner) {
+        voiceBanner.style.display = 'none';
     }
-}
-    
-    const textInput = document.getElementById('textInput');
-    if (textInput) textInput.value = '';
-    
-    // ❌ COMMENTED OUT - THIS WAS CAUSING THE SECOND PERMISSION POPUP:
-    // Only start if not already listening
-    // if (micPermissionGranted && !isListening) {
-    //     setTimeout(() => {
-    //         startRecognitionOnce();
-    //     }, 1000);
-    // }
+    // DO NOT hide voiceVisualizerContainer - let the bars stay visible!
 }
 
 
