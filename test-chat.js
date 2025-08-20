@@ -22,6 +22,7 @@ let dataArray = null;
 let animationId = null;
 let canvas = null;
 let canvasCtx = null;
+let voiceSpeed = 0.9;
 
 // ===========================================
 // BUSINESS RESPONSES DATABASE
@@ -707,6 +708,44 @@ function getVoices() {
             resolve(voices);
         }, 1000);
     });
+}
+
+voiceSpeed = 1.0; // Start at normal speed
+const speedLevels = [0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3];
+const speedNames = ['Very Slow', 'Slow', 'Relaxed', 'Normal', 'Fast', 'Faster', 'Very Fast'];
+let currentSpeedIndex = 3; // Start at "Normal" (1.0)
+
+function adjustVoiceSpeed(direction) {
+    if (direction === 'faster' && currentSpeedIndex < speedLevels.length - 1) {
+        currentSpeedIndex++;
+    } else if (direction === 'slower' && currentSpeedIndex > 0) {
+        currentSpeedIndex--;
+    }
+    
+    voiceSpeed = speedLevels[currentSpeedIndex];
+    const speedName = speedNames[currentSpeedIndex];
+    
+    // Update display
+    document.getElementById('speedDisplay').textContent = speedName;
+    
+    console.log('🎵 Voice speed:', speedName, `(${voiceSpeed}x)`);
+    
+    // Optional: Test the new speed
+    testVoiceSpeed();
+}
+
+function testVoiceSpeed() {
+    const testMessage = `Speed set to ${speedNames[currentSpeedIndex]}`;
+    const voices = window.speechSynthesis.getVoices();
+    const voice = findBestVoice(voices);
+    
+    const utterance = new SpeechSynthesisUtterance(testMessage);
+    if (voice) utterance.voice = voice;
+    utterance.rate = voiceSpeed;
+    utterance.pitch = 1.0;
+    utterance.volume = 0.8;
+    
+    window.speechSynthesis.speak(utterance);
 }
 
 function speakWithVoice(message, voices) {

@@ -337,6 +337,39 @@
             }
         }
 
+        .speed-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 5px;
+}
+
+.speed-btn {
+    background: #4a90e2;
+    border: none;
+    border-radius: 15px;
+    color: white;
+    padding: 6px 12px;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.speed-btn:hover {
+    background: #357abd;
+    transform: translateY(-1px);
+}
+
+.speed-display {
+    color: white;
+    font-size: 11px;
+    font-weight: 500;
+    min-width: 60px;
+    text-align: center;
+}
+
         .voice-container {
     position: relative;
     width: 100%;
@@ -372,6 +405,7 @@
 .waveform-active .waveform-canvas {
     opacity: 1;
 }
+
     </style>
 </head>
 <body>
@@ -419,6 +453,24 @@
                 <div class="chat-messages" id="chatMessages">
                     <!-- Messages will be added here by JavaScript -->
                 </div>
+
+                <div class="voice-controls-container">
+      <!-- Speed control buttons -->
+    <div class="speed-controls">
+        <button onclick="adjustVoiceSpeed('slower')" class="speed-btn slower-btn">
+            🐌 Slower
+        </button>
+        <span id="speedDisplay" class="speed-display">Normal</span>
+        <button onclick="adjustVoiceSpeed('faster')" class="speed-btn faster-btn">
+            🚀 Faster
+        </button>
+    </div>
+    
+    <!-- Audio Off button -->
+    <button id="audioOffButton" onclick="stopCurrentAudio(); switchToTextMode();">
+        🔇 Audio Off
+    </button>
+</div>
 
                 <!-- Audio Mode Controls -->
                 <div class="audio-controls" id="audioControls" style="display: none;">
