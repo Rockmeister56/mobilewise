@@ -378,54 +378,6 @@ async function initializeVoiceMeter() {
     }
 }
 
-// CLEANUP FUNCTION - CALL THIS ON PAGE UNLOAD
-function cleanupAudioContext() {
-    if (globalMicrophone) {
-        globalMicrophone.disconnect();
-        globalMicrophone = null;
-    }
-    if (globalAnalyser) {
-        globalAnalyser = null;
-    }
-    if (globalAudioContext && globalAudioContext.state !== 'closed') {
-        globalAudioContext.close();
-        globalAudioContext = null;
-    }
-    console.log('🧹 Audio context cleaned up');
-}
-
-// AUTO-CLEANUP ON PAGE UNLOAD
-window.addEventListener('beforeunload', cleanupAudioContext);
-
-function startVoiceMeter() {
-    if (!analyser || voiceMeterActive) return;
-    
-    voiceMeterActive = true;
-    const bufferLength = analyser.frequencyBinCount;
-    const dataArray = new Uint8Array(bufferLength);
-    
-    function updateMeter() {
-        if (!voiceMeterActive) return;
-        
-        analyser.getByteFrequencyData(dataArray);
-        
-        // Calculate average volume
-        let sum = 0;
-        for (let i = 0; i < bufferLength; i++) {
-            sum += dataArray[i];
-        }
-        const average = sum / bufferLength;
-        const volume = Math.min(100, (average / 255) * 100);
-        
-        // Update the voice meter visual
-        updateVoiceMeterDisplay(volume);
-        
-        requestAnimationFrame(updateMeter);
-    }
-    
-    updateMeter();
-}
-
 function updateVoiceMeterDisplay(volume) {
     const banner = document.querySelector('.voice-banner');
     if (!banner) return;
