@@ -321,61 +321,121 @@ function stopWaveformVisualization() {
 
 
 // ===========================================
-// 🎤 FIXED SHARED VOICE METER SYSTEM - NO CONFLICTS!
+// 🔥 FIXED MICROPHONE ACTIVATION WITH STREAM CREATION
 // ===========================================
-
-// GLOBAL AUDIO CONTEXT - ONE INSTANCE ONLY!
-let globalAudioContext = null;
-let globalAnalyser = null;
-let globalMicrophone = null;
-
-async function initializeVoiceMeter() {
+async function activateMicrophone() {
+    console.log('🎤 Activating microphone...');
+    
     try {
-        // USE SINGLE GLOBAL AUDIO CONTEXT
-        if (!globalAudioContext) {
-            console.log('🎛️ Creating SINGLE global audio context...');
-            globalAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+        // 🔥 CREATE THE MISSING persistentMicStream!
+        console.log('🎤 Requesting microphone stream for speech recognition AND meters...');
+        persistentMicStream = await navigator.mediaDevices.getUserMedia({ 
+            audio: {
+                echoCancellation: true,
+                noiseSuppression: true,
+                autoGainControl: true,
+                sampleRate: 44100
+            }
+        });
+        
+        console.log('✅ REAL microphone stream created!');
+        console.log('🎤 Stream tracks:', persistentMicStream.getAudioTracks());
+        
+        // NOW initialize voice meter with REAL stream
+        const meterSuccess = await initializeVoiceMeter();
+        if (meterSuccess) {
+            console.log('✅ Voice meter initialized with REAL audio stream!');
+            startVoiceMeter();
         }
         
-        // Resume context if suspended (Chrome requirement)
-        if (globalAudioContext.state === 'suspended') {
-            await globalAudioContext.resume();
-            console.log('▶️ Audio context resumed');
+        // Start waveform visualization
+        await startWaveformVisualization();
+        
+        // Set permission flags
+        micPermissionGranted = true;
+        isAudioMode = true;
+        
+        // NOW start speech recognition (it will use the SAME stream)
+        if (recognition && !isListening) {
+            console.log('🎤 Starting speech recognition with REAL stream...');
+            recognition.start();
         }
-        
-        // Wait for speech recognition to get permission first
-        if (!persistentMicStream) {
-            console.log('⏳ Waiting for speech recognition to get mic access...');
-            return false;
-        }
-        
-        // Create analyser using GLOBAL context
-        if (!globalAnalyser) {
-            globalAnalyser = globalAudioContext.createAnalyser();
-            globalAnalyser.fftSize = 256;
-            globalAnalyser.smoothingTimeConstant = 0.8;
-        }
-        
-        // Create microphone source using GLOBAL context
-        if (!globalMicrophone) {
-            globalMicrophone = globalAudioContext.createMediaStreamSource(persistentMicStream);
-            globalMicrophone.connect(globalAnalyser);
-        }
-        
-        // UPDATE REFERENCES TO USE GLOBAL OBJECTS
-        audioContext = globalAudioContext;
-        analyser = globalAnalyser;
-        microphone = globalMicrophone;
-        
-        console.log('✅ Voice meter using SHARED mic stream with SINGLE audio context!');
-        console.log('🎛️ Audio context state:', globalAudioContext.state);
-        console.log('🎛️ Sample rate:', globalAudioContext.sampleRate);
-        return true;
         
     } catch (error) {
-        console.error('❌ Voice meter failed:', error);
-        return false;
+        console.error('🚫 Microphone activation failed:', error);
+        micPermissionGranted = false;
+        alert('Microphone access is required for voice chat!');
+        return;
     }
+    
+    // Switch interface
+    const splashScreen = document.getElementById('splashScreen');
+    const chatInterface = document.getElementById('chatInterface');
+    
+    if (splashScreen) splashScreen.style.display = 'none';
+    if (chatInterface) chatInterface.style.display = 'flex';
+    
+    console.log('✅ Interface switched to chat mode');
+    
+    // Set audio mode UI
+    showAudioMode();
+    updateHeaderBanner('🎤 Microphone Active - How can we help your business?');
+    showVoiceBanner();
+    
+    // Add greeting
+    setTimeout(() => {
+        const greeting = "What can I help you with?";
+        addAIMessage(greeting);
+        speakResponse(greeting);
+    }, 1000);
+}
+
+// CLEANUP FUNCTION - CALL THIS ON PAGE UNLOAD
+function cleanupAudioContext() {
+    if (globalMicrophone) {
+        globalMicrophone.disconnect();
+        globalMicrophone = null;
+    }
+    if (globalAnalyser) {
+        globalAnalyser = null;
+    }
+    if (globalAudioContext && globalAudioContext.state !== 'closed') {
+        globalAudioContext.close();
+        globalAudioContext = null;
+    }
+    console.log('🧹 Audio context cleaned up');
+}
+
+// AUTO-CLEANUP ON PAGE UNLOAD
+window.addEventListener('beforeunload', cleanupAudioContext);
+
+function startVoiceMeter() {
+    if (!analyser || voiceMeterActive) return;
+    
+    voiceMeterActive = true;
+    const bufferLength = analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+    
+    function updateMeter() {
+        if (!voiceMeterActive) return;
+        
+        analyser.getByteFrequencyData(dataArray);
+        
+        // Calculate average volume
+        let sum = 0;
+        for (let i = 0; i < bufferLength; i++) {
+            sum += dataArray[i];
+        }
+        const average = sum / bufferLength;
+        const volume = Math.min(100, (average / 255) * 100);
+        
+        // Update the voice meter visual
+        updateVoiceMeterDisplay(volume);
+        
+        requestAnimationFrame(updateMeter);
+    }
+    
+    updateMeter();
 }
 
 function updateVoiceMeterDisplay(volume) {
