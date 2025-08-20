@@ -914,6 +914,18 @@ function stopCurrentAudio() {
     }
 }
 
+function showSpeedControls() {
+    const slowerBtn = document.querySelector('[onclick*="slower"]');
+    const normalBtn = document.querySelector('[onclick*="normal"]'); 
+    const fasterBtn = document.querySelector('[onclick*="faster"]');
+    
+    if (slowerBtn) slowerBtn.style.display = 'inline-block';
+    if (normalBtn) normalBtn.style.display = 'inline-block';
+    if (fasterBtn) fasterBtn.style.display = 'inline-block';
+    
+    console.log('Speed buttons shown');
+}
+
 // ADD this enhanced mute function that USES your existing logic
 function muteAIVoice() {
     console.log('🔇 MUTING AI Voice...');
