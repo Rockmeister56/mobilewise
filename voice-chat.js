@@ -209,6 +209,41 @@ function initializeSpeechRecognition() {
     }
 }
 
+// CHROME FIX - PROPER PERMISSION REQUEST
+function activateMicrophoneChrome() {
+    console.log("🎤 Chrome: Requesting REAL microphone access...");
+    
+    // Clear any old bypass attempts
+    if (recognition) {
+        recognition.stop();
+    }
+    
+    // Request ACTUAL microphone permission
+    navigator.mediaDevices.getUserMedia({ 
+        audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true
+        }
+    })
+    .then((stream) => {
+        console.log("✅ Chrome: REAL microphone access granted!");
+        
+        // Keep stream active for speech recognition
+        window.microphoneStream = stream;
+        
+        // Now start recognition with REAL permission
+        setTimeout(() => {
+            recognition.start();
+            switchToAudioMode();
+        }, 500);
+    })
+    .catch((error) => {
+        console.error("🚫 Chrome: Microphone blocked:", error);
+        alert("Chrome needs microphone permission to work properly!");
+    });
+}
+
 // ===================================================
 // 🎛️ VOICE WAVEFORM VISUALIZATION SYSTEM
 // ===================================================
