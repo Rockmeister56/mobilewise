@@ -399,20 +399,12 @@ function stopVoiceMeter() {
 // VOICE BANNER CONTROL
 // ===========================================
 function showVoiceBanner() {
-    console.log('🎤 Showing voice banner...');
-    
-    // Show the voice visualizer
     const voiceContainer = document.getElementById('voiceVisualizerContainer');
     if (voiceContainer) {
         voiceContainer.style.display = 'flex';
-        console.log('✅ Voice visualizer shown');
-    }
-    
-    // Show speed controls when in voice mode
-    const speedControls = document.querySelector('.speed-controls');
-    if (speedControls) {
-        speedControls.style.display = 'flex';
-        console.log('✅ Speed controls shown - ready for voice interaction!');
+        console.log('✅ Voice visualizer container shown');
+    } else {
+        console.log('❌ Voice visualizer container not found');
     }
 }
 
@@ -536,30 +528,26 @@ function showVoiceBanner() {
 function hideVoiceBanner() {
     console.log('🔽 Hiding voice elements...');
     
-    // Hide the voice visualizer
+    // Hide ONLY the voice visualizer (the green audio wave)
     const voiceContainer = document.getElementById('voiceVisualizerContainer');
     if (voiceContainer) {
         voiceContainer.style.display = 'none';
-        console.log('✅ Voice visualizer hidden');
     }
     
-    // 🚨 CRITICAL: Hide speed controls too!
+    // 🚨 CRITICAL: Hide speed controls when switching to text mode
     const speedControls = document.querySelector('.speed-controls');
     if (speedControls) {
         speedControls.style.display = 'none';
         console.log('✅ Speed controls hidden - they dont belong in text mode!');
     }
     
-    // Also hide any audio control buttons
-    const slowerBtn = document.getElementById('slowerBtn');
-    const fasterBtn = document.getElementById('fasterBtn');
-    const normalBtn = document.getElementById('normalBtn');
+    // Hide audio off button (it's job is done)
+    const audioOffButton = document.getElementById('audioOffButton');
+    if (audioOffButton) {
+        audioOffButton.style.display = 'none';
+    }
     
-    if (slowerBtn) slowerBtn.style.display = 'none';
-    if (fasterBtn) fasterBtn.style.display = 'none';
-    if (normalBtn) normalBtn.style.display = 'none';
-    
-    console.log('✅ All voice elements and speed controls hidden');
+    console.log('✅ Voice elements hidden, text interface preserved');
 }
 
 
