@@ -505,10 +505,28 @@ function switchToTextMode() {
 }
 
 function switchToAudioMode() {
-    console.log('🎤 User switched back to audio mode');
+    console.log('🔊 User switched back to audio mode');
     isAudioMode = true;
     showAudioMode();
     showVoiceBanner();
+    
+    // 🚨 MOBILE-WISE AI EMPIRE UPGRADE: Wake up the AI!
+    setTimeout(() => {
+        // Add AI greeting message to chat
+        addAIMessage("What can I help you with?");
+        
+        // Make her speak the greeting
+        speakResponse("What can I help you with?");
+        
+        // Restart speech recognition if it exists
+        if (typeof startListening === 'function') {
+            startListening();
+        } else if (typeof recognition !== 'undefined' && recognition) {
+            recognition.start();
+        }
+        
+        console.log('✅ AI conversation restarted');
+    }, 500);
 }
     // ===================================================
 // 🎤 VOICE BANNER DISPLAY FUNCTIONS
