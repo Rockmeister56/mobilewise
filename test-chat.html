@@ -546,6 +546,13 @@
     </div>
 </div>
    
-    <script src="test-chat.js"></script>
+     <!-- Load Knowledge Base Files BEFORE voice-chat.js -->
+    <script src="knowledge-base/content/nci-practice-knowledge.js"></script>
+    <script src="knowledge-base/closing-system/closing-techniques.js"></script>
+    <script src="knowledge-base/closing-system/objection-handlers.js"></script>
+    <script src="knowledge-base/closing-system/cta-generators.js"></script>
+    
+    <!-- Load Your Voice Chat Module -->
+    <script src="voice-chat.js"></script>
 </body>
 </html>
