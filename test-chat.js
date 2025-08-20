@@ -587,6 +587,19 @@ function processUserInput(message) {
     }, 800);
 }
 
+function hideSpeedControls() {
+    // Find the speed buttons and hide them
+    const slowerBtn = document.querySelector('[onclick*="slower"]');
+    const normalBtn = document.querySelector('[onclick*="normal"]'); 
+    const fasterBtn = document.querySelector('[onclick*="faster"]');
+    
+    if (slowerBtn) slowerBtn.style.display = 'none';
+    if (normalBtn) normalBtn.style.display = 'none';
+    if (fasterBtn) fasterBtn.style.display = 'none';
+    
+    console.log('Speed buttons hidden');
+}
+
 // ===========================================
 // GLOBAL FUNCTIONS
 // ===========================================
