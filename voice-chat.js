@@ -23,7 +23,6 @@ let animationId = null;
 let canvas = null;
 let canvasCtx = null;
 let voiceSpeed = 0.9;
-let micPermissionGranted = false;
 
 // ===========================================
 // BUSINESS RESPONSES DATABASE
@@ -38,28 +37,6 @@ const businessResponses = {
     "financing": "CPA firm financing? Bruce has the connections you need! He's arranged over $150M in accounting practice loans with specialized lenders who understand recurring revenue models. Rates as low as 5.2% for qualified buyers. Here's the insider advantage: pre-approval gives you MASSIVE negotiating power in this competitive market. Should Bruce get your financing pre-approval started today or tomorrow?",
     "broker": "You're talking to the RIGHT team! Bruce is the premier CPA firm broker with over 15 years specializing EXCLUSIVELY in accounting practice transactions. He understands the unique aspects of CPA firms - from client confidentiality to seasonal cash flow patterns. Bruce has closed over $75M in CPA firm deals. Ready to discuss your accounting practice goals? Should Bruce call today or tomorrow?"
 };
-
-// Add this at the top of your voice-chat.js
-function detectBrowser() {
-    const userAgent = navigator.userAgent;
-    const vendor = navigator.vendor;
-    
-    console.log("🔍 Browser Detection:", userAgent);
-    
-    if (userAgent.includes("Chrome") && vendor.includes("Google")) {
-        return "chrome";
-    } else if (userAgent.includes("Edg")) {
-        return "edge";
-    } else if (userAgent.includes("Firefox")) {
-        return "firefox";
-    } else if (userAgent.includes("Safari") && !userAgent.includes("Chrome")) {
-        return "safari";
-    }
-    return "unknown";
-}
-
-const currentBrowser = detectBrowser();
-console.log("🌐 Detected browser:", currentBrowser);
 
 // ===========================================
 // 🔥 HOLD MIC OPEN (NO POPUPS)
@@ -426,115 +403,46 @@ function showVoiceBanner() {
 // ===========================================
 // MICROPHONE ACTIVATION
 // ===========================================
-function activateMicrophone() {
-    console.log("🎤 Activating microphone for:", currentBrowser);
+async function activateMicrophone() {
+    console.log('🎤 Activating microphone...');
     
-    switch(currentBrowser) {
-        case "chrome":
-            activateMicrophoneChrome();
-            break;
-        case "edge":
-            activateMicrophoneEdge();
-            break;
-        case "firefox":
-            activateMicrophoneFirefox();
-            break;
-        default:
-            activateMicrophoneDefault();
+    // 🎛️ START WAVEFORM VISUALIZATION FIRST
+    await startWaveformVisualization();
+    
+    // 🔥 START RECOGNITION FIRST - BEFORE ANY PERMISSION REQUESTS!
+    isAudioMode = true;
+    if (recognition && !isListening) {
+        console.log('🎤 Starting recognition BEFORE any permission requests...');
+        try {
+            recognition.start(); // This will ask for permission once
+        } catch (error) {
+            console.log('❌ Recognition start failed:', error);
+        }
     }
-}
-
-// CHROME-SPECIFIC (Traditional Permission Request) - UPDATED VERSION
-function activateMicrophoneChrome() {
-    console.log("🎤 Chrome: Requesting microphone permission properly...");
     
-    navigator.mediaDevices.getUserMedia({ audio: true })
-        .then((stream) => {
-            console.log("✅ Chrome: Microphone permission granted");
-            
-            // ADD THESE CRITICAL FIXES:
-            micPermissionGranted = true;  // Set the missing variable!
-            isAudioMode = true;           // Set audio mode flag
-            
-            // Stop the stream, we just needed permission
-            stream.getTracks().forEach(track => track.stop());
-            
-            // Now start speech recognition
-            setTimeout(() => {
-                startSpeechRecognitionChrome();
-            }, 500);
-        })
-        .catch((error) => {
-            console.error("🚫 Chrome: Microphone permission denied:", error);
-            micPermissionGranted = false;  // Set permission denied
-            showChromePermissionError();
-        });
-}
-
-function startSpeechRecognitionChrome() {
-    console.log("🎤 Starting Chrome speech recognition...");
+    // Switch interface immediately
+    const splashScreen = document.getElementById('splashScreen');
+    const chatInterface = document.getElementById('chatInterface');
     
-    // FORCE INTERFACE SWITCH FIRST:
-    switchToChatMode();  // Force the interface to show chat
+    if (splashScreen) splashScreen.style.display = 'none';
+    if (chatInterface) chatInterface.style.display = 'flex';
     
-    try {
-        isListening = true;   // Set listening state
-        recognition.start();
-        switchToAudioMode();  // Then switch to audio mode
-        console.log("✅ Chrome speech recognition started");
-    } catch (error) {
-        console.error("🚫 Chrome speech recognition error:", error);
-        isListening = false;  // Reset listening state on error
-        setTimeout(() => startSpeechRecognitionChrome(), 1000);
-    }
-}
-
-// EDGE-SPECIFIC (Your Current Working Method)
-function activateMicrophoneEdge() {
-    console.log("🎤 Edge: Using optimized bypass method...");
+    console.log('✅ Interface switched to chat mode');
     
-    // Use your current working Edge code here
-    console.log("🎤 Starting recognition BEFORE any permission requests...");
+    // Set audio mode UI
+    showAudioMode();
+    updateHeaderBanner('🎤 Microphone Active - How can we help your business?');
+    showVoiceBanner(); // This will show your new waveform container
     
-    try {
-        recognition.start();
-        switchToAudioMode();
-        console.log("✅ Edge: Speech recognition started successfully");
-    } catch (error) {
-        console.error("🚫 Edge error:", error);
-        // Fallback to permission request if bypass fails
-        activateMicrophoneChrome();
-    }
-}
-
-// FIREFOX-SPECIFIC 
-function activateMicrophoneFirefox() {
-    console.log("🎤 Firefox: Using Firefox-optimized method...");
-    // Similar to Chrome but with Firefox-specific handling
-    activateMicrophoneChrome(); // Use Chrome method for now
-}
-
-// DEFAULT FALLBACK
-function activateMicrophoneDefault() {
-    console.log("🎤 Unknown browser: Using safe fallback...");
-    activateMicrophoneChrome(); // Use traditional permission method
-}
-
-// CHROME ERROR HANDLING
-function showChromePermissionError() {
-    const errorMsg = `
-    🚫 Chrome Microphone Access Required
+    // Mark permission as granted (recognition.start() already asked for it)
+    micPermissionGranted = true;
     
-    Please:
-    1. Click the microphone icon in your address bar
-    2. Select "Allow" 
-    3. Refresh this page
-    
-    Or switch to Microsoft Edge for the best experience!
-    `;
-    
-    alert(errorMsg);
-    console.log("🚫 Chrome permission error displayed");
+    // Add greeting
+    setTimeout(() => {
+        const greeting = "What can I help you with?";
+        addAIMessage(greeting);
+        speakResponse(greeting);
+    }, 1000);
 }
 
 function stopPersistentMicrophone() {
@@ -606,34 +514,12 @@ function switchToAudioMode() {
         if (typeof startListening === 'function') {
             startListening();
         } else if (typeof recognition !== 'undefined' && recognition) {
-            startRecognitionSafely();
+            recognition.start();
         }
         
         console.log('✅ AI conversation restarted');
     }, 500);
 }
-
-// Add this new function after line 601:
-function startRecognitionSafely() {
-    console.log("🔍 Checking recognition state before starting...");
-    
-    // Don't start if Chrome browser already started it
-    if (currentBrowser === 'chrome') {
-        console.log("⚠️ Chrome: Recognition already handled by browser-specific method");
-        return;
-    }
-    
-    // For other browsers, start normally
-    if (recognition && typeof recognition.start === 'function') {
-        try {
-            recognition.start();
-            console.log("✅ Speech recognition started safely");
-        } catch (error) {
-            console.error("🚫 Recognition start error:", error);
-        }
-    }
-}
-
     // ===================================================
 // 🎤 VOICE BANNER DISPLAY FUNCTIONS
 // ===================================================
@@ -1004,6 +890,19 @@ function updateHeaderBanner(message) {
 // Call this during initialization
 document.addEventListener('DOMContentLoaded', preloadVoices);
 initializeWaveform();
+
+function stopCurrentAudio() {
+    if (currentAudio) {
+        if (currentAudio instanceof Audio) {
+            currentAudio.pause();
+            currentAudio.currentTime = 0;
+        } else if (window.speechSynthesis) {
+            window.speechSynthesis.cancel();
+        }
+        currentAudio = null;
+        console.log('🛑 Audio stopped');
+    }
+}
 
 function stopCurrentAudio() {
     if (currentAudio) {
