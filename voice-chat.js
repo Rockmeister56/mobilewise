@@ -23,6 +23,7 @@ let animationId = null;
 let canvas = null;
 let canvasCtx = null;
 let voiceSpeed = 0.9;
+let micPermissionGranted = false;
 
 // ===========================================
 // BUSINESS RESPONSES DATABASE
@@ -443,13 +444,18 @@ function activateMicrophone() {
     }
 }
 
-// CHROME-SPECIFIC (Traditional Permission Request)
+// CHROME-SPECIFIC (Traditional Permission Request) - UPDATED VERSION
 function activateMicrophoneChrome() {
     console.log("🎤 Chrome: Requesting microphone permission properly...");
     
     navigator.mediaDevices.getUserMedia({ audio: true })
         .then((stream) => {
             console.log("✅ Chrome: Microphone permission granted");
+            
+            // ADD THESE CRITICAL FIXES:
+            micPermissionGranted = true;  // Set the missing variable!
+            isAudioMode = true;           // Set audio mode flag
+            
             // Stop the stream, we just needed permission
             stream.getTracks().forEach(track => track.stop());
             
@@ -460,18 +466,25 @@ function activateMicrophoneChrome() {
         })
         .catch((error) => {
             console.error("🚫 Chrome: Microphone permission denied:", error);
+            micPermissionGranted = false;  // Set permission denied
             showChromePermissionError();
         });
 }
 
 function startSpeechRecognitionChrome() {
     console.log("🎤 Starting Chrome speech recognition...");
+    
+    // FORCE INTERFACE SWITCH FIRST:
+    switchToChatMode();  // Force the interface to show chat
+    
     try {
+        isListening = true;   // Set listening state
         recognition.start();
-        switchToAudioMode();
+        switchToAudioMode();  // Then switch to audio mode
         console.log("✅ Chrome speech recognition started");
     } catch (error) {
         console.error("🚫 Chrome speech recognition error:", error);
+        isListening = false;  // Reset listening state on error
         setTimeout(() => startSpeechRecognitionChrome(), 1000);
     }
 }
