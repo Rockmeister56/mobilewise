@@ -422,6 +422,29 @@
     transition: all 0.3s ease;
 }
 
+/* Move Audio Off button to the left side */
+.audio-off-button {
+    position: absolute !important;
+    left: 20px !important;  /* Move it LEFT instead of center */
+    bottom: 60px !important; /* Above the input field */
+    z-index: 1000;
+}
+
+/* Ensure speed controls don't interfere */
+.speed-controls {
+    position: absolute;
+    right: 20px;
+    bottom: 60px;
+    display: flex;
+    gap: 10px;
+}
+
+/* Make sure text input stays visible */
+#messageInput {
+    margin-bottom: 10px;
+    width: calc(100% - 100px); /* Leave space for buttons */
+}
+
 .listening-text {
     color: white;
     font-weight: 500;
