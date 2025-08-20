@@ -769,6 +769,28 @@ function testVoiceSpeed() {
     window.speechSynthesis.speak(utterance);
 }
 
+function requestMicrophonePermissionOnce() {
+    if (!localStorage.getItem('micPermissionRequested')) {
+        console.log("🎤 Requesting microphone permission (one time only)...");
+        
+        navigator.mediaDevices.getUserMedia({ audio: true })
+            .then((stream) => {
+                console.log("✅ Microphone permission granted!");
+                localStorage.setItem('micPermissionRequested', 'true');
+                stream.getTracks().forEach(track => track.stop());
+                // Now start your recognition
+                startRecognitionWithPermission();
+            })
+            .catch(() => {
+                console.log("🚫 Permission denied - using fallback");
+                startRecognitionWithoutPermission();
+            });
+    } else {
+        console.log("🎤 Permission already granted previously");
+        startRecognitionWithPermission();
+    }
+}
+
 function speakWithVoice(message, voices) {
     // Stop any current speech
     window.speechSynthesis.cancel();
