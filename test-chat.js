@@ -915,15 +915,25 @@ function stopCurrentAudio() {
 }
 
 function showSpeedControls() {
+    console.log('🔼 Showing speed controls...');
     const slowerBtn = document.querySelector('[onclick*="slower"]');
     const normalBtn = document.querySelector('[onclick*="normal"]'); 
     const fasterBtn = document.querySelector('[onclick*="faster"]');
     
-    if (slowerBtn) slowerBtn.style.display = 'inline-block';
-    if (normalBtn) normalBtn.style.display = 'inline-block';
-    if (fasterBtn) fasterBtn.style.display = 'inline-block';
+    if (slowerBtn) {
+        slowerBtn.style.display = 'inline-block';
+        console.log('✅ Slower button shown');
+    }
+    if (normalBtn) {
+        normalBtn.style.display = 'inline-block';
+        console.log('✅ Normal button shown');
+    }
+    if (fasterBtn) {
+        fasterBtn.style.display = 'inline-block';
+        console.log('✅ Faster button shown');
+    }
     
-    console.log('Speed buttons shown');
+    console.log('✅ All speed controls restored');
 }
 
 // ADD this enhanced mute function that USES your existing logic

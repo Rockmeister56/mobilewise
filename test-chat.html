@@ -530,7 +530,10 @@
                         <input type="text" id="textInput" placeholder="Type your message..." onkeypress="if(event.key==='Enter') sendTextMessage()">
                         <button class="send-btn" id="sendBtn" onclick="sendTextMessage()">Send</button>
                     </div>
-                    <button onclick="reinitiateAudio(); showSpeedControls();">🎤 Reinitiate Audio</button>
+                    <button class="reinitiate-audio-btn" id="reinitiateAudioBtn" 
+        onclick="reinitiateAudio(); showSpeedControls();">
+🎤 Reinitiate Audio
+</button>
                 </div>
 
             </div>
