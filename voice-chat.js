@@ -593,12 +593,34 @@ function switchToAudioMode() {
         if (typeof startListening === 'function') {
             startListening();
         } else if (typeof recognition !== 'undefined' && recognition) {
-            recognition.start();
+            startRecognitionSafely();
         }
         
         console.log('✅ AI conversation restarted');
     }, 500);
 }
+
+// Add this new function after line 601:
+function startRecognitionSafely() {
+    console.log("🔍 Checking recognition state before starting...");
+    
+    // Don't start if Chrome browser already started it
+    if (currentBrowser === 'chrome') {
+        console.log("⚠️ Chrome: Recognition already handled by browser-specific method");
+        return;
+    }
+    
+    // For other browsers, start normally
+    if (recognition && typeof recognition.start === 'function') {
+        try {
+            recognition.start();
+            console.log("✅ Speech recognition started safely");
+        } catch (error) {
+            console.error("🚫 Recognition start error:", error);
+        }
+    }
+}
+
     // ===================================================
 // 🎤 VOICE BANNER DISPLAY FUNCTIONS
 // ===================================================
