@@ -23,6 +23,7 @@ let animationId = null;
 let canvas = null;
 let canvasCtx = null;
 let voiceSpeed = 0.9;
+let restartCooldown = false; 
 
 // ===========================================
 // BUSINESS RESPONSES DATABASE
@@ -163,51 +164,56 @@ function initializeSpeechRecognition() {
             }
         };
 
-        recognition.onend = function() {
-    console.log('🎤 Speech recognition ended unexpectedly');
+     // ===========================================
+// 🔥 FIXED SPEECH RECOGNITION - NO MORE DEATH LOOPS!
+// ===========================================
+
+recognition.onend = function() {
+    console.log('🎤 Speech recognition ended');
     isListening = false;
     
-    // 🔥 GENTLE RESTART - Only after AI finishes speaking
+    // 🚫 STOP THE DEATH LOOP - ADD COOLDOWN TIMER!
     if (isAudioMode && micPermissionGranted && !isSpeaking) {
-        console.log('🔄 Gentle restart - waiting for AI to finish...');
-        setTimeout(() => {
-            if (!isListening && !isSpeaking && isAudioMode) {
-                try {
-                    recognition.start();
-                    console.log('✅ Recognition gently restarted');
-                } catch (error) {
-                    console.log('⚠️ Gentle restart failed:', error.message);
+        // ONLY restart if we haven't been restarting constantly
+        if (!restartCooldown) {
+            restartCooldown = true;
+            console.log('🔄 Gentle restart with cooldown...');
+            
+            setTimeout(() => {
+                if (!isListening && !isSpeaking && isAudioMode) {
+                    try {
+                        recognition.start();
+                        console.log('✅ Recognition gently restarted');
+                    } catch (error) {
+                        console.log('⚠️ Gentle restart failed:', error.message);
+                    }
                 }
-            }
-        }, 1000); // Conservative 1-second delay
+                
+                // Reset cooldown after 3 seconds
+                setTimeout(() => {
+                    restartCooldown = false;
+                }, 3000);
+                
+            }, 2000); // Wait 2 seconds before restart
+        } else {
+            console.log('⏸️ Restart on cooldown - preventing death loop');
+        }
     }
 };
 
-        recognition.onerror = function(event) {
-            console.log('🚫 Speech recognition error:', event.error);
-            isListening = false;
-            
-            if (event.error === 'not-allowed') {
-                console.log('❌ Microphone permission denied');
-                micPermissionGranted = false;
-                return;
-            }
-            
-            // Restart on any other error
-            if (isAudioMode && micPermissionGranted) {
-                setTimeout(() => {
-                    if (!isListening) {
-                        recognition.start();
-                    }
-                }, 1000);
-            }
-        };
-        
-        console.log('✅ Speech recognition initialized with continuous mode');
-    } else {
-        console.log('❌ Speech recognition not supported');
+recognition.onerror = function(event) {
+    console.log('🚫 Speech recognition error:', event.error);
+    isListening = false;
+    
+    if (event.error === 'not-allowed') {
+        console.log('❌ Microphone permission denied');
+        micPermissionGranted = false;
+        return;
     }
-}
+    
+    // 🚫 NO AUTO-RESTART ON ERROR - PREVENTS DEATH LOOP!
+    console.log('🛑 Error occurred - no auto-restart to prevent loops');
+};
 
 // UPDATE YOUR BROWSER DETECTION:
 function activateMicrophone() {
