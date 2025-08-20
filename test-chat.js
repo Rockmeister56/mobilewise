@@ -486,22 +486,47 @@ function showTextMode() {
 }
 
 function switchToTextMode() {
-    console.log('📝 User switched to text mode');
-    isAudioMode = false;
+    console.log('Switching to text mode...');
+    currentMode = 'text';
     
-    // Stop recognition when switching to text mode
-    if (recognition && isListening) {
-        recognition.stop();
-        isListening = false;
+    // Hide speed controls when switching to text mode
+    const speedControls = document.querySelector('.speed-controls');
+    if (speedControls) {
+        speedControls.style.display = 'none';
+        console.log('✅ Speed controls hidden');
     }
     
+    // ONLY hide voice banner, preserve text interface
     hideVoiceBanner();
-    showTextMode();
     
-    const textInput = document.getElementById('textInput');
-    if (textInput) {
-        setTimeout(() => textInput.focus(), 100);
+    // Reset header text
+    const headerTitle = document.querySelector('.header-title');
+    const headerSubtitle = document.querySelector('.header-subtitle');
+    
+    if (headerTitle) {
+        headerTitle.textContent = 'Mobile-Wise AI Assistant';
     }
+    if (headerSubtitle) {
+        headerSubtitle.textContent = 'Your intelligent form builder companion';
+    }
+    
+    // ENSURE text input and send button are visible and working
+    const textInput = document.getElementById('messageInput');
+    const sendButton = document.getElementById('sendButton');
+    
+    if (textInput) {
+        textInput.style.display = 'block';
+        textInput.disabled = false;
+    }
+    
+    if (sendButton) {
+        sendButton.style.display = 'inline-block';
+        sendButton.innerHTML = '<i class="fas fa-paper-plane"></i>';
+        sendButton.onclick = sendMessage;
+        sendButton.disabled = false;
+    }
+    
+    console.log('✅ Text mode activated - input field and send button preserved');
 }
 
 function switchToAudioMode() {
@@ -525,12 +550,15 @@ function showVoiceBanner() {
 }
 
 function hideVoiceBanner() {
-    console.log('🔽 Hiding voice banner...');
+    console.log('🔽 Hiding voice banner only...');
+    // ONLY hide the voice visualizer, NOT the whole interface
     const voiceContainer = document.getElementById('voiceVisualizerContainer');
     if (voiceContainer) {
         voiceContainer.style.display = 'none';
-        console.log('✅ Voice visualizer container hidden');
+        console.log('✅ Voice visualizer hidden (text field preserved)');
     }
+    
+    // DON'T hide anything else - preserve text input and send button!
 }
     
     const textInput = document.getElementById('textInput');
