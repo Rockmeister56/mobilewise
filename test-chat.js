@@ -486,45 +486,22 @@ function showTextMode() {
 }
 
 function switchToTextMode() {
-    console.log('Switching to text mode...');
-    currentMode = 'text';
+    console.log('📝 User switched to text mode');
+    isAudioMode = false;
     
-    // Hide speed controls when switching to text mode
-    const speedControls = document.querySelector('.speed-controls');
-    if (speedControls) {
-        speedControls.style.display = 'none';
+    // Stop recognition when switching to text mode
+    if (recognition && isListening) {
+        recognition.stop();
+        isListening = false;
     }
     
-    // Hide voice banner and reset header
     hideVoiceBanner();
+    showTextMode();
     
-    // Reset header text
-    const headerTitle = document.querySelector('.header-title');
-    const headerSubtitle = document.querySelector('.header-subtitle');
-    
-    if (headerTitle) {
-        headerTitle.textContent = 'Mobile-Wise AI Assistant';
+    const textInput = document.getElementById('textInput');
+    if (textInput) {
+        setTimeout(() => textInput.focus(), 100);
     }
-    if (headerSubtitle) {
-        headerSubtitle.textContent = 'Your intelligent form builder companion';
-    }
-    
-    // Rest of your existing code...
-    const sendButton = document.getElementById('sendButton');
-    if (sendButton) {
-        sendButton.innerHTML = '<i class="fas fa-paper-plane"></i>';
-        sendButton.onclick = sendMessage;
-    }
-}
-
-function switchToVoiceMode() {
-    // Show speed controls when in voice mode
-    const speedControls = document.querySelector('.speed-controls');
-    if (speedControls) {
-        speedControls.style.display = 'flex';
-    }
-    
-    // Rest of your voice mode code...
 }
 
 function switchToAudioMode() {
