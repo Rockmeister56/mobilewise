@@ -337,24 +337,39 @@
             }
         }
 
-        .speed-controls {
+        /* Main container for ALL voice controls */
+.voice-controls-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 1000;
+}
+
+/* Speed controls wrapper */
+.speed-controls {
     display: flex;
     align-items: center;
     gap: 8px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 20px;
-    padding: 5px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 25px;
+    padding: 5px 10px;
 }
 
+/* Individual speed buttons */
 .speed-btn {
     background: #4a90e2;
     border: none;
     border-radius: 15px;
     color: white;
-    padding: 6px 12px;
+    padding: 8px 12px;
     font-size: 11px;
+    font-weight: 500;
     cursor: pointer;
     transition: all 0.2s;
+    height: 32px;
 }
 
 .speed-btn:hover {
@@ -362,12 +377,37 @@
     transform: translateY(-1px);
 }
 
+/* Speed display text */
 .speed-display {
     color: white;
     font-size: 11px;
     font-weight: 500;
-    min-width: 60px;
+    min-width: 50px;
     text-align: center;
+}
+
+/* Audio Off button styling */
+#audioOffButton {
+    background: #dc3545;
+    border: none;
+    border-radius: 25px;
+    color: white;
+    padding: 8px 16px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    height: 42px;
+    transition: all 0.2s;
+}
+
+#audioOffButton:hover {
+    background: #c82333;
+    transform: translateY(-1px);
+}
+
+/* Hide speed controls when in text mode */
+.text-mode .speed-controls {
+    display: none !important;
 }
 
         .voice-container {
