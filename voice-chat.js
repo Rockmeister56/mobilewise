@@ -327,13 +327,17 @@ function stopWaveformVisualization() {
 
 
 // ===========================================
-// 🔥 FIXED MICROPHONE ACTIVATION WITH STREAM CREATION
+// 🚀 ULTIMATE MOBILE-WISE AI MICROPHONE ACTIVATION
+// Combined NEW stream creation + OLD cleanup functions
 // ===========================================
 async function activateMicrophone() {
     console.log('🎤 Activating microphone...');
     
+    // 🎛️ START WAVEFORM VISUALIZATION FIRST (from OLD)
+    await startWaveformVisualization();
+    
     try {
-        // 🔥 CREATE THE MISSING persistentMicStream!
+        // 🔥 CREATE THE PERSISTENT STREAM (from NEW - enhanced)
         console.log('🎤 Requesting microphone stream for speech recognition AND meters...');
         persistentMicStream = await navigator.mediaDevices.getUserMedia({ 
             audio: {
@@ -347,21 +351,18 @@ async function activateMicrophone() {
         console.log('✅ REAL microphone stream created!');
         console.log('🎤 Stream tracks:', persistentMicStream.getAudioTracks());
         
-        // NOW initialize voice meter with REAL stream
+        // NOW initialize voice meter with REAL stream (from NEW)
         const meterSuccess = await initializeVoiceMeter();
         if (meterSuccess) {
             console.log('✅ Voice meter initialized with REAL audio stream!');
             startVoiceMeter();
         }
         
-        // Start waveform visualization
-        await startWaveformVisualization();
-        
-        // Set permission flags
+        // Set permission flags (from BOTH)
         micPermissionGranted = true;
         isAudioMode = true;
         
-        // NOW start speech recognition (it will use the SAME stream)
+        // NOW start speech recognition (from BOTH)
         if (recognition && !isListening) {
             console.log('🎤 Starting speech recognition with REAL stream...');
             recognition.start();
@@ -374,7 +375,7 @@ async function activateMicrophone() {
         return;
     }
     
-    // Switch interface
+    // Switch interface (from BOTH - identical)
     const splashScreen = document.getElementById('splashScreen');
     const chatInterface = document.getElementById('chatInterface');
     
@@ -383,12 +384,12 @@ async function activateMicrophone() {
     
     console.log('✅ Interface switched to chat mode');
     
-    // Set audio mode UI
+    // Set audio mode UI (from BOTH - identical)
     showAudioMode();
     updateHeaderBanner('🎤 Microphone Active - How can we help your business?');
     showVoiceBanner();
     
-    // Add greeting
+    // Add greeting (from BOTH - identical)
     setTimeout(() => {
         const greeting = "What can I help you with?";
         addAIMessage(greeting);
@@ -396,6 +397,17 @@ async function activateMicrophone() {
     }, 1000);
 }
 
+// 🛑 ESSENTIAL CLEANUP FUNCTION (from OLD - KEEP THIS!)
+function stopPersistentMicrophone() {
+    if (persistentMicStream) {
+        persistentMicStream.getTracks().forEach(track => track.stop());
+        persistentMicStream = null;
+        console.log('🛑 Persistent microphone stream stopped');
+    }
+    
+    // 🎛️ STOP WAVEFORM VISUALIZATION
+    stopWaveformVisualization();
+}
 // CLEANUP FUNCTION - CALL THIS ON PAGE UNLOAD
 function cleanupAudioContext() {
     if (globalMicrophone) {
@@ -476,71 +488,6 @@ function showVoiceBanner() {
     }
 }
 
-// ===========================================
-// MICROPHONE ACTIVATION
-// ===========================================
-async function activateMicrophone() {
-    console.log('🎤 Activating microphone...');
-    
-    // 🎛️ START WAVEFORM VISUALIZATION FIRST
-    await startWaveformVisualization();
-    
-    // 🔥 REQUEST REAL MICROPHONE PERMISSION FIRST!
-    try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        console.log('✅ REAL microphone permission granted!');
-        
-        // Stop the stream - we just needed permission
-        stream.getTracks().forEach(track => track.stop());
-        
-        // NOW set the permission flag TRUTHFULLY
-        micPermissionGranted = true;
-        isAudioMode = true;
-        
-        // NOW start recognition with REAL permission
-        if (recognition && !isListening) {
-            recognition.start();
-        }
-        
-    } catch (error) {
-        console.error('🚫 Microphone permission denied:', error);
-        micPermissionGranted = false;
-        alert('Microphone access is required for voice chat!');
-        return;
-    }
-    
-    // Switch interface immediately
-    const splashScreen = document.getElementById('splashScreen');
-    const chatInterface = document.getElementById('chatInterface');
-    
-    if (splashScreen) splashScreen.style.display = 'none';
-    if (chatInterface) chatInterface.style.display = 'flex';
-    
-    console.log('✅ Interface switched to chat mode');
-    
-    // Set audio mode UI
-    showAudioMode();
-    updateHeaderBanner('🎤 Microphone Active - How can we help your business?');
-    showVoiceBanner();
-    
-    // Add greeting
-    setTimeout(() => {
-        const greeting = "What can I help you with?";
-        addAIMessage(greeting);
-        speakResponse(greeting);
-    }, 1000);
-}
-
-function stopPersistentMicrophone() {
-    if (persistentMicStream) {
-        persistentMicStream.getTracks().forEach(track => track.stop());
-        persistentMicStream = null;
-        console.log('🛑 Persistent microphone stream stopped');
-    }
-    
-    // 🎛️ STOP WAVEFORM VISUALIZATION
-    stopWaveformVisualization();
-}
 
 // ===========================================
 // MODE SWITCHING
