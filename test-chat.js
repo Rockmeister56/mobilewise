@@ -543,7 +543,6 @@ function hideVoiceBanner() {
     //         startRecognitionOnce();
     //     }, 1000);
     // }
-}
 
 
 // ===========================================
