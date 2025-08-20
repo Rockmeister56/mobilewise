@@ -38,6 +38,28 @@ const businessResponses = {
     "broker": "You're talking to the RIGHT team! Bruce is the premier CPA firm broker with over 15 years specializing EXCLUSIVELY in accounting practice transactions. He understands the unique aspects of CPA firms - from client confidentiality to seasonal cash flow patterns. Bruce has closed over $75M in CPA firm deals. Ready to discuss your accounting practice goals? Should Bruce call today or tomorrow?"
 };
 
+// Add this at the top of your voice-chat.js
+function detectBrowser() {
+    const userAgent = navigator.userAgent;
+    const vendor = navigator.vendor;
+    
+    console.log("🔍 Browser Detection:", userAgent);
+    
+    if (userAgent.includes("Chrome") && vendor.includes("Google")) {
+        return "chrome";
+    } else if (userAgent.includes("Edg")) {
+        return "edge";
+    } else if (userAgent.includes("Firefox")) {
+        return "firefox";
+    } else if (userAgent.includes("Safari") && !userAgent.includes("Chrome")) {
+        return "safari";
+    }
+    return "unknown";
+}
+
+const currentBrowser = detectBrowser();
+console.log("🌐 Detected browser:", currentBrowser);
+
 // ===========================================
 // 🔥 HOLD MIC OPEN (NO POPUPS)
 // ===========================================
@@ -403,46 +425,103 @@ function showVoiceBanner() {
 // ===========================================
 // MICROPHONE ACTIVATION
 // ===========================================
-async function activateMicrophone() {
-    console.log('🎤 Activating microphone...');
+function activateMicrophone() {
+    console.log("🎤 Activating microphone for:", currentBrowser);
     
-    // 🎛️ START WAVEFORM VISUALIZATION FIRST
-    await startWaveformVisualization();
-    
-    // 🔥 START RECOGNITION FIRST - BEFORE ANY PERMISSION REQUESTS!
-    isAudioMode = true;
-    if (recognition && !isListening) {
-        console.log('🎤 Starting recognition BEFORE any permission requests...');
-        try {
-            recognition.start(); // This will ask for permission once
-        } catch (error) {
-            console.log('❌ Recognition start failed:', error);
-        }
+    switch(currentBrowser) {
+        case "chrome":
+            activateMicrophoneChrome();
+            break;
+        case "edge":
+            activateMicrophoneEdge();
+            break;
+        case "firefox":
+            activateMicrophoneFirefox();
+            break;
+        default:
+            activateMicrophoneDefault();
     }
+}
+
+// CHROME-SPECIFIC (Traditional Permission Request)
+function activateMicrophoneChrome() {
+    console.log("🎤 Chrome: Requesting microphone permission properly...");
     
-    // Switch interface immediately
-    const splashScreen = document.getElementById('splashScreen');
-    const chatInterface = document.getElementById('chatInterface');
+    navigator.mediaDevices.getUserMedia({ audio: true })
+        .then((stream) => {
+            console.log("✅ Chrome: Microphone permission granted");
+            // Stop the stream, we just needed permission
+            stream.getTracks().forEach(track => track.stop());
+            
+            // Now start speech recognition
+            setTimeout(() => {
+                startSpeechRecognitionChrome();
+            }, 500);
+        })
+        .catch((error) => {
+            console.error("🚫 Chrome: Microphone permission denied:", error);
+            showChromePermissionError();
+        });
+}
+
+function startSpeechRecognitionChrome() {
+    console.log("🎤 Starting Chrome speech recognition...");
+    try {
+        recognition.start();
+        switchToAudioMode();
+        console.log("✅ Chrome speech recognition started");
+    } catch (error) {
+        console.error("🚫 Chrome speech recognition error:", error);
+        setTimeout(() => startSpeechRecognitionChrome(), 1000);
+    }
+}
+
+// EDGE-SPECIFIC (Your Current Working Method)
+function activateMicrophoneEdge() {
+    console.log("🎤 Edge: Using optimized bypass method...");
     
-    if (splashScreen) splashScreen.style.display = 'none';
-    if (chatInterface) chatInterface.style.display = 'flex';
+    // Use your current working Edge code here
+    console.log("🎤 Starting recognition BEFORE any permission requests...");
     
-    console.log('✅ Interface switched to chat mode');
+    try {
+        recognition.start();
+        switchToAudioMode();
+        console.log("✅ Edge: Speech recognition started successfully");
+    } catch (error) {
+        console.error("🚫 Edge error:", error);
+        // Fallback to permission request if bypass fails
+        activateMicrophoneChrome();
+    }
+}
+
+// FIREFOX-SPECIFIC 
+function activateMicrophoneFirefox() {
+    console.log("🎤 Firefox: Using Firefox-optimized method...");
+    // Similar to Chrome but with Firefox-specific handling
+    activateMicrophoneChrome(); // Use Chrome method for now
+}
+
+// DEFAULT FALLBACK
+function activateMicrophoneDefault() {
+    console.log("🎤 Unknown browser: Using safe fallback...");
+    activateMicrophoneChrome(); // Use traditional permission method
+}
+
+// CHROME ERROR HANDLING
+function showChromePermissionError() {
+    const errorMsg = `
+    🚫 Chrome Microphone Access Required
     
-    // Set audio mode UI
-    showAudioMode();
-    updateHeaderBanner('🎤 Microphone Active - How can we help your business?');
-    showVoiceBanner(); // This will show your new waveform container
+    Please:
+    1. Click the microphone icon in your address bar
+    2. Select "Allow" 
+    3. Refresh this page
     
-    // Mark permission as granted (recognition.start() already asked for it)
-    micPermissionGranted = true;
+    Or switch to Microsoft Edge for the best experience!
+    `;
     
-    // Add greeting
-    setTimeout(() => {
-        const greeting = "What can I help you with?";
-        addAIMessage(greeting);
-        speakResponse(greeting);
-    }, 1000);
+    alert(errorMsg);
+    console.log("🚫 Chrome permission error displayed");
 }
 
 function stopPersistentMicrophone() {
@@ -890,19 +969,6 @@ function updateHeaderBanner(message) {
 // Call this during initialization
 document.addEventListener('DOMContentLoaded', preloadVoices);
 initializeWaveform();
-
-function stopCurrentAudio() {
-    if (currentAudio) {
-        if (currentAudio instanceof Audio) {
-            currentAudio.pause();
-            currentAudio.currentTime = 0;
-        } else if (window.speechSynthesis) {
-            window.speechSynthesis.cancel();
-        }
-        currentAudio = null;
-        console.log('🛑 Audio stopped');
-    }
-}
 
 function stopCurrentAudio() {
     if (currentAudio) {
