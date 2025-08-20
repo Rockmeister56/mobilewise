@@ -505,10 +505,11 @@ function switchToTextMode() {
 }
 
 function switchToAudioMode() {
-    console.log('🎤 User switched back to audio mode');
+    console.log('🔊 User switched back to audio mode');
     isAudioMode = true;
     showAudioMode();
     showVoiceBanner();
+} // ← THIS CLOSING BRACKET WAS MISSING!
 
     // ===================================================
 // 🎤 VOICE BANNER DISPLAY FUNCTIONS
