@@ -505,12 +505,11 @@ function switchToTextMode() {
 }
 
 function switchToAudioMode() {
-    console.log('🔊 User switched back to audio mode');
+    console.log('🎤 User switched back to audio mode');
     isAudioMode = true;
     showAudioMode();
     showVoiceBanner();
-} // ← THIS CLOSING BRACKET WAS MISSING!
-
+}
     // ===================================================
 // 🎤 VOICE BANNER DISPLAY FUNCTIONS
 // ===================================================
@@ -526,28 +525,24 @@ function showVoiceBanner() {
 }
 
 function hideVoiceBanner() {
-    console.log('🔽 Hiding voice elements...');
-    
-    // Hide ONLY the voice visualizer (the green audio wave)
+    console.log('🔽 Hiding voice banner...');
     const voiceContainer = document.getElementById('voiceVisualizerContainer');
     if (voiceContainer) {
         voiceContainer.style.display = 'none';
+        console.log('✅ Voice visualizer container hidden');
     }
+}
     
-    // 🚨 CRITICAL: Hide speed controls when switching to text mode
-    const speedControls = document.querySelector('.speed-controls');
-    if (speedControls) {
-        speedControls.style.display = 'none';
-        console.log('✅ Speed controls hidden - they dont belong in text mode!');
-    }
+    const textInput = document.getElementById('textInput');
+    if (textInput) textInput.value = '';
     
-    // Hide audio off button (it's job is done)
-    const audioOffButton = document.getElementById('audioOffButton');
-    if (audioOffButton) {
-        audioOffButton.style.display = 'none';
-    }
-    
-    console.log('✅ Voice elements hidden, text interface preserved');
+    // ❌ COMMENTED OUT - THIS WAS CAUSING THE SECOND PERMISSION POPUP:
+    // Only start if not already listening
+    // if (micPermissionGranted && !isListening) {
+    //     setTimeout(() => {
+    //         startRecognitionOnce();
+    //     }, 1000);
+    // }
 }
 
 
@@ -588,7 +583,6 @@ function processUserInput(message) {
 }
 
 function hideSpeedControls() {
-    // Find the speed buttons and hide them
     const slowerBtn = document.querySelector('[onclick*="slower"]');
     const normalBtn = document.querySelector('[onclick*="normal"]'); 
     const fasterBtn = document.querySelector('[onclick*="faster"]');
@@ -912,28 +906,6 @@ function stopCurrentAudio() {
         currentAudio = null;
         console.log('🛑 Audio stopped');
     }
-}
-
-function showSpeedControls() {
-    console.log('🔼 Showing speed controls...');
-    const slowerBtn = document.querySelector('[onclick*="slower"]');
-    const normalBtn = document.querySelector('[onclick*="normal"]'); 
-    const fasterBtn = document.querySelector('[onclick*="faster"]');
-    
-    if (slowerBtn) {
-        slowerBtn.style.display = 'inline-block';
-        console.log('✅ Slower button shown');
-    }
-    if (normalBtn) {
-        normalBtn.style.display = 'inline-block';
-        console.log('✅ Normal button shown');
-    }
-    if (fasterBtn) {
-        fasterBtn.style.display = 'inline-block';
-        console.log('✅ Faster button shown');
-    }
-    
-    console.log('✅ All speed controls restored');
 }
 
 // ADD this enhanced mute function that USES your existing logic
