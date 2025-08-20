@@ -209,39 +209,12 @@ function initializeSpeechRecognition() {
     }
 }
 
-// CHROME FIX - PROPER PERMISSION REQUEST
-function activateMicrophoneChrome() {
-    console.log("🎤 Chrome: Requesting REAL microphone access...");
+// UPDATE YOUR BROWSER DETECTION:
+function activateMicrophone() {
+    console.log("🎤 Activating microphone for:", currentBrowser);
     
-    // Clear any old bypass attempts
-    if (recognition) {
-        recognition.stop();
-    }
-    
-    // Request ACTUAL microphone permission
-    navigator.mediaDevices.getUserMedia({ 
-        audio: {
-            echoCancellation: true,
-            noiseSuppression: true,
-            autoGainControl: true
-        }
-    })
-    .then((stream) => {
-        console.log("✅ Chrome: REAL microphone access granted!");
-        
-        // Keep stream active for speech recognition
-        window.microphoneStream = stream;
-        
-        // Now start recognition with REAL permission
-        setTimeout(() => {
-            recognition.start();
-            switchToAudioMode();
-        }, 500);
-    })
-    .catch((error) => {
-        console.error("🚫 Chrome: Microphone blocked:", error);
-        alert("Chrome needs microphone permission to work properly!");
-    });
+    // Your new universal function handles ALL browsers!
+    // No need for browser-specific routing anymore
 }
 
 // ===================================================
@@ -444,15 +417,28 @@ async function activateMicrophone() {
     // 🎛️ START WAVEFORM VISUALIZATION FIRST
     await startWaveformVisualization();
     
-    // 🔥 START RECOGNITION FIRST - BEFORE ANY PERMISSION REQUESTS!
-    isAudioMode = true;
-    if (recognition && !isListening) {
-        console.log('🎤 Starting recognition BEFORE any permission requests...');
-        try {
-            recognition.start(); // This will ask for permission once
-        } catch (error) {
-            console.log('❌ Recognition start failed:', error);
+    // 🔥 REQUEST REAL MICROPHONE PERMISSION FIRST!
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        console.log('✅ REAL microphone permission granted!');
+        
+        // Stop the stream - we just needed permission
+        stream.getTracks().forEach(track => track.stop());
+        
+        // NOW set the permission flag TRUTHFULLY
+        micPermissionGranted = true;
+        isAudioMode = true;
+        
+        // NOW start recognition with REAL permission
+        if (recognition && !isListening) {
+            recognition.start();
         }
+        
+    } catch (error) {
+        console.error('🚫 Microphone permission denied:', error);
+        micPermissionGranted = false;
+        alert('Microphone access is required for voice chat!');
+        return;
     }
     
     // Switch interface immediately
@@ -467,10 +453,7 @@ async function activateMicrophone() {
     // Set audio mode UI
     showAudioMode();
     updateHeaderBanner('🎤 Microphone Active - How can we help your business?');
-    showVoiceBanner(); // This will show your new waveform container
-    
-    // Mark permission as granted (recognition.start() already asked for it)
-    micPermissionGranted = true;
+    showVoiceBanner();
     
     // Add greeting
     setTimeout(() => {
