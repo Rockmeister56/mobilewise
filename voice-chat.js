@@ -186,7 +186,7 @@ function enhanceChromeSpeechDetection() {
 // ===========================================
 // 🚀 ULTIMATE MICROPHONE ACTIVATION (CHROME/EDGE FRIENDLY + FULL FEATURES)
 // ===========================================
-async function activateMicrophone() {} // End of activateMicrophone function
+async function activateMicrophone() {
     console.log('🎤 Activating microphone...');
     
     // 🔥 CHROME-FRIENDLY PERMISSION FLOW
@@ -237,20 +237,7 @@ async function activateMicrophone() {} // End of activateMicrophone function
         micPermissionGranted = false;
         alert('Microphone access is required for voice chat!');
         return;
-
-
-        // 🔥 ADD THIS LINE FOR CHROME ENHANCEMENT:
-    enhanceChromeSpeechDetection();
-        
-        // 5. Start recognition ONLY after permission is granted
-        if (recognition && !isListening) {
-            try {
-                recognition.start();
-                console.log('✅ Recognition started after permission');
-            } catch (error) {
-                console.log('⚠️ Recognition start failed:', error.message);
-            }
-        }
+    }
     
     // Switch interface
     const splashScreen = document.getElementById('splashScreen');
@@ -272,21 +259,6 @@ async function activateMicrophone() {} // End of activateMicrophone function
         addAIMessage(greeting);
         speakResponse(greeting);
     }, 1000);
-}
-
-// 🛑 ESSENTIAL CLEANUP FUNCTION
-function stopPersistentMicrophone() {
-    if (persistentMicStream) {
-        persistentMicStream.getTracks().forEach(track => track.stop());
-        persistentMicStream = null;
-        console.log('🛑 Persistent microphone stream stopped');
-    }
-    
-    // Stop voice meter
-    stopVoiceMeter();
-    
-    // 🎛️ STOP WAVEFORM VISUALIZATION
-    stopWaveformVisualization();
 }
 
 // ===========================================
@@ -383,6 +355,39 @@ function initializeSpeechRecognition() {
         }
     } else {
         console.log('🚫 Speech recognition not supported');
+    }
+}
+
+// ===========================================
+// 🎤 VOICE METER INITIALIZATION
+// ===========================================
+async function initializeVoiceMeter() {
+    try {
+        if (!persistentMicStream) {
+            console.error('❌ No microphone stream available for voice meter');
+            return false;
+        }
+        
+        // Create audio context
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        analyser = audioContext.createAnalyser();
+        microphone = audioContext.createMediaStreamSource(persistentMicStream);
+        
+        // Configure analyser
+        analyser.fftSize = 256;
+        analyser.smoothingTimeConstant = 0.8;
+        microphone.connect(analyser);
+        
+        // Setup data array
+        const bufferLength = analyser.frequencyBinCount;
+        dataArray = new Uint8Array(bufferLength);
+        
+        console.log('✅ Voice meter initialized');
+        return true;
+        
+    } catch (error) {
+        console.error('❌ Voice meter initialization failed:', error);
+        return false;
     }
 }
 
