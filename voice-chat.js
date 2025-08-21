@@ -954,7 +954,7 @@ function updateHeaderBanner(message) {
 
 // Call this during initialization
 document.addEventListener('DOMContentLoaded', preloadVoices);
-initializeWaveform();
+startWaveformVisualization();
 
 function stopCurrentAudio() {
     if (currentAudio) {
