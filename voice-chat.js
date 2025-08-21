@@ -333,7 +333,7 @@ function stopWaveformVisualization() {
 
 
 // ===========================================
-// 🔥 FIXED MICROPHONE ACTIVATION WITH STREAM CREATION
+// 🔥 FIXED MICROPHONE ACTIVATION WITH STREAM CREATION + PERMISSION FIX
 // ===========================================
 async function activateMicrophone() {
     console.log('🎤 Activating microphone...');
@@ -367,10 +367,50 @@ async function activateMicrophone() {
         micPermissionGranted = true;
         isAudioMode = true;
         
-        // NOW start speech recognition (it will use the SAME stream)
+        // 🔥 FORCE SPEECH RECOGNITION PERMISSION REQUEST
         if (recognition && !isListening) {
-            console.log('🎤 Starting speech recognition with REAL stream...');
-            recognition.start();
+            console.log('🎤 Requesting Speech Recognition API permission...');
+            
+            // FIRST: Try to start recognition to trigger permission popup
+            recognition.continuous = false;  // Temporary setting to force permission
+            recognition.interimResults = false;
+            
+            try {
+                recognition.start();  // This should trigger the permission popup!
+                console.log('🎤 Speech recognition permission requested...');
+                
+                // Handle the permission response
+                recognition.onstart = function() {
+                    console.log('✅ Speech Recognition permission granted!');
+                    recognition.stop();  // Stop the test recognition
+                    
+                    // NOW restart with proper settings
+                    setTimeout(() => {
+                        recognition.continuous = true;
+                        recognition.interimResults = false;
+                        recognition.start();
+                        console.log('🎤 Speech recognition started with full permissions!');
+                    }, 500);
+                };
+                
+                recognition.onerror = function(event) {
+                    if (event.error === 'not-allowed') {
+                        console.error('🚫 Speech Recognition permission denied!');
+                        alert('Speech recognition permission is required for voice chat!');
+                    } else {
+                        console.log('🎤 Speech recognition error during permission:', event.error);
+                        // Try to continue anyway with regular settings
+                        recognition.continuous = true;
+                        recognition.start();
+                    }
+                };
+                
+            } catch (error) {
+                console.error('🚫 Failed to request speech recognition permission:', error);
+                // Fallback: try regular start
+                recognition.continuous = true;
+                recognition.start();
+            }
         }
         
     } catch (error) {
@@ -468,7 +508,6 @@ function updateVoiceMeterDisplay(volume) {
 function stopVoiceMeter() {
     voiceMeterActive = false;
 }
-
 // ===========================================
 // VOICE BANNER CONTROL
 // ===========================================
