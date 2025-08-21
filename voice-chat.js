@@ -331,96 +331,27 @@ function stopWaveformVisualization() {
     console.log('🎛️ Waveform visualization stopped');
 }
 
-
 // ===========================================
-// 🔥 FIXED MICROPHONE ACTIVATION WITH STREAM CREATION + PERMISSION FIX
+// MICROPHONE ACTIVATION
 // ===========================================
 async function activateMicrophone() {
     console.log('🎤 Activating microphone...');
     
-    try {
-        // 🔥 CREATE THE MISSING persistentMicStream!
-        console.log('🎤 Requesting microphone stream for speech recognition AND meters...');
-        persistentMicStream = await navigator.mediaDevices.getUserMedia({ 
-            audio: {
-                echoCancellation: true,
-                noiseSuppression: true,
-                autoGainControl: true,
-                sampleRate: 44100
-            }
-        });
-        
-        console.log('✅ REAL microphone stream created!');
-        console.log('🎤 Stream tracks:', persistentMicStream.getAudioTracks());
-        
-        // NOW initialize voice meter with REAL stream
-        const meterSuccess = await initializeVoiceMeter();
-        if (meterSuccess) {
-            console.log('✅ Voice meter initialized with REAL audio stream!');
-            startVoiceMeter();
+    // 🎛️ START WAVEFORM VISUALIZATION FIRST
+    await startWaveformVisualization();
+    
+    // 🔥 START RECOGNITION FIRST - BEFORE ANY PERMISSION REQUESTS!
+    isAudioMode = true;
+    if (recognition && !isListening) {
+        console.log('🎤 Starting recognition BEFORE any permission requests...');
+        try {
+            recognition.start(); // This will ask for permission once
+        } catch (error) {
+            console.log('❌ Recognition start failed:', error);
         }
-        
-        // Start waveform visualization
-        await startWaveformVisualization();
-        
-        // Set permission flags
-        micPermissionGranted = true;
-        isAudioMode = true;
-        
-        // 🔥 FORCE SPEECH RECOGNITION PERMISSION REQUEST
-        if (recognition && !isListening) {
-            console.log('🎤 Requesting Speech Recognition API permission...');
-            
-            // FIRST: Try to start recognition to trigger permission popup
-            recognition.continuous = false;  // Temporary setting to force permission
-            recognition.interimResults = false;
-            
-            try {
-                recognition.start();  // This should trigger the permission popup!
-                console.log('🎤 Speech recognition permission requested...');
-                
-                // Handle the permission response
-                recognition.onstart = function() {
-                    console.log('✅ Speech Recognition permission granted!');
-                    recognition.stop();  // Stop the test recognition
-                    
-                    // NOW restart with proper settings
-                    setTimeout(() => {
-                        recognition.continuous = true;
-                        recognition.interimResults = false;
-                        recognition.start();
-                        console.log('🎤 Speech recognition started with full permissions!');
-                    }, 500);
-                };
-                
-                recognition.onerror = function(event) {
-                    if (event.error === 'not-allowed') {
-                        console.error('🚫 Speech Recognition permission denied!');
-                        alert('Speech recognition permission is required for voice chat!');
-                    } else {
-                        console.log('🎤 Speech recognition error during permission:', event.error);
-                        // Try to continue anyway with regular settings
-                        recognition.continuous = true;
-                        recognition.start();
-                    }
-                };
-                
-            } catch (error) {
-                console.error('🚫 Failed to request speech recognition permission:', error);
-                // Fallback: try regular start
-                recognition.continuous = true;
-                recognition.start();
-            }
-        }
-        
-    } catch (error) {
-        console.error('🚫 Microphone activation failed:', error);
-        micPermissionGranted = false;
-        alert('Microphone access is required for voice chat!');
-        return;
     }
     
-    // Switch interface
+    // Switch interface immediately
     const splashScreen = document.getElementById('splashScreen');
     const chatInterface = document.getElementById('chatInterface');
     
@@ -431,8 +362,10 @@ async function activateMicrophone() {
     
     // Set audio mode UI
     showAudioMode();
-    updateHeaderBanner('🎤 Microphone Active - How can we help your business?');
-    showVoiceBanner();
+    showVoiceBanner(); // This will show your new waveform container
+    
+    // Mark permission as granted (recognition.start() already asked for it)
+    micPermissionGranted = true;
     
     // Add greeting
     setTimeout(() => {
@@ -440,6 +373,17 @@ async function activateMicrophone() {
         addAIMessage(greeting);
         speakResponse(greeting);
     }, 1000);
+}
+
+function stopPersistentMicrophone() {
+    if (persistentMicStream) {
+        persistentMicStream.getTracks().forEach(track => track.stop());
+        persistentMicStream = null;
+        console.log('🛑 Persistent microphone stream stopped');
+    }
+    
+    // 🎛️ STOP WAVEFORM VISUALIZATION
+    stopWaveformVisualization();
 }
 
 // CLEANUP FUNCTION - CALL THIS ON PAGE UNLOAD
