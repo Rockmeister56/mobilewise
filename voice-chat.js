@@ -185,6 +185,44 @@ function enhanceChromeSpeechDetection() {
 }
 
 // ===========================================
+// 🎤 CHROME USB MICROPHONE LEVEL DETECTOR
+// ===========================================
+function detectChromeMicLevel() {
+    if (navigator.userAgent.includes('Chrome') && persistentMicStream) {
+        const audioContext = new AudioContext();
+        const analyser = audioContext.createAnalyser();
+        const microphone = audioContext.createMediaStreamSource(persistentMicStream);
+        microphone.connect(analyser);
+        
+        const dataArray = new Uint8Array(analyser.frequencyBinCount);
+        
+        let levelCheckCount = 0;
+        const checkLevel = () => {
+            analyser.getByteFrequencyData(dataArray);
+            let sum = 0;
+            for (const value of dataArray) {
+                sum += value;
+            }
+            const average = sum / dataArray.length;
+            
+            levelCheckCount++;
+            
+            if (levelCheckCount > 50 && average < 5) { // After 2-3 seconds of low levels
+                console.warn('🚫 CHROME USB ISSUE DETECTED: Microphone level too low!');
+                alert('🎤 CHROME ISSUE DETECTED!\n\nYour microphone level is too low (possibly Chrome USB settings).\n\nTo fix:\n1. Right-click the microphone icon in Chrome\n2. Check your microphone level\n3. Or try Microsoft Edge for better compatibility');
+                return;
+            }
+            
+            if (levelCheckCount < 100) { // Keep checking for 5 seconds
+                requestAnimationFrame(checkLevel);
+            }
+        };
+        
+        setTimeout(checkLevel, 1000); // Start checking after 1 second
+    }
+}
+
+// ===========================================
 // 🚀 ULTIMATE MICROPHONE ACTIVATION (CHROME/EDGE FRIENDLY + FULL FEATURES)
 // ===========================================
 async function activateMicrophone() {
