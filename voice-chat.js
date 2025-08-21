@@ -164,6 +164,8 @@ function initializeSpeechRecognition() {
             }
         };
 
+    }
+
      // ===========================================
 // 🔥 FIXED SPEECH RECOGNITION - NO MORE DEATH LOOPS!
 // ===========================================
@@ -215,6 +217,13 @@ recognition.onerror = function(event) {
     console.log('🛑 Error occurred - no auto-restart to prevent loops');
 };
 
+// UPDATE YOUR BROWSER DETECTION:
+function activateMicrophone() {
+    console.log("🎤 Activating microphone for:", currentBrowser);
+    
+    // Your new universal function handles ALL browsers!
+    // No need for browser-specific routing anymore
+}
 
 // ===================================================
 // 🎛️ VOICE WAVEFORM VISUALIZATION SYSTEM
