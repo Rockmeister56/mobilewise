@@ -128,52 +128,88 @@ function bindEventListeners() {
 }
 
 // ===========================================
-// 🔥 FIXED SPEECH RECOGNITION - NO MORE POPUPS
+// 🔥 BULLETPROOF SPEECH RECOGNITION INITIALIZATION
 // ===========================================
 function initializeSpeechRecognition() {
     console.log('🎤 Initializing speech recognition...');
     
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-        recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-        
-        recognition.continuous = true;
-        recognition.interimResults = false;
-        recognition.maxAlternatives = 1;
-        recognition.lang = 'en-US';
-
-        recognition.onstart = function() {
-            console.log('🎤 Speech recognition started');
-            isListening = true;
-            hasStartedOnce = true;
-        };
-
-        recognition.onresult = function(event) {
-            if (event.results.length > 0 && event.results[event.results.length - 1].isFinal) {
-                const transcript = event.results[event.results.length - 1][0].transcript.trim();
-                console.log('🎤 FINAL Voice input received:', transcript);
-                
-                // 🔥 DON'T STOP - JUST IGNORE WHILE AI IS SPEAKING
-                if (isSpeaking) {
-                    console.log('🚫 Ignoring input - AI is speaking');
-                    return;
-                }
-                
-                if (transcript && transcript.length > 0) {
-                    handleVoiceInput(transcript);
-                }
+        try {
+            recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            
+            // ✅ CHECK IF RECOGNITION WAS CREATED SUCCESSFULLY
+            if (!recognition) {
+                console.error('🚫 Failed to create recognition object');
+                return;
             }
-        };
+            
+            recognition.continuous = true;
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+            recognition.lang = 'en-US';
 
-        recognition.onerror = function(event) {
-            console.error('🚫 Speech recognition error:', event.error);
-            isListening = false;
-        };
+            recognition.onstart = function() {
+                console.log('🎤 Speech recognition started');
+                isListening = true;
+                hasStartedOnce = true;
+            };
 
-        recognition.onend = function() {
-            console.log('🛑 Speech recognition ended');
-            isListening = false;
-        };
+            recognition.onresult = function(event) {
+                if (event.results.length > 0 && event.results[event.results.length - 1].isFinal) {
+                    const transcript = event.results[event.results.length - 1][0].transcript.trim();
+                    console.log('🎤 FINAL Voice input received:', transcript);
+                    
+                    if (isSpeaking) {
+                        console.log('🚫 Ignoring input - AI is speaking');
+                        return;
+                    }
+                    
+                    if (transcript && transcript.length > 0) {
+                        handleVoiceInput(transcript);
+                    }
+                }
+            };
 
+            recognition.onerror = function(event) {
+                console.error('🚫 Speech recognition error:', event.error);
+                isListening = false;
+            };
+
+            recognition.onend = function() {
+                console.log('🛑 Speech recognition ended');
+                isListening = false;
+                
+                // 🔥 ANTI-DEATH LOOP RESTART LOGIC
+                if (isAudioMode && micPermissionGranted && !isSpeaking && isAudioMode) {
+                    if (!restartCooldown) {
+                        restartCooldown = true;
+                        console.log('🔄 Gentle restart with cooldown...');
+                        
+                        setTimeout(() => {
+                            if (!isListening && !isSpeaking && isAudioMode) {
+                                try {
+                                    recognition.start();
+                                    console.log('✅ Recognition gently restarted');
+                                } catch (error) {
+                                    console.log('⚠️ Gentle restart failed:', error.message);
+                                }
+                            }
+                        }, 2000);
+                        
+                        setTimeout(() => {
+                            restartCooldown = false;
+                        }, 3000);
+                    } else {
+                        console.log('🛑 Restart on cooldown - preventing death loop');
+                    }
+                }
+            };
+
+        } catch (error) {
+            console.error('🚫 Failed to initialize speech recognition:', error);
+            recognition = null;
+        }
+        
     } else {
         console.log('🚫 Speech recognition not supported');
     }
