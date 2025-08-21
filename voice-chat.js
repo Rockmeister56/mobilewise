@@ -1090,6 +1090,14 @@ function muteAIVoice() {
 }
 
 // ===========================================
+// 🎛️ PAGE INITIALIZATION
+// ===========================================
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('📱 Page loaded - initializing waveform system...');
+    initializeWaveform();
+});
+
+// ===========================================
 // INITIALIZE WHEN READY
 // ===========================================
 initializeWhenReady();
