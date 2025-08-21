@@ -893,7 +893,51 @@ async function fallbackSpeech(message) {
 
     // Wait for voices to be loaded
     const voices = await getVoices();
-    speakWithVoice(message, voices);
+    
+    // Stop any current speech
+    window.speechSynthesis.cancel();
+    
+    const utterance = new SpeechSynthesisUtterance(message);
+    
+    // Voice selection code
+    let bestVoice = findBestVoice(voices);
+    if (bestVoice) {
+        utterance.voice = bestVoice;
+        console.log('🎵 Selected voice:', bestVoice.name, bestVoice.lang);
+    }
+    
+    utterance.rate = 0.9;
+    utterance.pitch = 1.0;
+    utterance.volume = 0.8;
+    
+    // 🔥 SET THE isSpeaking FLAG
+    utterance.onstart = function() {
+        isSpeaking = true;
+        console.log('🎵 Speech started - blocking mic restarts');
+    };
+    
+    // 🔥 ADD THE FIXED onend HANDLER HERE:
+    utterance.onend = function() {
+        isSpeaking = false;
+        currentAudio = null;
+        console.log('✅ Speech finished - mic restarts allowed');
+        updateHeaderBanner('🔊 AI is listening...');
+        
+        // 🔥 CRITICAL FIX: Add delay before allowing recognition restart
+        setTimeout(function() {
+            if (isAudioMode && micPermissionGranted && !isListening) {
+                try {
+                    recognition.start();
+                    console.log('🎤 Delayed recognition restart after speech');
+                } catch (error) {
+                    console.log('⚠️ Delayed restart failed:', error.message);
+                }
+            }
+        }, 800); // 800ms delay gives Chrome time to recover
+    };
+    
+    currentAudio = utterance;
+    window.speechSynthesis.speak(utterance);
 }
 
 // Promise-based voice loading
@@ -984,44 +1028,6 @@ function requestMicrophonePermissionOnce() {
         startRecognitionWithPermission();
     }
 }
-
-utterance.onend = () => {
-    isSpeaking = false;
-    currentAudio = null;
-    console.log('✅ Speech finished - mic restarts allowed');
-    updateHeaderBanner('🔊 AI is listening...');
-    
-    // 🔥 CRITICAL FIX: Add delay before allowing recognition restart
-    setTimeout(() => {
-        if (isAudioMode && micPermissionGranted && !isListening) {
-            try {
-                recognition.start();
-                console.log('🎤 Delayed recognition restart after speech');
-            } catch (error) {
-                console.log('⚠️ Delayed restart failed:', error.message);
-            }
-        }
-    }, 800); // 800ms delay gives Chrome time to recover
-};
-
-// ❌ COMMENT OUT THIS ENTIRE FUNCTION - IT'S CAUSING THE POPUP:
-/*
-function restartRecognition() {
-    if (isSpeaking) {
-        console.log('⏸️ Skipping recognition restart - AI is speaking');
-        return;
-    }
-    
-    console.log('🔄 Restarting speech recognition...');
-    if (recognition && micPermissionGranted) {
-        try {
-            recognition.start();  // ← THIS IS THE POPUP TRIGGER!
-        } catch (error) {
-            console.log('Recognition restart error:', error);
-        }
-    }
-}
-*/
 
 function findBestVoice(voices) {
     // SILENT voice selection - no console spam!
