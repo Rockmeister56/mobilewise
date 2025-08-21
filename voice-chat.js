@@ -164,8 +164,20 @@ function initializeSpeechRecognition() {
             }
         };
 
-    }
+        recognition.onerror = function(event) {
+            console.error('🚫 Speech recognition error:', event.error);
+            isListening = false;
+        };
 
+        recognition.onend = function() {
+            console.log('🛑 Speech recognition ended');
+            isListening = false;
+        };
+
+    } else {
+        console.log('🚫 Speech recognition not supported');
+    }
+}
      // ===========================================
 // 🔥 FIXED SPEECH RECOGNITION - NO MORE DEATH LOOPS!
 // ===========================================
