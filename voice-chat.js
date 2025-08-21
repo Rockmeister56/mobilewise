@@ -133,7 +133,9 @@ function bindEventListeners() {
 async function activateMicrophone() {
     console.log('🎤 Activating microphone...');
     
-   
+    // 🎛️ START WAVEFORM VISUALIZATION FIRST
+    await startWaveformVisualization();
+    
     // 🔥 START RECOGNITION FIRST - BEFORE ANY PERMISSION REQUESTS!
     isAudioMode = true;
     if (recognition && !isListening) {
@@ -144,9 +146,6 @@ async function activateMicrophone() {
             console.log('❌ Recognition start failed:', error);
         }
     }
-
-     // 🎛️ START WAVEFORM VISUALIZATION 
-    await startWaveformVisualization();
     
     // Switch interface immediately
     const splashScreen = document.getElementById('splashScreen');
@@ -200,97 +199,85 @@ function cleanupAudioContext() {
 }
 
 // ===========================================
-// 🎤 COMPLETE SPEECH RECOGNITION INITIALIZATION
+// 🔥 FIXED SPEECH RECOGNITION - NO MORE POPUPS
 // ===========================================
 function initializeSpeechRecognition() {
     console.log('🎤 Initializing speech recognition...');
     
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-        try {
-            recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        
+        recognition.continuous = true;
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+        recognition.lang = 'en-US';
+
+        recognition.onstart = function() {
+            console.log('🎤 Speech recognition started');
+            isListening = true;
+            hasStartedOnce = true;
+        };
+
+        recognition.onresult = function(event) {
+            if (event.results.length > 0 && event.results[event.results.length - 1].isFinal) {
+                const transcript = event.results[event.results.length - 1][0].transcript.trim();
+                console.log('🎤 FINAL Voice input received:', transcript);
+                
+                // 🔥 DON'T STOP - JUST IGNORE WHILE AI IS SPEAKING
+                if (isSpeaking) {
+                    console.log('🚫 Ignoring input - AI is speaking');
+                    return;
+                }
+                
+                if (transcript && transcript.length > 0) {
+                    handleVoiceInput(transcript);
+                }
+            }
+        };
+
+        recognition.onend = function() {
+    console.log('🎤 Speech recognition ended unexpectedly');
+    isListening = false;
+    
+    // 🔥 GENTLE RESTART - Only after AI finishes speaking
+    if (isAudioMode && micPermissionGranted && !isSpeaking) {
+        console.log('🔄 Gentle restart - waiting for AI to finish...');
+        setTimeout(() => {
+            if (!isListening && !isSpeaking && isAudioMode) {
+                try {
+                    recognition.start();
+                    console.log('✅ Recognition gently restarted');
+                } catch (error) {
+                    console.log('⚠️ Gentle restart failed:', error.message);
+                }
+            }
+        }, 1000); // Conservative 1-second delay
+    }
+};
+
+        recognition.onerror = function(event) {
+            console.log('🚫 Speech recognition error:', event.error);
+            isListening = false;
             
-            if (!recognition) {
-                console.error('🚫 Failed to create recognition object');
+            if (event.error === 'not-allowed') {
+                console.log('❌ Microphone permission denied');
+                micPermissionGranted = false;
                 return;
             }
             
-            recognition.continuous = true;
-            recognition.interimResults = false;
-            recognition.maxAlternatives = 1;
-            recognition.lang = 'en-US';
-
-            recognition.onstart = function() {
-                console.log('🎤 Speech recognition started');
-                isListening = true;
-                hasStartedOnce = true;
-            };
-
-            recognition.onresult = function(event) {
-                if (event.results.length > 0 && event.results[event.results.length - 1].isFinal) {
-                    const transcript = event.results[event.results.length - 1][0].transcript.trim();
-                    console.log('🎤 FINAL Voice input received:', transcript);
-                    
-                    if (isSpeaking) {
-                        console.log('🚫 Ignoring input - AI is speaking');
-                        return;
+            // Restart on any other error
+            if (isAudioMode && micPermissionGranted) {
+                setTimeout(() => {
+                    if (!isListening) {
+                        recognition.start();
                     }
-                    
-                    if (transcript && transcript.length > 0) {
-                        handleVoiceInput(transcript);
-                    }
-                }
-            };
-
-            recognition.onerror = function(event) {
-                console.error('🚫 Speech recognition error:', event.error);
-                isListening = false;
-                
-                if (event.error === 'not-allowed') {
-                    console.log('❌ Microphone permission denied');
-                    micPermissionGranted = false;
-                    return;
-                }
-            };
-
-            recognition.onend = function() {
-                console.log('🎤 Speech recognition ended');
-                isListening = false;
-                
-                // 🔥 FIXED RESTART LOGIC - NO MORE LOOPS!
-                if (isAudioMode && micPermissionGranted && !isSpeaking) {
-                    setTimeout(() => {
-                        // Double-check the state before restarting
-                        if (!isListening && isAudioMode && !isSpeaking) {
-                            try {
-                                recognition.start();
-                                console.log('✅ Recognition restarted');
-                            } catch (error) {
-                                console.log('⚠️ Restart skipped:', error.message);
-                                // Try again in 1 second if it fails
-                                setTimeout(() => {
-                                    if (!isListening && isAudioMode && !isSpeaking) {
-                                        try {
-                                            recognition.start();
-                                        } catch (e) {
-                                            console.log('⚠️ Second restart attempt failed');
-                                        }
-                                    }
-                                }, 1000);
-                            }
-                        }
-                    }, 500);
-                }
-            };
-
-            console.log('✅ Speech recognition initialized with continuous mode');
-            
-        } catch (error) {
-            console.error('🚫 Failed to initialize speech recognition:', error);
-            recognition = null;
-        }
+                }, 1000);
+            }
+        };
         
+        console.log('✅ Speech recognition initialized with continuous mode');
     } else {
-        console.log('🚫 Speech recognition not supported');
+        console.log('❌ Speech recognition not supported');
     }
 }
 
