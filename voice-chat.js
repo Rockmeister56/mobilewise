@@ -437,9 +437,6 @@ function stopWaveformVisualization() {
     console.log('🎛️ Waveform visualization stopped');
 }
 
-// AUTO-CLEANUP ON PAGE UNLOAD
-window.addEventListener('beforeunload', cleanupAudioContext);
-
 function startVoiceMeter() {
     if (!analyser || voiceMeterActive) return;
     
