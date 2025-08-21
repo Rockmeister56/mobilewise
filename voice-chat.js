@@ -133,9 +133,7 @@ function bindEventListeners() {
 async function activateMicrophone() {
     console.log('🎤 Activating microphone...');
     
-    // 🎛️ START WAVEFORM VISUALIZATION FIRST
-    await startWaveformVisualization();
-    
+   
     // 🔥 START RECOGNITION FIRST - BEFORE ANY PERMISSION REQUESTS!
     isAudioMode = true;
     if (recognition && !isListening) {
@@ -146,6 +144,9 @@ async function activateMicrophone() {
             console.log('❌ Recognition start failed:', error);
         }
     }
+
+     // 🎛️ START WAVEFORM VISUALIZATION 
+    await startWaveformVisualization();
     
     // Switch interface immediately
     const splashScreen = document.getElementById('splashScreen');
