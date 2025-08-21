@@ -152,17 +152,18 @@ function enhanceChromeSpeechDetection() {
                 }
                 const average = sum / dataArray.length;
                 
-                // If sound is detected but recognition isn't listening, give it a boost
-                if (average > 10 && !isListening) {
-                    console.log('🔊 MOBILE-WISE AI: Sound detected - boosting recognition');
+                // 🔥 MORE AGGRESSIVE: Lower threshold for Chrome
+                if (average > 5 && !isListening) {
+                    console.log('🔊 MOBILE-WISE AI: Sound detected - BOOSTING recognition');
                     if (recognition) {
                         try {
                             recognition.stop();
                             setTimeout(() => {
-                                if (isAudioMode && !isListening) {
+                                if (isAudioMode && !isListening && !isSpeaking) {
+                                    console.log('🚀 FORCING Chrome recognition restart');
                                     recognition.start();
                                 }
-                            }, 100);
+                            }, 50); // Much faster restart
                         } catch (error) {
                             console.log('🚀 Enhancement handled:', error.message);
                         }
@@ -175,7 +176,7 @@ function enhanceChromeSpeechDetection() {
             }
             
             checkForSound();
-            console.log('✅ MOBILE-WISE AI: Chrome enhancement engine running');
+            console.log('✅ MOBILE-WISE AI: Chrome ULTRA enhancement engine running');
             
         } catch (error) {
             console.log('⚠️ Chrome enhancement failed (non-critical):', error.message);
@@ -261,60 +262,6 @@ async function activateMicrophone() {
     }, 1000);
 }
 
-function enhanceChromeSpeechDetection() {
-    console.log('🔧 MOBILE-WISE AI: Chrome speech enhancement activated');
-    
-    // Only run for Chrome and if we have a microphone stream
-    if (navigator.userAgent.includes('Chrome') && persistentMicStream) {
-        try {
-            const audioContext = new AudioContext();
-            const analyser = audioContext.createAnalyser();
-            const microphone = audioContext.createMediaStreamSource(persistentMicStream);
-            microphone.connect(analyser);
-            
-            const dataArray = new Uint8Array(analyser.frequencyBinCount);
-            
-            function checkForSound() {
-                if (!isAudioMode || !persistentMicStream) return;
-                
-                analyser.getByteFrequencyData(dataArray);
-                let sum = 0;
-                for (const value of dataArray) {
-                    sum += value;
-                }
-                const average = sum / dataArray.length;
-                
-                // 🔥 MORE AGGRESSIVE: Lower threshold for Chrome
-                if (average > 5 && !isListening) {
-                    console.log('🔊 MOBILE-WISE AI: Sound detected - BOOSTING recognition');
-                    if (recognition) {
-                        try {
-                            recognition.stop();
-                            setTimeout(() => {
-                                if (isAudioMode && !isListening && !isSpeaking) {
-                                    console.log('🚀 FORCING Chrome recognition restart');
-                                    recognition.start();
-                                }
-                            }, 50); // Much faster restart
-                        } catch (error) {
-                            console.log('🚀 Enhancement handled:', error.message);
-                        }
-                    }
-                }
-                
-                if (isAudioMode && persistentMicStream) {
-                    requestAnimationFrame(checkForSound);
-                }
-            }
-            
-            checkForSound();
-            console.log('✅ MOBILE-WISE AI: Chrome ULTRA enhancement engine running');
-            
-        } catch (error) {
-            console.log('⚠️ Chrome enhancement failed (non-critical):', error.message);
-        }
-    }
-}
 
 // ===========================================
 // 🎤 COMPLETE SPEECH RECOGNITION INITIALIZATION
@@ -409,11 +356,11 @@ function initializeSpeechRecognition() {
                     recognition.start();
                 } catch (error) {
                     console.log('Restart failed:', error);
-                }
+                      }
             }
         }, 1000);
     }
-};
+}; 
 
             recognition.onend = function() {
                 console.log('🎤 Speech recognition ended');
