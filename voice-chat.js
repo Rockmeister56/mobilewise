@@ -155,7 +155,6 @@ recognition.onend = function() {
         }, 500); // Wait 500ms before restart
     }
 };
-
 // UPDATE YOUR BROWSER DETECTION:
 function activateMicrophone() {
     console.log("🎤 Activating microphone for:", currentBrowser);
