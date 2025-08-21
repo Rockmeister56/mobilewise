@@ -126,6 +126,78 @@ function bindEventListeners() {
     }
 }
 
+
+// ===========================================
+// MICROPHONE ACTIVATION
+// ===========================================
+async function activateMicrophone() {
+    console.log('🎤 Activating microphone...');
+    
+    // 🎛️ START WAVEFORM VISUALIZATION FIRST
+    await startWaveformVisualization();
+    
+    // 🔥 START RECOGNITION FIRST - BEFORE ANY PERMISSION REQUESTS!
+    isAudioMode = true;
+    if (recognition && !isListening) {
+        console.log('🎤 Starting recognition BEFORE any permission requests...');
+        try {
+            recognition.start(); // This will ask for permission once
+        } catch (error) {
+            console.log('❌ Recognition start failed:', error);
+        }
+    }
+    
+    // Switch interface immediately
+    const splashScreen = document.getElementById('splashScreen');
+    const chatInterface = document.getElementById('chatInterface');
+    
+    if (splashScreen) splashScreen.style.display = 'none';
+    if (chatInterface) chatInterface.style.display = 'flex';
+    
+    console.log('✅ Interface switched to chat mode');
+    
+    // Set audio mode UI
+    showAudioMode();
+    showVoiceBanner(); // This will show your new waveform container
+    
+    // Mark permission as granted (recognition.start() already asked for it)
+    micPermissionGranted = true;
+    
+    // Add greeting
+    setTimeout(() => {
+        const greeting = "What can I help you with?";
+        addAIMessage(greeting);
+        speakResponse(greeting);
+    }, 1000);
+}
+
+function stopPersistentMicrophone() {
+    if (persistentMicStream) {
+        persistentMicStream.getTracks().forEach(track => track.stop());
+        persistentMicStream = null;
+        console.log('🛑 Persistent microphone stream stopped');
+    }
+    
+    // 🎛️ STOP WAVEFORM VISUALIZATION
+    stopWaveformVisualization();
+}
+
+// CLEANUP FUNCTION - CALL THIS ON PAGE UNLOAD
+function cleanupAudioContext() {
+    if (globalMicrophone) {
+        globalMicrophone.disconnect();
+        globalMicrophone = null;
+    }
+    if (globalAnalyser) {
+        globalAnalyser = null;
+    }
+    if (globalAudioContext && globalAudioContext.state !== 'closed') {
+        globalAudioContext.close();
+        globalAudioContext = null;
+    }
+    console.log('🧹 Audio context cleaned up');
+}
+
 // ===========================================
 // 🎤 COMPLETE SPEECH RECOGNITION INITIALIZATION
 // ===========================================
@@ -331,77 +403,6 @@ function stopWaveformVisualization() {
     console.log('🎛️ Waveform visualization stopped');
 }
 
-// ===========================================
-// MICROPHONE ACTIVATION
-// ===========================================
-async function activateMicrophone() {
-    console.log('🎤 Activating microphone...');
-    
-    // 🎛️ START WAVEFORM VISUALIZATION FIRST
-    await startWaveformVisualization();
-    
-    // 🔥 START RECOGNITION FIRST - BEFORE ANY PERMISSION REQUESTS!
-    isAudioMode = true;
-    if (recognition && !isListening) {
-        console.log('🎤 Starting recognition BEFORE any permission requests...');
-        try {
-            recognition.start(); // This will ask for permission once
-        } catch (error) {
-            console.log('❌ Recognition start failed:', error);
-        }
-    }
-    
-    // Switch interface immediately
-    const splashScreen = document.getElementById('splashScreen');
-    const chatInterface = document.getElementById('chatInterface');
-    
-    if (splashScreen) splashScreen.style.display = 'none';
-    if (chatInterface) chatInterface.style.display = 'flex';
-    
-    console.log('✅ Interface switched to chat mode');
-    
-    // Set audio mode UI
-    showAudioMode();
-    showVoiceBanner(); // This will show your new waveform container
-    
-    // Mark permission as granted (recognition.start() already asked for it)
-    micPermissionGranted = true;
-    
-    // Add greeting
-    setTimeout(() => {
-        const greeting = "What can I help you with?";
-        addAIMessage(greeting);
-        speakResponse(greeting);
-    }, 1000);
-}
-
-function stopPersistentMicrophone() {
-    if (persistentMicStream) {
-        persistentMicStream.getTracks().forEach(track => track.stop());
-        persistentMicStream = null;
-        console.log('🛑 Persistent microphone stream stopped');
-    }
-    
-    // 🎛️ STOP WAVEFORM VISUALIZATION
-    stopWaveformVisualization();
-}
-
-// CLEANUP FUNCTION - CALL THIS ON PAGE UNLOAD
-function cleanupAudioContext() {
-    if (globalMicrophone) {
-        globalMicrophone.disconnect();
-        globalMicrophone = null;
-    }
-    if (globalAnalyser) {
-        globalAnalyser = null;
-    }
-    if (globalAudioContext && globalAudioContext.state !== 'closed') {
-        globalAudioContext.close();
-        globalAudioContext = null;
-    }
-    console.log('🧹 Audio context cleaned up');
-}
-
 // AUTO-CLEANUP ON PAGE UNLOAD
 window.addEventListener('beforeunload', cleanupAudioContext);
 
@@ -451,18 +452,6 @@ function updateVoiceMeterDisplay(volume) {
 
 function stopVoiceMeter() {
     voiceMeterActive = false;
-}
-// ===========================================
-// VOICE BANNER CONTROL
-// ===========================================
-function showVoiceBanner() {
-    const voiceContainer = document.getElementById('voiceVisualizerContainer');
-    if (voiceContainer) {
-        voiceContainer.style.display = 'flex';
-        console.log('✅ Voice visualizer container shown');
-    } else {
-        console.log('❌ Voice visualizer container not found');
-    }
 }
 
 // ===========================================
@@ -595,6 +584,7 @@ function switchToAudioMode() {
         console.log('✅ AI conversation restarted');
     }, 500);
 }
+
     // ===================================================
 // 🎤 VOICE BANNER DISPLAY FUNCTIONS
 // ===================================================
