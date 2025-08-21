@@ -327,37 +327,15 @@ function initializeSpeechRecognition() {
     }
 }
 
-// ===========================================
-// 🎤 VOICE METER INITIALIZATION (MISSING FUNCTION)
-// ===========================================
-async function initializeVoiceMeter() {
-    try {
-        if (!persistentMicStream) {
-            console.error('❌ No microphone stream available for voice meter');
-            return false;
-        }
-        
-        // Create audio context
-        audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        analyser = audioContext.createAnalyser();
-        microphone = audioContext.createMediaStreamSource(persistentMicStream);
-        
-        // Configure analyser
-        analyser.fftSize = 256;
-        analyser.smoothingTimeConstant = 0.8;
-        microphone.connect(analyser);
-        
-        // Setup data array
-        const bufferLength = analyser.frequencyBinCount;
-        dataArray = new Uint8Array(bufferLength);
-        
-        console.log('✅ Voice meter initialized');
-        return true;
-        
-    } catch (error) {
-        console.error('❌ Voice meter initialization failed:', error);
-        return false;
-    }
+// ===================================================
+// 🎛️ VOICE WAVEFORM VISUALIZATION SYSTEM
+// ===================================================
+function initializeWaveform() {
+    canvas = document.getElementById('voiceWaveform');
+    if (!canvas) return;
+    
+    canvasCtx = canvas.getContext('2d');
+    console.log('🎛️ Waveform canvas initialized');
 }
 
 // Start the live waveform visualization
