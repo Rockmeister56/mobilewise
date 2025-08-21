@@ -261,6 +261,61 @@ async function activateMicrophone() {
     }, 1000);
 }
 
+function enhanceChromeSpeechDetection() {
+    console.log('🔧 MOBILE-WISE AI: Chrome speech enhancement activated');
+    
+    // Only run for Chrome and if we have a microphone stream
+    if (navigator.userAgent.includes('Chrome') && persistentMicStream) {
+        try {
+            const audioContext = new AudioContext();
+            const analyser = audioContext.createAnalyser();
+            const microphone = audioContext.createMediaStreamSource(persistentMicStream);
+            microphone.connect(analyser);
+            
+            const dataArray = new Uint8Array(analyser.frequencyBinCount);
+            
+            function checkForSound() {
+                if (!isAudioMode || !persistentMicStream) return;
+                
+                analyser.getByteFrequencyData(dataArray);
+                let sum = 0;
+                for (const value of dataArray) {
+                    sum += value;
+                }
+                const average = sum / dataArray.length;
+                
+                // 🔥 MORE AGGRESSIVE: Lower threshold for Chrome
+                if (average > 5 && !isListening) {
+                    console.log('🔊 MOBILE-WISE AI: Sound detected - BOOSTING recognition');
+                    if (recognition) {
+                        try {
+                            recognition.stop();
+                            setTimeout(() => {
+                                if (isAudioMode && !isListening && !isSpeaking) {
+                                    console.log('🚀 FORCING Chrome recognition restart');
+                                    recognition.start();
+                                }
+                            }, 50); // Much faster restart
+                        } catch (error) {
+                            console.log('🚀 Enhancement handled:', error.message);
+                        }
+                    }
+                }
+                
+                if (isAudioMode && persistentMicStream) {
+                    requestAnimationFrame(checkForSound);
+                }
+            }
+            
+            checkForSound();
+            console.log('✅ MOBILE-WISE AI: Chrome ULTRA enhancement engine running');
+            
+        } catch (error) {
+            console.log('⚠️ Chrome enhancement failed (non-critical):', error.message);
+        }
+    }
+}
+
 // ===========================================
 // 🎤 COMPLETE SPEECH RECOGNITION INITIALIZATION
 // ===========================================
@@ -275,6 +330,24 @@ function initializeSpeechRecognition() {
             recognition.interimResults = true;
             recognition.maxAlternatives = 3;
             recognition.lang = 'en-US';
+
+                // 🔥 CHROME-SPECIFIC FIX: Increase timeouts for Chrome
+            if (navigator.userAgent.includes('Chrome')) {
+                console.log('🔧 Applying Chrome-specific speech recognition settings');
+                // These are non-standard but help Chrome
+                recognition.continuous = true;
+                recognition.interimResults = true;
+                
+                // Try to extend Chrome's patience
+                try {
+                    // Chrome-specific settings (if supported)
+                    recognition.nomatch = function(event) {
+                        console.log('🔍 No match found, but continuing...');
+                    };
+                } catch (e) {
+                    console.log('ℹ️ Chrome extra settings not supported');
+                }
+            }
 
             recognition.onstart = function() {
                 console.log('🎤 Speech recognition started');
@@ -298,36 +371,49 @@ function initializeSpeechRecognition() {
                 }
             };
 
-            recognition.onerror = function(event) {
-                console.log('🚫 Speech recognition error:', event.error);
-                isListening = false;
-                
-                if (event.error === 'not-allowed') {
-                    console.log('❌ Microphone permission denied');
-                    micPermissionGranted = false;
-                    alert('Please allow microphone access in your browser settings to use voice chat.');
-                    return;
+          recognition.onerror = function(event) {
+    console.log('🚫 Speech recognition error:', event.error);
+    isListening = false;
+    
+    if (event.error === 'not-allowed') {
+        console.log('❌ Microphone permission denied');
+        micPermissionGranted = false;
+        alert('Please allow microphone access in your browser settings to use voice chat.');
+        return;
+    }
+    
+    // 🔥 CHROME-SPECIFIC: More aggressive restart for no-speech errors
+    if (event.error === 'no-speech') {
+        console.log('🔇 Chrome no-speech detected - aggressive restart');
+        
+        if (isAudioMode && micPermissionGranted && !isSpeaking) {
+            setTimeout(() => {
+                if (!isListening) {
+                    try {
+                        console.log('🚀 Aggressive restart attempt for Chrome...');
+                        recognition.start();
+                    } catch (error) {
+                        console.log('⚠️ Aggressive restart failed:', error.message);
+                    }
                 }
-                
-                // Chrome-specific: Handle no-speech errors gently
-                if (event.error === 'no-speech') {
-                    console.log('🔇 No speech detected - will retry');
-                    return;
+            }, 300); // Much shorter delay for Chrome
+        }
+        return;
+    }
+    
+    // Only restart on other recoverable errors
+    if (isAudioMode && micPermissionGranted && event.error !== 'aborted') {
+        setTimeout(() => {
+            if (!isListening) {
+                try {
+                    recognition.start();
+                } catch (error) {
+                    console.log('Restart failed:', error);
                 }
-                
-                // Only restart on recoverable errors
-                if (isAudioMode && micPermissionGranted && event.error !== 'aborted') {
-                    setTimeout(() => {
-                        if (!isListening) {
-                            try {
-                                recognition.start();
-                            } catch (error) {
-                                console.log('Restart failed:', error);
-                            }
-                        }
-                    }, 1000);
-                }
-            };
+            }
+        }, 1000);
+    }
+};
 
             recognition.onend = function() {
                 console.log('🎤 Speech recognition ended');
