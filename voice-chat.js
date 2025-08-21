@@ -186,7 +186,7 @@ function enhanceChromeSpeechDetection() {
 // ===========================================
 // 🚀 ULTIMATE MICROPHONE ACTIVATION (CHROME/EDGE FRIENDLY + FULL FEATURES)
 // ===========================================
-async function activateMicrophone() {
+async function activateMicrophone() {} // End of activateMicrophone function
     console.log('🎤 Activating microphone...');
     
     // 🔥 CHROME-FRIENDLY PERMISSION FLOW
