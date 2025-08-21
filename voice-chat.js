@@ -343,42 +343,6 @@ function initializeSpeechRecognition() {
     }
 }
 
-           recognition.onerror = function(event) {
-    console.log('🚫 MOBILE-WISE AI: Speech recognition error:', event.error);
-    isListening = false;
-    
-    if (event.error === 'no-speech') {
-        console.log('🔇 Chrome no-speech detected - MOBILE-WISE AI BOOST ACTIVATED');
-        // Chrome-specific: Try again with enhanced settings
-        setTimeout(() => {
-            if (isAudioMode && !isListening) {
-                try {
-                    setTimeout(() => recognition.start(), 300);
-                } catch (error) {
-                    console.log('🚀 No-speech restart failed:', error.message);
-                }
-            }
-        }, 1000);
-        return;
-    }
-    
-    if (event.error === 'not-allowed') {
-        console.log('❌ Microphone permission denied');
-        micPermissionGranted = false;
-        alert('MOBILE-WISE AI needs microphone access! Please allow in Chrome settings.');
-        return;
-    }
-    
-    // Auto-restart on other errors - NEVER GIVE UP!
-    if (isAudioMode && micPermissionGranted) {
-        setTimeout(() => {
-            if (!isListening) {
-                recognition.start();
-            }
-        }, 1000);
-    }
-};
-
 // ===================================================
 // 🎛️ VOICE WAVEFORM VISUALIZATION SYSTEM
 // ===================================================
