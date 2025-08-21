@@ -1006,6 +1006,7 @@ function muteAIVoice() {
 // ===========================================
 document.addEventListener('DOMContentLoaded', function() {
     console.log('📱 Page loaded - initializing waveform system...');
+   startWaveformVisualization(); // Instead of initializeWaveform()
 });
 
 // ===========================================
