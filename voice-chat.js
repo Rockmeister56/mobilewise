@@ -126,6 +126,99 @@ function bindEventListeners() {
     }
 }
 
+// ===========================================
+// 🎤 MOBILE-WISE AI CHROME ENHANCEMENT ENGINE
+// ===========================================
+function enhanceChromeSpeechDetection() {
+    if (navigator.userAgent.includes('Chrome')) {
+        console.log('🔧 MOBILE-WISE AI: Applying Chrome-specific enhancements');
+        
+        if (persistentMicStream) {
+            const audioContext = new AudioContext();
+            const analyser = audioContext.createAnalyser();
+            const microphone = audioContext.createMediaStreamSource(persistentMicStream);
+            microphone.connect(analyser);
+            
+            const dataArray = new Uint8Array(analyser.frequencyBinCount);
+            
+            function checkForSound() {
+                analyser.getByteFrequencyData(dataArray);
+                let sum = 0;
+                for (const value of dataArray) {
+                    sum += value;
+                }
+                const average = sum / dataArray.length;
+                
+                if (average > 10 && !isListening) {
+                    console.log('🔊 MOBILE-WISE AI: Sound detected - activating recognition');
+                    if (recognition && isAudioMode) {
+                        try {
+                            recognition.stop();
+                            setTimeout(() => recognition.start(), 100);
+                        } catch (error) {
+                            console.log('🚀 Sound-triggered restart failed:', error);
+                        }
+                    }
+                }
+                
+                if (isAudioMode) {
+                    requestAnimationFrame(checkForSound);
+                }
+            }
+            
+            checkForSound();
+        }
+    }
+}
+
+// ===========================================
+// 🎤 MOBILE-WISE AI CHROME ENHANCEMENT ENGINE
+// ===========================================
+function enhanceChromeSpeechDetection() {
+    console.log('🔧 MOBILE-WISE AI: Chrome speech enhancement activated');
+    
+    if (navigator.userAgent.includes('Chrome') && persistentMicStream) {
+        try {
+            const audioContext = new AudioContext();
+            const analyser = audioContext.createAnalyser();
+            const microphone = audioContext.createMediaStreamSource(persistentMicStream);
+            microphone.connect(analyser);
+            
+            const dataArray = new Uint8Array(analyser.frequencyBinCount);
+            
+            function checkForSound() {
+                analyser.getByteFrequencyData(dataArray);
+                let sum = 0;
+                for (const value of dataArray) {
+                    sum += value;
+                }
+                const average = sum / dataArray.length;
+                
+                if (average > 10 && !isListening && isAudioMode) {
+                    console.log('🔊 MOBILE-WISE AI: Sound detected - boosting recognition');
+                    if (recognition) {
+                        try {
+                            recognition.stop();
+                            setTimeout(() => recognition.start(), 100);
+                        } catch (error) {
+                            console.log('🚀 Enhancement restart handled:', error.message);
+                        }
+                    }
+                }
+                
+                if (isAudioMode && persistentMicStream) {
+                    requestAnimationFrame(checkForSound);
+                }
+            }
+            
+            checkForSound();
+            console.log('✅ MOBILE-WISE AI: Chrome enhancement engine running');
+            
+        } catch (error) {
+            console.log('⚠️ Chrome enhancement failed (non-critical):', error.message);
+        }
+    }
+}
 
 // ===========================================
 // 🚀 ULTIMATE MICROPHONE ACTIVATION (CHROME/EDGE FRIENDLY + FULL FEATURES)
@@ -162,6 +255,9 @@ async function activateMicrophone() {
         // 4. Set permission flags
         micPermissionGranted = true;
         isAudioMode = true;
+
+        // 🔥 ADD THIS LINE FOR CHROME ENHANCEMENT:
+    enhanceChromeSpeechDetection();
         
         // 5. Start recognition ONLY after permission is granted
         if (recognition && !isListening) {
@@ -221,111 +317,67 @@ function stopPersistentMicrophone() {
 // 🎤 COMPLETE SPEECH RECOGNITION INITIALIZATION
 // ===========================================
 function initializeSpeechRecognition() {
-    console.log('🎤 Initializing speech recognition...');
+    console.log('🎤 MOBILE-WISE AI: Initializing speech recognition...');
     
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-        try {
-            recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-            
-            if (!recognition) {
-                console.error('🚫 Failed to create recognition object');
-                return;
-            }
-            
-            recognition.continuous = true;
-            recognition.interimResults = false;
-            recognition.maxAlternatives = 1;
-            recognition.lang = 'en-US';
-
-            recognition.onstart = function() {
-                console.log('🎤 Speech recognition started');
-                isListening = true;
-                hasStartedOnce = true;
-            };
-
-            recognition.onresult = function(event) {
-                if (event.results.length > 0 && event.results[event.results.length - 1].isFinal) {
-                    const transcript = event.results[event.results.length - 1][0].transcript.trim();
-                    console.log('🎤 FINAL Voice input received:', transcript);
-                    
-                    if (isSpeaking) {
-                        console.log('🚫 Ignoring input - AI is speaking');
-                        return;
-                    }
-                    
-                    if (transcript && transcript.length > 0) {
-                        handleVoiceInput(transcript);
-                    }
+        recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        
+        recognition.continuous = true;
+        recognition.interimResults = true; // 🔥 CHROME FIX: Enable interim results
+        recognition.maxAlternatives = 3;   // 🔥 CHROME FIX: Increase alternatives  
+        recognition.lang = 'en-US';
+        
+        // 🔥 CHROME-SPECIFIC TWEAKS
+        recognition.grammars = new SpeechGrammarList(); // Empty grammar list
+        
+        // Add Chrome-specific delayed start
+        setTimeout(() => {
+            if (recognition && !isListening) {
+                try {
+                    recognition.start();
+                } catch (error) {
+                    console.log('🚀 Delayed start attempt:', error.message);
                 }
-            };
+            }
+        }, 500);
+    }
+}
 
-            recognition.onerror = function(event) {
-    console.log('🚫 Speech recognition error:', event.error);
+           recognition.onerror = function(event) {
+    console.log('🚫 MOBILE-WISE AI: Speech recognition error:', event.error);
     isListening = false;
+    
+    if (event.error === 'no-speech') {
+        console.log('🔇 Chrome no-speech detected - MOBILE-WISE AI BOOST ACTIVATED');
+        // Chrome-specific: Try again with enhanced settings
+        setTimeout(() => {
+            if (isAudioMode && !isListening) {
+                try {
+                    setTimeout(() => recognition.start(), 300);
+                } catch (error) {
+                    console.log('🚀 No-speech restart failed:', error.message);
+                }
+            }
+        }, 1000);
+        return;
+    }
     
     if (event.error === 'not-allowed') {
         console.log('❌ Microphone permission denied');
         micPermissionGranted = false;
-        // Show user-friendly message for Chrome
-        alert('Please allow microphone access in your browser settings to use voice chat.');
+        alert('MOBILE-WISE AI needs microphone access! Please allow in Chrome settings.');
         return;
     }
     
-    // Only restart on recoverable errors
-    if (isAudioMode && micPermissionGranted && event.error !== 'aborted') {
+    // Auto-restart on other errors - NEVER GIVE UP!
+    if (isAudioMode && micPermissionGranted) {
         setTimeout(() => {
             if (!isListening) {
-                try {
-                    recognition.start();
-                } catch (error) {
-                    console.log('Restart failed:', error);
-                }
+                recognition.start();
             }
         }, 1000);
     }
 };
-
-            recognition.onend = function() {
-                console.log('🎤 Speech recognition ended');
-                isListening = false;
-                
-                // 🔥 FIXED RESTART LOGIC - NO MORE LOOPS!
-                if (isAudioMode && micPermissionGranted && !isSpeaking) {
-                    setTimeout(() => {
-                        // Double-check the state before restarting
-                        if (!isListening && isAudioMode && !isSpeaking) {
-                            try {
-                                recognition.start();
-                                console.log('✅ Recognition restarted');
-                            } catch (error) {
-                                console.log('⚠️ Restart skipped:', error.message);
-                                // Try again in 1 second if it fails
-                                setTimeout(() => {
-                                    if (!isListening && isAudioMode && !isSpeaking) {
-                                        try {
-                                            recognition.start();
-                                        } catch (e) {
-                                            console.log('⚠️ Second restart attempt failed');
-                                        }
-                                    }
-                                }, 1000);
-                            }
-                        }
-                    }, 500);
-                }
-            };
-
-            console.log('✅ Speech recognition initialized with continuous mode');
-            
-        } catch (error) {
-            console.error('🚫 Failed to initialize speech recognition:', error);
-            recognition = null;
-        }
-        
-    } else {
-        console.log('🚫 Speech recognition not supported');
-    }
-}
 
 // ===================================================
 // 🎛️ VOICE WAVEFORM VISUALIZATION SYSTEM
