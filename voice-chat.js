@@ -231,7 +231,7 @@ function stabilizeChromeRecognition() {
             console.log('🔍 No match but continuing...');
         };
         
-        // Prevent multiple simultaneous restarts
+        // Prevent multiple simultaneous restarts - REDUCED DELAY
         let restartPending = false;
         const originalStart = recognition.start;
         recognition.start = function() {
@@ -243,9 +243,10 @@ function stabilizeChromeRecognition() {
             restartPending = true;
             originalStart.call(recognition);
             
+            // 🔥 CRITICAL FIX: Reduce from 1000ms to 300ms
             setTimeout(() => {
                 restartPending = false;
-            }, 1000);
+            }, 300); // Much shorter delay for Chrome
         };
     }
 }
@@ -315,6 +316,9 @@ async function activateMicrophone() {
     
     console.log('✅ Interface switched to chat mode');
     
+    // 🔥 ADD THIS LINE: Optimize Chrome recognition after everything is set up
+    optimizeChromeRecognition();
+    
     // Set audio mode UI
     showAudioMode();
     updateHeaderBanner('🎤 Microphone Active - How can we help your business?');
@@ -322,12 +326,65 @@ async function activateMicrophone() {
     
     // Add greeting
     setTimeout(() => {
-        const greeting = "What can I help you with?";
+        const greeting = "What can I need help with?";
         addAIMessage(greeting);
         speakResponse(greeting);
     }, 1000);
 }
 
+// ===========================================
+// ⚡ CHROME RECOGNITION OPTIMIZATION
+// ===========================================
+function optimizeChromeRecognition() {
+    if (navigator.userAgent.includes('Chrome')) {
+        console.log('⚡ Turbo-boosting Chrome recognition');
+        
+        // Faster restart on no-speech errors
+        recognition.onerror = function(event) {
+            console.log('🚫 Speech recognition error:', event.error);
+            isListening = false;
+            
+            if (event.error === 'not-allowed') {
+                console.log('❌ Microphone permission denied');
+                micPermissionGranted = false;
+                alert('Please allow microphone access in your browser settings to use voice chat.');
+                return;
+            }
+            
+            // 🔥 CHROME-SPECIFIC: Faster restart for no-speech errors
+            if (event.error === 'no-speech') {
+                console.log('🔇 Chrome no-speech detected - ULTRA FAST restart');
+                
+                if (isAudioMode && micPermissionGranted && !isSpeaking) {
+                    setTimeout(() => {
+                        if (!isListening) {
+                            try {
+                                console.log('🚀 ULTRA FAST restart attempt for Chrome...');
+                                recognition.start();
+                            } catch (error) {
+                                console.log('⚠️ Ultra fast restart failed:', error.message);
+                            }
+                        }
+                    }, 150); // Much faster delay for Chrome - reduced from 300ms
+                }
+                return;
+            }
+            
+            // Faster restart on other recoverable errors
+            if (isAudioMode && micPermissionGranted && event.error !== 'aborted') {
+                setTimeout(() => {
+                    if (!isListening) {
+                        try {
+                            recognition.start();
+                        } catch (error) {
+                            console.log('Restart failed:', error);
+                        }
+                    }
+                }, 500); // Reduced from 1000ms to 500ms
+            }
+        };
+    }
+}
 
 // ===========================================
 // 🎤 COMPLETE SPEECH RECOGNITION INITIALIZATION
@@ -933,7 +990,7 @@ async function fallbackSpeech(message) {
                     console.log('⚠️ Delayed restart failed:', error.message);
                 }
             }
-        }, 800); // 800ms delay gives Chrome time to recover
+        }, 400); // 800ms delay gives Chrome time to recover
     };
     
     currentAudio = utterance;
