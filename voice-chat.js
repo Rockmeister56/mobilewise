@@ -126,72 +126,57 @@ function bindEventListeners() {
     }
 }
 
-
 // ===========================================
-// 🚀 ULTIMATE MICROPHONE ACTIVATION (CHROME/EDGE FRIENDLY + FULL FEATURES)
+// 🚀 CHROME-COMPATIBLE MICROPHONE ACTIVATION
 // ===========================================
 async function activateMicrophone() {
-    console.log('🎤 Activating microphone...');
+    console.log('🎤 Activating microphone for Chrome...');
     
-    // 🔥 CHROME-FRIENDLY PERMISSION FLOW
     try {
-        // 1. FIRST get REAL microphone permission
-        console.log('🎤 Requesting microphone stream for speech recognition AND meters...');
+        // 1. FIRST get microphone permission (Chrome requires this first)
+        console.log('🔒 Requesting microphone permission...');
         persistentMicStream = await navigator.mediaDevices.getUserMedia({ 
             audio: {
                 echoCancellation: true,
                 noiseSuppression: true,
-                autoGainControl: true,
                 sampleRate: 44100
             }
         });
         
-        console.log('✅ REAL microphone permission granted!');
-        console.log('🎤 Stream tracks:', persistentMicStream.getAudioTracks());
-        
-        // 2. Initialize voice meter with REAL stream
-        const meterSuccess = await initializeVoiceMeter();
-        if (meterSuccess) {
-            console.log('✅ Voice meter initialized with REAL audio stream!');
-            startVoiceMeter();
-        }
-        
-        // 3. Start waveform visualization
-        await startWaveformVisualization();
-        
-        // 4. Set permission flags
+        console.log('✅ Microphone permission granted!');
         micPermissionGranted = true;
         isAudioMode = true;
         
-        // 5. Start recognition ONLY after permission is granted
+        // 2. Initialize audio features
+        await initializeVoiceMeter();
+        await startWaveformVisualization();
+        startVoiceMeter();
+        
+        // 3. Start speech recognition AFTER permission
         if (recognition && !isListening) {
             try {
                 recognition.start();
-                console.log('✅ Recognition started after permission');
+                console.log('✅ Speech recognition started');
             } catch (error) {
-                console.log('⚠️ Recognition start failed:', error.message);
+                console.log('⚠️ Recognition start error:', error.message);
             }
         }
         
     } catch (error) {
         console.error('🚫 Microphone activation failed:', error);
-        micPermissionGranted = false;
-        alert('Microphone access is required for voice chat!');
+        alert('Microphone access required. Please allow microphone permissions.');
         return;
     }
     
-    // Switch interface
+    // UI updates
     const splashScreen = document.getElementById('splashScreen');
     const chatInterface = document.getElementById('chatInterface');
     
     if (splashScreen) splashScreen.style.display = 'none';
     if (chatInterface) chatInterface.style.display = 'flex';
     
-    console.log('✅ Interface switched to chat mode');
-    
-    // Set audio mode UI
     showAudioMode();
-    updateHeaderBanner('🎤 Microphone Active - How can we help your business?');
+    updateHeaderBanner('🎤 Microphone Active');
     showVoiceBanner();
     
     // Add greeting
@@ -327,23 +312,37 @@ function initializeSpeechRecognition() {
     }
 }
 
-// UPDATE YOUR BROWSER DETECTION:
-function activateMicrophone() {
-    console.log("🎤 Activating microphone for:", currentBrowser);
-    
-    // Your new universal function handles ALL browsers!
-    // No need for browser-specific routing anymore
-}
-
-// ===================================================
-// 🎛️ VOICE WAVEFORM VISUALIZATION SYSTEM
-// ===================================================
-function initializeWaveform() {
-    canvas = document.getElementById('voiceWaveform');
-    if (!canvas) return;
-    
-    canvasCtx = canvas.getContext('2d');
-    console.log('🎛️ Waveform canvas initialized');
+// ===========================================
+// 🎤 VOICE METER INITIALIZATION (MISSING FUNCTION)
+// ===========================================
+async function initializeVoiceMeter() {
+    try {
+        if (!persistentMicStream) {
+            console.error('❌ No microphone stream available for voice meter');
+            return false;
+        }
+        
+        // Create audio context
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        analyser = audioContext.createAnalyser();
+        microphone = audioContext.createMediaStreamSource(persistentMicStream);
+        
+        // Configure analyser
+        analyser.fftSize = 256;
+        analyser.smoothingTimeConstant = 0.8;
+        microphone.connect(analyser);
+        
+        // Setup data array
+        const bufferLength = analyser.frequencyBinCount;
+        dataArray = new Uint8Array(bufferLength);
+        
+        console.log('✅ Voice meter initialized');
+        return true;
+        
+    } catch (error) {
+        console.error('❌ Voice meter initialization failed:', error);
+        return false;
+    }
 }
 
 // Start the live waveform visualization
@@ -483,72 +482,6 @@ function updateVoiceMeterDisplay(volume) {
 
 function stopVoiceMeter() {
     voiceMeterActive = false;
-}
-
-// ===========================================
-// MICROPHONE ACTIVATION
-// ===========================================
-async function activateMicrophone() {
-    console.log('🎤 Activating microphone...');
-    
-    // 🎛️ START WAVEFORM VISUALIZATION FIRST
-    await startWaveformVisualization();
-    
-    // 🔥 REQUEST REAL MICROPHONE PERMISSION FIRST!
-    try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        console.log('✅ REAL microphone permission granted!');
-        
-        // Stop the stream - we just needed permission
-        stream.getTracks().forEach(track => track.stop());
-        
-        // NOW set the permission flag TRUTHFULLY
-        micPermissionGranted = true;
-        isAudioMode = true;
-        
-        // NOW start recognition with REAL permission
-        if (recognition && !isListening) {
-            recognition.start();
-        }
-        
-    } catch (error) {
-        console.error('🚫 Microphone permission denied:', error);
-        micPermissionGranted = false;
-        alert('Microphone access is required for voice chat!');
-        return;
-    }
-    
-    // Switch interface immediately
-    const splashScreen = document.getElementById('splashScreen');
-    const chatInterface = document.getElementById('chatInterface');
-    
-    if (splashScreen) splashScreen.style.display = 'none';
-    if (chatInterface) chatInterface.style.display = 'flex';
-    
-    console.log('✅ Interface switched to chat mode');
-    
-    // Set audio mode UI
-    showAudioMode();
-    updateHeaderBanner('🎤 Microphone Active - How can we help your business?');
-    showVoiceBanner();
-    
-    // Add greeting
-    setTimeout(() => {
-        const greeting = "What can I help you with?";
-        addAIMessage(greeting);
-        speakResponse(greeting);
-    }, 1000);
-}
-
-function stopPersistentMicrophone() {
-    if (persistentMicStream) {
-        persistentMicStream.getTracks().forEach(track => track.stop());
-        persistentMicStream = null;
-        console.log('🛑 Persistent microphone stream stopped');
-    }
-    
-    // 🎛️ STOP WAVEFORM VISUALIZATION
-    stopWaveformVisualization();
 }
 
 // ===========================================
