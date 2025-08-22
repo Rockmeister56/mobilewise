@@ -150,8 +150,16 @@ function initializeSpeechRecognition() {
         };
 
         recognition.onresult = function(event) {
-            if (event.results.length > 0 && event.results[event.results.length - 1].isFinal) {
-                const transcript = event.results[event.results.length - 1][0].transcript.trim();
+           if (event.results.length > 0) {
+    // Get the LATEST result (don't wait for isFinal in Chrome)
+    const latestResult = event.results[event.results.length - 1];
+    const transcript = latestResult[0].transcript.trim();
+    
+    // Process immediately if confidence is high OR if isFinal
+    if (latestResult.isFinal || latestResult[0].confidence > 0.7) {
+        console.log('🎤 FINAL Voice input received:', transcript);
+        // Your existing processing code...
+    }
                 console.log('🎤 FINAL Voice input received:', transcript);
                 
                 // 🔥 DON'T STOP - JUST IGNORE WHILE AI IS SPEAKING
