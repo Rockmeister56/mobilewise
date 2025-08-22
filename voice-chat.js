@@ -381,7 +381,7 @@ async function activateMicrophone() {
     
     // Add greeting
     setTimeout(() => {
-        const greeting = "What can I help you with in regards to buying or selling your practice?";
+        const greeting = "Hello! What can I help you with today?";
         addAIMessage(greeting);
         speakResponse(greeting);
     }, 1000);
