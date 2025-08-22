@@ -1083,11 +1083,22 @@ async function fallbackSpeech(message) {
     
     // 🔥 ADD THE FIXED onend HANDLER HERE:
     utterance.onend = function() {
-        isSpeaking = false;
-        currentAudio = null;
-        console.log('✅ Speech finished - mic restarts allowed');
-        updateHeaderBanner('🔊 AI is listening...');
-        
+    // 🔥 CHROME BUG FIX: onend fires prematurely, so we need to manually check
+    // if speech is actually still playing
+    if (window.speechSynthesis.speaking) {
+        // Speech is still actually playing, ignore this premature onend
+        console.log('⚠️ Chrome bug: Ignoring premature onend event');
+        return;
+    }
+    
+    // Only proceed if speech is truly finished
+    isSpeaking = false;
+    currentAudio = null;
+    console.log('✅ Speech finished - mic restarts allowed');
+    updateHeaderBanner('🔊 AI is listening...');
+    
+    // 🔥 ADD MINIMUM DELAY - Chrome needs this
+    setTimeout(() => {
         // 🔥 CHROME EMERGENCY RESTART
         if (navigator.userAgent.includes('Chrome')) {
             chromeEmergencyRestart();
@@ -1104,7 +1115,8 @@ async function fallbackSpeech(message) {
                 }
             }, 250);
         }
-    }; // <-- This closing brace and semicolon were missing
+    }, 800); // Minimum 800ms delay to combat Chrome's premature onend bug
+};
     
     // Speak the utterance
     window.speechSynthesis.speak(utterance);
