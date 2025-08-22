@@ -1081,45 +1081,60 @@ async function fallbackSpeech(message) {
         console.log('🎵 Speech started - blocking mic restarts');
     };
     
-    // 🔥 ADD THE FIXED onend HANDLER HERE:
+    // 🔥 NUCLEAR FIX: COMPLETELY IGNORE onend FOR CHROME (it's broken)
     utterance.onend = function() {
-    // 🔥 CHROME BUG FIX: onend fires prematurely, so we need to manually check
-    // if speech is actually still playing
-    if (window.speechSynthesis.speaking) {
-        // Speech is still actually playing, ignore this premature onend
-        console.log('⚠️ Chrome bug: Ignoring premature onend event');
-        return;
-    }
-    
-    // Only proceed if speech is truly finished
-    isSpeaking = false;
-    currentAudio = null;
-    console.log('✅ Speech finished - mic restarts allowed');
-    updateHeaderBanner('🔊 AI is listening...');
-    
-    // 🔥 ADD MINIMUM DELAY - Chrome needs this
-    setTimeout(() => {
-        // 🔥 CHROME EMERGENCY RESTART
+        console.log('🔍 onend event received - checking if speech is really done...');
+        
+        // 🔥 COMPLETELY IGNORE onend events for Chrome - they're broken
         if (navigator.userAgent.includes('Chrome')) {
-            chromeEmergencyRestart();
-        } else {
-            // Normal restart for other browsers
-            setTimeout(function() {
-                if (isAudioMode && micPermissionGranted && !isListening) {
-                    try {
-                        recognition.start();
-                        console.log('🎤 Delayed recognition restart after speech');
-                    } catch (error) {
-                        console.log('⚠️ Delayed restart failed:', error.message);
-                    }
-                }
-            }, 250);
+            console.log('⚠️ IGNORING Chrome premature onend event');
+            return; // COMPLETELY IGNORE onend events for Chrome
         }
-    }, 800); // Minimum 800ms delay to combat Chrome's premature onend bug
-};
+        
+        // Only for non-Chrome browsers, use the normal logic
+        isSpeaking = false;
+        currentAudio = null;
+        console.log('✅ Speech finished - mic restarts allowed');
+        updateHeaderBanner('🔊 AI is listening...');
+        
+        setTimeout(() => {
+            if (navigator.userAgent.includes('Chrome')) {
+                chromeEmergencyRestart();
+            } else {
+                setTimeout(function() {
+                    if (isAudioMode && micPermissionGranted && !isListening) {
+                        try {
+                            recognition.start();
+                            console.log('🎤 Delayed recognition restart after speech');
+                        } catch (error) {
+                            console.log('⚠️ Delayed restart failed:', error.message);
+                        }
+                    }
+                }, 250);
+            }
+        }, 800);
+    };
     
     // Speak the utterance
     window.speechSynthesis.speak(utterance);
+    
+    // 🔥 MANUAL TIMING FIX for Chrome - IGNORE onend completely
+    if (navigator.userAgent.includes('Chrome')) {
+        // Calculate speech duration manually (approx 200 chars per second)
+        const estimatedDuration = (message.length / 200) * 1000 + 1000; // +1 second buffer
+        
+        console.log(`⏰ Manual Chrome timer: ${estimatedDuration}ms`);
+        
+        setTimeout(() => {
+            if (isSpeaking) { // Only if still speaking
+                isSpeaking = false;
+                currentAudio = null;
+                console.log('✅ MANUAL Chrome speech finished');
+                updateHeaderBanner('🔊 AI is listening...');
+                chromeEmergencyRestart();
+            }
+        }, estimatedDuration);
+    }
 } // <-- This is the end of the fallbackSpeech function
 
 // Promise-based voice loading
