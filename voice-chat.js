@@ -38,25 +38,28 @@ const businessResponses = {
     "broker": "You're talking to the RIGHT team! Bruce is the premier CPA firm broker with over 15 years specializing EXCLUSIVELY in accounting practice transactions. He understands the unique aspects of CPA firms - from client confidentiality to seasonal cash flow patterns. Bruce has closed over $75M in CPA firm deals. Ready to discuss your accounting practice goals? Should Bruce call today or tomorrow?"
 };
 
-// ===========================================
-// 🔥 HOLD MIC OPEN (NO POPUPS)
-// ===========================================
-async function initializeMicrophonePermission() {
+// STEP 1: Get mic permission ONCE
+async function initializeMicrophone() {
     try {
-        micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        console.log('🎤 Mic permission GRANTED and HELD OPEN');
-        micPermissionGranted = true;
-        
-        micStream.getTracks().forEach(track => {
-            track.onended = () => {
-                console.error('🚨 MIC TRACK ENDED!');
-            };
+        persistentMicStream = await navigator.mediaDevices.getUserMedia({
+            audio: {
+                echoCancellation: true,
+                noiseSuppression: true,
+                sampleRate: 44100
+            }
         });
+        
+        console.log('🎤 Master mic stream established');
+        return true;
     } catch (error) {
         console.log('❌ Mic permission denied:', error);
-        micPermissionGranted = false;
+        return false;
     }
 }
+
+// STEP 2: Share stream with both components
+// Recognition uses the stream
+// Waveform uses the SAME stream
 
 // ===========================================
 // INITIALIZATION
