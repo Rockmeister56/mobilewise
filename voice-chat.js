@@ -442,7 +442,7 @@ function optimizeChromeRecognition() {
 }
 
 // ===========================================
-// 🎤 COMPLETE SPEECH RECOGNITION INITIALIZATION
+// 🎤 CHROME-OPTIMIZED SPEECH RECOGNITION INITIALIZATION
 // ===========================================
 function initializeSpeechRecognition() {
     console.log('🎤 MOBILE-WISE AI: Initializing speech recognition...');
@@ -451,24 +451,27 @@ function initializeSpeechRecognition() {
         try {
             recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
             
+            // 🔥 CHROME-SPECIFIC CRITICAL SETTINGS
             recognition.continuous = true;
             recognition.interimResults = true;
             recognition.maxAlternatives = 3;
             recognition.lang = 'en-US';
 
-                // 🔥 CHROME-SPECIFIC FIX: Increase timeouts for Chrome
+            // 🔥 EXTREME CHROME OPTIMIZATION
             if (navigator.userAgent.includes('Chrome')) {
-                console.log('🔧 Applying Chrome-specific speech recognition settings');
-                // These are non-standard but help Chrome
-                recognition.continuous = true;
-                recognition.interimResults = true;
+                console.log('🔧 Applying ULTRA Chrome-specific speech recognition settings');
                 
-                // Try to extend Chrome's patience
+                // Chrome needs these special settings
                 try {
-                    // Chrome-specific settings (if supported)
-                    recognition.nomatch = function(event) {
-                        console.log('🔍 No match found, but continuing...');
-                    };
+                    // These are Chrome-specific properties that help with continuous mode
+                    if ('grammars' in recognition) {
+                        recognition.grammars = new SpeechGrammarList();
+                    }
+                    
+                    // Set longer timeouts for Chrome
+                    recognition.continuous = true;
+                    recognition.interimResults = true;
+                    
                 } catch (e) {
                     console.log('ℹ️ Chrome extra settings not supported');
                 }
@@ -478,72 +481,127 @@ function initializeSpeechRecognition() {
                 console.log('🎤 Speech recognition started');
                 isListening = true;
                 hasStartedOnce = true;
+                
+                // 🔥 CHROME: Force aggressive restart if it stops
+                if (navigator.userAgent.includes('Chrome')) {
+                    console.log('🚀 Chrome recognition active - monitoring...');
+                }
             };
 
             recognition.onresult = function(event) {
-                if (event.results.length > 0 && event.results[event.results.length - 1].isFinal) {
-                    const transcript = event.results[event.results.length - 1][0].transcript.trim();
-                    console.log('🎤 FINAL Voice input received:', transcript);
+                // 🔥 DEBUG: Log everything Chrome hears
+                for (let i = 0; i < event.results.length; i++) {
+                    const result = event.results[i];
+                    const transcript = result[0].transcript.trim();
+                    console.log(`🎤 Chrome heard: "${transcript}" [${result.isFinal ? 'FINAL' : 'INTERIM'}]`);
                     
-                    if (isSpeaking) {
-                        console.log('🚫 Ignoring input - AI is speaking');
-                        return;
-                    }
-                    
-                    if (transcript && transcript.length > 0) {
+                    if (result.isFinal && transcript.length > 2) { // Only process meaningful input
+                        console.log('🎤 PROCESSING FINAL:', transcript);
+                        
+                        if (isSpeaking) {
+                            console.log('🚫 Ignoring input - AI is speaking');
+                            return;
+                        }
+                        
                         handleVoiceInput(transcript);
                     }
                 }
             };
 
-          recognition.onerror = function(event) {
-    console.log('🚫 Speech recognition error:', event.error);
-    isListening = false;
-    
-    if (event.error === 'not-allowed') {
-        console.log('❌ Microphone permission denied');
-        micPermissionGranted = false;
-        alert('Please allow microphone access in your browser settings to use voice chat.');
-        return;
-    }
-    
-    // 🔥 CHROME-SPECIFIC: More aggressive restart for no-speech errors
-    if (event.error === 'no-speech') {
-        console.log('🔇 Chrome no-speech detected - aggressive restart');
-        
-        if (isAudioMode && micPermissionGranted && !isSpeaking) {
-            setTimeout(() => {
-                if (!isListening) {
-                    try {
-                        console.log('🚀 Aggressive restart attempt for Chrome...');
-                        recognition.start();
-
-                    // 🔥 ADD THIS LINE:
-                    stabilizeChromeRecognition();
-                       enableChromeSpeechDebug(); // ← ADD THIS
-
-                    } catch (error) {
-                        console.log('⚠️ Aggressive restart failed:', error.message);
-                    }
+            recognition.onerror = function(event) {
+                console.log('🚫 Speech recognition error:', event.error);
+                isListening = false;
+                
+                if (event.error === 'not-allowed') {
+                    console.log('❌ Microphone permission denied');
+                    micPermissionGranted = false;
+                    alert('Please allow microphone access in your browser settings to use voice chat.');
+                    return;
                 }
-            }, 300); // Much shorter delay for Chrome
+                
+                // 🔥 CHROME-SPECIFIC: SUPER AGGRESSIVE RESTART
+                if (navigator.userAgent.includes('Chrome')) {
+                    console.log('🔇 Chrome error - ULTRA aggressive restart');
+                    
+                    if (isAudioMode && micPermissionGranted && !isSpeaking) {
+                        setTimeout(() => {
+                            if (!isListening) {
+                                try {
+                                    console.log('🚀 CHROME EMERGENCY RESTART');
+                                    recognition.start();
+                                } catch (error) {
+                                    console.log('⚠️ Chrome emergency restart failed:', error.message);
+                                }
+                            }
+                        }, 100); // Extremely short delay for Chrome
+                    }
+                    return;
+                }
+                
+                // Standard restart for other browsers
+                if (isAudioMode && micPermissionGranted && event.error !== 'aborted') {
+                    setTimeout(() => {
+                        if (!isListening) {
+                            try {
+                                recognition.start();
+                            } catch (error) {
+                                console.log('Restart failed:', error);
+                            }
+                        }
+                    }, 500);
+                }
+            };
+
+            recognition.onend = function() {
+                console.log('🎤 Speech recognition ended');
+                isListening = false;
+                
+                // 🔥 CHROME: EXTREMELY AGGRESSIVE RESTART
+                if (navigator.userAgent.includes('Chrome')) {
+                    console.log('🔇 Chrome recognition ended - FORCING restart');
+                    
+                    if (isAudioMode && micPermissionGranted && !isSpeaking) {
+                        setTimeout(() => {
+                            if (!isListening && isAudioMode && !isSpeaking) {
+                                try {
+                                    console.log('🚀 CHROME FORCED RESTART');
+                                    recognition.start();
+                                } catch (error) {
+                                    console.log('⚠️ Chrome forced restart failed:', error.message);
+                                }
+                            }
+                        }, 50); // ALMOST INSTANT restart for Chrome
+                    }
+                    return;
+                }
+                
+                // Gentle restart for other browsers
+                if (isAudioMode && micPermissionGranted && !isSpeaking) {
+                    setTimeout(() => {
+                        if (!isListening && isAudioMode && !isSpeaking) {
+                            try {
+                                recognition.start();
+                                console.log('✅ Recognition restarted after delay');
+                            } catch (error) {
+                                console.log('⚠️ Restart skipped:', error.message);
+                            }
+                        }
+                    }, 300);
+                }
+            };
+
+            console.log('✅ Speech recognition initialized with continuous mode');
+            
+            // 🔥 INITIALIZE CHROME STABILIZATION
+            stabilizeChromeRecognition();
+            
+        } catch (error) {
+            console.error('🚫 Failed to initialize speech recognition:', error);
         }
-        return;
+    } else {
+        console.log('🚫 Speech recognition not supported');
     }
-    
-    // Only restart on other recoverable errors
-    if (isAudioMode && micPermissionGranted && event.error !== 'aborted') {
-        setTimeout(() => {
-            if (!isListening) {
-                try {
-                    recognition.start();
-                } catch (error) {
-                    console.log('Restart failed:', error);
-                      }
-            }
-        }, 1000);
-    }
-}; 
+} 
 
            recognition.onend = function() {
     console.log('🎤 Speech recognition ended');
@@ -570,13 +628,31 @@ function initializeSpeechRecognition() {
     }
 };
 
-            console.log('✅ Speech recognition initialized with continuous mode');
-            
-        } catch (error) {
-            console.error('🚫 Failed to initialize speech recognition:', error);
+// ===========================================
+// 🔥 CHROME EMERGENCY RESTART SYSTEM
+// ===========================================
+function chromeEmergencyRestart() {
+    if (navigator.userAgent.includes('Chrome') && isAudioMode && !isSpeaking) {
+        console.log('🆘 CHROME EMERGENCY RESTART triggered');
+        
+        if (recognition && isListening) {
+            try {
+                recognition.stop();
+            } catch (e) {
+                // Ignore stop errors
+            }
         }
-    } else {
-        console.log('🚫 Speech recognition not supported');
+        
+        setTimeout(() => {
+            if (!isListening && isAudioMode && !isSpeaking) {
+                try {
+                    recognition.start();
+                    console.log('✅ Chrome emergency restart successful');
+                } catch (error) {
+                    console.log('⚠️ Chrome emergency restart failed:', error.message);
+                }
+            }
+        }, 100);
     }
 }
 
@@ -1032,12 +1108,16 @@ async function fallbackSpeech(message) {
     
     // 🔥 ADD THE FIXED onend HANDLER HERE:
     utterance.onend = function() {
-        isSpeaking = false;
-        currentAudio = null;
-        console.log('✅ Speech finished - mic restarts allowed');
-        updateHeaderBanner('🔊 AI is listening...');
-        
-        // 🔥 CRITICAL FIX: Add delay before allowing recognition restart
+    isSpeaking = false;
+    currentAudio = null;
+    console.log('✅ Speech finished - mic restarts allowed');
+    updateHeaderBanner('🔊 AI is listening...');
+    
+    // 🔥 CHROME EMERGENCY RESTART
+    if (navigator.userAgent.includes('Chrome')) {
+        chromeEmergencyRestart();
+    } else {
+        // Normal restart for other browsers
         setTimeout(function() {
             if (isAudioMode && micPermissionGranted && !isListening) {
                 try {
@@ -1047,12 +1127,9 @@ async function fallbackSpeech(message) {
                     console.log('⚠️ Delayed restart failed:', error.message);
                 }
             }
-        }, 250); // 800ms delay gives Chrome time to recover
-    };
-    
-    currentAudio = utterance;
-    window.speechSynthesis.speak(utterance);
-}
+        }, 250);
+    }
+};
 
 // Promise-based voice loading
 function getVoices() {
