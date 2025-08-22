@@ -231,9 +231,10 @@ function stabilizeChromeRecognition() {
             console.log('🔍 No match but continuing...');
         };
         
-        // Prevent multiple simultaneous restarts - REDUCED DELAY
+        // 🔥 ULTRA-FAST RESTART SYSTEM for Chrome
         let restartPending = false;
         const originalStart = recognition.start;
+        
         recognition.start = function() {
             if (restartPending) {
                 console.log('⏸️ Restart already pending - skipping');
@@ -241,12 +242,66 @@ function stabilizeChromeRecognition() {
             }
             
             restartPending = true;
-            originalStart.call(recognition);
+            console.log('🚀 Chrome recognition starting...');
             
-            // 🔥 CRITICAL FIX: Reduce from 1000ms to 300ms
+            try {
+                originalStart.call(recognition);
+            } catch (error) {
+                console.log('⚠️ Start error:', error.message);
+                restartPending = false;
+                return;
+            }
+            
+            // 🔥 MUCH FASTER reset - Chrome can handle quick restarts
             setTimeout(() => {
                 restartPending = false;
-            }, 300); // Much shorter delay for Chrome
+                console.log('✅ Chrome restart lock released');
+            }, 200); // Reduced from 1000ms to 200ms!
+        };
+        
+        // 🔥 ENHANCED: Force restart when AI finishes speaking
+        const originalOnEnd = recognition.onend;
+        recognition.onend = function() {
+            console.log('🎤 Speech recognition ended');
+            isListening = false;
+            
+            if (originalOnEnd) {
+                originalOnEnd.call(this);
+            }
+            
+            // 🔥 AGGRESSIVE RESTART for Chrome
+            if (isAudioMode && micPermissionGranted && !isSpeaking) {
+                setTimeout(() => {
+                    if (!isListening && isAudioMode && !isSpeaking) {
+                        try {
+                            console.log('🚀 FORCING Chrome recognition restart');
+                            recognition.start();
+                        } catch (error) {
+                            console.log('⚠️ Force restart failed:', error.message);
+                        }
+                    }
+                }, 100); // Very short delay for Chrome
+            }
+        };
+    }
+}
+
+function enableChromeSpeechDebug() {
+    if (navigator.userAgent.includes('Chrome')) {
+        console.log('🎯 Enabling Chrome speech debug mode');
+        
+        const originalOnResult = recognition.onresult;
+        recognition.onresult = function(event) {
+            // Log ALL results (including interim)
+            for (let i = 0; i < event.results.length; i++) {
+                const result = event.results[i];
+                const transcript = result[0].transcript;
+                console.log(`🎤 Chrome heard: "${transcript}" [${result.isFinal ? 'FINAL' : 'INTERIM'}]`);
+            }
+            
+            if (originalOnResult) {
+                originalOnResult.call(this, event);
+            }
         };
     }
 }
@@ -429,9 +484,6 @@ function initializeSpeechRecognition() {
                 if (event.results.length > 0 && event.results[event.results.length - 1].isFinal) {
                     const transcript = event.results[event.results.length - 1][0].transcript.trim();
                     console.log('🎤 FINAL Voice input received:', transcript);
-
-                    // 🔥 ADD THIS LINE:
-    stabilizeChromeRecognition();
                     
                     if (isSpeaking) {
                         console.log('🚫 Ignoring input - AI is speaking');
@@ -465,6 +517,11 @@ function initializeSpeechRecognition() {
                     try {
                         console.log('🚀 Aggressive restart attempt for Chrome...');
                         recognition.start();
+
+                    // 🔥 ADD THIS LINE:
+                    stabilizeChromeRecognition();
+                       enableChromeSpeechDebug(); // ← ADD THIS
+
                     } catch (error) {
                         console.log('⚠️ Aggressive restart failed:', error.message);
                     }
@@ -990,7 +1047,7 @@ async function fallbackSpeech(message) {
                     console.log('⚠️ Delayed restart failed:', error.message);
                 }
             }
-        }, 400); // 800ms delay gives Chrome time to recover
+        }, 250); // 800ms delay gives Chrome time to recover
     };
     
     currentAudio = utterance;
