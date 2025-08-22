@@ -603,31 +603,6 @@ function initializeSpeechRecognition() {
     }
 } 
 
-           recognition.onend = function() {
-    console.log('🎤 Speech recognition ended');
-    isListening = false;
-    
-    // 🔥 ADD THIS CHECK: Don't restart if AI is about to speak
-    if (isSpeaking) {
-        console.log('⏸️ Skipping restart - AI is speaking');
-        return;
-    }
-    
-    // Gentle restart logic with longer delay
-    if (isAudioMode && micPermissionGranted && !isSpeaking) {
-        setTimeout(function() {
-            if (!isListening && isAudioMode && !isSpeaking) {
-                try {
-                    recognition.start();
-                    console.log('✅ Recognition restarted after delay');
-                } catch (error) {
-                    console.log('⚠️ Restart skipped:', error.message);
-                }
-            }
-        }, 1200); // Increased from 500ms to 1200ms
-    }
-};
-
 // ===========================================
 // 🔥 CHROME EMERGENCY RESTART SYSTEM
 // ===========================================
