@@ -1108,28 +1108,32 @@ async function fallbackSpeech(message) {
     
     // 🔥 ADD THE FIXED onend HANDLER HERE:
     utterance.onend = function() {
-    isSpeaking = false;
-    currentAudio = null;
-    console.log('✅ Speech finished - mic restarts allowed');
-    updateHeaderBanner('🔊 AI is listening...');
-    
-    // 🔥 CHROME EMERGENCY RESTART
-    if (navigator.userAgent.includes('Chrome')) {
-        chromeEmergencyRestart();
-    } else {
-        // Normal restart for other browsers
-        setTimeout(function() {
-            if (isAudioMode && micPermissionGranted && !isListening) {
-                try {
-                    recognition.start();
-                    console.log('🎤 Delayed recognition restart after speech');
-                } catch (error) {
-                    console.log('⚠️ Delayed restart failed:', error.message);
+        isSpeaking = false;
+        currentAudio = null;
+        console.log('✅ Speech finished - mic restarts allowed');
+        updateHeaderBanner('🔊 AI is listening...');
+        
+        // 🔥 CHROME EMERGENCY RESTART
+        if (navigator.userAgent.includes('Chrome')) {
+            chromeEmergencyRestart();
+        } else {
+            // Normal restart for other browsers
+            setTimeout(function() {
+                if (isAudioMode && micPermissionGranted && !isListening) {
+                    try {
+                        recognition.start();
+                        console.log('🎤 Delayed recognition restart after speech');
+                    } catch (error) {
+                        console.log('⚠️ Delayed restart failed:', error.message);
+                    }
                 }
-            }
-        }, 250);
-    }
-};
+            }, 250);
+        }
+    }; // <-- This closing brace and semicolon were missing
+    
+    // Speak the utterance
+    window.speechSynthesis.speak(utterance);
+} // <-- This is the end of the fallbackSpeech function
 
 // Promise-based voice loading
 function getVoices() {
