@@ -1120,50 +1120,23 @@ async function fallbackSpeech(message) {
     
     // 🔥 MANUAL TIMING FIX for Chrome - IGNORE onend completely
     if (navigator.userAgent.includes('Chrome')) {
-        // Calculate speech duration manually (approx 200 chars per second)
-        const estimatedDuration = (message.length / 200) * 1000 + 1000; // +1 second buffer
+        // 🔥 FIXED CALCULATION: Much more accurate timing
+        // Average speech rate is about 150 words per minute = 2.5 words per second
+        const wordCount = message.split(' ').length;
+        const estimatedDuration = (wordCount / 2.5) * 1000 + 2000; // +2 second buffer
         
-        console.log(`⏰ Manual Chrome timer: ${estimatedDuration}ms`);
+        console.log(`⏰ Accurate Chrome timer: ${estimatedDuration}ms for ${wordCount} words`);
         
         setTimeout(() => {
             if (isSpeaking) { // Only if still speaking
                 isSpeaking = false;
                 currentAudio = null;
-                console.log('✅ MANUAL Chrome speech finished');
+                console.log('✅ ACCURATE Chrome speech finished');
                 updateHeaderBanner('🔊 AI is listening...');
                 chromeEmergencyRestart();
             }
         }, estimatedDuration);
     }
-} // <-- This is the end of the fallbackSpeech function
-
-// Promise-based voice loading
-function getVoices() {
-    return new Promise((resolve) => {
-        let voices = window.speechSynthesis.getVoices();
-        
-        if (voices.length > 0) {
-            resolve(voices);
-            return;
-        }
-        
-        // Wait for voices to load
-        const voicesChangedHandler = () => {
-            voices = window.speechSynthesis.getVoices();
-            if (voices.length > 0) {
-                window.speechSynthesis.removeEventListener('voiceschanged', voicesChangedHandler);
-                resolve(voices);
-            }
-        };
-        
-        window.speechSynthesis.addEventListener('voiceschanged', voicesChangedHandler);
-        
-        // Fallback timeout
-        setTimeout(() => {
-            voices = window.speechSynthesis.getVoices();
-            resolve(voices);
-        }, 1000);
-    });
 }
 
 voiceSpeed = 1.0; // Start at normal speed
