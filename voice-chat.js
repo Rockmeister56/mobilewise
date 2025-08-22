@@ -381,7 +381,7 @@ async function activateMicrophone() {
     
     // Add greeting
     setTimeout(() => {
-        const greeting = "What can I need help with?";
+        const greeting = "What can I help you with in regards to buying or selling your practice?";
         addAIMessage(greeting);
         speakResponse(greeting);
     }, 1000);
@@ -983,7 +983,7 @@ function getAIResponse(message) {
         }
     }
     
-    return "Great question! I can help with accounting services, marketing strategies, business growth, pricing, and more. What specific area would you like to explore?";
+    return "Great question!I specialize in helping CPAs and accounting professionals sell their practices for maximum value! Whether you're looking to retire, relocate, or just ready for your next chapter, I can guide you through the entire process. What's driving your interest in selling your practice? Are you thinking about retirement planning, practice valuation, or finding the right buyer who'll take great care of your clients?";
 }
 
 // ===========================================
