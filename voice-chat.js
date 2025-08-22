@@ -23,6 +23,10 @@ let animationId = null;
 let canvas = null;
 let canvasCtx = null;
 let voiceSpeed = 0.9;
+let isRecognitionRestarting = false;
+let restartTimeoutId = null;
+let lastRestartTime = 0;
+const RESTART_COOLDOWN = 800; // Minimum ms between restarts
 
 // ===========================================
 // BUSINESS RESPONSES DATABASE
@@ -508,50 +512,53 @@ function initializeSpeechRecognition() {
                 }
             };
 
-            recognition.onerror = function(event) {
-                console.log('🚫 Speech recognition error:', event.error);
-                isListening = false;
-                
-                if (event.error === 'not-allowed') {
-                    console.log('❌ Microphone permission denied');
-                    micPermissionGranted = false;
-                    alert('Please allow microphone access in your browser settings to use voice chat.');
-                    return;
-                }
-                
-                // 🔥 CHROME-SPECIFIC: SUPER AGGRESSIVE RESTART
-                if (navigator.userAgent.includes('Chrome')) {
-                    console.log('🔇 Chrome error - ULTRA aggressive restart');
-                    
-                    if (isAudioMode && micPermissionGranted && !isSpeaking) {
-                        setTimeout(() => {
-                            if (!isListening) {
-                                try {
-                                    console.log('🚀 CHROME EMERGENCY RESTART');
-                                    recognition.start();
-                                } catch (error) {
-                                    console.log('⚠️ Chrome emergency restart failed:', error.message);
-                                }
-                            }
-                        }, 100); // Extremely short delay for Chrome
+           // ===========================================
+// 🎯 WORKING RECOGNITION ERROR HANDLER (PHASE 1 LITE)
+// ===========================================
+recognition.onerror = function(event) {
+    console.log('🚫 MOBILE-WISE AI: Speech recognition error:', event.error);
+    isListening = false;
+    
+    if (event.error === 'not-allowed') {
+        console.log('❌ Microphone permission denied');
+        micPermissionGranted = false;
+        alert('MOBILE-WISE AI needs microphone access! Please allow microphone access to use voice chat.');
+        return;
+    }
+    
+    // 🔥 CHROME-SPECIFIC: MODERATE RESTART (PHASE 1 LITE)
+    if (navigator.userAgent.includes('Chrome')) {
+        console.log('🔇 MOBILE-WISE AI: Chrome error - moderate restart');
+        
+        if (isAudioMode && micPermissionGranted && !isSpeaking) {
+            setTimeout(() => {
+                if (!isListening && isAudioMode && !isSpeaking) {
+                    try {
+                        console.log('🚀 MOBILE-WISE AI: Chrome moderate restart');
+                        recognition.start();
+                    } catch (error) {
+                        console.log('⚠️ Chrome restart failed:', error.message);
                     }
-                    return;
                 }
-                
-                // Standard restart for other browsers
-                if (isAudioMode && micPermissionGranted && event.error !== 'aborted') {
-                    setTimeout(() => {
-                        if (!isListening) {
-                            try {
-                                recognition.start();
-                            } catch (error) {
-                                console.log('Restart failed:', error);
-                            }
-                        }
-                    }, 500);
+            }, 500); // PHASE 1 LITE: Increased from your 100ms to 500ms
+        }
+        return;
+    }
+    
+    // 🔧 PRESERVED: Standard restart for other browsers  
+    if (isAudioMode && micPermissionGranted && event.error !== 'aborted') {
+        setTimeout(() => {
+            if (!isListening) {
+                try {
+                    console.log('🔄 MOBILE-WISE AI: Standard browser restart');
+                    recognition.start();
+                } catch (error) {
+                    console.log('⚠️ Standard restart failed:', error);
                 }
-            };
-
+            }
+        }, 500); // Keep standard timing
+    }
+};
             recognition.onend = function() {
                 console.log('🎤 Speech recognition ended');
                 isListening = false;
@@ -604,11 +611,23 @@ function initializeSpeechRecognition() {
 } 
 
 // ===========================================
-// 🔥 CHROME EMERGENCY RESTART SYSTEM
+// 🎯 MOBILE-WISE AI EMPIRE - BULLETPROOF CHROME RESTART (PHASE 1 COMPLETE)
 // ===========================================
 function chromeEmergencyRestart() {
+    if (isRecognitionRestarting) {
+        console.log('🔄 MOBILE-WISE AI: Restart already in progress - skipping');
+        return;
+    }
+    
+    const now = Date.now();
+    if (now - lastRestartTime < RESTART_COOLDOWN) {
+        console.log('⏱️ MOBILE-WISE AI: Restart cooldown active - skipping');
+        return;
+    }
+    
     if (navigator.userAgent.includes('Chrome') && isAudioMode && !isSpeaking) {
-        console.log('🆘 CHROME EMERGENCY RESTART triggered');
+        console.log('🆘 MOBILE-WISE AI: Chrome emergency restart triggered');
+        isRecognitionRestarting = true;
         
         if (recognition && isListening) {
             try {
@@ -618,16 +637,23 @@ function chromeEmergencyRestart() {
             }
         }
         
-        setTimeout(() => {
+        // Clear any existing timeout
+        if (restartTimeoutId) {
+            clearTimeout(restartTimeoutId);
+        }
+        
+        restartTimeoutId = setTimeout(() => {
             if (!isListening && isAudioMode && !isSpeaking) {
                 try {
                     recognition.start();
-                    console.log('✅ Chrome emergency restart successful');
+                    lastRestartTime = Date.now();
+                    console.log('✅ MOBILE-WISE AI: Chrome emergency restart successful');
                 } catch (error) {
-                    console.log('⚠️ Chrome emergency restart failed:', error.message);
+                    console.log('🚀 Chrome emergency restart failed:', error.message);
                 }
             }
-        }, 100);
+            isRecognitionRestarting = false;
+        }, 200); // Reasonable delay
     }
 }
 
