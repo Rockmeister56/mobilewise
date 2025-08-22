@@ -1141,11 +1141,10 @@ async function fallbackSpeech(message) {
     utterance.onend = function() {
         console.log('🔍 onend event received - checking if speech is really done...');
         
-        // 🔥 COMPLETELY IGNORE onend events for Chrome - they're broken
         if (navigator.userAgent.includes('Chrome')) {
-            console.log('⚠️ IGNORING Chrome premature onend event');
-            return; // COMPLETELY IGNORE onend events for Chrome
-        }
+    console.log('🔧 MOBILE-WISE AI: Processing Chrome speech normally');
+    // DON'T return - let it process normally!
+}
         
         // Only for non-Chrome browsers, use the normal logic
         isSpeaking = false;
