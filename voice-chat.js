@@ -1040,6 +1040,36 @@ function getAIResponse(message) {
 // ===========================================
 // IMPROVED BROWSER VOICE SYNTHESIS
 // ===========================================
+
+// Promise-based voice loading
+function getVoices() {
+    return new Promise((resolve) => {
+        let voices = window.speechSynthesis.getVoices();
+        
+        if (voices.length > 0) {
+            resolve(voices);
+            return;
+        }
+        
+        // Wait for voices to load
+        const voicesChangedHandler = () => {
+            voices = window.speechSynthesis.getVoices();
+            if (voices.length > 0) {
+                window.speechSynthesis.removeEventListener('voiceschanged', voicesChangedHandler);
+                resolve(voices);
+            }
+        };
+        
+        window.speechSynthesis.addEventListener('voiceschanged', voicesChangedHandler);
+        
+        // Fallback timeout
+        setTimeout(() => {
+            voices = window.speechSynthesis.getVoices();
+            resolve(voices);
+        }, 1000);
+    });
+}
+
 async function speakResponse(message) {
     console.log('🎵 Speaking response:', message);
     updateHeaderBanner('👩‍💼 AI responding...');
