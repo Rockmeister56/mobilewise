@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NCI - Request a Call</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #000000;
+            color: #fff;
+            line-height: 1.6;
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .main-interface {
+            display: flex;
+            width: 900px;
+            height: 600px;
+            background: url('https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1755410028254_interface%20with%20chat%20area.PNG') no-repeat center center;
+            background-size: contain;
+            position: relative;
+        }
+
+        /* Left Sidebar */
+        .sidebar {
+            width: 200px;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            padding: 30px 20px;
+            justify-content: space-between;
+        }
+
+        .logo-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo-section img {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .logo-section h2 {
+            color: #00d4ff;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .nav-buttons {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .nav-button {
+            padding: 12px 16px;
+            border: 2px solid #00d4ff;
+            background: transparent;
+            color: #00d4ff;
+            text-decoration: none;
+            text-align: center;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: block;
+        }
+
+        .nav-button:hover {
+            background: #00d4ff;
+            color: #000;
+        }
+
+        .nav-button.active {
+            background: #00ff88;
+            border-color: #00ff88;
+            color: #000;
+        }
+
+        .avatar-section {
+            text-align: center;
+        }
+
+        /* Right Module Area - Request a Call Form */
+        .module-area {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .call-request-interface {
+            width: 577px;
+            height: 524px;
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), 
+                        url('https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1755254396708_slide3-graphic.png');
+            background-size: cover;
+            background-position: center;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .interface-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .interface-header h2 {
+            color: #00ff88;
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .interface-header p {
+            color: #ffffff;
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .form-fields {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 25px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 14px 18px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            font-size: 16px;
+            color: #333;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #00ff88;
+            box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.2);
+            background: rgba(255, 255, 255, 1);
+        }
+
+        .form-group input::placeholder {
+            color: #000000;
+        }
+
+        .error-message {
+            color: #ff4757;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #00d4ff, #0099cc);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .submit-btn:hover {
+            background: linear-gradient(135deg, #0099cc, #007aa3);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.4);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .submit-btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ffffff;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .success-message {
+            display: none;
+            background: #27ae60;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1000px) {
+            .main-interface {
+                width: 100%;
+                max-width: 800px;
+                height: auto;
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                flex-direction: row;
+                padding: 20px;
+            }
+
+            .nav-buttons {
+                flex-direction: row;
+                gap: 10px;
+            }
+
+            .call-request-interface {
+                width: 100%;
+                max-width: 500px;
+                height: auto;
+                min-height: 450px;
+            }
+        }
+
+        /* Updated Form Field Sizing */
+.form-group input,
+.form-group select {
+    padding: 10px 14px;  /* Reduced from 14px 18px */
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 6px;  /* Reduced from 8px */
+    font-size: 14px;     /* Reduced from 16px */
+    color: #333;
+    transition: all 0.3s ease;
+}
+
+/* Reduce spacing between form groups */
+.form-fields {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 18px;  /* Reduced from 25px */
+}
+
+/* Make submit button smaller */
+.submit-btn {
+    width: 100%;
+    padding: 12px;      /* Reduced from 16px */
+    background: linear-gradient(135deg, #00d4ff, #0099cc);
+    color: white;
+    border: none;
+    border-radius: 6px;  /* Reduced from 8px */
+    font-size: 16px;     /* Reduced from 18px */
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 15px;    /* Reduced from 20px */
+}
+
+/* Submit button with menu button styling */
+.submit-btn {
+    width: 100%;
+    padding: 8px 12px;           /* Same as nav buttons */
+    background: transparent;      /* Same transparent background */
+    border: 2px solid #00d4ff;  /* Same blue border */
+    color: #00d4ff;             /* Same blue text */
+    text-decoration: none;
+    text-align: center;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 14px;            /* Same font size as nav buttons */
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 15px;
+    line-height: 1.2;
+}
+
+.submit-btn:hover {
+    background: #00d4ff;        /* Same hover effect */
+    color: #000;                /* Black text on hover */
+}
+
+.submit-btn:active {
+    background: #00d4ff;
+    color: #000;
+}
+
+.submit-btn:disabled {
+    background: transparent;
+    border-color: #666;
+    color: #666;
+    cursor: not-allowed;
+}
+
+/* Loading state styling */
+.submit-btn:disabled.loading {
+    border-color: #00d4ff;
+    color: #00d4ff;
+}
+
+/* Reduce header spacing */
+.interface-header {
+    text-align: center;
+    margin-bottom: 20px;  /* Reduced from 30px */
+}
+
+.interface-header h2 {
+    color: #00ff88;
+    font-size: 24px;      /* Reduced from 28px */
+    font-weight: bold;
+    margin-bottom: 8px;   /* Reduced from 10px */
+}
+
+/* Updated Sidebar Button Styling - Smaller Height */
+.nav-button {
+    padding: 8px 12px;        /* Reduced from 12px 16px */
+    border: 2px solid #00d4ff;
+    background: transparent;
+    color: #00d4ff;
+    text-decoration: none;
+    text-align: center;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 13px;          /* Reduced from default */
+    transition: all 0.3s ease;
+    display: block;
+    line-height: 1.2;         /* Tighter line height */
+}
+
+.nav-button:hover {
+    background: #00d4ff;
+    color: #000;
+}
+
+.nav-button.active {
+    background: #00ff88;
+    border-color: #00ff88;
+    color: #000;
+}
+
+/* Reduce gap between buttons */
+.nav-buttons {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;                /* Reduced from 15px */
+}
+
+.communication-center {
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 500;
+    margin-top: -14px;
+    margin-bottom: -40;
+    text-align: center;
+    opacity: 0.9;
+}
+
+/* Updated Logo Styling - Natural Sizing */
+.logo-section img {
+    width: auto;           /* Let width be natural */
+    height: auto;          /* Let height be natural */
+    max-width: 150px;      /* Set maximum width to prevent too large */
+    max-height: 90px;      /* Set maximum height to fit sidebar */
+    border-radius: 8px;
+    margin-bottom: 10px;
+    object-fit: contain;   /* Maintain aspect ratio */
+}
+
+/* Option 1: Add TOP margin to push logo down */
+.logo-section img {
+    width: auto;
+    height: auto;
+    max-width: 120px;
+    max-height: 80px;
+    border-radius: 8px;
+    margin-top: 70px;        /* Pushes logo DOWN */
+    margin-bottom: 10px;
+    object-fit: contain;
+}
+
+.avatar-section {
+    text-align: center;
+    transform: translateY(-50px);  /* Moves avatar UP by 50px */
+}
+
+/* Alternative: Reduce padding in sidebar to give more room */
+.sidebar {
+    width: 200px;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    padding: 20px 20px 15px 20px;  /* Reduced bottom padding */
+    justify-content: space-between;
+}
+
+/* Or adjust the nav-buttons section to take less space */
+.nav-buttons {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;              /* Even tighter spacing */
+    margin-bottom: 20px;   /* Add space before avatar */
+}
+
+
+    </style>
+</head>
+<body>
+    <div class="main-interface">
+        <!-- Left Sidebar -->
+        <div class="sidebar">
+            <div class="logo-section">
+    <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1755208928390_logo3.PNG" alt="NCI Logo">
+    <h3 class="communication-center">Communication Center</h3>
+</div>
+
+           <div class="nav-buttons">
+    <a href="#voice-chat" class="nav-button">AI Voice Chat</a>
+    <a href="tele-help-center" class="nav-button active">Tele-HELP Center</a>
+    <a href="AI-hosted-interviews" class="nav-button"> AI Hosted Interviews</a>
+    <a href="#redeem-offer" class="nav-button">Redeem Offer</a>
+    
+</div>
+
+            <div class="avatar-section">
+                <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/avatars/avatar_1754803501976_AI%20assist%20head.png" alt="AI Assist">
+            </div>
+        </div>
+
+        <!-- Right Module Area - Request a Call Form -->
+        <div class="module-area">
+            <div class="call-request-interface">
+                <div class="interface-header">
+                    <h2>Request a Call</h2>
+                    <p>Appointments - Questions - Urgent Matters</p>
+                </div>
+
+                <form id="callRequestForm" class="form-fields">
+                    <div class="form-group">
+                        <label for="fullName">Your Name</label>
+                        <input type="text" id="fullName" name="fullName" placeholder="Enter your full name" required>
+                        <div class="error-message" id="nameError">Please enter your full name</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phoneNumber">Phone # to Call</label>
+                        <input type="tel" id="phoneNumber" name="phoneNumber" placeholder="(555) 123-4567" required>
+                        <div class="error-message" id="phoneError">Please enter a valid phone number</div>
+                    </div>
+
+                    <div class="form-group">
+    <label for="bestTime">Best time to call?</label>
+    <select id="bestTime" name="bestTime" required>
+        <option value="">Select preferred time</option>
+        <option value="call-now">Call Now</option>
+        <option value="morning">Morning (8AM - 12PM)</option>
+        <option value="afternoon">Afternoon (12PM - 5PM)</option>
+        <option value="evening">Evening (5PM - 8PM)</option>
+        <option value="anytime">Anytime</option>
+    </select>
+    <div class="error-message" id="timeError">Please select your preferred time</div>
+</div>
+
+                    <button type="submit" class="submit-btn" id="submitBtn">
+                        <span class="loading-spinner" id="loadingSpinner"></span>
+                        <span id="btnText">Request a Call</span>
+                    </button>
+
+                    <div class="success-message" id="successMessage">
+                        Thank you! We'll call you within 24 hours at the number provided.
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===========================================
+        // REQUEST A CALL MODULE - VAPI INTEGRATION
+        // Mobile-Wise AI Formviser
+        // ===========================================
+
+        const RequestCallModule = {
+            
+            // VAPI Configuration - YOUR ACTUAL CREDENTIALS
+            config: {
+                apiEndpoint: 'https://na-vg-edge.moeaymandev.workers.dev',
+                workspaceSecret: 'vg_RBYIuhZPlUniit68ypYz',
+                twilioPhone: '+1 949 881 6456',
+                region: 'NA'
+            },
+
+            // Initialize Module
+            init: function() {
+                console.log('🚀 Initializing Request a Call Module...');
+                this.bindEventListeners();
+                this.setupFormValidation();
+                console.log('✅ Request a Call Module Ready!');
+            },
+
+            // Bind Event Listeners
+            bindEventListeners: function() {
+                const form = document.getElementById('callRequestForm');
+                
+                if (form) {
+                    form.addEventListener('submit', (e) => this.handleFormSubmit(e));
+                }
+
+                // Phone number formatting
+                const phoneInput = document.getElementById('phoneNumber');
+                if (phoneInput) {
+                    phoneInput.addEventListener('input', this.formatPhoneNumber);
+                }
+            },
+
+            // Handle Form Submission
+            handleFormSubmit: async function(e) {
+                e.preventDefault();
+                
+                console.log('📞 Processing call request...');
+                
+                const submitBtn = document.getElementById('submitBtn');
+                const btnText = document.getElementById('btnText');
+                const loadingSpinner = document.getElementById('loadingSpinner');
+                const successMessage = document.getElementById('successMessage');
+                
+                // Get form data
+                const formData = {
+                    fullName: document.getElementById('fullName').value.trim(),
+                    phoneNumber: document.getElementById('phoneNumber').value.trim(),
+                    bestTime: document.getElementById('bestTime').value
+                };
+                
+                // Validate form
+                if (!this.validateForm(formData)) {
+                    console.log('❌ Form validation failed');
+                    return;
+                }
+                
+                // Show loading state
+                submitBtn.disabled = true;
+                loadingSpinner.style.display = 'inline-block';
+                btnText.textContent = 'Scheduling Call...';
+                
+                try {
+                    // Call VAPI API
+                    const response = await this.triggerVAPICall(formData);
+                    
+                    if (response.success) {
+                        console.log('✅ Call request successful');
+                        
+                        // Show success message
+                        successMessage.style.display = 'block';
+                        document.getElementById('callRequestForm').reset();
+                        
+                        // Reset button after success
+                        setTimeout(() => {
+                            submitBtn.disabled = false;
+                            loadingSpinner.style.display = 'none';
+                            btnText.textContent = 'Request a Call';
+                            successMessage.style.display = 'none';
+                        }, 5000);
+                        
+                    } else {
+                        throw new Error(response.error || 'API call failed');
+                    }
+                    
+                } catch (error) {
+                    console.error('❌ Error submitting call request:', error);
+                    alert('There was an error scheduling your call. Please try again or call us directly at ' + this.config.twilioPhone);
+                    
+                    // Reset button
+                    submitBtn.disabled = false;
+                    loadingSpinner.style.display = 'none';
+                    btnText.textContent = 'Request a Call';
+                }
+            },
+
+            // Trigger VAPI Call
+            triggerVAPICall: async function(formData) {
+                const payload = {
+                    phoneNumberId: this.config.twilioPhone,
+                    customer: {
+                        number: formData.phoneNumber
+                    },
+                    assistant: {
+                        firstMessage: `Hello ${formData.fullName}! This is NCI calling regarding your request for ${formData.bestTime} consultation. How can we help you today?`,
+                        model: {
+                            provider: "openai",
+                            model: "gpt-4",
+                            temperature: 0.7
+                        },
+                        voice: {
+                            provider: "11labs",
+                            voiceId: "rachel"
+                        }
+                    }
+                };
+
+                const response = await fetch(this.config.apiEndpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${this.config.workspaceSecret}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`VAPI API Error: ${response.status}`);
+                }
+
+                return await response.json();
+            },
+
+            // Form Validation
+            validateForm: function(data) {
+                let isValid = true;
+                
+                // Clear previous errors
+                document.querySelectorAll('.error-message').forEach(error => {
+                    error.style.display = 'none';
+                });
+                
+                // Validate name
+                if (!data.fullName || data.fullName.length < 2) {
+                    document.getElementById('nameError').style.display = 'block';
+                    isValid = false;
+                }
+                
+                // Validate phone
+                const phoneRegex = /^[\+]?[\s\-\(\)]?[\d\s\-\(\)]{10,}$/;
+                if (!data.phoneNumber || !phoneRegex.test(data.phoneNumber)) {
+                    document.getElementById('phoneError').style.display = 'block';
+                    isValid = false;
+                }
+                
+                // Validate time selection
+                if (!data.bestTime) {
+                    document.getElementById('timeError').style.display = 'block';
+                    isValid = false;
+                }
+                
+                return isValid;
+            },
+
+            // Phone Number Formatting
+            formatPhoneNumber: function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                let formattedValue = '';
+                
+                if (value.length >= 6) {
+                    formattedValue = `(${value.slice(0,3)}) ${value.slice(3,6)}-${value.slice(6,10)}`;
+                } else if (value.length >= 3) {
+                    formattedValue = `(${value.slice(0,3)}) ${value.slice(3)}`;
+                } else {
+                    formattedValue = value;
+                }
+                
+                e.target.value = formattedValue;
+            },
+
+            // Setup Form Validation
+            setupFormValidation: function() {
+                const inputs = document.querySelectorAll('#callRequestForm input, #callRequestForm select');
+                
+                inputs.forEach(input => {
+                    input.addEventListener('blur', () => {
+                        this.validateField(input);
+                    });
+                });
+            },
+
+            // Validate Individual Field
+            validateField: function(field) {
+                const value = field.value.trim();
+                const fieldName = field.name;
+                const errorElement = document.getElementById(fieldName + 'Error');
+                
+                if (errorElement) {
+                    if (!value) {
+                        errorElement.style.display = 'block';
+                        return false;
+                    } else {
+                        errorElement.style.display = 'none';
+                        return true;
+                    }
+                }
+                
+                return true;
+            }
+        };
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            RequestCallModule.init();
+        });
+    </script>
+</body>
+</html>

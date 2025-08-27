@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NCI - AI Hosted Interviews</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #000000;
+            color: #fff;
+            line-height: 1.6;
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .main-interface {
+            display: flex;
+            width: 900px;
+            height: 600px;
+            background: url('https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1755410028254_interface%20with%20chat%20area.PNG') no-repeat center center;
+            background-size: contain;
+            position: relative;
+        }
+
+        /* Left Sidebar */
+        .sidebar {
+            width: 200px;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            padding: 20px 20px 15px 20px;
+            justify-content: space-between;
+        }
+
+        .logo-section {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .logo-section img {
+            width: auto;
+            height: auto;
+            max-width: 120px;
+            max-height: 80px;
+            border-radius: 8px;
+            margin-top: 20px;
+            margin-bottom: 5px;
+            object-fit: contain;
+        }
+
+        .communication-center {
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 500;
+            margin-top: 5px;
+            margin-bottom: 0;
+            text-align: center;
+            opacity: 0.9;
+        }
+
+        .nav-buttons {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .nav-button {
+            padding: 8px 12px;
+            border: 2px solid #00d4ff;
+            background: transparent;
+            color: #00d4ff;
+            text-decoration: none;
+            text-align: center;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 13px;
+            transition: all 0.3s ease;
+            display: block;
+            line-height: 1.2;
+        }
+
+        .nav-button:hover {
+            background: #00d4ff;
+            color: #000;
+        }
+
+        .nav-button.active {
+            background: #00ff88;
+            border-color: #00ff88;
+            color: #000;
+        }
+
+        .avatar-section {
+            text-align: center;
+            transform: translateY(-30px);
+        }
+
+        .avatar-section img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid #00d4ff;
+        }
+
+        /* Right Module Area */
+        .module-area {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .ai-interviews-interface {
+            width: 577px;
+            height: 524px;
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), 
+                        url('https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1756019612414_slide4-graphic.png');
+            background-size: cover;
+            background-position: center;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .interface-header {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .interface-header h2 {
+            color: #00ff88;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .interface-header p {
+            color: #ffffff;
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .selection-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            flex-grow: 1;
+            justify-content: center;
+        }
+
+        .selection-btn {
+            width: 100%;
+            padding: 16px 20px;
+            background: transparent;
+            border: 2px solid #00d4ff;
+            color: #00d4ff;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-align: left;
+        }
+
+        .selection-btn:hover {
+            background: #00d4ff;
+            color: #000;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
+        }
+
+        .btn-icon {
+            font-size: 20px;
+        }
+
+        .btn-text {
+            flex: 1;
+        }
+
+        .status-message {
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid #00d4ff;
+            border-radius: 6px;
+            padding: 15px;
+            text-align: center;
+            color: #00d4ff;
+        }
+
+        /* Questions Screen Styling */
+        .questions-list {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin: 20px 0;
+            overflow-y: auto;
+        }
+
+        .question-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 16px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 6px;
+        }
+
+        .question-text {
+            flex: 1;
+            color: #ffffff;
+            font-size: 14px;
+        }
+
+        .start-btn {
+            padding: 6px 12px;
+            background: #00ff88;
+            color: #000;
+            border: none;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .start-btn:hover {
+            background: #00cc6a;
+            transform: scale(1.05);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .back-btn, .done-btn {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #00d4ff;
+            background: transparent;
+            color: #00d4ff;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover, .done-btn:hover {
+            background: #00d4ff;
+            color: #000;
+        }
+
+        .done-btn {
+            border-color: #00ff88;
+            color: #00ff88;
+        }
+
+        .done-btn:hover {
+            background: #00ff88;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1000px) {
+            .main-interface {
+                width: 100%;
+                max-width: 800px;
+                height: auto;
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                flex-direction: row;
+                padding: 20px;
+            }
+
+            .nav-buttons {
+                flex-direction: row;
+                gap: 10px;
+            }
+
+            .ai-interviews-interface {
+                width: 100%;
+                max-width: 500px;
+                height: auto;
+                min-height: 450px;
+            }
+        }
+
+        /* Updated Selection Button Styling - Moved UP with More Spacing */
+.selection-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;              /* INCREASED from 15px for more space */
+    flex-grow: 1;
+    justify-content: center;
+    padding: 20px 0;
+    margin-top: -40px;      /* NEGATIVE margin to pull buttons UP */
+}
+
+.selection-btn {
+    width: 100%;
+    padding: 12px 16px;
+    background: transparent;
+    border: 2px solid #00d4ff;
+    color: #00d4ff;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-align: left;
+}
+
+.selection-btn:hover {
+    background: #00d4ff;
+    color: #000;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 212, 255, 0.3);
+}
+
+.btn-icon {
+    font-size: 16px;
+}
+
+.btn-text {
+    flex: 1;
+    font-size: 14px;
+}
+
+/* Also move the header up to give more room for buttons */
+.interface-header {
+    text-align: center;
+    margin-bottom: 10px;    /* Reduced from 15px */
+    margin-top: -10px;      /* Pull header up too */
+}
+
+.interface-header h2 {
+    color: #00ff88;
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 5px;     /* Reduced from 8px */
+}
+
+.interface-header p {
+    color: #ffffff;
+    font-size: 16px;
+    opacity: 0.9;
+}
+
+/* ENHANCED VIDEO PREVIEW - REPLACE THE EXISTING BLOCK */
+.video-preview-area {
+    width: 100% !important;
+    height: 180px !important;
+    background: rgba(0, 0, 0, 0.8) !important;
+    border: 2px solid #00d4ff !important;
+    border-radius: 8px !important;
+    margin: -10px 0 8px 0 !important;    /* MOVED UP 4px, ADDED 8px gap */
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* QUESTIONS SPACING FIX */
+.questions-container {
+    flex-grow: 0 !important;
+    margin: 15 !important;
+    padding: 0 !important;
+}
+
+.question-row:first-child {
+    margin-top: 15px !important;    /* EXTRA 4px for first question */
+}
+
+.preview-placeholder {
+    color: #00d4ff;
+    text-align: center;
+}
+
+.questions-container {
+    flex-grow: 1;
+    margin: 15px 0;
+}
+
+.question-row {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 12px;
+    padding: 8px 12px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(0, 212, 255, 0.3);
+    border-radius: 6px;
+}
+
+.question-number {
+    background: #00ff88;
+    color: #000;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 12px;
+    cursor: pointer;
+    min-width: 50px;
+    text-align: center;
+}
+
+.question-number:hover {
+    background: #00cc6a;
+}
+
+.question-text {
+    flex: 1;
+    color: #ffffff;
+    font-size: 14px;
+}
+
+.control-buttons {
+    display: flex;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.back-btn, .done-btn {
+    flex: 1;
+    padding: 10px;
+    border: 2px solid #00d4ff;
+    background: transparent;
+    color: #00d4ff;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.back-btn:hover, .done-btn:hover {
+    background: #00d4ff;
+    color: #000;
+}
+
+.done-btn {
+    border-color: #00ff88;
+    color: #00ff88;
+}
+
+.done-btn:hover {
+    background: #00ff88;
+}
+
+/* FORCE override with !important - Replace your previous CSS with this */
+.video-preview-area {
+    width: 100% !important;
+    height: 280px !important;    /* Even bigger video area */
+    background: rgba(0, 0, 0, 0.8) !important;
+    border: 2px solid #00d4ff !important;
+    border-radius: 8px !important;
+    margin: 5px 0 5px 0 !important;    /* Minimal margins */
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.questions-container {
+    flex-grow: 0 !important;
+    margin: 0 !important;        /* NO margins */
+    padding: 0 !important;       /* NO padding */
+}
+
+.question-row {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    margin-bottom: 5px !important;    /* INCREASED spacing between questions */
+    padding: 4px 8px !important;      /* BIGGER padding for larger buttons */
+    background: rgba(0, 0, 0, 0.3) !important;
+    border: 1px solid rgba(0, 212, 255, 0.3) !important;
+    border-radius: 4px !important;
+    height: 30px !important;          /* BIGGER height for larger buttons */
+}
+
+.question-text {
+    flex: 1 !important;
+    color: #ffffff !important;
+    font-size: 12px !important;       /* BIGGER font for readability */
+    line-height: 1.2 !important;     /* Better line height */
+}
+
+.question-number {
+    background: #00ff88 !important;
+    color: #000 !important;
+    padding: 4px 8px !important;      /* BIGGER padding */
+    border-radius: 3px !important;
+    font-weight: 600 !important;
+    font-size: 11px !important;       /* BIGGER font - readable START text */
+    cursor: pointer !important;
+    min-width: 45px !important;       /* WIDER button */
+    text-align: center !important;
+    height: 20px !important;          /* BIGGER height */
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+
+.ai-interviews-interface {
+    padding: 15px !important;         /* LESS padding for more space */
+}
+
+.interface-header {
+    display: none !important;         /* FORCE hide header */
+}
+
+/* Center-justify question text */
+.question-item {
+    text-align: center;
+    padding: 8px 15px;
+}
+
+/* Move buttons up 8px and optimize spacing */
+.button-container {
+    margin-top: 10px;
+}
+
+/* Add 4th question styling */
+.question-list {
+    gap: 15px; /* Tighter spacing between questions */
+}
+
+/* FORCE YELLOW REDO BUTTON - Add this CSS */
+.question-number.redo-state {
+    background-color: #f1c40f !important;
+    color: #000000 !important;
+}
+
+.question-number.stop-state {
+    background-color: #ff4757 !important;
+    color: #ffffff !important;
+}
+
+.question-number.start-state {
+    background-color: #2ed573 !important;
+    color: #ffffff !important;
+}
+
+/* CONTAIN VIDEO WITHIN PREVIEW AREA */
+.video-preview-area {
+    overflow: hidden !important;
+    position: relative !important;
+}
+
+.preview-placeholder {
+    width: 100% !important;
+    height: 100% !important;
+    overflow: hidden !important;
+    position: relative !important;
+}
+
+.preview-placeholder video {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    border-radius: 8px !important;
+}
+
+/* 🎊 CELEBRATION OVERLAY - FULL SCREEN */
+.publishing-celebration-overlay {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background: linear-gradient(135deg, rgba(0, 20, 40, 0.98), rgba(20, 0, 40, 0.98)) !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    z-index: 99999 !important;
+}
+
+.celebration-content {
+    text-align: center;
+    color: #ffffff;
+    position: relative;
+    max-width: 600px;
+    padding: 40px;
+}
+
+/* 🎊 CELEBRATION OVERLAY */
+.publishing-celebration-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(0, 20, 40, 0.95), rgba(20, 0, 40, 0.95));
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+}
+
+.celebration-content {
+    text-align: center;
+    color: #ffffff;
+    position: relative;
+}
+
+.celebration-message h2 {
+    font-size: 36px;
+    margin: 20px 0;
+    color: #00ff88;
+    text-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+    animation: pulse 2s infinite;
+}
+
+.celebration-message h3 {
+    font-size: 24px;
+    margin: 15px 0;
+    color: #4fc3f7;
+}
+
+.celebration-message p {
+    font-size: 18px;
+    color: #cccccc;
+    margin: 10px 0;
+}
+
+.success-checkmark {
+    font-size: 48px;
+    margin: 20px 0;
+    animation: bounce 1s infinite;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid #333;
+    border-top: 4px solid #00ff88;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+/* 🎊 CONFETTI ANIMATION */
+.confetti-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.confetti-piece {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: #ff6b6b;
+    animation: confetti-fall linear infinite;
+}
+
+@keyframes confetti-fall {
+    0% {
+        transform: translateY(-100vh) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+    </style>
+</head>
+<body>
+    <div class="main-interface">
+        <!-- Left Sidebar -->
+        <div class="sidebar">
+            <div class="logo-section">
+                <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1755208928390_logo3.PNG" alt="NCI Logo">
+                <h3 class="communication-center">Communication Center</h3>
+            </div>
+
+            <div class="nav-buttons">
+                <a href="#voice-chat" class="nav-button">AI Voice Chat</a>
+                <a href="#tele-help-center" class="nav-button">Tele-HELP Center</a>
+                <a href="#ai-hosted-interviews" class="nav-button active">AI Hosted Interviews</a>
+                <a href="#redeem-offer" class="nav-button">Redeem Offer</a>
+            </div>
+
+            <div class="avatar-section">
+                <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/avatars/avatar_1754803501976_AI%20assist%20head.png" alt="AI Assist">
+            </div>
+        </div>
+
+        <!-- Right Module Area - AI Hosted Interviews -->
+        <div class="module-area">
+            <div class="ai-interviews-interface">
+                <div class="interface-header">
+                    <h2>AI Hosted Interviews</h2>
+                    <p>Video Reviews - Qualifications - Transcriptions</p>
+                </div>
+
+                <div class="selection-buttons">
+                    <button class="selection-btn" id="videoReviewBtn" data-type="video-review">
+                        <span class="btn-icon">📹</span>
+                        <span class="btn-text">AI Hosted Video Review</span>
+                    </button>
+
+                    <button class="selection-btn" id="sellPracticeBtn" data-type="sell-practice">
+                        <span class="btn-icon">💼</span>
+                        <span class="btn-text">I Want to Sell My Practice FAST</span>
+                    </button>
+
+                    <button class="selection-btn" id="buyPracticeBtn" data-type="buy-practice">
+                        <span class="btn-icon">🏥</span>
+                        <span class="btn-text">I Want to Qualify to Buy a Practice</span>
+                    </button>
+                </div>
+
+                <div class="status-message" id="statusMessage" style="display: none;">
+                    <p>Preparing your interview session...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load AI Hosted Interviews Module -->
+    <script src="ai-hosted-interviews.js"></script>
+</body>
+</html>
