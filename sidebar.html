@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sidebar Menu</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            width: 200px;
+            height: 550px;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 200px;
+            height: 550px;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            padding: 20px 20px 15px 20px;
+            justify-content: space-between;
+        }
+
+        .logo-section {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 0 20px;
+        }
+
+        .logo-section img {
+            width: auto;
+            height: auto;
+            max-width: 135px;
+            max-height: 90px;
+            border-radius: 0px;
+            margin-bottom: 10px;
+            margin-left: -8px;
+            object-fit: contain;
+        }
+
+        .ai-help-center {
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 500;
+            margin-top: -10px;
+            margin-bottom: -40;
+            text-align: center;
+            opacity: 0.9;
+        }
+
+        .nav-buttons {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .nav-button {
+            padding: 8px 12px;
+            border: 2px solid #0084ff;
+            background: transparent;
+            color: #f1f1f1;
+            text-decoration: none;
+            text-align: center;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 13px;
+            transition: all 0.3s ease;
+            display: block;
+            line-height: 1.2;
+            cursor: pointer;
+        }
+
+        .nav-button:hover {
+            background: #00d4ff;
+            color: #000;
+        }
+
+        .nav-button.active {
+            background: #00ff88;
+            border-color: #00ff88;
+            color: #000;
+        }
+
+        #avatarVideo {
+            width: 120px;
+            height: auto;
+            margin-left: 15px;
+            object-fit: contain;
+            cursor: pointer;
+        }
+
+        #staticAvatar {
+            width: 140px;
+            height: auto;
+            cursor: pointer;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo-section">
+            <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1755208928390_logo3.PNG" 
+                 alt="NCI Logo">
+            <h3 class="ai-help-center">AI Help Center</h3>
+        </div>
+
+        <div class="nav-buttons">
+            <a href="#voice-chat" class="nav-button active">AI Voice Chat</a>
+            <a href="#tele-help" class="nav-button">Tele-HELP Center</a>
+            <a href="#ai-interviews" class="nav-button">AI Hosted Interviews</a>
+            <a href="#redeem-offer" class="nav-button">Redeem Offer</a>
+        </div>
+
+        <div class="avatar-section">
+            <video id="avatarVideo" muted preload="metadata" onclick="this.play()">
+                <source src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1755360461594.mp4" type="video/mp4">
+            </video>      
+            
+            <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/avatars/avatar_1755209453856_avatar right.png" 
+                 alt="AI Assistant" 
+                 id="staticAvatar">
+        </div>
+    </div>
+
+    <script>
+        const video = document.getElementById('avatarVideo');
+        const staticImage = document.getElementById('staticAvatar');
+        
+        video.addEventListener('ended', function() {
+            console.log('Video ended');
+        });
+
+        document.querySelectorAll('.nav-button').forEach(button => {
+            button.addEventListener('click', function(e) {
+                document.querySelectorAll('.nav-button').forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Chat Module</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a2e;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Main Chat Container - SQUARE MODULE */
+        .chat-container {
+            width: 577px;
+            height: 524px;
+            background: rgba(20, 20, 35, 0.95);
+            border: 2px solid #8B7355;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        /* Splash Screen with Microphone Button */
+        .splash-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(10, 10, 20, 0.98);
+            border-radius: 15px;
+            z-index: 10;
+        }
+
+        .splash-screen img {
+            width: 300px;
+            height: auto;
+            margin-bottom: 20px;
+        }
+
+        .activate-mic-btn {
+            background: linear-gradient(135deg, #00D4FF, #0099CC);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
+        }
+
+        .activate-mic-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.4);
+        }
+
+        /* Chat Interface */
+        .chat-interface {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #0066ff, #4CAF50);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 600;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        /* Quick Topic Buttons */
+        .quick-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+            justify-content: center;
+        }
+
+        .quick-btn {
+            background: rgba(33, 150, 243, 0.1);
+            border: 1px solid #2196f3;
+            border-radius: 20px;
+            padding: 8px 12px;
+            font-size: 11px;
+            cursor: pointer;
+            color: #64B5F6;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .quick-btn:hover {
+            background: #2196f3;
+            color: white;
+            transform: scale(1.05);
+        }
+
+        /* AI Listening Banner with Animation */
+        .voice-container {
+            position: relative;
+            width: 100%;
+            height: 50px;
+            background: linear-gradient(135deg, #000000 0%, #000000 100%);
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .listening-text {
+            color: white;
+            font-weight: 500;
+            text-align: center;
+            transition: opacity 0.3s ease;
+        }
+
+        .waveform-canvas {
+            position: absolute;
+            top: 5px;
+            left: 70px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border-radius: 20px;
+        }
+
+        .waveform-active .listening-text {
+            opacity: 0;
+        }
+
+        .waveform-active .waveform-canvas {
+            opacity: 1;
+        }
+
+        /* Chat Messages */
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #444;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            scroll-behavior: smooth;
+        }
+
+        /* Speed Controls & Audio Off Button */
+        .voice-controls-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        .speed-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 25px;
+            padding: 5px 10px;
+        }
+
+        .speed-btn {
+            background: #4a90e2;
+            border: none;
+            border-radius: 15px;
+            color: white;
+            padding: 8px 12px;
+            font-size: 11px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            height: 32px;
+        }
+
+        .speed-btn:hover {
+            background: #357abd;
+            transform: translateY(-1px);
+        }
+
+        .audio-off-btn {
+            background: #dc3545;
+            border: none;
+            border-radius: 25px;
+            color: white;
+            padding: 8px 16px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            height: 42px;
+            transition: all 0.2s;
+        }
+
+        .audio-off-btn:hover {
+            background: #c82333;
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container" id="chatContainer">
+        <!-- Splash Screen with Microphone Button -->
+        <div class="splash-screen" id="splashScreen">
+            <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1755253677674_slide1-graphic.PNG" alt="Activate Mic">
+            <button class="activate-mic-btn" id="activateMicBtn">Click to Activate Mic</button>
+        </div>
+
+        <!-- Main Chat Interface -->
+        <div class="chat-interface" id="chatInterface" style="display: none;">
+            <div class="chat-header">NCI Business AI Assistant</div>
+
+            <!-- Quick Topic Buttons -->
+            <div class="quick-buttons">
+                <button class="quick-btn">Business Growth</button>
+                <button class="quick-btn">Marketing Services</button>
+                <button class="quick-btn">Accounting Services</button>
+                <button class="quick-btn">Pricing</button>
+            </div>
+
+            <!-- AI Listening Banner with Waveform -->
+            <div id="voiceVisualizerContainer" class="voice-container" style="display: none;">
+                <div id="staticListeningText" class="listening-text">
+                    Microphone Active - How can we help your business?
+                </div>
+                <canvas id="voiceWaveform" class="waveform-canvas" width="400" height="40"></canvas>
+            </div>
+
+            <!-- Chat Messages Area -->
+            <div class="chat-messages" id="chatMessages">
+                <!-- Messages appear here -->
+            </div>
+
+            <!-- Speed Controls & Audio Off Button -->
+            <div class="voice-controls-container">
+                <div class="speed-controls">
+                    <button class="speed-btn">Slower</button>
+                    <span class="speed-display">Normal</span>
+                    <button class="speed-btn">Faster</button>
+                </div>
+                <button class="audio-off-btn" id="audioOffBtn">Audio Off</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Basic iframe-ready JavaScript
+        document.getElementById('activateMicBtn').addEventListener('click', function() {
+            document.getElementById('splashScreen').style.display = 'none';
+            document.getElementById('chatInterface').style.display = 'flex';
+            document.getElementById('voiceVisualizerContainer').style.display = 'flex';
+        });
+    </script>
+</body>
+</html>

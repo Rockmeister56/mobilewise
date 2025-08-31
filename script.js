@@ -11,10 +11,10 @@
 // ===========================================
 
 // ===========================================
-// ELEVENLABS CONFIGURATION - ADD THIS FIRST
+// ELEVENLABS CONFIGURATION - TEMPORARILY DISABLED
 // ===========================================
-const ELEVENLABS_API_KEY = 'sk_9e7fa2741be74e8cc4af95744fe078712c1e8201cdcada93';
-const VOICE_ID = 'zGjIP4SZlMnY9m93k97r'; // Hope voice
+// const ELEVENLABS_API_KEY = 'sk_9e7fa2741be74e8cc4af95744fe078712c1e8201cdcada93';
+// const VOICE_ID = 'zGjIP4SZlMnY9m93k97r';
 
 // CHAT SYSTEM VARIABLES - ADD THESE TOO
 let recognition = null;
@@ -85,34 +85,84 @@ if (this.elements.avatarVideo) {
 };
 
 // ===========================================
-// AVATAR VIDEO FUNCTIONALITY
+// AVATAR VIDEO FUNCTIONALITY - COMPLETE FIX
 // ===========================================
 
 VoiceBot.setupAvatarVideo = function() {
     if (this.elements.avatarVideo) {
-        // Play video on load
+        // Try to play video on load
         this.elements.avatarVideo.play().catch(error => {
-            console.log('Auto-play blocked, showing static avatar');
+            console.log('Auto-play blocked - video ready for user interaction');
+            // DON'T show static avatar yet - wait for user to click!
+        });
+
+        // ONLY show static avatar when video actually ends after playing
+        this.elements.avatarVideo.addEventListener('ended', () => {
+            console.log('Video actually finished playing');
             showStaticAvatar();
         });
 
-        // Handle video end
-        this.elements.avatarVideo.addEventListener('ended', () => {
-            this.showStaticAvatar();
-        });
-
         // Handle video error
-        this.elements.avatarVideo.addEventListener('ended', () => {
-    showStaticAvatar(); // ✅ CALLS GLOBAL FUNCTION
-});
+        this.elements.avatarVideo.addEventListener('error', () => {
+            console.log('Video error - showing static avatar');
+            showStaticAvatar();
+        });
     }
 };
 
-// Global function for video onended (called from HTML)
+// UPDATED GLOBAL FUNCTION WITH YOUR STATIC AVATAR
 function showStaticAvatar() {
-    // VoiceBot.showStaticAvatar(); // Method doesn't exist yet
-console.log('Video ended - static avatar should show');
+    console.log('Video ended - switching to static avatar');
+    const avatarVideo = document.getElementById('avatarVideo');
+    let staticAvatar = document.getElementById('staticAvatar');
+    
+    if (avatarVideo) {
+        // Hide the video
+        avatarVideo.style.display = 'none';
+        
+        // UPDATE THE EXISTING STATIC AVATAR WITH YOUR NEW IMAGE
+        if (staticAvatar) {
+            // Update the existing static avatar with your new image URL
+            staticAvatar.src = 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/avatars/avatar_1756268994103_avatar%20%20black%20screen2.png';
+            staticAvatar.style.display = 'block';
+            staticAvatar.style.width = '120px';
+            staticAvatar.style.height = 'auto';
+            staticAvatar.style.cursor = 'pointer';
+            
+            console.log('✅ Updated existing static avatar with new image');
+        } else {
+            // CREATE NEW STATIC AVATAR if it doesn't exist
+            staticAvatar = document.createElement('img');
+            staticAvatar.id = 'staticAvatar';
+            staticAvatar.src = 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/avatars/avatar_1756268994103_avatar%20%20black%20screen2.png';
+            staticAvatar.alt = 'AI Assistant';
+            staticAvatar.style.width = '120px';
+            staticAvatar.style.height = 'auto';
+            staticAvatar.style.cursor = 'pointer';
+            staticAvatar.style.display = 'block';
+            
+            // Add it to the same parent as the video
+            avatarVideo.parentNode.appendChild(staticAvatar);
+            
+            console.log('✅ Created new static avatar');
+        }
+        
+        // Add click handler to restart video
+        staticAvatar.onclick = function() {
+            staticAvatar.style.display = 'none';
+            avatarVideo.style.display = 'block';
+            avatarVideo.currentTime = 0;
+            avatarVideo.play();
+        };
+        
+        console.log('📐 Static avatar dimensions:', staticAvatar.offsetWidth, 'x', staticAvatar.offsetHeight);
+    }
 }
+
+// ALSO ADD THIS METHOD TO VOICEBOT OBJECT
+VoiceBot.showStaticAvatar = function() {
+    showStaticAvatar(); // Calls the global function
+};
 
 // Comment out these lines that force static avatar:
 // if (this.elements.avatarVideo && this.elements.staticAvatar) {
@@ -312,87 +362,76 @@ VoiceBot.generateLeaveReviewSlide = function() {
 // ===========================================
 VoiceBot.generateChatSlide = function() {
     return `
-        <!-- Quick Topic Buttons -->
-        <div style="margin-bottom: 20px;">
-            <div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 15px;">
-                <button onclick="VoiceBot.askQuickQuestion('How can you help grow my business?')" class="chat-quick-btn">📈 Business Growth</button>
-                <button onclick="VoiceBot.askQuickQuestion('What marketing services do you offer?')" class="chat-quick-btn">🎯 Marketing Services</button>
-                <button onclick="VoiceBot.askQuickQuestion('Do you handle bookkeeping and taxes?')" class="chat-quick-btn">📊 Accounting Services</button>
-                <button onclick="VoiceBot.askQuickQuestion('What are your pricing packages?')" class="chat-quick-btn">💰 Pricing</button>
+        <div class="voice-chat-container">
+            <!-- Chat Header -->
+            <div class="voice-chat-header" id="voiceChatHeaderTitle">
+                🎤 NCI Business AI Assistant
             </div>
-            <div style="border-bottom: 1px solid #ddd; margin: 15px 0;"></div>
-        </div>
 
-        <!-- Chat Messages Container -->
-        <div id="chatMessages" style="
-            height: 300px; overflow-y: auto; background: #f8f9fa; 
-            border: 1px solid #ddd; border-radius: 10px; padding: 15px; 
-            margin-bottom: 15px;
-        ">
-            <!-- Single Initial AI Message - CORRECTED CONTENT -->
-            <div style="margin-bottom: 15px;">
-                <div style="display: flex; align-items: flex-start; gap: 10px;">
-                    <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/avatars/avatar_1754810337622_AI%20assist%20head%20left.png" 
-                         style="width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;">
-                    <div style="
-                        background: #e8f5e8; padding: 12px 16px; border-radius: 15px 15px 15px 5px;
-                        max-width: 75%; font-size: 14px; line-height: 1.4; word-wrap: break-word;
-                    ">Hi! I'm your business expert ready to help with accounting and marketing! You can type questions or click the microphone to speak with me! What would you like to know about growing your business? 🎤</div>
+            <!-- Quick Topic Buttons -->
+            <div class="voice-quick-buttons">
+                <button class="voice-quick-btn" onclick="VoiceBot.askQuickQuestion('How can you help grow my business?')">📈 Business Growth</button>
+                <button class="voice-quick-btn" onclick="VoiceBot.askQuickQuestion('What marketing services do you offer?')">🎯 Marketing Services</button>
+                <button class="voice-quick-btn" onclick="VoiceBot.askQuickQuestion('Do you handle bookkeeping and taxes?')">📊 Accounting Services</button>
+                <button class="voice-quick-btn" onclick="VoiceBot.askQuickQuestion('What are your pricing packages?')">💰 Pricing</button>
+            </div>
+
+            <!-- Voice Banner - "AI is listening..." -->
+            <div class="voice-banner" id="voiceBanner" style="display: none;">
+                🎤 AI is listening... What can I help you with?
+            </div>
+
+            <!-- Voice Visualizer Container -->
+            <div id="voiceVisualizerContainer" class="voice-container" style="display: none;">
+                <div id="staticListeningText" class="listening-text">
+                    🎤 Microphone Active - How can we help your business?
+                </div>
+                <canvas id="voiceWaveform" class="waveform-canvas" width="400" height="40"></canvas>
+            </div>
+
+            <!-- Chat Messages Area -->
+            <div class="voice-chat-messages" id="voiceChatMessages">
+                <!-- Initial AI Message -->
+                <div class="voice-message voice-ai-message">
+                    <div class="voice-message-bubble">
+                        <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/avatars/avatar_1754810337622_AI%20assist%20head%20left.png" class="voice-ai-avatar">
+                        <div>Hi! I'm your business expert ready to help with accounting and marketing! You can type questions or click the microphone to speak with me! What would you like to know about growing your business? 🎤</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Audio Mode Controls -->
+            <div class="voice-audio-controls" id="voiceAudioControls" style="display: none;">
+                <button class="voice-audio-off-btn" id="voiceAudioOffBtn" onclick="VoiceChatModule.switchToTextMode();">
+                    🔇 Audio Off
+                </button>
+            </div>
+
+            <!-- Text Mode Controls -->
+            <div class="voice-text-controls" id="voiceTextControls" style="display: none;">
+                <div class="voice-text-input-row">
+                    <input type="text" id="voiceTextInput" class="voice-text-input" placeholder="Type your message..." onkeypress="if(event.key==='Enter') VoiceChatModule.sendTextMessage()">
+                    <button class="voice-send-btn" onclick="VoiceChatModule.sendTextMessage()">Send</button>
+                </div>
+                <button class="voice-reinitiate-audio-btn" onclick="VoiceChatModule.switchToAudioMode()">🎤 Reinitiate Audio</button>
+            </div>
+
+            <!-- Speed Controls Container -->
+            <div class="voice-controls-container">
+                <div class="voice-speed-controls">
+                    <button onclick="VoiceChatModule.adjustVoiceSpeed('slower')" class="voice-speed-btn">
+                        🐌 Slower
+                    </button>
+                    <span id="voiceSpeedDisplay" class="voice-speed-display">Normal</span>
+                    <button onclick="VoiceChatModule.adjustVoiceSpeed('faster')" class="voice-speed-btn">
+                        🚀 Faster
+                    </button>
                 </div>
             </div>
         </div>
-
-        <!-- Voice Indicator Banner -->
-        <div id="voiceIndicator" style="
-            display: none; padding: 12px; background: #e8f5e8; border: 2px solid #4CAF50;
-            border-radius: 8px; text-align: center; color: #4CAF50; font-weight: bold; 
-            margin-bottom: 15px; font-size: 16px; animation: pulse 1.5s infinite;
-        ">
-            🎤 Listening... (speak now)
-        </div>
-
-        <!-- Input Area -->
-        <div style="display: flex; gap: 10px; align-items: center;">
-            <input type="text" id="userChatInput" placeholder="Ask about our accounting & marketing services or click mic to speak..." 
-                   style="flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 20px; font-size: 14px;"
-                   onkeypress="if(event.key==='Enter') VoiceBot.sendChatMessage()">
-            
-            <button id="voiceChatButton" onclick="VoiceBot.toggleVoiceChat()" style="
-                background: none; border: none; cursor: pointer; padding: 5px;
-                transition: all 0.3s; border-radius: 50%;
-            " title="Click to speak">
-                <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1754909837912_mic4.PNG" 
-                     style="width: 40px; height: 40px;" id="micIcon">
-            </button>
-            
-            <button onclick="VoiceBot.sendChatMessage()" style="
-                background: #2196F3; color: white; border: none; border-radius: 50%;
-                width: 40px; height: 40px; cursor: pointer; font-size: 16px;
-            ">➤</button>
-            
-            <button id="stopAudioButton" onclick="VoiceBot.stopSpeaking()" style="
-                background: #f44336; color: white; border: none; border-radius: 50%;
-                width: 40px; height: 40px; cursor: pointer; font-size: 16px; display: none;
-            " title="Stop speaking">⏹️</button>
-        </div>
-
-        <style>
-            .chat-quick-btn {
-                background: #e3f2fd; border: 1px solid #2196f3; border-radius: 20px;
-                padding: 8px 12px; font-size: 12px; cursor: pointer;
-                color: #1976d2; transition: all 0.3s;
-            }
-            .chat-quick-btn:hover {
-                background: #2196f3; color: white; transform: scale(1.05);
-            }
-            @keyframes pulse {
-                0% { opacity: 1; }
-                50% { opacity: 0.7; }
-                100% { opacity: 1; }
-            }
-        </style>
     `;
 };
+
 
 // ===========================================
 // AUTO-WELCOME MESSAGE - ADD THIS FUNCTION
@@ -430,22 +469,48 @@ VoiceBot.activateMicrophone = function() {
 // VOICE ACTIVATION FUNCTIONALITY
 // ===========================================
 
+// UPDATE THIS FUNCTION IN YOUR EXISTING script.js:
+
 VoiceBot.activateVoice = function() {
     console.log('🎤 Voice activation clicked!');
     
     const avatarVideo = document.getElementById('avatarVideo');
     if (avatarVideo) {
-        // Show and play the avatar
-        avatarVideo.style.visibility = 'visible'; // Make it visible
+        // Make sure static avatar is hidden first
+        const staticAvatar = document.getElementById('staticAvatar');
+        if (staticAvatar) {
+            staticAvatar.style.display = 'none';
+        }
+        
+        // Show and play the video
         avatarVideo.style.display = 'block';
+        avatarVideo.style.visibility = 'visible';
         avatarVideo.currentTime = 0;
-        avatarVideo.muted = false; // Enable sound
-        avatarVideo.loop = false; // No looping
+        avatarVideo.muted = false;
         avatarVideo.play().then(() => {
-            console.log('✅ Avatar now visible and playing with sound!');
+            console.log('✅ Avatar video playing with sound!');
+            
+            // 🚀 AFTER VIDEO STARTS, LOAD THE CHAT INTERFACE
+            setTimeout(() => {
+                console.log('🎯 Loading chat interface...');
+                this.loadSlide('chat-interface');
+                
+                // Initialize voice chat module
+                if (typeof initializeVoiceChat === 'function') {
+                    console.log('🎤 Initializing Voice Chat Module...');
+                    initializeVoiceChat();
+                }
+            }, 2000); // Wait 2 seconds for video to play
+            
         }).catch(error => {
             console.log('❌ Avatar play failed:', error);
+            // Load chat anyway if video fails
+            this.loadSlide('chat-interface');
         });
+    } else {
+        // No video found, go straight to chat
+        console.log('🎯 No avatar video, loading chat directly...');
+        this.loadSlide('chat-interface');
     }
     
     // Enable voice in config
