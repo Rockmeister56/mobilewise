@@ -235,50 +235,70 @@
             <p style="color: white; margin-top: 20px; font-size: 18px;">Loading Mobile-Wise AI Formviser...</p>
         </div>
 
-        <!-- Main Chat Interface -->
-        <div class="chat-interface" id="chatInterface" style="display: none;">
-            <div class="chat-header">NCI Business AI Assistant</div>
+      <!-- Main Chat Interface -->
+<div class="chat-interface" id="chatInterface" style="display: none;">
+    <div class="chat-header">NCI Business AI Assistant</div>
 
-            <!-- Quick Topic Buttons -->
-            <div class="quick-buttons">
-                <button class="quick-btn">Business Growth</button>
-                <button class="quick-btn">Marketing Services</button>
-                <button class="quick-btn">Accounting Services</button>
-                <button class="quick-btn">Pricing</button>
-            </div>
-
-            <!-- AI Listening Banner with Waveform -->
-            <div id="voiceVisualizerContainer" class="voice-container" style="display: none;">
-                <div id="staticListeningText" class="listening-text">
-                    Microphone Active - How can we help your business?
-                </div>
-                <canvas id="voiceWaveform" class="waveform-canvas" width="400" height="40"></canvas>
-            </div>
-
-            <!-- Chat Messages Area -->
-            <div class="chat-messages" id="chatMessages">
-                <!-- Messages appear here -->
-            </div>
-
-            <!-- Speed Controls & Audio Off Button -->
-            <div class="voice-controls-container">
-                <div class="speed-controls">
-                    <button class="speed-btn">Slower</button>
-                    <span class="speed-display">Normal</span>
-                    <button class="speed-btn">Faster</button>
-                </div>
-                <button class="audio-off-btn" id="audioOffBtn">Audio Off</button>
-            </div>
-        </div>
+    <!-- Quick Topic Buttons -->
+    <div class="quick-buttons">
+        <button class="quick-btn">Business Growth</button>
+        <button class="quick-btn">Marketing Services</button>
+        <button class="quick-btn">Accounting Services</button>
+        <button class="quick-btn">Pricing</button>
     </div>
 
+    <!-- MICROPHONE ACTIVATION BUTTON -->
+    <div style="text-align: center; margin: 20px 0;">
+        <button class="activate-mic-btn" id="activateMicButton" onclick="activateMicrophone()">
+            🎤 Activate Microphone
+        </button>
+    </div>
+
+    <!-- AI Listening Banner with Waveform -->
+    <div id="voiceVisualizerContainer" class="voice-container" style="display: none;">
+        <div id="staticListeningText" class="listening-text">
+            Microphone Active - How can we help your business?
+        </div>
+        <canvas id="voiceWaveform" class="waveform-canvas" width="400" height="40"></canvas>
+    </div>
+
+    <!-- Chat Messages Area -->
+    <div class="chat-messages" id="chatMessages">
+        <p style="color: #ccc; text-align: center; margin-top: 50px;">
+            Welcome! Click "Activate Microphone" to start voice chat.
+        </p>
+    </div>
+
+    <!-- Speed Controls & Audio Off Button -->
+    <div class="voice-controls-container">
+        <div class="speed-controls">
+            <button class="speed-btn">Slower</button>
+            <span class="speed-display">Normal</span>
+            <button class="speed-btn">Faster</button>
+        </div>
+        <button class="audio-off-btn" id="audioOffBtn">Audio Off</button>
+    </div>
+</div>
+
     <script>
-        // Auto-remove splash after 3 seconds, show chat
-        setTimeout(function() {
-            document.getElementById('splashScreen').style.display = 'none';
-            document.getElementById('chatInterface').style.display = 'flex';
-            console.log('✅ Mobile-Wise AI loaded - Chat interface ready!');
-        }, 3000);
-    </script>
+    // Auto-remove splash after 3 seconds, show chat
+    setTimeout(function() {
+        document.getElementById('splashScreen').style.display = 'none';
+        document.getElementById('chatInterface').style.display = 'flex';
+        console.log('✅ Mobile-Wise AI loaded - Chat interface ready!');
+    }, 3000);
+
+    // Microphone activation function
+    function activateMicrophone() {
+        console.log('🎤 Microphone activated!');
+        document.getElementById('activateMicButton').style.display = 'none';
+        document.getElementById('voiceVisualizerContainer').style.display = 'flex';
+        
+        // Add welcome message
+        const chatMessages = document.getElementById('chatMessages');
+        chatMessages.innerHTML = '<div style="color: #4CAF50; text-align: center; padding: 20px;">🎤 Voice chat activated! How can I help you?</div>';
+    }
+    
+</script>
 </body>
 </html>
