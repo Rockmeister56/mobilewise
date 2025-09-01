@@ -53,36 +53,16 @@ const businessResponses = {
 // ==========================================
 // 🚀 MOBILE-WISE AI SPLASH SCREEN SYSTEM
 // ==========================================
+// Define splash screen functions - CORRECTED VERSION
 function createSplashScreen() {
-    // Remove existing splash if any
     const existingSplash = document.getElementById('splashScreen');
     if (existingSplash) existingSplash.remove();
     
-    // Create new splash screen with your server image
     const splash = document.createElement('div');
     splash.id = 'splashScreen';
-    splash.innerHTML = `
-        <div id="splashContent">
-            <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1756423889096_for%20microphone%20access.PNG" 
-                 alt="Mobile-Wise AI Formviser" 
-                 style="max-width: 80%; max-height: 80%; object-fit: contain;">
-        </div>
-    `;
+    splash.innerHTML = '<div id="splashContent"><img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1756423889096_for%20microphone%20access.PNG" alt="Mobile-Wise AI Formviser" style="max-width: 80%; max-height: 80%; object-fit: contain;"></div>';
     
-    // Style the splash screen
-    splash.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 9999;
-        transition: opacity 0.8s ease-out;
-    `;
+    splash.style.cssText = 'position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); display: flex; justify-content: center; align-items: center; z-index: 9999; transition: opacity 0.8s ease-out;';
     
     document.body.appendChild(splash);
     console.log('🚀 Mobile-Wise AI Splash Screen Created');
@@ -95,7 +75,7 @@ function removeSplashScreen() {
         setTimeout(() => {
             splash.remove();
             console.log('✅ Splash Screen Removed - User Activated Microphone');
-        }, 800); // Smooth 0.8s fade out
+        }, 800);
     }
 }
 
