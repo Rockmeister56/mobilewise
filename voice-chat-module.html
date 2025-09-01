@@ -414,54 +414,58 @@ box-shadow: 0 15px 40px rgba(33, 150, 243, 0.4);
         }
 
    .splash-screen {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center; /* CENTER EVERYTHING VERTICALLY */
-    background: rgba(10, 10, 20, 0.98);
-    border-radius: 15px;
-    z-index: 10;
-    padding: 20px; /* SMALL PADDING TO PREVENT CUTOFF */
-    box-sizing: border-box;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: rgba(10, 10, 20, 0.98) !important;
+    border-radius: 15px !important;
+    z-index: 10 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    /* FORCE EXACT SIZE MATCH */
+    min-width: 100% !important;
+    min-height: 100% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
 }
 
 .splash-screen img {
-    width: 100%;
-    height: auto; /* CHANGED: Let image maintain aspect ratio */
-    max-width: 100%;
-    max-height: 80%; /* PREVENT BOTTOM CUTOFF */
-    object-fit: contain; /* CHANGED: Keep full image visible */
-    border-radius: 15px;
-    margin-bottom: 20px; /* SPACE FOR BUTTON */
+    width: 95% !important;
+    height: auto !important;
+    max-width: 95% !important;
+    max-height: 75% !important;
+    object-fit: contain !important;
+    border-radius: 15px !important;
+    margin-bottom: 20px !important;
 }
 
 .activate-mic-btn {
-    background: linear-gradient(135deg, #00D4FF, #0099CC);
-    color: white;
-    border: none;
-    padding: 15px 30px;
-    border-radius: 25px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    box-shadow: 0 10px 30px rgba(33, 150, 243, 0.2);
-    position: relative; /* CHANGED: Back to relative */
-    z-index: 12;
-    /* REMOVED: bottom and transform properties that caused sliding */
+    background: linear-gradient(135deg, #00D4FF, #0099CC) !important;
+    color: white !important;
+    border: none !important;
+    padding: 15px 30px !important;
+    border-radius: 25px !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1px !important;
+    box-shadow: 0 10px 30px rgba(33, 150, 243, 0.2) !important;
+    position: relative !important;
+    z-index: 12 !important;
 }
 
 .activate-mic-btn:hover {
-    transform: translateY(-2px) scale(1.05); /* FIXED: Only move up and scale */
-    box-shadow: 0 15px 40px rgba(33, 150, 243, 0.4);
-    /* REMOVED: translateX that was causing right slide */
+    transform: translateY(-2px) scale(1.05) !important;
+    box-shadow: 0 15px 40px rgba(33, 150, 243, 0.4) !important;
 }
    
    </style>
@@ -471,7 +475,7 @@ box-shadow: 0 15px 40px rgba(33, 150, 243, 0.4);
         <div class="chat-container" id="chatContainer">
 
             <div class="splash-screen" id="splashScreen" style="display: flex;">
-    <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1756756652583_for%20microphone%20access3.png" alt="Mobile-Wise AI Formviser">
+    <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1756759204638_for%20microphone%20access4.png" alt="Mobile-Wise AI Formviser">
     <button class="activate-mic-btn" onclick="startVoiceChat()">
         🎤 Activate Voice Chat
     </button>
