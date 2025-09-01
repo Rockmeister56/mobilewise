@@ -468,31 +468,57 @@ function switchToTextMode() {
     
     isAudioMode = false;
     
+    // Stop recognition
     if (recognition && isListening) {
         recognition.stop();
         isListening = false;
     }
     
+    // Stop all voice visualization
     stopUnifiedVoiceVisualization();
+    
+    // Show text interface
     showTextMode();
     
-    const textInput = document.getElementById('textInput'); // MATCHES YOUR HTML!
+    // Hide voice visualizer container
+    const voiceContainer = document.getElementById('voiceVisualizerContainer');
+    if (voiceContainer) voiceContainer.style.display = 'none';
+    
+    // Focus text input
+    const textInput = document.getElementById('textInput');
     if (textInput) {
         setTimeout(() => textInput.focus(), 100);
     }
+    
+    // Update header
+    updateHeaderBanner('💬 Text Chat Mode - Type your message below');
 }
 
 function switchToAudioMode() {
     console.log('🎤 User switched back to audio mode');
     
     isAudioMode = true;
+    
+    // Show audio interface
     showAudioMode();
+    
+    // Show voice visualizer container
+    const voiceContainer = document.getElementById('voiceVisualizerContainer');
+    if (voiceContainer) voiceContainer.style.display = 'flex';
+    
+    // Start voice visualization
     startUnifiedVoiceVisualization();
     
+    // Update header
+    updateHeaderBanner('🎤 Voice Chat Restored - AI is listening...');
+    
+    // AI greeting and restart recognition
     setTimeout(() => {
-        addAIMessage("What can I help you with?");
-        speakResponse("What can I help you with?");
+        const greeting = "What can I help you with?";
+        addAIMessage(greeting);
+        speakResponse(greeting);
         
+        // Restart speech recognition
         if (recognition && !isListening) {
             try {
                 recognition.start();
@@ -862,8 +888,9 @@ window.sendTextMessage = sendTextMessage;
 window.switchToTextMode = switchToTextMode;
 window.adjustVoiceSpeed = adjustVoiceSpeed;
 window.activateMicrophone = activateMicrophone;
-window.reinitiateAudio = reinitiateAudio;
+window.reinitiateAudio = switchToAudioMode;
 window.muteAIVoice = muteAIVoice;
+window.switchToAudioMode = switchToAudioMode;
 
 // ===================================================
 // 🚀 MODULE INITIALIZATION (Auto-start, no splash!)
