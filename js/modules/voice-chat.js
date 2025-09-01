@@ -747,9 +747,9 @@ async function activateMicrophone() {
         return;
     }
     
-    // Hide splash screen if it exists
-    const splashScreen = document.getElementById('splashScreen');
-    if (splashScreen) splashScreen.style.display = 'none';
+    // // Hide splash screen if it exists
+// const splashScreen = document.getElementById('splashScreen');
+// if (splashScreen) splashScreen.style.display = 'none';
     
     // Show chat interface
     const chatInterface = document.getElementById('chatInterface');
