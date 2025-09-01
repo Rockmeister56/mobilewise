@@ -229,19 +229,11 @@
 </head>
 <body>
     <div class="chat-container" id="chatContainer">
-        <!-- Splash Screen with Microphone Button -->
-        <div class="chat-container" id="chatContainer">
-    <!-- AUTO-SHOWING SPLASH SCREEN -->
-    <div class="splash-screen" id="splashScreen">
-        <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1756423889096_for%20microphone%20access.PNG" alt="Mobile-Wise AI Formviser" style="max-width: 80%; max-height: 80%;">
-        <p style="color: white; margin-top: 20px; font-size: 18px;">Loading Mobile-Wise AI Formviser...</p>
-    </div>
-
-    <!-- CHAT INTERFACE - HIDDEN INITIALLY -->
-    <div class="chat-interface" id="chatInterface" style="display: none;">
-        <!-- your existing chat interface code -->
-    </div>
-</div>
+        <!-- Splash Screen -->
+        <div class="splash-screen" id="splashScreen">
+            <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1756423889096_for%20microphone%20access.PNG" alt="Mobile-Wise AI Formviser" style="max-width: 80%; max-height: 80%;">
+            <p style="color: white; margin-top: 20px; font-size: 18px;">Loading Mobile-Wise AI Formviser...</p>
+        </div>
 
         <!-- Main Chat Interface -->
         <div class="chat-interface" id="chatInterface" style="display: none;">
@@ -281,22 +273,12 @@
     </div>
 
     <script>
-      // Basic iframe-ready JavaScript - AUTO VERSION
-setTimeout(function() {
-    // Hide splash screen automatically
-    document.getElementById('splashScreen').style.display = 'none';
-    document.getElementById('chatInterface').style.display = 'flex';
-    document.getElementById('voiceVisualizerContainer').style.display = 'flex';
-    console.log('✅ Iframe ready - Mobile-Wise AI loaded!');
-}, 3000);
+        // Auto-remove splash after 3 seconds, show chat
+        setTimeout(function() {
+            document.getElementById('splashScreen').style.display = 'none';
+            document.getElementById('chatInterface').style.display = 'flex';
+            console.log('✅ Mobile-Wise AI loaded - Chat interface ready!');
+        }, 3000);
     </script>
-    <script>
-// AUTO-REMOVE SPLASH AFTER 4 SECONDS
-setTimeout(function() {
-    document.getElementById('splashScreen').style.display = 'none';
-    document.getElementById('chatInterface').style.display = 'flex';
-}, 4000); // Shows for 4 seconds, then disappears
-</script>
-
 </body>
 </html>
