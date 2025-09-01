@@ -214,6 +214,29 @@
                 }
             }
         });
+    </script>
+    <script>
+// Add this AFTER the existing script
+window.addEventListener('load', function() {
+    console.log('🔍 MAIN CONTAINER: Checking iframe load...');
+    
+    const iframe = document.getElementById('moduleFrame');
+    console.log('🔍 IFRAME ELEMENT:', iframe ? 'FOUND' : 'NOT FOUND');
+    
+    if (iframe) {
+        iframe.onload = function() {
+            console.log('✅ IFRAME LOADED SUCCESSFULLY!');
+        };
+        
+        iframe.onerror = function() {
+            console.log('❌ IFRAME FAILED TO LOAD!');
+        };
+        
+        console.log('🔍 IFRAME SRC:', iframe.src);
+    }
+});
+
+// Existing hamburger code stays the same...
 </script>
 </body>
 </html>
