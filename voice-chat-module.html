@@ -412,12 +412,13 @@ box-shadow: 0 15px 40px rgba(33, 150, 243, 0.4);
             background: #388e3c;
             transform: translateY(-2px);
         }
+        
    .splash-screen {
     position: absolute;
-    top: 20;
+    top: 30px; /* MOVED DOWN 30px from top */
     left: 0;
     width: 100%;
-    height: 100%;
+    height: calc(100% - 30px); /* ADJUSTED HEIGHT to compensate */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -425,16 +426,40 @@ box-shadow: 0 15px 40px rgba(33, 150, 243, 0.4);
     background: rgba(10, 10, 20, 0.98);
     border-radius: 15px;
     z-index: 10;
-    padding: 0; /* REMOVED: padding to fill completely */
+    padding: 20px; /* ADDED BACK: padding for button spacing */
     box-sizing: border-box;
 }
 
 .splash-screen img {
-    width: 100%; /* FILL FULL WIDTH */
+    width: 90%; /* SLIGHTLY SMALLER to leave room for button */
     height: auto;
-    max-width: 100%;
-    object-fit: contain; /* MAINTAIN ASPECT RATIO */
-    border-radius: 15px; /* MATCH CONTAINER BORDER */
+    max-width: 90%;
+    object-fit: contain;
+    border-radius: 15px;
+    margin-bottom: 20px; /* SPACE between image and button */
+}
+
+.activate-mic-btn {
+    background: linear-gradient(135deg, #00D4FF, #0099CC);
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 25px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 10px 30px rgba(33, 150, 243, 0.2);
+    position: relative; /* ENSURE PROPER POSITIONING */
+    z-index: 11; /* ABOVE THE IMAGE */
+    margin-top: -50px; /* PULL BUTTON UP closer to microphone */
+}
+
+.activate-mic-btn:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 15px 40px rgba(33, 150, 243, 0.4);
 }
    
    </style>
