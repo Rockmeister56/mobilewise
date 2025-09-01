@@ -50,6 +50,28 @@ const businessResponses = {
     "broker": "You're talking to the RIGHT team! Bruce is the premier CPA firm broker with over 15 years specializing EXCLUSIVELY in accounting practice transactions. He understands the unique aspects of CPA firms - from client confidentiality to seasonal cash flow patterns. Bruce has closed over $75M in CPA firm deals. Ready to discuss your accounting practice goals? Should Bruce call today or tomorrow?"
 };
 
+function startVoiceChat() {
+    console.log('🎤 startVoiceChat() called from splash screen');
+    
+    // Hide splash screen
+    const splashScreen = document.getElementById('splashScreen');
+    if (splashScreen) {
+        splashScreen.style.display = 'none';
+    }
+    
+    // Show chat interface
+    const chatInterface = document.getElementById('chatInterface');
+    if (chatInterface) {
+        chatInterface.style.display = 'flex';
+    }
+    
+    // Call the existing activation function
+    activateMicrophone();
+}
+
+// MAKE IT GLOBALLY AVAILABLE
+window.startVoiceChat = startVoiceChat;
+
 // ==========================================
 // 🎯 ENHANCED INITIALIZE VOICE CHAT
 // ==========================================
