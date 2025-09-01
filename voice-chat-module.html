@@ -443,7 +443,7 @@ box-shadow: 0 15px 40px rgba(33, 150, 243, 0.4);
             <div class="chat-messages" id="chatMessages"></div>
 
          <!-- Speed Controls & Audio Off Button -->
-<div class="voice-controls-container">
+<div class="voice-controls-container" id="speedControlsContainer" style="display: none;">
     <div class="speed-controls">
         <button class="speed-btn" onclick="adjustVoiceSpeed('slower')">Slower</button>
         <span class="speed-display" id="speedDisplay">Normal</span>
@@ -454,12 +454,12 @@ box-shadow: 0 15px 40px rgba(33, 150, 243, 0.4);
 <!-- Audio Mode Controls -->
 <div class="audio-controls" id="audioControls" style="display: flex;">
     
-    <!-- NEW: Activate Microphone Button (shows initially) -->
+    <!-- Activate Microphone Button (shows initially) -->
     <button class="activate-mic-btn" id="activateMicButton" onclick="activateMicrophone()">
         🎤 Activate Microphone
     </button>
     
-    <!-- EXISTING: Audio Off Button (rename to Stop, hide initially) -->
+    <!-- Stop Button (hidden initially) -->
     <button class="audio-off-btn" id="audioOffBtn" onclick="stopCurrentAudio()" style="display: none;">
         🛑 Stop
     </button>
@@ -484,12 +484,14 @@ box-shadow: 0 15px 40px rgba(33, 150, 243, 0.4);
     <script src="js/modules/voice-chat.js"></script>
     
     <script>
-// Auto-activate chat when page loads
+// Initialize interface when page loads - WAIT for user interaction
 document.addEventListener('DOMContentLoaded', function() {
-    // Small delay to ensure everything is loaded
     setTimeout(function() {
-    }, 500); // Half second delay for smooth initialization
+        // ONLY show interface and prepare - don't activate microphone
+        console.log('🚀 Page loaded - interface ready for user interaction');
+    }, 500);
 });
+</script>
 </script>
 </body>
 </html>

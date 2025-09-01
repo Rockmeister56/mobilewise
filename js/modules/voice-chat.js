@@ -50,31 +50,70 @@ const businessResponses = {
     "broker": "You're talking to the RIGHT team! Bruce is the premier CPA firm broker with over 15 years specializing EXCLUSIVELY in accounting practice transactions. He understands the unique aspects of CPA firms - from client confidentiality to seasonal cash flow patterns. Bruce has closed over $75M in CPA firm deals. Ready to discuss your accounting practice goals? Should Bruce call today or tomorrow?"
 };
 
-// INITIAL LOAD - Show interface button, hide stop
 function initializeVoiceChat() {
     console.log('🚀 Initializing Voice Chat Module...');
     
-    // SHOW INTERFACE IMMEDIATELY - NO WAITING!
-    showChatInterface(); // Make sure this exists and works
-    showActivateMicButton(); // Show activate button
-    hideStopButton(); // Hide stop until mic active
-    
-    // Initialize other components (no mic request yet)
     setTimeout(() => {
         initializeSpeechRecognition(); // Setup only, don't start
         initializeWaveform();
         preloadVoices();
-        console.log('✅ Voice Chat Module Ready!');
+        
+        // SHOW INTERFACE - NO AUTOMATIC ACTIVATION
+        const chatInterface = document.getElementById('chatInterface');
+        if (chatInterface) chatInterface.style.display = 'flex';
+        
+        // SHOW ACTIVATE BUTTON ONLY
+        const activateBtn = document.getElementById('activateMicButton');
+        if (activateBtn) {
+            activateBtn.style.display = 'block';
+            activateBtn.disabled = false;
+            activateBtn.textContent = '🎤 Activate Microphone';
+        }
+        
+        const audioControls = document.getElementById('audioControls');
+        if (audioControls) audioControls.style.display = 'flex';
+        
+        // HIDE EVERYTHING ELSE
+        const speedContainer = document.getElementById('speedControlsContainer');
+        if (speedContainer) speedContainer.style.display = 'none';
+        
+        const stopBtn = document.getElementById('audioOffBtn');
+        if (stopBtn) stopBtn.style.display = 'none';
+        
+        // WELCOME MESSAGE ONLY
+        addAIMessage("Welcome! Click 'Activate Microphone' below to enable voice chat.");
+        
+        console.log('✅ Voice Chat Module Ready - WAITING for user click');
+        
+        // ❌ REMOVE ANY OF THESE IF THEY EXIST:
+        // startUnifiedVoiceVisualization();
+        // swapToStopButton();
+        // navigator.mediaDevices.getUserMedia();
+        // recognition.start();
+        
     }, 100);
 }
 
-// MAKE SURE THIS FUNCTION EXISTS:
-function showChatInterface() {
-    const chatInterface = document.getElementById('chatInterface');
-    if (chatInterface) {
-        chatInterface.style.display = 'flex';
-        console.log('✅ Chat interface shown immediately');
-    }
+function showActivateMicButton() {
+    const activateBtn = document.getElementById('activateMicButton');
+    const audioControls = document.getElementById('audioControls');
+    
+    if (activateBtn) activateBtn.style.display = 'block';
+    if (audioControls) audioControls.style.display = 'flex';
+    
+    console.log('✅ Activate Microphone button shown');
+}
+
+function hideSpeedControls() {
+    const speedContainer = document.getElementById('speedControlsContainer');
+    if (speedContainer) speedContainer.style.display = 'none';
+    console.log('✅ Speed controls hidden');
+}
+
+function hideStopButton() {
+    const stopBtn = document.getElementById('audioOffBtn');
+    if (stopBtn) stopBtn.style.display = 'none';
+    console.log('✅ Stop button hidden');
 }
 
 // ===================================================
@@ -682,8 +721,8 @@ async function activateMicrophone() {
         console.log('🎤 Microphone access granted!');
         micPermissionGranted = true;
         
-        // STEP 2: SWAP BUTTONS - Hide activate, show stop
-        swapToStopButton();
+        // STEP 2: SWAP BUTTONS AND SHOW SPEED CONTROLS
+        swapToActiveMode(); // Updated function name
         
     } catch (error) {
         console.log('❌ Microphone access denied:', error);
@@ -733,25 +772,52 @@ async function activateMicrophone() {
     }, 1000);
 }
 
-// NEW FUNCTION: Button swap logic
-function swapToStopButton() {
+// UPDATED FUNCTION: Complete mode swap with speed controls
+function swapToActiveMode() {
+    // Hide activate button
     const activateBtn = document.getElementById('activateMicButton');
-    const stopBtn = document.getElementById('audioOffBtn'); // Using your existing button ID
-    
     if (activateBtn) activateBtn.style.display = 'none';
+    
+    // Show stop button
+    const stopBtn = document.getElementById('audioOffBtn');
     if (stopBtn) {
         stopBtn.style.display = 'block';
-        stopBtn.textContent = '🛑 Stop'; // Update text to be clear
+        stopBtn.textContent = '🛑 Stop';
     }
     
-    console.log('🔄 Buttons swapped: Activate → Stop');
+    // SHOW SPEED CONTROLS (This was missing!)
+    const speedContainer = document.getElementById('speedControlsContainer');
+    if (speedContainer) {
+        speedContainer.style.display = 'flex';
+        console.log('✅ Speed controls now visible');
+    }
+    
+    console.log('🔄 Complete swap: Activate → Stop + Speed Controls');
+}
+
+// INITIAL SETUP FUNCTIONS (add these if missing)
+function hideSpeedControls() {
+    const speedContainer = document.getElementById('speedControlsContainer');
+    if (speedContainer) {
+        speedContainer.style.display = 'none';
+        console.log('✅ Speed controls hidden initially');
+    }
+}
+
+function showActivateMicButton() {
+    const activateBtn = document.getElementById('activateMicButton');
+    const audioControls = document.getElementById('audioControls');
+    
+    if (activateBtn) activateBtn.style.display = 'block';
+    if (audioControls) audioControls.style.display = 'flex';
+    
+    console.log('✅ Activate Microphone button shown');
 }
 
 function reinitiateAudio() {
     console.log('🔄 User requested audio reinitiation');
     activateMicrophone();
 }
-
 // ===================================================
 // 🌐 GLOBAL FUNCTIONS (All preserved)
 // ===================================================
@@ -779,8 +845,8 @@ function initializeVoiceChat() {
         initializeWaveform();
         preloadVoices();
         
-        // Auto-activate since no splash screen
-        activateMicrophone();
+     // ✅ WAIT for user to click "Activate Microphone" button
+console.log('✅ Voice Chat Module Ready - WAITING for user interaction');
         
         console.log('✅ Voice Chat Module Ready!');
     }, 100);
