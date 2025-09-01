@@ -52,7 +52,14 @@
 
        /* FIXED: Black base positioning - REDUCED by 56px */
 .module-base {
-    display: none;  /* ← Just hide it temporarily to test */
+    position: absolute;
+    width: calc(100% - 76px);
+    height: 550px;
+    background: #000000;
+    border-radius: 0 15px 15px 0;
+    z-index: -1;  /* ← CHANGED: Push it behind everything */
+    top: 0;
+    left: 0;
 }
         /* FIXED: Module iframe positioning - MOVED LEFT */
         .module-iframe {
@@ -208,5 +215,45 @@
             }
         });
     </script>
+    <script>
+console.log('🔍 MAIN CONTAINER: Starting iframe diagnostics...');
+
+window.addEventListener('load', function() {
+    console.log('🔍 MAIN CONTAINER: Page loaded');
+    
+    const iframe = document.getElementById('moduleFrame');
+    console.log('🔍 IFRAME ELEMENT:', iframe ? 'FOUND' : 'NOT FOUND');
+    
+    if (iframe) {
+        iframe.onload = function() {
+            console.log('🔍 IFRAME LOADED - Now checking iframe content...');
+            
+            try {
+                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                console.log('🔍 IFRAME DOCUMENT:', iframeDoc ? 'ACCESSIBLE' : 'BLOCKED');
+                
+                if (iframeDoc) {
+                    const splashInIframe = iframeDoc.getElementById('splashScreen');
+                    console.log('🔍 SPLASH IN IFRAME:', splashInIframe ? 'FOUND' : 'NOT FOUND');
+                    
+                    if (splashInIframe) {
+                        console.log('🔍 SPLASH DISPLAY:', window.getComputedStyle(splashInIframe).display);
+                        console.log('🔍 SPLASH VISIBILITY:', window.getComputedStyle(splashInIframe).visibility);
+                        console.log('🔍 SPLASH Z-INDEX:', window.getComputedStyle(splashInIframe).zIndex);
+                        
+                        // FORCE SPLASH TO SHOW WITH NEON GREEN
+                        splashInIframe.style.cssText = 'position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; background: lime !important; z-index: 999999 !important; display: flex !important;';
+                        console.log('🔍 FORCED SPLASH TO SHOW WITH LIME GREEN');
+                    }
+                }
+            } catch (error) {
+                console.log('🔍 IFRAME ACCESS BLOCKED:', error.message);
+            }
+        };
+    }
+});
+
+</script>
+
 </body>
 </html>
