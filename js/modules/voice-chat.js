@@ -752,8 +752,8 @@ async function activateMicrophone() {
     if (splashScreen) splashScreen.style.display = 'none';
     
     // Show chat interface
-    const chatInterface = document.getElementById('chatInterface');
-    if (chatInterface) chatInterface.style.display = 'flex';
+    // const chatInterface = document.getElementById('chatInterface');
+// if (chatInterface) chatInterface.style.display = 'flex';
     
     await startUnifiedVoiceVisualization();
     
