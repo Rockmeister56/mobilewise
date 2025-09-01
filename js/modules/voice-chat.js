@@ -53,7 +53,6 @@ const businessResponses = {
 // ==========================================
 // 🚀 MOBILE-WISE AI SPLASH SCREEN SYSTEM
 // ==========================================
-// Define splash screen functions - CORRECTED VERSION
 function createSplashScreen() {
     const existingSplash = document.getElementById('splashScreen');
     if (existingSplash) existingSplash.remove();
