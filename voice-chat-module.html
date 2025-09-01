@@ -415,10 +415,10 @@ box-shadow: 0 15px 40px rgba(33, 150, 243, 0.4);
 
    .splash-screen {
     position: absolute;
-    top: 80px; /* MOVED DOWN 30px from top */
+    top: 0; /* RESET TO TOP */
     left: 0;
     width: 100%;
-    height: calc(100% - 30px); /* ADJUSTED HEIGHT to compensate */
+    height: 100%; /* FULL HEIGHT */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -426,17 +426,18 @@ box-shadow: 0 15px 40px rgba(33, 150, 243, 0.4);
     background: rgba(10, 10, 20, 0.98);
     border-radius: 15px;
     z-index: 10;
-    padding: 20px; /* ADDED BACK: padding for button spacing */
+    padding: 0; /* NO PADDING - FULL COVERAGE */
     box-sizing: border-box;
+    /* ADD VERTICAL OFFSET WITHOUT CHANGING SIZE */
+    padding-top: 80px; /* MOVES CONTENT DOWN without shrinking container */
 }
 
 .splash-screen img {
-    width: 90%; /* SLIGHTLY SMALLER to leave room for button */
-    height: auto;
-    max-width: 90%;
-    object-fit: contain;
+    width: 100%; /* FULL WIDTH TO FILL BORDERS */
+    height: 70%; /* LARGER IMAGE */
+    max-width: 100%;
+    object-fit: cover; /* FILL THE SPACE COMPLETELY */
     border-radius: 15px;
-    margin-bottom: 20px; /* SPACE between image and button */
 }
 
 .activate-mic-btn {
@@ -452,10 +453,13 @@ box-shadow: 0 15px 40px rgba(33, 150, 243, 0.4);
     text-transform: uppercase;
     letter-spacing: 1px;
     box-shadow: 0 10px 30px rgba(33, 150, 243, 0.2);
-    position: relative; /* ENSURE PROPER POSITIONING */
-    z-index: 11; /* ABOVE THE IMAGE */
-    margin-top: -50px; /* PULL BUTTON UP closer to microphone */
+    position: absolute; /* ABSOLUTE POSITIONING */
+    bottom: 60px; /* FIXED DISTANCE FROM BOTTOM */
+    left: 50%;
+    transform: translateX(-50%); /* CENTER HORIZONTALLY */
+    z-index: 12; /* ABOVE EVERYTHING */
 }
+
 
 .activate-mic-btn:hover {
     transform: translateY(-2px) scale(1.02);
@@ -510,11 +514,6 @@ box-shadow: 0 15px 40px rgba(33, 150, 243, 0.4);
 
 <!-- Audio Mode Controls -->
 <div class="audio-controls" id="audioControls" style="display: flex;">
-    
-    <!-- Activate Microphone Button (shows initially) -->
-    <button class="activate-mic-btn" id="activateMicButton" onclick="activateMicrophone()">
-        🎤 Activate Microphone
-    </button>
     
     <!-- Stop Button (hidden initially) -->
     <button class="audio-off-btn" id="audioOffBtn" onclick="stopCurrentAudio()" style="display: none;">
