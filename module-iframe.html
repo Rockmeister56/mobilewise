@@ -281,12 +281,14 @@
     </div>
 
     <script>
-        // Basic iframe-ready JavaScript
-        document.getElementById('activateMicBtn').addEventListener('click', function() {
-            document.getElementById('splashScreen').style.display = 'none';
-            document.getElementById('chatInterface').style.display = 'flex';
-            document.getElementById('voiceVisualizerContainer').style.display = 'flex';
-        });
+      // Basic iframe-ready JavaScript - AUTO VERSION
+setTimeout(function() {
+    // Hide splash screen automatically
+    document.getElementById('splashScreen').style.display = 'none';
+    document.getElementById('chatInterface').style.display = 'flex';
+    document.getElementById('voiceVisualizerContainer').style.display = 'flex';
+    console.log('✅ Iframe ready - Mobile-Wise AI loaded!');
+}, 3000);
     </script>
     <script>
 // AUTO-REMOVE SPLASH AFTER 4 SECONDS
