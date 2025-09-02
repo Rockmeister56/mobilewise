@@ -430,9 +430,6 @@ function stopUnifiedVoiceVisualization() {
 }
 
 // ===================================================
-// 💬 MESSAGE HANDLING (Fixed to match your HTML)
-// ===================================================
-// ===================================================
 // 💬 ENHANCED MESSAGE HANDLING (Echo Prevention)
 // ===================================================
 
@@ -675,6 +672,184 @@ const speedLevels = [0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3];
 const speedNames = ['Very Slow', 'Slow', 'Relaxed', 'Normal', 'Fast', 'Faster', 'Very Fast'];
 let currentSpeedIndex = 3; // Start at "Normal" (1.0)
 
+// ===================================================
+// 🎤 UNIVERSAL VOICE SYSTEM - BROWSER OPTIMIZED
+// ===================================================
+
+// 🚀 BROWSER-SPECIFIC VOICE MAPPING
+const universalVoiceMap = {
+    // Edge/Windows voices (high quality)
+    edge: [
+        'Microsoft Aria Online (Natural) - English (United States)',
+        'Microsoft Jenny Online (Natural) - English (United States)', 
+        'Microsoft Guy Online (Natural) - English (United States)',
+        'Microsoft Libby Online (Natural) - English (United Kingdom)', // British
+        'Microsoft Ryan Online (Natural) - English (United Kingdom)'   // British Male
+    ],
+    
+    // Chrome voices (reliable fallbacks)
+    chrome: [
+        'Google US English',
+        'Google UK English Female', // British option
+        'Google UK English Male',   // British male
+        'Microsoft Zira - English (United States)',
+        'Microsoft David - English (United States)'
+    ],
+    
+    // Firefox/Safari fallbacks
+    firefox: [
+        'Alex',
+        'Samantha', 
+        'Microsoft Zira',
+        'Google US English'
+    ]
+};
+
+// 🎯 BROWSER DETECTION
+function getBrowserType() {
+    const userAgent = navigator.userAgent.toLowerCase();
+    if (userAgent.includes('edg')) return 'edge';
+    if (userAgent.includes('chrome')) return 'chrome';
+    if (userAgent.includes('firefox')) return 'firefox';
+    return 'chrome'; // Default fallback
+}
+
+// 🚀 OPTIMIZED VOICE LOADING (No more 350 voices!)
+function getOptimizedVoices() {
+    return new Promise((resolve) => {
+        const browserType = getBrowserType();
+        const targetVoices = universalVoiceMap[browserType];
+        
+        console.log(`🔍 Loading voices for ${browserType.toUpperCase()}`);
+        
+        let voices = window.speechSynthesis.getVoices();
+        
+        if (voices.length > 0) {
+            const filteredVoices = filterBestVoices(voices, targetVoices);
+            resolve(filteredVoices);
+            return;
+        }
+        
+        // Wait for voices to load (but with timeout)
+        const voicesChangedHandler = () => {
+            voices = window.speechSynthesis.getVoices();
+            if (voices.length > 0) {
+                window.speechSynthesis.removeEventListener('voiceschanged', voicesChangedHandler);
+                const filteredVoices = filterBestVoices(voices, targetVoices);
+                resolve(filteredVoices);
+            }
+        };
+        
+        window.speechSynthesis.addEventListener('voiceschanged', voicesChangedHandler);
+        
+        // Timeout after 3 seconds
+        setTimeout(() => {
+            voices = window.speechSynthesis.getVoices();
+            const filteredVoices = filterBestVoices(voices, targetVoices);
+            resolve(filteredVoices);
+        }, 3000);
+    });
+}
+
+// 🎯 SMART VOICE FILTERING (Only load the best!)
+function filterBestVoices(allVoices, targetVoices) {
+    const bestVoices = [];
+    
+    // Find exact matches first
+    targetVoices.forEach(targetName => {
+        const exactMatch = allVoices.find(voice => voice.name === targetName);
+        if (exactMatch) {
+            bestVoices.push(exactMatch);
+        }
+    });
+    
+    // Add partial matches if needed
+    if (bestVoices.length < 3) {
+        targetVoices.forEach(targetName => {
+            const partialMatch = allVoices.find(voice => 
+                voice.name.toLowerCase().includes(targetName.toLowerCase().split(' ')[0])
+            );
+            if (partialMatch && !bestVoices.includes(partialMatch)) {
+                bestVoices.push(partialMatch);
+            }
+        });
+    }
+    
+    console.log(`✅ Filtered to ${bestVoices.length} voices (from ${allVoices.length})`);
+    return bestVoices.slice(0, 5); // Max 5 voices
+}
+
+// 🚀 UNIVERSAL VOICE SELECTOR
+function findUniversalBestVoice(voices) {
+    const browserType = getBrowserType();
+    const preferredVoices = universalVoiceMap[browserType];
+    
+    console.log(`🎤 Selecting voice for ${browserType.toUpperCase()}`);
+    
+    // Try exact matches first
+    for (const preferredName of preferredVoices) {
+        const exactMatch = voices.find(v => v.name === preferredName);
+        if (exactMatch) {
+            console.log(`🎯 EXACT MATCH: ${exactMatch.name}`);
+            return exactMatch;
+        }
+    }
+    
+    // Fallback to partial matches
+    for (const preferredName of preferredVoices) {
+        const partialMatch = voices.find(v => 
+            v.name.toLowerCase().includes(preferredName.toLowerCase().split(' ')[0])
+        );
+        if (partialMatch) {
+            console.log(`⚡ PARTIAL MATCH: ${partialMatch.name}`);
+            return partialMatch;
+        }
+    }
+    
+    // Final fallback
+    console.log(`⚠️ Using fallback voice: ${voices[0]?.name || 'default'}`);
+    return voices[0];
+}
+
+// 🎯 VOICE TESTING SYSTEM
+function testVoice(voice, testMessage = "Hello, this is a voice test") {
+    return new Promise((resolve) => {
+        const utterance = new SpeechSynthesisUtterance(testMessage);
+        utterance.voice = voice;
+        utterance.rate = 1.0;
+        utterance.pitch = 1.0;
+        utterance.volume = 0.8;
+        
+        utterance.onend = () => resolve(true);
+        utterance.onerror = () => resolve(false);
+        
+        window.speechSynthesis.speak(utterance);
+    });
+}
+
+// 🚀 INTERACTIVE VOICE TESTER (Call this to test voices)
+async function runVoiceTester() {
+    console.log('🎤 STARTING VOICE TESTER...');
+    
+    const voices = await getOptimizedVoices();
+    console.log(`🔍 Testing ${voices.length} voices:`);
+    
+    for (let i = 0; i < voices.length; i++) {
+        const voice = voices[i];
+        console.log(`${i + 1}. 🎤 ${voice.name} (${voice.lang})`);
+        
+        // Test each voice
+        const testMessage = `Voice ${i + 1}: ${voice.name}`;
+        await testVoice(voice, testMessage);
+        
+        // Wait between tests
+        await new Promise(resolve => setTimeout(resolve, 2000));
+    }
+    
+    console.log('✅ Voice testing complete!');
+}
+
+// 🎯 REPLACE YOUR EXISTING VOICE FUNCTIONS WITH THESE:
 async function speakResponse(message) {
     console.log('🗣️ Speaking response...');
     updateHeaderBanner('🤖 AI responding...');
@@ -684,34 +859,8 @@ async function speakResponse(message) {
         return;
     }
 
-    const voices = await getVoices();
+    const voices = await getOptimizedVoices(); // Use optimized version
     speakWithVoice(message, voices);
-}
-
-function getVoices() {
-    return new Promise((resolve) => {
-        let voices = window.speechSynthesis.getVoices();
-        
-        if (voices.length > 0) {
-            resolve(voices);
-            return;
-        }
-        
-        const voicesChangedHandler = () => {
-            voices = window.speechSynthesis.getVoices();
-            if (voices.length > 0) {
-                window.speechSynthesis.removeEventListener('voiceschanged', voicesChangedHandler);
-                resolve(voices);
-            }
-        };
-        
-        window.speechSynthesis.addEventListener('voiceschanged', voicesChangedHandler);
-        
-        setTimeout(() => {
-            voices = window.speechSynthesis.getVoices();
-            resolve(voices);
-        }, 1000);
-    });
 }
 
 function speakWithVoice(message, voices) {
@@ -719,26 +868,25 @@ function speakWithVoice(message, voices) {
     
     const utterance = new SpeechSynthesisUtterance(message);
     
-    let bestVoice = findBestVoice(voices);
+    let bestVoice = findUniversalBestVoice(voices); // Use universal selector
     if (bestVoice) {
         utterance.voice = bestVoice;
         console.log('🎤 Selected voice:', bestVoice.name);
     }
     
-    // 🎯 SPEED CONTROL - Uses global voiceSpeed variable
     utterance.rate = voiceSpeed;
     utterance.pitch = 1.0;
     utterance.volume = 0.8;
     
     utterance.onstart = () => {
         isSpeaking = true;
-        console.log('🗣️ Speech started - blocking mic restarts');
+        console.log('🗣️ Speech started');
     };
     
     utterance.onend = () => {
         isSpeaking = false;
         currentAudio = null;
-        console.log('✅ Speech finished - mic restarts allowed');
+        console.log('✅ Speech finished');
         updateHeaderBanner('🎤 AI is listening...');
     };
     
@@ -746,44 +894,17 @@ function speakWithVoice(message, voices) {
     window.speechSynthesis.speak(utterance);
 }
 
-function findBestVoice(voices) {
-    // 🇬🇧 BRITISH VOICE PRIORITY SYSTEM!
-    const preferredVoices = [
-        'Microsoft Libby Online (Natural) - English (United Kingdom)',  // 🇬🇧 BRITISH FIRST!
-        'Microsoft Aria Online (Natural) - English (United States)',    // US backup
-        'Microsoft Zira - English (United States)',                     // Additional backup
-        'Google UK English Female',                                      // Google UK option
-        'Google UK English Male'                                         // Google UK male
-    ];
-    
-    console.log('🔍 Searching for British voice...');
-    
-    // Find the exact voice we want - BRITISH PRIORITY!
-    for (const preferredName of preferredVoices) {
-        const voice = voices.find(v => v.name === preferredName);
-        if (voice) {
-            console.log('🇬🇧 BRITISH VOICE SELECTED:', voice.name);
-            return voice;
-        }
-    }
-    
-    // Fallback to any UK/British voice
-    const ukVoice = voices.find(v => 
-        v.lang.includes('GB') || 
-        v.name.toLowerCase().includes('uk') ||
-        v.name.toLowerCase().includes('british') ||
-        v.name.toLowerCase().includes('libby')
-    );
-    
-    if (ukVoice) {
-        console.log('🇬🇧 UK FALLBACK VOICE:', ukVoice.name);
-        return ukVoice;
-    }
-    
-    // Final fallback
-    console.log('⚠️ No British voice found, using fallback');
-    return voices[0];
+function preloadVoices() {
+    getOptimizedVoices().then(voices => {
+        console.log('🎤 Optimized voices loaded:', voices.length);
+        voices.forEach((voice, i) => {
+            console.log(`${i + 1}. ${voice.name}`);
+        });
+    });
 }
+
+// 🎯 ADD THIS TO TEST VOICES MANUALLY
+window.testAllVoices = runVoiceTester;
 
 // ===================================================
 // ⚡ VOICE SPEED CONTROL SYSTEM
