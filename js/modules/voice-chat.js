@@ -634,37 +634,6 @@ function getVoices() {
     });
 }
 
-function speakWithVoice(message, voices) {
-    window.speechSynthesis.cancel();
-    
-    const utterance = new SpeechSynthesisUtterance(message);
-    
-    let bestVoice = findBestVoice(voices);
-    if (bestVoice) {
-        utterance.voice = bestVoice;
-        console.log('🎤 Selected voice:', bestVoice.name);
-    }
-    
-    utterance.rate = voiceSpeed; // Preserved speed control
-    utterance.pitch = 1.0;
-    utterance.volume = 0.8;
-    
-    utterance.onstart = () => {
-        isSpeaking = true;
-        console.log('🗣️ Speech started - blocking mic restarts');
-    };
-    
-    utterance.onend = () => {
-        isSpeaking = false;
-        currentAudio = null;
-        console.log('✅ Speech finished - mic restarts allowed');
-        updateHeaderBanner('🎤 AI is listening...');
-    };
-    
-    currentAudio = utterance;
-    window.speechSynthesis.speak(utterance);
-}
-
 function findBestVoice(voices) {
     // 🇬🇧 BRITISH VOICE PRIORITY SYSTEM!
     const preferredVoices = [
