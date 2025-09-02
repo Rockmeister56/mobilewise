@@ -991,9 +991,23 @@ function muteAIVoice() {
 }
 
 function preloadVoices() {
-    getVoices().then(voices => {
-        console.log('🎤 Voices preloaded:', voices.length);
-        debugBritishVoices(); // Show available British voices
+    getOptimizedVoices().then(voices => {
+        console.log('🎤 Optimized voices loaded:', voices.length);
+        console.log('🇬🇧 AVAILABLE BRITISH VOICES:');
+        
+        const britishVoices = voices.filter(v => 
+            v.name.includes('UK') || 
+            v.name.includes('British') || 
+            v.name.includes('Libby')
+        );
+        
+        britishVoices.forEach((voice, i) => {
+            console.log(`👑 ${voice.name} (${voice.lang})`);
+        });
+        
+        if (britishVoices.length === 0) {
+            console.log('⚠️ No British voices found - using US voices');
+        }
     });
 }
 
