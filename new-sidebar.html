@@ -108,33 +108,28 @@
             display: none;
         }
 
-/* AVATAR AUDIO ENABLE BUTTON */
-.enable-audio-btn {
-    width: 100%;
-    padding: 8px 12px;
-    background: linear-gradient(135deg, #4CAF50, #45a049);
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-size: 11px;
-    font-weight: 600;
-    cursor: pointer;
-    margin-top: 10px;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+/* GLOWING BORDER AVATAR */
+.avatar-glow-border {
+    border: 3px solid rgba(33, 150, 243, 0.5);
+    border-radius: 50%;
+    padding: 5px;
+    animation: borderGlow 2.5s ease-in-out infinite;
 }
 
-.enable-audio-btn:hover {
-    background: linear-gradient(135deg, #45a049, #3d8b40);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+@keyframes borderGlow {
+    0% { 
+        border-color: rgba(33, 150, 243, 0.3);
+        box-shadow: 0 0 5px rgba(33, 150, 243, 0.3);
+    }
+    50% { 
+        border-color: rgba(33, 150, 243, 0.9);
+        box-shadow: 0 0 20px rgba(33, 150, 243, 0.6);
+    }
+    100% { 
+        border-color: rgba(33, 150, 243, 0.3);
+        box-shadow: 0 0 5px rgba(33, 150, 243, 0.3);
+    }
 }
-
-.enable-audio-btn.enabled {
-    background: linear-gradient(135deg, #2196F3, #1976D2);
-    pointer-events: none;
-}
-
     </style>
 </head>
 <body>
@@ -152,43 +147,39 @@
             <a href="#redeem-offer" class="nav-button">Redeem Offer</a>
         </div>     
     
+    <div class="avatar-section">
+    <!-- STATIC AVATAR WITH ANIMATION CLASS -->
     <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1756785503188_AI-Voice-Equiped.png" 
-         alt="AI Assistant" 
-         id="staticAvatar">
+         alt="AI Voice Smart Technology" 
+         id="staticAvatar"
+         class="avatar-pulse">  <!-- ADD YOUR CHOSEN ANIMATION CLASS -->
     
-    <!-- AUDIO ENABLE BUTTON -->
-    <button class="enable-audio-btn" id="enableAudioBtn" onclick="enableAvatarAudio()">
-        🔊 Enable Audio
-    </button>
+    <p class="avatar-label">AI Voice Smart Technology</p>
 </div>
-    </div>
-
+    
+    
     <script>
-const video = document.getElementById('avatarVideo');
-const staticImage = document.getElementById('staticAvatar');
-
-video.addEventListener('ended', function() {
-    console.log('Video ended');
+// INTERACTIVE AVATAR EFFECTS
+document.addEventListener('DOMContentLoaded', function() {
+    const avatar = document.getElementById('staticAvatar');
+    
+    // Add extra glow on hover
+    avatar.addEventListener('mouseenter', function() {
+        this.style.filter = 'drop-shadow(0 0 25px rgba(76, 175, 80, 0.9))';
+    });
+    
+    avatar.addEventListener('mouseleave', function() {
+        this.style.filter = '';
+    });
+    
+    // Optional: Click effect
+    avatar.addEventListener('click', function() {
+        this.style.animation = 'none';
+        setTimeout(() => {
+            this.style.animation = '';
+        }, 100);
+    });
 });
-
-// SIMPLE AUDIO ENABLE - JUST UNMUTE THE AVATAR
-function enableAvatarAudio() {
-    const video = document.getElementById('avatarVideo');
-    const button = document.getElementById('enableAudioBtn');
-    
-    // Unmute the avatar video
-    video.muted = false;
-    
-    // Restart video with audio
-    video.currentTime = 0;
-    video.play();
-    
-    // Update button
-    button.textContent = '🔊 Audio Enabled';
-    button.classList.add('enabled');
-    
-    console.log('✅ Avatar audio enabled - Playing with natural voice');
-}
 </script>
 </body>
 </html>
