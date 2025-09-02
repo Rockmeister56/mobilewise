@@ -199,22 +199,24 @@ function initializeSpeechRecognition() {
         };
 
        recognition.onresult = function(event) {
-    const lastResult = event.results[event.results.length - 1];
-    
-    if (lastResult.isFinal) {
-        const transcript = lastResult[0].transcript.trim();
+    if (event.results.length > 0) {
+        // Get the LATEST result
+        const latestResult = event.results[event.results.length - 1];
+        const transcript = latestResult[0].transcript.trim();
         
-        if (transcript && transcript.length > 2) {
-            // 🚀 IMMEDIATE USER MESSAGE FIRST!
-            addUserMessage(transcript);
+        // Process immediately if confidence is high OR if isFinal
+        if (latestResult.isFinal || latestResult[0].confidence > 0.7) {
+            console.log('🎤 FINAL Voice input received:', transcript);
             
-            // 🔥 THEN update header (no delay for user)
-            updateHeaderBanner('🤖 AI responding...');
+            // 🔥 DON'T STOP - JUST IGNORE WHILE AI IS SPEAKING
+            if (isSpeaking) {
+                console.log('🚫 Ignoring input - AI is speaking');
+                return;
+            }
             
-            // Process AI response
-            setTimeout(() => {
-                processUserInput(transcript);
-            }, 300);
+            if (transcript && transcript.length > 0) {
+                handleVoiceInput(transcript);  // ← THIS CALLS THE INSTANT VERSION!
+            }
         }
     }
 };
@@ -471,10 +473,19 @@ function processUserInput(message) {
 // ===================================================
 // 💬 ENHANCED MESSAGE HANDLING (Echo Prevention)
 // ===================================================
-
-
 function handleVoiceInput(transcript) {
-    console.log('🗣️ Processing voice input:', transcript);
+    const now = Date.now();
+    
+    // 🔥 PREVENT DUPLICATES: Ignore if same input within 2 seconds
+    if (transcript === lastProcessedInput && (now - lastProcessedTime) < 2000) {
+        console.log('🚫 Duplicate input ignored:', transcript);
+        return;
+    }
+    
+    lastProcessedInput = transcript;
+    lastProcessedTime = now;
+    
+    console.log('🗣️ Processing unique voice input:', transcript);
     
     // 🚀 IMMEDIATE MESSAGE DISPLAY - No delays!
     addUserMessage(transcript);
