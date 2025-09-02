@@ -477,6 +477,9 @@ function switchToTextMode() {
     // Stop all voice visualization
     stopUnifiedVoiceVisualization();
     
+    // Hide speed controls - THIS WAS MISSING!
+    hideSpeedControls();
+    
     // Show text interface
     showTextMode();
     
@@ -498,6 +501,9 @@ function switchToAudioMode() {
     console.log('🎤 User switched back to audio mode');
     
     isAudioMode = true;
+    
+    // Show speed controls - THIS WAS MISSING!
+    showSpeedControls();
     
     // Show audio interface
     showAudioMode();
@@ -851,6 +857,45 @@ function swapToActiveMode() {
     
     console.log('🔄 Complete swap: Activate → Stop + Speed Controls');
 }
+
+function hideSpeedControls() {
+    const speedContainer = document.getElementById('speedControlsContainer');
+    if (speedContainer) {
+        speedContainer.style.display = 'none';
+        console.log('✅ Speed controls hidden');
+    }
+}
+
+function showSpeedControls() {
+    const speedContainer = document.getElementById('speedControlsContainer');
+    if (speedContainer) {
+        speedContainer.style.display = 'flex';
+        console.log('✅ Speed controls shown');
+    }
+}
+
+function swapToActiveMode() {
+    // Hide activate button
+    const activateBtn = document.getElementById('activateMicButton');
+    if (activateBtn) activateBtn.style.display = 'none';
+    
+    // Show stop button
+    const stopBtn = document.getElementById('audioOffBtn');
+    if (stopBtn) {
+        stopBtn.style.display = 'block';
+        stopBtn.textContent = '🛑 Stop Audio';
+    }
+    
+    // SHOW SPEED CONTROLS
+    const speedContainer = document.getElementById('speedControlsContainer');
+    if (speedContainer) {
+        speedContainer.style.display = 'flex';
+        console.log('✅ Speed controls now visible');
+    }
+    
+    console.log('🔄 Complete swap: Activate → Stop + Speed Controls');
+}
+
 
 // INITIAL SETUP FUNCTIONS (add these if missing)
 function hideSpeedControls() {

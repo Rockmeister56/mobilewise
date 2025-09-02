@@ -513,7 +513,8 @@ box-shadow: 0 15px 40px rgba(33, 150, 243, 0.4);
 <div class="audio-controls" id="audioControls" style="display: flex;">
     
     <!-- Stop Button (hidden initially) -->
-    <button class="audio-off-btn" id="audioOffBtn" onclick="switchToTextMode()" style="display: block; margin-right: auto;">🛑 Stop Audio</button>
+    <button class="audio-off-btn" id="audioOffBtn" onclick="switchToTextMode(); hideSpeedControls();" style="display: block; margin-right: auto;">🛑 Stop Audio</button>
+
     
 </div>
 
@@ -523,7 +524,7 @@ box-shadow: 0 15px 40px rgba(33, 150, 243, 0.4);
                     <input type="text" id="textInput" placeholder="Type your message...">
                     <button class="send-btn" id="sendBtn">Send</button>
                 </div>
-                <button class="reinitiate-audio-btn" id="reinitiateAudioBtn">Reinitiate Audio</button>
+                <button class="reinitiate-audio-btn" id="reinitiateAudioBtn" onclick="switchToAudioMode()">🎤 Reinitiate Audio</button>
             </div>
         </div>
     </div>
