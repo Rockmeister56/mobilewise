@@ -15,12 +15,6 @@ let persistentMicStream = null;
 let isSpeaking = false;
 let micPermissionGranted = false;
 
-// Voice speed control (Preserved from our work)
-let voiceSpeed = 1.0;
-const speedLevels = [0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3];
-const speedNames = ['Very Slow', 'Slow', 'Relaxed', 'Normal', 'Fast', 'Faster', 'Very Fast'];
-let currentSpeedIndex = 3; // Start at "Normal" (1.0)
-
 // ===================================================
 // 🎯 UNIFIED VOICE VISUALIZATION SYSTEM (Preserved)
 // ===================================================
@@ -593,8 +587,15 @@ function getAIResponse(message) {
 }
 
 // ===================================================
-// 🗣️ VOICE SYNTHESIS (All speed control preserved)
+// 🗣️ BRITISH VOICE SYNTHESIS SYSTEM - CLEANED & OPTIMIZED
 // ===================================================
+
+// Voice speed control variables (DO NOT REMOVE!)
+let voiceSpeed = 1.0;
+const speedLevels = [0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3];
+const speedNames = ['Very Slow', 'Slow', 'Relaxed', 'Normal', 'Fast', 'Faster', 'Very Fast'];
+let currentSpeedIndex = 3; // Start at "Normal" (1.0)
+
 async function speakResponse(message) {
     console.log('🗣️ Speaking response...');
     updateHeaderBanner('🤖 AI responding...');
@@ -632,6 +633,38 @@ function getVoices() {
             resolve(voices);
         }, 1000);
     });
+}
+
+function speakWithVoice(message, voices) {
+    window.speechSynthesis.cancel();
+    
+    const utterance = new SpeechSynthesisUtterance(message);
+    
+    let bestVoice = findBestVoice(voices);
+    if (bestVoice) {
+        utterance.voice = bestVoice;
+        console.log('🎤 Selected voice:', bestVoice.name);
+    }
+    
+    // 🎯 SPEED CONTROL - Uses global voiceSpeed variable
+    utterance.rate = voiceSpeed;
+    utterance.pitch = 1.0;
+    utterance.volume = 0.8;
+    
+    utterance.onstart = () => {
+        isSpeaking = true;
+        console.log('🗣️ Speech started - blocking mic restarts');
+    };
+    
+    utterance.onend = () => {
+        isSpeaking = false;
+        currentAudio = null;
+        console.log('✅ Speech finished - mic restarts allowed');
+        updateHeaderBanner('🎤 AI is listening...');
+    };
+    
+    currentAudio = utterance;
+    window.speechSynthesis.speak(utterance);
 }
 
 function findBestVoice(voices) {
@@ -673,27 +706,8 @@ function findBestVoice(voices) {
     return voices[0];
 }
 
-function debugBritishVoices() {
-    const voices = window.speechSynthesis.getVoices();
-    const britishVoices = voices.filter(v => 
-        v.lang.includes('GB') || 
-        v.name.toLowerCase().includes('uk') ||
-        v.name.toLowerCase().includes('british') ||
-        v.name.toLowerCase().includes('libby')
-    );
-    
-    console.log('🇬🇧 AVAILABLE BRITISH VOICES:');
-    britishVoices.forEach((voice, index) => {
-        console.log(`👑 ${voice.name} (${voice.lang})`);
-    });
-    
-    if (britishVoices.length === 0) {
-        console.log('❌ No British voices found - check system voices');
-    }
-}
-
 // ===================================================
-// ⚡ SPEED CONTROL (All preserved from our session)
+// ⚡ VOICE SPEED CONTROL SYSTEM
 // ===================================================
 function adjustVoiceSpeed(direction) {
     if (direction === 'faster' && currentSpeedIndex < speedLevels.length - 1) {
@@ -705,7 +719,8 @@ function adjustVoiceSpeed(direction) {
     voiceSpeed = speedLevels[currentSpeedIndex];
     const speedName = speedNames[currentSpeedIndex];
     
-    const speedDisplay = document.getElementById('speedDisplay'); // MATCHES YOUR HTML!
+    // Update display if element exists
+    const speedDisplay = document.getElementById('speedDisplay');
     if (speedDisplay) {
         speedDisplay.textContent = speedName;
     }
@@ -728,6 +743,9 @@ function testVoiceSpeed() {
     window.speechSynthesis.speak(utterance);
 }
 
+// ===================================================
+// 🛠️ UTILITY FUNCTIONS
+// ===================================================
 function stopCurrentAudio() {
     if (window.speechSynthesis) {
         window.speechSynthesis.cancel();
@@ -749,8 +767,29 @@ function muteAIVoice() {
 function preloadVoices() {
     getVoices().then(voices => {
         console.log('🎤 Voices preloaded:', voices.length);
+        debugBritishVoices(); // Show available British voices
     });
 }
+
+function debugBritishVoices() {
+    const voices = window.speechSynthesis.getVoices();
+    const britishVoices = voices.filter(v => 
+        v.lang.includes('GB') || 
+        v.name.toLowerCase().includes('uk') ||
+        v.name.toLowerCase().includes('british') ||
+        v.name.toLowerCase().includes('libby')
+    );
+    
+    console.log('🇬🇧 AVAILABLE BRITISH VOICES:');
+    britishVoices.forEach((voice, index) => {
+        console.log(`👑 ${voice.name} (${voice.lang})`);
+    });
+    
+    if (britishVoices.length === 0) {
+        console.log('❌ No British voices found - check system voices');
+    }
+}
+
 
 // ===================================================
 // 🎯 UTILITY FUNCTIONS (Fixed for your HTML)
