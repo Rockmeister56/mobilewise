@@ -13,13 +13,14 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(10px);
-            width: 200px;
-            height: 550px;
-            overflow: hidden;
+            background: #1a1a2e;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
         }
 
+        /* YOUR EXACT SIDEBAR FROM INDEX.HTML */
         .sidebar {
             width: 200px;
             height: 550px;
@@ -29,6 +30,7 @@
             flex-direction: column;
             padding: 20px 20px 15px 20px;
             justify-content: space-between;
+            border-radius: 15px;
         }
 
         .logo-section {
@@ -79,7 +81,6 @@
             transition: all 0.3s ease;
             display: block;
             line-height: 1.2;
-            cursor: pointer;
         }
 
         .nav-button:hover {
@@ -98,7 +99,6 @@
             height: auto;
             margin-left: 15px;
             object-fit: contain;
-            cursor: pointer;
         }
 
         #staticAvatar {
@@ -107,6 +107,34 @@
             cursor: pointer;
             display: none;
         }
+
+/* AVATAR AUDIO ENABLE BUTTON */
+.enable-audio-btn {
+    width: 100%;
+    padding: 8px 12px;
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+}
+
+.enable-audio-btn:hover {
+    background: linear-gradient(135deg, #45a049, #3d8b40);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+}
+
+.enable-audio-btn.enabled {
+    background: linear-gradient(135deg, #2196F3, #1976D2);
+    pointer-events: none;
+}
+
     </style>
 </head>
 <body>
@@ -118,37 +146,54 @@
         </div>
 
         <div class="nav-buttons">
-            <a href="#voice-chat" class="nav-button active">AI Voice Chat</a>
-            <a href="#tele-help" class="nav-button">Tele-HELP Center</a>
-            <a href="#ai-interviews" class="nav-button">AI Hosted Interviews</a>
+            <a href="#voice-chat" class="nav-button">AI Voice Chat</a>
+            <a href="tele-help-center" class="nav-button">Tele-HELP Center</a>
+            <a href="AI-hosted-interviews" class="nav-button">AI Hosted Interviews</a>
             <a href="#redeem-offer" class="nav-button">Redeem Offer</a>
         </div>
 
-        <div class="avatar-section">
-            <video id="avatarVideo" muted preload="metadata" onclick="this.play()">
-                <source src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1755360461594.mp4" type="video/mp4">
-            </video>      
-            
-            <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/avatars/avatar_1755209453856_avatar right.png" 
-                 alt="AI Assistant" 
-                 id="staticAvatar">
-        </div>
+       <div class="avatar-section">
+    <video id="avatarVideo" muted preload="metadata">
+        <source src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1755360461594.mp4" type="video/mp4">
+    </video>      
+    
+    <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/avatars/avatar_1755209453856_avatar right.png" 
+         alt="AI Assistant" 
+         id="staticAvatar">
+    
+    <!-- AUDIO ENABLE BUTTON -->
+    <button class="enable-audio-btn" id="enableAudioBtn" onclick="enableAvatarAudio()">
+        🔊 Enable Audio
+    </button>
+</div>
     </div>
 
     <script>
-        const video = document.getElementById('avatarVideo');
-        const staticImage = document.getElementById('staticAvatar');
-        
-        video.addEventListener('ended', function() {
-            console.log('Video ended');
-        });
+const video = document.getElementById('avatarVideo');
+const staticImage = document.getElementById('staticAvatar');
 
-        document.querySelectorAll('.nav-button').forEach(button => {
-            button.addEventListener('click', function(e) {
-                document.querySelectorAll('.nav-button').forEach(btn => btn.classList.remove('active'));
-                this.classList.add('active');
-            });
-        });
-    </script>
+video.addEventListener('ended', function() {
+    console.log('Video ended');
+});
+
+// SIMPLE AUDIO ENABLE - JUST UNMUTE THE AVATAR
+function enableAvatarAudio() {
+    const video = document.getElementById('avatarVideo');
+    const button = document.getElementById('enableAudioBtn');
+    
+    // Unmute the avatar video
+    video.muted = false;
+    
+    // Restart video with audio
+    video.currentTime = 0;
+    video.play();
+    
+    // Update button
+    button.textContent = '🔊 Audio Enabled';
+    button.classList.add('enabled');
+    
+    console.log('✅ Avatar audio enabled - Playing with natural voice');
+}
+</script>
 </body>
 </html>
