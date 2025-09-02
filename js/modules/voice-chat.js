@@ -14,6 +14,9 @@ let hasStartedOnce = false;
 let persistentMicStream = null;
 let isSpeaking = false;
 let micPermissionGranted = false;
+let lastProcessedInput = '';
+let lastProcessedTime = 0;
+let isProcessingResponse = false;
 
 // ===================================================
 // 🎯 UNIFIED VOICE VISUALIZATION SYSTEM (Preserved)
@@ -196,26 +199,33 @@ function initializeSpeechRecognition() {
         };
 
         recognition.onresult = function(event) {
-    // 🔥 ECHO PREVENTION: Only process the LATEST final result
-    for (let i = event.resultIndex; i < event.results.length; i++) {
-        const result = event.results[i];
+    // 🔥 SINGLE RESULT PROCESSING - No more multiples!
+    const lastResult = event.results[event.results.length - 1];
+    
+    if (lastResult.isFinal) {
+        const transcript = lastResult[0].transcript.trim();
+        console.log('🗣️ FINAL Voice input:', transcript);
         
-        if (result.isFinal) {
-            const transcript = result[0].transcript.trim();
-            console.log('🗣️ FINAL Voice input received:', transcript);
+        if (isSpeaking) {
+            console.log('⏸️ Ignoring - AI is speaking');
+            return;
+        }
+        
+        if (transcript && transcript.length > 2) {
+            // 🚀 IMMEDIATE MESSAGE DISPLAY
+            addUserMessage(transcript);
             
-            if (isSpeaking) {
-                console.log('⏸️ Ignoring input - AI is speaking');
-                return;
-            }
+            // 🔥 STOP ALL AUDIO IMMEDIATELY
+            window.speechSynthesis.cancel();
+            currentAudio = null;
             
-            if (transcript && transcript.length > 0) {
-                handleVoiceInput(transcript);
-            }
+            // Process after brief delay
+            setTimeout(() => {
+                processUserInput(transcript);
+            }, 300);
         }
     }
 };
-
         recognition.onend = function() {
             console.log('🎤 Speech recognition ended');
             isListening = false;
@@ -433,26 +443,24 @@ function stopUnifiedVoiceVisualization() {
 // 💬 ENHANCED MESSAGE HANDLING (Echo Prevention)
 // ===================================================
 
-// Global variables for duplicate prevention
-let lastProcessedInput = '';
-let lastProcessedTime = 0;
-let isProcessingResponse = false;
 
 function handleVoiceInput(transcript) {
-    const now = Date.now();
+    console.log('🗣️ Processing voice input:', transcript);
     
-    // 🔥 PREVENT DUPLICATES: Ignore if same input within 2 seconds
-    if (transcript === lastProcessedInput && (now - lastProcessedTime) < 2000) {
-        console.log('🚫 Duplicate input ignored:', transcript);
-        return;
-    }
-    
-    lastProcessedInput = transcript;
-    lastProcessedTime = now;
-    
-    console.log('🗣️ Processing unique voice input:', transcript);
+    // 🚀 IMMEDIATE MESSAGE DISPLAY - No delays!
     addUserMessage(transcript);
-    processUserInput(transcript);
+    
+    // 🔥 FORCE STOP ALL AUDIO
+    if (window.speechSynthesis.speaking) {
+        window.speechSynthesis.cancel();
+    }
+    currentAudio = null;
+    isSpeaking = false;
+    
+    // Process with minimal delay
+    setTimeout(() => {
+        processUserInput(transcript);
+    }, 200);
 }
 
 function sendTextMessage() {
@@ -774,6 +782,14 @@ function findUniversalBestVoice(voices) {
 // 🚀 MAIN SPEECH FUNCTION
 async function speakResponse(message) {
     console.log('🗣️ Speaking response...');
+    
+    // 🔥 NUCLEAR OPTION - Kill everything first!
+    window.speechSynthesis.cancel();
+    currentAudio = null;
+    
+    // Brief pause to ensure cleanup
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
     updateHeaderBanner('🤖 AI responding...');
     
     if (!window.speechSynthesis) {
@@ -782,7 +798,40 @@ async function speakResponse(message) {
     }
 
     const voices = await getOptimizedVoices();
-    speakWithVoice(message, voices);
+    
+    // 🎯 SINGLE VOICE EXECUTION
+    const utterance = new SpeechSynthesisUtterance(message);
+    
+    let bestVoice = findUniversalBestVoice(voices);
+    if (bestVoice) {
+        utterance.voice = bestVoice;
+        console.log('🎤 SINGLE VOICE SELECTED:', bestVoice.name);
+    }
+    
+    utterance.rate = voiceSpeed;
+    utterance.pitch = 1.0;
+    utterance.volume = 0.9;
+    
+    utterance.onstart = () => {
+        isSpeaking = true;
+        console.log('🗣️ SINGLE speech started');
+    };
+    
+    utterance.onend = () => {
+        isSpeaking = false;
+        currentAudio = null;
+        console.log('✅ SINGLE speech finished');
+        updateHeaderBanner('🎤 AI is listening...');
+    };
+    
+    utterance.onerror = (event) => {
+        console.log('❌ Speech error:', event.error);
+        isSpeaking = false;
+        currentAudio = null;
+    };
+    
+    currentAudio = utterance;
+    window.speechSynthesis.speak(utterance);
 }
 
 // 🎤 VOICE SYNTHESIS WITH BRITISH PRIORITY
@@ -931,43 +980,6 @@ async function testAllVoices() {
 // Make it globally available
 window.testAllVoices = testAllVoices;
 
-
-// ===================================================
-// ⚡ VOICE SPEED CONTROL SYSTEM
-// ===================================================
-function adjustVoiceSpeed(direction) {
-    if (direction === 'faster' && currentSpeedIndex < speedLevels.length - 1) {
-        currentSpeedIndex++;
-    } else if (direction === 'slower' && currentSpeedIndex > 0) {
-        currentSpeedIndex--;
-    }
-    
-    voiceSpeed = speedLevels[currentSpeedIndex];
-    const speedName = speedNames[currentSpeedIndex];
-    
-    // Update display if element exists
-    const speedDisplay = document.getElementById('speedDisplay');
-    if (speedDisplay) {
-        speedDisplay.textContent = speedName;
-    }
-    
-    console.log('⚡ Voice speed:', speedName, `(${voiceSpeed}x)`);
-    testVoiceSpeed();
-}
-
-function testVoiceSpeed() {
-    const testMessage = `Speed set to ${speedNames[currentSpeedIndex]}`;
-    const voices = window.speechSynthesis.getVoices();
-    const voice = findBestVoice(voices);
-    
-    const utterance = new SpeechSynthesisUtterance(testMessage);
-    if (voice) utterance.voice = voice;
-    utterance.rate = voiceSpeed;
-    utterance.pitch = 1.0;
-    utterance.volume = 0.8;
-    
-    window.speechSynthesis.speak(utterance);
-}
 
 // ===================================================
 // 🛠️ UTILITY FUNCTIONS
