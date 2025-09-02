@@ -666,21 +666,61 @@ function speakWithVoice(message, voices) {
 }
 
 function findBestVoice(voices) {
+    // 🇬🇧 BRITISH VOICE PRIORITY SYSTEM!
     const preferredVoices = [
-        'Microsoft Aria Online (Natural) - English (United States)',
-        'Microsoft Zira - English (United States)',
-        'Microsoft Libby Online (Natural) - English (United Kingdom)'
+        'Microsoft Libby Online (Natural) - English (United Kingdom)',  // 🇬🇧 BRITISH FIRST!
+        'Microsoft Aria Online (Natural) - English (United States)',    // US backup
+        'Microsoft Zira - English (United States)',                     // Additional backup
+        'Google UK English Female',                                      // Google UK option
+        'Google UK English Male'                                         // Google UK male
     ];
     
+    console.log('🔍 Searching for British voice...');
+    
+    // Find the exact voice we want - BRITISH PRIORITY!
     for (const preferredName of preferredVoices) {
         const voice = voices.find(v => v.name === preferredName);
         if (voice) {
+            console.log('🇬🇧 BRITISH VOICE SELECTED:', voice.name);
             return voice;
         }
     }
     
-    const fallback = voices.find(v => v.name.includes('Aria') || v.name.includes('Zira'));
-    return fallback || voices[0];
+    // Fallback to any UK/British voice
+    const ukVoice = voices.find(v => 
+        v.lang.includes('GB') || 
+        v.name.toLowerCase().includes('uk') ||
+        v.name.toLowerCase().includes('british') ||
+        v.name.toLowerCase().includes('libby')
+    );
+    
+    if (ukVoice) {
+        console.log('🇬🇧 UK FALLBACK VOICE:', ukVoice.name);
+        return ukVoice;
+    }
+    
+    // Final fallback
+    console.log('⚠️ No British voice found, using fallback');
+    return voices[0];
+}
+
+function debugBritishVoices() {
+    const voices = window.speechSynthesis.getVoices();
+    const britishVoices = voices.filter(v => 
+        v.lang.includes('GB') || 
+        v.name.toLowerCase().includes('uk') ||
+        v.name.toLowerCase().includes('british') ||
+        v.name.toLowerCase().includes('libby')
+    );
+    
+    console.log('🇬🇧 AVAILABLE BRITISH VOICES:');
+    britishVoices.forEach((voice, index) => {
+        console.log(`👑 ${voice.name} (${voice.lang})`);
+    });
+    
+    if (britishVoices.length === 0) {
+        console.log('❌ No British voices found - check system voices');
+    }
 }
 
 // ===================================================
@@ -828,7 +868,7 @@ async function activateMicrophone() {
     
     // AI introduces system
     setTimeout(() => {
-        const greeting = "Great! Voice chat is now active. I can help with accounting services, marketing strategies, and business growth. What can I help you with?";
+        const greeting = "Perfect! Voice chat is now active, what can I help you with today?";
         addAIMessage(greeting);
         speakResponse(greeting);
         console.log('👋 AI introduction delivered');
