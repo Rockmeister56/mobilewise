@@ -198,25 +198,22 @@ function initializeSpeechRecognition() {
             hasStartedOnce = true;
         };
 
-       recognition.onresult = function(event) {
-    if (event.results.length > 0) {
-        // Get the LATEST result
-        const latestResult = event.results[event.results.length - 1];
-        const transcript = latestResult[0].transcript.trim();
+      recognition.onresult = function(event) {
+    // 🔥 WAIT FOR SILENCE - Don't process until speech actually ends
+    const lastResult = event.results[event.results.length - 1];
+    
+    // Only process if TRULY final AND speech has paused
+    if (lastResult.isFinal && lastResult[0].transcript.trim().length > 5) {
+        const transcript = lastResult[0].transcript.trim();
+        console.log('🗣️ COMPLETE Voice input:', transcript);
         
-        // Process immediately if confidence is high OR if isFinal
-        if (latestResult.isFinal || latestResult[0].confidence > 0.7) {
-            console.log('🎤 FINAL Voice input received:', transcript);
-            
-            // 🔥 DON'T STOP - JUST IGNORE WHILE AI IS SPEAKING
-            if (isSpeaking) {
-                console.log('🚫 Ignoring input - AI is speaking');
-                return;
-            }
-            
-            if (transcript && transcript.length > 0) {
-                handleVoiceInput(transcript);  // ← THIS CALLS THE INSTANT VERSION!
-            }
+        if (isSpeaking) {
+            console.log('⏸️ Ignoring - AI is speaking');
+            return;
+        }
+        
+        if (transcript && transcript.length > 5) {  // Minimum word count
+            handleVoiceInput(transcript);
         }
     }
 };
