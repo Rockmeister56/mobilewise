@@ -663,7 +663,7 @@ function getAIResponse(message) {
 }
 
 // ===================================================
-// 🗣️ BRITISH VOICE SYNTHESIS SYSTEM - CLEANED & OPTIMIZED
+// 🎤 UNIVERSAL VOICE SYSTEM - BRITISH FEMALE PRIORITY
 // ===================================================
 
 // Voice speed control variables (DO NOT REMOVE!)
@@ -672,60 +672,15 @@ const speedLevels = [0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3];
 const speedNames = ['Very Slow', 'Slow', 'Relaxed', 'Normal', 'Fast', 'Faster', 'Very Fast'];
 let currentSpeedIndex = 3; // Start at "Normal" (1.0)
 
-// ===================================================
-// 🎤 UNIVERSAL VOICE SYSTEM - BROWSER OPTIMIZED
-// ===================================================
-
-// 🚀 BROWSER-SPECIFIC VOICE MAPPING
-const universalVoiceMap = {
-    // Edge/Windows voices (high quality)
-    edge: [
-        'Microsoft Aria Online (Natural) - English (United States)',
-        'Microsoft Jenny Online (Natural) - English (United States)', 
-        'Microsoft Guy Online (Natural) - English (United States)',
-        'Microsoft Libby Online (Natural) - English (United Kingdom)', // British
-        'Microsoft Ryan Online (Natural) - English (United Kingdom)'   // British Male
-    ],
-    
-    // Chrome voices (reliable fallbacks)
-    chrome: [
-        'Google US English',
-        'Google UK English Female', // British option
-        'Google UK English Male',   // British male
-        'Microsoft Zira - English (United States)',
-        'Microsoft David - English (United States)'
-    ],
-    
-    // Firefox/Safari fallbacks
-    firefox: [
-        'Alex',
-        'Samantha', 
-        'Microsoft Zira',
-        'Google US English'
-    ]
-};
-
-// 🎯 BROWSER DETECTION
-function getBrowserType() {
-    const userAgent = navigator.userAgent.toLowerCase();
-    if (userAgent.includes('edg')) return 'edge';
-    if (userAgent.includes('chrome')) return 'chrome';
-    if (userAgent.includes('firefox')) return 'firefox';
-    return 'chrome'; // Default fallback
-}
-
 // 🚀 OPTIMIZED VOICE LOADING (No more 350 voices!)
 function getOptimizedVoices() {
     return new Promise((resolve) => {
-        const browserType = getBrowserType();
-        const targetVoices = universalVoiceMap[browserType];
-        
-        console.log(`🔍 Loading voices for ${browserType.toUpperCase()}`);
+        console.log('🔍 Loading optimized voices...');
         
         let voices = window.speechSynthesis.getVoices();
         
         if (voices.length > 0) {
-            const filteredVoices = filterBestVoices(voices, targetVoices);
+            const filteredVoices = filterToEnglishVoices(voices);
             resolve(filteredVoices);
             return;
         }
@@ -735,7 +690,7 @@ function getOptimizedVoices() {
             voices = window.speechSynthesis.getVoices();
             if (voices.length > 0) {
                 window.speechSynthesis.removeEventListener('voiceschanged', voicesChangedHandler);
-                const filteredVoices = filterBestVoices(voices, targetVoices);
+                const filteredVoices = filterToEnglishVoices(voices);
                 resolve(filteredVoices);
             }
         };
@@ -745,111 +700,78 @@ function getOptimizedVoices() {
         // Timeout after 3 seconds
         setTimeout(() => {
             voices = window.speechSynthesis.getVoices();
-            const filteredVoices = filterBestVoices(voices, targetVoices);
+            const filteredVoices = filterToEnglishVoices(voices);
             resolve(filteredVoices);
         }, 3000);
     });
 }
 
-// 🎯 SMART VOICE FILTERING (Only load the best!)
-function filterBestVoices(allVoices, targetVoices) {
-    const bestVoices = [];
+// 🎯 SMART VOICE FILTERING (Only English voices!)
+function filterToEnglishVoices(allVoices) {
+    const englishVoices = allVoices.filter(voice => 
+        voice.lang.startsWith('en') && 
+        (voice.name.includes('English') || voice.name.includes('US') || voice.name.includes('UK') || voice.name.includes('Aria') || voice.name.includes('Zira') || voice.name.includes('Libby'))
+    );
     
-    // Find exact matches first
-    targetVoices.forEach(targetName => {
-        const exactMatch = allVoices.find(voice => voice.name === targetName);
-        if (exactMatch) {
-            bestVoices.push(exactMatch);
-        }
-    });
-    
-    // Add partial matches if needed
-    if (bestVoices.length < 3) {
-        targetVoices.forEach(targetName => {
-            const partialMatch = allVoices.find(voice => 
-                voice.name.toLowerCase().includes(targetName.toLowerCase().split(' ')[0])
-            );
-            if (partialMatch && !bestVoices.includes(partialMatch)) {
-                bestVoices.push(partialMatch);
-            }
-        });
-    }
-    
-    console.log(`✅ Filtered to ${bestVoices.length} voices (from ${allVoices.length})`);
-    return bestVoices.slice(0, 5); // Max 5 voices
+    console.log(`✅ Filtered to ${englishVoices.length} English voices (from ${allVoices.length} total)`);
+    return englishVoices.slice(0, 10); // Max 10 English voices
 }
 
-// 🚀 UNIVERSAL VOICE SELECTOR
+// 🇬🇧 BRITISH FEMALE PRIORITY VOICE SELECTOR
 function findUniversalBestVoice(voices) {
-    const browserType = getBrowserType();
-    const preferredVoices = universalVoiceMap[browserType];
+    console.log('🔍 Searching for best voice...');
     
-    console.log(`🎤 Selecting voice for ${browserType.toUpperCase()}`);
-    
-    // Try exact matches first
-    for (const preferredName of preferredVoices) {
-        const exactMatch = voices.find(v => v.name === preferredName);
-        if (exactMatch) {
-            console.log(`🎯 EXACT MATCH: ${exactMatch.name}`);
-            return exactMatch;
-        }
+    // 🎯 PRIORITY 1: British Female (Your preferred choice!)
+    const britishFemale = voices.find(v => 
+        v.name.includes('UK English Female') || 
+        v.name.includes('Google UK English Female')
+    );
+    if (britishFemale) {
+        console.log('🇬🇧 BRITISH FEMALE SELECTED:', britishFemale.name);
+        return britishFemale;
     }
     
-    // Fallback to partial matches
-    for (const preferredName of preferredVoices) {
-        const partialMatch = voices.find(v => 
-            v.name.toLowerCase().includes(preferredName.toLowerCase().split(' ')[0])
-        );
-        if (partialMatch) {
-            console.log(`⚡ PARTIAL MATCH: ${partialMatch.name}`);
-            return partialMatch;
+    // 🎯 PRIORITY 2: British Male (backup)
+    const britishMale = voices.find(v => 
+        v.name.includes('UK English Male') || 
+        v.name.includes('Google UK English Male')
+    );
+    if (britishMale) {
+        console.log('🇬🇧 BRITISH MALE SELECTED:', britishMale.name);
+        return britishMale;
+    }
+    
+    // 🎯 PRIORITY 3: Microsoft British voices
+    const microsoftLibby = voices.find(v => 
+        v.name.includes('Libby') && v.name.includes('United Kingdom')
+    );
+    if (microsoftLibby) {
+        console.log('🇬🇧 MICROSOFT LIBBY SELECTED:', microsoftLibby.name);
+        return microsoftLibby;
+    }
+    
+    // 🎯 PRIORITY 4: High-quality US voices (fallback)
+    const preferredUSVoices = [
+        'Microsoft Aria Online (Natural) - English (United States)',
+        'Microsoft Jenny Online (Natural) - English (United States)',
+        'Microsoft Zira - English (United States)',
+        'Google US English'
+    ];
+    
+    for (const preferredName of preferredUSVoices) {
+        const voice = voices.find(v => v.name === preferredName);
+        if (voice) {
+            console.log('🇺🇸 US VOICE SELECTED:', voice.name);
+            return voice;
         }
     }
     
     // Final fallback
-    console.log(`⚠️ Using fallback voice: ${voices[0]?.name || 'default'}`);
+    console.log('⚠️ Using fallback voice:', voices[0]?.name || 'default');
     return voices[0];
 }
 
-// 🎯 VOICE TESTING SYSTEM
-function testVoice(voice, testMessage = "Hello, this is a voice test") {
-    return new Promise((resolve) => {
-        const utterance = new SpeechSynthesisUtterance(testMessage);
-        utterance.voice = voice;
-        utterance.rate = 1.0;
-        utterance.pitch = 1.0;
-        utterance.volume = 0.8;
-        
-        utterance.onend = () => resolve(true);
-        utterance.onerror = () => resolve(false);
-        
-        window.speechSynthesis.speak(utterance);
-    });
-}
-
-// 🚀 INTERACTIVE VOICE TESTER (Call this to test voices)
-async function runVoiceTester() {
-    console.log('🎤 STARTING VOICE TESTER...');
-    
-    const voices = await getOptimizedVoices();
-    console.log(`🔍 Testing ${voices.length} voices:`);
-    
-    for (let i = 0; i < voices.length; i++) {
-        const voice = voices[i];
-        console.log(`${i + 1}. 🎤 ${voice.name} (${voice.lang})`);
-        
-        // Test each voice
-        const testMessage = `Voice ${i + 1}: ${voice.name}`;
-        await testVoice(voice, testMessage);
-        
-        // Wait between tests
-        await new Promise(resolve => setTimeout(resolve, 2000));
-    }
-    
-    console.log('✅ Voice testing complete!');
-}
-
-// 🎯 REPLACE YOUR EXISTING VOICE FUNCTIONS WITH THESE:
+// 🚀 MAIN SPEECH FUNCTION
 async function speakResponse(message) {
     console.log('🗣️ Speaking response...');
     updateHeaderBanner('🤖 AI responding...');
@@ -859,24 +781,26 @@ async function speakResponse(message) {
         return;
     }
 
-    const voices = await getOptimizedVoices(); // Use optimized version
+    const voices = await getOptimizedVoices();
     speakWithVoice(message, voices);
 }
 
+// 🎤 VOICE SYNTHESIS WITH BRITISH PRIORITY
 function speakWithVoice(message, voices) {
     window.speechSynthesis.cancel();
     
     const utterance = new SpeechSynthesisUtterance(message);
     
-    let bestVoice = findUniversalBestVoice(voices); // Use universal selector
+    let bestVoice = findUniversalBestVoice(voices);
     if (bestVoice) {
         utterance.voice = bestVoice;
-        console.log('🎤 Selected voice:', bestVoice.name);
+        console.log('🎤 Using voice:', bestVoice.name);
     }
     
+    // Optimized settings for British female voice
     utterance.rate = voiceSpeed;
     utterance.pitch = 1.0;
-    utterance.volume = 0.8;
+    utterance.volume = 0.9; // Slightly louder for clarity
     
     utterance.onstart = () => {
         isSpeaking = true;
@@ -890,21 +814,123 @@ function speakWithVoice(message, voices) {
         updateHeaderBanner('🎤 AI is listening...');
     };
     
+    utterance.onerror = (event) => {
+        console.log('❌ Speech error:', event.error);
+        isSpeaking = false;
+        currentAudio = null;
+    };
+    
     currentAudio = utterance;
     window.speechSynthesis.speak(utterance);
+}
+
+// ===================================================
+// ⚡ VOICE SPEED CONTROL SYSTEM (Preserved)
+// ===================================================
+function adjustVoiceSpeed(direction) {
+    if (direction === 'faster' && currentSpeedIndex < speedLevels.length - 1) {
+        currentSpeedIndex++;
+    } else if (direction === 'slower' && currentSpeedIndex > 0) {
+        currentSpeedIndex--;
+    }
+    
+    voiceSpeed = speedLevels[currentSpeedIndex];
+    const speedName = speedNames[currentSpeedIndex];
+    
+    const speedDisplay = document.getElementById('speedDisplay');
+    if (speedDisplay) {
+        speedDisplay.textContent = speedName;
+    }
+    
+    console.log('⚡ Voice speed:', speedName, `(${voiceSpeed}x)`);
+    testVoiceSpeed();
+}
+
+function testVoiceSpeed() {
+    const testMessage = `Speed set to ${speedNames[currentSpeedIndex]}`;
+    const voices = window.speechSynthesis.getVoices();
+    const voice = findUniversalBestVoice(voices);
+    
+    const utterance = new SpeechSynthesisUtterance(testMessage);
+    if (voice) utterance.voice = voice;
+    utterance.rate = voiceSpeed;
+    utterance.pitch = 1.0;
+    utterance.volume = 0.9;
+    
+    window.speechSynthesis.speak(utterance);
+}
+
+// ===================================================
+// 🛠️ UTILITY FUNCTIONS (Preserved)
+// ===================================================
+function stopCurrentAudio() {
+    if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+        console.log('🛑 Speech stopped');
+    }
+    currentAudio = null;
+    isSpeaking = false;
+}
+
+function muteAIVoice() {
+    console.log('🔇 MUTING AI Voice...');
+    stopCurrentAudio();
+    isSpeaking = false;
+    updateHeaderBanner('🔇 AI Voice Muted');
+    switchToTextMode();
+    console.log('✅ AI Voice MUTED');
 }
 
 function preloadVoices() {
     getOptimizedVoices().then(voices => {
         console.log('🎤 Optimized voices loaded:', voices.length);
-        voices.forEach((voice, i) => {
-            console.log(`${i + 1}. ${voice.name}`);
+        console.log('🇬🇧 AVAILABLE BRITISH VOICES:');
+        
+        const britishVoices = voices.filter(v => 
+            v.name.includes('UK') || 
+            v.name.includes('British') || 
+            v.name.includes('Libby')
+        );
+        
+        britishVoices.forEach((voice, i) => {
+            console.log(`👑 ${voice.name} (${voice.lang})`);
         });
+        
+        if (britishVoices.length === 0) {
+            console.log('⚠️ No British voices found - using US voices');
+        }
     });
 }
 
-// 🎯 ADD THIS TO TEST VOICES MANUALLY
-window.testAllVoices = runVoiceTester;
+// 🎯 VOICE TESTER FUNCTION (Now properly defined!)
+async function testAllVoices() {
+    console.log('🎤 STARTING VOICE TESTER...');
+    
+    const voices = await getOptimizedVoices();
+    console.log(`🔍 Testing ${voices.length} voices:`);
+    
+    for (let i = 0; i < Math.min(voices.length, 5); i++) {
+        const voice = voices[i];
+        console.log(`${i + 1}. 🎤 ${voice.name} (${voice.lang})`);
+        
+        const testMessage = `Voice ${i + 1}: Hello, I'm ${voice.name.split(' ')[0]}. How do I sound?`;
+        const utterance = new SpeechSynthesisUtterance(testMessage);
+        utterance.voice = voice;
+        utterance.rate = 1.0;
+        utterance.volume = 0.9;
+        
+        window.speechSynthesis.speak(utterance);
+        
+        // Wait between tests
+        await new Promise(resolve => setTimeout(resolve, 4000));
+    }
+    
+    console.log('✅ Voice testing complete!');
+}
+
+// Make it globally available
+window.testAllVoices = testAllVoices;
+
 
 // ===================================================
 // ⚡ VOICE SPEED CONTROL SYSTEM
