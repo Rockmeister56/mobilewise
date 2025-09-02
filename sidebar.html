@@ -20,7 +20,6 @@
             min-height: 100vh;
         }
 
-        /* YOUR EXACT SIDEBAR FROM INDEX.HTML */
         .sidebar {
             width: 200px;
             height: 550px;
@@ -55,7 +54,6 @@
             font-size: 14px;
             font-weight: 500;
             margin-top: -10px;
-            margin-bottom: -40;
             text-align: center;
             opacity: 0.9;
         }
@@ -94,42 +92,47 @@
             color: #000;
         }
 
-        #avatarVideo {
-            width: 120px;
-            height: auto;
-            margin-left: 15px;
-            object-fit: contain;
-        }
-
+        /* FIXED AVATAR STYLING */
         #staticAvatar {
             width: 140px;
             height: auto;
             cursor: pointer;
-            display: none;
+            display: block; /* ← FIXED: Now visible! */
+            margin: 0 auto; /* Center the avatar */
         }
 
-/* GLOWING BORDER AVATAR */
-.avatar-glow-border {
-    border: 3px solid rgba(33, 150, 243, 0.5);
-    border-radius: 50%;
-    padding: 5px;
-    animation: borderGlow 2.5s ease-in-out infinite;
-}
+        /* PULSATING GLOW AVATAR */
+        .avatar-pulse {
+            animation: avatarPulse 2s ease-in-out infinite;
+            filter: drop-shadow(0 0 10px rgba(33, 150, 243, 0.6));
+            transition: all 0.3s ease;
+        }
 
-@keyframes borderGlow {
-    0% { 
-        border-color: rgba(33, 150, 243, 0.3);
-        box-shadow: 0 0 5px rgba(33, 150, 243, 0.3);
-    }
-    50% { 
-        border-color: rgba(33, 150, 243, 0.9);
-        box-shadow: 0 0 20px rgba(33, 150, 243, 0.6);
-    }
-    100% { 
-        border-color: rgba(33, 150, 243, 0.3);
-        box-shadow: 0 0 5px rgba(33, 150, 243, 0.3);
-    }
-}
+        @keyframes avatarPulse {
+            0% { 
+                filter: drop-shadow(0 0 5px rgba(33, 150, 243, 0.4));
+                transform: scale(1);
+            }
+            50% { 
+                filter: drop-shadow(0 0 20px rgba(33, 150, 243, 0.8));
+                transform: scale(1.05);
+            }
+            100% { 
+                filter: drop-shadow(0 0 5px rgba(33, 150, 243, 0.4));
+                transform: scale(1);
+            }
+        }
+
+        .avatar-pulse:hover {
+            filter: drop-shadow(0 0 25px rgba(76, 175, 80, 0.9)) !important;
+            transform: scale(1.1) !important;
+        }
+
+        /* Avatar section container */
+        .avatar-section {
+            text-align: center;
+            margin-top: auto;
+        }
     </style>
 </head>
 <body>
@@ -147,39 +150,40 @@
             <a href="#redeem-offer" class="nav-button">Redeem Offer</a>
         </div>     
     
-    <div class="avatar-section">
-    <!-- STATIC AVATAR WITH ANIMATION CLASS -->
-    <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1756785503188_AI-Voice-Equiped.png" 
-         alt="AI Voice Smart Technology" 
-         id="staticAvatar"
-         class="avatar-pulse">  <!-- ADD YOUR CHOSEN ANIMATION CLASS -->
-    
-    <p class="avatar-label">AI Voice Smart Technology</p>
-</div>
-    
+        <div class="avatar-section">
+            <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1756785503188_AI-Voice-Equiped.png" 
+                 alt="AI Voice Smart Technology" 
+                 id="staticAvatar"
+                 class="avatar-pulse">
+        </div>
+    </div>
     
     <script>
-// INTERACTIVE AVATAR EFFECTS
-document.addEventListener('DOMContentLoaded', function() {
-    const avatar = document.getElementById('staticAvatar');
-    
-    // Add extra glow on hover
-    avatar.addEventListener('mouseenter', function() {
-        this.style.filter = 'drop-shadow(0 0 25px rgba(76, 175, 80, 0.9))';
-    });
-    
-    avatar.addEventListener('mouseleave', function() {
-        this.style.filter = '';
-    });
-    
-    // Optional: Click effect
-    avatar.addEventListener('click', function() {
-        this.style.animation = 'none';
-        setTimeout(() => {
-            this.style.animation = '';
-        }, 100);
-    });
-});
-</script>
+        // INTERACTIVE AVATAR EFFECTS
+        document.addEventListener('DOMContentLoaded', function() {
+            const avatar = document.getElementById('staticAvatar');
+            
+            if (avatar) {
+                // Add extra glow on hover
+                avatar.addEventListener('mouseenter', function() {
+                    this.style.filter = 'drop-shadow(0 0 25px rgba(76, 175, 80, 0.9))';
+                });
+                
+                avatar.addEventListener('mouseleave', function() {
+                    this.style.filter = '';
+                });
+                
+                // Optional: Click effect
+                avatar.addEventListener('click', function() {
+                    this.style.animation = 'none';
+                    setTimeout(() => {
+                        this.style.animation = '';
+                    }, 100);
+                });
+                
+                console.log('✅ Avatar loaded and animated!');
+            }
+        });
+    </script>
 </body>
 </html>
