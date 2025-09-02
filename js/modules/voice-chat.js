@@ -198,7 +198,7 @@ function initializeSpeechRecognition() {
             hasStartedOnce = true;
         };
 
-        recognition.onresult = function(event) {
+       recognition.onresult = function(event) {
     // 🔥 SINGLE RESULT PROCESSING - No more multiples!
     const lastResult = event.results[event.results.length - 1];
     
@@ -212,14 +212,14 @@ function initializeSpeechRecognition() {
         }
         
         if (transcript && transcript.length > 2) {
-            // 🚀 IMMEDIATE MESSAGE DISPLAY
+            // 🚀 IMMEDIATE MESSAGE DISPLAY - NO DELAY!
             addUserMessage(transcript);
             
             // 🔥 STOP ALL AUDIO IMMEDIATELY
             window.speechSynthesis.cancel();
             currentAudio = null;
             
-            // Process after brief delay
+            // Process after brief delay (for AI response only)
             setTimeout(() => {
                 processUserInput(transcript);
             }, 300);
