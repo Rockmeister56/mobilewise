@@ -199,27 +199,19 @@ function initializeSpeechRecognition() {
         };
 
        recognition.onresult = function(event) {
-    // 🔥 SINGLE RESULT PROCESSING - No more multiples!
     const lastResult = event.results[event.results.length - 1];
     
     if (lastResult.isFinal) {
         const transcript = lastResult[0].transcript.trim();
-        console.log('🗣️ FINAL Voice input:', transcript);
-        
-        if (isSpeaking) {
-            console.log('⏸️ Ignoring - AI is speaking');
-            return;
-        }
         
         if (transcript && transcript.length > 2) {
-            // 🚀 IMMEDIATE MESSAGE DISPLAY - NO DELAY!
+            // 🚀 IMMEDIATE USER MESSAGE FIRST!
             addUserMessage(transcript);
             
-            // 🔥 STOP ALL AUDIO IMMEDIATELY
-            window.speechSynthesis.cancel();
-            currentAudio = null;
+            // 🔥 THEN update header (no delay for user)
+            updateHeaderBanner('🤖 AI responding...');
             
-            // Process after brief delay (for AI response only)
+            // Process AI response
             setTimeout(() => {
                 processUserInput(transcript);
             }, 300);
