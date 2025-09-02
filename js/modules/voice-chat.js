@@ -196,24 +196,25 @@ function initializeSpeechRecognition() {
         };
 
         recognition.onresult = function(event) {
-            if (event.results.length > 0) {
-                const latestResult = event.results[event.results.length - 1];
-                const transcript = latestResult[0].transcript.trim();
-                
-                if (latestResult.isFinal || latestResult[0].confidence > 0.7) {
-                    console.log('🗣️ Voice input received:', transcript);
-                    
-                    if (isSpeaking) {
-                        console.log('⏸️ Ignoring input - AI is speaking');
-                        return;
-                    }
-                    
-                    if (transcript && transcript.length > 0) {
-                        handleVoiceInput(transcript);
-                    }
-                }
+    // 🔥 ECHO PREVENTION: Only process the LATEST final result
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+        const result = event.results[i];
+        
+        if (result.isFinal) {
+            const transcript = result[0].transcript.trim();
+            console.log('🗣️ FINAL Voice input received:', transcript);
+            
+            if (isSpeaking) {
+                console.log('⏸️ Ignoring input - AI is speaking');
+                return;
             }
-        };
+            
+            if (transcript && transcript.length > 0) {
+                handleVoiceInput(transcript);
+            }
+        }
+    }
+};
 
         recognition.onend = function() {
             console.log('🎤 Speech recognition ended');
@@ -431,8 +432,28 @@ function stopUnifiedVoiceVisualization() {
 // ===================================================
 // 💬 MESSAGE HANDLING (Fixed to match your HTML)
 // ===================================================
+// ===================================================
+// 💬 ENHANCED MESSAGE HANDLING (Echo Prevention)
+// ===================================================
+
+// Global variables for duplicate prevention
+let lastProcessedInput = '';
+let lastProcessedTime = 0;
+let isProcessingResponse = false;
+
 function handleVoiceInput(transcript) {
-    console.log('🗣️ Processing voice input:', transcript);
+    const now = Date.now();
+    
+    // 🔥 PREVENT DUPLICATES: Ignore if same input within 2 seconds
+    if (transcript === lastProcessedInput && (now - lastProcessedTime) < 2000) {
+        console.log('🚫 Duplicate input ignored:', transcript);
+        return;
+    }
+    
+    lastProcessedInput = transcript;
+    lastProcessedTime = now;
+    
+    console.log('🗣️ Processing unique voice input:', transcript);
     addUserMessage(transcript);
     processUserInput(transcript);
 }
@@ -452,6 +473,14 @@ function sendTextMessage() {
 }
 
 function processUserInput(message) {
+    // 🔥 PREVENT DOUBLE PROCESSING
+    if (isProcessingResponse) {
+        console.log('🚫 Already processing response, ignoring');
+        return;
+    }
+    
+    isProcessingResponse = true;
+    
     if (currentAudio) {
         stopCurrentAudio();
     }
@@ -461,6 +490,11 @@ function processUserInput(message) {
         console.log('🤖 AI Response generated');
         addAIMessage(response);
         speakResponse(response);
+        
+        // Reset flag after processing
+        setTimeout(() => {
+            isProcessingResponse = false;
+        }, 1000);
     }, 800);
 }
 
