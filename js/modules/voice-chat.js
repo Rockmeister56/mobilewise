@@ -1165,8 +1165,7 @@ async function activateMicrophone() {
     
     if (recognition && !isListening) {
         try {
-            // Line 1165 - COMMENT OUT:
-// recognition.start();
+        recognition.start();
             console.log('🎤 Speech recognition started');
         } catch (error) {
             console.log('⚠️ Recognition start failed:', error);
