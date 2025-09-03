@@ -187,8 +187,7 @@ function initializeSpeechRecognition() {
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
         recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
         
-        recognition.continuous = true;
-        recognition.interimResults = false;
+        recognition.continuous = false;
         recognition.maxAlternatives = 1;
         recognition.lang = 'en-US';
 
