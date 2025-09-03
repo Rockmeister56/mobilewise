@@ -235,7 +235,8 @@ function initializeSpeechRecognition() {
                 setTimeout(() => {
                     if (!isListening && !isSpeaking && isAudioMode) {
                         try {
-                            recognition.start();
+                            // Line 238 - COMMENT OUT:
+// recognition.start();
                             console.log('🔄 Recognition gently restarted');
                         } catch (error) {
                             console.log('⚠️ Gentle restart failed:', error.message);
@@ -259,7 +260,8 @@ function initializeSpeechRecognition() {
                 setTimeout(() => {
                     if (!isListening) {
                         try {
-                            recognition.start();
+                            // Line 262 - COMMENT OUT:
+// recognition.start();
                         } catch (error) {
                             console.log('⚠️ Recognition restart failed:', error);
                         }
@@ -640,7 +642,8 @@ function switchToAudioMode() {
         // Restart speech recognition
         if (recognition && !isListening) {
             try {
-                recognition.start();
+                // Line 645 - COMMENT OUT:
+// recognition.start();
                 console.log('🔄 Recognition restarted');
             } catch (error) {
                 console.log('⚠️ Recognition restart failed:', error);
@@ -1162,7 +1165,8 @@ async function activateMicrophone() {
     
     if (recognition && !isListening) {
         try {
-            recognition.start();
+            // Line 1165 - COMMENT OUT:
+// recognition.start();
             console.log('🎤 Speech recognition started');
         } catch (error) {
             console.log('⚠️ Recognition start failed:', error);
