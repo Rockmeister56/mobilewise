@@ -362,7 +362,7 @@ function bindEventListeners() {
 // ===================================================
 // 🎛️ WAVEFORM VISUALIZATION (Preserved from our work)
 // ===================================================
-//function initializeWaveform() {
+   function initializeWaveform() {
     VoiceViz.canvas = document.getElementById('voiceWaveform'); // MATCHES YOUR HTML!
     if (!VoiceViz.canvas) {
         console.log('⚠️ Waveform canvas not found');
@@ -372,7 +372,7 @@ function bindEventListeners() {
     VoiceViz.canvasCtx = VoiceViz.canvas.getContext('2d');
     console.log('🎛️ Waveform canvas initialized');
     return true;
-
+}
 
 function animateWaveform() {
     if (!VoiceViz.waveformActive || !VoiceViz.analyser) return;
