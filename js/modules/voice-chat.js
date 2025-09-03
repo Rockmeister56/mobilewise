@@ -213,13 +213,18 @@ function initializeSpeechRecognition() {
                 }
 
                 // 🚀 THE MAGIC FIX - Process immediately OR wait for final
-                if (latestResult.isFinal || latestResult[0].confidence > 0.7) {
+                if (latestResult.isFinal) {
                     console.log('🎤 FINAL Voice input received:', transcript);
                     
                     // 🔥 DON'T STOP - JUST IGNORE WHILE AI IS SPEAKING
                     if (isSpeaking) {
                         console.log('🚫 Ignoring input - AI is speaking');
                         return;
+                    }
+                    
+                    // THE MISSING SIMPLE LOGIC YOU FOUND!
+                    if (transcript && transcript.length > 0) {
+                        handleVoiceInput(transcript);
                     }
                 }
             }
