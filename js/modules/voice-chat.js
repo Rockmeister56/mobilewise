@@ -139,6 +139,64 @@ function selectBestVoice() {
     return voices[0]; // Fallback
 }
 
+// ==========================================
+// MESSAGE SYSTEM FOR MOBILE-WISE AI FORMVISER
+// ==========================================
+
+function addAIMessage(message) {
+    console.log('🤖 AI Message:', message);
+    
+    // Create message element
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'ai-message';
+    messageDiv.innerHTML = `
+        <div class="message-content">
+            <span class="ai-label">Mobile-Wise AI:</span>
+            <span class="message-text">${message}</span>
+        </div>
+    `;
+    
+    // Find chat container or create one
+    let chatContainer = document.getElementById('chatMessages') || 
+                       document.getElementById('messageContainer') ||
+                       document.querySelector('.chat-container');
+    
+    if (!chatContainer) {
+        // Create chat container if it doesn't exist
+        chatContainer = document.createElement('div');
+        chatContainer.id = 'chatMessages';
+        chatContainer.className = 'chat-messages';
+        document.body.appendChild(chatContainer);
+    }
+    
+    chatContainer.appendChild(messageDiv);
+    
+    // Auto-scroll to bottom
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+function addUserMessage(message) {
+    console.log('👤 User Message:', message);
+    
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'user-message';
+    messageDiv.innerHTML = `
+        <div class="message-content">
+            <span class="user-label">You:</span>
+            <span class="message-text">${message}</span>
+        </div>
+    `;
+    
+    let chatContainer = document.getElementById('chatMessages') || 
+                       document.getElementById('messageContainer') ||
+                       document.querySelector('.chat-container');
+    
+    if (chatContainer) {
+        chatContainer.appendChild(messageDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+}
+
 
 // ===================================================
 // 🎤 MICROPHONE ACTIVATION (MOVED UP TO FIX REFERENCE ERROR)
