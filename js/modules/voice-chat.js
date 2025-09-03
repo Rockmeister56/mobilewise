@@ -235,8 +235,7 @@ function initializeSpeechRecognition() {
                 setTimeout(() => {
                     if (!isListening && !isSpeaking && isAudioMode) {
                         try {
-                            // Line 238 - COMMENT OUT:
-// recognition.start();
+                            recognition.start();
                             console.log('🔄 Recognition gently restarted');
                         } catch (error) {
                             console.log('⚠️ Gentle restart failed:', error.message);
@@ -510,7 +509,7 @@ function sendTextMessage() {
     
     addUserMessage(message);
     textInput.value = '';
-    // processUserInput(transcript);
+    processUserInput(message);
 }
 
 function processUserInput(message) {
