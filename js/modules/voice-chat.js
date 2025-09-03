@@ -1098,7 +1098,6 @@ function hideSpeedControls() {
 async function activateMicrophone() {
     console.log('🎤 User clicked ACTIVATE MICROPHONE button...');
 
-    // STEP 1: Show loading state on activate button
     const activateBtn = document.getElementById('activateMicButton');
     if (activateBtn) {
         activateBtn.textContent = '🎤 Requesting permission...';
@@ -1110,39 +1109,35 @@ async function activateMicrophone() {
         console.log('🎤 Microphone access granted!');
         micPermissionGranted = true;
         
-        // STEP 2: SWAP BUTTONS AND SHOW SPEED CONTROLS
-        swapToActiveMode(); // Updated function name
+        // SIMPLE SWAP - NO SPEED CONTROLS YET
+        if (activateBtn) activateBtn.style.display = 'none';
+        
+        const stopBtn = document.getElementById('audioOffBtn');
+        if (stopBtn) {
+            stopBtn.style.display = 'block';
+            stopBtn.textContent = '🛑 Stop Audio';
+        }
+        
+        // DON'T SHOW SPEED CONTROLS - TEST FIRST!
+        // const speedContainer = document.getElementById('speedControlsContainer');
+        // if (speedContainer) speedContainer.style.display = 'flex';
         
     } catch (error) {
         console.log('❌ Microphone access denied:', error);
-        
-        // STEP 3: Reset button on error
         if (activateBtn) {
             activateBtn.textContent = '🎤 Activate Microphone';
             activateBtn.disabled = false;
         }
-        
-        // Show fallback message
         addAIMessage("No problem! You can still chat with me using text. What can I help you with?");
         return;
     }
     
-    // // Hide splash screen if it exists
-// const splashScreen = document.getElementById('splashScreen');
-// if (splashScreen) splashScreen.style.display = 'none';
-    
-    // Show chat interface
-    const chatInterface = document.getElementById('chatInterface');
-    if (chatInterface) chatInterface.style.display = 'flex';
-    
     await startUnifiedVoiceVisualization();
-    
     isAudioMode = true;
-    micPermissionGranted = true;
     
     if (recognition && !isListening) {
         try {
-        recognition.start();
+            recognition.start();
             console.log('🎤 Speech recognition started');
         } catch (error) {
             console.log('⚠️ Recognition start failed:', error);
@@ -1152,100 +1147,13 @@ async function activateMicrophone() {
     showAudioMode();
     updateHeaderBanner('🎤 Microphone Active - How can we help your business?');
     
-    // AI introduces system
     setTimeout(() => {
         const greeting = "Perfect! Voice chat is now active, what can I help you with today?";
         addAIMessage(greeting);
         speakResponse(greeting);
-        console.log('👋 AI introduction delivered');
     }, 1000);
 }
 
-// UPDATED FUNCTION: Complete mode swap with speed controls
-function swapToActiveMode() {
-    // Hide activate button
-    const activateBtn = document.getElementById('activateMicButton');
-    if (activateBtn) activateBtn.style.display = 'none';
-    
-    // Show stop button
-    const stopBtn = document.getElementById('audioOffBtn');
-    if (stopBtn) {
-        stopBtn.style.display = 'block';
-        stopBtn.textContent = '🛑 Stop';
-    }
-    
-    // SHOW SPEED CONTROLS (This was missing!)
-    const speedContainer = document.getElementById('speedControlsContainer');
-    if (speedContainer) {
-        speedContainer.style.display = 'flex';
-        console.log('✅ Speed controls now visible');
-    }
-    
-    console.log('🔄 Complete swap: Activate → Stop + Speed Controls');
-}
-
-function hideSpeedControls() {
-    const speedContainer = document.getElementById('speedControlsContainer');
-    if (speedContainer) {
-        speedContainer.style.display = 'none';
-        console.log('✅ Speed controls hidden');
-    }
-}
-
-function showSpeedControls() {
-    const speedContainer = document.getElementById('speedControlsContainer');
-    if (speedContainer) {
-        speedContainer.style.display = 'flex';
-        console.log('✅ Speed controls shown');
-    }
-}
-
-function swapToActiveMode() {
-    // Hide activate button
-    const activateBtn = document.getElementById('activateMicButton');
-    if (activateBtn) activateBtn.style.display = 'none';
-    
-    // Show stop button
-    const stopBtn = document.getElementById('audioOffBtn');
-    if (stopBtn) {
-        stopBtn.style.display = 'block';
-        stopBtn.textContent = '🛑 Stop Audio';
-    }
-    
-    // SHOW SPEED CONTROLS
-    const speedContainer = document.getElementById('speedControlsContainer');
-    if (speedContainer) {
-        speedContainer.style.display = 'flex';
-        console.log('✅ Speed controls now visible');
-    }
-    
-    console.log('🔄 Complete swap: Activate → Stop + Speed Controls');
-}
-
-
-// INITIAL SETUP FUNCTIONS (add these if missing)
-function hideSpeedControls() {
-    const speedContainer = document.getElementById('speedControlsContainer');
-    if (speedContainer) {
-        speedContainer.style.display = 'none';
-        console.log('✅ Speed controls hidden initially');
-    }
-}
-
-function showActivateMicButton() {
-    const activateBtn = document.getElementById('activateMicButton');
-    const audioControls = document.getElementById('audioControls');
-    
-    if (activateBtn) activateBtn.style.display = 'block';
-    if (audioControls) audioControls.style.display = 'flex';
-    
-    console.log('✅ Activate Microphone button shown');
-}
-
-function reinitiateAudio() {
-    console.log('🔄 User requested audio reinitiation');
-    activateMicrophone();
-}
 // ===================================================
 // 🌐 GLOBAL FUNCTIONS (All preserved)
 // ===================================================
