@@ -205,22 +205,25 @@ function initializeSpeechRecognition() {
 
         // 🎯 BALANCED DETECTION - Not too strict, not too loose
         const shouldProcess = (
-            latestResult.isFinal && 
-            transcript.length > 4 &&  // Reasonable minimum
-            (
-                // High confidence phrases (relaxed)
-                latestResult[0].confidence > 0.75 ||
-                
-                // Or contains key business words
-                transcript.toLowerCase().includes('sell') ||
-                transcript.toLowerCase().includes('buy') ||
-                transcript.toLowerCase().includes('practice') ||
-                transcript.toLowerCase().includes('accounting') ||
-                
-                // Or is a reasonable length sentence
-                transcript.split(' ').length >= 3
-            )
-        );
+    latestResult.isFinal && 
+    transcript.length > 3 &&  // Just 3+ characters, not 4+
+    (
+        // Lower confidence threshold
+        latestResult[0].confidence > 0.6 ||  // Was 0.75, now 0.6
+        
+        // More business keywords
+        transcript.toLowerCase().includes('tax') ||
+        transcript.toLowerCase().includes('sell') ||
+        transcript.toLowerCase().includes('buy') ||
+        transcript.toLowerCase().includes('practice') ||
+        transcript.toLowerCase().includes('accounting') ||
+        transcript.toLowerCase().includes('help') ||
+        transcript.toLowerCase().includes('business') ||
+        
+        // Accept 2+ words instead of 3+
+        transcript.split(' ').length >= 2  // Was 3, now 2
+    )
+);
 
         if (shouldProcess) {
             console.log('🎤 Processing voice input:', transcript);
