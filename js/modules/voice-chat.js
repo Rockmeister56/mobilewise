@@ -866,6 +866,44 @@ async function speakResponse(message) {
     window.speechSynthesis.speak(utterance);
 }
 
+
+// 🎤 BRITISH VOICE DETECTOR - WAIT FOR VOICES TO LOAD!
+function loadVoicesWithWait() {
+    return new Promise((resolve) => {
+        let voices = speechSynthesis.getVoices();
+        
+        if (voices.length > 0) {
+            console.log('✅ Voices already loaded:', voices.length);
+            logBritishVoices(voices);
+            resolve(voices);
+            return;
+        }
+        
+        console.log('⏳ Waiting for voices to load...');
+        speechSynthesis.onvoiceschanged = () => {
+            voices = speechSynthesis.getVoices();
+            console.log('🎤 Voices loaded:', voices.length);
+            logBritishVoices(voices);
+            resolve(voices);
+        };
+    });
+}
+
+function logBritishVoices(voices) {
+    console.log('🔍 SEARCHING FOR BRITISH VOICES...');
+    voices.forEach(voice => {
+        if (voice.lang.includes('GB') || voice.name.toLowerCase().includes('british') || 
+            voice.name.toLowerCase().includes('hazel') || voice.name.toLowerCase().includes('susan')) {
+            console.log('🇬🇧 BRITISH VOICE FOUND:', voice.name, '-', voice.lang);
+        }
+    });
+}
+
+// Call this instead of your current voice loading
+loadVoicesWithWait().then(voices => {
+    console.log('🚀 All voices ready for Mobile-Wise AI Empire!');
+});
+
 // 🎤 VOICE SYNTHESIS WITH BRITISH PRIORITY
 function speakWithVoice(message, voices) {
     window.speechSynthesis.cancel();
