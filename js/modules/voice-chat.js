@@ -198,14 +198,14 @@ function initializeSpeechRecognition() {
             hasStartedOnce = true;
         };
 
-     recognition.onresult = function(event) {
+    recognition.onresult = function(event) {
     if (event.results.length > 0) {
         const latestResult = event.results[event.results.length - 1];
         const transcript = latestResult[0].transcript.trim();
 
-        // ⚡ CHROME FIX: Use confidence OR isFinal
-        if (latestResult.isFinal || latestResult[0].confidence > 0.7) {
-            console.log('🎤 Voice input received:', transcript);
+        // ⚡ CHROME FIX: Only process if FINAL OR high confidence AND length > 3
+        if ((latestResult.isFinal || latestResult[0].confidence > 0.8) && transcript.length > 3) {
+            console.log('🎤 FINAL Voice input received:', transcript);
             
             if (isSpeaking) {
                 console.log('🚫 Ignoring - AI is speaking');
