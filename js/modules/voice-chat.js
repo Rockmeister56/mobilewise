@@ -18,6 +18,128 @@ let lastProcessedInput = '';
 let lastProcessedTime = 0;
 let isProcessingResponse = false;
 
+// ==========================================
+// BRITISH VOICE EMPIRE SYSTEM - MOBILE-WISE AI
+// Place this ENTIRE section near the TOP of your file!
+// ==========================================
+
+// British Voice Priority System - 4-Tier Selection
+function getOptimizedVoices() {
+    return new Promise((resolve) => {
+        const timeoutId = setTimeout(() => {
+            console.log('Voice loading timeout - using available voices');
+            resolve(speechSynthesis.getVoices());
+        }, 3000);
+
+        function loadVoices() {
+            const voices = speechSynthesis.getVoices();
+            if (voices.length > 0) {
+                clearTimeout(timeoutId);
+                resolve(voices);
+            }
+        }
+
+        // Try to load voices immediately
+        loadVoices();
+        
+        // Listen for voice changes
+        speechSynthesis.addEventListener('voiceschanged', loadVoices);
+    });
+}
+
+// Preload voices function - MUST be defined before line 882!
+async function preloadVoices() {
+    console.log('🇬🇧 Preloading British Voice Empire...');
+    
+    try {
+        const voices = await getOptimizedVoices();
+        
+        // British Voice Priority Hierarchy
+        const britishPriority = [
+            // Tier 1: Premium British Female
+            'Microsoft Hazel - English (Great Britain)',
+            'Google UK English Female',
+            'en-GB-female',
+            
+            // Tier 2: Premium British Male  
+            'Microsoft George - English (Great Britain)',
+            'Google UK English Male',
+            'en-GB-male',
+            
+            // Tier 3: Microsoft Libby (High Quality Fallback)
+            'Microsoft Libby - English (United States)',
+            
+            // Tier 4: US Fallbacks
+            'Microsoft Zira - English (United States)',
+            'Google US English Female',
+            'en-US-female'
+        ];
+
+        // Find the best available British voice
+        let selectedVoice = null;
+        for (const voiceName of britishPriority) {
+            selectedVoice = voices.find(voice => 
+                voice.name.includes(voiceName) || 
+                voice.name.toLowerCase().includes(voiceName.toLowerCase())
+            );
+            if (selectedVoice) {
+                console.log(`✅ Selected British Voice: ${selectedVoice.name}`);
+                break;
+            }
+        }
+
+        // Store globally for voice chat system
+        window.selectedBritishVoice = selectedVoice || voices[0];
+        window.allVoices = voices;
+        
+        return selectedVoice || voices[0];
+        
+    } catch (error) {
+        console.error('🚨 British Voice Empire Error:', error);
+        const fallbackVoices = speechSynthesis.getVoices();
+        return fallbackVoices[0];
+    }
+}
+
+// Initialize British Voice System
+function initializeBritishVoices() {
+    console.log('🏴󠁧󠁢󠁥󠁮󠁧󠁿 Initializing British Voice Empire...');
+    
+    // Ensure voices are loaded
+    if (speechSynthesis.getVoices().length === 0) {
+        speechSynthesis.addEventListener('voiceschanged', () => {
+            preloadVoices();
+        });
+    } else {
+        preloadVoices();
+    }
+}
+
+// Voice Selection with British Priority
+function selectBestVoice() {
+    const voices = speechSynthesis.getVoices();
+    
+    // British Voice Hierarchy
+    const priorities = [
+        'Microsoft Hazel',
+        'Google UK English Female', 
+        'Microsoft George',
+        'Microsoft Libby',
+        'Microsoft Zira'
+    ];
+    
+    for (const priority of priorities) {
+        const voice = voices.find(v => v.name.includes(priority));
+        if (voice) {
+            console.log(`🎯 Voice Selected: ${voice.name}`);
+            return voice;
+        }
+    }
+    
+    return voices[0]; // Fallback
+}
+
+
 // ===================================================
 // 🎤 MICROPHONE ACTIVATION (MOVED UP TO FIX REFERENCE ERROR)
 // ===================================================
@@ -228,120 +350,6 @@ function initializeSpeechRecognition() {
     } else {
         console.log('❌ Speech recognition not supported in this browser');
     }
-}
-
-// ===================================================
-// 🇬🇧 SPECIALIZED BRITISH VOICE EMPIRE SYSTEM
-// ===================================================
-function getOptimizedVoices() {
-    return new Promise((resolve) => {
-        console.log('🔍 Loading optimized voices...');
-        
-        let voices = window.speechSynthesis.getVoices();
-        
-        if (voices.length > 0) {
-            const filteredVoices = filterToEnglishVoices(voices);
-            resolve(filteredVoices);
-            return;
-        }
-        
-        // Wait for voices to load (but with timeout)
-        const voicesChangedHandler = () => {
-            voices = window.speechSynthesis.getVoices();
-            if (voices.length > 0) {
-                window.speechSynthesis.removeEventListener('voiceschanged', voicesChangedHandler);
-                const filteredVoices = filterToEnglishVoices(voices);
-                resolve(filteredVoices);
-            }
-        };
-        
-        window.speechSynthesis.addEventListener('voiceschanged', voicesChangedHandler);
-        
-        // Timeout after 3 seconds
-        setTimeout(() => {
-            voices = window.speechSynthesis.getVoices();
-            const filteredVoices = filterToEnglishVoices(voices);
-            resolve(filteredVoices);
-        }, 3000);
-    });
-}
-
-// 🎯 SMART VOICE FILTERING (Only English voices!)
-function filterToEnglishVoices(allVoices) {
-    const englishVoices = allVoices.filter(voice => 
-        voice.lang.startsWith('en') && 
-        (voice.name.includes('English') || voice.name.includes('US') || 
-         voice.name.includes('UK') || voice.name.includes('Aria') || 
-         voice.name.includes('Zira') || voice.name.includes('Libby'))
-    );
-    
-    console.log(`✅ Filtered to ${englishVoices.length} English voices (from ${allVoices.length} total)`);
-    return englishVoices.slice(0, 10); // Max 10 English voices
-}
-
-// 🇬🇧 BRITISH FEMALE PRIORITY VOICE SELECTOR - EMPIRE GRADE!
-function findUniversalBestVoice(voices) {
-    console.log('🔍 Searching for best voice...');
-    
-    // 🎯 PRIORITY 1: British Female (Your preferred choice!)
-    const britishFemale = voices.find(v => 
-        v.name.includes('UK English Female') || 
-        v.name.includes('Google UK English Female')
-    );
-    if (britishFemale) {
-        console.log('🇬🇧 BRITISH FEMALE SELECTED:', britishFemale.name);
-        return britishFemale;
-    }
-    
-    // 🎯 PRIORITY 2: British Male (backup)
-    const britishMale = voices.find(v => 
-        v.name.includes('UK English Male') || 
-        v.name.includes('Google UK English Male')
-    );
-    if (britishMale) {
-        console.log('🇬🇧 BRITISH MALE SELECTED:', britishMale.name);
-        return britishMale;
-    }
-    
-    // 🎯 PRIORITY 3: Microsoft British voices
-    const microsoftLibby = voices.find(v => 
-        v.name.includes('Libby') && v.name.includes('United Kingdom')
-    );
-    if (microsoftLibby) {
-        console.log('🇬🇧 MICROSOFT LIBBY SELECTED:', microsoftLibby.name);
-        return microsoftLibby;
-    }
-    
-    // 🎯 PRIORITY 4: High-quality US voices (fallback)
-    const preferredUSVoices = [
-        'Microsoft Aria Online (Natural) - English (United States)',
-        'Microsoft Jenny Online (Natural) - English (United States)',
-        'Microsoft Zira - English (United States)',
-        'Google US English'
-    ];
-    
-    for (const preferredName of preferredUSVoices) {
-        const voice = voices.find(v => v.name === preferredName);
-        if (voice) {
-            console.log('🇺🇸 US VOICE SELECTED:', voice.name);
-            return voice;
-        }
-    }
-    
-    // Final fallback
-    console.log('⚠️ Using fallback voice:', voices[0]?.name || 'default');
-    return voices[0];
-}
-
-// 🇬🇧 BRITISH VOICE DEBUGGING SYSTEM
-function logBritishVoices(voices) {
-    console.log('🔍 SEARCHING FOR BRITISH VOICES...');
-    voices.forEach(voice => {
-        if (voice.lang.includes('GB') || voice.name.toLowerCase().includes('british') || 
-            voice.name.toLowerCase().includes('hazel') || voice.name.toLowerCase().includes('susan')) {
-            console.log('🇬🇧 BRITISH VOICE FOUND:', voice.name, '-', voice.lang);
-        }
-    });
 }
 
 // ===================================================
