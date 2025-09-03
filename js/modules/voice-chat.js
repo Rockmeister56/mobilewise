@@ -198,40 +198,77 @@ function initializeSpeechRecognition() {
             hasStartedOnce = true;
         };
 
-  recognition.onresult = function(event) {
-    if (event.results.length > 0) {
-        const latestResult = event.results[event.results.length - 1];
-        // Safety check for Chrome speech recognition
-if (latestResult && latestResult[0] && latestResult[0].transcript) {
-    const transcript = latestResult[0].transcript.trim();
-    console.log('✅ Speech captured:', transcript);
-    // Continue with processing...
-} else {
-    console.log('⚠️ No valid speech result found');
-    return;
-}
+        recognition.onresult = function(event) {
+            if (event.results.length > 0) {
+                const latestResult = event.results[event.results.length - 1];
+                let transcript = ''; // MOVED TO FUNCTION SCOPE
+                
+                // Safe transcript extraction
+                if (latestResult && latestResult[0] && latestResult[0].transcript) {
+                    transcript = latestResult[0].transcript.trim();
+                    console.log('✅ Speech captured:', transcript);
+                } else {
+                    console.log('⚠️ No valid transcript found');
+                    return;
+                }
 
-        // 🎯 BALANCED DETECTION - Not too strict, not too loose
-        const shouldProcess = (
-    latestResult.isFinal && 
-    transcript.length > 3 &&  // Just 3+ characters, not 4+
-    (
-        // Lower confidence threshold
-        latestResult[0].confidence > 0.6 ||  // Was 0.75, now 0.6
-        
-        // More business keywords
-        transcript.toLowerCase().includes('tax') ||
-        transcript.toLowerCase().includes('sell') ||
-        transcript.toLowerCase().includes('buy') ||
-        transcript.toLowerCase().includes('practice') ||
-        transcript.toLowerCase().includes('accounting') ||
-        transcript.toLowerCase().includes('help') ||
-        transcript.toLowerCase().includes('business') ||
-        
-        // Accept 2+ words instead of 3+
-        transcript.split(' ').length >= 2  // Was 3, now 2
-    )
-);
+                // 🚀 THE MAGIC FIX - Process immediately OR wait for final
+                if (latestResult.isFinal || latestResult[0].confidence > 0.7) {
+                    console.log('🎤 FINAL Voice input received:', transcript);
+                    
+                    // 🔥 DON'T STOP - JUST IGNORE WHILE AI IS SPEAKING
+                    if (isSpeaking) {
+                        console.log('🚫 Ignoring input - AI is speaking');
+                        return;
+                    }
+                    
+                    // THE MISSING SIMPLE LOGIC YOU FOUND!
+                    if (transcript && transcript.length > 0) {
+                        handleVoiceInput(transcript);
+                    }
+                }
+            }
+        };
+
+        recognition.onend = function() {
+            console.log('🎤 Speech recognition ended unexpectedly');
+            isListening = false;
+            
+            // 🔥 GENTLE RESTART - Only after AI finishes speaking
+            if (isAudioMode && micPermissionGranted && !isSpeaking) {
+                console.log('🔄 Gentle restart - waiting for AI to finish...');
+                setTimeout(() => {
+                    if (!isListening && !isSpeaking && isAudioMode) {
+                        try {
+                            recognition.start();
+                            console.log('✅ Recognition gently restarted');
+                        } catch (error) {
+                            console.log('⚠️ Gentle restart failed:', error.message);
+                        }
+                    }
+                }, 1000);
+            }
+        };
+
+        recognition.onerror = function(event) {
+            console.log('🚫 Speech recognition error:', event.error);
+            isListening = false;
+            
+            if (event.error === 'not-allowed') {
+                console.log('❌ Microphone permission denied');
+                micPermissionGranted = false;
+                return;
+            }
+            
+            // Restart on any other error
+            if (isAudioMode && micPermissionGranted) {
+                setTimeout(() => {
+                    if (!isListening) {
+                        recognition.start();
+                    }
+                }, 1000);
+            }
+        };
 
         if (shouldProcess) {
             console.log('🎤 Processing voice input:', transcript);
@@ -246,7 +283,7 @@ if (latestResult && latestResult[0] && latestResult[0].transcript) {
             console.log('⏳ Too short, waiting for more:', transcript);
         }
     }
-}; // ← ENSURE THIS SEMICOLON IS HERE
+};
 
 recognition.onend = function() {
     console.log('🎤 Speech recognition ended');
@@ -304,12 +341,6 @@ recognition.onerror = function(event) {
         }, 2000); // Longer delay for Chrome
     }
 };
-
-    } else {
-        console.log('❌ Speech recognition not supported in this browser');
-    }
-}
-
 
 // ===================================================
 // 🎛️ WAVEFORM VISUALIZATION (Preserved from our work)
