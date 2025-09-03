@@ -813,22 +813,23 @@ function findUniversalBestVoice(voices) {
 }
 
 // 🚀 MAIN SPEECH FUNCTION
+// 🚀 OPTIMIZED SPEECH FUNCTION - NO MORE 7-SECOND DELAY!
 async function speakResponse(message) {
     console.log('🗣️ Speaking response...');
     
-    // 🛑 NUCLEAR STOP - Kill speech recognition completely
+    // 🔥 GENTLE PAUSE - Don't completely stop recognition!
     if (recognition && isListening) {
-        recognition.stop();
+        recognition.stop();  // Just pause, don't destroy
         isListening = false;
-        console.log('🛑 Speech recognition STOPPED for AI response');
+        console.log('⏸️ Speech recognition PAUSED for AI response');
     }
     
-    // 🔥 NUCLEAR OPTION - Kill everything first!
+    // Stop any current speech
     window.speechSynthesis.cancel();
     currentAudio = null;
     
     // Brief pause to ensure cleanup
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise(resolve => setTimeout(resolve, 50)); // Reduced from 100ms
     
     updateHeaderBanner('🤖 AI responding...');
     
@@ -862,24 +863,32 @@ async function speakResponse(message) {
         console.log('✅ SINGLE speech finished');
         updateHeaderBanner('🎤 AI is listening...');
         
-        // 🔄 RESTART RECOGNITION AFTER AI FINISHES
-        setTimeout(() => {
-            if (isAudioMode && !isListening) {
-                try {
-                    recognition.start();
-                    isListening = true;
-                    console.log('🔄 Speech recognition RESTARTED after AI response');
-                } catch (error) {
-                    console.log('⚠️ Recognition restart failed:', error);
-                }
+        // 🔄 IMMEDIATE RESTART - No delay!
+        if (isAudioMode && !isListening) {
+            try {
+                recognition.start();
+                isListening = true;
+                console.log('🔄 Speech recognition IMMEDIATELY restarted');
+            } catch (error) {
+                console.log('⚠️ Recognition restart failed:', error);
             }
-        }, 500);
+        }
     };
     
     utterance.onerror = (event) => {
         console.log('❌ Speech error:', event.error);
         isSpeaking = false;
         currentAudio = null;
+        
+        // Ensure recognition restarts even on error
+        if (isAudioMode && !isListening) {
+            try {
+                recognition.start();
+                isListening = true;
+            } catch (error) {
+                console.log('⚠️ Error recovery restart failed:', error);
+            }
+        }
     };
     
     currentAudio = utterance;
