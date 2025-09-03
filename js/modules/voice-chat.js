@@ -410,7 +410,7 @@ window.adjustVoiceSpeed = adjustVoiceSpeed;
 window.activateMicrophone = activateMicrophone;
 window.switchToAudioMode = switchToAudioMode;
 window.muteAIVoice = muteAIVoice;
-window.sendTextMessage = sendTextMessage;
+// window.sendTextMessage = sendTextMessage;
 
 // Missing function stubs to prevent errors
 function showSpeedControls() {
