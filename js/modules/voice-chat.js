@@ -478,22 +478,16 @@ function processUserInput(message) {
 function handleVoiceInput(transcript) {
     const now = Date.now();
     
-    // 🔥 PREVENT DUPLICATES with longer cooldown
-    if (transcript === lastProcessedInput && (now - lastProcessedTime) < 3000) {
+    // 🔥 SIMPLE DUPLICATE PREVENTION (shorter cooldown)
+    if (transcript === lastProcessedInput && (now - lastProcessedTime) < 1500) {
         console.log('🚫 Duplicate input ignored:', transcript);
         return;
     }
     
-    // 🎯 VALIDATE THIS IS A COMPLETE THOUGHT
-    const isIncompleteThought = (
-        transcript.length < 6 ||  // Too short
-        (transcript.split(' ').length < 3 && !transcript.includes('practice')) ||  // Single words
-        (transcript.toLowerCase().includes('i want') && transcript.split(' ').length < 4)  // "I want" without object
-    );
-    
-    if (isIncompleteThought) {
-        console.log('🚫 Incomplete thought - waiting for more:', transcript);
-        return;  // Don't process incomplete thoughts
+    // 🚀 ACCEPT ALL REAL BUSINESS INPUTS
+    if (transcript.length < 2) {  // Only block single characters
+        console.log('⏳ Too short, waiting for more:', transcript);
+        return;
     }
     
     lastProcessedInput = transcript;
@@ -501,32 +495,15 @@ function handleVoiceInput(transcript) {
     
     console.log('🗣️ Processing complete voice input:', transcript);
     
-    // 🚀 IMMEDIATE MESSAGE DISPLAY
     addUserMessage(transcript);
     
-    // 🔥 FORCE STOP ALL AUDIO
     if (window.speechSynthesis.speaking) {
         window.speechSynthesis.cancel();
     }
     currentAudio = null;
     isSpeaking = false;
     
-    // ⚡ DIRECT CALL - NO setTimeout!
     processUserInput(transcript);
-}
-
-function sendTextMessage() {
-    const textInput = document.getElementById('textInput'); // MATCHES YOUR HTML!
-    if (!textInput) return;
-    
-    const message = textInput.value.trim();
-    console.log('💬 Processing text input:', message);
-    
-    if (!message) return;
-    
-    addUserMessage(message);
-    textInput.value = '';
-    processUserInput(message);
 }
 
 // ===================================================
