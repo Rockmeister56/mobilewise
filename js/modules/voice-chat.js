@@ -179,7 +179,7 @@ function hideStopButton() {
 }
 
 // ===================================================
-// 🎤 SPEECH RECOGNITION (Chrome FIXED - No more delay!)
+// 🎤 SPEECH RECOGNITION (All fixes preserved)
 // ===================================================
 function initializeSpeechRecognition() {
     console.log('🎤 Initializing speech recognition...');
@@ -198,29 +198,26 @@ function initializeSpeechRecognition() {
             hasStartedOnce = true;
         };
 
-        // 🔥 CHROME FIX: Use the working version from org.js
-        recognition.onresult = function(event) {
-            if (event.results.length > 0) {
-                // Get the LATEST result (don't wait for isFinal in Chrome)
-                const latestResult = event.results[event.results.length - 1];
-                const transcript = latestResult[0].transcript.trim();
-                
-                // Process immediately if confidence is high OR if isFinal (Chrome fix)
-                if (latestResult.isFinal || latestResult[0].confidence > 0.7) {
-                    console.log('🎤 FINAL Voice input received:', transcript);
-                    
-                    // 🔥 DON'T STOP - JUST IGNORE WHILE AI IS SPEAKING
-                    if (isSpeaking) {
-                        console.log('🚫 Ignoring input - AI is speaking');
-                        return;
-                    }
-                    
-                    if (transcript && transcript.length > 0) {
-                        handleVoiceInput(transcript);  // ← SINGLE PROCESSING PATH!
-                    }
-                }
+     recognition.onresult = function(event) {
+    if (event.results.length > 0) {
+        const latestResult = event.results[event.results.length - 1];
+        const transcript = latestResult[0].transcript.trim();
+
+        // ⚡ CHROME FIX: Use confidence OR isFinal
+        if (latestResult.isFinal || latestResult[0].confidence > 0.7) {
+            console.log('🎤 Voice input received:', transcript);
+            
+            if (isSpeaking) {
+                console.log('🚫 Ignoring - AI is speaking');
+                return;
             }
-        };
+            
+            if (transcript && transcript.length > 0) {
+                handleVoiceInput(transcript);
+            }
+        }
+    }
+};
 
         recognition.onend = function() {
             console.log('🎤 Speech recognition ended');
@@ -452,7 +449,7 @@ function processUserInput(message) {
     // Stop audio
     if (currentAudio) stopCurrentAudio();
     
-    // INSTANT AI response
+    // INSTANT AI response - NO DELAYS! ✅
     const response = getAIResponse(message);
     addAIMessage(response);
     speakResponse(response);
@@ -467,7 +464,7 @@ function processUserInput(message) {
 function handleVoiceInput(transcript) {
     const now = Date.now();
     
-    // 🔥 PREVENT DUPLICATES: Ignore if same input within 2 seconds
+    // 🔥 PREVENT DUPLICATES
     if (transcript === lastProcessedInput && (now - lastProcessedTime) < 2000) {
         console.log('🚫 Duplicate input ignored:', transcript);
         return;
@@ -488,10 +485,8 @@ function handleVoiceInput(transcript) {
     currentAudio = null;
     isSpeaking = false;
     
-    // Process with minimal delay
-    setTimeout(() => {
-        processUserInput(transcript);
-    }, 200);
+    // ⚡ DIRECT CALL - NO setTimeout!
+    processUserInput(transcript);
 }
 
 function sendTextMessage() {
@@ -506,6 +501,31 @@ function sendTextMessage() {
     addUserMessage(message);
     textInput.value = '';
     processUserInput(message);
+}
+
+function processUserInput(message) {
+    // 🔥 PREVENT DOUBLE PROCESSING
+    if (isProcessingResponse) {
+        console.log('🚫 Already processing response, ignoring');
+        return;
+    }
+    
+    isProcessingResponse = true;
+    
+    if (currentAudio) {
+        stopCurrentAudio();
+    }
+    
+    // INSTANT AI response - NO DELAYS!
+const response = getAIResponse(message);
+console.log('🤖 AI Response generated');
+addAIMessage(response);
+speakResponse(response);
+
+// Reset flag after brief delay
+setTimeout(() => {
+    isProcessingResponse = false;
+}, 500);
 }
 
 // ===================================================
@@ -799,11 +819,11 @@ async function speakResponse(message) {
     updateHeaderBanner('🤖 AI responding...');
     
     if (!window.speechSynthesis) {
-    console.log('❌ Speech synthesis not supported');
-    return;
-}
+        console.log('❌ Speech synthesis not supported');
+        return;
+    }
 
-const voices = await getOptimizedVoices();
+    const voices = await getOptimizedVoices();
     
     // 🎯 SINGLE VOICE EXECUTION
     const utterance = new SpeechSynthesisUtterance(message);
@@ -985,3 +1005,285 @@ async function testAllVoices() {
 
 // Make it globally available
 window.testAllVoices = testAllVoices;
+
+
+// ===================================================
+// 🛠️ UTILITY FUNCTIONS
+// ===================================================
+function stopCurrentAudio() {
+    if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+        console.log('🛑 Speech stopped');
+    }
+    currentAudio = null;
+    isSpeaking = false;
+}
+
+function muteAIVoice() {
+    console.log('🔇 MUTING AI Voice...');
+    stopCurrentAudio();
+    isSpeaking = false;
+    updateHeaderBanner('🔇 AI Voice Muted');
+    switchToTextMode();
+    console.log('✅ AI Voice MUTED');
+}
+
+function preloadVoices() {
+    getOptimizedVoices().then(voices => {
+        console.log('🎤 Optimized voices loaded:', voices.length);
+        console.log('🇬🇧 AVAILABLE BRITISH VOICES:');
+        
+        const britishVoices = voices.filter(v => 
+            v.name.includes('UK') || 
+            v.name.includes('British') || 
+            v.name.includes('Libby')
+        );
+        
+        britishVoices.forEach((voice, i) => {
+            console.log(`👑 ${voice.name} (${voice.lang})`);
+        });
+        
+        if (britishVoices.length === 0) {
+            console.log('⚠️ No British voices found - using US voices');
+        }
+    });
+}
+
+function debugBritishVoices() {
+    const voices = window.speechSynthesis.getVoices();
+    const britishVoices = voices.filter(v => 
+        v.lang.includes('GB') || 
+        v.name.toLowerCase().includes('uk') ||
+        v.name.toLowerCase().includes('british') ||
+        v.name.toLowerCase().includes('libby')
+    );
+    
+    console.log('🇬🇧 AVAILABLE BRITISH VOICES:');
+    britishVoices.forEach((voice, index) => {
+        console.log(`👑 ${voice.name} (${voice.lang})`);
+    });
+    
+    if (britishVoices.length === 0) {
+        console.log('❌ No British voices found - check system voices');
+    }
+}
+
+
+// ===================================================
+// 🎯 UTILITY FUNCTIONS (Fixed for your HTML)
+// ===================================================
+function updateHeaderBanner(message) {
+    const headerTitle = document.getElementById('chatHeaderTitle'); // MATCHES YOUR HTML!
+    if (headerTitle) {
+        headerTitle.textContent = message;
+        console.log('📱 Header banner updated:', message);
+    }
+}
+
+function hideSpeedControls() {
+    const slowerBtn = document.querySelector('[onclick*="slower"]');
+    const normalBtn = document.querySelector('[onclick*="normal"]'); 
+    const fasterBtn = document.querySelector('[onclick*="faster"]');
+    
+    if (slowerBtn) slowerBtn.style.display = 'none';
+    if (normalBtn) normalBtn.style.display = 'none';
+    if (fasterBtn) fasterBtn.style.display = 'none';
+    
+    console.log('⚡ Speed buttons hidden');
+}
+
+// ===================================================
+// 🎤 MICROPHONE ACTIVATION (With Button Swap Logic!)
+// ===================================================
+async function activateMicrophone() {
+    console.log('🎤 User clicked ACTIVATE MICROPHONE button...');
+
+    // STEP 1: Show loading state on activate button
+    const activateBtn = document.getElementById('activateMicButton');
+    if (activateBtn) {
+        activateBtn.textContent = '🎤 Requesting permission...';
+        activateBtn.disabled = true;
+    }
+
+    try {
+        persistentMicStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        console.log('🎤 Microphone access granted!');
+        micPermissionGranted = true;
+        
+        // STEP 2: SWAP BUTTONS AND SHOW SPEED CONTROLS
+        swapToActiveMode(); // Updated function name
+        
+    } catch (error) {
+        console.log('❌ Microphone access denied:', error);
+        
+        // STEP 3: Reset button on error
+        if (activateBtn) {
+            activateBtn.textContent = '🎤 Activate Microphone';
+            activateBtn.disabled = false;
+        }
+        
+        // Show fallback message
+        addAIMessage("No problem! You can still chat with me using text. What can I help you with?");
+        return;
+    }
+    
+    // // Hide splash screen if it exists
+// const splashScreen = document.getElementById('splashScreen');
+// if (splashScreen) splashScreen.style.display = 'none';
+    
+    // Show chat interface
+    const chatInterface = document.getElementById('chatInterface');
+    if (chatInterface) chatInterface.style.display = 'flex';
+    
+    await startUnifiedVoiceVisualization();
+    
+    isAudioMode = true;
+    micPermissionGranted = true;
+    
+    if (recognition && !isListening) {
+        try {
+        recognition.start();
+            console.log('🎤 Speech recognition started');
+        } catch (error) {
+            console.log('⚠️ Recognition start failed:', error);
+        }
+    }
+    
+    showAudioMode();
+    updateHeaderBanner('🎤 Microphone Active - How can we help your business?');
+    
+    // AI introduces system
+    setTimeout(() => {
+        const greeting = "Perfect! Voice chat is now active, what can I help you with today?";
+        addAIMessage(greeting);
+        speakResponse(greeting);
+        console.log('👋 AI introduction delivered');
+    }, 1000);
+}
+
+// UPDATED FUNCTION: Complete mode swap with speed controls
+function swapToActiveMode() {
+    // Hide activate button
+    const activateBtn = document.getElementById('activateMicButton');
+    if (activateBtn) activateBtn.style.display = 'none';
+    
+    // Show stop button
+    const stopBtn = document.getElementById('audioOffBtn');
+    if (stopBtn) {
+        stopBtn.style.display = 'block';
+        stopBtn.textContent = '🛑 Stop';
+    }
+    
+    // SHOW SPEED CONTROLS (This was missing!)
+    const speedContainer = document.getElementById('speedControlsContainer');
+    if (speedContainer) {
+        speedContainer.style.display = 'flex';
+        console.log('✅ Speed controls now visible');
+    }
+    
+    console.log('🔄 Complete swap: Activate → Stop + Speed Controls');
+}
+
+function hideSpeedControls() {
+    const speedContainer = document.getElementById('speedControlsContainer');
+    if (speedContainer) {
+        speedContainer.style.display = 'none';
+        console.log('✅ Speed controls hidden');
+    }
+}
+
+function showSpeedControls() {
+    const speedContainer = document.getElementById('speedControlsContainer');
+    if (speedContainer) {
+        speedContainer.style.display = 'flex';
+        console.log('✅ Speed controls shown');
+    }
+}
+
+function swapToActiveMode() {
+    // Hide activate button
+    const activateBtn = document.getElementById('activateMicButton');
+    if (activateBtn) activateBtn.style.display = 'none';
+    
+    // Show stop button
+    const stopBtn = document.getElementById('audioOffBtn');
+    if (stopBtn) {
+        stopBtn.style.display = 'block';
+        stopBtn.textContent = '🛑 Stop Audio';
+    }
+    
+    // SHOW SPEED CONTROLS
+    const speedContainer = document.getElementById('speedControlsContainer');
+    if (speedContainer) {
+        speedContainer.style.display = 'flex';
+        console.log('✅ Speed controls now visible');
+    }
+    
+    console.log('🔄 Complete swap: Activate → Stop + Speed Controls');
+}
+
+
+// INITIAL SETUP FUNCTIONS (add these if missing)
+function hideSpeedControls() {
+    const speedContainer = document.getElementById('speedControlsContainer');
+    if (speedContainer) {
+        speedContainer.style.display = 'none';
+        console.log('✅ Speed controls hidden initially');
+    }
+}
+
+function showActivateMicButton() {
+    const activateBtn = document.getElementById('activateMicButton');
+    const audioControls = document.getElementById('audioControls');
+    
+    if (activateBtn) activateBtn.style.display = 'block';
+    if (audioControls) audioControls.style.display = 'flex';
+    
+    console.log('✅ Activate Microphone button shown');
+}
+
+function reinitiateAudio() {
+    console.log('🔄 User requested audio reinitiation');
+    activateMicrophone();
+}
+// ===================================================
+// 🌐 GLOBAL FUNCTIONS (All preserved)
+// ===================================================
+window.askQuickQuestion = function(question) {
+    console.log('⚡ Quick question asked:', question);
+    addUserMessage(question);
+    processUserInput(question);
+};
+
+window.sendTextMessage = sendTextMessage;
+window.switchToTextMode = switchToTextMode;
+window.adjustVoiceSpeed = adjustVoiceSpeed;
+window.activateMicrophone = activateMicrophone;
+window.reinitiateAudio = switchToAudioMode;
+window.muteAIVoice = muteAIVoice;
+window.switchToAudioMode = switchToAudioMode;
+
+// ===================================================
+// 🚀 MODULE INITIALIZATION (Auto-start, no splash!)
+// ===================================================
+function initializeVoiceChat() {
+    console.log('🚀 Initializing Voice Chat Module...');
+    
+    setTimeout(() => {
+        initializeSpeechRecognition();
+        initializeWaveform();
+        preloadVoices();
+        
+     // ✅ WAIT for user to click "Activate Microphone" button
+console.log('✅ Voice Chat Module Ready - WAITING for user interaction');
+        
+        console.log('✅ Voice Chat Module Ready!');
+    }, 100);
+}
+
+// Auto-initialize when loaded
+document.addEventListener('DOMContentLoaded', () => {
+    initializeVoiceChat();
+});
+
+console.log('🎯 Mobile-Wise AI Formviser Voice Chat Module Loaded - HTML MATCHED!');
