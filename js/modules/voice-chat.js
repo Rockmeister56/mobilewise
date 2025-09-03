@@ -201,7 +201,7 @@ function initializeSpeechRecognition() {
   recognition.onresult = function(event) {
     if (event.results.length > 0) {
         const latestResult = event.results[event.results.length - 1];
-        const transcript = latestResult[0].transcript.trim();
+        const transcript = latestResult[0].text.trim();
 
         // 🎯 BALANCED DETECTION - Not too strict, not too loose
         const shouldProcess = (
