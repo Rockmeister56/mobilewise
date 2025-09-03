@@ -240,53 +240,45 @@ function initializeSpeechRecognition() {
 };
 
         recognition.onend = function() {
-            console.log('🎤 Speech recognition ended');
-            isListening = false;
-            
-            // Gentle restart (preserved from our 3-hour session)
-            if (isAudioMode && micPermissionGranted && !isSpeaking) {
-                setTimeout(() => {
-                    if (!isListening && !isSpeaking && isAudioMode) {
-                        try {
-                            recognition.start();
-                            console.log('🔄 Recognition gently restarted');
-                        } catch (error) {
-                            console.log('⚠️ Gentle restart failed:', error.message);
-                        }
-                    }
-                }, 1000);
-            }
-        };
-
-        recognition.onerror = function(event) {
-            console.log('❌ Speech recognition error:', event.error);
-            isListening = false;
-            
-            if (event.error === 'not-allowed') {
-                console.log('🚫 Microphone permission denied');
-                micPermissionGranted = false;
-                return;
-            }
-            
-            if (isAudioMode && micPermissionGranted) {
-                setTimeout(() => {
-                    if (!isListening) {
-                        try {
-                            // Line 262 - COMMENT OUT:
-// recognition.start();
-                        } catch (error) {
-                            console.log('⚠️ Recognition restart failed:', error);
-                        }
-                    }
-                }, 1000);
-            }
-        };
-        
-        console.log('✅ Speech recognition initialized');
-    } else {
-        console.log('❌ Speech recognition not supported');
+    console.log('🎤 Speech recognition ended');
+    isListening = false;
+    
+    // 🛑 DON'T RESTART IF AI IS SPEAKING!
+    if (isSpeaking) {
+        console.log('🤖 AI is speaking - speakResponse will handle restart');
+        return;
     }
-}
+    
+    // Only gentle restart if NOT in AI speech mode
+    if (isAudioMode && micPermissionGranted && !isSpeaking) {
+        setTimeout(() => {
+            if (!isListening && !isSpeaking && isAudioMode) {
+                try {
+                    recognition.start();
+                    console.log('🔄 Recognition gently restarted');
+                } catch (error) {
+                    console.log('⚠️ Gentle restart failed:', error.message);
+                }
+            }
+        }, 1000);
+    }
+};
+
+recognition.onerror = function(event) {
+    console.log('❌ Speech recognition error:', event.error);
+    isListening = false;
+    
+    if (event.error === 'not-allowed') {
+        console.log('🚫 Microphone permission denied');
+        micPermissionGranted = false;
+        return;
+    }
+    
+    // ❌ DELETE THE REST - It's already commented out anyway
+};
+
+console.log('✅ Speech recognition initialized');
+            
 
 // ===================================================
 // 🎛️ WAVEFORM VISUALIZATION (Preserved from our work)
