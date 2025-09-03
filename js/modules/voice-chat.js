@@ -197,24 +197,44 @@ function initializeSpeechRecognition() {
             isListening = true;
             hasStartedOnce = true;
         };
-
-      recognition.onresult = function(event) {
-    const lastResult = event.results[event.results.length - 1];
+recognition.onresult = function(event) {
+    const transcript = event.results[event.results.length - 1][0].transcript.trim();
     
-    if (lastResult.isFinal) {
-        const transcript = lastResult[0].transcript.trim();
-        console.log('🎤 FINAL Voice input received:', transcript);
+    if (transcript) {
+        console.log('Voice input received:', transcript);
         
-        if (isSpeaking) {
-            console.log('🚫 Ignoring input - AI is speaking');
-            return;
-        }
-        
-        if (transcript && transcript.length > 0) {
-            handleVoiceInput(transcript);  // ← RESTORE THIS CALL!
-        }
+        // INSTANT PROCESSING - NO DELAYS!
+        handleVoiceInput(transcript);
     }
 };
+
+// Complete handleVoiceInput function
+function handleVoiceInput(transcript) {
+    // Optional: Simple duplicate prevention (add if you get echoes)
+    // if (transcript === lastProcessedInput) return;
+    // lastProcessedInput = transcript;
+    
+    console.log('Processing voice input:', transcript);
+    
+    // INSTANT message addition
+    addUserMessage(transcript);
+    
+    // Send to AI for processing
+    sendMessage();
+}
+
+// Make sure you have these supporting functions
+function addUserMessage(message) {
+    const chatMessages = document.getElementById('chat-messages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'message user-message';
+    messageDiv.textContent = message;
+    chatMessages.appendChild(messageDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+// Declare at top of your file if needed
+let lastProcessedInput = '';
         recognition.onend = function() {
             console.log('🎤 Speech recognition ended');
             isListening = false;
