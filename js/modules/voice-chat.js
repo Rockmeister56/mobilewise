@@ -211,8 +211,8 @@ recognition.onresult = function(event) {
 // Complete handleVoiceInput function
 function handleVoiceInput(transcript) {
     // Optional: Simple duplicate prevention (add if you get echoes)
-    // if (transcript === lastProcessedInput) return;
-    // lastProcessedInput = transcript;
+   if (transcript === lastProcessedInput) return;
+lastProcessedInput = transcript;
     
     console.log('Processing voice input:', transcript);
     
