@@ -434,6 +434,90 @@ function updateHeaderBanner(message) {
 }
 
 // ===================================================
+// 🎤 MODE SWITCHING FUNCTIONS
+// ===================================================
+function switchToAudioMode() {
+    console.log('🎤 User switched back to audio mode');
+    
+    isAudioMode = true;
+    showSpeedControls();
+    showAudioMode();
+    
+    // Show voice visualizer container
+    const voiceContainer = document.getElementById('voiceVisualizerContainer');
+    if (voiceContainer) voiceContainer.style.display = 'flex';
+    
+    // Start voice visualization
+    startUnifiedVoiceVisualization();
+    
+    updateHeaderBanner('🎤 Voice Chat Restored - AI is listening...');
+    
+    // AI greeting and restart recognition
+    setTimeout(() => {
+        const greeting = "What can I help you with?";
+        addAIMessage(greeting);
+        speakResponse(greeting);
+        
+        // Restart speech recognition
+        if (recognition && !isListening) {
+            try {
+                recognition.start();
+                isListening = true;
+                console.log('🔄 Recognition restarted');
+            } catch (error) {
+                console.log('⚠️ Recognition restart failed:', error);
+            }
+        }
+    }, 500);
+}
+
+function switchToTextMode() {
+    console.log('📝 User switched to text mode');
+    
+    isAudioMode = false;
+    
+    // Stop recognition
+    if (recognition && isListening) {
+        recognition.stop();
+        isListening = false;
+    }
+    
+    // Stop all voice visualization
+    stopUnifiedVoiceVisualization();
+    
+    // Hide speed controls
+    hideSpeedControls();
+    
+    // Show text interface
+    showTextMode();
+    
+    // Hide voice visualizer container
+    const voiceContainer = document.getElementById('voiceVisualizerContainer');
+    if (voiceContainer) voiceContainer.style.display = 'none';
+    
+    // Focus text input
+    const textInput = document.getElementById('textInput');
+    if (textInput) {
+        setTimeout(() => textInput.focus(), 100);
+    }
+    
+    updateHeaderBanner('💬 Text Chat Mode - Type your message below');
+}
+
+function showTextMode() {
+    const audioControls = document.getElementById('audioControls');
+    const textControls = document.getElementById('textControls');
+    
+    if (audioControls) audioControls.style.display = 'none';
+    if (textControls) textControls.style.display = 'flex';
+}
+
+function hideSpeedControls() {
+    const speedContainer = document.getElementById('speedControlsContainer');
+    if (speedContainer) speedContainer.style.display = 'none';
+}
+
+// ===================================================
 // 🚀 MODULE INITIALIZATION (FINAL)
 // ===================================================
 function initializeVoiceChat() {
