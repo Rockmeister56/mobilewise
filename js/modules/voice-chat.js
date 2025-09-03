@@ -523,12 +523,11 @@ function stopUnifiedVoiceVisualization() {
     
     console.log('🛑 Unified voice visualization stopped');
 }
-
 // ===================================================
-// 🎯 PROCESS USER INPUT - INSTANT RESPONSE SYSTEM
+// 🚀 INSTANT RESPONSE SYSTEM - NO DELAYS
 // ===================================================
 function processUserInput(message) {
-    console.log('🔥 SINGLE Processing user input:', message);
+    console.log('🔥 Processing user input:', message);
     
     if (isProcessingResponse) {
         console.log('🚫 Already processing, ignoring');
@@ -537,32 +536,28 @@ function processUserInput(message) {
     
     isProcessingResponse = true;
     
-    // Stop audio
+    // Stop any current audio immediately
     if (currentAudio) stopCurrentAudio();
     
-    // INSTANT AI response - NO DELAYS! ✅
+    // INSTANT AI response - NO DELAYS!
     const response = getAIResponse(message);
     addAIMessage(response);
     speakResponse(response);
     
     // Reset flag
-    setTimeout(() => { isProcessingResponse = false; }, 500);
+    setTimeout(() => { isProcessingResponse = false; }, 100);
 }
 
-// ===================================================
-// 💬 ENHANCED MESSAGE HANDLING (Echo Prevention)
-// ===================================================
 function handleVoiceInput(transcript) {
     const now = Date.now();
     
-    // 🔥 SIMPLE DUPLICATE PREVENTION (shorter cooldown)
+    // Simple duplicate prevention
     if (transcript === lastProcessedInput && (now - lastProcessedTime) < 1500) {
         console.log('🚫 Duplicate input ignored:', transcript);
         return;
     }
     
-    // 🚀 ACCEPT ALL REAL BUSINESS INPUTS
-    if (transcript.length < 2) {  // Only block single characters
+    if (transcript.length < 2) {
         console.log('⏳ Too short, waiting for more:', transcript);
         return;
     }
@@ -574,13 +569,92 @@ function handleVoiceInput(transcript) {
     
     addUserMessage(transcript);
     
+    // Stop any current speech immediately
     if (window.speechSynthesis.speaking) {
         window.speechSynthesis.cancel();
     }
+    
     currentAudio = null;
     isSpeaking = false;
     
+    // Process immediately
     processUserInput(transcript);
+}
+
+// ===================================================
+// ⚡ OPTIMIZED SPEECH FUNCTION - NO DELAYS
+// ===================================================
+function speakResponse(message) {
+    console.log('🗣️ Speaking response...');
+    
+    // Pause recognition gently
+    if (recognition && isListening) {
+        recognition.stop();
+        isListening = false;
+        console.log('⏸️ Speech recognition PAUSED for AI response');
+    }
+    
+    // Stop any current speech immediately
+    window.speechSynthesis.cancel();
+    currentAudio = null;
+    
+    updateHeaderBanner('🤖 AI responding...');
+    
+    if (!window.speechSynthesis) {
+        console.log('❌ Speech synthesis not supported');
+        restartRecognition();
+        return;
+    }
+
+    // Use pre-loaded voice (no waiting)
+    const utterance = new SpeechSynthesisUtterance(message);
+    
+    if (bestVoice) {
+        utterance.voice = bestVoice;
+        console.log('🎤 Using pre-loaded voice:', bestVoice.name);
+    }
+    
+    utterance.rate = voiceSpeed;
+    utterance.pitch = 1.0;
+    utterance.volume = 0.9;
+    
+    utterance.onstart = () => {
+        isSpeaking = true;
+        console.log('🗣️ Speech started');
+    };
+    
+    utterance.onend = () => {
+        isSpeaking = false;
+        currentAudio = null;
+        console.log('✅ Speech finished');
+        updateHeaderBanner('🎤 AI is listening...');
+        restartRecognition();
+    };
+    
+    utterance.onerror = (event) => {
+        console.log('❌ Speech error:', event.error);
+        isSpeaking = false;
+        currentAudio = null;
+        restartRecognition();
+    };
+    
+    currentAudio = utterance;
+    window.speechSynthesis.speak(utterance);
+}
+
+function restartRecognition() {
+    // Immediate restart with no delay
+    if (isAudioMode && !isListening) {
+        try {
+            recognition.start();
+            isListening = true;
+            console.log('🔄 Speech recognition IMMEDIATELY restarted');
+        } catch (error) {
+            console.log('⚠️ Recognition restart failed:', error);
+            // Try again after short delay if failed
+            setTimeout(restartRecognition, 500);
+        }
+    }
 }
 
 // ===================================================
