@@ -198,33 +198,32 @@ function initializeSpeechRecognition() {
             hasStartedOnce = true;
         };
 
-    recognition.onresult = function(event) {
+  recognition.onresult = function(event) {
     if (event.results.length > 0) {
         const latestResult = event.results[event.results.length - 1];
         const transcript = latestResult[0].transcript.trim();
 
-        // 🎯 COMPLETE SENTENCE DETECTION - Wait for natural pauses
-        const hasCompleteSentence = (
+        // 🎯 BALANCED DETECTION - Not too strict, not too loose
+        const shouldProcess = (
             latestResult.isFinal && 
-            transcript.length > 5 && // Minimum reasonable sentence length
-            (transcript.endsWith('.') || 
-             transcript.endsWith('?') || 
-             transcript.endsWith('!') ||
-             transcript.includes(' practice') ||    // Your specific keywords
-             transcript.includes(' accounting') ||
-             transcript.includes(' sell') ||
-             transcript.includes(' buy'))
+            transcript.length > 4 &&  // Reasonable minimum
+            (
+                // High confidence phrases (relaxed)
+                latestResult[0].confidence > 0.75 ||
+                
+                // Or contains key business words
+                transcript.toLowerCase().includes('sell') ||
+                transcript.toLowerCase().includes('buy') ||
+                transcript.toLowerCase().includes('practice') ||
+                transcript.toLowerCase().includes('accounting') ||
+                
+                // Or is a reasonable length sentence
+                transcript.split(' ').length >= 3
+            )
         );
 
-        // 🎤 Also accept high-confidence medium-length phrases
-        const hasGoodPhrase = (
-            latestResult.isFinal && 
-            transcript.length > 8 &&               // Longer minimum for partial phrases
-            latestResult[0].confidence > 0.85
-        );
-
-        if (hasCompleteSentence || hasGoodPhrase) {
-            console.log('🎤 COMPLETE sentence detected:', transcript);
+        if (shouldProcess) {
+            console.log('🎤 Processing voice input:', transcript);
             
             if (isSpeaking) {
                 console.log('🚫 Ignoring - AI is speaking');
@@ -232,14 +231,13 @@ function initializeSpeechRecognition() {
             }
             
             handleVoiceInput(transcript);
-        } else if (latestResult.isFinal && transcript.length > 2) {
-            // Log partial results but DON'T process them
-            console.log('⏳ Partial result (ignoring):', transcript);
+        } else if (latestResult.isFinal) {
+            console.log('⏳ Too short, waiting for more:', transcript);
         }
     }
-};
+}; // ← ENSURE THIS SEMICOLON IS HERE
 
-        recognition.onend = function() {
+recognition.onend = function() {
     console.log('🎤 Speech recognition ended');
     isListening = false;
     
@@ -262,7 +260,7 @@ function initializeSpeechRecognition() {
             }
         }, 1000);
     }
-};
+}; // ← ENSURE THIS SEMICOLON IS HERE
 
 recognition.onerror = function(event) {
     console.log('❌ Speech recognition error:', event.error);
@@ -273,12 +271,13 @@ recognition.onerror = function(event) {
         micPermissionGranted = false;
         return;
     }
-    
-    // ❌ DELETE THE REST - It's already commented out anyway
 };
 
-console.log('✅ Speech recognition initialized');
-            
+    } else {
+        console.log('❌ Speech recognition not supported in this browser');
+    }
+}
+
 
 // ===================================================
 // 🎛️ WAVEFORM VISUALIZATION (Preserved from our work)
