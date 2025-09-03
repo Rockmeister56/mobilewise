@@ -274,6 +274,27 @@ recognition.onerror = function(event) {
         micPermissionGranted = false;
         return;
     }
+    
+    // 🎯 CHROME-SPECIFIC FIX: Handle "no-speech" errors
+    if (event.error === 'no-speech') {
+        console.log('⏳ Chrome timeout - this is NORMAL behavior');
+        // Don't restart immediately - let the natural restart handle it
+        return;
+    }
+    
+    // Handle other errors normally
+    if (isAudioMode && micPermissionGranted && !isSpeaking) {
+        setTimeout(() => {
+            if (!isListening && !isSpeaking && isAudioMode) {
+                try {
+                    recognition.start();
+                    console.log('🔄 Recognition restarted after error');
+                } catch (error) {
+                    console.log('⚠️ Restart failed:', error.message);
+                }
+            }
+        }, 2000); // Longer delay for Chrome
+    }
 };
 
     } else {
