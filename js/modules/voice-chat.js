@@ -345,7 +345,6 @@ window.askQuickQuestion = function(question) {
     addUserMessage(question);
     processUserInput(question);
 };
-window.switchToTextMode = switchToTextMode;
 window.adjustVoiceSpeed = adjustVoiceSpeed;
 window.activateMicrophone = activateMicrophone;
 window.switchToAudioMode = switchToAudioMode;
