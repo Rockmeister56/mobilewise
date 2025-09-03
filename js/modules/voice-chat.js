@@ -201,7 +201,8 @@ function initializeSpeechRecognition() {
   recognition.onresult = function(event) {
     if (event.results.length > 0) {
         const latestResult = event.results[event.results.length - 1];
-        const transcript = latestResult[0].text.trim();
+        console.log('🔍 Speech Result Object:', latestResult[0]);
+const transcript = (latestResult[0].transcript || latestResult[0].text || latestResult[0].alternative || '').trim();
 
         // 🎯 BALANCED DETECTION - Not too strict, not too loose
         const shouldProcess = (
