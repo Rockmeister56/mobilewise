@@ -255,7 +255,7 @@ window.startVoiceChat = startVoiceChat;
         if (stopBtn) stopBtn.style.display = 'none';
         
         // WELCOME MESSAGE ONLY
-        addAIMessage("Welcome! Click 'Activate Microphone' below to enable voice chat.");
+        // addAIMessage("Welcome! Click 'Activate Microphone' below to enable voice chat.");
         
         console.log('✅ Voice Chat Module Ready - WAITING for user click');
         
@@ -1364,10 +1364,5 @@ window.activateMicrophone = activateMicrophone;
 window.reinitiateAudio = switchToAudioMode;
 window.muteAIVoice = muteAIVoice;
 window.switchToAudioMode = switchToAudioMode;
-
-// Auto-initialize when loaded
-document.addEventListener('DOMContentLoaded', () => {
-    initializeVoiceChat();
-});
 
 console.log('🎯 Mobile-Wise AI Formviser Voice Chat Module Loaded - HTML MATCHED!');
