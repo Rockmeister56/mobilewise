@@ -203,18 +203,38 @@ function initializeSpeechRecognition() {
         const latestResult = event.results[event.results.length - 1];
         const transcript = latestResult[0].transcript.trim();
 
-        // ⚡ CHROME FIX: Only process if FINAL OR high confidence AND length > 3
-        if ((latestResult.isFinal || latestResult[0].confidence > 0.8) && transcript.length > 3) {
-            console.log('🎤 FINAL Voice input received:', transcript);
+        // 🎯 COMPLETE SENTENCE DETECTION - Wait for natural pauses
+        const hasCompleteSentence = (
+            latestResult.isFinal && 
+            transcript.length > 5 && // Minimum reasonable sentence length
+            (transcript.endsWith('.') || 
+             transcript.endsWith('?') || 
+             transcript.endsWith('!') ||
+             transcript.includes(' practice') ||    // Your specific keywords
+             transcript.includes(' accounting') ||
+             transcript.includes(' sell') ||
+             transcript.includes(' buy'))
+        );
+
+        // 🎤 Also accept high-confidence medium-length phrases
+        const hasGoodPhrase = (
+            latestResult.isFinal && 
+            transcript.length > 8 &&               // Longer minimum for partial phrases
+            latestResult[0].confidence > 0.85
+        );
+
+        if (hasCompleteSentence || hasGoodPhrase) {
+            console.log('🎤 COMPLETE sentence detected:', transcript);
             
             if (isSpeaking) {
                 console.log('🚫 Ignoring - AI is speaking');
                 return;
             }
             
-            if (transcript && transcript.length > 0) {
-                handleVoiceInput(transcript);
-            }
+            handleVoiceInput(transcript);
+        } else if (latestResult.isFinal && transcript.length > 2) {
+            // Log partial results but DON'T process them
+            console.log('⏳ Partial result (ignoring):', transcript);
         }
     }
 };
@@ -464,18 +484,30 @@ function processUserInput(message) {
 function handleVoiceInput(transcript) {
     const now = Date.now();
     
-    // 🔥 PREVENT DUPLICATES
-    if (transcript === lastProcessedInput && (now - lastProcessedTime) < 2000) {
+    // 🔥 PREVENT DUPLICATES with longer cooldown
+    if (transcript === lastProcessedInput && (now - lastProcessedTime) < 3000) {
         console.log('🚫 Duplicate input ignored:', transcript);
         return;
+    }
+    
+    // 🎯 VALIDATE THIS IS A COMPLETE THOUGHT
+    const isIncompleteThought = (
+        transcript.length < 6 ||  // Too short
+        (transcript.split(' ').length < 3 && !transcript.includes('practice')) ||  // Single words
+        (transcript.toLowerCase().includes('i want') && transcript.split(' ').length < 4)  // "I want" without object
+    );
+    
+    if (isIncompleteThought) {
+        console.log('🚫 Incomplete thought - waiting for more:', transcript);
+        return;  // Don't process incomplete thoughts
     }
     
     lastProcessedInput = transcript;
     lastProcessedTime = now;
     
-    console.log('🗣️ Processing unique voice input:', transcript);
+    console.log('🗣️ Processing complete voice input:', transcript);
     
-    // 🚀 IMMEDIATE MESSAGE DISPLAY - No delays!
+    // 🚀 IMMEDIATE MESSAGE DISPLAY
     addUserMessage(transcript);
     
     // 🔥 FORCE STOP ALL AUDIO
