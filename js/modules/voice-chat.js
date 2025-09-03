@@ -434,6 +434,172 @@ function updateHeaderBanner(message) {
 }
 
 // ===================================================
+// 🎛️ WAVEFORM VISUALIZATION SYSTEM
+// ===================================================
+function initializeWaveform() {
+    VoiceViz.canvas = document.getElementById('voiceWaveform');
+    if (!VoiceViz.canvas) {
+        console.log('⚠️ Waveform canvas not found');
+        return false;
+    }
+    
+    VoiceViz.canvasCtx = VoiceViz.canvas.getContext('2d');
+    console.log('🎛️ Waveform canvas initialized');
+    return true;
+}
+
+function animateWaveform() {
+    if (!VoiceViz.waveformActive || !VoiceViz.analyser) return;
+    
+    VoiceViz.animationId = requestAnimationFrame(animateWaveform);
+    VoiceViz.analyser.getByteFrequencyData(VoiceViz.dataArray);
+    
+    // Clear canvas with dark background
+    VoiceViz.canvasCtx.fillStyle = '#1a1a1a';
+    VoiceViz.canvasCtx.fillRect(0, 0, VoiceViz.canvas.width, VoiceViz.canvas.height);
+    
+    // Draw waveform bars
+    const barWidth = (VoiceViz.canvas.width / VoiceViz.dataArray.length) * 2.5;
+    let barHeight;
+    let x = 0;
+    
+    for (let i = 0; i < VoiceViz.dataArray.length; i++) {
+        barHeight = (VoiceViz.dataArray[i] / 255) * VoiceViz.canvas.height;
+        
+        // Create gradient effect
+        const gradient = VoiceViz.canvasCtx.createLinearGradient(0, VoiceViz.canvas.height - barHeight, 0, VoiceViz.canvas.height);
+        gradient.addColorStop(0, '#00ff88');
+        gradient.addColorStop(1, '#0066cc');
+        
+        VoiceViz.canvasCtx.fillStyle = gradient;
+        VoiceViz.canvasCtx.fillRect(x, VoiceViz.canvas.height - barHeight, barWidth, barHeight);
+        
+        x += barWidth + 1;
+    }
+}
+
+// ===================================================
+// 🎯 UNIFIED VOICE VISUALIZATION SYSTEM
+// ===================================================
+async function initializeUnifiedVoiceVisualization() {
+    try {
+        if (!persistentMicStream) {
+            console.log('⏳ Waiting for speech recognition mic access...');
+            return false;
+        }
+        
+        VoiceViz.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        VoiceViz.analyser = VoiceViz.audioContext.createAnalyser();
+        VoiceViz.microphone = VoiceViz.audioContext.createMediaStreamSource(persistentMicStream);
+        
+        VoiceViz.analyser.fftSize = 256;
+        VoiceViz.analyser.smoothingTimeConstant = 0.8;
+        VoiceViz.microphone.connect(VoiceViz.analyser);
+        
+        const bufferLength = VoiceViz.analyser.frequencyBinCount;
+        VoiceViz.dataArray = new Uint8Array(bufferLength);
+        
+        console.log('🎯 Unified voice visualization initialized!');
+        return true;
+        
+    } catch (error) {
+        console.error('❌ Voice visualization failed:', error);
+        return false;
+    }
+}
+
+async function startUnifiedVoiceVisualization() {
+    const initialized = await initializeUnifiedVoiceVisualization();
+    if (!initialized) return false;
+    
+    startVoiceMeter();
+    
+    if (initializeWaveform()) {
+        VoiceViz.waveformActive = true;
+        
+        const waveformContainer = document.getElementById('voiceVisualizerContainer');
+        if (waveformContainer) {
+            waveformContainer.classList.add('waveform-active');
+        }
+        
+        animateWaveform();
+        console.log('🎛️ Waveform visualization started');
+    }
+    
+    console.log('🚀 Unified voice visualization ACTIVE!');
+    return true;
+}
+
+function stopUnifiedVoiceVisualization() {
+    stopVoiceMeter();
+    
+    VoiceViz.waveformActive = false;
+    if (VoiceViz.animationId) {
+        cancelAnimationFrame(VoiceViz.animationId);
+        VoiceViz.animationId = null;
+    }
+    
+    const waveformContainer = document.getElementById('voiceVisualizerContainer');
+    if (waveformContainer) {
+        waveformContainer.classList.remove('waveform-active');
+    }
+    
+    if (VoiceViz.audioContext && VoiceViz.audioContext.state !== 'closed') {
+        VoiceViz.audioContext.close();
+        VoiceViz.audioContext = null;
+    }
+    
+    console.log('🛑 Unified voice visualization stopped');
+}
+
+// ===================================================
+// 🎤 VOICE METER FUNCTIONS
+// ===================================================
+function startVoiceMeter() {
+    if (!VoiceViz.analyser || VoiceViz.meterActive) return;
+    
+    VoiceViz.meterActive = true;
+    const bufferLength = VoiceViz.analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+    
+    function updateMeter() {
+        if (!VoiceViz.meterActive) return;
+        
+        VoiceViz.analyser.getByteFrequencyData(dataArray);
+        
+        let sum = 0;
+        for (let i = 0; i < bufferLength; i++) {
+            sum += dataArray[i];
+        }
+        const average = sum / bufferLength;
+        const volume = Math.min(100, (average / 255) * 100);
+        
+        updateVoiceMeterDisplay(volume);
+        requestAnimationFrame(updateMeter);
+    }
+    
+    updateMeter();
+}
+
+function stopVoiceMeter() {
+    VoiceViz.meterActive = false;
+}
+
+function updateVoiceMeterDisplay(volume) {
+    const staticText = document.getElementById('staticListeningText');
+    if (!staticText) return;
+    
+    if (volume > 5) {
+        const bars = Math.floor(volume / 10);
+        const meterHTML = '🎤 ' + '█'.repeat(Math.max(1, bars)) + '░'.repeat(10 - bars);
+        staticText.innerHTML = `${meterHTML} Speaking...`;
+    } else {
+        staticText.innerHTML = '🎤 Listening... What can I help you with?';
+    }
+}
+
+
+// ===================================================
 // 🎤 MODE SWITCHING FUNCTIONS
 // ===================================================
 function switchToAudioMode() {
