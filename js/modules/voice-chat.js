@@ -406,7 +406,7 @@ window.askQuickQuestion = function(question) {
     processUserInput(question);
 };
 // window.switchToTextMode = switchToTextMode;
-// window.adjustVoiceSpeed = adjustVoiceSpeed;
+window.adjustVoiceSpeed = adjustVoiceSpeed;
 window.activateMicrophone = activateMicrophone;
 window.switchToAudioMode = switchToAudioMode;
 window.muteAIVoice = muteAIVoice;
@@ -516,6 +516,79 @@ function hideSpeedControls() {
     const speedContainer = document.getElementById('speedControlsContainer');
     if (speedContainer) speedContainer.style.display = 'none';
 }
+
+// ===================================================
+// 🔇 MUTE/AUDIO CONTROL FUNCTIONS
+// ===================================================
+function muteAIVoice() {
+    console.log('🔇 MUTING AI Voice...');
+    
+    // Stop any current speech
+    stopCurrentAudio();
+    
+    // Reset speaking flags
+    isSpeaking = false;
+    
+    // Update header
+    updateHeaderBanner('🔇 AI Voice Muted');
+    
+    // Switch to text mode automatically
+    switchToTextMode();
+    
+    console.log('✅ AI Voice MUTED - switched to text mode');
+}
+
+function stopCurrentAudio() {
+    if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+        console.log('🛑 Speech synthesis stopped');
+    }
+    
+    if (currentAudio) {
+        currentAudio = null;
+        console.log('🛑 Current audio cleared');
+    }
+    
+    isSpeaking = false;
+}
+
+// ===================================================
+// ⚡ VOICE SPEED CONTROL
+// ===================================================
+function adjustVoiceSpeed(direction) {
+    if (direction === 'faster' && currentSpeedIndex < speedLevels.length - 1) {
+        currentSpeedIndex++;
+    } else if (direction === 'slower' && currentSpeedIndex > 0) {
+        currentSpeedIndex--;
+    }
+    
+    voiceSpeed = speedLevels[currentSpeedIndex];
+    const speedName = speedNames[currentSpeedIndex];
+    
+    // Update display
+    const speedDisplay = document.getElementById('speedDisplay');
+    if (speedDisplay) {
+        speedDisplay.textContent = speedName;
+    }
+    
+    console.log('⚡ Voice speed:', speedName, `(${voiceSpeed}x)`);
+    
+    // Test the new speed
+    testVoiceSpeed();
+}
+
+function testVoiceSpeed() {
+    const testMessage = `Speed set to ${speedNames[currentSpeedIndex]}`;
+    const voices = window.speechSynthesis.getVoices();
+    
+    const utterance = new SpeechSynthesisUtterance(testMessage);
+    utterance.rate = voiceSpeed;
+    utterance.pitch = 1.0;
+    utterance.volume = 0.9;
+    
+    window.speechSynthesis.speak(utterance);
+}
+
 
 // ===================================================
 // 🚀 MODULE INITIALIZATION (FINAL)
