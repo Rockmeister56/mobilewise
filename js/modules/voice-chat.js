@@ -221,7 +221,7 @@ function initializeSpeechRecognition() {
             
             // Process AI response after brief delay
             setTimeout(() => {
-                // processUserInput(transcript);
+                processUserInput(transcript);
             }, 300);
         }
     }
@@ -495,7 +495,7 @@ function handleVoiceInput(transcript) {
     
     // Process with minimal delay
     setTimeout(() => {
-        // processUserInput(transcript);
+        processUserInput(transcript);
     }, 200);
 }
 
