@@ -503,31 +503,6 @@ function sendTextMessage() {
     processUserInput(message);
 }
 
-function processUserInput(message) {
-    // 🔥 PREVENT DOUBLE PROCESSING
-    if (isProcessingResponse) {
-        console.log('🚫 Already processing response, ignoring');
-        return;
-    }
-    
-    isProcessingResponse = true;
-    
-    if (currentAudio) {
-        stopCurrentAudio();
-    }
-    
-    // INSTANT AI response - NO DELAYS!
-const response = getAIResponse(message);
-console.log('🤖 AI Response generated');
-addAIMessage(response);
-speakResponse(response);
-
-// Reset flag after brief delay
-setTimeout(() => {
-    isProcessingResponse = false;
-}, 500);
-}
-
 // ===================================================
 // 🎤 MODE SWITCHING (Fixed to match your HTML)
 // ===================================================
@@ -809,6 +784,13 @@ function findUniversalBestVoice(voices) {
 async function speakResponse(message) {
     console.log('🗣️ Speaking response...');
     
+    // 🛑 NUCLEAR STOP - Kill speech recognition completely
+    if (recognition && isListening) {
+        recognition.stop();
+        isListening = false;
+        console.log('🛑 Speech recognition STOPPED for AI response');
+    }
+    
     // 🔥 NUCLEAR OPTION - Kill everything first!
     window.speechSynthesis.cancel();
     currentAudio = null;
@@ -825,7 +807,6 @@ async function speakResponse(message) {
 
     const voices = await getOptimizedVoices();
     
-    // 🎯 SINGLE VOICE EXECUTION
     const utterance = new SpeechSynthesisUtterance(message);
     
     let bestVoice = findUniversalBestVoice(voices);
@@ -848,6 +829,19 @@ async function speakResponse(message) {
         currentAudio = null;
         console.log('✅ SINGLE speech finished');
         updateHeaderBanner('🎤 AI is listening...');
+        
+        // 🔄 RESTART RECOGNITION AFTER AI FINISHES
+        setTimeout(() => {
+            if (isAudioMode && !isListening) {
+                try {
+                    recognition.start();
+                    isListening = true;
+                    console.log('🔄 Speech recognition RESTARTED after AI response');
+                } catch (error) {
+                    console.log('⚠️ Recognition restart failed:', error);
+                }
+            }
+        }, 500);
     };
     
     utterance.onerror = (event) => {
