@@ -269,78 +269,12 @@ function initializeSpeechRecognition() {
                 }, 1000);
             }
         };
-
-        if (shouldProcess) {
-            console.log('🎤 Processing voice input:', transcript);
-            
-            if (isSpeaking) {
-                console.log('🚫 Ignoring - AI is speaking');
-                return;
-            }
-            
-            handleVoiceInput(transcript);
-        } else if (latestResult.isFinal) {
-            console.log('⏳ Too short, waiting for more:', transcript);
-        }
+        
+        console.log('✅ Speech recognition initialized with continuous mode');
+    } else {
+        console.log('❌ Speech recognition not supported');
     }
-};
-
-recognition.onend = function() {
-    console.log('🎤 Speech recognition ended');
-    isListening = false;
-    
-    // 🛑 DON'T RESTART IF AI IS SPEAKING!
-    if (isSpeaking) {
-        console.log('🤖 AI is speaking - speakResponse will handle restart');
-        return;
-    }
-    
-    // Only gentle restart if NOT in AI speech mode
-    if (isAudioMode && micPermissionGranted && !isSpeaking) {
-        setTimeout(() => {
-            if (!isListening && !isSpeaking && isAudioMode) {
-                try {
-                    recognition.start();
-                    console.log('🔄 Recognition gently restarted');
-                } catch (error) {
-                    console.log('⚠️ Gentle restart failed:', error.message);
-                }
-            }
-        }, 1000);
-    }
-}; // ← ENSURE THIS SEMICOLON IS HERE
-
-recognition.onerror = function(event) {
-    console.log('❌ Speech recognition error:', event.error);
-    isListening = false;
-    
-    if (event.error === 'not-allowed') {
-        console.log('🚫 Microphone permission denied');
-        micPermissionGranted = false;
-        return;
-    }
-    
-    // 🎯 CHROME-SPECIFIC FIX: Handle "no-speech" errors
-    if (event.error === 'no-speech') {
-        console.log('⏳ Chrome timeout - this is NORMAL behavior');
-        // Don't restart immediately - let the natural restart handle it
-        return;
-    }
-    
-    // Handle other errors normally
-    if (isAudioMode && micPermissionGranted && !isSpeaking) {
-        setTimeout(() => {
-            if (!isListening && !isSpeaking && isAudioMode) {
-                try {
-                    recognition.start();
-                    console.log('🔄 Recognition restarted after error');
-                } catch (error) {
-                    console.log('⚠️ Restart failed:', error.message);
-                }
-            }
-        }, 2000); // Longer delay for Chrome
-    }
-};
+}
 
 // ===================================================
 // 🎛️ WAVEFORM VISUALIZATION (Preserved from our work)
