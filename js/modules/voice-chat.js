@@ -19,6 +19,66 @@ let lastProcessedTime = 0;
 let isProcessingResponse = false;
 
 // ===================================================
+// 🎤 MICROPHONE ACTIVATION (MOVED UP TO FIX REFERENCE ERROR)
+// ===================================================
+async function activateMicrophone() {
+    console.log('🎤 User clicked ACTIVATE MICROPHONE button...');
+
+    const activateBtn = document.getElementById('activateMicButton');
+    if (activateBtn) {
+        activateBtn.textContent = '🎤 Requesting permission...';
+        activateBtn.disabled = true;
+    }
+
+    try {
+        persistentMicStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        console.log('🎤 Microphone access granted!');
+        micPermissionGranted = true;
+        
+        if (activateBtn) activateBtn.style.display = 'none';
+        
+        const stopBtn = document.getElementById('audioOffBtn');
+        if (stopBtn) {
+            stopBtn.style.display = 'block';
+            stopBtn.textContent = '🛑 Stop Audio';
+        }
+        
+        showSpeedControls();
+        
+    } catch (error) {
+        console.log('❌ Microphone access denied:', error);
+        if (activateBtn) {
+            activateBtn.textContent = '🎤 Activate Microphone';
+            activateBtn.disabled = false;
+        }
+        addAIMessage("No problem! You can still chat with me using text. What can I help you with?");
+        return;
+    }
+    
+    await startUnifiedVoiceVisualization();
+    isAudioMode = true;
+    
+    if (recognition && !isListening) {
+        try {
+            recognition.start();
+            console.log('🎤 Speech recognition started');
+        } catch (error) {
+            console.log('⚠️ Recognition start failed:', error);
+        }
+    }
+    
+    showAudioMode();
+    updateHeaderBanner('🎤 Microphone Active - How can we help your business?');
+    
+    setTimeout(() => {
+        const greeting = "Perfect! Voice chat is now active, what can I help you with today?";
+        addAIMessage(greeting);
+        speakResponse(greeting);
+    }, 800);
+}
+
+
+// ===================================================
 // 🎯 UNIFIED VOICE VISUALIZATION SYSTEM
 // ===================================================
 const VoiceViz = {
@@ -345,11 +405,33 @@ window.askQuickQuestion = function(question) {
     addUserMessage(question);
     processUserInput(question);
 };
+// window.switchToTextMode = switchToTextMode;
 // window.adjustVoiceSpeed = adjustVoiceSpeed;
 window.activateMicrophone = activateMicrophone;
 window.switchToAudioMode = switchToAudioMode;
 window.muteAIVoice = muteAIVoice;
 window.sendTextMessage = sendTextMessage;
+
+// Missing function stubs to prevent errors
+function showSpeedControls() {
+    const speedContainer = document.getElementById('speedControlsContainer');
+    if (speedContainer) speedContainer.style.display = 'flex';
+}
+
+function showAudioMode() {
+    const audioControls = document.getElementById('audioControls');
+    const textControls = document.getElementById('textControls');
+    
+    if (audioControls) audioControls.style.display = 'flex';
+    if (textControls) textControls.style.display = 'none';
+}
+
+function updateHeaderBanner(message) {
+    const headerTitle = document.getElementById('chatHeaderTitle');
+    if (headerTitle) {
+        headerTitle.textContent = message;
+    }
+}
 
 // ===================================================
 // 🚀 MODULE INITIALIZATION (FINAL)
