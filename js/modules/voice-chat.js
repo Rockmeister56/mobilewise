@@ -203,26 +203,15 @@ function initializeSpeechRecognition() {
     
     if (lastResult.isFinal) {
         const transcript = lastResult[0].transcript.trim();
-        console.log('🗣️ FINAL Voice input:', transcript);
+        console.log('🎤 FINAL Voice input received:', transcript);
         
         if (isSpeaking) {
-            console.log('⏸️ Ignoring - AI is speaking');
+            console.log('🚫 Ignoring input - AI is speaking');
             return;
         }
         
-        if (transcript && transcript.length > 2) {
-            // 🚀 INSTANT MESSAGE DISPLAY - RIGHT HERE IN SPEECH RECOGNITION!
-            addUserMessage(transcript);
-            
-            // 🔥 STOP ALL AUDIO IMMEDIATELY
-            window.speechSynthesis.cancel();
-            currentAudio = null;
-            isSpeaking = false;
-            
-            // Process AI response after brief delay
-            setTimeout(() => {
-                processUserInput(transcript);
-            }, 300);
+        if (transcript && transcript.length > 0) {
+            handleVoiceInput(transcript);  // ← RESTORE THIS CALL!
         }
     }
 };
