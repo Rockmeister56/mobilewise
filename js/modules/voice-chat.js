@@ -19,6 +19,119 @@ let lastProcessedTime = 0;
 let isProcessingResponse = false;
 
 // ===================================================
+// 🎤 SPEECH RECOGNITION (All fixes preserved)
+// ===================================================
+function initializeSpeechRecognition() {
+    console.log('🎤 Initializing speech recognition...');
+    
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        
+        recognition.continuous = true;
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+        recognition.lang = 'en-US';
+
+        recognition.onstart = function() {
+            console.log('🎤 Speech recognition started');
+            isListening = true;
+            hasStartedOnce = true;
+        };
+
+        recognition.onresult = function(event) {
+            if (event.results.length > 0) {
+                const latestResult = event.results[event.results.length - 1];
+                const transcript = latestResult[0].transcript.trim();
+
+                // 🎯 BALANCED DETECTION
+                const shouldProcess = (
+                    latestResult.isFinal && 
+                    transcript.length > 3 &&
+                    (
+                        latestResult[0].confidence > 0.6 ||
+                        transcript.toLowerCase().includes('tax') ||
+                        transcript.toLowerCase().includes('sell') ||
+                        transcript.toLowerCase().includes('buy') ||
+                        transcript.toLowerCase().includes('practice') ||
+                        transcript.toLowerCase().includes('accounting') ||
+                        transcript.toLowerCase().includes('help') ||
+                        transcript.toLowerCase().includes('business') ||
+                        transcript.split(' ').length >= 2
+                    )
+                );
+
+                if (shouldProcess) {
+                    console.log('🎤 Processing voice input:', transcript);
+                    
+                    if (isSpeaking) {
+                        console.log('🚫 Ignoring - AI is speaking');
+                        return;
+                    }
+                    
+                    handleVoiceInput(transcript);
+                } else if (latestResult.isFinal) {
+                    console.log('⏳ Too short, waiting for more:', transcript);
+                }
+            }
+        };
+
+        recognition.onend = function() {
+            console.log('🎤 Speech recognition ended');
+            isListening = false;
+            
+            if (isSpeaking) {
+                console.log('🤖 AI is speaking - speakResponse will handle restart');
+                return;
+            }
+            
+            if (isAudioMode && micPermissionGranted && !isSpeaking) {
+                setTimeout(() => {
+                    if (!isListening && !isSpeaking && isAudioMode) {
+                        try {
+                            recognition.start();
+                            console.log('🔄 Recognition gently restarted');
+                        } catch (error) {
+                            console.log('⚠️ Gentle restart failed:', error.message);
+                        }
+                    }
+                }, 1000);
+            }
+        };
+
+        recognition.onerror = function(event) {
+            console.log('❌ Speech recognition error:', event.error);
+            isListening = false;
+            
+            if (event.error === 'not-allowed') {
+                console.log('🚫 Microphone permission denied');
+                micPermissionGranted = false;
+                return;
+            }
+            
+            if (event.error === 'no-speech') {
+                console.log('⏳ Chrome timeout - this is NORMAL behavior');
+                return;
+            }
+            
+            if (isAudioMode && micPermissionGranted && !isSpeaking) {
+                setTimeout(() => {
+                    if (!isListening && !isSpeaking && isAudioMode) {
+                        try {
+                            recognition.start();
+                            console.log('🔄 Recognition restarted after error');
+                        } catch (error) {
+                            console.log('⚠️ Restart failed:', error.message);
+                        }
+                    }
+                }, 2000);
+            }
+        };
+    } else {
+        console.log('❌ Speech recognition not supported in this browser');
+    }
+}
+
+// ===================================================
 // 🎯 UNIFIED VOICE VISUALIZATION SYSTEM (Preserved)
 // ===================================================
 const VoiceViz = {
@@ -106,7 +219,7 @@ window.startVoiceChat = startVoiceChat;
 // ==========================================
 // 🎯 ENHANCED INITIALIZE VOICE CHAT
 // ==========================================
-function initializeVoiceChat() {
+    function initializeVoiceChat() {
     console.log('🚀 Initializing Voice Chat Module...');
     
     setTimeout(() => {
@@ -247,122 +360,9 @@ function bindEventListeners() {
 }
 
 // ===================================================
-// 🎤 SPEECH RECOGNITION (All fixes preserved)
-// ===================================================
-function initializeSpeechRecognition() {
-    console.log('🎤 Initializing speech recognition...');
-    
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-        recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-        
-        recognition.continuous = true;
-        recognition.interimResults = false;
-        recognition.maxAlternatives = 1;
-        recognition.lang = 'en-US';
-
-        recognition.onstart = function() {
-            console.log('🎤 Speech recognition started');
-            isListening = true;
-            hasStartedOnce = true;
-        };
-
-        recognition.onresult = function(event) {
-            if (event.results.length > 0) {
-                const latestResult = event.results[event.results.length - 1];
-                const transcript = latestResult[0].transcript.trim();
-
-                // 🎯 BALANCED DETECTION
-                const shouldProcess = (
-                    latestResult.isFinal && 
-                    transcript.length > 3 &&
-                    (
-                        latestResult[0].confidence > 0.6 ||
-                        transcript.toLowerCase().includes('tax') ||
-                        transcript.toLowerCase().includes('sell') ||
-                        transcript.toLowerCase().includes('buy') ||
-                        transcript.toLowerCase().includes('practice') ||
-                        transcript.toLowerCase().includes('accounting') ||
-                        transcript.toLowerCase().includes('help') ||
-                        transcript.toLowerCase().includes('business') ||
-                        transcript.split(' ').length >= 2
-                    )
-                );
-
-                if (shouldProcess) {
-                    console.log('🎤 Processing voice input:', transcript);
-                    
-                    if (isSpeaking) {
-                        console.log('🚫 Ignoring - AI is speaking');
-                        return;
-                    }
-                    
-                    handleVoiceInput(transcript);
-                } else if (latestResult.isFinal) {
-                    console.log('⏳ Too short, waiting for more:', transcript);
-                }
-            }
-        };
-
-        recognition.onend = function() {
-            console.log('🎤 Speech recognition ended');
-            isListening = false;
-            
-            if (isSpeaking) {
-                console.log('🤖 AI is speaking - speakResponse will handle restart');
-                return;
-            }
-            
-            if (isAudioMode && micPermissionGranted && !isSpeaking) {
-                setTimeout(() => {
-                    if (!isListening && !isSpeaking && isAudioMode) {
-                        try {
-                            recognition.start();
-                            console.log('🔄 Recognition gently restarted');
-                        } catch (error) {
-                            console.log('⚠️ Gentle restart failed:', error.message);
-                        }
-                    }
-                }, 1000);
-            }
-        };
-
-        recognition.onerror = function(event) {
-            console.log('❌ Speech recognition error:', event.error);
-            isListening = false;
-            
-            if (event.error === 'not-allowed') {
-                console.log('🚫 Microphone permission denied');
-                micPermissionGranted = false;
-                return;
-            }
-            
-            if (event.error === 'no-speech') {
-                console.log('⏳ Chrome timeout - this is NORMAL behavior');
-                return;
-            }
-            
-            if (isAudioMode && micPermissionGranted && !isSpeaking) {
-                setTimeout(() => {
-                    if (!isListening && !isSpeaking && isAudioMode) {
-                        try {
-                            recognition.start();
-                            console.log('🔄 Recognition restarted after error');
-                        } catch (error) {
-                            console.log('⚠️ Restart failed:', error.message);
-                        }
-                    }
-                }, 2000);
-            }
-        };
-    } else {
-        console.log('❌ Speech recognition not supported in this browser');
-    }
-}
-
-// ===================================================
 // 🎛️ WAVEFORM VISUALIZATION (Preserved from our work)
 // ===================================================
-function initializeWaveform() {
+//function initializeWaveform() {
     VoiceViz.canvas = document.getElementById('voiceWaveform'); // MATCHES YOUR HTML!
     if (!VoiceViz.canvas) {
         console.log('⚠️ Waveform canvas not found');
@@ -372,7 +372,7 @@ function initializeWaveform() {
     VoiceViz.canvasCtx = VoiceViz.canvas.getContext('2d');
     console.log('🎛️ Waveform canvas initialized');
     return true;
-}
+
 
 function animateWaveform() {
     if (!VoiceViz.waveformActive || !VoiceViz.analyser) return;
@@ -1364,24 +1364,6 @@ window.activateMicrophone = activateMicrophone;
 window.reinitiateAudio = switchToAudioMode;
 window.muteAIVoice = muteAIVoice;
 window.switchToAudioMode = switchToAudioMode;
-
-// ===================================================
-// 🚀 MODULE INITIALIZATION (Auto-start, no splash!)
-// ===================================================
-function initializeVoiceChat() {
-    console.log('🚀 Initializing Voice Chat Module...');
-    
-    setTimeout(() => {
-        initializeSpeechRecognition();
-        initializeWaveform();
-        preloadVoices();
-        
-     // ✅ WAIT for user to click "Activate Microphone" button
-console.log('✅ Voice Chat Module Ready - WAITING for user interaction');
-        
-        console.log('✅ Voice Chat Module Ready!');
-    }, 100);
-}
 
 // Auto-initialize when loaded
 document.addEventListener('DOMContentLoaded', () => {
