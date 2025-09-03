@@ -221,11 +221,6 @@ function initializeSpeechRecognition() {
                         console.log('🚫 Ignoring input - AI is speaking');
                         return;
                     }
-                    
-                    // THE MISSING SIMPLE LOGIC YOU FOUND!
-                    if (transcript && transcript.length > 0) {
-                        handleVoiceInput(transcript);
-                    }
                 }
             }
         };
