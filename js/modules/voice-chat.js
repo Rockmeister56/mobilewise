@@ -199,95 +199,73 @@ function initializeSpeechRecognition() {
         };
 
         recognition.onresult = function(event) {
-            if (event.results.length > 0) {
-                const latestResult = event.results[event.results.length - 1];
-                const transcript = latestResult[0].transcript.trim();
-
-                // 🎯 BALANCED DETECTION
-                const shouldProcess = (
-                    latestResult.isFinal && 
-                    transcript.length > 3 &&
-                    (
-                        latestResult[0].confidence > 0.6 ||
-                        transcript.toLowerCase().includes('tax') ||
-                        transcript.toLowerCase().includes('sell') ||
-                        transcript.toLowerCase().includes('buy') ||
-                        transcript.toLowerCase().includes('practice') ||
-                        transcript.toLowerCase().includes('accounting') ||
-                        transcript.toLowerCase().includes('help') ||
-                        transcript.toLowerCase().includes('business') ||
-                        transcript.split(' ').length >= 2
-                    )
-                );
-
-                if (shouldProcess) {
-                    console.log('🎤 Processing voice input:', transcript);
-                    
-                    if (isSpeaking) {
-                        console.log('🚫 Ignoring - AI is speaking');
-                        return;
-                    }
-                    
+           if (event.results.length > 0) {
+    // Get the LATEST result (don't wait for isFinal in Chrome)
+    const latestResult = event.results[event.results.length - 1];
+    const transcript = latestResult[0].transcript.trim();
+    
+    // Process immediately if confidence is high OR if isFinal
+    if (latestResult.isFinal || latestResult[0].confidence > 0.7) {
+        console.log('🎤 FINAL Voice input received:', transcript);
+        // Your existing processing code...
+    }
+                console.log('🎤 FINAL Voice input received:', transcript);
+                
+                // 🔥 DON'T STOP - JUST IGNORE WHILE AI IS SPEAKING
+                if (isSpeaking) {
+                    console.log('🚫 Ignoring input - AI is speaking');
+                    return;
+                }
+                
+                if (transcript && transcript.length > 0) {
                     handleVoiceInput(transcript);
-                } else if (latestResult.isFinal) {
-                    console.log('⏳ Too short, waiting for more:', transcript);
                 }
             }
         };
 
         recognition.onend = function() {
-            console.log('🎤 Speech recognition ended');
-            isListening = false;
-            
-            if (isSpeaking) {
-                console.log('🤖 AI is speaking - speakResponse will handle restart');
-                return;
+    console.log('🎤 Speech recognition ended unexpectedly');
+    isListening = false;
+    
+    // 🔥 GENTLE RESTART - Only after AI finishes speaking
+    if (isAudioMode && micPermissionGranted && !isSpeaking) {
+        console.log('🔄 Gentle restart - waiting for AI to finish...');
+        setTimeout(() => {
+            if (!isListening && !isSpeaking && isAudioMode) {
+                try {
+                    recognition.start();
+                    console.log('✅ Recognition gently restarted');
+                } catch (error) {
+                    console.log('⚠️ Gentle restart failed:', error.message);
+                }
             }
-            
-            if (isAudioMode && micPermissionGranted && !isSpeaking) {
-                setTimeout(() => {
-                    if (!isListening && !isSpeaking && isAudioMode) {
-                        try {
-                            recognition.start();
-                            console.log('🔄 Recognition gently restarted');
-                        } catch (error) {
-                            console.log('⚠️ Gentle restart failed:', error.message);
-                        }
-                    }
-                }, 1000);
-            }
-        };
+        }, 1000); // Conservative 1-second delay
+    }
+};
 
         recognition.onerror = function(event) {
-            console.log('❌ Speech recognition error:', event.error);
+            console.log('🚫 Speech recognition error:', event.error);
             isListening = false;
             
             if (event.error === 'not-allowed') {
-                console.log('🚫 Microphone permission denied');
+                console.log('❌ Microphone permission denied');
                 micPermissionGranted = false;
                 return;
             }
             
-            if (event.error === 'no-speech') {
-                console.log('⏳ Chrome timeout - this is NORMAL behavior');
-                return;
-            }
-            
-            if (isAudioMode && micPermissionGranted && !isSpeaking) {
+            // Restart on any other error
+            if (isAudioMode && micPermissionGranted) {
                 setTimeout(() => {
-                    if (!isListening && !isSpeaking && isAudioMode) {
-                        try {
-                            recognition.start();
-                            console.log('🔄 Recognition restarted after error');
-                        } catch (error) {
-                            console.log('⚠️ Restart failed:', error.message);
-                        }
+                    if (!isListening) {
+                        recognition.start();
                     }
-                }, 2000);
+                }, 1000);
             }
         };
+        
+        console.log('✅ Speech recognition initialized with continuous mode');
     } else {
-        console.log('❌ Speech recognition not supported in this browser');
+        console.log('❌ Speech recognition not supported');
     }
 }
 
