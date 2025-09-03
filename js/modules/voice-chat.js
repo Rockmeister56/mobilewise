@@ -359,6 +359,54 @@ function bindEventListeners() {
     }
 }
 
+// ===========================================
+// MESSAGE HANDLING
+// ===========================================
+function handleVoiceInput(transcript) {
+    console.log('🗣️ Processing voice input:', transcript);
+    addUserMessage(transcript);
+    processUserInput(transcript);
+}
+
+function sendTextMessage() {
+    const textInput = document.getElementById('textInput');
+    if (!textInput) return;
+    
+    const message = textInput.value.trim();
+    console.log('💬 Processing text input:', message);
+    
+    if (!message) return;
+    
+    addUserMessage(message);
+    textInput.value = '';
+    processUserInput(message);
+}
+
+function processUserInput(message) {
+    if (currentAudio) {
+        stopCurrentAudio();
+    }
+    
+    setTimeout(() => {
+        const response = getAIResponse(message);
+        console.log('🤖 AI Response:', response);
+        addAIMessage(response);
+        speakResponse(response);
+    }, 800);
+}
+
+function hideSpeedControls() {
+    const slowerBtn = document.querySelector('[onclick*="slower"]');
+    const normalBtn = document.querySelector('[onclick*="normal"]'); 
+    const fasterBtn = document.querySelector('[onclick*="faster"]');
+    
+    if (slowerBtn) slowerBtn.style.display = 'none';
+    if (normalBtn) normalBtn.style.display = 'none';
+    if (fasterBtn) fasterBtn.style.display = 'none';
+    
+    console.log('Speed buttons hidden');
+}
+
 // ===================================================
 // 🎛️ WAVEFORM VISUALIZATION (Preserved from our work)
 // ===================================================
