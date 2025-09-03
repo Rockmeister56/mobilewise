@@ -445,37 +445,25 @@ function stopUnifiedVoiceVisualization() {
 // 🎯 PROCESS USER INPUT - INSTANT RESPONSE SYSTEM
 // ===================================================
 function processUserInput(message) {
-    console.log('🔥 Processing user input:', message);
+    console.log('🔥 SINGLE Processing user input:', message);
     
-    // 🔥 PREVENT DOUBLE PROCESSING
     if (isProcessingResponse) {
-        console.log('🚫 Already processing response, ignoring');
+        console.log('🚫 Already processing, ignoring');
         return;
     }
     
     isProcessingResponse = true;
     
-    // Stop any current audio
-    if (currentAudio) {
-        stopCurrentAudio();
-    }
+    // Stop audio
+    if (currentAudio) stopCurrentAudio();
     
-    // 🚀 INSTANT AI RESPONSE GENERATION
+    // INSTANT AI response
     const response = getAIResponse(message);
-    console.log('🤖 AI Response generated instantly');
-    
-    // 🚀 IMMEDIATE MESSAGE DISPLAY - NO DELAY!
     addAIMessage(response);
+    speakResponse(response);
     
-    // Only delay the SPEECH slightly for natural flow
-    setTimeout(() => {
-        speakResponse(response);
-    }, 200); // Minimal delay just for natural timing
-    
-    // Reset processing flag
-    setTimeout(() => {
-        isProcessingResponse = false;
-    }, 500);
+    // Reset flag
+    setTimeout(() => { isProcessingResponse = false; }, 500);
 }
 
 // ===================================================
