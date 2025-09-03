@@ -219,10 +219,6 @@ function initializeSpeechRecognition() {
             currentAudio = null;
             isSpeaking = false;
             
-            // Process AI response after brief delay
-            setTimeout(() => {
-                // processUserInput(transcript);
-            }, 300);
         }
     }
 };
