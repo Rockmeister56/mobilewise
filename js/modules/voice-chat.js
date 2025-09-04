@@ -201,13 +201,16 @@ function initializeSpeechRecognition() {
         function updateLiveUserTranscript(text) {
     const voiceText = document.getElementById('voiceText');
     if (voiceText) {
-        // INSTANT text update - no background animation!
-        voiceText.textContent = `Speaking: ${text}`;
-        
-        // Clear text after speaking (bar stays)
-        setTimeout(() => {
-            voiceText.textContent = '';
-        }, 3000);
+        // Show words INSTANTLY as you speak - no delays!
+        voiceText.textContent = text;
+        // No timeout - let the final result clear it
+    }
+}
+
+function clearLiveTranscript() {
+    const voiceText = document.getElementById('voiceText');
+    if (voiceText) {
+        voiceText.textContent = '';
     }
 }
 
