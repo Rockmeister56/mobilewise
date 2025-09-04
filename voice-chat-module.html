@@ -150,22 +150,21 @@ box-shadow: 0 15px 40px rgba(33, 150, 243, 0.4);
 }
 
         .quick-btn {
-            background: rgba(33, 150, 243, 0.1);
-            border: 1px solid #2196f3;
-            border-radius: 20px;
-            padding: 8px 12px;
-            font-size: 11px;
-            cursor: pointer;
-            color: #64B5F6;
-            transition: all 0.3s ease;
-            white-space: nowrap;
-        }
+    padding: 6px 12px;
+    background: white;
+    border: 1px solid #007bff;
+    border-radius: 16px;
+    color: #007bff;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
 
-        .quick-btn:hover {
-            background: #2196f3;
-            color: white;
-            transform: scale(1.05);
-        }
+.quick-btn:hover {
+    background: #f8f9fa;
+    border-color: #0056b3;
+    color: #0056b3;
+}
 
         .voice-banner {
     position: relative;
@@ -481,14 +480,6 @@ box-shadow: 0 15px 40px rgba(33, 150, 243, 0.4);
             <!-- Chat Header -->
             <div class="chat-header" id="chatHeaderTitle">NCI Business AI Assistant</div>
 
-            <!-- Quick Topic Buttons -->
-            <div class="quick-buttons">
-                <button class="quick-btn" onclick="askQuickQuestion('How can you help grow my business?')">Business Growth</button>
-                <button class="quick-btn" onclick="askQuickQuestion('What marketing services do you offer?')">Marketing Services</button>
-                <button class="quick-btn" onclick="askQuickQuestion('Do you handle bookkeeping and taxes?')">Accounting Services</button>
-                <button class="quick-btn" onclick="askQuickQuestion('What are your pricing packages?')">Pricing</button>
-            </div>
-
             <!-- Voice Visualizer Container -->
            <div id="voiceVisualizerContainer" class="voice-banner" style="display: none;">
                 <div id="staticListeningText" class="listening-text">
@@ -513,6 +504,14 @@ box-shadow: 0 15px 40px rgba(33, 150, 243, 0.4);
 
             <!-- Chat Messages Area -->
             <div class="chat-messages" id="chatMessages"></div>
+
+             <!-- Quick Topic Buttons -->
+            <div class="quick-buttons">
+                <button class="quick-btn" onclick="askQuickQuestion('How can you help grow my business?')">Business Growth</button>
+                <button class="quick-btn" onclick="askQuickQuestion('What marketing services do you offer?')">Marketing Services</button>
+                <button class="quick-btn" onclick="askQuickQuestion('Do you handle bookkeeping and taxes?')">Accounting Services</button>
+                <button class="quick-btn" onclick="askQuickQuestion('What are your pricing packages?')">Pricing</button>
+            </div>
 
          <!-- Speed Controls & Audio Off Button -->
 <div class="voice-controls-container" id="speedControlsContainer" style="display: none;">
