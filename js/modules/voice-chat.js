@@ -70,54 +70,73 @@ const businessResponses = {
                     interimTranscript = '';
                 };
 
-                recognition.onresult = function(event) {
-                    // Clear any existing silence timer
-                    if (silenceTimer) {
-                        clearTimeout(silenceTimer);
-                    }
-                    
-                    let finalTranscript = '';
-                    interimTranscript = '';
-                    
-                    // Process both interim and final results
-                    for (let i = event.resultIndex; i < event.results.length; i++) {
-                        const transcript = event.results[i][0].transcript;
-                        
-                        if (event.results[i].isFinal) {
-                            finalTranscript += transcript;
-                        } else {
-                            interimTranscript += transcript;
-                        }
-                    }
-                    
-                    // Process final results - ONLY when we have a complete sentence
-                    if (finalTranscript && !isProcessingInput) {
-                        console.log('Final voice input received:', finalTranscript);
-                        
-                        if (isSpeaking) {
-                            console.log('Ignoring input - AI is speaking');
-                            return;
-                        }
-                        
-                        if (finalTranscript && finalTranscript.length > 0) {
-                            isProcessingInput = true;
-                            handleVoiceInput(finalTranscript);
-                        }
-                    }
-                    
-                    // Set a timer to detect when user stops speaking
-                    // Only use this as a fallback if Chrome doesn't send final results
-                    if (interimTranscript && interimTranscript.length > 3) {
-                        silenceTimer = setTimeout(() => {
-                            if (interimTranscript && !isProcessingInput && !isSpeaking) {
-                                console.log('Silence fallback - processing:', interimTranscript);
-                                isProcessingInput = true;
-                                handleVoiceInput(interimTranscript);
-                                interimTranscript = '';
-                            }
-                        }, 1200); // Increased to 1200ms for more natural pause detection
-                    }
-                };
+             recognition.onresult = function(event) {
+    // Clear any existing silence timer
+    if (silenceTimer) {
+        clearTimeout(silenceTimer);
+    }
+    
+    let finalTranscript = '';
+    interimTranscript = '';
+    
+    // Process results
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript;
+        
+        if (event.results[i].isFinal) {
+            finalTranscript += transcript;
+        } else {
+            interimTranscript += transcript;
+        }
+    }
+    
+    // 🚀 HYBRID MAGIC: Show user input IMMEDIATELY from interim results
+    if (interimTranscript && interimTranscript.length > 3) {
+        // Show user's words in real-time as they speak
+        updateLiveUserTranscript(interimTranscript);
+    }
+    
+    // Process final results 
+    if (finalTranscript && !isProcessingInput) {
+        console.log('Final voice input received:', finalTranscript);
+        
+        if (isSpeaking) {
+            console.log('Ignoring input - AI is speaking');
+            return;
+        }
+        
+        // 🎯 INSTANT USER MESSAGE DISPLAY
+        addUserMessage(finalTranscript);
+        isProcessingInput = true;
+        
+        // Then process AI response in background
+        setTimeout(() => {
+            handleVoiceInput(finalTranscript);
+        }, 100);
+    }
+    
+    // Improved silence fallback with PDF suggestions
+    if (interimTranscript && interimTranscript.length > 5) {
+        silenceTimer = setTimeout(() => {
+            if (interimTranscript && !isProcessingInput && !isSpeaking) {
+                console.log('Processing complete phrase:', interimTranscript);
+                addUserMessage(interimTranscript); // 🚀 INSTANT DISPLAY
+                isProcessingInput = true;
+                handleVoiceInput(interimTranscript);
+                interimTranscript = '';
+            }
+        }, 2000); // PDF's suggestion - increased timing
+    }
+};
+
+// New function for live transcript display
+function updateLiveUserTranscript(text) {
+    const liveTranscript = document.getElementById('liveTranscript');
+    if (liveTranscript) {
+        liveTranscript.textContent = text;
+        liveTranscript.style.opacity = '0.7'; // Show it's temporary
+    }
+}
 
                 recognition.onend = function() {
                     console.log('Speech recognition ended');
