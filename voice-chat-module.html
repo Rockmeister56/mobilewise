@@ -557,22 +557,23 @@ box-shadow: 0 15px 40px rgba(33, 150, 243, 0.4);
     right: 10px;
 }
 
-.live-transcript-expanded {
-    opacity: 1; /* Always visible background */
-    text-align: center;
-    font-size: 14px;
-    padding: 4px 15px; /* Reduced padding for 18px total height */
-    margin: 8px 0 5px 0;
-    height: 18px; /* Exactly 18px as requested */
-    background: rgba(0, 0, 0, 0.8); /* Always visible black background */
+.permanent-voice-bar {
+    height: 18px;
+    background: rgba(0, 0, 0, 0.8);
     border-radius: 8px;
-    color: #00ff00; /* Green text like in your screenshot */
-    font-weight: 500;
+    margin: 2px 0 5px 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 18px;
-    max-height: 18px;
+    /* This bar NEVER disappears - always visible */
+}
+
+#voiceText {
+    color: #00ff00;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: center;
+    /* Only the TEXT changes, not the container */
 }
    </style>
 </head>
@@ -604,6 +605,11 @@ box-shadow: 0 15px 40px rgba(33, 150, 243, 0.4);
             <!-- 🚀 EXPANDED Live Transcript (Replace where meters were) -->
 <div id="liveTranscript" class="live-transcript-expanded">
     <!-- Live speaking text appears here -->
+</div>
+
+<!-- 🎯 PERMANENT Black Bar - Always Visible -->
+<div class="permanent-voice-bar">
+    <div id="voiceText"></div>
 </div>
 
             <!-- Chat Messages Area -->

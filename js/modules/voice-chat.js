@@ -231,14 +231,14 @@ const businessResponses = {
         }
 
         function updateLiveUserTranscript(text) {
-    const liveTranscript = document.getElementById('liveTranscript');
-    if (liveTranscript) {
-        // Just change the text - background stays permanent
-        liveTranscript.textContent = `Speaking: ${text}`;
+    const voiceText = document.getElementById('voiceText');
+    if (voiceText) {
+        // INSTANT text update - no background animation!
+        voiceText.textContent = `Speaking: ${text}`;
         
-        // Clear text after speaking (but keep background)
+        // Clear text after speaking (bar stays)
         setTimeout(() => {
-            liveTranscript.textContent = ''; // Empty but background stays
+            voiceText.textContent = '';
         }, 3000);
     }
 }
