@@ -185,92 +185,106 @@ function initializeSpeechRecognition() {
 }
 
 // ===================================================
-// 🚀 COMPLETE startVoiceChat FUNCTION - SPLASH SCREEN REMOVAL
+// 🚀 COMPLETE SPLASH SCREEN REMOVAL SYSTEM
 // ===================================================
+
+// The function your HTML button actually calls
 function startVoiceChat() {
     console.log('🎤 startVoiceChat() called from splash screen');
     
-    // HIDE SPLASH SCREEN - This was missing!
+    // Hide splash screen
     const splashScreen = document.getElementById('splashScreen');
     if (splashScreen) {
         splashScreen.style.display = 'none';
         console.log('✅ Splash screen hidden');
     }
     
-    // SHOW CHAT INTERFACE
+    // Show chat interface  
     const chatInterface = document.getElementById('chatInterface');
     if (chatInterface) {
         chatInterface.style.display = 'flex';
         console.log('✅ Chat interface shown');
     }
     
-    // ACTIVATE MICROPHONE IMMEDIATELY
+    // Call the existing activation function
     activateMicrophone();
 }
 
+// The missing removeSplashScreen function (that was referenced but never defined!)
+function removeSplashScreen() {
+    console.log('🎤 removeSplashScreen() called');
+    startVoiceChat(); // Just call startVoiceChat!
+}
+
 // ===================================================
-// 🎯 ENHANCED activateMicrophone - SPLASH SCREEN AWARE
+// 🎯 ENHANCED activateMicrophone (From your original)
 // ===================================================
 async function activateMicrophone() {
-    console.log('🎤 Activating microphone...');
-    
-    // ENSURE SPLASH SCREEN IS HIDDEN (backup check)
-    const splashScreen = document.getElementById('splashScreen');
-    if (splashScreen) {
-        splashScreen.style.display = 'none';
+    console.log('🎤 User clicked ACTIVATE MICROPHONE button...');
+
+    // Update button state
+    const activateBtn = document.getElementById('activateMicButton');
+    if (activateBtn) {
+        activateBtn.textContent = '🎤 Requesting permission...';
+        activateBtn.disabled = true;
     }
-    
-    // ENSURE CHAT INTERFACE IS SHOWN (backup check)
-    const chatInterface = document.getElementById('chatInterface');
-    if (chatInterface) {
-        chatInterface.style.display = 'flex';
-    }
-    
+
     try {
-        // Request microphone permission - SIMPLE approach
-        await navigator.mediaDevices.getUserMedia({ audio: true });
+        // Request microphone permission
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        console.log('🎤 Microphone access granted!');
         
         isAudioMode = true;
         
-        // Show appropriate UI
-        const activateMicBtn = document.getElementById('activateMicBtn');
+        // Update UI - EXACT LOGIC FROM ORIGINAL
+        if (activateBtn) activateBtn.style.display = 'none';
+        
         const audioOffBtn = document.getElementById('audioOffBtn');
-        const speedContainer = document.getElementById('speedControlsContainer');
-        const voiceContainer = document.getElementById('voiceVisualizerContainer');
-        
-        if (activateMicBtn) activateMicBtn.style.display = 'none';
-        if (audioOffBtn) audioOffBtn.style.display = 'block';
-        if (speedContainer) speedContainer.style.display = 'flex';
-        if (voiceContainer) voiceContainer.style.display = 'flex';
-        
-        // Start recognition - IMMEDIATE!
-        if (recognition && !isListening) {
-            try {
-                recognition.start();
-            } catch (error) {
-                console.log('⚠️ Recognition start error:', error);
-            }
+        if (audioOffBtn) {
+            audioOffBtn.style.display = 'block';
+            audioOffBtn.textContent = '🛑 Stop Audio';
         }
         
-        updateHeaderBanner('🎤 Microphone Active - How can we help your business?');
-        updateStatusIndicator('listening');
+        const speedContainer = document.getElementById('speedControlsContainer');
+        if (speedContainer) speedContainer.style.display = 'flex';
         
-        // Add greeting - FAST!
-        setTimeout(() => {
-            const greeting = "What can I help you with today?";
-            addAIMessage(greeting);
-            speakResponse(greeting);
-        }, 500);
+        const voiceContainer = document.getElementById('voiceVisualizerContainer');
+        if (voiceContainer) voiceContainer.style.display = 'flex';
         
     } catch (error) {
         console.log('❌ Microphone access denied:', error);
-        addAIMessage("Microphone access was denied. You can still use text chat.");
-        switchToTextMode();
+        if (activateBtn) {
+            activateBtn.textContent = '🎤 Activate Microphone';
+            activateBtn.disabled = false;
+        }
+        addAIMessage("No problem! You can still chat with me using text. What can I help you with?");
+        return;
     }
+
+    // Start recognition
+    if (recognition && !isListening) {
+        try {
+            recognition.start();
+            console.log('🎤 Speech recognition started');
+        } catch (error) {
+            console.log('⚠️ Recognition start failed:', error);
+        }
+    }
+
+    updateHeaderBanner('🎤 Microphone Active - How can we help your business?');
+    updateStatusIndicator('listening');
+
+    // Add greeting
+    setTimeout(() => {
+        const greeting = "Perfect! Voice chat is now active, what can I help you with today?";
+        addAIMessage(greeting);
+        speakResponse(greeting);
+    }, 1000);
 }
 
-// MAKE BOTH FUNCTIONS GLOBALLY AVAILABLE
+// Make functions globally available
 window.startVoiceChat = startVoiceChat;
+window.removeSplashScreen = removeSplashScreen;
 window.activateMicrophone = activateMicrophone;
 
 
