@@ -780,6 +780,31 @@ function updateStatusIndicator(status) {
 }
 
 // ===================================================
+// 🎤 VOICE LOADING SYSTEM (FIXED!)
+// ===================================================
+function getVoices() {
+    return new Promise((resolve) => {
+        let voices = window.speechSynthesis.getVoices();
+        
+        if (voices.length > 0) {
+            resolve(voices);
+        } else {
+            // Chrome needs time to load voices
+            window.speechSynthesis.onvoiceschanged = () => {
+                voices = window.speechSynthesis.getVoices();
+                resolve(voices);
+            };
+        }
+    });
+}
+
+function preloadVoices() {
+    getVoices().then(voices => {
+        console.log('🎤 Voices preloaded:', voices.length);
+    });
+}
+
+// ===================================================
 // 🌐 GLOBAL FUNCTIONS (KEPT - All original functions)
 // ===================================================
 window.askQuickQuestion = function(question) {
