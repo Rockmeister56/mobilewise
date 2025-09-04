@@ -713,23 +713,41 @@ function startVoiceChat() {
     activateMicrophone();
 }
 
-// ===================================================
-// 🎤 MICROPHONE ACTIVATION 
-// ===================================================
- async function activateMicrophone() {
-    console.log('Activating microphone...');
+async function activateMicrophone() {
+    console.log('🎤 Activating microphone...');
+    
+    // ⭐ ADD THIS: Hide splash screen FIRST!
+    const splashScreen = document.getElementById('splashScreen');
+    if (splashScreen) {
+        splashScreen.style.display = 'none';
+        console.log('✅ Splash screen hidden');
+    }
+    
+    // ⭐ ADD THIS: Show chat interface
+    const chatInterface = document.getElementById('chatInterface');
+    if (chatInterface) {
+        chatInterface.style.display = 'flex';
+        console.log('✅ Chat interface shown');
+    }
     
     try {
         // Request microphone permission
-        await navigator.mediaDevices.getUserMedia({ audio: true });
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        persistentMicStream = stream;
+        micPermissionGranted = true;
         
         isAudioMode = true;
         
         // Show appropriate UI
-        document.getElementById('activateMicBtn').style.display = 'none';
-        document.getElementById('audioOffBtn').style.display = 'block';
-        document.getElementById('speedControlsContainer').style.display = 'flex';
-        document.getElementById('voiceVisualizerContainer').style.display = 'flex';
+        const activateMicBtn = document.getElementById('activateMicBtn');
+        const audioOffBtn = document.getElementById('audioOffBtn');
+        const speedControls = document.getElementById('speedControlsContainer');
+        const voiceContainer = document.getElementById('voiceVisualizerContainer');
+        
+        if (activateMicBtn) activateMicBtn.style.display = 'none';
+        if (audioOffBtn) audioOffBtn.style.display = 'block';
+        if (speedControls) speedControls.style.display = 'flex';
+        if (voiceContainer) voiceContainer.style.display = 'flex';
         
         // Start recognition
         if (recognition && !isListening) {
@@ -817,7 +835,7 @@ window.sendTextMessage = sendTextMessage;
 window.switchToTextMode = switchToTextMode;
 window.adjustVoiceSpeed = adjustVoiceSpeed;
 window.activateMicrophone = activateMicrophone;
-// window.reinitiateAudio = reinitiateAudio;
+window.reinitiateAudio = reinitiateAudio;
 window.muteAIVoice = muteAIVoice;
 window.startVoiceChat = startVoiceChat;
 
