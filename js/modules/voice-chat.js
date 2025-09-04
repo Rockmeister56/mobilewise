@@ -792,7 +792,7 @@ window.sendTextMessage = sendTextMessage;
 window.switchToTextMode = switchToTextMode;
 window.adjustVoiceSpeed = adjustVoiceSpeed;
 window.activateMicrophone = activateMicrophone;
-window.reinitiateAudio = reinitiateAudio;
+// window.reinitiateAudio = reinitiateAudio;
 window.muteAIVoice = muteAIVoice;
 window.startVoiceChat = startVoiceChat;
 
