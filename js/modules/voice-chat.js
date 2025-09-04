@@ -14,6 +14,7 @@ let hasStartedOnce = false;
 let persistentMicStream = null;
 let isSpeaking = false;
 let micPermissionGranted = false;
+let currentUserBubble = null;
 
 // ===================================================
 // 🔄 REPLACED: WORKING SPEECH VARIABLES (From working system)
@@ -208,20 +209,27 @@ function initializeSpeechRecognition() {
 } 
 
 
-        function updateLiveUserTranscript(text) {
-    const voiceText = document.getElementById('voiceText');
-    if (voiceText) {
-        // Show words INSTANTLY as you speak - no delays!
-        voiceText.textContent = text;
-        // No timeout - let the final result clear it
+      function updateLiveUserTranscript(text) {
+    // Instead of updating separate voiceText, update the actual chat bubble!
+    if (!currentUserBubble) {
+        // Create the user chat bubble immediately when speech starts
+        createLiveUserBubble();
+    }
+    
+    if (currentUserBubble) {
+        // Update the bubble content in real-time with accumulative text
+        const bubbleContent = currentUserBubble.querySelector('.message-bubble');
+        if (bubbleContent) {
+            bubbleContent.textContent = text;
+            scrollChatToBottom();
+        }
     }
 }
 
+// REPLACE your current clearLiveTranscript function with this:
 function clearLiveTranscript() {
-    const voiceText = document.getElementById('voiceText');
-    if (voiceText) {
-        voiceText.textContent = '';
-    }
+    // Reset the current bubble reference
+    currentUserBubble = null;
 }
 
 // ===================================================
@@ -267,6 +275,26 @@ function animateWaveform() {
         
         x += barWidth + 1;
     }
+}
+
+function createLiveUserBubble() {
+    const chatMessages = document.getElementById('chatMessages');
+    if (!chatMessages) return;
+    
+    // Create the user message bubble immediately
+    const messageHTML = `
+        <div class="message user-message">
+            <div class="message-bubble">Listening...</div>
+        </div>
+    `;
+    chatMessages.insertAdjacentHTML('beforeend', messageHTML);
+    
+    // Get reference to the bubble we just created
+    const messages = chatMessages.querySelectorAll('.user-message');
+    currentUserBubble = messages[messages.length - 1];
+    
+    scrollChatToBottom();
+    console.log('👤 Live user bubble created');
 }
 
 // ===================================================
@@ -495,6 +523,18 @@ function switchToAudioMode() {
 // 💬 MESSAGE DISPLAY (KEPT - Original functions)
 // ===================================================
 function addUserMessage(message) {
+    // If we already have a live bubble, just finalize it
+    if (currentUserBubble) {
+        const bubbleContent = currentUserBubble.querySelector('.message-bubble');
+        if (bubbleContent) {
+            bubbleContent.textContent = message;
+        }
+        currentUserBubble = null; // Reset for next speech
+        console.log('👤 User bubble finalized:', message);
+        return;
+    }
+    
+    // Fallback: create new bubble if somehow we don't have a live one
     const chatMessages = document.getElementById('chatMessages');
     if (!chatMessages) return;
     
@@ -505,7 +545,7 @@ function addUserMessage(message) {
     `;
     chatMessages.insertAdjacentHTML('beforeend', messageHTML);
     scrollChatToBottom();
-    console.log('👤 User message added:', message);
+    console.log('👤 User message added (fallback):', message);
 }
 
 function addAIMessage(message) {
