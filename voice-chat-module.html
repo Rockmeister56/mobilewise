@@ -502,52 +502,16 @@ box-shadow: 0 15px 40px rgba(33, 150, 243, 0.4);
     min-height: 10px;
 "></div>
 
-            <!-- Chat Messages Area -->
-            <div class="chat-messages" id="chatMessages"></div>
-
-            <div id="chatInterface" style="
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    padding: 10px;
-">
-    
-    <!-- Quick Question Buttons -->
-    <div class="quick-questions-container">
-        <!-- Your existing quick buttons -->
-    </div>
-    
-    <!-- Live Transcript -->
-    <div id="liveTranscript" style="..."></div>
-    
-    <!-- EXPANDED Chat Area -->
-    <div id="chatMessages" class="chat-messages" style="
-        flex: 1;
-        overflow-y: auto;
-        padding: 15px;
-        min-height: 400px;
-        max-height: none;
-        background: rgba(0, 0, 0, 0.2);
-        border-radius: 12px;
-        margin: 10px 0;
-    ">
-        <!-- Messages here -->
-    </div>
-    
-    <!-- NEW Cohesive Control Bar -->
-    <div class="control-bar">
-        <!-- Speed controls centered, Stop button right -->
-    </div>
-    
-</div>
-
-             <!-- Quick Topic Buttons -->
+               <!-- Quick Topic Buttons -->
             <div class="quick-buttons">
                 <button class="quick-btn" onclick="askQuickQuestion('How can you help grow my business?')">Business Growth</button>
                 <button class="quick-btn" onclick="askQuickQuestion('What marketing services do you offer?')">Marketing Services</button>
                 <button class="quick-btn" onclick="askQuickQuestion('Do you handle bookkeeping and taxes?')">Accounting Services</button>
                 <button class="quick-btn" onclick="askQuickQuestion('What are your pricing packages?')">Pricing</button>
             </div>
+
+            <!-- Chat Messages Area -->
+            <div class="chat-messages" id="chatMessages"></div>
 
          <!-- Speed Controls & Audio Off Button -->
 <div class="voice-controls-container" id="speedControlsContainer" style="display: none;">
