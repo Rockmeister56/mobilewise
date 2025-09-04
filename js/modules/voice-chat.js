@@ -68,6 +68,134 @@ function bindEventListeners() {
 }
 
 // ===================================================
+// 🎯 COMPLETE EVENT LISTENER SYSTEM (What I missed!)
+// ===================================================
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 DOM loaded - Setting up ALL event listeners...');
+    
+    // Initialize core systems first
+    initializeSpeechRecognition();
+    bindEventListeners();
+    initializeWaveform();
+    
+    // ===================================================
+    // 🚨 SPLASH SCREEN BUTTON LISTENERS (What was missing!)
+    // ===================================================
+    
+    // Main activate button on splash screen
+    const activateVoiceChatBtn = document.querySelector('button[onclick="startVoiceChat()"]');
+    if (activateVoiceChatBtn) {
+        // Remove onclick attribute and add proper event listener
+        activateVoiceChatBtn.removeAttribute('onclick');
+        activateVoiceChatBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('🎤 Splash screen activate button clicked!');
+            startVoiceChat();
+        });
+        console.log('✅ Splash screen activate button listener added');
+    }
+    
+    // Alternative - find by class name
+    const activateMicBtn = document.querySelector('.activate-mic-btn');
+    if (activateMicBtn) {
+        activateMicBtn.removeAttribute('onclick');
+        activateMicBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('🎤 Activate mic button clicked!');
+            startVoiceChat();
+        });
+        console.log('✅ Activate mic button listener added');
+    }
+    
+    // Find activate button by ID
+    const activateById = document.getElementById('activateMicBtn');
+    if (activateById) {
+        activateById.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('🎤 Activate button (by ID) clicked!');
+            startVoiceChat();
+        });
+        console.log('✅ Activate button (by ID) listener added');
+    }
+    
+    console.log('✅ Mobile-Wise AI Voice Chat - ALL LISTENERS LOADED!');
+});
+
+function bindEventListeners() {
+    console.log('🔧 Binding additional event listeners...');
+    
+    // Audio off button
+    const audioOffBtn = document.getElementById('audioOffBtn');
+    if (audioOffBtn) {
+        audioOffBtn.addEventListener('click', switchToTextMode);
+        console.log('✅ Audio off button bound');
+    }
+    
+    // Send button
+    const sendBtn = document.getElementById('sendBtn');
+    if (sendBtn) {
+        sendBtn.addEventListener('click', sendTextMessage);
+        console.log('✅ Send button bound');
+    }
+    
+    // Text input enter key
+    const textInput = document.getElementById('textInput');
+    if (textInput) {
+        textInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendTextMessage();
+            }
+        });
+        console.log('✅ Text input enter key bound');
+    }
+    
+    // Speed control buttons
+    const slowerBtn = document.querySelector('button[onclick*="slower"]');
+    if (slowerBtn) {
+        slowerBtn.addEventListener('click', () => adjustVoiceSpeed('slower'));
+    }
+    
+    const fasterBtn = document.querySelector('button[onclick*="faster"]');
+    if (fasterBtn) {
+        fasterBtn.addEventListener('click', () => adjustVoiceSpeed('faster'));
+    }
+}
+
+// ===================================================
+// 🚀 SPLASH SCREEN FUNCTIONS (Complete implementation)
+// ===================================================
+function startVoiceChat() {
+    console.log('🎤 startVoiceChat() called - REMOVING SPLASH SCREEN');
+    
+    // Hide splash screen
+    const splashScreen = document.getElementById('splashScreen');
+    if (splashScreen) {
+        splashScreen.style.display = 'none';
+        console.log('✅ Splash screen hidden');
+    } else {
+        console.log('❌ Splash screen element not found');
+    }
+    
+    // Show chat interface
+    const chatInterface = document.getElementById('chatInterface');
+    if (chatInterface) {
+        chatInterface.style.display = 'flex';
+        console.log('✅ Chat interface shown');
+    } else {
+        console.log('❌ Chat interface element not found');
+    }
+    
+    // Activate microphone
+    setTimeout(() => {
+        activateMicrophone();
+    }, 100);
+}
+
+// Make globally available
+window.startVoiceChat = startVoiceChat;
+
+
+// ===================================================
 // 🎤 WORKING SPEECH RECOGNITION (No 7-second delays!)
 // ===================================================
 function initializeSpeechRecognition() {
