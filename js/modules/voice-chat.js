@@ -70,7 +70,14 @@ const businessResponses = {
                     interimTranscript = '';
                 };
 
-          recognition.onresult = function(event) {
+         recognition.onstart = function() {
+    console.log('Speech recognition started');
+    isListening = true;
+    updateStatusIndicator('listening');
+    interimTranscript = '';
+};
+
+recognition.onresult = function(event) {
     // Clear any existing silence timer
     if (silenceTimer) {
         clearTimeout(silenceTimer);
@@ -90,145 +97,63 @@ const businessResponses = {
         }
     }
     
-    // 🚀 HYBRID MAGIC: Show live transcript as user speaks
-    if (interimTranscript && interimTranscript.length > 3) {
+    // 🚀 REAL-TIME DISPLAY: Update on EVERY word as you speak!
+    if (interimTranscript && interimTranscript.length > 1) {
         updateLiveUserTranscript(interimTranscript);
     }
     
-    // ✅ PROCESS FINAL RESULTS (Complete sentences from Google)
+    // Process final results...
     if (finalTranscript && !isProcessingInput) {
-        console.log('Final voice input received:', finalTranscript);
-        
-        // Ignore if AI is currently speaking
-        if (isSpeaking) {
-            console.log('Ignoring input - AI is speaking');
-            return;
-        }
-        
-        // 🎯 INSTANT USER MESSAGE DISPLAY
-        addUserMessage(finalTranscript);
-        isProcessingInput = true;
-        
-        // 🤖 PROCESS AI RESPONSE DIRECTLY (No function calls!)
-        setTimeout(() => {
-            console.log('🤖 Processing AI response for:', finalTranscript);
-            const response = getAIResponse(finalTranscript);
-            console.log('🤖 AI Response generated');
-            
-            addAIMessage(response);
-            speakResponse(response);
-            
-            // Reset processing flag
-            setTimeout(() => {
-                isProcessingInput = false;
-            }, 500);
-        }, 1500); // Natural conversation delay
-        
-        return; // ⭐ CRITICAL: Exit here to prevent silence fallback
+        // ... rest of your final result processing
     }
     
-    // ⏰ SILENCE FALLBACK (For incomplete Google processing)
+    // Silence fallback...
     if (interimTranscript && interimTranscript.length > 8 && !isProcessingInput) {
-        silenceTimer = setTimeout(() => {
-            if (interimTranscript && !isProcessingInput && !isSpeaking) {
-                console.log('Silence fallback - processing complete phrase:', interimTranscript);
-                
-                // 🎯 INSTANT USER MESSAGE DISPLAY
-                addUserMessage(interimTranscript);
-                isProcessingInput = true;
-                
-                // 🤖 PROCESS AI RESPONSE DIRECTLY
-                setTimeout(() => {
-                    console.log('🤖 Processing AI response for:', interimTranscript);
-                    const response = getAIResponse(interimTranscript);
-                    console.log('🤖 AI Response generated');
-                    
-                    addAIMessage(response);
-                    speakResponse(response);
-                    
-                    // Reset processing flag
-                    setTimeout(() => {
-                        isProcessingInput = false;
-                    }, 500);
-                }, 1500);
-                
-                interimTranscript = '';
-            }
-        }, 3000); // ⚡ 3 seconds for complete sentences like "I'm looking to sell my practice"
+        // ... rest of your silence timer logic
     }
 };
+
+recognition.onend = function() {
+    console.log('Speech recognition ended');
+    isListening = false;
+    updateStatusIndicator('inactive');
     
-    // Silence fallback - INCREASED TIMING for complete sentences
-    if (interimTranscript && interimTranscript.length > 8) { // Increased from 5 to 8
-        silenceTimer = setTimeout(() => {
-            if (interimTranscript && !isProcessingInput && !isSpeaking) {
-                console.log('Processing complete phrase:', interimTranscript);
-                
-                addUserMessage(interimTranscript);
-                isProcessingInput = true;
-                
-                setTimeout(() => {
-                    const response = getAIResponse(interimTranscript);
-                    addAIMessage(response);
-                    speakResponse(response);
-                    
-                    setTimeout(() => {
-                        isProcessingInput = false;
-                    }, 500);
-                }, 1500);
-                
-                interimTranscript = '';
-            }
-        }, 3000); // ⚡ INCREASED from 2000ms to 3000ms for complete sentences
+    // Clear silence timer
+    if (silenceTimer) {
+        clearTimeout(silenceTimer);
     }
-
-
-                recognition.onend = function() {
-                    console.log('Speech recognition ended');
-                    isListening = false;
-                    updateStatusIndicator('inactive');
-                    
-                    // Clear silence timer
-                    if (silenceTimer) {
-                        clearTimeout(silenceTimer);
-                    }
-                    
-                    // Chrome-friendly restart
-                    if (isAudioMode && !isSpeaking) {
-                        setTimeout(() => {
-                            if (!isListening && isAudioMode) {
-                                try {
-                                    recognition.start();
-                                    console.log('Recognition restarted');
-                                } catch (error) {
-                                    console.log('Recognition restart failed:', error);
-                                }
-                            }
-                        }, 300);
-                    }
-                };
-
-                recognition.onerror = function(event) {
-                    console.log('Speech recognition error:', event.error);
-                    isListening = false;
-                    updateStatusIndicator('inactive');
-                    
-                    if (event.error === 'not-allowed') {
-                        addAIMessage("Please allow microphone access to use voice chat.");
-                    }
-                    
-                    // Clear silence timer
-                    if (silenceTimer) {
-                        clearTimeout(silenceTimer);
-                    }
-                    
-                    isProcessingInput = false;
-                };
-            } else {
-                console.log('Speech recognition not supported');
-                addAIMessage("Your browser doesn't support speech recognition. Please use Chrome or Edge.");
+    
+    // Chrome-friendly restart
+    if (isAudioMode && !isSpeaking) {
+        setTimeout(() => {
+            if (!isListening && isAudioMode) {
+                try {
+                    recognition.start();
+                    console.log('Recognition restarted');
+                } catch (error) {
+                    console.log('Recognition restart failed:', error);
+                }
             }
-        }
+        }, 300);
+    }
+};
+
+recognition.onerror = function(event) {
+    console.log('Speech recognition error:', event.error);
+    isListening = false;
+    updateStatusIndicator('inactive');
+    
+    if (event.error === 'not-allowed') {
+        addAIMessage("Please allow microphone access to use voice chat.");
+    }
+    
+    // Clear silence timer
+    if (silenceTimer) {
+        clearTimeout(silenceTimer);
+    }
+    
+    isProcessingInput = false;
+};
 
         function updateLiveUserTranscript(text) {
     const voiceText = document.getElementById('voiceText');
