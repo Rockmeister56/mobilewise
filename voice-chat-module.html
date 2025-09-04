@@ -557,34 +557,22 @@ box-shadow: 0 15px 40px rgba(33, 150, 243, 0.4);
     right: 10px;
 }
 
-/* 🎯 FLOATING VOICE OVERLAY */
-.voice-overlay {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 9999;
+.live-transcript-expanded {
     opacity: 0;
-    transition: opacity 0.3s ease;
-    pointer-events: none;
-    font-size: 24px;
-    font-weight: bold;
-    color: #007bff;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    transition: opacity 0.3s;
     text-align: center;
-    max-width: 80%;
-    background: none;
-    border: none;
-    padding: 0;
-}
-
-.voice-overlay.show {
-    opacity: 1;
-}
-
-.voice-overlay.fade-out {
-    opacity: 0;
-    transition: opacity 1s ease;
+    font-size: 18px;
+    padding: 25px;
+    margin: 15px 0 5px 0; /* Reduced bottom margin to move up */
+    height: 60px; /* FIXED HEIGHT - no more jumping! */
+    background: rgba(0, 123, 255, 0.1);
+    border-radius: 12px;
+    border: 1px solid rgba(0, 123, 255, 0.2);
+    color: #007bff;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
    
    </style>
@@ -606,6 +594,7 @@ box-shadow: 0 15px 40px rgba(33, 150, 243, 0.4);
             <!-- Chat Header -->
             <div class="chat-header" id="chatHeaderTitle">NCI Business AI Assistant</div>
 
+
                <!-- Quick Topic Buttons -->
             <div class="quick-buttons">
                 <button class="quick-btn" onclick="askQuickQuestion('How can you help grow my business?')">Business Growth</button>
@@ -613,6 +602,10 @@ box-shadow: 0 15px 40px rgba(33, 150, 243, 0.4);
                 <button class="quick-btn" onclick="askQuickQuestion('Do you handle bookkeeping and taxes?')">Accounting Services</button>
                 <button class="quick-btn" onclick="askQuickQuestion('What are your pricing packages?')">Pricing</button>
             </div>
+            <!-- 🚀 EXPANDED Live Transcript (Replace where meters were) -->
+<div id="liveTranscript" class="live-transcript-expanded">
+    <!-- Live speaking text appears here -->
+</div>
 
             <!-- Chat Messages Area -->
             <div class="chat-messages" id="chatMessages"></div>
@@ -639,9 +632,6 @@ box-shadow: 0 15px 40px rgba(33, 150, 243, 0.4);
     
 </div>
 
-<!-- 🚀 FLOATING VOICE OVERLAY - Add this anywhere in your HTML -->
-<div id="voiceOverlay" class="voice-overlay"></div>
-    
 </div>
 
             <!-- Text Mode Controls -->
