@@ -461,6 +461,93 @@ box-shadow: 0 15px 40px rgba(33, 150, 243, 0.4);
     transform: translateY(-2px) scale(1.05);
     box-shadow: 0 15px 40px rgba(33, 150, 243, 0.4);
 }
+
+/* 🚀 BOTTOM CONTROL BAR STYLES */
+.bottom-controls {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    gap: 15px;
+    margin: 10px 0;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stop-btn {
+    padding: 10px 20px;
+    background: #dc3545;
+    border: 1px solid white;
+    border-radius: 25px;
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.stop-btn:hover {
+    background: #c82333;
+    transform: scale(1.05);
+}
+
+.voice-meters-center {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.meters-text {
+    font-size: 12px;
+    color: #007bff;
+    text-align: center;
+}
+
+.speed-controls {
+    display: flex;
+    gap: 6px;
+}
+
+.speed-btn {
+    padding: 6px 12px;
+    background: #007bff;
+    border: 1px solid white;
+    border-radius: 16px;
+    color: white;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-width: 60px;
+}
+
+.speed-btn:hover {
+    background: #0056b3;
+    transform: scale(1.05);
+}
+
+.speed-btn.active {
+    font-weight: bold;
+    box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+}
+
+/* 🚀 EXPANDED LIVE TRANSCRIPT */
+.live-transcript-expanded {
+    opacity: 0;
+    transition: opacity 0.3s;
+    text-align: center;
+    font-size: 18px;
+    padding: 25px;
+    margin: 15px 0;
+    min-height: 60px;
+    background: rgba(0, 123, 255, 0.1);
+    border-radius: 12px;
+    border: 1px solid rgba(0, 123, 255, 0.2);
+    color: #007bff;
+    font-weight: 500;
+}
    
    </style>
 </head>
@@ -480,14 +567,6 @@ box-shadow: 0 15px 40px rgba(33, 150, 243, 0.4);
 
             <!-- Chat Header -->
             <div class="chat-header" id="chatHeaderTitle">NCI Business AI Assistant</div>
-            
-            <!-- Voice Visualizer Container -->
-           <div id="voiceVisualizerContainer" class="voice-banner" style="display: none;">
-                <div id="staticListeningText" class="listening-text">
-                    Microphone Active - How can we help your business?
-                </div>
-                <canvas id="voiceWaveform" class="waveform-canvas" width="400" height="40"></canvas>
-            </div>
 
             <div id="liveTranscript" style="
     opacity: 0;
@@ -514,20 +593,32 @@ box-shadow: 0 15px 40px rgba(33, 150, 243, 0.4);
             <!-- Chat Messages Area -->
             <div class="chat-messages" id="chatMessages"></div>
 
-         <!-- Speed Controls & Audio Off Button -->
-<div class="voice-controls-container" id="speedControlsContainer" style="display: none;">
-    <div class="speed-controls">
-        <button class="speed-btn" onclick="adjustVoiceSpeed('slower')">Slower</button>
-        <span class="speed-display" id="speedDisplay">Normal</span>
-        <button class="speed-btn" onclick="adjustVoiceSpeed('faster')">Faster</button>
+      <div class="bottom-controls">
+    
+    <!-- Stop Button - LEFT -->
+    <button onclick="muteAIVoice()" class="stop-btn">🛑 Stop</button>
+    
+    <!-- Voice Meters - CENTER (Moved from top) -->
+    <div id="voiceVisualizerContainer" class="voice-meters-center">
+        <div id="staticListeningText" class="meters-text">
+            Microphone Active - How can we help your business?
+        </div>
+        <canvas id="voiceWaveform" class="waveform-canvas" width="300" height="30"></canvas>
     </div>
+    
+    <!-- Speed Controls - RIGHT -->
+    <div class="speed-controls">
+        <button onclick="adjustVoiceSpeed('slower')" class="speed-btn">Slower</button>
+        <button onclick="adjustVoiceSpeed('normal')" class="speed-btn active">Normal</button>
+        <button onclick="adjustVoiceSpeed('faster')" class="speed-btn">Faster</button>
+    </div>
+    
 </div>
 
-<!-- Audio Mode Controls -->
-<div class="audio-controls" id="audioControls" style="display: flex;">
-    
-    <!-- Stop Button (hidden initially) -->
-    <button class="audio-off-btn" id="audioOffBtn" onclick="switchToTextMode(); hideSpeedControls();" style="display: block; margin-right: auto;">🛑 Stop Audio</button>
+<!-- 🚀 EXPANDED Live Transcript (Replace where meters were) -->
+<div id="liveTranscript" class="live-transcript-expanded">
+    <!-- Live speaking text appears here -->
+</div>
 
     
 </div>
