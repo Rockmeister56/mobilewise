@@ -70,7 +70,7 @@ const businessResponses = {
                     interimTranscript = '';
                 };
 
-             recognition.onresult = function(event) {
+          recognition.onresult = function(event) {
     // Clear any existing silence timer
     if (silenceTimer) {
         clearTimeout(silenceTimer);
@@ -79,7 +79,7 @@ const businessResponses = {
     let finalTranscript = '';
     interimTranscript = '';
     
-    // Process results
+    // Process all results
     for (let i = event.resultIndex; i < event.results.length; i++) {
         const transcript = event.results[i][0].transcript;
         
@@ -90,27 +90,31 @@ const businessResponses = {
         }
     }
     
-    // 🚀 HYBRID MAGIC: Show user input IMMEDIATELY from interim results
+    // 🚀 HYBRID MAGIC: Show live transcript as user speaks
     if (interimTranscript && interimTranscript.length > 3) {
         updateLiveUserTranscript(interimTranscript);
     }
     
-    // Process FINAL results ONLY - No duplicates!
+    // ✅ PROCESS FINAL RESULTS (Complete sentences from Google)
     if (finalTranscript && !isProcessingInput) {
         console.log('Final voice input received:', finalTranscript);
         
+        // Ignore if AI is currently speaking
         if (isSpeaking) {
             console.log('Ignoring input - AI is speaking');
             return;
         }
         
-        // 🎯 INSTANT USER MESSAGE DISPLAY (ONLY ONCE!)
+        // 🎯 INSTANT USER MESSAGE DISPLAY
         addUserMessage(finalTranscript);
         isProcessingInput = true;
         
-        // Process AI response
+        // 🤖 PROCESS AI RESPONSE DIRECTLY (No function calls!)
         setTimeout(() => {
+            console.log('🤖 Processing AI response for:', finalTranscript);
             const response = getAIResponse(finalTranscript);
+            console.log('🤖 AI Response generated');
+            
             addAIMessage(response);
             speakResponse(response);
             
@@ -118,36 +122,66 @@ const businessResponses = {
             setTimeout(() => {
                 isProcessingInput = false;
             }, 500);
-        }, 1500); // Natural delay
+        }, 1500); // Natural conversation delay
         
         return; // ⭐ CRITICAL: Exit here to prevent silence fallback
     }
     
-    // Silence fallback - ONLY if no final result was processed
-    if (interimTranscript && interimTranscript.length > 5 && !isProcessingInput) {
+    // ⏰ SILENCE FALLBACK (For incomplete Google processing)
+    if (interimTranscript && interimTranscript.length > 8 && !isProcessingInput) {
+        silenceTimer = setTimeout(() => {
+            if (interimTranscript && !isProcessingInput && !isSpeaking) {
+                console.log('Silence fallback - processing complete phrase:', interimTranscript);
+                
+                // 🎯 INSTANT USER MESSAGE DISPLAY
+                addUserMessage(interimTranscript);
+                isProcessingInput = true;
+                
+                // 🤖 PROCESS AI RESPONSE DIRECTLY
+                setTimeout(() => {
+                    console.log('🤖 Processing AI response for:', interimTranscript);
+                    const response = getAIResponse(interimTranscript);
+                    console.log('🤖 AI Response generated');
+                    
+                    addAIMessage(response);
+                    speakResponse(response);
+                    
+                    // Reset processing flag
+                    setTimeout(() => {
+                        isProcessingInput = false;
+                    }, 500);
+                }, 1500);
+                
+                interimTranscript = '';
+            }
+        }, 3000); // ⚡ 3 seconds for complete sentences like "I'm looking to sell my practice"
+    }
+};
+    
+    // Silence fallback - INCREASED TIMING for complete sentences
+    if (interimTranscript && interimTranscript.length > 8) { // Increased from 5 to 8
         silenceTimer = setTimeout(() => {
             if (interimTranscript && !isProcessingInput && !isSpeaking) {
                 console.log('Processing complete phrase:', interimTranscript);
                 
-                // 🔧 FIX: Only add message if we haven't already
                 addUserMessage(interimTranscript);
                 isProcessingInput = true;
                 
-                // Process AI response
-                const response = getAIResponse(interimTranscript);
-                addAIMessage(response);
-                speakResponse(response);
+                setTimeout(() => {
+                    const response = getAIResponse(interimTranscript);
+                    addAIMessage(response);
+                    speakResponse(response);
+                    
+                    setTimeout(() => {
+                        isProcessingInput = false;
+                    }, 500);
+                }, 1500);
                 
                 interimTranscript = '';
-                
-                // Reset processing flag
-                setTimeout(() => {
-                    isProcessingInput = false;
-                }, 500);
             }
-        }, 2000);
+        }, 3000); // ⚡ INCREASED from 2000ms to 3000ms for complete sentences
     }
-};
+
 
                 recognition.onend = function() {
                     console.log('Speech recognition ended');
@@ -196,6 +230,20 @@ const businessResponses = {
             }
         }
 
+        function updateLiveUserTranscript(text) {
+    const liveTranscript = document.getElementById('liveTranscript');
+    if (liveTranscript) {
+        liveTranscript.textContent = `Speaking: ${text}...`;
+        liveTranscript.style.opacity = '0.7';
+        
+        // Hide when processing starts
+        setTimeout(() => {
+            if (isProcessingInput) {
+                liveTranscript.style.opacity = '0';
+            }
+        }, 1000);
+    }
+}
 
 // ===================================================
 // 🎛️ WAVEFORM VISUALIZATION (KEPT - Original VoiceViz system)
@@ -364,12 +412,7 @@ function stopUnifiedVoiceVisualization() {
 
 // ===================================================
 // 💬 MESSAGE HANDLING (KEPT - Original functions)
-// ===================================================
-function handleVoiceInput(transcript) {
-    console.log('🗣️ Processing voice input:', transcript);
-    addUserMessage(transcript);
-    processUserInput(transcript);
-}
+// ==================================================
 
 function sendTextMessage() {
     const textInput = document.getElementById('textInput');
@@ -380,34 +423,16 @@ function sendTextMessage() {
     
     if (!message) return;
     
+    // Add user message
     addUserMessage(message);
     textInput.value = '';
-    processUserInput(message);
-}
-
-// 🔄 REPLACED: WORKING processUserInput (300ms timing)
-function processUserInput(message) {
-    if (currentAudio) {
-        stopCurrentAudio();
-    }
     
-    // Clear any silence timer
-    if (silenceTimer) {
-        clearTimeout(silenceTimer);
-    }
-    
-    // 🔄 REPLACED: Working system timing - 300ms instead of 800ms
+    // Process directly - no need for processUserInput
     setTimeout(() => {
         const response = getAIResponse(message);
-        console.log('🤖 AI Response generated');
         addAIMessage(response);
         speakResponse(response);
-        
-        // Reset processing flag
-        setTimeout(() => {
-            isProcessingInput = false;
-        }, 500);
-    }, 300); // 🔄 REPLACED: 300ms delay
+    }, 300);
 }
 
 // ===================================================

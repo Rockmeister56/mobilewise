@@ -497,6 +497,20 @@ box-shadow: 0 15px 40px rgba(33, 150, 243, 0.4);
                 <canvas id="voiceWaveform" class="waveform-canvas" width="400" height="40"></canvas>
             </div>
 
+            <div id="liveTranscript" class="live-transcript" style="
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    padding: 8px 12px;
+    background: rgba(0, 123, 255, 0.1);
+    border-radius: 8px;
+    margin: 4px 0;
+    font-style: italic;
+    color: #007bff;
+    border-left: 3px solid #007bff;
+    font-size: 14px;
+    min-height: 20px;
+"></div>
+
             <!-- Chat Messages Area -->
             <div class="chat-messages" id="chatMessages"></div>
 
