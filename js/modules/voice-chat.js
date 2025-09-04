@@ -15,6 +15,7 @@ let persistentMicStream = null;
 let isSpeaking = false;
 let micPermissionGranted = false;
 let currentUserBubble = null;
+let lastProcessedText = '';
 
 // ===================================================
 // 🔄 REPLACED: WORKING SPEECH VARIABLES (From working system)
@@ -73,10 +74,11 @@ function initializeSpeechRecognition() {
 
        recognition.onresult = function(event) {
     // Clear any existing silence timer
-    if (silenceTimer) {
+     if (silenceTimer) {
         clearTimeout(silenceTimer);
     }
     
+     
     // 🚀 FIXED: Accumulative text building instead of replacement
     let allFinalTranscript = '';
     interimTranscript = '';
@@ -96,6 +98,19 @@ function initializeSpeechRecognition() {
     if (interimTranscript && interimTranscript.length > 3) {
         // Pass the COMPLETE text: all final + current interim
         updateLiveUserTranscript(allFinalTranscript + interimTranscript);
+    }
+    
+    // ✅ PROCESS FINAL RESULTS (Complete sentences from Google)
+    // 🛑 NEW: Prevent duplicate processing!
+    if (allFinalTranscript && !isProcessingInput && allFinalTranscript !== lastProcessedText) {
+        console.log('Final voice input received:', allFinalTranscript);
+        lastProcessedText = allFinalTranscript; // Remember what we processed
+        
+        // Ignore if AI is currently speaking
+        if (isSpeaking) {
+            console.log('Ignoring input - AI is speaking');
+            return;
+        }
     }
     
     // ✅ PROCESS FINAL RESULTS (Complete sentences from Google)
