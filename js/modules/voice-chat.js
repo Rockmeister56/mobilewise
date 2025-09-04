@@ -233,15 +233,8 @@ const businessResponses = {
         function updateLiveUserTranscript(text) {
     const liveTranscript = document.getElementById('liveTranscript');
     if (liveTranscript) {
-        liveTranscript.textContent = `Speaking: ${text}...`;
-        liveTranscript.style.opacity = '0.7';
-        
-        // Hide when processing starts
-        setTimeout(() => {
-            if (isProcessingInput) {
-                liveTranscript.style.opacity = '0';
-            }
-        }, 1000);
+        liveTranscript.textContent = text; // No "Speaking:" prefix
+        liveTranscript.style.opacity = '1'; // Instant show
     }
 }
 
