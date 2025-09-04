@@ -1,44 +1,88 @@
 // ===================================================
-// 🎯 MOBILE-WISE AI FORMVISER - VOICE CHAT MODULE
-// HTML-MATCHED | PRESERVES ALL 3-HOUR FIXES
+// 🎯 MOBILE-WISE AI FORMVISER - HYBRID WORKING SYSTEM
+// WORKING COMPONENTS + BUSINESS LOGIC
 // ===================================================
 
 // ===================================================
-// 🏗️ GLOBAL VARIABLES (All preserved from our session)
+// 🏗️ CLEAN GLOBAL VARIABLES (From working system)
 // ===================================================
 let recognition = null;
 let isListening = false;
 let isAudioMode = false;
 let currentAudio = null;
-let hasStartedOnce = false;
-let persistentMicStream = null;
 let isSpeaking = false;
-let micPermissionGranted = false;
-let lastProcessedInput = '';
-let lastProcessedTime = 0;
-let isProcessingResponse = false;
+let voiceSpeed = 1.0;
 let interimTranscript = '';
 let silenceTimer = null;
 let isProcessingInput = false;
 
 // ===================================================
-// 🎤 SPEECH RECOGNITION (Fixed for complete sentences)
+// 📊 BUSINESS RESPONSES DATABASE (Your complete set)
+// ===================================================
+const businessResponses = {
+    "practice": "Looking to sell your CPA firm or accounting practice? You've found the RIGHT expert! Bruce specializes exclusively in CPA firm transactions and has helped over 4000 accounting professionals maximize their practice value. The market for accounting practices is incredibly strong right now - firms are selling 15-20% above asking price! Time is critical in this market. Should Bruce call you today or tomorrow for your FREE practice valuation?",
+    "sell": "EXCELLENT timing for selling your accounting practice! Bruce just closed 4 CPA firm deals last month - each one ABOVE asking price. Here's what most CPAs don't realize: waiting even 60 days in this market can cost you $75,000+ in lost value. Tax season creates urgency, and buyers are paying premium prices RIGHT NOW. The consultation is completely FREE. Should Bruce call you today at 2pm or tomorrow at 10am to discuss your exit strategy?",
+    "cpa": "CPA firm transactions are Bruce's specialty! He understands the unique challenges of selling accounting practices - client retention, seasonal revenue, staff transitions, and regulatory compliance. Bruce has helped CPAs from solo practices to 50-person firms achieve maximum value. The market is HOT for quality CPA firms. Should Bruce review your practice value today or tomorrow?",
+    "accounting": "Accounting practice sales require specialized expertise, and Bruce has it! He knows how to properly value recurring client bases, handle staff transitions, and structure deals that protect both buyer and seller. Bruce just helped a 10-person CPA firm sell for $2.1M - that's 1.8x annual revenue! The consultation costs nothing, but the insights could add $100K+ to your sale. When should Bruce call - today or tomorrow?",
+    "value": "Your accounting practice could be worth MORE than you think! Bruce recently helped a CPA sell his practice for $1.4M - that's $250K above his original estimate! Here's the key with CPA firms: proper client base analysis + strategic timing + expert negotiation = MAXIMUM profit. Bruce offers a FREE consultation, and I guarantee you'll learn something that adds significant value to your sale. Should Bruce call you today or tomorrow?",
+    "buy": "Looking to BUY a CPA firm or accounting practice? Perfect! Bruce has 23 accounting practices available RIGHT NOW, including exclusive off-market opportunities. Here's what smart buyers know: the best CPA firms never hit the public market - they're sold privately through Bruce's network. Should Bruce show you his exclusive inventory today or tomorrow?",
+    "financing": "CPA firm financing? Bruce has the connections you need! He's arranged over $150M in accounting practice loans with specialized lenders who understand recurring revenue models. Rates as low as 5.2% for qualified buyers. Here's the insider advantage: pre-approval gives you MASSIVE negotiating power in this competitive market. Should Bruce get your financing pre-approval started today or tomorrow?",
+    "broker": "You're talking to the RIGHT team! Bruce is the premier CPA firm broker with over 15 years specializing EXCLUSIVELY in accounting practice transactions. He understands the unique aspects of CPA firms - from client confidentiality to seasonal cash flow patterns. Bruce has closed over $75M in CPA firm deals. Ready to discuss your accounting practice goals? Should Bruce call today or tomorrow?"
+};
+
+// ===================================================
+// 🚀 IMMEDIATE INITIALIZATION (Working system approach)
+// ===================================================
+document.addEventListener('DOMContentLoaded', function() {
+    initializeSpeechRecognition();
+    bindEventListeners();
+    initializeWaveform();
+    console.log('✅ Mobile-Wise AI Voice Chat - WORKING VERSION LOADED!');
+});
+
+function bindEventListeners() {
+    const activateMicBtn = document.getElementById('activateMicBtn');
+    const audioOffBtn = document.getElementById('audioOffBtn');
+    const sendBtn = document.getElementById('sendBtn');
+    const textInput = document.getElementById('textInput');
+    
+    if (activateMicBtn) {
+        activateMicBtn.addEventListener('click', activateMicrophone);
+    }
+    
+    if (audioOffBtn) {
+        audioOffBtn.addEventListener('click', switchToTextMode);
+    }
+    
+    if (sendBtn) {
+        sendBtn.addEventListener('click', sendTextMessage);
+    }
+    
+    if (textInput) {
+        textInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendTextMessage();
+            }
+        });
+    }
+}
+
+// ===================================================
+// 🎤 WORKING SPEECH RECOGNITION (No 7-second delays!)
 // ===================================================
 function initializeSpeechRecognition() {
-    console.log('🎤 Initializing speech recognition...');
-    
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
         recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
         
         recognition.continuous = true;
-        recognition.interimResults = true; // ENABLED for complete sentence detection
+        recognition.interimResults = true;  // CRITICAL for complete sentences
         recognition.maxAlternatives = 1;
         recognition.lang = 'en-US';
 
         recognition.onstart = function() {
             console.log('🎤 Speech recognition started');
             isListening = true;
-            hasStartedOnce = true;
+            updateStatusIndicator('listening');
             interimTranscript = '';
         };
 
@@ -67,7 +111,7 @@ function initializeSpeechRecognition() {
                 console.log('🎤 Final voice input received:', finalTranscript);
                 
                 if (isSpeaking) {
-                    console.log('🚫 Ignoring input - AI is speaking');
+                    console.log('⏸️ Ignoring input - AI is speaking');
                     return;
                 }
                 
@@ -87,631 +131,113 @@ function initializeSpeechRecognition() {
                         handleVoiceInput(interimTranscript);
                         interimTranscript = '';
                     }
-                }, 1500); // 1500ms of silence indicates end of speech
+                }, 1200); // 1200ms for natural pause detection
             }
         };
 
         recognition.onend = function() {
             console.log('🎤 Speech recognition ended');
             isListening = false;
+            updateStatusIndicator('inactive');
             
             // Clear silence timer
             if (silenceTimer) {
                 clearTimeout(silenceTimer);
             }
             
-            if (isSpeaking) {
-                console.log('🤖 AI is speaking - speakResponse will handle restart');
-                return;
-            }
-            
-            if (isAudioMode && micPermissionGranted && !isSpeaking) {
+            // Chrome-friendly restart - NO COMPLEX LOGIC!
+            if (isAudioMode && !isSpeaking) {
                 setTimeout(() => {
-                    if (!isListening && !isSpeaking && isAudioMode) {
+                    if (!isListening && isAudioMode) {
                         try {
                             recognition.start();
-                            console.log('🔄 Recognition gently restarted');
+                            console.log('🔄 Recognition restarted');
                         } catch (error) {
-                            console.log('⚠️ Gentle restart failed:', error.message);
+                            console.log('⚠️ Recognition restart failed:', error);
                         }
                     }
-                }, 1000);
+                }, 300); // ONLY 300ms delay!
             }
         };
 
         recognition.onerror = function(event) {
             console.log('❌ Speech recognition error:', event.error);
             isListening = false;
+            updateStatusIndicator('inactive');
+            
+            if (event.error === 'not-allowed') {
+                addAIMessage("Please allow microphone access to use voice chat.");
+            }
             
             // Clear silence timer
             if (silenceTimer) {
                 clearTimeout(silenceTimer);
             }
             
-            if (event.error === 'not-allowed') {
-                console.log('🚫 Microphone permission denied');
-                micPermissionGranted = false;
-                return;
-            }
-            
-            if (event.error === 'no-speech') {
-                console.log('⏳ Chrome timeout - this is NORMAL behavior');
-                return;
-            }
-            
-            if (isAudioMode && micPermissionGranted && !isSpeaking) {
-                setTimeout(() => {
-                    if (!isListening && !isSpeaking && isAudioMode) {
-                        try {
-                            recognition.start();
-                            console.log('🔄 Recognition restarted after error');
-                        } catch (error) {
-                            console.log('⚠️ Restart failed:', error.message);
-                        }
-                    }
-                }, 2000);
-            }
-            
             isProcessingInput = false;
         };
+        
+        console.log('✅ Working speech recognition initialized');
     } else {
-        console.log('❌ Speech recognition not supported in this browser');
+        console.log('❌ Speech recognition not supported');
+        addAIMessage("Your browser doesn't support speech recognition. Please use Chrome or Edge.");
     }
 }
 
 // ===================================================
-// 🎯 UNIFIED VOICE VISUALIZATION SYSTEM (Preserved)
+// 🎤 MICROPHONE ACTIVATION (Working system approach)
 // ===================================================
-const VoiceViz = {
-    audioContext: null,
-    analyser: null,
-    microphone: null,
-    canvas: null,
-    canvasCtx: null,
-    dataArray: null,
-    animationId: null,
-    meterActive: false,
-    waveformActive: false
-};
-
-// ===================================================
-// 📊 ENHANCED KNOWLEDGE BASE SYSTEM
-// ===================================================
-const initialResponses = {
-    welcome: "Perfect! Voice chat is now active. Are you looking to BUY or SELL an accounting practice today?",
-    buyOrSell: {
-        buy: "Excellent! Bruce has 23 accounting practices available RIGHT NOW, including exclusive off-market opportunities. What size practice are you looking for - solo practitioner, small firm, or larger operation?",
-        sell: "Perfect timing! The market for accounting practices is RED HOT right now - firms are selling 15-20% ABOVE asking price! Bruce just closed 4 deals last month, each one above asking. What type of practice do you have - CPA firm, bookkeeping, or tax preparation?"
-    }
-};
-
-// ===================================================
-// 📊 BUSINESS RESPONSES DATABASE (Required for getAIResponse)
-// ===================================================
-const businessResponses = {
-    "practice": "Looking to sell your CPA firm or accounting practice? You've found the RIGHT expert! Bruce specializes exclusively in CPA firm transactions and has helped over 4000 accounting professionals maximize their practice value. The market for accounting practices is incredibly strong right now - firms are selling 15-20% above asking price! Time is critical in this market. Should Bruce call you today or tomorrow for your FREE practice valuation?",
-    "sell": "EXCELLENT timing for selling your accounting practice! Bruce just closed 4 CPA firm deals last month - each one ABOVE asking price. Here's what most CPAs don't realize: waiting even 60 days in this market can cost you $75,000+ in lost value. Tax season creates urgency, and buyers are paying premium prices RIGHT NOW. The consultation is completely FREE. Should Bruce call you today at 2pm or tomorrow at 10am to discuss your exit strategy?",
-    "cpa": "CPA firm transactions are Bruce's specialty! He understands the unique challenges of selling accounting practices - client retention, seasonal revenue, staff transitions, and regulatory compliance. Bruce has helped CPAs from solo practices to 50-person firms achieve maximum value. The market is HOT for quality CPA firms. Should Bruce review your practice value today or tomorrow?",
-    "accounting": "Accounting practice sales require specialized expertise, and Bruce has it! He knows how to properly value recurring client bases, handle staff transitions, and structure deals that protect both buyer and seller. Bruce just helped a 10-person CPA firm sell for $2.1M - that's 1.8x annual revenue! The consultation costs nothing, but the insights could add $100K+ to your sale. When should Bruce call - today or tomorrow?",
-    "value": "Your accounting practice could be worth MORE than you think! Bruce recently helped a CPA sell his practice for $1.4M - that's $250K above his original estimate! Here's the key with CPA firms: proper client base analysis + strategic timing + expert negotiation = MAXIMUM profit. Bruce offers a FREE consultation, and I guarantee you'll learn something that adds significant value to your sale. Should Bruce call you today or tomorrow?",
-    "buy": "Looking to BUY a CPA firm or accounting practice? Perfect! Bruce has 23 accounting practices available RIGHT NOW, including exclusive off-market opportunities. Here's what smart buyers know: the best CPA firms never hit the public market - they're sold privately through Bruce's network. Should Bruce show you his exclusive inventory today or tomorrow?",
-    "financing": "CPA firm financing? Bruce has the connections you need! He's arranged over $150M in accounting practice loans with specialized lenders who understand recurring revenue models. Rates as low as 5.2% for qualified buyers. Here's the insider advantage: pre-approval gives you MASSIVE negotiating power in this competitive market. Should Bruce get your financing pre-approval started today or tomorrow?",
-    "broker": "You're talking to the RIGHT team! Bruce is the premier CPA firm broker with over 15 years specializing EXCLUSIVELY in accounting practice transactions. He understands the unique aspects of CPA firms - from client confidentiality to seasonal cash flow patterns. Bruce has closed over $75M in CPA firm deals. Ready to discuss your accounting practice goals? Should Bruce call today or tomorrow?"
-};
-
-// ===================================================
-// 📚 KNOWLEDGE BASE INTEGRATION SYSTEM
-// ===================================================
-function initializeKnowledgeBase() {
-    // This will be called after external knowledge base files load
-    if (typeof practiceKnowledge !== 'undefined') {
-        console.log('📚 Knowledge base loaded successfully');
-    } else {
-        console.log('⚠️ Knowledge base files not loaded');
-    }
-}
-
-// Call this in your initialization
-document.addEventListener('DOMContentLoaded', () => {
-    initializeVoiceChat();
-    initializeKnowledgeBase(); // Add this line
-});
-
-const practiceKnowledge = {
-    // Your knowledge base will load here from external files
-    // This integrates with the knowledge-base files you mentioned
-};
-
-function startVoiceChat() {
-    console.log('🎤 startVoiceChat() called from splash screen');
+async function activateMicrophone() {
+    console.log('🎤 Activating microphone...');
     
-    // Hide splash screen
-    const splashScreen = document.getElementById('splashScreen');
-    if (splashScreen) {
-        splashScreen.style.display = 'none';
-    }
-    
-    // Show chat interface
-    const chatInterface = document.getElementById('chatInterface');
-    if (chatInterface) {
-        chatInterface.style.display = 'flex';
-    }
-    
-    // Call the existing activation function
-    activateMicrophone();
-}
-
-// MAKE IT GLOBALLY AVAILABLE
-window.startVoiceChat = startVoiceChat;
-
-// ==========================================
-// 🎯 ENHANCED INITIALIZE VOICE CHAT
-// ==========================================
-   function initializeVoiceChat() {
-    console.log('🚀 Initializing Voice Chat Module...');
-    
-    setTimeout(() => {
-        initializeSpeechRecognition(); // Setup only, don't start
-        initializeWaveform();
-        preloadVoices();
-        
-        // SHOW INTERFACE - NO AUTOMATIC ACTIVATION
-        const chatInterface = document.getElementById('chatInterface');
-        if (chatInterface) chatInterface.style.display = 'flex';
-        
-        // SHOW ACTIVATE BUTTON ONLY
-        const activateBtn = document.getElementById('activateMicButton');
-        if (activateBtn) {
-            activateBtn.style.display = 'block';
-            activateBtn.disabled = false;
-            activateBtn.textContent = '🎤 Activate Microphone';
-            
-            // ADD SPLASH REMOVAL TO CLICK HANDLER
-            activateBtn.addEventListener('click', () => {
-                removeSplashScreen(); // Remove splash when user clicks
-            });
-        }
-        
-        const audioControls = document.getElementById('audioControls');
-        if (audioControls) audioControls.style.display = 'flex';
-        
-        // HIDE EVERYTHING ELSE
-        const speedContainer = document.getElementById('speedControlsContainer');
-        if (speedContainer) speedContainer.style.display = 'none';
-        
-        const stopBtn = document.getElementById('audioOffBtn');
-        if (stopBtn) stopBtn.style.display = 'none';
-        
-        console.log('✅ Voice Chat Module Ready - WAITING for user click');
-        
-    }, 100);
-}
-
-
-
-function showActivateMicButton() {
-    const activateBtn = document.getElementById('activateMicButton');
-    const audioControls = document.getElementById('audioControls');
-    
-    if (activateBtn) activateBtn.style.display = 'block';
-    if (audioControls) audioControls.style.display = 'flex';
-    
-    console.log('✅ Activate Microphone button shown');
-}
-
-function hideSpeedControls() {
-    const speedContainer = document.getElementById('speedControlsContainer');
-    if (speedContainer) speedContainer.style.display = 'none';
-    console.log('✅ Speed controls hidden');
-}
-
-function hideStopButton() {
-    const stopBtn = document.getElementById('audioOffBtn');
-    if (stopBtn) stopBtn.style.display = 'none';
-    console.log('✅ Stop button hidden');
-}
-
-// ===========================================
-// INITIALIZATION
-// ===========================================
-function initializeWhenReady() {
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initialize);
-    } else {
-        initialize();
-    }
-}
-
-function initialize() {
-    console.log('🚀 Initializing NCI Business Chat...');
-    
-    setTimeout(() => {
-        initializeSpeechRecognition();
-        bindEventListeners();
-        console.log('✅ NCI Business Chat Interface Ready!');
-    }, 100);
-}
-
-function bindEventListeners() {
-    console.log('🔧 Binding event listeners...');
-    
-    const activateMicBtn = document.getElementById('activateMicBtn');
-    const audioOffBtn = document.getElementById('audioOffBtn');
-    const reinitiateAudioBtn = document.getElementById('reinitiateAudioBtn');
-    const sendBtn = document.getElementById('sendBtn');
-    const textInput = document.getElementById('textInput');
-    
-    console.log('🔍 Elements found:', {
-        activateMicBtn: !!activateMicBtn,
-        audioOffBtn: !!audioOffBtn,
-        reinitiateAudioBtn: !!reinitiateAudioBtn,
-        sendBtn: !!sendBtn,
-        textInput: !!textInput
-    });
-    
-    if (activateMicBtn) {
-        activateMicBtn.addEventListener('click', activateMicrophone);
-        console.log('✅ Activate mic button bound');
-    }
-    
-    if (audioOffBtn) {
-        audioOffBtn.addEventListener('click', switchToTextMode);
-        console.log('✅ Audio off button bound');
-    }
-    
-    if (reinitiateAudioBtn) {
-        reinitiateAudioBtn.addEventListener('click', switchToAudioMode);
-        console.log('✅ Reinitiate audio button bound');
-    }
-    
-    if (sendBtn) {
-        sendBtn.addEventListener('click', sendTextMessage);
-        console.log('✅ Send button bound');
-    }
-    
-    if (textInput) {
-        textInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                sendTextMessage();
-            }
-        });
-        console.log('✅ Text input enter key bound');
-    }
-}
-
-// ===================================================
-// 🎛️ WAVEFORM VISUALIZATION (Preserved from our work)
-// ===================================================
-   function initializeWaveform() {
-    VoiceViz.canvas = document.getElementById('voiceWaveform'); // MATCHES YOUR HTML!
-    if (!VoiceViz.canvas) {
-        console.log('⚠️ Waveform canvas not found');
-        return false;
-    }
-    
-    VoiceViz.canvasCtx = VoiceViz.canvas.getContext('2d');
-    console.log('🎛️ Waveform canvas initialized');
-    return true;
-}
-
-function animateWaveform() {
-    if (!VoiceViz.waveformActive || !VoiceViz.analyser) return;
-    
-    VoiceViz.animationId = requestAnimationFrame(animateWaveform);
-    
-    VoiceViz.analyser.getByteFrequencyData(VoiceViz.dataArray);
-    
-    // Clear canvas
-    VoiceViz.canvasCtx.fillStyle = '#1a1a1a';
-    VoiceViz.canvasCtx.fillRect(0, 0, VoiceViz.canvas.width, VoiceViz.canvas.height);
-    
-    // Draw waveform (preserved styling)
-    const barWidth = (VoiceViz.canvas.width / VoiceViz.dataArray.length) * 2.5;
-    let barHeight;
-    let x = 0;
-    
-    for (let i = 0; i < VoiceViz.dataArray.length; i++) {
-        barHeight = (VoiceViz.dataArray[i] / 255) * VoiceViz.canvas.height;
-        
-        const gradient = VoiceViz.canvasCtx.createLinearGradient(0, VoiceViz.canvas.height - barHeight, 0, VoiceViz.canvas.height);
-        gradient.addColorStop(0, '#00ff88');
-        gradient.addColorStop(1, '#0066cc');
-        
-        VoiceViz.canvasCtx.fillStyle = gradient;
-        VoiceViz.canvasCtx.fillRect(x, VoiceViz.canvas.height - barHeight, barWidth, barHeight);
-        
-        x += barWidth + 1;
-    }
-}
-
-// ===================================================
-// 🎤 VOICE METER (Fixed to match your HTML structure)
-// ===================================================
-function updateVoiceMeterDisplay(volume) {
-    const staticText = document.getElementById('staticListeningText'); // MATCHES YOUR HTML!
-    if (!staticText) return;
-    
-    if (volume > 5) {
-        const bars = Math.floor(volume / 10);
-        const meterHTML = '🎤 ' + '█'.repeat(Math.max(1, bars)) + '░'.repeat(10 - bars);
-        staticText.innerHTML = `${meterHTML} Speaking...`;
-    } else {
-        staticText.innerHTML = '🎤 Listening... What can I help you with?';
-    }
-}
-
-function startVoiceMeter() {
-    if (!VoiceViz.analyser || VoiceViz.meterActive) return;
-    
-    VoiceViz.meterActive = true;
-    const bufferLength = VoiceViz.analyser.frequencyBinCount;
-    const dataArray = new Uint8Array(bufferLength);
-    
-    function updateMeter() {
-        if (!VoiceViz.meterActive) return;
-        
-        VoiceViz.analyser.getByteFrequencyData(dataArray);
-        
-        let sum = 0;
-        for (let i = 0; i < bufferLength; i++) {
-            sum += dataArray[i];
-        }
-        const average = sum / bufferLength;
-        const volume = Math.min(100, (average / 255) * 100);
-        
-        updateVoiceMeterDisplay(volume);
-        requestAnimationFrame(updateMeter);
-    }
-    
-    updateMeter();
-}
-
-function stopVoiceMeter() {
-    VoiceViz.meterActive = false;
-}
-
-// ===================================================
-// 🎯 UNIFIED VOICE SYSTEM (Preserved logic)
-// ===================================================
-async function initializeUnifiedVoiceVisualization() {
     try {
-        if (!persistentMicStream) {
-            console.log('⏳ Waiting for speech recognition mic access...');
-            return false;
+        // Request microphone permission - SIMPLE approach
+        await navigator.mediaDevices.getUserMedia({ audio: true });
+        
+        isAudioMode = true;
+        
+        // Show appropriate UI
+        const activateMicBtn = document.getElementById('activateMicBtn');
+        const audioOffBtn = document.getElementById('audioOffBtn');
+        const speedContainer = document.getElementById('speedControlsContainer');
+        const voiceContainer = document.getElementById('voiceVisualizerContainer');
+        
+        if (activateMicBtn) activateMicBtn.style.display = 'none';
+        if (audioOffBtn) audioOffBtn.style.display = 'block';
+        if (speedContainer) speedContainer.style.display = 'flex';
+        if (voiceContainer) voiceContainer.style.display = 'flex';
+        
+        // Start recognition - IMMEDIATE!
+        if (recognition && !isListening) {
+            try {
+                recognition.start();
+            } catch (error) {
+                console.log('⚠️ Recognition start error:', error);
+            }
         }
         
-        VoiceViz.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        VoiceViz.analyser = VoiceViz.audioContext.createAnalyser();
-        VoiceViz.microphone = VoiceViz.audioContext.createMediaStreamSource(persistentMicStream);
+        updateHeaderBanner('🎤 Microphone Active - How can we help your business?');
+        updateStatusIndicator('listening');
         
-        VoiceViz.analyser.fftSize = 256;
-        VoiceViz.analyser.smoothingTimeConstant = 0.8;
-        VoiceViz.microphone.connect(VoiceViz.analyser);
-        
-        const bufferLength = VoiceViz.analyser.frequencyBinCount;
-        VoiceViz.dataArray = new Uint8Array(bufferLength);
-        
-        console.log('🎯 Unified voice visualization initialized!');
-        return true;
+        // Add greeting - FAST!
+        setTimeout(() => {
+            const greeting = "What can I help you with today?";
+            addAIMessage(greeting);
+            speakResponse(greeting);
+        }, 500);
         
     } catch (error) {
-        console.error('❌ Voice visualization failed:', error);
-        return false;
-    }
-}
-
-async function startUnifiedVoiceVisualization() {
-    const initialized = await initializeUnifiedVoiceVisualization();
-    if (!initialized) return false;
-    
-    startVoiceMeter();
-    
-    if (initializeWaveform()) {
-        VoiceViz.waveformActive = true;
-        
-        const waveformContainer = document.getElementById('voiceVisualizerContainer'); // MATCHES YOUR HTML!
-        if (waveformContainer) {
-            waveformContainer.classList.add('waveform-active');
-        }
-        
-        animateWaveform();
-        console.log('🎛️ Waveform visualization started');
-    }
-    
-    console.log('🚀 Unified voice visualization ACTIVE!');
-    return true;
-}
-
-function stopUnifiedVoiceVisualization() {
-    stopVoiceMeter();
-    
-    VoiceViz.waveformActive = false;
-    if (VoiceViz.animationId) {
-        cancelAnimationFrame(VoiceViz.animationId);
-        VoiceViz.animationId = null;
-    }
-    
-    const waveformContainer = document.getElementById('voiceVisualizerContainer'); // MATCHES YOUR HTML!
-    if (waveformContainer) {
-        waveformContainer.classList.remove('waveform-active');
-    }
-    
-    if (VoiceViz.audioContext && VoiceViz.audioContext.state !== 'closed') {
-        VoiceViz.audioContext.close();
-        VoiceViz.audioContext = null;
-    }
-    
-    console.log('🛑 Unified voice visualization stopped');
-}
-// ===================================================
-// 🚀 INSTANT RESPONSE SYSTEM - NO DELAYS
-// ===================================================
-function processUserInput(message) {
-    console.log('🔥 Processing user input:', message);
-    
-    if (isProcessingResponse) {
-        console.log('🚫 Already processing, ignoring');
-        return;
-    }
-    
-    isProcessingResponse = true;
-    
-    // Stop any current audio immediately
-    if (currentAudio) stopCurrentAudio();
-    
-    // INSTANT AI response - NO DELAYS!
-    const response = getAIResponse(message);
-    addAIMessage(response);
-    speakResponse(response);
-    
-    // Reset flag
-    setTimeout(() => { 
-        isProcessingResponse = false;
-        isProcessingInput = false;
-    }, 100);
-}
-
-function handleVoiceInput(transcript) {
-    const now = Date.now();
-    
-    // Simple duplicate prevention
-    if (transcript === lastProcessedInput && (now - lastProcessedTime) < 1500) {
-        console.log('🚫 Duplicate input ignored:', transcript);
-        isProcessingInput = false;
-        return;
-    }
-    
-    if (transcript.length < 2) {
-        console.log('⏳ Too short, waiting for more:', transcript);
-        isProcessingInput = false;
-        return;
-    }
-    
-    lastProcessedInput = transcript;
-    lastProcessedTime = now;
-    
-    console.log('🗣️ Processing complete voice input:', transcript);
-    
-    addUserMessage(transcript);
-    
-    // Stop any current speech immediately
-    if (window.speechSynthesis.speaking) {
-        window.speechSynthesis.cancel();
-    }
-    
-    currentAudio = null;
-    isSpeaking = false;
-    
-    // Process immediately
-    processUserInput(transcript);
-}
-
-// ===================================================
-// ⚡ OPTIMIZED SPEECH FUNCTION - NO DELAYS
-// ===================================================
-function speakResponse(message) {
-    console.log('🗣️ Speaking response...');
-    
-    // Pause recognition gently
-    if (recognition && isListening) {
-        recognition.stop();
-        isListening = false;
-        console.log('⏸️ Speech recognition PAUSED for AI response');
-    }
-    
-    // Stop any current speech immediately
-    window.speechSynthesis.cancel();
-    currentAudio = null;
-    
-    updateHeaderBanner('🤖 AI responding...');
-    
-    if (!window.speechSynthesis) {
-        console.log('❌ Speech synthesis not supported');
-        restartRecognition();
-        return;
-    }
-
-    // Use pre-loaded voice (no waiting)
-    const utterance = new SpeechSynthesisUtterance(message);
-    
-    if (bestVoice) {
-        utterance.voice = bestVoice;
-        console.log('🎤 Using pre-loaded voice:', bestVoice.name);
-    }
-    
-    utterance.rate = voiceSpeed;
-    utterance.pitch = 1.0;
-    utterance.volume = 0.9;
-    
-    utterance.onstart = () => {
-        isSpeaking = true;
-        console.log('🗣️ Speech started');
-    };
-    
-    utterance.onend = () => {
-        isSpeaking = false;
-        currentAudio = null;
-        console.log('✅ Speech finished');
-        updateHeaderBanner('🎤 AI is listening...');
-        restartRecognition();
-    };
-    
-    utterance.onerror = (event) => {
-        console.log('❌ Speech error:', event.error);
-        isSpeaking = false;
-        currentAudio = null;
-        restartRecognition();
-    };
-    
-    currentAudio = utterance;
-    window.speechSynthesis.speak(utterance);
-}
-
-function restartRecognition() {
-    // Immediate restart with no delay
-    if (isAudioMode && !isListening) {
-        try {
-            recognition.start();
-            isListening = true;
-            console.log('🔄 Speech recognition IMMEDIATELY restarted');
-        } catch (error) {
-            console.log('⚠️ Recognition restart failed:', error);
-            // Try again after short delay if failed
-            setTimeout(restartRecognition, 500);
-        }
+        console.log('❌ Microphone access denied:', error);
+        addAIMessage("Microphone access was denied. You can still use text chat.");
+        switchToTextMode();
     }
 }
 
 // ===================================================
-// 🎤 MODE SWITCHING (Fixed to match your HTML)
+// 🔄 MODE SWITCHING (Working system)
 // ===================================================
-function showAudioMode() {
-    console.log('🎤 Switching to audio mode...');
-    const audioControls = document.getElementById('audioControls'); // MATCHES YOUR HTML!
-    const textControls = document.getElementById('textControls');   // MATCHES YOUR HTML!
-    
-    if (audioControls) audioControls.style.display = 'flex';
-    if (textControls) textControls.style.display = 'none';
-    
-    const voiceContainer = document.getElementById('voiceVisualizerContainer'); // MATCHES YOUR HTML!
-    if (voiceContainer) voiceContainer.style.display = 'flex';
-}
-
-function showTextMode() {
-    console.log('💬 Switching to text mode...');
-    const audioControls = document.getElementById('audioControls'); // MATCHES YOUR HTML!
-    const textControls = document.getElementById('textControls');   // MATCHES YOUR HTML!
-    
-    if (audioControls) audioControls.style.display = 'none';
-    if (textControls) textControls.style.display = 'flex';
-    
-    const voiceContainer = document.getElementById('voiceVisualizerContainer'); // MATCHES YOUR HTML!
-    if (voiceContainer) voiceContainer.style.display = 'none';
-}
-
 function switchToTextMode() {
-    console.log('📝 User switched to text mode');
-    
+    console.log('📝 Switching to text mode');
     isAudioMode = false;
     
     // Stop recognition
@@ -725,77 +251,133 @@ function switchToTextMode() {
         clearTimeout(silenceTimer);
     }
     
-    // Stop all voice visualization
-    stopUnifiedVoiceVisualization();
-    
-    // Hide speed controls - THIS WAS MISSING!
-    hideSpeedControls();
-    
-    // Show text interface
-    showTextMode();
-    
-    // Hide voice visualizer container
+    // Update UI
+    const activateMicBtn = document.getElementById('activateMicBtn');
+    const audioOffBtn = document.getElementById('audioOffBtn');
+    const speedContainer = document.getElementById('speedControlsContainer');
     const voiceContainer = document.getElementById('voiceVisualizerContainer');
-    if (voiceContainer) voiceContainer.style.display = 'none';
+    const textControls = document.getElementById('textControls');
     
-    // Focus text input
+    if (activateMicBtn) activateMicBtn.style.display = 'block';
+    if (audioOffBtn) audioOffBtn.style.display = 'none';
+    if (speedContainer) speedContainer.style.display = 'none';
+    if (voiceContainer) voiceContainer.style.display = 'none';
+    if (textControls) textControls.style.display = 'flex';
+    
+    updateHeaderBanner('💬 Text Mode - Type your message below');
+    updateStatusIndicator('inactive');
+    
     const textInput = document.getElementById('textInput');
     if (textInput) {
         setTimeout(() => textInput.focus(), 100);
     }
     
-    // Update header
-    updateHeaderBanner('💬 Text Chat Mode - Type your message below');
-    
     isProcessingInput = false;
 }
 
 function switchToAudioMode() {
-    console.log('🎤 User switched back to audio mode');
-    
+    console.log('🎤 Switching to audio mode');
     isAudioMode = true;
     
-    // Show speed controls - THIS WAS MISSING!
-    showSpeedControls();
-    
-    // Show audio interface
-    showAudioMode();
-    
-    // Show voice visualizer container
+    // Update UI
+    const textControls = document.getElementById('textControls');
+    const activateMicBtn = document.getElementById('activateMicBtn');
+    const audioOffBtn = document.getElementById('audioOffBtn');
+    const speedContainer = document.getElementById('speedControlsContainer');
     const voiceContainer = document.getElementById('voiceVisualizerContainer');
+    
+    if (textControls) textControls.style.display = 'none';
+    if (activateMicBtn) activateMicBtn.style.display = 'none';
+    if (audioOffBtn) audioOffBtn.style.display = 'block';
+    if (speedContainer) speedContainer.style.display = 'flex';
     if (voiceContainer) voiceContainer.style.display = 'flex';
     
-    // Start voice visualization
-    startUnifiedVoiceVisualization();
+    // Start recognition if not already listening
+    if (recognition && !isListening) {
+        try {
+            recognition.start();
+        } catch (error) {
+            console.log('⚠️ Recognition start error:', error);
+        }
+    }
     
-    // Update header
-    updateHeaderBanner('🎤 Voice Chat Restored - AI is listening...');
+    updateHeaderBanner('🎤 Voice Mode - Speak now');
+    updateStatusIndicator('listening');
     
-    // AI greeting and restart recognition
+    // Add greeting
     setTimeout(() => {
         const greeting = "What can I help you with?";
         addAIMessage(greeting);
         speakResponse(greeting);
-        
-        // Restart speech recognition
-        if (recognition && !isListening) {
-            try {
-                recognition.start();
-                console.log('🔄 Recognition restarted');
-            } catch (error) {
-                console.log('⚠️ Recognition restart failed:', error);
-            }
-        }
     }, 500);
     
     isProcessingInput = false;
 }
 
 // ===================================================
-// 💬 MESSAGE DISPLAY (Fixed to match your HTML)
+// 💬 MESSAGE HANDLING (Working system - FAST!)
+// ===================================================
+function handleVoiceInput(transcript) {
+    console.log('🗣️ Processing voice input:', transcript);
+    addUserMessage(transcript);
+    processUserInput(transcript);
+}
+
+function sendTextMessage() {
+    const textInput = document.getElementById('textInput');
+    if (!textInput) return;
+    
+    const message = textInput.value.trim();
+    if (!message) return;
+    
+    console.log('💬 Processing text input:', message);
+    addUserMessage(message);
+    textInput.value = '';
+    processUserInput(message);
+}
+
+function processUserInput(message) {
+    if (currentAudio) {
+        stopCurrentAudio();
+    }
+    
+    // Clear any silence timer
+    if (silenceTimer) {
+        clearTimeout(silenceTimer);
+    }
+    
+    // WORKING SYSTEM TIMING - Only 300ms delay!
+    setTimeout(() => {
+        const response = getAIResponse(message);
+        addAIMessage(response);
+        speakResponse(response);
+        
+        // Reset processing flag after short delay
+        setTimeout(() => {
+            isProcessingInput = false;
+        }, 500);
+    }, 300); // ONLY 300ms - NO MORE 7-SECOND DELAYS!
+}
+
+function getAIResponse(message) {
+    const msg = message.toLowerCase();
+    
+    // Check business responses
+    for (const [key, value] of Object.entries(businessResponses)) {
+        if (msg.includes(key)) {
+            return value;
+        }
+    }
+    
+    // Default response
+    return "I can help with accounting practice sales, valuations, financing, and more. Are you looking to buy or sell a practice?";
+}
+
+// ===================================================
+// 💬 MESSAGE DISPLAY (Your HTML structure)
 // ===================================================
 function addUserMessage(message) {
-    const chatMessages = document.getElementById('chatMessages'); // MATCHES YOUR HTML!
+    const chatMessages = document.getElementById('chatMessages');
     if (!chatMessages) return;
     
     const messageHTML = `
@@ -805,11 +387,10 @@ function addUserMessage(message) {
     `;
     chatMessages.insertAdjacentHTML('beforeend', messageHTML);
     scrollChatToBottom();
-    console.log('👤 User message added:', message);
 }
 
 function addAIMessage(message) {
-    const chatMessages = document.getElementById('chatMessages'); // MATCHES YOUR HTML!
+    const chatMessages = document.getElementById('chatMessages');
     if (!chatMessages) return;
     
     const messageHTML = `
@@ -822,319 +403,97 @@ function addAIMessage(message) {
     `;
     chatMessages.insertAdjacentHTML('beforeend', messageHTML);
     scrollChatToBottom();
-    console.log('🤖 AI message added');
 }
 
 function scrollChatToBottom() {
-    const chatMessages = document.getElementById('chatMessages'); // MATCHES YOUR HTML!
+    const chatMessages = document.getElementById('chatMessages');
     if (chatMessages) {
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 }
 
 // ===================================================
-// 🧠 AI RESPONSE Enhanced
+// 🗣️ SPEECH SYNTHESIS (Working system - FAST!)
 // ===================================================
-function getAIResponse(message) {
-    const msg = message.toLowerCase();
-    
-    // Check for buy/sell intent FIRST
-    if (msg.includes('buy') || msg.includes('buying') || msg.includes('purchase')) {
-        return initialResponses.buyOrSell.buy;
-    }
-    
-    if (msg.includes('sell') || msg.includes('selling') || msg.includes('sale')) {
-        return initialResponses.buyOrSell.sell;
-    }
-    
-    // Fall back to existing business responses
-    for (const [key, value] of Object.entries(businessResponses)) {
-        if (msg.includes(key)) {
-            return value;
-        }
-    }
-    
-    // Default response
-    return "I can help you with buying or selling accounting practices, valuation, financing, and more. Are you looking to BUY or SELL a practice?";
-}
-
-// ===================================================
-// 🎤 UNIVERSAL VOICE SYSTEM - BRITISH FEMALE PRIORITY
-// ===================================================
-
-// Voice speed control variables (DO NOT REMOVE!)
-let voiceSpeed = 1.0;
-const speedLevels = [0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3];
-const speedNames = ['Very Slow', 'Slow', 'Relaxed', 'Normal', 'Fast', 'Faster', 'Very Fast'];
-let currentSpeedIndex = 3; // Start at "Normal" (1.0)
-
-// 🚀 OPTIMIZED VOICE LOADING (No more 350 voices!)
-function getOptimizedVoices() {
-    return new Promise((resolve) => {
-        console.log('🔍 Loading optimized voices...');
-        
-        let voices = window.speechSynthesis.getVoices();
-        
-        if (voices.length > 0) {
-            const filteredVoices = filterToEnglishVoices(voices);
-            resolve(filteredVoices);
-            return;
-        }
-        
-        // Wait for voices to load (but with timeout)
-        const voicesChangedHandler = () => {
-            voices = window.speechSynthesis.getVoices();
-            if (voices.length > 0) {
-                window.speechSynthesis.removeEventListener('voiceschanged', voicesChangedHandler);
-                const filteredVoices = filterToEnglishVoices(voices);
-                resolve(filteredVoices);
-            }
-        };
-        
-        window.speechSynthesis.addEventListener('voiceschanged', voicesChangedHandler);
-        
-        // Timeout after 3 seconds
-        setTimeout(() => {
-            voices = window.speechSynthesis.getVoices();
-            const filteredVoices = filterToEnglishVoices(voices);
-            resolve(filteredVoices);
-        }, 3000);
-    });
-}
-
-// 🎯 SMART VOICE FILTERING (Only English voices!)
-function filterToEnglishVoices(allVoices) {
-    const englishVoices = allVoices.filter(voice => 
-        voice.lang.startsWith('en') && 
-        (voice.name.includes('English') || voice.name.includes('US') || voice.name.includes('UK') || voice.name.includes('Aria') || voice.name.includes('Zira') || voice.name.includes('Libby'))
-    );
-    
-    console.log(`✅ Filtered to ${englishVoices.length} English voices (from ${allVoices.length} total)`);
-    return englishVoices.slice(0, 10); // Max 10 English voices
-}
-
-// 🇬🇧 BRITISH FEMALE PRIORITY VOICE SELECTOR
-function findUniversalBestVoice(voices) {
-    console.log('🔍 Searching for best voice...');
-    
-    // 🎯 PRIORITY 1: British Female (Your preferred choice!)
-    const britishFemale = voices.find(v => 
-        v.name.includes('UK English Female') || 
-        v.name.includes('Google UK English Female')
-    );
-    if (britishFemale) {
-        console.log('🇬🇧 BRITISH FEMALE SELECTED:', britishFemale.name);
-        return britishFemale;
-    }
-    
-    // 🎯 PRIORITY 2: British Male (backup)
-    const britishMale = voices.find(v => 
-        v.name.includes('UK English Male') || 
-        v.name.includes('Google UK English Male')
-    );
-    if (britishMale) {
-        console.log('🇬🇧 BRITISH MALE SELECTED:', britishMale.name);
-        return britishMale;
-    }
-    
-    // 🎯 PRIORITY 3: Microsoft British voices
-    const microsoftLibby = voices.find(v => 
-        v.name.includes('Libby') && v.name.includes('United Kingdom')
-    );
-    if (microsoftLibby) {
-        console.log('🇬🇧 MICROSOFT LIBBY SELECTED:', microsoftLibby.name);
-        return microsoftLibby;
-    }
-    
-    // 🎯 PRIORITY 4: High-quality US voices (fallback)
-    const preferredUSVoices = [
-        'Microsoft Aria Online (Natural) - English (United States)',
-        'Microsoft Jenny Online (Natural) - English (United States)',
-        'Microsoft Zira - English (United States)',
-        'Google US English'
-    ];
-    
-    for (const preferredName of preferredUSVoices) {
-        const voice = voices.find(v => v.name === preferredName);
-        if (voice) {
-            console.log('🇺🇸 US VOICE SELECTED:', voice.name);
-            return voice;
-        }
-    }
-    
-    // Final fallback
-    console.log('⚠️ Using fallback voice:', voices[0]?.name || 'default');
-    return voices[0];
-}
-
-// 🚀 MAIN SPEECH FUNCTION
-// 🚀 OPTIMIZED SPEECH FUNCTION - NO MORE 7-SECOND DELAY!
-async function speakResponse(message) {
-    console.log('🗣️ Speaking response...');
-    
-    // 🔥 GENTLE PAUSE - Don't completely stop recognition!
-    if (recognition && isListening) {
-        recognition.stop();  // Just pause, don't destroy
-        isListening = false;
-        console.log('⏸️ Speech recognition PAUSED for AI response');
-    }
-    
-    // Stop any current speech
-    window.speechSynthesis.cancel();
-    currentAudio = null;
-    
-    // Brief pause to ensure cleanup
-    await new Promise(resolve => setTimeout(resolve, 50)); // Reduced from 100ms
-    
+function speakResponse(message) {
+    console.log('🗣️ Speaking response');
     updateHeaderBanner('🤖 AI responding...');
+    updateStatusIndicator('speaking');
     
     if (!window.speechSynthesis) {
         console.log('❌ Speech synthesis not supported');
         return;
     }
 
-    const voices = await getOptimizedVoices();
-    
-    const utterance = new SpeechSynthesisUtterance(message);
-    
-    let bestVoice = findUniversalBestVoice(voices);
-    if (bestVoice) {
-        utterance.voice = bestVoice;
-        console.log('🎤 SINGLE VOICE SELECTED:', bestVoice.name);
-    }
-    
-    utterance.rate = voiceSpeed;
-    utterance.pitch = 1.0;
-    utterance.volume = 0.9;
-    
-    utterance.onstart = () => {
-        isSpeaking = true;
-        console.log('🗣️ SINGLE speech started');
-    };
-    
-    utterance.onend = () => {
-        isSpeaking = false;
-        currentAudio = null;
-        console.log('✅ SINGLE speech finished');
-        updateHeaderBanner('🎤 AI is listening...');
-        
-        // 🔄 IMMEDIATE RESTART - No delay!
-        if (isAudioMode && !isListening) {
-            try {
-                recognition.start();
-                isListening = true;
-                console.log('🔄 Speech recognition IMMEDIATELY restarted');
-            } catch (error) {
-                console.log('⚠️ Recognition restart failed:', error);
-            }
-        }
-    };
-    
-    utterance.onerror = (event) => {
-        console.log('❌ Speech error:', event.error);
-        isSpeaking = false;
-        currentAudio = null;
-        
-        // Ensure recognition restarts even on error
-        if (isAudioMode && !isListening) {
-            try {
-                recognition.start();
-                isListening = true;
-            } catch (error) {
-                console.log('⚠️ Error recovery restart failed:', error);
-            }
-        }
-    };
-    
-    currentAudio = utterance;
-    window.speechSynthesis.speak(utterance);
-}
-
-
-// 🎤 BRITISH VOICE DETECTOR - WAIT FOR VOICES TO LOAD!
-function loadVoicesWithWait() {
-    return new Promise((resolve) => {
-        let voices = speechSynthesis.getVoices();
-        
-        if (voices.length > 0) {
-            console.log('✅ Voices already loaded:', voices.length);
-            logBritishVoices(voices);
-            resolve(voices);
-            return;
-        }
-        
-        console.log('⏳ Waiting for voices to load...');
-        speechSynthesis.onvoiceschanged = () => {
-            voices = speechSynthesis.getVoices();
-            console.log('🎤 Voices loaded:', voices.length);
-            logBritishVoices(voices);
-            resolve(voices);
-        };
-    });
-}
-
-function logBritishVoices(voices) {
-    console.log('🔍 SEARCHING FOR BRITISH VOICES...');
-    voices.forEach(voice => {
-        if (voice.lang.includes('GB') || voice.name.toLowerCase().includes('british') || 
-            voice.name.toLowerCase().includes('hazel') || voice.name.toLowerCase().includes('susan')) {
-            console.log('🇬🇧 BRITISH VOICE FOUND:', voice.name, '-', voice.lang);
-        }
-    });
-}
-
-// Call this instead of your current voice loading
-loadVoicesWithWait().then(voices => {
-    console.log('🚀 All voices ready for Mobile-Wise AI Empire!');
-});
-
-// 🎤 VOICE SYNTHESIS WITH BRITISH PRIORITY
-function speakWithVoice(message, voices) {
+    // Stop any current speech
     window.speechSynthesis.cancel();
     
     const utterance = new SpeechSynthesisUtterance(message);
     
-    let bestVoice = findUniversalBestVoice(voices);
-    if (bestVoice) {
-        utterance.voice = bestVoice;
-        console.log('🎤 Using voice:', bestVoice.name);
-    }
-    
-    // Optimized settings for British female voice
+    // Optimized for Chrome - WORKING SYSTEM SETTINGS
     utterance.rate = voiceSpeed;
     utterance.pitch = 1.0;
-    utterance.volume = 0.9; // Slightly louder for clarity
+    utterance.volume = 0.9;
     
-    utterance.onstart = () => {
+    utterance.onstart = function() {
         isSpeaking = true;
         console.log('🗣️ Speech started');
     };
     
-    utterance.onend = () => {
+    utterance.onend = function() {
         isSpeaking = false;
-        currentAudio = null;
         console.log('✅ Speech finished');
-        updateHeaderBanner('🎤 AI is listening...');
+        updateHeaderBanner('🎤 Ready for your question');
+        
+        if (isAudioMode) {
+            updateStatusIndicator('listening');
+            // Restart recognition with MINIMAL delay - Working system approach
+            setTimeout(() => {
+                if (!isListening && isAudioMode) {
+                    try {
+                        recognition.start();
+                    } catch (error) {
+                        console.log('⚠️ Recognition restart error:', error);
+                    }
+                }
+            }, 100); // ONLY 100ms delay!
+        } else {
+            updateStatusIndicator('inactive');
+        }
     };
     
-    utterance.onerror = (event) => {
+    utterance.onerror = function(event) {
         console.log('❌ Speech error:', event.error);
         isSpeaking = false;
-        currentAudio = null;
+        updateStatusIndicator('inactive');
     };
     
-    currentAudio = utterance;
     window.speechSynthesis.speak(utterance);
+    currentAudio = utterance;
+}
+
+function stopCurrentAudio() {
+    if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+    }
+    currentAudio = null;
+    isSpeaking = false;
 }
 
 // ===================================================
-// ⚡ VOICE SPEED CONTROL SYSTEM (Preserved)
+// ⚡ VOICE SPEED CONTROL (Your preserved system)
 // ===================================================
+const speedLevels = [0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3];
+const speedNames = ['Very Slow', 'Slow', 'Relaxed', 'Normal', 'Fast', 'Faster', 'Very Fast'];
+let currentSpeedIndex = 3;
+
 function adjustVoiceSpeed(direction) {
     if (direction === 'faster' && currentSpeedIndex < speedLevels.length - 1) {
         currentSpeedIndex++;
     } else if (direction === 'slower' && currentSpeedIndex > 0) {
         currentSpeedIndex--;
+    } else if (direction === 'normal') {
+        currentSpeedIndex = 3;
     }
     
     voiceSpeed = speedLevels[currentSpeedIndex];
@@ -1145,257 +504,105 @@ function adjustVoiceSpeed(direction) {
         speedDisplay.textContent = speedName;
     }
     
-    console.log('⚡ Voice speed:', speedName, `(${voiceSpeed}x)`);
-    testVoiceSpeed();
-}
-
-function testVoiceSpeed() {
-    const testMessage = `Speed set to ${speedNames[currentSpeedIndex]}`;
-    const voices = window.speechSynthesis.getVoices();
-    const voice = findUniversalBestVoice(voices);
-    
-    const utterance = new SpeechSynthesisUtterance(testMessage);
-    if (voice) utterance.voice = voice;
-    utterance.rate = voiceSpeed;
-    utterance.pitch = 1.0;
-    utterance.volume = 0.9;
-    
-    window.speechSynthesis.speak(utterance);
+    console.log('⚡ Voice speed set to:', speedName);
 }
 
 // ===================================================
-// 🛠️ UTILITY FUNCTIONS (Preserved)
+// 🎛️ WAVEFORM VISUALIZATION (Working system)
 // ===================================================
-function stopCurrentAudio() {
-    if (window.speechSynthesis) {
-        window.speechSynthesis.cancel();
-        console.log('🛑 Speech stopped');
-    }
-    currentAudio = null;
-    isSpeaking = false;
-}
-
-function muteAIVoice() {
-    console.log('🔇 MUTING AI Voice...');
-    stopCurrentAudio();
-    isSpeaking = false;
-    updateHeaderBanner('🔇 AI Voice Muted');
-    switchToTextMode();
-    console.log('✅ AI Voice MUTED');
-}
-
-function preloadVoices() {
-    getOptimizedVoices().then(voices => {
-        console.log('🎤 Optimized voices loaded:', voices.length);
-        console.log('🇬🇧 AVAILABLE BRITISH VOICES:');
+function initializeWaveform() {
+    const canvas = document.getElementById('voiceWaveform');
+    if (!canvas) return;
+    
+    const canvasCtx = canvas.getContext('2d');
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+    
+    // Simple animation for demo purposes
+    let animationId = null;
+    let step = 0;
+    
+    function animate() {
+        canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
         
-        const britishVoices = voices.filter(v => 
-            v.name.includes('UK') || 
-            v.name.includes('British') || 
-            v.name.includes('Libby')
-        );
-        
-        britishVoices.forEach((voice, i) => {
-            console.log(`👑 ${voice.name} (${voice.lang})`);
-        });
-        
-        if (britishVoices.length === 0) {
-            console.log('⚠️ No British voices found - using US voices');
+        if (!isListening && !isSpeaking) {
+            canvasCtx.fillStyle = '#333';
+            canvasCtx.font = "12px Arial";
+            canvasCtx.textAlign = "center";
+            canvasCtx.fillText("Microphone inactive", canvas.width/2, canvas.height/2);
+            return;
         }
-    });
-}
-
-// 🎯 VOICE TESTER FUNCTION (Now properly defined!)
-async function testAllVoices() {
-    console.log('🎤 STARTING VOICE TESTER...');
-    
-    const voices = await getOptimizedVoices();
-    console.log(`🔍 Testing ${voices.length} voices:`);
-    
-    for (let i = 0; i < Math.min(voices.length, 5); i++) {
-        const voice = voices[i];
-        console.log(`${i + 1}. 🎤 ${voice.name} (${voice.lang})`);
         
-        const testMessage = `Voice ${i + 1}: Hello, I'm ${voice.name.split(' ')[0]}. How do I sound?`;
-        const utterance = new SpeechSynthesisUtterance(testMessage);
-        utterance.voice = voice;
-        utterance.rate = 1.0;
-        utterance.volume = 0.9;
+        canvasCtx.fillStyle = isSpeaking ? '#dc3545' : '#28a745';
         
-        window.speechSynthesis.speak(utterance);
-        
-        // Wait between tests
-        await new Promise(resolve => setTimeout(resolve, 4000));
-    }
-    
-    console.log('✅ Voice testing complete!');
-}
-
-// Make it globally available
-window.testAllVoices = testAllVoices;
-
-
-// ===================================================
-// 🛠️ UTILITY FUNCTIONS
-// ===================================================
-function stopCurrentAudio() {
-    if (window.speechSynthesis) {
-        window.speechSynthesis.cancel();
-        console.log('🛑 Speech stopped');
-    }
-    currentAudio = null;
-    isSpeaking = false;
-}
-
-function muteAIVoice() {
-    console.log('🔇 MUTING AI Voice...');
-    stopCurrentAudio();
-    isSpeaking = false;
-    updateHeaderBanner('🔇 AI Voice Muted');
-    switchToTextMode();
-    console.log('✅ AI Voice MUTED');
-}
-
-function preloadVoices() {
-    getOptimizedVoices().then(voices => {
-        console.log('🎤 Optimized voices loaded:', voices.length);
-        console.log('🇬🇧 AVAILABLE BRITISH VOICES:');
-        
-        const britishVoices = voices.filter(v => 
-            v.name.includes('UK') || 
-            v.name.includes('British') || 
-            v.name.includes('Libby')
-        );
-        
-        britishVoices.forEach((voice, i) => {
-            console.log(`👑 ${voice.name} (${voice.lang})`);
-        });
-        
-        if (britishVoices.length === 0) {
-            console.log('⚠️ No British voices found - using US voices');
+        for (let i = 0; i < canvas.width; i += 5) {
+            const height = Math.sin(i/20 + step) * 15 + 
+                          Math.sin(i/10 + step*1.5) * 5 + 
+                          (isSpeaking ? 20 : 10);
+            canvasCtx.fillRect(i, canvas.height/2 - height/2, 3, height);
         }
-    });
-}
-
-function debugBritishVoices() {
-    const voices = window.speechSynthesis.getVoices();
-    const britishVoices = voices.filter(v => 
-        v.lang.includes('GB') || 
-        v.name.toLowerCase().includes('uk') ||
-        v.name.toLowerCase().includes('british') ||
-        v.name.toLowerCase().includes('libby')
-    );
-    
-    console.log('🇬🇧 AVAILABLE BRITISH VOICES:');
-    britishVoices.forEach((voice, index) => {
-        console.log(`👑 ${voice.name} (${voice.lang})`);
-    });
-    
-    if (britishVoices.length === 0) {
-        console.log('❌ No British voices found - check system voices');
+        
+        step += 0.1;
+        animationId = requestAnimationFrame(animate);
     }
+    
+    animate();
 }
-
 
 // ===================================================
-// 🎯 UTILITY FUNCTIONS (Fixed for your HTML)
+// 🛠️ UI UTILITY FUNCTIONS (Working system)
 // ===================================================
 function updateHeaderBanner(message) {
-    const headerTitle = document.getElementById('chatHeaderTitle'); // MATCHES YOUR HTML!
+    const headerTitle = document.getElementById('chatHeaderTitle');
     if (headerTitle) {
         headerTitle.textContent = message;
-        console.log('📱 Header banner updated:', message);
     }
 }
 
-function hideSpeedControls() {
-    const slowerBtn = document.querySelector('[onclick*="slower"]');
-    const normalBtn = document.querySelector('[onclick*="normal"]'); 
-    const fasterBtn = document.querySelector('[onclick*="faster"]');
+function updateStatusIndicator(status) {
+    const indicator = document.getElementById('statusIndicator');
+    if (!indicator) return;
     
-    if (slowerBtn) slowerBtn.style.display = 'none';
-    if (normalBtn) normalBtn.style.display = 'none';
-    if (fasterBtn) fasterBtn.style.display = 'none';
+    indicator.className = 'status-indicator';
     
-    console.log('⚡ Speed buttons hidden');
+    switch(status) {
+        case 'listening':
+            indicator.classList.add('status-listening');
+            break;
+        case 'speaking':
+            indicator.classList.add('status-speaking');
+            break;
+        default:
+            indicator.classList.add('status-inactive');
+            break;
+    }
 }
 
 // ===================================================
-// 🎤 MICROPHONE ACTIVATION (With Button Swap Logic!)
+// 🌐 GLOBAL FUNCTIONS (Your requirements)
 // ===================================================
-async function activateMicrophone() {
-    console.log('🎤 User clicked ACTIVATE MICROPHONE button...');
-
-    const activateBtn = document.getElementById('activateMicButton');
-    if (activateBtn) {
-        activateBtn.textContent = '🎤 Requesting permission...';
-        activateBtn.disabled = true;
-    }
-
-    try {
-        persistentMicStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        console.log('🎤 Microphone access granted!');
-        micPermissionGranted = true;
-        
-        // SIMPLE SWAP - NO SPEED CONTROLS YET
-        if (activateBtn) activateBtn.style.display = 'none';
-        
-        const stopBtn = document.getElementById('audioOffBtn');
-        if (stopBtn) {
-            stopBtn.style.display = 'block';
-            stopBtn.textContent = '🛑 Stop Audio';
-        }
-        
-        // DON'T SHOW SPEED CONTROLS - TEST FIRST!
-        // const speedContainer = document.getElementById('speedControlsContainer');
-        // if (speedContainer) speedContainer.style.display = 'flex';
-        
-    } catch (error) {
-        console.log('❌ Microphone access denied:', error);
-        if (activateBtn) {
-            activateBtn.textContent = '🎤 Activate Microphone';
-            activateBtn.disabled = false;
-        }
-        addAIMessage("No problem! You can still chat with me using text. What can I help you with?");
-        return;
-    }
-    
-    await startUnifiedVoiceVisualization();
-    isAudioMode = true;
-    
-    if (recognition && !isListening) {
-        try {
-            recognition.start();
-            console.log('🎤 Speech recognition started');
-        } catch (error) {
-            console.log('⚠️ Recognition start failed:', error);
-        }
-    }
-    
-    showAudioMode();
-    updateHeaderBanner('🎤 Microphone Active - How can we help your business?');
-    
-    setTimeout(() => {
-        const greeting = "Perfect! Voice chat is now active, what can I help you with today?";
-        addAIMessage(greeting);
-        speakResponse(greeting);
-    }, 1000);
-}
-
-// ===================================================
-// 🌐 GLOBAL FUNCTIONS (All preserved)
-// ===================================================
-window.askQuickQuestion = function(question) {
-    console.log('⚡ Quick question asked:', question);
+function askQuickQuestion(question) {
+    console.log('⚡ Quick question:', question);
     addUserMessage(question);
     processUserInput(question);
-};
+}
 
-window.switchToTextMode = switchToTextMode;
+function muteAIVoice() {
+    console.log('🔇 MUTING AI Voice...');
+    stopCurrentAudio();
+    isSpeaking = false;
+    updateHeaderBanner('🔇 AI Voice Muted');
+    switchToTextMode();
+    console.log('✅ AI Voice MUTED');
+}
+
+// Make functions available globally
+window.askQuickQuestion = askQuickQuestion;
 window.adjustVoiceSpeed = adjustVoiceSpeed;
-window.activateMicrophone = activateMicrophone;
-window.reinitiateAudio = switchToAudioMode;
-window.muteAIVoice = muteAIVoice;
+window.switchToTextMode = switchToTextMode;
 window.switchToAudioMode = switchToAudioMode;
+window.activateMicrophone = activateMicrophone;
+window.muteAIVoice = muteAIVoice;
 
-console.log('🎯 Mobile-Wise AI Formviser Voice Chat Module Loaded - HTML MATCHED!');
+console.log('🚀 Mobile-Wise AI Formviser - HYBRID WORKING SYSTEM LOADED!');
+console.log('✅ NO MORE 7-SECOND DELAYS - INSTANT RESPONSES!');
