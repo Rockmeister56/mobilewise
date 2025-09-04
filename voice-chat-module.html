@@ -522,6 +522,42 @@ box-shadow: 0 15px 40px rgba(33, 150, 243, 0.4);
     </div>
 </div>
 
+<div id="chatInterface" style="
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    padding: 10px;
+">
+    
+    <!-- Quick Question Buttons -->
+    <div class="quick-questions-container">
+        <!-- Your existing quick buttons -->
+    </div>
+    
+    <!-- Live Transcript -->
+    <div id="liveTranscript" style="..."></div>
+    
+    <!-- EXPANDED Chat Area -->
+    <div id="chatMessages" class="chat-messages" style="
+        flex: 1;
+        overflow-y: auto;
+        padding: 15px;
+        min-height: 400px;
+        max-height: none;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 12px;
+        margin: 10px 0;
+    ">
+        <!-- Messages here -->
+    </div>
+    
+    <!-- NEW Cohesive Control Bar -->
+    <div class="control-bar">
+        <!-- Speed controls centered, Stop button right -->
+    </div>
+    
+</div>
+
 <!-- Audio Mode Controls -->
 <div class="audio-controls" id="audioControls" style="display: flex;">
     
