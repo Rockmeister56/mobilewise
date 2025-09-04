@@ -17,9 +17,12 @@ let micPermissionGranted = false;
 let lastProcessedInput = '';
 let lastProcessedTime = 0;
 let isProcessingResponse = false;
+let interimTranscript = '';
+let silenceTimer = null;
+let isProcessingInput = false;
 
 // ===================================================
-// 🎤 SPEECH RECOGNITION (All fixes preserved)
+// 🎤 SPEECH RECOGNITION (Fixed for complete sentences)
 // ===================================================
 function initializeSpeechRecognition() {
     console.log('🎤 Initializing speech recognition...');
@@ -28,7 +31,7 @@ function initializeSpeechRecognition() {
         recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
         
         recognition.continuous = true;
-        recognition.interimResults = false;
+        recognition.interimResults = true; // ENABLED for complete sentence detection
         recognition.maxAlternatives = 1;
         recognition.lang = 'en-US';
 
@@ -36,48 +39,66 @@ function initializeSpeechRecognition() {
             console.log('🎤 Speech recognition started');
             isListening = true;
             hasStartedOnce = true;
+            interimTranscript = '';
         };
 
         recognition.onresult = function(event) {
-            if (event.results.length > 0) {
-                const latestResult = event.results[event.results.length - 1];
-                const transcript = latestResult[0].transcript.trim();
-
-                // 🎯 BALANCED DETECTION
-                const shouldProcess = (
-                    latestResult.isFinal && 
-                    transcript.length > 3 &&
-                    (
-                        latestResult[0].confidence > 0.6 ||
-                        transcript.toLowerCase().includes('tax') ||
-                        transcript.toLowerCase().includes('sell') ||
-                        transcript.toLowerCase().includes('buy') ||
-                        transcript.toLowerCase().includes('practice') ||
-                        transcript.toLowerCase().includes('accounting') ||
-                        transcript.toLowerCase().includes('help') ||
-                        transcript.toLowerCase().includes('business') ||
-                        transcript.split(' ').length >= 2
-                    )
-                );
-
-                if (shouldProcess) {
-                    console.log('🎤 Processing voice input:', transcript);
-                    
-                    if (isSpeaking) {
-                        console.log('🚫 Ignoring - AI is speaking');
-                        return;
-                    }
-                    
-                    handleVoiceInput(transcript);
-                } else if (latestResult.isFinal) {
-                    console.log('⏳ Too short, waiting for more:', transcript);
+            // Clear any existing silence timer
+            if (silenceTimer) {
+                clearTimeout(silenceTimer);
+            }
+            
+            let finalTranscript = '';
+            interimTranscript = '';
+            
+            // Process both interim and final results
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const transcript = event.results[i][0].transcript;
+                
+                if (event.results[i].isFinal) {
+                    finalTranscript += transcript;
+                } else {
+                    interimTranscript += transcript;
                 }
+            }
+            
+            // Process final results - ONLY when we have a complete sentence
+            if (finalTranscript && !isProcessingInput) {
+                console.log('🎤 Final voice input received:', finalTranscript);
+                
+                if (isSpeaking) {
+                    console.log('🚫 Ignoring input - AI is speaking');
+                    return;
+                }
+                
+                if (finalTranscript && finalTranscript.length > 0) {
+                    isProcessingInput = true;
+                    handleVoiceInput(finalTranscript);
+                }
+            }
+            
+            // Set a timer to detect when user stops speaking
+            // Only use this as a fallback if Chrome doesn't send final results
+            if (interimTranscript && interimTranscript.length > 3) {
+                silenceTimer = setTimeout(() => {
+                    if (interimTranscript && !isProcessingInput && !isSpeaking) {
+                        console.log('⏳ Silence fallback - processing:', interimTranscript);
+                        isProcessingInput = true;
+                        handleVoiceInput(interimTranscript);
+                        interimTranscript = '';
+                    }
+                }, 1500); // 1500ms of silence indicates end of speech
             }
         };
 
         recognition.onend = function() {
             console.log('🎤 Speech recognition ended');
             isListening = false;
+            
+            // Clear silence timer
+            if (silenceTimer) {
+                clearTimeout(silenceTimer);
+            }
             
             if (isSpeaking) {
                 console.log('🤖 AI is speaking - speakResponse will handle restart');
@@ -102,6 +123,11 @@ function initializeSpeechRecognition() {
             console.log('❌ Speech recognition error:', event.error);
             isListening = false;
             
+            // Clear silence timer
+            if (silenceTimer) {
+                clearTimeout(silenceTimer);
+            }
+            
             if (event.error === 'not-allowed') {
                 console.log('🚫 Microphone permission denied');
                 micPermissionGranted = false;
@@ -125,6 +151,8 @@ function initializeSpeechRecognition() {
                     }
                 }, 2000);
             }
+            
+            isProcessingInput = false;
         };
     } else {
         console.log('❌ Speech recognition not supported in this browser');
@@ -219,7 +247,7 @@ window.startVoiceChat = startVoiceChat;
 // ==========================================
 // 🎯 ENHANCED INITIALIZE VOICE CHAT
 // ==========================================
-    function initializeVoiceChat() {
+   function initializeVoiceChat() {
     console.log('🚀 Initializing Voice Chat Module...');
     
     setTimeout(() => {
@@ -254,19 +282,11 @@ window.startVoiceChat = startVoiceChat;
         const stopBtn = document.getElementById('audioOffBtn');
         if (stopBtn) stopBtn.style.display = 'none';
         
-        // WELCOME MESSAGE ONLY
-        // addAIMessage("Welcome! Click 'Activate Microphone' below to enable voice chat.");
-        
         console.log('✅ Voice Chat Module Ready - WAITING for user click');
-        
-        // ✅ CONFIRMED REMOVED - NO AUTO-ACTIVATION GHOSTS:
-        // startUnifiedVoiceVisualization();
-        // swapToStopButton();
-        // navigator.mediaDevices.getUserMedia();
-        // recognition.start();
         
     }, 100);
 }
+
 
 
 function showActivateMicButton() {
@@ -357,54 +377,6 @@ function bindEventListeners() {
         });
         console.log('✅ Text input enter key bound');
     }
-}
-
-// ===========================================
-// MESSAGE HANDLING
-// ===========================================
-function handleVoiceInput(transcript) {
-    console.log('🗣️ Processing voice input:', transcript);
-    addUserMessage(transcript);
-    processUserInput(transcript);
-}
-
-function sendTextMessage() {
-    const textInput = document.getElementById('textInput');
-    if (!textInput) return;
-    
-    const message = textInput.value.trim();
-    console.log('💬 Processing text input:', message);
-    
-    if (!message) return;
-    
-    addUserMessage(message);
-    textInput.value = '';
-    processUserInput(message);
-}
-
-function processUserInput(message) {
-    if (currentAudio) {
-        stopCurrentAudio();
-    }
-    
-    setTimeout(() => {
-        const response = getAIResponse(message);
-        console.log('🤖 AI Response:', response);
-        addAIMessage(response);
-        speakResponse(response);
-    }, 800);
-}
-
-function hideSpeedControls() {
-    const slowerBtn = document.querySelector('[onclick*="slower"]');
-    const normalBtn = document.querySelector('[onclick*="normal"]'); 
-    const fasterBtn = document.querySelector('[onclick*="faster"]');
-    
-    if (slowerBtn) slowerBtn.style.display = 'none';
-    if (normalBtn) normalBtn.style.display = 'none';
-    if (fasterBtn) fasterBtn.style.display = 'none';
-    
-    console.log('Speed buttons hidden');
 }
 
 // ===================================================
@@ -593,7 +565,10 @@ function processUserInput(message) {
     speakResponse(response);
     
     // Reset flag
-    setTimeout(() => { isProcessingResponse = false; }, 100);
+    setTimeout(() => { 
+        isProcessingResponse = false;
+        isProcessingInput = false;
+    }, 100);
 }
 
 function handleVoiceInput(transcript) {
@@ -602,11 +577,13 @@ function handleVoiceInput(transcript) {
     // Simple duplicate prevention
     if (transcript === lastProcessedInput && (now - lastProcessedTime) < 1500) {
         console.log('🚫 Duplicate input ignored:', transcript);
+        isProcessingInput = false;
         return;
     }
     
     if (transcript.length < 2) {
         console.log('⏳ Too short, waiting for more:', transcript);
+        isProcessingInput = false;
         return;
     }
     
@@ -743,6 +720,11 @@ function switchToTextMode() {
         isListening = false;
     }
     
+    // Clear any silence timer
+    if (silenceTimer) {
+        clearTimeout(silenceTimer);
+    }
+    
     // Stop all voice visualization
     stopUnifiedVoiceVisualization();
     
@@ -764,6 +746,8 @@ function switchToTextMode() {
     
     // Update header
     updateHeaderBanner('💬 Text Chat Mode - Type your message below');
+    
+    isProcessingInput = false;
 }
 
 function switchToAudioMode() {
@@ -796,14 +780,15 @@ function switchToAudioMode() {
         // Restart speech recognition
         if (recognition && !isListening) {
             try {
-                // Line 645 - COMMENT OUT:
-// recognition.start();
+                recognition.start();
                 console.log('🔄 Recognition restarted');
             } catch (error) {
                 console.log('⚠️ Recognition restart failed:', error);
             }
         }
     }, 500);
+    
+    isProcessingInput = false;
 }
 
 // ===================================================
