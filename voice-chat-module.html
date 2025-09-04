@@ -557,22 +557,34 @@ box-shadow: 0 15px 40px rgba(33, 150, 243, 0.4);
     right: 10px;
 }
 
-.live-transcript-expanded {
+/* 🎯 FLOATING VOICE OVERLAY */
+.voice-overlay {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
     opacity: 0;
-    transition: opacity 0.3s;
-    text-align: center;
-    font-size: 18px;
-    padding: 25px;
-    margin: 15px 0 5px 0; /* Reduced bottom margin to move up */
-    height: 60px; /* FIXED HEIGHT - no more jumping! */
-    background: rgba(0, 123, 255, 0.1);
-    border-radius: 12px;
-    border: 1px solid rgba(0, 123, 255, 0.2);
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    font-size: 24px;
+    font-weight: bold;
     color: #007bff;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    text-align: center;
+    max-width: 80%;
+    background: none;
+    border: none;
+    padding: 0;
+}
+
+.voice-overlay.show {
+    opacity: 1;
+}
+
+.voice-overlay.fade-out {
+    opacity: 0;
+    transition: opacity 1s ease;
 }
    
    </style>
@@ -627,11 +639,8 @@ box-shadow: 0 15px 40px rgba(33, 150, 243, 0.4);
     
 </div>
 
-<!-- 🚀 EXPANDED Live Transcript (Replace where meters were) -->
-<div id="liveTranscript" class="live-transcript-expanded">
-    <!-- Live speaking text appears here -->
-</div>
-
+<!-- 🚀 FLOATING VOICE OVERLAY - Add this anywhere in your HTML -->
+<div id="voiceOverlay" class="voice-overlay"></div>
     
 </div>
 

@@ -231,17 +231,21 @@ const businessResponses = {
         }
 
         function updateLiveUserTranscript(text) {
-    const liveTranscript = document.getElementById('liveTranscript');
-    if (liveTranscript) {
-        liveTranscript.textContent = `Speaking: ${text}...`;
-        liveTranscript.style.opacity = '0.7';
+    const overlay = document.getElementById('voiceOverlay');
+    if (overlay) {
+        overlay.textContent = text;
+        overlay.className = 'voice-overlay show';
         
-        // Hide when processing starts
+        // Auto fade after 2 seconds
         setTimeout(() => {
-            if (isProcessingInput) {
-                liveTranscript.style.opacity = '0';
-            }
-        }, 1000);
+            overlay.className = 'voice-overlay fade-out';
+        }, 2000);
+        
+        // Clear text after fade
+        setTimeout(() => {
+            overlay.textContent = '';
+            overlay.className = 'voice-overlay';
+        }, 3000);
     }
 }
 
