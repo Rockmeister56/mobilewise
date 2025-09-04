@@ -558,23 +558,22 @@ box-shadow: 0 15px 40px rgba(33, 150, 243, 0.4);
 }
 
 .live-transcript-expanded {
-    opacity: 0;
-    transition: opacity 0.3s;
+    opacity: 1; /* Always visible background */
     text-align: center;
     font-size: 14px;
-    padding: 15px;
-    margin: -15px 0 5px 0; /* Reduced bottom margin to move up */
-    height: 15px; /* FIXED HEIGHT - no more jumping! */
-    background: rgb(0, 0, 0);
-    border-radius: 12px;
-    border: 1px solid rgb(0, 0, 0);
-    color: #00ff4c;
-    font-weight: 300;
+    padding: 4px 15px; /* Reduced padding for 18px total height */
+    margin: 8px 0 5px 0;
+    height: 18px; /* Exactly 18px as requested */
+    background: rgba(0, 0, 0, 0.8); /* Always visible black background */
+    border-radius: 8px;
+    color: #00ff00; /* Green text like in your screenshot */
+    font-weight: 500;
     display: flex;
     align-items: center;
     justify-content: center;
+    min-height: 18px;
+    max-height: 18px;
 }
-   
    </style>
 </head>
 <body>
