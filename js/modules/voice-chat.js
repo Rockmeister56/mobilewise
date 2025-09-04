@@ -92,11 +92,10 @@ const businessResponses = {
     
     // 🚀 HYBRID MAGIC: Show user input IMMEDIATELY from interim results
     if (interimTranscript && interimTranscript.length > 3) {
-        // Show user's words in real-time as they speak
         updateLiveUserTranscript(interimTranscript);
     }
     
-    // Process final results 
+    // Process FINAL results ONLY - No duplicates!
     if (finalTranscript && !isProcessingInput) {
         console.log('Final voice input received:', finalTranscript);
         
@@ -105,38 +104,50 @@ const businessResponses = {
             return;
         }
         
-        // 🎯 INSTANT USER MESSAGE DISPLAY
+        // 🎯 INSTANT USER MESSAGE DISPLAY (ONLY ONCE!)
         addUserMessage(finalTranscript);
         isProcessingInput = true;
         
-        // Then process AI response in background
+        // Process AI response
         setTimeout(() => {
-            handleVoiceInput(finalTranscript);
-        }, 100);
+            const response = getAIResponse(finalTranscript);
+            addAIMessage(response);
+            speakResponse(response);
+            
+            // Reset processing flag
+            setTimeout(() => {
+                isProcessingInput = false;
+            }, 500);
+        }, 1500); // Natural delay
+        
+        return; // ⭐ CRITICAL: Exit here to prevent silence fallback
     }
     
-    // Improved silence fallback with PDF suggestions
-    if (interimTranscript && interimTranscript.length > 5) {
+    // Silence fallback - ONLY if no final result was processed
+    if (interimTranscript && interimTranscript.length > 5 && !isProcessingInput) {
         silenceTimer = setTimeout(() => {
             if (interimTranscript && !isProcessingInput && !isSpeaking) {
                 console.log('Processing complete phrase:', interimTranscript);
-                addUserMessage(interimTranscript); // 🚀 INSTANT DISPLAY
+                
+                // 🔧 FIX: Only add message if we haven't already
+                addUserMessage(interimTranscript);
                 isProcessingInput = true;
-                handleVoiceInput(interimTranscript);
+                
+                // Process AI response
+                const response = getAIResponse(interimTranscript);
+                addAIMessage(response);
+                speakResponse(response);
+                
                 interimTranscript = '';
+                
+                // Reset processing flag
+                setTimeout(() => {
+                    isProcessingInput = false;
+                }, 500);
             }
-        }, 2000); // PDF's suggestion - increased timing
+        }, 2000);
     }
 };
-
-// New function for live transcript display
-function updateLiveUserTranscript(text) {
-    const liveTranscript = document.getElementById('liveTranscript');
-    if (liveTranscript) {
-        liveTranscript.textContent = text;
-        liveTranscript.style.opacity = '0.7'; // Show it's temporary
-    }
-}
 
                 recognition.onend = function() {
                     console.log('Speech recognition ended');
