@@ -102,14 +102,68 @@ recognition.onresult = function(event) {
         updateLiveUserTranscript(interimTranscript);
     }
     
-    // Process final results...
+    // ✅ PROCESS FINAL RESULTS (Complete sentences from Google)
     if (finalTranscript && !isProcessingInput) {
-        // ... rest of your final result processing
+        console.log('Final voice input received:', finalTranscript);
+        
+        // Ignore if AI is currently speaking
+        if (isSpeaking) {
+            console.log('Ignoring input - AI is speaking');
+            return;
+        }
+        
+        // Clear the live display since we're processing
+        const voiceText = document.getElementById('voiceText');
+        if (voiceText) voiceText.textContent = '';
+        
+        // 🎯 INSTANT USER MESSAGE DISPLAY
+        addUserMessage(finalTranscript);
+        isProcessingInput = true;
+        
+        // 🤖 PROCESS AI RESPONSE DIRECTLY
+        setTimeout(() => {
+            console.log('🤖 Processing AI response for:', finalTranscript);
+            const response = getAIResponse(finalTranscript);
+            console.log('🤖 AI Response generated');
+            
+            addAIMessage(response);
+            speakResponse(response);
+            
+            // Reset processing flag
+            setTimeout(() => {
+                isProcessingInput = false;
+            }, 500);
+        }, 1500);
+        
+        return; // Exit to prevent silence fallback
     }
     
-    // Silence fallback...
+    // ⏰ SILENCE FALLBACK (For incomplete Google processing)
     if (interimTranscript && interimTranscript.length > 8 && !isProcessingInput) {
-        // ... rest of your silence timer logic
+        silenceTimer = setTimeout(() => {
+            if (interimTranscript && !isProcessingInput && !isSpeaking) {
+                console.log('Silence fallback - processing complete phrase:', interimTranscript);
+                
+                // Clear live display
+                const voiceText = document.getElementById('voiceText');
+                if (voiceText) voiceText.textContent = '';
+                
+                addUserMessage(interimTranscript);
+                isProcessingInput = true;
+                
+                setTimeout(() => {
+                    const response = getAIResponse(interimTranscript);
+                    addAIMessage(response);
+                    speakResponse(response);
+                    
+                    setTimeout(() => {
+                        isProcessingInput = false;
+                    }, 500);
+                }, 1500);
+                
+                interimTranscript = '';
+            }
+        }, 3000);
     }
 };
 
@@ -154,6 +208,7 @@ recognition.onerror = function(event) {
     
     isProcessingInput = false;
 };
+
 
         function updateLiveUserTranscript(text) {
     const voiceText = document.getElementById('voiceText');
