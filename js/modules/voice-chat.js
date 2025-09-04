@@ -544,7 +544,7 @@ function getAIResponse(message) {
             utterance.onend = function() {
                 isSpeaking = false;
                 console.log('Speech finished');
-                updateHeaderBanner('🎤 Ready for your question');
+                updateHeaderBanner('🎤 AI Assistant is Listening');
                 
                 if (isAudioMode) {
                     updateStatusIndicator('listening');
