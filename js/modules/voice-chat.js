@@ -98,7 +98,7 @@ function initializeSpeechRecognition() {
     // 🚀 HYBRID MAGIC: Show live transcript as user speaks (with accumulative text)
     if (interimTranscript && interimTranscript.length > 3) {
         // Pass the COMPLETE text: all final + current interim
-       // updateLiveUserTranscript(allFinalTranscript + interimTranscript);
+        updateLiveUserTranscript(allFinalTranscript + interimTranscript);
     }
     
     // ✅ PROCESS FINAL RESULTS (Complete sentences from Google)
@@ -184,6 +184,22 @@ function initializeSpeechRecognition() {
     } else {
         console.log('Speech recognition not supported');
         addAIMessage("Your browser doesn't support speech recognition. Please use Chrome or Edge.");
+    }
+}
+
+function updateLiveUserTranscript(transcript) {
+    console.log('🎯 Live transcript update:', transcript);
+    
+    // Find the active chat bubble (adjust selector to match your HTML)
+    const activeBubble = document.querySelector('.chat-bubble.user') || 
+                        document.querySelector('.user-message') ||
+                        document.querySelector('.user-input');
+    
+    if (activeBubble) {
+        activeBubble.textContent = transcript;
+        console.log('✅ Bubble updated with live text');
+    } else {
+        console.log('⚠️ No active bubble found - check your selector');
     }
 }
 
