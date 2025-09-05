@@ -165,6 +165,12 @@ function initializeSpeechRecognition() {
         }, 3000);
     }
 };
+        
+    } else {
+        console.log('Speech recognition not supported');
+        addAIMessage("Your browser doesn't support speech recognition. Please use Chrome or Edge.");
+    }
+} 
 
 
       function updateLiveUserTranscript(text) {
