@@ -17,6 +17,7 @@ let micPermissionGranted = false;
 let currentUserBubble = null;
 let lastProcessedText = '';
 let isRestarting = false;
+let isFirstQuestion = true;
 
 // ===================================================
 // 🔄 REPLACED: WORKING SPEECH VARIABLES (From working system)
@@ -116,6 +117,11 @@ function initializeSpeechRecognition() {
         addUserMessage(allFinalTranscript);
         isProcessingInput = true;
         
+        // Mark first question as complete when we get a proper final result
+        if (typeof isFirstQuestion !== 'undefined') {
+            isFirstQuestion = false;
+        }
+        
         // 🤖 PROCESS AI RESPONSE DIRECTLY (No function calls!)
         setTimeout(() => {
             console.log('🤖 Processing AI response for:', allFinalTranscript);
@@ -137,10 +143,18 @@ function initializeSpeechRecognition() {
     // ⏰ SILENCE FALLBACK (For incomplete Google processing)
     const completeText = allFinalTranscript + interimTranscript;
     if (completeText && completeText.length > 8 && !isProcessingInput && completeText !== lastProcessedText) {
+        // 🔥 FIRST QUESTION FIX: Shorter delay for first question
+        const silenceDelay = (typeof isFirstQuestion !== 'undefined' && isFirstQuestion) ? 1500 : 3000;
+        
         silenceTimer = setTimeout(() => {
             if (completeText && !isProcessingInput && !isSpeaking) {
                 console.log('Silence fallback - processing complete phrase:', completeText);
                 lastProcessedText = completeText; // Prevent silence fallback duplicates too
+                
+                // Mark first question as complete
+                if (typeof isFirstQuestion !== 'undefined') {
+                    isFirstQuestion = false;
+                }
                 
                 // 🎯 INSTANT USER MESSAGE DISPLAY
                 addUserMessage(completeText);
@@ -163,7 +177,7 @@ function initializeSpeechRecognition() {
                 
                 interimTranscript = '';
             }
-        }, 3000);
+        }, silenceDelay); // 🔥 DYNAMIC DELAY: 1500ms for first question, 3000ms for others
     }
 };
         
@@ -171,101 +185,8 @@ function initializeSpeechRecognition() {
         console.log('Speech recognition not supported');
         addAIMessage("Your browser doesn't support speech recognition. Please use Chrome or Edge.");
     }
-} 
-
-
-      function updateLiveUserTranscript(text) {
-    // Instead of updating separate voiceText, update the actual chat bubble!
-    if (!currentUserBubble) {
-        // Create the user chat bubble immediately when speech starts
-        createLiveUserBubble();
-    }
-    
-    if (currentUserBubble) {
-        // Update the bubble content in real-time with accumulative text
-        const bubbleContent = currentUserBubble.querySelector('.message-bubble');
-        if (bubbleContent) {
-            bubbleContent.textContent = text;
-            scrollChatToBottom();
-        }
-    }
 }
 
-function resetSpeechRecognition() {
-    console.log('🚨 resetSpeechRecognition() DISABLED - Preventing collisions');
-    return; // DO NOTHING
-}
-
-// REPLACE your current clearLiveTranscript function with this:
-function clearLiveTranscript() {
-    // Reset the current bubble reference
-    currentUserBubble = null;
-}
-
-// ===================================================
-// 🎛️ WAVEFORM VISUALIZATION (KEPT - Original VoiceViz system)
-// ===================================================
-function initializeWaveform() {
-    VoiceViz.canvas = document.getElementById('voiceWaveform');
-    if (!VoiceViz.canvas) {
-        console.log('⚠️ Waveform canvas not found');
-        return false;
-    }
-    
-    VoiceViz.canvasCtx = VoiceViz.canvas.getContext('2d');
-    console.log('🎛️ Waveform canvas initialized');
-    return true;
-}
-
-function animateWaveform() {
-    if (!VoiceViz.waveformActive || !VoiceViz.analyser) return;
-    
-    VoiceViz.animationId = requestAnimationFrame(animateWaveform);
-    
-    VoiceViz.analyser.getByteFrequencyData(VoiceViz.dataArray);
-    
-    // Clear canvas
-    VoiceViz.canvasCtx.fillStyle = '#1a1a1a';
-    VoiceViz.canvasCtx.fillRect(0, 0, VoiceViz.canvas.width, VoiceViz.canvas.height);
-    
-    // Draw waveform (preserved styling)
-    const barWidth = (VoiceViz.canvas.width / VoiceViz.dataArray.length) * 2.5;
-    let barHeight;
-    let x = 0;
-    
-    for (let i = 0; i < VoiceViz.dataArray.length; i++) {
-        barHeight = (VoiceViz.dataArray[i] / 255) * VoiceViz.canvas.height;
-        
-        const gradient = VoiceViz.canvasCtx.createLinearGradient(0, VoiceViz.canvas.height - barHeight, 0, VoiceViz.canvas.height);
-        gradient.addColorStop(0, '#00ff88');
-        gradient.addColorStop(1, '#0066cc');
-        
-        VoiceViz.canvasCtx.fillStyle = gradient;
-        VoiceViz.canvasCtx.fillRect(x, VoiceViz.canvas.height - barHeight, barWidth, barHeight);
-        
-        x += barWidth + 1;
-    }
-}
-
-function createLiveUserBubble() {
-    const chatMessages = document.getElementById('chatMessages');
-    if (!chatMessages) return;
-    
-    // Create the user message bubble immediately
-    const messageHTML = `
-        <div class="message user-message">
-            <div class="message-bubble">Listening...</div>
-        </div>
-    `;
-    chatMessages.insertAdjacentHTML('beforeend', messageHTML);
-    
-    // Get reference to the bubble we just created
-    const messages = chatMessages.querySelectorAll('.user-message');
-    currentUserBubble = messages[messages.length - 1];
-    
-    scrollChatToBottom();
-    console.log('👤 Live user bubble created');
-}
 
 // ===================================================
 // 🎤 VOICE METER (KEPT - Original system)
