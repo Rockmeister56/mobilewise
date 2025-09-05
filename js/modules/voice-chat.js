@@ -612,7 +612,7 @@ function getAIResponse(message) {
                 console.log('Speech started');
             };
             
-           utterance.onend = function() {
+        utterance.onend = function() {
     isSpeaking = false;
     console.log('Speech finished');
     updateHeaderBanner('🎤 AI Assistant is Listening');
@@ -623,23 +623,28 @@ function getAIResponse(message) {
         setTimeout(() => {
             if (!isListening && isAudioMode) {
                 try {
-                    // INTEGRATED FIX: Safe recognition restart
-                    if (!isListening) {
+                    // 🔥 CRITICAL FIX: Nuclear stop first!
+                    recognition.stop();
+                    
+                    // Small delay to ensure clean state
+                    setTimeout(() => {
                         recognition.start();
-                        isListening = true; // Update the flag
+                        isListening = true;
                         console.log('🔄 Recognition restarted successfully');
-                    } else {
-                        console.log('🔄 Recognition already running - no restart needed');
-                    }
+                    }, 50);
+                    
                 } catch (error) {
                     console.log('Recognition restart error:', error);
                     // Force reset if we get a state error
                     isListening = false;
                     setTimeout(() => {
                         try {
-                            recognition.start();
-                            isListening = true;
-                            console.log('🔄 Secondary restart successful');
+                            recognition.stop(); // Nuclear stop here too
+                            setTimeout(() => {
+                                recognition.start();
+                                isListening = true;
+                                console.log('🔄 Secondary restart successful');
+                            }, 100);
                         } catch (e) {
                             console.log('Secondary restart failed:', e);
                         }
