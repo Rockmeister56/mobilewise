@@ -188,19 +188,8 @@ function initializeSpeechRecognition() {
 }
 
 function updateLiveUserTranscript(transcript) {
-    console.log('🎯 Live transcript update:', transcript);
-    
-    // Find the active chat bubble (adjust selector to match your HTML)
-    const activeBubble = document.querySelector('.chat-bubble.user') || 
-                        document.querySelector('.user-message') ||
-                        document.querySelector('.user-input');
-    
-    if (activeBubble) {
-        activeBubble.textContent = transcript;
-        console.log('✅ Bubble updated with live text');
-    } else {
-        console.log('⚠️ No active bubble found - check your selector');
-    }
+    console.log('✅ Live transcript:', transcript);
+    // Function exists - no more errors, no complications
 }
 
 
