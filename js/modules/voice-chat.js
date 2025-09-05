@@ -933,10 +933,12 @@ function preloadVoices() {
 }
 
 // ===================================================
-// 🌐 GLOBAL FUNCTIONS (KEPT - All original functions)
+// 🌐 GLOBAL FUNCTIONS for quick buttons
 // ===================================================
 window.askQuickQuestion = function(question) {
     console.log('⚡ Quick question asked:', question);
+    console.log('🔍 isSpeaking:', isSpeaking);
+    console.log('🔍 isProcessingInput:', isProcessingInput);
     
     // Prevent processing if AI is currently speaking
     if (isSpeaking) {
@@ -950,8 +952,13 @@ window.askQuickQuestion = function(question) {
         return;
     }
     
+    console.log('🎯 Creating user message bubble...');
+    
     // Create instant user message bubble (no voice needed!)
     addUserMessage(question);
+    
+    console.log('🎯 User message should be visible now');
+    
     isProcessingInput = true;
     
     // Process AI response directly
