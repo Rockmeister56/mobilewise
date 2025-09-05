@@ -657,6 +657,10 @@ utterance.onerror = function(event) {
     isSpeaking = false;
     updateStatusIndicator('inactive');
 };
+            
+            window.speechSynthesis.speak(utterance);
+            currentAudio = utterance;
+        }
 
         function stopCurrentAudio() {
             if (window.speechSynthesis) {
