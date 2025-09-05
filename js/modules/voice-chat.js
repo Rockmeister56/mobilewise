@@ -192,44 +192,8 @@ function initializeSpeechRecognition() {
 }
 
 function resetSpeechRecognition() {
-    // 🔥 FUNCTION DISABLED - CAUSING RESTART COLLISIONS
-    console.log('🚨 resetSpeechRecognition() DISABLED - utterance.onend handles restarts');
-    return; // EXIT IMMEDIATELY - DO NOTHING
-    
-    /*
-    // ALL CODE BELOW COMMENTED OUT
-    console.log('🚨 RESET FUNCTION TRIGGERED - POTENTIAL COLLISION!');
-    console.log('🔄 NUCLEAR RESET: Stopping and restarting speech recognition');
-
-    // Stop current recognition completely
-    if (recognition && isListening) {
-        recognition.stop();
-        isListening = false;
-    }
-    
-    // Clear all state
-    lastProcessedText = '';
-    interimTranscript = '';
-    currentUserBubble = null;
-    
-    if (silenceTimer) {
-        clearTimeout(silenceTimer);
-        silenceTimer = null;
-    }
-    
-    // NUCLEAR OPTION: Restart recognition after short delay
-    setTimeout(() => {
-        if (isAudioMode && !isSpeaking) {
-            try {
-                recognition.start();
-                isListening = true;
-                console.log('🔄 Recognition restarted with fresh buffer');
-            } catch (error) {
-                console.log('Recognition restart failed:', error);
-            }
-        }
-    }, 200);
-    */
+    console.log('🚨 resetSpeechRecognition() DISABLED - Preventing collisions');
+    return; // DO NOTHING
 }
 
 // REPLACE your current clearLiveTranscript function with this:
