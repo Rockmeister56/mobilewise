@@ -191,18 +191,37 @@ function initializeSpeechRecognition() {
 }
 
 function resetSpeechRecognition() {
-    console.log('🔄 Resetting speech recognition state');
+    console.log('🔄 NUCLEAR RESET: Stopping and restarting speech recognition');
+    
+    // Stop current recognition completely
+    if (recognition && isListening) {
+        recognition.stop();
+        isListening = false;
+    }
+    
+    // Clear all state
     lastProcessedText = '';
     interimTranscript = '';
     currentUserBubble = null;
     
-    // Clear any lingering timers
     if (silenceTimer) {
         clearTimeout(silenceTimer);
         silenceTimer = null;
     }
+    
+    // NUCLEAR OPTION: Restart recognition after short delay
+    setTimeout(() => {
+        if (isAudioMode && !isSpeaking) {
+            try {
+                recognition.start();
+                isListening = true;
+                console.log('🔄 Recognition restarted with fresh buffer');
+            } catch (error) {
+                console.log('Recognition restart failed:', error);
+            }
+        }
+    }, 200);
 }
-
 // REPLACE your current clearLiveTranscript function with this:
 function clearLiveTranscript() {
     // Reset the current bubble reference
