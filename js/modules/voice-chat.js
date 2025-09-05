@@ -187,22 +187,6 @@ function initializeSpeechRecognition() {
     }
 }
 
-function updateLiveUserTranscript(transcript) {
-    console.log('🎯 Live transcript update:', transcript);
-    
-    // Find the active chat bubble (adjust selector to match your HTML)
-    const activeBubble = document.querySelector('.chat-bubble.user') || 
-                        document.querySelector('.user-message') ||
-                        document.querySelector('.user-input');
-    
-    if (activeBubble) {
-        activeBubble.textContent = transcript;
-        console.log('✅ Bubble updated with live text');
-    } else {
-        console.log('⚠️ No active bubble found - check your selector');
-    }
-}
-
 
 // ===================================================
 // 🎤 VOICE METER (KEPT - Original system)
@@ -498,9 +482,7 @@ function getAIResponse(message) {
 // 🗣️ VOICE SYNTHESIS (KEPT - Original with working restart)
 // ===================================================
   function speakResponse(message) {
-
-   // resetSpeechRecognition(); // 🚨 DISABLED - Caused collisions
-console.log('🚨 resetSpeechRecognition() call removed - preventing errors');
+    resetSpeechRecognition(); // 🔄 Clear speech state before AI speaks
             console.log('Speaking response');
             updateHeaderBanner('🤖 AI responding...');
             updateStatusIndicator('speaking');
@@ -528,7 +510,7 @@ console.log('🚨 resetSpeechRecognition() call removed - preventing errors');
        utterance.onend = function() {
     isSpeaking = false;
     console.log('Speech finished');
-    updateHeaderBanner('🎤 Getting ready to listen...'); // 🔥 BUFFER STATE
+    updateHeaderBanner('🎤 AI Assistant is Listening');
     
     // 🔥 TEXT BUFFER CLEARING - Prevents accumulation bug
     lastProcessedText = '';
@@ -538,25 +520,19 @@ console.log('🚨 resetSpeechRecognition() call removed - preventing errors');
     
     if (isAudioMode) {
         updateStatusIndicator('listening');
-        // 🔥 EXTENDED BUFFER: Give system time to fully stabilize
+        // Restart recognition with minimal delay for Chrome
         setTimeout(() => {
-            if (!isListening && isAudioMode && !isRestarting) {
-                isRestarting = true;
+            if (!isListening && isAudioMode && !isRestarting) { // 🔥 ADDED: && !isRestarting
+                isRestarting = true; // 🔥 ADDED: Set restart lock
                 try {
+                    // INTEGRATED FIX: Safe recognition restart
                     if (!isListening) {
                         recognition.start();
-                        isListening = true;
-                        isRestarting = false;
-                        
-                        // 🔥 READY BUFFER: Wait for system to fully stabilize
-                        setTimeout(() => {
-                            updateHeaderBanner('🎤 AI Assistant is Listening - Ready!');
-                            console.log('🔄 Recognition fully ready for input');
-                        }, 800); // 🔥 BUFFER TIME: 800ms to fully stabilize
-                        
+                        isListening = true; // Update the flag
+                        isRestarting = false; // 🔥 ADDED: Release restart lock
                         console.log('🔄 Recognition restarted successfully');
                     } else {
-                        isRestarting = false;
+                        isRestarting = false; // 🔥 ADDED: Release restart lock
                         console.log('🔄 Recognition already running - no restart needed');
                     }
                 } catch (error) {
@@ -567,29 +543,24 @@ console.log('🚨 resetSpeechRecognition() call removed - preventing errors');
                         try {
                             recognition.start();
                             isListening = true;
-                            isRestarting = false;
-                            
-                            // 🔥 READY BUFFER for secondary restart too
-                            setTimeout(() => {
-                                updateHeaderBanner('🎤 AI Assistant is Listening - Ready!');
-                                console.log('🔄 Secondary recognition fully ready');
-                            }, 800);
-                            
+                            isRestarting = false; // 🔥 ADDED: Release restart lock
                             console.log('🔄 Secondary restart successful');
                         } catch (e) {
-                            isRestarting = false;
+                            isRestarting = false; // 🔥 ADDED: Release restart lock
                             console.log('Secondary restart failed:', e);
                         }
                     }, 500);
                 }
-            } else if (isRestarting) {
+            } else if (isRestarting) { // 🔥 ADDED: Debug info
                 console.log('🔄 Restart skipped - already in progress');
             }
-        }, 300); // 🔥 INCREASED from 100ms to 300ms
+        }, 100);
     } else {
         updateStatusIndicator('inactive');
     }
 };
+
+
 
 utterance.onerror = function(event) {
     console.log('Speech error:', event.error);
@@ -941,7 +912,7 @@ function initializeVoiceChat() {
     console.log('🚀 Initializing Voice Chat Module...');
     
     initializeSpeechRecognition();
-   // initializeWaveform();
+    initializeWaveform();
     preloadVoices();
     
     console.log('✅ Voice Chat Module Ready!');
