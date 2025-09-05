@@ -98,7 +98,7 @@ function initializeSpeechRecognition() {
     // 🚀 HYBRID MAGIC: Show live transcript as user speaks (with accumulative text)
     if (interimTranscript && interimTranscript.length > 3) {
         // Pass the COMPLETE text: all final + current interim
-        updateLiveUserTranscript(allFinalTranscript + interimTranscript);
+       // updateLiveUserTranscript(allFinalTranscript + interimTranscript);
     }
     
     // ✅ PROCESS FINAL RESULTS (Complete sentences from Google)
