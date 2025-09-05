@@ -655,8 +655,8 @@ function restartSpeechRecognition() {
                 isRestarting = false;
                 
                 // 🎯 CAPTAIN'S BANNER FIX - THE MISSING PIECES!
-                updateHeaderBanner('🎤 AI listening...');
-                updateStatusIndicator('listening');
+                // updateHeaderBanner('🎤 AI listening...');
+                // updateStatusIndicator('listening');
                 
                 console.log('Speech recognition restarted successfully');
             } catch (error) {
