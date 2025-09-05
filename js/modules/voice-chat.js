@@ -728,7 +728,7 @@ window.askQuickQuestion = function(question) {
     addUserMessage(question);
     isProcessingInput = true;
     
-    // Process AI response directly (matching your current speech system)
+    // Process AI response directly (same as your speech recognition logic)
     setTimeout(() => {
         console.log('🤖 Processing AI response for quick question:', question);
         const response = getAIResponse(question);
@@ -741,7 +741,7 @@ window.askQuickQuestion = function(question) {
         setTimeout(() => {
             isProcessingInput = false;
         }, 500);
-    }, 800);
+    }, 800); // Slightly faster than voice since it's instant text
 };
 
 // ===================================================
