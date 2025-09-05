@@ -192,6 +192,7 @@ function initializeSpeechRecognition() {
 }
 
 function resetSpeechRecognition() {
+    console.log('🚨 RESET FUNCTION TRIGGERED - POTENTIAL COLLISION!');
     console.log('🔄 NUCLEAR RESET: Stopping and restarting speech recognition');
     
     // Stop current recognition completely
