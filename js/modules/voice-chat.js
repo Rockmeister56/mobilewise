@@ -557,10 +557,10 @@ function getAIResponse(message) {
 // 🗣️ VOICE SYNTHESIS (KEPT - Original with working restart)
 // ===================================================
   function speakResponse(message) {
-    resetSpeechRecognition(); // 🔄 Clear speech state before AI speaks
-            console.log('Speaking response');
-            updateHeaderBanner('🤖 AI responding...');
-            updateStatusIndicator('speaking');
+    // REMOVED: resetSpeechRecognition(); - This was causing buffer collisions!
+    console.log('Speaking response');
+    updateHeaderBanner('🤖 AI responding...');
+    updateStatusIndicator('speaking');
             
             if (!window.speechSynthesis) {
                 console.log('Speech synthesis not supported');
