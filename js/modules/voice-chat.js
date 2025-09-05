@@ -175,18 +175,27 @@ function initializeSpeechRecognition() {
 
 
       function updateLiveUserTranscript(text) {
-    // Instead of updating separate voiceText, update the actual chat bubble!
+    // Only update if we have substantial text (reduces spam)
+    if (!text || text.length < 5) return;
+    
+    console.log('🎯 Live transcript update:', text);
+    
     if (!currentUserBubble) {
-        // Create the user chat bubble immediately when speech starts
-        createLiveUserBubble();
+        const chatMessages = document.getElementById('chatMessages');
+        if (chatMessages) {
+            currentUserBubble = document.createElement('div');
+            currentUserBubble.className = 'message user-message';
+            currentUserBubble.innerHTML = '<div class="message-bubble">Listening...</div>';
+            chatMessages.appendChild(currentUserBubble);
+            console.log('👤 Live user bubble created (DEMO STYLE)');
+            scrollChatToBottom();
+        }
     }
     
     if (currentUserBubble) {
-        // Update the bubble content in real-time with accumulative text
         const bubbleContent = currentUserBubble.querySelector('.message-bubble');
         if (bubbleContent) {
             bubbleContent.textContent = text;
-            scrollChatToBottom();
         }
     }
 }
