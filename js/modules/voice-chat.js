@@ -16,6 +16,7 @@ let isSpeaking = false;
 let micPermissionGranted = false;
 let currentUserBubble = null;
 let lastProcessedText = '';
+let isRestarting = false;
 
 // ===================================================
 // 🔄 REPLACED: WORKING SPEECH VARIABLES (From working system)
@@ -612,7 +613,7 @@ function getAIResponse(message) {
                 console.log('Speech started');
             };
             
-           utterance.onend = function() {
+        utterance.onend = function() {
     isSpeaking = false;
     console.log('Speech finished');
     updateHeaderBanner('🎤 AI Assistant is Listening');
@@ -621,14 +622,17 @@ function getAIResponse(message) {
         updateStatusIndicator('listening');
         // Restart recognition with minimal delay for Chrome
         setTimeout(() => {
-            if (!isListening && isAudioMode) {
+            if (!isListening && isAudioMode && !isRestarting) { // 🔥 ADDED: && !isRestarting
+                isRestarting = true; // 🔥 ADDED: Set restart lock
                 try {
                     // INTEGRATED FIX: Safe recognition restart
                     if (!isListening) {
                         recognition.start();
                         isListening = true; // Update the flag
+                        isRestarting = false; // 🔥 ADDED: Release restart lock
                         console.log('🔄 Recognition restarted successfully');
                     } else {
+                        isRestarting = false; // 🔥 ADDED: Release restart lock
                         console.log('🔄 Recognition already running - no restart needed');
                     }
                 } catch (error) {
@@ -639,18 +643,23 @@ function getAIResponse(message) {
                         try {
                             recognition.start();
                             isListening = true;
+                            isRestarting = false; // 🔥 ADDED: Release restart lock
                             console.log('🔄 Secondary restart successful');
                         } catch (e) {
+                            isRestarting = false; // 🔥 ADDED: Release restart lock
                             console.log('Secondary restart failed:', e);
                         }
                     }, 500);
                 }
+            } else if (isRestarting) { // 🔥 ADDED: Debug info
+                console.log('🔄 Restart skipped - already in progress');
             }
         }, 100);
     } else {
         updateStatusIndicator('inactive');
     }
 };
+
 
 utterance.onerror = function(event) {
     console.log('Speech error:', event.error);
