@@ -639,6 +639,9 @@ function restartSpeechRecognition() {
     isRestarting = true;
     console.log('Restarting speech recognition...');
     
+    // 🔥 CRITICAL FIX: Reset AI speaking state!
+    isAISpeaking = false;
+    
     try {
         // Nuclear stop first
         if (recognition) {
@@ -654,9 +657,9 @@ function restartSpeechRecognition() {
                 isListening = true;
                 isRestarting = false;
                 
-                // 🎯 CAPTAIN'S BANNER FIX - THE MISSING PIECES!
-                // updateHeaderBanner('🎤 AI listening...');
-                // updateStatusIndicator('listening');
+                // 🎯 Banner updates (add back when ready)
+                updateHeaderBanner('🎤 AI listening...');
+                updateStatusIndicator('listening');
                 
                 console.log('Speech recognition restarted successfully');
             } catch (error) {
