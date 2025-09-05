@@ -586,10 +586,16 @@ function getAIResponse(message) {
                 console.log('Speech started');
             };
             
-        utterance.onend = function() {
+       utterance.onend = function() {
     isSpeaking = false;
     console.log('Speech finished');
     updateHeaderBanner('🎤 AI Assistant is Listening');
+    
+    // 🔥 TEXT BUFFER CLEARING - Prevents accumulation bug
+    lastProcessedText = '';
+    interimTranscript = '';
+    currentUserBubble = null;
+    console.log('🧹 Text buffers cleared for fresh start');
     
     if (isAudioMode) {
         updateStatusIndicator('listening');
@@ -632,6 +638,7 @@ function getAIResponse(message) {
         updateStatusIndicator('inactive');
     }
 };
+
 
 
 utterance.onerror = function(event) {
