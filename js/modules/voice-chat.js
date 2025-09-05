@@ -612,39 +612,45 @@ function getAIResponse(message) {
                 console.log('Speech started');
             };
             
-           utterance.onend = function() {
+        utterance.onend = function() {
     isSpeaking = false;
     console.log('Speech finished');
     updateHeaderBanner('🎤 AI Assistant is Listening');
     
     if (isAudioMode) {
         updateStatusIndicator('listening');
-        // Restart recognition with minimal delay for Chrome
+        
+        // BULLETPROOF restart with state verification
         setTimeout(() => {
-            if (!isListening && isAudioMode) {
-                try {
-                    // INTEGRATED FIX: Safe recognition restart
-                    if (!isListening) {
+            // Check if we should restart
+            if (isAudioMode && !isSpeaking) {
+                
+                // Force clean state
+                isListening = false;
+                
+                // Give recognition time to fully stop
+                setTimeout(() => {
+                    try {
+                        console.log('🔄 Starting fresh recognition session');
                         recognition.start();
-                        isListening = true; // Update the flag
+                        isListening = true;
                         console.log('🔄 Recognition restarted successfully');
-                    } else {
-                        console.log('🔄 Recognition already running - no restart needed');
+                    } catch (error) {
+                        console.log('Recognition restart error:', error);
+                        
+                        // Final fallback - wait longer and try once more
+                        setTimeout(() => {
+                            try {
+                                isListening = false; // Force reset
+                                recognition.start();
+                                isListening = true;
+                                console.log('🔄 Fallback restart successful');
+                            } catch (e) {
+                                console.log('🚨 All restart attempts failed:', e);
+                            }
+                        }, 1000);
                     }
-                } catch (error) {
-                    console.log('Recognition restart error:', error);
-                    // Force reset if we get a state error
-                    isListening = false;
-                    setTimeout(() => {
-                        try {
-                            recognition.start();
-                            isListening = true;
-                            console.log('🔄 Secondary restart successful');
-                        } catch (e) {
-                            console.log('Secondary restart failed:', e);
-                        }
-                    }, 500);
-                }
+                }, 200); // Give extra time for recognition to stop
             }
         }, 100);
     } else {
