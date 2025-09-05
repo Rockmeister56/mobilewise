@@ -482,7 +482,9 @@ function getAIResponse(message) {
 // 🗣️ VOICE SYNTHESIS (KEPT - Original with working restart)
 // ===================================================
   function speakResponse(message) {
-    resetSpeechRecognition(); // 🔄 Clear speech state before AI speaks
+
+   // resetSpeechRecognition(); // 🚨 DISABLED - Caused collisions
+console.log('🚨 resetSpeechRecognition() call removed - preventing errors');
             console.log('Speaking response');
             updateHeaderBanner('🤖 AI responding...');
             updateStatusIndicator('speaking');
