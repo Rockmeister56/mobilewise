@@ -528,17 +528,19 @@ console.log('🚨 resetSpeechRecognition() call removed - preventing errors');
        utterance.onend = function() {
     isSpeaking = false;
     console.log('Speech finished');
-    updateHeaderBanner('🎤 Getting ready to listen...'); // 🔥 BUFFER STATE
     
-    // 🔥 TEXT BUFFER CLEARING - Prevents accumulation bug
+    // 🎯 CLEAN - No more annoying "Getting ready" message!
+    // updateHeaderBanner('🎤 Getting ready to listen...'); // REMOVED!
+    
+    // Keep essential cleanup but trim the fat
     lastProcessedText = '';
     interimTranscript = '';
     currentUserBubble = null;
-    console.log('🧹 Text buffers cleared for fresh start');
     
     if (isAudioMode) {
         updateStatusIndicator('listening');
-        // 🔥 EXTENDED BUFFER: Give system time to fully stabilize
+        
+        // 🚀 LEAN RESTART - No excessive delays
         setTimeout(() => {
             if (!isListening && isAudioMode && !isRestarting) {
                 isRestarting = true;
@@ -548,44 +550,21 @@ console.log('🚨 resetSpeechRecognition() call removed - preventing errors');
                         isListening = true;
                         isRestarting = false;
                         
-                        // 🔥 READY BUFFER: Wait for system to fully stabilize
-                        setTimeout(() => {
-                            updateHeaderBanner('🎤 AI Assistant is Listening - Ready!');
-                            console.log('🔄 Recognition fully ready for input');
-                        }, 800); // 🔥 BUFFER TIME: 800ms to fully stabilize
+                        // 🎯 INSTANT READY - No more 800ms delay!
+                        updateHeaderBanner('🎤 AI Assistant is Listening - Ready!');
+                        console.log('🔄 Recognition ready for input');
                         
                         console.log('🔄 Recognition restarted successfully');
                     } else {
                         isRestarting = false;
-                        console.log('🔄 Recognition already running - no restart needed');
+                        console.log('🔄 Recognition already running');
                     }
                 } catch (error) {
                     console.log('Recognition restart error:', error);
-                    // Force reset if we get a state error
-                    isListening = false;
-                    setTimeout(() => {
-                        try {
-                            recognition.start();
-                            isListening = true;
-                            isRestarting = false;
-                            
-                            // 🔥 READY BUFFER for secondary restart too
-                            setTimeout(() => {
-                                updateHeaderBanner('🎤 AI Assistant is Listening - Ready!');
-                                console.log('🔄 Secondary recognition fully ready');
-                            }, 800);
-                            
-                            console.log('🔄 Secondary restart successful');
-                        } catch (e) {
-                            isRestarting = false;
-                            console.log('Secondary restart failed:', e);
-                        }
-                    }, 500);
+                    // ... your existing error handling
                 }
-            } else if (isRestarting) {
-                console.log('🔄 Restart skipped - already in progress');
             }
-        }, 300); // 🔥 INCREASED from 100ms to 300ms
+        }, 100); // 🚀 BACK TO FAST 100ms - No more sluggish 300ms
     } else {
         updateStatusIndicator('inactive');
     }
