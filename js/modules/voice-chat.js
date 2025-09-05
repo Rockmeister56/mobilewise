@@ -653,6 +653,11 @@ function restartSpeechRecognition() {
                 recognition.start();
                 isListening = true;
                 isRestarting = false;
+                
+                // 🎯 CAPTAIN'S BANNER FIX - THE MISSING PIECES!
+                updateHeaderBanner('🎤 AI listening...');
+                updateStatusIndicator('listening');
+                
                 console.log('Speech recognition restarted successfully');
             } catch (error) {
                 console.error('Failed to restart recognition:', error);
