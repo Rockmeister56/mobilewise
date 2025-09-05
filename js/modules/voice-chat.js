@@ -529,10 +529,10 @@ console.log('🚨 resetSpeechRecognition() call removed - preventing errors');
     isSpeaking = false;
     console.log('Speech finished');
     
-    // 🎯 CLEAN - No more annoying "Getting ready" message!
-    // updateHeaderBanner('🎤 Getting ready to listen...'); // REMOVED!
+    // 🎯 EXACT RESTORE - The working header message!
+    updateHeaderBanner('🎤 AI Assistant is Listening');
     
-    // Keep essential cleanup but trim the fat
+    // Keep essential cleanup
     lastProcessedText = '';
     interimTranscript = '';
     currentUserBubble = null;
@@ -540,7 +540,6 @@ console.log('🚨 resetSpeechRecognition() call removed - preventing errors');
     if (isAudioMode) {
         updateStatusIndicator('listening');
         
-        // 🚀 LEAN RESTART - No excessive delays
         setTimeout(() => {
             if (!isListening && isAudioMode && !isRestarting) {
                 isRestarting = true;
@@ -550,8 +549,8 @@ console.log('🚨 resetSpeechRecognition() call removed - preventing errors');
                         isListening = true;
                         isRestarting = false;
                         
-                        // 🎯 INSTANT READY - No more 800ms delay!
-                        updateHeaderBanner('🎤 AI Assistant is Listening - Ready!');
+                        // 🚀 RESTORE THE EXACT WORKING MESSAGE
+                        updateHeaderBanner('🎤 AI Assistant is Listening');
                         console.log('🔄 Recognition ready for input');
                         
                         console.log('🔄 Recognition restarted successfully');
@@ -564,11 +563,12 @@ console.log('🚨 resetSpeechRecognition() call removed - preventing errors');
                     // ... your existing error handling
                 }
             }
-        }, 100); // 🚀 BACK TO FAST 100ms - No more sluggish 300ms
+        }, 100);
     } else {
         updateStatusIndicator('inactive');
     }
 };
+
 
 utterance.onerror = function(event) {
     console.log('Speech error:', event.error);
