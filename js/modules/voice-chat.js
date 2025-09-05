@@ -671,6 +671,45 @@ function findBestVoice(voices) {
 }
 
 // ===================================================
+// 🗣️ VOICE SYNTHESIS (KEPT - Original with working restart)
+// ===================================================
+
+function askQuickQuestion(questionText) {
+    console.log('🎯 Quick question clicked:', questionText);
+    
+    // Prevent processing if AI is currently speaking
+    if (isSpeaking) {
+        console.log('Ignoring quick question - AI is speaking');
+        return;
+    }
+    
+    // Prevent duplicate processing
+    if (isProcessingInput) {
+        console.log('Ignoring quick question - already processing');
+        return;
+    }
+    
+    // Create instant user message bubble (no voice needed!)
+    addUserMessage(questionText);
+    isProcessingInput = true;
+    
+    // Process AI response directly
+    setTimeout(() => {
+        console.log('🤖 Processing AI response for quick question:', questionText);
+        const response = getAIResponse(questionText);
+        console.log('🤖 AI Response generated for quick question');
+        
+        addAIMessage(response);
+        speakResponse(response);
+        
+        // Reset processing flag
+        setTimeout(() => {
+            isProcessingInput = false;
+        }, 500);
+    }, 800); // Slightly faster than voice input since it's instant text
+}
+
+// ===================================================
 // 🔄 REPLACED: WORKING VOICE SPEED CONTROL (Actually functional)
 // ===================================================
 let voiceSpeed = 1.0;
