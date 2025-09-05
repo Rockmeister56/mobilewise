@@ -192,9 +192,15 @@ function initializeSpeechRecognition() {
 }
 
 function resetSpeechRecognition() {
+    // 🔥 FUNCTION DISABLED - CAUSING RESTART COLLISIONS
+    console.log('🚨 resetSpeechRecognition() DISABLED - utterance.onend handles restarts');
+    return; // EXIT IMMEDIATELY - DO NOTHING
+    
+    /*
+    // ALL CODE BELOW COMMENTED OUT
     console.log('🚨 RESET FUNCTION TRIGGERED - POTENTIAL COLLISION!');
     console.log('🔄 NUCLEAR RESET: Stopping and restarting speech recognition');
-    
+
     // Stop current recognition completely
     if (recognition && isListening) {
         recognition.stop();
@@ -223,7 +229,9 @@ function resetSpeechRecognition() {
             }
         }
     }, 200);
+    */
 }
+
 // REPLACE your current clearLiveTranscript function with this:
 function clearLiveTranscript() {
     // Reset the current bubble reference
