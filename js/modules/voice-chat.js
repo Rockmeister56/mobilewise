@@ -190,6 +190,19 @@ function initializeSpeechRecognition() {
     }
 }
 
+function resetSpeechRecognition() {
+    console.log('🔄 Resetting speech recognition state');
+    lastProcessedText = '';
+    interimTranscript = '';
+    currentUserBubble = null;
+    
+    // Clear any lingering timers
+    if (silenceTimer) {
+        clearTimeout(silenceTimer);
+        silenceTimer = null;
+    }
+}
+
 // REPLACE your current clearLiveTranscript function with this:
 function clearLiveTranscript() {
     // Reset the current bubble reference
@@ -555,6 +568,7 @@ function getAIResponse(message) {
 // 🗣️ VOICE SYNTHESIS (KEPT - Original with working restart)
 // ===================================================
   function speakResponse(message) {
+    resetSpeechRecognition(); // 🔄 Clear speech state before AI speaks
             console.log('Speaking response');
             updateHeaderBanner('🤖 AI responding...');
             updateStatusIndicator('speaking');
