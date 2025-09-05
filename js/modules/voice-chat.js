@@ -510,7 +510,7 @@ function getAIResponse(message) {
        utterance.onend = function() {
     isSpeaking = false;
     console.log('Speech finished');
-    updateHeaderBanner('🎤 AI Assistant is Listening');
+    updateHeaderBanner('🎤 Getting ready to listen...'); // 🔥 BUFFER STATE
     
     // 🔥 TEXT BUFFER CLEARING - Prevents accumulation bug
     lastProcessedText = '';
@@ -520,19 +520,25 @@ function getAIResponse(message) {
     
     if (isAudioMode) {
         updateStatusIndicator('listening');
-        // Restart recognition with minimal delay for Chrome
+        // 🔥 EXTENDED BUFFER: Give system time to fully stabilize
         setTimeout(() => {
-            if (!isListening && isAudioMode && !isRestarting) { // 🔥 ADDED: && !isRestarting
-                isRestarting = true; // 🔥 ADDED: Set restart lock
+            if (!isListening && isAudioMode && !isRestarting) {
+                isRestarting = true;
                 try {
-                    // INTEGRATED FIX: Safe recognition restart
                     if (!isListening) {
                         recognition.start();
-                        isListening = true; // Update the flag
-                        isRestarting = false; // 🔥 ADDED: Release restart lock
+                        isListening = true;
+                        isRestarting = false;
+                        
+                        // 🔥 READY BUFFER: Wait for system to fully stabilize
+                        setTimeout(() => {
+                            updateHeaderBanner('🎤 AI Assistant is Listening - Ready!');
+                            console.log('🔄 Recognition fully ready for input');
+                        }, 800); // 🔥 BUFFER TIME: 800ms to fully stabilize
+                        
                         console.log('🔄 Recognition restarted successfully');
                     } else {
-                        isRestarting = false; // 🔥 ADDED: Release restart lock
+                        isRestarting = false;
                         console.log('🔄 Recognition already running - no restart needed');
                     }
                 } catch (error) {
@@ -543,24 +549,29 @@ function getAIResponse(message) {
                         try {
                             recognition.start();
                             isListening = true;
-                            isRestarting = false; // 🔥 ADDED: Release restart lock
+                            isRestarting = false;
+                            
+                            // 🔥 READY BUFFER for secondary restart too
+                            setTimeout(() => {
+                                updateHeaderBanner('🎤 AI Assistant is Listening - Ready!');
+                                console.log('🔄 Secondary recognition fully ready');
+                            }, 800);
+                            
                             console.log('🔄 Secondary restart successful');
                         } catch (e) {
-                            isRestarting = false; // 🔥 ADDED: Release restart lock
+                            isRestarting = false;
                             console.log('Secondary restart failed:', e);
                         }
                     }, 500);
                 }
-            } else if (isRestarting) { // 🔥 ADDED: Debug info
+            } else if (isRestarting) {
                 console.log('🔄 Restart skipped - already in progress');
             }
-        }, 100);
+        }, 300); // 🔥 INCREASED from 100ms to 300ms
     } else {
         updateStatusIndicator('inactive');
     }
 };
-
-
 
 utterance.onerror = function(event) {
     console.log('Speech error:', event.error);
