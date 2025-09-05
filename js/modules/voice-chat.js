@@ -102,7 +102,7 @@ function initializeSpeechRecognition() {
     
     // ✅ PROCESS FINAL RESULTS (Complete sentences from Google)
     // 🛑 DUPLICATE PREVENTION: Only process if different from last
-    if (allFinalTranscript && !isProcessingInput && allFinalTranscript !== lastProcessedText) {
+    if (allFinalTranscript && !isProcessingInput) {
         console.log('Final voice input received:', allFinalTranscript);
         lastProcessedText = allFinalTranscript; // Remember what we processed
         
@@ -136,7 +136,7 @@ function initializeSpeechRecognition() {
     
     // ⏰ SILENCE FALLBACK (For incomplete Google processing)
     const completeText = allFinalTranscript + interimTranscript;
-    if (completeText && completeText.length > 8 && !isProcessingInput && completeText !== lastProcessedText) {
+    if (completeText && completeText.length > 8 && !isProcessingInput) {
         silenceTimer = setTimeout(() => {
             if (completeText && !isProcessingInput && !isSpeaking) {
                 console.log('Silence fallback - processing complete phrase:', completeText);
