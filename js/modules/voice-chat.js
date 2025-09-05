@@ -188,8 +188,19 @@ function initializeSpeechRecognition() {
 }
 
 function updateLiveUserTranscript(transcript) {
-    console.log('✅ Live transcript:', transcript);
-    // Function exists - no more errors, no complications
+    console.log('🎯 Live transcript update:', transcript);
+    
+    // Find the active chat bubble (adjust selector to match your HTML)
+    const activeBubble = document.querySelector('.chat-bubble.user') || 
+                        document.querySelector('.user-message') ||
+                        document.querySelector('.user-input');
+    
+    if (activeBubble) {
+        activeBubble.textContent = transcript;
+        console.log('✅ Bubble updated with live text');
+    } else {
+        console.log('⚠️ No active bubble found - check your selector');
+    }
 }
 
 
@@ -517,18 +528,17 @@ console.log('🚨 resetSpeechRecognition() call removed - preventing errors');
        utterance.onend = function() {
     isSpeaking = false;
     console.log('Speech finished');
+    updateHeaderBanner('🎤 Getting ready to listen...'); // 🔥 BUFFER STATE
     
-    // 🎯 EXACT RESTORE - The working header message!
-    updateHeaderBanner('🎤 AI Assistant is Listening');
-    
-    // Keep essential cleanup
+    // 🔥 TEXT BUFFER CLEARING - Prevents accumulation bug
     lastProcessedText = '';
     interimTranscript = '';
     currentUserBubble = null;
+    console.log('🧹 Text buffers cleared for fresh start');
     
     if (isAudioMode) {
         updateStatusIndicator('listening');
-        
+        // 🔥 EXTENDED BUFFER: Give system time to fully stabilize
         setTimeout(() => {
             if (!isListening && isAudioMode && !isRestarting) {
                 isRestarting = true;
@@ -538,26 +548,48 @@ console.log('🚨 resetSpeechRecognition() call removed - preventing errors');
                         isListening = true;
                         isRestarting = false;
                         
-                        // 🚀 RESTORE THE EXACT WORKING MESSAGE
-                        updateHeaderBanner('🎤 AI Assistant is Listening');
-                        console.log('🔄 Recognition ready for input');
+                        // 🔥 READY BUFFER: Wait for system to fully stabilize
+                        setTimeout(() => {
+                            updateHeaderBanner('🎤 AI Assistant is Listening - Ready!');
+                            console.log('🔄 Recognition fully ready for input');
+                        }, 800); // 🔥 BUFFER TIME: 800ms to fully stabilize
                         
                         console.log('🔄 Recognition restarted successfully');
                     } else {
                         isRestarting = false;
-                        console.log('🔄 Recognition already running');
+                        console.log('🔄 Recognition already running - no restart needed');
                     }
                 } catch (error) {
                     console.log('Recognition restart error:', error);
-                    // ... your existing error handling
+                    // Force reset if we get a state error
+                    isListening = false;
+                    setTimeout(() => {
+                        try {
+                            recognition.start();
+                            isListening = true;
+                            isRestarting = false;
+                            
+                            // 🔥 READY BUFFER for secondary restart too
+                            setTimeout(() => {
+                                updateHeaderBanner('🎤 AI Assistant is Listening - Ready!');
+                                console.log('🔄 Secondary recognition fully ready');
+                            }, 800);
+                            
+                            console.log('🔄 Secondary restart successful');
+                        } catch (e) {
+                            isRestarting = false;
+                            console.log('Secondary restart failed:', e);
+                        }
+                    }, 500);
                 }
+            } else if (isRestarting) {
+                console.log('🔄 Restart skipped - already in progress');
             }
-        }, 100);
+        }, 300); // 🔥 INCREASED from 100ms to 300ms
     } else {
         updateStatusIndicator('inactive');
     }
 };
-
 
 utterance.onerror = function(event) {
     console.log('Speech error:', event.error);
