@@ -72,13 +72,12 @@ function initializeSpeechRecognition() {
             interimTranscript = '';
         };
 
-       recognition.onresult = function(event) {
+      recognition.onresult = function(event) {
     // Clear any existing silence timer
-     if (silenceTimer) {
+    if (silenceTimer) {
         clearTimeout(silenceTimer);
     }
     
-     
     // 🚀 FIXED: Accumulative text building instead of replacement
     let allFinalTranscript = '';
     interimTranscript = '';
@@ -101,21 +100,10 @@ function initializeSpeechRecognition() {
     }
     
     // ✅ PROCESS FINAL RESULTS (Complete sentences from Google)
-    // 🛑 NEW: Prevent duplicate processing!
+    // 🛑 DUPLICATE PREVENTION: Only process if different from last
     if (allFinalTranscript && !isProcessingInput && allFinalTranscript !== lastProcessedText) {
         console.log('Final voice input received:', allFinalTranscript);
         lastProcessedText = allFinalTranscript; // Remember what we processed
-        
-        // Ignore if AI is currently speaking
-        if (isSpeaking) {
-            console.log('Ignoring input - AI is speaking');
-            return;
-        }
-    }
-    
-    // ✅ PROCESS FINAL RESULTS (Complete sentences from Google)
-    if (allFinalTranscript && !isProcessingInput) {
-        console.log('Final voice input received:', allFinalTranscript);
         
         // Ignore if AI is currently speaking
         if (isSpeaking) {
@@ -146,12 +134,12 @@ function initializeSpeechRecognition() {
     }
     
     // ⏰ SILENCE FALLBACK (For incomplete Google processing)
-    // Use COMPLETE text for fallback too
     const completeText = allFinalTranscript + interimTranscript;
-    if (completeText && completeText.length > 8 && !isProcessingInput) {
+    if (completeText && completeText.length > 8 && !isProcessingInput && completeText !== lastProcessedText) {
         silenceTimer = setTimeout(() => {
             if (completeText && !isProcessingInput && !isSpeaking) {
                 console.log('Silence fallback - processing complete phrase:', completeText);
+                lastProcessedText = completeText; // Prevent silence fallback duplicates too
                 
                 // 🎯 INSTANT USER MESSAGE DISPLAY
                 addUserMessage(completeText);
@@ -174,54 +162,9 @@ function initializeSpeechRecognition() {
                 
                 interimTranscript = '';
             }
-        }, 3000); // ⚡ 3 seconds for complete sentences like "I'm looking to sell my practice"
+        }, 3000);
     }
 };
-
-        recognition.onend = function() {
-            console.log('Speech recognition ended');
-            isListening = false;
-            updateStatusIndicator('inactive');
-            
-            if (silenceTimer) {
-                clearTimeout(silenceTimer);
-            }
-            
-            if (isAudioMode && !isSpeaking) {
-                setTimeout(() => {
-                    if (!isListening && isAudioMode) {
-                        try {
-                            recognition.start();
-                            console.log('Recognition restarted');
-                        } catch (error) {
-                            console.log('Recognition restart failed:', error);
-                        }
-                    }
-                }, 300);
-            }
-        };
-
-        recognition.onerror = function(event) {
-            console.log('Speech recognition error:', event.error);
-            isListening = false;
-            updateStatusIndicator('inactive');
-            
-            if (event.error === 'not-allowed') {
-                addAIMessage("Please allow microphone access to use voice chat.");
-            }
-            
-            if (silenceTimer) {
-                clearTimeout(silenceTimer);
-            }
-            
-            isProcessingInput = false;
-        };
-        
-    } else {
-        console.log('Speech recognition not supported');
-        addAIMessage("Your browser doesn't support speech recognition. Please use Chrome or Edge.");
-    }
-} 
 
 
       function updateLiveUserTranscript(text) {
