@@ -16,6 +16,8 @@ let isSpeaking = false;
 let micPermissionGranted = false;
 let currentUserBubble = null;
 let lastProcessedText = '';
+let isRestarting = false;
+let restartTimeout = null;
 
 // ===================================================
 // 🔄 REPLACED: WORKING SPEECH VARIABLES (From working system)
@@ -612,9 +614,6 @@ function getAIResponse(message) {
                 console.log('Speech started');
             };
             
-        let isRestarting = false;
-let restartTimeout = null;
-
 // In your utterance.onend handler, replace the current restart logic with:
 utterance.onend = function() {
     console.log('TTS finished speaking');
@@ -650,7 +649,9 @@ function restartSpeechRecognition() {
         setTimeout(() => {
             try {
                 initializeSpeechRecognition();
-                startListening();
+                // 🔥 FIXED: Replace startListening() with direct recognition start
+                recognition.start();
+                isListening = true;
                 isRestarting = false;
                 console.log('Speech recognition restarted successfully');
             } catch (error) {
