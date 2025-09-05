@@ -709,41 +709,6 @@ function askQuickQuestion(questionText) {
     }, 800); // Slightly faster than voice input since it's instant text
 }
 
-window.askQuickQuestion = function(question) {
-    console.log('⚡ Quick question asked:', question);
-    
-    // Prevent processing if AI is currently speaking
-    if (isSpeaking) {
-        console.log('Ignoring quick question - AI is speaking');
-        return;
-    }
-    
-    // Prevent duplicate processing
-    if (isProcessingInput) {
-        console.log('Ignoring quick question - already processing');
-        return;
-    }
-    
-    // Create instant user message bubble
-    addUserMessage(question);
-    isProcessingInput = true;
-    
-    // Process AI response directly (same as your speech recognition logic)
-    setTimeout(() => {
-        console.log('🤖 Processing AI response for quick question:', question);
-        const response = getAIResponse(question);
-        console.log('🤖 AI Response generated for quick question');
-        
-        addAIMessage(response);
-        speakResponse(response);
-        
-        // Reset processing flag
-        setTimeout(() => {
-            isProcessingInput = false;
-        }, 500);
-    }, 800); // Slightly faster than voice since it's instant text
-};
-
 // ===================================================
 // 🔄 REPLACED: WORKING VOICE SPEED CONTROL (Actually functional)
 // ===================================================
@@ -972,16 +937,38 @@ function preloadVoices() {
 // ===================================================
 window.askQuickQuestion = function(question) {
     console.log('⚡ Quick question asked:', question);
+    
+    // Prevent processing if AI is currently speaking
+    if (isSpeaking) {
+        console.log('Ignoring quick question - AI is speaking');
+        return;
+    }
+    
+    // Prevent duplicate processing
+    if (isProcessingInput) {
+        console.log('Ignoring quick question - already processing');
+        return;
+    }
+    
+    // Create instant user message bubble (no voice needed!)
     addUserMessage(question);
-    processUserInput(question);
+    isProcessingInput = true;
+    
+    // Process AI response directly
+    setTimeout(() => {
+        console.log('🤖 Processing AI response for quick question:', question);
+        const response = getAIResponse(question);
+        console.log('🤖 AI Response generated for quick question');
+        
+        addAIMessage(response);
+        speakResponse(response);
+        
+        // Reset processing flag
+        setTimeout(() => {
+            isProcessingInput = false;
+        }, 500);
+    }, 800);
 };
-
-window.sendTextMessage = sendTextMessage;
-window.switchToTextMode = switchToTextMode;
-window.adjustVoiceSpeed = adjustVoiceSpeed;
-window.activateMicrophone = activateMicrophone;
-window.muteAIVoice = muteAIVoice;
-window.startVoiceChat = startVoiceChat;
 
 // ===================================================
 // 🚀 MODULE INITIALIZATION (KEPT - Original approach)
