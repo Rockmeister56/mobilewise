@@ -612,37 +612,51 @@ function getAIResponse(message) {
                 console.log('Speech started');
             };
             
-            utterance.onend = function() {
-                isSpeaking = false;
-                console.log('Speech finished');
-                updateHeaderBanner('🎤 AI Assistant is Listening');
-                
-                if (isAudioMode) {
-                    updateStatusIndicator('listening');
-                    // Restart recognition with minimal delay for Chrome
+           utterance.onend = function() {
+    isSpeaking = false;
+    console.log('Speech finished');
+    updateHeaderBanner('🎤 AI Assistant is Listening');
+    
+    if (isAudioMode) {
+        updateStatusIndicator('listening');
+        // Restart recognition with minimal delay for Chrome
+        setTimeout(() => {
+            if (!isListening && isAudioMode) {
+                try {
+                    // INTEGRATED FIX: Safe recognition restart
+                    if (!isListening) {
+                        recognition.start();
+                        isListening = true; // Update the flag
+                        console.log('🔄 Recognition restarted successfully');
+                    } else {
+                        console.log('🔄 Recognition already running - no restart needed');
+                    }
+                } catch (error) {
+                    console.log('Recognition restart error:', error);
+                    // Force reset if we get a state error
+                    isListening = false;
                     setTimeout(() => {
-                        if (!isListening && isAudioMode) {
-                            try {
-                                recognition.start();
-                            } catch (error) {
-                                console.log('Recognition restart error:', error);
-                            }
+                        try {
+                            recognition.start();
+                            isListening = true;
+                            console.log('🔄 Secondary restart successful');
+                        } catch (e) {
+                            console.log('Secondary restart failed:', e);
                         }
-                    }, 100);
-                } else {
-                    updateStatusIndicator('inactive');
+                    }, 500);
                 }
-            };
-            
-            utterance.onerror = function(event) {
-                console.log('Speech error:', event.error);
-                isSpeaking = false;
-                updateStatusIndicator('inactive');
-            };
-            
-            window.speechSynthesis.speak(utterance);
-            currentAudio = utterance;
-        }
+            }
+        }, 100);
+    } else {
+        updateStatusIndicator('inactive');
+    }
+};
+
+utterance.onerror = function(event) {
+    console.log('Speech error:', event.error);
+    isSpeaking = false;
+    updateStatusIndicator('inactive');
+};
 
         function stopCurrentAudio() {
             if (window.speechSynthesis) {
