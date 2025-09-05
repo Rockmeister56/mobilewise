@@ -940,28 +940,30 @@ window.askQuickQuestion = function(question) {
     console.log('🔍 isSpeaking:', isSpeaking);
     console.log('🔍 isProcessingInput:', isProcessingInput);
     
+    // FORCE RESET if speech has actually finished but flag is stuck
+    if (isSpeaking && (!currentAudio || currentAudio.paused || currentAudio.ended)) {
+        console.log('🔧 Forcing isSpeaking reset - audio actually finished');
+        isSpeaking = false;
+    }
+    
     // Prevent processing if AI is currently speaking
     if (isSpeaking) {
         console.log('Ignoring quick question - AI is speaking');
         return;
     }
     
-    // Prevent duplicate processing
+    // Rest of your function stays the same...
     if (isProcessingInput) {
         console.log('Ignoring quick question - already processing');
         return;
     }
     
     console.log('🎯 Creating user message bubble...');
-    
-    // Create instant user message bubble (no voice needed!)
     addUserMessage(question);
-    
     console.log('🎯 User message should be visible now');
     
     isProcessingInput = true;
     
-    // Process AI response directly
     setTimeout(() => {
         console.log('🤖 Processing AI response for quick question:', question);
         const response = getAIResponse(question);
@@ -970,13 +972,11 @@ window.askQuickQuestion = function(question) {
         addAIMessage(response);
         speakResponse(response);
         
-        // Reset processing flag
         setTimeout(() => {
             isProcessingInput = false;
         }, 500);
     }, 800);
 };
-
 // ===================================================
 // 🚀 MODULE INITIALIZATION (KEPT - Original approach)
 // ===================================================
