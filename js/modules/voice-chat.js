@@ -612,51 +612,64 @@ function getAIResponse(message) {
                 console.log('Speech started');
             };
             
-        utterance.onend = function() {
-    isSpeaking = false;
-    console.log('Speech finished');
-    updateHeaderBanner('🎤 AI Assistant is Listening');
+        let isRestarting = false;
+let restartTimeout = null;
+
+// In your utterance.onend handler, replace the current restart logic with:
+utterance.onend = function() {
+    console.log('TTS finished speaking');
     
-    if (isAudioMode) {
-        updateStatusIndicator('listening');
-        
-        // BULLETPROOF restart with state verification
-        setTimeout(() => {
-            // Check if we should restart
-            if (isAudioMode && !isSpeaking) {
-                
-                // Force clean state
-                isListening = false;
-                
-                // Give recognition time to fully stop
-                setTimeout(() => {
-                    try {
-                        console.log('🔄 Starting fresh recognition session');
-                        recognition.start();
-                        isListening = true;
-                        console.log('🔄 Recognition restarted successfully');
-                    } catch (error) {
-                        console.log('Recognition restart error:', error);
-                        
-                        // Final fallback - wait longer and try once more
-                        setTimeout(() => {
-                            try {
-                                isListening = false; // Force reset
-                                recognition.start();
-                                isListening = true;
-                                console.log('🔄 Fallback restart successful');
-                            } catch (e) {
-                                console.log('🚨 All restart attempts failed:', e);
-                            }
-                        }, 1000);
-                    }
-                }, 200); // Give extra time for recognition to stop
-            }
-        }, 100);
-    } else {
-        updateStatusIndicator('inactive');
+    // Clear any pending restart
+    if (restartTimeout) {
+        clearTimeout(restartTimeout);
+        restartTimeout = null;
+    }
+    
+    // Only restart if we're not already in the process
+    if (!isRestarting && !isListening) {
+        restartSpeechRecognition();
     }
 };
+
+function restartSpeechRecognition() {
+    if (isRestarting) {
+        console.log('Restart already in progress, skipping...');
+        return;
+    }
+    
+    isRestarting = true;
+    console.log('Restarting speech recognition...');
+    
+    try {
+        // Nuclear stop first
+        if (recognition) {
+            recognition.stop();
+        }
+        
+        // Small delay to ensure clean state
+        setTimeout(() => {
+            try {
+                initializeSpeechRecognition();
+                startListening();
+                isRestarting = false;
+                console.log('Speech recognition restarted successfully');
+            } catch (error) {
+                console.error('Failed to restart recognition:', error);
+                isRestarting = false;
+                // Fallback: try again after longer delay
+                setTimeout(() => {
+                    if (!isListening) {
+                        restartSpeechRecognition();
+                    }
+                }, 1000);
+            }
+        }, 200);
+        
+    } catch (error) {
+        console.error('Error during restart preparation:', error);
+        isRestarting = false;
+    }
+}
 
 utterance.onerror = function(event) {
     console.log('Speech error:', event.error);
