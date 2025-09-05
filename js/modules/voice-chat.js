@@ -174,32 +174,28 @@ function initializeSpeechRecognition() {
 } 
 
 
-      function updateLiveUserTranscript(text) {
-    // Instead of updating separate voiceText, update the actual chat bubble!
-    if (!currentUserBubble) {
-        // Create the user chat bubble immediately when speech starts
-        createLiveUserBubble();
-    }
+function updateLiveUserTranscript(text) {
+    console.log('🎯 Live transcript update:', text);
     
-    if (currentUserBubble) {
-        // Update the bubble content in real-time with accumulative text
-        const bubbleContent = currentUserBubble.querySelector('.message-bubble');
-        if (bubbleContent) {
-            bubbleContent.textContent = text;
+    if (!currentUserBubble) {
+        // CREATE BUBBLE EXACTLY LIKE THE WORKING DEMO
+        const chatMessages = document.getElementById('chatMessages');
+        if (chatMessages) {
+            currentUserBubble = document.createElement('div');
+            currentUserBubble.className = 'message user-message';
+            currentUserBubble.innerHTML = '<div class="message-bubble">Listening...</div>';
+            chatMessages.appendChild(currentUserBubble);
+            console.log('👤 Live user bubble created (DEMO STYLE)');
             scrollChatToBottom();
         }
     }
-}
-
-function resetSpeechRecognition() {
-    console.log('🚨 resetSpeechRecognition() DISABLED - Preventing collisions');
-    return; // DO NOTHING
-}
-
-// REPLACE your current clearLiveTranscript function with this:
-function clearLiveTranscript() {
-    // Reset the current bubble reference
-    currentUserBubble = null;
+    
+    if (currentUserBubble) {
+        const bubbleContent = currentUserBubble.querySelector('.message-bubble');
+        if (bubbleContent) {
+            bubbleContent.textContent = text;
+        }
+    }
 }
 
 // ===================================================
