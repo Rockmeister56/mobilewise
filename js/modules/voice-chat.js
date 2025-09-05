@@ -619,36 +619,44 @@ function getAIResponse(message) {
     
     if (isAudioMode) {
         updateStatusIndicator('listening');
-        // Restart recognition with minimal delay for Chrome
+        
+        // 🔥 NUCLEAR RESET: Force clean state
+        isListening = false;
+        
         setTimeout(() => {
-            if (!isListening && isAudioMode) {
+            if (isAudioMode) {
                 try {
-                    // 🔥 CRITICAL FIX: Nuclear stop first!
-                    recognition.stop();
+                    // Multiple stop attempts to ensure clean state
+                    try {
+                        recognition.stop();
+                    } catch (e) {
+                        console.log('Stop attempt 1 failed:', e);
+                    }
                     
-                    // Small delay to ensure clean state
-                    setTimeout(() => {
-                        recognition.start();
-                        isListening = true;
-                        console.log('🔄 Recognition restarted successfully');
-                    }, 50);
-                    
-                } catch (error) {
-                    console.log('Recognition restart error:', error);
-                    // Force reset if we get a state error
-                    isListening = false;
+                    // Longer delay for complete state reset
                     setTimeout(() => {
                         try {
-                            recognition.stop(); // Nuclear stop here too
+                            recognition.start();
+                            isListening = true;
+                            console.log('🔄 Recognition restarted successfully');
+                        } catch (error) {
+                            console.log('Recognition restart error:', error);
+                            // Final fallback - recreate recognition
                             setTimeout(() => {
-                                recognition.start();
-                                isListening = true;
-                                console.log('🔄 Secondary restart successful');
-                            }, 100);
-                        } catch (e) {
-                            console.log('Secondary restart failed:', e);
+                                try {
+                                    initializeSpeechRecognition();
+                                    recognition.start();
+                                    isListening = true;
+                                    console.log('🔄 Recognition recreated and started');
+                                } catch (e) {
+                                    console.log('Complete restart failed:', e);
+                                }
+                            }, 300);
                         }
-                    }, 500);
+                    }, 200);
+                    
+                } catch (error) {
+                    console.log('Outer restart error:', error);
                 }
             }
         }, 100);
