@@ -923,7 +923,7 @@ function initializeVoiceChat() {
     console.log('🚀 Initializing Voice Chat Module...');
     
     initializeSpeechRecognition();
-    initializeWaveform();
+   // initializeWaveform();
     preloadVoices();
     
     console.log('✅ Voice Chat Module Ready!');
