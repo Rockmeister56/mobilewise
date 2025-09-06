@@ -3,10 +3,70 @@
 // Combining working bubble system + your business logic
 // ===================================================
 
-// TEST FUNCTION - ADD THIS AT THE TOP
 function startListening() {
-    console.log('🎯 startListening() called successfully!');
-    alert('startListening works!');
+    console.log('🎯 startListening() called - starting speech recognition');
+    
+    if (!checkSpeechSupport()) return;
+    if (isSpeaking) return;
+
+    try {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
+
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.lang = 'en-US';
+
+        createRealtimeBubble();
+        isListening = true;
+
+        recognition.onresult = function(event) {
+            let interimTranscript = '';
+            let finalTranscript = '';
+
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const transcript = event.results[i][0].transcript;
+                if (event.results[i].isFinal) {
+                    finalTranscript += transcript;
+                } else {
+                    interimTranscript += transcript;
+                }
+            }
+
+            const currentBubble = document.getElementById('currentUserBubble');
+            if (currentBubble) {
+                const displayText = finalTranscript + interimTranscript;
+                if (displayText.trim()) {
+                    const bubbleElement = currentBubble.querySelector('.message-bubble');
+                    if (bubbleElement) {
+                        bubbleElement.textContent = displayText;
+                    }
+                    scrollChatToBottom();
+                }
+            }
+
+            if (finalTranscript) {
+                setTimeout(() => {
+                    processUserResponse(finalTranscript);
+                }, 500);
+            }
+        };
+
+        recognition.onerror = function(event) {
+            console.error('Speech recognition error:', event.error);
+            stopListening();
+        };
+
+        recognition.onend = function() {
+            console.log("Recognition ended");
+        };
+
+        recognition.start();
+        console.log('🎤 Speech recognition started successfully');
+
+    } catch (error) {
+        console.error('Error starting speech recognition:', error);
+    }
 }
 
 // ===================================================
