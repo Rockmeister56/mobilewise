@@ -243,13 +243,19 @@ function addAIResponse(userText) {
 }
 
 function createRealtimeBubble() {
+    // PREVENT DUPLICATES - Remove any existing listening bubble first
+    const existingBubble = document.getElementById('currentUserBubble');
+    if (existingBubble) {
+        existingBubble.remove();
+        console.log('🧹 Removed existing listening bubble');
+    }
+    
     const chatMessages = document.getElementById('chatMessages');
     if (!chatMessages) {
         console.log('❌ chatMessages container not found');
         return;
     }
     
-    // Create user message with YOUR HTML structure
     const userMessage = document.createElement('div');
     userMessage.className = 'message user-message';
     userMessage.id = 'currentUserBubble';
@@ -262,7 +268,7 @@ function createRealtimeBubble() {
     chatMessages.appendChild(userMessage);
     
     scrollChatToBottom();
-    console.log('👤 Live user bubble created with correct structure');
+    console.log('👤 Fresh listening bubble created');
 }
 
 function updateConversationInfo() {
@@ -374,25 +380,25 @@ function speakResponse(message) {
     };
     
     utterance.onend = function() {
-        isSpeaking = false;
-        console.log('Speech finished');
-        
-        // Clear bubble reference for next speech
-        currentUserBubble = null;
-        
-        // Restart listening if in audio mode
-        if (isAudioMode && !isListening) {
-            setTimeout(() => {
-                try {
-                    createRealtimeBubble();
-                    startListening();
-                } catch (error) {
-                    console.log('Recognition restart error:', error);
-                }
-            }, 1000);
-        }
-    };
-
+    isSpeaking = false;
+    console.log('Speech finished');
+    
+    // Clear bubble reference
+    currentUserBubble = null;
+    
+    // ONLY restart if we're in audio mode AND not already listening
+    if (isAudioMode && !isListening) {
+        setTimeout(() => {
+            try {
+                console.log('🔄 Restarting listening after speech');
+                createRealtimeBubble(); // This will remove duplicates first
+                startListening();
+            } catch (error) {
+                console.log('Recognition restart error:', error);
+            }
+        }, 1000);
+    }
+};
     utterance.onerror = function(event) {
         console.log('Speech error:', event.error);
         isSpeaking = false;
@@ -468,6 +474,17 @@ async function activateMicrophone() {
     if (chatInterface) {
         chatInterface.style.display = 'flex';
     }
+
+    setTimeout(() => {
+    const greeting = "Welcome! I'm Bruce Clark's AI assistant. What can I help you with today?";
+    addAIMessage(greeting);
+    
+    // Then start listening after greeting
+    setTimeout(() => {
+        createRealtimeBubble();
+        startListening();
+    }, 1000);
+}, 500);
     
     try {
         // Request microphone permission
