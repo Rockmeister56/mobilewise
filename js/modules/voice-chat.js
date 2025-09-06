@@ -81,6 +81,10 @@ let persistentMicStream = null;
 let currentUserBubble = null;
 let micPermissionGranted = false;
 let isCreatingBubble = false;
+let responseText = '';
+let shouldShowSmartButton = false;
+let smartButtonText = 'AI Smart Button';
+let smartButtonAction = 'default';
 
 // Conversation state tracking (from working bubble system)
 let conversationState = 'initial';
@@ -309,6 +313,103 @@ function stopListening() {
     console.log('🛑 Listening stopped');
 }
 
+// Smart Button Management System
+function updateSmartButton(shouldShow, buttonText, actionType) {
+    const smartButton = document.getElementById('smartButton');
+    
+    if (!smartButton) {
+        console.warn('Smart button element not found');
+        return;
+    }
+    
+    if (shouldShow) {
+        smartButton.style.display = 'block';
+        smartButton.textContent = buttonText;
+        smartButton.setAttribute('data-action', actionType);
+        
+        // Add visual emphasis for important CTAs
+        if (actionType === 'interview' || actionType === 'connect_bruce') {
+            smartButton.classList.add('pulse-animation');
+        } else {
+            smartButton.classList.remove('pulse-animation');
+        }
+    } else {
+        smartButton.style.display = 'none';
+        smartButton.textContent = 'AI Smart Button';
+        smartButton.removeAttribute('data-action');
+        smartButton.classList.remove('pulse-animation');
+    }
+}
+
+// Smart Button Click Handler
+function handleSmartButtonClick() {
+    const smartButton = document.getElementById('smartButton');
+    const actionType = smartButton.getAttribute('data-action');
+    
+    switch(actionType) {
+        case 'valuation':
+        case 'buying':
+        case 'schedule_today':
+        case 'schedule_tomorrow':
+        case 'contact_today':
+        case 'contact_tomorrow':
+        case 'connect_bruce':
+            // Trigger conversation continuation
+            simulateUserMessage("I'm interested in connecting with Bruce");
+            break;
+            
+        case 'interview':
+            // Load interview interface in iframe
+            loadInterviewInterface();
+            break;
+            
+        default:
+            console.log('Smart button clicked - default action');
+    }
+}
+
+// Interview Interface Loader (Splash Screen for now)
+function loadInterviewInterface() {
+    const chatArea = document.querySelector('.chat-area');
+    const splashScreen = document.createElement('div');
+    splashScreen.className = 'interview-splash';
+    splashScreen.innerHTML = `
+        <div class="splash-content">
+            <h3>🚀 AI Business Analyst Interview</h3>
+            <p>Connecting you with our advanced interviewer system...</p>
+            <div class="loading-animation">●●●</div>
+            <p><em>This feature is coming soon!</em></p>
+            <button onclick="closeSplashScreen()" class="close-splash">Return to Chat</button>
+        </div>
+    `;
+    
+    chatArea.appendChild(splashScreen);
+}
+
+// Close Splash Screen
+function closeSplashScreen() {
+    const splashScreen = document.querySelector('.interview-splash');
+    if (splashScreen) {
+        splashScreen.remove();
+    }
+}
+
+// Simulate User Message (for button interactions)
+function simulateUserMessage(message) {
+    const chatArea = document.querySelector('.chat-area');
+    const userBubble = document.createElement('div');
+    userBubble.className = 'chat-bubble user-bubble';
+    userBubble.innerHTML = `<div class="bubble-content">${message}</div>`;
+    
+    chatArea.appendChild(userBubble);
+    scrollToBottom();
+    
+    // Process this as if user spoke it
+    setTimeout(() => {
+        processUserInput(message);
+    }, 500);
+}
+
 // ===================================================
 // 🤖 AI RESPONSE SYSTEM (Your business logic)
 // ===================================================
@@ -324,11 +425,116 @@ function getAIResponse(userInput) {
     
     // Default responses based on conversation state
     if (conversationState === 'initial') {
-        conversationState = 'general_inquiry';
-        return "I specialize in CPA firm transactions - buying, selling, and valuations. What specifically are you interested in learning more about?";
+    if (userText.toLowerCase().includes('sell') || userText.toLowerCase().includes('practice')) {
+        responseText = "EXCELLENT timing for selling your accounting practice! The market is very strong right now. Should Bruce call you today or tomorrow for your FREE practice valuation?";
+        conversationState = 'selling_inquiry';
+        shouldShowSmartButton = true;
+        smartButtonText = 'Schedule Free Valuation';
+        smartButtonAction = 'valuation';
+    } else if (userText.toLowerCase().includes('buy') || userText.toLowerCase().includes('purchase')) {
+        responseText = "Looking to BUY a CPA firm? Perfect! Bruce has exclusive off-market opportunities available RIGHT NOW. Should Bruce show you available practices today or tomorrow?";
+        conversationState = 'buying_inquiry';
+        shouldShowSmartButton = true;
+        smartButtonText = 'View Available Practices';
+        smartButtonAction = 'buying';
+    } else if (userText.toLowerCase().includes('value') || userText.toLowerCase().includes('worth')) {
+        responseText = "Your accounting practice could be worth MORE than you think! Bruce offers a FREE consultation to evaluate your practice. Are you interested in a valuation today?";
+        conversationState = 'valuation_inquiry';
+        shouldShowSmartButton = true;
+        smartButtonText = 'Get Practice Valuation';
+        smartButtonAction = 'valuation';
+    } else {
+        responseText = "I specialize in CPA firm transactions - buying, selling, and valuations. What specifically are you interested in learning more about?";
+        // conversationState remains 'initial'
     }
-    
-    return "Thanks for your message. Is there anything else I can help you with regarding your CPA practice?";
+} else if (conversationState === 'selling_inquiry') {
+    if (userText.toLowerCase().includes('today') || userText.toLowerCase().includes('now')) {
+        responseText = "Great! Bruce will call you today. What's the best phone number to reach you, and what time works best?";
+        conversationState = 'contact_today';
+        shouldShowSmartButton = true;
+        smartButtonText = 'Schedule Today';
+        smartButtonAction = 'schedule_today';
+    } else if (userText.toLowerCase().includes('tomorrow')) {
+        responseText = "Perfect! Bruce will call you tomorrow. What's the best phone number to reach you, and what time works best?";
+        conversationState = 'contact_tomorrow';
+        shouldShowSmartButton = true;
+        smartButtonText = 'Schedule Tomorrow';
+        smartButtonAction = 'schedule_tomorrow';
+    } else {
+        responseText = "I didn't quite catch that. Should Bruce call you today or tomorrow for your FREE practice valuation?";
+        // conversationState remains 'selling_inquiry'
+    }
+} else if (conversationState === 'buying_inquiry') {
+    if (userText.toLowerCase().includes('today') || userText.toLowerCase().includes('now')) {
+        responseText = "Excellent! Bruce will contact you today to discuss available practices. What's the best phone number to reach you?";
+        conversationState = 'contact_today';
+        shouldShowSmartButton = true;
+        smartButtonText = 'Connect Today';
+        smartButtonAction = 'contact_today';
+    } else if (userText.toLowerCase().includes('tomorrow')) {
+        responseText = "Great! Bruce will contact you tomorrow to discuss available practices. What's the best phone number to reach you?";
+        conversationState = 'contact_tomorrow';
+        shouldShowSmartButton = true;
+        smartButtonText = 'Connect Tomorrow';
+        smartButtonAction = 'contact_tomorrow';
+    } else {
+        responseText = "I didn't quite catch that. Should Bruce contact you today or tomorrow about available practices?";
+        // conversationState remains 'buying_inquiry'
+    }
+} else if (conversationState === 'valuation_inquiry') {
+    if (userText.toLowerCase().includes('yes') || userText.toLowerCase().includes('sure') || userText.toLowerCase().includes('interested')) {
+        responseText = "Great! Bruce will contact you to set up your FREE valuation. What's the best phone number to reach you, and should he call today or tomorrow?";
+        conversationState = 'contact_valuation';
+        shouldShowSmartButton = true;
+        smartButtonText = 'Connect with Bruce';
+        smartButtonAction = 'connect_bruce';
+    } else {
+        responseText = "No problem! Is there anything else I can help you with regarding your CPA practice?";
+        conversationState = 'initial';
+    }
+} else if (conversationState.startsWith('contact_')) {
+    // For any contact state, capture the phone number
+    const phoneMatch = userText.match(/\b(\d{3}[-.]?\d{3}[-.]?\d{4})\b/);
+    if (phoneMatch) {
+        responseText = "Thank you! Bruce will call you at the number you provided. Is there anything else I can help you with today?";
+        conversationState = 'completed';
+        shouldShowSmartButton = true;
+        smartButtonText = 'Start Interview';
+        smartButtonAction = 'interview';
+    } else {
+        responseText = "Thanks! What's the best phone number for Bruce to reach you?";
+        // conversationState remains the same
+    }
+} else {
+    responseText = "Thanks for your message. Is there anything else I can help you with regarding your CPA practice?";
+    conversationState = 'initial';
+}
+
+// Update the smart button
+updateSmartButton(shouldShowSmartButton, smartButtonText, smartButtonAction);
+
+lastAIResponse = responseText;
+bubbleContent.textContent = responseText;
+
+chatArea.appendChild(aiBubble);
+scrollToBottom();
+
+// Update conversation info
+updateConversationInfo();
+
+// Simulate AI speaking time based on response length
+const speakTime = Math.max(2000, responseText.length * 50);
+document.getElementById('statusInfo').innerHTML = ' AI is responding...';
+
+// After AI "speaks", automatically start listening again
+setTimeout(() => {
+    document.getElementById('statusInfo').innerHTML = ' Returning to listening mode...';
+    setTimeout(() => {
+        createRealtimeBubble();
+        startListening();
+    }, 1000);
+}, speakTime);
+
 }
 
 // ===================================================
