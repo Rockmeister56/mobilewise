@@ -462,19 +462,6 @@ box-shadow: 0 15px 40px rgba(33, 150, 243, 0.4);
     box-shadow: 0 15px 40px rgba(33, 150, 243, 0.4);
 }
 
-/* 🚀 BOTTOM CONTROL BAR STYLES */
-.bottom-controls {
-    display: flex;
-    align-items: center;
-    padding: 12px 20px;
-    background: rgba(0, 0, 0, 0.329);
-    border-radius: 12px;
-    gap: 15px;
-    margin: 10px 0;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
 .stop-btn {
     padding: 10px 20px;
     background: #dc3545;
@@ -492,46 +479,6 @@ box-shadow: 0 15px 40px rgba(33, 150, 243, 0.4);
     transform: scale(1.05);
 }
 
-.voice-meters-center {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 5px;
-}
-
-.meters-text {
-    font-size: 12px;
-    color: #007bff;
-    text-align: center;
-}
-
-.speed-controls {
-    display: flex;
-    gap: 6px;
-}
-
-.speed-btn {
-    padding: 6px 12px;
-    background: #007bff;
-    border: 1px solid white;
-    border-radius: 16px;
-    color: white;
-    font-size: 11px;
-    cursor: pointer;
-    transition: all 0.2s;
-    min-width: 60px;
-}
-
-.speed-btn:hover {
-    background: #0056b3;
-    transform: scale(1.05);
-}
-
-.speed-btn.active {
-    font-weight: bold;
-    box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
-}
 
 /* 🚀 EXPANDED LIVE TRANSCRIPT */
 .live-transcript-expanded {
@@ -555,6 +502,148 @@ box-shadow: 0 15px 40px rgba(33, 150, 243, 0.4);
     bottom: 05px;
     left: 10px;
     right: 10px;
+}
+
+/* CENTERED LAYOUT WITH BLUE BORDER */
+.voice-controls-centered {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 10px 20px;
+    background: rgba(0, 0, 0, 0.966);
+    border: 1px solid #000000;  /* 🔥 BLUE BORDER */
+    border-radius: 4px;
+    margin: 0px auto;
+    max-width: 635px;
+    backdrop-filter: blur(5px);
+    box-shadow: 0 0 15px rgba(74, 144, 226, 0.3);  /* Blue glow */
+}
+
+/* BLUE VOICE INPUT LABEL */
+.voice-label {
+    color: #0e5ff5;  /* 🔥 BLUE TEXT */
+    font-family: 'Arial', sans-serif;
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-shadow: 0 0 8px rgba(74, 144, 226, 0.6);
+    white-space: nowrap;
+    min-width: 60px;
+}
+
+.voice-label {
+    margin-right: 0px;  /* Space after V-Input */
+}
+
+.led-bar-simple {
+    margin-right: 50px;  /* Space after LED bar */
+}
+
+/* CENTERED LED BAR */
+.led-bar-simple {
+    display: flex;
+    gap: 3px;
+    padding: 6px 10px;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 6px;
+    border: 1px solid #333;
+    flex: 1;
+    justify-content: center;
+    max-width: 300px;
+}
+
+/* LED DOTS (Same as before but slightly larger) */
+.led-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #1a1a1a;
+    border: 1px solid #333;
+    transition: all 0.1s ease;
+}
+
+/* LED DOT ACTIVE STATES */
+.led-dot.active-green {
+    background: radial-gradient(circle, #00ff00, #008800);
+    box-shadow: 0 0 8px #00ff00;
+    border-color: #00ff00;
+}
+
+.led-dot.active-yellow {
+    background: radial-gradient(circle, #ffff00, #cccc00);
+    box-shadow: 0 0 8px #ffff00;
+    border-color: #ffff00;
+}
+
+.led-dot.active-red {
+    background: radial-gradient(circle, #ff0000, #cc0000);
+    box-shadow: 0 0 8px #ff0000;
+    border-color: #ff0000;
+}
+
+/* CENTERED STOP AUDIO BUTTON */
+.stop-audio-centered {
+    background: linear-gradient(135deg, #ff4444, #cc0000);
+    color: white;
+    border: none;
+    padding: 10px 18px;  /* Slightly larger for balance */
+    border-radius: 6px;
+    font-family: 'Arial', sans-serif;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.4);
+    white-space: nowrap;
+    min-width: 90px;
+}
+
+.stop-audio-centered:hover {
+    background: linear-gradient(135deg, #ff6666, #ee0000);
+    transform: translateY(-1px);
+    box-shadow: 0 5px 12px rgba(0,0,0,0.5);
+}
+
+.stop-audio-centered:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+}
+
+/* RESPONSIVE ADJUSTMENTS */
+@media (max-width: 500px) {
+    .voice-label {
+        font-size: 10px;
+        min-width: 45px;
+    }
+    
+    .voice-controls-centered {
+        gap: 8px;
+        padding: 8px 15px;
+    }
+    
+    .led-dot {
+        width: 12px;
+        height: 12px;
+    }
+    
+    .stop-audio-centered {
+        padding: 8px 14px;
+        font-size: 11px;
+        min-width: 75px;
+    }
+}
+
+/* SPLASH SCREEN - KEEP IT ON TOP */
+#splashScreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: /* your background */;
+    z-index: 9999; /* 🔥 HIGH Z-INDEX - STAYS ON TOP */
+    display: flex; /* or block when visible */
 }
 
    </style>
@@ -589,27 +678,42 @@ box-shadow: 0 15px 40px rgba(33, 150, 243, 0.4);
             <div class="chat-messages" id="chatMessages"></div>
 
       <div class="bottom-controls">
-    
-    <!-- Stop Button - LEFT -->
-    <button onclick="muteAIVoice()" class="stop-btn">🛑 Stop</button>
-    
-    <!-- Voice Meters - CENTER (Moved from top) -->
-    <div id="voiceVisualizerContainer" class="voice-meters-center">
-        <div id="staticListeningText" class="meters-text">
-            Mic Active
-        </div>
-        <canvas id="voiceWaveform" class="waveform-canvas" width="300" height="30"></canvas>
-    </div>
-    
-    <!-- Speed Controls - RIGHT -->
-    <div class="speed-controls">
-        <button onclick="adjustVoiceSpeed('slower')" class="speed-btn">Slower</button>
-        <button onclick="adjustVoiceSpeed('normal')" class="speed-btn active">Normal</button>
-        <button onclick="adjustVoiceSpeed('faster')" class="speed-btn">Faster</button>
-    </div>
-    
-</div>
 
+     <!-- CENTERED LED BAR + STOP AUDIO WITH LABEL & BORDER -->
+<div class="voice-controls-centered">
+    <!-- Blue Voice Input Label -->
+    <div class="voice-label">V-Input</div>
+    
+    <!-- LED Bar -->
+    <div class="led-bar-simple" id="ledBarDisplay">
+        <div class="led-dot" data-level="1"></div>
+        <div class="led-dot" data-level="2"></div>
+        <div class="led-dot" data-level="3"></div>
+        <div class="led-dot" data-level="4"></div>
+        <div class="led-dot" data-level="5"></div>
+        <div class="led-dot" data-level="6"></div>
+        <div class="led-dot" data-level="7"></div>
+        <div class="led-dot" data-level="8"></div>
+        <div class="led-dot" data-level="9"></div>
+        <div class="led-dot" data-level="10"></div>
+        <div class="led-dot" data-level="11"></div>
+        <div class="led-dot" data-level="12"></div>
+        <div class="led-dot" data-level="13"></div>
+        <div class="led-dot" data-level="14"></div>
+        <div class="led-dot" data-level="15"></div>
+        <div class="led-dot" data-level="16"></div>
+        <div class="led-dot" data-level="17"></div>
+        <div class="led-dot" data-level="18"></div>
+        <div class="led-dot" data-level="19"></div>
+        <div class="led-dot" data-level="20"></div>
+    </div>
+    
+    <!-- Stop Audio Button -->
+    <button id="stopAudioBtn" class="stop-audio-centered" onclick="stopCurrentAudio()">
+        Stop Audio
+    </button>
+</div>
+    </div>    
 </div>
 
             <!-- Text Mode Controls -->

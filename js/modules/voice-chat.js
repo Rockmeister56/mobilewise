@@ -10,13 +10,23 @@ let recognition = null;
 let isListening = false;
 let isAudioMode = false;
 let currentAudio = null;
-let hasStartedOnce = false;
 let persistentMicStream = null;
 let isSpeaking = false;
-let micPermissionGranted = false;
 let currentUserBubble = null;
-let lastProcessedText = '';
-let isRestarting = false;
+
+// Add this function and call it on page load
+async function requestMicrophonePermission() {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        stream.getTracks().forEach(track => track.stop());
+        console.log('✅ Microphone permission granted');
+        return true;
+    } catch (error) {
+        console.log('❌ Microphone permission denied:', error);
+        document.getElementById('statusInfo').innerHTML = '🚫 Microphone access denied. Please enable in browser settings.';
+        return false;
+    }
+}
 
 // ===================================================
 // 🔄 REPLACED: WORKING SPEECH VARIABLES (From working system)
@@ -69,7 +79,6 @@ function initializeSpeechRecognition() {
         recognition.onstart = function() {
             console.log('Speech recognition started');
             isListening = true;
-            updateStatusIndicator('listening');
             interimTranscript = '';
         };
 
@@ -140,7 +149,6 @@ function initializeSpeechRecognition() {
         silenceTimer = setTimeout(() => {
             if (completeText && !isProcessingInput && !isSpeaking) {
                 console.log('Silence fallback - processing complete phrase:', completeText);
-                lastProcessedText = completeText; // Prevent silence fallback duplicates too
                 
                 // 🎯 INSTANT USER MESSAGE DISPLAY
                 addUserMessage(completeText);
@@ -172,7 +180,6 @@ function initializeSpeechRecognition() {
         addAIMessage("Your browser doesn't support speech recognition. Please use Chrome or Edge.");
     }
 } 
-
 
       function updateLiveUserTranscript(text) {
     // Only update if we have substantial text (reduces spam)
@@ -211,51 +218,6 @@ function clearLiveTranscript() {
     currentUserBubble = null;
 }
 
-// ===================================================
-// 🎛️ WAVEFORM VISUALIZATION (KEPT - Original VoiceViz system)
-// ===================================================
-function initializeWaveform() {
-    VoiceViz.canvas = document.getElementById('voiceWaveform');
-    if (!VoiceViz.canvas) {
-        console.log('⚠️ Waveform canvas not found');
-        return false;
-    }
-    
-    VoiceViz.canvasCtx = VoiceViz.canvas.getContext('2d');
-    console.log('🎛️ Waveform canvas initialized');
-    return true;
-}
-
-function animateWaveform() {
-    if (!VoiceViz.waveformActive || !VoiceViz.analyser) return;
-    
-    VoiceViz.animationId = requestAnimationFrame(animateWaveform);
-    
-    VoiceViz.analyser.getByteFrequencyData(VoiceViz.dataArray);
-    
-    // Clear canvas
-    VoiceViz.canvasCtx.fillStyle = '#1a1a1a';
-    VoiceViz.canvasCtx.fillRect(0, 0, VoiceViz.canvas.width, VoiceViz.canvas.height);
-    
-    // Draw waveform (preserved styling)
-    const barWidth = (VoiceViz.canvas.width / VoiceViz.dataArray.length) * 2.5;
-    let barHeight;
-    let x = 0;
-    
-    for (let i = 0; i < VoiceViz.dataArray.length; i++) {
-        barHeight = (VoiceViz.dataArray[i] / 255) * VoiceViz.canvas.height;
-        
-        const gradient = VoiceViz.canvasCtx.createLinearGradient(0, VoiceViz.canvas.height - barHeight, 0, VoiceViz.canvas.height);
-        gradient.addColorStop(0, '#00ff88');
-        gradient.addColorStop(1, '#0066cc');
-        
-        VoiceViz.canvasCtx.fillStyle = gradient;
-        VoiceViz.canvasCtx.fillRect(x, VoiceViz.canvas.height - barHeight, barWidth, barHeight);
-        
-        x += barWidth + 1;
-    }
-}
-
 function createLiveUserBubble() {
     const chatMessages = document.getElementById('chatMessages');
     if (!chatMessages) return;
@@ -277,53 +239,7 @@ function createLiveUserBubble() {
 }
 
 // ===================================================
-// 🎤 VOICE METER (KEPT - Original system)
-// ===================================================
-function updateVoiceMeterDisplay(volume) {
-    const staticText = document.getElementById('staticListeningText');
-    if (!staticText) return;
-    
-    if (volume > 5) {
-        const bars = Math.floor(volume / 10);
-        const meterHTML = '🎤 ' + '█'.repeat(Math.max(1, bars)) + '░'.repeat(10 - bars);
-        staticText.innerHTML = `${meterHTML} Speaking...`;
-    } else {
-        staticText.innerHTML = '🎤 Listening... What can I help you with?';
-    }
-}
-
-function startVoiceMeter() {
-    if (!VoiceViz.analyser || VoiceViz.meterActive) return;
-    
-    VoiceViz.meterActive = true;
-    const bufferLength = VoiceViz.analyser.frequencyBinCount;
-    const dataArray = new Uint8Array(bufferLength);
-    
-    function updateMeter() {
-        if (!VoiceViz.meterActive) return;
-        
-        VoiceViz.analyser.getByteFrequencyData(dataArray);
-        
-        let sum = 0;
-        for (let i = 0; i < bufferLength; i++) {
-            sum += dataArray[i];
-        }
-        const average = sum / bufferLength;
-        const volume = Math.min(100, (average / 255) * 100);
-        
-        updateVoiceMeterDisplay(volume);
-        requestAnimationFrame(updateMeter);
-    }
-    
-    updateMeter();
-}
-
-function stopVoiceMeter() {
-    VoiceViz.meterActive = false;
-}
-
-// ===================================================
-// 🎯 UNIFIED VOICE SYSTEM (KEPT - Original logic)
+// 🎚️ STREAMLINED VIZ SYSTEM - VU METER ONLY
 // ===================================================
 async function initializeUnifiedVoiceVisualization() {
     try {
@@ -343,7 +259,7 @@ async function initializeUnifiedVoiceVisualization() {
         const bufferLength = VoiceViz.analyser.frequencyBinCount;
         VoiceViz.dataArray = new Uint8Array(bufferLength);
         
-        console.log('🎯 Unified voice visualization initialized!');
+        console.log('🎯 Voice visualization initialized for VU meter!');
         return true;
         
     } catch (error) {
@@ -356,44 +272,168 @@ async function startUnifiedVoiceVisualization() {
     const initialized = await initializeUnifiedVoiceVisualization();
     if (!initialized) return false;
     
-    startVoiceMeter();
-    
-    if (initializeWaveform()) {
-        VoiceViz.waveformActive = true;
-        
-        const waveformContainer = document.getElementById('voiceVisualizerContainer');
-        if (waveformContainer) {
-            waveformContainer.classList.add('waveform-active');
-        }
-        
-        animateWaveform();
-        console.log('🎛️ Waveform visualization started');
+    // 🎚️ START VU METER
+    if (initializeVUMeter()) {
+        startVUMeter();
     }
     
-    console.log('🚀 Unified voice visualization ACTIVE!');
+    console.log('🚀 VU meter ACTIVE!');
     return true;
 }
 
 function stopUnifiedVoiceVisualization() {
-    stopVoiceMeter();
+    // 🎚️ STOP VU METER
+    stopVUMeter();
     
-    VoiceViz.waveformActive = false;
-    if (VoiceViz.animationId) {
-        cancelAnimationFrame(VoiceViz.animationId);
-        VoiceViz.animationId = null;
+    // Essential cleanup
+    if (VoiceViz.audioContext && VoiceViz.audioContext.state !== 'closed') {
+        VoiceViz.audioContext.close();
+        VoiceViz.audioContext = null;
     }
     
-    const waveformContainer = document.getElementById('voiceVisualizerContainer');
-    if (waveformContainer) {
-        waveformContainer.classList.remove('waveform-active');
+    console.log('🛑 VU meter stopped');
+}
+
+// ===================================================
+// 🎯 LED BAR METER SYSTEM (Professional Audio Equipment Style)
+// ===================================================
+let ledMeterActive = false;
+
+function initializeLEDMeter() {
+    const ledDisplay = document.getElementById('ledBarDisplay');
+    if (!ledDisplay) {
+        console.log('⚠️ LED Bar display not found');
+        return false;
     }
+    
+    console.log('🎯 LED Bar meter initialized');
+    return true;
+}
+
+function updateLEDMeter(volume) {
+    if (!ledMeterActive) return;
+    
+    const ledDots = document.querySelectorAll('.led-dot');
+    if (!ledDots.length) return;
+    
+    // Convert volume to LED count (same as before)
+    const dbValue = Math.max(-20, Math.min(3, (volume / 100) * 23 - 20));
+    const ledCount = Math.floor(((dbValue + 20) / 23) * 20);
+    
+    // Clear all LEDs
+    ledDots.forEach(dot => {
+        dot.classList.remove('active-green', 'active-yellow', 'active-red');
+    });
+    
+    // Light up LEDs based on volume
+    for (let i = 0; i < ledCount && i < ledDots.length; i++) {
+        const dot = ledDots[i];
+        
+        if (i < 14) {
+            dot.classList.add('active-green');
+        } else if (i < 18) {
+            dot.classList.add('active-yellow');
+        } else {
+            dot.classList.add('active-red');
+        }
+    }
+}
+    
+    // Update status display
+    if (statusElement) {
+        const dbReading = statusElement.querySelector('.db-reading');
+        const statusText = statusElement.querySelector('.status-text');
+        
+        if (dbReading) {
+            if (volume > 5) {
+                dbReading.textContent = `${dbValue.toFixed(1)} dB`;
+            } else {
+                dbReading.textContent = '-∞ dB';
+            }
+        }
+        
+        if (statusText) {
+            statusText.textContent = volume > 5 ? 'ACTIVE' : 'READY';
+        }
+    }
+
+function startLEDMeter() {
+    if (!VoiceViz.analyser || ledMeterActive) return;
+    
+    ledMeterActive = true;
+    const bufferLength = VoiceViz.analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+    
+    function updateMeter() {
+        if (!ledMeterActive) return;
+        
+        VoiceViz.analyser.getByteFrequencyData(dataArray);
+        
+        let sum = 0;
+        for (let i = 0; i < bufferLength; i++) {
+            sum += dataArray[i];
+        }
+        const average = sum / bufferLength;
+        const volume = Math.min(100, (average / 255) * 100);
+        
+        updateLEDMeter(volume);
+        requestAnimationFrame(updateMeter);
+    }
+    
+    updateMeter();
+    console.log('🎯 LED Bar meter started');
+}
+
+function stopLEDMeter() {
+    ledMeterActive = false;
+    
+    // Clear all LEDs
+    const ledDots = document.querySelectorAll('.led-dot');
+    ledDots.forEach(dot => {
+        dot.classList.remove('active-green', 'active-yellow', 'active-red');
+    });
+    
+    // Reset status
+    const statusElement = document.getElementById('ledStatus');
+    if (statusElement) {
+        const dbReading = statusElement.querySelector('.db-reading');
+        const statusText = statusElement.querySelector('.status-text');
+        
+        if (dbReading) dbReading.textContent = '-∞ dB';
+        if (statusText) statusText.textContent = 'READY';
+    }
+    
+    console.log('🎯 LED Bar meter stopped');
+}
+
+// ===================================================
+// 🔄 INTEGRATION WITH EXISTING VOICE SYSTEM
+// ===================================================
+
+// REPLACE in your startUnifiedVoiceVisualization function:
+async function startUnifiedVoiceVisualization() {
+    const initialized = await initializeUnifiedVoiceVisualization();
+    if (!initialized) return false;
+    
+    // Start LED meter instead of VU meter
+    if (initializeLEDMeter()) {
+        startLEDMeter();
+    }
+    
+    console.log('🚀 LED Bar meter ACTIVE!');
+    return true;
+}
+
+// REPLACE in your stopUnifiedVoiceVisualization function:
+function stopUnifiedVoiceVisualization() {
+    stopLEDMeter(); // Stop LED meter
     
     if (VoiceViz.audioContext && VoiceViz.audioContext.state !== 'closed') {
         VoiceViz.audioContext.close();
         VoiceViz.audioContext = null;
     }
     
-    console.log('🛑 Unified voice visualization stopped');
+    console.log('🛑 LED Bar meter stopped');
 }
 
 // ===================================================
@@ -422,243 +462,95 @@ function sendTextMessage() {
 }
 
 // ===================================================
-// 🎤 MODE SWITCHING (KEPT - Original functions)
+// 🗣️ VOICE SYNTHESIS - CLEAN VERSION
 // ===================================================
-function showAudioMode() {
-    console.log('🎤 Switching to audio mode...');
-    const audioControls = document.getElementById('audioControls');
-    const textControls = document.getElementById('textControls');
+function speakResponse(message) {
+    console.log('Speaking response');
     
-    if (audioControls) audioControls.style.display = 'flex';
-    if (textControls) textControls.style.display = 'none';
-    
-    const voiceContainer = document.getElementById('voiceVisualizerContainer');
-    if (voiceContainer) voiceContainer.style.display = 'flex';
-}
-
-function showTextMode() {
-    console.log('💬 Switching to text mode...');
-    const audioControls = document.getElementById('audioControls');
-    const textControls = document.getElementById('textControls');
-    
-    if (audioControls) audioControls.style.display = 'none';
-    if (textControls) textControls.style.display = 'flex';
-    
-    const voiceContainer = document.getElementById('voiceVisualizerContainer');
-    if (voiceContainer) voiceContainer.style.display = 'none';
-}
-
-function switchToTextMode() {
-    console.log('📝 User switched to text mode');
-    
-    isAudioMode = false;
-    
-    if (recognition && isListening) {
-        recognition.stop();
-        isListening = false;
-    }
-    
-    // Clear silence timer
-    if (silenceTimer) {
-        clearTimeout(silenceTimer);
-    }
-    
-    stopUnifiedVoiceVisualization();
-    showTextMode();
-    
-    const textInput = document.getElementById('textInput');
-    if (textInput) {
-        setTimeout(() => textInput.focus(), 100);
-    }
-    
-    isProcessingInput = false; // 🔄 REPLACED: Working system reset
-}
-
-function switchToAudioMode() {
-    console.log('🎤 User switched back to audio mode');
-    
-    isAudioMode = true;
-    showAudioMode();
-    startUnifiedVoiceVisualization();
-    
-    setTimeout(() => {
-        addAIMessage("What can I help you with?");
-        speakResponse("What can I help you with?");
-        
-        if (recognition && !isListening) {
-            try {
-                recognition.start();
-                console.log('🔄 Recognition restarted');
-            } catch (error) {
-                console.log('⚠️ Recognition restart failed:', error);
-            }
-        }
-    }, 500);
-    
-    isProcessingInput = false; // 🔄 REPLACED: Working system reset
-}
-
-// ===================================================
-// 💬 MESSAGE DISPLAY (KEPT - Original functions)
-// ===================================================
-function addUserMessage(message) {
-    // If we already have a live bubble, just finalize it
-    if (currentUserBubble) {
-        const bubbleContent = currentUserBubble.querySelector('.message-bubble');
-        if (bubbleContent) {
-            bubbleContent.textContent = message;
-        }
-        currentUserBubble = null; // Reset for next speech
-        console.log('👤 User bubble finalized:', message);
+    if (!window.speechSynthesis) {
+        console.log('Speech synthesis not supported');
         return;
     }
+
+    // Stop any current speech
+    window.speechSynthesis.cancel();
     
-    // Fallback: create new bubble if somehow we don't have a live one
-    const chatMessages = document.getElementById('chatMessages');
-    if (!chatMessages) return;
+    const utterance = new SpeechSynthesisUtterance(message);
     
-    const messageHTML = `
-        <div class="message user-message">
-            <div class="message-bubble">${message}</div>
-        </div>
-    `;
-    chatMessages.insertAdjacentHTML('beforeend', messageHTML);
-    scrollChatToBottom();
-    console.log('👤 User message added (fallback):', message);
+    // Optimized for Chrome
+    utterance.rate = voiceSpeed;
+    utterance.pitch = 1.0;
+    utterance.volume = 0.9;
+    
+    utterance.onstart = function() {
+        isSpeaking = true;
+        console.log('Speech started');
+    };
+    
+    utterance.onend = function() {
+        isSpeaking = false;
+        console.log('Speech finished');
+        
+        // Clear bubble reference for next speech
+        currentUserBubble = null;
+        
+        // Simple restart - no complex logic
+        if (isAudioMode && !isListening) {
+            setTimeout(() => {
+                try {
+                    recognition.start();
+                    isListening = true;
+                    console.log('🔄 Recognition restarted');
+                } catch (error) {
+                    console.log('Recognition restart error:', error);
+                }
+            }, 100);
+        }
+    };
+
+    utterance.onerror = function(event) {
+        console.log('Speech error:', event.error);
+        isSpeaking = false;
+    };
+    
+    window.speechSynthesis.speak(utterance);
+    currentAudio = utterance;
 }
 
-function addAIMessage(message) {
-    const chatMessages = document.getElementById('chatMessages');
-    if (!chatMessages) return;
-    
-    const messageHTML = `
-        <div class="message ai-message">
-            <div class="message-bubble">
-                <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/avatars/avatar_1754810337622_AI%20assist%20head%20left.png" class="ai-avatar">
-                <div>${message}</div>
-            </div>
-        </div>
-    `;
-    chatMessages.insertAdjacentHTML('beforeend', messageHTML);
-    scrollChatToBottom();
-    console.log('🤖 AI message added');
-}
-
-function scrollChatToBottom() {
-    const chatMessages = document.getElementById('chatMessages');
-    if (chatMessages) {
-        chatMessages.scrollTop = chatMessages.scrollHeight;
+function stopCurrentAudio() {
+    if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
     }
+    currentAudio = null;
+    isSpeaking = false;
 }
 
-// ===================================================
-// 🧠 AI RESPONSE GENERATION (KEPT - Original)
-// ===================================================
-function getAIResponse(message) {
-    const msg = message.toLowerCase();
+function findBestVoice(voices) {
+    const preferredVoices = [
+        'Microsoft Aria Online (Natural) - English (United States)',
+        'Microsoft Zira - English (United States)',
+        'Microsoft Libby Online (Natural) - English (United Kingdom)'
+    ];
     
-    for (const [key, value] of Object.entries(businessResponses)) {
-        if (msg.includes(key)) {
-            return value;
+    for (const preferredName of preferredVoices) {
+        const voice = voices.find(v => v.name === preferredName);
+        if (voice) {
+            return voice;
         }
     }
     
-    return "Great question! I can help with accounting services, marketing strategies, business growth, pricing, and more. What specific area would you like to explore?";
+    const fallback = voices.find(v => v.name.includes('Aria') || v.name.includes('Zira'));
+    return fallback || voices[0];
 }
-
-// ===================================================
-// 🗣️ VOICE SYNTHESIS (KEPT - Original with working restart)
-// ===================================================
-   function speakResponse(message) {
-    // REMOVED: resetSpeechRecognition(); - This was causing buffer collisions!
-    console.log('Speaking response');
-    updateHeaderBanner('🤖 AI responding...');
-    updateStatusIndicator('speaking');
-            
-            if (!window.speechSynthesis) {
-                console.log('Speech synthesis not supported');
-                return;
-            }
-
-            // Stop any current speech
-            window.speechSynthesis.cancel();
-            
-            const utterance = new SpeechSynthesisUtterance(message);
-            
-            // Optimized for Chrome
-            utterance.rate = voiceSpeed;
-            utterance.pitch = 1.0;
-            utterance.volume = 0.9;
-            
-            utterance.onstart = function() {
-                isSpeaking = true;
-                console.log('Speech started');
-            };
-            
-       utterance.onend = function() {
-    isSpeaking = false;
-    console.log('Speech finished');
-    updateHeaderBanner('🎤 AI Assistant is Listening');
-    
-    // 🔥 TEXT BUFFER CLEARING - Prevents accumulation bug
-    lastProcessedText = '';
-    interimTranscript = '';
-    currentUserBubble = null;
-    console.log('🧹 Text buffers cleared for fresh start');
-    
-    if (isAudioMode) {
-        updateStatusIndicator('listening');
-        // Restart recognition with minimal delay for Chrome
-        setTimeout(() => {
-            if (!isListening && isAudioMode && !isRestarting) { // 🔥 ADDED: && !isRestarting
-                isRestarting = true; // 🔥 ADDED: Set restart lock
-                try {
-                    // INTEGRATED FIX: Safe recognition restart
-                    if (!isListening) {
-                        recognition.start();
-                        isListening = true; // Update the flag
-                        isRestarting = false; // 🔥 ADDED: Release restart lock
-                        console.log('🔄 Recognition restarted successfully');
-                    } else {
-                        isRestarting = false; // 🔥 ADDED: Release restart lock
-                        console.log('🔄 Recognition already running - no restart needed');
-                    }
-                } catch (error) {
-                    console.log('Recognition restart error:', error);
-                    // Force reset if we get a state error
-                    isListening = false;
-                    setTimeout(() => {
-                        try {
-                            recognition.start();
-                            isListening = true;
-                            isRestarting = false; // 🔥 ADDED: Release restart lock
-                            console.log('🔄 Secondary restart successful');
-                        } catch (e) {
-                            isRestarting = false; // 🔥 ADDED: Release restart lock
-                            console.log('Secondary restart failed:', e);
-                        }
-                    }, 500);
-                }
-            } else if (isRestarting) { // 🔥 ADDED: Debug info
-                console.log('🔄 Restart skipped - already in progress');
-            }
-        }, 100);
-    } else {
-        updateStatusIndicator('inactive');
-    }
-};
-
 
 
 utterance.onerror = function(event) {
     console.log('Speech error:', event.error);
     isSpeaking = false;
-    updateStatusIndicator('inactive');
 };
             
             window.speechSynthesis.speak(utterance);
             currentAudio = utterance;
-        }
 
         function stopCurrentAudio() {
             if (window.speechSynthesis) {
@@ -726,96 +618,6 @@ function askQuickQuestion(questionText) {
 }
 
 // ===================================================
-// 🔄 REPLACED: WORKING VOICE SPEED CONTROL (Actually functional)
-// ===================================================
-let voiceSpeed = 1.0;
-const speedLevels = [0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3];
-const speedNames = ['Very Slow', 'Slow', 'Relaxed', 'Normal', 'Fast', 'Faster', 'Very Fast'];
-let currentSpeedIndex = 3;
-
-function adjustVoiceSpeed(direction) {
-    if (direction === 'faster' && currentSpeedIndex < speedLevels.length - 1) {
-        currentSpeedIndex++;
-    } else if (direction === 'slower' && currentSpeedIndex > 0) {
-        currentSpeedIndex--;
-    } else if (direction === 'normal') {
-        currentSpeedIndex = 3;
-    }
-    
-    voiceSpeed = speedLevels[currentSpeedIndex];
-    const speedName = speedNames[currentSpeedIndex];
-    
-    const speedDisplay = document.getElementById('speedDisplay');
-    if (speedDisplay) {
-        speedDisplay.textContent = speedName;
-    }
-    
-    console.log('⚡ Voice speed:', speedName, `(${voiceSpeed}x)`);
-    testVoiceSpeed(); // 🔄 REPLACED: Working version with actual test
-}
-
-function testVoiceSpeed() {
-    const testMessage = `Speed set to ${speedNames[currentSpeedIndex]}`;
-    const voices = window.speechSynthesis.getVoices();
-    const voice = findBestVoice(voices);
-    
-    const utterance = new SpeechSynthesisUtterance(testMessage);
-    if (voice) utterance.voice = voice;
-    utterance.rate = voiceSpeed;
-    utterance.pitch = 1.0;
-    utterance.volume = 0.8;
-    
-    window.speechSynthesis.speak(utterance);
-}
-
-function stopCurrentAudio() {
-    if (window.speechSynthesis) {
-        window.speechSynthesis.cancel();
-        console.log('🛑 Speech stopped');
-    }
-    currentAudio = null;
-    isSpeaking = false;
-}
-
-function muteAIVoice() {
-    console.log('🔇 MUTING AI Voice...');
-    stopCurrentAudio();
-    isSpeaking = false;
-    updateHeaderBanner('🔇 AI Voice Muted');
-    switchToTextMode();
-    console.log('✅ AI Voice MUTED');
-}
-
-function preloadVoices() {
-    getVoices().then(voices => {
-        console.log('🎤 Voices preloaded:', voices.length);
-    });
-}
-
-// ===================================================
-// 🛠️ UTILITY FUNCTIONS (KEPT - Original)
-// ===================================================
-function updateHeaderBanner(message) {
-    const headerTitle = document.getElementById('chatHeaderTitle');
-    if (headerTitle) {
-        headerTitle.textContent = message;
-        console.log('📱 Header banner updated:', message);
-    }
-}
-
-function hideSpeedControls() {
-    const slowerBtn = document.querySelector('[onclick*="slower"]');
-    const normalBtn = document.querySelector('[onclick*="normal"]'); 
-    const fasterBtn = document.querySelector('[onclick*="faster"]');
-    
-    if (slowerBtn) slowerBtn.style.display = 'none';
-    if (normalBtn) normalBtn.style.display = 'none';
-    if (fasterBtn) fasterBtn.style.display = 'none';
-    
-    console.log('⚡ Speed buttons hidden');
-}
-
-// ===================================================
 // 🚀 SPLASH SCREEN SYSTEM (KEPT - Original nightmare we solved!)
 // ===================================================
 function startVoiceChat() {
@@ -867,12 +669,10 @@ async function activateMicrophone() {
         // Show appropriate UI
         const activateMicBtn = document.getElementById('activateMicBtn');
         const audioOffBtn = document.getElementById('audioOffBtn');
-        const speedControls = document.getElementById('speedControlsContainer');
         const voiceContainer = document.getElementById('voiceVisualizerContainer');
         
         if (activateMicBtn) activateMicBtn.style.display = 'none';
         if (audioOffBtn) audioOffBtn.style.display = 'block';
-        if (speedControls) speedControls.style.display = 'flex';
         if (voiceContainer) voiceContainer.style.display = 'flex';
         
         // Start recognition
@@ -883,9 +683,6 @@ async function activateMicrophone() {
                 console.log('Recognition start error:', error);
             }
         }
-        
-        updateHeaderBanner('🎤 Microphone Active - How can we help your business?');
-        updateStatusIndicator('listening');
         
         // Add greeting
         setTimeout(() => {
@@ -898,28 +695,6 @@ async function activateMicrophone() {
         console.log('Microphone access denied:', error);
         addAIMessage("Microphone access was denied. You can still use text chat.");
         switchToTextMode();
-    }
-}
-
-// ===================================================
-// 🚨 MISSING: updateStatusIndicator function (That I should have added)
-// ===================================================
-function updateStatusIndicator(status) {
-    const indicator = document.getElementById('statusIndicator');
-    if (!indicator) return;
-    
-    indicator.className = 'status-indicator';
-    
-    switch(status) {
-        case 'listening':
-            indicator.classList.add('status-listening');
-            break;
-        case 'speaking':
-            indicator.classList.add('status-speaking');
-            break;
-        default:
-            indicator.classList.add('status-inactive');
-            break;
     }
 }
 
@@ -1013,5 +788,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
 console.log('🎯 Mobile-Wise AI Formviser - SURGICAL HYBRID COMPLETE!');
 console.log('✅ KEPT: Original foundation, splash screen logic, VoiceViz, all UI functions');
-console.log('🔄 REPLACED: Speech recognition onresult, processUserInput timing, voice speed system');
 console.log('🚀 RESULT: Should eliminate 7-second delays while preserving all working parts!');
