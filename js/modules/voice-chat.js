@@ -511,13 +511,6 @@ async function activateMicrophone() {
             startListening();
         }
         
-        // Add greeting
-        setTimeout(() => {
-            const greeting = "What can I help you with today?";
-            addAIMessage(greeting);
-            speakResponse(greeting);
-        }, 500);
-        
     } catch (error) {
         console.log('Microphone access denied:', error);
         addAIMessage("Microphone access was denied. You can still use text chat.");
