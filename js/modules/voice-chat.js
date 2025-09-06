@@ -1,54 +1,30 @@
 // ===================================================
-// 🎯 MOBILE-WISE AI FORMVISER - SURGICAL HYBRID SYSTEM
-// KEEPING ORIGINAL FOUNDATION + REPLACING ONLY BROKEN PARTS
+// 🎯 MOBILE-WISE AI VOICE CHAT - COMPLETE INTEGRATED SYSTEM
+// Combining working bubble system + your business logic
 // ===================================================
 
 // ===================================================
-// 🏗️ GLOBAL VARIABLES (From original - KEPT AS-IS)
+// 🏗️ GLOBAL VARIABLES
 // ===================================================
 let recognition = null;
 let isListening = false;
+let isSpeaking = false;
 let isAudioMode = false;
 let currentAudio = null;
 let persistentMicStream = null;
-let isSpeaking = false;
 let currentUserBubble = null;
+let micPermissionGranted = false;
 
-// Add this function and call it on page load
-async function requestMicrophonePermission() {
-    try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        stream.getTracks().forEach(track => track.stop());
-        console.log('✅ Microphone permission granted');
-        return true;
-    } catch (error) {
-        console.log('❌ Microphone permission denied:', error);
-        document.getElementById('statusInfo').innerHTML = '🚫 Microphone access denied. Please enable in browser settings.';
-        return false;
-    }
-}
+// Conversation state tracking (from working bubble system)
+let conversationState = 'initial';
+let lastAIResponse = '';
+let userResponseCount = 0;
 
-// ===================================================
-// 🔄 REPLACED: WORKING SPEECH VARIABLES (From working system)
-// ===================================================
-let interimTranscript = '';
-let silenceTimer = null;
+// Voice settings
+let voiceSpeed = 1.0;
+
+// Processing flags
 let isProcessingInput = false;
-
-// ===================================================
-// 🎯 UNIFIED VOICE VISUALIZATION SYSTEM (KEPT - Original)
-// ===================================================
-const VoiceViz = {
-    audioContext: null,
-    analyser: null,
-    microphone: null,
-    canvas: null,
-    canvasCtx: null,
-    dataArray: null,
-    animationId: null,
-    meterActive: false,
-    waveformActive: false
-};
 
 // ===================================================
 // 📊 BUSINESS RESPONSES DATABASE (KEPT - Your complete set)
@@ -65,404 +41,291 @@ const businessResponses = {
 };
 
 // ===================================================
-// 🔄 REPLACED: WORKING SPEECH RECOGNITION (Eliminates 7-second delay)
+// 🎤 MICROPHONE PERMISSION SYSTEM
 // ===================================================
+async function requestMicrophonePermission() {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        stream.getTracks().forEach(track => track.stop());
+        console.log('✅ Microphone permission granted');
+        return true;
+    } catch (error) {
+        console.log('❌ Microphone permission denied:', error);
+        return false;
+    }
+}
+
+// ===================================================
+// 🎯 SPEECH RECOGNITION SYSTEM (From working bubble system)
+// ===================================================
+function checkSpeechSupport() {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        console.log('❌ Speech recognition not supported in this browser');
+        return false;
+    }
+    return true;
+}
+
 function initializeSpeechRecognition() {
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-        recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-        
+    if (!checkSpeechSupport()) {
+        addAIMessage("Your browser doesn't support speech recognition. Please use Chrome or Edge.");
+        return false;
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SpeechRecognition();
+    
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = 'en-US';
+
+    console.log('✅ Speech recognition initialized');
+    return true;
+}
+
+function startListening() {
+    if (!checkSpeechSupport()) return;
+    if (isSpeaking) return; // Don't start listening if AI is speaking
+
+    try {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
+
         recognition.continuous = true;
         recognition.interimResults = true;
-        recognition.maxAlternatives = 1;
         recognition.lang = 'en-US';
 
-        recognition.onstart = function() {
-            console.log('Speech recognition started');
-            isListening = true;
-            interimTranscript = '';
+        createRealtimeBubble();
+
+        // Update UI
+        const activateMicBtn = document.getElementById('activateMicBtn');
+        const audioOffBtn = document.getElementById('audioOffBtn');
+        if (activateMicBtn) activateMicBtn.style.display = 'none';
+        if (audioOffBtn) audioOffBtn.style.display = 'block';
+
+        isListening = true;
+
+        recognition.onresult = function(event) {
+            let interimTranscript = '';
+            let finalTranscript = '';
+
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const transcript = event.results[i][0].transcript;
+                if (event.results[i].isFinal) {
+                    finalTranscript += transcript;
+                } else {
+                    interimTranscript += transcript;
+                }
+            }
+
+            const currentBubble = document.getElementById('currentUserBubble');
+            if (currentBubble) {
+                const displayText = finalTranscript + interimTranscript;
+                if (displayText.trim()) {
+                    currentBubble.querySelector('.bubble-text').textContent = displayText;
+
+                    if (interimTranscript) {
+                        currentBubble.classList.add('typing');
+                    } else {
+                        currentBubble.classList.remove('typing');
+                    }
+
+                    scrollChatToBottom();
+                }
+            }
+
+            // Process final transcript
+            if (finalTranscript) {
+                setTimeout(() => {
+                    processUserResponse(finalTranscript);
+                }, 500);
+            }
         };
 
-      recognition.onresult = function(event) {
-    // Clear any existing silence timer
-    if (silenceTimer) {
-        clearTimeout(silenceTimer);
-    }
-    
-    // 🚀 FIXED: Accumulative text building instead of replacement
-    let allFinalTranscript = '';
-    interimTranscript = '';
-    
-    // ✅ CRITICAL FIX: Process ALL results from index 0 (not event.resultIndex)
-    for (let i = 0; i < event.results.length; i++) {
-        const transcript = event.results[i][0].transcript;
-        
-        if (event.results[i].isFinal) {
-            allFinalTranscript += transcript;  // Accumulate ALL final text
-        } else {
-            interimTranscript += transcript;
-        }
-    }
-    
-    // 🚀 HYBRID MAGIC: Show live transcript as user speaks (with accumulative text)
-    if (interimTranscript && interimTranscript.length > 3) {
-        // Pass the COMPLETE text: all final + current interim
-        updateLiveUserTranscript(allFinalTranscript + interimTranscript);
-    }
-    
-    // ✅ PROCESS FINAL RESULTS (Complete sentences from Google)
-    // 🛑 DUPLICATE PREVENTION: Only process if different from last
-    if (allFinalTranscript && !isProcessingInput) {
-        console.log('Final voice input received:', allFinalTranscript);
-        lastProcessedText = allFinalTranscript; // Remember what we processed
-        
-        // Ignore if AI is currently speaking
-        if (isSpeaking) {
-            console.log('Ignoring input - AI is speaking');
-            return;
-        }
-        
-        // 🎯 INSTANT USER MESSAGE DISPLAY
-        addUserMessage(allFinalTranscript);
-        isProcessingInput = true;
-        
-        // 🤖 PROCESS AI RESPONSE DIRECTLY (No function calls!)
-        setTimeout(() => {
-            console.log('🤖 Processing AI response for:', allFinalTranscript);
-            const response = getAIResponse(allFinalTranscript);
-            console.log('🤖 AI Response generated');
-            
-            addAIMessage(response);
-            speakResponse(response);
-            
-            // Reset processing flag
-            setTimeout(() => {
-                isProcessingInput = false;
-            }, 500);
-        }, 1500); // Natural conversation delay
-        
-        return; // ⭐ CRITICAL: Exit here to prevent silence fallback
-    }
-    
-    // ⏰ SILENCE FALLBACK (For incomplete Google processing)
-    const completeText = allFinalTranscript + interimTranscript;
-    if (completeText && completeText.length > 8 && !isProcessingInput) {
-        silenceTimer = setTimeout(() => {
-            if (completeText && !isProcessingInput && !isSpeaking) {
-                console.log('Silence fallback - processing complete phrase:', completeText);
-                
-                // 🎯 INSTANT USER MESSAGE DISPLAY
-                addUserMessage(completeText);
-                isProcessingInput = true;
-                
-                // 🤖 PROCESS AI RESPONSE DIRECTLY
-                setTimeout(() => {
-                    console.log('🤖 Processing AI response for:', completeText);
-                    const response = getAIResponse(completeText);
-                    console.log('🤖 AI Response generated');
-                    
-                    addAIMessage(response);
-                    speakResponse(response);
-                    
-                    // Reset processing flag
-                    setTimeout(() => {
-                        isProcessingInput = false;
-                    }, 500);
-                }, 1500);
-                
-                interimTranscript = '';
+        recognition.onerror = function(event) {
+            console.error('Speech recognition error:', event.error);
+            stopListening();
+        };
+
+        recognition.onend = function() {
+            if (isListening) {
+                console.log("Recognition ended, but we're still in listening mode");
             }
-        }, 3000);
-    }
-};
-        
-    } else {
-        console.log('Speech recognition not supported');
-        addAIMessage("Your browser doesn't support speech recognition. Please use Chrome or Edge.");
-    }
-} 
+        };
 
-      function updateLiveUserTranscript(text) {
-    // Only update if we have substantial text (reduces spam)
-    if (!text || text.length < 5) return;
-    
-    console.log('🎯 Live transcript update:', text);
-    
-    if (!currentUserBubble) {
-        const chatMessages = document.getElementById('chatMessages');
-        if (chatMessages) {
-            currentUserBubble = document.createElement('div');
-            currentUserBubble.className = 'message user-message';
-            currentUserBubble.innerHTML = '<div class="message-bubble">Listening...</div>';
-            chatMessages.appendChild(currentUserBubble);
-            console.log('👤 Live user bubble created (DEMO STYLE)');
-            scrollChatToBottom();
+        recognition.start();
+
+    } catch (error) {
+        console.error('Error starting speech recognition:', error);
+    }
+}
+
+function stopListening() {
+    if (recognition) {
+        recognition.stop();
+        recognition = null;
+    }
+
+    const currentBubble = document.getElementById('currentUserBubble');
+    if (currentBubble) {
+        currentBubble.classList.remove('typing');
+        if (!currentBubble.querySelector('.bubble-text').textContent.trim()) {
+            currentBubble.querySelector('.bubble-text').textContent = 'No speech detected';
+            currentBubble.style.opacity = '0.6';
         }
+        currentBubble.removeAttribute('id');
+    }
+
+    // Update UI
+    const activateMicBtn = document.getElementById('activateMicBtn');
+    const audioOffBtn = document.getElementById('audioOffBtn');
+    if (activateMicBtn) activateMicBtn.style.display = 'block';
+    if (audioOffBtn) audioOffBtn.style.display = 'none';
+
+    isListening = false;
+}
+
+function processUserResponse(userText) {
+    userResponseCount++;
+    
+    // Update UI
+    const currentBubble = document.getElementById('currentUserBubble');
+    if (currentBubble) {
+        currentBubble.classList.remove('typing');
+        currentBubble.removeAttribute('id');
     }
     
-    if (currentUserBubble) {
-        const bubbleContent = currentUserBubble.querySelector('.message-bubble');
-        if (bubbleContent) {
-            bubbleContent.textContent = text;
-        }
+    // Stop listening while AI responds
+    if (recognition) {
+        recognition.stop();
+        recognition = null;
     }
+    
+    isListening = false;
+    
+    // Update UI buttons
+    const activateMicBtn = document.getElementById('activateMicBtn');
+    const audioOffBtn = document.getElementById('audioOffBtn');
+    if (activateMicBtn) activateMicBtn.style.display = 'block';
+    if (audioOffBtn) audioOffBtn.style.display = 'none';
+    
+    // Add AI response
+    setTimeout(() => {
+        addAIResponse(userText);
+    }, 800);
 }
 
-function resetSpeechRecognition() {
-    console.log('🚨 resetSpeechRecognition() DISABLED - Preventing collisions');
-    return; // DO NOTHING
+function addAIResponse(userText) {
+    // Generate AI response
+    const responseText = getAIResponse(userText);
+    lastAIResponse = responseText;
+    
+    // Add AI message to chat
+    addAIMessage(responseText);
+    
+    // Speak the response
+    speakResponse(responseText);
+    
+    // Update conversation info if available
+    updateConversationInfo();
+    
+    // After AI speaks, automatically start listening again if in audio mode
+    setTimeout(() => {
+        if (isAudioMode && !isListening && !isSpeaking) {
+            createRealtimeBubble();
+            startListening();
+        }
+    }, responseText.length * 50 + 2000); // Estimate speaking time
 }
 
-// REPLACE your current clearLiveTranscript function with this:
-function clearLiveTranscript() {
-    // Reset the current bubble reference
-    currentUserBubble = null;
-}
-
-function createLiveUserBubble() {
+function createRealtimeBubble() {
     const chatMessages = document.getElementById('chatMessages');
     if (!chatMessages) return;
     
-    // Create the user message bubble immediately
-    const messageHTML = `
-        <div class="message user-message">
-            <div class="message-bubble">Listening...</div>
-        </div>
-    `;
-    chatMessages.insertAdjacentHTML('beforeend', messageHTML);
+    const userBubble = document.createElement('div');
+    userBubble.className = 'message user-message';
+    userBubble.id = 'currentUserBubble';
     
-    // Get reference to the bubble we just created
-    const messages = chatMessages.querySelectorAll('.user-message');
-    currentUserBubble = messages[messages.length - 1];
+    const bubbleText = document.createElement('div');
+    bubbleText.className = 'bubble-text';
+    bubbleText.textContent = 'Listening...';
+    userBubble.appendChild(bubbleText);
     
+    chatMessages.appendChild(userBubble);
     scrollChatToBottom();
-    console.log('👤 Live user bubble created');
 }
 
-// ===================================================
-// 🎚️ STREAMLINED VIZ SYSTEM - VU METER ONLY
-// ===================================================
-async function initializeUnifiedVoiceVisualization() {
-    try {
-        if (!persistentMicStream) {
-            console.log('⏳ Waiting for speech recognition mic access...');
-            return false;
-        }
-        
-        VoiceViz.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        VoiceViz.analyser = VoiceViz.audioContext.createAnalyser();
-        VoiceViz.microphone = VoiceViz.audioContext.createMediaStreamSource(persistentMicStream);
-        
-        VoiceViz.analyser.fftSize = 256;
-        VoiceViz.analyser.smoothingTimeConstant = 0.8;
-        VoiceViz.microphone.connect(VoiceViz.analyser);
-        
-        const bufferLength = VoiceViz.analyser.frequencyBinCount;
-        VoiceViz.dataArray = new Uint8Array(bufferLength);
-        
-        console.log('🎯 Voice visualization initialized for VU meter!');
-        return true;
-        
-    } catch (error) {
-        console.error('❌ Voice visualization failed:', error);
-        return false;
+function updateConversationInfo() {
+    const stateElement = document.getElementById('conversationState');
+    const responseElement = document.getElementById('lastResponse');
+    
+    if (stateElement) stateElement.textContent = conversationState;
+    if (responseElement) {
+        responseElement.textContent = lastAIResponse.substring(0, 50) + (lastAIResponse.length > 50 ? '...' : '');
     }
 }
 
-async function startUnifiedVoiceVisualization() {
-    const initialized = await initializeUnifiedVoiceVisualization();
-    if (!initialized) return false;
-    
-    // 🎚️ START VU METER
-    if (initializeVUMeter()) {
-        startVUMeter();
-    }
-    
-    console.log('🚀 VU meter ACTIVE!');
-    return true;
-}
-
-function stopUnifiedVoiceVisualization() {
-    // 🎚️ STOP VU METER
-    stopVUMeter();
-    
-    // Essential cleanup
-    if (VoiceViz.audioContext && VoiceViz.audioContext.state !== 'closed') {
-        VoiceViz.audioContext.close();
-        VoiceViz.audioContext = null;
-    }
-    
-    console.log('🛑 VU meter stopped');
-}
-
 // ===================================================
-// 🎯 LED BAR METER SYSTEM (Professional Audio Equipment Style)
+// 🤖 AI RESPONSE SYSTEM (Your business logic)
 // ===================================================
-let ledMeterActive = false;
-
-function initializeLEDMeter() {
-    const ledDisplay = document.getElementById('ledBarDisplay');
-    if (!ledDisplay) {
-        console.log('⚠️ LED Bar display not found');
-        return false;
-    }
+function getAIResponse(userInput) {
+    const input = userInput.toLowerCase();
     
-    console.log('🎯 LED Bar meter initialized');
-    return true;
-}
-
-function updateLEDMeter(volume) {
-    if (!ledMeterActive) return;
-    
-    const ledDots = document.querySelectorAll('.led-dot');
-    if (!ledDots.length) return;
-    
-    // Convert volume to LED count (same as before)
-    const dbValue = Math.max(-20, Math.min(3, (volume / 100) * 23 - 20));
-    const ledCount = Math.floor(((dbValue + 20) / 23) * 20);
-    
-    // Clear all LEDs
-    ledDots.forEach(dot => {
-        dot.classList.remove('active-green', 'active-yellow', 'active-red');
-    });
-    
-    // Light up LEDs based on volume
-    for (let i = 0; i < ledCount && i < ledDots.length; i++) {
-        const dot = ledDots[i];
-        
-        if (i < 14) {
-            dot.classList.add('active-green');
-        } else if (i < 18) {
-            dot.classList.add('active-yellow');
-        } else {
-            dot.classList.add('active-red');
+    // Check for keywords in business responses
+    for (const [keyword, response] of Object.entries(businessResponses)) {
+        if (input.includes(keyword)) {
+            return response;
         }
     }
-}
     
-    // Update status display
-    if (statusElement) {
-        const dbReading = statusElement.querySelector('.db-reading');
-        const statusText = statusElement.querySelector('.status-text');
-        
-        if (dbReading) {
-            if (volume > 5) {
-                dbReading.textContent = `${dbValue.toFixed(1)} dB`;
-            } else {
-                dbReading.textContent = '-∞ dB';
-            }
-        }
-        
-        if (statusText) {
-            statusText.textContent = volume > 5 ? 'ACTIVE' : 'READY';
-        }
-    }
-
-function startLEDMeter() {
-    if (!VoiceViz.analyser || ledMeterActive) return;
-    
-    ledMeterActive = true;
-    const bufferLength = VoiceViz.analyser.frequencyBinCount;
-    const dataArray = new Uint8Array(bufferLength);
-    
-    function updateMeter() {
-        if (!ledMeterActive) return;
-        
-        VoiceViz.analyser.getByteFrequencyData(dataArray);
-        
-        let sum = 0;
-        for (let i = 0; i < bufferLength; i++) {
-            sum += dataArray[i];
-        }
-        const average = sum / bufferLength;
-        const volume = Math.min(100, (average / 255) * 100);
-        
-        updateLEDMeter(volume);
-        requestAnimationFrame(updateMeter);
+    // Default responses based on conversation state
+    if (conversationState === 'initial') {
+        conversationState = 'general_inquiry';
+        return "I specialize in CPA firm transactions - buying, selling, and valuations. What specifically are you interested in learning more about?";
     }
     
-    updateMeter();
-    console.log('🎯 LED Bar meter started');
-}
-
-function stopLEDMeter() {
-    ledMeterActive = false;
-    
-    // Clear all LEDs
-    const ledDots = document.querySelectorAll('.led-dot');
-    ledDots.forEach(dot => {
-        dot.classList.remove('active-green', 'active-yellow', 'active-red');
-    });
-    
-    // Reset status
-    const statusElement = document.getElementById('ledStatus');
-    if (statusElement) {
-        const dbReading = statusElement.querySelector('.db-reading');
-        const statusText = statusElement.querySelector('.status-text');
-        
-        if (dbReading) dbReading.textContent = '-∞ dB';
-        if (statusText) statusText.textContent = 'READY';
-    }
-    
-    console.log('🎯 LED Bar meter stopped');
+    return "Thanks for your message. Is there anything else I can help you with regarding your CPA practice?";
 }
 
 // ===================================================
-// 🔄 INTEGRATION WITH EXISTING VOICE SYSTEM
+// 💬 MESSAGE HANDLING SYSTEM
 // ===================================================
-
-// REPLACE in your startUnifiedVoiceVisualization function:
-async function startUnifiedVoiceVisualization() {
-    const initialized = await initializeUnifiedVoiceVisualization();
-    if (!initialized) return false;
+function addUserMessage(message) {
+    const chatMessages = document.getElementById('chatMessages');
+    if (!chatMessages) return;
     
-    // Start LED meter instead of VU meter
-    if (initializeLEDMeter()) {
-        startLEDMeter();
+    const messageElement = document.createElement('div');
+    messageElement.className = 'message user-message';
+    messageElement.innerHTML = `<div class="message-bubble">${message}</div>`;
+    
+    chatMessages.appendChild(messageElement);
+    scrollChatToBottom();
+}
+
+function addAIMessage(message) {
+    const chatMessages = document.getElementById('chatMessages');
+    if (!chatMessages) return;
+    
+    const messageElement = document.createElement('div');
+    messageElement.className = 'message ai-message';
+    messageElement.innerHTML = `
+        <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/avatars/avatar_1754810337622_AI%20assist%20head%20left.png" class="ai-avatar">
+        <div class="message-bubble">${message}</div>
+    `;
+    
+    chatMessages.appendChild(messageElement);
+    scrollChatToBottom();
+}
+
+function scrollChatToBottom() {
+    const chatMessages = document.getElementById('chatMessages');
+    if (chatMessages) {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
     }
-    
-    console.log('🚀 LED Bar meter ACTIVE!');
-    return true;
-}
-
-// REPLACE in your stopUnifiedVoiceVisualization function:
-function stopUnifiedVoiceVisualization() {
-    stopLEDMeter(); // Stop LED meter
-    
-    if (VoiceViz.audioContext && VoiceViz.audioContext.state !== 'closed') {
-        VoiceViz.audioContext.close();
-        VoiceViz.audioContext = null;
-    }
-    
-    console.log('🛑 LED Bar meter stopped');
 }
 
 // ===================================================
-// 💬 MESSAGE HANDLING (KEPT - Original functions)
-// ==================================================
-
-function sendTextMessage() {
-    const textInput = document.getElementById('textInput');
-    if (!textInput) return;
-    
-    const message = textInput.value.trim();
-    console.log('💬 Processing text input:', message);
-    
-    if (!message) return;
-    
-    // Add user message
-    addUserMessage(message);
-    textInput.value = '';
-    
-    // Process directly - no need for processUserInput
-    setTimeout(() => {
-        const response = getAIResponse(message);
-        addAIMessage(response);
-        speakResponse(response);
-    }, 300);
-}
-
-// ===================================================
-// 🗣️ VOICE SYNTHESIS - CLEAN VERSION
+// 🗣️ VOICE SYNTHESIS SYSTEM
 // ===================================================
 function speakResponse(message) {
     console.log('Speaking response');
@@ -477,7 +340,6 @@ function speakResponse(message) {
     
     const utterance = new SpeechSynthesisUtterance(message);
     
-    // Optimized for Chrome
     utterance.rate = voiceSpeed;
     utterance.pitch = 1.0;
     utterance.volume = 0.9;
@@ -494,17 +356,16 @@ function speakResponse(message) {
         // Clear bubble reference for next speech
         currentUserBubble = null;
         
-        // Simple restart - no complex logic
+        // Restart listening if in audio mode
         if (isAudioMode && !isListening) {
             setTimeout(() => {
                 try {
-                    recognition.start();
-                    isListening = true;
-                    console.log('🔄 Recognition restarted');
+                    createRealtimeBubble();
+                    startListening();
                 } catch (error) {
                     console.log('Recognition restart error:', error);
                 }
-            }, 100);
+            }, 1000);
         }
     };
 
@@ -525,100 +386,28 @@ function stopCurrentAudio() {
     isSpeaking = false;
 }
 
-function findBestVoice(voices) {
-    const preferredVoices = [
-        'Microsoft Aria Online (Natural) - English (United States)',
-        'Microsoft Zira - English (United States)',
-        'Microsoft Libby Online (Natural) - English (United Kingdom)'
-    ];
-    
-    for (const preferredName of preferredVoices) {
-        const voice = voices.find(v => v.name === preferredName);
-        if (voice) {
-            return voice;
-        }
-    }
-    
-    const fallback = voices.find(v => v.name.includes('Aria') || v.name.includes('Zira'));
-    return fallback || voices[0];
-}
-
-
-utterance.onerror = function(event) {
-    console.log('Speech error:', event.error);
-    isSpeaking = false;
-};
-            
-            window.speechSynthesis.speak(utterance);
-            currentAudio = utterance;
-
-        function stopCurrentAudio() {
-            if (window.speechSynthesis) {
-                window.speechSynthesis.cancel();
-            }
-            currentAudio = null;
-            isSpeaking = false;
-        }
-
-function findBestVoice(voices) {
-    const preferredVoices = [
-        'Microsoft Aria Online (Natural) - English (United States)',
-        'Microsoft Zira - English (United States)',
-        'Microsoft Libby Online (Natural) - English (United Kingdom)'
-    ];
-    
-    for (const preferredName of preferredVoices) {
-        const voice = voices.find(v => v.name === preferredName);
-        if (voice) {
-            return voice;
-        }
-    }
-    
-    const fallback = voices.find(v => v.name.includes('Aria') || v.name.includes('Zira'));
-    return fallback || voices[0];
-}
-
 // ===================================================
-// 🗣️ quick questions
+// 📱 TEXT INPUT SYSTEM
 // ===================================================
-
-function askQuickQuestion(questionText) {
-    console.log('🎯 Quick question clicked:', questionText);
+function sendTextMessage() {
+    const textInput = document.getElementById('textInput');
+    if (!textInput) return;
     
-    // Prevent processing if AI is currently speaking
-    if (isSpeaking) {
-        console.log('Ignoring quick question - AI is speaking');
-        return;
-    }
+    const message = textInput.value.trim();
+    if (!message) return;
     
-    // Prevent duplicate processing
-    if (isProcessingInput) {
-        console.log('Ignoring quick question - already processing');
-        return;
-    }
+    addUserMessage(message);
+    textInput.value = '';
     
-    // Create instant user message bubble (no voice needed!)
-    addUserMessage(questionText);
-    isProcessingInput = true;
-    
-    // Process AI response directly
     setTimeout(() => {
-        console.log('🤖 Processing AI response for quick question:', questionText);
-        const response = getAIResponse(questionText);
-        console.log('🤖 AI Response generated for quick question');
-        
+        const response = getAIResponse(message);
         addAIMessage(response);
         speakResponse(response);
-        
-        // Reset processing flag
-        setTimeout(() => {
-            isProcessingInput = false;
-        }, 500);
-    }, 800); // Slightly faster than voice input since it's instant text
+    }, 300);
 }
 
 // ===================================================
-// 🚀 SPLASH SCREEN SYSTEM (KEPT - Original nightmare we solved!)
+// 🚀 SPLASH SCREEN SYSTEM (Your working system)
 // ===================================================
 function startVoiceChat() {
     console.log('🎤 startVoiceChat() called from splash screen');
@@ -644,18 +433,16 @@ function startVoiceChat() {
 async function activateMicrophone() {
     console.log('🎤 Activating microphone...');
     
-    // ⭐ ADD THIS: Hide splash screen FIRST!
+    // Hide splash screen
     const splashScreen = document.getElementById('splashScreen');
     if (splashScreen) {
         splashScreen.style.display = 'none';
-        console.log('✅ Splash screen hidden');
     }
     
-    // ⭐ ADD THIS: Show chat interface
+    // Show chat interface
     const chatInterface = document.getElementById('chatInterface');
     if (chatInterface) {
         chatInterface.style.display = 'flex';
-        console.log('✅ Chat interface shown');
     }
     
     try {
@@ -675,13 +462,12 @@ async function activateMicrophone() {
         if (audioOffBtn) audioOffBtn.style.display = 'block';
         if (voiceContainer) voiceContainer.style.display = 'flex';
         
-        // Start recognition
+        // Initialize speech recognition
+        initializeSpeechRecognition();
+        
+        // Start listening
         if (recognition && !isListening) {
-            try {
-                recognition.start();
-            } catch (error) {
-                console.log('Recognition start error:', error);
-            }
+            startListening();
         }
         
         // Add greeting
@@ -698,8 +484,45 @@ async function activateMicrophone() {
     }
 }
 
+function switchToTextMode() {
+    isAudioMode = false;
+    
+    const activateMicBtn = document.getElementById('activateMicBtn');
+    const audioOffBtn = document.getElementById('audioOffBtn');
+    const voiceContainer = document.getElementById('voiceVisualizerContainer');
+    
+    if (activateMicBtn) activateMicBtn.style.display = 'block';
+    if (audioOffBtn) audioOffBtn.style.display = 'none';
+    if (voiceContainer) voiceContainer.style.display = 'none';
+}
+
 // ===================================================
-// 🎤 VOICE LOADING SYSTEM (FIXED!)
+// ⚡ QUICK QUESTIONS SYSTEM
+// ===================================================
+function askQuickQuestion(questionText) {
+    console.log('🎯 Quick question clicked:', questionText);
+    
+    if (isSpeaking || isProcessingInput) {
+        console.log('Ignoring quick question - system busy');
+        return;
+    }
+    
+    addUserMessage(questionText);
+    isProcessingInput = true;
+    
+    setTimeout(() => {
+        const response = getAIResponse(questionText);
+        addAIMessage(response);
+        speakResponse(response);
+        
+        setTimeout(() => {
+            isProcessingInput = false;
+        }, 500);
+    }, 800);
+}
+
+// ===================================================
+// 🎤 VOICE LOADING SYSTEM
 // ===================================================
 function getVoices() {
     return new Promise((resolve) => {
@@ -708,7 +531,6 @@ function getVoices() {
         if (voices.length > 0) {
             resolve(voices);
         } else {
-            // Chrome needs time to load voices
             window.speechSynthesis.onvoiceschanged = () => {
                 voices = window.speechSynthesis.getVoices();
                 resolve(voices);
@@ -724,68 +546,27 @@ function preloadVoices() {
 }
 
 // ===================================================
-// 🌐 GLOBAL FUNCTIONS for quick buttons
+// 🌐 GLOBAL FUNCTIONS
 // ===================================================
 window.askQuickQuestion = function(question) {
-    console.log('⚡ Quick question asked:', question);
-    console.log('🔍 isSpeaking:', isSpeaking);
-    console.log('🔍 isProcessingInput:', isProcessingInput);
-    
-    // FORCE RESET if speech has actually finished but flag is stuck
-    if (isSpeaking && (!currentAudio || currentAudio.paused || currentAudio.ended)) {
-        console.log('🔧 Forcing isSpeaking reset - audio actually finished');
-        isSpeaking = false;
-    }
-    
-    // Prevent processing if AI is currently speaking
-    if (isSpeaking) {
-        console.log('Ignoring quick question - AI is speaking');
-        return;
-    }
-    
-    // Rest of your function stays the same...
-    if (isProcessingInput) {
-        console.log('Ignoring quick question - already processing');
-        return;
-    }
-    
-    console.log('🎯 Creating user message bubble...');
-    addUserMessage(question);
-    console.log('🎯 User message should be visible now');
-    
-    isProcessingInput = true;
-    
-    setTimeout(() => {
-        console.log('🤖 Processing AI response for quick question:', question);
-        const response = getAIResponse(question);
-        console.log('🤖 AI Response generated for quick question');
-        
-        addAIMessage(response);
-        speakResponse(response);
-        
-        setTimeout(() => {
-            isProcessingInput = false;
-        }, 500);
-    }, 800);
+    askQuickQuestion(question);
 };
+
 // ===================================================
-// 🚀 MODULE INITIALIZATION (KEPT - Original approach)
+// 🚀 INITIALIZATION SYSTEM
 // ===================================================
 function initializeVoiceChat() {
     console.log('🚀 Initializing Voice Chat Module...');
     
     initializeSpeechRecognition();
-    initializeWaveform();
     preloadVoices();
     
     console.log('✅ Voice Chat Module Ready!');
 }
 
-// Auto-initialize when loaded (KEPT - Original)
+// Auto-initialize when loaded
 document.addEventListener('DOMContentLoaded', () => {
     initializeVoiceChat();
 });
 
-console.log('🎯 Mobile-Wise AI Formviser - SURGICAL HYBRID COMPLETE!');
-console.log('✅ KEPT: Original foundation, splash screen logic, VoiceViz, all UI functions');
-console.log('🚀 RESULT: Should eliminate 7-second delays while preserving all working parts!');
+console.log('🎯 Mobile-Wise AI Voice Chat - COMPLETE INTEGRATED SYSTEM LOADED!');
