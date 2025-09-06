@@ -240,19 +240,25 @@ function addAIResponse(userText) {
 
 function createRealtimeBubble() {
     const chatMessages = document.getElementById('chatMessages');
-    if (!chatMessages) return;
+    if (!chatMessages) {
+        console.log('❌ chatMessages container not found');
+        return;
+    }
     
-    const userBubble = document.createElement('div');
-    userBubble.className = 'message user-message';
-    userBubble.id = 'currentUserBubble';
+    // Create user message with YOUR HTML structure
+    const userMessage = document.createElement('div');
+    userMessage.className = 'message user-message';
+    userMessage.id = 'currentUserBubble';
     
-    const bubbleText = document.createElement('div');
-    bubbleText.className = 'bubble-text';
-    bubbleText.textContent = 'Listening...';
-    userBubble.appendChild(bubbleText);
+    const messageBubble = document.createElement('div');
+    messageBubble.className = 'message-bubble';
+    messageBubble.textContent = 'Listening...';
     
-    chatMessages.appendChild(userBubble);
+    userMessage.appendChild(messageBubble);
+    chatMessages.appendChild(userMessage);
+    
     scrollChatToBottom();
+    console.log('👤 Live user bubble created with correct structure');
 }
 
 function updateConversationInfo() {
@@ -296,8 +302,12 @@ function addUserMessage(message) {
     
     const messageElement = document.createElement('div');
     messageElement.className = 'message user-message';
-    messageElement.innerHTML = `<div class="message-bubble">${message}</div>`;
     
+    const messageBubble = document.createElement('div');
+    messageBubble.className = 'message-bubble';
+    messageBubble.textContent = message;
+    
+    messageElement.appendChild(messageBubble);
     chatMessages.appendChild(messageElement);
     scrollChatToBottom();
 }
@@ -308,10 +318,20 @@ function addAIMessage(message) {
     
     const messageElement = document.createElement('div');
     messageElement.className = 'message ai-message';
-    messageElement.innerHTML = `
-        <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/avatars/avatar_1754810337622_AI%20assist%20head%20left.png" class="ai-avatar">
-        <div class="message-bubble">${message}</div>
-    `;
+    
+    const messageBubble = document.createElement('div');
+    messageBubble.className = 'message-bubble';
+    
+    const aiAvatar = document.createElement('img');
+    aiAvatar.src = 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/avatars/avatar_1754810337622_AI%20assist%20head%20left.png';
+    aiAvatar.className = 'ai-avatar';
+    
+    const messageText = document.createElement('div');
+    messageText.textContent = message;
+    
+    messageBubble.appendChild(aiAvatar);
+    messageBubble.appendChild(messageText);
+    messageElement.appendChild(messageBubble);
     
     chatMessages.appendChild(messageElement);
     scrollChatToBottom();
