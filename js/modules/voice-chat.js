@@ -48,7 +48,7 @@ function startListening() {
             if (finalTranscript) {
                 setTimeout(() => {
                     processUserResponse(finalTranscript);
-                }, 500);
+                }, 1500);
             }
         };
 
