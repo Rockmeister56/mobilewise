@@ -14,6 +14,7 @@ let currentAudio = null;
 let persistentMicStream = null;
 let currentUserBubble = null;
 let micPermissionGranted = false;
+let isCreatingBubble = false;
 
 // Conversation state tracking (from working bubble system)
 let conversationState = 'initial';
@@ -243,7 +244,15 @@ function addAIResponse(userText) {
 }
 
 function createRealtimeBubble() {
-    // PREVENT DUPLICATES - Remove any existing listening bubble first
+    // PREVENT MULTIPLE SIMULTANEOUS CALLS
+    if (isCreatingBubble) {
+        console.log('⚠️ Already creating bubble, skipping...');
+        return;
+    }
+    
+    isCreatingBubble = true;
+    
+    // Remove any existing listening bubble first
     const existingBubble = document.getElementById('currentUserBubble');
     if (existingBubble) {
         existingBubble.remove();
@@ -253,6 +262,7 @@ function createRealtimeBubble() {
     const chatMessages = document.getElementById('chatMessages');
     if (!chatMessages) {
         console.log('❌ chatMessages container not found');
+        isCreatingBubble = false;
         return;
     }
     
@@ -269,6 +279,11 @@ function createRealtimeBubble() {
     
     scrollChatToBottom();
     console.log('👤 Fresh listening bubble created');
+    
+    // Reset flag after creation
+    setTimeout(() => {
+        isCreatingBubble = false;
+    }, 100);
 }
 
 function updateConversationInfo() {
