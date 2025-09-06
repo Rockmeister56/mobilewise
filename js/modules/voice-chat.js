@@ -229,7 +229,6 @@ function addAIResponse(userText) {
 }
 
 function createRealtimeBubble() {
-    // PREVENT MULTIPLE SIMULTANEOUS CALLS
     if (isCreatingBubble) {
         console.log('⚠️ Already creating bubble, skipping...');
         return;
@@ -237,7 +236,6 @@ function createRealtimeBubble() {
     
     isCreatingBubble = true;
     
-    // Remove any existing listening bubble first
     const existingBubble = document.getElementById('currentUserBubble');
     if (existingBubble) {
         existingBubble.remove();
@@ -257,15 +255,16 @@ function createRealtimeBubble() {
     
     const messageBubble = document.createElement('div');
     messageBubble.className = 'message-bubble';
-    messageBubble.textContent = 'Listening...';
+    
+    // ANIMATED LISTENING TEXT (like bubble-test4)
+    messageBubble.innerHTML = '<span class="listening-animation listening-dots">Listening</span>';
     
     userMessage.appendChild(messageBubble);
     chatMessages.appendChild(userMessage);
     
     scrollChatToBottom();
-    console.log('👤 Fresh listening bubble created');
+    console.log('👤 Fresh listening bubble created with animation');
     
-    // Reset flag after creation
     setTimeout(() => {
         isCreatingBubble = false;
     }, 100);
