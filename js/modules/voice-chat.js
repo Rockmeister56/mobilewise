@@ -281,6 +281,35 @@ function updateConversationInfo() {
     }
 }
 
+function stopListening() {
+    if (recognition) {
+        recognition.stop();
+        recognition = null;
+    }
+
+    const currentBubble = document.getElementById('currentUserBubble');
+    if (currentBubble) {
+        currentBubble.classList.remove('typing');
+        
+        // Safe check for message bubble
+        const bubbleElement = currentBubble.querySelector('.message-bubble');
+        if (bubbleElement && !bubbleElement.textContent.trim()) {
+            bubbleElement.textContent = 'No speech detected';
+            currentBubble.style.opacity = '0.6';
+        }
+        currentBubble.removeAttribute('id');
+    }
+
+    // Update UI buttons
+    const activateMicBtn = document.getElementById('activateMicBtn');
+    const audioOffBtn = document.getElementById('audioOffBtn');
+    if (activateMicBtn) activateMicBtn.style.display = 'block';
+    if (audioOffBtn) audioOffBtn.style.display = 'none';
+
+    isListening = false;
+    console.log('🛑 Listening stopped');
+}
+
 // ===================================================
 // 🤖 AI RESPONSE SYSTEM (Your business logic)
 // ===================================================
@@ -386,17 +415,16 @@ function speakResponse(message) {
     // Clear bubble reference
     currentUserBubble = null;
     
-    // ONLY restart if we're in audio mode AND not already listening
-    if (isAudioMode && !isListening) {
+    // ONLY restart if conditions are perfect
+    if (isAudioMode && !isListening && !recognition) {
         setTimeout(() => {
             try {
                 console.log('🔄 Restarting listening after speech');
-                createRealtimeBubble(); // This will remove duplicates first
-                startListening();
+                startListening(); // This will create bubble safely
             } catch (error) {
                 console.log('Recognition restart error:', error);
             }
-        }, 1000);
+        }, 1500); // Longer delay to prevent conflicts
     }
 };
     utterance.onerror = function(event) {
