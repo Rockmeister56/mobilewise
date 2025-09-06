@@ -676,19 +676,16 @@ box-shadow: 0 15px 40px rgba(33, 150, 243, 0.4);
     100% { opacity: 1; }
 }
 
-/* TYPING DOTS ANIMATION (like bubble-test4) */
-.listening-dots::after {
-    content: '...';
-    display: inline-block;
-    animation: typingDots 1.5s infinite;
-    margin-left: 5px;
+/* WIDER LISTENING BUBBLE - ADD THIS CSS ONLY */
+.message.user-message#currentUserBubble {
+    min-width: 300px !important;
 }
 
-@keyframes typingDots {
-    0%, 20% { opacity: 0; }
-    40% { opacity: 1; }
-    60% { opacity: 0; }
-    80%, 100% { opacity: 1; }
+.message.user-message#currentUserBubble .message-bubble {
+    min-width: 280px !important;
+    padding: 12px 20px !important;
+    text-align: left !important;
+    position: relative;
 }
 
    </style>

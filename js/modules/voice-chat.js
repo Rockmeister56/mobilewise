@@ -228,46 +228,47 @@ function addAIResponse(userText) {
     }, responseText.length * 50 + 2000); // Estimate speaking time
 }
 
-recognition.onresult = function(event) {
-    let interimTranscript = '';
-    let finalTranscript = '';
-
-    for (let i = event.resultIndex; i < event.results.length; i++) {
-        const transcript = event.results[i][0].transcript;
-        if (event.results[i].isFinal) {
-            finalTranscript += transcript;
-        } else {
-            interimTranscript += transcript;
-        }
+function createRealtimeBubble() {
+    if (isCreatingBubble) {
+        console.log('⚠️ Already creating bubble, skipping...');
+        return;
     }
-
-    const currentBubble = document.getElementById('currentUserBubble');
-    if (currentBubble) {
-        const displayText = finalTranscript + interimTranscript;
-        if (displayText.trim()) {
-            const bubbleElement = currentBubble.querySelector('.message-bubble');
-            if (bubbleElement) {
-                // FIX: Show live words flowing in (no animation classes)
-                bubbleElement.textContent = displayText;
-                
-                // Add typing indicator only for interim results
-                if (interimTranscript) {
-                    bubbleElement.style.opacity = '0.8'; // Show it's interim
-                } else {
-                    bubbleElement.style.opacity = '1'; // Show it's final
-                }
-            }
-            scrollChatToBottom();
-        }
+    
+    isCreatingBubble = true;
+    
+    const existingBubble = document.getElementById('currentUserBubble');
+    if (existingBubble) {
+        existingBubble.remove();
+        console.log('🧹 Removed existing listening bubble');
     }
-
-    // Process final transcript
-    if (finalTranscript) {
-        setTimeout(() => {
-            processUserResponse(finalTranscript);
-        }, 500);
+    
+    const chatMessages = document.getElementById('chatMessages');
+    if (!chatMessages) {
+        console.log('❌ chatMessages container not found');
+        isCreatingBubble = false;
+        return;
     }
-};
+    
+    const userMessage = document.createElement('div');
+    userMessage.className = 'message user-message';
+    userMessage.id = 'currentUserBubble';
+    
+    const messageBubble = document.createElement('div');
+    messageBubble.className = 'message-bubble';
+    
+    // ANIMATED LISTENING TEXT (like bubble-test4)
+    messageBubble.innerHTML = '<span class="listening-animation listening-dots">Listening</span>';
+    
+    userMessage.appendChild(messageBubble);
+    chatMessages.appendChild(userMessage);
+    
+    scrollChatToBottom();
+    console.log('👤 Fresh listening bubble created with animation');
+    
+    setTimeout(() => {
+        isCreatingBubble = false;
+    }, 100);
+}
 
 function updateConversationInfo() {
     const stateElement = document.getElementById('conversationState');
