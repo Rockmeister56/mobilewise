@@ -3,6 +3,12 @@
 // Combining working bubble system + your business logic
 // ===================================================
 
+// TEST FUNCTION - ADD THIS AT THE TOP
+function startListening() {
+    console.log('🎯 startListening() called successfully!');
+    alert('startListening works!');
+}
+
 // ===================================================
 // 🏗️ GLOBAL VARIABLES
 // ===================================================
