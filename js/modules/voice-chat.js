@@ -107,45 +107,63 @@ function startListening() {
         isListening = true;
 
         recognition.onresult = function(event) {
-    let interimTranscript = '';
-    let finalTranscript = '';
+            let interimTranscript = '';
+            let finalTranscript = '';
 
-    for (let i = event.resultIndex; i < event.results.length; i++) {
-        const transcript = event.results[i][0].transcript;
-        if (event.results[i].isFinal) {
-            finalTranscript += transcript;
-        } else {
-            interimTranscript += transcript;
-        }
-    }
-
-    const currentBubble = document.getElementById('currentUserBubble');
-    if (currentBubble) {
-        const displayText = finalTranscript + interimTranscript;
-        if (displayText.trim()) {
-            // FIX: Use .message-bubble instead of .bubble-text
-            const bubbleElement = currentBubble.querySelector('.message-bubble');
-            if (bubbleElement) {
-                bubbleElement.textContent = displayText;
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const transcript = event.results[i][0].transcript;
+                if (event.results[i].isFinal) {
+                    finalTranscript += transcript;
+                } else {
+                    interimTranscript += transcript;
+                }
             }
 
-            if (interimTranscript) {
-                currentBubble.classList.add('typing');
-            } else {
-                currentBubble.classList.remove('typing');
+            const currentBubble = document.getElementById('currentUserBubble');
+            if (currentBubble) {
+                const displayText = finalTranscript + interimTranscript;
+                if (displayText.trim()) {
+                    // FIX: Use .message-bubble instead of .bubble-text
+                    const bubbleElement = currentBubble.querySelector('.message-bubble');
+                    if (bubbleElement) {
+                        bubbleElement.textContent = displayText;
+                    }
+
+                    if (interimTranscript) {
+                        currentBubble.classList.add('typing');
+                    } else {
+                        currentBubble.classList.remove('typing');
+                    }
+
+                    scrollChatToBottom();
+                }
             }
 
-            scrollChatToBottom();
-        }
-    }
+            // Process final transcript
+            if (finalTranscript) {
+                setTimeout(() => {
+                    processUserResponse(finalTranscript);
+                }, 500);
+            }
+        };
 
-    // Process final transcript
-    if (finalTranscript) {
-        setTimeout(() => {
-            processUserResponse(finalTranscript);
-        }, 500);
+        recognition.onerror = function(event) {
+            console.error('Speech recognition error:', event.error);
+            stopListening();
+        };
+
+        recognition.onend = function() {
+            if (isListening) {
+                console.log("Recognition ended, but we're still in listening mode");
+            }
+        };
+
+        recognition.start();
+
+    } catch (error) {
+        console.error('Error starting speech recognition:', error);
     }
-};
+}
 
         recognition.onerror = function(event) {
             console.error('Speech recognition error:', event.error);
