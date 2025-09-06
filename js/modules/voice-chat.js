@@ -106,41 +106,45 @@ function startListening() {
         isListening = true;
 
         recognition.onresult = function(event) {
-            let interimTranscript = '';
-            let finalTranscript = '';
+    let interimTranscript = '';
+    let finalTranscript = '';
 
-            for (let i = event.resultIndex; i < event.results.length; i++) {
-                const transcript = event.results[i][0].transcript;
-                if (event.results[i].isFinal) {
-                    finalTranscript += transcript;
-                } else {
-                    interimTranscript += transcript;
-                }
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript;
+        if (event.results[i].isFinal) {
+            finalTranscript += transcript;
+        } else {
+            interimTranscript += transcript;
+        }
+    }
+
+    const currentBubble = document.getElementById('currentUserBubble');
+    if (currentBubble) {
+        const displayText = finalTranscript + interimTranscript;
+        if (displayText.trim()) {
+            // FIX: Use .message-bubble instead of .bubble-text
+            const bubbleElement = currentBubble.querySelector('.message-bubble');
+            if (bubbleElement) {
+                bubbleElement.textContent = displayText;
             }
 
-            const currentBubble = document.getElementById('currentUserBubble');
-            if (currentBubble) {
-                const displayText = finalTranscript + interimTranscript;
-                if (displayText.trim()) {
-                    currentBubble.querySelector('.bubble-text').textContent = displayText;
-
-                    if (interimTranscript) {
-                        currentBubble.classList.add('typing');
-                    } else {
-                        currentBubble.classList.remove('typing');
-                    }
-
-                    scrollChatToBottom();
-                }
+            if (interimTranscript) {
+                currentBubble.classList.add('typing');
+            } else {
+                currentBubble.classList.remove('typing');
             }
 
-            // Process final transcript
-            if (finalTranscript) {
-                setTimeout(() => {
-                    processUserResponse(finalTranscript);
-                }, 500);
-            }
-        };
+            scrollChatToBottom();
+        }
+    }
+
+    // Process final transcript
+    if (finalTranscript) {
+        setTimeout(() => {
+            processUserResponse(finalTranscript);
+        }, 500);
+    }
+};
 
         recognition.onerror = function(event) {
             console.error('Speech recognition error:', event.error);
