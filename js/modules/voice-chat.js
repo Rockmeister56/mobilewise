@@ -86,6 +86,7 @@ let shouldShowSmartButton = false;
 let smartButtonText = 'AI Smart Button';
 let smartButtonAction = 'default';
 
+
 // Conversation state tracking (from working bubble system)
 let conversationState = 'initial';
 let lastAIResponse = '';
@@ -399,21 +400,15 @@ function simulateUserMessage(message) {
 // ===================================================
 // 🤖 AI RESPONSE SYSTEM (Your business logic)
 // ===================================================
+// AI RESPONSE SYSTEM (NEW - replaces old getAIResponse)
 function getAIResponse(userInput) {
-    const input = userInput.toLowerCase();
+    const userText = userInput.toLowerCase();
     
-    // Check for keywords in business responses
-    for (const [keyword, response] of Object.entries(businessResponses)) {
-        if (input.includes(keyword)) {
-            return response;
-        }
-    }
-    
-   // NEW ADVANCED CONVERSATION ENGINE
-let responseText = '';
-let shouldShowSmartButton = false;
-let smartButtonText = 'AI Smart Button';
-let smartButtonAction = 'default';
+    // Use our new conversation engine
+    let responseText = '';
+    let shouldShowSmartButton = false;
+    let smartButtonText = 'AI Smart Button';
+    let smartButtonAction = 'default';
 
 if (conversationState === 'initial') {
     if (userText.toLowerCase().includes('sell') || userText.toLowerCase().includes('practice')) {
