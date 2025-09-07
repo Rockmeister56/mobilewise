@@ -20,54 +20,65 @@ function startListening() {
         createRealtimeBubble();
         isListening = true;
 
-        recognition.onresult = function(event) {
-            let interimTranscript = '';
-            let finalTranscript = '';
+       recognition.onresult = function(event) {
+    let interimTranscript = '';
+    let finalTranscript = '';
 
-            for (let i = event.resultIndex; i < event.results.length; i++) {
-                const transcript = event.results[i][0].transcript;
-                if (event.results[i].isFinal) {
-                    finalTranscript += transcript;
-                } else {
-                    interimTranscript += transcript;
-                }
-            }
-
-            const currentBubble = document.getElementById('currentUserBubble');
-            if (currentBubble) {
-                const displayText = finalTranscript + interimTranscript;
-                if (displayText.trim()) {
-                    const bubbleElement = currentBubble.querySelector('.message-bubble');
-                    if (bubbleElement) {
-                        bubbleElement.textContent = displayText;
-                    }
-                    scrollChatToBottom();
-                }
-            }
-
-            if (finalTranscript) {
-                setTimeout(() => {
-                    processUserResponse(finalTranscript);
-                }, 1500);
-            }
-        };
-
-        recognition.onerror = function(event) {
-            console.error('Speech recognition error:', event.error);
-            stopListening();
-        };
-
-        recognition.onend = function() {
-            console.log("Recognition ended");
-        };
-
-        recognition.start();
-        console.log('🎤 Speech recognition started successfully');
-
-    } catch (error) {
-        console.error('Error starting speech recognition:', error);
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript;
+        if (event.results[i].isFinal) {
+            finalTranscript += transcript;
+        } else {
+            interimTranscript += transcript;
+        }
     }
-}
+
+    const currentBubble = document.getElementById('currentUserBubble');
+    if (currentBubble) {
+        const displayText = finalTranscript + interimTranscript;
+        if (displayText.trim()) {
+            // IMPORTANT: Check for both possible bubble structures
+            const bubbleElement = currentBubble.querySelector('.message-bubble') || currentBubble.querySelector('.bubble-text');
+            if (bubbleElement) {
+                bubbleElement.textContent = displayText;
+            } else {
+                // Fallback: update the bubble directly
+                currentBubble.textContent = displayText;
+            }
+
+            // Cool effect: typing = transparent, final = solid
+            if (interimTranscript) {
+                currentBubble.classList.add('typing');
+            } else {
+                currentBubble.classList.remove('typing');
+            }
+
+            // IMPORTANT: Use the correct scroll function
+            if (typeof scrollChatToBottom === 'function') {
+                scrollChatToBottom();
+            } else if (typeof scrollToBottom === 'function') {
+                scrollToBottom();
+            }
+        }
+    }
+
+    // IMPORTANT: Process final transcript with proper delay
+    if (finalTranscript) {
+        setTimeout(() => {
+            processUserResponse(finalTranscript);
+        }, 1500);  // Your timing was perfect!
+    }
+};
+
+recognition.onerror = function(event) {
+    console.error('Speech recognition error:', event.error);
+    stopListening();
+};
+
+recognition.onend = function() {
+    console.log("Recognition ended");
+    // Don't auto-restart here - let processUserResponse handle it
+};
 
 // ===================================================
 // 🏗️ GLOBAL VARIABLES
@@ -218,46 +229,47 @@ function addAIResponse(userText) {
         }
     }, 3000); // Fixed 3-second delay
 }
+
 function createRealtimeBubble() {
-    if (isCreatingBubble) {
-        console.log('⚠️ Already creating bubble, skipping...');
-        return;
+    const chatArea = document.getElementById('chatArea');
+    const userBubble = document.createElement('div');
+    userBubble.className = 'bubble user-bubble typing';
+    userBubble.id = 'currentUserBubble';
+    
+    const bubbleText = document.createElement('div');
+    bubbleText.className = 'bubble-text';
+    bubbleText.textContent = 'Listening...';
+    userBubble.appendChild(bubbleText);
+    
+    chatArea.appendChild(userBubble);
+    scrollToBottom();
+}
+
+function processUserResponse(userText) {
+    userResponseCount++;
+    
+    // Update UI - Make bubble solid with final text
+    const currentBubble = document.getElementById('currentUserBubble');
+    if (currentBubble) {
+        currentBubble.classList.remove('typing');
+        currentBubble.removeAttribute('id');
     }
     
-    isCreatingBubble = true;
-    
-    const existingBubble = document.getElementById('currentUserBubble');
-    if (existingBubble) {
-        existingBubble.remove();
-        console.log('🧹 Removed existing listening bubble');
+    // Stop listening while AI responds
+    if (recognition) {
+        recognition.stop();
+        recognition = null;
     }
     
-    const chatMessages = document.getElementById('chatMessages');
-    if (!chatMessages) {
-        console.log('❌ chatMessages container not found');
-        isCreatingBubble = false;
-        return;
-    }
+    isListening = false;
+    document.getElementById('startBtn').style.display = 'block';
+    document.getElementById('stopBtn').style.display = 'none';
+    document.getElementById('statusInfo').innerHTML = '🤖 AI is responding...';
     
-    const userMessage = document.createElement('div');
-    userMessage.className = 'message user-message';
-    userMessage.id = 'currentUserBubble';
-    
-    const messageBubble = document.createElement('div');
-    messageBubble.className = 'message-bubble';
-    
-    // ANIMATED LISTENING TEXT (like bubble-test4)
-    messageBubble.innerHTML = '<span class="listening-animation listening-dots">Listening</span>';
-    
-    userMessage.appendChild(messageBubble);
-    chatMessages.appendChild(userMessage);
-    
-    scrollChatToBottom();
-    console.log('👤 Fresh listening bubble created with animation');
-    
+    // Add AI response
     setTimeout(() => {
-        isCreatingBubble = false;
-    }, 100);
+        addAIResponse(userText);
+    }, 800);
 }
 
 function updateConversationInfo() {
@@ -396,10 +408,6 @@ function simulateUserMessage(message) {
     }, 500);
 }
 
-// ===================================================
-// 🤖 AI RESPONSE SYSTEM (Fixed & Safe)
-// ===================================================
-
 function getAIResponse(userInput) {
     const userText = userInput.toLowerCase();
     let responseText = '';
@@ -408,19 +416,19 @@ function getAIResponse(userInput) {
     let smartButtonAction = '';
     
     if (conversationState === 'initial') {
-        if (userText.includes('sell') || userText.includes('practice')) {
+        if (userText.includes('sell') || userText.includes('practice') || userText.includes('selling')) {
             responseText = "EXCELLENT timing for selling your accounting practice! The market is very strong right now. Should Bruce call you today or tomorrow for your FREE practice valuation?";
             conversationState = 'selling_inquiry';
             shouldShowSmartButton = true;
             smartButtonText = 'Schedule Free Valuation';
             smartButtonAction = 'valuation';
-        } else if (userText.includes('buy') || userText.includes('purchase')) {
+        } else if (userText.includes('buy') || userText.includes('purchase') || userText.includes('buying') || userText.includes('acquire')) {
             responseText = "Looking to BUY a CPA firm? Perfect! Bruce has exclusive off-market opportunities available RIGHT NOW. Should Bruce show you available practices today or tomorrow?";
             conversationState = 'buying_inquiry';
             shouldShowSmartButton = true;
             smartButtonText = 'View Available Practices';
             smartButtonAction = 'buying';
-        } else if (userText.includes('value') || userText.includes('worth')) {
+        } else if (userText.includes('value') || userText.includes('worth') || userText.includes('valuation') || userText.includes('evaluate')) {
             responseText = "Your accounting practice could be worth MORE than you think! Bruce offers a FREE consultation to evaluate your practice. Are you interested in a valuation today?";
             conversationState = 'valuation_inquiry';
             shouldShowSmartButton = true;
@@ -430,65 +438,96 @@ function getAIResponse(userInput) {
             responseText = "I specialize in CPA firm transactions - buying, selling, and valuations. What specifically are you interested in learning more about?";
         }
     } else if (conversationState === 'selling_inquiry') {
-        if (userText.includes('today') || userText.includes('now')) {
+        if (userText.includes('today') || userText.includes('now') || userText.includes('asap') || 
+            userText.includes('immediately') || userText.includes('this afternoon') || 
+            (userText.includes('yes') && !userText.includes('tomorrow'))) {
             responseText = "Great! Bruce will call you today. What's the best phone number to reach you, and what time works best?";
             conversationState = 'contact_today';
             shouldShowSmartButton = true;
             smartButtonText = 'Schedule Today';
             smartButtonAction = 'schedule_today';
-        } else if (userText.includes('tomorrow')) {
+        } else if (userText.includes('tomorrow') || userText.includes('next day') || 
+                   userText.includes('morning') || userText.includes('later')) {
             responseText = "Perfect! Bruce will call you tomorrow. What's the best phone number to reach you, and what time works best?";
             conversationState = 'contact_tomorrow';
             shouldShowSmartButton = true;
             smartButtonText = 'Schedule Tomorrow';
             smartButtonAction = 'schedule_tomorrow';
+        } else if (userText.includes('yes') || userText.includes('sure') || userText.includes('okay') || 
+                   userText.includes('schedule') || userText.includes('free') || userText.includes('consultation') ||
+                   userText.includes('call') || userText.includes('contact') || userText.includes('talk')) {
+            responseText = "Excellent! Should Bruce call you today or tomorrow for your FREE practice valuation?";
+            conversationState = 'selling_inquiry';
         } else {
             responseText = "I didn't quite catch that. Should Bruce call you today or tomorrow for your FREE practice valuation?";
         }
     } else if (conversationState === 'buying_inquiry') {
-        if (userText.includes('today') || userText.includes('now')) {
+        if (userText.includes('today') || userText.includes('now') || userText.includes('asap') || 
+            userText.includes('immediately') || userText.includes('this afternoon') ||
+            (userText.includes('yes') && !userText.includes('tomorrow'))) {
             responseText = "Excellent! Bruce will contact you today to discuss available practices. What's the best phone number to reach you?";
             conversationState = 'contact_today';
             shouldShowSmartButton = true;
             smartButtonText = 'Connect Today';
             smartButtonAction = 'contact_today';
-        } else if (userText.includes('tomorrow')) {
+        } else if (userText.includes('tomorrow') || userText.includes('next day') || 
+                   userText.includes('morning') || userText.includes('later')) {
             responseText = "Great! Bruce will contact you tomorrow to discuss available practices. What's the best phone number to reach you?";
             conversationState = 'contact_tomorrow';
             shouldShowSmartButton = true;
             smartButtonText = 'Connect Tomorrow';
             smartButtonAction = 'contact_tomorrow';
+        } else if (userText.includes('yes') || userText.includes('sure') || userText.includes('okay') || 
+                   userText.includes('show') || userText.includes('available') || userText.includes('practices') ||
+                   userText.includes('view') || userText.includes('see') || userText.includes('interested')) {
+            responseText = "Perfect! Should Bruce contact you today or tomorrow about available practices?";
+            conversationState = 'buying_inquiry';
         } else {
             responseText = "I didn't quite catch that. Should Bruce contact you today or tomorrow about available practices?";
         }
     } else if (conversationState === 'valuation_inquiry') {
-        if (userText.includes('yes') || userText.includes('sure') || userText.includes('interested')) {
+        if (userText.includes('yes') || userText.includes('sure') || userText.includes('interested') || 
+            userText.includes('okay') || userText.includes('please') || userText.includes('free') ||
+            userText.includes('consultation') || userText.includes('valuation') || userText.includes('evaluate')) {
             responseText = "Great! Bruce will contact you to set up your FREE valuation. What's the best phone number to reach you, and should he call today or tomorrow?";
             conversationState = 'contact_valuation';
             shouldShowSmartButton = true;
             smartButtonText = 'Connect with Bruce';
             smartButtonAction = 'connect_bruce';
-        } else {
+        } else if (userText.includes('no') || userText.includes('not') || userText.includes('maybe')) {
             responseText = "No problem! Is there anything else I can help you with regarding your CPA practice?";
             conversationState = 'initial';
+        } else {
+            responseText = "I want to make sure I understand - are you interested in a FREE practice valuation?";
+            conversationState = 'valuation_inquiry';
         }
-    } else if (conversationState.startsWith('contact_')) {
+    } else if (conversationState === 'contact_today' || conversationState === 'contact_tomorrow' || conversationState === 'contact_valuation') {
         const phoneMatch = userText.match(/\b(\d{3}[-.]?\d{3}[-.]?\d{4})\b/);
         if (phoneMatch) {
-            responseText = "Thank you! Bruce will call you at the number you provided. Is there anything else I can help you with today?";
+            responseText = "Perfect! Bruce will call you at " + phoneMatch[0] + ". Is there anything else I can help you with today?";
             conversationState = 'completed';
             shouldShowSmartButton = true;
             smartButtonText = 'Start Interview';
             smartButtonAction = 'interview';
+        } else if (userText.includes('phone') || userText.includes('number') || userText.includes('call') ||
+                   userText.includes('contact') || userText.includes('reach')) {
+            responseText = "Great! What's the best phone number for Bruce to reach you? Please say the 10-digit number clearly.";
         } else {
             responseText = "Thanks! What's the best phone number for Bruce to reach you?";
+        }
+    } else if (conversationState === 'completed') {
+        if (userText.includes('yes') || userText.includes('sure') || userText.includes('okay') ||
+            userText.includes('interview') || userText.includes('start') || userText.includes('continue')) {
+            responseText = "Excellent! Bruce will be in touch soon, and we'll get your interview process started. Thank you for your interest!";
+        } else {
+            responseText = "Thank you! Bruce will be in touch soon. Have a great day!";
         }
     } else {
         responseText = "Thanks for your message. Is there anything else I can help you with regarding your CPA practice?";
         conversationState = 'initial';
     }
 
-    // SAFE DOM HANDLING - Check if elements exist first!
+    // SAFE DOM HANDLING
     const chatArea = document.getElementById('chatArea');
     if (chatArea) {
         const aiBubble = document.createElement('div');
@@ -505,7 +544,6 @@ function getAIResponse(userInput) {
         
         chatArea.appendChild(aiBubble);
         
-        // Safe scroll function
         if (typeof scrollToBottom === 'function') {
             scrollToBottom();
         }
