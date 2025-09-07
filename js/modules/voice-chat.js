@@ -216,7 +216,7 @@ function addAIResponse(userText) {
             createRealtimeBubble();
             startListening();
         }
-    }, (responseText ? responseText.length * 50 : 0) + 2000); // Safe dynamic timing
+    }, responseText.length * 50 + 2000); // Estimate speaking time
 }
 
 function createRealtimeBubble() {
