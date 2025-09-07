@@ -20,11 +20,6 @@ function startListening() {
         createRealtimeBubble();
         isListening = true;
 
-        // Update UI buttons and status
-        document.getElementById('startBtn').style.display = 'none';
-        document.getElementById('stopBtn').style.display = 'block';
-        document.getElementById('statusInfo').innerHTML = '🎤 Listening... Speak now!';
-
         recognition.onresult = function(event) {
             let interimTranscript = '';
             let finalTranscript = '';
@@ -67,7 +62,7 @@ function startListening() {
 
         recognition.onerror = function(event) {
             console.error('Speech recognition error:', event.error);
-            document.getElementById('statusInfo').innerHTML = `❌ Error: ${event.error}`;
+            console.log(`❌ Error: ${event.error}`);
             stopListening();
         };
 
@@ -82,7 +77,7 @@ function startListening() {
 
     } catch (error) {
         console.error('Error starting speech recognition:', error);
-        document.getElementById('statusInfo').innerHTML = '❌ Failed to start speech recognition';
+       console.log('❌ Failed to start speech recognition');
     }
 }
 
@@ -258,8 +253,8 @@ function scrollToBottom() {
 }
 
 function updateConversationInfo() {
-    document.getElementById('conversationState').textContent = conversationState;
-    document.getElementById('lastResponse').textContent = lastAIResponse.substring(0, 50) + (lastAIResponse.length > 50 ? '...' : '');
+    console.log('Conversation State:', conversationState);
+    console.log('Last Response:', lastAIResponse.substring(0, 50) + (lastAIResponse.length > 50 ? '...' : ''));
 }
 
 function resetConversation() {
@@ -276,7 +271,7 @@ function resetConversation() {
     userResponseCount = 0;
     
     updateConversationInfo();
-    document.getElementById('statusInfo').innerHTML = 'Click microphone to start conversation';
+    console.log('Click microphone to start conversation'); 
     
     if (isListening) {
         stopListening();
