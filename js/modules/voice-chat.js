@@ -291,7 +291,7 @@ function createRealtimeBubble() {
     bubbleText.textContent = 'Listening...';  // ← Gets replaced with real speech
     userBubble.appendChild(bubbleText);
     
-    chatMessages.appendChild(userBubble);
+    chatArea.appendChild(userBubble);
     scrollToBottom();
 }
 
@@ -320,6 +320,13 @@ function processUserResponse(userText) {
     setTimeout(() => {
         addAIResponse(userText);
     }, 800);
+}
+
+function scrollToBottom() {
+    const chatMessages = document.getElementById('chatMessages');
+    if (chatMessages) {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
 }
 
 function updateConversationInfo() {
