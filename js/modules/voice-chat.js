@@ -1,141 +1,6 @@
 // ===================================================
 // 🎯 MOBILE-WISE AI VOICE CHAT - COMPLETE INTEGRATED SYSTEM
-// Combining working bubble system + your business logic
 // ===================================================
-
-function startListening() {
-    console.log('🎯 startListening() called - starting speech recognition');
-    
-    if (!checkSpeechSupport()) return;
-    if (isSpeaking) return; // Don't start listening if AI is speaking
-
-    try {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        recognition = new SpeechRecognition();
-
-        recognition.continuous = true;
-        recognition.interimResults = true;
-        recognition.lang = 'en-US';
-
-        createRealtimeBubble();
-        isListening = true;
-
-        // MISSING: Update UI buttons and status
-        document.getElementById('startBtn').style.display = 'none';
-        document.getElementById('stopBtn').style.display = 'block';
-        document.getElementById('statusInfo').innerHTML = '🎤 Listening... Speak now!';
-
-        recognition.onresult = function(event) {
-            let interimTranscript = '';
-            let finalTranscript = '';
-
-            for (let i = event.resultIndex; i < event.results.length; i++) {
-                const transcript = event.results[i][0].transcript;
-                if (event.results[i].isFinal) {
-                    finalTranscript += transcript;
-                } else {
-                    interimTranscript += transcript;
-                }
-            }
-
-            const currentBubble = document.getElementById('currentUserBubble');
-            if (currentBubble) {
-                const displayText = finalTranscript + interimTranscript;
-                if (displayText.trim()) {
-                    // Check for both possible bubble structures
-                    const bubbleElement = currentBubble.querySelector('.message-bubble') || currentBubble.querySelector('.bubble-text');
-                    if (bubbleElement) {
-                        bubbleElement.textContent = displayText;
-                    } else {
-                        currentBubble.textContent = displayText;
-                    }
-
-                    // Cool effect: typing = transparent, final = solid
-                    if (interimTranscript) {
-                        currentBubble.classList.add('typing');
-                    } else {
-                        currentBubble.classList.remove('typing');
-                    }
-
-                    scrollToBottom();
-                }
-            }
-
-            // Process final transcript
-            if (finalTranscript) {
-                setTimeout(() => {
-                    processUserResponse(finalTranscript);
-                }, 1500);
-            }
-        };
-
-        recognition.onerror = function(event) {
-            console.error('Speech recognition error:', event.error);
-            document.getElementById('statusInfo').innerHTML = `❌ Error: ${event.error}`;
-            stopListening();
-        };
-
-        recognition.onend = function() {
-            if (isListening) {
-                console.log("Recognition ended, but we're still in listening mode");
-                // Don't change UI here - we'll handle it in processUserResponse
-            }
-        };
-
-        recognition.start();
-        console.log('🎤 Speech recognition started successfully');
-
-    } catch (error) {
-        console.error('Error starting speech recognition:', error);
-        document.getElementById('statusInfo').innerHTML = '❌ Failed to start speech recognition';
-    }
-}
-
-    const currentBubble = document.getElementById('currentUserBubble');
-    if (currentBubble) {
-        const displayText = finalTranscript + interimTranscript;
-        if (displayText.trim()) {
-            // IMPORTANT: Check for both possible bubble structures
-            const bubbleElement = currentBubble.querySelector('.message-bubble') || currentBubble.querySelector('.bubble-text');
-            if (bubbleElement) {
-                bubbleElement.textContent = displayText;
-            } else {
-                // Fallback: update the bubble directly
-                currentBubble.textContent = displayText;
-            }
-
-            // Cool effect: typing = transparent, final = solid
-            if (interimTranscript) {
-                currentBubble.classList.add('typing');
-            } else {
-                currentBubble.classList.remove('typing');
-            }
-
-            // IMPORTANT: Use the correct scroll function
-            if (typeof scrollChatToBottom === 'function') {
-                scrollChatToBottom();
-            } else if (typeof scrollToBottom === 'function') {
-                scrollToBottom();
-            }
-        }
-    }
-
-    // IMPORTANT: Process final transcript with proper delay
-    if (finalTranscript) {
-        setTimeout(() => {
-            processUserResponse(finalTranscript);
-        }, 1500);  // Your timing was perfect!
-    }
-
-recognition.onerror = function(event) {
-    console.error('Speech recognition error:', event.error);
-    stopListening();
-};
-
-recognition.onend = function() {
-    console.log("Recognition ended");
-    // Don't auto-restart here - let processUserResponse handle it
-};
 
 // ===================================================
 // 🏗️ GLOBAL VARIABLES
@@ -154,35 +19,15 @@ let shouldShowSmartButton = false;
 let smartButtonText = 'AI Smart Button';
 let smartButtonAction = 'default';
 
-
-// Conversation state tracking (from working bubble system)
+// Conversation state tracking
 let conversationState = 'initial';
 let lastAIResponse = '';
 let userResponseCount = 0;
-
-// Voice settings
 let voiceSpeed = 1.0;
-
-// Processing flags
 let isProcessingInput = false;
 
 // ===================================================
-// 🎤 MICROPHONE PERMISSION SYSTEM
-// ===================================================
-async function requestMicrophonePermission() {
-    try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        stream.getTracks().forEach(track => track.stop());
-        console.log('✅ Microphone permission granted');
-        return true;
-    } catch (error) {
-        console.log('❌ Microphone permission denied:', error);
-        return false;
-    }
-}
-
-// ===================================================
-// 🎯 SPEECH RECOGNITION SYSTEM (From working bubble system)
+// 🎤 SPEECH RECOGNITION SYSTEM
 // ===================================================
 function checkSpeechSupport() {
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
@@ -192,21 +37,91 @@ function checkSpeechSupport() {
     return true;
 }
 
-function initializeSpeechRecognition() {
-    if (!checkSpeechSupport()) {
-        addAIMessage("Your browser doesn't support speech recognition. Please use Chrome or Edge.");
-        return false;
-    }
-
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    recognition = new SpeechRecognition();
+function startListening() {
+    console.log('🎯 startListening() called - starting speech recognition');
     
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.lang = 'en-US';
+    if (!checkSpeechSupport()) return;
+    if (isSpeaking) return;
 
-    console.log('✅ Speech recognition initialized');
-    return true;
+    try {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
+
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.lang = 'en-US';
+
+        createRealtimeBubble();
+        isListening = true;
+
+        // Update UI
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const statusInfo = document.getElementById('statusInfo');
+        
+        if (startBtn) startBtn.style.display = 'none';
+        if (stopBtn) stopBtn.style.display = 'block';
+        if (statusInfo) statusInfo.innerHTML = '🎤 Listening... Speak now!';
+
+        recognition.onresult = function(event) {
+            let interimTranscript = '';
+            let finalTranscript = '';
+
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const transcript = event.results[i][0].transcript;
+                if (event.results[i].isFinal) {
+                    finalTranscript += transcript;
+                } else {
+                    interimTranscript += transcript;
+                }
+            }
+
+            const currentBubble = document.getElementById('currentUserBubble');
+            if (currentBubble) {
+                const displayText = finalTranscript + interimTranscript;
+                if (displayText.trim()) {
+                    const bubbleElement = currentBubble.querySelector('.message-bubble') || 
+                                       currentBubble.querySelector('.bubble-text') || 
+                                       currentBubble;
+                    
+                    bubbleElement.textContent = displayText;
+
+                    if (interimTranscript) {
+                        currentBubble.classList.add('typing');
+                    } else {
+                        currentBubble.classList.remove('typing');
+                    }
+
+                    scrollToBottom();
+                }
+            }
+
+            if (finalTranscript) {
+                setTimeout(() => {
+                    processUserResponse(finalTranscript);
+                }, 1500);
+            }
+        };
+
+        recognition.onerror = function(event) {
+            console.error('Speech recognition error:', event.error);
+            const statusInfo = document.getElementById('statusInfo');
+            if (statusInfo) statusInfo.innerHTML = `❌ Error: ${event.error}`;
+            stopListening();
+        };
+
+        recognition.onend = function() {
+            console.log("Recognition ended");
+        };
+
+        recognition.start();
+        console.log('🎤 Speech recognition started successfully');
+
+    } catch (error) {
+        console.error('Error starting speech recognition:', error);
+        const statusInfo = document.getElementById('statusInfo');
+        if (statusInfo) statusInfo.innerHTML = '❌ Failed to start speech recognition';
+    }
 }
 
 function stopListening() {
@@ -218,77 +133,23 @@ function stopListening() {
     const currentBubble = document.getElementById('currentUserBubble');
     if (currentBubble) {
         currentBubble.classList.remove('typing');
-        if (!currentBubble.querySelector('.bubble-text').textContent.trim()) {
-            currentBubble.querySelector('.bubble-text').textContent = 'No speech detected';
-            currentBubble.style.opacity = '0.6';
-        }
         currentBubble.removeAttribute('id');
     }
 
-    // Update UI
-    const activateMicBtn = document.getElementById('activateMicBtn');
-    const audioOffBtn = document.getElementById('audioOffBtn');
-    if (activateMicBtn) activateMicBtn.style.display = 'block';
-    if (audioOffBtn) audioOffBtn.style.display = 'none';
+    const startBtn = document.getElementById('startBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    
+    if (startBtn) startBtn.style.display = 'block';
+    if (stopBtn) stopBtn.style.display = 'none';
 
     isListening = false;
-}
-
-function processUserResponse(userText) {
-    userResponseCount++;
-    
-    // Update UI
-    const currentBubble = document.getElementById('currentUserBubble');
-    if (currentBubble) {
-        currentBubble.classList.remove('typing');
-        currentBubble.removeAttribute('id');
-    }
-    
-    // Stop listening while AI responds
-    if (recognition) {
-        recognition.stop();
-        recognition = null;
-    }
-    
-    isListening = false;
-    
-    // Update UI buttons
-    const activateMicBtn = document.getElementById('activateMicBtn');
-    const audioOffBtn = document.getElementById('audioOffBtn');
-    if (activateMicBtn) activateMicBtn.style.display = 'block';
-    if (audioOffBtn) audioOffBtn.style.display = 'none';
-    
-    // Add AI response
-    setTimeout(() => {
-        addAIResponse(userText);
-    }, 800);
-}
-
-function addAIResponse(userText) {
-    // Generate AI response
-    const responseText = getAIResponse(userText);
-    lastAIResponse = responseText;
-    
-    // Add AI message to chat
-    addAIMessage(responseText);
-    
-    // Speak the response
-    speakResponse(responseText);
-    
-    // Update conversation info if available
-    updateConversationInfo();
-    
-    // After AI speaks, automatically start listening again if in audio mode
-    setTimeout(() => {
-        if (isAudioMode && !isListening && !isSpeaking) {
-            createRealtimeBubble();
-            startListening();
-        }
-    }, 3000); // Fixed 3-second delay
+    console.log('🛑 Listening stopped');
 }
 
 function createRealtimeBubble() {
     const chatArea = document.getElementById('chatArea');
+    if (!chatArea) return;
+    
     const userBubble = document.createElement('div');
     userBubble.className = 'bubble user-bubble typing';
     userBubble.id = 'currentUserBubble';
@@ -305,166 +166,35 @@ function createRealtimeBubble() {
 function processUserResponse(userText) {
     userResponseCount++;
     
-    // Update UI - Make bubble solid with final text
     const currentBubble = document.getElementById('currentUserBubble');
     if (currentBubble) {
         currentBubble.classList.remove('typing');
         currentBubble.removeAttribute('id');
     }
     
-    // Stop listening while AI responds
     if (recognition) {
         recognition.stop();
         recognition = null;
     }
     
     isListening = false;
-    document.getElementById('startBtn').style.display = 'block';
-    document.getElementById('stopBtn').style.display = 'none';
-    document.getElementById('statusInfo').innerHTML = '🤖 AI is responding...';
     
-    // Add AI response
+    const startBtn = document.getElementById('startBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const statusInfo = document.getElementById('statusInfo');
+    
+    if (startBtn) startBtn.style.display = 'block';
+    if (stopBtn) stopBtn.style.display = 'none';
+    if (statusInfo) statusInfo.innerHTML = '🤖 AI is responding...';
+    
     setTimeout(() => {
         addAIResponse(userText);
     }, 800);
 }
 
-function updateConversationInfo() {
-    const stateElement = document.getElementById('conversationState');
-    const responseElement = document.getElementById('lastResponse');
-    
-    if (stateElement) stateElement.textContent = conversationState;
-    if (responseElement) {
-        responseElement.textContent = lastAIResponse.substring(0, 50) + (lastAIResponse.length > 50 ? '...' : '');
-    }
-}
-
-function stopListening() {
-    if (recognition) {
-        recognition.stop();
-        recognition = null;
-    }
-
-    const currentBubble = document.getElementById('currentUserBubble');
-    if (currentBubble) {
-        currentBubble.classList.remove('typing');
-        
-        // Safe check for message bubble
-        const bubbleElement = currentBubble.querySelector('.message-bubble');
-        if (bubbleElement && !bubbleElement.textContent.trim()) {
-            bubbleElement.textContent = 'No speech detected';
-            currentBubble.style.opacity = '0.6';
-        }
-        currentBubble.removeAttribute('id');
-    }
-
-    // Update UI buttons
-    const activateMicBtn = document.getElementById('activateMicBtn');
-    const audioOffBtn = document.getElementById('audioOffBtn');
-    if (activateMicBtn) activateMicBtn.style.display = 'block';
-    if (audioOffBtn) audioOffBtn.style.display = 'none';
-
-    isListening = false;
-    console.log('🛑 Listening stopped');
-}
-
-// Smart Button Management System
-function updateSmartButton(shouldShow, buttonText, actionType) {
-    const smartButton = document.getElementById('smartButton');
-    
-    if (!smartButton) {
-        console.warn('Smart button element not found');
-        return;
-    }
-    
-    if (shouldShow) {
-        smartButton.style.display = 'block';
-        smartButton.textContent = buttonText;
-        smartButton.setAttribute('data-action', actionType);
-        
-        // Add visual emphasis for important CTAs
-        if (actionType === 'interview' || actionType === 'connect_bruce') {
-            smartButton.classList.add('pulse-animation');
-        } else {
-            smartButton.classList.remove('pulse-animation');
-        }
-    } else {
-        smartButton.style.display = 'none';
-        smartButton.textContent = 'AI Smart Button';
-        smartButton.removeAttribute('data-action');
-        smartButton.classList.remove('pulse-animation');
-    }
-}
-
-// Smart Button Click Handler
-function handleSmartButtonClick() {
-    const smartButton = document.getElementById('smartButton');
-    const actionType = smartButton.getAttribute('data-action');
-    
-    switch(actionType) {
-        case 'valuation':
-        case 'buying':
-        case 'schedule_today':
-        case 'schedule_tomorrow':
-        case 'contact_today':
-        case 'contact_tomorrow':
-        case 'connect_bruce':
-            // Trigger conversation continuation
-            simulateUserMessage("I'm interested in connecting with Bruce");
-            break;
-            
-        case 'interview':
-            // Load interview interface in iframe
-            loadInterviewInterface();
-            break;
-            
-        default:
-            console.log('Smart button clicked - default action');
-    }
-}
-
-// Interview Interface Loader (Splash Screen for now)
-function loadInterviewInterface() {
-    const chatArea = document.querySelector('.chat-area');
-    const splashScreen = document.createElement('div');
-    splashScreen.className = 'interview-splash';
-    splashScreen.innerHTML = `
-        <div class="splash-content">
-            <h3>🚀 AI Business Analyst Interview</h3>
-            <p>Connecting you with our advanced interviewer system...</p>
-            <div class="loading-animation">●●●</div>
-            <p><em>This feature is coming soon!</em></p>
-            <button onclick="closeSplashScreen()" class="close-splash">Return to Chat</button>
-        </div>
-    `;
-    
-    chatArea.appendChild(splashScreen);
-}
-
-// Close Splash Screen
-function closeSplashScreen() {
-    const splashScreen = document.querySelector('.interview-splash');
-    if (splashScreen) {
-        splashScreen.remove();
-    }
-}
-
-// Simulate User Message (for button interactions)
-function simulateUserMessage(message) {
-    const chatArea = document.querySelector('.chat-area');
-    const userBubble = document.createElement('div');
-    userBubble.className = 'chat-bubble user-bubble';
-    userBubble.innerHTML = `<div class="bubble-content">${message}</div>`;
-    
-    chatArea.appendChild(userBubble);
-    scrollToBottom();
-    
-    // Process this as if user spoke it
-    setTimeout(() => {
-        processUserInput(message);
-    }, 500);
-}
-
+// ===================================================
+// 🤖 AI RESPONSE SYSTEM
+// ===================================================
 function getAIResponse(userInput) {
     const userText = userInput.toLowerCase();
     let responseText = '';
@@ -584,413 +314,135 @@ function getAIResponse(userInput) {
         conversationState = 'initial';
     }
 
-    // SAFE DOM HANDLING
-    const chatArea = document.getElementById('chatArea');
-    if (chatArea) {
-        const aiBubble = document.createElement('div');
-        aiBubble.className = 'ai-bubble';
-
-        const aiAvatar = document.createElement('img');
-        aiAvatar.src = 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/avatars/avatar_1754810337622_AI%20assist%20head%20left.png';
-        aiAvatar.className = 'ai-avatar';
-        aiBubble.appendChild(aiAvatar);
-
-        const bubbleContent = document.createElement('div');
-        bubbleContent.textContent = responseText;
-        aiBubble.appendChild(bubbleContent);
-        
-        chatArea.appendChild(aiBubble);
-        
-        if (typeof scrollToBottom === 'function') {
-            scrollToBottom();
-        }
-    }
-
-    // Safe function calls
-    if (typeof updateSmartButton === 'function') {
-        updateSmartButton(shouldShowSmartButton, smartButtonText, smartButtonAction);
-    }
-    
-    if (typeof updateConversationInfo === 'function') {
-        updateConversationInfo();
-    }
-
-    // Safe status update
-    const statusInfo = document.getElementById('statusInfo');
-    if (statusInfo) {
-        const speakTime = Math.max(2000, responseText.length * 50);
-        statusInfo.innerHTML = '🤖 AI is responding...';
-
-        setTimeout(() => {
-            statusInfo.innerHTML = '🎯 Returning to listening mode...';
-            setTimeout(() => {
-                if (typeof createRealtimeBubble === 'function') {
-                    createRealtimeBubble();
-                }
-                if (typeof startListening === 'function') {
-                    startListening();
-                }
-            }, 1000);
-        }, speakTime);
-    }
+    updateSmartButton(shouldShowSmartButton, smartButtonText, smartButtonAction);
+    updateConversationInfo();
 
     return responseText;
 }
 
-
-function handleSmartButtonClick() {
-    const smartButton = document.getElementById('smartButton');
-    const actionType = smartButton ? smartButton.getAttribute('data-action') : 'default';
+function addAIResponse(userText) {
+    const responseText = getAIResponse(userText);
+    lastAIResponse = responseText;
     
-    console.log('Smart button clicked, action:', actionType);
+    addAIMessage(responseText);
+    speakResponse(responseText);
     
-    switch(actionType) {
-        case 'valuation':
-            simulateUserMessage("Yes, I'm interested in a valuation");
-            break;
-            
-        case 'buying':
-            simulateUserMessage("Yes, show me available practices");
-            break;
-            
-        case 'schedule_today':
-            simulateUserMessage("Today works for me");
-            break;
-            
-        case 'schedule_tomorrow':
-            simulateUserMessage("Tomorrow works better");
-            break;
-            
-        case 'contact_today':
-        case 'contact_tomorrow':
-        case 'connect_bruce':
-            simulateUserMessage("I'd like to connect with Bruce");
-            break;
-            
-        case 'interview':
-            loadInterviewInterface();
-            break;
-            
-        default:
-            console.log('Smart button clicked - no specific action defined');
-            simulateUserMessage("I need help with my practice");
-    }
-}
-
-// Simulate User Message (for button interactions)
-function simulateUserMessage(message) {
-    console.log('Simulating user message:', message);
-    
-    // Create user bubble
-    const chatArea = document.querySelector('.chat-area');
-    const userBubble = document.createElement('div');
-    userBubble.className = 'chat-bubble user-bubble';
-    userBubble.innerHTML = `<div class="bubble-content">${message}</div>`;
-    
-    chatArea.appendChild(userBubble);
-    scrollToBottom();
-    
-    // Process this message through your AI system
     setTimeout(() => {
-        addAIResponse(message);
-    }, 500);
+        const statusInfo = document.getElementById('statusInfo');
+        if (statusInfo) statusInfo.innerHTML = '🎯 Returning to listening mode...';
+        
+        setTimeout(() => {
+            if (isAudioMode && !isListening && !isSpeaking) {
+                createRealtimeBubble();
+                startListening();
+            }
+        }, 1000);
+    }, Math.max(2000, responseText.length * 50));
 }
 
 // ===================================================
-// 💬 MESSAGE HANDLING SYSTEM
+// 💬 MESSAGE HANDLING
 // ===================================================
-function addUserMessage(message) {
-    const chatMessages = document.getElementById('chatMessages');
-    if (!chatMessages) return;
-    
-    const messageElement = document.createElement('div');
-    messageElement.className = 'message user-message';
-    
-    const messageBubble = document.createElement('div');
-    messageBubble.className = 'message-bubble';
-    messageBubble.textContent = message;
-    
-    messageElement.appendChild(messageBubble);
-    chatMessages.appendChild(messageElement);
-    scrollChatToBottom();
-}
-
 function addAIMessage(message) {
-    const chatMessages = document.getElementById('chatMessages');
-    if (!chatMessages) return;
+    const chatArea = document.getElementById('chatArea');
+    if (!chatArea) return;
     
-    const messageElement = document.createElement('div');
-    messageElement.className = 'message ai-message';
-    
-    const messageBubble = document.createElement('div');
-    messageBubble.className = 'message-bubble';
-    
+    const aiBubble = document.createElement('div');
+    aiBubble.className = 'ai-bubble';
+
     const aiAvatar = document.createElement('img');
     aiAvatar.src = 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/avatars/avatar_1754810337622_AI%20assist%20head%20left.png';
     aiAvatar.className = 'ai-avatar';
+    aiBubble.appendChild(aiAvatar);
+
+    const bubbleContent = document.createElement('div');
+    bubbleContent.textContent = message;
+    aiBubble.appendChild(bubbleContent);
     
-    const messageText = document.createElement('div');
-    messageText.textContent = message;
-    
-    messageBubble.appendChild(aiAvatar);
-    messageBubble.appendChild(messageText);
-    messageElement.appendChild(messageBubble);
-    
-    chatMessages.appendChild(messageElement);
-    scrollChatToBottom();
+    chatArea.appendChild(aiBubble);
+    scrollToBottom();
 }
 
-function scrollChatToBottom() {
-    const chatMessages = document.getElementById('chatMessages');
-    if (chatMessages) {
-        chatMessages.scrollTop = chatMessages.scrollHeight;
+function scrollToBottom() {
+    const chatArea = document.getElementById('chatArea');
+    if (chatArea) {
+        chatArea.scrollTop = chatArea.scrollHeight;
     }
 }
 
 // ===================================================
-// 🗣️ VOICE SYNTHESIS SYSTEM
+// 🎤 VOICE SYSTEM
 // ===================================================
 function speakResponse(message) {
-    console.log('Speaking response');
-    
-    if (!window.speechSynthesis) {
-        console.log('Speech synthesis not supported');
-        return;
-    }
+    if (!window.speechSynthesis) return;
 
-    // Stop any current speech
     window.speechSynthesis.cancel();
     
     const utterance = new SpeechSynthesisUtterance(message);
-    
     utterance.rate = voiceSpeed;
     utterance.pitch = 1.0;
     utterance.volume = 0.9;
     
-    utterance.onstart = function() {
-        isSpeaking = true;
-        console.log('Speech started');
-    };
-    
-    utterance.onend = function() {
-    isSpeaking = false;
-    console.log('Speech finished');
-    
-    // Clear bubble reference
-    currentUserBubble = null;
-    
-    // ONLY restart if conditions are perfect
-    if (isAudioMode && !isListening && !recognition) {
-        setTimeout(() => {
-            try {
-                console.log('🔄 Restarting listening after speech');
-                startListening(); // This will create bubble safely
-            } catch (error) {
-                console.log('Recognition restart error:', error);
-            }
-        }, 1500); // Longer delay to prevent conflicts
-    }
-};
-    utterance.onerror = function(event) {
-        console.log('Speech error:', event.error);
-        isSpeaking = false;
-    };
+    utterance.onstart = () => { isSpeaking = true; };
+    utterance.onend = () => { isSpeaking = false; };
+    utterance.onerror = () => { isSpeaking = false; };
     
     window.speechSynthesis.speak(utterance);
-    currentAudio = utterance;
 }
 
-function stopCurrentAudio() {
-    if (window.speechSynthesis) {
-        window.speechSynthesis.cancel();
+// ===================================================
+// 🔧 UTILITY FUNCTIONS
+// ===================================================
+function updateSmartButton(shouldShow, buttonText, actionType) {
+    const smartButton = document.getElementById('smartButton');
+    if (!smartButton) return;
+    
+    if (shouldShow) {
+        smartButton.style.display = 'block';
+        smartButton.textContent = buttonText;
+        smartButton.setAttribute('data-action', actionType);
+    } else {
+        smartButton.style.display = 'none';
     }
-    currentAudio = null;
-    isSpeaking = false;
 }
 
-// ===================================================
-// 📱 TEXT INPUT SYSTEM
-// ===================================================
-function sendTextMessage() {
-    const textInput = document.getElementById('textInput');
-    if (!textInput) return;
+function updateConversationInfo() {
+    const stateElement = document.getElementById('conversationState');
+    const responseElement = document.getElementById('lastResponse');
     
-    const message = textInput.value.trim();
-    if (!message) return;
-    
-    addUserMessage(message);
-    textInput.value = '';
-    
-    setTimeout(() => {
-        const response = getAIResponse(message);
-        addAIMessage(response);
-        speakResponse(response);
-    }, 300);
-}
-
-// ===================================================
-// 🚀 SPLASH SCREEN SYSTEM (Your working system)
-// ===================================================
-function startVoiceChat() {
-    console.log('🎤 startVoiceChat() called from splash screen');
-    
-    // Hide splash screen
-    const splashScreen = document.getElementById('splashScreen');
-    if (splashScreen) {
-        splashScreen.style.display = 'none';
-        console.log('✅ Splash screen hidden');
+    if (stateElement) stateElement.textContent = conversationState;
+    if (responseElement) {
+        responseElement.textContent = lastAIResponse.substring(0, 50) + (lastAIResponse.length > 50 ? '...' : '');
     }
-    
-    // Show chat interface
-    const chatInterface = document.getElementById('chatInterface');
-    if (chatInterface) {
-        chatInterface.style.display = 'flex';
-        console.log('✅ Chat interface shown');
-    }
-    
-    // Call activation
-    activateMicrophone();
 }
 
+// ===================================================
+// 🚀 INITIALIZATION
+// ===================================================
 async function activateMicrophone() {
-    console.log('🎤 Activating microphone...');
-    
-    // Hide splash screen
-    const splashScreen = document.getElementById('splashScreen');
-    if (splashScreen) {
-        splashScreen.style.display = 'none';
-    }
-    
-    // Show chat interface
-    const chatInterface = document.getElementById('chatInterface');
-    if (chatInterface) {
-        chatInterface.style.display = 'flex';
-    }
-    
     try {
-        // Request microphone permission
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         persistentMicStream = stream;
         micPermissionGranted = true;
-        
         isAudioMode = true;
         
-        // Show appropriate UI
-        const activateMicBtn = document.getElementById('activateMicBtn');
-        const audioOffBtn = document.getElementById('audioOffBtn');
-        const voiceContainer = document.getElementById('voiceVisualizerContainer');
+        const greeting = "Welcome! I'm Bruce Clark's AI assistant. What can I help you with today?";
+        addAIMessage(greeting);
         
-        if (activateMicBtn) activateMicBtn.style.display = 'none';
-        if (audioOffBtn) audioOffBtn.style.display = 'block';
-        if (voiceContainer) voiceContainer.style.display = 'flex';
-        
-        // Initialize speech recognition
-        initializeSpeechRecognition();
-        
-        // Add greeting and start listening - FIXED TIMING
         setTimeout(() => {
-            const greeting = "Welcome! I'm Bruce Clark's AI assistant. What can I help you with today?";
-            addAIMessage(greeting);
-            
-            // Start listening after greeting is added
-            setTimeout(() => {
-                if (recognition && !isListening) {
-                    createRealtimeBubble();
-                    startListening();
-                }
-            }, 1000);
-        }, 500);
+            if (!isListening) {
+                createRealtimeBubble();
+                startListening();
+            }
+        }, 1000);
         
     } catch (error) {
         console.log('Microphone access denied:', error);
         addAIMessage("Microphone access was denied. You can still use text chat.");
-        switchToTextMode();
     }
 }
 
-function switchToTextMode() {
-    isAudioMode = false;
-    
-    const activateMicBtn = document.getElementById('activateMicBtn');
-    const audioOffBtn = document.getElementById('audioOffBtn');
-    const voiceContainer = document.getElementById('voiceVisualizerContainer');
-    
-    if (activateMicBtn) activateMicBtn.style.display = 'block';
-    if (audioOffBtn) audioOffBtn.style.display = 'none';
-    if (voiceContainer) voiceContainer.style.display = 'none';
-}
-
-// ===================================================
-// ⚡ QUICK QUESTIONS SYSTEM
-// ===================================================
-function askQuickQuestion(questionText) {
-    console.log('🎯 Quick question clicked:', questionText);
-    
-    if (isSpeaking || isProcessingInput) {
-        console.log('Ignoring quick question - system busy');
-        return;
-    }
-    
-    addUserMessage(questionText);
-    isProcessingInput = true;
-    
-    setTimeout(() => {
-        const response = getAIResponse(questionText);
-        addAIMessage(response);
-        speakResponse(response);
-        
-        setTimeout(() => {
-            isProcessingInput = false;
-        }, 500);
-    }, 800);
-}
-
-// ===================================================
-// 🎤 VOICE LOADING SYSTEM
-// ===================================================
-function getVoices() {
-    return new Promise((resolve) => {
-        let voices = window.speechSynthesis.getVoices();
-        
-        if (voices.length > 0) {
-            resolve(voices);
-        } else {
-            window.speechSynthesis.onvoiceschanged = () => {
-                voices = window.speechSynthesis.getVoices();
-                resolve(voices);
-            };
-        }
-    });
-}
-
-function preloadVoices() {
-    getVoices().then(voices => {
-        console.log('🎤 Voices preloaded:', voices.length);
-    });
-}
-
-// ===================================================
-// 🌐 GLOBAL FUNCTIONS
-// ===================================================
-window.askQuickQuestion = function(question) {
-    askQuickQuestion(question);
-};
-
-// ===================================================
-// 🚀 INITIALIZATION SYSTEM
-// ===================================================
-function initializeVoiceChat() {
-    console.log('🚀 Initializing Voice Chat Module...');
-    
-    initializeSpeechRecognition();
-    preloadVoices();
-    
-    console.log('✅ Voice Chat Module Ready!');
-}
-
-// Auto-initialize when loaded
+// Auto-initialize
 document.addEventListener('DOMContentLoaded', () => {
-    initializeVoiceChat();
+    console.log('🎯 Mobile-Wise AI Voice Chat - SYSTEM LOADED!');
 });
-
-console.log('🎯 Mobile-Wise AI Voice Chat - COMPLETE INTEGRATED SYSTEM LOADED!');
