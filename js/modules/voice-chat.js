@@ -493,6 +493,15 @@ if (conversationState === 'initial') {
 // Update the smart button
 updateSmartButton(shouldShowSmartButton, smartButtonText, smartButtonAction);
 
+lastAIResponse = responseText;
+bubbleContent.textContent = responseText;
+
+chatArea.appendChild(aiBubble);
+scrollToBottom();
+
+// Update conversation info
+updateConversationInfo();
+
 // Simulate AI speaking time based on response length
 const speakTime = Math.max(2000, responseText.length * 50);
 document.getElementById('statusInfo').innerHTML = ' AI is responding...';
