@@ -440,19 +440,19 @@ function getAIResponse(userInput) {
     return responseText;
 }
 if (conversationState === 'initial') {
-    if (userText.toLowerCase().includes('sell') || userText.toLowerCase().includes('practice')) {
+    if (userInput.toLowerCase().includes('sell') || userInput.toLowerCase().includes('practice')) {
         responseText = "EXCELLENT timing for selling your accounting practice! The market is very strong right now. Should Bruce call you today or tomorrow for your FREE practice valuation?";
         conversationState = 'selling_inquiry';
         shouldShowSmartButton = true;
         smartButtonText = 'Schedule Free Valuation';
         smartButtonAction = 'valuation';
-    } else if (userText.toLowerCase().includes('buy') || userText.toLowerCase().includes('purchase')) {
+    } else if (userInput.toLowerCase().includes('buy') || userInput.toLowerCase().includes('purchase')) {
         responseText = "Looking to BUY a CPA firm? Perfect! Bruce has exclusive off-market opportunities available RIGHT NOW. Should Bruce show you available practices today or tomorrow?";
         conversationState = 'buying_inquiry';
         shouldShowSmartButton = true;
         smartButtonText = 'View Available Practices';
         smartButtonAction = 'buying';
-    } else if (userText.toLowerCase().includes('value') || userText.toLowerCase().includes('worth')) {
+    } else if (userInput.toLowerCase().includes('value') || userInput.toLowerCase().includes('worth')) {
         responseText = "Your accounting practice could be worth MORE than you think! Bruce offers a FREE consultation to evaluate your practice. Are you interested in a valuation today?";
         conversationState = 'valuation_inquiry';
         shouldShowSmartButton = true;
@@ -463,13 +463,13 @@ if (conversationState === 'initial') {
         // conversationState remains 'initial'
     }
 } else if (conversationState === 'selling_inquiry') {
-    if (userText.toLowerCase().includes('today') || userText.toLowerCase().includes('now')) {
+    if (userInput.toLowerCase().includes('today') || userInput.toLowerCase().includes('now')) {
         responseText = "Great! Bruce will call you today. What's the best phone number to reach you, and what time works best?";
         conversationState = 'contact_today';
         shouldShowSmartButton = true;
         smartButtonText = 'Schedule Today';
         smartButtonAction = 'schedule_today';
-    } else if (userText.toLowerCase().includes('tomorrow')) {
+    } else if (userInput.toLowerCase().includes('tomorrow')) {
         responseText = "Perfect! Bruce will call you tomorrow. What's the best phone number to reach you, and what time works best?";
         conversationState = 'contact_tomorrow';
         shouldShowSmartButton = true;
@@ -480,13 +480,13 @@ if (conversationState === 'initial') {
         // conversationState remains 'selling_inquiry'
     }
 } else if (conversationState === 'buying_inquiry') {
-    if (userText.toLowerCase().includes('today') || userText.toLowerCase().includes('now')) {
+    if (userInput.toLowerCase().includes('today') || userInput.toLowerCase().includes('now')) {
         responseText = "Excellent! Bruce will contact you today to discuss available practices. What's the best phone number to reach you?";
         conversationState = 'contact_today';
         shouldShowSmartButton = true;
         smartButtonText = 'Connect Today';
         smartButtonAction = 'contact_today';
-    } else if (userText.toLowerCase().includes('tomorrow')) {
+    } else if (userInput.toLowerCase().includes('tomorrow')) {
         responseText = "Great! Bruce will contact you tomorrow to discuss available practices. What's the best phone number to reach you?";
         conversationState = 'contact_tomorrow';
         shouldShowSmartButton = true;
@@ -497,7 +497,7 @@ if (conversationState === 'initial') {
         // conversationState remains 'buying_inquiry'
     }
 } else if (conversationState === 'valuation_inquiry') {
-    if (userText.toLowerCase().includes('yes') || userText.toLowerCase().includes('sure') || userText.toLowerCase().includes('interested')) {
+    if (userInput.toLowerCase().includes('yes') || userInput.toLowerCase().includes('sure') || userInput.toLowerCase().includes('interested')) {
         responseText = "Great! Bruce will contact you to set up your FREE valuation. What's the best phone number to reach you, and should he call today or tomorrow?";
         conversationState = 'contact_valuation';
         shouldShowSmartButton = true;
