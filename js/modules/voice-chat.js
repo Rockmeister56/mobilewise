@@ -397,19 +397,8 @@ function simulateUserMessage(message) {
 }
 
 // ===================================================
-// 🤖 AI RESPONSE SYSTEM (Fixed & Clean)
+// 🤖 AI RESPONSE SYSTEM (Fixed & Safe)
 // ===================================================
-const chatArea = document.getElementById('chatArea');
-const aiBubble = document.createElement('div');
-aiBubble.className = 'ai-bubble';
-
-const aiAvatar = document.createElement('img');
-aiAvatar.src = 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/avatars/avatar_1754810337622_AI%20assist%20head%20left.png';
-aiAvatar.className = 'ai-avatar';
-aiBubble.appendChild(aiAvatar);
-
-const bubbleContent = document.createElement('div');
-aiBubble.appendChild(bubbleContent);
 
 function getAIResponse(userInput) {
     const userText = userInput.toLowerCase();
@@ -499,28 +488,56 @@ function getAIResponse(userInput) {
         conversationState = 'initial';
     }
 
-    // Update the smart button
-    updateSmartButton(shouldShowSmartButton, smartButtonText, smartButtonAction);
+    // SAFE DOM HANDLING - Check if elements exist first!
+    const chatArea = document.getElementById('chatArea');
+    if (chatArea) {
+        const aiBubble = document.createElement('div');
+        aiBubble.className = 'ai-bubble';
 
-    // Update UI elements
-    lastAIResponse = responseText;
-    bubbleContent.textContent = responseText;
-    chatArea.appendChild(aiBubble);
-    scrollToBottom();
-    updateConversationInfo();
+        const aiAvatar = document.createElement('img');
+        aiAvatar.src = 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/avatars/avatar_1754810337622_AI%20assist%20head%20left.png';
+        aiAvatar.className = 'ai-avatar';
+        aiBubble.appendChild(aiAvatar);
 
-    // Simulate AI speaking time
-    const speakTime = Math.max(2000, responseText.length * 50);
-    document.getElementById('statusInfo').innerHTML = '🤖 AI is responding...';
+        const bubbleContent = document.createElement('div');
+        bubbleContent.textContent = responseText;
+        aiBubble.appendChild(bubbleContent);
+        
+        chatArea.appendChild(aiBubble);
+        
+        // Safe scroll function
+        if (typeof scrollToBottom === 'function') {
+            scrollToBottom();
+        }
+    }
 
-    // Return to listening mode
-    setTimeout(() => {
-        document.getElementById('statusInfo').innerHTML = '🎯 Returning to listening mode...';
+    // Safe function calls
+    if (typeof updateSmartButton === 'function') {
+        updateSmartButton(shouldShowSmartButton, smartButtonText, smartButtonAction);
+    }
+    
+    if (typeof updateConversationInfo === 'function') {
+        updateConversationInfo();
+    }
+
+    // Safe status update
+    const statusInfo = document.getElementById('statusInfo');
+    if (statusInfo) {
+        const speakTime = Math.max(2000, responseText.length * 50);
+        statusInfo.innerHTML = '🤖 AI is responding...';
+
         setTimeout(() => {
-            createRealtimeBubble();
-            startListening();
-        }, 1000);
-    }, speakTime);
+            statusInfo.innerHTML = '🎯 Returning to listening mode...';
+            setTimeout(() => {
+                if (typeof createRealtimeBubble === 'function') {
+                    createRealtimeBubble();
+                }
+                if (typeof startListening === 'function') {
+                    startListening();
+                }
+            }, 1000);
+        }, speakTime);
+    }
 
     return responseText;
 }
