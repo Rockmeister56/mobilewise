@@ -281,7 +281,7 @@ function addAIResponse(userText) {
 }
 
 function createRealtimeBubble() {
-    const chatArea = document.getElementById('chatArea');
+    const chatArea = document.getElementById('chatMessages');
     const userBubble = document.createElement('div');
     userBubble.className = 'bubble user-bubble typing';  // ← Transparent + animated dots
     userBubble.id = 'currentUserBubble';
@@ -418,7 +418,7 @@ function handleSmartButtonClick() {
 
 // Interview Interface Loader (Splash Screen for now)
 function loadInterviewInterface() {
-    const chatArea = document.querySelector('.chat-area');
+    const chatArea = document.querySelector('.chatMessages');
     const splashScreen = document.createElement('div');
     splashScreen.className = 'interview-splash';
     splashScreen.innerHTML = `
@@ -444,7 +444,7 @@ function closeSplashScreen() {
 
 // Simulate User Message (for button interactions)
 function simulateUserMessage(message) {
-    const chatArea = document.querySelector('.chat-area');
+    const chatArea = document.querySelector('.chatMessages');
     const userBubble = document.createElement('div');
     userBubble.className = 'chat-bubble user-bubble';
     userBubble.innerHTML = `<div class="bubble-content">${message}</div>`;
@@ -578,8 +578,8 @@ function getAIResponse(userInput) {
     }
 
     // SAFE DOM HANDLING
-    const chatArea = document.getElementById('chatArea');
-    if (chatArea) {
+    const chatArea = document.getElementById('chatMessages');
+    if (chatMessages) {
         const aiBubble = document.createElement('div');
         aiBubble.className = 'ai-bubble';
 
@@ -675,7 +675,7 @@ function simulateUserMessage(message) {
     console.log('Simulating user message:', message);
     
     // Create user bubble
-    const chatArea = document.querySelector('.chat-area');
+    const chatArea = document.querySelector('.chatMessages');
     const userBubble = document.createElement('div');
     userBubble.className = 'chat-bubble user-bubble';
     userBubble.innerHTML = `<div class="bubble-content">${message}</div>`;
