@@ -117,10 +117,8 @@ function startListening() {
             } else if (typeof scrollToBottom === 'function') {
                 scrollToBottom();
             }
-        }
-    }
 
-recognition.onerror = function(event) {
+            recognition.onerror = function(event) {
     console.error('Speech recognition error:', event.error);
     stopListening();
 };
@@ -129,6 +127,8 @@ recognition.onend = function() {
     console.log("Recognition ended");
     // Don't auto-restart here - let processUserResponse handle it
 };
+        }
+    }
 
 // ===================================================
 // 🏗️ GLOBAL VARIABLES
