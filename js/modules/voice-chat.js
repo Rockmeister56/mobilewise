@@ -291,7 +291,7 @@ function createRealtimeBubble() {
     bubbleText.textContent = 'Listening...';  // ← Gets replaced with real speech
     userBubble.appendChild(bubbleText);
     
-    chatArea.appendChild(userBubble);
+    chatMessages.appendChild(userBubble);
     scrollToBottom();
 }
 
