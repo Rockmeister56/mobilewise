@@ -498,6 +498,7 @@ const speakTime = Math.max(2000, responseText.length * 50);
 
 // After AI "speaks", automatically start listening again
 setTimeout(() => {
+    document.getElementById('statusInfo').innerHTML = ' Returning to listening mode...';
     setTimeout(() => {
         createRealtimeBubble();
         startListening();
