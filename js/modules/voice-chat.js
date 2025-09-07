@@ -120,13 +120,6 @@ function startListening() {
         }
     }
 
-    // IMPORTANT: Process final transcript with proper delay
-    if (finalTranscript) {
-        setTimeout(() => {
-            processUserResponse(finalTranscript);
-        }, 1500);  // Your timing was perfect!
-    }
-
 recognition.onerror = function(event) {
     console.error('Speech recognition error:', event.error);
     stopListening();
