@@ -517,6 +517,64 @@ setTimeout(() => {
 
 }
 
+function handleSmartButtonClick() {
+    const smartButton = document.getElementById('smartButton');
+    const actionType = smartButton ? smartButton.getAttribute('data-action') : 'default';
+    
+    console.log('Smart button clicked, action:', actionType);
+    
+    switch(actionType) {
+        case 'valuation':
+            simulateUserMessage("Yes, I'm interested in a valuation");
+            break;
+            
+        case 'buying':
+            simulateUserMessage("Yes, show me available practices");
+            break;
+            
+        case 'schedule_today':
+            simulateUserMessage("Today works for me");
+            break;
+            
+        case 'schedule_tomorrow':
+            simulateUserMessage("Tomorrow works better");
+            break;
+            
+        case 'contact_today':
+        case 'contact_tomorrow':
+        case 'connect_bruce':
+            simulateUserMessage("I'd like to connect with Bruce");
+            break;
+            
+        case 'interview':
+            loadInterviewInterface();
+            break;
+            
+        default:
+            console.log('Smart button clicked - no specific action defined');
+            simulateUserMessage("I need help with my practice");
+    }
+}
+
+// Simulate User Message (for button interactions)
+function simulateUserMessage(message) {
+    console.log('Simulating user message:', message);
+    
+    // Create user bubble
+    const chatArea = document.querySelector('.chat-area');
+    const userBubble = document.createElement('div');
+    userBubble.className = 'chat-bubble user-bubble';
+    userBubble.innerHTML = `<div class="bubble-content">${message}</div>`;
+    
+    chatArea.appendChild(userBubble);
+    scrollToBottom();
+    
+    // Process this message through your AI system
+    setTimeout(() => {
+        addAIResponse(message);
+    }, 500);
+}
+
 // ===================================================
 // 💬 MESSAGE HANDLING SYSTEM
 // ===================================================
