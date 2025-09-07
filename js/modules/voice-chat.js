@@ -495,6 +495,7 @@ updateSmartButton(shouldShowSmartButton, smartButtonText, smartButtonAction);
 
 // Simulate AI speaking time based on response length
 const speakTime = Math.max(2000, responseText.length * 50);
+document.getElementById('statusInfo').innerHTML = ' AI is responding...';
 
 // After AI "speaks", automatically start listening again
 setTimeout(() => {
