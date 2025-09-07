@@ -415,6 +415,16 @@ aiBubble.appendChild(bubbleContent);
 
 function getAIResponse(userInput) {
     const userText = userInput.toLowerCase();
+    }
+    if (conversationState === 'initial') {
+        if (userText.includes('sell') || userText.includes('practice')) {
+            conversationState = 'selling_inquiry';
+            // Update button AFTER response is processed
+            setTimeout(() => {
+                updateSmartButton(true, 'Schedule Free Valuation', 'valuation');
+            }, 2000);
+            return "EXCELLENT timing for selling your accounting practice! The market is very strong right now. Should Bruce call you today or tomorrow for your FREE practice valuation?";
+        }
 
 if (conversationState === 'initial') {
     if (userText.toLowerCase().includes('sell') || userText.toLowerCase().includes('practice')) {
