@@ -400,6 +400,19 @@ function simulateUserMessage(message) {
 // 🤖 AI RESPONSE SYSTEM (Your business logic)
 // ===================================================
 // AI RESPONSE SYSTEM (NEW - replaces old getAIResponse)
+
+const chatArea = document.getElementById('chatArea');
+const aiBubble = document.createElement('div');
+aiBubble.className = 'ai-bubble';
+
+const aiAvatar = document.createElement('img');
+aiAvatar.src = 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/avatars/avatar_1754810337622_AI%20assist%20head%20left.png';
+aiAvatar.className = 'ai-avatar';
+aiBubble.appendChild(aiAvatar);
+
+const bubbleContent = document.createElement('div');
+aiBubble.appendChild(bubbleContent);
+
 function getAIResponse(userInput) {
     const userText = userInput.toLowerCase();
 
