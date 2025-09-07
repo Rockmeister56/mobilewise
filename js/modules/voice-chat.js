@@ -211,12 +211,12 @@ function addAIResponse(userText) {
     updateConversationInfo();
     
     // After AI speaks, automatically start listening again if in audio mode
-   setTimeout(() => {
-    if (isAudioMode && !isListening && !isSpeaking) {
-        createRealtimeBubble();
-        startListening();
-    }
-}, 3000); // Fixed delay
+    setTimeout(() => {
+        if (isAudioMode && !isListening && !isSpeaking) {
+            createRealtimeBubble();
+            startListening();
+        }
+    }, (responseText ? responseText.length * 50 : 0) + 2000); // Safe dynamic timing
 }
 
 function createRealtimeBubble() {
