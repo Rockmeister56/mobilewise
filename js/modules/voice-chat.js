@@ -216,9 +216,8 @@ function addAIResponse(userText) {
             createRealtimeBubble();
             startListening();
         }
-    }, responseText.length * 50 + 2000); // Estimate speaking time
+    }, 3000); // Fixed 3-second delay
 }
-
 function createRealtimeBubble() {
     if (isCreatingBubble) {
         console.log('⚠️ Already creating bubble, skipping...');
