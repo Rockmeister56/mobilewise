@@ -20,7 +20,7 @@ function startListening() {
         createRealtimeBubble();
         isListening = true;
 
-        // MISSING: Update UI buttons and status
+        // Update UI buttons and status
         document.getElementById('startBtn').style.display = 'none';
         document.getElementById('stopBtn').style.display = 'block';
         document.getElementById('statusInfo').innerHTML = '🎤 Listening... Speak now!';
@@ -42,15 +42,11 @@ function startListening() {
             if (currentBubble) {
                 const displayText = finalTranscript + interimTranscript;
                 if (displayText.trim()) {
-                    // Check for both possible bubble structures
-                    const bubbleElement = currentBubble.querySelector('.message-bubble') || currentBubble.querySelector('.bubble-text');
+                    const bubbleElement = currentBubble.querySelector('.bubble-text');
                     if (bubbleElement) {
                         bubbleElement.textContent = displayText;
-                    } else {
-                        currentBubble.textContent = displayText;
                     }
 
-                    // Cool effect: typing = transparent, final = solid
                     if (interimTranscript) {
                         currentBubble.classList.add('typing');
                     } else {
@@ -78,7 +74,6 @@ function startListening() {
         recognition.onend = function() {
             if (isListening) {
                 console.log("Recognition ended, but we're still in listening mode");
-                // Don't change UI here - we'll handle it in processUserResponse
             }
         };
 
@@ -91,44 +86,6 @@ function startListening() {
     }
 }
 
-    const currentBubble = document.getElementById('currentUserBubble');
-    if (currentBubble) {
-        const displayText = finalTranscript + interimTranscript;
-        if (displayText.trim()) {
-            // IMPORTANT: Check for both possible bubble structures
-            const bubbleElement = currentBubble.querySelector('.message-bubble') || currentBubble.querySelector('.bubble-text');
-            if (bubbleElement) {
-                bubbleElement.textContent = displayText;
-            } else {
-                // Fallback: update the bubble directly
-                currentBubble.textContent = displayText;
-            }
-
-            // Cool effect: typing = transparent, final = solid
-            if (interimTranscript) {
-                currentBubble.classList.add('typing');
-            } else {
-                currentBubble.classList.remove('typing');
-            }
-
-            // IMPORTANT: Use the correct scroll function
-            if (typeof scrollChatToBottom === 'function') {
-                scrollChatToBottom();
-            } else if (typeof scrollToBottom === 'function') {
-                scrollToBottom();
-            }
-
-            recognition.onerror = function(event) {
-    console.error('Speech recognition error:', event.error);
-    stopListening();
-};
-
-recognition.onend = function() {
-    console.log("Recognition ended");
-    // Don't auto-restart here - let processUserResponse handle it
-};
-        }
-    }
 
 // ===================================================
 // 🏗️ GLOBAL VARIABLES
