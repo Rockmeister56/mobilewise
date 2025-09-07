@@ -281,7 +281,7 @@ function addAIResponse(userText) {
 }
 
 function createRealtimeBubble() {
-    const chatMessages = document.getElementById('chatMessages');
+    const chatArea = document.getElementById('chatMessages');
     const userBubble = document.createElement('div');
     userBubble.className = 'bubble user-bubble typing';  // ← Transparent + animated dots
     userBubble.id = 'currentUserBubble';
@@ -291,7 +291,7 @@ function createRealtimeBubble() {
     bubbleText.textContent = 'Listening...';  // ← Gets replaced with real speech
     userBubble.appendChild(bubbleText);
     
-    chatMessages.appendChild(userBubble);
+    chatArea.appendChild(userBubble);
     scrollToBottom();
 }
 
@@ -425,7 +425,7 @@ function handleSmartButtonClick() {
 
 // Interview Interface Loader (Splash Screen for now)
 function loadInterviewInterface() {
-    const chatMessages = document.querySelector('.chatMessages');
+    const chatArea = document.querySelector('.chatMessages');
     const splashScreen = document.createElement('div');
     splashScreen.className = 'interview-splash';
     splashScreen.innerHTML = `
@@ -438,7 +438,7 @@ function loadInterviewInterface() {
         </div>
     `;
     
-    chatMessages.appendChild(splashScreen);
+    chatArea.appendChild(splashScreen);
 }
 
 // Close Splash Screen
@@ -451,12 +451,12 @@ function closeSplashScreen() {
 
 // Simulate User Message (for button interactions)
 function simulateUserMessage(message) {
-    const chatMessages = document.querySelector('.chatMessages');
+    const chatArea = document.querySelector('.chatMessages');
     const userBubble = document.createElement('div');
     userBubble.className = 'chat-bubble user-bubble';
     userBubble.innerHTML = `<div class="bubble-content">${message}</div>`;
     
-    chatMessages.appendChild(userBubble);
+    chatArea.appendChild(userBubble);
     scrollToBottom();
     
     // Process this as if user spoke it
@@ -585,7 +585,7 @@ function getAIResponse(userInput) {
     }
 
     // SAFE DOM HANDLING
-    const chatMessages = document.getElementById('chatMessages');
+    const chatArea = document.getElementById('chatMessages');
     if (chatMessages) {
         const aiBubble = document.createElement('div');
         aiBubble.className = 'ai-bubble';
@@ -599,7 +599,7 @@ function getAIResponse(userInput) {
         bubbleContent.textContent = responseText;
         aiBubble.appendChild(bubbleContent);
         
-        chatMessages.appendChild(aiBubble);
+        chatArea.appendChild(aiBubble);
         
         if (typeof scrollToBottom === 'function') {
             scrollToBottom();
@@ -682,12 +682,12 @@ function simulateUserMessage(message) {
     console.log('Simulating user message:', message);
     
     // Create user bubble
-    const chatMessages = document.querySelector('.chatMessages');
+    const chatArea = document.querySelector('.chatMessages');
     const userBubble = document.createElement('div');
     userBubble.className = 'chat-bubble user-bubble';
     userBubble.innerHTML = `<div class="bubble-content">${message}</div>`;
     
-    chatMessages.appendChild(userBubble);
+    chatArea.appendChild(userBubble);
     scrollToBottom();
     
     // Process this message through your AI system
