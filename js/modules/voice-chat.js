@@ -397,10 +397,8 @@ function simulateUserMessage(message) {
 }
 
 // ===================================================
-// 🤖 AI RESPONSE SYSTEM (Your business logic)
+// 🤖 AI RESPONSE SYSTEM (Fixed & Clean)
 // ===================================================
-// AI RESPONSE SYSTEM (NEW - replaces old getAIResponse)
-
 const chatArea = document.getElementById('chatArea');
 const aiBubble = document.createElement('div');
 aiBubble.className = 'ai-bubble';
@@ -416,139 +414,117 @@ aiBubble.appendChild(bubbleContent);
 function getAIResponse(userInput) {
     const userText = userInput.toLowerCase();
     let responseText = '';
+    let shouldShowSmartButton = false;
+    let smartButtonText = '';
+    let smartButtonAction = '';
     
     if (conversationState === 'initial') {
         if (userText.includes('sell') || userText.includes('practice')) {
-            conversationState = 'selling_inquiry';
-            setTimeout(() => {
-                updateSmartButton(true, 'Schedule Free Valuation', 'valuation');
-            }, 2000);
             responseText = "EXCELLENT timing for selling your accounting practice! The market is very strong right now. Should Bruce call you today or tomorrow for your FREE practice valuation?";
+            conversationState = 'selling_inquiry';
+            shouldShowSmartButton = true;
+            smartButtonText = 'Schedule Free Valuation';
+            smartButtonAction = 'valuation';
         } else if (userText.includes('buy') || userText.includes('purchase')) {
-            conversationState = 'buying_inquiry';
-            setTimeout(() => {
-                updateSmartButton(true, 'View Available Practices', 'buying');
-            }, 2000);
             responseText = "Looking to BUY a CPA firm? Perfect! Bruce has exclusive off-market opportunities available RIGHT NOW. Should Bruce show you available practices today or tomorrow?";
+            conversationState = 'buying_inquiry';
+            shouldShowSmartButton = true;
+            smartButtonText = 'View Available Practices';
+            smartButtonAction = 'buying';
+        } else if (userText.includes('value') || userText.includes('worth')) {
+            responseText = "Your accounting practice could be worth MORE than you think! Bruce offers a FREE consultation to evaluate your practice. Are you interested in a valuation today?";
+            conversationState = 'valuation_inquiry';
+            shouldShowSmartButton = true;
+            smartButtonText = 'Get Practice Valuation';
+            smartButtonAction = 'valuation';
         } else {
             responseText = "I specialize in CPA firm transactions - buying, selling, and valuations. What specifically are you interested in learning more about?";
         }
+    } else if (conversationState === 'selling_inquiry') {
+        if (userText.includes('today') || userText.includes('now')) {
+            responseText = "Great! Bruce will call you today. What's the best phone number to reach you, and what time works best?";
+            conversationState = 'contact_today';
+            shouldShowSmartButton = true;
+            smartButtonText = 'Schedule Today';
+            smartButtonAction = 'schedule_today';
+        } else if (userText.includes('tomorrow')) {
+            responseText = "Perfect! Bruce will call you tomorrow. What's the best phone number to reach you, and what time works best?";
+            conversationState = 'contact_tomorrow';
+            shouldShowSmartButton = true;
+            smartButtonText = 'Schedule Tomorrow';
+            smartButtonAction = 'schedule_tomorrow';
+        } else {
+            responseText = "I didn't quite catch that. Should Bruce call you today or tomorrow for your FREE practice valuation?";
+        }
+    } else if (conversationState === 'buying_inquiry') {
+        if (userText.includes('today') || userText.includes('now')) {
+            responseText = "Excellent! Bruce will contact you today to discuss available practices. What's the best phone number to reach you?";
+            conversationState = 'contact_today';
+            shouldShowSmartButton = true;
+            smartButtonText = 'Connect Today';
+            smartButtonAction = 'contact_today';
+        } else if (userText.includes('tomorrow')) {
+            responseText = "Great! Bruce will contact you tomorrow to discuss available practices. What's the best phone number to reach you?";
+            conversationState = 'contact_tomorrow';
+            shouldShowSmartButton = true;
+            smartButtonText = 'Connect Tomorrow';
+            smartButtonAction = 'contact_tomorrow';
+        } else {
+            responseText = "I didn't quite catch that. Should Bruce contact you today or tomorrow about available practices?";
+        }
+    } else if (conversationState === 'valuation_inquiry') {
+        if (userText.includes('yes') || userText.includes('sure') || userText.includes('interested')) {
+            responseText = "Great! Bruce will contact you to set up your FREE valuation. What's the best phone number to reach you, and should he call today or tomorrow?";
+            conversationState = 'contact_valuation';
+            shouldShowSmartButton = true;
+            smartButtonText = 'Connect with Bruce';
+            smartButtonAction = 'connect_bruce';
+        } else {
+            responseText = "No problem! Is there anything else I can help you with regarding your CPA practice?";
+            conversationState = 'initial';
+        }
+    } else if (conversationState.startsWith('contact_')) {
+        const phoneMatch = userText.match(/\b(\d{3}[-.]?\d{3}[-.]?\d{4})\b/);
+        if (phoneMatch) {
+            responseText = "Thank you! Bruce will call you at the number you provided. Is there anything else I can help you with today?";
+            conversationState = 'completed';
+            shouldShowSmartButton = true;
+            smartButtonText = 'Start Interview';
+            smartButtonAction = 'interview';
+        } else {
+            responseText = "Thanks! What's the best phone number for Bruce to reach you?";
+        }
     } else {
         responseText = "Thanks for your message. Is there anything else I can help you with regarding your CPA practice?";
-    }
-    
-    return responseText;
-}
-if (conversationState === 'initial') {
-    if (userInput.toLowerCase().includes('sell') || userInput.toLowerCase().includes('practice')) {
-        responseText = "EXCELLENT timing for selling your accounting practice! The market is very strong right now. Should Bruce call you today or tomorrow for your FREE practice valuation?";
-        conversationState = 'selling_inquiry';
-        shouldShowSmartButton = true;
-        smartButtonText = 'Schedule Free Valuation';
-        smartButtonAction = 'valuation';
-    } else if (userInput.toLowerCase().includes('buy') || userInput.toLowerCase().includes('purchase')) {
-        responseText = "Looking to BUY a CPA firm? Perfect! Bruce has exclusive off-market opportunities available RIGHT NOW. Should Bruce show you available practices today or tomorrow?";
-        conversationState = 'buying_inquiry';
-        shouldShowSmartButton = true;
-        smartButtonText = 'View Available Practices';
-        smartButtonAction = 'buying';
-    } else if (userInput.toLowerCase().includes('value') || userInput.toLowerCase().includes('worth')) {
-        responseText = "Your accounting practice could be worth MORE than you think! Bruce offers a FREE consultation to evaluate your practice. Are you interested in a valuation today?";
-        conversationState = 'valuation_inquiry';
-        shouldShowSmartButton = true;
-        smartButtonText = 'Get Practice Valuation';
-        smartButtonAction = 'valuation';
-    } else {
-        responseText = "I specialize in CPA firm transactions - buying, selling, and valuations. What specifically are you interested in learning more about?";
-        // conversationState remains 'initial'
-    }
-} else if (conversationState === 'selling_inquiry') {
-    if (userInput.toLowerCase().includes('today') || userInput.toLowerCase().includes('now')) {
-        responseText = "Great! Bruce will call you today. What's the best phone number to reach you, and what time works best?";
-        conversationState = 'contact_today';
-        shouldShowSmartButton = true;
-        smartButtonText = 'Schedule Today';
-        smartButtonAction = 'schedule_today';
-    } else if (userInput.toLowerCase().includes('tomorrow')) {
-        responseText = "Perfect! Bruce will call you tomorrow. What's the best phone number to reach you, and what time works best?";
-        conversationState = 'contact_tomorrow';
-        shouldShowSmartButton = true;
-        smartButtonText = 'Schedule Tomorrow';
-        smartButtonAction = 'schedule_tomorrow';
-    } else {
-        responseText = "I didn't quite catch that. Should Bruce call you today or tomorrow for your FREE practice valuation?";
-        // conversationState remains 'selling_inquiry'
-    }
-} else if (conversationState === 'buying_inquiry') {
-    if (userInput.toLowerCase().includes('today') || userInput.toLowerCase().includes('now')) {
-        responseText = "Excellent! Bruce will contact you today to discuss available practices. What's the best phone number to reach you?";
-        conversationState = 'contact_today';
-        shouldShowSmartButton = true;
-        smartButtonText = 'Connect Today';
-        smartButtonAction = 'contact_today';
-    } else if (userInput.toLowerCase().includes('tomorrow')) {
-        responseText = "Great! Bruce will contact you tomorrow to discuss available practices. What's the best phone number to reach you?";
-        conversationState = 'contact_tomorrow';
-        shouldShowSmartButton = true;
-        smartButtonText = 'Connect Tomorrow';
-        smartButtonAction = 'contact_tomorrow';
-    } else {
-        responseText = "I didn't quite catch that. Should Bruce contact you today or tomorrow about available practices?";
-        // conversationState remains 'buying_inquiry'
-    }
-} else if (conversationState === 'valuation_inquiry') {
-    if (userInput.toLowerCase().includes('yes') || userInput.toLowerCase().includes('sure') || userInput.toLowerCase().includes('interested')) {
-        responseText = "Great! Bruce will contact you to set up your FREE valuation. What's the best phone number to reach you, and should he call today or tomorrow?";
-        conversationState = 'contact_valuation';
-        shouldShowSmartButton = true;
-        smartButtonText = 'Connect with Bruce';
-        smartButtonAction = 'connect_bruce';
-    } else {
-        responseText = "No problem! Is there anything else I can help you with regarding your CPA practice?";
         conversationState = 'initial';
     }
-} else if (conversationState.startsWith('contact_')) {
-    // For any contact state, capture the phone number
-    const phoneMatch = userText.match(/\b(\d{3}[-.]?\d{3}[-.]?\d{4})\b/);
-    if (phoneMatch) {
-        responseText = "Thank you! Bruce will call you at the number you provided. Is there anything else I can help you with today?";
-        conversationState = 'completed';
-        shouldShowSmartButton = true;
-        smartButtonText = 'Start Interview';
-        smartButtonAction = 'interview';
-    } else {
-        responseText = "Thanks! What's the best phone number for Bruce to reach you?";
-        // conversationState remains the same
-    }
-} else {
-    responseText = "Thanks for your message. Is there anything else I can help you with regarding your CPA practice?";
-    conversationState = 'initial';
+
+    // Update the smart button
+    updateSmartButton(shouldShowSmartButton, smartButtonText, smartButtonAction);
+
+    // Update UI elements
+    lastAIResponse = responseText;
+    bubbleContent.textContent = responseText;
+    chatArea.appendChild(aiBubble);
+    scrollToBottom();
+    updateConversationInfo();
+
+    // Simulate AI speaking time
+    const speakTime = Math.max(2000, responseText.length * 50);
+    document.getElementById('statusInfo').innerHTML = '🤖 AI is responding...';
+
+    // Return to listening mode
+    setTimeout(() => {
+        document.getElementById('statusInfo').innerHTML = '🎯 Returning to listening mode...';
+        setTimeout(() => {
+            createRealtimeBubble();
+            startListening();
+        }, 1000);
+    }, speakTime);
+
+    return responseText;
 }
 
-// Update the smart button
-updateSmartButton(shouldShowSmartButton, smartButtonText, smartButtonAction);
-
-lastAIResponse = responseText;
-bubbleContent.textContent = responseText;
-
-chatArea.appendChild(aiBubble);
-scrollToBottom();
-
-// Update conversation info
-updateConversationInfo();
-
-// Simulate AI speaking time based on response length
-const speakTime = Math.max(2000, responseText.length * 50);
-document.getElementById('statusInfo').innerHTML = ' AI is responding...';
-
-// After AI "speaks", automatically start listening again
-setTimeout(() => {
-    document.getElementById('statusInfo').innerHTML = ' Returning to listening mode...';
-    setTimeout(() => {
-        createRealtimeBubble();
-        startListening();
-    }, 1000);
-}, speakTime);
 
 function handleSmartButtonClick() {
     const smartButton = document.getElementById('smartButton');
