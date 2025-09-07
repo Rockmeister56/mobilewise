@@ -295,6 +295,37 @@ function createRealtimeBubble() {
     scrollToBottom();
 }
 
+function scrollToBottom() {
+    const chatArea = document.getElementById('chatMessages');
+    chatArea.scrollTop = chatArea.scrollHeight;
+}
+
+function updateConversationInfo() {
+    document.getElementById('conversationState').textContent = conversationState;
+    document.getElementById('lastResponse').textContent = lastAIResponse.substring(0, 50) + (lastAIResponse.length > 50 ? '...' : '');
+}
+
+function resetConversation() {
+    const chatArea = document.getElementById('chatMessages');
+    chatArea.innerHTML = `
+        <div class="ai-bubble">
+            <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/avatars/avatar_1754810337622_AI%20assist%20head%20left.png" class="ai-avatar">
+            <div>👋 Conversation reset! How can I help you with your CPA practice today?</div>
+        </div>
+    `;
+    
+    conversationState = 'initial';
+    lastAIResponse = '';
+    userResponseCount = 0;
+    
+    updateConversationInfo();
+    document.getElementById('statusInfo').innerHTML = 'Click microphone to start conversation';
+    
+    if (isListening) {
+        stopListening();
+    }
+}
+
 function processUserResponse(userText) {
     userResponseCount++;
     
