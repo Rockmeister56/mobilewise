@@ -7,7 +7,7 @@ function startListening() {
     console.log('🎯 startListening() called - starting speech recognition');
     
     if (!checkSpeechSupport()) return;
-    if (isSpeaking) return;
+    if (isSpeaking) return; // Don't start listening if AI is speaking
 
     try {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -20,18 +20,76 @@ function startListening() {
         createRealtimeBubble();
         isListening = true;
 
-       recognition.onresult = function(event) {
-    let interimTranscript = '';
-    let finalTranscript = '';
+        // MISSING: Update UI buttons and status
+        document.getElementById('startBtn').style.display = 'none';
+        document.getElementById('stopBtn').style.display = 'block';
+        document.getElementById('statusInfo').innerHTML = '🎤 Listening... Speak now!';
 
-    for (let i = event.resultIndex; i < event.results.length; i++) {
-        const transcript = event.results[i][0].transcript;
-        if (event.results[i].isFinal) {
-            finalTranscript += transcript;
-        } else {
-            interimTranscript += transcript;
-        }
+        recognition.onresult = function(event) {
+            let interimTranscript = '';
+            let finalTranscript = '';
+
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const transcript = event.results[i][0].transcript;
+                if (event.results[i].isFinal) {
+                    finalTranscript += transcript;
+                } else {
+                    interimTranscript += transcript;
+                }
+            }
+
+            const currentBubble = document.getElementById('currentUserBubble');
+            if (currentBubble) {
+                const displayText = finalTranscript + interimTranscript;
+                if (displayText.trim()) {
+                    // Check for both possible bubble structures
+                    const bubbleElement = currentBubble.querySelector('.message-bubble') || currentBubble.querySelector('.bubble-text');
+                    if (bubbleElement) {
+                        bubbleElement.textContent = displayText;
+                    } else {
+                        currentBubble.textContent = displayText;
+                    }
+
+                    // Cool effect: typing = transparent, final = solid
+                    if (interimTranscript) {
+                        currentBubble.classList.add('typing');
+                    } else {
+                        currentBubble.classList.remove('typing');
+                    }
+
+                    scrollToBottom();
+                }
+            }
+
+            // Process final transcript
+            if (finalTranscript) {
+                setTimeout(() => {
+                    processUserResponse(finalTranscript);
+                }, 1500);
+            }
+        };
+
+        recognition.onerror = function(event) {
+            console.error('Speech recognition error:', event.error);
+            document.getElementById('statusInfo').innerHTML = `❌ Error: ${event.error}`;
+            stopListening();
+        };
+
+        recognition.onend = function() {
+            if (isListening) {
+                console.log("Recognition ended, but we're still in listening mode");
+                // Don't change UI here - we'll handle it in processUserResponse
+            }
+        };
+
+        recognition.start();
+        console.log('🎤 Speech recognition started successfully');
+
+    } catch (error) {
+        console.error('Error starting speech recognition:', error);
+        document.getElementById('statusInfo').innerHTML = '❌ Failed to start speech recognition';
     }
+}
 
     const currentBubble = document.getElementById('currentUserBubble');
     if (currentBubble) {
@@ -68,7 +126,6 @@ function startListening() {
             processUserResponse(finalTranscript);
         }, 1500);  // Your timing was perfect!
     }
-};
 
 recognition.onerror = function(event) {
     console.error('Speech recognition error:', event.error);
