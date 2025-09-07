@@ -423,7 +423,7 @@ function getAIResponse(userInput) {
             setTimeout(() => {
                 updateSmartButton(true, 'Schedule Free Valuation', 'valuation');
             }, 2000);
-            return "EXCELLENT timing for selling your accounting practice! The market is very strong right now. Should Bruce call you today or tomorrow for your FREE practice valuation?";
+           responseText = "EXCELLENT timing for selling your accounting practice! The market is very strong right now. Should Bruce call you today or tomorrow for your FREE practice valuation?";
         }
 
 if (conversationState === 'initial') {
