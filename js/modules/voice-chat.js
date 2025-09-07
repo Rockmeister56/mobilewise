@@ -283,12 +283,12 @@ function addAIResponse(userText) {
 function createRealtimeBubble() {
     const chatArea = document.getElementById('chatArea');
     const userBubble = document.createElement('div');
-    userBubble.className = 'bubble user-bubble typing';
+    userBubble.className = 'bubble user-bubble typing';  // ← Transparent + animated dots
     userBubble.id = 'currentUserBubble';
     
     const bubbleText = document.createElement('div');
     bubbleText.className = 'bubble-text';
-    bubbleText.textContent = 'Listening...';
+    bubbleText.textContent = 'Listening...';  // ← Gets replaced with real speech
     userBubble.appendChild(bubbleText);
     
     chatArea.appendChild(userBubble);
