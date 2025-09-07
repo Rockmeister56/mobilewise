@@ -415,17 +415,30 @@ aiBubble.appendChild(bubbleContent);
 
 function getAIResponse(userInput) {
     const userText = userInput.toLowerCase();
-    }
+    let responseText = '';
+    
     if (conversationState === 'initial') {
         if (userText.includes('sell') || userText.includes('practice')) {
             conversationState = 'selling_inquiry';
-            // Update button AFTER response is processed
             setTimeout(() => {
                 updateSmartButton(true, 'Schedule Free Valuation', 'valuation');
             }, 2000);
-           responseText = "EXCELLENT timing for selling your accounting practice! The market is very strong right now. Should Bruce call you today or tomorrow for your FREE practice valuation?";
+            responseText = "EXCELLENT timing for selling your accounting practice! The market is very strong right now. Should Bruce call you today or tomorrow for your FREE practice valuation?";
+        } else if (userText.includes('buy') || userText.includes('purchase')) {
+            conversationState = 'buying_inquiry';
+            setTimeout(() => {
+                updateSmartButton(true, 'View Available Practices', 'buying');
+            }, 2000);
+            responseText = "Looking to BUY a CPA firm? Perfect! Bruce has exclusive off-market opportunities available RIGHT NOW. Should Bruce show you available practices today or tomorrow?";
+        } else {
+            responseText = "I specialize in CPA firm transactions - buying, selling, and valuations. What specifically are you interested in learning more about?";
         }
-
+    } else {
+        responseText = "Thanks for your message. Is there anything else I can help you with regarding your CPA practice?";
+    }
+    
+    return responseText;
+}
 if (conversationState === 'initial') {
     if (userText.toLowerCase().includes('sell') || userText.toLowerCase().includes('practice')) {
         responseText = "EXCELLENT timing for selling your accounting practice! The market is very strong right now. Should Bruce call you today or tomorrow for your FREE practice valuation?";
@@ -536,8 +549,6 @@ setTimeout(() => {
         startListening();
     }, 1000);
 }, speakTime);
-
-}
 
 function handleSmartButtonClick() {
     const smartButton = document.getElementById('smartButton');
