@@ -283,79 +283,6 @@ function resetConversation() {
     }
 }
 
-function processUserResponse(userText) {
-    userResponseCount++;
-    
-    // Update UI - Make bubble solid with final text
-    const currentBubble = document.getElementById('currentUserBubble');
-    if (currentBubble) {
-        currentBubble.classList.remove('typing');
-        currentBubble.removeAttribute('id');
-    }
-    
-    // Stop listening while AI responds
-    if (recognition) {
-        recognition.stop();
-        recognition = null;
-    }
-    
-    isListening = false;
-    document.getElementById('startBtn').style.display = 'block';
-    document.getElementById('stopBtn').style.display = 'none';
-    document.getElementById('statusInfo').innerHTML = '🤖 AI is responding...';
-    
-    // Add AI response
-    setTimeout(() => {
-        addAIResponse(userText);
-    }, 800);
-}
-
-function scrollToBottom() {
-    const chatMessages = document.getElementById('chatMessages');
-    if (chatMessages) {
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-}
-
-function updateConversationInfo() {
-    const stateElement = document.getElementById('conversationState');
-    const responseElement = document.getElementById('lastResponse');
-    
-    if (stateElement) stateElement.textContent = conversationState;
-    if (responseElement) {
-        responseElement.textContent = lastAIResponse.substring(0, 50) + (lastAIResponse.length > 50 ? '...' : '');
-    }
-}
-
-function stopListening() {
-    if (recognition) {
-        recognition.stop();
-        recognition = null;
-    }
-
-    const currentBubble = document.getElementById('currentUserBubble');
-    if (currentBubble) {
-        currentBubble.classList.remove('typing');
-        
-        // Safe check for message bubble
-        const bubbleElement = currentBubble.querySelector('.message-bubble');
-        if (bubbleElement && !bubbleElement.textContent.trim()) {
-            bubbleElement.textContent = 'No speech detected';
-            currentBubble.style.opacity = '0.6';
-        }
-        currentBubble.removeAttribute('id');
-    }
-
-    // Update UI buttons
-    const activateMicBtn = document.getElementById('activateMicBtn');
-    const audioOffBtn = document.getElementById('audioOffBtn');
-    if (activateMicBtn) activateMicBtn.style.display = 'block';
-    if (audioOffBtn) audioOffBtn.style.display = 'none';
-
-    isListening = false;
-    console.log('🛑 Listening stopped');
-}
-
 // Smart Button Management System
 function updateSmartButton(shouldShow, buttonText, actionType) {
     const smartButton = document.getElementById('smartButton');
@@ -574,7 +501,7 @@ function getAIResponse(userInput) {
 
     // SAFE DOM HANDLING
     const chatArea = document.getElementById('chatMessages');
-    if (chatMessages) {
+    if (chatArea) { 
         const aiBubble = document.createElement('div');
         aiBubble.className = 'ai-bubble';
 
