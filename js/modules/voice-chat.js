@@ -403,12 +403,6 @@ function simulateUserMessage(message) {
 // AI RESPONSE SYSTEM (NEW - replaces old getAIResponse)
 function getAIResponse(userInput) {
     const userText = userInput.toLowerCase();
-    
-    // Use our new conversation engine
-    let responseText = '';
-    let shouldShowSmartButton = false;
-    let smartButtonText = 'AI Smart Button';
-    let smartButtonAction = 'default';
 
 if (conversationState === 'initial') {
     if (userText.toLowerCase().includes('sell') || userText.toLowerCase().includes('practice')) {
