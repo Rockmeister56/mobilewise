@@ -20,11 +20,6 @@ function startListening() {
         createRealtimeBubble();
         isListening = true;
 
-        // MISSING: Update UI buttons and status
-        document.getElementById('startBtn').style.display = 'none';
-        document.getElementById('stopBtn').style.display = 'block';
-        document.getElementById('statusInfo').innerHTML = '🎤 Listening... Speak now!';
-
         recognition.onresult = function(event) {
             let interimTranscript = '';
             let finalTranscript = '';
@@ -42,15 +37,11 @@ function startListening() {
             if (currentBubble) {
                 const displayText = finalTranscript + interimTranscript;
                 if (displayText.trim()) {
-                    // Check for both possible bubble structures
-                    const bubbleElement = currentBubble.querySelector('.message-bubble') || currentBubble.querySelector('.bubble-text');
+                    const bubbleElement = currentBubble.querySelector('.bubble-text');
                     if (bubbleElement) {
                         bubbleElement.textContent = displayText;
-                    } else {
-                        currentBubble.textContent = displayText;
                     }
 
-                    // Cool effect: typing = transparent, final = solid
                     if (interimTranscript) {
                         currentBubble.classList.add('typing');
                     } else {
@@ -71,14 +62,13 @@ function startListening() {
 
         recognition.onerror = function(event) {
             console.error('Speech recognition error:', event.error);
-            document.getElementById('statusInfo').innerHTML = `❌ Error: ${event.error}`;
+            console.log(`❌ Error: ${event.error}`);
             stopListening();
         };
 
         recognition.onend = function() {
             if (isListening) {
                 console.log("Recognition ended, but we're still in listening mode");
-                // Don't change UI here - we'll handle it in processUserResponse
             }
         };
 
@@ -87,55 +77,10 @@ function startListening() {
 
     } catch (error) {
         console.error('Error starting speech recognition:', error);
-        document.getElementById('statusInfo').innerHTML = '❌ Failed to start speech recognition';
+       console.log('❌ Failed to start speech recognition');
     }
 }
 
-    const currentBubble = document.getElementById('currentUserBubble');
-    if (currentBubble) {
-        const displayText = finalTranscript + interimTranscript;
-        if (displayText.trim()) {
-            // IMPORTANT: Check for both possible bubble structures
-            const bubbleElement = currentBubble.querySelector('.message-bubble') || currentBubble.querySelector('.bubble-text');
-            if (bubbleElement) {
-                bubbleElement.textContent = displayText;
-            } else {
-                // Fallback: update the bubble directly
-                currentBubble.textContent = displayText;
-            }
-
-            // Cool effect: typing = transparent, final = solid
-            if (interimTranscript) {
-                currentBubble.classList.add('typing');
-            } else {
-                currentBubble.classList.remove('typing');
-            }
-
-            // IMPORTANT: Use the correct scroll function
-            if (typeof scrollChatToBottom === 'function') {
-                scrollChatToBottom();
-            } else if (typeof scrollToBottom === 'function') {
-                scrollToBottom();
-            }
-        }
-    }
-
-    // IMPORTANT: Process final transcript with proper delay
-    if (finalTranscript) {
-        setTimeout(() => {
-            processUserResponse(finalTranscript);
-        }, 1500);  // Your timing was perfect!
-    }
-
-recognition.onerror = function(event) {
-    console.error('Speech recognition error:', event.error);
-    stopListening();
-};
-
-recognition.onend = function() {
-    console.log("Recognition ended");
-    // Don't auto-restart here - let processUserResponse handle it
-};
 
 // ===================================================
 // 🏗️ GLOBAL VARIABLES
@@ -288,84 +233,49 @@ function addAIResponse(userText) {
 }
 
 function createRealtimeBubble() {
-    const chatArea = document.getElementById('chatArea');
+    const chatArea = document.getElementById('chatMessages');
     const userBubble = document.createElement('div');
-    userBubble.className = 'bubble user-bubble typing';
+    userBubble.className = 'bubble user-bubble typing';  // ← Transparent + animated dots
     userBubble.id = 'currentUserBubble';
     
     const bubbleText = document.createElement('div');
     bubbleText.className = 'bubble-text';
-    bubbleText.textContent = 'Listening...';
+    bubbleText.textContent = 'Listening...';  // ← Gets replaced with real speech
     userBubble.appendChild(bubbleText);
     
     chatArea.appendChild(userBubble);
     scrollToBottom();
 }
 
-function processUserResponse(userText) {
-    userResponseCount++;
-    
-    // Update UI - Make bubble solid with final text
-    const currentBubble = document.getElementById('currentUserBubble');
-    if (currentBubble) {
-        currentBubble.classList.remove('typing');
-        currentBubble.removeAttribute('id');
-    }
-    
-    // Stop listening while AI responds
-    if (recognition) {
-        recognition.stop();
-        recognition = null;
-    }
-    
-    isListening = false;
-    document.getElementById('startBtn').style.display = 'block';
-    document.getElementById('stopBtn').style.display = 'none';
-    document.getElementById('statusInfo').innerHTML = '🤖 AI is responding...';
-    
-    // Add AI response
-    setTimeout(() => {
-        addAIResponse(userText);
-    }, 800);
+function scrollToBottom() {
+    const chatArea = document.getElementById('chatMessages');
+    chatArea.scrollTop = chatArea.scrollHeight;
 }
 
 function updateConversationInfo() {
-    const stateElement = document.getElementById('conversationState');
-    const responseElement = document.getElementById('lastResponse');
-    
-    if (stateElement) stateElement.textContent = conversationState;
-    if (responseElement) {
-        responseElement.textContent = lastAIResponse.substring(0, 50) + (lastAIResponse.length > 50 ? '...' : '');
-    }
+    console.log('Conversation State:', conversationState);
+    console.log('Last Response:', lastAIResponse.substring(0, 50) + (lastAIResponse.length > 50 ? '...' : ''));
 }
 
-function stopListening() {
-    if (recognition) {
-        recognition.stop();
-        recognition = null;
+function resetConversation() {
+    const chatArea = document.getElementById('chatMessages');
+    chatArea.innerHTML = `
+        <div class="ai-bubble">
+            <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/avatars/avatar_1754810337622_AI%20assist%20head%20left.png" class="ai-avatar">
+            <div>👋 Conversation reset! How can I help you with your CPA practice today?</div>
+        </div>
+    `;
+    
+    conversationState = 'initial';
+    lastAIResponse = '';
+    userResponseCount = 0;
+    
+    updateConversationInfo();
+    console.log('Click microphone to start conversation'); 
+    
+    if (isListening) {
+        stopListening();
     }
-
-    const currentBubble = document.getElementById('currentUserBubble');
-    if (currentBubble) {
-        currentBubble.classList.remove('typing');
-        
-        // Safe check for message bubble
-        const bubbleElement = currentBubble.querySelector('.message-bubble');
-        if (bubbleElement && !bubbleElement.textContent.trim()) {
-            bubbleElement.textContent = 'No speech detected';
-            currentBubble.style.opacity = '0.6';
-        }
-        currentBubble.removeAttribute('id');
-    }
-
-    // Update UI buttons
-    const activateMicBtn = document.getElementById('activateMicBtn');
-    const audioOffBtn = document.getElementById('audioOffBtn');
-    if (activateMicBtn) activateMicBtn.style.display = 'block';
-    if (audioOffBtn) audioOffBtn.style.display = 'none';
-
-    isListening = false;
-    console.log('🛑 Listening stopped');
 }
 
 // Smart Button Management System
@@ -425,7 +335,7 @@ function handleSmartButtonClick() {
 
 // Interview Interface Loader (Splash Screen for now)
 function loadInterviewInterface() {
-    const chatArea = document.querySelector('.chat-area');
+    const chatArea = document.querySelector('.chatMessages');
     const splashScreen = document.createElement('div');
     splashScreen.className = 'interview-splash';
     splashScreen.innerHTML = `
@@ -451,7 +361,7 @@ function closeSplashScreen() {
 
 // Simulate User Message (for button interactions)
 function simulateUserMessage(message) {
-    const chatArea = document.querySelector('.chat-area');
+    const chatArea = document.querySelector('.chatMessages');
     const userBubble = document.createElement('div');
     userBubble.className = 'chat-bubble user-bubble';
     userBubble.innerHTML = `<div class="bubble-content">${message}</div>`;
@@ -585,8 +495,8 @@ function getAIResponse(userInput) {
     }
 
     // SAFE DOM HANDLING
-    const chatArea = document.getElementById('chatArea');
-    if (chatArea) {
+    const chatArea = document.getElementById('chatMessages');
+    if (chatArea) { 
         const aiBubble = document.createElement('div');
         aiBubble.className = 'ai-bubble';
 
@@ -682,7 +592,7 @@ function simulateUserMessage(message) {
     console.log('Simulating user message:', message);
     
     // Create user bubble
-    const chatArea = document.querySelector('.chat-area');
+    const chatArea = document.querySelector('.chatMessages');
     const userBubble = document.createElement('div');
     userBubble.className = 'chat-bubble user-bubble';
     userBubble.innerHTML = `<div class="bubble-content">${message}</div>`;
