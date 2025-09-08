@@ -760,14 +760,6 @@ function startVoiceChat() {
         chatInterface.style.display = 'flex';
         console.log('✅ Chat interface shown');
     }
-    
-    // Call activation
-    activateMicrophone();
-
-    setTimeout(() => {
-    const greeting = "Welcome! I'm Bruce Clark's AI assistant. What can I help you with today?";
-    addAIMessage(greeting);
-}, 500);
 
 // NEW (FIXED):
 setTimeout(() => {
@@ -813,39 +805,18 @@ async function activateMicrophone() {
         // Initialize speech recognition
         initializeSpeechRecognition();
         
-        // Add greeting
-        setTimeout(() => {
-            const greeting = "Welcome! I'm Bruce Clark's AI assistant. What can I help you with today?";
-            addAIMessage(greeting);
-        }, 500);
+        // ADD GREETING ONLY ONCE - and let speakResponse handle the listening start
+        const greeting = "Welcome! I'm Bruce Clark's AI assistant. What can I help you with today?";
+        addAIMessage(greeting);
+        speakResponse(greeting);
         
-       // Add greeting first, then start listening AFTER it's spoken
-setTimeout(() => {
-    const greeting = "Welcome! I'm Bruce Clark's AI assistant. What can I help you with today?";
-    addAIMessage(greeting);
-    speakResponse(greeting);
-    
-    // Start listening ONLY after speech completes
-    // We'll use the utterance.onend event in speakResponse to trigger listening
-}, 500);
+        // REMOVE the duplicate setTimeout that was adding another greeting
         
     } catch (error) {
         console.log('❌ Microphone access denied:', error);
         addAIMessage("Microphone access was denied. You can still use text chat.");
         switchToTextMode();
     }
-}
-
-function switchToTextMode() {
-    isAudioMode = false;
-    
-    const activateMicBtn = document.getElementById('activateMicBtn');
-    const audioOffBtn = document.getElementById('audioOffBtn');
-    const voiceContainer = document.getElementById('voiceVisualizerContainer');
-    
-    if (activateMicBtn) activateMicBtn.style.display = 'block';
-    if (audioOffBtn) audioOffBtn.style.display = 'none';
-    if (voiceContainer) voiceContainer.style.display = 'none';
 }
 
 // ===================================================
