@@ -392,6 +392,7 @@ function simulateUserMessage(message) {
 }
 
 function getAIResponse(userInput) {
+    const userText = userInput.toLowerCase();
     
     if (conversationState === 'initial') {
         if (userText.includes('sell') || userText.includes('practice') || userText.includes('selling')) {
