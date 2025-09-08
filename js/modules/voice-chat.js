@@ -819,17 +819,15 @@ async function activateMicrophone() {
             addAIMessage(greeting);
         }, 500);
         
-        // Start listening after greeting
-        setTimeout(() => {
-             if (recognition && !isListening && !isSpeaking) {
-                if (typeof createRealtimeBubble === 'function') {
-    createRealtimeBubble();
-} else {
-    console.log('createRealtimeBubble not available, skipping...');
-}
-                startListening();
-            }
-        }, 4000);
+       // Add greeting first, then start listening AFTER it's spoken
+setTimeout(() => {
+    const greeting = "Welcome! I'm Bruce Clark's AI assistant. What can I help you with today?";
+    addAIMessage(greeting);
+    speakResponse(greeting);
+    
+    // Start listening ONLY after speech completes
+    // We'll use the utterance.onend event in speakResponse to trigger listening
+}, 500);
         
     } catch (error) {
         console.log('❌ Microphone access denied:', error);
