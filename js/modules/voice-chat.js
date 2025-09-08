@@ -698,6 +698,42 @@ function sendTextMessage() {
     }, 300);
 }
 
+function createRealtimeBubble() {
+    // SAFETY CHECK: Prevent multiple bubbles
+    const existingBubble = document.getElementById('currentUserBubble');
+    if (existingBubble) {
+        console.log('🛡️ Bubble already exists - not creating duplicate');
+        return;
+    }
+
+    const chatArea = document.getElementById('chatMessages'); // Your container ID
+    const userBubble = document.createElement('div');
+    userBubble.className = 'message user-message'; // Your CSS classes
+    userBubble.id = 'currentUserBubble';
+    
+    const messageBubble = document.createElement('div');
+    messageBubble.className = 'message-bubble';
+    
+    const bubbleText = document.createElement('div');
+    bubbleText.className = 'bubble-text';
+    bubbleText.textContent = 'Listening...';
+    
+    messageBubble.appendChild(bubbleText);
+    userBubble.appendChild(messageBubble);
+    
+    // ADD ANIMATION CLASSES
+    userBubble.classList.add('listening-animation');
+    bubbleText.classList.add('listening-dots');
+    
+    chatArea.appendChild(userBubble);
+    scrollToBottom();
+    
+    console.log('✅ Realtime bubble created successfully');
+}
+
+// Make it globally available
+window.createRealtimeBubble = createRealtimeBubble;
+
 // ===================================================
 // 🚀 SPLASH SCREEN SYSTEM (Your working system)
 // ===================================================
