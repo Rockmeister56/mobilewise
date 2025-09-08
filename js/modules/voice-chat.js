@@ -701,6 +701,10 @@ function sendTextMessage() {
 
 function createRealtimeBubble() {
     // SAFETY CHECK: Prevent multiple bubbles
+        if (isSpeaking) {
+        console.log('🛡️ AI is speaking - delaying bubble creation');
+        return;
+    }
     const existingBubble = document.getElementById('currentUserBubble');
     if (existingBubble) {
         console.log('🛡️ Bubble already exists - not creating duplicate');
@@ -757,6 +761,19 @@ function startVoiceChat() {
     
     // Call activation
     activateMicrophone();
+
+    setTimeout(() => {
+    const greeting = "Welcome! I'm Bruce Clark's AI assistant. What can I help you with today?";
+    addAIMessage(greeting);
+}, 500);
+
+// NEW (FIXED):
+setTimeout(() => {
+    const greeting = "Welcome! I'm Bruce Clark's AI assistant. What can I help you with today?";
+    addAIMessage(greeting);
+    speakResponse(greeting); // ← ADD THIS LINE!
+}, 500);
+
 }
 
 async function activateMicrophone() {
@@ -802,7 +819,7 @@ async function activateMicrophone() {
         
         // Start listening after greeting
         setTimeout(() => {
-            if (recognition && !isListening) {
+             if (recognition && !isListening && !isSpeaking) {
                 if (typeof createRealtimeBubble === 'function') {
     createRealtimeBubble();
 } else {
@@ -810,7 +827,7 @@ async function activateMicrophone() {
 }
                 startListening();
             }
-        }, 1500);
+        }, 4000);
         
     } catch (error) {
         console.log('❌ Microphone access denied:', error);
