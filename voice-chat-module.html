@@ -658,7 +658,20 @@ box-shadow: 0 15px 40px rgba(33, 150, 243, 0.4);
     80%, 100% { opacity: 1; }
 }
 
+/* FORCE USER MESSAGES (LISTENING BUBBLES) TO RIGHT SIDE */
+.message.user-message#currentUserBubble {
+    min-width: 200px !important;
+    justify-content: flex-end !important; /* ✅ FORCE RIGHT ALIGNMENT */
+    display: flex !important;
+}
 
+.message.user-message#currentUserBubble .message-bubble {
+    min-width: 180px !important;
+    padding: 12px 20px !important;
+    text-align: left !important; /* ✅ KEEP - This is text inside bubble */
+    position: relative;
+    margin-left: auto; /* ✅ ADDITIONAL RIGHT PUSH */
+}
 
    </style>
 </head>
