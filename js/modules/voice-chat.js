@@ -274,8 +274,7 @@ function addAIResponse(userText) {
     
     // Update smart button based on response logic
     updateSmartButton(shouldShowSmartButton, smartButtonText, smartButtonAction);
-    
-    }
+}
 
     const chatArea = document.getElementById('chatMessages'); // ← Your container ID
     const userBubble = document.createElement('div');
@@ -741,7 +740,7 @@ function sendTextMessage() {
 
 function createRealtimeBubble() {
     // SAFETY CHECK: Prevent multiple bubbles
-        if (isSpeaking) {
+    if (isSpeaking) {
         console.log('🛡️ AI is speaking - delaying bubble creation');
         return;
     }
@@ -750,6 +749,35 @@ function createRealtimeBubble() {
         console.log('🛡️ Bubble already exists - not creating duplicate');
         return;
     }
+
+    const chatArea = document.getElementById('chatMessages'); // Your container ID
+    const userBubble = document.createElement('div');
+    userBubble.className = 'message user-message'; // Your CSS classes
+    userBubble.id = 'currentUserBubble';
+    
+    const messageBubble = document.createElement('div');
+    messageBubble.className = 'message-bubble';
+    
+    const bubbleText = document.createElement('div');
+    bubbleText.className = 'bubble-text';
+    bubbleText.textContent = 'Listening...';
+    
+    messageBubble.appendChild(bubbleText);
+    userBubble.appendChild(messageBubble);
+    
+    // ADD ANIMATION CLASSES
+    userBubble.classList.add('listening-animation');
+    bubbleText.classList.add('listening-dots');
+    
+    chatArea.appendChild(userBubble);
+    scrollToBottom();
+    
+    console.log('✅ Realtime bubble created successfully');
+}
+
+function scrollToBottom() {
+    const chatArea = document.getElementById('chatMessages');
+    chatArea.scrollTop = chatArea.scrollHeight;
 }
 
 // Make it globally available
