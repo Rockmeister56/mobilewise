@@ -614,11 +614,6 @@ function simulateUserMessage(message) {
     
     chatArea.appendChild(userBubble);
     scrollToBottom();
-    
-    // Process this message through your AI system
-    setTimeout(() => {
-        addAIResponse(message);
-    }, 500);
 }
 
 // ===================================================
