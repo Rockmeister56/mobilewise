@@ -275,15 +275,7 @@ function addAIResponse(userText) {
     // Update smart button based on response logic
     updateSmartButton(shouldShowSmartButton, smartButtonText, smartButtonAction);
     
-    // Handle auto-restart for voice mode
-    if (isAudioMode && !isListening && !recognition) {
-        setTimeout(() => {
-            createRealtimeBubble();
-            window.createRealtimeBubble = createRealtimeBubble;
-            startListening();
-        }, 2000);
     }
-}
 
     const chatArea = document.getElementById('chatMessages'); // ← Your container ID
     const userBubble = document.createElement('div');
