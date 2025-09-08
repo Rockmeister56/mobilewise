@@ -799,6 +799,13 @@ async function activateMicrophone() {
         // Initialize speech recognition
         initializeSpeechRecognition();
         
+        // ✅ ADD THIS BACK - AI GREETING!
+        setTimeout(() => {
+            const greeting = "Welcome! I'm Bruce Clark's AI assistant. What can I help you with today?";
+            addAIMessage(greeting);
+            speakResponse(greeting);
+        }, 500);
+        
     } catch (error) {
         console.log('❌ Microphone access denied:', error);
         addAIMessage("Microphone access was denied. You can still use text chat.");
