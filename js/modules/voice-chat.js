@@ -741,7 +741,7 @@ function createRealtimeBubble() {
     messageBubble.appendChild(bubbleText);
     userBubble.appendChild(messageBubble);
     
-    // ADD ANIMATION CLASSES
+    // ✅ ADD THESE CRUCIAL ANIMATION CLASSES BACK!
     userBubble.classList.add('listening-animation');
     bubbleText.classList.add('listening-dots');
     
