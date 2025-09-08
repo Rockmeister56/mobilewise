@@ -227,6 +227,8 @@ function addAIResponse(userText) {
     // Update conversation info if available
     updateConversationInfo();
 
+    } // ← ADD THIS CLOSING BRACKET HERE!
+
 function createRealtimeBubble() {
     // SAFETY CHECK: Prevent multiple bubbles
     const existingBubble = document.getElementById('currentUserBubble');
@@ -815,22 +817,22 @@ async function activateMicrophone() {
         // Initialize speech recognition
         initializeSpeechRecognition();
         
-        // Add greeting and start listening - FIXED TIMING
+        // Add greeting
         setTimeout(() => {
             const greeting = "Welcome! I'm Bruce Clark's AI assistant. What can I help you with today?";
             addAIMessage(greeting);
-            
-            // Start listening after greeting is added
-            setTimeout(() => {
-                if (recognition && !isListening) {
-                    createRealtimeBubble();
-                    startListening();
-                }
-            }, 1000);
         }, 500);
         
+        // Start listening after greeting
+        setTimeout(() => {
+            if (recognition && !isListening) {
+                createRealtimeBubble();
+                startListening();
+            }
+        }, 1500);
+        
     } catch (error) {
-        console.log('Microphone access denied:', error);
+        console.log('❌ Microphone access denied:', error);
         addAIMessage("Microphone access was denied. You can still use text chat.");
         switchToTextMode();
     }
