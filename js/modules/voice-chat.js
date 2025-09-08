@@ -3,6 +3,55 @@
 // Combining working bubble system + your business logic
 // ===================================================
 
+async function activateMicrophone() {
+    console.log('🎤 Activating microphone...');
+    
+    // Hide splash screen
+    const splashScreen = document.getElementById('splashScreen');
+    if (splashScreen) {
+        splashScreen.style.display = 'none';
+    }
+    
+    // Show chat interface
+    const chatInterface = document.getElementById('chatInterface');
+    if (chatInterface) {
+        chatInterface.style.display = 'flex';
+    }
+    
+    try {
+        // Request microphone permission
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        persistentMicStream = stream;
+        micPermissionGranted = true;
+        
+        isAudioMode = true;
+        
+        // Show appropriate UI
+        const activateMicBtn = document.getElementById('activateMicBtn');
+        const audioOffBtn = document.getElementById('audioOffBtn');
+        const voiceContainer = document.getElementById('voiceVisualizerContainer');
+        
+        if (activateMicBtn) activateMicBtn.style.display = 'none';
+        if (audioOffBtn) audioOffBtn.style.display = 'block';
+        if (voiceContainer) voiceContainer.style.display = 'flex';
+        
+        // Initialize speech recognition
+        initializeSpeechRecognition();
+        
+        // ✅ ADD THIS BACK - AI GREETING!
+        setTimeout(() => {
+            const greeting = "Welcome! I'm Bruce Clark's AI assistant. What can I help you with today?";
+            addAIMessage(greeting);
+            speakResponse(greeting);
+        }, 500);
+        
+    } catch (error) {
+        console.log('❌ Microphone access denied:', error);
+        addAIMessage("Microphone access was denied. You can still use text chat.");
+        switchToTextMode();
+    }
+}
+
 // ===================================================
 // 🏗️ GLOBAL VARIABLES
 // ===================================================
@@ -762,55 +811,6 @@ function startVoiceChat() {
         console.log('✅ Chat interface shown');
     }
 
-}
-
-async function activateMicrophone() {
-    console.log('🎤 Activating microphone...');
-    
-    // Hide splash screen
-    const splashScreen = document.getElementById('splashScreen');
-    if (splashScreen) {
-        splashScreen.style.display = 'none';
-    }
-    
-    // Show chat interface
-    const chatInterface = document.getElementById('chatInterface');
-    if (chatInterface) {
-        chatInterface.style.display = 'flex';
-    }
-    
-    try {
-        // Request microphone permission
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        persistentMicStream = stream;
-        micPermissionGranted = true;
-        
-        isAudioMode = true;
-        
-        // Show appropriate UI
-        const activateMicBtn = document.getElementById('activateMicBtn');
-        const audioOffBtn = document.getElementById('audioOffBtn');
-        const voiceContainer = document.getElementById('voiceVisualizerContainer');
-        
-        if (activateMicBtn) activateMicBtn.style.display = 'none';
-        if (audioOffBtn) audioOffBtn.style.display = 'block';
-        if (voiceContainer) voiceContainer.style.display = 'flex';
-        
-        // Initialize speech recognition
-        initializeSpeechRecognition();
-        
-        // ✅ ADD THIS BACK - AI GREETING!
-        setTimeout(() => {
-            const greeting = "Welcome! I'm Bruce Clark's AI assistant. What can I help you with today?";
-            addAIMessage(greeting);
-            speakResponse(greeting);
-        }, 500);
-        
-    } catch (error) {
-        console.log('❌ Microphone access denied:', error);
-        addAIMessage("Microphone access was denied. You can still use text chat.");
-        switchToTextMode();
-    }
 }
 
 // ===================================================
