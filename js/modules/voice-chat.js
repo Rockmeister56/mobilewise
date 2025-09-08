@@ -233,6 +233,7 @@ function addAIResponse(userText) {
     if (isAudioMode && !isListening && !recognition) {
         setTimeout(() => {
             createRealtimeBubble();
+            window.createRealtimeBubble = createRealtimeBubble;
             startListening();
         }, 2000);
     }
