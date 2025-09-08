@@ -60,8 +60,10 @@ function startListening() {
         recognition.interimResults = true;
         recognition.lang = 'en-US';
 
-        createRealtimeBubble();
-        isListening = true;
+           recognition.onstart = function() {
+            createRealtimeBubble(); // ← CREATE BUBBLE ONLY WHEN RECOGNITION STARTS
+            isListening = true;
+             };
 
         // 🎯 MAGIC BUBBLE ANIMATION SYSTEM
         recognition.onresult = function(event) {
