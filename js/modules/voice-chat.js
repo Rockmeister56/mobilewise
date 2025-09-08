@@ -761,13 +761,6 @@ function startVoiceChat() {
         console.log('✅ Chat interface shown');
     }
 
-// NEW (FIXED):
-setTimeout(() => {
-    const greeting = "Welcome! I'm Bruce Clark's AI assistant. What can I help you with today?";
-    addAIMessage(greeting);
-    speakResponse(greeting); // ← ADD THIS LINE!
-}, 500);
-
 }
 
 async function activateMicrophone() {
@@ -810,7 +803,6 @@ async function activateMicrophone() {
         addAIMessage(greeting);
         speakResponse(greeting);
         
-        // REMOVE the duplicate setTimeout that was adding another greeting
         
     } catch (error) {
         console.log('❌ Microphone access denied:', error);
