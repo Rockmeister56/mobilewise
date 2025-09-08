@@ -654,31 +654,91 @@ box-shadow: 0 15px 40px rgba(33, 150, 243, 0.4);
     border: 1px solid #ddd;
 }
 
-/* WIDER LISTENING BUBBLE WITH ANIMATION */
-.message.user-message#currentUserBubble {
-    min-width: 200px !important; /* Start wider */
+/* ===================================================
+   🎯 MOBILE-WISE AI UNIFIED BUBBLE SYSTEM - ZERO CONFLICTS
+   ================================================= */
+
+/* BASE MESSAGE LAYOUT */
+.message {
+    margin-bottom: 15px;
+    display: flex;
+    align-items: flex-start;
 }
 
-.message.user-message#currentUserBubble .message-bubble {
-    min-width: 180px !important;
-    padding: 12px 20px !important;
-    text-align: left !important; /* Align text to left like bubble-test4 */
+.user-message {
+    justify-content: flex-end;
+}
+
+.ai-message {
+    justify-content: flex-start;
+}
+
+/* ===================================================
+   🎯 USER BUBBLE SYSTEM - SINGLE DEFINITION
+   ================================================= */
+
+/* DEFAULT USER BUBBLE STATE */
+.message.user-message .message-bubble {
+    background: #2196f3; /* ← SOLID BLUE DEFAULT */
+    color: white; /* ← WHITE TEXT */
+    border-radius: 15px 15px 5px 15px;
+    padding: 12px 20px;
+    min-width: 300px; /* ← SINGLE WIDTH RULE */
+    max-width: 80%;
+    font-size: 14px;
+    line-height: 1.4;
+    word-wrap: break-word;
+    transition: all 0.3s ease;
+    text-align: left;
     position: relative;
 }
 
-/* ANIMATED LISTENING TEXT */
-.listening-animation {
-    display: inline-block;
+/* LISTENING STATE - Semi-transparent with animation */
+.message.user-message.listening-animation .message-bubble {
+    background: rgba(33, 150, 243, 0.4) !important; /* ← VISIBLE BLUE */
+    color: white !important; /* ← WHITE TEXT */
+    border: 2px solid #2196f3 !important; /* ← BLUE BORDER */
     animation: listeningPulse 1.5s infinite;
 }
 
-@keyframes listeningPulse {
-    0% { opacity: 1; }
-    50% { opacity: 0.5; }
-    100% { opacity: 1; }
+/* SPEECH COMPLETE - Solid color */
+.message.user-message.speech-complete .message-bubble {
+    background: #2196f3 !important; /* ← SOLID BLUE */
+    color: white !important; /* ← WHITE TEXT */
+    border: none !important;
 }
 
-/* TYPING DOTS ANIMATION (like bubble-test4) */
+/* ===================================================
+   🎯 AI BUBBLE SYSTEM
+   ================================================= */
+.ai-message .message-bubble {
+    background: rgba(232, 245, 232, 0.9);
+    color: #333;
+    border-radius: 15px 15px 15px 5px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 16px;
+    max-width: 80%;
+}
+
+.ai-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+/* ===================================================
+   🎯 ANIMATIONS - SINGLE DEFINITIONS
+   ================================================= */
+@keyframes listeningPulse {
+    0% { opacity: 0.9; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(1.02); }
+    100% { opacity: 0.9; transform: scale(1); }
+}
+
+/* LISTENING DOTS ANIMATION */
 .listening-dots::after {
     content: '...';
     display: inline-block;
@@ -687,55 +747,25 @@ box-shadow: 0 15px 40px rgba(33, 150, 243, 0.4);
 }
 
 @keyframes typingDots {
-    0%, 20% { opacity: 0; }
-    40% { opacity: 1; }
-    60% { opacity: 0; }
-    80%, 100% { opacity: 1; }
-}
-
-/* WIDER LISTENING BUBBLE - ADD THIS CSS ONLY */
-.message.user-message#currentUserBubble {
-    min-width: 300px !important;
-}
-
-.message.user-message#currentUserBubble .message-bubble {
-    min-width: 280px !important;
-    padding: 12px 20px !important;
-    text-align: left !important;
-    position: relative;
+    0%, 20% { content: ''; }
+    40% { content: '.'; }
+    60% { content: '..'; }
+    80%, 100% { content: '...'; }
 }
 
 /* ===================================================
-   🎯 MOBILE-WISE AI BUBBLE ENHANCEMENT SYSTEM
+   🎯 BUBBLE TEXT ELEMENT
    ================================================= */
-
-/* RESTORE WORKING BUBBLE SYSTEM */
-.message.user-message {
-    display: flex;
-    justify-content: flex-end;
-    margin-bottom: 10px;
+.bubble-text {
+    color: inherit; /* ← INHERITS FROM PARENT */
+    font-weight: 500;
 }
 
-.message.user-message .message-bubble {
-    background: rgba(255, 255, 255, 0.3); /* ← Transparent while listening */
-    border: 2px solid #4CAF50;
-    border-radius: 20px;
-    padding: 12px 20px;
-    max-width: 80%;
-    min-width: 200px;
-    transition: all 0.3s ease;
-}
-
-/* ANIMATED LISTENING STATE */
-.message.user-message.listening-animation .message-bubble {
-    background: rgba(255, 255, 255, 0.1); /* ← Even more transparent */
-    animation: listeningPulse 1.5s infinite;
-}
-
-/* SOLID STATE WHEN SPEECH COMPLETE */
-.message.user-message.speech-complete .message-bubble {
-    background: #4CAF50; /* ← Solid green when done */
-    color: white;
+/* ===================================================
+   🎯 CURRENT USER BUBBLE - SINGLE ID RULE
+   ================================================= */
+#currentUserBubble .message-bubble {
+    min-width: 300px !important; /* ← SINGLE WIDTH OVERRIDE */
 }
 
 @keyframes listeningPulse {
