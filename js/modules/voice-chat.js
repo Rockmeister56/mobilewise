@@ -3,85 +3,6 @@
 // Combining working bubble system + your business logic
 // ===================================================
 
-function startListening() {
-    console.log('🎯 startListening() called - starting speech recognition');
-    
-    if (!checkSpeechSupport()) return;
-    if (isSpeaking) return; // Don't start listening if AI is speaking
-
-    try {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        recognition = new SpeechRecognition();
-
-        recognition.continuous = true;
-        recognition.interimResults = true;
-        recognition.lang = 'en-US';
-
-        createRealtimeBubble();
-        isListening = true;
-
-        recognition.onresult = function(event) {
-            let interimTranscript = '';
-            let finalTranscript = '';
-
-            for (let i = event.resultIndex; i < event.results.length; i++) {
-                const transcript = event.results[i][0].transcript;
-                if (event.results[i].isFinal) {
-                    finalTranscript += transcript;
-                } else {
-                    interimTranscript += transcript;
-                }
-            }
-
-            const currentBubble = document.getElementById('currentUserBubble');
-            if (currentBubble) {
-                const displayText = finalTranscript + interimTranscript;
-                if (displayText.trim()) {
-                    const bubbleElement = currentBubble.querySelector('.bubble-text');
-                    if (bubbleElement) {
-                        bubbleElement.textContent = displayText;
-                    }
-
-                    if (interimTranscript) {
-                        currentBubble.classList.add('typing');
-                    } else {
-                        currentBubble.classList.remove('typing');
-                    }
-
-                    scrollToBottom();
-                }
-            }
-
-            // Process final transcript
-            if (finalTranscript) {
-                setTimeout(() => {
-                    processUserResponse(finalTranscript);
-                }, 1500);
-            }
-        };
-
-        recognition.onerror = function(event) {
-            console.error('Speech recognition error:', event.error);
-            console.log(`❌ Error: ${event.error}`);
-            stopListening();
-        };
-
-        recognition.onend = function() {
-            if (isListening) {
-                console.log("Recognition ended, but we're still in listening mode");
-            }
-        };
-
-        recognition.start();
-        console.log('🎤 Speech recognition started successfully');
-
-    } catch (error) {
-        console.error('Error starting speech recognition:', error);
-       console.log('❌ Failed to start speech recognition');
-    }
-}
-
-
 // ===================================================
 // 🏗️ GLOBAL VARIABLES
 // ===================================================
@@ -123,6 +44,89 @@ async function requestMicrophonePermission() {
     } catch (error) {
         console.log('❌ Microphone permission denied:', error);
         return false;
+    }
+}
+
+
+function startListening() {
+    console.log('🎯 startListening() called - starting speech recognition');
+    
+    if (!checkSpeechSupport()) return;
+    if (isSpeaking) return; // Don't start listening if AI is speaking
+
+    try {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
+
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.lang = 'en-US';
+
+        createRealtimeBubble();
+        isListening = true;
+
+        // 🎯 MAGIC BUBBLE ANIMATION SYSTEM
+        recognition.onresult = function(event) {
+            let interimTranscript = '';
+            let finalTranscript = '';
+
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const transcript = event.results[i][0].transcript;
+                if (event.results[i].isFinal) {
+                    finalTranscript += transcript;
+                } else {
+                    interimTranscript += transcript;
+                }
+            }
+
+            const currentBubble = document.getElementById('currentUserBubble');
+            if (currentBubble) {
+                const displayText = finalTranscript + interimTranscript;
+                if (displayText.trim()) {
+                    const bubbleElement = currentBubble.querySelector('.bubble-text');
+                    if (bubbleElement) {
+                        bubbleElement.textContent = displayText;
+                    }
+
+                    // 🎯 MAGIC ANIMATION STATES
+                    if (interimTranscript) {
+                        currentBubble.classList.add('listening-animation');
+                        currentBubble.classList.remove('speech-complete');
+                    } else if (finalTranscript) {
+                        currentBubble.classList.remove('listening-animation');
+                        currentBubble.classList.add('speech-complete'); // ← SOLID STATE!
+                    }
+
+                    scrollToBottom();
+                }
+            }
+
+            // Process final transcript
+            if (finalTranscript) {
+                setTimeout(() => {
+                    processUserResponse(finalTranscript);
+                }, 500);
+            }
+        };
+
+        recognition.onerror = function(event) {
+            console.error('Speech recognition error:', event.error);
+            console.log(`❌ Error: ${event.error}`);
+            stopListening();
+        };
+
+        recognition.onend = function() {
+            if (isListening) {
+                console.log("Recognition ended, but we're still in listening mode");
+            }
+        };
+
+        recognition.start();
+        console.log('🎤 Speech recognition started successfully');
+
+    } catch (error) {
+        console.error('Error starting speech recognition:', error);
+        console.log('❌ Failed to start speech recognition');
     }
 }
 
@@ -233,18 +237,36 @@ function addAIResponse(userText) {
 }
 
 function createRealtimeBubble() {
-    const chatArea = document.getElementById('chatMessages');
+    // SAFETY CHECK: Prevent multiple bubbles
+    const existingBubble = document.getElementById('currentUserBubble');
+    if (existingBubble) {
+        console.log('🛡️ Bubble already exists - not creating duplicate');
+        return;
+    }
+
+    const chatArea = document.getElementById('chatMessages'); // ← Your container ID
     const userBubble = document.createElement('div');
-    userBubble.className = 'bubble user-bubble typing';  // ← Transparent + animated dots
+    userBubble.className = 'message user-message'; // ← Your CSS classes
     userBubble.id = 'currentUserBubble';
+    
+    const messageBubble = document.createElement('div');
+    messageBubble.className = 'message-bubble';
     
     const bubbleText = document.createElement('div');
     bubbleText.className = 'bubble-text';
-    bubbleText.textContent = 'Listening...';  // ← Gets replaced with real speech
-    userBubble.appendChild(bubbleText);
+    bubbleText.textContent = 'Listening...';
+    
+    messageBubble.appendChild(bubbleText);
+    userBubble.appendChild(messageBubble);
+    
+    // ADD THE MISSING ANIMATION CLASSES
+    userBubble.classList.add('listening-animation');
+    bubbleText.classList.add('listening-dots');
     
     chatArea.appendChild(userBubble);
     scrollToBottom();
+    
+    console.log('✅ Realtime bubble created successfully');
 }
 
 function scrollToBottom() {

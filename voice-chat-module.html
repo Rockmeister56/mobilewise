@@ -705,6 +705,45 @@ box-shadow: 0 15px 40px rgba(33, 150, 243, 0.4);
     position: relative;
 }
 
+/* ===================================================
+   🎯 MOBILE-WISE AI BUBBLE ENHANCEMENT SYSTEM
+   ================================================= */
+
+/* RESTORE WORKING BUBBLE SYSTEM */
+.message.user-message {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 10px;
+}
+
+.message.user-message .message-bubble {
+    background: rgba(255, 255, 255, 0.3); /* ← Transparent while listening */
+    border: 2px solid #4CAF50;
+    border-radius: 20px;
+    padding: 12px 20px;
+    max-width: 80%;
+    min-width: 200px;
+    transition: all 0.3s ease;
+}
+
+/* ANIMATED LISTENING STATE */
+.message.user-message.listening-animation .message-bubble {
+    background: rgba(255, 255, 255, 0.1); /* ← Even more transparent */
+    animation: listeningPulse 1.5s infinite;
+}
+
+/* SOLID STATE WHEN SPEECH COMPLETE */
+.message.user-message.speech-complete .message-bubble {
+    background: #4CAF50; /* ← Solid green when done */
+    color: white;
+}
+
+@keyframes listeningPulse {
+    0% { opacity: 0.8; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(1.02); }
+    100% { opacity: 0.8; transform: scale(1); }
+}
+
 .interview-splash {
     position: absolute;
     top: 0;
