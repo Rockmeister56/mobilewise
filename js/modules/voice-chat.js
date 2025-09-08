@@ -20,7 +20,6 @@ let shouldShowSmartButton = false;
 let smartButtonText = 'AI Smart Button';
 let smartButtonAction = 'default';
 
-
 // Conversation state tracking (from working bubble system)
 let conversationState = 'initial';
 let lastAIResponse = '';
@@ -221,21 +220,23 @@ function addAIResponse(userText) {
     // Add AI message to chat
     addAIMessage(responseText);
     
-    // Speak the response
+    // Speak the response  
     speakResponse(responseText);
     
     // Update conversation info if available
     updateConversationInfo();
-
-    } // ← ADD THIS CLOSING BRACKET HERE!
-
-function createRealtimeBubble() {
-    // SAFETY CHECK: Prevent multiple bubbles
-    const existingBubble = document.getElementById('currentUserBubble');
-    if (existingBubble) {
-        console.log('🛡️ Bubble already exists - not creating duplicate');
-        return;
+    
+    // Update smart button based on response logic
+    updateSmartButton(shouldShowSmartButton, smartButtonText, smartButtonAction);
+    
+    // Handle auto-restart for voice mode
+    if (isAudioMode && !isListening && !recognition) {
+        setTimeout(() => {
+            createRealtimeBubble();
+            startListening();
+        }, 2000);
     }
+}
 
     const chatArea = document.getElementById('chatMessages'); // ← Your container ID
     const userBubble = document.createElement('div');
@@ -260,7 +261,6 @@ function createRealtimeBubble() {
     scrollToBottom();
     
     console.log('✅ Realtime bubble created successfully');
-}
 
 function scrollToBottom() {
     const chatArea = document.getElementById('chatMessages');
@@ -391,11 +391,6 @@ function simulateUserMessage(message) {
 }
 
 function getAIResponse(userInput) {
-    const userText = userInput.toLowerCase();
-    let responseText = '';
-    let shouldShowSmartButton = false;
-    let smartButtonText = '';
-    let smartButtonAction = '';
     
     if (conversationState === 'initial') {
         if (userText.includes('sell') || userText.includes('practice') || userText.includes('selling')) {
@@ -509,59 +504,8 @@ function getAIResponse(userInput) {
         conversationState = 'initial';
     }
 
-    // SAFE DOM HANDLING
-    const chatArea = document.getElementById('chatMessages');
-    if (chatArea) { 
-        const aiBubble = document.createElement('div');
-        aiBubble.className = 'ai-bubble';
-
-        const aiAvatar = document.createElement('img');
-        aiAvatar.src = 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/avatars/avatar_1754810337622_AI%20assist%20head%20left.png';
-        aiAvatar.className = 'ai-avatar';
-        aiBubble.appendChild(aiAvatar);
-
-        const bubbleContent = document.createElement('div');
-        bubbleContent.textContent = responseText;
-        aiBubble.appendChild(bubbleContent);
-        
-        chatArea.appendChild(aiBubble);
-        
-        if (typeof scrollToBottom === 'function') {
-            scrollToBottom();
-        }
-    }
-
-    // Safe function calls
-    if (typeof updateSmartButton === 'function') {
-        updateSmartButton(shouldShowSmartButton, smartButtonText, smartButtonAction);
-    }
-    
-    if (typeof updateConversationInfo === 'function') {
-        updateConversationInfo();
-    }
-
-    // Safe status update
-    const statusInfo = document.getElementById('statusInfo');
-    if (statusInfo) {
-        const speakTime = Math.max(2000, responseText.length * 50);
-        statusInfo.innerHTML = '🤖 AI is responding...';
-
-        setTimeout(() => {
-            statusInfo.innerHTML = '🎯 Returning to listening mode...';
-            setTimeout(() => {
-                if (typeof createRealtimeBubble === 'function') {
-                    createRealtimeBubble();
-                }
-                if (typeof startListening === 'function') {
-                    startListening();
-                }
-            }, 1000);
-        }, speakTime);
-    }
-
-    return responseText;
+ return responseText;
 }
-
 
 function handleSmartButtonClick() {
     const smartButton = document.getElementById('smartButton');
