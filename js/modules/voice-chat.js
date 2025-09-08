@@ -702,40 +702,32 @@ function sendTextMessage() {
 }
 
 function createRealtimeBubble() {
-    // SAFETY CHECK: Prevent multiple bubbles
-        if (isSpeaking) {
-        console.log('🛡️ AI is speaking - delaying bubble creation');
-        return;
-    }
+    // PREVENT DUPLICATES - Remove any existing listening bubble first
     const existingBubble = document.getElementById('currentUserBubble');
     if (existingBubble) {
-        console.log('🛡️ Bubble already exists - not creating duplicate');
+        existingBubble.remove();
+        console.log('🧹 Removed existing listening bubble');
+    }
+    
+    const chatMessages = document.getElementById('chatMessages');
+    if (!chatMessages) {
+        console.log('❌ chatMessages container not found');
         return;
     }
-
-    const chatArea = document.getElementById('chatMessages'); // Your container ID
-    const userBubble = document.createElement('div');
-    userBubble.className = 'message user-message'; // Your CSS classes
-    userBubble.id = 'currentUserBubble';
+    
+    const userMessage = document.createElement('div');
+    userMessage.className = 'message user-message';
+    userMessage.id = 'currentUserBubble';
     
     const messageBubble = document.createElement('div');
     messageBubble.className = 'message-bubble';
+    messageBubble.textContent = 'Listening...';
     
-    const bubbleText = document.createElement('div');
-    bubbleText.className = 'bubble-text';
-    bubbleText.textContent = 'Listening...';
+    userMessage.appendChild(messageBubble);
+    chatMessages.appendChild(userMessage);
     
-    messageBubble.appendChild(bubbleText);
-    userBubble.appendChild(messageBubble);
-    
-    // ADD ANIMATION CLASSES
-    userBubble.classList.add('listening-animation');
-    bubbleText.classList.add('listening-dots');
-    
-    chatArea.appendChild(userBubble);
-    scrollToBottom();
-    
-    console.log('✅ Realtime bubble created successfully');
+    scrollChatToBottom();
+    console.log('👤 Fresh listening bubble created');
 }
 
 // Make it globally available
@@ -792,6 +784,15 @@ async function activateMicrophone() {
     if (chatInterface) {
         chatInterface.style.display = 'flex';
     }
+
+    setTimeout(() => {
+    const greeting = "Welcome! I'm Bruce's AI assistant. I help with CPA firm transactions. What can I help you with today?";
+    addAIMessage(greeting);
+    speakResponse(greeting); // ← ADD VOICE!
+    
+    // Then start listening ONLY after speech completes
+    // (Don't add setTimeout here - let utterance.onend handle it)
+}, 500);
     
     try {
         // Request microphone permission
