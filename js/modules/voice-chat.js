@@ -226,15 +226,6 @@ function addAIResponse(userText) {
     
     // Update conversation info if available
     updateConversationInfo();
-    
-    // After AI speaks, automatically start listening again if in audio mode
-    setTimeout(() => {
-        if (isAudioMode && !isListening && !isSpeaking) {
-            createRealtimeBubble();
-            startListening();
-        }
-    }, 3000); // Fixed 3-second delay
-}
 
 function createRealtimeBubble() {
     // SAFETY CHECK: Prevent multiple bubbles
@@ -683,10 +674,10 @@ function scrollChatToBottom() {
 // 🗣️ VOICE SYNTHESIS SYSTEM
 // ===================================================
 function speakResponse(message) {
-    console.log('Speaking response');
+    console.log('🎤 Speaking response:', message);
     
     if (!window.speechSynthesis) {
-        console.log('Speech synthesis not supported');
+        console.log('❌ Speech synthesis not supported');
         return;
     }
 
@@ -695,49 +686,54 @@ function speakResponse(message) {
     
     const utterance = new SpeechSynthesisUtterance(message);
     
-    utterance.rate = voiceSpeed;
+    utterance.rate = voiceSpeed; // ← KEEP: Your voice speed control
     utterance.pitch = 1.0;
     utterance.volume = 0.9;
     
     utterance.onstart = function() {
         isSpeaking = true;
-        console.log('Speech started');
+        console.log('✅ AI started speaking');
     };
     
     utterance.onend = function() {
-    isSpeaking = false;
-    console.log('Speech finished');
-    
-    // Clear bubble reference
-    currentUserBubble = null;
-    
-    // ONLY restart if conditions are perfect
-    if (isAudioMode && !isListening && !recognition) {
-        setTimeout(() => {
-            try {
-                console.log('🔄 Restarting listening after speech');
-                startListening(); // This will create bubble safely
-            } catch (error) {
-                console.log('Recognition restart error:', error);
-            }
-        }, 1500); // Longer delay to prevent conflicts
-    }
-};
-    utterance.onerror = function(event) {
-        console.log('Speech error:', event.error);
         isSpeaking = false;
+        console.log('✅ AI finished speaking');
+        
+        // Clear bubble reference
+        currentUserBubble = null;
+        
+        // ONLY restart if conditions are perfect
+        if (isAudioMode && !isListening && !recognition) {
+            setTimeout(() => {
+                try {
+                    console.log('🔄 Restarting listening after speech');
+                    createRealtimeBubble(); // ← ADD: Ensure bubble is created
+                    startListening();
+                } catch (error) {
+                    console.log('❌ Recognition restart error:', error);
+                }
+            }, 800); // ← REDUCED: From 1500ms to 800ms for faster flow
+        }
+    };
+    
+    utterance.onerror = function(event) {
+        console.log('❌ Speech error:', event.error);
+        isSpeaking = false;
+        currentUserBubble = null; // ← ADD: Clear bubble on error too
     };
     
     window.speechSynthesis.speak(utterance);
-    currentAudio = utterance;
+    currentAudio = utterance; // ← KEEP: Your audio reference system
 }
 
+// ← KEEP: Your stopCurrentAudio function is perfect!
 function stopCurrentAudio() {
     if (window.speechSynthesis) {
         window.speechSynthesis.cancel();
     }
     currentAudio = null;
     isSpeaking = false;
+    currentUserBubble = null; // ← ADD: Clear bubble when stopping
 }
 
 // ===================================================
