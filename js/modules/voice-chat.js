@@ -702,32 +702,40 @@ function sendTextMessage() {
 }
 
 function createRealtimeBubble() {
-    // PREVENT DUPLICATES - Remove any existing listening bubble first
-    const existingBubble = document.getElementById('currentUserBubble');
-    if (existingBubble) {
-        existingBubble.remove();
-        console.log('🧹 Removed existing listening bubble');
-    }
-    
-    const chatMessages = document.getElementById('chatMessages');
-    if (!chatMessages) {
-        console.log('❌ chatMessages container not found');
+    // SAFETY CHECK: Prevent multiple bubbles
+        if (isSpeaking) {
+        console.log('🛡️ AI is speaking - delaying bubble creation');
         return;
     }
-    
-    const userMessage = document.createElement('div');
-    userMessage.className = 'message user-message';
-    userMessage.id = 'currentUserBubble';
+    const existingBubble = document.getElementById('currentUserBubble');
+    if (existingBubble) {
+        console.log('🛡️ Bubble already exists - not creating duplicate');
+        return;
+    }
+
+    const chatArea = document.getElementById('chatMessages'); // Your container ID
+    const userBubble = document.createElement('div');
+    userBubble.className = 'message user-message'; // Your CSS classes
+    userBubble.id = 'currentUserBubble';
     
     const messageBubble = document.createElement('div');
     messageBubble.className = 'message-bubble';
-    messageBubble.textContent = 'Listening...';
     
-    userMessage.appendChild(messageBubble);
-    chatMessages.appendChild(userMessage);
+    const bubbleText = document.createElement('div');
+    bubbleText.className = 'bubble-text';
+    bubbleText.textContent = 'Listening...';
     
-    scrollChatToBottom();
-    console.log('👤 Fresh listening bubble created');
+    messageBubble.appendChild(bubbleText);
+    userBubble.appendChild(messageBubble);
+    
+    // ADD ANIMATION CLASSES
+    userBubble.classList.add('listening-animation');
+    bubbleText.classList.add('listening-dots');
+    
+    chatArea.appendChild(userBubble);
+    scrollToBottom();
+    
+    console.log('✅ Realtime bubble created successfully');
 }
 
 // Make it globally available
