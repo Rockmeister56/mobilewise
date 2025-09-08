@@ -639,25 +639,27 @@ function speakResponse(message) {
     };
     
     utterance.onend = function() {
-        isSpeaking = false;
-        console.log('✅ AI finished speaking');
-        
-        // Clear bubble reference
-        currentUserBubble = null;
-        
-        // ONLY restart if conditions are perfect
-        if (isAudioMode && !isListening && !recognition) {
-            setTimeout(() => {
-                try {
-                    console.log('🔄 Restarting listening after speech');
-                    createRealtimeBubble(); // ← ADD: Ensure bubble is created
-                    startListening();
-                } catch (error) {
-                    console.log('❌ Recognition restart error:', error);
+    isSpeaking = false;
+    console.log('✅ AI finished speaking');
+    
+    // Clear bubble reference
+    currentUserBubble = null;
+    
+    // START LISTENING AFTER SPEAKING ENDS (not on timer!)
+    if (isAudioMode && !isListening && !recognition) {
+        setTimeout(() => {
+            try {
+                console.log('🔄 Starting listening after speech completed');
+                if (typeof createRealtimeBubble === 'function') {
+                    createRealtimeBubble();
                 }
-            }, 800); // ← REDUCED: From 1500ms to 800ms for faster flow
-        }
-    };
+                startListening();
+            } catch (error) {
+                console.log('❌ Recognition restart error:', error);
+            }
+        }, 800);
+    }
+};
     
     utterance.onerror = function(event) {
         console.log('❌ Speech error:', event.error);
@@ -816,18 +818,6 @@ async function activateMicrophone() {
             const greeting = "Welcome! I'm Bruce Clark's AI assistant. What can I help you with today?";
             addAIMessage(greeting);
         }, 500);
-        
-        // Start listening after greeting
-        setTimeout(() => {
-             if (recognition && !isListening && !isSpeaking) {
-                if (typeof createRealtimeBubble === 'function') {
-    createRealtimeBubble();
-} else {
-    console.log('createRealtimeBubble not available, skipping...');
-}
-                startListening();
-            }
-        }, 4000);
         
     } catch (error) {
         console.log('❌ Microphone access denied:', error);
