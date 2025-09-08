@@ -109,11 +109,6 @@ function startListening() {
         recognition.interimResults = true;
         recognition.lang = 'en-US';
 
-           recognition.onstart = function() {
-            createRealtimeBubble(); // ← CREATE BUBBLE ONLY WHEN RECOGNITION STARTS
-            isListening = true;
-             };
-
         // 🎯 MAGIC BUBBLE ANIMATION SYSTEM
         recognition.onresult = function(event) {
             let interimTranscript = '';
@@ -171,6 +166,7 @@ function startListening() {
         };
 
         recognition.start();
+        isListening = true; 
         console.log('🎤 Speech recognition started successfully');
 
     } catch (error) {
