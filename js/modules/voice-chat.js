@@ -47,8 +47,8 @@ async function requestMicrophonePermission() {
 }
 
 
-function startListening() {
-    console.log('🎯 startListening() called - starting speech recognition');
+// function startListening() {
+    // console.log('🎯 startListening() called - starting speech recognition');
     
     if (!checkSpeechSupport()) return;
     if (isSpeaking) return; // Don't start listening if AI is speaking
@@ -797,12 +797,6 @@ async function activateMicrophone() {
         
         // Initialize speech recognition
         initializeSpeechRecognition();
-        
-        // ADD GREETING ONLY ONCE - and let speakResponse handle the listening start
-        const greeting = "Welcome! I'm Bruce Clark's AI assistant. What can I help you with today?";
-        addAIMessage(greeting);
-        speakResponse(greeting);
-        
         
     } catch (error) {
         console.log('❌ Microphone access denied:', error);
