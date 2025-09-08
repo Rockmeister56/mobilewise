@@ -765,7 +765,11 @@ async function activateMicrophone() {
         // Start listening after greeting
         setTimeout(() => {
             if (recognition && !isListening) {
-                createRealtimeBubble();
+                if (typeof createRealtimeBubble === 'function') {
+    createRealtimeBubble();
+} else {
+    console.log('createRealtimeBubble not available, skipping...');
+}
                 startListening();
             }
         }, 1500);
