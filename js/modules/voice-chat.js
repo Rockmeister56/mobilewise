@@ -792,15 +792,6 @@ async function activateMicrophone() {
     if (chatInterface) {
         chatInterface.style.display = 'flex';
     }
-
-    setTimeout(() => {
-    const greeting = "Welcome! I'm Bruce's AI assistant. I help with CPA firm transactions. What can I help you with today?";
-    addAIMessage(greeting);
-    speakResponse(greeting); // ← ADD VOICE!
-    
-    // Then start listening ONLY after speech completes
-    // (Don't add setTimeout here - let utterance.onend handle it)
-}, 500);
     
     try {
         // Request microphone permission
@@ -827,6 +818,18 @@ async function activateMicrophone() {
             const greeting = "Welcome! I'm Bruce Clark's AI assistant. What can I help you with today?";
             addAIMessage(greeting);
         }, 500);
+        
+        // Start listening after greeting
+        setTimeout(() => {
+             if (recognition && !isListening && !isSpeaking) {
+                if (typeof createRealtimeBubble === 'function') {
+    createRealtimeBubble();
+} else {
+    console.log('createRealtimeBubble not available, skipping...');
+}
+                startListening();
+            }
+        }, 4000);
         
     } catch (error) {
         console.log('❌ Microphone access denied:', error);
