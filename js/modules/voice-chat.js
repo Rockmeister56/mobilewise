@@ -47,11 +47,10 @@ async function requestMicrophonePermission() {
 }
 
 
-// function startListening() {
-    // console.log('🎯 startListening() called - starting speech recognition');
-    
-    if (!checkSpeechSupport()) return;
-    if (isSpeaking) return; // Don't start listening if AI is speaking
+function startListening() {
+    console.log('🎯 startListening() called - starting speech recognition');
+    if (!checkSpeechSupport()) return; // ✅ LEGAL!
+    if (isSpeaking) return;
 
     try {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
