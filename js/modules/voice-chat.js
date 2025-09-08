@@ -276,30 +276,6 @@ function addAIResponse(userText) {
     updateSmartButton(shouldShowSmartButton, smartButtonText, smartButtonAction);
 }
 
-    const chatArea = document.getElementById('chatMessages'); // ← Your container ID
-    const userBubble = document.createElement('div');
-    userBubble.className = 'message user-message'; // ← Your CSS classes
-    userBubble.id = 'currentUserBubble';
-    
-    const messageBubble = document.createElement('div');
-    messageBubble.className = 'message-bubble';
-    
-    const bubbleText = document.createElement('div');
-    bubbleText.className = 'bubble-text';
-    bubbleText.textContent = 'Listening';
-    
-    messageBubble.appendChild(bubbleText);
-    userBubble.appendChild(messageBubble);
-    
-    // ADD THE MISSING ANIMATION CLASSES
-    userBubble.classList.add('listening-animation');
-    bubbleText.classList.add('listening-dots');
-    
-    chatArea.appendChild(userBubble);
-    scrollToBottom();
-    
-    console.log('✅ Realtime bubble created successfully');
-
 function scrollToBottom() {
     const chatArea = document.getElementById('chatMessages');
     chatArea.scrollTop = chatArea.scrollHeight;
