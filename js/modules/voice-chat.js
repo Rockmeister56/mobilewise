@@ -98,18 +98,34 @@ function startListening() {
         recognition.lang = 'en-US';
         
         // ✅ MOBILE-SPECIFIC OPTIMIZATIONS
-        if (isMobileDevice()) {
-            console.log('📱 Applying mobile speech recognition settings');
-            recognition.maxAlternatives = 1; // Fewer alternatives for mobile
-            // Add a longer timeout for mobile devices
-            setTimeout(() => {
-                if (isListening && recognition) {
-                    console.log('📱 Mobile timeout - restarting recognition');
-                    recognition.stop();
-                    setTimeout(() => startListening(), 100);
-                }
-            }, 10000); // Restart every 10 seconds on mobile
+if (isMobileDevice()) {
+    console.log('📱 Applying mobile speech recognition settings');
+    
+    // Mobile-specific settings
+    recognition.maxAlternatives = 1;
+    
+    // Clear any existing timeouts
+    if (window.mobileRecognitionTimeout) {
+        clearTimeout(window.mobileRecognitionTimeout);
+    }
+    
+    // Set timeout to restart recognition (mobile devices often need this)
+    window.mobileRecognitionTimeout = setTimeout(() => {
+        if (isListening && recognition) {
+            console.log('📱 Mobile safety timeout - restarting recognition');
+            try {
+                recognition.stop();
+                setTimeout(() => {
+                    if (isAudioMode && !isListening) {
+                        startListening();
+                    }
+                }, 500);
+            } catch (e) {
+                console.log('📱 Timeout restart error:', e);
+            }
         }
+    }, 8000); // 8 seconds for mobile
+}
         
         // ✅ ADD THESE OPTIONS FOR BETTER MOBILE COMPATIBILITY
         recognition.maxAlternatives = 3; // Get more potential matches
@@ -270,37 +286,103 @@ function startListening() {
 } // ← MAKE SURE THIS CLOSING BRACE IS HERE
 
 // ===================================================
+// 📱 MOBILE AUDIO FIXES
+// ===================================================
+
+// Add this function to handle mobile audio context issues
+function ensureAudioContext() {
+    if (isMobileDevice()) {
+        try {
+            // Create and immediately close an audio context to "warm up" the audio system
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioContext.state === 'suspended') {
+                console.log('📱 Audio context suspended - attempting to resume');
+                // Add a user gesture requirement for iOS
+                const resumeButton = document.createElement('button');
+                resumeButton.textContent = 'Tap to Enable Audio';
+                resumeButton.style.cssText = `
+                    position: fixed;
+                    bottom: 120px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background: #ff9800;
+                    color: white;
+                    border: none;
+                    padding: 12px 20px;
+                    border-radius: 25px;
+                    z-index: 1000;
+                `;
+                resumeButton.onclick = function() {
+                    audioContext.resume().then(() => {
+                        console.log('✅ Audio context resumed after user gesture');
+                        document.body.removeChild(resumeButton);
+                        startListening(); // Restart listening
+                    });
+                };
+                document.body.appendChild(resumeButton);
+            }
+            // Don't keep the context open - just warm it up
+            setTimeout(() => {
+                if (audioContext && typeof audioContext.close === 'function') {
+                    audioContext.close();
+                }
+            }, 1000);
+        } catch (error) {
+            console.log('📱 Audio context warmup failed:', error);
+        }
+    }
+}
+
+// Call this right after microphone activation
+async function activateMicrophone() {
+    console.log('🎤 Activating microphone...');
+    
+    // ✅ Call this for mobile audio fix
+    if (isMobileDevice()) {
+        ensureAudioContext();
+    }
+    
+    // ... rest of your existing activateMicrophone code ...
+}
+
+// ===================================================
 // 🔊 AUDIO FEEDBACK FUNCTIONS
 // ===================================================
 
 function playStartSound() {
+    // DON'T play any sound before AI speaks on mobile
+    if (isMobileDevice()) {
+        console.log('📱 Skipping start sound on mobile to prevent audio clipping');
+        return; // Exit early on mobile
+    }
+    
     try {
-        // Check if we're on mobile and handle audio context differently
-        if (isMobileDevice()) {
-            // Mobile-friendly approach - use a simple HTML audio element
-            const beep = new Audio('data:audio/wav;base64,UklGRl4FAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YToFAACBhYqFbVtfdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrDp6qVUFA9GneDtxm8gBzGF0/LMeSwFJHfH8N2QQAoUXrDp6qVUFA9GneDtxm8gBzGF0/LMeSw=');
-            beep.volume = 0.3;
-            beep.play().catch(e => console.log('Mobile audio play failed:', e));
-        } else {
-            // Desktop - use Web Audio API
-            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
-            
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-            
-            oscillator.frequency.value = 800;
-            oscillator.type = 'sine';
-            
-            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
-            
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 0.15);
+        // Desktop only - use Web Audio API
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        // Check if audio context is suspended (common on mobile)
+        if (audioContext.state === 'suspended') {
+            audioContext.resume().then(() => {
+                console.log('✅ Audio context resumed');
+            });
         }
+        
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.value = 800;
+        oscillator.type = 'sine';
+        
+        gainNode.gain.setValueAtTime(0.2, audioContext.currentTime); // Lower volume
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1); // Shorter duration
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.1);
+        
     } catch (error) {
-        console.log('Audio context not supported:', error);
+        console.log('Audio context error:', error);
     }
 }
 
@@ -1129,6 +1211,36 @@ function speakResponse(message) {
         isSpeaking = true;
         console.log('✅ AI started speaking');
     };
+
+    function speakResponse(message) {
+    console.log('🎤 Speaking response:', message);
+    
+    if (!window.speechSynthesis) {
+        console.log('❌ Speech synthesis not supported');
+        return;
+    }
+
+    // Stop any current speech
+    window.speechSynthesis.cancel();
+    
+    // ✅ MOBILE FIX: Add slight delay for mobile to prevent clipping
+    if (isMobileDevice()) {
+        setTimeout(() => {
+            createAndSpeakUtterance(message);
+        }, 300);
+    } else {
+        createAndSpeakUtterance(message);
+    }
+}
+
+// ✅ Extract utterance creation to separate function
+function createAndSpeakUtterance(message) {
+    const utterance = new SpeechSynthesisUtterance(message);
+    
+    // ✅ SLOWER RATE FOR MOBILE - prevents word clipping
+    utterance.rate = isMobileDevice() ? 0.9 : 1.0;
+    utterance.pitch = 1.0;
+    utterance.volume = isMobileDevice() ? 0.95 : 0.9; // Slightly louder on mobile
     
 utterance.onend = function() {
     isSpeaking = false;
