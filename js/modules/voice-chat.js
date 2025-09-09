@@ -651,21 +651,19 @@ function speakResponse(message) {
         console.log('✅ AI started speaking');
     };
     
-    utterance.onend = function() {
+   utterance.onend = function() {
     isSpeaking = false;
     console.log('✅ AI finished speaking');
     
     // Clear bubble reference
     currentUserBubble = null;
     
-    // START LISTENING AFTER SPEAKING ENDS (not on timer!)
+    // START LISTENING AFTER SPEAKING ENDS
     if (isAudioMode && !isListening && !recognition) {
         setTimeout(() => {
             try {
                 console.log('🔄 Starting listening after speech completed');
-                if (typeof createRealtimeBubble === 'function') {
-                    createRealtimeBubble();
-                }
+                createRealtimeBubble(); // ← Ensure this is called!
                 startListening();
             } catch (error) {
                 console.log('❌ Recognition restart error:', error);
@@ -725,6 +723,8 @@ function createRealtimeBubble() {
         console.log('🛡️ Bubble already exists - not creating duplicate');
         return;
     }
+
+    console.log('🔄 Creating new listening bubble...');
 
     const chatArea = document.getElementById('chatMessages'); // Your container ID
     const userBubble = document.createElement('div');
