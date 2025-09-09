@@ -190,6 +190,34 @@ async function requestMobileMicrophonePermission() {
     });
 }
 
+// Add this function to check permission state
+async function checkMicrophonePermission() {
+    try {
+        if (navigator.permissions) {
+            const permissionStatus = await navigator.permissions.query({ name: 'microphone' });
+            console.log('🎤 Microphone permission state:', permissionStatus.state);
+            
+            if (permissionStatus.state === 'denied') {
+                addAIMessage("Microphone access is blocked. Please go to your browser settings and allow microphone access for this site.");
+                return false;
+            }
+            
+            if (permissionStatus.state === 'prompt') {
+                console.log('🔄 Permission will be requested...');
+            }
+            
+            return true;
+        }
+    } catch (error) {
+        console.log('❌ Permission query not supported:', error);
+    }
+    return true;
+}
+
+// Call this at the beginning of activateMicrophone():
+const hasPermission = await checkMicrophonePermission();
+if (!hasPermission) return;
+
 async function activateMicrophone() {
     console.log('🎤 Activating microphone...');
     
