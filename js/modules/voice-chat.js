@@ -192,9 +192,40 @@ async function requestMobileMicrophonePermission() {
 
 async function activateMicrophone() {
     console.log('🎤 Activating microphone...');
+
+          // Run diagnostics first
+    const hasAccess = await debugMicrophoneAccess();
+    if (!hasAccess) {
+        // Show mobile-specific guidance
+        if (isMobileDevice()) {
+            showMobileMicrophoneGuide();
+        } else {
+            addAIMessage("Microphone access failed. Please check your browser permissions and ensure you're on HTTPS.");
+        }
+        return;
+    }
     
-    // 📱 MOBILE CHECK: Handle mobile permission first
-    if (isMobileDevice()) {
+    // If we get here, we have access!
+    // Hide splash screen - USE EXISTING VARIABLE OR GET IT WITHOUT REDECLARING
+    if (typeof splashScreen !== 'undefined' && splashScreen) {
+        splashScreen.style.display = 'none';
+    } else {
+        // Fallback: get the element if variable doesn't exist
+        const splashElement = document.getElementById('splashScreen');
+        if (splashElement) {
+            splashElement.style.display = 'none';
+        }
+    }
+    
+    // Show chat interface - SAME FIX HERE
+    if (typeof chatInterface !== 'undefined' && chatInterface) {
+        chatInterface.style.display = 'flex';
+    } else {
+        const chatElement = document.getElementById('chatInterface');
+        if (chatElement) {
+            chatElement.style.display = 'flex';
+        }
+    }
         try {
             // Quick check if we already have permission
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -216,7 +247,7 @@ async function activateMicrophone() {
     }
     
     // Hide splash screen
-    const splashScreen = document.getElementById('splashScreen');
+    splashScreen = document.getElementById('splashScreen');
     if (splashScreen) {
         splashScreen.style.display = 'none';
         console.log('✅ Splash screen hidden');
