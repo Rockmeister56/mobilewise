@@ -660,13 +660,15 @@ function speakResponse(message) {
 utterance.onend = function() {
     isSpeaking = false;
     console.log('✅ AI finished speaking');
-    console.log('🔍 Debug - isAudioMode:', isAudioMode, 'isListening:', isListening, 'recognition:', recognition);
+    console.log('🔍 Debug - isAudioMode:', isAudioMode, 'isListening:', isListening);
+    console.log('🔍 Debug - recognition object:', recognition);
+    console.log('🔍 Debug - recognition state:', recognition ? recognition.state : 'null');
     
     // Clear bubble reference
     currentUserBubble = null;
     
     // START LISTENING AFTER SPEAKING ENDS
-    if (isAudioMode && !isListening && !recognition) {
+    if (isAudioMode && !isListening) {  // ← REMOVED the !recognition check!
         setTimeout(() => {
             try {
                 console.log('🔄 Starting listening after speech completed');
