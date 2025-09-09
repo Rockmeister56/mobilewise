@@ -31,6 +31,27 @@ let voiceSpeed = 1.0;
 // Processing flags
 let isProcessingInput = false;
 
+function startVoiceChat() {
+    console.log('🎤 startVoiceChat() called from splash screen');
+    
+    // Hide splash screen
+    const splashScreen = document.getElementById('splashScreen');
+    if (splashScreen) {
+        splashScreen.style.display = 'none';
+        console.log('✅ Splash screen hidden');
+    }
+    
+    // Show chat interface
+    const chatInterface = document.getElementById('chatInterface');
+    if (chatInterface) {
+        chatInterface.style.display = 'flex';
+        console.log('✅ Chat interface shown');
+    }
+    
+    // ✅ ADD THIS LINE to also activate the microphone
+    activateMicrophone();
+}
+
 // ===================================================
 // 🎤 MICROPHONE PERMISSION SYSTEM
 // ===================================================
@@ -709,27 +730,6 @@ async function requestMicrophoneWithFallback() {
             audio.play().catch(reject);
         });
     }
-}
-
-function startVoiceChat() {
-    console.log('🎤 startVoiceChat() called from splash screen');
-    
-    // Hide splash screen
-    const splashScreen = document.getElementById('splashScreen');
-    if (splashScreen) {
-        splashScreen.style.display = 'none';
-        console.log('✅ Splash screen hidden');
-    }
-    
-    // Show chat interface
-    const chatInterface = document.getElementById('chatInterface');
-    if (chatInterface) {
-        chatInterface.style.display = 'flex';
-        console.log('✅ Chat interface shown');
-    }
-    
-    // ✅ ADD THIS LINE to also activate the microphone
-    activateMicrophone();
 }
 
 // ===================================================
