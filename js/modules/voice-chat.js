@@ -3,55 +3,6 @@
 // Combining working bubble system + your business logic
 // ===================================================
 
-async function activateMicrophone() {
-    console.log('🎤 Activating microphone...');
-    
-    // Hide splash screen
-    const splashScreen = document.getElementById('splashScreen');
-    if (splashScreen) {
-        splashScreen.style.display = 'none';
-    }
-    
-    // Show chat interface
-    const chatInterface = document.getElementById('chatInterface');
-    if (chatInterface) {
-        chatInterface.style.display = 'flex';
-    }
-    
-    try {
-        // Request microphone permission
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        persistentMicStream = stream;
-        micPermissionGranted = true;
-        
-        isAudioMode = true;
-        
-        // Show appropriate UI
-        const activateMicBtn = document.getElementById('activateMicBtn');
-        const audioOffBtn = document.getElementById('audioOffBtn');
-        const voiceContainer = document.getElementById('voiceVisualizerContainer');
-        
-        if (activateMicBtn) activateMicBtn.style.display = 'none';
-        if (audioOffBtn) audioOffBtn.style.display = 'block';
-        if (voiceContainer) voiceContainer.style.display = 'flex';
-        
-        // Initialize speech recognition
-        initializeSpeechRecognition();
-        
-        // ✅ ADD THIS BACK - AI GREETING!
-        setTimeout(() => {
-            const greeting = "Welcome! I'm Bruce Clark's AI assistant. What can I help you with today?";
-            addAIMessage(greeting);
-            speakResponse(greeting);
-        }, 500);
-        
-    } catch (error) {
-        console.log('❌ Microphone access denied:', error);
-        addAIMessage("Microphone access was denied. You can still use text chat.");
-        switchToTextMode();
-    }
-}
-
 // ===================================================
 // 🏗️ GLOBAL VARIABLES
 // ===================================================
@@ -172,6 +123,57 @@ function startListening() {
     } catch (error) {
         console.error('Error starting speech recognition:', error);
         console.log('❌ Failed to start speech recognition');
+    }
+}
+
+async function activateMicrophone() {
+    console.log('🎤 Activating microphone...');
+      isAudioMode = true; // ← MAKE SURE THIS IS AT THE TOP!
+    console.log('🔍 isAudioMode set to:', isAudioMode);
+    
+    // Hide splash screen
+    const splashScreen = document.getElementById('splashScreen');
+    if (splashScreen) {
+        splashScreen.style.display = 'none';
+    }
+    
+    // Show chat interface
+    const chatInterface = document.getElementById('chatInterface');
+    if (chatInterface) {
+        chatInterface.style.display = 'flex';
+    }
+    
+    try {
+        // Request microphone permission
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        persistentMicStream = stream;
+        micPermissionGranted = true;
+        
+        isAudioMode = true;
+        
+        // Show appropriate UI
+        const activateMicBtn = document.getElementById('activateMicBtn');
+        const audioOffBtn = document.getElementById('audioOffBtn');
+        const voiceContainer = document.getElementById('voiceVisualizerContainer');
+        
+        if (activateMicBtn) activateMicBtn.style.display = 'none';
+        if (audioOffBtn) audioOffBtn.style.display = 'block';
+        if (voiceContainer) voiceContainer.style.display = 'flex';
+        
+        // Initialize speech recognition
+        initializeSpeechRecognition();
+        
+        // ✅ ADD THIS BACK - AI GREETING!
+        setTimeout(() => {
+            const greeting = "Welcome! I'm Bruce Clark's AI assistant. What can I help you with today?";
+            addAIMessage(greeting);
+            speakResponse(greeting);
+        }, 500);
+        
+    } catch (error) {
+        console.log('❌ Microphone access denied:', error);
+        addAIMessage("Microphone access was denied. You can still use text chat.");
+        switchToTextMode();
     }
 }
 
@@ -651,21 +653,21 @@ function speakResponse(message) {
         console.log('✅ AI started speaking');
     };
     
-  utterance.onend = function() {
+utterance.onend = function() {
     isSpeaking = false;
     console.log('✅ AI finished speaking');
-     console.log('🔍 Debug - isAudioMode:', isAudioMode, 'isListening:', isListening, 'recognition:', recognition);
+    console.log('🔍 Debug - isAudioMode:', isAudioMode, 'isListening:', isListening, 'recognition:', recognition);
     
     // Clear bubble reference
     currentUserBubble = null;
     
-    // START LISTENING AFTER SPEAKING ENDS (not on timer!)
+    // START LISTENING AFTER SPEAKING ENDS
     if (isAudioMode && !isListening && !recognition) {
         setTimeout(() => {
             try {
                 console.log('🔄 Starting listening after speech completed');
                 if (typeof createRealtimeBubble === 'function') {
-                    createRealtimeBubble(); // ← MAKE SURE THIS LINE IS ACTIVE!
+                    createRealtimeBubble();
                 }
                 startListening();
             } catch (error) {
@@ -674,6 +676,21 @@ function speakResponse(message) {
         }, 800);
     }
 };
+
+// ✅ ADD A FALLBACK TIMER in case onend doesn't fire
+setTimeout(() => {
+    if (isSpeaking) {
+        console.log('🔄 Fallback timer - forcing speech end');
+        isSpeaking = false;
+        currentUserBubble = null;
+        
+        if (isAudioMode && !isListening && !recognition) {
+            console.log('🔄 Fallback - starting listening');
+            createRealtimeBubble();
+            startListening();
+        }
+    }
+}, 5000); // 5 second fallback
     
     utterance.onerror = function(event) {
         console.log('❌ Speech error:', event.error);
