@@ -279,23 +279,13 @@ function closeMicrophoneGuide() {
 async function activateMicrophone() {
     console.log('🎤 Activating microphone...');
 
-    // Run diagnostics first
-    const hasAccess = await debugMicrophoneAccess();
-    if (!hasAccess) {
-        // Show mobile-specific guidance
-        if (isMobileDevice()) {
-            showMobileMicrophoneGuide();
-        } else {
-            addAIMessage("Microphone access failed. Please check your browser permissions and ensure you're on HTTPS.");
-        }
+    // REMOVE the debugMicrophoneAccess call that's causing the double permission request
+    // const hasAccess = await debugMicrophoneAccess();
+    
+    // Instead, just check if we're on HTTPS and have basic support
+    if (!window.isSecureContext) {
+        addAIMessage("Microphone access requires HTTPS. Please ensure you're on a secure connection.");
         return;
-    }
-
-    // Hide splash screen
-    const splashElement = document.getElementById('splashScreen');
-    if (splashElement) {
-        splashElement.style.display = 'none';
-        console.log('✅ Splash screen hidden');
     }
 
     // Show chat interface
@@ -305,9 +295,8 @@ async function activateMicrophone() {
         console.log('✅ Chat interface shown');
     }
 
-    // Rest of your existing microphone activation code...
+    // Use the fallback method directly
     try {
-        // Use the fallback method - MAKE SURE THIS FUNCTION EXISTS!
         const stream = await requestMicrophoneWithFallback();
         persistentMicStream = stream;
         micPermissionGranted = true;
