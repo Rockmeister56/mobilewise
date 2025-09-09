@@ -619,36 +619,37 @@ box-shadow: 0 15px 40px rgba(33, 150, 243, 0.4);
     border: 1px solid #ddd;
 }
 
-/* WIDER LISTENING BUBBLE WITH ANIMATION */
+/* LISTENING BUBBLE WITH PROPER ANIMATION */
 .message.user-message#currentUserBubble {
-    min-width: 200px !important; /* Start wider */
+    min-width: 200px !important;
+    justify-content: flex-end !important;
+    display: flex !important;
+    opacity: 0.8; /* Slightly transparent while listening */
 }
 
 .message.user-message#currentUserBubble .message-bubble {
     min-width: 180px !important;
     padding: 12px 20px !important;
-    text-align: left !important; /* Align text to left like bubble-test4 */
+    text-align: left !important;
     position: relative;
+    margin-left: auto;
+    border: 2px solid #4CAF50 !important; /* Green outline */
+    background-color: transparent !important; /* Transparent background */
+    color: #333 !important;
 }
 
-/* ANIMATED LISTENING TEXT */
-.listening-animation {
-    display: inline-block;
-    animation: listeningPulse 1.5s infinite;
+/* SOLID BUBBLE WHEN SPEECH IS COMPLETE */
+.message.user-message#currentUserBubble.speech-complete .message-bubble {
+    background-color: #e3f2fd !important; /* Light blue solid */
+    border: 2px solid #bbdefb !important;
 }
 
-@keyframes listeningPulse {
-    0% { opacity: 1; }
-    50% { opacity: 0.5; }
-    100% { opacity: 1; }
-}
-
-/* TYPING DOTS ANIMATION (like bubble-test4) */
-.listening-dots::after {
+/* LISTENING ANIMATION DOTS */
+.message.user-message#currentUserBubble .bubble-text.listening-dots::after {
     content: '...';
     display: inline-block;
     animation: typingDots 1.5s infinite;
-    margin-left: 5px;
+    margin-left: 2px;
 }
 
 @keyframes typingDots {
@@ -658,21 +659,16 @@ box-shadow: 0 15px 40px rgba(33, 150, 243, 0.4);
     80%, 100% { opacity: 1; }
 }
 
-/* FORCE USER MESSAGES (LISTENING BUBBLES) TO RIGHT SIDE */
-.message.user-message#currentUserBubble {
-    min-width: 200px !important;
-    justify-content: flex-end !important; /* ✅ FORCE RIGHT ALIGNMENT */
-    display: flex !important;
+/* PULSE ANIMATION FOR LISTENING STATE */
+.message.user-message#currentUserBubble.listening-animation .message-bubble {
+    animation: listeningPulse 1.5s infinite;
 }
 
-.message.user-message#currentUserBubble .message-bubble {
-    min-width: 180px !important;
-    padding: 12px 20px !important;
-    text-align: left !important; /* ✅ KEEP - This is text inside bubble */
-    position: relative;
-    margin-left: auto; /* ✅ ADDITIONAL RIGHT PUSH */
+@keyframes listeningPulse {
+    0% { opacity: 0.7; transform: scale(0.98); }
+    50% { opacity: 1; transform: scale(1); }
+    100% { opacity: 0.7; transform: scale(0.98); }
 }
-
    </style>
 </head>
 <body>

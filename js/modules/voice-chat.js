@@ -696,7 +696,7 @@ setTimeout(() => {
             startListening();
         }
     }
-}, 5000); // 5 second fallback
+}, 15000); // 5 second fallback
     
     utterance.onerror = function(event) {
         console.log('❌ Speech error:', event.error);
