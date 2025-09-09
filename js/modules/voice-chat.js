@@ -46,10 +46,13 @@ async function requestMicrophonePermission() {
     }
 }
 
+// ===================================================
+// 🎤 SPEECH RECOGNITION ENHANCEMENTS
+// ===================================================
 
 function startListening() {
     console.log('🎯 startListening() called - starting speech recognition');
-    if (!checkSpeechSupport()) return; // ✅ LEGAL!
+    if (!checkSpeechSupport()) return;
     if (isSpeaking) return;
 
     try {
@@ -59,60 +62,135 @@ function startListening() {
         recognition.continuous = true;
         recognition.interimResults = true;
         recognition.lang = 'en-US';
+        
+        // ✅ ADD THESE OPTIONS FOR BETTER MOBILE COMPATIBILITY
+        recognition.maxAlternatives = 3; // Get more potential matches
+        recognition.onaudiostart = function() {
+            console.log('🔊 Audio capture started');
+        };
+        
+        recognition.onaudioend = function() {
+            console.log('🔊 Audio capture ended');
+        };
+        
+        recognition.onsoundstart = function() {
+            console.log('🔊 Sound detected');
+        };
+        
+        recognition.onsoundend = function() {
+            console.log('🔊 Sound ended');
+        };
+        
+        recognition.onspeechstart = function() {
+            console.log('🎤 Speech started');
+        };
+        
+        recognition.onspeechend = function() {
+            console.log('🎤 Speech ended');
+        };
+        
+        recognition.onnomatch = function() {
+            console.log('❌ No speech recognition match');
+            // Add visual feedback for no speech detected
+            const currentBubble = document.getElementById('currentUserBubble');
+            if (currentBubble) {
+                currentBubble.querySelector('.bubble-text').textContent = 'No speech detected. Try again.';
+                currentBubble.style.opacity = '0.6';
+                
+                // Auto-restart after a brief pause
+                setTimeout(() => {
+                    if (isAudioMode && !isListening) {
+                        console.log('🔄 Restarting listening after no match');
+                        startListening();
+                    }
+                }, 1500);
+            }
+        };
 
         recognition.onresult = function(event) {
-    let interimTranscript = '';
-    let finalTranscript = '';
+            console.log('🎤 Speech recognition result received');
+            let interimTranscript = '';
+            let finalTranscript = '';
 
-    for (let i = event.resultIndex; i < event.results.length; i++) {
-        const transcript = event.results[i][0].transcript;
-        if (event.results[i].isFinal) {
-            finalTranscript += transcript;
-        } else {
-            interimTranscript += transcript;
-        }
-    }
-
-    const currentBubble = document.getElementById('currentUserBubble');
-    if (currentBubble) {
-        const displayText = finalTranscript + interimTranscript;
-        if (displayText.trim()) {
-            const bubbleElement = currentBubble.querySelector('.bubble-text');
-            if (bubbleElement) {
-                bubbleElement.textContent = displayText;
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const transcript = event.results[i][0].transcript;
+                console.log('📝 Transcript:', transcript, 'Confidence:', event.results[i][0].confidence);
+                
+                if (event.results[i].isFinal) {
+                    finalTranscript += transcript;
+                } else {
+                    interimTranscript += transcript;
+                }
             }
 
-            // 🎯 PROPER ANIMATION STATES
-            if (interimTranscript) {
-                currentBubble.classList.add('listening-animation');
-                currentBubble.classList.remove('speech-complete');
-                bubbleElement.classList.add('listening-dots');
-            } else if (finalTranscript) {
-                currentBubble.classList.remove('listening-animation');
-                currentBubble.classList.add('speech-complete'); // SOLID STATE
-                bubbleElement.classList.remove('listening-dots');
+            const currentBubble = document.getElementById('currentUserBubble');
+            if (currentBubble) {
+                const displayText = finalTranscript + interimTranscript;
+                if (displayText.trim()) {
+                    const bubbleElement = currentBubble.querySelector('.bubble-text');
+                    if (bubbleElement) {
+                        bubbleElement.textContent = displayText;
+                    }
+
+                    // 🎯 PROPER ANIMATION STATES
+                    if (interimTranscript) {
+                        currentBubble.classList.add('listening-animation');
+                        currentBubble.classList.remove('speech-complete');
+                        bubbleElement.classList.add('listening-dots');
+                    } else if (finalTranscript) {
+                        currentBubble.classList.remove('listening-animation');
+                        currentBubble.classList.add('speech-complete');
+                        bubbleElement.classList.remove('listening-dots');
+                    }
+
+                    scrollToBottom();
+                }
             }
 
-            scrollToBottom();
-        }
-    }
+            // Process final transcript
+            if (finalTranscript) {
+                console.log('✅ Final transcript:', finalTranscript);
+                setTimeout(() => {
+                    processUserResponse(finalTranscript);
+                }, 500);
+            }
+        };
 
-    // Process final transcript
-    if (finalTranscript) {
-        setTimeout(() => {
-            processUserResponse(finalTranscript);
-        }, 500);
-    }
-};
         recognition.onerror = function(event) {
             console.error('Speech recognition error:', event.error);
             console.log(`❌ Error: ${event.error}`);
+            
+            // Handle specific errors
+            if (event.error === 'no-speech') {
+                console.log('🔇 No speech detected');
+                const currentBubble = document.getElementById('currentUserBubble');
+                if (currentBubble) {
+                    currentBubble.querySelector('.bubble-text').textContent = 'No speech detected. Please speak again.';
+                    currentBubble.style.opacity = '0.6';
+                }
+                
+                // Auto-restart for no-speech errors
+                setTimeout(() => {
+                    if (isAudioMode && !isListening) {
+                        console.log('🔄 Restarting listening after no-speech error');
+                        startListening();
+                    }
+                }, 1000);
+            }
+            
             stopListening();
         };
 
         recognition.onend = function() {
-            if (isListening) {
-                console.log("Recognition ended, but we're still in listening mode");
+            console.log('🔚 Recognition ended');
+            if (isListening && isAudioMode) {
+                console.log("🔄 Recognition ended but we're still in listening mode - restarting");
+                // Auto-restart for continuous listening
+                setTimeout(() => {
+                    if (isAudioMode && !isListening) {
+                        startListening();
+                    }
+                }, 100);
             }
         };
 
@@ -123,8 +201,93 @@ function startListening() {
     } catch (error) {
         console.error('Error starting speech recognition:', error);
         console.log('❌ Failed to start speech recognition');
+        
+        // Fallback to text mode if recognition fails repeatedly
+        addAIMessage("Speech recognition failed. Switching to text mode.");
+        switchToTextMode();
     }
 }
+
+// ===================================================
+// 🔊 AUDIO FEEDBACK FUNCTIONS
+// ===================================================
+
+function playStartSound() {
+    try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.value = 800;
+        oscillator.type = 'sine';
+        
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.15);
+    } catch (error) {
+        console.log('Audio context not supported:', error);
+    }
+}
+
+function playEndSound() {
+    try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.value = 600;
+        oscillator.type = 'sine';
+        
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.2);
+    } catch (error) {
+        console.log('Audio context not supported:', error);
+    }
+}
+
+// ===================================================
+// 📱 MOBILE-SPECIFIC ENHANCEMENTS
+// ===================================================
+
+function optimizeForMobile() {
+    if (isMobileDevice()) {
+        console.log('📱 Applying mobile optimizations');
+        
+        // Add touch-friendly styles
+        const style = document.createElement('style');
+        style.textContent = `
+            .activate-mic-btn, #smartButton {
+                min-height: 44px;
+                min-width: 44px;
+            }
+            .message-bubble {
+                font-size: 16px; /* Larger text for mobile */
+            }
+        `;
+        document.head.appendChild(style);
+    }
+}
+
+// Call this in your initialization
+document.addEventListener('DOMContentLoaded', () => {
+    initializeVoiceChat();
+    optimizeForMobile(); // ✅ ADD THIS LINE
+    
+    if (isMobileDevice()) {
+        console.log('📱 Mobile device detected');
+    }
+});
 
 // ===================================================
 // 🔍 MICROPHONE DEBUG DIAGNOSTICS
@@ -1027,10 +1190,11 @@ function createRealtimeBubble() {
     }
 
     console.log('🔄 Creating new listening bubble...');
+    playStartSound(); // Play start sound
 
-    const chatArea = document.getElementById('chatMessages'); // Your container ID
+    const chatArea = document.getElementById('chatMessages');
     const userBubble = document.createElement('div');
-    userBubble.className = 'message user-message'; // Your CSS classes
+    userBubble.className = 'message user-message';
     userBubble.id = 'currentUserBubble';
     
     const messageBubble = document.createElement('div');
@@ -1039,13 +1203,43 @@ function createRealtimeBubble() {
     const bubbleText = document.createElement('div');
     bubbleText.className = 'bubble-text';
     bubbleText.textContent = 'Listening...';
+    bubbleText.innerHTML = 'Listening... <span class="pulsating-dot"></span>';
+    
+    // Add mobile-optimized styles
+    const style = document.createElement('style');
+    style.textContent = `
+        .pulsating-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: #4CAF50;
+            border-radius: 50%;
+            margin-left: 8px;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        
+        .listening-animation .message-bubble {
+            animation: listening-pulse 2s infinite;
+        }
+        
+        @keyframes listening-pulse {
+            0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(76, 175, 80, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+        }
+    `;
+    document.head.appendChild(style);
     
     messageBubble.appendChild(bubbleText);
     userBubble.appendChild(messageBubble);
     
-    // ✅ ADD THESE CRUCIAL ANIMATION CLASSES BACK!
     userBubble.classList.add('listening-animation');
-    bubbleText.classList.add('listening-dots');
     
     chatArea.appendChild(userBubble);
     scrollToBottom();
