@@ -3,6 +3,41 @@
 // Combining working bubble system + your business logic
 // ===================================================
 
+// Add this new function
+async function requestMicrophoneWithFallback() {
+    try {
+        // First try the standard way
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        return stream;
+    } catch (error) {
+        console.log('Standard permission failed, trying fallback...');
+        
+        // Create a temporary audio element to trigger permission differently
+        const audio = new Audio();
+        audio.src = 'data:audio/wav;base64,UklGRnoAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoAAAC';
+        audio.volume = 0;
+        
+        return new Promise((resolve, reject) => {
+            audio.oncanplay = async () => {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    resolve(stream);
+                } catch (error2) {
+                    reject(error2);
+                }
+            };
+            
+            audio.onerror = () => reject(error);
+            audio.play().catch(reject);
+        });
+    }
+}
+
+// Then in activateMicrophone(), replace:
+// const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+// With:
+const stream = await requestMicrophoneWithFallback();
+
 // ===================================================
 // 🏗️ GLOBAL VARIABLES
 // ===================================================
