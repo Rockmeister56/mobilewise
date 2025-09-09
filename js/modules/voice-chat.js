@@ -326,10 +326,18 @@ async function activateMicrophone() {
         return;
     }
 
+    // ✅ ADD THE SPLASH SCREEN AND CHAT INTERFACE CODE HERE
+    // Hide splash screen
+    const splashScreen = document.getElementById('splashScreen');
+    if (splashScreen) {
+        splashScreen.style.display = 'none';
+        console.log('✅ Splash screen hidden');
+    }
+    
     // Show chat interface
-    const chatElement = document.getElementById('chatInterface');
-    if (chatElement) {
-        chatElement.style.display = 'flex';
+    const chatInterface = document.getElementById('chatInterface');
+    if (chatInterface) {
+        chatInterface.style.display = 'flex';
         console.log('✅ Chat interface shown');
     }
 
@@ -338,10 +346,6 @@ async function activateMicrophone() {
         const stream = await requestMicrophoneWithFallback();
         persistentMicStream = stream;
         micPermissionGranted = true;
-
-        // ❌ REMOVE THESE LINES - Voice meter functions don't exist
-        // initializeVoiceMeter();
-        // startVoiceMeter(stream);
 
         isAudioMode = true;
 
