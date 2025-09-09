@@ -126,28 +126,120 @@ function startListening() {
     }
 }
 
+// ===================================================
+// 📱 MOBILE MICROPHONE PERMISSION HANDLER
+// ===================================================
+function isMobileDevice() {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
+
+async function requestMobileMicrophonePermission() {
+    return new Promise((resolve) => {
+        // Create a mobile-friendly permission request dialog
+        const mobilePermissionDialog = document.createElement('div');
+        mobilePermissionDialog.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            z-index: 10000;
+            text-align: center;
+            max-width: 300px;
+        `;
+        
+        mobilePermissionDialog.innerHTML = `
+            <h3 style="margin: 0 0 15px 0; color: #333;">🎤 Microphone Access</h3>
+            <p style="margin: 0 0 20px 0; color: #666; font-size: 14px;">
+                Please allow microphone access to use voice features. Tap "Allow" when prompted by your browser.
+            </p>
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <button onclick="handleMobilePermission(true)" style="padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                    Continue
+                </button>
+                <button onclick="handleMobilePermission(false)" style="padding: 10px 20px; background: #f44336; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                    Cancel
+                </button>
+            </div>
+        `;
+        
+        document.body.appendChild(mobilePermissionDialog);
+        
+        // Handle the permission response
+        window.handleMobilePermission = function(granted) {
+            document.body.removeChild(mobilePermissionDialog);
+            
+            if (granted) {
+                // User clicked Continue - now trigger the actual permission prompt
+                navigator.mediaDevices.getUserMedia({ audio: true })
+                    .then(stream => {
+                        stream.getTracks().forEach(track => track.stop());
+                        resolve(true);
+                    })
+                    .catch(error => {
+                        console.log('❌ Mobile microphone permission denied after prompt');
+                        resolve(false);
+                    });
+            } else {
+                resolve(false);
+            }
+        };
+    });
+}
+
+
+
 async function activateMicrophone() {
     console.log('🎤 Activating microphone...');
-      isAudioMode = true; // ← MAKE SURE THIS IS AT THE TOP!
-    console.log('🔍 isAudioMode set to:', isAudioMode);
+    
+    // 📱 MOBILE CHECK: Handle mobile permission first
+    if (isMobileDevice()) {
+        try {
+            // Quick check if we already have permission
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            // Immediately stop the test stream
+            stream.getTracks().forEach(track => track.stop());
+            console.log('✅ Microphone permission already granted on mobile');
+        } catch (error) {
+            console.log('❌ No microphone permission on mobile - requesting...');
+            
+            // Show mobile-specific permission request
+            const mobilePermission = await requestMobileMicrophonePermission();
+            if (!mobilePermission) {
+                console.log('❌ Mobile microphone permission denied');
+                addAIMessage("Microphone access was denied. You can still use text chat.");
+                switchToTextMode();
+                return;
+            }
+        }
+    }
     
     // Hide splash screen
     const splashScreen = document.getElementById('splashScreen');
     if (splashScreen) {
         splashScreen.style.display = 'none';
+        console.log('✅ Splash screen hidden');
     }
     
     // Show chat interface
     const chatInterface = document.getElementById('chatInterface');
     if (chatInterface) {
         chatInterface.style.display = 'flex';
+        console.log('✅ Chat interface shown');
     }
     
+    // Rest of your existing microphone activation code...
     try {
-        // Request microphone permission
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         persistentMicStream = stream;
         micPermissionGranted = true;
+        
+        // ✅ INITIALIZE AND START VOICE METER
+        initializeVoiceMeter();
+        startVoiceMeter(stream);
         
         isAudioMode = true;
         
@@ -892,6 +984,22 @@ function initializeVoiceChat() {
 // Auto-initialize when loaded
 document.addEventListener('DOMContentLoaded', () => {
     initializeVoiceChat();
+
+   // Call this in your DOMContentLoaded or initialization
+function initializeVoiceChat() {
+    console.log('🚀 Initializing Voice Chat Module...');
+    
+    initializeSpeechRecognition();
+    preloadVoices();
+    
+    // 📱 Check if mobile and log it
+    if (isMobileDevice()) {
+        console.log('📱 Mobile device detected - microphone will require explicit permission');
+    }
+    
+    console.log('✅ Voice Chat Module Ready!');
+}
+
 });
 
 console.log('🎯 Mobile-Wise AI Voice Chat - COMPLETE INTEGRATED SYSTEM LOADED!');
