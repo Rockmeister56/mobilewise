@@ -690,7 +690,7 @@ setTimeout(() => {
         isSpeaking = false;
         currentUserBubble = null;
         
-        if (isAudioMode && !isListening && !recognition) {
+        if (isAudioMode && !isListening) {
             console.log('🔄 Fallback - starting listening');
             createRealtimeBubble();
             startListening();
@@ -716,6 +716,20 @@ function stopCurrentAudio() {
     currentAudio = null;
     isSpeaking = false;
     currentUserBubble = null; // ← ADD: Clear bubble when stopping
+
+    setTimeout(() => {
+    if (isSpeaking) {
+        console.log('🔄 Fallback timer - forcing speech end');
+        isSpeaking = false;
+        currentUserBubble = null;
+        
+        if (isAudioMode && !isListening) {  // ← REMOVED: && !recognition
+            console.log('🔄 Fallback - starting listening');
+            createRealtimeBubble();
+            startListening();
+        }
+    }
+}, 5000); // 5 second fallback
 }
 
 // ===================================================
