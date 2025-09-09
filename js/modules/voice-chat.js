@@ -46,6 +46,40 @@ async function requestMicrophonePermission() {
     }
 }
 
+function setupMobileRetry() {
+    if (isMobileDevice()) {
+        const retryBtn = document.createElement('button');
+        retryBtn.textContent = '🎤 Tap to Retry Listening';
+        retryBtn.style.cssText = `
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            z-index: 1000;
+            display: none;
+        `;
+        retryBtn.id = 'mobileRetryBtn';
+        retryBtn.onclick = function() {
+            if (isAudioMode && !isListening) {
+                startListening();
+            }
+        };
+        document.body.appendChild(retryBtn);
+    }
+}
+
+// Call this in your initialization
+document.addEventListener('DOMContentLoaded', () => {
+    initializeVoiceChat();
+    optimizeForMobile();
+    setupMobileRetry(); // ✅ ADD THIS
+});
+
 // ===================================================
 // 🎤 SPEECH RECOGNITION ENHANCEMENTS
 // ===================================================
