@@ -63,6 +63,20 @@ function startListening() {
         recognition.interimResults = true;
         recognition.lang = 'en-US';
         
+        // ✅ MOBILE-SPECIFIC OPTIMIZATIONS
+        if (isMobileDevice()) {
+            console.log('📱 Applying mobile speech recognition settings');
+            recognition.maxAlternatives = 1; // Fewer alternatives for mobile
+            // Add a longer timeout for mobile devices
+            setTimeout(() => {
+                if (isListening && recognition) {
+                    console.log('📱 Mobile timeout - restarting recognition');
+                    recognition.stop();
+                    setTimeout(() => startListening(), 100);
+                }
+            }, 10000); // Restart every 10 seconds on mobile
+        }
+        
         // ✅ ADD THESE OPTIONS FOR BETTER MOBILE COMPATIBILITY
         recognition.maxAlternatives = 3; // Get more potential matches
         recognition.onaudiostart = function() {
@@ -105,7 +119,7 @@ function startListening() {
                     }
                 }, 1500);
             }
-        };
+        }; // ← ADDED MISSING ); HERE
 
         recognition.onresult = function(event) {
             console.log('🎤 Speech recognition result received');
@@ -156,26 +170,36 @@ function startListening() {
             }
         };
 
+        // ✅ ENHANCED onerror FOR MOBILE
         recognition.onerror = function(event) {
             console.error('Speech recognition error:', event.error);
-            console.log(`❌ Error: ${event.error}`);
             
-            // Handle specific errors
-            if (event.error === 'no-speech') {
-                console.log('🔇 No speech detected');
-                const currentBubble = document.getElementById('currentUserBubble');
-                if (currentBubble) {
-                    currentBubble.querySelector('.bubble-text').textContent = 'No speech detected. Please speak again.';
-                    currentBubble.style.opacity = '0.6';
-                }
+            // Special handling for mobile
+            if (isMobileDevice()) {
+                console.log('📱 Mobile error handling');
                 
-                // Auto-restart for no-speech errors
-                setTimeout(() => {
-                    if (isAudioMode && !isListening) {
-                        console.log('🔄 Restarting listening after no-speech error');
-                        startListening();
+                if (event.error === 'no-speech' || event.error === 'audio-capture') {
+                    // Mobile-specific recovery
+                    const currentBubble = document.getElementById('currentUserBubble');
+                    if (currentBubble) {
+                        currentBubble.querySelector('.bubble-text').textContent = 'Tap to try again...';
+                        currentBubble.style.opacity = '0.6';
+                        currentBubble.onclick = function() {
+                            if (isAudioMode && !isListening) {
+                                startListening();
+                            }
+                        };
                     }
-                }, 1000);
+                    
+                    // Auto-restart with longer delay for mobile
+                    setTimeout(() => {
+                        if (isAudioMode && !isListening) {
+                            console.log('📱 Mobile auto-restart after error');
+                            startListening();
+                        }
+                    }, 2000);
+                    return;
+                }
             }
             
             stopListening();
@@ -197,16 +221,19 @@ function startListening() {
         recognition.start();
         isListening = true; 
         console.log('🎤 Speech recognition started successfully');
+        
+        playStartSound();
 
     } catch (error) {
         console.error('Error starting speech recognition:', error);
-        console.log('❌ Failed to start speech recognition');
         
-        // Fallback to text mode if recognition fails repeatedly
-        addAIMessage("Speech recognition failed. Switching to text mode.");
-        switchToTextMode();
+        // Mobile-specific fallback
+        if (isMobileDevice()) {
+            addAIMessage("Mobile speech recognition issue. Please try tapping the microphone button again.");
+            switchToTextMode();
+        }
     }
-}
+} // ← MAKE SURE THIS CLOSING BRACE IS HERE
 
 // ===================================================
 // 🔊 AUDIO FEEDBACK FUNCTIONS
@@ -214,43 +241,30 @@ function startListening() {
 
 function playStartSound() {
     try {
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-        
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        
-        oscillator.frequency.value = 800;
-        oscillator.type = 'sine';
-        
-        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
-        
-        oscillator.start(audioContext.currentTime);
-        oscillator.stop(audioContext.currentTime + 0.15);
-    } catch (error) {
-        console.log('Audio context not supported:', error);
-    }
-}
-
-function playEndSound() {
-    try {
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-        
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        
-        oscillator.frequency.value = 600;
-        oscillator.type = 'sine';
-        
-        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
-        
-        oscillator.start(audioContext.currentTime);
-        oscillator.stop(audioContext.currentTime + 0.2);
+        // Check if we're on mobile and handle audio context differently
+        if (isMobileDevice()) {
+            // Mobile-friendly approach - use a simple HTML audio element
+            const beep = new Audio('data:audio/wav;base64,UklGRl4FAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YToFAACBhYqFbVtfdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrDp6qVUFA9GneDtxm8gBzGF0/LMeSwFJHfH8N2QQAoUXrDp6qVUFA9GneDtxm8gBzGF0/LMeSw=');
+            beep.volume = 0.3;
+            beep.play().catch(e => console.log('Mobile audio play failed:', e));
+        } else {
+            // Desktop - use Web Audio API
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.value = 800;
+            oscillator.type = 'sine';
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.15);
+        }
     } catch (error) {
         console.log('Audio context not supported:', error);
     }
