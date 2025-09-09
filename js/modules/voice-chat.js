@@ -983,23 +983,12 @@ function initializeVoiceChat() {
 
 // Auto-initialize when loaded
 document.addEventListener('DOMContentLoaded', () => {
-    initializeVoiceChat();
-
-   // Call this in your DOMContentLoaded or initialization
-function initializeVoiceChat() {
-    console.log('🚀 Initializing Voice Chat Module...');
-    
-    initializeSpeechRecognition();
-    preloadVoices();
+    initializeVoiceChat(); // ← INITIALIZE THE SYSTEM
     
     // 📱 Check if mobile and log it
     if (isMobileDevice()) {
         console.log('📱 Mobile device detected - microphone will require explicit permission');
     }
-    
-    console.log('✅ Voice Chat Module Ready!');
-}
-
 });
 
 console.log('🎯 Mobile-Wise AI Voice Chat - COMPLETE INTEGRATED SYSTEM LOADED!');
