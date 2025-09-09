@@ -1061,27 +1061,6 @@ function scrollToBottom() {
 // Make it globally available
 window.createRealtimeBubble = createRealtimeBubble;
 
-// ===================================================
-// 🚀 SPLASH SCREEN SYSTEM (Your working system)
-// ===================================================
-function startVoiceChat() {
-    console.log('🎤 startVoiceChat() called from splash screen');
-    
-    // Hide splash screen
-    const splashScreen = document.getElementById('splashScreen');
-    if (splashScreen) {
-        splashScreen.style.display = 'none';
-        console.log('✅ Splash screen hidden');
-    }
-    
-    // Show chat interface
-    const chatInterface = document.getElementById('chatInterface');
-    if (chatInterface) {
-        chatInterface.style.display = 'flex';
-        console.log('✅ Chat interface shown');
-    }
-
-}
 
 // ===================================================
 // ⚡ QUICK QUESTIONS SYSTEM
