@@ -60,50 +60,50 @@ function startListening() {
         recognition.interimResults = true;
         recognition.lang = 'en-US';
 
-        // 🎯 MAGIC BUBBLE ANIMATION SYSTEM
         recognition.onresult = function(event) {
-            let interimTranscript = '';
-            let finalTranscript = '';
+    let interimTranscript = '';
+    let finalTranscript = '';
 
-            for (let i = event.resultIndex; i < event.results.length; i++) {
-                const transcript = event.results[i][0].transcript;
-                if (event.results[i].isFinal) {
-                    finalTranscript += transcript;
-                } else {
-                    interimTranscript += transcript;
-                }
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript;
+        if (event.results[i].isFinal) {
+            finalTranscript += transcript;
+        } else {
+            interimTranscript += transcript;
+        }
+    }
+
+    const currentBubble = document.getElementById('currentUserBubble');
+    if (currentBubble) {
+        const displayText = finalTranscript + interimTranscript;
+        if (displayText.trim()) {
+            const bubbleElement = currentBubble.querySelector('.bubble-text');
+            if (bubbleElement) {
+                bubbleElement.textContent = displayText;
             }
 
-            const currentBubble = document.getElementById('currentUserBubble');
-            if (currentBubble) {
-                const displayText = finalTranscript + interimTranscript;
-                if (displayText.trim()) {
-                    const bubbleElement = currentBubble.querySelector('.bubble-text');
-                    if (bubbleElement) {
-                        bubbleElement.textContent = displayText;
-                    }
-
-                    // 🎯 MAGIC ANIMATION STATES
-                    if (interimTranscript) {
-                        currentBubble.classList.add('listening-animation');
-                        currentBubble.classList.remove('speech-complete');
-                    } else if (finalTranscript) {
-                        currentBubble.classList.remove('listening-animation');
-                        currentBubble.classList.add('speech-complete'); // ← SOLID STATE!
-                    }
-
-                    scrollToBottom();
-                }
+            // 🎯 PROPER ANIMATION STATES
+            if (interimTranscript) {
+                currentBubble.classList.add('listening-animation');
+                currentBubble.classList.remove('speech-complete');
+                bubbleElement.classList.add('listening-dots');
+            } else if (finalTranscript) {
+                currentBubble.classList.remove('listening-animation');
+                currentBubble.classList.add('speech-complete'); // SOLID STATE
+                bubbleElement.classList.remove('listening-dots');
             }
 
-            // Process final transcript
-            if (finalTranscript) {
-                setTimeout(() => {
-                    processUserResponse(finalTranscript);
-                }, 500);
-            }
-        };
+            scrollToBottom();
+        }
+    }
 
+    // Process final transcript
+    if (finalTranscript) {
+        setTimeout(() => {
+            processUserResponse(finalTranscript);
+        }, 500);
+    }
+};
         recognition.onerror = function(event) {
             console.error('Speech recognition error:', event.error);
             console.log(`❌ Error: ${event.error}`);
