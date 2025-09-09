@@ -1186,33 +1186,10 @@ function scrollChatToBottom() {
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 }
-
 // ===================================================
 // 🗣️ VOICE SYNTHESIS SYSTEM
 // ===================================================
 function speakResponse(message) {
-    console.log('🎤 Speaking response:', message);
-    
-    if (!window.speechSynthesis) {
-        console.log('❌ Speech synthesis not supported');
-        return;
-    }
-
-    // Stop any current speech
-    window.speechSynthesis.cancel();
-    
-    const utterance = new SpeechSynthesisUtterance(message);
-    
-    utterance.rate = voiceSpeed; // ← KEEP: Your voice speed control
-    utterance.pitch = 1.0;
-    utterance.volume = 0.9;
-    
-    utterance.onstart = function() {
-        isSpeaking = true;
-        console.log('✅ AI started speaking');
-    };
-
-    function speakResponse(message) {
     console.log('🎤 Speaking response:', message);
     
     if (!window.speechSynthesis) {
@@ -1231,6 +1208,69 @@ function speakResponse(message) {
     } else {
         createAndSpeakUtterance(message);
     }
+}
+
+// ✅ Extract utterance creation to separate function
+function createAndSpeakUtterance(message) {
+    const utterance = new SpeechSynthesisUtterance(message);
+    
+    // ✅ SLOWER RATE FOR MOBILE - prevents word clipping
+    utterance.rate = isMobileDevice() ? 0.9 : voiceSpeed;
+    utterance.pitch = 1.0;
+    utterance.volume = isMobileDevice() ? 0.95 : 0.9; // Slightly louder on mobile
+    
+    utterance.onstart = function() {
+        isSpeaking = true;
+        console.log('✅ AI started speaking');
+    };
+    
+    utterance.onend = function() {
+        isSpeaking = false;
+        console.log('✅ AI finished speaking');
+        console.log('🔍 Debug - isAudioMode:', isAudioMode, 'isListening:', isListening);
+        
+        // Clear bubble reference
+        currentUserBubble = null;
+        
+        // START LISTENING AFTER SPEAKING ENDS
+        if (isAudioMode && !isListening) {
+            setTimeout(() => {
+                try {
+                    console.log('🔄 Starting listening after speech completed');
+                    if (typeof createRealtimeBubble === 'function') {
+                        createRealtimeBubble();
+                    }
+                    startListening();
+                } catch (error) {
+                    console.log('❌ Recognition restart error:', error);
+                }
+            }, 1500);
+        }
+    };
+
+    // ✅ ADD A FALLBACK TIMER in case onend doesn't fire
+    setTimeout(() => {
+        if (isSpeaking) {
+            console.log('🔄 Fallback timer - forcing speech end');
+            isSpeaking = false;
+            currentUserBubble = null;
+            
+            if (isAudioMode && !isListening) {
+                console.log('🔄 Fallback - starting listening');
+                createRealtimeBubble();
+                startListening();
+            }
+        }
+    }, 15000); // 15 second fallback
+    
+    utterance.onerror = function(event) {
+        console.log('❌ Speech error:', event.error);
+        isSpeaking = false;
+        currentUserBubble = null;
+    };
+    
+    window.speechSynthesis.speak(utterance);
+    currentAudio = utterance;
 }
 
 // ✅ Extract utterance creation to separate function
