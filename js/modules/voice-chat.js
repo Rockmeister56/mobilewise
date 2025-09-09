@@ -31,6 +31,13 @@ let voiceSpeed = 1.0;
 // Processing flags
 let isProcessingInput = false;
 
+window.debugVoice = function() {
+    debugSpeechRecognition();
+    if (recognition) {
+        console.log('🎤 Current recognition state:', recognition.state);
+    }
+};
+
 function startVoiceChat() {
     console.log('🎤 startVoiceChat() called from splash screen');
     
@@ -102,6 +109,68 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ===================================================
+// 🐛 SPEECH RECOGNITION DEBUGGER
+// ===================================================
+
+function debugSpeechRecognition() {
+    console.log('🔍 SPEECH RECOGNITION DEBUG REPORT');
+    console.log('==================================');
+    
+    // Check basic support
+    console.log('✅ Speech Recognition Supported:', !!(window.SpeechRecognition || window.webkitSpeechRecognition));
+    console.log('✅ Speech Synthesis Supported:', !!window.speechSynthesis);
+    console.log('📱 Is Mobile Device:', isMobileDevice());
+    console.log('🎤 Microphone Permission:', micPermissionGranted);
+    console.log('🔊 Is Speaking:', isSpeaking);
+    console.log('👂 Is Listening:', isListening);
+    console.log('🎯 Is Audio Mode:', isAudioMode);
+    
+    // Check recognition object
+    if (recognition) {
+        console.log('✅ Recognition Object:', recognition);
+        console.log('🔊 Recognition State:', recognition.state);
+    } else {
+        console.log('❌ Recognition Object: NULL');
+    }
+    
+    // Check audio context
+    try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        console.log('✅ Audio Context State:', audioContext.state);
+        audioContext.close();
+    } catch (e) {
+        console.log('❌ Audio Context Error:', e);
+    }
+    
+    // Test microphone access
+    testMicrophoneAccess();
+}
+
+async function testMicrophoneAccess() {
+    console.log('🎤 Testing microphone access...');
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        console.log('✅ Microphone access: GRANTED');
+        
+        // Analyze the audio stream
+        const audioTracks = stream.getAudioTracks();
+        console.log('🎙️ Audio tracks found:', audioTracks.length);
+        
+        audioTracks.forEach((track, index) => {
+            console.log(`   Track ${index + 1}:`, track.label, track.getSettings());
+        });
+        
+        // Clean up
+        stream.getTracks().forEach(track => track.stop());
+        
+    } catch (error) {
+        console.log('❌ Microphone access: DENIED', error);
+        console.log('🔍 Error details:', error.name, error.message);
+    }
+}
+
+
+// ===================================================
 // 🎤 SPEECH RECOGNITION ENHANCEMENTS
 // ===================================================
 
@@ -109,6 +178,9 @@ function startListening() {
     console.log('🎯 startListening() called - starting speech recognition');
     if (!checkSpeechSupport()) return;
     if (isSpeaking) return;
+
+    // Run diagnostics first
+    debugSpeechRecognition();
 
     try {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -118,95 +190,83 @@ function startListening() {
         recognition.interimResults = true;
         recognition.lang = 'en-US';
         
-        // ✅ MOBILE-SPECIFIC OPTIMIZATIONS
-if (isMobileDevice()) {
-    console.log('📱 Applying mobile speech recognition settings');
-    
-    // Mobile-specific settings
-    recognition.maxAlternatives = 1;
-    
-    // Clear any existing timeouts
-    if (window.mobileRecognitionTimeout) {
-        clearTimeout(window.mobileRecognitionTimeout);
-    }
-    
-    // Set timeout to restart recognition (mobile devices often need this)
-    window.mobileRecognitionTimeout = setTimeout(() => {
-        if (isListening && recognition) {
-            console.log('📱 Mobile safety timeout - restarting recognition');
-            try {
-                recognition.stop();
-                setTimeout(() => {
-                    if (isAudioMode && !isListening) {
-                        startListening();
-                    }
-                }, 500);
-            } catch (e) {
-                console.log('📱 Timeout restart error:', e);
-            }
-        }
-    }, 8000); // 8 seconds for mobile
-}
-        
-        // ✅ ADD THESE OPTIONS FOR BETTER MOBILE COMPATIBILITY
-        recognition.maxAlternatives = 3; // Get more potential matches
+        // ✅ EXTENDED DEBUGGING EVENT HANDLERS
         recognition.onaudiostart = function() {
-            console.log('🔊 Audio capture started');
+            console.log('🔊✅ Audio capture STARTED - microphone is active');
         };
         
         recognition.onaudioend = function() {
-            console.log('🔊 Audio capture ended');
+            console.log('🔊❌ Audio capture ENDED - microphone stopped');
         };
         
         recognition.onsoundstart = function() {
-            console.log('🔊 Sound detected');
+            console.log('🔊✅ SOUND DETECTED - audio input detected');
         };
         
         recognition.onsoundend = function() {
-            console.log('🔊 Sound ended');
+            console.log('🔊❌ SOUND ENDED - no more audio input');
         };
         
         recognition.onspeechstart = function() {
-            console.log('🎤 Speech started');
+            console.log('🎤✅ SPEECH STARTED - recognizing speech patterns');
         };
         
         recognition.onspeechend = function() {
-            console.log('🎤 Speech ended');
+            console.log('🎤❌ SPEECH ENDED - speech input stopped');
         };
         
         recognition.onnomatch = function() {
-            console.log('❌ No speech recognition match');
-            // Add visual feedback for no speech detected
+            console.log('❌❌❌ NO SPEECH RECOGNITION MATCH - audio detected but no words recognized');
+            console.log('🔍 This usually means:');
+            console.log('   1. Speech is too quiet/noisy');
+            console.log('   2. Language mismatch');
+            console.log('   3. Technical issue with recognition');
+            
             const currentBubble = document.getElementById('currentUserBubble');
             if (currentBubble) {
                 currentBubble.querySelector('.bubble-text').textContent = 'No speech detected. Try again.';
                 currentBubble.style.opacity = '0.6';
                 
-                // Auto-restart after a brief pause
-                setTimeout(() => {
-                    if (isAudioMode && !isListening) {
-                        console.log('🔄 Restarting listening after no match');
-                        startListening();
-                    }
-                }, 1500);
+                // Add detailed debug info to bubble
+                const debugInfo = document.createElement('div');
+                debugInfo.style.fontSize = '10px';
+                debugInfo.style.color = '#666';
+                debugInfo.textContent = 'Debug: Audio detected but no words recognized';
+                currentBubble.appendChild(debugInfo);
             }
-        }; // ← ADDED MISSING ); HERE
+            
+            setTimeout(() => {
+                if (isAudioMode && !isListening) {
+                    console.log('🔄 Restarting listening after no match');
+                    startListening();
+                }
+            }, 1500);
+        };
 
         recognition.onresult = function(event) {
-            console.log('🎤 Speech recognition result received');
+            console.log('🎤✅ Speech recognition result received');
+            console.log('📊 Results length:', event.results.length);
+            console.log('🔢 Result index:', event.resultIndex);
+            
             let interimTranscript = '';
             let finalTranscript = '';
 
             for (let i = event.resultIndex; i < event.results.length; i++) {
-                const transcript = event.results[i][0].transcript;
-                console.log('📝 Transcript:', transcript, 'Confidence:', event.results[i][0].confidence);
+                const result = event.results[i];
+                const transcript = result[0].transcript;
+                const confidence = result[0].confidence;
                 
-                if (event.results[i].isFinal) {
+                console.log(`   📝 Result ${i}: "${transcript}" (Confidence: ${confidence}, Final: ${result.isFinal})`);
+                
+                if (result.isFinal) {
                     finalTranscript += transcript;
                 } else {
                     interimTranscript += transcript;
                 }
             }
+
+            console.log('📋 Interim transcript:', interimTranscript);
+            console.log('📋 Final transcript:', finalTranscript);
 
             const currentBubble = document.getElementById('currentUserBubble');
             if (currentBubble) {
@@ -216,71 +276,47 @@ if (isMobileDevice()) {
                     if (bubbleElement) {
                         bubbleElement.textContent = displayText;
                     }
-
-                    // 🎯 PROPER ANIMATION STATES
-                    if (interimTranscript) {
-                        currentBubble.classList.add('listening-animation');
-                        currentBubble.classList.remove('speech-complete');
-                        bubbleElement.classList.add('listening-dots');
-                    } else if (finalTranscript) {
-                        currentBubble.classList.remove('listening-animation');
-                        currentBubble.classList.add('speech-complete');
-                        bubbleElement.classList.remove('listening-dots');
-                    }
-
                     scrollToBottom();
                 }
             }
 
-            // Process final transcript
             if (finalTranscript) {
-                console.log('✅ Final transcript:', finalTranscript);
+                console.log('✅✅✅ SUCCESS: Final transcript processed:', finalTranscript);
                 setTimeout(() => {
                     processUserResponse(finalTranscript);
                 }, 500);
             }
         };
 
-        // ✅ ENHANCED onerror FOR MOBILE
         recognition.onerror = function(event) {
-            console.error('Speech recognition error:', event.error);
+            console.error('❌❌❌ SPEECH RECOGNITION ERROR:', event.error);
+            console.log('🔍 Error details:', event);
             
-            // Special handling for mobile
-            if (isMobileDevice()) {
-                console.log('📱 Mobile error handling');
-                
-                if (event.error === 'no-speech' || event.error === 'audio-capture') {
-                    // Mobile-specific recovery
-                    const currentBubble = document.getElementById('currentUserBubble');
-                    if (currentBubble) {
-                        currentBubble.querySelector('.bubble-text').textContent = 'Tap to try again...';
-                        currentBubble.style.opacity = '0.6';
-                        currentBubble.onclick = function() {
-                            if (isAudioMode && !isListening) {
-                                startListening();
-                            }
-                        };
-                    }
-                    
-                    // Auto-restart with longer delay for mobile
-                    setTimeout(() => {
-                        if (isAudioMode && !isListening) {
-                            console.log('📱 Mobile auto-restart after error');
-                            startListening();
-                        }
-                    }, 2000);
-                    return;
-                }
+            // Detailed error analysis
+            switch(event.error) {
+                case 'no-speech':
+                    console.log('🔇 No speech detected - check microphone and volume');
+                    break;
+                case 'audio-capture':
+                    console.log('🎤 Audio capture failed - microphone may be in use by another app');
+                    break;
+                case 'not-allowed':
+                    console.log('🚫 Permission denied - user blocked microphone access');
+                    break;
+                case 'network':
+                    console.log('🌐 Network error - speech recognition service unavailable');
+                    break;
+                default:
+                    console.log('⚡ Unknown error - check browser compatibility');
             }
             
             stopListening();
         };
 
         recognition.onend = function() {
-            console.log('🔚 Recognition ended');
+            console.log('🔚 Recognition ended - state:', recognition ? recognition.state : 'null');
             if (isListening && isAudioMode) {
                 console.log("🔄 Recognition ended but we're still in listening mode - restarting");
-                // Auto-restart for continuous listening
                 setTimeout(() => {
                     if (isAudioMode && !isListening) {
                         startListening();
@@ -289,22 +325,20 @@ if (isMobileDevice()) {
             }
         };
 
+        console.log('🎤 Starting speech recognition...');
         recognition.start();
         isListening = true; 
-        console.log('🎤 Speech recognition started successfully');
-        
-        playStartSound();
+        console.log('✅✅✅ Speech recognition started successfully');
 
     } catch (error) {
-        console.error('Error starting speech recognition:', error);
+        console.error('❌❌❌ FATAL ERROR starting speech recognition:', error);
+        console.log('🔍 Stack trace:', error.stack);
         
-        // Mobile-specific fallback
-        if (isMobileDevice()) {
-            addAIMessage("Mobile speech recognition issue. Please try tapping the microphone button again.");
-            switchToTextMode();
-        }
+        addAIMessage("Speech recognition failed. Switching to text mode.");
+        switchToTextMode();
     }
-} // ← MAKE SURE THIS CLOSING BRACE IS HERE
+}
+// ← MAKE SURE THIS CLOSING BRACE IS HERE
 
 // ===================================================
 // 📱 MOBILE AUDIO FIXES
