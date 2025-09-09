@@ -679,7 +679,7 @@ utterance.onend = function() {
             } catch (error) {
                 console.log('❌ Recognition restart error:', error);
             }
-        }, 800);
+        }, 1500);
     }
 };
 
@@ -729,7 +729,7 @@ function stopCurrentAudio() {
             startListening();
         }
     }
-}, 5000); // 5 second fallback
+}, 10000); // 10 second fallback
 }
 
 // ===================================================
