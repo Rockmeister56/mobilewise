@@ -311,7 +311,7 @@ async function activateMicrophone() {
         addAIMessage(errorMessage);
         switchToTextMode();
     }
-}
+    
 // ===================================================
 // 🎯 SPEECH RECOGNITION SYSTEM (From working bubble system)
 // ===================================================
