@@ -193,7 +193,7 @@ async function requestMobileMicrophonePermission() {
 async function activateMicrophone() {
     console.log('🎤 Activating microphone...');
 
-          // Run diagnostics first
+    // Run diagnostics first
     const hasAccess = await debugMicrophoneAccess();
     if (!hasAccess) {
         // Show mobile-specific guidance
@@ -204,102 +204,61 @@ async function activateMicrophone() {
         }
         return;
     }
-    
-    // If we get here, we have access!
-    // Hide splash screen - USE EXISTING VARIABLE OR GET IT WITHOUT REDECLARING
-    if (typeof splashScreen !== 'undefined' && splashScreen) {
-        splashScreen.style.display = 'none';
-    } else {
-        // Fallback: get the element if variable doesn't exist
-        const splashElement = document.getElementById('splashScreen');
-        if (splashElement) {
-            splashElement.style.display = 'none';
-        }
-    }
-    
-    // Show chat interface - SAME FIX HERE
-    if (typeof chatInterface !== 'undefined' && chatInterface) {
-        chatInterface.style.display = 'flex';
-    } else {
-        const chatElement = document.getElementById('chatInterface');
-        if (chatElement) {
-            chatElement.style.display = 'flex';
-        }
-    }
-        try {
-            // Quick check if we already have permission
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            // Immediately stop the test stream
-            stream.getTracks().forEach(track => track.stop());
-            console.log('✅ Microphone permission already granted on mobile');
-        } catch (error) {
-            console.log('❌ No microphone permission on mobile - requesting...');
-            
-            // Show mobile-specific permission request
-            const mobilePermission = await requestMobileMicrophonePermission();
-            if (!mobilePermission) {
-                console.log('❌ Mobile microphone permission denied');
-                addAIMessage("Microphone access was denied. You can still use text chat.");
-                switchToTextMode();
-                return;
-            }
-        }
-    }
-    
+
     // Hide splash screen
-    splashScreen = document.getElementById('splashScreen');
-    if (splashScreen) {
-        splashScreen.style.display = 'none';
+    const splashElement = document.getElementById('splashScreen');
+    if (splashElement) {
+        splashElement.style.display = 'none';
         console.log('✅ Splash screen hidden');
     }
-    
+
     // Show chat interface
-    const chatInterface = document.getElementById('chatInterface');
-    if (chatInterface) {
-        chatInterface.style.display = 'flex';
+    const chatElement = document.getElementById('chatInterface');
+    if (chatElement) {
+        chatElement.style.display = 'flex';
         console.log('✅ Chat interface shown');
     }
-    
+
     // Rest of your existing microphone activation code...
     try {
-        // Use the fallback method
+        // Use the fallback method - MAKE SURE THIS FUNCTION EXISTS!
         const stream = await requestMicrophoneWithFallback();
         persistentMicStream = stream;
         micPermissionGranted = true;
-        
+
         // ✅ INITIALIZE AND START VOICE METER
         initializeVoiceMeter();
         startVoiceMeter(stream);
-        
+
         isAudioMode = true;
-        
+
         // Show appropriate UI
         const activateMicBtn = document.getElementById('activateMicBtn');
         const audioOffBtn = document.getElementById('audioOffBtn');
         const voiceContainer = document.getElementById('voiceVisualizerContainer');
-        
+
         if (activateMicBtn) activateMicBtn.style.display = 'none';
         if (audioOffBtn) audioOffBtn.style.display = 'block';
         if (voiceContainer) voiceContainer.style.display = 'flex';
-        
+
         // Initialize speech recognition
         initializeSpeechRecognition();
-        
+
         // ✅ ADD THIS BACK - AI GREETING!
         setTimeout(() => {
             const greeting = "Welcome! I'm Bruce Clark's AI assistant. What can I help you with today?";
             addAIMessage(greeting);
             speakResponse(greeting);
         }, 500);
-        
+
     } catch (error) {
         console.log('❌ Microphone access denied:', error);
         console.log('🔍 Error name:', error.name);
         console.log('🔍 Error message:', error.message);
-        
+
         // Show detailed error message
         let errorMessage = "Microphone access was denied. ";
-        
+
         if (error.name === 'NotAllowedError') {
             errorMessage += "Please check your browser permissions and allow microphone access.";
         } else if (error.name === 'PermissionDismissedError') {
@@ -307,11 +266,41 @@ async function activateMicrophone() {
         } else if (error.name === 'NotFoundError') {
             errorMessage += "No microphone found. Please check your device settings.";
         }
-        
+
         addAIMessage(errorMessage);
         switchToTextMode();
     }
-    
+} // ← MAKE SURE THIS CLOSING BRACE IS HERE!
+
+async function requestMicrophoneWithFallback() {
+    try {
+        // First try the standard way
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        return stream;
+    } catch (error) {
+        console.log('Standard permission failed, trying fallback...');
+        
+        // Create a temporary audio element to trigger permission differently
+        const audio = new Audio();
+        audio.src = 'data:audio/wav;base64,UklGRnoAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoAAAC';
+        audio.volume = 0;
+        
+        return new Promise((resolve, reject) => {
+            audio.oncanplay = async () => {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    resolve(stream);
+                } catch (error2) {
+                    reject(error2);
+                }
+            };
+            
+            audio.onerror = () => reject(error);
+            audio.play().catch(reject);
+        });
+    }
+}
+
 // ===================================================
 // 🎯 SPEECH RECOGNITION SYSTEM (From working bubble system)
 // ===================================================
