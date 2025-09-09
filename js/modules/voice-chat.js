@@ -276,6 +276,47 @@ function closeMicrophoneGuide() {
     if (guide) guide.remove();
 }
 
+// ===================================================
+// 📝 TEXT MODE SWITCHER
+// ===================================================
+function switchToTextMode() {
+    console.log('🔄 Switching to text mode');
+    
+    // Stop any ongoing audio
+    stopCurrentAudio();
+    
+    // Stop listening if active
+    if (isListening) {
+        stopListening();
+    }
+    
+    // Close microphone stream if open
+    if (persistentMicStream) {
+        persistentMicStream.getTracks().forEach(track => track.stop());
+        persistentMicStream = null;
+    }
+    
+    // Update mode flag
+    isAudioMode = false;
+    micPermissionGranted = false;
+    
+    // Update UI
+    const activateMicBtn = document.getElementById('activateMicBtn');
+    const audioOffBtn = document.getElementById('audioOffBtn');
+    const voiceContainer = document.getElementById('voiceVisualizerContainer');
+    const textInputContainer = document.getElementById('textInputContainer');
+    
+    if (activateMicBtn) activateMicBtn.style.display = 'block';
+    if (audioOffBtn) audioOffBtn.style.display = 'none';
+    if (voiceContainer) voiceContainer.style.display = 'none';
+    if (textInputContainer) textInputContainer.style.display = 'flex';
+    
+    // Add message about switching to text mode
+    addAIMessage("Switched to text mode. Type your message in the text box below.");
+    
+    console.log('✅ Switched to text mode successfully');
+}
+
 async function activateMicrophone() {
     console.log('🎤 Activating microphone...');
 

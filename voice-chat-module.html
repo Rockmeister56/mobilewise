@@ -669,6 +669,13 @@ box-shadow: 0 15px 40px rgba(33, 150, 243, 0.4);
     50% { opacity: 1; transform: scale(1); }
     100% { opacity: 0.7; transform: scale(0.98); }
 }
+
+#textInputContainer {
+    display: none; /* Initially hidden */
+    padding: 10px;
+    border-top: 1px solid #eee;
+    background: white;
+}
    </style>
 </head>
 <body>
@@ -699,6 +706,11 @@ box-shadow: 0 15px 40px rgba(33, 150, 243, 0.4);
 
             <!-- Chat Messages Area -->
             <div class="chat-messages" id="chatMessages"></div>
+
+            <div id="textInputContainer" class="text-input-container">
+    <input type="text" id="textInput" placeholder="Type your message here...">
+    <button onclick="sendTextMessage()">Send</button>
+</div>
 
       <div class="bottom-controls">
 
