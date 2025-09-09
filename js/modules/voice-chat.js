@@ -651,19 +651,22 @@ function speakResponse(message) {
         console.log('✅ AI started speaking');
     };
     
-   utterance.onend = function() {
+  utterance.onend = function() {
     isSpeaking = false;
     console.log('✅ AI finished speaking');
+     console.log('🔍 Debug - isAudioMode:', isAudioMode, 'isListening:', isListening, 'recognition:', recognition);
     
     // Clear bubble reference
     currentUserBubble = null;
     
-    // START LISTENING AFTER SPEAKING ENDS
+    // START LISTENING AFTER SPEAKING ENDS (not on timer!)
     if (isAudioMode && !isListening && !recognition) {
         setTimeout(() => {
             try {
                 console.log('🔄 Starting listening after speech completed');
-                createRealtimeBubble(); // ← Ensure this is called!
+                if (typeof createRealtimeBubble === 'function') {
+                    createRealtimeBubble(); // ← MAKE SURE THIS LINE IS ACTIVE!
+                }
                 startListening();
             } catch (error) {
                 console.log('❌ Recognition restart error:', error);
