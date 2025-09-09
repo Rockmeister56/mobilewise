@@ -320,9 +320,6 @@ function switchToTextMode() {
 async function activateMicrophone() {
     console.log('🎤 Activating microphone...');
 
-    // REMOVE the debugMicrophoneAccess call that's causing the double permission request
-    // const hasAccess = await debugMicrophoneAccess();
-    
     // Instead, just check if we're on HTTPS and have basic support
     if (!window.isSecureContext) {
         addAIMessage("Microphone access requires HTTPS. Please ensure you're on a secure connection.");
@@ -342,9 +339,9 @@ async function activateMicrophone() {
         persistentMicStream = stream;
         micPermissionGranted = true;
 
-        // ✅ INITIALIZE AND START VOICE METER
-        initializeVoiceMeter();
-        startVoiceMeter(stream);
+        // ❌ REMOVE THESE LINES - Voice meter functions don't exist
+        // initializeVoiceMeter();
+        // startVoiceMeter(stream);
 
         isAudioMode = true;
 
