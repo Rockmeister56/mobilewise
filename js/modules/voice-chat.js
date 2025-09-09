@@ -127,6 +127,49 @@ function startListening() {
 }
 
 // ===================================================
+// 🔍 MICROPHONE DEBUG DIAGNOSTICS
+// ===================================================
+async function debugMicrophoneAccess() {
+    console.log('🔍 Starting microphone debug...');
+    
+    // Check if we're even in a secure context (HTTPS required)
+    console.log('🔒 Secure context:', window.isSecureContext);
+    console.log('🌐 Protocol:', window.location.protocol);
+    
+    // Check permissions API if available
+    if (navigator.permissions) {
+        try {
+            const permissionStatus = await navigator.permissions.query({ name: 'microphone' });
+            console.log('🎤 Microphone permission state:', permissionStatus.state);
+        } catch (e) {
+            console.log('❌ Permissions API error:', e);
+        }
+    }
+    
+    // Try to list devices (this often triggers permission)
+    try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const audioInputs = devices.filter(d => d.kind === 'audioinput');
+        console.log('📱 Available audio devices:', audioInputs);
+    } catch (e) {
+        console.log('❌ Device enumeration failed:', e);
+    }
+    
+    // Try the actual getUserMedia
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        console.log('✅ SUCCESS: Got microphone access!');
+        stream.getTracks().forEach(track => track.stop());
+        return true;
+    } catch (error) {
+        console.log('❌ FAILED: Microphone access error:', error);
+        console.log('Error name:', error.name);
+        console.log('Error message:', error.message);
+        return false;
+    }
+}
+
+// ===================================================
 // 📱 MOBILE MICROPHONE PERMISSION HANDLER
 // ===================================================
 function isMobileDevice() {
@@ -188,6 +231,49 @@ async function requestMobileMicrophonePermission() {
             }
         };
     });
+}
+
+// ===================================================
+// 📱 MOBILE DEVICE DETECTION
+// ===================================================
+function isMobileDevice() {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
+
+// ===================================================
+// 📱 MOBILE MICROPHONE GUIDE
+// ===================================================
+function showMobileMicrophoneGuide() {
+    const guideHtml = `
+        <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px;">
+            <div style="background: white; padding: 25px; border-radius: 15px; max-width: 400px; text-align: center;">
+                <h3 style="color: #d32f2f; margin-bottom: 20px;">🎤 Microphone Access Required</h3>
+                <p style="margin-bottom: 15px; color: #333;">To use voice features on mobile:</p>
+                <ol style="text-align: left; color: #555; margin-bottom: 20px;">
+                    <li>Tap the <strong>lock icon 🔒</strong> in your address bar</li>
+                    <li>Select <strong>"Site settings"</strong> or <strong>"Permissions"</strong></li>
+                    <li>Change <strong>Microphone</strong> to <strong>"Allow"</strong></li>
+                    <li>Refresh this page and try again</li>
+                </ol>
+                <button onclick="closeMicrophoneGuide()" style="padding: 12px 24px; background: #4CAF50; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px;">
+                    I've enabled microphone access
+                </button>
+                <button onclick="switchToTextMode(); closeMicrophoneGuide()" style="padding: 12px 24px; background: #f44336; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; margin-left: 10px;">
+                    Use text chat instead
+                </button>
+            </div>
+        </div>
+    `;
+    
+    const guideElement = document.createElement('div');
+    guideElement.innerHTML = guideHtml;
+    guideElement.id = 'microphoneGuide';
+    document.body.appendChild(guideElement);
+}
+
+function closeMicrophoneGuide() {
+    const guide = document.getElementById('microphoneGuide');
+    if (guide) guide.remove();
 }
 
 async function activateMicrophone() {
