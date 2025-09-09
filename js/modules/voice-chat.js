@@ -208,7 +208,11 @@ function initializeSpeechRecognition() {
 function stopListening() {
     if (recognition) {
         recognition.stop();
-        recognition = null;
+        // ✅ ADD THESE LINES TO PROPERLY RESET THE RECOGNITION OBJECT
+        recognition.onresult = null;
+        recognition.onerror = null;
+        recognition.onend = null;
+        recognition = null; // ← This should now work properly
     }
 
     const currentBubble = document.getElementById('currentUserBubble');
