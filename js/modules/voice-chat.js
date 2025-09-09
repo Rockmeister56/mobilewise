@@ -31,13 +31,6 @@ let voiceSpeed = 1.0;
 // Processing flags
 let isProcessingInput = false;
 
-window.debugVoice = function() {
-    debugSpeechRecognition();
-    if (recognition) {
-        console.log('🎤 Current recognition state:', recognition.state);
-    }
-};
-
 function startVoiceChat() {
     console.log('🎤 startVoiceChat() called from splash screen');
     
@@ -244,49 +237,51 @@ function startListening() {
         };
 
         recognition.onresult = function(event) {
-            console.log('🎤✅ Speech recognition result received');
-            console.log('📊 Results length:', event.results.length);
-            console.log('🔢 Result index:', event.resultIndex);
-            
-            let interimTranscript = '';
-            let finalTranscript = '';
+    console.log('🎤✅ Speech recognition result received');
+    
+    let interimTranscript = '';
+    let finalTranscript = '';
 
-            for (let i = event.resultIndex; i < event.results.length; i++) {
-                const result = event.results[i];
-                const transcript = result[0].transcript;
-                const confidence = result[0].confidence;
-                
-                console.log(`   📝 Result ${i}: "${transcript}" (Confidence: ${confidence}, Final: ${result.isFinal})`);
-                
-                if (result.isFinal) {
-                    finalTranscript += transcript;
-                } else {
-                    interimTranscript += transcript;
-                }
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+        const result = event.results[i];
+        const transcript = result[0].transcript;
+        const confidence = result[0].confidence;
+        
+        if (result.isFinal) {
+            finalTranscript += transcript;
+        } else {
+            interimTranscript += transcript;
+        }
+    }
+
+    // ⚡ SHOW INTERIM RESULTS INSTANTLY
+    const currentBubble = document.getElementById('currentUserBubble');
+    if (currentBubble && interimTranscript) {
+        const bubbleElement = currentBubble.querySelector('.bubble-text');
+        if (bubbleElement) {
+            // ⚡ UPDATE IN REAL-TIME, NOT JUST ON FINAL
+            bubbleElement.textContent = interimTranscript || 'Listening...';
+            scrollToBottom();
+        }
+    }
+
+    // Process final transcript when ready
+    if (finalTranscript) {
+        console.log('✅✅✅ SUCCESS: Final transcript processed:', finalTranscript);
+        
+        // ⚡ UPDATE BUBBLE WITH FINAL TEXT IMMEDIATELY
+        if (currentBubble) {
+            const bubbleElement = currentBubble.querySelector('.bubble-text');
+            if (bubbleElement) {
+                bubbleElement.textContent = finalTranscript;
             }
-
-            console.log('📋 Interim transcript:', interimTranscript);
-            console.log('📋 Final transcript:', finalTranscript);
-
-            const currentBubble = document.getElementById('currentUserBubble');
-            if (currentBubble) {
-                const displayText = finalTranscript + interimTranscript;
-                if (displayText.trim()) {
-                    const bubbleElement = currentBubble.querySelector('.bubble-text');
-                    if (bubbleElement) {
-                        bubbleElement.textContent = displayText;
-                    }
-                    scrollToBottom();
-                }
-            }
-
-            if (finalTranscript) {
-                console.log('✅✅✅ SUCCESS: Final transcript processed:', finalTranscript);
-                setTimeout(() => {
-                    processUserResponse(finalTranscript);
-                }, 500);
-            }
-        };
+        }
+        
+        setTimeout(() => {
+            processUserResponse(finalTranscript);
+        }, 300); // Faster processing
+    }
+};
 
         recognition.onerror = function(event) {
             console.error('❌❌❌ SPEECH RECOGNITION ERROR:', event.error);
@@ -1278,7 +1273,7 @@ function createAndSpeakUtterance(message) {
                 } catch (error) {
                     console.log('❌ Recognition restart error:', error);
                 }
-            }, 1500);
+            }, 800); // ⚡ REDUCED FROM 1500ms TO 800ms
         }
     };
 
@@ -1295,7 +1290,7 @@ function createAndSpeakUtterance(message) {
                 startListening();
             }
         }
-    }, 15000); // 15 second fallback
+    }, 10000); // 10 second fallback (reduced from 15)
     
     utterance.onerror = function(event) {
         console.log('❌ Speech error:', event.error);
@@ -1307,88 +1302,27 @@ function createAndSpeakUtterance(message) {
     currentAudio = utterance;
 }
 
-// ✅ Extract utterance creation to separate function
-function createAndSpeakUtterance(message) {
-    const utterance = new SpeechSynthesisUtterance(message);
-    
-    // ✅ SLOWER RATE FOR MOBILE - prevents word clipping
-    utterance.rate = isMobileDevice() ? 0.9 : 1.0;
-    utterance.pitch = 1.0;
-    utterance.volume = isMobileDevice() ? 0.95 : 0.9; // Slightly louder on mobile
-    
-utterance.onend = function() {
-    isSpeaking = false;
-    console.log('✅ AI finished speaking');
-    console.log('🔍 Debug - isAudioMode:', isAudioMode, 'isListening:', isListening);
-    console.log('🔍 Debug - recognition object:', recognition);
-    console.log('🔍 Debug - recognition state:', recognition ? recognition.state : 'null');
-    
-    // Clear bubble reference
-    currentUserBubble = null;
-    
-    // START LISTENING AFTER SPEAKING ENDS
-    if (isAudioMode && !isListening) {  // ← REMOVED the !recognition check!
-        setTimeout(() => {
-            try {
-                console.log('🔄 Starting listening after speech completed');
-                if (typeof createRealtimeBubble === 'function') {
-                    createRealtimeBubble();
-                }
-                startListening();
-            } catch (error) {
-                console.log('❌ Recognition restart error:', error);
-            }
-        }, 1500);
-    }
-};
-
-// ✅ ADD A FALLBACK TIMER in case onend doesn't fire
-setTimeout(() => {
-    if (isSpeaking) {
-        console.log('🔄 Fallback timer - forcing speech end');
-        isSpeaking = false;
-        currentUserBubble = null;
-        
-        if (isAudioMode && !isListening) {
-            console.log('🔄 Fallback - starting listening');
-            createRealtimeBubble();
-            startListening();
-        }
-    }
-}, 15000); // 5 second fallback
-    
-    utterance.onerror = function(event) {
-        console.log('❌ Speech error:', event.error);
-        isSpeaking = false;
-        currentUserBubble = null; // ← ADD: Clear bubble on error too
-    };
-    
-    window.speechSynthesis.speak(utterance);
-    currentAudio = utterance; // ← KEEP: Your audio reference system
-}
-
-// ← KEEP: Your stopCurrentAudio function is perfect!
 function stopCurrentAudio() {
     if (window.speechSynthesis) {
         window.speechSynthesis.cancel();
     }
     currentAudio = null;
     isSpeaking = false;
-    currentUserBubble = null; // ← ADD: Clear bubble when stopping
+    currentUserBubble = null;
 
     setTimeout(() => {
-    if (isSpeaking) {
-        console.log('🔄 Fallback timer - forcing speech end');
-        isSpeaking = false;
-        currentUserBubble = null;
-        
-        if (isAudioMode && !isListening) {  // ← REMOVED: && !recognition
-            console.log('🔄 Fallback - starting listening');
-            createRealtimeBubble();
-            startListening();
+        if (isSpeaking) {
+            console.log('🔄 Fallback timer - forcing speech end');
+            isSpeaking = false;
+            currentUserBubble = null;
+            
+            if (isAudioMode && !isListening) {
+                console.log('🔄 Fallback - starting listening');
+                createRealtimeBubble();
+                startListening();
+            }
         }
-    }
-}, 10000); // 10 second fallback
+    }, 10000);
 }
 
 // ===================================================
@@ -1488,6 +1422,29 @@ function scrollToBottom() {
 
 // Make it globally available
 window.createRealtimeBubble = createRealtimeBubble;
+
+window.debugVoice = function() {
+    debugSpeechRecognition();
+    if (recognition) {
+        console.log('🎤 Current recognition state:', recognition.state);
+    }
+};
+
+window.debugVoice = function() {
+    console.log('🔍 VOICE DEBUG COMMAND');
+    console.log('======================');
+    console.log('🎤 Microphone permission:', micPermissionGranted);
+    console.log('🔊 Is speaking:', isSpeaking);
+    console.log('👂 Is listening:', isListening);
+    console.log('🎯 Audio mode:', isAudioMode);
+    console.log('📱 Is mobile:', isMobileDevice());
+    
+    if (recognition) {
+        console.log('✅ Recognition object exists, state:', recognition.state);
+    } else {
+        console.log('❌ No recognition object');
+    }
+};
 
 
 // ===================================================
