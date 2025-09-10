@@ -599,7 +599,6 @@ function stopListeningProcess() {
     const micButton = document.getElementById('micButton');
     if (micButton) {
         micButton.classList.remove('listening');
-        micButton.textContent = 'Conversation Complete';
     }
     
     // Set flags to prevent restart
