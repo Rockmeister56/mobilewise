@@ -429,144 +429,45 @@
 }
 
 
-     /* ===================================================
-   📱 MOBILE FULL SCREEN OPTIMIZATION
-   ================================================== */
+        /* ===================================================
+           📱 MOBILE RESPONSIVE DESIGN
+           ================================================== */
 
-/* Full viewport height on mobile */
-@media (max-width: 600px) {
-    body {
-        padding: 10px; /* Reduced padding on mobile */
-        min-height: 95vh;
-        height: 95vh; /* Force full height */
-    }
-    
-    .container {
-        padding: 10px; /* Reduced container padding */
-        height: calc(50vh - 20px); /* Full height minus body padding */
-        display: flex;
-        flex-direction: column;
-        max-height: 100vh; /* Prevent overflow */
-    }
-    
-    /* Make chat messages take up more space */
-    .chat-messages {
-        height: 45vh; /* Increased from 40vh to 50vh */
-        flex: 1; /* Allow it to grow */
-        min-height: 300px; /* Minimum height */
-    }
-    
-    /* Compact header on mobile */
-    header {
-        margin-bottom: 10px; /* Reduced margin */
-    }
-    
-    h1 {
-        font-size: 1.6rem; /* Slightly smaller to save space */
-        margin-bottom: 5px;
-    }
-    
-    .subtitle {
-        font-size: 0.9rem;
-        margin-bottom: 5px;
-    }
-    
-    /* Compact spacing for mobile */
-    .smart-button {
-        margin-bottom: 10px; /* Reduced margin */
-        padding: 12px; /* Slightly smaller padding */
-        font-size: 14px;
-    }
-    
-    .mic-status {
-        margin-bottom: 10px; /* Reduced margin */
-        padding: 8px;
-    }
-    
-    .live-transcript-area {
-        height: 45px; /* Slightly smaller */
+           @media (max-width: 600px) {
+    .chat-container {
+        height: 40vh !important; /* Reduced from 50vh - gives you that 10% back */
+        max-height: 40vh;
+        overflow-y: auto;
         margin-bottom: 10px;
     }
     
-    .input-area {
-        margin-bottom: 10px; /* Reduced margin */
+    .input-section {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        padding: 10px;
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+        z-index: 1000;
     }
     
-    .quick-questions {
-        margin-bottom: 10px; /* Reduced margin */
-        gap: 8px; /* Smaller gap */
+    .quick-buttons {
+        margin-bottom: 8px;
+        max-height: 60px;
+        overflow-x: auto;
+        white-space: nowrap;
     }
     
-    .quick-btn {
-        font-size: 0.75rem; /* Smaller text */
-        padding: 6px 10px; /* Smaller padding */
-        min-width: 100px; /* Smaller minimum width */
+    .send-button {
+        min-height: 44px; /* iOS touch target standard */
+        margin-top: 5px;
     }
     
-    /* Make buttons more compact */
-    .mic-btn {
-        width: 40px;
-        height: 40px;
-        font-size: 1.2rem;
-    }
-    
-    button {
-        padding: 10px 18px; /* Smaller button padding */
-        font-size: 0.9rem;
-    }
-    
-    input {
-        padding: 12px; /* Smaller input padding */
-        font-size: 16px; /* Prevents zoom on iOS */
-    }
-}
-
-/* Extra small mobile devices */
-@media (max-width: 400px) {
+    /* Add bottom padding to body to prevent content hiding */
     body {
-        padding: 5px; /* Even less padding on very small screens */
-    }
-    
-    .container {
-        padding: 8px;
-        height: calc(100vh - 10px);
-    }
-    
-    .chat-messages {
-        height: 55vh; /* Even more space for chat on tiny screens */
-    }
-    
-    h1 {
-        font-size: 1.4rem;
-    }
-    
-    .quick-btn {
-        font-size: 0.7rem;
-        padding: 5px 8px;
-        min-width: 90px;
-    }
-}
-
-/* Landscape mobile orientation */
-@media (max-width: 900px) and (orientation: landscape) {
-    .container {
-        height: calc(100vh - 10px);
-    }
-    
-    .chat-messages {
-        height: 40vh; /* Smaller in landscape to fit controls */
-    }
-    
-    header {
-        margin-bottom: 5px;
-    }
-    
-    h1 {
-        font-size: 1.5rem;
-    }
-    
-    .subtitle {
-        font-size: 0.8rem;
+        padding-bottom: 120px;
     }
 }
        
