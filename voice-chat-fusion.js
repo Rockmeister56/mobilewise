@@ -191,7 +191,7 @@ function stopListening() {
 }
 
 // ===================================================
-// 🎤 MICROPHONE ACTIVATION SYSTEM - COMPLETE & FIXED
+// 🎤 MICROPHONE ACTIVATION SYSTEM - FIXED
 // ===================================================
 async function activateMicrophone() {
     console.log('🎤 Activating microphone...');
@@ -210,22 +210,12 @@ async function activateMicrophone() {
             micPermissionGranted = true;
             isAudioMode = true;
 
-            // Update UI - ADD BUTTON TEXT CHANGE
+            // Update UI
             const micButton = document.getElementById('micButton');
-            if (micButton) {
-                micButton.classList.add('listening');
-                micButton.textContent = 'Microphone activated'; // ADD THIS LINE
-            }
+            if (micButton) micButton.classList.add('listening');
             
             // Initialize speech recognition
             initializeSpeechRecognition();
-
-            // AI greeting - UPDATED MESSAGE
-            setTimeout(() => {
-                const greeting = "Hi! I'm Bruce's assistant. How can I help you?";
-                addAIMessage(greeting);
-                speakResponse(greeting);
-            }, 500);
 
         } else {
             throw new Error('Microphone permission denied');
@@ -247,7 +237,6 @@ async function activateMicrophone() {
         switchToTextMode();
     }
 }
-
 
 
 // ===================================================
