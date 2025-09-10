@@ -210,51 +210,69 @@ document.getElementById('mainMicButton').addEventListener('click', async functio
 });
 
 // ===================================================
-// 🛑 CREATE STOP BUTTON FUNCTION
+// 🛑 STOP BUTTON UNDER QUICK BUTTONS
 // ===================================================
-function createStopButton() {
-    const stopButton = document.createElement('button');
-    stopButton.id = 'voiceStopButton';
-    stopButton.innerHTML = '🛑 Stop';
-    stopButton.style = `
-        position: fixed;
-        top: 10px;
-        right: 10px;
-        background: linear-gradient(45deg, #ff4757, #ff3838);
-        border: none;
-        border-radius: 20px;
-        padding: 10px 15px;
-        color: white;
-        font-weight: bold;
-        cursor: pointer;
-        z-index: 1000;
-        box-shadow: 0 3px 10px rgba(255,71,87,0.3);
-        display: none;
-    `;
+function createUnderQuickStopButton() {
+    // Find quick buttons container
+    const quickButtonsContainer = document.querySelector('.quick-buttons') || 
+                                 document.querySelector('[class*="quick"]') ||
+                                 document.querySelector('[class*="button"]');
     
-    // Add click handler
-    stopButton.onclick = function() {
-        stopVoiceChat();
-        this.style.display = 'none';
-    };
-    
-    document.body.appendChild(stopButton);
-}
-
-function stopVoiceChat() {
-    if (window.recognition) window.recognition.stop();
-    if (window.speechSynthesis) window.speechSynthesis.cancel();
-}
-
-function stopVoiceChat() {
-    // Stop all voice recognition
-    if (window.recognition) {
-        window.recognition.stop();
+    if (quickButtonsContainer) {
+        // Create stop button
+        const stopButton = document.createElement('button');
+        stopButton.id = 'underQuickStopButton';
+        stopButton.innerHTML = '🛑 Stop Voice Chat';
+        stopButton.style = `
+            width: 100%;
+            background: linear-gradient(45deg, #ff4757, #ff3838);
+            border: none;
+            border-radius: 25px;
+            padding: 12px 20px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+            box-shadow: 0 3px 10px rgba(255,71,87,0.3);
+            display: none;
+            font-size: 14px;
+        `;
+        
+        // Add click handler
+        stopButton.onclick = function() {
+            safeStopVoiceChat();
+            this.style.display = 'none';
+        };
+        
+        // Insert AFTER quick buttons
+        quickButtonsContainer.parentNode.insertBefore(stopButton, quickButtonsContainer.nextSibling);
     }
-    
-    // Stop any speaking
-    if (window.speechSynthesis) {
-        window.speechSynthesis.cancel();
+}
+
+// ===================================================
+// 🛑 SAFE STOP FUNCTION (prevents "switch to text" error)
+// ===================================================
+function safeStopVoiceChat() {
+    try {
+        if (window.recognition) {
+            window.recognition.stop();
+            window.recognition.abort();
+        }
+        if (window.speechSynthesis) {
+            window.speechSynthesis.cancel();
+        }
+        
+        // Reset states safely
+        if (typeof micPermissionGranted !== 'undefined') {
+            micPermissionGranted = false;
+        }
+        if (typeof isAudioMode !== 'undefined') {
+            isAudioMode = false;
+        }
+        
+        console.log('Voice chat stopped safely');
+    } catch (error) {
+        console.log('Stop error (non-critical):', error);
     }
 }
 
