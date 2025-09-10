@@ -191,9 +191,6 @@ function stopListening() {
 }
 
 // ===================================================
-// 🎤 MICROPHONE ACTIVATION SYSTEM - FIXED
-// ===================================================
-// ===================================================
 // 🎤 MICROPHONE ACTIVATION SYSTEM - COMPLETE & FIXED
 // ===================================================
 async function activateMicrophone() {
@@ -228,7 +225,7 @@ async function activateMicrophone() {
                 const greeting = "Hi! I'm Bruce's assistant. How can I help you?";
                 addAIMessage(greeting);
                 speakResponse(greeting);
-            }, 500);
+            }, 1500);
 
         } else {
             throw new Error('Microphone permission denied');
