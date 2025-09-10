@@ -198,6 +198,15 @@ document.getElementById('mainMicButton').addEventListener('click', async functio
     // Activate microphone
     await activateMicrophone();
     
+    // Transform original button into STOP button
+    // const originalMicButton = document.getElementById('micButton');
+    if (originalMicButton) {
+        originalMicButton.textContent = '🛑 Stop Chat';
+        originalMicButton.onclick = function() {
+            stopVoiceChat();
+            location.reload(); // Reset everything
+        };
+    }
 });
 
 // ===================================================
