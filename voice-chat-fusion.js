@@ -852,7 +852,12 @@ document.addEventListener('DOMContentLoaded', function() {
     
     optimizeForMobile();
     initializeChatInterface();
-    createStopButton(); // ADD THIS LINE
+    // Add to your initialization
+    createUnderQuickStopButton();
+
+// Show it when voice starts (in activateMicrophone)
+document.getElementById('underQuickStopButton').style.display = 'block';
+   
     
     // 🎯 CLEAN PAGE LOAD - NO BUBBLES
     const micButton = document.getElementById('micButton');
