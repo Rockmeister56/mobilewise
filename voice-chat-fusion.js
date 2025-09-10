@@ -70,20 +70,6 @@ function showMicActivatedStatus() {
     }
 }
 
-function startAutoWelcome() {
-    const welcomeMessage = "Welcome! I'm Bruce Clark's AI assistant. What can I help you with today?";
-    
-    // Speak the welcome message
-    speakText(welcomeMessage);
-    
-    // Add to chat display
-    addMessageToChat('ai', welcomeMessage);
-}
-
-// CALL THIS AFTER MICROPHONE PERMISSION IS GRANTED
-// Add this line after: navigator.mediaDevices.getUserMedia({audio: true})
-startAutoWelcome();
-
 // ===================================================
 // 🎤 SPEECH RECOGNITION SYSTEM (MOBILE-OPTIMIZED)
 // ===================================================
@@ -257,6 +243,39 @@ async function activateMicrophone() {
         addAIMessage(errorMessage);
         switchToTextMode();
     }
+}
+
+// 🎯 BETTER AUTO-WELCOME FUNCTION
+function startAutoWelcome() {
+    const welcomeMessage = "Welcome! I'm Bruce Clark's AI assistant. What can I help you with today?";
+    
+    // Wait for voice system to be fully ready
+    const checkVoiceReady = setInterval(() => {
+        if (typeof speakText === 'function' && window.speechSynthesis) {
+            clearInterval(checkVoiceReady);
+            
+            // Small delay to ensure everything is loaded
+            setTimeout(() => {
+                speakText(welcomeMessage);
+                addMessageToChat('ai', welcomeMessage);
+            }, 1000);
+        }
+    }, 500); // Check every 500ms
+}
+
+// 🚀 ALTERNATIVE SAFER APPROACH (if above doesn't work)
+function startAutoWelcomeSimple() {
+    const welcomeMessage = "Welcome! I'm Bruce Clark's AI assistant. What can I help you with today?";
+    
+    // Just add to chat first, speak later
+    addMessageToChat('ai', welcomeMessage);
+    
+    // Wait longer for voice system
+    setTimeout(() => {
+        if (typeof speakText === 'function') {
+            speakText(welcomeMessage);
+        }
+    }, 3000); // Wait 3 seconds for everything to load
 }
 
 // ===================================================
