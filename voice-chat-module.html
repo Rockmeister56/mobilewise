@@ -682,15 +682,20 @@ box-shadow: 0 15px 40px rgba(33, 150, 243, 0.4);
 
         <div class="chat-container" id="chatContainer">
 
-            <div class="splash-screen" id="splashScreen" style="display: flex;">
-    <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1756759204638_for%20microphone%20access4.png" alt="Mobile-Wise AI Formviser">
-    <button class="activate-mic-btn" onclick="startVoiceChat()">
-    🎤 Activate Voice Chat
-</button>
-</div>
+            <div class="chat-interface" id="chatInterface" style="display: flex;">
 
         <!-- Main Chat Interface -->
         <div class="chat-interface" id="chatInterface" style="display: none;">
+
+            <!-- 🎤 ADD THIS MOBILE MICROPHONE ACTIVATION SECTION -->
+    <div class="mobile-mic-activation" style="text-align: center; padding: 15px; margin-bottom: 15px; background: rgba(33, 150, 243, 0.1); border-radius: 10px; border: 1px solid rgba(33, 150, 243, 0.3);">
+        <button id="activateMobileVoice" class="activate-mobile-voice-btn" onclick="activateMicrophone()">
+            🎤 Activate Voice Chat
+        </button>
+        <p style="font-size: 12px; color: #666; margin-top: 8px;">
+            Tap to enable microphone for voice interaction
+        </p>
+    </div>
 
             <!-- Chat Header -->
             <button id="smartButton" onclick="handleSmartButtonClick()">AI Smart Button</button>
