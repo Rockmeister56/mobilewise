@@ -532,15 +532,18 @@ function getAIResponse(userInput) {
     } else if (conversationState === 'contact_today' || conversationState === 'contact_tomorrow' || conversationState === 'contact_valuation') {
         const phoneMatch = userText.match(/\b(\d{3}[-.]?\d{3}[-.]?\d{4})\b/);
         if (phoneMatch) {
-    responseText = "Perfect! Bruce will call you at " + phoneMatch[0] + "."; 
+    responseText = "Perfect! Bruce will call you at " + phoneMatch[0] + ".";
     conversationState = 'completed';
-    shouldShowSmartButton = false;
     
-    // 🎉 TRIGGER BANNER IMMEDIATELY 
-    showThankYouBanner();
+    // 🎉 TRANSFORM SMART BUTTON TO THANK YOU MESSAGE
+    shouldShowSmartButton = true;
+    smartButtonText = '🎉 Thank You For Visiting Us! 🎉';
+    smartButtonAction = 'thank_you_complete';
     
-    // 🛑 STOP ALL LISTENING PROCESSES
-    stopListeningProcess();
+    // 🛑 STOP LISTENING AFTER RESPONSE
+    setTimeout(() => {
+        stopListeningProcess();
+    }, 2000);
             
         } else if (userText.includes('phone') || userText.includes('number') || userText.includes('call') ||
                    userText.includes('contact') || userText.includes('reach')) {
@@ -657,10 +660,18 @@ function handleSmartButtonClick() {
         case 'connect_bruce':
             simulateUserMessage("I'd like to connect with Bruce");
             break;
-            
+
+             // 🎉 ADD THIS NEW CASE FOR THANK YOU
+        case 'thank_you_complete':
+            addAIMessage("Thank you for choosing Mobile-Wise AI services! Bruce will be in touch soon. Have a wonderful day!");
+            shouldShowSmartButton = false;
+            conversationState = 'ended';
+            stopListeningProcess();
+            break;
+        
         default:
             console.log('Smart button clicked - no specific action defined');
-            simulateUserMessage("I need help with my practice");
+            simulateUserMessage("I need help with my practice")
     }
 }
 
