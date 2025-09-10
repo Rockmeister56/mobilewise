@@ -198,64 +198,53 @@ document.getElementById('mainMicButton').addEventListener('click', async functio
     // Activate microphone
     await activateMicrophone();
     
-    // Transform original button into STOP button
-    const originalMicButton = document.getElementById('micButton');
-    if (originalMicButton) {
-        originalMicButton.textContent = '🛑 Stop Chat';
-        originalMicButton.onclick = function() {
-            stopVoiceChat();
-            location.reload(); // Reset everything
-        };
-    }
 });
 
 // ===================================================
-// 🛑 CREATE STOP BUTTON FUNCTION
+// 🛑 CREATE SLEEK STOP TAB FUNCTION
 // ===================================================
-function createStopButton() {
-    const stopButton = document.createElement('button');
-    stopButton.id = 'voiceStopButton';
-    stopButton.innerHTML = '🛑 Stop';
-    stopButton.style = `
+function createStopTab() {
+    const stopTab = document.createElement('div');
+    stopTab.id = 'voiceStopTab';
+    stopTab.innerHTML = `
+        <div style="writing-mode: vertical-rl; text-orientation: mixed;">
+            🛑 STOP
+        </div>
+    `;
+    stopTab.style = `
         position: fixed;
-        top: 20px;
-        right: 20px;
-        background: linear-gradient(45deg, #ff4757, #ff3838);
-        border: none;
-        border-radius: 25px;
-        padding: 10px 15px;
+        top: 50%;
+        right: 0;
+        transform: translateY(-50%);
+        background: linear-gradient(135deg, #ff4757, #ff3838);
         color: white;
-        font-weight: bold;
+        padding: 15px 8px;
+        border-radius: 15px 0 0 15px;
         cursor: pointer;
         z-index: 1000;
-        box-shadow: 0 3px 10px rgba(255,71,87,0.3);
+        box-shadow: -3px 0 10px rgba(255,71,87,0.3);
+        font-weight: bold;
+        font-size: 12px;
         display: none;
+        transition: all 0.3s ease;
     `;
     
-    // Add click handler
-    stopButton.onclick = function() {
+    // Hover effect
+    stopTab.onmouseover = () => stopTab.style.right = '-5px';
+    stopTab.onmouseout = () => stopTab.style.right = '0px';
+    
+    // Click handler
+    stopTab.onclick = function() {
         stopVoiceChat();
         this.style.display = 'none';
     };
     
-    document.body.appendChild(stopButton);
+    document.body.appendChild(stopTab);
 }
 
 function stopVoiceChat() {
     if (window.recognition) window.recognition.stop();
     if (window.speechSynthesis) window.speechSynthesis.cancel();
-}
-
-function stopVoiceChat() {
-    // Stop all voice recognition
-    if (window.recognition) {
-        window.recognition.stop();
-    }
-    
-    // Stop any speaking
-    if (window.speechSynthesis) {
-        window.speechSynthesis.cancel();
-    }
 }
 
 // ===================================================
