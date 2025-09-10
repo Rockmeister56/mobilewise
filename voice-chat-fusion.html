@@ -335,10 +335,16 @@
         /* ===================================================
            📱 MOBILE RESPONSIVE DESIGN
            ================================================== */
-        @media (max-width: 650px) {
-            .container {
-                padding: 10px;
-            }
+
+            .chat-container, 
+    .input-section,
+    .quick-buttons,
+    .send-button {
+        width: calc(100vw - 20px) !important;
+        max-width: none !important;
+        margin-left: 10px !important;
+        margin-right: 10px !important;
+    }
             
             h1 {
                 font-size: 1.8rem;
@@ -378,15 +384,6 @@
         box-sizing: border-box !important;
     }
     
-    .chat-container, 
-    .input-section,
-    .quick-buttons,
-    .send-button {
-        width: calc(100vw - 20px) !important;
-        max-width: none !important;
-        margin-left: 10px !important;
-        margin-right: 10px !important;
-    }
 }
 
         /* ===================================================
