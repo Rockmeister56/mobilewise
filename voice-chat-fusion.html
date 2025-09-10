@@ -491,6 +491,102 @@ input[type="text"],
     }
 }
 
+/* ===================================================
+   🎉 CONVERSION CELEBRATION ANIMATIONS
+   ================================================== */
+
+/* Confetti Animation */
+.confetti {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    z-index: 10000;
+    pointer-events: none;
+}
+
+.confetti-piece {
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    animation: confetti-fall 3s linear forwards;
+}
+
+@keyframes confetti-fall {
+    0% {
+        transform: translateY(-100vh) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100vh) rotate(720deg);
+        opacity: 0;
+    }
+}
+
+/* Success Banner */
+.success-banner {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #4CAF50, #8BC34A);
+    color: white;
+    padding: 20px 30px;
+    border-radius: 25px;
+    font-size: 18px;
+    font-weight: bold;
+    z-index: 9999;
+    box-shadow: 0 10px 30px rgba(76, 175, 80, 0.4);
+    animation: banner-bounce 0.6s ease-out;
+}
+
+@keyframes banner-bounce {
+    0% { 
+        transform: translateX(-50%) scale(0.3);
+        opacity: 0;
+    }
+    60% { 
+        transform: translateX(-50%) scale(1.1);
+        opacity: 1;
+    }
+    100% { 
+        transform: translateX(-50%) scale(1);
+        opacity: 1;
+    }
+}
+
+/* Victory Message Animation */
+.victory-message {
+    background: linear-gradient(135deg, #FFD700, #FFA500) !important;
+    animation: victory-glow 2s ease-in-out infinite alternate;
+    border: 2px solid #FFD700;
+}
+
+@keyframes victory-glow {
+    0% { 
+        box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+    }
+    100% { 
+        box-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
+    }
+}
+
+/* Conversion Complete Overlay */
+.conversion-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(76, 175, 80, 0.1);
+    z-index: 5000;
+    pointer-events: none;
+    animation: overlay-pulse 2s ease-in-out;
+}
+
+@keyframes overlay-pulse {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 1; }
+}
 
         /* ===================================================
            🔧 UTILITY CLASSES

@@ -378,7 +378,7 @@ function stopCurrentAudio() {
 }
 
 // ===================================================
-// 🧠 AI RESPONSE SYSTEM (FROM voice-chat.html)
+// 🧠 AI RESPONSE SYSTEM WITH CELEBRATION INTEGRATION
 // ===================================================
 function getAIResponse(userInput) {
     const userText = userInput.toLowerCase();
@@ -473,9 +473,15 @@ function getAIResponse(userInput) {
     } else if (conversationState === 'contact_today' || conversationState === 'contact_tomorrow' || conversationState === 'contact_valuation') {
         const phoneMatch = userText.match(/\b(\d{3}[-.]?\d{3}[-.]?\d{4})\b/);
         if (phoneMatch) {
-            responseText = "Perfect! Bruce will call you at " + phoneMatch[0] + ". Is there anything else I can help you with today?";
+            responseText = "Perfect! Bruce will call you at " + phoneMatch[0] + ". Thank you for choosing our services!";
             conversationState = 'completed';
             shouldShowSmartButton = false;
+            
+            // 🎉 TRIGGER VICTORY SEQUENCE AFTER AI SPEAKS
+            setTimeout(() => {
+                triggerConversionComplete();
+            }, 3000); // Give time for AI to finish speaking
+            
         } else if (userText.includes('phone') || userText.includes('number') || userText.includes('call') ||
                    userText.includes('contact') || userText.includes('reach')) {
             responseText = "Great! What's the best phone number for Bruce to reach you? Please say the 10-digit number clearly.";
@@ -493,6 +499,7 @@ function getAIResponse(userInput) {
 
     return responseText;
 }
+
 
 // ===================================================
 // 🔵 SMART BUTTON SYSTEM (FROM voice-chat.html)
