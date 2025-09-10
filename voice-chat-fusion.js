@@ -746,7 +746,7 @@ function initializeChatInterface() {
 
 // 🎯 BETTER AUTO-WELCOME FUNCTION
 function startAutoWelcome() {
-    const welcomeMessage = "Welcome! I'm Bruce Clark's AI assistant. What can I help you with today?";
+    const welcomeMessage = "Welcome!";
     
     // Wait for voice system to be fully ready
     const checkVoiceReady = setInterval(() => {
