@@ -210,55 +210,6 @@ document.getElementById('mainMicButton').addEventListener('click', async functio
 });
 
 // ===================================================
-// 🛑 CREATE STOP BUTTON FUNCTION
-// ===================================================
-function createStopButton() {
-    const stopButton = document.createElement('button');
-    stopButton.id = 'voiceStopButton';
-    stopButton.innerHTML = '🛑 Stop';
-    stopButton.style = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: linear-gradient(45deg, #ff4757, #ff3838);
-        border: none;
-        border-radius: 25px;
-        padding: 10px 15px;
-        color: white;
-        font-weight: bold;
-        cursor: pointer;
-        z-index: 1000;
-        box-shadow: 0 3px 10px rgba(255,71,87,0.3);
-        display: none;
-    `;
-    
-    // Add click handler
-    stopButton.onclick = function() {
-        stopVoiceChat();
-        this.style.display = 'none';
-    };
-    
-    document.body.appendChild(stopButton);
-}
-
-function stopVoiceChat() {
-    if (window.recognition) window.recognition.stop();
-    if (window.speechSynthesis) window.speechSynthesis.cancel();
-}
-
-function stopVoiceChat() {
-    // Stop all voice recognition
-    if (window.recognition) {
-        window.recognition.stop();
-    }
-    
-    // Stop any speaking
-    if (window.speechSynthesis) {
-        window.speechSynthesis.cancel();
-    }
-}
-
-// ===================================================
 // 🎤 MICROPHONE ACTIVATION SYSTEM - COMPLETE & FIXED
 // ===================================================
 async function activateMicrophone() {
