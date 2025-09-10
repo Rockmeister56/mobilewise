@@ -705,7 +705,7 @@ function initializeChatInterface() {
     }
     
     // Add welcome message
-    addAIMessage("Welcome to Voice Chat! Please allow microphone access to use voice features.");
+    // addAIMessage("Welcome to Voice Chat! Please allow microphone access to use voice features.");
     
     // Set up event listeners
     const micButton = document.getElementById('micButton');
