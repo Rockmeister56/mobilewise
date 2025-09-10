@@ -342,6 +342,25 @@
         min-height: 100vh;
         height: 100vh; /* Force full height */
     }
+
+    /* Reduce Chat Area Height */
+.chat-messages,
+.messages-container,
+#chat-area,
+.conversation-area {
+    height: 35vh !important;
+    max-height: 35vh !important;
+    overflow-y: auto !important;
+}
+
+/* Reduce Text Input Width */
+.text-input,
+input[type="text"],
+.message-input,
+#user-input {
+    width: 85% !important;
+    max-width: 85% !important;
+}
     
     .container {
         padding: 10px; /* Reduced container padding */
