@@ -102,6 +102,106 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ===================================================
+// 📱 MOBILE PERMISSION OVERLAY HANDLER
+// ===================================================
+
+// ===================================================
+// 📱 MOBILE MICROPHONE PERMISSION HANDLER
+// ===================================================
+
+async function handleMobileMicrophonePermission() {
+    return new Promise(async (resolve) => {
+        console.log('📱 Starting mobile microphone permission flow...');
+        
+        // First, close ANY potential overlays or popups
+        closeAllOverlays();
+        
+        // Wait a moment for the DOM to settle
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        try {
+            // Try to get microphone access directly first
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            stream.getTracks().forEach(track => track.stop());
+            console.log('✅ Mobile microphone permission granted directly');
+            resolve(true);
+            return;
+        } catch (error) {
+            console.log('📱 Direct permission failed, showing instruction overlay...');
+        }
+        
+        // If direct permission failed, show user instructions
+        const overlay = document.createElement('div');
+        overlay.id = 'mobile-permission-guide';
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.9);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        `;
+        
+        overlay.innerHTML = `
+            <div style="background: white; padding: 25px; border-radius: 15px; max-width: 400px; text-align: center;">
+                <h3 style="color: #d32f2f; margin-bottom: 20px;">🎤 Microphone Permission Required</h3>
+                <p style="margin-bottom: 15px; color: #333;">To use voice features:</p>
+                <ol style="text-align: left; color: #555; margin-bottom: 20px;">
+                    <li>Tap <strong>"Allow"</strong> on the browser permission popup</li>
+                    <li>If no popup appears, <strong>close all other tabs/popups</strong></li>
+                    <li>Ensure no other apps are using your microphone</li>
+                    <li>Tap the button below to retry</li>
+                </ol>
+                <div style="display: flex; gap: 10px; justify-content: center;">
+                    <button onclick="retryMicrophonePermission(true)" style="padding: 12px 24px; background: #4CAF50; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px;">
+                        🎤 Try Again
+                    </button>
+                    <button onclick="retryMicrophonePermission(false)" style="padding: 12px 24px; background: #f44336; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px;">
+                        Use Text Chat
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(overlay);
+        
+        // Add global functions for the buttons
+        window.retryMicrophonePermission = async function(granted) {
+            closeAllOverlays();
+            
+            if (granted) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    stream.getTracks().forEach(track => track.stop());
+                    resolve(true);
+                } catch (error) {
+                    console.log('❌ Mobile permission still denied after retry');
+                    resolve(false);
+                }
+            } else {
+                resolve(false);
+            }
+        };
+    });
+}
+
+function closeAllOverlays() {
+    // Remove any existing overlays
+    const overlays = document.querySelectorAll('#mobile-permission-guide, .mobile-permission-overlay, #microphoneGuide');
+    overlays.forEach(overlay => overlay.remove());
+    
+    // Also try to close any browser-native popups by blurring
+    if (document.activeElement) {
+        document.activeElement.blur();
+    }
+}
+
+// ===================================================
 // 🐛 SPEECH RECOGNITION DEBUGGER
 // ===================================================
 
@@ -660,39 +760,45 @@ function switchToTextMode() {
     console.log('✅ Switched to text mode successfully');
 }
 
+// ===================================================
+// 🎤 ENHANCED ACTIVATE MICROPHONE FUNCTION
+// ===================================================
+
 async function activateMicrophone() {
     console.log('🎤 Activating microphone...');
-
-    // Instead, just check if we're on HTTPS and have basic support
-    if (!window.isSecureContext) {
-        addAIMessage("Microphone access requires HTTPS. Please ensure you're on a secure connection.");
-        return;
-    }
-
-    // ✅ ADD THE SPLASH SCREEN AND CHAT INTERFACE CODE HERE
-    // Hide splash screen
-    const splashScreen = document.getElementById('splashScreen');
-    if (splashScreen) {
-        splashScreen.style.display = 'none';
-        console.log('✅ Splash screen hidden');
+    
+    // Handle mobile differently
+    if (isMobileDevice()) {
+        const permissionGranted = await handleMobileMicrophonePermission();
+        if (!permissionGranted) {
+            addAIMessage("Microphone access was not granted. Switching to text mode.");
+            switchToTextMode();
+            return;
+        }
+    } else {
+        // Desktop handling
+        if (!window.isSecureContext) {
+            addAIMessage("Microphone access requires HTTPS. Please ensure you're on a secure connection.");
+            return;
+        }
     }
     
-    // Show chat interface
+    // UI transition (if not already handled by startVoiceChat)
+    const splashScreen = document.getElementById('splashScreen');
     const chatInterface = document.getElementById('chatInterface');
-    if (chatInterface) {
-        chatInterface.style.display = 'flex';
-        console.log('✅ Chat interface shown');
+    if (splashScreen && splashScreen.style.display !== 'none') {
+        splashScreen.style.display = 'none';
+        if (chatInterface) chatInterface.style.display = 'flex';
     }
 
-    // Use the fallback method directly
+    // Continue with microphone setup
     try {
         const stream = await requestMicrophoneWithFallback();
         persistentMicStream = stream;
         micPermissionGranted = true;
-
         isAudioMode = true;
 
-        // Show appropriate UI
+        // Update UI
         const activateMicBtn = document.getElementById('activateMicBtn');
         const audioOffBtn = document.getElementById('audioOffBtn');
         const voiceContainer = document.getElementById('voiceVisualizerContainer');
@@ -704,7 +810,7 @@ async function activateMicrophone() {
         // Initialize speech recognition
         initializeSpeechRecognition();
 
-        // ✅ ADD THIS BACK - AI GREETING!
+        // AI Greeting
         setTimeout(() => {
             const greeting = "Welcome! I'm Bruce Clark's AI assistant. What can I help you with today?";
             addAIMessage(greeting);
@@ -713,51 +819,8 @@ async function activateMicrophone() {
 
     } catch (error) {
         console.log('❌ Microphone access denied:', error);
-        console.log('🔍 Error name:', error.name);
-        console.log('🔍 Error message:', error.message);
-
-        // Show detailed error message
-        let errorMessage = "Microphone access was denied. ";
-
-        if (error.name === 'NotAllowedError') {
-            errorMessage += "Please check your browser permissions and allow microphone access.";
-        } else if (error.name === 'PermissionDismissedError') {
-            errorMessage += "The permission prompt was dismissed. Please try again and click 'Allow'.";
-        } else if (error.name === 'NotFoundError') {
-            errorMessage += "No microphone found. Please check your device settings.";
-        }
-
-        addAIMessage(errorMessage);
+        addAIMessage("Microphone access was denied. Switching to text mode.");
         switchToTextMode();
-    }
-} // ← MAKE SURE THIS CLOSING BRACE IS HERE!
-
-async function requestMicrophoneWithFallback() {
-    try {
-        // First try the standard way
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        return stream;
-    } catch (error) {
-        console.log('Standard permission failed, trying fallback...');
-        
-        // Create a temporary audio element to trigger permission differently
-        const audio = new Audio();
-        audio.src = 'data:audio/wav;base64,UklGRnoAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoAAAC';
-        audio.volume = 0;
-        
-        return new Promise((resolve, reject) => {
-            audio.oncanplay = async () => {
-                try {
-                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    resolve(stream);
-                } catch (error2) {
-                    reject(error2);
-                }
-            };
-            
-            audio.onerror = () => reject(error);
-            audio.play().catch(reject);
-        });
     }
 }
 
