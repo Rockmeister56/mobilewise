@@ -559,6 +559,29 @@ function getAIResponse(userInput) {
     return responseText;
 }
 
+// 🎉 CELEBRATION FUNCTION (ADD THIS TO YOUR SCRIPT)
+function triggerConversionComplete() {
+    // Create celebration overlay
+    const celebrationOverlay = document.createElement('div');
+    celebrationOverlay.innerHTML = `
+        <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+                    background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4); 
+                    z-index: 9999; display: flex; align-items: center; justify-content: center;
+                    animation: fadeIn 0.5s ease-in;">
+            <div style="text-align: center; color: white; font-size: 2em; font-weight: bold;">
+                🎉 CONVERSION COMPLETE! 🎉<br>
+                <div style="font-size: 1.2em; margin-top: 20px;">Lead Captured Successfully!</div>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(celebrationOverlay);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+        celebrationOverlay.remove();
+    }, 3000);
+}
+
 function triggerConversionComplete() {
     // Create confetti overlay (NOT full screen)
     const confettiOverlay = document.createElement('div');
