@@ -191,7 +191,7 @@ function stopListening() {
 }
 
 // ===================================================
-// 🎤 MICROPHONE ACTIVATION SYSTEM
+// 🎤 MICROPHONE ACTIVATION SYSTEM - FIXED
 // ===================================================
 async function activateMicrophone() {
     console.log('🎤 Activating microphone...');
@@ -217,11 +217,11 @@ async function activateMicrophone() {
             // Initialize speech recognition
             initializeSpeechRecognition();
 
-            // AI greeting (FROM voice-chat.html)
+            // AI greeting - SPEAK ONLY, NO BUBBLE YET
             setTimeout(() => {
                 const greeting = "Welcome! I'm Bruce Clark's AI assistant. What can I help you with today?";
-                addAIMessage(greeting);
-                speakResponse(greeting);
+                // REMOVED: addAIMessage(greeting); 
+                speakResponse(greeting); // Only speak, bubble will appear when AI "responds"
             }, 500);
 
         } else {
@@ -244,6 +244,7 @@ async function activateMicrophone() {
         switchToTextMode();
     }
 }
+
 
 // ===================================================
 // 💭 MESSAGE HANDLING SYSTEM (FROM voice-chat.html)
