@@ -532,14 +532,15 @@ function getAIResponse(userInput) {
     } else if (conversationState === 'contact_today' || conversationState === 'contact_tomorrow' || conversationState === 'contact_valuation') {
         const phoneMatch = userText.match(/\b(\d{3}[-.]?\d{3}[-.]?\d{4})\b/);
         if (phoneMatch) {
-            responseText = "Perfect! Bruce will call you at " + phoneMatch[0] + ". Thank you for choosing our services!";
-            conversationState = 'completed';
-            shouldShowSmartButton = false;
-            
-            // 🎉 TRIGGER VICTORY SEQUENCE AFTER AI SPEAKS
-            setTimeout(() => {
-                triggerConversionComplete();
-            }, 3000); // Give time for AI to finish speaking
+    responseText = "Perfect! Bruce will call you at " + phoneMatch[0] + "."; 
+    conversationState = 'completed';
+    shouldShowSmartButton = false;
+    
+    // 🎉 TRIGGER BANNER IMMEDIATELY 
+    showThankYouBanner();
+    
+    // 🛑 STOP ALL LISTENING PROCESSES
+    stopListeningProcess();
             
         } else if (userText.includes('phone') || userText.includes('number') || userText.includes('call') ||
                    userText.includes('contact') || userText.includes('reach')) {
@@ -559,30 +560,49 @@ function getAIResponse(userInput) {
     return responseText;
 }
 
-function triggerConversionComplete() {
-    // Create thank you banner at top
+// ===================================================
+// 🎉 THANK YOU BANNER FUNCTION
+// ===================================================
+function showThankYouBanner() {
     const thankYouBanner = document.createElement('div');
     thankYouBanner.innerHTML = `
         <div style="text-align: center; padding: 15px; margin: 10px;
                     background: linear-gradient(45deg, #00ff88, #00ccff);
                     border-radius: 15px; color: white; font-weight: bold;
-                    animation: slideDown 0.5s ease-out;">
-            🎉 Thank You! Bruce will be in touch soon! 🎉
+                    box-shadow: 0 4px 15px rgba(0,255,136,0.3);
+                    animation: slideIn 0.5s ease-out;">
+            🎉 Thank You for Visiting! Bruce Will Be In Touch Soon! 🎉
         </div>
     `;
     
-    // Insert at top of chat
+    // Add to top of chat
     const chatContainer = document.querySelector('.chat-messages');
     if (chatContainer) {
         chatContainer.insertBefore(thankYouBanner, chatContainer.firstChild);
     }
-    
-    // Remove after 5 seconds
-    setTimeout(() => {
-        thankYouBanner.remove();
-    }, 5000);
 }
 
+// ===================================================
+// 🛑 STOP LISTENING PROCESS
+// ===================================================
+function stopListeningProcess() {
+    // Stop speech recognition
+    if (window.recognition) {
+        window.recognition.stop();
+        window.recognition.abort();
+    }
+    
+    // Stop any listening indicators
+    const micButton = document.getElementById('micButton');
+    if (micButton) {
+        micButton.classList.remove('listening');
+        micButton.textContent = 'Conversation Complete';
+    }
+    
+    // Set flags to prevent restart
+    isAudioMode = false;
+    conversationState = 'ended';
+}
 
 // ===================================================
 // 🔵 SMART BUTTON SYSTEM (FROM voice-chat.html)
