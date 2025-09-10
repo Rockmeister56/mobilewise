@@ -559,26 +559,44 @@ function getAIResponse(userInput) {
     return responseText;
 }
 
-// 🎉 CELEBRATION FUNCTION (ADD THIS TO YOUR SCRIPT)
 function triggerConversionComplete() {
-    // Create celebration overlay
-    const celebrationOverlay = document.createElement('div');
-    celebrationOverlay.innerHTML = `
-        <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-                    background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4); 
-                    z-index: 9999; display: flex; align-items: center; justify-content: center;
-                    animation: fadeIn 0.5s ease-in;">
-            <div style="text-align: center; color: white; font-size: 2em; font-weight: bold;">
-                🎉 CONVERSION COMPLETE! 🎉<br>
-                <div style="font-size: 1.2em; margin-top: 20px;">Lead Captured Successfully!</div>
-            </div>
+    // Create confetti overlay (NOT full screen)
+    const confettiOverlay = document.createElement('div');
+    confettiOverlay.style = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none; /* Allow clicks through */
+        z-index: 9999;
+        background: transparent;
+    `;
+    
+    // Add animated confetti
+    confettiOverlay.innerHTML = `
+        <div style="position: absolute; top: 20%; left: 50%; transform: translateX(-50%);
+                    animation: confettiFall 3s ease-out;">
+            🎉✨🎊✨🎉
         </div>
     `;
-    document.body.appendChild(celebrationOverlay);
     
-    // Remove after 3 seconds
+    // Add CSS animation
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes confettiFall {
+            0% { opacity: 1; transform: translateX(-50%) translateY(-50px); }
+            100% { opacity: 0; transform: translateX(-50%) translateY(100px); }
+        }
+    `;
+    document.head.appendChild(style);
+    
+    document.body.appendChild(confettiOverlay);
+    
+    // Remove after animation
     setTimeout(() => {
-        celebrationOverlay.remove();
+        confettiOverlay.remove();
+        style.remove();
     }, 3000);
 }
 
