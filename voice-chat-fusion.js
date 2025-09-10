@@ -191,7 +191,7 @@ function stopListening() {
 }
 
 // ===================================================
-// 🎤 MICROPHONE ACTIVATION SYSTEM - FIXED
+// 🎤 MICROPHONE ACTIVATION SYSTEM - COMPLETE & FIXED
 // ===================================================
 async function activateMicrophone() {
     console.log('🎤 Activating microphone...');
@@ -210,18 +210,21 @@ async function activateMicrophone() {
             micPermissionGranted = true;
             isAudioMode = true;
 
-            // Update UI
+            // Update UI - ADD BUTTON TEXT CHANGE
             const micButton = document.getElementById('micButton');
-            if (micButton) micButton.classList.add('listening');
+            if (micButton) {
+                micButton.classList.add('listening');
+                micButton.textContent = 'Microphone activated'; // ADD THIS LINE
+            }
             
             // Initialize speech recognition
             initializeSpeechRecognition();
 
-            // AI greeting - SPEAK ONLY, NO BUBBLE YET
+            // AI greeting - UPDATED MESSAGE
             setTimeout(() => {
-                const greeting = "Welcome! I'm Bruce Clark's AI assistant. What can I help you with today?";
-                // REMOVED: addAIMessage(greeting); 
-                speakResponse(greeting); // Only speak, bubble will appear when AI "responds"
+                const greeting = "Hi! I'm Bruce's assistant. How can I help you?";
+                addAIMessage(greeting);
+                speakResponse(greeting);
             }, 500);
 
         } else {
@@ -244,6 +247,7 @@ async function activateMicrophone() {
         switchToTextMode();
     }
 }
+
 
 
 // ===================================================
@@ -761,8 +765,21 @@ document.addEventListener('DOMContentLoaded', function() {
     optimizeForMobile();
     initializeChatInterface();
     
-    // Auto-activate microphone after brief delay
-    setTimeout(() => {
-        activateMicrophone();
-    }, 1000);
+    // 🎯 CLEAN PAGE LOAD - NO BUBBLES
+    const micButton = document.getElementById('micButton');
+    if (micButton) {
+        micButton.textContent = 'Please click mic access below';
+    }
+    
+    // Clear any auto-bubbles
+    const chatContainer = document.querySelector('.chat-messages') || document.querySelector('#chatContainer');
+    if (chatContainer) {
+        chatContainer.innerHTML = '';
+    }
+    
+    // 🚫 REMOVE AUTO-ACTIVATE - USER MUST CLICK FIRST
+    // setTimeout(() => {
+    //     activateMicrophone();
+    // }, 1000);
 });
+
