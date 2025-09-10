@@ -744,39 +744,6 @@ function initializeChatInterface() {
     console.log('✅ Chat interface initialized');
 }
 
-// 🎯 BETTER AUTO-WELCOME FUNCTION
-function startAutoWelcome() {
-    const welcomeMessage = "Welcome!";
-    
-    // Wait for voice system to be fully ready
-    const checkVoiceReady = setInterval(() => {
-        if (typeof speakText === 'function' && window.speechSynthesis) {
-            clearInterval(checkVoiceReady);
-            
-            // Small delay to ensure everything is loaded
-            setTimeout(() => {
-                speakText(welcomeMessage);
-                addMessageToChat('ai', welcomeMessage);
-            }, 1000);
-        }
-    }, 500); // Check every 500ms
-}
-
-// 🚀 ALTERNATIVE SAFER APPROACH (if above doesn't work)
-function startAutoWelcomeSimple() {
-    const welcomeMessage = "Welcome! I'm Bruce Clark's AI assistant. What can I help you with today?";
-    
-    // Just add to chat first, speak later
-    addMessageToChat('ai', welcomeMessage);
-    
-    // Wait longer for voice system
-    setTimeout(() => {
-        if (typeof speakText === 'function') {
-            speakText(welcomeMessage);
-        }
-    }, 3000); // Wait 3 seconds for everything to load
-}
-
 // ===================================================
 // 🌍 GLOBAL FUNCTIONS (FOR ONCLICK ATTRIBUTES)
 // ===================================================
