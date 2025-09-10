@@ -332,46 +332,244 @@
         }
 
         /* ===================================================
-           📱 MOBILE RESPONSIVE DESIGN
-           ================================================== */
-        @media (max-width: 600px) {
-            .container {
-                padding: 15px;
-            }
-            
-            h1 {
-                font-size: 1.8rem;
-            }
-            
-            .chat-messages {
-                height: 40vh;
-            }
-            
-            .mic-btn {
-                width: 45px;
-                height: 45px;
-                font-size: 1.3rem;
-            }
-            
-            button {
-                padding: 12px 20px;
-            }
-            
-            .quick-btn {
-                font-size: 0.8rem;
-                padding: 8px 12px;
-                min-width: 120px;
-            }
-            
-            .live-transcript-area {
-                height: 50px;
-            }
-            
-            .transcript-text {
-                font-size: 14px;
-            }
-        }
+   🎉 CONVERSION CELEBRATION ANIMATIONS
+   ================================================== */
 
+/* Confetti Animation */
+.confetti {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    z-index: 10000;
+    pointer-events: none;
+}
+
+.confetti-piece {
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    animation: confetti-fall 3s linear forwards;
+}
+
+@keyframes confetti-fall {
+    0% {
+        transform: translateY(-100vh) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100vh) rotate(720deg);
+        opacity: 0;
+    }
+}
+
+/* Success Banner */
+.success-banner {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #4CAF50, #8BC34A);
+    color: white;
+    padding: 20px 30px;
+    border-radius: 25px;
+    font-size: 18px;
+    font-weight: bold;
+    z-index: 9999;
+    box-shadow: 0 10px 30px rgba(76, 175, 80, 0.4);
+    animation: banner-bounce 0.6s ease-out;
+}
+
+@keyframes banner-bounce {
+    0% { 
+        transform: translateX(-50%) scale(0.3);
+        opacity: 0;
+    }
+    60% { 
+        transform: translateX(-50%) scale(1.1);
+        opacity: 1;
+    }
+    100% { 
+        transform: translateX(-50%) scale(1);
+        opacity: 1;
+    }
+}
+
+/* Victory Message Animation */
+.victory-message {
+    background: linear-gradient(135deg, #FFD700, #FFA500) !important;
+    animation: victory-glow 2s ease-in-out infinite alternate;
+    border: 2px solid #FFD700;
+}
+
+@keyframes victory-glow {
+    0% { 
+        box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+    }
+    100% { 
+        box-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
+    }
+}
+
+/* Conversion Complete Overlay */
+.conversion-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(76, 175, 80, 0.1);
+    z-index: 5000;
+    pointer-events: none;
+    animation: overlay-pulse 2s ease-in-out;
+}
+
+@keyframes overlay-pulse {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 1; }
+}
+
+
+     /* ===================================================
+   📱 MOBILE FULL SCREEN OPTIMIZATION
+   ================================================== */
+
+/* Full viewport height on mobile */
+@media (max-width: 600px) {
+    body {
+        padding: 10px; /* Reduced padding on mobile */
+        min-height: 100vh;
+        height: 100vh; /* Force full height */
+    }
+    
+    .container {
+        padding: 10px; /* Reduced container padding */
+        height: calc(100vh - 20px); /* Full height minus body padding */
+        display: flex;
+        flex-direction: column;
+        max-height: 100vh; /* Prevent overflow */
+    }
+    
+    /* Make chat messages take up more space */
+    .chat-messages {
+        height: 50vh; /* Increased from 40vh to 50vh */
+        flex: 1; /* Allow it to grow */
+        min-height: 300px; /* Minimum height */
+    }
+    
+    /* Compact header on mobile */
+    header {
+        margin-bottom: 10px; /* Reduced margin */
+    }
+    
+    h1 {
+        font-size: 1.6rem; /* Slightly smaller to save space */
+        margin-bottom: 5px;
+    }
+    
+    .subtitle {
+        font-size: 0.9rem;
+        margin-bottom: 5px;
+    }
+    
+    /* Compact spacing for mobile */
+    .smart-button {
+        margin-bottom: 10px; /* Reduced margin */
+        padding: 12px; /* Slightly smaller padding */
+        font-size: 14px;
+    }
+    
+    .mic-status {
+        margin-bottom: 10px; /* Reduced margin */
+        padding: 8px;
+    }
+    
+    .live-transcript-area {
+        height: 45px; /* Slightly smaller */
+        margin-bottom: 10px;
+    }
+    
+    .input-area {
+        margin-bottom: 10px; /* Reduced margin */
+    }
+    
+    .quick-questions {
+        margin-bottom: 10px; /* Reduced margin */
+        gap: 8px; /* Smaller gap */
+    }
+    
+    .quick-btn {
+        font-size: 0.75rem; /* Smaller text */
+        padding: 6px 10px; /* Smaller padding */
+        min-width: 100px; /* Smaller minimum width */
+    }
+    
+    /* Make buttons more compact */
+    .mic-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+    }
+    
+    button {
+        padding: 10px 18px; /* Smaller button padding */
+        font-size: 0.9rem;
+    }
+    
+    input {
+        padding: 12px; /* Smaller input padding */
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+}
+
+/* Extra small mobile devices */
+@media (max-width: 400px) {
+    body {
+        padding: 5px; /* Even less padding on very small screens */
+    }
+    
+    .container {
+        padding: 8px;
+        height: calc(100vh - 10px);
+    }
+    
+    .chat-messages {
+        height: 55vh; /* Even more space for chat on tiny screens */
+    }
+    
+    h1 {
+        font-size: 1.4rem;
+    }
+    
+    .quick-btn {
+        font-size: 0.7rem;
+        padding: 5px 8px;
+        min-width: 90px;
+    }
+}
+
+/* Landscape mobile orientation */
+@media (max-width: 900px) and (orientation: landscape) {
+    .container {
+        height: calc(100vh - 10px);
+    }
+    
+    .chat-messages {
+        height: 40vh; /* Smaller in landscape to fit controls */
+    }
+    
+    header {
+        margin-bottom: 5px;
+    }
+    
+    h1 {
+        font-size: 1.5rem;
+    }
+    
+    .subtitle {
+        font-size: 0.8rem;
+    }
+}
+       
         /* ===================================================
            🔧 UTILITY CLASSES
            ================================================== */
