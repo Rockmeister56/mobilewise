@@ -560,44 +560,27 @@ function getAIResponse(userInput) {
 }
 
 function triggerConversionComplete() {
-    // Create confetti overlay (NOT full screen)
-    const confettiOverlay = document.createElement('div');
-    confettiOverlay.style = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        pointer-events: none; /* Allow clicks through */
-        z-index: 9999;
-        background: transparent;
-    `;
-    
-    // Add animated confetti
-    confettiOverlay.innerHTML = `
-        <div style="position: absolute; top: 20%; left: 50%; transform: translateX(-50%);
-                    animation: confettiFall 3s ease-out;">
-            🎉✨🎊✨🎉
+    // Create thank you banner at top
+    const thankYouBanner = document.createElement('div');
+    thankYouBanner.innerHTML = `
+        <div style="text-align: center; padding: 15px; margin: 10px;
+                    background: linear-gradient(45deg, #00ff88, #00ccff);
+                    border-radius: 15px; color: white; font-weight: bold;
+                    animation: slideDown 0.5s ease-out;">
+            🎉 Thank You! Bruce will be in touch soon! 🎉
         </div>
     `;
     
-    // Add CSS animation
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes confettiFall {
-            0% { opacity: 1; transform: translateX(-50%) translateY(-50px); }
-            100% { opacity: 0; transform: translateX(-50%) translateY(100px); }
-        }
-    `;
-    document.head.appendChild(style);
+    // Insert at top of chat
+    const chatContainer = document.querySelector('.chat-messages');
+    if (chatContainer) {
+        chatContainer.insertBefore(thankYouBanner, chatContainer.firstChild);
+    }
     
-    document.body.appendChild(confettiOverlay);
-    
-    // Remove after animation
+    // Remove after 5 seconds
     setTimeout(() => {
-        confettiOverlay.remove();
-        style.remove();
-    }, 3000);
+        thankYouBanner.remove();
+    }, 5000);
 }
 
 
