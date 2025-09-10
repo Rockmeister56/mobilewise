@@ -760,45 +760,24 @@ function switchToTextMode() {
     console.log('✅ Switched to text mode successfully');
 }
 
-// ===================================================
-// 🎤 ENHANCED ACTIVATE MICROPHONE FUNCTION
-// ===================================================
-
 async function activateMicrophone() {
     console.log('🎤 Activating microphone...');
-    
-    // Handle mobile differently
-    if (isMobileDevice()) {
-        const permissionGranted = await handleMobileMicrophonePermission();
-        if (!permissionGranted) {
-            addAIMessage("Microphone access was not granted. Switching to text mode.");
-            switchToTextMode();
-            return;
-        }
-    } else {
-        // Desktop handling
-        if (!window.isSecureContext) {
-            addAIMessage("Microphone access requires HTTPS. Please ensure you're on a secure connection.");
-            return;
-        }
-    }
-    
-    // UI transition (if not already handled by startVoiceChat)
-    const splashScreen = document.getElementById('splashScreen');
-    const chatInterface = document.getElementById('chatInterface');
-    if (splashScreen && splashScreen.style.display !== 'none') {
-        splashScreen.style.display = 'none';
-        if (chatInterface) chatInterface.style.display = 'flex';
+
+    // Instead, just check if we're on HTTPS and have basic support
+    if (!window.isSecureContext) {
+        addAIMessage("Microphone access requires HTTPS. Please ensure you're on a secure connection.");
+        return;
     }
 
-    // Continue with microphone setup
+    // Use the fallback method directly
     try {
         const stream = await requestMicrophoneWithFallback();
         persistentMicStream = stream;
         micPermissionGranted = true;
+
         isAudioMode = true;
 
-        // Update UI
+        // Show appropriate UI
         const activateMicBtn = document.getElementById('activateMicBtn');
         const audioOffBtn = document.getElementById('audioOffBtn');
         const voiceContainer = document.getElementById('voiceVisualizerContainer');
@@ -810,7 +789,7 @@ async function activateMicrophone() {
         // Initialize speech recognition
         initializeSpeechRecognition();
 
-        // AI Greeting
+        // ✅ ADD THIS BACK - AI GREETING!
         setTimeout(() => {
             const greeting = "Welcome! I'm Bruce Clark's AI assistant. What can I help you with today?";
             addAIMessage(greeting);
@@ -819,8 +798,51 @@ async function activateMicrophone() {
 
     } catch (error) {
         console.log('❌ Microphone access denied:', error);
-        addAIMessage("Microphone access was denied. Switching to text mode.");
+        console.log('🔍 Error name:', error.name);
+        console.log('🔍 Error message:', error.message);
+
+        // Show detailed error message
+        let errorMessage = "Microphone access was denied. ";
+
+        if (error.name === 'NotAllowedError') {
+            errorMessage += "Please check your browser permissions and allow microphone access.";
+        } else if (error.name === 'PermissionDismissedError') {
+            errorMessage += "The permission prompt was dismissed. Please try again and click 'Allow'.";
+        } else if (error.name === 'NotFoundError') {
+            errorMessage += "No microphone found. Please check your device settings.";
+        }
+
+        addAIMessage(errorMessage);
         switchToTextMode();
+    }
+} // ← MAKE SURE THIS CLOSING BRACE IS HERE!
+
+async function requestMicrophoneWithFallback() {
+    try {
+        // First try the standard way
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        return stream;
+    } catch (error) {
+        console.log('Standard permission failed, trying fallback...');
+        
+        // Create a temporary audio element to trigger permission differently
+        const audio = new Audio();
+        audio.src = 'data:audio/wav;base64,UklGRnoAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoAAAC';
+        audio.volume = 0;
+        
+        return new Promise((resolve, reject) => {
+            audio.oncanplay = async () => {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    resolve(stream);
+                } catch (error2) {
+                    reject(error2);
+                }
+            };
+            
+            audio.onerror = () => reject(error);
+            audio.play().catch(reject);
+        });
     }
 }
 
