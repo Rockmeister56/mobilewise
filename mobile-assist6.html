@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Direct Voice Chat</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .chat-messages {
+            height: 60vh;
+            overflow-y: auto;
+            padding: 15px;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+        }
+        
+        .message {
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 20px;
+            max-width: 80%;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .ai-message {
+            background: rgba(255, 255, 255, 0.2);
+            border-top-left-radius: 5px;
+            align-self: flex-start;
+        }
+        
+        .user-message {
+            background: linear-gradient(90deg, #ff7e5f, #feb47b);
+            border-top-right-radius: 5px;
+            align-self: flex-end;
+            margin-left: auto;
+        }
+        
+        .system-message {
+            background: rgba(255, 255, 255, 0.1);
+            text-align: center;
+            font-style: italic;
+            margin: 15px auto;
+            max-width: 90%;
+        }
+        
+        .input-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .mic-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(90deg, #ff7e5f, #feb47b);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .mic-btn.listening {
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        input {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        button {
+            padding: 15px 25px;
+            background: linear-gradient(90deg, #ff7e5f, #feb47b);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .permission-deny {
+            text-align: center;
+            padding: 15px;
+            background: rgba(255, 100, 100, 0.2);
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="chat-messages" id="chatMessages">
+            <div class="message system-message">Voice Chat Loading...</div>
+        </div>
+        
+        <div class="input-area">
+            <div class="mic-btn" id="micButton">🎤</div>
+            <input type="text" id="userInput" placeholder="Type or click mic to speak...">
+            <button id="sendBtn">Send</button>
+        </div>
+        
+        <div id="permissionStatus"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatMessages = document.getElementById('chatMessages');
+            const micButton = document.getElementById('micButton');
+            const userInput = document.getElementById('userInput');
+            const sendBtn = document.getElementById('sendBtn');
+            const permissionStatus = document.getElementById('permissionStatus');
+            
+            // Initialize variables
+            let recognition = null;
+            let isListening = false;
+            
+            // Initialize the chat directly
+            initializeChat();
+            
+            function initializeChat() {
+                // Clear loading message
+                chatMessages.innerHTML = '';
+                
+                // Add welcome message
+                addMessage("system", "Welcome to Voice Chat! Please allow microphone access when prompted.");
+                
+                // Initialize speech recognition if available
+                if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                    recognition = new SpeechRecognition();
+                    recognition.continuous = false;
+                    recognition.interimResults = true;
+                    recognition.lang = 'en-US';
+                    
+                    recognition.onresult = function(event) {
+                        let interimTranscript = '';
+                        let finalTranscript = '';
+                        
+                        for (let i = event.resultIndex; i < event.results.length; i++) {
+                            if (event.results[i].isFinal) {
+                                finalTranscript += event.results[i][0].transcript;
+                            } else {
+                                interimTranscript += event.results[i][0].transcript;
+                            }
+                        }
+                        
+                        // Update input field with interim results
+                        if (interimTranscript) {
+                            userInput.value = interimTranscript;
+                        }
+                        
+                        // If we have a final result, send it
+                        if (finalTranscript) {
+                            userInput.value = finalTranscript;
+                            sendMessage();
+                        }
+                    };
+                    
+                    recognition.onend = function() {
+                        isListening = false;
+                        micButton.classList.remove('listening');
+                    };
+                    
+                    recognition.onerror = function(event) {
+                        console.error('Speech recognition error', event.error);
+                        isListening = false;
+                        micButton.classList.remove('listening');
+                        addMessage("system", "Error: " + event.error);
+                    };
+                    
+                    // Request microphone access
+                    requestMicrophoneAccess();
+                } else {
+                    // Speech recognition not supported
+                    addMessage("system", "Your browser doesn't support speech recognition. Please use the text input.");
+                    micButton.style.display = 'none';
+                }
+            }
+            
+            function requestMicrophoneAccess() {
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    addMessage("system", "Your browser doesn't support microphone access");
+                    return;
+                }
+                
+                navigator.mediaDevices.getUserMedia({ audio: true })
+                    .then(function(stream) {
+                        addMessage("system", "Microphone access granted! Click the microphone to speak.");
+                        
+                        // Set up mic button click event
+                        micButton.addEventListener('click', toggleListening);
+                    })
+                    .catch(function(err) {
+                        addMessage("system", "Microphone access denied. Please use text input.");
+                        permissionStatus.innerHTML = '<div class="permission-deny">Microphone access denied. ' +
+                            'Please check your browser permissions and refresh the page to try again.</div>';
+                        micButton.style.display = 'none';
+                    });
+            }
+            
+            function toggleListening() {
+                if (!recognition) return;
+                
+                if (!isListening) {
+                    try {
+                        recognition.start();
+                        isListening = true;
+                        micButton.classList.add('listening');
+                        userInput.placeholder = "Listening...";
+                    } catch (e) {
+                        console.error('Error starting recognition:', e);
+                    }
+                } else {
+                    recognition.stop();
+                    isListening = false;
+                    micButton.classList.remove('listening');
+                    userInput.placeholder = "Type or click mic to speak...";
+                }
+            }
+            
+            function addMessage(sender, text) {
+                const message = document.createElement('div');
+                message.classList.add('message');
+                message.classList.add(sender === 'ai' ? 'ai-message' : 
+                                    sender === 'user' ? 'user-message' : 'system-message');
+                message.textContent = text;
+                chatMessages.appendChild(message);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+            
+            function sendMessage() {
+                const message = userInput.value.trim();
+                if (message) {
+                    addMessage("user", message);
+                    userInput.value = '';
+                    
+                    // Simulate AI response
+                    setTimeout(() => {
+                        addMessage("ai", "I heard: \"" + message + "\". This is a simulated response.");
+                    }, 1000);
+                }
+            }
+            
+            // Set up send button and Enter key
+            sendBtn.addEventListener('click', sendMessage);
+            userInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
