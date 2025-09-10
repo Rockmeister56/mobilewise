@@ -225,7 +225,7 @@ async function activateMicrophone() {
                 const greeting = "Hi! I'm Bruce's assistant. How can I help you?";
                 addAIMessage(greeting);
                 speakResponse(greeting);
-            }, 1100);
+            }, 1200);
 
         } else {
             throw new Error('Microphone permission denied');
