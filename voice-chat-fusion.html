@@ -332,55 +332,55 @@
         }
         
 /* ===================================================
-   📱 MOBILE FULL SCREEN OPTIMIZATION
+   📱 MOBILE OPTIMIZATION - CLEAN VERSION
    ================================================== */
-
-/* Full viewport height on mobile */
 @media (max-width: 600px) {
     body {
-        padding: 10px; /* Reduced padding on mobile */
+        padding: 10px;
         min-height: 100vh;
-        height: 100vh; /* Force full height */
     }
-
-    /* Reduce Chat Area Height */
-.chat-messages,
-.messages-container,
-#chat-area,
-.conversation-area {
-    height: 70vh !important;
-    max-height: 70vh !important;
-    overflow-y: auto !important;
-}
-
-/* Reduce Text Input Width */
-.text-input,
-input[type="text"],
-.message-input,
-#user-input {
-    width: 85% !important;
-    max-width: 85% !important;
-}
     
-    .container {
-        padding: 10px; /* Reduced container padding */
-        height: calc(50vh - 20px); /* Full height minus body padding */
+    /* SINGLE CHAT AREA HEIGHT RULE */
+    .chat-messages,
+    .messages-container,
+    #chat-area,
+    .conversation-area {
+        height: 45vh !important; /* Perfect balance */
+        max-height: 45vh !important;
+        overflow-y: auto !important;
+        margin-bottom: 15px; /* Space for buttons */
+    }
+    
+    /* INPUT CONTROLS */
+    .text-input,
+    input[type="text"],
+    .message-input,
+    #user-input {
+        width: 85% !important;
+        max-width: 85% !important;
+    }
+    
+    /* QUICK BUTTONS AREA */
+    .quick-buttons {
+        margin-bottom: 15px;
+        height: auto;
         display: flex;
-        flex-direction: column;
-        max-height: 100vh; /* Prevent overflow */
+        flex-wrap: wrap;
+        gap: 8px;
     }
     
-    /* Make chat messages take up more space */
-    .chat-messages {
-        height: 40vh; /* Increased from 40vh to 50vh */
-        flex: 1; /* Allow it to grow */
-        min-height: 250px; /* Minimum height */
+    /* STOP BUTTON SPACE */
+    .stop-button-area {
+        height: 50px;
+        margin-top: 10px;
     }
     
-    /* Compact header on mobile */
-    header {
-        margin-bottom: 10px; /* Reduced margin */
+    /* CONTAINER FIX */
+    .container {
+        height: auto; /* Let it flow naturally */
+        padding: 10px;
     }
+}
     
     h1 {
         font-size: 1.6rem; /* Slightly smaller to save space */
