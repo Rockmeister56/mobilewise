@@ -437,13 +437,13 @@
 @media (max-width: 600px) {
     body {
         padding: 10px; /* Reduced padding on mobile */
-        min-height: 100vh;
-        height: 100vh; /* Force full height */
+        min-height: 95vh;
+        height: 95vh; /* Force full height */
     }
     
     .container {
         padding: 10px; /* Reduced container padding */
-        height: calc(100vh - 20px); /* Full height minus body padding */
+        height: calc(90vh - 20px); /* Full height minus body padding */
         display: flex;
         flex-direction: column;
         max-height: 100vh; /* Prevent overflow */
@@ -451,7 +451,7 @@
     
     /* Make chat messages take up more space */
     .chat-messages {
-        height: 48vh; /* Increased from 40vh to 50vh */
+        height: 45vh; /* Increased from 40vh to 50vh */
         flex: 1; /* Allow it to grow */
         min-height: 300px; /* Minimum height */
     }
