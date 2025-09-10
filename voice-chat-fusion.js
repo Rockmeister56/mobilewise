@@ -799,7 +799,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // 🎯 CLEAN PAGE LOAD - NO BUBBLES
     const micButton = document.getElementById('micButton');
     if (micButton) {
-        micButton.textContent = 'Please click mic access below';
     }
     
     // Clear any auto-bubbles
