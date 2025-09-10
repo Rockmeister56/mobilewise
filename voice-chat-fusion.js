@@ -203,7 +203,6 @@ document.getElementById('mainMicButton').addEventListener('click', async functio
     // Just update the original button text (no stop functionality)
     const originalMicButton = document.getElementById('micButton');
     if (originalMicButton) {
-        originalMicButton.textContent = 'Microphone Active';
         // Keep original mic button functionality intact
     }
 });
@@ -232,7 +231,6 @@ async function activateMicrophone() {
             const micButton = document.getElementById('micButton');
             if (micButton) {
                 micButton.classList.add('listening');
-                micButton.textContent = 'Microphone activated'; // ADD THIS LINE
             }
             
             // Initialize speech recognition
