@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Voice Chat</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #ff7e5f, #feb47b);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .permission-panel {
+            text-align: center;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .permission-panel h2 {
+            margin-bottom: 20px;
+            color: #ff7e5f;
+        }
+        
+        .btn {
+            background: linear-gradient(90deg, #ff7e5f, #feb47b);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .chat-interface {
+            display: none;
+            margin-top: 20px;
+            width: 100%;
+        }
+        
+        .chat-messages {
+            height: 300px;
+            overflow-y: auto;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .message {
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 20px;
+            max-width: 80%;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .ai-message {
+            background: rgba(255, 255, 255, 0.2);
+            border-top-left-radius: 5px;
+            align-self: flex-start;
+        }
+        
+        .user-message {
+            background: linear-gradient(90deg, #ff7e5f, #feb47b);
+            border-top-right-radius: 5px;
+            align-self: flex-end;
+            margin-left: auto;
+        }
+        
+        .voice-controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+        
+        .mic-btn {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(90deg, #ff7e5f, #feb47b);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .mic-btn.listening {
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .status-indicator {
+            padding: 10px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.15);
+            margin: 10px 0;
+            text-align: center;
+        }
+        
+        .success {
+            color: #4CAF50;
+        }
+        
+        .error {
+            color: #F44336;
+        }
+        
+        .typing-indicator {
+            display: none;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-top-left-radius: 5px;
+            align-self: flex-start;
+            max-width: 80%;
+        }
+        
+        .typing-dots {
+            display: flex;
+            align-items: center;
+            height: 20px;
+        }
+        
+        .typing-dots span {
+            width: 8px;
+            height: 8px;
+            margin: 0 2px;
+            background-color: white;
+            border-radius: 50%;
+            display: inline-block;
+            animation: typing 1.4s infinite both;
+        }
+        
+        .typing-dots span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .typing-dots span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        @keyframes typing {
+            0% { transform: scale(0); }
+            50% { transform: scale(1); }
+            100% { transform: scale(0); }
+        }
+        
+        .speech-preview {
+            display: none;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 20px;
+            background: linear-gradient(90deg, #ff7e5f, #feb47b);
+            border-top-right-radius: 5px;
+            align-self: flex-end;
+            margin-left: auto;
+            max-width: 80%;
+            opacity: 0.7;
+            animation: grow 0.2s ease;
+        }
+        
+        @keyframes grow {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 0.7; }
+        }
+        
+        .text-input-fallback {
+            display: none;
+            margin-top: 20px;
+            width: 100%;
+        }
+        
+        .input-area {
+            display: flex;
+        }
+        
+        input {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 50px 0 0 50px;
+            font-size: 1rem;
+        }
+        
+        .send-btn {
+            padding: 15px 25px;
+            background: linear-gradient(90deg, #ff7e5f, #feb47b);
+            color: white;
+            border: none;
+            border-radius: 0 50px 50px 0;
+            cursor: pointer;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .btn {
+                padding: 12px 25px;
+                font-size: 1rem;
+            }
+            
+            .mic-btn {
+                width: 70px;
+                height: 70px;
+                font-size: 1.7rem;
+            }
+            
+            .chat-messages {
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Real-Time Voice Chat</h1>
+            <p>See your speech appear as you talk</p>
+        </header>
+        
+        <div class="permission-panel" id="permissionPanel">
+            <h2>Enable Microphone Access</h2>
+            <p>To use voice features, we need access to your microphone</p>
+            <p>Click the button below to enable microphone access</p>
+            <button class="btn" id="enableMic">Enable Microphone</button>
+            
+            <div class="status-indicator" id="statusIndicator" style="display: none;">
+                Checking microphone access...
+            </div>
+        </div>
+        
+        <div class="chat-interface" id="chatInterface">
+            <div class="chat-messages" id="chatMessages">
+                <div class="message ai-message">Hello! I'm your AI assistant. Enable microphone access to talk with me.</div>
+            </div>
+            
+            <div class="speech-preview" id="speechPreview"></div>
+            
+            <div class="typing-indicator" id="typingIndicator">
+                <div class="typing-dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+            
+            <div class="voice-controls" id="voiceControls">
+                <div class="mic-btn" id="micButton">
+                    <i>🎤</i>
+                </div>
+                <p id="micStatus">Tap microphone to start speaking</p>
+            </div>
+            
+            <div class="text-input-fallback" id="textInputFallback">
+                <div class="input-area">
+                    <input type="text" id="userInput" placeholder="Type your message here...">
+                    <button class="send-btn" id="sendBtn">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const enableMicBtn = document.getElementById('enableMic');
+            const permissionPanel = document.getElementById('permissionPanel');
+            const statusIndicator = document.getElementById('statusIndicator');
+            const chatInterface = document.getElementById('chatInterface');
+            const chatMessages = document.getElementById('chatMessages');
+            const micButton = document.getElementById('micButton');
+            const voiceControls = document.getElementById('voiceControls');
+            const micStatus = document.getElementById('micStatus');
+            const typingIndicator = document.getElementById('typingIndicator');
+            const textInputFallback = document.getElementById('textInputFallback');
+            const userInput = document.getElementById('userInput');
+            const sendBtn = document.getElementById('sendBtn');
+            const speechPreview = document.getElementById('speechPreview');
+            
+            // Initialize speech recognition
+            let recognition = null;
+            let isListening = false;
+            
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                recognition = new SpeechRecognition();
+                recognition.continuous = false;
+                recognition.interimResults = true;
+                recognition.lang = 'en-US';
+                
+                recognition.onstart = function() {
+                    console.log('Voice recognition activated');
+                    isListening = true;
+                    micButton.classList.add('listening');
+                    micStatus.textContent = "Listening... Speak now";
+                };
+                
+                recognition.onresult = function(event) {
+                    let interimTranscript = '';
+                    let finalTranscript = '';
+                    
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        if (event.results[i].isFinal) {
+                            finalTranscript += event.results[i][0].transcript;
+                        } else {
+                            interimTranscript += event.results[i][0].transcript;
+                        }
+                    }
+                    
+                    // Show interim results in the preview area
+                    if (interimTranscript) {
+                        speechPreview.textContent = interimTranscript;
+                        speechPreview.style.display = 'block';
+                    }
+                    
+                    // If we have a final result, add it as a message
+                    if (finalTranscript) {
+                        speechPreview.style.display = 'none';
+                        addMessage("You", finalTranscript);
+                        processUserMessage(finalTranscript);
+                    }
+                };
+                
+                recognition.onerror = function(event) {
+                    console.error('Speech recognition error', event.error);
+                    if (event.error === 'no-speech') {
+                        // This is normal when no speech is detected
+                        speechPreview.style.display = 'none';
+                        return;
+                    }
+                    
+                    micStatus.textContent = "Error: " + event.error;
+                    addMessage("AI", "Sorry, there was an error with speech recognition: " + event.error);
+                    
+                    // Fall back to text input
+                    voiceControls.style.display = 'none';
+                    textInputFallback.style.display = 'block';
+                };
+                
+                recognition.onend = function() {
+                    console.log('Voice recognition ended');
+                    isListening = false;
+                    micButton.classList.remove('listening');
+                    micStatus.textContent = "Tap microphone to start speaking";
+                    speechPreview.style.display = 'none';
+                };
+            } else {
+                // Speech recognition not supported
+                voiceControls.style.display = 'none';
+                textInputFallback.style.display = 'block';
+                addMessage("AI", "Your browser doesn't support speech recognition. Please use the text input instead.");
+            }
+            
+            // Function to request microphone access
+            function requestMicrophoneAccess() {
+                statusIndicator.style.display = 'block';
+                statusIndicator.textContent = "Requesting microphone access...";
+                statusIndicator.className = 'status-indicator';
+                
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    statusIndicator.textContent = "Error: getUserMedia is not supported in this browser";
+                    statusIndicator.classList.add('error');
+                    return;
+                }
+                
+                navigator.mediaDevices.getUserMedia({ audio: true })
+                    .then(stream => {
+                        statusIndicator.textContent = "Microphone access granted!";
+                        statusIndicator.classList.add('success');
+                        
+                        // Success - show chat interface
+                        setTimeout(() => {
+                            permissionPanel.style.display = 'none';
+                            chatInterface.style.display = 'block';
+                            
+                            // Stop all tracks when done (for cleanup)
+                            const tracks = stream.getTracks();
+                            tracks.forEach(track => track.stop());
+                            
+                            addMessage("AI", "Microphone access granted! Tap the microphone button and start speaking.");
+                        }, 1000);
+                    })
+                    .catch(err => {
+                        console.error("Microphone access denied:", err);
+                        statusIndicator.textContent = "Microphone access denied. Please check your browser permissions.";
+                        statusIndicator.classList.add('error');
+                        
+                        // Still show chat interface but with text only
+                        setTimeout(() => {
+                            permissionPanel.style.display = 'none';
+                            chatInterface.style.display = 'block';
+                            voiceControls.style.display = 'none';
+                            textInputFallback.style.display = 'block';
+                            
+                            addMessage("AI", "Microphone access was denied. Please use the text input to chat with me.");
+                        }, 1500);
+                    });
+            }
+            
+            // Function to add message to chat
+            function addMessage(sender, text) {
+                const message = document.createElement('div');
+                message.classList.add('message');
+                message.classList.add(sender === 'AI' ? 'ai-message' : 'user-message');
+                message.textContent = text;
+                chatMessages.appendChild(message);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+            
+            // Function to show typing indicator
+            function showTypingIndicator() {
+                typingIndicator.style.display = 'block';
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+            
+            // Function to hide typing indicator
+            function hideTypingIndicator() {
+                typingIndicator.style.display = 'none';
+            }
+            
+            // Process user message and generate AI response
+            function processUserMessage(message) {
+                // Show typing indicator
+                showTypingIndicator();
+                
+                // Simulate AI processing
+                setTimeout(() => {
+                    hideTypingIndicator();
+                    
+                    // Simple response logic
+                    const lowerMessage = message.toLowerCase();
+                    let response;
+                    
+                    if (lowerMessage.includes('hello') || lowerMessage.includes('hi')) {
+                        response = "Hello there! How can I help you today?";
+                    } else if (lowerMessage.includes('how are you')) {
+                        response = "I'm doing great, thanks for asking! What can I assist you with?";
+                    } else if (lowerMessage.includes('thank')) {
+                        response = "You're welcome! Is there anything else you'd like to know?";
+                    } else if (lowerMessage.includes('bye') || lowerMessage.includes('goodbye')) {
+                        response = "Goodbye! Feel free to come back if you have more questions.";
+                    } else {
+                        response = "I heard you! This real-time preview shows your speech as you talk, before it becomes a final message.";
+                    }
+                    
+                    addMessage("AI", response);
+                }, 2000);
+            }
+            
+            // Event listeners for buttons
+            enableMicBtn.addEventListener('click', requestMicrophoneAccess);
+            
+            // Start/stop listening
+            micButton.addEventListener('click', function() {
+                if (recognition) {
+                    if (!isListening) {
+                        try {
+                            recognition.start();
+                        } catch (e) {
+                            console.error('Error starting recognition:', e);
+                        }
+                    } else {
+                        recognition.stop();
+                    }
+                }
+            });
+            
+            // Send message function for text fallback
+            function sendMessage() {
+                const message = userInput.value.trim();
+                if (message) {
+                    addMessage("You", message);
+                    userInput.value = '';
+                    processUserMessage(message);
+                }
+            }
+            
+            sendBtn.addEventListener('click', sendMessage);
+            userInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
