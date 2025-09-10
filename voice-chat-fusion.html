@@ -614,6 +614,36 @@ input[type="text"],
         
         <!-- Smart CTA Button (appears at top when triggered) -->
         <div class="smart-button" id="smartButton" style="display: none;"></div>
+
+        <div id="centerMicActivation" style="
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 1000;
+    display: block;">
+    
+    <div style="margin-bottom: 20px; font-size: 1.2em; color: white;">
+        Welcome to Mobile-Wise AI Voice Chat
+    </div>
+    
+    <button id="mainMicButton" style="
+        background: linear-gradient(45deg, #00ff88, #00ccff);
+        border: none;
+        border-radius: 50%;
+        width: 100px;
+        height: 100px;
+        font-size: 2em;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(0,255,136,0.3);">
+        🎤
+    </button>
+    
+    <div style="margin-top: 15px; font-size: 0.9em; color: #ccc;">
+        Click to activate microphone
+    </div>
+</div>
         
         <!-- Microphone Status (shows briefly when activated) -->
         <div class="mic-status" id="micStatus" style="display: none;">

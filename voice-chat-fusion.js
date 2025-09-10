@@ -190,6 +190,37 @@ function stopListening() {
     isListening = false;
 }
 
+// 🎯 NEW ACTIVATION SYSTEM
+document.getElementById('mainMicButton').addEventListener('click', async function() {
+    // Hide center activation
+    document.getElementById('centerMicActivation').style.display = 'none';
+    
+    // Activate microphone
+    await activateMicrophone();
+    
+    // Transform original button into STOP button
+    const originalMicButton = document.getElementById('micButton');
+    if (originalMicButton) {
+        originalMicButton.textContent = '🛑 Stop Chat';
+        originalMicButton.onclick = function() {
+            stopVoiceChat();
+            location.reload(); // Reset everything
+        };
+    }
+});
+
+function stopVoiceChat() {
+    // Stop all voice recognition
+    if (window.recognition) {
+        window.recognition.stop();
+    }
+    
+    // Stop any speaking
+    if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+    }
+}
+
 // ===================================================
 // 🎤 MICROPHONE ACTIVATION SYSTEM - COMPLETE & FIXED
 // ===================================================
