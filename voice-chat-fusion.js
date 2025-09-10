@@ -210,69 +210,51 @@ document.getElementById('mainMicButton').addEventListener('click', async functio
 });
 
 // ===================================================
-// 🛑 STOP BUTTON UNDER QUICK BUTTONS
+// 🛑 CREATE STOP BUTTON FUNCTION
 // ===================================================
-function createUnderQuickStopButton() {
-    // Find quick buttons container
-    const quickButtonsContainer = document.querySelector('.quick-buttons') || 
-                                 document.querySelector('[class*="quick"]') ||
-                                 document.querySelector('[class*="button"]');
+function createStopButton() {
+    const stopButton = document.createElement('button');
+    stopButton.id = 'voiceStopButton';
+    stopButton.innerHTML = '🛑 Stop';
+    stopButton.style = `
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        background: linear-gradient(45deg, #ff4757, #ff3838);
+        border: none;
+        border-radius: 20px;
+        padding: 10px 15px;
+        color: white;
+        font-weight: bold;
+        cursor: pointer;
+        z-index: 1000;
+        box-shadow: 0 3px 10px rgba(255,71,87,0.3);
+        display: none;
+    `;
     
-    if (quickButtonsContainer) {
-        // Create stop button
-        const stopButton = document.createElement('button');
-        stopButton.id = 'underQuickStopButton';
-        stopButton.innerHTML = '🛑 Stop Voice Chat';
-        stopButton.style = `
-            width: 100%;
-            background: linear-gradient(45deg, #ff4757, #ff3838);
-            border: none;
-            border-radius: 25px;
-            padding: 12px 20px;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 15px;
-            box-shadow: 0 3px 10px rgba(255,71,87,0.3);
-            display: none;
-            font-size: 14px;
-        `;
-        
-        // Add click handler
-        stopButton.onclick = function() {
-            safeStopVoiceChat();
-            this.style.display = 'none';
-        };
-        
-        // Insert AFTER quick buttons
-        quickButtonsContainer.parentNode.insertBefore(stopButton, quickButtonsContainer.nextSibling);
-    }
+    // Add click handler
+    stopButton.onclick = function() {
+        stopVoiceChat();
+        this.style.display = 'none';
+    };
+    
+    document.body.appendChild(stopButton);
 }
 
-// ===================================================
-// 🛑 SAFE STOP FUNCTION (prevents "switch to text" error)
-// ===================================================
-function safeStopVoiceChat() {
-    try {
-        if (window.recognition) {
-            window.recognition.stop();
-            window.recognition.abort();
-        }
-        if (window.speechSynthesis) {
-            window.speechSynthesis.cancel();
-        }
-        
-        // Reset states safely
-        if (typeof micPermissionGranted !== 'undefined') {
-            micPermissionGranted = false;
-        }
-        if (typeof isAudioMode !== 'undefined') {
-            isAudioMode = false;
-        }
-        
-        console.log('Voice chat stopped safely');
-    } catch (error) {
-        console.log('Stop error (non-critical):', error);
+function stopVoiceChat() {
+    if (window.recognition) window.recognition.stop();
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+}
+
+function stopVoiceChat() {
+    // Stop all voice recognition
+    if (window.recognition) {
+        window.recognition.stop();
+    }
+    
+    // Stop any speaking
+    if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
     }
 }
 
@@ -852,12 +834,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     optimizeForMobile();
     initializeChatInterface();
-    // Add to your initialization
-    createUnderQuickStopButton();
-
-// Show it when voice starts (in activateMicrophone)
-document.getElementById('underQuickStopButton').style.display = 'block';
-   
+    createStopButton(); // ADD THIS LINE
     
     // 🎯 CLEAN PAGE LOAD - NO BUBBLES
     const micButton = document.getElementById('micButton');
