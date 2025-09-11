@@ -159,6 +159,55 @@ recognition.onresult = function(event) {
     }
 };
 
+// ===================================================
+// 🎤 AI APOLOGIZES & KEEPS LISTENING (NO DORMANT MODE)
+// ===================================================
+let noSpeechCount = 0;
+
+recognition.onerror = function(event) {
+    console.log('Speech error:', event.error);
+    
+    if (event.error === 'no-speech') {
+        noSpeechCount++;
+        
+        // AI apologizes and keeps trying
+        const sorryMessages = [
+            "I'm sorry, I didn't catch that. Please try again.",
+            "Sorry, could you repeat that?", 
+            "I didn't hear you clearly. Please speak again.",
+            "Let me try listening again. Go ahead and speak."
+        ];
+        
+        const randomApology = sorryMessages[Math.floor(Math.random() * sorryMessages.length)];
+        
+        // AI speaks the apology
+        addAIMessage(randomApology);
+        speakResponse(randomApology);
+        
+        // Restart listening after AI finishes speaking
+        setTimeout(() => {
+            if (recognition && !isListening) {
+                recognition.start();
+                isListening = true;
+            }
+        }, 2500); // Wait for AI to finish speaking
+    }
+};
+
+recognition.onend = function() {
+    console.log('Recognition ended');
+    
+    // If not intentionally stopped, restart automatically
+    if (isAudioMode && conversationState !== 'ended' && !isSpeaking) {
+        setTimeout(() => {
+            if (recognition && !isListening) {
+                recognition.start();
+                isListening = true;
+            }
+        }, 1000);
+    }
+};
+
         // MOBILE-OPTIMIZED END HANDLER (FROM mobile-assist2) 
         recognition.onend = function() {
             console.log('🔚 Recognition ended');
@@ -296,55 +345,6 @@ async function activateMicrophone() {
         switchToTextMode();
     }
 }
-
-// ===================================================
-// 🎤 AI APOLOGIZES & KEEPS LISTENING (NO DORMANT MODE)
-// ===================================================
-let noSpeechCount = 0;
-
-recognition.onerror = function(event) {
-    console.log('Speech error:', event.error);
-    
-    if (event.error === 'no-speech') {
-        noSpeechCount++;
-        
-        // AI apologizes and keeps trying
-        const sorryMessages = [
-            "I'm sorry, I didn't catch that. Please try again.",
-            "Sorry, could you repeat that?", 
-            "I didn't hear you clearly. Please speak again.",
-            "Let me try listening again. Go ahead and speak."
-        ];
-        
-        const randomApology = sorryMessages[Math.floor(Math.random() * sorryMessages.length)];
-        
-        // AI speaks the apology
-        addAIMessage(randomApology);
-        speakResponse(randomApology);
-        
-        // Restart listening after AI finishes speaking
-        setTimeout(() => {
-            if (recognition && !isListening) {
-                recognition.start();
-                isListening = true;
-            }
-        }, 2500); // Wait for AI to finish speaking
-    }
-};
-
-recognition.onend = function() {
-    console.log('Recognition ended');
-    
-    // If not intentionally stopped, restart automatically
-    if (isAudioMode && conversationState !== 'ended' && !isSpeaking) {
-        setTimeout(() => {
-            if (recognition && !isListening) {
-                recognition.start();
-                isListening = true;
-            }
-        }, 1000);
-    }
-};
 
 // ===================================================
 // 💭 MESSAGE HANDLING SYSTEM (FROM voice-chat.html)
