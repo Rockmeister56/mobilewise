@@ -162,6 +162,30 @@
             animation: fadeIn 0.3s ease;
         }
 
+        /* 🎯 SEPARATE CHAT AREA FROM BUTTON AREAS */
+.chat-messages,
+.messages-container,
+#chat-area {
+    height: 40vh !important; /* Reduced from 45vh */
+    max-height: 40vh !important;
+    margin-bottom: 20px !important; /* More space below chat */
+    overflow-y: auto !important;
+    padding-bottom: 15px !important; /* Internal spacing */
+}
+
+/* 🎯 ENSURE BUTTON AREAS DON'T OVERLAP */
+.quick-buttons {
+    margin-top: 15px !important;
+    margin-bottom: 15px !important;
+    clear: both !important; /* Prevent overlap */
+}
+
+.text-input-container,
+.input-section {
+    margin-top: 20px !important; /* Push text area down */
+    clear: both !important; /* Prevent overlap */
+}
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
