@@ -162,47 +162,81 @@ recognition.onresult = function(event) {
 // ===================================================
 // 🎤 AI APOLOGIZES & KEEPS LISTENING (NO DORMANT MODE)
 // ===================================================
-let noSpeechCount = 0;
-
 recognition.onerror = function(event) {
-    console.log('Speech error:', event.error);
+    console.log('🚨 Speech error:', event.error);
     
-   if (event.error === 'no-speech') {
-    // Random apology messages for natural experience
-    const sorryMessages = [
-        "I'm sorry, I didn't catch that. Please try again.",
-        "Sorry, could you repeat that?", 
-        "I didn't hear you clearly. Please speak again.",
-        "Let me try listening again. Go ahead and speak."
-    ];
+    if (event.error === 'no-speech') {
+        // Random apology messages for natural experience
+        const sorryMessages = [
+            "I'm sorry, I didn't catch that. Please try again.",
+            "Sorry, could you repeat that?", 
+            "I didn't hear you clearly. Please speak again.",
+            "Let me try listening again. Go ahead and speak."
+        ];
+        
+        const errorMessage = sorryMessages[Math.floor(Math.random() * sorryMessages.length)];
+        
+        // Add AI apology message
+        addAIMessage(errorMessage);
+        speakResponse(errorMessage);
+        
+        // RESTART LISTENING WITHOUT STOPPING (CRITICAL FIX)
+        setTimeout(() => {
+            if (recognition && isAudioMode) {
+                try {
+                    recognition.start();
+                    isListening = true;
+                    
+                    // Show listening UI
+                    const micButton = document.getElementById('micButton');
+                    const liveTranscript = document.getElementById('liveTranscript');
+                    if (micButton) micButton.classList.add('listening');
+                    if (liveTranscript) liveTranscript.style.display = 'flex';
+                    
+                } catch (restartError) {
+                    console.log('Restart error:', restartError);
+                }
+            }
+        }, 2500); // Wait for apology to finish speaking
+        
+        return; // SKIP THE stopListening() CALL FOR NO-SPEECH ERRORS
+    }
     
-    errorMessage = sorryMessages[Math.floor(Math.random() * sorryMessages.length)];
+    // For other errors, proceed with normal handling
+    stopListening();
     
-    // ADD RESTART LOGIC HERE (don't call stopListening)
-    setTimeout(() => {
-        if (recognition && isAudioMode) {
-            recognition.start();
-            isListening = true;
-        }
-    }, 2500);
-    return; // Skip the stopListening() call for no-speech
-}
+    let errorMessage = "Sorry, there was an error with speech recognition: " + event.error;
+    if (event.error === 'no-speech') {
+        errorMessage = "No speech detected. Please try speaking again.";
+    }
+    addAIMessage(errorMessage);
 };
 
         // MOBILE-OPTIMIZED END HANDLER (FROM mobile-assist2) 
-        recognition.onend = function() {
-            console.log('🔚 Recognition ended');
-            
-            const userInput = document.getElementById('userInput');
-            
-            // Auto-send if we have text (MOBILE-ASSIST2 METHOD)
-            if (userInput && userInput.value.trim().length > 0) {
-                sendMessage();
+       recognition.onend = function() {
+    console.log('🔚 Recognition ended');
+    
+    const userInput = document.getElementById('userInput');
+    
+    // Auto-send if we have text
+    if (userInput && userInput.value.trim().length > 0) {
+        sendMessage();
+    }
+    
+    // AUTO-RESTART LISTENING (UNLESS CONVERSATION ENDED)
+    if (isAudioMode && conversationState !== 'ended' && !isSpeaking) {
+        setTimeout(() => {
+            if (recognition) {
+                try {
+                    recognition.start();
+                    isListening = true;
+                } catch (error) {
+                    console.log('Auto-restart error:', error);
+                }
             }
-            
-            // Reset listening state
-            stopListening();
-        };
+        }, 1000);
+    }
+};
 
         recognition.onerror = function(event) {
             console.error('❌ Speech recognition error:', event.error);
