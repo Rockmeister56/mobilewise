@@ -196,37 +196,37 @@ recognition.onerror = function(event) {
     }
 };
 
-      recognition.onend = function() {
-    console.log('🔚 Recognition ended - checking if should restart');
-    
-    const userInput = document.getElementById('userInput');
-    
-    // Auto-send if we have text
-    if (userInput && userInput.value.trim().length > 0) {
-        sendMessage();
-    } else {
-        // If no speech was detected, RESTART LISTENING after a delay
-        if (isAudioMode && !isSpeaking) {
-            setTimeout(() => {
-                try {
-                    if (recognition) {
-                        console.log('🔄 Restarting listening after no speech');
-                        recognition.start();
-                        isListening = true;
-                        
-                        // Keep UI in listening state
-                        const micButton = document.getElementById('micButton');
-                        const liveTranscript = document.getElementById('liveTranscript');
-                        if (micButton) micButton.classList.add('listening');
-                        if (liveTranscript) liveTranscript.style.display = 'flex';
-                    }
-                } catch (error) {
-                    console.log('Restart error:', error);
-                }
-            }, 2000); // Wait 2 seconds before restarting
+        // MOBILE-OPTIMIZED END HANDLER (FROM mobile-assist2) 
+        recognition.onend = function() {
+            console.log('🔚 Recognition ended');
+            
+            const userInput = document.getElementById('userInput');
+            
+            // Auto-send if we have text (MOBILE-ASSIST2 METHOD)
+            if (userInput && userInput.value.trim().length > 0) {
+                sendMessage();
+            }
+            
+        };
+
+        console.log('🎤 Starting speech recognition...');
+        recognition.start();
+        isListening = true;
+        
+        // Show live transcript area
+        const liveTranscript = document.getElementById('liveTranscript');
+        if (liveTranscript) {
+            liveTranscript.style.display = 'flex';
         }
+
+        console.log('✅ Speech recognition started successfully');
+
+    } catch (error) {
+        console.error('❌ Error starting speech recognition:', error);
+        addAIMessage("Speech recognition failed. Please try again or use text input.");
+        switchToTextMode();
     }
-};
+}
 
 function stopListening() {
     if (recognition) {
@@ -537,17 +537,17 @@ function speakResponse(message) {
             console.log('🔊 AI started speaking');
         };
         
-       utterance.onend = function() {
-    isSpeaking = false;
-    console.log('🔊 AI finished speaking');
-    
-    // Start listening after speaking ends (if in audio mode)
-    if (isAudioMode && !isListening) {
-        setTimeout(() => {
-            startListening();
-        }, 800);
-    }
-};
+        utterance.onend = function() {
+            isSpeaking = false;
+            console.log('🔊 AI finished speaking');
+            
+            // Start listening after speaking ends (if in audio mode)
+            if (isAudioMode && !isListening) {
+                setTimeout(() => {
+                    startListening();
+                }, 800);
+            }
+        };
         
         utterance.onerror = function(event) {
             console.log('❌ Speech error:', event.error);
