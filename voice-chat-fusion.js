@@ -165,17 +165,17 @@ recognition.onresult = function(event) {
 recognition.onerror = function(event) {
     console.log('🔊 Speech error:', event.error);
     
-    // ONLY handle no-speech errors
+    // THIS IS THE TRIGGER - no-speech error
     if (event.error === 'no-speech') {
-        console.log('🔄 No speech detected - preparing to restart');
+        console.log('🚨 No speech detected - AI should apologize and restart');
         
-        // Stop any current audio to prevent beeping
+        // Stop any current audio
         if (window.speechSynthesis) {
             window.speechSynthesis.cancel();
             isSpeaking = false;
         }
         
-        // Wait a moment, then apologize and show message
+        // Wait a moment, then apologize
         setTimeout(() => {
             const sorryMessages = [
                 "I'm sorry, I didn't catch that. Can you repeat your answer?",
@@ -186,13 +186,25 @@ recognition.onerror = function(event) {
             
             const apology = sorryMessages[Math.floor(Math.random() * sorryMessages.length)];
             
-            // Add the apology to chat
+            // Add apology to chat
             addAIMessage(apology);
             
             // Speak the apology
             speakResponse(apology);
             
-        }, 500);
+            // CRITICAL: Restart listening AFTER apology finishes
+            setTimeout(() => {
+                if (isAudioMode && !isListening) {
+                    try {
+                        console.log('🔄 Restarting microphone after apology');
+                        startListening(); // Use your existing function
+                    } catch (error) {
+                        console.log('Restart error:', error);
+                    }
+                }
+            }, 3000); // Wait for apology to finish speaking
+            
+        }, 800);
     }
 };
 
@@ -231,9 +243,7 @@ recognition.onerror = function(event) {
 function stopListening() {
     if (recognition) {
         recognition.stop();
-        recognition.onresult = null;
-        recognition.onerror = null;
-        recognition.onend = null;
+        // 🚫 DO NOT remove handlers - keep them alive for error handling!
     }
 
     // Update UI
