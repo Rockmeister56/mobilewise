@@ -576,14 +576,16 @@ function speakResponse(message) {
         };
         
         utterance.onend = function() {
-    isSpeaking = false;
-    console.log('🔊 AI finished speaking');
-    
-    // Start listening after speaking ends (if in audio mode)
-    if (isAudioMode && !isListening) {
-        restartListening();
-    }
-};
+            isSpeaking = false;
+            console.log('🔊 AI finished speaking');
+            
+            // Start listening after speaking ends (if in audio mode)
+            if (isAudioMode && !isListening) {
+                setTimeout(() => {
+                    startListening();
+                }, 800);
+            }
+        };
         
         utterance.onerror = function(event) {
             console.log('❌ Speech error:', event.error);
