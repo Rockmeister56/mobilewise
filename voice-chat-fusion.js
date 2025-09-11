@@ -265,45 +265,6 @@ async function activateMicrophone() {
 }
 
 // ===================================================
-// 🛑 STOP BUTTON UNDER QUICK BUTTONS - FIXED
-// ===================================================
-function createUnderQuickStopButton() {
-    // Find quick buttons container
-    const quickButtonsContainer = document.querySelector('.quick-buttons') || 
-                                 document.querySelector('[class*="quick"]') ||
-                                 document.querySelector('[class*="button"]');
-    
-    if (quickButtonsContainer) {
-        // Create stop button
-        const stopButton = document.createElement('button');
-        stopButton.id = 'underQuickStopButton';
-        stopButton.innerHTML = '🛑 Stop Voice Chat';
-        stopButton.style = `
-            width: 100%;
-            background: linear-gradient(45deg, #ff4757, #ff3838);
-            border: none;
-            border-radius: 25px;
-            padding: 12px 20px;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 15px;
-            box-shadow: 0 3px 10px rgba(255,71,87,0.3);
-            display: none;  /* 🎯 HIDDEN ON PAGE LOAD! */
-            font-size: 14px;
-        `;
-        
-        // Add click handler
-        stopButton.onclick = function() {
-            // Your stop functionality here
-            this.style.display = 'none';
-        };
-        
-        // Insert AFTER quick buttons
-        quickButtonsContainer.parentNode.insertBefore(stopButton, quickButtonsContainer.nextSibling);
-    }
-}
-// ===================================================
 // 💭 MESSAGE HANDLING SYSTEM (FROM voice-chat.html)
 // ===================================================
 function addUserMessage(message) {
@@ -848,10 +809,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     optimizeForMobile();
     initializeChatInterface();
-    createUnderQuickStopButton();
-
-// Show it when voice starts (in activateMicrophone)
-document.getElementById('underQuickStopButton').style.display = 'block';
     
     // 🎯 CLEAN PAGE LOAD - NO BUBBLES
     const micButton = document.getElementById('micButton');
