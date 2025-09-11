@@ -101,12 +101,6 @@ function playIntroJingle() {
     }, 3000); // Start fade after 3 seconds
 }
 
-function stopCurrentAudio() {
-    if (window.speechSynthesis) {
-        window.speechSynthesis.cancel();
-    }
-    isSpeaking = false;
-}
 
 // ===================================================
 // 🎤 SPEECH RECOGNITION SYSTEM (MOBILE-OPTIMIZED)
@@ -168,66 +162,47 @@ recognition.onresult = function(event) {
 // ===================================================
 // 🎤 AI APOLOGIZES & KEEPS LISTENING (NO DORMANT MODE)
 // ===================================================
+let noSpeechCount = 0;
+
 recognition.onerror = function(event) {
-    console.log('🔊 Speech error:', event.error);
+    console.log('Speech error:', event.error);
     
-    // ONLY handle no-speech errors
-    if (event.error === 'no-speech') {
-        // Stop any current audio to prevent beeping
-        if (window.speechSynthesis) {
-            window.speechSynthesis.cancel();
-            isSpeaking = false;
+   if (event.error === 'no-speech') {
+    // Random apology messages for natural experience
+    const sorryMessages = [
+        "I'm sorry, I didn't catch that. Please try again.",
+        "Sorry, could you repeat that?", 
+        "I didn't hear you clearly. Please speak again.",
+        "Let me try listening again. Go ahead and speak."
+    ];
+    
+    errorMessage = sorryMessages[Math.floor(Math.random() * sorryMessages.length)];
+    
+    // ADD RESTART LOGIC HERE (don't call stopListening)
+    setTimeout(() => {
+        if (recognition && isAudioMode) {
+            recognition.start();
+            isListening = true;
         }
-        
-        // Wait a moment, then apologize
-        setTimeout(() => {
-            const sorryMessages = [
-                "I'm sorry, I didn't catch that. Can you repeat your answer?",
-                "Sorry, I didn't hear you. Please say that again.",
-                "I didn't get that. Could you repeat it?",
-                "Let me try again. Please speak your answer now."
-            ];
-            
-            const apology = sorryMessages[Math.floor(Math.random() * sorryMessages.length)];
-            
-            // Add the apology to chat
-            addAIMessage(apology);
-            
-            // Speak the apology
-            speakResponse(apology);
-            
-        }, 500);
-    } else {
-        // For other errors, use normal handling
-        stopListening();
-        addAIMessage("Sorry, there was an error. Please try speaking again.");
-    }
+    }, 2500);
+    return; // Skip the stopListening() call for no-speech
+}
 };
+
         // MOBILE-OPTIMIZED END HANDLER (FROM mobile-assist2) 
-       recognition.onend = function() {
-    console.log('🔚 Recognition ended');
-    
-    const userInput = document.getElementById('userInput');
-    
-    // Auto-send if we have text
-    if (userInput && userInput.value.trim().length > 0) {
-        sendMessage();
-    }
-    
-    // AUTO-RESTART LISTENING (UNLESS CONVERSATION ENDED)
-    if (isAudioMode && conversationState !== 'ended' && !isSpeaking) {
-        setTimeout(() => {
-            if (recognition) {
-                try {
-                    recognition.start();
-                    isListening = true;
-                } catch (error) {
-                    console.log('Auto-restart error:', error);
-                }
+        recognition.onend = function() {
+            console.log('🔚 Recognition ended');
+            
+            const userInput = document.getElementById('userInput');
+            
+            // Auto-send if we have text (MOBILE-ASSIST2 METHOD)
+            if (userInput && userInput.value.trim().length > 0) {
+                sendMessage();
             }
-        }, 1000);
-    }
-};
+            
+            // Reset listening state
+            stopListening();
+        };
 
         recognition.onerror = function(event) {
             console.error('❌ Speech recognition error:', event.error);
