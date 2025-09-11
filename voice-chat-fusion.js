@@ -194,7 +194,7 @@ recognition.onerror = function(event) {
             
             // CRITICAL: Restart listening AFTER apology finishes
             setTimeout(() => {
-                if (isAudioMode && !isListening) {
+                if (isAudioMode) {  // 🚨 REMOVED: && !isListening
                     try {
                         console.log('🔄 Restarting microphone after apology');
                         startListening(); // Use your existing function
@@ -261,8 +261,7 @@ function restartListening() {
         setTimeout(() => {
             try {
                 if (recognition) {
-                    recognition.start();
-                    isListening = true;
+                    startListening(); // This already sets isListening = true internally!
                     console.log('🔄 Listening restarted');
                     
                     // Keep UI in listening state
