@@ -167,45 +167,26 @@ let noSpeechCount = 0;
 recognition.onerror = function(event) {
     console.log('Speech error:', event.error);
     
-    if (event.error === 'no-speech') {
-        noSpeechCount++;
-        
-        // AI apologizes and keeps trying
-        const sorryMessages = [
-            "I'm sorry, I didn't catch that. Please try again.",
-            "Sorry, could you repeat that?", 
-            "I didn't hear you clearly. Please speak again.",
-            "Let me try listening again. Go ahead and speak."
-        ];
-        
-        const randomApology = sorryMessages[Math.floor(Math.random() * sorryMessages.length)];
-        
-        // AI speaks the apology
-        addAIMessage(randomApology);
-        speakResponse(randomApology);
-        
-        // Restart listening after AI finishes speaking
-        setTimeout(() => {
-            if (recognition && !isListening) {
-                recognition.start();
-                isListening = true;
-            }
-        }, 2500); // Wait for AI to finish speaking
-    }
-};
-
-recognition.onend = function() {
-    console.log('Recognition ended');
+   if (event.error === 'no-speech') {
+    // Random apology messages for natural experience
+    const sorryMessages = [
+        "I'm sorry, I didn't catch that. Please try again.",
+        "Sorry, could you repeat that?", 
+        "I didn't hear you clearly. Please speak again.",
+        "Let me try listening again. Go ahead and speak."
+    ];
     
-    // If not intentionally stopped, restart automatically
-    if (isAudioMode && conversationState !== 'ended' && !isSpeaking) {
-        setTimeout(() => {
-            if (recognition && !isListening) {
-                recognition.start();
-                isListening = true;
-            }
-        }, 1000);
-    }
+    errorMessage = sorryMessages[Math.floor(Math.random() * sorryMessages.length)];
+    
+    // ADD RESTART LOGIC HERE (don't call stopListening)
+    setTimeout(() => {
+        if (recognition && isAudioMode) {
+            recognition.start();
+            isListening = true;
+        }
+    }, 2500);
+    return; // Skip the stopListening() call for no-speech
+}
 };
 
         // MOBILE-OPTIMIZED END HANDLER (FROM mobile-assist2) 
