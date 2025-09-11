@@ -440,7 +440,6 @@
         padding: 12px; /* Smaller input padding */
         font-size: 16px; /* Prevents zoom on iOS */
     }
-}
 
 /* Extra small mobile devices */
 @media (max-width: 400px) {
@@ -584,6 +583,31 @@
     animation: overlay-pulse 2s ease-in-out;
 }
 
+/* Add this CSS to give text area more space */
+@media (max-width: 600px) {
+    /* Hide the mic button */
+    #micButton,
+    .mic-button,
+    [class*="mic"] {
+        display: none !important;
+    }
+    
+    /* Expand text input to full width */
+    .text-input,
+    input[type="text"],
+    .message-input,
+    #user-input {
+        width: 95% !important; /* Increased from 85% */
+        max-width: 95% !important;
+    }
+    
+    /* Give input container more space */
+    .input-container,
+    .text-area-container {
+        padding-left: 5px; /* Remove left padding for mic button */
+    }
+}
+
 @keyframes overlay-pulse {
     0%, 100% { opacity: 0; }
     50% { opacity: 1; }
@@ -648,7 +672,7 @@
         
         <!-- Microphone Status (shows briefly when activated) -->
         <div class="mic-status" id="micStatus" style="display: none;">
-            🎤 Microphone Activated
+            🎤 Please Activate Microphone
         </div>
         
         <!-- Chat Messages Area -->
@@ -663,7 +687,6 @@
         
         <!-- Input Area with Microphone -->
         <div class="input-area">
-           <div class="mic-btn" id="micButton">🎤</div>
             <input type="text" id="userInput" placeholder="Type or click mic to speak...">
             <button id="sendBtn">Send</button>
         </div>
