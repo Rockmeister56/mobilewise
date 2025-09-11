@@ -185,6 +185,13 @@ recognition.onresult = function(event) {
             addAIMessage(errorMessage);
         };
 
+            // ADD THIS FOR TIMEOUT RECOVERY:
+    if (event.error === 'no-speech' || event.error === 'network') {
+        setTimeout(() => {
+            showContinueButton(); // Our continue button function
+        }, 1000);
+    }
+
         console.log('🎤 Starting speech recognition...');
         recognition.start();
         isListening = true;
@@ -325,6 +332,13 @@ recognition.onerror = function(event) {
 recognition.onend = function() {
     if (!isListening) {
         showReactivationButton();
+    }
+
+        // ADD THIS FOR TIMEOUT RECOVERY:
+    if (!isListening && conversationState !== 'ended') {
+        setTimeout(() => {
+            showContinueButton(); // Our continue button function
+        }, 2000);
     }
 };
 
