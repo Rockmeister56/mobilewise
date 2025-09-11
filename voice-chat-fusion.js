@@ -166,77 +166,85 @@ recognition.onerror = function(event) {
     console.log('🔊 Speech error:', event.error);
     
     if (event.error === 'no-speech') {
-        console.log('🚨 No speech detected - AI will apologize and restart');
-        
-        // Stop any current audio
-        if (window.speechSynthesis) {
-            window.speechSynthesis.cancel();
-            isSpeaking = false;
-        }
-        
-        // Wait a moment, then apologize and restart
-        setTimeout(() => {
-            const sorryMessages = [
-                "I'm sorry, I didn't catch that. Can you repeat your answer?",
-                "Sorry, I didn't hear you. Please say that again.",
-                "I didn't get that. Could you repeat it?",
-                "Let me try listening again. Please speak your answer now."
-            ];
-            
-            const apology = sorryMessages[Math.floor(Math.random() * sorryMessages.length)];
-            
-            // Add apology to chat
-            addAIMessage(apology);
-            
-            // Speak the apology
-            speakResponse(apology);
-            
-            // Restart listening AFTER apology finishes
-            setTimeout(() => {
-                if (isAudioMode) {
-                    try {
-                        console.log('🔄 Restarting after apology');
-                        startListening();
-                    } catch (error) {
-                        console.log('Restart error:', error);
-                    }
-                }
-            }, 2500); // Wait for apology to finish
-            
-        }, 500);
+        console.log('🚨 No speech detected');
+        handleNoSpeechError();
     }
 };
-              recognition.onend = function() {
-            console.log('🔚 Recognition ended');
-            
-            const userInput = document.getElementById('userInput');
-            
-            // Auto-send if we have text (MOBILE-ASSIST2 METHOD)
-            if (userInput && userInput.value.trim().length > 0) {
-                sendMessage();
-            }
-            
-            // 🚫 DO NOT call stopListening() here - let error handler manage it
-        };
 
-        console.log('🎤 Starting speech recognition...');
-        recognition.start();
-        isListening = true;
-        
-        // Show live transcript area
-        const liveTranscript = document.getElementById('liveTranscript');
-        if (liveTranscript) {
-            liveTranscript.style.display = 'flex';
-        }
-
-        console.log('✅ Speech recognition started successfully');
-
-    } catch (error) {
-        console.error('❌ Error starting speech recognition:', error);
-        addAIMessage("Speech recognition failed. Please try again or use text input.");
-        switchToTextMode();
+recognition.onerror = function(event) {
+    console.log('🔊 Speech error:', event.error);
+    
+    if (event.error === 'no-speech') {
+        console.log('🚨 No speech detected');
+        handleNoSpeechError();
     }
-} 
+};
+
+// ADD THIS ONEND HANDLER RIGHT HERE:
+recognition.onend = function() {
+    console.log('🔚 Recognition ended');
+    
+    const userInput = document.getElementById('userInput');
+    
+    // Auto-send if we have text
+    if (userInput && userInput.value.trim().length > 0) {
+        sendMessage();
+    } else {
+        // MOBILE FIX: If no text, assume no-speech and restart
+        if (isAudioMode && !isSpeaking) {
+            console.log('🔄 No speech detected via onend - restarting');
+            setTimeout(() => {
+                try {
+                    if (recognition) {
+                        startListening();
+                    }
+                } catch (error) {
+                    console.log('Restart error:', error);
+                }
+            }, 1000);
+        }
+    }
+};
+
+// NEW: Separate function for no-speech handling
+function handleNoSpeechError() {
+    // Stop any current audio
+    if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+        isSpeaking = false;
+    }
+    
+    // Wait a moment, then apologize and restart
+    setTimeout(() => {
+        const sorryMessages = [
+            "I'm sorry, I didn't catch that. Can you repeat your answer?",
+            "Sorry, I didn't hear you. Please say that again.",
+            "I didn't get that. Could you repeat it?",
+            "Let me try listening again. Please speak your answer now."
+        ];
+        
+        const apology = sorryMessages[Math.floor(Math.random() * sorryMessages.length)];
+        
+        // Add apology to chat
+        addAIMessage(apology);
+        
+        // Speak the apology
+        speakResponse(apology);
+        
+        // Restart listening AFTER apology finishes
+        setTimeout(() => {
+            if (isAudioMode) {
+                try {
+                    console.log('🔄 Restarting after apology');
+                    startListening();
+                } catch (error) {
+                    console.log('Restart error:', error);
+                }
+            }
+        }, 2500); // Wait for apology to finish
+        
+    }, 500);
+}
 
 function stopListening() {
     if (recognition) {
