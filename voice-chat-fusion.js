@@ -298,6 +298,37 @@ async function activateMicrophone() {
 }
 
 // ===================================================
+// 🎤 REACTIVATE CENTER MIC ON TIMEOUT
+// ===================================================
+function showReactivationButton() {
+    // Show the center mic button again
+    const centerMic = document.getElementById('centerMicActivation');
+    if (centerMic) {
+        centerMic.style.display = 'block';
+        
+        // Update the text for continuation
+        const welcomeText = centerMic.querySelector('div');
+        if (welcomeText) {
+            welcomeText.textContent = 'To continue conversation, click mic';
+        }
+    }
+}
+
+// Add to your speech recognition error/timeout handlers
+recognition.onerror = function(event) {
+    console.log('Speech recognition error:', event.error);
+    if (event.error === 'no-speech' || event.error === 'network') {
+        showReactivationButton();
+    }
+};
+
+recognition.onend = function() {
+    if (!isListening) {
+        showReactivationButton();
+    }
+};
+
+// ===================================================
 // 💭 MESSAGE HANDLING SYSTEM (FROM voice-chat.html)
 // ===================================================
 function addUserMessage(message) {
@@ -548,7 +579,7 @@ function getAIResponse(userInput) {
             smartButtonText = 'Get Practice Valuation';
             smartButtonAction = 'valuation';
         } else {
-            responseText = "I specialize in CPA firm transactions - buying, selling, and valuations. What specifically are you interested in learning more about?";
+            responseText = "NCI specialize in CPA firm transactions - buying, selling, and practice valuations. What specifically are you interested in learning more about?";
         }
     } else if (conversationState === 'selling_inquiry') {
         if (userText.includes('today') || userText.includes('now') || userText.includes('asap') || 
