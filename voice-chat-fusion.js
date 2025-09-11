@@ -341,6 +341,98 @@ function processUserResponse(userText) {
 }
 
 // ===================================================
+// 🎯 CREATE ELEGANT ACTION BUTTONS (REPLACES STOP BUTTON)
+// ===================================================
+function createElegantActionButtons() {
+    const quickButtonsContainer = document.querySelector('.quick-buttons') || 
+                                 document.querySelector('[class*="quick"]');
+    
+    if (quickButtonsContainer) {
+        // Create button container
+        const actionContainer = document.createElement('div');
+        actionContainer.style = `
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            width: 100%;
+        `;
+        
+        // TEXT ONLY BUTTON
+        const textOnlyBtn = document.createElement('button');
+        textOnlyBtn.innerHTML = '📝 Switch to Text';
+        textOnlyBtn.style = `
+            flex: 1;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            padding: 12px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            font-size: 14px;
+        `;
+        
+        // EXIT BUTTON
+        const exitBtn = document.createElement('button');
+        exitBtn.innerHTML = '🎁 Free Book';
+        exitBtn.style = `
+            flex: 1;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            padding: 12px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            font-size: 14px;
+        `;
+        
+        // CLICK HANDLERS
+        textOnlyBtn.onclick = () => switchToTextMode();
+        exitBtn.onclick = () => showFreeBookOffer();
+        
+        // ADD TO CONTAINER
+        actionContainer.appendChild(textOnlyBtn);
+        actionContainer.appendChild(exitBtn);
+        
+        // INSERT AFTER QUICK BUTTONS
+        quickButtonsContainer.parentNode.insertBefore(actionContainer, quickButtonsContainer.nextSibling);
+    }
+}
+
+// ===================================================
+// 🎁 FREE BOOK OFFER FUNCTION
+// ===================================================
+function showFreeBookOffer() {
+    // Create overlay with form
+    const offerOverlay = document.createElement('div');
+    offerOverlay.innerHTML = `
+        <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                    background: rgba(0,0,0,0.8); z-index: 9999; 
+                    display: flex; align-items: center; justify-content: center;">
+            <div style="background: white; padding: 30px; border-radius: 15px; 
+                        max-width: 400px; text-align: center;">
+                <h2>🎁 FREE CPA Practice Guide!</h2>
+                <p>Get Bruce's exclusive guide to maximizing your practice value!</p>
+                <input type="email" placeholder="Enter your email" style="width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px;">
+                <br>
+                <button onclick="this.parentElement.parentElement.remove()" 
+                        style="background: #00ff88; color: white; padding: 10px 20px; border: none; border-radius: 5px; margin: 5px;">
+                    Get My Free Guide!
+                </button>
+                <button onclick="this.parentElement.parentElement.remove()" 
+                        style="background: #ccc; color: black; padding: 10px 20px; border: none; border-radius: 5px; margin: 5px;">
+                    Maybe Later
+                </button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(offerOverlay);
+}
+
+// ===================================================
 // 🔊 VOICE SYNTHESIS SYSTEM (FROM voice-chat.html)
 // ===================================================
 function speakResponse(message) {
@@ -809,6 +901,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     optimizeForMobile();
     initializeChatInterface();
+    createElegantActionButtons();
     
     // 🎯 CLEAN PAGE LOAD - NO BUBBLES
     const micButton = document.getElementById('micButton');
