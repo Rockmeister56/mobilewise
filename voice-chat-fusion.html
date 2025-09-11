@@ -570,17 +570,29 @@
     }
 }
 
-/* Conversion Complete Overlay */
-.conversion-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(76, 175, 80, 0.1);
-    z-index: 5000;
-    pointer-events: none;
-    animation: overlay-pulse 2s ease-in-out;
+/* 🎯 START SPEAKING BUTTON VISIBILITY FIX */
+.listening-button,
+#listeningButton,
+.start-speaking-button,
+[class*="listening"],
+[id*="listening"] {
+    background: rgba(0, 0, 0, 0.7) !important; /* Transparent black background */
+    backdrop-filter: blur(5px); /* Optional blur effect */
+    border: 2px solid #00ff88 !important; /* Keep green border */
+    color: #00ff88 !important; /* Bright green text */
+    padding: 12px 20px !important;
+    border-radius: 25px !important;
+    font-weight: bold !important;
+    text-shadow: 0 0 5px rgba(0, 255, 136, 0.5) !important; /* Green glow */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* 🎯 HOVER EFFECT FOR BETTER UX */
+.listening-button:hover,
+#listeningButton:hover {
+    background: rgba(0, 0, 0, 0.9) !important;
+    color: #ffffff !important;
+    border-color: #ffffff !important;
 }
 
 /* Add this CSS to give text area more space */
