@@ -173,7 +173,7 @@ recognition.onerror = function(event) {
             isSpeaking = false;
         }
         
-        // Wait a moment, then apologize
+        // Wait a moment, then apologize and RESTART LISTENING
         setTimeout(() => {
             const sorryMessages = [
                 "I'm sorry, I didn't catch that. Can you repeat your answer?",
@@ -187,12 +187,51 @@ recognition.onerror = function(event) {
             // Add the apology to chat
             addAIMessage(apology);
             
-            // Speak the apology
-            speakResponse(apology);
+            // Speak the apology and then RESTART listening
+            const utterance = new SpeechSynthesisUtterance(apology);
+            utterance.onend = function() {
+                isSpeaking = false;
+                console.log('🔊 Apology finished - restarting listening');
+                
+                // RESTART LISTENING AFTER APOLOGY
+                if (isAudioMode) {
+                    setTimeout(() => {
+                        try {
+                            if (recognition) {
+                                recognition.start();
+                                isListening = true;
+                                console.log('✅ Listening restarted after apology');
+                            }
+                        } catch (error) {
+                            console.log('Restart error:', error);
+                        }
+                    }, 800);
+                }
+            };
+            
+            utterance.onerror = function() {
+                isSpeaking = false;
+                // Still try to restart even if apology fails
+                if (isAudioMode) {
+                    setTimeout(() => {
+                        try {
+                            if (recognition) {
+                                recognition.start();
+                                isListening = true;
+                            }
+                        } catch (error) {
+                            console.log('Restart error:', error);
+                        }
+                    }, 800);
+                }
+            };
+            
+            window.speechSynthesis.speak(utterance);
+            isSpeaking = true;
             
         }, 500);
     }
-    // IGNORE all other errors - no stopListening() calls!
+    // IGNORE all other errors
 };
 
         // MOBILE-OPTIMIZED END HANDLER (FROM mobile-assist2) 
@@ -243,6 +282,28 @@ function stopListening() {
     if (liveTranscript) liveTranscript.style.display = 'none';
 
     isListening = false;
+}
+
+function restartListening() {
+    if (isAudioMode && !isListening) {
+        setTimeout(() => {
+            try {
+                if (recognition) {
+                    recognition.start();
+                    isListening = true;
+                    console.log('🔄 Listening restarted');
+                    
+                    // Keep UI in listening state
+                    const micButton = document.getElementById('micButton');
+                    const liveTranscript = document.getElementById('liveTranscript');
+                    if (micButton) micButton.classList.add('listening');
+                    if (liveTranscript) liveTranscript.style.display = 'flex';
+                }
+            } catch (error) {
+                console.log('Restart error:', error);
+            }
+        }, 1000);
+    }
 }
 
 // ===================================================
@@ -515,16 +576,14 @@ function speakResponse(message) {
         };
         
         utterance.onend = function() {
-            isSpeaking = false;
-            console.log('🔊 AI finished speaking');
-            
-            // Start listening after speaking ends (if in audio mode)
-            if (isAudioMode && !isListening) {
-                setTimeout(() => {
-                    startListening();
-                }, 800);
-            }
-        };
+    isSpeaking = false;
+    console.log('🔊 AI finished speaking');
+    
+    // Start listening after speaking ends (if in audio mode)
+    if (isAudioMode && !isListening) {
+        restartListening();
+    }
+};
         
         utterance.onerror = function(event) {
             console.log('❌ Speech error:', event.error);
