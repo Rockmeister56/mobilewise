@@ -167,13 +167,15 @@ recognition.onerror = function(event) {
     
     // ONLY handle no-speech errors
     if (event.error === 'no-speech') {
+        console.log('🔄 No speech detected - preparing to restart');
+        
         // Stop any current audio to prevent beeping
         if (window.speechSynthesis) {
             window.speechSynthesis.cancel();
             isSpeaking = false;
         }
         
-        // Wait a moment, then apologize and RESTART LISTENING
+        // Wait a moment, then apologize and show message
         setTimeout(() => {
             const sorryMessages = [
                 "I'm sorry, I didn't catch that. Can you repeat your answer?",
@@ -187,84 +189,44 @@ recognition.onerror = function(event) {
             // Add the apology to chat
             addAIMessage(apology);
             
-            // Speak the apology and then RESTART listening
-            const utterance = new SpeechSynthesisUtterance(apology);
-            utterance.onend = function() {
-                isSpeaking = false;
-                console.log('🔊 Apology finished - restarting listening');
-                
-                // RESTART LISTENING AFTER APOLOGY
-                if (isAudioMode) {
-                    setTimeout(() => {
-                        try {
-                            if (recognition) {
-                                recognition.start();
-                                isListening = true;
-                                console.log('✅ Listening restarted after apology');
-                            }
-                        } catch (error) {
-                            console.log('Restart error:', error);
-                        }
-                    }, 800);
-                }
-            };
-            
-            utterance.onerror = function() {
-                isSpeaking = false;
-                // Still try to restart even if apology fails
-                if (isAudioMode) {
-                    setTimeout(() => {
-                        try {
-                            if (recognition) {
-                                recognition.start();
-                                isListening = true;
-                            }
-                        } catch (error) {
-                            console.log('Restart error:', error);
-                        }
-                    }, 800);
-                }
-            };
-            
-            window.speechSynthesis.speak(utterance);
-            isSpeaking = true;
+            // Speak the apology
+            speakResponse(apology);
             
         }, 500);
     }
-    // IGNORE all other errors
 };
 
-        // MOBILE-OPTIMIZED END HANDLER (FROM mobile-assist2) 
-        recognition.onend = function() {
-            console.log('🔚 Recognition ended');
-            
-            const userInput = document.getElementById('userInput');
-            
-            // Auto-send if we have text (MOBILE-ASSIST2 METHOD)
-            if (userInput && userInput.value.trim().length > 0) {
-                sendMessage();
-            }
-            
-        };
-
-        console.log('🎤 Starting speech recognition...');
-        recognition.start();
-        isListening = true;
-        
-        // Show live transcript area
-        const liveTranscript = document.getElementById('liveTranscript');
-        if (liveTranscript) {
-            liveTranscript.style.display = 'flex';
+      recognition.onend = function() {
+    console.log('🔚 Recognition ended - checking if should restart');
+    
+    const userInput = document.getElementById('userInput');
+    
+    // Auto-send if we have text
+    if (userInput && userInput.value.trim().length > 0) {
+        sendMessage();
+    } else {
+        // If no speech was detected, RESTART LISTENING after a delay
+        if (isAudioMode && !isSpeaking) {
+            setTimeout(() => {
+                try {
+                    if (recognition) {
+                        console.log('🔄 Restarting listening after no speech');
+                        recognition.start();
+                        isListening = true;
+                        
+                        // Keep UI in listening state
+                        const micButton = document.getElementById('micButton');
+                        const liveTranscript = document.getElementById('liveTranscript');
+                        if (micButton) micButton.classList.add('listening');
+                        if (liveTranscript) liveTranscript.style.display = 'flex';
+                    }
+                } catch (error) {
+                    console.log('Restart error:', error);
+                }
+            }, 2000); // Wait 2 seconds before restarting
         }
-
-        console.log('✅ Speech recognition started successfully');
-
-    } catch (error) {
-        console.error('❌ Error starting speech recognition:', error);
-        addAIMessage("Speech recognition failed. Please try again or use text input.");
-        switchToTextMode();
     }
-}
+};
 
 function stopListening() {
     if (recognition) {
@@ -575,17 +537,17 @@ function speakResponse(message) {
             console.log('🔊 AI started speaking');
         };
         
-        utterance.onend = function() {
-            isSpeaking = false;
-            console.log('🔊 AI finished speaking');
-            
-            // Start listening after speaking ends (if in audio mode)
-            if (isAudioMode && !isListening) {
-                setTimeout(() => {
-                    startListening();
-                }, 800);
-            }
-        };
+       utterance.onend = function() {
+    isSpeaking = false;
+    console.log('🔊 AI finished speaking');
+    
+    // Start listening after speaking ends (if in audio mode)
+    if (isAudioMode && !isListening) {
+        setTimeout(() => {
+            startListening();
+        }, 800);
+    }
+};
         
         utterance.onerror = function(event) {
             console.log('❌ Speech error:', event.error);
