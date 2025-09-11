@@ -198,17 +198,6 @@
     clear: both !important; /* Prevent overlap */
 }
 
-/* 🎯 FORCE INDEPENDENT POSITIONING */
-.chat-container {
-    display: flex !important;
-    flex-direction: column !important;
-    height: auto !important; /* Let it size naturally */
-}
-
-.chat-messages {
-    flex-shrink: 0 !important; /* Don't let it grow into buttons */
-}
-
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
