@@ -1003,3 +1003,20 @@ document.addEventListener('DOMContentLoaded', function() {
     // }, 1000);
 });
 
+// 🚨 TEMPORARY TEST - ADD AT BOTTOM OF YOUR JS FILE
+setTimeout(() => {
+    console.log('Testing recognition object:', recognition);
+    
+    if (recognition) {
+        console.log('Recognition object exists!');
+        
+        // Test if our handler is attached
+        console.log('Current onerror handler:', recognition.onerror);
+        
+        // Manually trigger an error to test
+        recognition.onerror({error: 'no-speech'});
+    } else {
+        console.log('❌ NO RECOGNITION OBJECT FOUND!');
+    }
+}, 5000); // Test after 5 seconds
+
