@@ -140,24 +140,32 @@ function startListening() {
         }
 
         // MOBILE-OPTIMIZED RESULT HANDLER (FIXED)
-        recognition.onresult = function(event) {
-            const transcript = Array.from(event.results)
-                .map(result => result[0])
-                .map(result => result.transcript)
-                .join('');
-            
-            // 🎯 FIXED: Keep green button saying "Speak Now" - DON'T update with transcript
-            const transcriptText = document.getElementById('transcriptText');
-            const userInput = document.getElementById('userInput');
-            
-            if (transcriptText) {
-                transcriptText.textContent = 'Speak Now'; // 🚀 ALWAYS "Speak Now" - never transcript
-            }
-            
-            if (userInput) {
-                userInput.value = transcript; // ✅ ONLY the text field gets your words
-            }
-        };
+       recognition.onresult = function(event) {
+    const transcript = Array.from(event.results)
+        .map(result => result[0])
+        .map(result => result.transcript)
+        .join('');
+    
+    // 🎯 FIXED: Keep green button saying "Speak Now" - DON'T update with transcript
+    const transcriptText = document.getElementById('transcriptText');
+    const userInput = document.getElementById('userInput');
+    
+    if (transcriptText) {
+        transcriptText.textContent = 'Speak Now'; // 🚀 ALWAYS "Speak Now" - never transcript
+    }
+    
+    if (userInput) {
+        userInput.value = transcript; // ✅ ONLY the text field gets your words
+    }
+    
+    // 🆕 CRITICAL: AUTO-SEND THE MESSAGE WHEN SPEECH IS DETECTED
+    if (transcript.trim().length > 0) {
+        // Small delay to ensure recognition is complete
+        setTimeout(() => {
+            sendMessage();
+        }, 300);
+    }
+};
 
         // ADD YOUR ERROR HANDLER HERE
         recognition.onerror = function(event) {
@@ -196,6 +204,31 @@ function startListening() {
         }, 500);
     }
 };
+
+        recognition.onend = function() {
+            console.log('🔚 Recognition ended');
+            
+            const userInput = document.getElementById('userInput');
+            
+            // Auto-send if we have text
+            if (userInput && userInput.value.trim().length > 0) {
+                sendMessage();
+            } else {
+                // ONLY restart if we were already in a listening session
+                if (isAudioMode && !isSpeaking && isListening) {
+                    console.log('🔄 No speech detected via onend - restarting');
+                    setTimeout(() => {
+                        try {
+                            if (recognition) {
+                                startListening();
+                            }
+                        } catch (error) {
+                            console.log('Restart error:', error);
+                        }
+                    }, 1000);
+                }
+            }
+        };
 
         console.log('🎤 Starting speech recognition...');
         recognition.start();
