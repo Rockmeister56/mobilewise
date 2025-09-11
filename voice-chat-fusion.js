@@ -165,9 +165,8 @@ recognition.onresult = function(event) {
 recognition.onerror = function(event) {
     console.log('🔊 Speech error:', event.error);
     
-    // THIS IS THE TRIGGER - no-speech error
     if (event.error === 'no-speech') {
-        console.log('🚨 No speech detected - AI should apologize and restart');
+        console.log('🚨 No speech detected - restarting');
         
         // Stop any current audio
         if (window.speechSynthesis) {
@@ -175,39 +174,19 @@ recognition.onerror = function(event) {
             isSpeaking = false;
         }
         
-        // Wait a moment, then apologize
+        // Simple immediate restart - no apology for now
         setTimeout(() => {
-            const sorryMessages = [
-                "I'm sorry, I didn't catch that. Can you repeat your answer?",
-                "Sorry, I didn't hear you. Please say that again.",
-                "I didn't get that. Could you repeat it?",
-                "Let me try listening again. Please speak your answer now."
-            ];
-            
-            const apology = sorryMessages[Math.floor(Math.random() * sorryMessages.length)];
-            
-            // Add apology to chat
-            addAIMessage(apology);
-            
-            // Speak the apology
-            speakResponse(apology);
-            
-            // CRITICAL: Restart listening AFTER apology finishes
-            setTimeout(() => {
-                if (isAudioMode) {  // 🚨 REMOVED: && !isListening
-                    try {
-                        console.log('🔄 Restarting microphone after apology');
-                        startListening(); // Use your existing function
-                    } catch (error) {
-                        console.log('Restart error:', error);
-                    }
+            if (isAudioMode) {
+                try {
+                    console.log('🔄 Immediate restart after no speech');
+                    startListening();
+                } catch (error) {
+                    console.log('Restart error:', error);
                 }
-            }, 3000); // Wait for apology to finish speaking
-            
-        }, 800);
+            }
+        }, 1000); // Shorter delay
     }
 };
-
               recognition.onend = function() {
             console.log('🔚 Recognition ended');
             
@@ -1008,21 +987,4 @@ document.addEventListener('DOMContentLoaded', function() {
     //     activateMicrophone();
     // }, 1000);
 });
-
-// 🚨 TEMPORARY TEST - ADD AT BOTTOM OF YOUR JS FILE
-setTimeout(() => {
-    console.log('Testing recognition object:', recognition);
-    
-    if (recognition) {
-        console.log('Recognition object exists!');
-        
-        // Test if our handler is attached
-        console.log('Current onerror handler:', recognition.onerror);
-        
-        // Manually trigger an error to test
-        recognition.onerror({error: 'no-speech'});
-    } else {
-        console.log('❌ NO RECOGNITION OBJECT FOUND!');
-    }
-}, 5000); // Test after 5 seconds
 
