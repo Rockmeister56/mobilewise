@@ -140,112 +140,81 @@ function startListening() {
         }
 
         // MOBILE-OPTIMIZED RESULT HANDLER (FIXED)
-recognition.onresult = function(event) {
-    const transcript = Array.from(event.results)
-        .map(result => result[0])
-        .map(result => result.transcript)
-        .join('');
-    
-    // 🎯 FIXED: Keep green button saying "Speak Now" - DON'T update with transcript
-    const transcriptText = document.getElementById('transcriptText');
-    const userInput = document.getElementById('userInput');
-    
-    if (transcriptText) {
-        transcriptText.textContent = 'Speak Now'; // 🚀 ALWAYS "Speak Now" - never transcript
-    }
-    
-    if (userInput) {
-        userInput.value = transcript; // ✅ ONLY the text field gets your words
-    }
-};
-
-// ===================================================
-// 🎤 AI APOLOGIZES & KEEPS LISTENING (NO DORMANT MODE)
-// ===================================================
-recognition.onerror = function(event) {
-    console.log('🔊 Speech error:', event.error);
-    
-    if (event.error === 'no-speech') {
-        console.log('🚨 No speech detected');
-        handleNoSpeechError();
-    }
-};
-
-recognition.onerror = function(event) {
-    console.log('🔊 Speech error:', event.error);
-    
-    if (event.error === 'no-speech') {
-        console.log('🚨 No speech detected');
-        handleNoSpeechError();
-    }
-};
-
-// ADD THIS ONEND HANDLER RIGHT HERE:
-recognition.onend = function() {
-    console.log('🔚 Recognition ended');
-    
-    const userInput = document.getElementById('userInput');
-    
-    // Auto-send if we have text
-    if (userInput && userInput.value.trim().length > 0) {
-        sendMessage();
-    } else {
-        // ONLY restart if we were already in a listening session
-        // This prevents interfering with initial activation
-        if (isAudioMode && !isSpeaking && isListening) {
-            console.log('🔄 No speech detected via onend - restarting');
-            setTimeout(() => {
-                try {
-                    if (recognition) {
-                        startListening();
-                    }
-                } catch (error) {
-                    console.log('Restart error:', error);
-                }
-            }, 1000);
-        }
-    }
-};
-
-// NEW: Separate function for no-speech handling
-function handleNoSpeechError() {
-    // Stop any current audio
-    if (window.speechSynthesis) {
-        window.speechSynthesis.cancel();
-        isSpeaking = false;
-    }
-    
-    // Wait a moment, then apologize and restart
-    setTimeout(() => {
-        const sorryMessages = [
-            "I'm sorry, I didn't catch that. Can you repeat your answer?",
-            "Sorry, I didn't hear you. Please say that again.",
-            "I didn't get that. Could you repeat it?",
-            "Let me try listening again. Please speak your answer now."
-        ];
-        
-        const apology = sorryMessages[Math.floor(Math.random() * sorryMessages.length)];
-        
-        // Add apology to chat
-        addAIMessage(apology);
-        
-        // Speak the apology
-        speakResponse(apology);
-        
-        // Restart listening AFTER apology finishes
-        setTimeout(() => {
-            if (isAudioMode) {
-                try {
-                    console.log('🔄 Restarting after apology');
-                    startListening();
-                } catch (error) {
-                    console.log('Restart error:', error);
-                }
+        recognition.onresult = function(event) {
+            const transcript = Array.from(event.results)
+                .map(result => result[0])
+                .map(result => result.transcript)
+                .join('');
+            
+            // 🎯 FIXED: Keep green button saying "Speak Now" - DON'T update with transcript
+            const transcriptText = document.getElementById('transcriptText');
+            const userInput = document.getElementById('userInput');
+            
+            if (transcriptText) {
+                transcriptText.textContent = 'Speak Now'; // 🚀 ALWAYS "Speak Now" - never transcript
             }
-        }, 2500); // Wait for apology to finish
+            
+            if (userInput) {
+                userInput.value = transcript; // ✅ ONLY the text field gets your words
+            }
+        };
+
+        // ADD YOUR ERROR HANDLER HERE
+        recognition.onerror = function(event) {
+    console.log('🔊 Speech error:', event.error);
+    
+    if (event.error === 'no-speech') {
+        console.log('🚨 No speech detected - apologizing and restarting');
         
-    }, 500);
-}
+        setTimeout(() => {
+            const sorryMessages = [
+                "I'm sorry, I didn't catch that. Can you repeat your answer?",
+                "Sorry, I didn't hear you. Please say that again.",
+                "I didn't get that. Could you repeat it?",
+                "Let me try listening again. Please speak your answer now."
+            ];
+            
+            const apology = sorryMessages[Math.floor(Math.random() * sorryMessages.length)];
+            
+            // Add apology to chat
+            addAIMessage(apology);
+            
+            // Speak the apology
+            speakResponse(apology);
+            
+            // Restart listening AFTER apology finishes
+            setTimeout(() => {
+                if (isAudioMode) {
+                    try {
+                        startListening();
+                    } catch (error) {
+                        console.log('Restart error:', error);
+                    }
+                }
+            }, 2500);
+            
+        }, 500);
+    }
+};
+
+        console.log('🎤 Starting speech recognition...');
+        recognition.start();
+        isListening = true; // ← CRITICAL: Set listening flag
+        
+        // Show live transcript area
+        const liveTranscript = document.getElementById('liveTranscript');
+        if (liveTranscript) {
+            liveTranscript.style.display = 'flex';
+        }
+
+        console.log('✅ Speech recognition started successfully');
+
+    } catch (error) {
+        console.error('❌ Error starting speech recognition:', error);
+        addAIMessage("Speech recognition failed. Please try again or use text input.");
+        switchToTextMode();
+    }
+} // ← THIS CLOSING BRACE WAS MISSING
 
 function stopListening() {
     if (recognition) {
