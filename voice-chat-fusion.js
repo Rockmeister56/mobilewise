@@ -297,38 +297,54 @@ async function activateMicrophone() {
     }
 }
 
-// Add a "Restart Voice" button to your elegant action buttons
-function addRestartVoiceButton() {
-    const quickButtons = document.querySelector('.quick-buttons');
-    if (quickButtons) {
-        const restartBtn = document.createElement('button');
-        restartBtn.innerHTML = '🎤 Restart Voice Chat';
-        restartBtn.style = `
-            width: 100%;
-            background: rgba(0, 255, 136, 0.2);
-            border: 2px solid rgba(0, 255, 136, 0.3);
-            border-radius: 20px;
-            padding: 12px;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-            backdrop-filter: blur(10px);
-            margin-top: 10px;
-            display: none;
-        `;
+// ===================================================
+// 🎤 AI APOLOGIZES & KEEPS LISTENING (NO DORMANT MODE)
+// ===================================================
+let noSpeechCount = 0;
+
+recognition.onerror = function(event) {
+    console.log('Speech error:', event.error);
+    
+    if (event.error === 'no-speech') {
+        noSpeechCount++;
         
-        restartBtn.onclick = () => {
-            location.reload(); // Simple page refresh to restart everything
-        };
+        // AI apologizes and keeps trying
+        const sorryMessages = [
+            "I'm sorry, I didn't catch that. Please try again.",
+            "Sorry, could you repeat that?", 
+            "I didn't hear you clearly. Please speak again.",
+            "Let me try listening again. Go ahead and speak."
+        ];
         
-        quickButtons.parentNode.appendChild(restartBtn);
+        const randomApology = sorryMessages[Math.floor(Math.random() * sorryMessages.length)];
         
-        // Show it after 30 seconds of inactivity (optional)
+        // AI speaks the apology
+        addAIMessage(randomApology);
+        speakResponse(randomApology);
+        
+        // Restart listening after AI finishes speaking
         setTimeout(() => {
-            restartBtn.style.display = 'block';
-        }, 30000);
+            if (recognition && !isListening) {
+                recognition.start();
+                isListening = true;
+            }
+        }, 2500); // Wait for AI to finish speaking
     }
-}
+};
+
+recognition.onend = function() {
+    console.log('Recognition ended');
+    
+    // If not intentionally stopped, restart automatically
+    if (isAudioMode && conversationState !== 'ended' && !isSpeaking) {
+        setTimeout(() => {
+            if (recognition && !isListening) {
+                recognition.start();
+                isListening = true;
+            }
+        }, 1000);
+    }
+};
 
 // ===================================================
 // 💭 MESSAGE HANDLING SYSTEM (FROM voice-chat.html)
