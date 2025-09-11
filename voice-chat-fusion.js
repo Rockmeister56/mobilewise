@@ -162,31 +162,37 @@ recognition.onresult = function(event) {
 // ===================================================
 // 🎤 AI APOLOGIZES & KEEPS LISTENING (NO DORMANT MODE)
 // ===================================================
-let noSpeechCount = 0;
-
 recognition.onerror = function(event) {
-    console.log('Speech error:', event.error);
+    console.log('🔊 Speech error:', event.error);
     
-   if (event.error === 'no-speech') {
-    // Random apology messages for natural experience
-    const sorryMessages = [
-        "I'm sorry, I didn't catch that. Please try again.",
-        "Sorry, could you repeat that?", 
-        "I didn't hear you clearly. Please speak again.",
-        "Let me try listening again. Go ahead and speak."
-    ];
-    
-    errorMessage = sorryMessages[Math.floor(Math.random() * sorryMessages.length)];
-    
-    // ADD RESTART LOGIC HERE (don't call stopListening)
-    setTimeout(() => {
-        if (recognition && isAudioMode) {
-            recognition.start();
-            isListening = true;
+    // ONLY handle no-speech errors
+    if (event.error === 'no-speech') {
+        // Stop any current audio to prevent beeping
+        if (window.speechSynthesis) {
+            window.speechSynthesis.cancel();
+            isSpeaking = false;
         }
-    }, 2500);
-    return; // Skip the stopListening() call for no-speech
-}
+        
+        // Wait a moment, then apologize
+        setTimeout(() => {
+            const sorryMessages = [
+                "I'm sorry, I didn't catch that. Can you repeat your answer?",
+                "Sorry, I didn't hear you. Please say that again.",
+                "I didn't get that. Could you repeat it?",
+                "Let me try listening again. Please speak your answer now."
+            ];
+            
+            const apology = sorryMessages[Math.floor(Math.random() * sorryMessages.length)];
+            
+            // Add the apology to chat
+            addAIMessage(apology);
+            
+            // Speak the apology
+            speakResponse(apology);
+            
+        }, 500);
+    }
+    // IGNORE all other errors - no stopListening() calls!
 };
 
         // MOBILE-OPTIMIZED END HANDLER (FROM mobile-assist2) 
@@ -200,19 +206,6 @@ recognition.onerror = function(event) {
                 sendMessage();
             }
             
-            // Reset listening state
-            stopListening();
-        };
-
-        recognition.onerror = function(event) {
-            console.error('❌ Speech recognition error:', event.error);
-            stopListening();
-            
-            let errorMessage = "Sorry, there was an error with speech recognition: " + event.error;
-            if (event.error === 'no-speech') {
-                errorMessage = "No speech detected. Please try speaking again.";
-            }
-            addAIMessage(errorMessage);
         };
 
         console.log('🎤 Starting speech recognition...');
