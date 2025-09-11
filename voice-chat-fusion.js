@@ -298,33 +298,55 @@ async function activateMicrophone() {
 }
 
 // ===================================================
-// 🎤 REACTIVATE CENTER MIC ON TIMEOUT
+// 🎤 SIMPLE REACTIVATION WITHOUT LOADING LOOP
 // ===================================================
-function showReactivationButton() {
-    // Show the center mic button again
-    const centerMic = document.getElementById('centerMicActivation');
-    if (centerMic) {
-        centerMic.style.display = 'block';
-        
-        // Update the text for continuation
-        const welcomeText = centerMic.querySelector('div');
-        if (welcomeText) {
-            welcomeText.textContent = 'To continue conversation, click mic';
-        }
-    }
+function showContinueButton() {
+    // Create a simple continue button (don't reuse centerMicActivation)
+    const continueBtn = document.createElement('div');
+    continueBtn.id = 'continueVoiceButton';
+    continueBtn.innerHTML = `
+        <div style="text-align: center; margin: 20px;">
+            <div style="margin-bottom: 15px; color: white; font-size: 1.1em;">
+                Conversation paused
+            </div>
+            <button id="continueMicBtn" style="
+                background: linear-gradient(45deg, #00ff88, #00ccff);
+                border: none;
+                border-radius: 50%;
+                width: 80px;
+                height: 80px;
+                font-size: 1.5em;
+                cursor: pointer;
+                color: white;
+                box-shadow: 0 4px 15px rgba(0,255,136,0.3);">
+                🎤
+            </button>
+            <div style="margin-top: 10px; color: #ccc; font-size: 0.9em;">
+                Click to continue conversation
+            </div>
+        </div>
+    `;
+    
+    // Add to page
+    document.body.appendChild(continueBtn);
+    
+    // Simple click handler - just restart listening
+    document.getElementById('continueMicBtn').onclick = function() {
+        continueBtn.remove(); // Remove the button
+        startListening(); // Just restart listening - don't reinitialize everything
+    };
 }
 
-// Add to your speech recognition error/timeout handlers
+// Add to timeout/error handlers
 recognition.onerror = function(event) {
-    console.log('Speech recognition error:', event.error);
     if (event.error === 'no-speech' || event.error === 'network') {
-        showReactivationButton();
+        showContinueButton();
     }
 };
 
 recognition.onend = function() {
     if (!isListening) {
-        showReactivationButton();
+        showContinueButton();
     }
 };
 
