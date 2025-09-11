@@ -107,25 +107,25 @@ function startListening() {
             initializeSpeechRecognition();
         }
 
-        // MOBILE-OPTIMIZED RESULT HANDLER (FROM mobile-assist2)
-        recognition.onresult = function(event) {
-            const transcript = Array.from(event.results)
-                .map(result => result[0])
-                .map(result => result.transcript)
-                .join('');
-            
-            // Show live transcript in the designated area
-            const transcriptText = document.getElementById('transcriptText');
-            const userInput = document.getElementById('userInput');
-            
-            if (transcriptText) {
-                transcriptText.textContent = transcript || 'Listening...';
-            }
-            
-            if (userInput) {
-                userInput.value = transcript;
-            }
-        };
+        // MOBILE-OPTIMIZED RESULT HANDLER (FIXED)
+recognition.onresult = function(event) {
+    const transcript = Array.from(event.results)
+        .map(result => result[0])
+        .map(result => result.transcript)
+        .join('');
+    
+    // 🎯 FIXED: Keep green button saying "Speak Now" - DON'T update with transcript
+    const transcriptText = document.getElementById('transcriptText');
+    const userInput = document.getElementById('userInput');
+    
+    if (transcriptText) {
+        transcriptText.textContent = 'Speak Now'; // 🚀 ALWAYS "Speak Now" - never transcript
+    }
+    
+    if (userInput) {
+        userInput.value = transcript; // ✅ ONLY the text field gets your words
+    }
+};
 
         // MOBILE-OPTIMIZED END HANDLER (FROM mobile-assist2) 
         recognition.onend = function() {
