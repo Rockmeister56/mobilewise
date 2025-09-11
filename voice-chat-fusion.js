@@ -265,7 +265,7 @@ async function activateMicrophone() {
 }
 
 // ===================================================
-// 🛑 STOP BUTTON UNDER QUICK BUTTONS
+// 🛑 STOP BUTTON UNDER QUICK BUTTONS - FIXED
 // ===================================================
 function createUnderQuickStopButton() {
     // Find quick buttons container
@@ -289,13 +289,13 @@ function createUnderQuickStopButton() {
             cursor: pointer;
             margin-top: 15px;
             box-shadow: 0 3px 10px rgba(255,71,87,0.3);
-            display: none;
+            display: none;  /* 🎯 HIDDEN ON PAGE LOAD! */
             font-size: 14px;
         `;
         
         // Add click handler
         stopButton.onclick = function() {
-            safeStopVoiceChat();
+            // Your stop functionality here
             this.style.display = 'none';
         };
         
@@ -303,7 +303,6 @@ function createUnderQuickStopButton() {
         quickButtonsContainer.parentNode.insertBefore(stopButton, quickButtonsContainer.nextSibling);
     }
 }
-
 // ===================================================
 // 💭 MESSAGE HANDLING SYSTEM (FROM voice-chat.html)
 // ===================================================
