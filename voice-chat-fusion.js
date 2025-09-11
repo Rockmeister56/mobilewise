@@ -166,7 +166,7 @@ recognition.onerror = function(event) {
     console.log('🔊 Speech error:', event.error);
     
     if (event.error === 'no-speech') {
-        console.log('🚨 No speech detected - restarting');
+        console.log('🚨 No speech detected - AI will apologize and restart');
         
         // Stop any current audio
         if (window.speechSynthesis) {
@@ -174,17 +174,36 @@ recognition.onerror = function(event) {
             isSpeaking = false;
         }
         
-        // Simple immediate restart - no apology for now
+        // Wait a moment, then apologize and restart
         setTimeout(() => {
-            if (isAudioMode) {
-                try {
-                    console.log('🔄 Immediate restart after no speech');
-                    startListening();
-                } catch (error) {
-                    console.log('Restart error:', error);
+            const sorryMessages = [
+                "I'm sorry, I didn't catch that. Can you repeat your answer?",
+                "Sorry, I didn't hear you. Please say that again.",
+                "I didn't get that. Could you repeat it?",
+                "Let me try listening again. Please speak your answer now."
+            ];
+            
+            const apology = sorryMessages[Math.floor(Math.random() * sorryMessages.length)];
+            
+            // Add apology to chat
+            addAIMessage(apology);
+            
+            // Speak the apology
+            speakResponse(apology);
+            
+            // Restart listening AFTER apology finishes
+            setTimeout(() => {
+                if (isAudioMode) {
+                    try {
+                        console.log('🔄 Restarting after apology');
+                        startListening();
+                    } catch (error) {
+                        console.log('Restart error:', error);
+                    }
                 }
-            }
-        }, 1000); // Shorter delay
+            }, 2500); // Wait for apology to finish
+            
+        }, 500);
     }
 };
               recognition.onend = function() {
