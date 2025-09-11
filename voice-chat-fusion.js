@@ -190,8 +190,9 @@ recognition.onend = function() {
     if (userInput && userInput.value.trim().length > 0) {
         sendMessage();
     } else {
-        // MOBILE FIX: If no text, assume no-speech and restart
-        if (isAudioMode && !isSpeaking) {
+        // ONLY restart if we were already in a listening session
+        // This prevents interfering with initial activation
+        if (isAudioMode && !isSpeaking && isListening) {
             console.log('🔄 No speech detected via onend - restarting');
             setTimeout(() => {
                 try {
