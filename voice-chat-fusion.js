@@ -71,6 +71,38 @@ function showMicActivatedStatus() {
 }
 
 // ===================================================
+// 🎵 MOBILE-WISE AI INTRO JINGLE PLAYER
+// ===================================================
+function playIntroJingle() {
+    const introAudio = new Audio('https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/audio-intros/ai_intro_1757573121859.mp3');
+    
+    // Set audio properties
+    introAudio.volume = 0.7; // 70% volume - adjust as needed
+    introAudio.preload = 'auto';
+    
+    // Play the jingle
+    introAudio.play().catch(error => {
+        console.log('Intro jingle failed to play:', error);
+        // Fail silently - don't break the experience
+    });
+    
+    // Optional: Fade out after a few seconds if AI speaks
+    setTimeout(() => {
+        if (!introAudio.ended) {
+            let fadeOutInterval = setInterval(() => {
+                if (introAudio.volume > 0.1) {
+                    introAudio.volume -= 0.1;
+                } else {
+                    introAudio.pause();
+                    clearInterval(fadeOutInterval);
+                }
+            }, 100);
+        }
+    }, 3000); // Start fade after 3 seconds
+}
+
+
+// ===================================================
 // 🎤 SPEECH RECOGNITION SYSTEM (MOBILE-OPTIMIZED)
 // ===================================================
 function checkSpeechSupport() {
@@ -194,6 +226,7 @@ function stopListening() {
 // 🎯 CLEAN ACTIVATION SYSTEM - NO STOP BUTTON
 // ===================================================
 document.getElementById('mainMicButton').addEventListener('click', async function() {
+     playIntroJingle();
     // Hide center activation
     document.getElementById('centerMicActivation').style.display = 'none';
     
