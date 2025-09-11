@@ -185,13 +185,6 @@ recognition.onresult = function(event) {
             addAIMessage(errorMessage);
         };
 
-            // ADD THIS FOR TIMEOUT RECOVERY:
-    if (event.error === 'no-speech' || event.error === 'network') {
-        setTimeout(() => {
-            showContinueButton(); // Our continue button function
-        }, 1000);
-    }
-
         console.log('🎤 Starting speech recognition...');
         recognition.start();
         isListening = true;
@@ -304,43 +297,38 @@ async function activateMicrophone() {
     }
 }
 
-// ===================================================
-// 🎤 REACTIVATE CENTER MIC ON TIMEOUT
-// ===================================================
-function showReactivationButton() {
-    // Show the center mic button again
-    const centerMic = document.getElementById('centerMicActivation');
-    if (centerMic) {
-        centerMic.style.display = 'block';
+// Add a "Restart Voice" button to your elegant action buttons
+function addRestartVoiceButton() {
+    const quickButtons = document.querySelector('.quick-buttons');
+    if (quickButtons) {
+        const restartBtn = document.createElement('button');
+        restartBtn.innerHTML = '🎤 Restart Voice Chat';
+        restartBtn.style = `
+            width: 100%;
+            background: rgba(0, 255, 136, 0.2);
+            border: 2px solid rgba(0, 255, 136, 0.3);
+            border-radius: 20px;
+            padding: 12px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            margin-top: 10px;
+            display: none;
+        `;
         
-        // Update the text for continuation
-        const welcomeText = centerMic.querySelector('div');
-        if (welcomeText) {
-            welcomeText.textContent = 'To continue conversation, click mic';
-        }
+        restartBtn.onclick = () => {
+            location.reload(); // Simple page refresh to restart everything
+        };
+        
+        quickButtons.parentNode.appendChild(restartBtn);
+        
+        // Show it after 30 seconds of inactivity (optional)
+        setTimeout(() => {
+            restartBtn.style.display = 'block';
+        }, 30000);
     }
 }
-
-// Add to your speech recognition error/timeout handlers
-recognition.onerror = function(event) {
-    console.log('Speech recognition error:', event.error);
-    if (event.error === 'no-speech' || event.error === 'network') {
-        showReactivationButton();
-    }
-};
-
-recognition.onend = function() {
-    if (!isListening) {
-        showReactivationButton();
-    }
-
-        // ADD THIS FOR TIMEOUT RECOVERY:
-    if (!isListening && conversationState !== 'ended') {
-        setTimeout(() => {
-            showContinueButton(); // Our continue button function
-        }, 2000);
-    }
-};
 
 // ===================================================
 // 💭 MESSAGE HANDLING SYSTEM (FROM voice-chat.html)
