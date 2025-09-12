@@ -19,7 +19,8 @@ let userResponseCount = 0;
 let shouldShowSmartButton = false;
 let smartButtonText = 'AI Smart Button';
 let smartButtonAction = 'default';
-let isStartingRecognition = false;
+let restartTimeout = null;
+let lastMessageWasApology = false;
 
 // ===================================================
 // 📱 MOBILE DEVICE DETECTION
@@ -167,69 +168,52 @@ recognition.onerror = function(event) {
         console.log('🚨 No speech detected - using AI response system');
         
         // Use your existing AI response system
-        const apologyResponse = getAIResponse(""); // Empty input triggers apology logic
+        const apologyResponse = getAIResponse("");
         
-        // 🆕 MOBILE-OPTIMIZED: Stop listening completely before speaking
+        // Stop listening completely before speaking
         stopListening();
         
         setTimeout(() => {
-            // Add apology to chat
             addAIMessage(apologyResponse);
+            speakResponse(apoligyResponse);
             
-            // 🆕 MOBILE-OPTIMIZED: Longer delay for mobile before speaking
-            const speakDelay = isMobileDevice() ? 800 : 500;
+            // 🆕 THIS becomes the ONLY place that restarts after no-speech
+            // Cancel any other pending restarts
+            if (restartTimeout) clearTimeout(restartTimeout);
             
-            setTimeout(() => {
-                speakResponse(apologyResponse);
-                
-                // 🆕 MOBILE-OPTIMIZED: Longer delay before restarting listening
-                const restartDelay = isMobileDevice() ? 3000 : 2500;
-                
-                // Restart listening AFTER apology finishes
-                setTimeout(() => {
-                    if (isAudioMode) {
-                        try {
-                            startListening();
-                        } catch (error) {
-                            console.log('Restart error:', error);
-                        }
-                    }
-                }, restartDelay);
-                
-            }, speakDelay);
-            
+            restartTimeout = setTimeout(() => {
+                if (isAudioMode && !isListening && !isSpeaking) {
+                    startListening();
+                }
+            }, 3000); // Longer delay for mobile
         }, 500);
-    } else {
-        // Handle other errors
-        console.log('Other speech error:', event.error);
     }
 };
         // ADD YOUR ONEND HANDLER HERE
-        recognition.onend = function() {
-            console.log('🔚 Recognition ended');
-            
-            const userInput = document.getElementById('userInput');
-            
-            // Auto-send if we have text
-            if (userInput && userInput.value.trim().length > 0) {
-                sendMessage();
-            } else {
-                // ONLY restart if we were already in a listening session
-                if (isAudioMode && !isSpeaking && isListening) {
-                    console.log('🔄 No speech detected via onend - restarting');
-                    setTimeout(() => {
-                        try {
-                            if (recognition) {
-                                startListening();
-                            }
-                        } catch (error) {
-                            console.log('Restart error:', error);
-                        }
-                    }, 1000);
+       recognition.onend = function() {
+    console.log('🔚 Recognition ended');
+    
+    const userInput = document.getElementById('userInput');
+    
+    // Auto-send if we have text
+    if (userInput && userInput.value.trim().length > 0) {
+        sendMessage();
+    } else {
+        // 🆕 ONLY restart if NOT in apology flow
+        if (isAudioMode && !isSpeaking && isListening && !lastMessageWasApology) {
+            console.log('🔄 No speech detected via onend - restarting');
+            setTimeout(() => {
+                try {
+                    if (recognition) {
+                        startListening();
+                    }
+                } catch (error) {
+                    console.log('Restart error:', error);
                 }
-            }
-        };
-
+            }, 1000);
+        }
+    }
+};
         console.log('🎤 Starting speech recognition...');
         recognition.start();
         isListening = true; // ← CRITICAL: Set listening flag
@@ -555,18 +539,17 @@ function speakResponse(message) {
             console.log('🔊 AI started speaking');
         };
         
-        utterance.onend = function() {
-            isSpeaking = false;
-            console.log('🔊 AI finished speaking');
-            
-            // Start listening after speaking ends (if in audio mode)
-            if (isAudioMode && !isListening) {
-                setTimeout(() => {
-                    startListening();
-                }, 800);
-            }
-        };
-        
+       utterance.onend = function() {
+    isSpeaking = false;
+    console.log('🔊 AI finished speaking');
+    
+    // 🆕 ONLY restart if this wasn't an apology response
+    if (isAudioMode && !isListening && !lastMessageWasApology) {
+        setTimeout(() => {
+            startListening();
+        }, 800);
+    }
+};
         utterance.onerror = function(event) {
             console.log('❌ Speech error:', event.error);
             isSpeaking = false;
