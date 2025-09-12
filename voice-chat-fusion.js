@@ -131,6 +131,23 @@ function initializeSpeechRecognition() {
     return true;
 }
 
+// ===================================================
+// 🚨 APOLOGY RESPONSE SYSTEM (FOR NO-SPEECH ERRORS)
+// ===================================================
+function getApologyResponse() {
+    const sorryMessages = [
+        "I'm sorry, I didn't catch that. Can you repeat your answer?",
+        "Sorry, I didn't hear you. Please say that again.", 
+        "I didn't get that. Could you repeat it?",
+        "Let me try listening again. Please speak your answer now."
+    ];
+    
+    lastMessageWasApology = true;
+    setTimeout(() => { lastMessageWasApology = false; }, 5000);
+    
+    return sorryMessages[Math.floor(Math.random() * sorryMessages.length)];
+}
+
 function startListening() {
     console.log('🎯 startListening() called');
     if (!checkSpeechSupport()) return;
@@ -269,21 +286,6 @@ function restartListening() {
             }
         }, 1000);
     }
-}
-
-// ADD THIS NEW FUNCTION near your other utility functions:
-function getApologyResponse() {
-    const sorryMessages = [
-        "I'm sorry, I didn't catch that. Can you repeat your answer?",
-        "Sorry, I didn't hear you. Please say that again.", 
-        "I didn't get that. Could you repeat it?",
-        "Let me try listening again. Please speak your answer now."
-    ];
-    
-    lastMessageWasApology = true;
-    setTimeout(() => { lastMessageWasApology = false; }, 5000);
-    
-    return sorryMessages[Math.floor(Math.random() * sorryMessages.length)];
 }
 
 // ===================================================
