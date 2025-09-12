@@ -255,6 +255,21 @@
             50% { opacity: 0.6; }
         }
 
+         /* =================================================== */
+        /* 🎨 MOBILE APOLOGY STYLES */
+        /* =================================================== */
+       .transcript-text.retry {
+    color: #ff6b6b !important;          /* ← MUST have !important */
+    font-weight: bold !important;       /* ← MUST have !important */  
+    animation: pulse 1s infinite !important; /* ← Add this too */
+}
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
         /* ===================================================
            💬 INPUT AREA WITH MICROPHONE
            ================================================== */
@@ -355,26 +370,6 @@
             transform: translateY(-2px);
         }
 
-          /* =================================================== */
-        /* 🎨 MOBILE APOLOGY STYLES */
-        /* =================================================== */
-        .transcript-text.retry {
-            color: #ff6b6b !important;
-            font-weight: bold !important;
-            animation: pulse 1s infinite;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.7; }
-            100% { opacity: 1; }
-        }
-        
-.transcript-text.retry {
-    color: #ff6b6b !important;
-    font-weight: bold !important;
-    animation: pulse 1s infinite;
-}
 
 @keyframes pulse {
     0% { opacity: 1; }

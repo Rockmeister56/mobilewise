@@ -209,8 +209,6 @@ recognition.onerror = function(event) {
                 setTimeout(() => {
                     if (transcriptText) {
                         transcriptText.textContent = 'Speak Now';
-                        transcriptText.style.color = '';
-                        transcriptText.style.fontWeight = '';
                     }
                     if (isAudioMode && !isListening && !isSpeaking) {
                         startListening();
