@@ -19,6 +19,7 @@ let userResponseCount = 0;
 let shouldShowSmartButton = false;
 let smartButtonText = 'AI Smart Button';
 let smartButtonAction = 'default';
+let isStartingRecognition = false;
 
 // ===================================================
 // 📱 MOBILE DEVICE DETECTION
@@ -160,33 +161,43 @@ function startListening() {
         };
 
         // ADD YOUR ERROR HANDLER HERE
-      // Replace your current recognition.onerror handler with this:
 recognition.onerror = function(event) {
     console.log('🔊 Speech error:', event.error);
     
     if (event.error === 'no-speech') {
         console.log('🚨 No speech detected - using AI response system');
         
-        // Use your existing AI response system instead of hardcoded messages
+        // Use your existing AI response system
         const apologyResponse = getAIResponse(""); // Empty input triggers apology logic
+        
+        // 🆕 MOBILE-OPTIMIZED: Stop listening completely before speaking
+        stopListening();
         
         setTimeout(() => {
             // Add apology to chat
             addAIMessage(apologyResponse);
             
-            // Speak the apology
-            speakResponse(apologyResponse);
+            // 🆕 MOBILE-OPTIMIZED: Longer delay for mobile before speaking
+            const speakDelay = isMobileDevice() ? 800 : 500;
             
-            // Restart listening AFTER apology finishes
             setTimeout(() => {
-                if (isAudioMode) {
-                    try {
-                        startListening();
-                    } catch (error) {
-                        console.log('Restart error:', error);
+                speakResponse(apologyResponse);
+                
+                // 🆕 MOBILE-OPTIMIZED: Longer delay before restarting listening
+                const restartDelay = isMobileDevice() ? 3000 : 2500;
+                
+                // Restart listening AFTER apology finishes
+                setTimeout(() => {
+                    if (isAudioMode) {
+                        try {
+                            startListening();
+                        } catch (error) {
+                            console.log('Restart error:', error);
+                        }
                     }
-                }
-            }, 2500);
+                }, restartDelay);
+                
+            }, speakDelay);
             
         }, 500);
     } else {
