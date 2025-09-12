@@ -241,45 +241,6 @@ function startListening() {
     }
 } // ← THIS CLOSING BRACE WAS MISSING
 
-// NEW: Separate function for no-speech handling
-function handleNoSpeechError() {
-    // Stop any current audio
-    if (window.speechSynthesis) {
-        isSpeaking = false;
-    }
-    
-    // Wait a moment, then apologize and restart
-    setTimeout(() => {
-        const sorryMessages = [
-            "I'm sorry, I didn't catch that. Can you repeat your answer?",
-            "Sorry, I didn't hear you. Please say that again.",
-            "I didn't get that. Could you repeat it?",
-            "Let me try listening again. Please speak your answer now."
-        ];
-        
-        const apology = sorryMessages[Math.floor(Math.random() * sorryMessages.length)];
-        
-        // Add apology to chat
-        addAIMessage(apology);
-        
-        // Speak the apology
-        speakResponse(apology);
-        
-        // Restart listening AFTER apology finishes
-        setTimeout(() => {
-            if (isAudioMode) {
-                try {
-                    console.log('🔄 Restarting after apology');
-                    startListening();
-                } catch (error) {
-                    console.log('Restart error:', error);
-                }
-            }
-        }, 2500); // Wait for apology to finish
-        
-    }, 500);
-}
-
 function stopListening() {
     if (recognition) {
         recognition.stop();
