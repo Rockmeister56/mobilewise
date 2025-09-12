@@ -168,16 +168,16 @@ recognition.onerror = function(event) {
         console.log('🚨 No speech detected - using AI response system');
         
         // Use your existing AI response system
-        const apologyResponse = getAIResponse("");
+        const apologyResponse = getAIResponse(""); // ✅ Defined here
         
         // Stop listening completely before speaking
         stopListening();
         
         setTimeout(() => {
             addAIMessage(apologyResponse);
-            speakResponse(apoligyResponse);
+            speakResponse(apologyResponse); // ✅ FIX THE TYPO HERE!
             
-            // 🆕 THIS becomes the ONLY place that restarts after no-speech
+            // THIS becomes the ONLY place that restarts after no-speech
             // Cancel any other pending restarts
             if (restartTimeout) clearTimeout(restartTimeout);
             
