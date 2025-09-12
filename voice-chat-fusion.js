@@ -177,34 +177,45 @@ function startListening() {
             }
         };
 
-        // ADD YOUR ERROR HANDLER HERE
+// In your recognition.onerror handler - ADD MOBILE DETECTION:
 recognition.onerror = function(event) {
     console.log('🔊 Speech error:', event.error);
     
-    if (event.error === 'no-speech') {
+    if (event.event === 'no-speech') {
         console.log('🚨 No speech detected - using AI response system');
         
-        lastMessageWasApology = true; // 🆕 SET THE FLAG FIRST
-        
-        const apologyResponse = getApologyResponse(); // ✅ CORRECT
+        lastMessageWasApology = true;
+        const apologyResponse = getApologyResponse();
         
         // Stop listening completely before speaking
         stopListening();
         
+        // 🆕 MOBILE-SPECIFIC TIMING
+        const mobileDelay = isMobileDevice() ? 1000 : 500;
+        const mobileRestartDelay = isMobileDevice() ? 4000 : 3000;
+        
         setTimeout(() => {
             addAIMessage(apologyResponse);
-            speakResponse(apologyResponse); // ✅ FIXED TYPO
             
-            // THIS becomes the ONLY place that restarts after no-speech
+            // 🆕 CRITICAL FOR MOBILE: Stop ALL audio first
+            if (isMobileDevice()) {
+                window.speechSynthesis.cancel();
+                setTimeout(() => {
+                    speakResponse(apologyResponse);
+                }, 300);
+            } else {
+                speakResponse(apologyResponse);
+            }
+            
             if (restartTimeout) clearTimeout(restartTimeout);
             
             restartTimeout = setTimeout(() => {
                 if (isAudioMode && !isListening && !isSpeaking) {
                     startListening();
                 }
-                lastMessageWasApology = false; // 🆕 RESET FLAG AFTER RESTART
-            }, 3000);
-        }, 500);
+                lastMessageWasApology = false;
+            }, mobileRestartDelay);
+        }, mobileDelay);
     }
 };
         // ADD YOUR ONEND HANDLER HERE
@@ -532,7 +543,7 @@ function showFreeBookOffer() {
 }
 
 // ===================================================
-// 🔊 VOICE SYNTHESIS SYSTEM (FROM voice-chat.html)
+// 🔊 VOICE SYNTHESIS SYSTEM (MOBILE-OPTIMIZED)
 // ===================================================
 function speakResponse(message) {
     if (!window.speechSynthesis) {
@@ -543,31 +554,68 @@ function speakResponse(message) {
     // Stop any current speech
     window.speechSynthesis.cancel();
     
-    // Add slight delay for mobile to prevent clipping
-    setTimeout(() => {
+    // Mobile-optimized handling
+    if (isMobileDevice()) {
+        // 🆕 MOBILE: Extra delay and complete audio reset
+        setTimeout(() => {
+            const utterance = new SpeechSynthesisUtterance(message);
+            
+            // Mobile-optimized settings
+            utterance.rate = 0.9; // Slower for mobile clarity
+            utterance.pitch = 1.0;
+            utterance.volume = 0.95; // Slightly louder for mobile
+            
+            utterance.onstart = function() {
+                isSpeaking = true;
+                console.log('🔊 AI started speaking (mobile)');
+            };
+            
+            utterance.onend = function() {
+                isSpeaking = false;
+                console.log('🔊 AI finished speaking (mobile)');
+                
+                // Start listening after speaking ends (if in audio mode)
+                if (isAudioMode && !isListening && !lastMessageWasApology) {
+                    setTimeout(() => {
+                        startListening();
+                    }, 1200); // Longer delay for mobile
+                }
+            };
+            
+            utterance.onerror = function(event) {
+                console.log('❌ Speech error:', event.error);
+                isSpeaking = false;
+            };
+            
+            window.speechSynthesis.speak(utterance);
+            currentAudio = utterance;
+        }, 500); // Longer initial delay for mobile
+    } else {
+        // DESKTOP VERSION (original code)
         const utterance = new SpeechSynthesisUtterance(message);
         
-        // Mobile-optimized settings
-        utterance.rate = isMobileDevice() ? 0.9 : 1.0;
+        // Desktop settings
+        utterance.rate = 1.0;
         utterance.pitch = 1.0;
-        utterance.volume = isMobileDevice() ? 0.95 : 0.9;
+        utterance.volume = 0.9;
         
         utterance.onstart = function() {
             isSpeaking = true;
             console.log('🔊 AI started speaking');
         };
         
-       utterance.onend = function() {
-    isSpeaking = false;
-    console.log('🔊 AI finished speaking');
-    
-    // 🆕 ONLY restart if this wasn't an apology response
-    if (isAudioMode && !isListening && !lastMessageWasApology) {
-        setTimeout(() => {
-            startListening();
-        }, 800);
-    }
-};
+        utterance.onend = function() {
+            isSpeaking = false;
+            console.log('🔊 AI finished speaking');
+            
+            // Start listening after speaking ends (if in audio mode)
+            if (isAudioMode && !isListening && !lastMessageWasApology) {
+                setTimeout(() => {
+                    startListening();
+                }, 800);
+            }
+        };
+        
         utterance.onerror = function(event) {
             console.log('❌ Speech error:', event.error);
             isSpeaking = false;
@@ -575,15 +623,7 @@ function speakResponse(message) {
         
         window.speechSynthesis.speak(utterance);
         currentAudio = utterance;
-    }, isMobileDevice() ? 300 : 0);
-}
-
-function stopCurrentAudio() {
-    if (window.speechSynthesis) {
-        window.speechSynthesis.cancel();
     }
-    currentAudio = null;
-    isSpeaking = false;
 }
 
 // ===================================================
