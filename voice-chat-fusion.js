@@ -181,53 +181,68 @@ function startListening() {
 recognition.onerror = function(event) {
     console.log('🔊 Speech error:', event.error);
     
-    if (event.error === 'no-speech') {  
-        console.log('🚨 No speech detected - using AI response system');
-
-         // 🆕 CRITICAL FOR MOBILE: HIDE THE "SPEAK NOW" BANNER FIRST
+    if (event.error === 'no-speech') {
+        // 🆕 UNIVERSAL APPROACH: ALWAYS hide banner first
         const liveTranscript = document.getElementById('liveTranscript');
-        if (liveTranscript && isMobileDevice()) {
-            liveTranscript.style.display = 'none'; // ← HIDE BANNER
+        const transcriptText = document.getElementById('transcriptText');
+        
+        if (liveTranscript) {
+            liveTranscript.style.display = 'none'; // ← HIDE BANNER EVERYWHERE
         }
         
-        // 🆕 ALSO RESET MIC BUTTON UI
-        const micButton = document.getElementById('micButton');
-        if (micButton && isMobileDevice()) {
-            micButton.classList.remove('listening'); // ← RESET MIC UI
-        }
-        
-        lastMessageWasApology = true;
-        const apologyResponse = getApologyResponse();
-        
-        // Stop listening completely before speaking
-        stopListening();
-        
-        // 🆕 MOBILE-SPECIFIC TIMING
-        const mobileDelay = isMobileDevice() ? 1000 : 500;
-        const mobileRestartDelay = isMobileDevice() ? 4000 : 3000;
-        
-        setTimeout(() => {
-            addAIMessage(apologyResponse);
+        // 🆕 MOBILE: Change button text instead of voice
+        if (isMobileDevice()) {
+            console.log('📱 Mobile: Using visual apology');
             
-            // 🆕 CRITICAL FOR MOBILE: Stop ALL audio first
-            if (isMobileDevice()) {
-                window.speechSynthesis.cancel();
-                setTimeout(() => {
-                    speakResponse(apologyResponse);
-                }, 300);
-            } else {
-                speakResponse(apologyResponse);
+            if (transcriptText) {
+                transcriptText.textContent = 'Please speak again...';
+                transcriptText.style.color = '#ff6b6b';
+                transcriptText.style.fontWeight = 'bold';
             }
             
-            if (restartTimeout) clearTimeout(restartTimeout);
-            
-            restartTimeout = setTimeout(() => {
-                if (isAudioMode && !isListening && !isSpeaking) {
-                    startListening();
+            // Show banner again after a delay with the new message
+            setTimeout(() => {
+                if (liveTranscript) {
+                    liveTranscript.style.display = 'flex'; // ← SHOW BANNER
                 }
-                lastMessageWasApology = false;
-            }, mobileRestartDelay);
-        }, mobileDelay);
+                
+                // Set timeout to revert message and restart
+                setTimeout(() => {
+                    if (transcriptText) {
+                        transcriptText.textContent = 'Speak Now';
+                        transcriptText.style.color = '';
+                        transcriptText.style.fontWeight = '';
+                    }
+                    if (isAudioMode && !isListening && !isSpeaking) {
+                        startListening();
+                    }
+                }, 2000); // Show "Please speak again" for 2 seconds
+                
+            }, 500); // Brief pause before showing banner
+            
+        } else {
+            // DESKTOP: Use voice apology (original code)
+            console.log('🖥️ Desktop: Using voice apology');
+            
+            lastMessageWasApology = true;
+            const apologyResponse = getApologyResponse();
+            
+            stopListening();
+            
+            setTimeout(() => {
+                addAIMessage(apologyResponse);
+                speakResponse(apologyResponse);
+                
+                if (restartTimeout) clearTimeout(restartTimeout);
+                
+                restartTimeout = setTimeout(() => {
+                    if (isAudioMode && !isListening && !isSpeaking) {
+                        startListening();
+                    }
+                    lastMessageWasApology = false;
+                }, 3000);
+            }, 500);
+        }
     }
 };
         // ADD YOUR ONEND HANDLER HERE
