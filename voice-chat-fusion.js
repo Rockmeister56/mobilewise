@@ -132,18 +132,9 @@ function initializeSpeechRecognition() {
 
 function startListening() {
     console.log('🎯 startListening() called');
-    // 🆕 PREVENT MULTIPLE SIMULTANEOUS CALLS
-    if (isStartingRecognition || isListening) {
-        console.log('🚫 Already starting or listening - skipping');
-        return;
-    }
-    
     if (!checkSpeechSupport()) return;
     if (isSpeaking) return;
-
     try {
-        isStartingRecognition = true; // 🆕 LOCK
-        
         if (!recognition) {
             initializeSpeechRecognition();
         }
