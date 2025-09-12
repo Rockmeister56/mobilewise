@@ -169,8 +169,7 @@ recognition.onerror = function(event) {
         
         lastMessageWasApology = true; // 🆕 SET THE FLAG FIRST
         
-        // Use your existing AI response system
-        const apologyResponse = getAIResponse("");
+        const apologyResponse = getApologyResponse(); // ✅ CORRECT
         
         // Stop listening completely before speaking
         stopListening();
@@ -270,6 +269,21 @@ function restartListening() {
             }
         }, 1000);
     }
+}
+
+// ADD THIS NEW FUNCTION near your other utility functions:
+function getApologyResponse() {
+    const sorryMessages = [
+        "I'm sorry, I didn't catch that. Can you repeat your answer?",
+        "Sorry, I didn't hear you. Please say that again.", 
+        "I didn't get that. Could you repeat it?",
+        "Let me try listening again. Please speak your answer now."
+    ];
+    
+    lastMessageWasApology = true;
+    setTimeout(() => { lastMessageWasApology = false; }, 5000);
+    
+    return sorryMessages[Math.floor(Math.random() * sorryMessages.length)];
 }
 
 // ===================================================
@@ -576,20 +590,6 @@ function stopCurrentAudio() {
 function getAIResponse(userInput) {
     const userText = userInput.toLowerCase();
     let responseText = '';
-
-    if (!userInput || userInput.trim().length === 0) {
-    const sorryMessages = [
-        "I'm sorry, I didn't catch that. Can you repeat your answer?",
-        "Sorry, I didn't hear you. Please say that again.",
-        "I didn't get that. Could you repeat it?",
-        "Let me try listening again. Please speak your answer now."
-    ];
-    
-    lastMessageWasApology = true; // 🆕 CRITICAL - Set the flag!
-    setTimeout(() => { lastMessageWasApology = false; }, 5000); // 🆕 Reset after 5 sec
-    
-    return sorryMessages[Math.floor(Math.random() * sorryMessages.length)];
-}
     
     if (conversationState === 'initial') {
         if (userText.includes('sell') || userText.includes('practice') || userText.includes('selling')) {
