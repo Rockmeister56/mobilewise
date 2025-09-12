@@ -160,27 +160,22 @@ function startListening() {
         };
 
         // ADD YOUR ERROR HANDLER HERE
-      recognition.onerror = function(event) {
+      // Replace your current recognition.onerror handler with this:
+recognition.onerror = function(event) {
     console.log('🔊 Speech error:', event.error);
     
     if (event.error === 'no-speech') {
-        console.log('🚨 No speech detected - apologizing');
+        console.log('🚨 No speech detected - using AI response system');
+        
+        // Use your existing AI response system instead of hardcoded messages
+        const apologyResponse = getAIResponse(""); // Empty input triggers apology logic
         
         setTimeout(() => {
-            const sorryMessages = [
-                "I'm sorry, I didn't catch that. Can you repeat your answer?",
-                "Sorry, I didn't hear you. Please say that again.",
-                "I didn't get that. Could you repeat it?",
-                "Let me try listening again. Please speak your answer now."
-            ];
-            
-            const apology = sorryMessages[Math.floor(Math.random() * sorryMessages.length)];
-            
             // Add apology to chat
-            addAIMessage(apology);
+            addAIMessage(apologyResponse);
             
             // Speak the apology
-            speakResponse(apology);
+            speakResponse(apologyResponse);
             
             // Restart listening AFTER apology finishes
             setTimeout(() => {
@@ -194,6 +189,9 @@ function startListening() {
             }, 2500);
             
         }, 500);
+    } else {
+        // Handle other errors
+        console.log('Other speech error:', event.error);
     }
 };
         // ADD YOUR ONEND HANDLER HERE
@@ -583,6 +581,16 @@ function stopCurrentAudio() {
 function getAIResponse(userInput) {
     const userText = userInput.toLowerCase();
     let responseText = '';
+
+     if (!userInput || userInput.trim().length === 0) {
+        const sorryMessages = [
+            "I'm sorry, I didn't catch that. Can you repeat your answer?",
+            "Sorry, I didn't hear you. Please say that again.",
+            "I didn't get that. Could you repeat it?",
+            "Let me try listening again. Please speak your answer now."
+        ];
+        return sorryMessages[Math.floor(Math.random() * sorryMessages.length)];
+    }
     
     if (conversationState === 'initial') {
         if (userText.includes('sell') || userText.includes('practice') || userText.includes('selling')) {
