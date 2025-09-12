@@ -167,25 +167,27 @@ recognition.onerror = function(event) {
     if (event.error === 'no-speech') {
         console.log('🚨 No speech detected - using AI response system');
         
+        lastMessageWasApology = true; // 🆕 SET THE FLAG FIRST
+        
         // Use your existing AI response system
-        const apologyResponse = getAIResponse(""); // ✅ Defined here
+        const apologyResponse = getAIResponse("");
         
         // Stop listening completely before speaking
         stopListening();
         
         setTimeout(() => {
             addAIMessage(apologyResponse);
-            speakResponse(apologyResponse); // ✅ FIX THE TYPO HERE!
+            speakResponse(apologyResponse); // ✅ FIXED TYPO
             
             // THIS becomes the ONLY place that restarts after no-speech
-            // Cancel any other pending restarts
             if (restartTimeout) clearTimeout(restartTimeout);
             
             restartTimeout = setTimeout(() => {
                 if (isAudioMode && !isListening && !isSpeaking) {
                     startListening();
                 }
-            }, 3000); // Longer delay for mobile
+                lastMessageWasApology = false; // 🆕 RESET FLAG AFTER RESTART
+            }, 3000);
         }, 500);
     }
 };
@@ -575,15 +577,19 @@ function getAIResponse(userInput) {
     const userText = userInput.toLowerCase();
     let responseText = '';
 
-     if (!userInput || userInput.trim().length === 0) {
-        const sorryMessages = [
-            "I'm sorry, I didn't catch that. Can you repeat your answer?",
-            "Sorry, I didn't hear you. Please say that again.",
-            "I didn't get that. Could you repeat it?",
-            "Let me try listening again. Please speak your answer now."
-        ];
-        return sorryMessages[Math.floor(Math.random() * sorryMessages.length)];
-    }
+    if (!userInput || userInput.trim().length === 0) {
+    const sorryMessages = [
+        "I'm sorry, I didn't catch that. Can you repeat your answer?",
+        "Sorry, I didn't hear you. Please say that again.",
+        "I didn't get that. Could you repeat it?",
+        "Let me try listening again. Please speak your answer now."
+    ];
+    
+    lastMessageWasApology = true; // 🆕 CRITICAL - Set the flag!
+    setTimeout(() => { lastMessageWasApology = false; }, 5000); // 🆕 Reset after 5 sec
+    
+    return sorryMessages[Math.floor(Math.random() * sorryMessages.length)];
+}
     
     if (conversationState === 'initial') {
         if (userText.includes('sell') || userText.includes('practice') || userText.includes('selling')) {
