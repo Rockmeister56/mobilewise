@@ -196,8 +196,7 @@ recognition.onerror = function(event) {
             
             if (transcriptText) {
                 transcriptText.textContent = 'Please speak again...';
-                transcriptText.style.color = '#ff6b6b';
-                transcriptText.style.fontWeight = 'bold';
+                transcriptText.classList.add('retry'); 
             }
             
             // Show banner again after a delay with the new message
