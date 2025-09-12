@@ -177,57 +177,55 @@ function startListening() {
             }
         };
 
-// In your recognition.onerror handler - ADD MOBILE DETECTION:
 recognition.onerror = function(event) {
     console.log('🔊 Speech error:', event.error);
     
-    if (event.error === 'no-speech') {  
-        console.log('🚨 No speech detected - using AI response system');
-
-         // 🆕 CRITICAL FOR MOBILE: HIDE THE "SPEAK NOW" BANNER FIRST
-        const liveTranscript = document.getElementById('liveTranscript');
-        if (liveTranscript && isMobileDevice()) {
-            liveTranscript.style.display = 'none'; // ← HIDE BANNER
-        }
+    if (event.error === 'no-speech') {
+        const transcriptText = document.getElementById('transcriptText');
         
-        // 🆕 ALSO RESET MIC BUTTON UI
-        const micButton = document.getElementById('micButton');
-        if (micButton && isMobileDevice()) {
-            micButton.classList.remove('listening'); // ← RESET MIC UI
-        }
-        
-        lastMessageWasApology = true;
-        const apologyResponse = getApologyResponse();
-        
-        // Stop listening completely before speaking
-        stopListening();
-        
-        // 🆕 MOBILE-SPECIFIC TIMING
-        const mobileDelay = isMobileDevice() ? 1000 : 500;
-        const mobileRestartDelay = isMobileDevice() ? 4000 : 3000;
-        
-        setTimeout(() => {
-            addAIMessage(apologyResponse);
+        // 🆕 MOBILE: Simple text change approach
+        if (isMobileDevice()) {
+            console.log('📱 Mobile: Using visual apology');
             
-            // 🆕 CRITICAL FOR MOBILE: Stop ALL audio first
-            if (isMobileDevice()) {
-                window.speechSynthesis.cancel();
+            if (transcriptText) {
+                // Store original text and change to apology
+                const originalText = transcriptText.textContent;
+                transcriptText.textContent = 'Please speak again...';
+                
+                // Revert after delay and restart listening
                 setTimeout(() => {
-                    speakResponse(apologyResponse);
-                }, 300);
-            } else {
-                speakResponse(apologyResponse);
+                    if (transcriptText) {
+                        transcriptText.textContent = originalText;
+                    }
+                    if (isAudioMode && !isListening && !isSpeaking) {
+                        startListening();
+                    }
+                }, 2000);
             }
             
-            if (restartTimeout) clearTimeout(restartTimeout);
+        } else {
+            // DESKTOP: Use voice apology (original code)
+            console.log('🖥️ Desktop: Using voice apology');
             
-            restartTimeout = setTimeout(() => {
-                if (isAudioMode && !isListening && !isSpeaking) {
-                    startListening();
-                }
-                lastMessageWasApology = false;
-            }, mobileRestartDelay);
-        }, mobileDelay);
+            lastMessageWasApology = true;
+            const apologyResponse = getApologyResponse();
+            
+            stopListening();
+            
+            setTimeout(() => {
+                addAIMessage(apologyResponse);
+                speakResponse(apologyResponse);
+                
+                if (restartTimeout) clearTimeout(restartTimeout);
+                
+                restartTimeout = setTimeout(() => {
+                    if (isAudioMode && !isListening && !isSpeaking) {
+                        startListening();
+                    }
+                    lastMessageWasApology = false;
+                }, 3000);
+            }, 500);
+        }
     }
 };
         // ADD YOUR ONEND HANDLER HERE
