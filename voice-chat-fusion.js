@@ -218,7 +218,6 @@ function startListening() {
 function handleNoSpeechError() {
     // Stop any current audio
     if (window.speechSynthesis) {
-        window.speechSynthesis.cancel();
         isSpeaking = false;
     }
     
@@ -1023,3 +1022,76 @@ document.addEventListener('DOMContentLoaded', function() {
     // }, 1000);
 });
 
+/* ===================================================
+   🌟 GLASS SMART BAR FUNCTIONALITY
+   ================================================== */
+
+// Module activation handler
+function activateModule(moduleType) {
+    console.log(`🚀 Activating module: ${moduleType}`);
+    
+    switch(moduleType) {
+        case 'voice-chat':
+            // Already in voice chat - maybe restart or focus
+            if (!isListening) {
+                toggleListening();
+            }
+            addMessage('ai', 'Voice chat is ready! How can I assist you today?');
+            break;
+            
+        case 'ai-interview':
+            addMessage('ai', 'AI Interview module coming soon! For now, I can help you with practice valuations and consultations.');
+            showSmartButton('🎬 Schedule AI Interview', 'Great! I\'d like to schedule an AI interview to capture your success story.');
+            break;
+            
+        case 'schedule-call':
+            addMessage('ai', 'I\'d be happy to help you schedule a call with Bruce! What\'s the best phone number to reach you?');
+            currentConversationFlow = 'schedule-call';
+            break;
+            
+        case 'offers':
+            addMessage('ai', 'Let me show you our current offers and opportunities!');
+            showSmartButton('🎁 View Special Offers', 'I\'d like to learn about your current offers and opportunities.');
+            break;
+            
+        default:
+            console.log('Unknown module:', moduleType);
+    }
+    
+    // Scroll to show new message
+    scrollToBottom();
+}
+
+// Optional: Auto-hide smart bar during active conversation
+function toggleSmartBarVisibility(show = true) {
+    const smartBar = document.getElementById('glassSmartBar');
+    if (smartBar) {
+        if (show) {
+            smartBar.classList.remove('hidden');
+        } else {
+            smartBar.classList.add('hidden');
+        }
+    }
+}
+
+// Optional: Highlight active module
+function highlightActiveModule(moduleType) {
+    // Remove all active states
+    document.querySelectorAll('.smart-bar-btn').forEach(btn => {
+        btn.style.background = 'rgba(255, 255, 255, 0.2)';
+    });
+    
+    // Add active state to current module
+    const activeBtn = document.querySelector(`[onclick="activateModule('${moduleType}')"]`);
+    if (activeBtn) {
+        activeBtn.style.background = 'rgba(255, 255, 255, 0.4)';
+    }
+}
+
+// Initialize smart bar on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Highlight voice chat as default active module
+    highlightActiveModule('voice-chat');
+    
+    console.log('🌟 Glass Smart Bar initialized');
+});
