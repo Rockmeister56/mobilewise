@@ -183,6 +183,18 @@ recognition.onerror = function(event) {
     
     if (event.event === 'no-speech') {
         console.log('🚨 No speech detected - using AI response system');
+
+         // 🆕 CRITICAL FOR MOBILE: HIDE THE "SPEAK NOW" BANNER FIRST
+        const liveTranscript = document.getElementById('liveTranscript');
+        if (liveTranscript && isMobileDevice()) {
+            liveTranscript.style.display = 'none'; // ← HIDE BANNER
+        }
+        
+        // 🆕 ALSO RESET MIC BUTTON UI
+        const micButton = document.getElementById('micButton');
+        if (micButton && isMobileDevice()) {
+            micButton.classList.remove('listening'); // ← RESET MIC UI
+        }
         
         lastMessageWasApology = true;
         const apologyResponse = getApologyResponse();
@@ -568,6 +580,15 @@ function speakResponse(message) {
             utterance.onstart = function() {
                 isSpeaking = true;
                 console.log('🔊 AI started speaking (mobile)');
+
+                 // 🆕 Ensure mic UI is reset on mobile while speaking
+    if (isMobileDevice()) {
+        const micButton = document.getElementById('micButton');
+        const liveTranscript = document.getElementById('liveTranscript');
+        if (micButton) micButton.classList.remove('listening');
+        if (liveTranscript) liveTranscript.style.display = 'none';
+    }
+
             };
             
             utterance.onend = function() {
