@@ -181,7 +181,7 @@ function startListening() {
 recognition.onerror = function(event) {
     console.log('🔊 Speech error:', event.error);
     
-    if (event.event === 'no-speech') {
+    if (event.error === 'no-speech') {  
         console.log('🚨 No speech detected - using AI response system');
 
          // 🆕 CRITICAL FOR MOBILE: HIDE THE "SPEAK NOW" BANNER FIRST
@@ -588,7 +588,7 @@ function speakResponse(message) {
         if (micButton) micButton.classList.remove('listening');
         if (liveTranscript) liveTranscript.style.display = 'none';
     }
-};
+
             };
             
             utterance.onend = function() {
