@@ -833,7 +833,7 @@ function initializeLeadCapture(buttonType) {
     isInLeadCapture = true;
     
     // Add transition message
-    addMessage(`Great! I'd love to connect you with one of our ${buttonType} specialists. Let me gather a few details.`, 'ai');
+    addMessage(`Excellent! Now I need to collect a few quick details to get you connected with Bruce.`, 'ai');
     
     // Start lead questions after delay
     setTimeout(() => {
