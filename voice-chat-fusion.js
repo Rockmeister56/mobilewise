@@ -22,6 +22,20 @@ let smartButtonAction = 'default';
 let restartTimeout = null;
 let lastMessageWasApology = false;
 
+// Lead Capture System Variables
+let speechRecognitionPaused = false;
+let leadCaptureActive = false;
+let leadCaptureData = {
+    name: '',
+    phone: '',
+    email: '',
+    contactTime: '',
+    conversationTranscript: '',
+    prospectRating: '',
+    inquiryType: currentState // Preserve the inquiry type
+};
+let leadCaptureStep = 0; // 0=name, 1=phone, 2=email, 3=timing, 4=complete
+
 // ===================================================
 // 📱 MOBILE DEVICE DETECTION
 // ===================================================
@@ -768,6 +782,34 @@ function getAIResponse(userInput) {
     } else if (conversationState === 'button_activated_selling' || conversationState === 'button_activated_buying' || conversationState === 'button_activated_valuation') {
         responseText = "Perfect! I see you're ready to connect with Bruce. Just click that button above and we'll get everything set up for you right away!";
         
+   } else if (conversationState === 'collecting_name') {
+    responseText = `Nice to meet you, ${userText}! And what's the best phone number to reach you?`;
+    conversationState = 'collecting_phone';
+    
+} else if (conversationState === 'collecting_phone') {
+    responseText = `Perfect! And your email address?`;
+    conversationState = 'collecting_email';
+    
+} else if (conversationState === 'collecting_email') {
+    responseText = `Great! When would be the best time for Bruce to contact you - today or tomorrow?`;
+    conversationState = 'collecting_contact_time';
+    
+} else if (conversationState === 'collecting_contact_time') {
+    responseText = `Perfect! I have all your information. Let me get this over to Bruce right away.`;
+    conversationState = 'ready_to_send';
+    
+    // Show "Send to Bruce" button
+    setTimeout(() => {
+        shouldShowSmartButton = true;
+        smartButtonText = '📧 Send Information to Bruce';
+        smartButtonAction = 'send_email';
+        updateSmartButton(shouldShowSmartButton, smartButtonText, smartButtonAction);
+    }, 2000);
+    
+} else if (conversationState === 'ready_to_send') {
+    responseText = "I'm ready to send your information to Bruce! Just click the button above and he'll receive everything immediately.";
+   
+   
     } else {
         // Fallback
         responseText = "Thanks for your message! Is there anything else about buying, selling, or valuing a CPA practice that I can help you with?";
