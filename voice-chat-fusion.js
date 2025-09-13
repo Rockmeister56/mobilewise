@@ -780,6 +780,106 @@ function getAIResponse(userInput) {
     return responseText;
 }
 
+// COMPLETELY SEPARATE LEAD CAPTURE SYSTEM
+function initializeLeadCapture(buttonType) {
+    // Only activate when specifically called
+    if (isInLeadCapture) return; // Prevent double activation
+    
+    // Create isolated lead capture object
+    leadData = {
+        name: '', phone: '', email: '', contactTime: '', 
+        inquiryType: currentState,
+        transcript: conversationHistory.map(msg => `${msg.type}: ${msg.text}`).join('\n'),
+        step: 0,
+        questions: [
+            "What's your name?",
+            "What's the best phone number to reach you?", 
+            "What's your email address?",
+            "When would be the best time for our specialist to contact you?"
+        ]
+    };
+    
+    isInLeadCapture = true;
+    
+    // Add transition message
+    addMessage(`Great! I'd love to connect you with one of our ${buttonType} specialists. Let me gather a few details.`, 'ai');
+    
+    // Start lead questions after delay
+    setTimeout(() => {
+        askLeadQuestion();
+    }, 1500);
+}
+
+function askLeadQuestion() {
+    if (!isInLeadCapture || !leadData) return;
+    
+    if (leadData.step < leadData.questions.length) {
+        addMessage(leadData.questions[leadData.step], 'ai');
+        createLeadInput();
+    } else {
+        completeLeadCollection();
+    }
+}
+
+function createLeadInput() {
+    // Remove existing input
+    const existing = document.querySelector('.lead-input-container');
+    if (existing) existing.remove();
+    
+    const container = document.createElement('div');
+    container.className = 'lead-input-container';
+    container.innerHTML = `
+        <div style="padding: 15px; background: rgba(255,255,255,0.1); border-radius: 15px; margin: 10px 0;">
+            <input type="text" id="leadResponseInput" placeholder="Type here..." 
+                   style="width: 100%; padding: 12px; border: none; border-radius: 8px; 
+                          background: white; font-size: 16px; margin-bottom: 10px;">
+            <button onclick="submitLeadAnswer()" 
+                    style="width: 100%; padding: 12px; background: #667eea; color: white; 
+                           border: none; border-radius: 8px; cursor: pointer;">Submit</button>
+        </div>
+    `;
+    
+    document.getElementById('messages').appendChild(container);
+}
+
+function submitLeadAnswer() {
+    const input = document.getElementById('leadResponseInput');
+    const answer = input.value.trim();
+    
+    if (!answer) return;
+    
+    // Store answer
+    switch(leadData.step) {
+        case 0: leadData.name = answer; break;
+        case 1: leadData.phone = answer; break;
+        case 2: leadData.email = answer; break;
+        case 3: leadData.contactTime = answer; break;
+    }
+    
+    // Show user response
+    addMessage(answer, 'user');
+    
+    // Remove input
+    document.querySelector('.lead-input-container').remove();
+    
+    // Next question
+    leadData.step++;
+    setTimeout(askLeadQuestion, 1000);
+}
+
+function completeLeadCollection() {
+    addMessage(`Perfect ${leadData.name}! Our specialist will contact you at ${leadData.phone} during your preferred ${leadData.contactTime} time.`, 'ai');
+    
+    console.log('Lead Captured:', leadData);
+    
+    // Reset system
+    setTimeout(() => {
+        isInLeadCapture = false;
+        leadData = null;
+        addMessage("Anything else I can help you with?", 'ai');
+    }, 3000);
+}
+
 
 // ===================================================
 // 🎉 THANK YOU BANNER FUNCTION
