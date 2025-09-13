@@ -654,121 +654,120 @@ function getAIResponse(userInput) {
     
     if (conversationState === 'initial') {
         if (userText.includes('sell') || userText.includes('practice') || userText.includes('selling')) {
-            responseText = "EXCELLENT timing for selling your accounting practice! The market is very strong right now. Should Bruce call you today or tomorrow for your FREE practice valuation?";
-            conversationState = 'selling_inquiry';
-            shouldShowSmartButton = true;
-            smartButtonText = 'Schedule Free Valuation';
-            smartButtonAction = 'valuation';
+            responseText = "I'd love to help you with selling your practice! Let me ask you a few quick questions to better understand your situation. How large is your practice - how many clients do you currently serve?";
+            conversationState = 'selling_size_question';
+            shouldShowSmartButton = false; // NO BUTTON YET
+            
         } else if (userText.includes('buy') || userText.includes('purchase') || userText.includes('buying') || userText.includes('acquire')) {
-            responseText = "Looking to BUY a CPA firm? Perfect! Bruce has exclusive off-market opportunities available RIGHT NOW. Should Bruce show you available practices today or tomorrow?";
-            conversationState = 'buying_inquiry';
-            shouldShowSmartButton = true;
-            smartButtonText = 'View Available Practices';
-            smartButtonAction = 'buying';
+            responseText = "Excellent! Bruce has some fantastic opportunities available. Let me learn more about what you're looking for. What's your budget range for acquiring a practice?";
+            conversationState = 'buying_budget_question';
+            shouldShowSmartButton = false; // NO BUTTON YET
+            
         } else if (userText.includes('value') || userText.includes('worth') || userText.includes('valuation') || userText.includes('evaluate')) {
-            responseText = "Your accounting practice could be worth MORE than you think! Bruce offers a FREE consultation to evaluate your practice. Are you interested in a valuation today?";
-            conversationState = 'valuation_inquiry';
+            responseText = "I'd be happy to help with a practice valuation! To give you the most accurate assessment, what's your practice's approximate annual revenue?";
+            conversationState = 'valuation_revenue_question';
+            shouldShowSmartButton = false; // NO BUTTON YET
+            
+        } else {
+            responseText = "Welcome! I'm here to help with CPA firm transactions - buying, selling, and practice valuations. What brings you here today?";
+        }
+        
+    // ===================================================
+    // 💰 SELLING PRACTICE FLOW
+    // ===================================================
+    } else if (conversationState === 'selling_size_question') {
+        responseText = "That's helpful information! And what's your practice's approximate annual revenue range? This helps Bruce understand the scope and value.";
+        conversationState = 'selling_revenue_question';
+        
+    } else if (conversationState === 'selling_revenue_question') {
+        responseText = "Perfect! One more question - what's driving your decision to sell? Retirement, new opportunities, or something else? Understanding your motivation helps Bruce tailor the best approach.";
+        conversationState = 'selling_motivation_question';
+        
+    } else if (conversationState === 'selling_motivation_question') {
+        responseText = "Thank you for sharing that with me! Based on what you've told me, Bruce can definitely help you get maximum value for your practice. The market is very strong right now. Would you like to schedule a FREE consultation with Bruce to discuss your selling strategy?";
+        conversationState = 'asking_selling_consultation';
+        
+    } else if (conversationState === 'asking_selling_consultation') {
+        if (userText.includes('yes') || userText.includes('sure') || userText.includes('okay') || userText.includes('definitely') || userText.includes('absolutely')) {
+            responseText = "Fantastic! Please click the button above and we'll get your information over to Bruce immediately. He'll reach out within 24 hours for your FREE practice valuation.";
             shouldShowSmartButton = true;
-            smartButtonText = 'Get Practice Valuation';
+            smartButtonText = '📞 Schedule Free Valuation';
             smartButtonAction = 'valuation';
-        } else {
-            responseText = "NCI specialize in CPA firm transactions - buying, selling, and practice valuations. What specifically are you interested in learning more about?";
-        }
-    } else if (conversationState === 'selling_inquiry') {
-        if (userText.includes('today') || userText.includes('now') || userText.includes('asap') || 
-            userText.includes('immediately') || userText.includes('this afternoon') || 
-            (userText.includes('yes') && !userText.includes('tomorrow'))) {
-            responseText = "Great! Bruce will call you today. What's the best phone number to reach you, and what time works best?";
-            conversationState = 'contact_today';
-            shouldShowSmartButton = true;
-            smartButtonText = 'Schedule Today';
-            smartButtonAction = 'schedule_today';
-        } else if (userText.includes('tomorrow') || userText.includes('next day') || 
-                   userText.includes('morning') || userText.includes('later')) {
-            responseText = "Perfect! Bruce will call you tomorrow. What's the best phone number to reach you, and what time works best?";
-            conversationState = 'contact_tomorrow';
-            shouldShowSmartButton = true;
-            smartButtonText = 'Schedule Tomorrow';
-            smartButtonAction = 'schedule_tomorrow';
-        } else if (userText.includes('yes') || userText.includes('sure') || userText.includes('okay') || 
-                   userText.includes('schedule') || userText.includes('free') || userText.includes('consultation') ||
-                   userText.includes('call') || userText.includes('contact') || userText.includes('talk')) {
-            responseText = "Excellent! Should Bruce call you today or tomorrow for your FREE practice valuation?";
-            conversationState = 'selling_inquiry';
-        } else {
-            responseText = "I didn't quite catch that. Should Bruce call you today or tomorrow for your FREE practice valuation?";
-        }
-    } else if (conversationState === 'buying_inquiry') {
-        if (userText.includes('today') || userText.includes('now') || userText.includes('asap') || 
-            userText.includes('immediately') || userText.includes('this afternoon') ||
-            (userText.includes('yes') && !userText.includes('tomorrow'))) {
-            responseText = "Excellent! Bruce will contact you today to discuss available practices. What's the best phone number to reach you?";
-            conversationState = 'contact_today';
-            shouldShowSmartButton = true;
-            smartButtonText = 'Connect Today';
-            smartButtonAction = 'contact_today';
-        } else if (userText.includes('tomorrow') || userText.includes('next day') || 
-                   userText.includes('morning') || userText.includes('later')) {
-            responseText = "Great! Bruce will contact you tomorrow to discuss available practices. What's the best phone number to reach you?";
-            conversationState = 'contact_tomorrow';
-            shouldShowSmartButton = true;
-            smartButtonText = 'Connect Tomorrow';
-            smartButtonAction = 'contact_tomorrow';
-        } else if (userText.includes('yes') || userText.includes('sure') || userText.includes('okay') || 
-                   userText.includes('show') || userText.includes('available') || userText.includes('practices') ||
-                   userText.includes('view') || userText.includes('see') || userText.includes('interested')) {
-            responseText = "Perfect! Should Bruce contact you today or tomorrow about available practices?";
-            conversationState = 'buying_inquiry';
-        } else {
-            responseText = "I didn't quite catch that. Should Bruce contact you today or tomorrow about available practices?";
-        }
-    } else if (conversationState === 'valuation_inquiry') {
-        if (userText.includes('yes') || userText.includes('sure') || userText.includes('interested') || 
-            userText.includes('okay') || userText.includes('please') || userText.includes('free') ||
-            userText.includes('consultation') || userText.includes('valuation') || userText.includes('evaluate')) {
-            responseText = "Great! Bruce will contact you to set up your FREE valuation. What's the best phone number to reach you, and should he call today or tomorrow?";
-            conversationState = 'contact_valuation';
-            shouldShowSmartButton = true;
-            smartButtonText = 'Connect with Bruce';
-            smartButtonAction = 'connect_bruce';
-        } else if (userText.includes('no') || userText.includes('not') || userText.includes('maybe')) {
-            responseText = "No problem! Is there anything else I can help you with regarding your CPA practice?";
+            conversationState = 'button_activated_selling';
+        } else if (userText.includes('no') || userText.includes('not now') || userText.includes('maybe later')) {
+            responseText = "No problem at all! If you change your mind, I'm here to help. Is there anything else about selling your practice that you'd like to know?";
             conversationState = 'initial';
         } else {
-            responseText = "I want to make sure I understand - are you interested in a FREE practice valuation?";
-            conversationState = 'valuation_inquiry';
+            responseText = "I want to make sure I understand - would you like Bruce to call you for a free consultation about selling your practice? Just say yes or no.";
         }
-    } else if (conversationState === 'contact_today' || conversationState === 'contact_tomorrow' || conversationState === 'contact_valuation') {
-        const phoneMatch = userText.match(/\b(\d{3}[-.]?\d{3}[-.]?\d{4})\b/);
-        if (phoneMatch) {
-    responseText = "Perfect! Bruce will call you at " + phoneMatch[0] + ".";
-    conversationState = 'completed';
-    
-    // 🎉 TRANSFORM SMART BUTTON TO THANK YOU MESSAGE
-    shouldShowSmartButton = true;
-    smartButtonText = '🎉 Thank You For Visiting Us! 🎉';
-    smartButtonAction = 'thank_you_complete';
-    
-    // 🛑 STOP LISTENING AFTER RESPONSE
-    setTimeout(() => {
-        stopListeningProcess();
-    }, 2000);
-            
-        } else if (userText.includes('phone') || userText.includes('number') || userText.includes('call') ||
-                   userText.includes('contact') || userText.includes('reach')) {
-            responseText = "Great! What's the best phone number for Bruce to reach you? Please say the 10-digit number clearly.";
+        
+    // ===================================================
+    // 🏢 BUYING PRACTICE FLOW  
+    // ===================================================
+    } else if (conversationState === 'buying_budget_question') {
+        responseText = "Great! And are you specifically looking for a CPA practice, or would a general accounting practice work for you as well?";
+        conversationState = 'buying_type_question';
+        
+    } else if (conversationState === 'buying_type_question') {
+        responseText = "Perfect! One more important question - how soon are you looking to complete a purchase? This helps Bruce prioritize which opportunities to show you first.";
+        conversationState = 'buying_timeline_question';
+        
+    } else if (conversationState === 'buying_timeline_question') {
+        responseText = "Excellent! Bruce has exclusive off-market opportunities that aren't advertised anywhere else. Based on your criteria, he definitely has some practices that would interest you. Would you like Bruce to show you the available practices that match what you're looking for?";
+        conversationState = 'asking_buying_consultation';
+        
+    } else if (conversationState === 'asking_buying_consultation') {
+        if (userText.includes('yes') || userText.includes('sure') || userText.includes('okay') || userText.includes('definitely') || userText.includes('absolutely')) {
+            responseText = "Outstanding! Please click the button above and Bruce will reach out with current opportunities that match your criteria. Many of these deals move fast!";
+            shouldShowSmartButton = true;
+            smartButtonText = '🏢 View Available Practices';
+            smartButtonAction = 'buying';
+            conversationState = 'button_activated_buying';
+        } else if (userText.includes('no') || userText.includes('not now') || userText.includes('maybe later')) {
+            responseText = "That's perfectly fine! When you're ready to see what's available, just let me know. Anything else about buying a practice I can help with?";
+            conversationState = 'initial';
         } else {
-            responseText = "Thanks! What's the best phone number for Bruce to reach you?";
+            responseText = "Would you like Bruce to show you the practices he has available? Just let me know yes or no.";
         }
-    } else if (conversationState === 'completed') {
-        responseText = "Thank you! Bruce will be in touch soon. Have a great day!";
-        shouldShowSmartButton = false;
+        
+    // ===================================================
+    // 📊 VALUATION FLOW
+    // ===================================================
+    } else if (conversationState === 'valuation_revenue_question') {
+        responseText = "Thank you! And how many years have you been in practice? The longevity and stability really impact the valuation.";
+        conversationState = 'valuation_years_question';
+        
+    } else if (conversationState === 'valuation_years_question') {
+        responseText = "Perfect! Your practice sounds well-established. Bruce can provide you with a comprehensive FREE valuation that shows you exactly what your practice is worth in today's market. Would you like to schedule that free valuation consultation with Bruce?";
+        conversationState = 'asking_valuation_consultation';
+        
+    } else if (conversationState === 'asking_valuation_consultation') {
+        if (userText.includes('yes') || userText.includes('sure') || userText.includes('okay') || userText.includes('definitely') || userText.includes('absolutely')) {
+            responseText = "Wonderful! Please click the button above and we'll get you connected with Bruce for your FREE practice valuation. You might be surprised at what your practice is worth!";
+            shouldShowSmartButton = true;
+            smartButtonText = '📈 Get Practice Valuation';
+            smartButtonAction = 'valuation';
+            conversationState = 'button_activated_valuation';
+        } else if (userText.includes('no') || userText.includes('not now') || userText.includes('maybe later')) {
+            responseText = "No worries! The valuation offer stands whenever you're ready. Is there anything else about practice valuations I can explain?";
+            conversationState = 'initial';
+        } else {
+            responseText = "Would you like Bruce to provide you with a free practice valuation? Just say yes or no and I'll take care of the rest.";
+        }
+        
+    // ===================================================
+    // 🎯 BUTTON ACTIVATED STATES
+    // ===================================================
+    } else if (conversationState === 'button_activated_selling' || conversationState === 'button_activated_buying' || conversationState === 'button_activated_valuation') {
+        responseText = "Perfect! I see you're ready to connect with Bruce. Just click that button above and we'll get everything set up for you right away!";
+        
     } else {
-        responseText = "Thanks for your message. Is there anything else I can help you with regarding your CPA practice?";
+        // Fallback
+        responseText = "Thanks for your message! Is there anything else about buying, selling, or valuing a CPA practice that I can help you with?";
         conversationState = 'initial';
         shouldShowSmartButton = false;
     }
-
+    
     return responseText;
 }
 
