@@ -151,6 +151,11 @@ function getApologyResponse() {
 }
 
 function startListening() {
+    // ONLY block if actively collecting lead info
+    if (isInLeadCapture && document.querySelector('.lead-input-container')) {
+        console.log('Lead input active - speech paused');
+        return;
+    }
     console.log('🎯 startListening() called');
     if (!checkSpeechSupport()) return;
     if (isSpeaking) return;
@@ -778,6 +783,14 @@ function getAIResponse(userInput) {
     }
     
     return responseText;
+}
+
+function handleSmartButtonClick(buttonType) {
+    console.log(`Smart button clicked: ${buttonType}`);
+    
+    // DON'T touch speech recognition - let it keep running
+    // Just start lead capture in parallel
+    initializeLeadCapture(buttonType);
 }
 
 // COMPLETELY SEPARATE LEAD CAPTURE SYSTEM
