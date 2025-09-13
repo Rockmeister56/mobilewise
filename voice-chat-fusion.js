@@ -903,11 +903,24 @@ function completeLeadCollection() {
     
     console.log('Lead Captured:', leadData);
     
-    // Reset system
+    // Reset and restore speech
     setTimeout(() => {
         isInLeadCapture = false;
         leadData = null;
+        
+        // Restore mic button
+        const micButton = document.querySelector('.mic-button');
+        if (micButton) {
+            micButton.innerHTML = '🎤';
+            micButton.style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
+        }
+        
         addMessage("Anything else I can help you with?", 'ai');
+        
+        // Restart speech recognition
+        if (recognition) {
+            startListening();
+        }
     }, 3000);
 }
 
