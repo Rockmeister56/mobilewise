@@ -1006,26 +1006,31 @@ function updateSmartButton(show, text, action) {
 // ===================================================
 // 🎯 SMART BUTTON CLICK HANDLER - PHASE 1
 // ===================================================
-function handleSmartButtonClick(action) {
-    console.log('🚀 Smart button clicked, action:', action);
+function handleSmartButtonClick(buttonType) {
+    console.log(`Smart button clicked: ${buttonType}`);
     
-    // Hide the current button
-    const smartButton = document.getElementById('smartButton');
-    if (smartButton) {
-        smartButton.style.display = 'none';
+    // MINIMAL speech stopping - don't go nuclear
+    if (recognition) {
+        try {
+            recognition.stop();
+            isListening = false;
+            console.log('Speech recognition stopped');
+        } catch (error) {
+            console.log('Speech already stopped');
+        }
     }
     
-    // Add system message
-    addAIMessage("Excellent! Now I need to collect a few quick details to get you connected with Bruce. What's your first name?");
+    // Update mic button visual
+    const micButton = document.querySelector('.mic-button');
+    if (micButton) {
+        micButton.innerHTML = '📋';
+        micButton.style.background = 'linear-gradient(135deg, #ff6b6b, #ee5a24)';
+    }
     
-    // Start the information collection flow
-    conversationState = 'collecting_name';
+    console.log('Starting lead capture for:', buttonType);
     
-    // Re-enable speech recognition for info collection
-    setTimeout(() => {
-        isAudioMode = true;
-        startListening();
-    }, 1000);
+    // Start lead capture
+    initializeLeadCapture(buttonType);
 }
 
 function simulateUserMessage(message) {
