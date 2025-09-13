@@ -786,6 +786,8 @@ function getAIResponse(userInput) {
 }
 
 function handleSmartButtonClick(buttonType) {
+    console.log('🚨 BUTTON CLICK RECEIVED - buttonType:', buttonType);
+    console.log('🚨 Button element exists:', document.getElementById('smartButton'));
     console.log(`Smart button clicked: ${buttonType}`);
     
     // IMMEDIATELY stop speech recognition
