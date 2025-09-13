@@ -970,44 +970,27 @@ function updateSmartButton(show, text, action) {
 function handleSmartButtonClick(buttonType) {
     console.log(`Smart button clicked: ${buttonType}`);
     
-    // 🚨 IMMEDIATELY STOP ALL AI TALKING
-    // Stop any ongoing speech synthesis
-    if (window.speechSynthesis) {
-        window.speechSynthesis.cancel(); // Kills any ongoing speech immediately
-        console.log('🔇 AI speech stopped immediately');
-    }
-    
-    // Stop speech recognition
+    // MINIMAL speech stopping - don't go nuclear
     if (recognition) {
         try {
             recognition.stop();
             isListening = false;
-            console.log('🔇 Speech recognition stopped');
+            console.log('Speech recognition stopped');
         } catch (error) {
             console.log('Speech already stopped');
         }
     }
     
-    // Stop any audio elements that might be playing
-    const audioElements = document.querySelectorAll('audio');
-    audioElements.forEach(audio => {
-        audio.pause();
-        audio.currentTime = 0;
-    });
-    
     // Update mic button visual
     const micButton = document.querySelector('.mic-button');
     if (micButton) {
-        micButton.innerHTML = '📋'; // Form mode
+        micButton.innerHTML = '📋';
         micButton.style.background = 'linear-gradient(135deg, #ff6b6b, #ee5a24)';
     }
     
-    // Clear any pending timeouts that might trigger more speech
-    for (let i = 1; i < 99999; i++) window.clearTimeout(i);
+    console.log('Starting lead capture for:', buttonType);
     
-    console.log('🔇 All audio stopped - starting lead capture');
-    
-    // Start lead capture in silence
+    // Start lead capture
     initializeLeadCapture(buttonType);
 }
 
