@@ -22,6 +22,20 @@ let smartButtonAction = 'default';
 let restartTimeout = null;
 let lastMessageWasApology = false;
 
+// Lead Capture System Variables
+let speechRecognitionPaused = false;
+let leadCaptureActive = false;
+let leadCaptureData = {
+    name: '',
+    phone: '',
+    email: '',
+    contactTime: '',
+    conversationTranscript: '',
+    prospectRating: '',
+    inquiryType: currentState // Preserve the inquiry type
+};
+let leadCaptureStep = 0; // 0=name, 1=phone, 2=email, 3=timing, 4=complete
+
 // ===================================================
 // 📱 MOBILE DEVICE DETECTION
 // ===================================================
