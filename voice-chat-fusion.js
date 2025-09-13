@@ -151,9 +151,9 @@ function getApologyResponse() {
 }
 
 function startListening() {
-    // ONLY block if actively collecting lead info
-    if (isInLeadCapture && document.querySelector('.lead-input-container')) {
-        console.log('Lead input active - speech paused');
+    // Block ALL speech during lead capture
+    if (isInLeadCapture) {
+        console.log('Speech blocked - lead capture active');
         return;
     }
     console.log('🎯 startListening() called');
