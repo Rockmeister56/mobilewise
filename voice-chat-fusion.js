@@ -788,17 +788,32 @@ function getAIResponse(userInput) {
 function handleSmartButtonClick(buttonType) {
     console.log(`Smart button clicked: ${buttonType}`);
     
-    // DON'T touch speech recognition - let it keep running
-    // Just start lead capture in parallel
-    initializeLeadCapture(buttonType);
-}
-
-// COMPLETELY SEPARATE LEAD CAPTURE SYSTEM
-function initializeLeadCapture(buttonType) {
-    // Only activate when specifically called
+    // IMMEDIATELY stop speech recognition
+    if (recognition) {
+        try {
+            recognition.stop();
+            isListening = false;
+            
+            // Update mic button visual
+            const micButton = document.querySelector('.mic-button');
+            if (micButton) {
+                micButton.innerHTML = '📋'; // Form mode
+                micButton.style.background = 'linear-gradient(135deg, #ff6b6b, #ee5a24)';
+            }
+            
+            console.log('Speech stopped for lead capture');
+        } catch (error) {
+            console.log('Speech already stopped');
+        }
+    }
+    
+    // Start lead capture
+   function initializeLeadCapture(buttonType) {
     if (isInLeadCapture) return; // Prevent double activation
     
-    // Create isolated lead capture object
+    isInLeadCapture = true;
+    
+    // Create lead data
     leadData = {
         name: '', phone: '', email: '', contactTime: '', 
         inquiryType: currentState,
@@ -807,20 +822,18 @@ function initializeLeadCapture(buttonType) {
         questions: [
             "What's your name?",
             "What's the best phone number to reach you?", 
-            "What's your email address?",
+            "What's your email address?", 
             "When would be the best time for our specialist to contact you?"
         ]
     };
     
-    isInLeadCapture = true;
+    // Add ONLY the transition message
+    addMessage(`Excellent! Now I need to collect a few quick details to get you connected with Bruce.`, 'ai');
     
-    // Add transition message
-    addMessage(`Great! I'd love to connect you with one of our ${buttonType} specialists. Let me gather a few details.`, 'ai');
-    
-    // Start lead questions after delay
+    // Start first question after delay
     setTimeout(() => {
-        askLeadQuestion();
-    }, 1500);
+        askLeadQuestion(); // This will ask "What's your name?" - DON'T duplicate it
+    }, 1000);
 }
 
 function askLeadQuestion() {
