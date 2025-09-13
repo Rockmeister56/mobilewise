@@ -21,6 +21,8 @@ let smartButtonText = 'AI Smart Button';
 let smartButtonAction = 'default';
 let restartTimeout = null;
 let lastMessageWasApology = false;
+let isInLeadCapture = false;
+let leadData = null;
 
 // ===================================================
 // 📱 MOBILE DEVICE DETECTION
