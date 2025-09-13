@@ -657,20 +657,23 @@ function getAIResponse(userInput) {
     let responseText = '';
     
     if (conversationState === 'initial') {
-        if (userText.includes('sell') || userText.includes('practice') || userText.includes('selling')) {
-            responseText = "I'd love to help you with selling your practice! Let me ask you a few quick questions to better understand your situation. How large is your practice - how many clients do you currently serve?";
-            conversationState = 'selling_size_question';
-            shouldShowSmartButton = false; // NO BUTTON YET
-            
-        } else if (userText.includes('buy') || userText.includes('purchase') || userText.includes('buying') || userText.includes('acquire')) {
+        // 🏢 BUYING FIRST (most specific keywords)
+        if (userText.includes('buy') || userText.includes('purchase') || userText.includes('buying') || userText.includes('acquire')) {
             responseText = "Excellent! Bruce has some fantastic opportunities available. Let me learn more about what you're looking for. What's your budget range for acquiring a practice?";
             conversationState = 'buying_budget_question';
-            shouldShowSmartButton = false; // NO BUTTON YET
+            shouldShowSmartButton = false;
             
+        // 💰 SELLING SECOND (removed "practice" keyword)
+        } else if (userText.includes('sell') || userText.includes('selling')) {
+            responseText = "I'd love to help you with selling your practice! Let me ask you a few quick questions to better understand your situation. How large is your practice - how many clients do you currently serve?";
+            conversationState = 'selling_size_question';
+            shouldShowSmartButton = false;
+            
+        // 📊 VALUATION THIRD
         } else if (userText.includes('value') || userText.includes('worth') || userText.includes('valuation') || userText.includes('evaluate')) {
             responseText = "I'd be happy to help with a practice valuation! To give you the most accurate assessment, what's your practice's approximate annual revenue?";
             conversationState = 'valuation_revenue_question';
-            shouldShowSmartButton = false; // NO BUTTON YET
+            shouldShowSmartButton = false;
             
         } else {
             responseText = "Welcome! I'm here to help with CPA firm transactions - buying, selling, and practice valuations. What brings you here today?";
@@ -774,6 +777,7 @@ function getAIResponse(userInput) {
     
     return responseText;
 }
+
 
 // ===================================================
 // 🎉 THANK YOU BANNER FUNCTION
