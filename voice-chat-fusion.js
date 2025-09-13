@@ -1181,10 +1181,6 @@ function initializeChatInterface() {
         });
     }
     
-    if (smartButton) {
-        smartButton.addEventListener('click', handleSmartButtonClick);
-    }
-    
     console.log('✅ Chat interface initialized');
 }
 
