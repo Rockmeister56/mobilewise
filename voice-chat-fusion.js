@@ -825,69 +825,61 @@ function stopListeningProcess() {
 // ===================================================
 // 🔵 SMART BUTTON SYSTEM (FROM voice-chat.html)
 // ===================================================
-function updateSmartButton(shouldShow, buttonText, actionType) {
+function updateSmartButton(show, text, action) {
     const smartButton = document.getElementById('smartButton');
-    
     if (!smartButton) return;
     
-    if (shouldShow) {
+    if (show) {
+        smartButton.textContent = text;
         smartButton.style.display = 'block';
-        smartButton.textContent = buttonText;
-        smartButton.setAttribute('data-action', actionType);
+        smartButton.onclick = () => handleSmartButtonClick(action);
+        
+        // 🚀 PHASE 1: STOP SPEECH LOOP WHEN BUTTON APPEARS
+        console.log('🎯 Button activated - pausing speech recognition');
+        stopListening();
+        isAudioMode = false; // Prevent auto-restart
+        
+        // Hide live transcript area
+        const liveTranscript = document.getElementById('liveTranscript');
+        if (liveTranscript) {
+            liveTranscript.style.display = 'none';
+        }
+        
+        // Update transcript text to show paused state
+        const transcriptText = document.getElementById('transcriptText');
+        if (transcriptText) {
+            transcriptText.textContent = 'Click button above to continue';
+            transcriptText.style.color = '#FFA500'; // Orange color to show paused
+        }
+        
     } else {
         smartButton.style.display = 'none';
-        smartButton.textContent = 'AI Smart Button';
-        smartButton.removeAttribute('data-action');
     }
 }
 
-function handleSmartButtonClick() {
+// ===================================================
+// 🎯 SMART BUTTON CLICK HANDLER - PHASE 1
+// ===================================================
+function handleSmartButtonClick(action) {
+    console.log('🚀 Smart button clicked, action:', action);
+    
+    // Hide the current button
     const smartButton = document.getElementById('smartButton');
-    const actionType = smartButton ? smartButton.getAttribute('data-action') : 'default';
-    
-    console.log('Smart button clicked, action:', actionType);
-    
-    switch(actionType) {
-        case 'valuation':
-            simulateUserMessage("Yes, I'm interested in a valuation");
-            break;
-            
-        case 'buying':
-            simulateUserMessage("Yes, show me available practices");
-            break;
-            
-        case 'schedule_today':
-            simulateUserMessage("Today works for me");
-            break;
-            
-        case 'schedule_tomorrow':
-            simulateUserMessage("Tomorrow works better");
-            break;
-            
-        case 'contact_today':
-            simulateUserMessage("Today works for me");
-            break;
-            
-        case 'contact_tomorrow':
-            simulateUserMessage("Tomorrow works better");
-            break;
-            
-        case 'connect_bruce':
-            simulateUserMessage("I'd like to connect with Bruce");
-            break;
-
-             // 🎉 ADD THIS NEW CASE FOR THANK YOU
-        case 'thank_you_complete':
-            addAIMessage("Thank you for choosing Mobile-Wise AI services! Bruce will be in touch soon. Have a wonderful day!");
-            shouldShowSmartButton = false;
-            conversationState = 'ended';
-            stopListeningProcess();
-            break;
-        
-        default:
-            console.log('Smart button clicked - no specific action defined');
-            simulateUserMessage("I need help with my practice")
+    if (smartButton) {
+        smartButton.style.display = 'none';
     }
+    
+    // Add system message
+    addAIMessage("Excellent! Now I need to collect a few quick details to get you connected with Bruce. What's your first name?");
+    
+    // Start the information collection flow
+    conversationState = 'collecting_name';
+    
+    // Re-enable speech recognition for info collection
+    setTimeout(() => {
+        isAudioMode = true;
+        startListening();
+    }, 1000);
 }
 
 function simulateUserMessage(message) {
