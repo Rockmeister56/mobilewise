@@ -1006,48 +1006,26 @@ function updateSmartButton(show, text, action) {
 // ===================================================
 // 🎯 SMART BUTTON CLICK HANDLER - PHASE 1
 // ===================================================
-function handleSmartButtonClick(buttonType) {
-    console.log(`Smart button clicked: ${buttonType}`);
+function handleSmartButtonClick(action) {
+    console.log('🚀 Smart button clicked, action:', action);
     
-    // 🚨 IMMEDIATELY STOP ALL AI TALKING
-    // Stop any ongoing speech synthesis
-    if (window.speechSynthesis) {
-        window.speechSynthesis.cancel(); // Kills any ongoing speech immediately
-        console.log('🔇 AI speech stopped immediately');
+    // Hide the current button
+    const smartButton = document.getElementById('smartButton');
+    if (smartButton) {
+        smartButton.style.display = 'none';
     }
     
-    // Stop speech recognition
-    if (recognition) {
-        try {
-            recognition.stop();
-            isListening = false;
-            console.log('🔇 Speech recognition stopped');
-        } catch (error) {
-            console.log('Speech already stopped');
-        }
-    }
+    // Add system message
+    addAIMessage("Excellent! Now I need to collect a few quick details to get you connected with Bruce. What's your first name?");
     
-    // Stop any audio elements that might be playing
-    const audioElements = document.querySelectorAll('audio');
-    audioElements.forEach(audio => {
-        audio.pause();
-        audio.currentTime = 0;
-    });
+    // Start the information collection flow
+    conversationState = 'collecting_name';
     
-    // Update mic button visual
-    const micButton = document.querySelector('.mic-button');
-    if (micButton) {
-        micButton.innerHTML = '📋'; // Form mode
-        micButton.style.background = 'linear-gradient(135deg, #ff6b6b, #ee5a24)';
-    }
-    
-    // Clear any pending timeouts that might trigger more speech
-    for (let i = 1; i < 99999; i++) window.clearTimeout(i);
-    
-    console.log('🔇 All audio stopped - starting lead capture');
-    
-    // Start lead capture in silence
-    initializeLeadCapture(buttonType);
+    // Re-enable speech recognition for info collection
+    setTimeout(() => {
+        isAudioMode = true;
+        startListening();
+    }, 1000);
 }
 
 function simulateUserMessage(message) {
