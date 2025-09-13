@@ -813,10 +813,9 @@ function handleSmartButtonClick(buttonType) {
 
 // COMPLETELY SEPARATE LEAD CAPTURE SYSTEM
 function initializeLeadCapture(buttonType) {
-    // Only activate when specifically called
-    if (isInLeadCapture) return; // Prevent double activation
+    console.log('Starting lead capture for:', buttonType);
     
-    // Create isolated lead capture object
+    // Create lead data object
     leadData = {
         name: '', phone: '', email: '', contactTime: '', 
         inquiryType: currentState,
@@ -830,26 +829,27 @@ function initializeLeadCapture(buttonType) {
         ]
     };
     
-    isInLeadCapture = true;
-    
-    // Add transition message
+    // Add transition message (text only)
     addMessage(`Excellent! Now I need to collect a few quick details to get you connected with Bruce.`, 'ai');
     
-    // Start lead questions after delay
+    // Start first question with SPEECH after delay
     setTimeout(() => {
-        askLeadQuestion();
-    }, 1500);
-}
-
-function askLeadQuestion() {
-    if (!isInLeadCapture || !leadData) return;
-    
-    if (leadData.step < leadData.questions.length) {
-        addMessage(leadData.questions[leadData.step], 'ai');
+        const firstQuestion = leadData.questions[0]; // "What's your name?"
+        
+        // Add message to screen
+        addMessage(firstQuestion, 'ai');
+        
+        // 🎤 MAKE THE AI SPEAK THE QUESTION
+        if (window.speechSynthesis) {
+            const utterance = new SpeechSynthesisUtterance(firstQuestion);
+            utterance.rate = 0.9;
+            utterance.pitch = 1.1;
+            window.speechSynthesis.speak(utterance);
+        }
+        
+        // Show input box
         createLeadInput();
-    } else {
-        completeLeadCollection();
-    }
+    }, 1500);
 }
 
 function createLeadInput() {
