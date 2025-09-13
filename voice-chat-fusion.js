@@ -451,6 +451,10 @@ function processUserResponse(userText) {
     setTimeout(() => {
         const responseText = getAIResponse(userText);
         lastAIResponse = responseText;
+
+              // 🔍 DEBUG: Add this line to see what's happening
+        console.log('🎯 USER SAID:', userText);
+        console.log('🎯 AI RESPONSE:', responseText);
         
         addAIMessage(responseText);
         speakResponse(responseText);
