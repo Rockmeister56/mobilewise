@@ -812,45 +812,6 @@ function handleSmartButtonClick(buttonType) {
 }
 
 // COMPLETELY SEPARATE LEAD CAPTURE SYSTEM
-function initializeLeadCapture(buttonType) {
-    // Only activate when specifically called
-    if (isInLeadCapture) return; // Prevent double activation
-    
-    // Create isolated lead capture object
-    leadData = {
-        name: '', phone: '', email: '', contactTime: '', 
-        inquiryType: currentState,
-        transcript: conversationHistory.map(msg => `${msg.type}: ${msg.text}`).join('\n'),
-        step: 0,
-        questions: [
-            "What's your name?",
-            "What's the best phone number to reach you?", 
-            "What's your email address?",
-            "When would be the best time for our specialist to contact you?"
-        ]
-    };
-    
-    isInLeadCapture = true;
-    
-    // Add transition message
-    addMessage(`Excellent! Now I need to collect a few quick details to get you connected with Bruce.`, 'ai');
-    
-    // Start lead questions after delay
-    setTimeout(() => {
-        askLeadQuestion();
-    }, 1500);
-}
-
-function askLeadQuestion() {
-    if (!isInLeadCapture || !leadData) return;
-    
-    if (leadData.step < leadData.questions.length) {
-        addMessage(leadData.questions[leadData.step], 'ai');
-        createLeadInput();
-    } else {
-        completeLeadCollection();
-    }
-}
 
 function createLeadInput() {
     // Remove existing input
@@ -1006,26 +967,48 @@ function updateSmartButton(show, text, action) {
 // ===================================================
 // 🎯 SMART BUTTON CLICK HANDLER - PHASE 1
 // ===================================================
-function handleSmartButtonClick(action) {
-    console.log('🚀 Smart button clicked, action:', action);
+function handleSmartButtonClick(buttonType) {
+    console.log(`Smart button clicked: ${buttonType}`);
     
-    // Hide the current button
-    const smartButton = document.getElementById('smartButton');
-    if (smartButton) {
-        smartButton.style.display = 'none';
+    // 🚨 IMMEDIATELY STOP ALL AI TALKING
+    // Stop any ongoing speech synthesis
+    if (window.speechSynthesis) {
+        window.speechSynthesis.cancel(); // Kills any ongoing speech immediately
+        console.log('🔇 AI speech stopped immediately');
     }
     
-    // Add system message
-    addAIMessage("Excellent! Now I need to collect a few quick details to get you connected with Bruce. What's your first name?");
+    // Stop speech recognition
+    if (recognition) {
+        try {
+            recognition.stop();
+            isListening = false;
+            console.log('🔇 Speech recognition stopped');
+        } catch (error) {
+            console.log('Speech already stopped');
+        }
+    }
     
-    // Start the information collection flow
-    conversationState = 'collecting_name';
+    // Stop any audio elements that might be playing
+    const audioElements = document.querySelectorAll('audio');
+    audioElements.forEach(audio => {
+        audio.pause();
+        audio.currentTime = 0;
+    });
     
-    // Re-enable speech recognition for info collection
-    setTimeout(() => {
-        isAudioMode = true;
-        startListening();
-    }, 1000);
+    // Update mic button visual
+    const micButton = document.querySelector('.mic-button');
+    if (micButton) {
+        micButton.innerHTML = '📋'; // Form mode
+        micButton.style.background = 'linear-gradient(135deg, #ff6b6b, #ee5a24)';
+    }
+    
+    // Clear any pending timeouts that might trigger more speech
+    for (let i = 1; i < 99999; i++) window.clearTimeout(i);
+    
+    console.log('🔇 All audio stopped - starting lead capture');
+    
+    // Start lead capture in silence
+    initializeLeadCapture(buttonType);
 }
 
 function simulateUserMessage(message) {
