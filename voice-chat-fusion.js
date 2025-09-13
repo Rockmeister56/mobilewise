@@ -807,18 +807,15 @@ function handleSmartButtonClick(buttonType) {
         }
     }
     
-    // Start lead capture
-    initializeLeadCapture(buttonType);
-}
-
-// COMPLETELY SEPARATE LEAD CAPTURE SYSTEM
-function initializeLeadCapture(buttonType) {
-    // Only activate when specifically called
-    if (isInLeadCapture) return; // Prevent double activation
+    function initializeLeadCapture(buttonType) {
+    console.log('Starting lead capture for:', buttonType);
     
-    // Create isolated lead capture object
+    // Create lead data object
     leadData = {
-        name: '', phone: '', email: '', contactTime: '', 
+        name: '', 
+        phone: '', 
+        email: '', 
+        contactTime: '', 
         inquiryType: currentState,
         transcript: conversationHistory.map(msg => `${msg.type}: ${msg.text}`).join('\n'),
         step: 0,
@@ -830,19 +827,17 @@ function initializeLeadCapture(buttonType) {
         ]
     };
     
-    isInLeadCapture = true;
-    
     // Add transition message
-    addMessage(`Great! I'd love to connect you with one of our ${buttonType} specialists. Let me gather a few details.`, 'ai');
+    addMessage(`Excellent! Now I need to collect a few quick details to get you connected with Bruce.`, 'ai');
     
-    // Start lead questions after delay
+    // Start first question after delay
     setTimeout(() => {
         askLeadQuestion();
     }, 1500);
 }
 
 function askLeadQuestion() {
-    if (!isInLeadCapture || !leadData) return;
+    if (!leadData) return;
     
     if (leadData.step < leadData.questions.length) {
         addMessage(leadData.questions[leadData.step], 'ai');
@@ -905,7 +900,6 @@ function completeLeadCollection() {
     
     // Reset system
     setTimeout(() => {
-        isInLeadCapture = false;
         leadData = null;
         addMessage("Anything else I can help you with?", 'ai');
     }, 3000);
