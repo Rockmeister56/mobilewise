@@ -884,7 +884,13 @@ function createLeadInput() {
         </div>
     `;
     
-    document.getElementById('messages').appendChild(container);
+    // ✅ USE SAME ID AS addAIMessage function
+    const chatMessages = document.getElementById('chatMessages');
+    if (chatMessages) {
+        chatMessages.appendChild(container);
+    } else {
+        console.error('Chat messages container not found!');
+    }
 }
 
 function submitLeadAnswer() {
