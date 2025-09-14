@@ -815,12 +815,16 @@ function handleSmartButtonClick(buttonType) {
 
 // COMPLETELY SEPARATE LEAD CAPTURE SYSTEM
 function initializeLeadCapture(buttonType) {
-    console.log('Starting lead capture for:', buttonType);
+    // Only activate when specifically called
+    if (isInLeadCapture) return; // Prevent double activation
     
-    // Create lead data object
+    // Create isolated lead capture object
     leadData = {
-        name: '', phone: '', email: '', contactTime: '', 
-        inquiryType: currentState,
+        name: '', 
+        phone: '', 
+        email: '', 
+        contactTime: '', 
+        inquiryType: buttonType,  // ✅ FIXED - Use buttonType instead of currentState
         transcript: conversationHistory.map(msg => `${msg.type}: ${msg.text}`).join('\n'),
         step: 0,
         questions: [
@@ -831,19 +835,29 @@ function initializeLeadCapture(buttonType) {
         ]
     };
     
-    // Add transition message (text only)
-    addMessage(`Excellent! Now I need to collect a few quick details to get you connected with Bruce.`, 'ai');
+    isInLeadCapture = true;
     
-    // Start first question with SPEECH after delay
+    // Add transition message
+    addMessage(`Great! I'd love to connect you with one of our ${buttonType} specialists. Let me gather a few details.`, 'ai');
+    
+    // Start lead questions after delay
     setTimeout(() => {
-        const firstQuestion = leadData.questions[0]; // "What's your name?"
+        askLeadQuestion();
+    }, 1500);
+}
+
+function askLeadQuestion() {
+    if (!isInLeadCapture || !leadData) return;
+    
+    if (leadData.step < leadData.questions.length) {
+        const question = leadData.questions[leadData.step];
         
         // Add message to screen
-        addMessage(firstQuestion, 'ai');
+        addMessage(question, 'ai');
         
         // 🎤 MAKE THE AI SPEAK THE QUESTION
         if (window.speechSynthesis) {
-            const utterance = new SpeechSynthesisUtterance(firstQuestion);
+            const utterance = new SpeechSynthesisUtterance(question);
             utterance.rate = 0.9;
             utterance.pitch = 1.1;
             window.speechSynthesis.speak(utterance);
@@ -851,7 +865,9 @@ function initializeLeadCapture(buttonType) {
         
         // Show input box
         createLeadInput();
-    }, 1500);
+    } else {
+        completeLeadCollection();
+    }
 }
 
 function createLeadInput() {
@@ -905,26 +921,14 @@ function completeLeadCollection() {
     
     console.log('Lead Captured:', leadData);
     
-    // Reset and restore speech
+    // Reset system
     setTimeout(() => {
         isInLeadCapture = false;
         leadData = null;
-        
-        // Restore mic button
-        const micButton = document.querySelector('.mic-button');
-        if (micButton) {
-            micButton.innerHTML = '🎤';
-            micButton.style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
-        }
-        
         addMessage("Anything else I can help you with?", 'ai');
-        
-        // Restart speech recognition
-        if (recognition) {
-            startListening();
-        }
     }, 3000);
 }
+
 
 
 // ===================================================
