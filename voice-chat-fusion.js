@@ -824,8 +824,8 @@ function initializeLeadCapture(buttonType) {
         phone: '', 
         email: '', 
         contactTime: '', 
-        inquiryType: buttonType,  // ✅ FIXED - Use buttonType instead of currentState
-        transcript: conversationHistory.map(msg => `${msg.type}: ${msg.text}`).join('\n'),
+        inquiryType: buttonType,
+        transcript: '', // ✅ SIMPLE - No conversationHistory needed
         step: 0,
         questions: [
             "What's your name?",
