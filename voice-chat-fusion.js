@@ -815,17 +815,15 @@ function handleSmartButtonClick(buttonType) {
 
 // COMPLETELY SEPARATE LEAD CAPTURE SYSTEM
 function initializeLeadCapture(buttonType) {
-    // Only activate when specifically called
-    if (isInLeadCapture) return; // Prevent double activation
+    if (isInLeadCapture) return;
     
-    // Create isolated lead capture object
     leadData = {
         name: '', 
         phone: '', 
         email: '', 
         contactTime: '', 
         inquiryType: buttonType,
-        transcript: '', // ✅ SIMPLE - No conversationHistory needed
+        transcript: '',
         step: 0,
         questions: [
             "What's your name?",
@@ -837,10 +835,9 @@ function initializeLeadCapture(buttonType) {
     
     isInLeadCapture = true;
     
-    // Add transition message
-    addMessage(`Great! I'd love to connect you with one of our ${buttonType} specialists. Let me gather a few details.`, 'ai');
+    // ✅ USE addAIMessage (not addMessage)
+    addAIMessage(`Great! I'd love to connect you with one of our ${buttonType} specialists. Let me gather a few details.`);
     
-    // Start lead questions after delay
     setTimeout(() => {
         askLeadQuestion();
     }, 1500);
@@ -852,8 +849,8 @@ function askLeadQuestion() {
     if (leadData.step < leadData.questions.length) {
         const question = leadData.questions[leadData.step];
         
-        // Add message to screen
-        addMessage(question, 'ai');
+        // ✅ USE addAIMessage
+        addAIMessage(question);
         
         // 🎤 MAKE THE AI SPEAK THE QUESTION
         if (window.speechSynthesis) {
@@ -863,7 +860,6 @@ function askLeadQuestion() {
             window.speechSynthesis.speak(utterance);
         }
         
-        // Show input box
         createLeadInput();
     } else {
         completeLeadCollection();
@@ -906,7 +902,7 @@ function submitLeadAnswer() {
     }
     
     // Show user response
-    addMessage(answer, 'user');
+    addUserMessage(answer); 
     
     // Remove input
     document.querySelector('.lead-input-container').remove();
@@ -917,7 +913,7 @@ function submitLeadAnswer() {
 }
 
 function completeLeadCollection() {
-    addMessage(`Perfect ${leadData.name}! Our specialist will contact you at ${leadData.phone} during your preferred ${leadData.contactTime} time.`, 'ai');
+    addAIMessage(`Perfect ${leadData.name}! Our specialist will contact you at ${leadData.phone} during your preferred ${leadData.contactTime} time.`);
     
     console.log('Lead Captured:', leadData);
     
@@ -925,7 +921,7 @@ function completeLeadCollection() {
     setTimeout(() => {
         isInLeadCapture = false;
         leadData = null;
-        addMessage("Anything else I can help you with?", 'ai');
+        addAIMessage("Anything else I can help you with?");
     }, 3000);
 }
 
