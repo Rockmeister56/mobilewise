@@ -167,12 +167,11 @@ function startListening() {
     }
     
   function startListening() {
-    // ✅ ONLY block if in lead capture AND not supposed to be listening for answers
-    if (isInLeadCapture && leadData && leadData.subStep !== 'ask' && leadData.subStep !== 'confirm') {
-        console.log('Speech blocked - lead capture in wrong state');
+    // Block ALL speech during lead capture
+    if (isInLeadCapture) {
+        console.log('Speech blocked - lead capture active');
         return;
     }
-    
     console.log('🎯 startListening() called');
     if (!checkSpeechSupport()) return;
     if (isSpeaking) return;
@@ -257,7 +256,7 @@ function startListening() {
                 sendMessage();
             } else {
                 if (isAudioMode && !isSpeaking && isListening && !lastMessageWasApology) {
-                    console.log('🔄 No speech detected - restarting');
+                    console.log('🔄 No speech detected via onend - restarting');
                     setTimeout(() => {
                         try {
                             if (recognition) {
