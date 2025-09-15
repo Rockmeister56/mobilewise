@@ -161,6 +161,13 @@ function getApologyResponse() {
 }
     
   function startListening() {
+    // ✅ NEW: Smart button gate-keeper - BLOCK listening if smart button is active!
+    const smartButton = document.getElementById('smartButton');
+    if (smartButton && smartButton.style.display !== 'none') {
+        console.log('🚫 Smart button active - BLOCKING startListening()');
+        return; // EXIT IMMEDIATELY!
+    }
+    
     // ✅ REMOVED THE LEAD CAPTURE BLOCKING - Allow speech during lead capture!
     console.log('🎯 startListening() called');
     if (!checkSpeechSupport()) return;
@@ -171,36 +178,35 @@ function getApologyResponse() {
             initializeSpeechRecognition();
         }
 
-recognition.onresult = function(event) {
-    const transcript = Array.from(event.results)
-        .map(result => result[0])
-        .map(result => result.transcript)
-        .join('');
-    
-    const transcriptText = document.getElementById('transcriptText');
-    const userInput = document.getElementById('userInput');
-    
-    if (transcriptText) {
-        transcriptText.textContent = 'Speak Now'; // ✅ KEEP EXACTLY AS IS
-    }
-    
-    if (userInput) {
-        userInput.value = transcript; // ✅ KEEP EXACTLY AS IS
-    }
-    
-    // ✅ ONLY ADDITION: Special handling for lead capture timing
-    if (isInLeadCapture) {
-        // Give a tiny bit more time for complete names/phone numbers
-        clearTimeout(window.leadCaptureTimeout);
-        window.leadCaptureTimeout = setTimeout(() => {
-            if (transcript.trim().length > 1 && userInput.value === transcript) {
-                console.log('🎯 Lead capture auto-send:', transcript);
-                sendMessage();
+        recognition.onresult = function(event) {
+            const transcript = Array.from(event.results)
+                .map(result => result[0])
+                .map(result => result.transcript)
+                .join('');
+            
+            const transcriptText = document.getElementById('transcriptText');
+            const userInput = document.getElementById('userInput');
+            
+            if (transcriptText) {
+                transcriptText.textContent = 'Speak Now'; // ✅ KEEP EXACTLY AS IS
             }
-        }, 800); // Slightly longer delay for lead capture
-    }
-};
-
+            
+            if (userInput) {
+                userInput.value = transcript; // ✅ KEEP EXACTLY AS IS
+            }
+            
+            // ✅ ONLY ADDITION: Special handling for lead capture timing
+            if (isInLeadCapture) {
+                // Give a tiny bit more time for complete names/phone numbers
+                clearTimeout(window.leadCaptureTimeout);
+                window.leadCaptureTimeout = setTimeout(() => {
+                    if (transcript.trim().length > 1 && userInput.value === transcript) {
+                        console.log('🎯 Lead capture auto-send:', transcript);
+                        sendMessage();
+                    }
+                }, 800); // Slightly longer delay for lead capture
+            }
+        };
         recognition.onerror = function(event) {
             console.log('🔊 Speech error:', event.error);
             
@@ -876,30 +882,25 @@ function speakMessage(message) {
         };
         
         utterance.onend = function() {
-    console.log('🔊 AI finished speaking');
-    
-    // ✅ NEW LOGIC: Only show "Speak Now" if NO smart button is active
-    setTimeout(() => {
-        const smartButton = document.getElementById('smartButton');
-        const smartButtonVisible = smartButton && smartButton.style.display !== 'none';
-        
-        // ✅ ONLY show "Speak Now" if smart button is NOT visible
-        if (isInLeadCapture && !smartButtonVisible) {
-            const liveTranscript = document.getElementById('liveTranscript');
-            const transcriptText = document.getElementById('transcriptText');
-            
-            if (liveTranscript && transcriptText) {
-                transcriptText.textContent = 'Speak Now...';
-                transcriptText.style.display = 'block';
-                liveTranscript.style.display = 'flex';
-            }
-            
-            if (recognition && !isListening) {
-                startListening();
-            }
-        }
-    }, 500);
-};
+            console.log('🔊 AI finished speaking - showing Speak Now after delay');
+            // ✅ PERFECT TIMING: Show "Speak Now" after short delay
+            setTimeout(() => {
+                if (isInLeadCapture) {
+                    const liveTranscript = document.getElementById('liveTranscript');
+                    const transcriptText = document.getElementById('transcriptText');
+                    
+                    if (liveTranscript && transcriptText) {
+                        transcriptText.textContent = 'Speak Now...'; // ✅ ADD TEXT!
+                        transcriptText.style.display = 'block';
+                        liveTranscript.style.display = 'flex';
+                    }
+                    
+                    if (recognition && !isListening) {
+                        startListening();
+                    }
+                }
+            }, 300); // ✅ HALF SECOND DELAY - Perfect timing!
+        };
         
         window.speechSynthesis.speak(utterance);
     }
