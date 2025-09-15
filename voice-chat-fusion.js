@@ -1022,6 +1022,23 @@ function confirmAnswer(isCorrect) {
     }
 }
 
+function askSimpleLeadQuestion() {
+    if (!isInLeadCapture || !leadData) return;
+    
+    console.log('🎯 Asking question for step:', leadData.step);
+    
+    if (leadData.step < leadData.questions.length) {
+        const question = leadData.questions[leadData.step];
+        console.log('🎯 Next question:', question);
+        
+        addAIMessage(question);
+        speakMessage(question);
+    } else {
+        console.log('🎯 All questions complete - finishing lead capture');
+        completeLeadCollection();
+    }
+}
+
 // Make it global so HTML buttons can call it
 window.confirmAnswer = confirmAnswer;
 
