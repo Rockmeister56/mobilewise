@@ -204,7 +204,7 @@ function getApologyResponse() {
                         console.log('🎯 Lead capture auto-send:', transcript);
                         sendMessage();
                     }
-                }, 800); // Slightly longer delay for lead capture
+                }, 1500); // Slightly longer delay for lead capture
             }
         };
         recognition.onerror = function(event) {
