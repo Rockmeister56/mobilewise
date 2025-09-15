@@ -161,11 +161,7 @@ function getApologyResponse() {
 }
     
   function startListening() {
-    // Block ALL speech during lead capture
-    if (isInLeadCapture) {
-        console.log('Speech blocked - lead capture active');
-        return;
-    }
+    // ✅ REMOVED THE LEAD CAPTURE BLOCKING - Allow speech during lead capture!
     console.log('🎯 startListening() called');
     if (!checkSpeechSupport()) return;
     if (isSpeaking) return;
@@ -268,6 +264,7 @@ function getApologyResponse() {
         recognition.start();
         isListening = true;
         
+        // ✅ SHOW THE GREEN "SPEAK NOW" BANNER
         const liveTranscript = document.getElementById('liveTranscript');
         if (liveTranscript) {
             liveTranscript.style.display = 'flex';
