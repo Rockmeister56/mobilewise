@@ -835,8 +835,10 @@ function initializeLeadCapture(buttonType) {
     
     isInLeadCapture = true;
     
-    // ✅ USE addAIMessage (not addMessage)
-    addAIMessage(`Great! I'd love to connect you with one of our ${buttonType} specialists. Let me gather a few details.`);
+// ✅ GO STRAIGHT TO FIRST QUESTION
+setTimeout(() => {
+    askLeadQuestion(); // This will ask "What's your name?" immediately
+}, 500);
     
     setTimeout(() => {
         askLeadQuestion();
@@ -1016,6 +1018,23 @@ function updateSmartButton(show, text, action) {
 // ===================================================
 function handleSmartButtonClick(buttonType) {
     console.log(`Smart button clicked: ${buttonType}`);
+
+    // Fix the buttonType if it's an event object
+    if (typeof buttonType === 'object') {
+        buttonType = 'valuation'; // Default to valuation
+    }
+
+     const smartButton = document.getElementById('smartButton');
+    if (smartButton) {
+        smartButton.style.display = 'none';
+    }
+    
+    // Clear bottom banner text
+    const transcriptText = document.getElementById('transcriptText');
+    if (transcriptText) {
+        transcriptText.textContent = '';
+        transcriptText.style.display = 'none';
+    }
     
     // MINIMAL speech stopping - don't go nuclear
     if (recognition) {
