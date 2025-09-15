@@ -870,53 +870,136 @@ function speakMessage(message) {
 function processLeadResponse(userInput) {
     if (!isInLeadCapture || !leadData) return false;
     
-    const response = userInput.toLowerCase().trim();
+    console.log('🎯 Processing lead response:', userInput);
     
-    if (leadData.subStep === 'ask') {
-        leadData.tempAnswer = userInput;
-        leadData.subStep = 'confirm';
-        
-        addUserMessage(userInput);
-        
-        setTimeout(() => {
-            askLeadQuestion();
-        }, 1000);
-        
-        return true;
-        
-    } else if (leadData.subStep === 'confirm') {
-        const isYes = response.includes('yes') || response.includes('yeah') || 
-                     response.includes('correct') || response.includes('right') ||
-                     response.includes('yep') || response.includes('that\'s right');
-        
-        const isNo = response.includes('no') || response.includes('nope') || 
-                    response.includes('wrong') || response.includes('incorrect');
-        
-        addUserMessage(userInput);
-        
-        if (isYes) {
-            saveConfirmedAnswer();
-            moveToNextQuestion();
-        } else if (isNo) {
-            addAIMessage("Let me get that again.");
-            leadData.tempAnswer = '';
-            leadData.subStep = 'ask';
-            
-            setTimeout(() => {
-                askLeadQuestion();
-            }, 1500);
-        } else {
-            addAIMessage("Please say 'yes' if correct, or 'no' to repeat.");
-            setTimeout(() => {
-                askLeadQuestion();
-            }, 2000);
-        }
-        
-        return true;
+    // Show what they said
+    addUserMessage(userInput);
+    
+    // Store temporarily (don't save to final data yet)
+    leadData.tempAnswer = userInput;
+    
+    // Show visual confirmation buttons
+    showConfirmationButtons(userInput);
+    
+    return true;
+}
+
+function showConfirmationButtons(answer) {
+    const chatMessages = document.getElementById('chatMessages');
+    
+    // Create button container
+    const buttonContainer = document.createElement('div');
+    buttonContainer.className = 'confirmation-buttons';
+    buttonContainer.innerHTML = `
+        <div style="
+            text-align: center; 
+            margin: 15px 0; 
+            padding: 15px; 
+            background: rgba(255,255,255,0.1); 
+            border-radius: 15px;
+            border: 2px solid rgba(255,255,255,0.2);
+        ">
+            <div style="
+                margin-bottom: 15px; 
+                color: white; 
+                font-size: 16px;
+                font-weight: bold;
+            ">
+                "${answer}"
+            </div>
+            <div style="margin-bottom: 10px; color: #ccc; font-size: 14px;">
+                Is this correct?
+            </div>
+            <button onclick="confirmAnswer(true)" style="
+                background: linear-gradient(135deg, #4CAF50, #8BC34A);
+                color: white; 
+                border: none; 
+                padding: 12px 25px; 
+                border-radius: 25px; 
+                margin: 0 10px; 
+                cursor: pointer;
+                font-weight: bold;
+                font-size: 14px;
+                box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+            ">
+                ✅ Correct
+            </button>
+            <button onclick="confirmAnswer(false)" style="
+                background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+                color: white; 
+                border: none; 
+                padding: 12px 25px; 
+                border-radius: 25px; 
+                margin: 0 10px; 
+                cursor: pointer;
+                font-weight: bold;
+                font-size: 14px;
+                box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+            ">
+                🔄 Redo
+            </button>
+        </div>
+    `;
+    
+    chatMessages.appendChild(buttonContainer);
+    scrollChatToBottom();
+}
+
+function confirmAnswer(isCorrect) {
+    console.log('🎯 User clicked:', isCorrect ? 'Correct' : 'Redo');
+    
+    // Remove the confirmation buttons
+    const buttonContainer = document.querySelector('.confirmation-buttons');
+    if (buttonContainer) {
+        buttonContainer.remove();
     }
     
-    return false;
+    if (isCorrect) {
+        // ✅ CORRECT - Save the answer and move on
+        const fields = ['name', 'phone', 'email', 'contactTime'];
+        const field = fields[leadData.step];
+        leadData[field] = leadData.tempAnswer;
+        
+        console.log(`✅ Confirmed ${field}: ${leadData.tempAnswer}`);
+        
+        // Show confirmation message
+        addAIMessage("Perfect!");
+        
+        // Move to next question
+        leadData.step++;
+        
+        if (leadData.step < leadData.questions.length) {
+            setTimeout(() => {
+                askSimpleLeadQuestion();
+            }, 800);
+        } else {
+            setTimeout(() => {
+                completeLeadCollection();
+            }, 800);
+        }
+        
+    } else {
+        // 🔄 REDO - Ask the same question again
+        addAIMessage("Let me get that again.");
+        
+        // Clear the temp answer
+        leadData.tempAnswer = '';
+        
+        // Clear the text input field
+        const userInput = document.getElementById('userInput');
+        if (userInput) {
+            userInput.value = '';
+        }
+        
+        // Ask the same question again
+        setTimeout(() => {
+            askSimpleLeadQuestion();
+        }, 1000);
+    }
 }
+
+// Make it global so HTML buttons can call it
+window.confirmAnswer = confirmAnswer;
 
 function saveConfirmedAnswer() {
     const fields = ['name', 'phone', 'email', 'contactTime'];
