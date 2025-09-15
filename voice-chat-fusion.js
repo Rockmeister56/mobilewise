@@ -547,6 +547,21 @@ function speakResponse(message) {
     }
 }
 
+function addUserMessage(message) {
+    console.log('🎯 DEBUG: addUserMessage called with:', message);
+    console.trace(); // This shows the call stack - WHO called this function
+    
+    const chatMessages = document.getElementById('chatMessages');
+    if (!chatMessages) return;
+    
+    const messageElement = document.createElement('div');
+    messageElement.className = 'message user-message';
+    messageElement.textContent = message;
+    
+    chatMessages.appendChild(messageElement);
+    scrollChatToBottom();
+}
+
 // ===================================================
 // 🧠 AI RESPONSE SYSTEM
 // ===================================================
