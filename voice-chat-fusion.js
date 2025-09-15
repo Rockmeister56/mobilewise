@@ -683,9 +683,38 @@ function updateSmartButton(shouldShow, buttonText, action) {
     if (!smartButton) return;
     
     if (shouldShow) {
+        console.log('🎯 Showing smart button - STOPPING speech recognition');
+        
+        // ✅ STOP SPEECH RECOGNITION WHEN SMART BUTTON APPEARS
+        if (recognition) {
+            try {
+                recognition.stop();
+                isListening = false;
+                console.log('🔇 Speech stopped - smart button active');
+            } catch (error) {
+                console.log('Speech already stopped');
+            }
+        }
+        
+        // ✅ HIDE THE "SPEAK NOW" BANNER
+        const liveTranscript = document.getElementById('liveTranscript');
+        if (liveTranscript) {
+            liveTranscript.style.display = 'none';
+        }
+        
+        // ✅ CLEAR TRANSCRIPT TEXT
+        const transcriptText = document.getElementById('transcriptText');
+        if (transcriptText) {
+            transcriptText.textContent = '';
+        }
+        
+        // Show the smart button
         smartButton.textContent = buttonText;
         smartButton.style.display = 'block';
         smartButton.onclick = () => handleSmartButtonClick(action);
+        
+        console.log('✅ Smart button displayed, speech disabled');
+        
     } else {
         smartButton.style.display = 'none';
     }
@@ -904,9 +933,6 @@ function processLeadResponse(userInput) {
     if (!isInLeadCapture || !leadData) return false;
     
     console.log('🎯 Processing lead response:', userInput);
-    
-    // Show what they said
-    addUserMessage(userInput);
     
     // Store temporarily (don't save to final data yet)
     leadData.tempAnswer = userInput;
