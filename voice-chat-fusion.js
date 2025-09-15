@@ -237,28 +237,33 @@ function getApologyResponse() {
             }
         };
 
-        recognition.onend = function() {
-            console.log('🔚 Recognition ended');
-            
-            const userInput = document.getElementById('userInput');
-            
-            if (userInput && userInput.value.trim().length > 0) {
-                sendMessage();
-            } else {
-                if (isAudioMode && !isSpeaking && isListening && !lastMessageWasApology) {
-                    console.log('🔄 No speech detected via onend - restarting');
-                    setTimeout(() => {
-                        try {
-                            if (recognition) {
-                                startListening();
-                            }
-                        } catch (error) {
-                            console.log('Restart error:', error);
-                        }
-                    }, 1000);
+       recognition.onend = function() {
+    console.log('🔚 Recognition ended');
+    
+    const userInput = document.getElementById('userInput');
+    
+    // ✅ ONLY send message if we have text AND we're in lead capture
+    if (userInput && userInput.value.trim().length > 0 && isInLeadCapture) {
+        console.log('✅ Sending lead capture response:', userInput.value);
+        sendMessage();
+    } else if (!isInLeadCapture) {
+        // Normal conversation flow
+        if (userInput && userInput.value.trim().length > 0) {
+            sendMessage();
+        } else if (isAudioMode && !isSpeaking && isListening && !lastMessageWasApology) {
+            console.log('🔄 No speech detected - restarting');
+            setTimeout(() => {
+                try {
+                    if (recognition) {
+                        startListening();
+                    }
+                } catch (error) {
+                    console.log('Restart error:', error);
                 }
-            }
-        };
+            }, 1000);
+        }
+    }
+};
         
         console.log('🎤 Starting speech recognition...');
         recognition.start();
@@ -828,18 +833,34 @@ function speakMessage(message) {
         utterance.pitch = 1.1;
         
         utterance.onstart = function() {
-            console.log('🔊 AI started speaking - NO listening yet');
-            // DON'T show "Speak Now" while AI is talking!
+            console.log('🔊 AI started speaking - hiding Speak Now banner');
+            // ✅ HIDE the green banner while AI is speaking
+            const liveTranscript = document.getElementById('liveTranscript');
+            if (liveTranscript) {
+                liveTranscript.style.display = 'none';
+            }
         };
         
         utterance.onend = function() {
-            console.log('🔊 AI finished speaking - NOW start listening');
-            // ✅ ONLY NOW show "Speak Now" and start listening
+            console.log('🔊 AI finished speaking - NOW show Speak Now banner');
+            // ✅ ONLY show banner AFTER AI finishes speaking
             setTimeout(() => {
-                if (recognition && !isListening && isInLeadCapture) {
-                    startListening();
+                if (isInLeadCapture) {
+                    // Show the green banner with "Speak Now" text
+                    const liveTranscript = document.getElementById('liveTranscript');
+                    const transcriptText = document.getElementById('transcriptText');
+                    
+                    if (liveTranscript && transcriptText) {
+                        transcriptText.textContent = 'Speak Now'; // ✅ ADD THE TEXT!
+                        liveTranscript.style.display = 'flex';
+                    }
+                    
+                    // Start listening
+                    if (recognition && !isListening) {
+                        startListening();
+                    }
                 }
-            }, 500);
+            }, 800); // Longer delay to ensure AI completely finishes
         };
         
         window.speechSynthesis.speak(utterance);
