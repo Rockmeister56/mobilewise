@@ -254,16 +254,23 @@ recognition.onresult = function(event) {
     
     const userInput = document.getElementById('userInput');
     
-    // ✅ ONLY send message if we have text AND we're in lead capture
-    if (userInput && userInput.value.trim().length > 0 && isInLeadCapture) {
-        console.log('✅ Sending lead capture response:', userInput.value);
-        sendMessage();
-    } else if (!isInLeadCapture) {
-        // Normal conversation flow
-        if (userInput && userInput.value.trim().length > 0) {
+    if (userInput && userInput.value.trim().length > 0) {
+        // ✅ PREVENT DUPLICATES - Check if we already sent this message
+        const currentMessage = userInput.value.trim();
+        
+        if (!window.lastProcessedMessage || window.lastProcessedMessage !== currentMessage) {
+            console.log('✅ Sending new message:', currentMessage);
+            window.lastProcessedMessage = currentMessage;
             sendMessage();
-        } else if (isAudioMode && !isSpeaking && isListening && !lastMessageWasApology) {
-            console.log('🔄 No speech detected - restarting');
+        } else {
+            console.log('🚫 Prevented duplicate message:', currentMessage);
+            // Clear the input since we already processed this
+            userInput.value = '';
+        }
+    } else {
+        // Restart listening logic (keep existing)
+        if (isAudioMode && !isSpeaking && isListening && !lastMessageWasApology) {
+            console.log('🔄 No speech detected via onend - restarting');
             setTimeout(() => {
                 try {
                     if (recognition) {
@@ -421,6 +428,12 @@ function sendMessage() {
     
     const message = userInput.value.trim();
     if (!message) return;
+
+    // ✅ EXTRA DUPLICATE PROTECTION
+    if (window.lastProcessedMessage === message) {
+        console.log('🚫 sendMessage: Duplicate prevented');
+        return;
+    }
     
     const liveTranscript = document.getElementById('liveTranscript');
     if (liveTranscript) {
@@ -751,7 +764,7 @@ function createLeadCaptureBanner() {
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         animation: bannerSlideIn 0.5s ease-out;
     `;
-    banner.innerHTML = '📝 CONTACT INFORMATION REQUIRED';
+    banner.innerHTML = '📝 YOUR CONTACT INFO';
     
     // Add animation keyframes
     const style = document.createElement('style');
