@@ -428,12 +428,6 @@ function sendMessage() {
     
     const message = userInput.value.trim();
     if (!message) return;
-
-    // ✅ EXTRA DUPLICATE PROTECTION
-    if (window.lastProcessedMessage === message) {
-        console.log('🚫 sendMessage: Duplicate prevented');
-        return;
-    }
     
     const liveTranscript = document.getElementById('liveTranscript');
     if (liveTranscript) {
