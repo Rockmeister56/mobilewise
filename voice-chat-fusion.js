@@ -171,23 +171,35 @@ function getApologyResponse() {
             initializeSpeechRecognition();
         }
 
-        recognition.onresult = function(event) {
-            const transcript = Array.from(event.results)
-                .map(result => result[0])
-                .map(result => result.transcript)
-                .join('');
-            
-            const transcriptText = document.getElementById('transcriptText');
-            const userInput = document.getElementById('userInput');
-            
-            if (transcriptText) {
-                transcriptText.textContent = 'Speak Now';
+recognition.onresult = function(event) {
+    const transcript = Array.from(event.results)
+        .map(result => result[0])
+        .map(result => result.transcript)
+        .join('');
+    
+    const transcriptText = document.getElementById('transcriptText');
+    const userInput = document.getElementById('userInput');
+    
+    if (transcriptText) {
+        transcriptText.textContent = 'Speak Now'; // ✅ KEEP EXACTLY AS IS
+    }
+    
+    if (userInput) {
+        userInput.value = transcript; // ✅ KEEP EXACTLY AS IS
+    }
+    
+    // ✅ ONLY ADDITION: Special handling for lead capture timing
+    if (isInLeadCapture) {
+        // Give a tiny bit more time for complete names/phone numbers
+        clearTimeout(window.leadCaptureTimeout);
+        window.leadCaptureTimeout = setTimeout(() => {
+            if (transcript.trim().length > 1 && userInput.value === transcript) {
+                console.log('🎯 Lead capture auto-send:', transcript);
+                sendMessage();
             }
-            
-            if (userInput) {
-                userInput.value = transcript;
-            }
-        };
+        }, 800); // Slightly longer delay for lead capture
+    }
+};
 
         recognition.onerror = function(event) {
             console.log('🔊 Speech error:', event.error);
@@ -833,8 +845,8 @@ function speakMessage(message) {
         utterance.pitch = 1.1;
         
         utterance.onstart = function() {
-            console.log('🔊 AI started speaking - hiding Speak Now banner');
-            // ✅ HIDE the green banner while AI is speaking
+            console.log('🔊 AI started speaking - hiding Speak Now');
+            // Hide the green banner while AI speaks
             const liveTranscript = document.getElementById('liveTranscript');
             if (liveTranscript) {
                 liveTranscript.style.display = 'none';
@@ -842,25 +854,24 @@ function speakMessage(message) {
         };
         
         utterance.onend = function() {
-            console.log('🔊 AI finished speaking - NOW show Speak Now banner');
-            // ✅ ONLY show banner AFTER AI finishes speaking
+            console.log('🔊 AI finished speaking - showing Speak Now after delay');
+            // ✅ PERFECT TIMING: Show "Speak Now" after short delay
             setTimeout(() => {
                 if (isInLeadCapture) {
-                    // Show the green banner with "Speak Now" text
                     const liveTranscript = document.getElementById('liveTranscript');
                     const transcriptText = document.getElementById('transcriptText');
                     
                     if (liveTranscript && transcriptText) {
-                        transcriptText.textContent = 'Speak Now'; // ✅ ADD THE TEXT!
+                        transcriptText.textContent = 'Speak Now...'; // ✅ ADD TEXT!
+                        transcriptText.style.display = 'block';
                         liveTranscript.style.display = 'flex';
                     }
                     
-                    // Start listening
                     if (recognition && !isListening) {
                         startListening();
                     }
                 }
-            }, 800); // Longer delay to ensure AI completely finishes
+            }, 500); // ✅ HALF SECOND DELAY - Perfect timing!
         };
         
         window.speechSynthesis.speak(utterance);
