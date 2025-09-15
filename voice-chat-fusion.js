@@ -159,12 +159,6 @@ function getApologyResponse() {
     
     return sorryMessages[Math.floor(Math.random() * sorryMessages.length)];
 }
-
-function startListening() {
-    if (isInLeadCapture) {
-        console.log('Speech blocked - lead capture active');
-        return;
-    }
     
   function startListening() {
     // Block ALL speech during lead capture
