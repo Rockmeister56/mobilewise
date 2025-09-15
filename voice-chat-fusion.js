@@ -898,14 +898,13 @@ function processLeadResponse(userInput) {
 function showConfirmationButtons(answer) {
     const chatMessages = document.getElementById('chatMessages');
     
-    // Create button container
     const buttonContainer = document.createElement('div');
     buttonContainer.className = 'confirmation-buttons';
     buttonContainer.innerHTML = `
         <div style="
             text-align: center; 
             margin: 15px 0; 
-            padding: 15px; 
+            padding: 20px; 
             background: rgba(255,255,255,0.1); 
             border-radius: 15px;
             border: 2px solid rgba(255,255,255,0.2);
@@ -913,42 +912,49 @@ function showConfirmationButtons(answer) {
             <div style="
                 margin-bottom: 15px; 
                 color: white; 
-                font-size: 16px;
+                font-size: 18px;
                 font-weight: bold;
             ">
                 "${answer}"
             </div>
-            <div style="margin-bottom: 10px; color: #ccc; font-size: 14px;">
+            <div style="margin-bottom: 20px; color: #ccc; font-size: 14px;">
                 Is this correct?
             </div>
-            <button onclick="confirmAnswer(true)" style="
-                background: linear-gradient(135deg, #4CAF50, #8BC34A);
-                color: white; 
-                border: none; 
-                padding: 12px 25px; 
-                border-radius: 25px; 
-                margin: 0 10px; 
-                cursor: pointer;
-                font-weight: bold;
-                font-size: 14px;
-                box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+            <div style="
+                display: flex; 
+                justify-content: center; 
+                gap: 20px;
+                flex-wrap: wrap;
             ">
-                ✅ Correct
-            </button>
-            <button onclick="confirmAnswer(false)" style="
-                background: linear-gradient(135deg, #ff6b6b, #ee5a24);
-                color: white; 
-                border: none; 
-                padding: 12px 25px; 
-                border-radius: 25px; 
-                margin: 0 10px; 
-                cursor: pointer;
-                font-weight: bold;
-                font-size: 14px;
-                box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
-            ">
-                🔄 Redo
-            </button>
+                <button onclick="confirmAnswer(true)" style="
+                    background: linear-gradient(135deg, #4CAF50, #8BC34A);
+                    color: white; 
+                    border: none; 
+                    padding: 15px 30px; 
+                    border-radius: 25px; 
+                    cursor: pointer;
+                    font-weight: bold;
+                    font-size: 16px;
+                    min-width: 120px;
+                    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+                ">
+                    ✅ Correct
+                </button>
+                <button onclick="confirmAnswer(false)" style="
+                    background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+                    color: white; 
+                    border: none; 
+                    padding: 15px 30px; 
+                    border-radius: 25px; 
+                    cursor: pointer;
+                    font-weight: bold;
+                    font-size: 16px;
+                    min-width: 120px;
+                    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+                ">
+                    🔄 Redo
+                </button>
+            </div>
         </div>
     `;
     
@@ -966,17 +972,15 @@ function confirmAnswer(isCorrect) {
     }
     
     if (isCorrect) {
-        // ✅ CORRECT - Save the answer and move on
+        // ✅ CORRECT - Save and move on
         const fields = ['name', 'phone', 'email', 'contactTime'];
         const field = fields[leadData.step];
         leadData[field] = leadData.tempAnswer;
         
         console.log(`✅ Confirmed ${field}: ${leadData.tempAnswer}`);
         
-        // Show confirmation message
         addAIMessage("Perfect!");
         
-        // Move to next question
         leadData.step++;
         
         if (leadData.step < leadData.questions.length) {
@@ -990,22 +994,31 @@ function confirmAnswer(isCorrect) {
         }
         
     } else {
-        // 🔄 REDO - Ask the same question again
-        addAIMessage("Let me get that again.");
+        // 🔄 REDO - Skip AI speech, go straight to listening
+        console.log('🔄 Redo - clearing field and starting listening immediately');
         
-        // Clear the temp answer
+        // Clear temp answer and text field
         leadData.tempAnswer = '';
-        
-        // Clear the text input field
         const userInput = document.getElementById('userInput');
         if (userInput) {
             userInput.value = '';
         }
         
-        // Ask the same question again
+        // ✅ NO AI SPEECH - Go straight to "Speak Now"
         setTimeout(() => {
-            askSimpleLeadQuestion();
-        }, 1000);
+            const liveTranscript = document.getElementById('liveTranscript');
+            const transcriptText = document.getElementById('transcriptText');
+            
+            if (liveTranscript && transcriptText) {
+                transcriptText.textContent = 'Speak Now...';
+                transcriptText.style.display = 'block';
+                liveTranscript.style.display = 'flex';
+            }
+            
+            if (recognition && !isListening) {
+                startListening();
+            }
+        }, 300);
     }
 }
 
