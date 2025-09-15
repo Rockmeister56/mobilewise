@@ -1,6 +1,6 @@
 // ===================================================
-// 🎯 MOBILE-WISE AI VOICE CHAT - FUSION SYSTEM
-// Combining mobile-assist2 voice functionality + voice-chat business logic
+// 🎯 MOBILE-WISE AI VOICE CHAT - COMPLETE INTEGRATION
+// Smart Button + Lead Capture + EmailJS + Banner System
 // ===================================================
 
 // ===================================================
@@ -25,6 +25,27 @@ let isInLeadCapture = false;
 let leadData = null;
 
 // ===================================================
+// 📧 EMAILJS INITIALIZATION (FROM YOUR WORKING SYSTEM)
+// ===================================================
+(function(){
+    if (typeof emailjs !== 'undefined') {
+        emailjs.init("7-9oxa3UC3uKxtqGM"); // Your public key
+        console.log("📧 EmailJS initialized successfully");
+    } else {
+        console.log("📧 EmailJS not loaded yet - will initialize when available");
+        
+        // Load EmailJS if not already loaded
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js';
+        script.onload = () => {
+            emailjs.init("7-9oxa3UC3uKxtqGM");
+            console.log("📧 EmailJS loaded and initialized");
+        };
+        document.head.appendChild(script);
+    }
+})();
+
+// ===================================================
 // 📱 MOBILE DEVICE DETECTION
 // ===================================================
 function isMobileDevice() {
@@ -32,7 +53,7 @@ function isMobileDevice() {
 }
 
 // ===================================================
-// 🎤 MICROPHONE PERMISSION SYSTEM (FROM mobile-assist2)
+// 🎤 MICROPHONE PERMISSION SYSTEM
 // ===================================================
 async function requestMicrophoneAccess() {
     const permissionStatus = document.getElementById('permissionStatus');
@@ -51,9 +72,7 @@ async function requestMicrophoneAccess() {
         const tracks = stream.getTracks();
         tracks.forEach(track => track.stop());
         
-        // Show microphone activated status
         showMicActivatedStatus();
-        
         return true;
     } catch (err) {
         console.error("Microphone access denied:", err);
@@ -75,22 +94,18 @@ function showMicActivatedStatus() {
 }
 
 // ===================================================
-// 🎵 MOBILE-WISE AI INTRO JINGLE PLAYER
+// 🎵 INTRO JINGLE PLAYER
 // ===================================================
 function playIntroJingle() {
     const introAudio = new Audio('https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/audio-intros/ai_intro_1757573121859.mp3');
     
-    // Set audio properties
-    introAudio.volume = 0.7; // 70% volume - adjust as needed
+    introAudio.volume = 0.7;
     introAudio.preload = 'auto';
     
-    // Play the jingle
     introAudio.play().catch(error => {
         console.log('Intro jingle failed to play:', error);
-        // Fail silently - don't break the experience
     });
     
-    // Optional: Fade out after a few seconds if AI speaks
     setTimeout(() => {
         if (!introAudio.ended) {
             let fadeOutInterval = setInterval(() => {
@@ -102,12 +117,11 @@ function playIntroJingle() {
                 }
             }, 100);
         }
-    }, 3000); // Start fade after 3 seconds
+    }, 3000);
 }
 
-
 // ===================================================
-// 🎤 SPEECH RECOGNITION SYSTEM (MOBILE-OPTIMIZED)
+// 🎤 SPEECH RECOGNITION SYSTEM
 // ===================================================
 function checkSpeechSupport() {
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
@@ -124,8 +138,7 @@ function initializeSpeechRecognition() {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     recognition = new SpeechRecognition();
     
-    // MOBILE-OPTIMIZED SETTINGS (FROM mobile-assist2)
-    recognition.continuous = false;  // Better for mobile
+    recognition.continuous = false;
     recognition.interimResults = true;
     recognition.lang = 'en-US';
 
@@ -133,9 +146,6 @@ function initializeSpeechRecognition() {
     return true;
 }
 
-// ===================================================
-// 🚨 APOLOGY RESPONSE SYSTEM (FOR NO-SPEECH ERRORS)
-// ===================================================
 function getApologyResponse() {
     const sorryMessages = [
         "I'm sorry, I didn't catch that. Can you repeat your answer?",
@@ -151,120 +161,113 @@ function getApologyResponse() {
 }
 
 function startListening() {
-    // Block ALL speech during lead capture
     if (isInLeadCapture) {
         console.log('Speech blocked - lead capture active');
         return;
     }
+    
     console.log('🎯 startListening() called');
     if (!checkSpeechSupport()) return;
     if (isSpeaking) return;
+    
     try {
         if (!recognition) {
             initializeSpeechRecognition();
         }
 
-        // MOBILE-OPTIMIZED RESULT HANDLER (FIXED)
         recognition.onresult = function(event) {
             const transcript = Array.from(event.results)
                 .map(result => result[0])
                 .map(result => result.transcript)
                 .join('');
             
-            // 🎯 FIXED: Keep green button saying "Speak Now" - DON'T update with transcript
             const transcriptText = document.getElementById('transcriptText');
             const userInput = document.getElementById('userInput');
             
             if (transcriptText) {
-                transcriptText.textContent = 'Speak Now'; // 🚀 ALWAYS "Speak Now" - never transcript
+                transcriptText.textContent = 'Speak Now';
             }
             
             if (userInput) {
-                userInput.value = transcript; // ✅ ONLY the text field gets your words
+                userInput.value = transcript;
             }
         };
 
-recognition.onerror = function(event) {
-    console.log('🔊 Speech error:', event.error);
-    
-    if (event.error === 'no-speech') {
-        const transcriptText = document.getElementById('transcriptText');
-        
-        // 🆕 MOBILE: Simple text change approach
-        if (isMobileDevice()) {
-            console.log('📱 Mobile: Using visual apology');
+        recognition.onerror = function(event) {
+            console.log('🔊 Speech error:', event.error);
             
-            if (transcriptText) {
-                // Store original text and change to apology
-                const originalText = transcriptText.textContent;
-                transcriptText.textContent = 'Please speak again...';
+            if (event.error === 'no-speech') {
+                const transcriptText = document.getElementById('transcriptText');
                 
-                // Revert after delay and restart listening
-                setTimeout(() => {
+                if (isMobileDevice()) {
+                    console.log('📱 Mobile: Using visual apology');
+                    
                     if (transcriptText) {
-                        transcriptText.textContent = originalText;
+                        const originalText = transcriptText.textContent;
+                        transcriptText.textContent = 'Please speak again...';
+                        
+                        setTimeout(() => {
+                            if (transcriptText) {
+                                transcriptText.textContent = originalText;
+                            }
+                            if (isAudioMode && !isListening && !isSpeaking) {
+                                startListening();
+                            }
+                        }, 2000);
                     }
-                    if (isAudioMode && !isListening && !isSpeaking) {
-                        startListening();
-                    }
-                }, 2000);
-            }
-            
-        } else {
-            // DESKTOP: Use voice apology (original code)
-            console.log('🖥️ Desktop: Using voice apology');
-            
-            lastMessageWasApology = true;
-            const apologyResponse = getApologyResponse();
-            
-            stopListening();
-            
-            setTimeout(() => {
-                addAIMessage(apologyResponse);
-                speakResponse(apologyResponse);
-                
-                if (restartTimeout) clearTimeout(restartTimeout);
-                
-                restartTimeout = setTimeout(() => {
-                    if (isAudioMode && !isListening && !isSpeaking) {
-                        startListening();
-                    }
-                    lastMessageWasApology = false;
-                }, 3000);
-            }, 500);
-        }
-    }
-};
-        // ADD YOUR ONEND HANDLER HERE
-       recognition.onend = function() {
-    console.log('🔚 Recognition ended');
-    
-    const userInput = document.getElementById('userInput');
-    
-    // Auto-send if we have text
-    if (userInput && userInput.value.trim().length > 0) {
-        sendMessage();
-    } else {
-        // 🆕 ONLY restart if NOT in apology flow
-        if (isAudioMode && !isSpeaking && isListening && !lastMessageWasApology) {
-            console.log('🔄 No speech detected via onend - restarting');
-            setTimeout(() => {
-                try {
-                    if (recognition) {
-                        startListening();
-                    }
-                } catch (error) {
-                    console.log('Restart error:', error);
+                    
+                } else {
+                    console.log('🖥️ Desktop: Using voice apology');
+                    
+                    lastMessageWasApology = true;
+                    const apologyResponse = getApologyResponse();
+                    
+                    stopListening();
+                    
+                    setTimeout(() => {
+                        addAIMessage(apologyResponse);
+                        speakResponse(apologyResponse);
+                        
+                        if (restartTimeout) clearTimeout(restartTimeout);
+                        
+                        restartTimeout = setTimeout(() => {
+                            if (isAudioMode && !isListening && !isSpeaking) {
+                                startListening();
+                            }
+                            lastMessageWasApology = false;
+                        }, 3000);
+                    }, 500);
                 }
-            }, 1000);
-        }
-    }
-};
+            }
+        };
+
+        recognition.onend = function() {
+            console.log('🔚 Recognition ended');
+            
+            const userInput = document.getElementById('userInput');
+            
+            if (userInput && userInput.value.trim().length > 0) {
+                sendMessage();
+            } else {
+                if (isAudioMode && !isSpeaking && isListening && !lastMessageWasApology) {
+                    console.log('🔄 No speech detected via onend - restarting');
+                    setTimeout(() => {
+                        try {
+                            if (recognition) {
+                                startListening();
+                            }
+                        } catch (error) {
+                            console.log('Restart error:', error);
+                        }
+                    }, 1000);
+                }
+            }
+        };
+        
         console.log('🎤 Starting speech recognition...');
         recognition.start();
-        isListening = true; // ← CRITICAL: Set listening flag
+        isListening = true;
         
-        // Show live transcript area
         const liveTranscript = document.getElementById('liveTranscript');
         if (liveTranscript) {
             liveTranscript.style.display = 'flex';
@@ -277,15 +280,13 @@ recognition.onerror = function(event) {
         addAIMessage("Speech recognition failed. Please try again or use text input.");
         switchToTextMode();
     }
-} // ← THIS CLOSING BRACE WAS MISSING
+}
 
 function stopListening() {
     if (recognition) {
         recognition.stop();
-        // 🚫 DO NOT remove handlers - keep them alive for error handling!
     }
 
-    // Update UI
     const micButton = document.getElementById('micButton');
     const liveTranscript = document.getElementById('liveTranscript');
     
@@ -295,75 +296,47 @@ function stopListening() {
     isListening = false;
 }
 
-function restartListening() {
-    if (isAudioMode && !isListening) {
-        setTimeout(() => {
-            try {
-                if (recognition) {
-                    startListening(); // This already sets isListening = true internally!
-                    console.log('🔄 Listening restarted');
-                    
-                    // Keep UI in listening state
-                    const micButton = document.getElementById('micButton');
-                    const liveTranscript = document.getElementById('liveTranscript');
-                    if (micButton) micButton.classList.add('listening');
-                    if (liveTranscript) liveTranscript.style.display = 'flex';
-                }
-            } catch (error) {
-                console.log('Restart error:', error);
-            }
-        }, 1000);
-    }
-}
-
 // ===================================================
-// 🎯 CLEAN ACTIVATION SYSTEM - NO STOP BUTTON
+// 🎯 CLEAN ACTIVATION SYSTEM
 // ===================================================
-document.getElementById('mainMicButton').addEventListener('click', async function() {
-     playIntroJingle();
-    // Hide center activation
-    document.getElementById('centerMicActivation').style.display = 'none';
-    
-    // Activate microphone - pure and simple
-    await activateMicrophone();
-    
-    // Just update the original button text (no stop functionality)
-    const originalMicButton = document.getElementById('micButton');
-    if (originalMicButton) {
-        // Keep original mic button functionality intact
+document.addEventListener('DOMContentLoaded', function() {
+    const mainMicButton = document.getElementById('mainMicButton');
+    if (mainMicButton) {
+        mainMicButton.addEventListener('click', async function() {
+            playIntroJingle();
+            
+            document.getElementById('centerMicActivation').style.display = 'none';
+            
+            await activateMicrophone();
+        });
     }
 });
 
 // ===================================================
-// 🎤 MICROPHONE ACTIVATION SYSTEM - COMPLETE & FIXED
+// 🎤 MICROPHONE ACTIVATION SYSTEM
 // ===================================================
 async function activateMicrophone() {
     console.log('🎤 Activating microphone...');
     
-    // Check basic requirements
     if (!window.isSecureContext) {
         addAIMessage("Microphone access requires HTTPS. Please ensure you're on a secure connection.");
         return;
     }
 
     try {
-        // Use mobile-assist2 method for permission
         const permissionGranted = await requestMicrophoneAccess();
         
         if (permissionGranted) {
             micPermissionGranted = true;
             isAudioMode = true;
 
-            // Update UI - ADD BUTTON TEXT CHANGE
             const micButton = document.getElementById('micButton');
             if (micButton) {
                 micButton.classList.add('listening');
             }
             
-            // Initialize speech recognition
             initializeSpeechRecognition();
 
-            // AI greeting - UPDATED MESSAGE
             setTimeout(() => {
                 const greeting = "Hi! I'm Bruce's assistant. How can I help you?";
                 addAIMessage(greeting);
@@ -392,7 +365,7 @@ async function activateMicrophone() {
 }
 
 // ===================================================
-// 💭 MESSAGE HANDLING SYSTEM (FROM voice-chat.html)
+// 💭 MESSAGE HANDLING SYSTEM
 // ===================================================
 function addUserMessage(message) {
     const chatMessages = document.getElementById('chatMessages');
@@ -426,7 +399,7 @@ function scrollChatToBottom() {
 }
 
 // ===================================================
-// 💬 TEXT INPUT SYSTEM (FROM mobile-assist2)
+// 💬 TEXT INPUT SYSTEM
 // ===================================================
 function sendMessage() {
     const userInput = document.getElementById('userInput');
@@ -435,7 +408,6 @@ function sendMessage() {
     const message = userInput.value.trim();
     if (!message) return;
     
-    // Hide live transcript area when sending
     const liveTranscript = document.getElementById('liveTranscript');
     if (liveTranscript) {
         liveTranscript.style.display = 'none';
@@ -444,127 +416,35 @@ function sendMessage() {
     addUserMessage(message);
     userInput.value = '';
     
-    // Process the message
     processUserResponse(message);
 }
 
 function processUserResponse(userText) {
     userResponseCount++;
     
-    // Stop listening while AI responds
     stopListening();
     
-    // Add AI response
+    // 🆕 CHECK IF LEAD CAPTURE SHOULD HANDLE THIS FIRST
+    if (processLeadResponse(userText)) {
+        return;
+    }
+    
     setTimeout(() => {
         const responseText = getAIResponse(userText);
         lastAIResponse = responseText;
 
-              // 🔍 DEBUG: Add this line to see what's happening
         console.log('🎯 USER SAID:', userText);
         console.log('🎯 AI RESPONSE:', responseText);
         
         addAIMessage(responseText);
         speakResponse(responseText);
         
-        // Update smart button (FROM voice-chat.html)
         updateSmartButton(shouldShowSmartButton, smartButtonText, smartButtonAction);
     }, 800);
 }
 
 // ===================================================
-// 🎯 CREATE ELEGANT ACTION BUTTONS (REPLACES STOP BUTTON)
-// ===================================================
-function createElegantActionButtons() {
-    const quickButtonsContainer = document.querySelector('.quick-buttons') || 
-                                 document.querySelector('[class*="quick"]');
-    
-    if (quickButtonsContainer) {
-        // Create button container
-        const actionContainer = document.createElement('div');
-        actionContainer.style = `
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-            width: 100%;
-        `;
-        
-        // TEXT ONLY BUTTON
-        const textOnlyBtn = document.createElement('button');
-        textOnlyBtn.innerHTML = '📝 Switch to Text';
-        textOnlyBtn.style = `
-            flex: 1;
-            background: rgba(255, 255, 255, 0.2);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 20px;
-            padding: 12px;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-            backdrop-filter: blur(10px);
-            font-size: 14px;
-        `;
-        
-        // EXIT BUTTON
-        const exitBtn = document.createElement('button');
-        exitBtn.innerHTML = '🎁 Free Book';
-        exitBtn.style = `
-            flex: 1;
-            background: rgba(255, 255, 255, 0.2);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 20px;
-            padding: 12px;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-            backdrop-filter: blur(10px);
-            font-size: 14px;
-        `;
-        
-        // CLICK HANDLERS
-        textOnlyBtn.onclick = () => switchToTextMode();
-        exitBtn.onclick = () => showFreeBookOffer();
-        
-        // ADD TO CONTAINER
-        actionContainer.appendChild(textOnlyBtn);
-        actionContainer.appendChild(exitBtn);
-        
-        // INSERT AFTER QUICK BUTTONS
-        quickButtonsContainer.parentNode.insertBefore(actionContainer, quickButtonsContainer.nextSibling);
-    }
-}
-
-// ===================================================
-// 🎁 FREE BOOK OFFER FUNCTION
-// ===================================================
-function showFreeBookOffer() {
-    // Create overlay with form
-    const offerOverlay = document.createElement('div');
-    offerOverlay.innerHTML = `
-        <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-                    background: rgba(0,0,0,0.8); z-index: 9999; 
-                    display: flex; align-items: center; justify-content: center;">
-            <div style="background: white; padding: 30px; border-radius: 15px; 
-                        max-width: 400px; text-align: center;">
-                <h2>🎁 FREE CPA Practice Guide!</h2>
-                <p>Get Bruce's exclusive guide to maximizing your practice value!</p>
-                <input type="email" placeholder="Enter your email" style="width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px;">
-                <br>
-                <button onclick="this.parentElement.parentElement.remove()" 
-                        style="background: #00ff88; color: white; padding: 10px 20px; border: none; border-radius: 5px; margin: 5px;">
-                    Get My Free Guide!
-                </button>
-                <button onclick="this.parentElement.parentElement.remove()" 
-                        style="background: #ccc; color: black; padding: 10px 20px; border: none; border-radius: 5px; margin: 5px;">
-                    Maybe Later
-                </button>
-            </div>
-        </div>
-    `;
-    document.body.appendChild(offerOverlay);
-}
-
-// ===================================================
-// 🔊 VOICE SYNTHESIS SYSTEM (MOBILE-OPTIMIZED)
+// 🔊 VOICE SYNTHESIS SYSTEM
 // ===================================================
 function speakResponse(message) {
     if (!window.speechSynthesis) {
@@ -572,43 +452,36 @@ function speakResponse(message) {
         return;
     }
 
-    // Stop any current speech
     window.speechSynthesis.cancel();
     
-    // Mobile-optimized handling
     if (isMobileDevice()) {
-        // 🆕 MOBILE: Extra delay and complete audio reset
         setTimeout(() => {
             const utterance = new SpeechSynthesisUtterance(message);
             
-            // Mobile-optimized settings
-            utterance.rate = 0.9; // Slower for mobile clarity
+            utterance.rate = 0.9;
             utterance.pitch = 1.0;
-            utterance.volume = 0.95; // Slightly louder for mobile
+            utterance.volume = 0.95;
             
             utterance.onstart = function() {
                 isSpeaking = true;
                 console.log('🔊 AI started speaking (mobile)');
 
-                 // 🆕 Ensure mic UI is reset on mobile while speaking
-    if (isMobileDevice()) {
-        const micButton = document.getElementById('micButton');
-        const liveTranscript = document.getElementById('liveTranscript');
-        if (micButton) micButton.classList.remove('listening');
-        if (liveTranscript) liveTranscript.style.display = 'none';
-    }
-
+                if (isMobileDevice()) {
+                    const micButton = document.getElementById('micButton');
+                    const liveTranscript = document.getElementById('liveTranscript');
+                    if (micButton) micButton.classList.remove('listening');
+                    if (liveTranscript) liveTranscript.style.display = 'none';
+                }
             };
             
             utterance.onend = function() {
                 isSpeaking = false;
                 console.log('🔊 AI finished speaking (mobile)');
                 
-                // Start listening after speaking ends (if in audio mode)
                 if (isAudioMode && !isListening && !lastMessageWasApology) {
                     setTimeout(() => {
                         startListening();
-                    }, 1200); // Longer delay for mobile
+                    }, 1200);
                 }
             };
             
@@ -619,12 +492,10 @@ function speakResponse(message) {
             
             window.speechSynthesis.speak(utterance);
             currentAudio = utterance;
-        }, 500); // Longer initial delay for mobile
+        }, 500);
     } else {
-        // DESKTOP VERSION (original code)
         const utterance = new SpeechSynthesisUtterance(message);
         
-        // Desktop settings
         utterance.rate = 1.0;
         utterance.pitch = 1.0;
         utterance.volume = 0.9;
@@ -638,7 +509,6 @@ function speakResponse(message) {
             isSpeaking = false;
             console.log('🔊 AI finished speaking');
             
-            // Start listening after speaking ends (if in audio mode)
             if (isAudioMode && !isListening && !lastMessageWasApology) {
                 setTimeout(() => {
                     startListening();
@@ -657,26 +527,23 @@ function speakResponse(message) {
 }
 
 // ===================================================
-// 🧠 AI RESPONSE SYSTEM WITH CELEBRATION INTEGRATION
+// 🧠 AI RESPONSE SYSTEM
 // ===================================================
 function getAIResponse(userInput) {
     const userText = userInput.toLowerCase();
     let responseText = '';
     
     if (conversationState === 'initial') {
-        // 🏢 BUYING FIRST (most specific keywords)
         if (userText.includes('buy') || userText.includes('purchase') || userText.includes('buying') || userText.includes('acquire')) {
             responseText = "Excellent! Bruce has some fantastic opportunities available. Let me learn more about what you're looking for. What's your budget range for acquiring a practice?";
             conversationState = 'buying_budget_question';
             shouldShowSmartButton = false;
             
-        // 💰 SELLING SECOND (removed "practice" keyword)
         } else if (userText.includes('sell') || userText.includes('selling')) {
             responseText = "I'd love to help you with selling your practice! Let me ask you a few quick questions to better understand your situation. How large is your practice - how many clients do you currently serve?";
             conversationState = 'selling_size_question';
             shouldShowSmartButton = false;
             
-        // 📊 VALUATION THIRD
         } else if (userText.includes('value') || userText.includes('worth') || userText.includes('valuation') || userText.includes('evaluate')) {
             responseText = "I'd be happy to help with a practice valuation! To give you the most accurate assessment, what's your practice's approximate annual revenue?";
             conversationState = 'valuation_revenue_question';
@@ -686,9 +553,6 @@ function getAIResponse(userInput) {
             responseText = "Welcome! I'm here to help with CPA firm transactions - buying, selling, and practice valuations. What brings you here today?";
         }
         
-    // ===================================================
-    // 💰 SELLING PRACTICE FLOW
-    // ===================================================
     } else if (conversationState === 'selling_size_question') {
         responseText = "That's helpful information! And what's your practice's approximate annual revenue range? This helps Bruce understand the scope and value.";
         conversationState = 'selling_revenue_question';
@@ -715,9 +579,6 @@ function getAIResponse(userInput) {
             responseText = "I want to make sure I understand - would you like Bruce to call you for a free consultation about selling your practice? Just say yes or no.";
         }
         
-    // ===================================================
-    // 🏢 BUYING PRACTICE FLOW  
-    // ===================================================
     } else if (conversationState === 'buying_budget_question') {
         responseText = "Great! And are you specifically looking for a CPA practice, or would a general accounting practice work for you as well?";
         conversationState = 'buying_type_question';
@@ -744,9 +605,6 @@ function getAIResponse(userInput) {
             responseText = "Would you like Bruce to show you the practices he has available? Just let me know yes or no.";
         }
         
-    // ===================================================
-    // 📊 VALUATION FLOW
-    // ===================================================
     } else if (conversationState === 'valuation_revenue_question') {
         responseText = "Thank you! And how many years have you been in practice? The longevity and stability really impact the valuation.";
         conversationState = 'valuation_years_question';
@@ -769,14 +627,10 @@ function getAIResponse(userInput) {
             responseText = "Would you like Bruce to provide you with a free practice valuation? Just say yes or no and I'll take care of the rest.";
         }
         
-    // ===================================================
-    // 🎯 BUTTON ACTIVATED STATES
-    // ===================================================
     } else if (conversationState === 'button_activated_selling' || conversationState === 'button_activated_buying' || conversationState === 'button_activated_valuation') {
         responseText = "Perfect! I see you're ready to connect with Bruce. Just click that button above and we'll get everything set up for you right away!";
         
     } else {
-        // Fallback
         responseText = "Thanks for your message! Is there anything else about buying, selling, or valuing a CPA practice that I can help you with?";
         conversationState = 'initial';
         shouldShowSmartButton = false;
@@ -785,36 +639,129 @@ function getAIResponse(userInput) {
     return responseText;
 }
 
-function handleSmartButtonClick(buttonType) {
-    console.log('🚨 BUTTON CLICK RECEIVED - buttonType:', buttonType);
-    console.log('🚨 Button element exists:', document.getElementById('smartButton'));
-    console.log(`Smart button clicked: ${buttonType}`);
+// ===================================================
+// 🎯 SMART BUTTON SYSTEM WITH BANNER
+// ===================================================
+function updateSmartButton(shouldShow, buttonText, action) {
+    const smartButton = document.getElementById('smartButton');
+    if (!smartButton) return;
     
-    // IMMEDIATELY stop speech recognition
+    if (shouldShow) {
+        smartButton.textContent = buttonText;
+        smartButton.style.display = 'block';
+        smartButton.onclick = () => handleSmartButtonClick(action);
+    } else {
+        smartButton.style.display = 'none';
+    }
+}
+
+// ===================================================
+// 🚀 FIXED SMART BUTTON CLICK HANDLER + BANNER
+// ===================================================
+function handleSmartButtonClick(buttonType) {
+    console.log(`🚨 Smart button clicked: ${buttonType}`);
+    
+    // Fix buttonType if it's an event object
+    if (typeof buttonType === 'object') {
+        buttonType = 'valuation';
+    }
+
+    // 1. HIDE THE SMART BUTTON IMMEDIATELY
+    const smartButton = document.getElementById('smartButton');
+    if (smartButton) {
+        smartButton.style.display = 'none';
+    }
+    
+    // 2. CREATE AND SHOW THE PROFESSIONAL BANNER
+    createLeadCaptureBanner();
+    
+    // 3. STOP SPEECH RECOGNITION CLEANLY
     if (recognition) {
         try {
             recognition.stop();
             isListening = false;
-            
-            // Update mic button visual
-            const micButton = document.querySelector('.mic-button');
-            if (micButton) {
-                micButton.innerHTML = '📋'; // Form mode
-                micButton.style.background = 'linear-gradient(135deg, #ff6b6b, #ee5a24)';
-            }
-            
-            console.log('Speech stopped for lead capture');
+            console.log('🔇 Speech recognition stopped for lead capture');
         } catch (error) {
             console.log('Speech already stopped');
         }
     }
     
-    // Start lead capture
+    // 4. UPDATE UI ELEMENTS
+    const transcriptText = document.getElementById('transcriptText');
+    if (transcriptText) {
+        transcriptText.textContent = '';
+        transcriptText.style.display = 'none';
+    }
+    
+    const micButton = document.querySelector('.mic-btn');
+    if (micButton) {
+        micButton.innerHTML = '📋';
+        micButton.style.background = 'linear-gradient(135deg, #ff6b6b, #ee5a24)';
+    }
+    
+    console.log('🎯 Starting lead capture for:', buttonType);
+    
+    // 5. START LEAD CAPTURE SYSTEM
     initializeLeadCapture(buttonType);
 }
 
-// COMPLETELY SEPARATE LEAD CAPTURE SYSTEM
-function initializeLeadCapture(buttonType) {
+// ===================================================
+// 🎨 CREATE PROFESSIONAL BANNER SYSTEM
+// ===================================================
+function createLeadCaptureBanner() {
+    // Remove any existing banner
+    const existingBanner = document.getElementById('leadCaptureBanner');
+    if (existingBanner) {
+        existingBanner.remove();
+    }
+    
+    // Create new banner
+    const banner = document.createElement('div');
+    banner.id = 'leadCaptureBanner';
+    banner.style.cssText = `
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 15px;
+        padding: 15px 20px;
+        margin: 10px 0 20px 0;
+        text-align: center;
+        font-weight: bold;
+        font-size: 18px;
+        color: white;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        animation: bannerSlideIn 0.5s ease-out;
+    `;
+    banner.innerHTML = '📝 CONTACT INFORMATION REQUIRED';
+    
+    // Add animation keyframes
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes bannerSlideIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    `;
+    document.head.appendChild(style);
+    
+    // Insert banner at the top of the container, after the header
+    const container = document.querySelector('.container');
+    const header = container.querySelector('header');
+    
+    if (header && header.nextSibling) {
+        container.insertBefore(banner, header.nextSibling);
+    } else {
+        container.insertBefore(banner, container.firstChild);
+    }
+    
+    console.log('🎨 Professional banner created and displayed');
+}
+
+// ===================================================
+// 🔄 COMPLETE LEAD CAPTURE WITH EMAIL INTEGRATION
+// ===================================================
+function initializeLeadCapture(buttonType = 'valuation') {
+    console.log('🚀 Starting complete lead capture system...');
+    
     if (isInLeadCapture) return;
     
     leadData = {
@@ -825,20 +772,26 @@ function initializeLeadCapture(buttonType) {
         inquiryType: buttonType,
         transcript: '',
         step: 0,
+        subStep: 'ask',
+        tempAnswer: '',
         questions: [
-            "What's your name?",
+            "Can we start with your first name?",
             "What's the best phone number to reach you?", 
             "What's your email address?",
             "When would be the best time for our specialist to contact you?"
+        ],
+        confirmationPrompts: [
+            "I heard {answer}, is that correct?",
+            "So that's {answer}, is that right?",
+            "Let me confirm - {answer}, correct?",
+            "Your preferred time is {answer}, is that accurate?"
         ]
     };
     
     isInLeadCapture = true;
     
-// ✅ GO STRAIGHT TO FIRST QUESTION
-setTimeout(() => {
-    askLeadQuestion(); // This will ask "What's your name?" immediately
-}, 500);
+    // Start with welcome message and first question
+    addAIMessage("Perfect! Now I need to collect your contact information for our specialist.");
     
     setTimeout(() => {
         askLeadQuestion();
@@ -849,234 +802,228 @@ function askLeadQuestion() {
     if (!isInLeadCapture || !leadData) return;
     
     if (leadData.step < leadData.questions.length) {
-        const question = leadData.questions[leadData.step];
-        
-        // Add message to screen
-        addAIMessage(question);
-        
-        // Make AI speak the question
-        if (window.speechSynthesis) {
-            const utterance = new SpeechSynthesisUtterance(question);
-            utterance.rate = 0.9;
-            utterance.pitch = 1.1;
-            window.speechSynthesis.speak(utterance);
+        if (leadData.subStep === 'ask') {
+            const question = leadData.questions[leadData.step];
+            addAIMessage(question);
+            speakMessage(question);
+            
+        } else if (leadData.subStep === 'confirm') {
+            const confirmPrompt = leadData.confirmationPrompts[leadData.step]
+                .replace('{answer}', leadData.tempAnswer);
+            
+            addAIMessage(confirmPrompt);
+            speakMessage(confirmPrompt);
         }
-        
-        // ✅ RESTART SPEECH RECOGNITION - NO FORM INPUT!
-        setTimeout(() => {
-            if (recognition && !isListening) {
-                startListening();
-            }
-        }, 2000); // Wait for AI to finish speaking
-        
     } else {
         completeLeadCollection();
     }
 }
 
-function createLeadInput() {
-    // Remove existing input
-    const existing = document.querySelector('.lead-input-container');
-    if (existing) existing.remove();
-    
-    const container = document.createElement('div');
-    container.className = 'lead-input-container';
-    container.innerHTML = `
-        <div style="padding: 15px; background: rgba(255,255,255,0.1); border-radius: 15px; margin: 10px 0;">
-            <input type="text" id="leadResponseInput" placeholder="Type here..." 
-                   style="width: 100%; padding: 12px; border: none; border-radius: 8px; 
-                          background: white; font-size: 16px; margin-bottom: 10px;">
-            <button onclick="submitLeadAnswer()" 
-                    style="width: 100%; padding: 12px; background: #667eea; color: white; 
-                           border: none; border-radius: 8px; cursor: pointer;">Submit</button>
-        </div>
-    `;
-    
-    // ✅ USE SAME ID AS addAIMessage function
-    const chatMessages = document.getElementById('chatMessages');
-    if (chatMessages) {
-        chatMessages.appendChild(container);
-    } else {
-        console.error('Chat messages container not found!');
+function speakMessage(message) {
+    if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(message);
+        utterance.rate = 0.9;
+        utterance.pitch = 1.1;
+        
+        utterance.onend = () => {
+            // Auto-start listening after AI speaks during lead capture
+            setTimeout(() => {
+                if (recognition && !isListening && isInLeadCapture) {
+                    startListening();
+                }
+            }, 500);
+        };
+        
+        window.speechSynthesis.speak(utterance);
     }
 }
 
-function submitLeadAnswer() {
-    const input = document.getElementById('leadResponseInput');
-    const answer = input.value.trim();
+function processLeadResponse(userInput) {
+    if (!isInLeadCapture || !leadData) return false;
     
-    if (!answer) return;
+    const response = userInput.toLowerCase().trim();
     
-    // Store answer
-    switch(leadData.step) {
-        case 0: leadData.name = answer; break;
-        case 1: leadData.phone = answer; break;
-        case 2: leadData.email = answer; break;
-        case 3: leadData.contactTime = answer; break;
+    if (leadData.subStep === 'ask') {
+        leadData.tempAnswer = userInput;
+        leadData.subStep = 'confirm';
+        
+        addUserMessage(userInput);
+        
+        setTimeout(() => {
+            askLeadQuestion();
+        }, 1000);
+        
+        return true;
+        
+    } else if (leadData.subStep === 'confirm') {
+        const isYes = response.includes('yes') || response.includes('yeah') || 
+                     response.includes('correct') || response.includes('right') ||
+                     response.includes('yep') || response.includes('that\'s right');
+        
+        const isNo = response.includes('no') || response.includes('nope') || 
+                    response.includes('wrong') || response.includes('incorrect');
+        
+        addUserMessage(userInput);
+        
+        if (isYes) {
+            saveConfirmedAnswer();
+            moveToNextQuestion();
+        } else if (isNo) {
+            addAIMessage("Let me get that again.");
+            leadData.tempAnswer = '';
+            leadData.subStep = 'ask';
+            
+            setTimeout(() => {
+                askLeadQuestion();
+            }, 1500);
+        } else {
+            addAIMessage("Please say 'yes' if correct, or 'no' to repeat.");
+            setTimeout(() => {
+                askLeadQuestion();
+            }, 2000);
+        }
+        
+        return true;
     }
     
-    // Show user response
-    addUserMessage(answer); 
-    
-    // Remove input
-    document.querySelector('.lead-input-container').remove();
-    
-    // Next question
+    return false;
+}
+
+function saveConfirmedAnswer() {
+    const fields = ['name', 'phone', 'email', 'contactTime'];
+    const field = fields[leadData.step];
+    leadData[field] = leadData.tempAnswer;
+    console.log(`✅ Saved ${field}: ${leadData.tempAnswer}`);
+}
+
+function moveToNextQuestion() {
     leadData.step++;
-    setTimeout(askLeadQuestion, 1000);
+    leadData.subStep = 'ask';
+    leadData.tempAnswer = '';
+    
+    if (leadData.step < leadData.questions.length) {
+        addAIMessage("Perfect!");
+        setTimeout(() => {
+            askLeadQuestion();
+        }, 1000);
+    } else {
+        completeLeadCollection();
+    }
 }
 
 function completeLeadCollection() {
-    addAIMessage(`Perfect ${leadData.name}! Our specialist will contact you at ${leadData.phone} during your preferred ${leadData.contactTime} time.`);
+    addAIMessage(`Excellent ${leadData.name}! I have all your information. Our specialist will contact you at ${leadData.phone} during your preferred ${leadData.contactTime} timeframe.`);
     
-    console.log('Lead Captured:', leadData);
+    // Update banner to show email sending
+    const banner = document.getElementById('leadCaptureBanner');
+    if (banner) {
+        banner.innerHTML = '📧 SENDING EMAIL TO CONSUMER AWARENESS FOUNDATION...';
+        banner.style.background = 'linear-gradient(135deg, #ff6b6b, #ee5a24)';
+    }
     
-    // Reset system
+    // Send email via EmailJS
     setTimeout(() => {
-        isInLeadCapture = false;
-        leadData = null;
-        addAIMessage("Anything else I can help you with?");
-    }, 3000);
-}
-
-
-
-// ===================================================
-// 🎉 THANK YOU BANNER FUNCTION
-// ===================================================
-function showThankYouBanner() {
-    const thankYouBanner = document.createElement('div');
-    thankYouBanner.innerHTML = `
-        <div style="text-align: center; padding: 15px; margin: 10px;
-                    background: linear-gradient(45deg, #00ff88, #00ccff);
-                    border-radius: 15px; color: white; font-weight: bold;
-                    box-shadow: 0 4px 15px rgba(0,255,136,0.3);
-                    animation: slideIn 0.5s ease-out;">
-            🎉 Thank You for Visiting! Bruce Will Be In Touch Soon! 🎉
-        </div>
-    `;
-    
-    // Add to top of chat
-    const chatContainer = document.querySelector('.chat-messages');
-    if (chatContainer) {
-        chatContainer.insertBefore(thankYouBanner, chatContainer.firstChild);
-    }
+        sendLeadEmail(leadData);
+    }, 2000);
 }
 
 // ===================================================
-// 🛑 STOP LISTENING PROCESS
+// 📧 EMAILJS INTEGRATION - COMPLETE SYSTEM
 // ===================================================
-function stopListeningProcess() {
-    // Stop speech recognition
-    if (window.recognition) {
-        window.recognition.stop();
-        window.recognition.abort();
-    }
+function sendLeadEmail(data) {
+    console.log('📧 Preparing to send email with lead data...');
     
-    // Stop any listening indicators
-    const micButton = document.getElementById('micButton');
-    if (micButton) {
-        micButton.classList.remove('listening');
-    }
+    // Prepare conversation transcript
+    const messages = document.querySelectorAll('.message');
+    let transcript = 'MOBILE-WISE AI CONVERSATION TRANSCRIPT:\n\n';
+    messages.forEach(msg => {
+        const type = msg.classList.contains('ai-message') ? 'AI' : 'USER';
+        transcript += `${type}: ${msg.textContent}\n`;
+    });
     
-    // Set flags to prevent restart
-    isAudioMode = false;
-    conversationState = 'ended';
-}
-
-// ===================================================
-// 🔵 SMART BUTTON SYSTEM (FROM voice-chat.html)
-// ===================================================
-function updateSmartButton(show, text, action) {
-    const smartButton = document.getElementById('smartButton');
-    if (!smartButton) return;
+    // Email template parameters
+    const templateParams = {
+        name: data.name,
+        phone: data.phone,
+        email: data.email,
+        contactTime: data.contactTime,
+        inquiryType: data.inquiryType.toUpperCase(),
+        transcript: transcript,
+        timestamp: new Date().toLocaleString()
+    };
     
-    if (show) {
-        smartButton.textContent = text;
-        smartButton.style.display = 'block';
-        smartButton.onclick = () => handleSmartButtonClick(action);
-        
-        // 🚀 PHASE 1: STOP SPEECH LOOP WHEN BUTTON APPEARS
-        console.log('🎯 Button activated - pausing speech recognition');
-        stopListening();
-        isAudioMode = false; // Prevent auto-restart
-        
-        // Hide live transcript area
-        const liveTranscript = document.getElementById('liveTranscript');
-        if (liveTranscript) {
-            liveTranscript.style.display = 'none';
-        }
-        
-        // Update transcript text to show paused state
-        const transcriptText = document.getElementById('transcriptText');
-        if (transcriptText) {
-            transcriptText.textContent = 'Click button above to continue';
-            transcriptText.style.color = '#FFA500'; // Orange color to show paused
-        }
-        
+    console.log('📧 Sending email with parameters:', templateParams);
+    
+    // Send email with your actual credentials
+    if (typeof emailjs !== 'undefined') {
+        emailjs.send('service_b9bppgb', 'template_yf09xm5', templateParams)
+            .then(function(response) {
+                console.log('✅ EMAIL SENT SUCCESSFULLY!', response.status, response.text);
+                
+                // Success feedback
+                const banner = document.getElementById('leadCaptureBanner');
+                if (banner) {
+                    banner.innerHTML = '🎉 LEAD CAPTURED & EMAIL SENT!';
+                    banner.style.background = 'linear-gradient(135deg, #4CAF50, #8BC34A)';
+                }
+                
+                addAIMessage("Perfect! Your consultation request has been sent to our team. You'll hear from us soon!");
+                
+                // Reset system after delay
+                setTimeout(() => {
+                    resetLeadCaptureSystem();
+                }, 3000);
+                
+            }, function(error) {
+                console.error('❌ EMAIL FAILED:', error);
+                
+                // Error feedback
+                const banner = document.getElementById('leadCaptureBanner');
+                if (banner) {
+                    banner.innerHTML = '❌ EMAIL SENDING FAILED - PLEASE TRY AGAIN';
+                    banner.style.background = 'linear-gradient(135deg, #f44336, #d32f2f)';
+                }
+                
+                addAIMessage("I'm sorry, there was an issue sending your request. Please try again or contact us directly.");
+                
+                setTimeout(() => {
+                    resetLeadCaptureSystem();
+                }, 5000);
+            });
     } else {
-        smartButton.style.display = 'none';
+        console.error('EmailJS not available');
+        addAIMessage("Email service temporarily unavailable. Please contact us directly.");
+        setTimeout(() => {
+            resetLeadCaptureSystem();
+        }, 3000);
+    }
+}
+
+function resetLeadCaptureSystem() {
+    // Remove banner
+    const banner = document.getElementById('leadCaptureBanner');
+    if (banner) {
+        banner.remove();
+    }
+    
+    // Reset variables
+    isInLeadCapture = false;
+    leadData = null;
+    
+    // Return to normal conversation
+    addAIMessage("Is there anything else I can help you with today?");
+    
+    // Restart normal speech recognition if in audio mode
+    if (isAudioMode && recognition && !isListening) {
+        setTimeout(() => {
+            startListening();
+        }, 1000);
     }
 }
 
 // ===================================================
-// 🎯 SMART BUTTON CLICK HANDLER - PHASE 1
-// ===================================================
-function handleSmartButtonClick(buttonType) {
-    console.log(`Smart button clicked: ${buttonType}`);
-
-    // Fix the buttonType if it's an event object
-    if (typeof buttonType === 'object') {
-        buttonType = 'valuation'; // Default to valuation
-    }
-
-     const smartButton = document.getElementById('smartButton');
-    if (smartButton) {
-        smartButton.style.display = 'none';
-    }
-    
-    // Clear bottom banner text
-    const transcriptText = document.getElementById('transcriptText');
-    if (transcriptText) {
-        transcriptText.textContent = '';
-        transcriptText.style.display = 'none';
-    }
-    
-    // MINIMAL speech stopping - don't go nuclear
-    if (recognition) {
-        try {
-            recognition.stop();
-            isListening = false;
-            console.log('Speech recognition stopped');
-        } catch (error) {
-            console.log('Speech already stopped');
-        }
-    }
-    
-    // Update mic button visual
-    const micButton = document.querySelector('.mic-button');
-    if (micButton) {
-        micButton.innerHTML = '📋';
-        micButton.style.background = 'linear-gradient(135deg, #ff6b6b, #ee5a24)';
-    }
-    
-    console.log('Starting lead capture for:', buttonType);
-    
-    // Start lead capture
-    initializeLeadCapture(buttonType);
-}
-
-function simulateUserMessage(message) {
-    console.log('Simulating user message:', message);
-    
-    addUserMessage(message);
-    
-    // Process the message
-    processUserResponse(message);
-}
-
-// ===================================================
-// 🔘 QUICK QUESTIONS SYSTEM (FROM voice-chat.html)
+// 🔘 QUICK QUESTIONS SYSTEM
 // ===================================================
 function askQuickQuestion(questionText) {
     console.log('📋 Quick question clicked:', questionText);
@@ -1094,7 +1041,6 @@ function askQuickQuestion(questionText) {
         addAIMessage(response);
         speakResponse(response);
         
-        // Update smart button
         updateSmartButton(shouldShowSmartButton, smartButtonText, smartButtonAction);
     }, 800);
 }
@@ -1105,107 +1051,43 @@ function askQuickQuestion(questionText) {
 function switchToTextMode() {
     console.log('🔄 Switching to text mode');
     
-    // Stop any ongoing audio
-    stopCurrentAudio();
+    if (currentAudio) {
+        window.speechSynthesis.cancel();
+    }
     
-    // Stop listening if active
     stopListening();
     
-    // Close microphone stream if open
     if (persistentMicStream) {
         persistentMicStream.getTracks().forEach(track => track.stop());
         persistentMicStream = null;
     }
     
-    // Update mode flag
     isAudioMode = false;
     micPermissionGranted = false;
     
-    // Update UI
     const micButton = document.getElementById('micButton');
     const liveTranscript = document.getElementById('liveTranscript');
     
     if (micButton) micButton.classList.remove('listening');
     if (liveTranscript) liveTranscript.style.display = 'none';
     
-    // Add message about switching to text mode
     addAIMessage("Switched to text mode. Type your message in the text box below.");
     
     console.log('✅ Switched to text mode successfully');
 }
 
 // ===================================================
-// 🎨 THEME SWITCHER (FOR CLIENT CUSTOMIZATION)
-// ===================================================
-function setClientTheme(themeName) {
-    const body = document.body;
-    
-    // Remove existing theme classes
-    body.classList.remove('law-firm-theme', 'medical-theme', 'financial-theme');
-    
-    // Add new theme class
-    if (themeName && themeName !== 'default') {
-        body.classList.add(themeName + '-theme');
-    }
-    
-    console.log('🎨 Theme switched to:', themeName);
-}
-
-// ===================================================
-// 📱 MOBILE OPTIMIZATIONS
-// ===================================================
-function optimizeForMobile() {
-    if (isMobileDevice()) {
-        console.log('📱 Applying mobile optimizations');
-        
-        // Add mobile-specific CSS
-        const style = document.createElement('style');
-        style.textContent = `
-            .mic-btn, .smart-button, .quick-btn {
-                min-height: 44px;
-                min-width: 44px;
-            }
-            .message {
-                font-size: 16px;
-            }
-            input {
-                font-size: 16px; /* Prevents zoom on iOS */
-            }
-        `;
-        document.head.appendChild(style);
-    }
-}
-
-// ===================================================
 // 🚀 INITIALIZATION SYSTEM
 // ===================================================
 function initializeChatInterface() {
-    // Clear loading message
     const chatMessages = document.getElementById('chatMessages');
     if (chatMessages) {
         chatMessages.innerHTML = '';
     }
     
-    // Add welcome message
-    // addAIMessage("Welcome to Voice Chat! Please allow microphone access to use voice features.");
-    
-    // Set up event listeners
     const micButton = document.getElementById('micButton');
     const sendBtn = document.getElementById('sendBtn');
     const userInput = document.getElementById('userInput');
-    const smartButton = document.getElementById('smartButton');
-    
-    if (micButton) {
-        micButton.addEventListener('click', function() {
-            if (!isAudioMode) {
-                activateMicrophone();
-            } else if (!isListening) {
-                startListening();
-            } else {
-                stopListening();
-            }
-        });
-    }
     
     if (sendBtn) {
         sendBtn.addEventListener('click', sendMessage);
@@ -1219,118 +1101,25 @@ function initializeChatInterface() {
         });
     }
     
-    if (smartButton) {
-        smartButton.addEventListener('click', handleSmartButtonClick);
-    }
-    
     console.log('✅ Chat interface initialized');
 }
 
 // ===================================================
-// 🌍 GLOBAL FUNCTIONS (FOR ONCLICK ATTRIBUTES)
+// 🌍 GLOBAL FUNCTIONS
 // ===================================================
 window.askQuickQuestion = askQuickQuestion;
 window.handleSmartButtonClick = handleSmartButtonClick;
-window.setClientTheme = setClientTheme;
 
 // ===================================================
 // 🚀 INITIALIZE THE APPLICATION
 // ===================================================
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 Initializing Mobile-Wise AI Formviser...');
+    console.log('🚀 Initializing Mobile-Wise AI Formviser - Complete Integration...');
     
-    optimizeForMobile();
     initializeChatInterface();
-    createElegantActionButtons();
     
-    // 🎯 CLEAN PAGE LOAD - NO BUBBLES
-    const micButton = document.getElementById('micButton');
-    if (micButton) {
-
-    }
-    
-    // Clear any auto-bubbles
     const chatContainer = document.querySelector('.chat-messages') || document.querySelector('#chatContainer');
     if (chatContainer) {
         chatContainer.innerHTML = '';
     }
-    
-    // 🚫 REMOVE AUTO-ACTIVATE - USER MUST CLICK FIRST
-    // setTimeout(() => {
-    //     activateMicrophone();
-    // }, 1000);
-});
-
-/* ===================================================
-   🌟 GLASS SMART BAR FUNCTIONALITY
-   ================================================== */
-
-// Module activation handler
-function activateModule(moduleType) {
-    console.log(`🚀 Activating module: ${moduleType}`);
-    
-    switch(moduleType) {
-        case 'voice-chat':
-            // Already in voice chat - maybe restart or focus
-            if (!isListening) {
-                toggleListening();
-            }
-            addMessage('ai', 'Voice chat is ready! How can I assist you today?');
-            break;
-            
-        case 'ai-interview':
-            addMessage('ai', 'AI Interview module coming soon! For now, I can help you with practice valuations and consultations.');
-            showSmartButton('🎬 Schedule AI Interview', 'Great! I\'d like to schedule an AI interview to capture your success story.');
-            break;
-            
-        case 'schedule-call':
-            addMessage('ai', 'I\'d be happy to help you schedule a call with Bruce! What\'s the best phone number to reach you?');
-            currentConversationFlow = 'schedule-call';
-            break;
-            
-        case 'offers':
-            addMessage('ai', 'Let me show you our current offers and opportunities!');
-            showSmartButton('🎁 View Special Offers', 'I\'d like to learn about your current offers and opportunities.');
-            break;
-            
-        default:
-            console.log('Unknown module:', moduleType);
-    }
-    
-    // Scroll to show new message
-    scrollToBottom();
-}
-
-// Optional: Auto-hide smart bar during active conversation
-function toggleSmartBarVisibility(show = true) {
-    const smartBar = document.getElementById('glassSmartBar');
-    if (smartBar) {
-        if (show) {
-            smartBar.classList.remove('hidden');
-        } else {
-            smartBar.classList.add('hidden');
-        }
-    }
-}
-
-// Optional: Highlight active module
-function highlightActiveModule(moduleType) {
-    // Remove all active states
-    document.querySelectorAll('.smart-bar-btn').forEach(btn => {
-        btn.style.background = 'rgba(255, 255, 255, 0.2)';
-    });
-    
-    // Add active state to current module
-    const activeBtn = document.querySelector(`[onclick="activateModule('${moduleType}')"]`);
-    if (activeBtn) {
-        activeBtn.style.background = 'rgba(255, 255, 255, 0.4)';
-    }
-}
-
-// Initialize smart bar on page load
-document.addEventListener('DOMContentLoaded', function() {
-    // Highlight voice chat as default active module
-    highlightActiveModule('voice-chat');
-    
-    console.log('🌟 Glass Smart Bar initialized');
 });
