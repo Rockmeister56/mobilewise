@@ -675,7 +675,7 @@ function handleSmartButtonClick(buttonType) {
     // 2. CREATE AND SHOW THE PROFESSIONAL BANNER
     createLeadCaptureBanner();
     
-    // 3. STOP SPEECH RECOGNITION CLEANLY
+    // 3. STOP SPEECH RECOGNITION COMPLETELY - NO LISTENING YET!
     if (recognition) {
         try {
             recognition.stop();
@@ -686,7 +686,13 @@ function handleSmartButtonClick(buttonType) {
         }
     }
     
-    // 4. UPDATE UI ELEMENTS
+    // 4. HIDE THE GREEN "SPEAK NOW" BANNER - DON'T SHOW IT YET!
+    const liveTranscript = document.getElementById('liveTranscript');
+    if (liveTranscript) {
+        liveTranscript.style.display = 'none'; // ← CRITICAL: Hide it!
+    }
+    
+    // 5. UPDATE UI ELEMENTS
     const transcriptText = document.getElementById('transcriptText');
     if (transcriptText) {
         transcriptText.textContent = '';
@@ -701,7 +707,7 @@ function handleSmartButtonClick(buttonType) {
     
     console.log('🎯 Starting lead capture for:', buttonType);
     
-    // 5. START LEAD CAPTURE SYSTEM
+    // 6. START LEAD CAPTURE SYSTEM (BUT NO LISTENING YET!)
     initializeLeadCapture(buttonType);
 }
 
@@ -775,7 +781,7 @@ function initializeLeadCapture(buttonType = 'valuation') {
         subStep: 'ask',
         tempAnswer: '',
         questions: [
-            "Can we start with your first name?",
+            "Perfect. Let's start with your full name, please.",  // ← YOUR PREFERRED WORDING
             "What's the best phone number to reach you?", 
             "What's your email address?",
             "When would be the best time for our specialist to contact you?"
@@ -790,12 +796,10 @@ function initializeLeadCapture(buttonType = 'valuation') {
     
     isInLeadCapture = true;
     
-    // Start with welcome message and first question
-    addAIMessage("Perfect! Now I need to collect your contact information for our specialist.");
-    
+    // ✅ REMOVED the extra message - go straight to the question
     setTimeout(() => {
-        askLeadQuestion();
-    }, 1500);
+        askLeadQuestion(); // This will say "Perfect. Let's start with your full name, please."
+    }, 500); // Shorter delay since no intro message
 }
 
 function askLeadQuestion() {
@@ -826,8 +830,14 @@ function speakMessage(message) {
         utterance.rate = 0.9;
         utterance.pitch = 1.1;
         
-        utterance.onend = () => {
-            // Auto-start listening after AI speaks during lead capture
+        utterance.onstart = function() {
+            console.log('🔊 AI started speaking - NO listening yet');
+            // DON'T show "Speak Now" while AI is talking!
+        };
+        
+        utterance.onend = function() {
+            console.log('🔊 AI finished speaking - NOW start listening');
+            // ✅ ONLY NOW show "Speak Now" and start listening
             setTimeout(() => {
                 if (recognition && !isListening && isInLeadCapture) {
                     startListening();
@@ -837,7 +847,7 @@ function speakMessage(message) {
         
         window.speechSynthesis.speak(utterance);
     }
-}
+}}
 
 function processLeadResponse(userInput) {
     if (!isInLeadCapture || !leadData) return false;
