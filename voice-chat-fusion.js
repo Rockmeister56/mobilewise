@@ -683,38 +683,9 @@ function updateSmartButton(shouldShow, buttonText, action) {
     if (!smartButton) return;
     
     if (shouldShow) {
-        console.log('🎯 Showing smart button - STOPPING speech recognition');
-        
-        // ✅ STOP SPEECH RECOGNITION WHEN SMART BUTTON APPEARS
-        if (recognition) {
-            try {
-                recognition.stop();
-                isListening = false;
-                console.log('🔇 Speech stopped - smart button active');
-            } catch (error) {
-                console.log('Speech already stopped');
-            }
-        }
-        
-        // ✅ HIDE THE "SPEAK NOW" BANNER
-        const liveTranscript = document.getElementById('liveTranscript');
-        if (liveTranscript) {
-            liveTranscript.style.display = 'none';
-        }
-        
-        // ✅ CLEAR TRANSCRIPT TEXT
-        const transcriptText = document.getElementById('transcriptText');
-        if (transcriptText) {
-            transcriptText.textContent = '';
-        }
-        
-        // Show the smart button
         smartButton.textContent = buttonText;
         smartButton.style.display = 'block';
         smartButton.onclick = () => handleSmartButtonClick(action);
-        
-        console.log('✅ Smart button displayed, speech disabled');
-        
     } else {
         smartButton.style.display = 'none';
     }
@@ -905,25 +876,30 @@ function speakMessage(message) {
         };
         
         utterance.onend = function() {
-            console.log('🔊 AI finished speaking - showing Speak Now after delay');
-            // ✅ PERFECT TIMING: Show "Speak Now" after short delay
-            setTimeout(() => {
-                if (isInLeadCapture) {
-                    const liveTranscript = document.getElementById('liveTranscript');
-                    const transcriptText = document.getElementById('transcriptText');
-                    
-                    if (liveTranscript && transcriptText) {
-                        transcriptText.textContent = 'Speak Now...'; // ✅ ADD TEXT!
-                        transcriptText.style.display = 'block';
-                        liveTranscript.style.display = 'flex';
-                    }
-                    
-                    if (recognition && !isListening) {
-                        startListening();
-                    }
-                }
-            }, 500); // ✅ HALF SECOND DELAY - Perfect timing!
-        };
+    console.log('🔊 AI finished speaking');
+    
+    // ✅ NEW LOGIC: Only show "Speak Now" if NO smart button is active
+    setTimeout(() => {
+        const smartButton = document.getElementById('smartButton');
+        const smartButtonVisible = smartButton && smartButton.style.display !== 'none';
+        
+        // ✅ ONLY show "Speak Now" if smart button is NOT visible
+        if (isInLeadCapture && !smartButtonVisible) {
+            const liveTranscript = document.getElementById('liveTranscript');
+            const transcriptText = document.getElementById('transcriptText');
+            
+            if (liveTranscript && transcriptText) {
+                transcriptText.textContent = 'Speak Now...';
+                transcriptText.style.display = 'block';
+                liveTranscript.style.display = 'flex';
+            }
+            
+            if (recognition && !isListening) {
+                startListening();
+            }
+        }
+    }, 500);
+};
         
         window.speechSynthesis.speak(utterance);
     }
