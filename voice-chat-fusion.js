@@ -166,6 +166,8 @@ function startListening() {
         return;
     }
     
+  function startListening() {
+    // ✅ REMOVED THE BLOCKING - Allow speech during lead capture
     console.log('🎯 startListening() called');
     if (!checkSpeechSupport()) return;
     if (isSpeaking) return;
@@ -185,11 +187,11 @@ function startListening() {
             const userInput = document.getElementById('userInput');
             
             if (transcriptText) {
-                transcriptText.textContent = 'Speak Now';
+                transcriptText.textContent = 'Speak Now'; // Keep showing "Speak Now"
             }
             
             if (userInput) {
-                userInput.value = transcript;
+                userInput.value = transcript; // Put words in text field
             }
         };
 
@@ -210,6 +212,7 @@ function startListening() {
                             if (transcriptText) {
                                 transcriptText.textContent = originalText;
                             }
+                            // ✅ RESTART LISTENING EVEN IN LEAD CAPTURE
                             if (isAudioMode && !isListening && !isSpeaking) {
                                 startListening();
                             }
@@ -231,6 +234,7 @@ function startListening() {
                         if (restartTimeout) clearTimeout(restartTimeout);
                         
                         restartTimeout = setTimeout(() => {
+                            // ✅ RESTART LISTENING EVEN IN LEAD CAPTURE
                             if (isAudioMode && !isListening && !isSpeaking) {
                                 startListening();
                             }
@@ -247,10 +251,11 @@ function startListening() {
             const userInput = document.getElementById('userInput');
             
             if (userInput && userInput.value.trim().length > 0) {
-                sendMessage();
+                sendMessage(); // Auto-send the message
             } else {
+                // ✅ RESTART LISTENING EVEN IN LEAD CAPTURE
                 if (isAudioMode && !isSpeaking && isListening && !lastMessageWasApology) {
-                    console.log('🔄 No speech detected via onend - restarting');
+                    console.log('🔄 No speech detected - restarting');
                     setTimeout(() => {
                         try {
                             if (recognition) {
@@ -268,6 +273,7 @@ function startListening() {
         recognition.start();
         isListening = true;
         
+        // ✅ SHOW THE GREEN "SPEAK NOW" BANNER
         const liveTranscript = document.getElementById('liveTranscript');
         if (liveTranscript) {
             liveTranscript.style.display = 'flex';
