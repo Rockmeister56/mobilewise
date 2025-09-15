@@ -851,10 +851,10 @@ function askLeadQuestion() {
     if (leadData.step < leadData.questions.length) {
         const question = leadData.questions[leadData.step];
         
-        // ✅ USE addAIMessage
+        // Add message to screen
         addAIMessage(question);
         
-        // 🎤 MAKE THE AI SPEAK THE QUESTION
+        // Make AI speak the question
         if (window.speechSynthesis) {
             const utterance = new SpeechSynthesisUtterance(question);
             utterance.rate = 0.9;
@@ -862,7 +862,13 @@ function askLeadQuestion() {
             window.speechSynthesis.speak(utterance);
         }
         
-        createLeadInput();
+        // ✅ RESTART SPEECH RECOGNITION - NO FORM INPUT!
+        setTimeout(() => {
+            if (recognition && !isListening) {
+                startListening();
+            }
+        }, 2000); // Wait for AI to finish speaking
+        
     } else {
         completeLeadCollection();
     }
