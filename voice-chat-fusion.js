@@ -1447,33 +1447,66 @@ function sendConfirmationEmail() {
         transcript: `CONFIRMATION: Appointment scheduled for ${leadData.contactTime}\n\nFree Book: "7 Secrets to Selling Your Practice"\nDownload Link: https://bruces-book-link.com/download\n\nThank you for choosing New Clients Inc!`,
         timestamp: new Date().toLocaleString()
     };
+    // ✅ ADD THIS WHEN BANNER APPEARS
+document.getElementById('smartButton').style.display = 'none';
     
     // ✅ USING YOUR ACTUAL TEMPLATE ID
     if (typeof emailjs !== 'undefined') {
         emailjs.send('service_b9bppgb', 'template_8kx812d', confirmationParams)
             .then(function(response) {
                 console.log('✅ CONFIRMATION EMAIL SENT!');
-                addAIMessage("Perfect! I just sent you a confirmation email as promised. Thank you for your time and have a great day!");
+                // ✅ NEW CLEAN MESSAGE
+                addAIMessage("Perfect! I just sent you a confirmation email as promised. Is there anything else I can help you with today?");
                 setTimeout(() => {
-                    endConversation();
+                    finishConversation();
                 }, 2000);
             }, function(error) {
                 console.error('❌ CONFIRMATION EMAIL FAILED:', error);
-                addAIMessage("Perfect! I just sent you a confirmation email as promised. Thank you for your time and have a great day!");
+                // ✅ SAME CLEAN MESSAGE EVEN ON ERROR
+                addAIMessage("Perfect! I just sent you a confirmation email as promised. Is there anything else I can help you with today?");
                 setTimeout(() => {
-                    endConversation();
+                    finishConversation();
                 }, 2000);
             });
     } else {
         console.error('EmailJS not available');
-        addAIMessage("Perfect! I just sent you a confirmation email as promised. Thank you for your time and have a great day!");
+        // ✅ CONSISTENT MESSAGE
+        addAIMessage("Perfect! I just sent you a confirmation email as promised. Is there anything else I can help you with today?");
         setTimeout(() => {
-            endConversation();
+            finishConversation();
         }, 2000);
     }
 }
 
+function finishConversation() {
+    // ✅ SET STATE FOR YES/NO BRANCHING
+    conversationState = 'final_question';
+    
+    // Remove the automatic final question since it's already in sendConfirmationEmail
+    // The user will respond to the question asked above
+}
+
+// ✅ ADD THIS NEW FUNCTION TO HANDLE THE YES/NO RESPONSES
+function handleFinalQuestion(userResponse) {
+    const response = userResponse.toLowerCase().trim();
+    
+    if (response.includes('yes') || response.includes('yeah') || response.includes('sure') || response.includes('actually')) {
+        // ✅ BACK TO Q&A MODE
+        conversationState = 'chatting';
+        addAIMessage("Great! How can I help you?");
+        
+    } else if (response.includes('no') || response.includes('nope') || response.includes("i'm good") || response.includes('nothing')) {
+        // ✅ CLEAN GOODBYE
+        endConversation();
+        
+    } else {
+        // ✅ CLARIFY IF UNCLEAR
+        addAIMessage("Is there anything else I can help you with today?");
+    }
+}
+
 function endConversation() {
+    // ✅ YOUR EXACT GOODBYE MESSAGE
     const goodbye = "Thank you for visiting us today. Have a great day!";
     addAIMessage(goodbye);
     speakResponse(goodbye);
@@ -1495,7 +1528,6 @@ function showCloseAppButton() {
         };
     }
 }
-
 
 // ===================================================
 // 🔘 QUICK QUESTIONS SYSTEM
