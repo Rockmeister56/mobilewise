@@ -689,6 +689,29 @@ function getAIResponse(userInput) {
     } else if (conversationState === 'button_activated_selling' || conversationState === 'button_activated_buying' || conversationState === 'button_activated_valuation') {
         responseText = "Perfect! I see you're ready to connect with Bruce. Just click that button above and we'll get everything set up for you right away!";
         
+    // ✅ NEW FOLLOW-UP CONVERSATION STATES
+    } else if (conversationState === 'asking_followup_email') {
+        if (userText.includes('yes') || userText.includes('sure') || userText.includes('okay') || userText.includes('definitely')) {
+            responseText = "Excellent! I'm sending that confirmation email now.";
+            setTimeout(() => {
+                sendConfirmationEmail();
+            }, 1000);
+        } else {
+            responseText = "No problem at all!";
+            setTimeout(() => {
+                finishConversation();
+            }, 1000);
+        }
+        
+    } else if (conversationState === 'asking_anything_else') {
+        if (userText.includes('yes') || userText.includes('sure') || userText.includes('help')) {
+            responseText = "I'm here to help! What else can I assist you with regarding your practice?";
+            conversationState = 'initial'; // Back to normal conversation
+        } else {
+            endConversation();
+            return ""; // Don't return text, endConversation handles it
+        }
+        
     } else {
         responseText = "Thanks for your message! Is there anything else about buying, selling, or valuing a CPA practice that I can help you with?";
         conversationState = 'initial';
@@ -697,6 +720,7 @@ function getAIResponse(userInput) {
     
     return responseText;
 }
+
 
 // ===================================================
 // 🎯 SMART BUTTON SYSTEM WITH BANNER
@@ -1162,19 +1186,8 @@ function sendLeadEmail(data) {
             .then(function(response) {
                 console.log('✅ EMAIL SENT SUCCESSFULLY!', response.status, response.text);
                 
-                // Success feedback
-                const banner = document.getElementById('leadCaptureBanner');
-                if (banner) {
-                    banner.innerHTML = '🎉 LEAD CAPTURED & EMAIL SENT!';
-                    banner.style.background = 'linear-gradient(135deg, #4CAF50, #8BC34A)';
-                }
-                
-                addAIMessage("Perfect! Your consultation request has been sent to our team. You'll hear from us soon!");
-                
-                // Reset system after delay
-                setTimeout(() => {
-                    resetLeadCaptureSystem();
-                }, 3000);
+                // ✅ NEW: Call our enhanced success handler
+                handleEmailSuccess();
                 
             }, function(error) {
                 console.error('❌ EMAIL FAILED:', error);
@@ -1201,6 +1214,7 @@ function sendLeadEmail(data) {
     }
 }
 
+// ✅ KEEP YOUR EXISTING resetLeadCaptureSystem() function - don't change it
 function resetLeadCaptureSystem() {
     // Remove banner
     const banner = document.getElementById('leadCaptureBanner');
@@ -1220,6 +1234,97 @@ function resetLeadCaptureSystem() {
         setTimeout(() => {
             startListening();
         }, 1000);
+    }
+}
+
+// ===================================================
+// 🎯 ENHANCED POST-CAPTURE FOLLOW-UP SYSTEM
+// ===================================================
+function handleEmailSuccess() {
+    const banner = document.getElementById('leadCaptureBanner');
+    if (banner) {
+        banner.innerHTML = '🎉 LEAD CAPTURED & EMAIL SENT!';
+        banner.style.background = 'linear-gradient(135deg, #4CAF50, #8BC34A)';
+    }
+    
+    addAIMessage("Perfect! Your consultation request has been sent to our team.");
+    
+    setTimeout(() => {
+        startFollowUpSequence();
+    }, 2000);
+}
+
+function startFollowUpSequence() {
+    conversationState = 'asking_followup_email';
+    
+    const followUpMessage = `Thank you for your trust in New Clients Inc to help you achieve your practice goals. May I follow up with a confirmation email and a link to Bruce's new book "7 Secrets to Selling Your Practice"?`;
+    
+    addAIMessage(followUpMessage);
+    speakResponse(followUpMessage);
+    
+    // Remove the lead capture banner
+    const banner = document.getElementById('leadCaptureBanner');
+    if (banner) {
+        banner.remove();
+    }
+    
+    isInLeadCapture = false;
+}
+
+function sendConfirmationEmail() {
+    const confirmationParams = {
+        name: leadData.name,
+        phone: leadData.phone,
+        email: leadData.email,
+        contactTime: leadData.contactTime,
+        appointmentDetails: `Consultation scheduled for ${leadData.contactTime}`,
+        bookLink: 'https://bruces-book-link.com/7-secrets-selling-practice',
+        timestamp: new Date().toLocaleString()
+    };
+    
+    // You'll need to create a new EmailJS template for this
+    emailjs.send('service_b9bppgb', 'template_confirmation', confirmationParams)
+        .then(function(response) {
+            console.log('✅ CONFIRMATION EMAIL SENT!');
+            addAIMessage("Wonderful! I've sent you a confirmation email with Bruce's book link.");
+            finishConversation();
+        }, function(error) {
+            console.error('❌ CONFIRMATION EMAIL FAILED:', error);
+            addAIMessage("The confirmation email had an issue, but Bruce will still contact you as scheduled.");
+            finishConversation();
+        });
+}
+
+function finishConversation() {
+    conversationState = 'asking_anything_else';
+    
+    setTimeout(() => {
+        const finalQuestion = "Is there anything else I can help you with today?";
+        addAIMessage(finalQuestion);
+        speakResponse(finalQuestion);
+    }, 2000);
+}
+
+function endConversation() {
+    const goodbye = "Thank you for visiting us today, have a great day!";
+    addAIMessage(goodbye);
+    speakResponse(goodbye);
+    
+    setTimeout(() => {
+        showCloseAppButton();
+        stopListening();
+        isAudioMode = false;
+    }, 3000);
+}
+
+function showCloseAppButton() {
+    const smartButton = document.getElementById('smartButton');
+    if (smartButton) {
+        smartButton.textContent = '👋 Close App';
+        smartButton.style.display = 'block';
+        smartButton.onclick = () => {
+            window.close();
+        };
     }
 }
 
