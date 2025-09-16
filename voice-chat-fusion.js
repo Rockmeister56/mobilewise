@@ -509,6 +509,34 @@ function processUserResponse(userText) {
     
     stopListening();
     
+    // ✅ CHECK FINAL QUESTION STATE FIRST
+    if (conversationState === 'final_question') {
+        const response = userText.toLowerCase().trim();
+        
+        if (response.includes('no') || response.includes('nope') || response.includes("i'm good") || response.includes('nothing')) {
+            const goodbye = "Thank you for visiting us today. Have a great day!";
+            addAIMessage(goodbye);
+            speakResponse(goodbye);
+            
+            setTimeout(() => {
+                replaceBannerWithThankYou();
+                conversationState = 'ended';
+                stopListening();
+            }, 2000);
+            
+            return; // ✅ STOPS THE LOOP!
+        }
+        
+        if (response.includes('yes') || response.includes('yeah') || response.includes('sure')) {
+            conversationState = 'chatting';
+            addAIMessage("Great! How can I help you?");
+            setTimeout(() => {
+                startListening();
+            }, 1000);
+            return;
+        }
+    }
+    
     // 🆕 CHECK IF LEAD CAPTURE SHOULD HANDLE THIS FIRST
     if (processLeadResponse(userText)) {
         return;
@@ -524,9 +552,59 @@ function processUserResponse(userText) {
         addAIMessage(responseText);
         speakResponse(responseText);
         
+        // ✅ FORCE SCROLL AFTER AI RESPONSE
+        setTimeout(() => {
+            forceScrollToBottom();
+        }, 500);
+        
         updateSmartButton(shouldShowSmartButton, smartButtonText, smartButtonAction);
     }, 800);
 }
+
+// ✅ ADD THESE SUPPORTING FUNCTIONS TOO:
+function forceScrollToBottom() {
+    setTimeout(() => {
+        const chatContainer = document.getElementById('chatContainer') || 
+                            document.querySelector('.chat-container') || 
+                            document.querySelector('.messages-container');
+        
+        if (chatContainer) {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+        
+        window.scrollTo(0, document.body.scrollHeight);
+        document.documentElement.scrollTop = document.documentElement.scrollHeight;
+    }, 300);
+}
+
+function replaceBannerWithThankYou() {
+    const existingBanner = document.querySelector('.book-banner') || 
+                          document.querySelector('[class*="banner"]');
+    
+    if (existingBanner) {
+        existingBanner.innerHTML = '';
+        existingBanner.style.cssText = `
+            width: calc(100% - 16px);
+            height: 120px;
+            background-image: url('https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758008231877_thanks2.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-space;
+            border-radius: 16px;
+            margin: 8px;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        `;
+        
+        existingBanner.onclick = () => {
+            window.close();
+        };
+        
+        forceScrollToBottom();
+    }
+}
+
 
 // ===================================================
 // 🔊 VOICE SYNTHESIS SYSTEM
@@ -973,6 +1051,35 @@ function speakMessage(message) {
         window.speechSynthesis.speak(utterance);
     }
 }
+
+// ✅ ADD THIS FUNCTION TO YOUR CODE
+function forceScrollToBottom() {
+    setTimeout(() => {
+        // Try multiple scroll methods
+        const chatContainer = document.getElementById('chatContainer') || 
+                            document.querySelector('.chat-container') || 
+                            document.querySelector('.messages-container');
+        
+        if (chatContainer) {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+        
+        // Force window scroll too
+        window.scrollTo(0, document.body.scrollHeight);
+        document.documentElement.scrollTop = document.documentElement.scrollHeight;
+    }, 300);
+}
+
+// ✅ CALL THIS IN YOUR BANNER CREATION FUNCTION
+function createBruceBanner() {
+    // Your existing banner code...
+    
+    // ADD THIS AT THE END:
+    setTimeout(() => {
+        forceScrollToBottom();
+    }, 500);
+}
+
 
 // ===================================================
 // 📧 EMAIL FORMATTING FUNCTION
