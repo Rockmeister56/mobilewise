@@ -73,6 +73,44 @@
     padding: 20px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
+
+/* ✅ ADD THIS CSS FOR MOBILE/DESKTOP RESPONSIVE */
+@media (max-width: 768px) {
+    /* Mobile specific */
+    .chat-container {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 100vh !important;
+        transform: none !important;
+        margin: 0 !important;
+    }
+    
+    .book-banner {
+        margin: 8px !important;
+    }
+    
+    #speakNowButton {
+        position: fixed !important;
+        bottom: 120px !important; /* Above bottom buttons */
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        z-index: 1000 !important;
+    }
+}
+
+@media (min-width: 769px) {
+    /* Desktop specific - keep your center alignment */
+    .chat-container {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        /* Your existing desktop styles */
+    }
+}
+
         /* ===================================================
            📍 HEADER STYLING
            ================================================== */

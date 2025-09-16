@@ -509,7 +509,7 @@ function processUserResponse(userText) {
     
     stopListening();
     
-    // ✅ CHECK FINAL QUESTION STATE FIRST
+    // ✅ CHECK FINAL QUESTION STATE FIRST (BEFORE LEAD CAPTURE!)
     if (conversationState === 'final_question') {
         const response = userText.toLowerCase().trim();
         
@@ -528,13 +528,22 @@ function processUserResponse(userText) {
         }
         
         if (response.includes('yes') || response.includes('yeah') || response.includes('sure')) {
-            conversationState = 'chatting';
+            conversationState = 'initial';
             addAIMessage("Great! How can I help you?");
+            speakResponse("Great! How can I help you?");
             setTimeout(() => {
                 startListening();
             }, 1000);
             return;
         }
+        
+        // If unclear, ask again
+        addAIMessage("Is there anything else I can help you with today?");
+        speakResponse("Is there anything else I can help you with today?");
+        setTimeout(() => {
+            startListening();
+        }, 1000);
+        return;
     }
     
     // 🆕 CHECK IF LEAD CAPTURE SHOULD HANDLE THIS FIRST
@@ -552,57 +561,8 @@ function processUserResponse(userText) {
         addAIMessage(responseText);
         speakResponse(responseText);
         
-        // ✅ FORCE SCROLL AFTER AI RESPONSE
-        setTimeout(() => {
-            forceScrollToBottom();
-        }, 500);
-        
         updateSmartButton(shouldShowSmartButton, smartButtonText, smartButtonAction);
     }, 800);
-}
-
-// ✅ ADD THESE SUPPORTING FUNCTIONS TOO:
-function forceScrollToBottom() {
-    setTimeout(() => {
-        const chatContainer = document.getElementById('chatContainer') || 
-                            document.querySelector('.chat-container') || 
-                            document.querySelector('.messages-container');
-        
-        if (chatContainer) {
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-        }
-        
-        window.scrollTo(0, document.body.scrollHeight);
-        document.documentElement.scrollTop = document.documentElement.scrollHeight;
-    }, 300);
-}
-
-function replaceBannerWithThankYou() {
-    const existingBanner = document.querySelector('.book-banner') || 
-                          document.querySelector('[class*="banner"]');
-    
-    if (existingBanner) {
-        existingBanner.innerHTML = '';
-        existingBanner.style.cssText = `
-            width: calc(100% - 16px);
-            height: 120px;
-            background-image: url('https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758008231877_thanks2.png');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-space;
-            border-radius: 16px;
-            margin: 8px;
-            cursor: pointer;
-            border: none;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        `;
-        
-        existingBanner.onclick = () => {
-            window.close();
-        };
-        
-        forceScrollToBottom();
-    }
 }
 
 
@@ -1052,35 +1012,6 @@ function speakMessage(message) {
     }
 }
 
-// ✅ ADD THIS FUNCTION TO YOUR CODE
-function forceScrollToBottom() {
-    setTimeout(() => {
-        // Try multiple scroll methods
-        const chatContainer = document.getElementById('chatContainer') || 
-                            document.querySelector('.chat-container') || 
-                            document.querySelector('.messages-container');
-        
-        if (chatContainer) {
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-        }
-        
-        // Force window scroll too
-        window.scrollTo(0, document.body.scrollHeight);
-        document.documentElement.scrollTop = document.documentElement.scrollHeight;
-    }, 300);
-}
-
-// ✅ CALL THIS IN YOUR BANNER CREATION FUNCTION
-function createBruceBanner() {
-    // Your existing banner code...
-    
-    // ADD THIS AT THE END:
-    setTimeout(() => {
-        forceScrollToBottom();
-    }, 500);
-}
-
-
 // ===================================================
 // 📧 EMAIL FORMATTING FUNCTION
 // ===================================================
@@ -1366,7 +1297,6 @@ function sendLeadEmail(data) {
     }
 }
 
-// ✅ KEEP YOUR EXISTING resetLeadCaptureSystem() function - don't change it
 function resetLeadCaptureSystem() {
     // Remove banner
     const banner = document.getElementById('leadCaptureBanner');
@@ -1378,7 +1308,10 @@ function resetLeadCaptureSystem() {
     isInLeadCapture = false;
     leadData = null;
     
-    // Return to normal conversation
+    // ✅ THIS IS CRITICAL - SET THE STATE!
+    conversationState = 'final_question';
+    
+    // ✅ ASK THE FINAL QUESTION
     addAIMessage("Is there anything else I can help you with today?");
     
     // Restart normal speech recognition if in audio mode
@@ -1399,9 +1332,17 @@ function showBruceBookBanner() {
         existingBanner.remove();
     }
     
+    // ✅ FORCE HIDE SMART BUTTON WHEN BANNER APPEARS
+    const smartButton = document.getElementById('smartButton');
+    if (smartButton) {
+        smartButton.style.display = 'none !important';
+        smartButton.style.visibility = 'hidden !important';
+    }
+    
     // Create Bruce's book banner
     const bookBanner = document.createElement('div');
     bookBanner.id = 'bruceBookBanner';
+    bookBanner.className = 'book-banner'; // Add class for CSS targeting
     bookBanner.style.cssText = `
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         border: 3px solid rgba(255, 255, 255, 0.3);
@@ -1485,7 +1426,73 @@ function showBruceBookBanner() {
     }
     
     console.log('📚 Bruce\'s book banner displayed with personalization');
+    
+    // ✅ FORCE SCROLL AFTER BANNER APPEARS
+    setTimeout(() => {
+        forceScrollToBottom();
+        
+        setTimeout(() => {
+            forceScrollToBottom();
+        }, 500);
+        
+        setTimeout(() => {
+            forceScrollToBottom();
+        }, 1000);
+    }, 300);
+    
+    // ✅ FORCE SCROLL WHEN SPEAK NOW APPEARS  
+    setTimeout(() => {
+        const speakButton = document.getElementById('speakNowButton');
+        if (speakButton) {
+            speakButton.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        forceScrollToBottom();
+    }, 2000);
 }
+
+function forceScrollToBottom() {
+    setTimeout(() => {
+        // Multiple scroll attempts for stubborn mobile
+        const scrollTargets = [
+            document.getElementById('chatContainer'),
+            document.querySelector('.chat-container'),
+            document.querySelector('.messages-container'),
+            document.body,
+            document.documentElement
+        ];
+        
+        scrollTargets.forEach(target => {
+            if (target) {
+                target.scrollTop = target.scrollHeight;
+            }
+        });
+        
+        // Force window scroll
+        window.scrollTo({
+            top: document.body.scrollHeight,
+            behavior: 'smooth'
+        });
+        
+        // ✅ MOBILE SPECIFIC - ENSURE SPEAK NOW IS VISIBLE
+        const speakButton = document.getElementById('speakNowButton');
+        if (speakButton) {
+            speakButton.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }, 100);
+}
+
+function endConversation() {
+    const goodbye = "Thank you for visiting us today. Have a great day!";
+    addAIMessage(goodbye);
+    speakResponse(goodbye);
+    
+    setTimeout(() => {
+        replaceBannerWithThankYou();
+        conversationState = 'ended';
+        stopListening();
+    }, 2000);
+}
+
 
 // ===================================================
 // 🎯 STREAMLINED POST-CAPTURE FOLLOW-UP SYSTEM
@@ -1600,21 +1607,6 @@ function replaceBannerWithThankYou() {
             window.close();
         };
     }
-}
-
-// ✅ MODIFY THE BANNER CREATION TO PREVENT SMART BUTTON
-function createBruceBanner() {
-    // Your existing banner creation code here
-    // BUT ADD THIS AT THE END:
-    
-    // ✅ FORCE HIDE SMART BUTTON WHEN BANNER APPEARS
-    setTimeout(() => {
-        const smartButton = document.getElementById('smartButton');
-        if (smartButton) {
-            smartButton.style.display = 'none !important';
-            smartButton.style.visibility = 'hidden !important';
-        }
-    }, 100);
 }
 
 // ===================================================
