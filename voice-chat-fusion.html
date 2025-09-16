@@ -64,9 +64,6 @@
 
   .container {
     max-width: 800px;
-    margin-top: 150px;
-    margin-left: auto;
-    margin-right: auto;
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
     border-radius: 20px;
@@ -74,29 +71,58 @@
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
-/* ✅ ADD THIS CSS FOR MOBILE/DESKTOP RESPONSIVE */
+/* ✅ DESKTOP STYLES */
+@media (min-width: 769px) {
+    .container {
+        margin-top: 150px !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        position: relative;
+        width: auto;
+        height: auto;
+    }
+}
+
+/* ✅ MOBILE STYLES */
 @media (max-width: 768px) {
-    /* Mobile specific */
-    .chat-container {
+    .container {
         position: fixed !important;
         top: 0 !important;
         left: 0 !important;
+        right: 0 !important;
         width: 100% !important;
         height: 100vh !important;
-        transform: none !important;
         margin: 0 !important;
+        border-radius: 0 !important;
+        max-width: none !important;
+        overflow-y: auto !important;
     }
     
-    .book-banner {
+    .book-banner, #bruceBookBanner {
         margin: 8px !important;
+        border-radius: 15px !important;
     }
     
-    #speakNowButton {
+    #speakNowButton, #liveTranscript {
         position: fixed !important;
-        bottom: 120px !important; /* Above bottom buttons */
+        bottom: 120px !important;
         left: 50% !important;
         transform: translateX(-50%) !important;
         z-index: 1000 !important;
+    }
+    
+    /* ✅ FORCE MOBILE CHAT TO TOP */
+    #chatMessages {
+        padding-top: 10px !important;
+        margin-top: 0 !important;
+    }
+    
+    /* ✅ MOBILE BUTTON POSITIONING */
+    .bottom-buttons {
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
     }
 }
 
