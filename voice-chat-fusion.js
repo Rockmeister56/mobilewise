@@ -1447,86 +1447,84 @@ function sendConfirmationEmail() {
         transcript: `CONFIRMATION: Appointment scheduled for ${leadData.contactTime}\n\nFree Book: "7 Secrets to Selling Your Practice"\nDownload Link: https://bruces-book-link.com/download\n\nThank you for choosing New Clients Inc!`,
         timestamp: new Date().toLocaleString()
     };
-    // ✅ ADD THIS WHEN BANNER APPEARS
-document.getElementById('smartButton').style.display = 'none';
     
-    // ✅ USING YOUR ACTUAL TEMPLATE ID
     if (typeof emailjs !== 'undefined') {
         emailjs.send('service_b9bppgb', 'template_8kx812d', confirmationParams)
             .then(function(response) {
                 console.log('✅ CONFIRMATION EMAIL SENT!');
-                // ✅ NEW CLEAN MESSAGE
-                addAIMessage("Perfect! I just sent you a confirmation email as promised. Is there anything else I can help you with today?");
-                setTimeout(() => {
-                    finishConversation();
-                }, 2000);
+                
+                // ✅ REPLACE BRUCE'S BANNER WITH THANK YOU BANNER
+                replaceBannerWithThankYou();
+                
+                // ✅ HIDE SMART BUTTON PERMANENTLY
+                const smartButton = document.getElementById('smartButton');
+                if (smartButton) {
+                    smartButton.style.display = 'none !important';
+                }
+                
+                // ✅ NO MORE TEXT - JUST THE THANK YOU BANNER
+                
             }, function(error) {
-                console.error('❌ CONFIRMATION EMAIL FAILED:', error);
-                // ✅ SAME CLEAN MESSAGE EVEN ON ERROR
-                addAIMessage("Perfect! I just sent you a confirmation email as promised. Is there anything else I can help you with today?");
-                setTimeout(() => {
-                    finishConversation();
-                }, 2000);
+                console.error('❌ EMAIL FAILED:', error);
+                replaceBannerWithThankYou();
+                const smartButton = document.getElementById('smartButton');
+                if (smartButton) {
+                    smartButton.style.display = 'none !important';
+                }
             });
     } else {
-        console.error('EmailJS not available');
-        // ✅ CONSISTENT MESSAGE
-        addAIMessage("Perfect! I just sent you a confirmation email as promised. Is there anything else I can help you with today?");
-        setTimeout(() => {
-            finishConversation();
-        }, 2000);
+        replaceBannerWithThankYou();
+        const smartButton = document.getElementById('smartButton');
+        if (smartButton) {
+            smartButton.style.display = 'none !important';
+        }
     }
 }
 
-function finishConversation() {
-    // ✅ SET STATE FOR YES/NO BRANCHING
-    conversationState = 'final_question';
-    
-    // Remove the automatic final question since it's already in sendConfirmationEmail
-    // The user will respond to the question asked above
-}
-
-// ✅ ADD THIS NEW FUNCTION TO HANDLE THE YES/NO RESPONSES
-function handleFinalQuestion(userResponse) {
-    const response = userResponse.toLowerCase().trim();
-    
-    if (response.includes('yes') || response.includes('yeah') || response.includes('sure') || response.includes('actually')) {
-        // ✅ BACK TO Q&A MODE
-        conversationState = 'chatting';
-        addAIMessage("Great! How can I help you?");
+function replaceBannerWithThankYou() {
+    // ✅ FIND THE BRUCE BANNER AND REPLACE IT
+    const existingBanner = document.querySelector('.book-banner');
+    if (existingBanner) {
+        // ✅ CREATE THANK YOU BANNER
+        const thankYouBanner = document.createElement('div');
+        thankYouBanner.className = 'thank-you-banner';
+        thankYouBanner.style.cssText = `
+            width: 100%;
+            height: 120px;
+            background-image: url('https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758008231877_thanks2.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            border-radius: 16px;
+            margin: 12px 8px;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        `;
         
-    } else if (response.includes('no') || response.includes('nope') || response.includes("i'm good") || response.includes('nothing')) {
-        // ✅ CLEAN GOODBYE
-        endConversation();
+        // ✅ REPLACE THE BRUCE BANNER
+        existingBanner.parentNode.replaceChild(thankYouBanner, existingBanner);
         
-    } else {
-        // ✅ CLARIFY IF UNCLEAR
-        addAIMessage("Is there anything else I can help you with today?");
-    }
-}
-
-function endConversation() {
-    // ✅ YOUR EXACT GOODBYE MESSAGE
-    const goodbye = "Thank you for visiting us today. Have a great day!";
-    addAIMessage(goodbye);
-    speakResponse(goodbye);
-    
-    setTimeout(() => {
-        showCloseAppButton();
-        stopListening();
-        isAudioMode = false;
-    }, 3000);
-}
-
-function showCloseAppButton() {
-    const smartButton = document.getElementById('smartButton');
-    if (smartButton) {
-        smartButton.textContent = '👋 Close App';
-        smartButton.style.display = 'block';
-        smartButton.onclick = () => {
+        // ✅ MAKE IT CLICKABLE TO CLOSE
+        thankYouBanner.onclick = () => {
             window.close();
         };
     }
+}
+
+// ✅ MODIFY THE BANNER CREATION TO PREVENT SMART BUTTON
+function createBruceBanner() {
+    // Your existing banner creation code here
+    // BUT ADD THIS AT THE END:
+    
+    // ✅ FORCE HIDE SMART BUTTON WHEN BANNER APPEARS
+    setTimeout(() => {
+        const smartButton = document.getElementById('smartButton');
+        if (smartButton) {
+            smartButton.style.display = 'none !important';
+            smartButton.style.visibility = 'hidden !important';
+        }
+    }, 100);
 }
 
 // ===================================================
