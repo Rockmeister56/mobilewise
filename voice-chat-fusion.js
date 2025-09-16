@@ -1300,7 +1300,105 @@ function resetLeadCaptureSystem() {
 }
 
 // ===================================================
-// 🎯 ENHANCED POST-CAPTURE FOLLOW-UP SYSTEM
+// 📚 BRUCE'S BOOK BANNER SYSTEM
+// ===================================================
+function showBruceBookBanner() {
+    // Remove any existing banners
+    const existingBanner = document.getElementById('bruceBookBanner');
+    if (existingBanner) {
+        existingBanner.remove();
+    }
+    
+    // Create Bruce's book banner
+    const bookBanner = document.createElement('div');
+    bookBanner.id = 'bruceBookBanner';
+    bookBanner.style.cssText = `
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-radius: 20px;
+        padding: 20px;
+        margin: 15px 0;
+        text-align: center;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        animation: bookBannerSlideIn 0.6s ease-out;
+        position: relative;
+        overflow: hidden;
+    `;
+    
+    bookBanner.innerHTML = `
+        <div style="
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        ">
+            <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1757997800109_book-banner.png" 
+                 style="
+                     width: 120px;
+                     height: auto;
+                     border-radius: 10px;
+                     box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+                 " 
+                 alt="Bruce's Book">
+            <div style="
+                color: white;
+                text-align: left;
+                flex: 1;
+                min-width: 200px;
+            ">
+                <h3 style="
+                    margin: 0 0 10px 0;
+                    font-size: 18px;
+                    font-weight: bold;
+                    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                ">
+                    📚 FREE Book for ${leadData.name}!
+                </h3>
+                <p style="
+                    margin: 0;
+                    font-size: 14px;
+                    opacity: 0.9;
+                    line-height: 1.4;
+                ">
+                    "7 Secrets to Selling Your Practice"<br>
+                    <em>Exclusive access just for you!</em>
+                </p>
+            </div>
+        </div>
+    `;
+    
+    // Add animation keyframes
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes bookBannerSlideIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(-30px) scale(0.9); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0) scale(1); 
+            }
+        }
+    `;
+    document.head.appendChild(style);
+    
+    // Insert banner at the top of the container
+    const container = document.querySelector('.container');
+    const header = container.querySelector('header');
+    
+    if (header && header.nextSibling) {
+        container.insertBefore(bookBanner, header.nextSibling);
+    } else {
+        container.insertBefore(bookBanner, container.firstChild);
+    }
+    
+    console.log('📚 Bruce\'s book banner displayed with personalization');
+}
+
+// ===================================================
+// 🎯 STREAMLINED POST-CAPTURE FOLLOW-UP SYSTEM
 // ===================================================
 function handleEmailSuccess() {
     const banner = document.getElementById('leadCaptureBanner');
@@ -1309,8 +1407,8 @@ function handleEmailSuccess() {
         banner.style.background = 'linear-gradient(135deg, #4CAF50, #8BC34A)';
     }
     
-    addAIMessage("Perfect! Your consultation request has been sent to our team.");
-    
+    // ✅ REMOVED: "Perfect! Your consultation request has been sent to our team."
+    // Go straight to the combined message
     setTimeout(() => {
         startFollowUpSequence();
     }, 2000);
@@ -1319,10 +1417,14 @@ function handleEmailSuccess() {
 function startFollowUpSequence() {
     conversationState = 'asking_followup_email';
     
-    const followUpMessage = `Thank you for your trust in New Clients Inc to help you achieve your practice goals. May I follow up with a confirmation email and a link to Bruce's new book "7 Secrets to Selling Your Practice"?`;
+    // ✅ ENHANCED: Combined personalized message with follow-up question
+    const combinedMessage = `Excellent ${leadData.name}! I have all your information. Our specialist will contact you at ${leadData.phone} during your preferred ${leadData.contactTime} timeframe. May I follow up with a confirmation email and a link to Bruce's new book "7 Secrets to Selling Your Practice"?`;
     
-    addAIMessage(followUpMessage);
-    speakResponse(followUpMessage);
+    addAIMessage(combinedMessage);
+    speakResponse(combinedMessage);
+    
+    // ✅ NEW: Show Bruce's Book Banner instead of smart button
+    showBruceBookBanner();
     
     // Remove the lead capture banner
     const banner = document.getElementById('leadCaptureBanner');
@@ -1334,27 +1436,41 @@ function startFollowUpSequence() {
 }
 
 function sendConfirmationEmail() {
+    console.log('📧 Sending confirmation email...');
+    
     const confirmationParams = {
         name: leadData.name,
         phone: leadData.phone,
         email: leadData.email,
         contactTime: leadData.contactTime,
-        appointmentDetails: `Consultation scheduled for ${leadData.contactTime}`,
-        bookLink: 'https://bruces-book-link.com/7-secrets-selling-practice',
+        inquiryType: 'CONFIRMATION EMAIL WITH BOOK LINK',
+        transcript: `CONFIRMATION: Appointment scheduled for ${leadData.contactTime}\n\nBruce's Book: "7 Secrets to Selling Your Practice"\nDownload Link: https://bruces-book-link.com/download\n\nThank you for choosing New Clients Inc!`,
         timestamp: new Date().toLocaleString()
     };
     
-    // You'll need to create a new EmailJS template for this
-    emailjs.send('service_b9bppgb', 'template_confirmation', confirmationParams)
-        .then(function(response) {
-            console.log('✅ CONFIRMATION EMAIL SENT!');
-            addAIMessage("Wonderful! I've sent you a confirmation email with Bruce's book link.");
+    // ✅ USING YOUR ACTUAL TEMPLATE ID
+    if (typeof emailjs !== 'undefined') {
+        emailjs.send('service_b9bppgb', 'template_8kx812d', confirmationParams)
+            .then(function(response) {
+                console.log('✅ CONFIRMATION EMAIL SENT!');
+                addAIMessage("Wonderful! I've sent you a confirmation email with Bruce's book link.");
+                setTimeout(() => {
+                    finishConversation();
+                }, 2000);
+            }, function(error) {
+                console.error('❌ CONFIRMATION EMAIL FAILED:', error);
+                addAIMessage("The confirmation email had an issue, but Bruce will still contact you as scheduled.");
+                setTimeout(() => {
+                    finishConversation();
+                }, 2000);
+            });
+    } else {
+        console.error('EmailJS not available');
+        addAIMessage("Email service temporarily unavailable, but Bruce will still contact you as scheduled.");
+        setTimeout(() => {
             finishConversation();
-        }, function(error) {
-            console.error('❌ CONFIRMATION EMAIL FAILED:', error);
-            addAIMessage("The confirmation email had an issue, but Bruce will still contact you as scheduled.");
-            finishConversation();
-        });
+        }, 2000);
+    }
 }
 
 function finishConversation() {
