@@ -324,6 +324,23 @@ function stopListening() {
 }
 
 // ===================================================
+// 📧 EMAIL FORMATTING FUNCTION
+// ===================================================
+function formatEmailFromSpeech(speechText) {
+    let formattedEmail = speechText.toLowerCase().trim();
+    
+    // Replace common speech patterns with email format
+    formattedEmail = formattedEmail
+        .replace(/\s*at\s+/g, '@')           // "at" becomes @
+        .replace(/\s*dot\s+/g, '.')          // "dot" becomes .
+        .replace(/\s+/g, '')                 // Remove all spaces
+        .replace(/,/g, '');                  // Remove commas
+    
+    console.log('📧 Email conversion:', speechText, '→', formattedEmail);
+    return formattedEmail;
+}
+
+// ===================================================
 // 🎯 CLEAN ACTIVATION SYSTEM
 // ===================================================
 document.addEventListener('DOMContentLoaded', function() {
@@ -910,6 +927,13 @@ function processLeadResponse(userInput) {
     if (!isInLeadCapture || !leadData) return false;
     
     console.log('🎯 Processing lead response:', userInput);
+
+    let processedInput = userInput;
+
+    // ✅ NEW: Format email addresses when asking for email (step 2)
+    if (leadData.step === 2) {
+        processedInput = formatEmailFromSpeech(userInput);
+        console.log('📧 Formatted email:', processedInput);
     
     // Store temporarily (don't save to final data yet)
     leadData.tempAnswer = userInput;
