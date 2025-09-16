@@ -1448,48 +1448,41 @@ function sendConfirmationEmail() {
         timestamp: new Date().toLocaleString()
     };
     
-    // ✅ HIDE THE SMART BUTTON IMMEDIATELY
-    const smartButton = document.getElementById('smartButton');
-    if (smartButton) {
-        smartButton.style.display = 'none';
-    }
-    
+    // ✅ USING YOUR ACTUAL TEMPLATE ID
     if (typeof emailjs !== 'undefined') {
         emailjs.send('service_b9bppgb', 'template_8kx812d', confirmationParams)
             .then(function(response) {
                 console.log('✅ CONFIRMATION EMAIL SENT!');
-                // ✅ SIMPLE CLEAN GOODBYE - NO QUESTIONS
                 addAIMessage("Perfect! I just sent you a confirmation email as promised. Thank you for your time and have a great day!");
-                
-                // ✅ END CONVERSATION IMMEDIATELY
                 setTimeout(() => {
                     endConversation();
-                }, 3000);
-                
+                }, 2000);
             }, function(error) {
-                console.error('❌ EMAIL FAILED:', error);
-                // ✅ SAME CLEAN ENDING EVEN ON ERROR
+                console.error('❌ CONFIRMATION EMAIL FAILED:', error);
                 addAIMessage("Perfect! I just sent you a confirmation email as promised. Thank you for your time and have a great day!");
                 setTimeout(() => {
                     endConversation();
-                }, 3000);
+                }, 2000);
             });
     } else {
+        console.error('EmailJS not available');
         addAIMessage("Perfect! I just sent you a confirmation email as promised. Thank you for your time and have a great day!");
         setTimeout(() => {
             endConversation();
-        }, 3000);
+        }, 2000);
     }
 }
 
 function endConversation() {
-    conversationState = 'ended';
+    const goodbye = "Thank you for visiting us today. Have a great day!";
+    addAIMessage(goodbye);
+    speakResponse(goodbye);
     
     setTimeout(() => {
         showCloseAppButton();
         stopListening();
         isAudioMode = false;
-    }, 2000);
+    }, 3000);
 }
 
 function showCloseAppButton() {
@@ -1502,6 +1495,7 @@ function showCloseAppButton() {
         };
     }
 }
+
 
 // ===================================================
 // 🔘 QUICK QUESTIONS SYSTEM
