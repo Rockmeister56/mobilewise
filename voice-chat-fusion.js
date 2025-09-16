@@ -1447,6 +1447,8 @@ function sendConfirmationEmail() {
         transcript: `CONFIRMATION: Appointment scheduled for ${leadData.contactTime}\n\nFree Book: "7 Secrets to Selling Your Practice"\nDownload Link: https://bruces-book-link.com/download\n\nThank you for choosing New Clients Inc!`,
         timestamp: new Date().toLocaleString()
     };
+    // ✅ ADD THIS WHEN BANNER APPEARS
+document.getElementById('smartButton').style.display = 'none';
     
     // ✅ USING YOUR ACTUAL TEMPLATE ID
     if (typeof emailjs !== 'undefined') {
