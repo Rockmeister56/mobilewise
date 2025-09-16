@@ -233,22 +233,6 @@
             animation: fadeIn 0.3s ease;
         }
 
-        /* ✅ MAKE BRUCE'S IMAGE 30% BIGGER */
-.book-banner img {
-    width: 85px !important;        /* Was ~65px, now 30% bigger */
-    height: 85px !important;       /* Keep it proportional */
-}
-
-/* ✅ HIDE SMART BUTTON WHEN BOOK BANNER IS ACTIVE */
-.book-banner-active #smartButton {
-    display: none !important;
-}
-
-/* OR if you prefer to hide it by class */
-.smart-button.hide-during-banner {
-    display: none !important;
-}
-
         /* 🎯 SEPARATE CHAT AREA FROM BUTTON AREAS */
 .chat-messages,
 .messages-container,
@@ -342,24 +326,30 @@
             50% { opacity: 0.6; }
         }
 
-        /* ✅ KILL SMART BUTTON WHEN BANNER IS ACTIVE */
-.book-banner-active #smartButton,
-.banner-displayed #smartButton {
-    display: none !important;
-    visibility: hidden !important;
-    height: 0 !important;
-    margin: 0 !important;
-    padding: 0 !important;
+         /* ===================================================
+           💬 BANNERS
+           ================================================== */
+
+        #bruce-book-banner {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 1080px;
+    height: 392px;
+    z-index: 9999;
+    display: none;
 }
 
-/* ✅ THANK YOU BANNER STYLING */
-.thank-you-banner {
-    transition: all 0.3s ease;
-}
-
-.thank-you-banner:hover {
-    transform: scale(1.02);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+#thank-you-banner {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 1080px;
+    height: 392px;
+    z-index: 9999;
+    display: none;
 }
 
         /* ===================================================

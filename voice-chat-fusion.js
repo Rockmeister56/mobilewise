@@ -1322,9 +1322,6 @@ function resetLeadCaptureSystem() {
     }
 }
 
-// ===================================================
-// 📚 BRUCE'S BOOK BANNER SYSTEM
-// ===================================================
 function showBruceBookBanner() {
     // Remove any existing banners
     const existingBanner = document.getElementById('bruceBookBanner');
@@ -1342,90 +1339,16 @@ function showBruceBookBanner() {
     // Create Bruce's book banner
     const bookBanner = document.createElement('div');
     bookBanner.id = 'bruceBookBanner';
-    bookBanner.className = 'book-banner'; // Add class for CSS targeting
-    bookBanner.style.cssText = `
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border: 3px solid rgba(255, 255, 255, 0.3);
-        border-radius: 20px;
-        padding: 20px;
-        margin: 15px 0;
-        text-align: center;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-        animation: bookBannerSlideIn 0.6s ease-out;
-        position: relative;
-        overflow: hidden;
-    `;
     
     bookBanner.innerHTML = `
-        <div style="
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-            flex-wrap: wrap;
-        ">
-            <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1757997800109_book-banner.png" 
-                 style="
-                     width: 120px;
-                     height: auto;
-                     border-radius: 10px;
-                     box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-                 " 
-                 alt="Bruce's Book">
-            <div style="
-                color: white;
-                text-align: left;
-                flex: 1;
-                min-width: 200px;
-            ">
-                <h3 style="
-                    margin: 0 0 10px 0;
-                    font-size: 18px;
-                    font-weight: bold;
-                    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-                ">
-                    📚 FREE Book for ${leadData.name}!
-                </h3>
-                <p style="
-                    margin: 0;
-                    font-size: 14px;
-                    opacity: 0.9;
-                    line-height: 1.4;
-                ">
-                    "7 Secrets to Selling Your Practice"<br>
-                    <em>Exclusive access just for you!</em>
-                </p>
-            </div>
-        </div>
+        <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1757997800109_book-banner.png" 
+             alt="Bruce's Book for ${leadData.name}">
     `;
     
-    // Add animation keyframes
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes bookBannerSlideIn {
-            from { 
-                opacity: 0; 
-                transform: translateY(-30px) scale(0.9); 
-            }
-            to { 
-                opacity: 1; 
-                transform: translateY(0) scale(1); 
-            }
-        }
-    `;
-    document.head.appendChild(style);
+    // Insert banner at top of body
+    document.body.insertBefore(bookBanner, document.body.firstChild);
     
-    // Insert banner at the top of the container
-    const container = document.querySelector('.container');
-    const header = container.querySelector('header');
-    
-    if (header && header.nextSibling) {
-        container.insertBefore(bookBanner, header.nextSibling);
-    } else {
-        container.insertBefore(bookBanner, container.firstChild);
-    }
-    
-    console.log('📚 Bruce\'s book banner displayed with personalization');
+    console.log('📚 Bruce\'s book banner displayed for', leadData.name);
     
     // ✅ FORCE SCROLL AFTER BANNER APPEARS
     setTimeout(() => {
@@ -1449,6 +1372,7 @@ function showBruceBookBanner() {
         forceScrollToBottom();
     }, 2000);
 }
+
 
 function forceScrollToBottom() {
     setTimeout(() => {
@@ -1579,33 +1503,34 @@ function sendConfirmationEmail() {
 }
 
 function replaceBannerWithThankYou() {
-    // ✅ FIND THE BRUCE BANNER AND REPLACE IT
-    const existingBanner = document.querySelector('.book-banner');
+    console.log('🔄 Replacing Bruce banner with Thank You banner');
+    
+    const existingBanner = document.querySelector('#bruceBookBanner') || 
+                          document.querySelector('.book-banner');
+    
     if (existingBanner) {
-        // ✅ CREATE THANK YOU BANNER
-        const thankYouBanner = document.createElement('div');
-        thankYouBanner.className = 'thank-you-banner';
-        thankYouBanner.style.cssText = `
-            width: 100%;
-            height: 120px;
-            background-image: url('https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758008231877_thanks2.png');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            border-radius: 16px;
-            margin: 12px 8px;
-            cursor: pointer;
-            border: none;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        `;
-        
-        // ✅ REPLACE THE BRUCE BANNER
-        existingBanner.parentNode.replaceChild(thankYouBanner, existingBanner);
+        // ✅ REPLACE WITH THANK YOU BANNER AT TOP
+        existingBanner.style.backgroundImage = 'url("https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758008231877_thanks2.png")';
+        existingBanner.style.backgroundSize = 'cover';
+        existingBanner.style.backgroundPosition = 'center';
+        existingBanner.innerHTML = ''; // Clear Bruce content
         
         // ✅ MAKE IT CLICKABLE TO CLOSE
-        thankYouBanner.onclick = () => {
+        existingBanner.onclick = () => {
             window.close();
         };
+        
+        existingBanner.style.cursor = 'pointer';
+        
+        console.log('✅ Banner replaced with Thank You image');
+        
+        // ✅ FORCE SCROLL AFTER REPLACEMENT
+        setTimeout(() => {
+            forceScrollToBottom();
+        }, 300);
+        
+    } else {
+        console.log('❌ No Bruce banner found to replace');
     }
 }
 
