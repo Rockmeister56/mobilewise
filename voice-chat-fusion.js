@@ -161,15 +161,11 @@ function getApologyResponse() {
 }
     
   function startListening() {
-    // ✅ SMARTER: Only block if smart button is ACTUALLY visible AND we're not in lead capture
+    // ✅ NEW: Smart button gate-keeper - BLOCK listening if smart button is active!
     const smartButton = document.getElementById('smartButton');
-    const smartButtonActuallyVisible = smartButton && 
-                                      smartButton.style.display === 'block' && 
-                                      !isInLeadCapture; // ← KEY: Allow during lead capture!
-    
-    if (smartButtonActuallyVisible) {
+    if (smartButton && smartButton.style.display !== 'none') {
         console.log('🚫 Smart button active - BLOCKING startListening()');
-        return;
+        return; // EXIT IMMEDIATELY!
     }
     
     // ✅ REMOVED THE LEAD CAPTURE BLOCKING - Allow speech during lead capture!
@@ -211,53 +207,63 @@ function getApologyResponse() {
                 }, 1500); // Slightly longer delay for lead capture
             }
         };
+
         recognition.onerror = function(event) {
-            console.log('🔊 Speech error:', event.error);
+    console.log('🔊 Speech error:', event.error);
+    
+    if (event.error === 'no-speech') {
+        const transcriptText = document.getElementById('transcriptText');
+        
+        if (isMobileDevice()) {
+            console.log('📱 Mobile: Using visual apology');
             
-            if (event.error === 'no-speech') {
-                const transcriptText = document.getElementById('transcriptText');
+            if (transcriptText) {
+                const originalText = transcriptText.textContent;
+                transcriptText.textContent = 'Please speak again...';
                 
-                if (isMobileDevice()) {
-                    console.log('📱 Mobile: Using visual apology');
-                    
+                setTimeout(() => {
                     if (transcriptText) {
-                        const originalText = transcriptText.textContent;
-                        transcriptText.textContent = 'Please speak again...';
-                        
-                        setTimeout(() => {
-                            if (transcriptText) {
-                                transcriptText.textContent = originalText;
-                            }
-                            if (isAudioMode && !isListening && !isSpeaking) {
-                                startListening();
-                            }
-                        }, 2000);
+                        transcriptText.textContent = 'Speak Now'; // ← Reset to "Speak Now"
                     }
                     
-                } else {
-                    console.log('🖥️ Desktop: Using voice apology');
-                    
-                    lastMessageWasApology = true;
-                    const apologyResponse = getApologyResponse();
-                    
-                    stopListening();
-                    
-                    setTimeout(() => {
-                        addAIMessage(apologyResponse);
-                        speakResponse(apologyResponse);
+                    // ✅ FORCE RESTART - Bypass gate-keeper for mobile reset!
+                    if (isAudioMode && !isSpeaking) {
+                        console.log('🔄 Mobile: Force restarting speech recognition');
+                        isListening = false; // Reset listening state
                         
-                        if (restartTimeout) clearTimeout(restartTimeout);
-                        
-                        restartTimeout = setTimeout(() => {
-                            if (isAudioMode && !isListening && !isSpeaking) {
-                                startListening();
-                            }
-                            lastMessageWasApology = false;
-                        }, 3000);
-                    }, 500);
-                }
+                        // Direct restart without gate-keeper check
+                        setTimeout(() => {
+                            forceStartListening(); // ← New function!
+                        }, 500);
+                    }
+                }, 2000);
             }
-        };
+            
+        } else {
+            console.log('🖥️ Desktop: Using voice apology');
+            
+            lastMessageWasApology = true;
+            const apologyResponse = getApologyResponse();
+            
+            stopListening();
+            
+            setTimeout(() => {
+                addAIMessage(apologyResponse);
+                speakResponse(apologyResponse);
+                
+                if (restartTimeout) clearTimeout(restartTimeout);
+                
+                restartTimeout = setTimeout(() => {
+                    if (isAudioMode && !isListening && !isSpeaking) {
+                        startListening();
+                    }
+                    lastMessageWasApology = false;
+                }, 3000);
+            }, 500);
+        }
+    }
+};
+
 
        recognition.onend = function() {
     console.log('🔚 Recognition ended');
@@ -325,6 +331,37 @@ function stopListening() {
     if (liveTranscript) liveTranscript.style.display = 'none';
 
     isListening = false;
+}
+
+// ===================================================
+// 🔄 FORCE START LISTENING (BYPASSES GATE-KEEPER)
+// ===================================================
+function forceStartListening() {
+    console.log('🔄 FORCE starting speech recognition (mobile reset)');
+    
+    if (!checkSpeechSupport()) return;
+    if (isSpeaking) return;
+    
+    try {
+        if (!recognition) {
+            initializeSpeechRecognition();
+        }
+        
+        console.log('🎤 Force starting speech recognition...');
+        recognition.start();
+        isListening = true;
+        
+        // Show the green "SPEAK NOW" banner
+        const liveTranscript = document.getElementById('liveTranscript');
+        if (liveTranscript) {
+            liveTranscript.style.display = 'flex';
+        }
+        
+        console.log('✅ Force speech recognition started successfully');
+        
+    } catch (error) {
+        console.error('❌ Error force starting speech recognition:', error);
+    }
 }
 
 // ===================================================
