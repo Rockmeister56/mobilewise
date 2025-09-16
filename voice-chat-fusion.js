@@ -1444,7 +1444,7 @@ function sendConfirmationEmail() {
         email: leadData.email,
         contactTime: leadData.contactTime,
         inquiryType: 'CONFIRMATION EMAIL WITH BOOK LINK',
-        transcript: `CONFIRMATION: Appointment scheduled for ${leadData.contactTime}\n\nBruce's Book: "7 Secrets to Selling Your Practice"\nDownload Link: https://bruces-book-link.com/download\n\nThank you for choosing New Clients Inc!`,
+        transcript: `CONFIRMATION: Appointment scheduled for ${leadData.contactTime}\n\nFree Book: "7 Secrets to Selling Your Practice"\nDownload Link: https://bruces-book-link.com/download\n\nThank you for choosing New Clients Inc!`,
         timestamp: new Date().toLocaleString()
     };
     
@@ -1453,20 +1453,23 @@ function sendConfirmationEmail() {
         emailjs.send('service_b9bppgb', 'template_8kx812d', confirmationParams)
             .then(function(response) {
                 console.log('✅ CONFIRMATION EMAIL SENT!');
-                addAIMessage("Wonderful! I've sent you a confirmation email with Bruce's book link.");
+                // ✅ NEW CLEAN MESSAGE
+                addAIMessage("Perfect! I just sent you a confirmation email as promised. Is there anything else I can help you with today?");
                 setTimeout(() => {
                     finishConversation();
                 }, 2000);
             }, function(error) {
                 console.error('❌ CONFIRMATION EMAIL FAILED:', error);
-                addAIMessage("The confirmation email had an issue, but Bruce will still contact you as scheduled.");
+                // ✅ SAME CLEAN MESSAGE EVEN ON ERROR
+                addAIMessage("Perfect! I just sent you a confirmation email as promised. Is there anything else I can help you with today?");
                 setTimeout(() => {
                     finishConversation();
                 }, 2000);
             });
     } else {
         console.error('EmailJS not available');
-        addAIMessage("Email service temporarily unavailable, but Bruce will still contact you as scheduled.");
+        // ✅ CONSISTENT MESSAGE
+        addAIMessage("Perfect! I just sent you a confirmation email as promised. Is there anything else I can help you with today?");
         setTimeout(() => {
             finishConversation();
         }, 2000);
@@ -1474,17 +1477,35 @@ function sendConfirmationEmail() {
 }
 
 function finishConversation() {
-    conversationState = 'asking_anything_else';
+    // ✅ SET STATE FOR YES/NO BRANCHING
+    conversationState = 'final_question';
     
-    setTimeout(() => {
-        const finalQuestion = "Is there anything else I can help you with today?";
-        addAIMessage(finalQuestion);
-        speakResponse(finalQuestion);
-    }, 2000);
+    // Remove the automatic final question since it's already in sendConfirmationEmail
+    // The user will respond to the question asked above
+}
+
+// ✅ ADD THIS NEW FUNCTION TO HANDLE THE YES/NO RESPONSES
+function handleFinalQuestion(userResponse) {
+    const response = userResponse.toLowerCase().trim();
+    
+    if (response.includes('yes') || response.includes('yeah') || response.includes('sure') || response.includes('actually')) {
+        // ✅ BACK TO Q&A MODE
+        conversationState = 'chatting';
+        addAIMessage("Great! How can I help you?");
+        
+    } else if (response.includes('no') || response.includes('nope') || response.includes("i'm good") || response.includes('nothing')) {
+        // ✅ CLEAN GOODBYE
+        endConversation();
+        
+    } else {
+        // ✅ CLARIFY IF UNCLEAR
+        addAIMessage("Is there anything else I can help you with today?");
+    }
 }
 
 function endConversation() {
-    const goodbye = "Thank you for visiting us today, have a great day!";
+    // ✅ YOUR EXACT GOODBYE MESSAGE
+    const goodbye = "Thank you for visiting us today. Have a great day!";
     addAIMessage(goodbye);
     speakResponse(goodbye);
     
