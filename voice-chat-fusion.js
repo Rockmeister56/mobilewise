@@ -730,20 +730,6 @@ function getAIResponse(userInput) {
     } else if (conversationState === 'button_activated_selling' || conversationState === 'button_activated_buying' || conversationState === 'button_activated_valuation') {
         responseText = "Perfect! I see you're ready to connect with Bruce. Just click that button above and we'll get everything set up for you right away!";
         
-    // ✅ NEW FOLLOW-UP CONVERSATION STATES
-    } else if (conversationState === 'asking_followup_email') {
-        if (userText.includes('yes') || userText.includes('sure') || userText.includes('okay') || userText.includes('definitely')) {
-            responseText = "Excellent! I'm sending that confirmation email now.";
-            setTimeout(() => {
-                sendConfirmationEmail();
-            }, 1000);
-        } else {
-            responseText = "No problem at all!";
-            setTimeout(() => {
-                finishConversation();
-            }, 1000);
-        }
-        
     } else if (conversationState === 'asking_anything_else') {
         if (userText.includes('yes') || userText.includes('sure') || userText.includes('help')) {
             responseText = "I'm here to help! What else can I assist you with regarding your practice?";
@@ -1114,8 +1100,6 @@ function confirmAnswer(isCorrect) {
         
         console.log(`✅ Confirmed ${field}: ${leadData.tempAnswer}`);
         
-        addAIMessage("Perfect!");
-        
         leadData.step++;
         
         if (leadData.step < leadData.questions.length) {
@@ -1200,7 +1184,6 @@ function moveToNextQuestion() {
 }
 
 function completeLeadCollection() {
-    addAIMessage(`Excellent ${leadData.name}! I have all your information. Our specialist will contact you at ${leadData.phone} during your preferred ${leadData.contactTime} timeframe.`);
     
     // Update banner to show email sending
     const banner = document.getElementById('leadCaptureBanner');
