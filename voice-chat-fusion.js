@@ -161,11 +161,15 @@ function getApologyResponse() {
 }
     
   function startListening() {
-    // ✅ NEW: Smart button gate-keeper - BLOCK listening if smart button is active!
+    // ✅ SMARTER: Only block if smart button is ACTUALLY visible AND we're not in lead capture
     const smartButton = document.getElementById('smartButton');
-    if (smartButton && smartButton.style.display !== 'none') {
+    const smartButtonActuallyVisible = smartButton && 
+                                      smartButton.style.display === 'block' && 
+                                      !isInLeadCapture; // ← KEY: Allow during lead capture!
+    
+    if (smartButtonActuallyVisible) {
         console.log('🚫 Smart button active - BLOCKING startListening()');
-        return; // EXIT IMMEDIATELY!
+        return;
     }
     
     // ✅ REMOVED THE LEAD CAPTURE BLOCKING - Allow speech during lead capture!
