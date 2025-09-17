@@ -1313,7 +1313,7 @@ function completeLeadCollection() {
 }
 
 // ===================================================
-// 📧 EMAILJS INTEGRATION - COMPLETE SYSTEM
+// 📧 EMAILJS INTEGRATION - STREAMLINED SYSTEM
 // ===================================================
 function sendLeadEmail(data) {
     console.log('📧 Preparing to send email with lead data...');
@@ -1344,23 +1344,31 @@ function sendLeadEmail(data) {
         emailjs.send('service_b9bppgb', 'template_yf09xm5', templateParams)
             .then(function(response) {
                 console.log('✅ EMAIL SENT SUCCESSFULLY!', response.status, response.text);
-    
-               // ADD THIS LINE:
-                  showEmailConfirmationBanner();
                 
-                // ✅ NEW: Call our enhanced success handler
-                handleEmailSuccess();
+                // ✅ CONTINUE THE CONVERSATION FLOW
+                setTimeout(() => {
+                    // Remove the "LEAD CAPTURED" banner
+                    const leadBanner = document.getElementById('leadCaptureBanner');
+                    if (leadBanner) leadBanner.remove();
+                    
+                    // Ask for email permission
+                    const askEmailMessage = `Excellent ${data.name}! I have all your information. Our specialist will contact you at your preferred ${data.contactTime} timeframe. May I send you Bruce's book "7 Secrets to Selling Your Practice" and a confirmation email now?`;
+                    
+                    addAIMessage(askEmailMessage);
+                    speakResponse(askEmailMessage);
+                    
+                    // Set conversation state to handle the response
+                    conversationState = 'asking_for_email_permission';
+                    
+                    setTimeout(() => {
+                        startListening();
+                    }, 3000);
+                }, 1000);
                 
             }, function(error) {
                 console.error('❌ EMAIL FAILED:', error);
                 
                 // Error feedback
-                const banner = document.getElementById('leadCaptureBanner');
-                if (banner) {
-                    banner.innerHTML = '❌ EMAIL SENDING FAILED - PLEASE TRY AGAIN';
-                    banner.style.background = 'linear-gradient(135deg, #f44336, #d32f2f)';
-                }
-                
                 addAIMessage("I'm sorry, there was an issue sending your request. Please try again or contact us directly.");
                 
                 setTimeout(() => {
@@ -1370,9 +1378,6 @@ function sendLeadEmail(data) {
     } else {
         console.error('EmailJS not available');
         addAIMessage("Email service temporarily unavailable. Please contact us directly.");
-        setTimeout(() => {
-            resetLeadCaptureSystem();
-        }, 3000);
     }
 }
 
