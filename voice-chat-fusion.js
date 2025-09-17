@@ -535,17 +535,18 @@ function processUserResponse(userText) {
             return; // ✅ STOPS THE LOOP!
         }
         
-        if (response.includes('yes') || response.includes('yeah') || response.includes('sure')) {
-            conversationState = 'initial';
-            addAIMessage("Great! How can I help you?");
-            speakResponse("Great! How can I help you?");
-            setTimeout(() => {
-                startListening();
-                // ✅ CLEAR DUPLICATE PREVENTION
-                window.lastProcessedMessage = null;
-            }, 1000);
-            return;
-        }
+        if (response.includes('yes') || response.includes('sure') || response.includes('okay') || response.includes('send')) {
+    // Send confirmation email
+    sendConfirmationEmailToUser();
+    
+    // Replace combined banner with confirmation banner
+    setTimeout(() => {
+        showEmailConfirmationBanner();
+    }, 1000);
+    
+    conversationState = 'final_question';
+    return;
+}
         
         // If unclear, ask again
         addAIMessage("Is there anything else I can help you with today?");
@@ -1406,28 +1407,22 @@ function resetLeadCaptureSystem() {
     }
 }
 
-function showBruceBookBanner() {
-    console.log('📚 Showing Bruce Book Banner - SLEEK VERSION');
+function showCombinedSuccessBanner() {
+    console.log('📧 Showing Combined Success + Book Banner');
     
-    // Remove ALL existing banners (UPDATED CLEANUP)
+    // Remove ALL existing banners
     const existingBruce = document.getElementById('bruceBookBanner');
     const existingLead = document.getElementById('leadCaptureBanner');
     const existingConfirm = document.getElementById('emailConfirmationBanner');
     
     if (existingBruce) existingBruce.remove();
-    if (existingLead) existingLead.remove(); // Remove "LEAD CAPTURED" banner
-    if (existingConfirm) existingConfirm.remove(); // Remove "You're all Set!" banner
+    if (existingLead) existingLead.remove();
+    if (existingConfirm) existingConfirm.remove();
     
-    // Hide smart button
-    const smartButton = document.getElementById('smartButton');
-    if (smartButton) {
-        smartButton.style.display = 'none !important';
-    }
-    
-    // Create SMALLER, transparent banner
-    const bookBanner = document.createElement('div');
-    bookBanner.id = 'bruceBookBanner';
-    bookBanner.style.cssText = `
+    // Create COMBINED banner
+    const combinedBanner = document.createElement('div');
+    combinedBanner.id = 'combinedSuccessBanner';
+    combinedBanner.style.cssText = `
         background: rgba(255, 255, 255, 0.15);
         backdrop-filter: blur(10px);
         border: 1px solid rgba(255, 255, 255, 0.2);
@@ -1442,7 +1437,12 @@ function showBruceBookBanner() {
         margin-right: auto;
     `;
     
-    bookBanner.innerHTML = `
+    combinedBanner.innerHTML = `
+        <div style="text-align: center; margin-bottom: 8px;">
+            <div style="color: #4CAF50; font-size: 12px; font-weight: bold;">
+                ✅ You're All Set! Your request has been sent.
+            </div>
+        </div>
         <div style="display: flex; align-items: center; gap: 12px;">
             <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758088515492_nci-book.png" 
                  style="width: 60px; height: auto; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);" 
@@ -1459,31 +1459,12 @@ function showBruceBookBanner() {
     const header = container.querySelector('header');
     
     if (header && header.nextSibling) {
-        container.insertBefore(bookBanner, header.nextSibling);
+        container.insertBefore(combinedBanner, header.nextSibling);
     } else {
-        container.insertBefore(bookBanner, container.firstChild);
+        container.insertBefore(combinedBanner, container.firstChild);
     }
     
-    console.log('📚 Sleek banner displayed successfully');
-}
-
-function sendConfirmationEmailToUser() {
-    const templateParams = {
-        to_email: leadData.email,
-        to_name: leadData.name,
-        book_title: "7 Secrets to Selling Your Practice",
-        book_link: "YOUR_BOOK_DOWNLOAD_LINK_HERE",
-        from_name: "Bruce Clark"
-    };
-    
-    emailjs.send('YOUR_SERVICE_ID', 'YOUR_CONFIRMATION_TEMPLATE_ID', templateParams)
-        .then(function(response) {
-            console.log('✅ Confirmation email sent successfully!', response);
-            showEmailConfirmationBanner(); // Show "Confirmation Email Sent!"
-        })
-        .catch(function(error) {
-            console.log('❌ Confirmation email failed:', error);
-        });
+    console.log('📧 Combined banner displayed successfully');
 }
 
 function showThankYouBanner() {
@@ -1595,12 +1576,12 @@ function showEmailConfirmationBanner() {
     } else {
         container.insertBefore(confirmationBanner, container.firstChild);
     }
-    
-    // Auto-remove after 4 seconds and show Bruce banner
+
     setTimeout(() => {
-        confirmationBanner.remove();
-        showBruceBookBanner();
-    }, 4000);
+    confirmationBanner.remove();
+    // Don't call any other banner - just remove this one
+    // The conversation continues to final question
+}, 4000);
 }
 
 function forceScrollToBottom() {
@@ -1656,7 +1637,7 @@ function startFollowUpSequence() {
     speakResponse(combinedMessage);
     
     // ✅ NEW: Show Bruce's Book Banner instead of smart button
-    showBruceBookBanner();
+   showCombinedSuccessBanner();
     
     // Remove the lead capture banner
     const banner = document.getElementById('leadCaptureBanner');
