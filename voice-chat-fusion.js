@@ -1356,88 +1356,126 @@ function resetLeadCaptureSystem() {
 }
 
 function showBruceBookBanner() {
-    console.log('🔍 DEBUG: showBruceBookBanner() called');
-    
-    // Check if container exists
-    const container = document.querySelector('.container');
-    console.log('🔍 DEBUG: Container found:', container ? 'YES' : 'NO');
-    if (container) {
-        console.log('🔍 DEBUG: Container innerHTML length:', container.innerHTML.length);
-    }
+    console.log('📚 Showing Bruce Book Banner - CONTAINER VERSION');
     
     // Remove existing banners
     const existingBanner = document.getElementById('bruceBookBanner');
-    console.log('🔍 DEBUG: Existing banner found:', existingBanner ? 'YES' : 'NO');
     if (existingBanner) {
         existingBanner.remove();
-        console.log('🔍 DEBUG: Existing banner removed');
     }
     
     // Hide smart button
     const smartButton = document.getElementById('smartButton');
-    console.log('🔍 DEBUG: Smart button found:', smartButton ? 'YES' : 'NO');
     if (smartButton) {
         smartButton.style.display = 'none !important';
-        smartButton.style.visibility = 'hidden !important';
-        console.log('🔍 DEBUG: Smart button hidden');
     }
     
-    // Create banner
+    // Create banner with ORIGINAL working approach
     const bookBanner = document.createElement('div');
     bookBanner.id = 'bruceBookBanner';
-    console.log('🔍 DEBUG: Banner element created:', bookBanner.id);
-    
-    // Set styles
     bookBanner.style.cssText = `
-        width: 100%;
-        max-width: 1080px;
-        height: auto;
-        aspect-ratio: 1080/392;
-        margin: 10px auto;
-        display: block;
-        background: red;
-        border: 5px solid blue;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-radius: 20px;
+        padding: 20px;
+        margin: 15px 0;
+        text-align: center;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        position: relative;
+        overflow: hidden;
     `;
-    console.log('🔍 DEBUG: Styles applied');
     
-    // Set content
     bookBanner.innerHTML = `
-        <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1757997800109_book-banner.png" 
-             alt="Bruce's Book for ${leadData.name}"
-             style="width: 100%; height: 100%; object-fit: contain; border-radius: 8px;"
-             onload="console.log('🔍 DEBUG: Image loaded successfully')"
-             onerror="console.log('🔍 DEBUG: Image failed to load')">
+        <div style="display: flex; align-items: center; justify-content: center; gap: 15px; flex-wrap: wrap;">
+            <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758088515492_nci-book.png" 
+                 style="width: 120px; height: auto; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);" 
+                 alt="Bruce's Book">
+            <div style="color: white; text-align: left; flex: 1; min-width: 200px;">
+                <h3 style="margin: 0 0 10px 0; font-size: 18px; font-weight: bold;">📚 FREE Book for ${leadData.name}!</h3>
+                <p style="margin: 0; font-size: 14px; opacity: 0.9; line-height: 1.4;">"7 Secrets to Selling Your Practice"<br><em>Exclusive access just for you!</em></p>
+            </div>
+        </div>
     `;
-    console.log('🔍 DEBUG: Content set');
     
-    // Insert into DOM
-    if (container) {
-        const header = container.querySelector('header');
-        console.log('🔍 DEBUG: Header found:', header ? 'YES' : 'NO');
-        
-        if (header && header.nextSibling) {
-            container.insertBefore(bookBanner, header.nextSibling);
-            console.log('🔍 DEBUG: Banner inserted after header');
-        } else {
-            container.insertBefore(bookBanner, container.firstChild);
-            console.log('🔍 DEBUG: Banner inserted at container start');
-        }
-        
-        // Verify insertion
-        const insertedBanner = document.getElementById('bruceBookBanner');
-        console.log('🔍 DEBUG: Banner in DOM:', insertedBanner ? 'YES' : 'NO');
-        if (insertedBanner) {
-            console.log('🔍 DEBUG: Banner computed style display:', getComputedStyle(insertedBanner).display);
-            console.log('🔍 DEBUG: Banner computed style visibility:', getComputedStyle(insertedBanner).visibility);
-            console.log('🔍 DEBUG: Banner offsetHeight:', insertedBanner.offsetHeight);
-            console.log('🔍 DEBUG: Banner offsetWidth:', insertedBanner.offsetWidth);
-        }
+    // Insert into container (original working way)
+    const container = document.querySelector('.container');
+    const header = container.querySelector('header');
+    
+    if (header && header.nextSibling) {
+        container.insertBefore(bookBanner, header.nextSibling);
     } else {
-        console.log('🔍 DEBUG: NO CONTAINER - Inserting into body');
-        document.body.insertBefore(bookBanner, document.body.firstChild);
+        container.insertBefore(bookBanner, container.firstChild);
     }
     
-    console.log('🔍 DEBUG: showBruceBookBanner() completed');
+    console.log('📚 Container banner displayed successfully');
+}
+
+function showThankYouBanner() {
+    console.log('🙏 Showing Thank You Banner');
+    
+    // Remove any existing banners
+    const existingBruce = document.getElementById('bruceBookBanner');
+    const existingThankYou = document.getElementById('thankYouBanner');
+    if (existingBruce) existingBruce.remove();
+    if (existingThankYou) existingThankYou.remove();
+    
+    // Hide smart button
+    const smartButton = document.getElementById('smartButton');
+    if (smartButton) {
+        smartButton.style.display = 'none !important';
+    }
+    
+    // Create fancy thank you banner
+    const thankYouBanner = document.createElement('div');
+    thankYouBanner.id = 'thankYouBanner';
+    thankYouBanner.style.cssText = `
+        background: linear-gradient(135deg, #4CAF50 0%, #45a049 50%, #2E7D32 100%);
+        border: 3px solid rgba(255, 255, 255, 0.4);
+        border-radius: 25px;
+        padding: 30px;
+        margin: 15px 0;
+        text-align: center;
+        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4);
+        position: relative;
+        overflow: hidden;
+        animation: thankYouGlow 2s ease-in-out infinite alternate;
+    `;
+    
+    thankYouBanner.innerHTML = `
+        <div style="position: relative; z-index: 2;">
+            <div style="font-size: 48px; margin-bottom: 15px;">🙏</div>
+            <h2 style="color: white; margin: 0 0 15px 0; font-size: 28px; font-weight: bold; text-shadow: 0 3px 6px rgba(0,0,0,0.4);">
+                Thank You for Visiting!
+            </h2>
+            <p style="color: rgba(255,255,255,0.95); margin: 0; font-size: 18px; line-height: 1.6;">
+                We appreciate your time and interest.<br>
+                <em style="font-size: 16px; opacity: 0.9;">Have a wonderful day!</em>
+            </p>
+        </div>
+        <div style="position: absolute; top: -50%; right: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%); pointer-events: none;"></div>
+    `;
+    
+    // Add glow animation
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes thankYouGlow {
+            from { box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4), 0 0 20px rgba(76, 175, 80, 0.3); }
+            to { box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4), 0 0 30px rgba(76, 175, 80, 0.6); }
+        }
+    `;
+    document.head.appendChild(style);
+    
+    // Insert into container
+    const container = document.querySelector('.container');
+    const header = container.querySelector('header');
+    
+    if (header && header.nextSibling) {
+        container.insertBefore(thankYouBanner, header.nextSibling);
+    } else {
+        container.insertBefore(thankYouBanner, container.firstChild);
+    }
+    
+    console.log('🙏 Thank You Banner displayed successfully');
 }
 
 function forceScrollToBottom() {
@@ -1566,55 +1604,6 @@ function sendConfirmationEmail() {
             smartButton.style.display = 'none !important';
         }
     }
-}
-
-function showThankYouBanner() {
-    console.log('Showing Thank You Banner');
-    
-    // Remove ANY existing banners
-    const existingBruce = document.getElementById('bruceBookBanner');
-    const existingThankYou = document.getElementById('thankYouBanner');
-    if (existingBruce) existingBruce.remove();
-    if (existingThankYou) existingThankYou.remove();
-    
-    // ✅ FORCE HIDE SMART BUTTON
-    const smartButton = document.getElementById('smartButton');
-    if (smartButton) {
-        smartButton.style.display = 'none !important';
-        smartButton.style.visibility = 'hidden !important';
-    }
-    
-    // Create thank you banner
-    const thankYouBanner = document.createElement('div');
-    thankYouBanner.id = 'thankYouBanner';
-    
-    // ✅ SAME INLINE STYLES THAT WORK
-    thankYouBanner.style.cssText = `
-        width: 100%;
-        max-width: 1080px;
-        height: auto;
-        aspect-ratio: 1080/392;
-        margin: 10px auto;
-        display: block;
-    `;
-    
-    thankYouBanner.innerHTML = `
-        <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758008231877_thanks2.png" 
-             alt="Thank You Banner"
-             style="width: 100%; height: 100%; object-fit: contain; border-radius: 8px;">
-    `;
-    
-    // ✅ SAME CONTAINER INSERTION THAT WORKS
-    const container = document.querySelector('.container');
-    const header = container.querySelector('header');
-    
-    if (header && header.nextSibling) {
-        container.insertBefore(thankYouBanner, header.nextSibling);
-    } else {
-        container.insertBefore(thankYouBanner, container.firstChild);
-    }
-    
-    console.log('Thank You Banner displayed at top');
 }
 
 // ===================================================
