@@ -265,22 +265,28 @@ function getApologyResponse() {
 };
 
 
-       recognition.onend = function() {
+      recognition.onend = function() {
     console.log('🔚 Recognition ended');
     
     const userInput = document.getElementById('userInput');
     
     if (userInput && userInput.value.trim().length > 0) {
-        // ✅ PREVENT DUPLICATES - Check if we already sent this message
         const currentMessage = userInput.value.trim();
         
-        if (!window.lastProcessedMessage || window.lastProcessedMessage !== currentMessage) {
+        // ✅ IMPROVED DUPLICATE PREVENTION - Allow same message after 3 seconds
+        const now = Date.now();
+        const timeSinceLastMessage = now - (window.lastMessageTime || 0);
+        
+        if (!window.lastProcessedMessage || 
+            window.lastProcessedMessage !== currentMessage || 
+            timeSinceLastMessage > 3000) { // 3 second cooldown
+            
             console.log('✅ Sending new message:', currentMessage);
             window.lastProcessedMessage = currentMessage;
+            window.lastMessageTime = now;
             sendMessage();
         } else {
-            console.log('🚫 Prevented duplicate message:', currentMessage);
-            // Clear the input since we already processed this
+            console.log('🚫 Prevented duplicate message (within 3 seconds):', currentMessage);
             userInput.value = '';
         }
     } else {
@@ -522,6 +528,8 @@ function processUserResponse(userText) {
                 replaceBannerWithThankYou();
                 conversationState = 'ended';
                 stopListening();
+                // ✅ CLEAR DUPLICATE PREVENTION
+                window.lastProcessedMessage = null;
             }, 2000);
             
             return; // ✅ STOPS THE LOOP!
@@ -533,6 +541,8 @@ function processUserResponse(userText) {
             speakResponse("Great! How can I help you?");
             setTimeout(() => {
                 startListening();
+                // ✅ CLEAR DUPLICATE PREVENTION
+                window.lastProcessedMessage = null;
             }, 1000);
             return;
         }
@@ -542,12 +552,18 @@ function processUserResponse(userText) {
         speakResponse("Is there anything else I can help you with today?");
         setTimeout(() => {
             startListening();
+            // ✅ CLEAR DUPLICATE PREVENTION
+            window.lastProcessedMessage = null;
         }, 1000);
         return;
     }
     
     // 🆕 CHECK IF LEAD CAPTURE SHOULD HANDLE THIS FIRST
     if (processLeadResponse(userText)) {
+        // ✅ CLEAR DUPLICATE PREVENTION AFTER LEAD RESPONSE
+        setTimeout(() => {
+            window.lastProcessedMessage = null;
+        }, 2000);
         return;
     }
     
@@ -562,8 +578,14 @@ function processUserResponse(userText) {
         speakResponse(responseText);
         
         updateSmartButton(shouldShowSmartButton, smartButtonText, smartButtonAction);
+        
+        // ✅ CLEAR DUPLICATE PREVENTION AFTER AI RESPONDS
+        setTimeout(() => {
+            window.lastProcessedMessage = null;
+        }, 3000);
     }, 800);
 }
+
 
 
 // ===================================================
