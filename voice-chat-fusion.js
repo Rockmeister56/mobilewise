@@ -1301,6 +1301,9 @@ function sendLeadEmail(data) {
         emailjs.send('service_b9bppgb', 'template_yf09xm5', templateParams)
             .then(function(response) {
                 console.log('✅ EMAIL SENT SUCCESSFULLY!', response.status, response.text);
+    
+               // ADD THIS LINE:
+                  showEmailConfirmationBanner();
                 
                 // ✅ NEW: Call our enhanced success handler
                 handleEmailSuccess();
@@ -1356,7 +1359,7 @@ function resetLeadCaptureSystem() {
 }
 
 function showBruceBookBanner() {
-    console.log('📚 Showing Bruce Book Banner - CONTAINER VERSION');
+    console.log('📚 Showing Bruce Book Banner - SLEEK VERSION');
     
     // Remove existing banners
     const existingBanner = document.getElementById('bruceBookBanner');
@@ -1370,34 +1373,37 @@ function showBruceBookBanner() {
         smartButton.style.display = 'none !important';
     }
     
-    // Create banner with ORIGINAL working approach
+    // Create SMALLER, transparent banner
     const bookBanner = document.createElement('div');
     bookBanner.id = 'bruceBookBanner';
     bookBanner.style.cssText = `
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border: 3px solid rgba(255, 255, 255, 0.3);
-        border-radius: 20px;
-        padding: 20px;
-        margin: 15px 0;
-        text-align: center;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 12px 16px;
+        margin: 8px 0;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         position: relative;
         overflow: hidden;
+        max-width: 400px;
+        margin-left: auto;
+        margin-right: auto;
     `;
     
     bookBanner.innerHTML = `
-        <div style="display: flex; align-items: center; justify-content: center; gap: 15px; flex-wrap: wrap;">
+        <div style="display: flex; align-items: center; gap: 12px;">
             <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758088515492_nci-book.png" 
-                 style="width: 120px; height: auto; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);" 
+                 style="width: 60px; height: auto; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);" 
                  alt="Bruce's Book">
-            <div style="color: white; text-align: left; flex: 1; min-width: 200px;">
-                <h3 style="margin: 0 0 10px 0; font-size: 18px; font-weight: bold;">📚 FREE Book for ${leadData.name}!</h3>
-                <p style="margin: 0; font-size: 14px; opacity: 0.9; line-height: 1.4;">"7 Secrets to Selling Your Practice"<br><em>Exclusive access just for you!</em></p>
+            <div style="color: white; text-align: left; flex: 1;">
+                <div style="font-size: 14px; font-weight: bold; margin-bottom: 4px;">📚 FREE Book for ${leadData.name}!</div>
+                <div style="font-size: 11px; opacity: 0.9; line-height: 1.3;">"7 Secrets to Selling Your Practice"</div>
             </div>
         </div>
     `;
     
-    // Insert into container (original working way)
+    // Insert into container
     const container = document.querySelector('.container');
     const header = container.querySelector('header');
     
@@ -1407,7 +1413,7 @@ function showBruceBookBanner() {
         container.insertBefore(bookBanner, container.firstChild);
     }
     
-    console.log('📚 Container banner displayed successfully');
+    console.log('📚 Sleek banner displayed successfully');
 }
 
 function showThankYouBanner() {
@@ -1476,6 +1482,46 @@ function showThankYouBanner() {
     }
     
     console.log('🙏 Thank You Banner displayed successfully');
+}
+
+function showEmailConfirmationBanner() {
+    // Remove existing banners
+    const existingBanner = document.getElementById('bruceBookBanner');
+    if (existingBanner) {
+        existingBanner.remove();
+    }
+    
+    const confirmationBanner = document.createElement('div');
+    confirmationBanner.id = 'emailConfirmationBanner';
+    confirmationBanner.style.cssText = `
+        background: rgba(76, 175, 80, 0.2);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(76, 175, 80, 0.3);
+        border-radius: 12px;
+        padding: 12px 16px;
+        margin: 8px 0;
+        text-align: center;
+        max-width: 400px;
+        margin-left: auto;
+        margin-right: auto;
+    `;
+    
+    confirmationBanner.innerHTML = `
+        <div style="color: white; font-size: 14px;">
+            ✅ <strong>Confirmation Sent!</strong><br>
+            <span style="font-size: 12px; opacity: 0.9;">Check your email for details</span>
+        </div>
+    `;
+    
+    // Insert into container
+    const container = document.querySelector('.container');
+    const header = container.querySelector('header');
+    
+    if (header && header.nextSibling) {
+        container.insertBefore(confirmationBanner, header.nextSibling);
+    } else {
+        container.insertBefore(confirmationBanner, container.firstChild);
+    }
 }
 
 function forceScrollToBottom() {
