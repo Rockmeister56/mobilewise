@@ -537,7 +537,7 @@ function processUserResponse(userText) {
         
         if (response.includes('yes') || response.includes('sure') || response.includes('okay') || response.includes('send')) {
     // Send confirmation email
-    sendConfirmationEmailToUser();
+    sendConfirmationEmail();
     
     // Replace combined banner with confirmation banner
     setTimeout(() => {
@@ -565,8 +565,8 @@ function processUserResponse(userText) {
         
         if (response.includes('yes') || response.includes('sure') || response.includes('okay') || response.includes('send')) {
             // Send confirmation email
-            sendConfirmationEmailToUser();
-            // showEmailConfirmationBanner() gets called inside sendConfirmationEmailToUser()
+            sendConfirmationEmail();
+            // showEmailConfirmationBanner() gets called inside sendConfirmationEmail()
             
             conversationState = 'final_question';
             // ✅ CLEAR DUPLICATE PREVENTION
@@ -1313,6 +1313,33 @@ function completeLeadCollection() {
     }, 2000);
 }
 
+function sendConfirmationEmail() {
+    console.log('📧 Sending confirmation email to user...');
+    
+    const templateParams = {
+        to_email: leadData.email,
+        to_name: leadData.name,
+        book_title: "7 Secrets to Selling Your Practice",
+        book_link: "https://your-book-download-link.com", // Add your actual book link
+        from_name: "Bruce Clark"
+    };
+    
+    if (typeof emailjs !== 'undefined') {
+        emailjs.send('service_b9bppgb', 'YOUR_CONFIRMATION_TEMPLATE_ID', templateParams)
+            .then(function(response) {
+                console.log('✅ Confirmation email sent successfully!', response);
+                showEmailConfirmationBanner();
+            })
+            .catch(function(error) {
+                console.log('❌ Confirmation email failed:', error);
+                addAIMessage("Sorry, there was an issue sending the confirmation email.");
+            });
+    } else {
+        console.error('EmailJS not available');
+        addAIMessage("Email service temporarily unavailable.");
+    }
+}
+
 // ===================================================
 // 📧 EMAILJS INTEGRATION - STREAMLINED SYSTEM
 // ===================================================
@@ -1327,33 +1354,45 @@ function sendLeadEmail(data) {
         transcript += `${type}: ${msg.textContent}\n`;
     });
     
-    // Email template parameters
+    // Email template parameters with enhanced data validation
     const templateParams = {
-        name: data.name,
-        phone: data.phone,
-        email: data.email,
-        contactTime: data.contactTime,
-        inquiryType: data.inquiryType.toUpperCase(),
+        name: data.name || 'No name provided',
+        phone: data.phone || 'No phone provided',
+        email: data.email || 'No email provided',
+        contactTime: data.contactTime || 'No preference specified',
+        inquiryType: (data.inquiryType || 'general').toUpperCase(),
         transcript: transcript,
-        timestamp: new Date().toLocaleString()
+        timestamp: new Date().toLocaleString(),
+        // 🆕 ADDED: Additional context for the specialist
+        source: 'Mobile-Wise AI Formviser',
+        urgency: data.inquiryType === 'buying' ? 'HIGH - Buyer Ready' : 'NORMAL'
     };
     
     console.log('📧 Sending email with parameters:', templateParams);
     
-    // Send email with your actual credentials
+    // Send email with enhanced error handling
     if (typeof emailjs !== 'undefined') {
         emailjs.send('service_b9bppgb', 'template_yf09xm5', templateParams)
             .then(function(response) {
                 console.log('✅ EMAIL SENT SUCCESSFULLY!', response.status, response.text);
                 
-                // ✅ CONTINUE THE CONVERSATION FLOW
+                // ✅ ENHANCED CONVERSATION FLOW
                 setTimeout(() => {
                     // Remove the "LEAD CAPTURED" banner
                     const leadBanner = document.getElementById('leadCaptureBanner');
                     if (leadBanner) leadBanner.remove();
                     
-                    // Ask for email permission
-                    const askEmailMessage = `Excellent ${data.name}! I have all your information. Our specialist will contact you at your preferred ${data.contactTime} timeframe. May I send you Bruce's book "7 Secrets to Selling Your Practice" and a confirmation email now?`;
+                    // 🆕 IMPROVED: More personalized messaging based on inquiry type
+                    let askEmailMessage = `Excellent ${data.name}! I have all your information. Our specialist will contact you at your preferred ${data.contactTime} timeframe.`;
+                    
+                    // Add inquiry-specific messaging
+                    if (data.inquiryType === 'buying') {
+                        askEmailMessage += ` Bruce will share some exclusive opportunities that match your criteria.`;
+                    } else if (data.inquiryType === 'valuation') {
+                        askEmailMessage += ` You'll receive a comprehensive practice valuation analysis.`;
+                    }
+                    
+                    askEmailMessage += ` May I send you Bruce's book "7 Secrets to Selling Your Practice" and a confirmation email now?`;
                     
                     addAIMessage(askEmailMessage);
                     speakResponse(askEmailMessage);
@@ -1361,28 +1400,46 @@ function sendLeadEmail(data) {
                     // Set conversation state to handle the response
                     conversationState = 'asking_for_email_permission';
                     
+                    // 🆕 IMPROVED: Better timing for user response
                     setTimeout(() => {
-                        startListening();
-                    }, 3000);
+                        if (!isSpeaking && isAudioMode) {
+                            startListening();
+                        }
+                    }, 4000); // Slightly longer to account for longer message
                 }, 1000);
                 
             }, function(error) {
                 console.error('❌ EMAIL FAILED:', error);
                 
-                // Error feedback
-                addAIMessage("I'm sorry, there was an issue sending your request. Please try again or contact us directly.");
+                // 🆕 ENHANCED: Better error recovery
+                const errorMessage = `I'm sorry ${data.name}, there was an issue sending your request. Let me try a different approach - what's the best way to reach you directly?`;
+                addAIMessage(errorMessage);
+                speakResponse(errorMessage);
+                
+                // 🆕 ADDED: Graceful fallback instead of hard reset
+                conversationState = 'email_fallback';
                 
                 setTimeout(() => {
-                    resetLeadCaptureSystem();
-                }, 5000);
+                    if (!isSpeaking && isAudioMode) {
+                        startListening();
+                    }
+                }, 3000);
             });
     } else {
-        console.error('EmailJS not available');
-        addAIMessage("Email service temporarily unavailable. Please contact us directly.");
+        console.error('❌ EmailJS not available');
+        // 🆕 ENHANCED: Better fallback messaging
+        addAIMessage(`${data.name}, our email system is temporarily down. Please call us directly at [YOUR_PHONE] or visit our website. I have your information saved.`);
+        
+        // Still transition to email permission question as backup
+        setTimeout(() => {
+            conversationState = 'asking_for_email_permission';
+        }, 2000);
     }
 }
 
 function resetLeadCaptureSystem() {
+    console.log('🔄 Resetting lead capture system...');
+    
     // Remove banner
     const banner = document.getElementById('leadCaptureBanner');
     if (banner) {
@@ -1393,18 +1450,26 @@ function resetLeadCaptureSystem() {
     isInLeadCapture = false;
     leadData = null;
     
-    // ✅ THIS IS CRITICAL - SET THE STATE!
+    // 🆕 ENHANCED: Clear any confirmation buttons that might be hanging around
+    const confirmButtons = document.querySelector('.confirmation-buttons');
+    if (confirmButtons) {
+        confirmButtons.remove();
+    }
+    
+    // ✅ SET THE STATE FOR FINAL QUESTION
     conversationState = 'final_question';
     
     // ✅ ASK THE FINAL QUESTION
-    addAIMessage("Is there anything else I can help you with today?");
+    const finalMessage = "Is there anything else I can help you with today?";
+    addAIMessage(finalMessage);
+    speakResponse(finalMessage);
     
-    // Restart normal speech recognition if in audio mode
-    if (isAudioMode && recognition && !isListening) {
-        setTimeout(() => {
+    // 🆕 IMPROVED: Better speech restart logic
+    setTimeout(() => {
+        if (isAudioMode && recognition && !isListening && !isSpeaking) {
             startListening();
-        }, 1000);
-    }
+        }
+    }, 2000);
 }
 
 function showCombinedSuccessBanner() {
