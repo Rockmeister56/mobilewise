@@ -1313,6 +1313,22 @@ function completeLeadCollection() {
     }, 2000);
 }
 
+function replaceBannerWithThankYou() {
+    console.log('🎯 Replacing banner with thank you message');
+    
+    // Remove existing banners
+    const existingBanner = document.getElementById('leadCaptureBanner') || 
+                          document.querySelector('.success-banner') ||
+                          document.querySelector('.email-confirmation-banner');
+    
+    if (existingBanner) {
+        existingBanner.remove();
+    }
+    
+    // Show thank you banner
+    showThankYouBanner();
+}
+
 function sendConfirmationEmail() {
     console.log('📧 Sending confirmation email to user...');
     
