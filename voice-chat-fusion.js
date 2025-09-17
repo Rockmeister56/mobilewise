@@ -1334,54 +1334,88 @@ function resetLeadCaptureSystem() {
 }
 
 function showBruceBookBanner() {
-    // Remove any existing banners
-    const existingBanner = document.getElementById('bruceBookBanner');
-    if (existingBanner) {
-        existingBanner.remove();
+    console.log('🔍 DEBUG: showBruceBookBanner() called');
+    
+    // Check if container exists
+    const container = document.querySelector('.container');
+    console.log('🔍 DEBUG: Container found:', container ? 'YES' : 'NO');
+    if (container) {
+        console.log('🔍 DEBUG: Container innerHTML length:', container.innerHTML.length);
     }
     
-    // ✅ FORCE HIDE SMART BUTTON WHEN BANNER APPEARS
+    // Remove existing banners
+    const existingBanner = document.getElementById('bruceBookBanner');
+    console.log('🔍 DEBUG: Existing banner found:', existingBanner ? 'YES' : 'NO');
+    if (existingBanner) {
+        existingBanner.remove();
+        console.log('🔍 DEBUG: Existing banner removed');
+    }
+    
+    // Hide smart button
     const smartButton = document.getElementById('smartButton');
+    console.log('🔍 DEBUG: Smart button found:', smartButton ? 'YES' : 'NO');
     if (smartButton) {
         smartButton.style.display = 'none !important';
         smartButton.style.visibility = 'hidden !important';
+        console.log('🔍 DEBUG: Smart button hidden');
     }
     
-    // Create Bruce's book banner
+    // Create banner
     const bookBanner = document.createElement('div');
     bookBanner.id = 'bruceBookBanner';
+    console.log('🔍 DEBUG: Banner element created:', bookBanner.id);
     
+    // Set styles
+    bookBanner.style.cssText = `
+        width: 100%;
+        max-width: 1080px;
+        height: auto;
+        aspect-ratio: 1080/392;
+        margin: 10px auto;
+        display: block;
+        background: red;
+        border: 5px solid blue;
+    `;
+    console.log('🔍 DEBUG: Styles applied');
+    
+    // Set content
     bookBanner.innerHTML = `
         <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1757997800109_book-banner.png" 
-             alt="Bruce's Book for ${leadData.name}">
+             alt="Bruce's Book for ${leadData.name}"
+             style="width: 100%; height: 100%; object-fit: contain; border-radius: 8px;"
+             onload="console.log('🔍 DEBUG: Image loaded successfully')"
+             onerror="console.log('🔍 DEBUG: Image failed to load')">
     `;
+    console.log('🔍 DEBUG: Content set');
     
-    // Insert banner at top of body
-    document.body.insertBefore(bookBanner, document.body.firstChild);
-    
-    console.log('📚 Bruce\'s book banner displayed for', leadData.name);
-    
-    // ✅ FORCE SCROLL AFTER BANNER APPEARS
-    setTimeout(() => {
-        forceScrollToBottom();
+    // Insert into DOM
+    if (container) {
+        const header = container.querySelector('header');
+        console.log('🔍 DEBUG: Header found:', header ? 'YES' : 'NO');
         
-        setTimeout(() => {
-            forceScrollToBottom();
-        }, 500);
-        
-        setTimeout(() => {
-            forceScrollToBottom();
-        }, 1000);
-    }, 300);
-    
-    // ✅ FORCE SCROLL WHEN SPEAK NOW APPEARS  
-    setTimeout(() => {
-        const speakButton = document.getElementById('speakNowButton');
-        if (speakButton) {
-            speakButton.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        if (header && header.nextSibling) {
+            container.insertBefore(bookBanner, header.nextSibling);
+            console.log('🔍 DEBUG: Banner inserted after header');
+        } else {
+            container.insertBefore(bookBanner, container.firstChild);
+            console.log('🔍 DEBUG: Banner inserted at container start');
         }
-        forceScrollToBottom();
-    }, 2000);
+        
+        // Verify insertion
+        const insertedBanner = document.getElementById('bruceBookBanner');
+        console.log('🔍 DEBUG: Banner in DOM:', insertedBanner ? 'YES' : 'NO');
+        if (insertedBanner) {
+            console.log('🔍 DEBUG: Banner computed style display:', getComputedStyle(insertedBanner).display);
+            console.log('🔍 DEBUG: Banner computed style visibility:', getComputedStyle(insertedBanner).visibility);
+            console.log('🔍 DEBUG: Banner offsetHeight:', insertedBanner.offsetHeight);
+            console.log('🔍 DEBUG: Banner offsetWidth:', insertedBanner.offsetWidth);
+        }
+    } else {
+        console.log('🔍 DEBUG: NO CONTAINER - Inserting into body');
+        document.body.insertBefore(bookBanner, document.body.firstChild);
+    }
+    
+    console.log('🔍 DEBUG: showBruceBookBanner() completed');
 }
 
 function forceScrollToBottom() {
