@@ -525,7 +525,7 @@ function processUserResponse(userText) {
             speakResponse(goodbye);
             
             setTimeout(() => {
-                replaceBannerWithThankYou();
+                showThankYouBanner(); // Use showThankYouBanner instead
                 conversationState = 'ended';
                 stopListening();
                 // ✅ CLEAR DUPLICATE PREVENTION
@@ -556,6 +556,49 @@ function processUserResponse(userText) {
             window.lastProcessedMessage = null;
         }, 1000);
         return;
+    }
+    
+    // 🆕 NEW STATE: Handle email permission question
+    if (conversationState === 'asking_for_email_permission') {
+        const response = userText.toLowerCase().trim();
+        
+        if (response.includes('yes') || response.includes('sure') || response.includes('okay') || response.includes('send')) {
+            // Send confirmation email
+            sendConfirmationEmailToUser();
+            // showEmailConfirmationBanner() gets called inside sendConfirmationEmailToUser()
+            
+            conversationState = 'final_question';
+            // ✅ CLEAR DUPLICATE PREVENTION
+            setTimeout(() => {
+                window.lastProcessedMessage = null;
+            }, 2000);
+            return;
+        } else if (response.includes('no') || response.includes('skip') || response.includes("don't")) {
+            // Skip email, go to final question
+            const skipMessage = "No problem! Is there anything else I can help you with today?";
+            addAIMessage(skipMessage);
+            speakResponse(skipMessage);
+            conversationState = 'final_question';
+            
+            setTimeout(() => {
+                startListening();
+                // ✅ CLEAR DUPLICATE PREVENTION
+                window.lastProcessedMessage = null;
+            }, 1000);
+            return;
+        } else {
+            // Clarify
+            const clarifyMessage = "Would you like me to send you the book and confirmation email? Just say yes or no.";
+            addAIMessage(clarifyMessage);
+            speakResponse(clarifyMessage);
+            
+            setTimeout(() => {
+                startListening();
+                // ✅ CLEAR DUPLICATE PREVENTION
+                window.lastProcessedMessage = null;
+            }, 1000);
+            return;
+        }
     }
     
     // 🆕 CHECK IF LEAD CAPTURE SHOULD HANDLE THIS FIRST
@@ -1361,11 +1404,14 @@ function resetLeadCaptureSystem() {
 function showBruceBookBanner() {
     console.log('📚 Showing Bruce Book Banner - SLEEK VERSION');
     
-    // Remove existing banners
-    const existingBanner = document.getElementById('bruceBookBanner');
-    if (existingBanner) {
-        existingBanner.remove();
-    }
+    // Remove ALL existing banners (UPDATED CLEANUP)
+    const existingBruce = document.getElementById('bruceBookBanner');
+    const existingLead = document.getElementById('leadCaptureBanner');
+    const existingConfirm = document.getElementById('emailConfirmationBanner');
+    
+    if (existingBruce) existingBruce.remove();
+    if (existingLead) existingLead.remove(); // Remove "LEAD CAPTURED" banner
+    if (existingConfirm) existingConfirm.remove(); // Remove "You're all Set!" banner
     
     // Hide smart button
     const smartButton = document.getElementById('smartButton');
@@ -1414,6 +1460,25 @@ function showBruceBookBanner() {
     }
     
     console.log('📚 Sleek banner displayed successfully');
+}
+
+function sendConfirmationEmailToUser() {
+    const templateParams = {
+        to_email: leadData.email,
+        to_name: leadData.name,
+        book_title: "7 Secrets to Selling Your Practice",
+        book_link: "YOUR_BOOK_DOWNLOAD_LINK_HERE",
+        from_name: "Bruce Clark"
+    };
+    
+    emailjs.send('YOUR_SERVICE_ID', 'YOUR_CONFIRMATION_TEMPLATE_ID', templateParams)
+        .then(function(response) {
+            console.log('✅ Confirmation email sent successfully!', response);
+            showEmailConfirmationBanner(); // Show "Confirmation Email Sent!"
+        })
+        .catch(function(error) {
+            console.log('❌ Confirmation email failed:', error);
+        });
 }
 
 function showThankYouBanner() {
@@ -1485,11 +1550,14 @@ function showThankYouBanner() {
 }
 
 function showEmailConfirmationBanner() {
-    // Remove existing banners
-    const existingBanner = document.getElementById('bruceBookBanner');
-    if (existingBanner) {
-        existingBanner.remove();
-    }
+    // Remove ALL existing banners
+    const existingBruce = document.getElementById('bruceBookBanner');
+    const existingLead = document.getElementById('leadCaptureBanner');
+    const existingConfirm = document.getElementById('emailConfirmationBanner');
+    
+    if (existingBruce) existingBruce.remove();
+    if (existingLead) existingLead.remove(); // Remove "LEAD CAPTURED" banner
+    if (existingConfirm) existingConfirm.remove();
     
     const confirmationBanner = document.createElement('div');
     confirmationBanner.id = 'emailConfirmationBanner';
@@ -1508,8 +1576,8 @@ function showEmailConfirmationBanner() {
     
     confirmationBanner.innerHTML = `
         <div style="color: white; font-size: 14px;">
-            ✅ <strong>Confirmation Sent!</strong><br>
-            <span style="font-size: 12px; opacity: 0.9;">Check your email for details</span>
+            ✅ <strong>Confirmation Email Sent!</strong><br>
+            <span style="font-size: 12px; opacity: 0.9;">Please check your email for the book link</span>
         </div>
     `;
     
@@ -1522,6 +1590,12 @@ function showEmailConfirmationBanner() {
     } else {
         container.insertBefore(confirmationBanner, container.firstChild);
     }
+    
+    // Auto-remove after 4 seconds and show Bruce banner
+    setTimeout(() => {
+        confirmationBanner.remove();
+        showBruceBookBanner();
+    }, 4000);
 }
 
 function forceScrollToBottom() {
@@ -1564,24 +1638,6 @@ function endConversation() {
         replaceBannerWithThankYou();
         conversationState = 'ended';
         stopListening();
-    }, 2000);
-}
-
-
-// ===================================================
-// 🎯 STREAMLINED POST-CAPTURE FOLLOW-UP SYSTEM
-// ===================================================
-function handleEmailSuccess() {
-    const banner = document.getElementById('leadCaptureBanner');
-    if (banner) {
-        banner.innerHTML = '🎉 LEAD CAPTURED & EMAIL SENT!';
-        banner.style.background = 'linear-gradient(135deg, #4CAF50, #8BC34A)';
-    }
-    
-    // ✅ REMOVED: "Perfect! Your consultation request has been sent to our team."
-    // Go straight to the combined message
-    setTimeout(() => {
-        startFollowUpSequence();
     }, 2000);
 }
 
