@@ -668,6 +668,12 @@ function addUserMessage(message) {
 // 🧠 AI RESPONSE SYSTEM
 // ===================================================
 function getAIResponse(userInput) {
+
+ // ✅ STOP PROCESSING IF CONVERSATION IS ENDED
+    if (conversationState === 'ended') {
+        return "Thank you for visiting! Have a great day.";
+    }
+    
     const userText = userInput.toLowerCase();
     let responseText = '';
     
@@ -778,9 +784,14 @@ function getAIResponse(userInput) {
         }
         
     } else {
-        responseText = "Thanks for your message! Is there anything else about buying, selling, or valuing a CPA practice that I can help you with?";
-        conversationState = 'initial';
-        shouldShowSmartButton = false;
+        // ✅ FIXED THE PROBLEMATIC ELSE CLAUSE
+        if (conversationState !== 'ended') {
+            responseText = "Thanks for your message! Is there anything else about buying, selling, or valuing a CPA practice that I can help you with?";
+            conversationState = 'initial';
+            shouldShowSmartButton = false;
+        } else {
+            responseText = "Thank you for visiting! Have a great day.";
+        }
     }
     
     return responseText;
@@ -1373,7 +1384,6 @@ function showBruceBookBanner() {
     }, 2000);
 }
 
-
 function forceScrollToBottom() {
     setTimeout(() => {
         // Multiple scroll attempts for stubborn mobile
@@ -1502,36 +1512,53 @@ function sendConfirmationEmail() {
     }
 }
 
-function replaceBannerWithThankYou() {
-    console.log('🔄 Replacing Bruce banner with Thank You banner');
+function showThankYouBanner() {
+    console.log('Showing Thank You Banner');
     
-    const existingBanner = document.querySelector('#bruceBookBanner') || 
-                          document.querySelector('.book-banner');
+    // Remove ANY existing banners
+    const existingBruce = document.getElementById('bruceBookBanner');
+    const existingThankYou = document.getElementById('thankYouBanner');
+    if (existingBruce) existingBruce.remove();
+    if (existingThankYou) existingThankYou.remove();
     
-    if (existingBanner) {
-        // ✅ REPLACE WITH THANK YOU BANNER AT TOP
-        existingBanner.style.backgroundImage = 'url("https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758008231877_thanks2.png")';
-        existingBanner.style.backgroundSize = 'cover';
-        existingBanner.style.backgroundPosition = 'center';
-        existingBanner.innerHTML = ''; // Clear Bruce content
-        
-        // ✅ MAKE IT CLICKABLE TO CLOSE
-        existingBanner.onclick = () => {
-            window.close();
-        };
-        
-        existingBanner.style.cursor = 'pointer';
-        
-        console.log('✅ Banner replaced with Thank You image');
-        
-        // ✅ FORCE SCROLL AFTER REPLACEMENT
-        setTimeout(() => {
-            forceScrollToBottom();
-        }, 300);
-        
-    } else {
-        console.log('❌ No Bruce banner found to replace');
+    // ✅ FORCE HIDE SMART BUTTON
+    const smartButton = document.getElementById('smartButton');
+    if (smartButton) {
+        smartButton.style.display = 'none !important';
+        smartButton.style.visibility = 'hidden !important';
     }
+    
+    // Create thank you banner
+    const thankYouBanner = document.createElement('div');
+    thankYouBanner.id = 'thankYouBanner';
+    
+    // ✅ SAME INLINE STYLES THAT WORK
+    thankYouBanner.style.cssText = `
+        width: 100%;
+        max-width: 1080px;
+        height: auto;
+        aspect-ratio: 1080/392;
+        margin: 10px auto;
+        display: block;
+    `;
+    
+    thankYouBanner.innerHTML = `
+        <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758008231877_thanks2.png" 
+             alt="Thank You Banner"
+             style="width: 100%; height: 100%; object-fit: contain; border-radius: 8px;">
+    `;
+    
+    // ✅ SAME CONTAINER INSERTION THAT WORKS
+    const container = document.querySelector('.container');
+    const header = container.querySelector('header');
+    
+    if (header && header.nextSibling) {
+        container.insertBefore(thankYouBanner, header.nextSibling);
+    } else {
+        container.insertBefore(thankYouBanner, container.firstChild);
+    }
+    
+    console.log('Thank You Banner displayed at top');
 }
 
 // ===================================================
