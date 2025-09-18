@@ -1313,22 +1313,6 @@ function completeLeadCollection() {
     }, 2000);
 }
 
-function replaceBannerWithThankYou() {
-    console.log('🎯 Replacing banner with thank you message');
-    
-    // Remove existing banners
-    const existingBanner = document.getElementById('leadCaptureBanner') || 
-                          document.querySelector('.success-banner') ||
-                          document.querySelector('.email-confirmation-banner');
-    
-    if (existingBanner) {
-        existingBanner.remove();
-    }
-    
-    // Show thank you banner
-    showThankYouBanner();
-}
-
 function sendConfirmationEmail() {
     console.log('📧 Sending confirmation email to user:', leadData.email);
     
@@ -1735,7 +1719,7 @@ function endConversation() {
     speakResponse(goodbye);
     
     setTimeout(() => {
-        replaceBannerWithThankYou();
+        showBruceBookBanner();
         conversationState = 'ended';
         stopListening();
     }, 2000);
@@ -1781,7 +1765,7 @@ function sendConfirmationEmail() {
                 console.log('✅ CONFIRMATION EMAIL SENT!');
                 
                 // ✅ REPLACE BRUCE'S BANNER WITH THANK YOU BANNER
-                replaceBannerWithThankYou();
+                showBruceBookBanner();
                 
                 // ✅ HIDE SMART BUTTON PERMANENTLY
                 const smartButton = document.getElementById('smartButton');
@@ -1793,14 +1777,14 @@ function sendConfirmationEmail() {
                 
             }, function(error) {
                 console.error('❌ EMAIL FAILED:', error);
-                replaceBannerWithThankYou();
+                showBruceBookBanner();
                 const smartButton = document.getElementById('smartButton');
                 if (smartButton) {
                     smartButton.style.display = 'none !important';
                 }
             });
     } else {
-        replaceBannerWithThankYou();
+        showBruceBookBanner();
         const smartButton = document.getElementById('smartButton');
         if (smartButton) {
             smartButton.style.display = 'none !important';
