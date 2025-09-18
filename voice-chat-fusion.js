@@ -534,10 +534,6 @@ function processUserResponse(userText) {
             
             return; // ✅ STOPS THE LOOP!
         }
-        
-        if (response.includes('yes') || response.includes('sure') || response.includes('okay') || response.includes('send')) {
-    // Send confirmation email
-    sendConfirmationEmail();
     
     // Replace combined banner with confirmation banner
     setTimeout(() => {
@@ -1351,7 +1347,7 @@ function sendConfirmationEmail() {
         emailjs.send('service_b9bppgb', 'template_8kx812d', templateParams) // ← Fixed template ID
             .then(function(response) {
                 console.log('✅ CONFIRMATION EMAIL SENT!', response);
-                showBruceBookBanner(); // ← Shows Bruce's book banner!
+                showThankYouBanner(); // ← Shows Bruce's book banner!
             })
             .catch(function(error) {
                 console.log('❌ Confirmation email failed:', error);
