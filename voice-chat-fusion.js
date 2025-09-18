@@ -1749,7 +1749,7 @@ function startFollowUpSequence() {
     speakResponse(combinedMessage);
     
     // ✅ NEW: Show Bruce's Book Banner instead of smart button
-   showBruceBookBanner();
+   showThankYouBanner();
     
     // Remove the lead capture banner
     const banner = document.getElementById('leadCaptureBanner');
@@ -1779,7 +1779,7 @@ function sendConfirmationEmail() {
                 console.log('✅ CONFIRMATION EMAIL SENT!');
                 
                 // ✅ REPLACE BRUCE'S BANNER WITH THANK YOU BANNER
-                showBruceBookBanner();
+                showThankYouBanner();
                 
                 // ✅ HIDE SMART BUTTON PERMANENTLY
                 const smartButton = document.getElementById('smartButton');
@@ -1791,14 +1791,14 @@ function sendConfirmationEmail() {
                 
             }, function(error) {
                 console.error('❌ EMAIL FAILED:', error);
-                showBruceBookBanner();
+                showThankYouBanner();
                 const smartButton = document.getElementById('smartButton');
                 if (smartButton) {
                     smartButton.style.display = 'none !important';
                 }
             });
     } else {
-        showBruceBookBanner();
+        showThankYouBanner();
         const smartButton = document.getElementById('smartButton');
         if (smartButton) {
             smartButton.style.display = 'none !important';
