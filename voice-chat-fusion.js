@@ -1499,6 +1499,7 @@ function showBruceBookBanner() {
     const existingLead = document.getElementById('leadCaptureBanner');
     const existingConfirm = document.getElementById('emailConfirmationBanner');
     
+    if (existingBruce) existingBruce.remove();
     if (existingLead) existingLead.remove(); // Remove "LEAD CAPTURED" banner
     if (existingConfirm) existingConfirm.remove(); // Remove "You're all Set!" banner
     
