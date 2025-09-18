@@ -1347,7 +1347,7 @@ function sendConfirmationEmail() {
         emailjs.send('service_b9bppgb', 'template_8kx812d', templateParams) // ← Fixed template ID
             .then(function(response) {
                 console.log('✅ CONFIRMATION EMAIL SENT!', response);
-                showCombinedSuccessBanner(); // ← Shows Bruce's book banner!
+                showBruceBookBanner(); // ← Shows Bruce's book banner!
             })
             .catch(function(error) {
                 console.log('❌ Confirmation email failed:', error);
@@ -1490,22 +1490,28 @@ function resetLeadCaptureSystem() {
     }, 2000);
 }
 
-function showCombinedSuccessBanner() {
-    console.log('📧 Showing Combined Success + Book Banner');
+function showBruceBookBanner() {
+    console.log('📚 Showing Bruce Book Banner - SLEEK VERSION');
     
-    // Remove ALL existing banners
+    // Remove ALL existing banners (UPDATED CLEANUP)
     const existingBruce = document.getElementById('bruceBookBanner');
     const existingLead = document.getElementById('leadCaptureBanner');
     const existingConfirm = document.getElementById('emailConfirmationBanner');
     
     if (existingBruce) existingBruce.remove();
-    if (existingLead) existingLead.remove();
-    if (existingConfirm) existingConfirm.remove();
+    if (existingLead) existingLead.remove(); // Remove "LEAD CAPTURED" banner
+    if (existingConfirm) existingConfirm.remove(); // Remove "You're all Set!" banner
     
-    // Create COMBINED banner
-    const combinedBanner = document.createElement('div');
-    combinedBanner.id = 'combinedSuccessBanner';
-    combinedBanner.style.cssText = `
+    // Hide smart button
+    const smartButton = document.getElementById('smartButton');
+    if (smartButton) {
+        smartButton.style.display = 'none !important';
+    }
+    
+    // Create SMALLER, transparent banner
+    const bookBanner = document.createElement('div');
+    bookBanner.id = 'bruceBookBanner';
+    bookBanner.style.cssText = `
         background: rgba(255, 255, 255, 0.15);
         backdrop-filter: blur(10px);
         border: 1px solid rgba(255, 255, 255, 0.2);
@@ -1520,12 +1526,7 @@ function showCombinedSuccessBanner() {
         margin-right: auto;
     `;
     
-    combinedBanner.innerHTML = `
-        <div style="text-align: center; margin-bottom: 8px;">
-            <div style="color: #4CAF50; font-size: 12px; font-weight: bold;">
-                ✅ You're All Set! Your request has been sent.
-            </div>
-        </div>
+    bookBanner.innerHTML = `
         <div style="display: flex; align-items: center; gap: 12px;">
             <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758088515492_nci-book.png" 
                  style="width: 60px; height: auto; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);" 
@@ -1542,12 +1543,12 @@ function showCombinedSuccessBanner() {
     const header = container.querySelector('header');
     
     if (header && header.nextSibling) {
-        container.insertBefore(combinedBanner, header.nextSibling);
+        container.insertBefore(bookBanner, header.nextSibling);
     } else {
-        container.insertBefore(combinedBanner, container.firstChild);
+        container.insertBefore(bookBanner, container.firstChild);
     }
     
-    console.log('📧 Combined banner displayed successfully');
+    console.log('📚 Sleek banner displayed successfully');
 }
 
 function showThankYouBanner() {
@@ -1750,7 +1751,7 @@ function startFollowUpSequence() {
     speakResponse(combinedMessage);
     
     // ✅ NEW: Show Bruce's Book Banner instead of smart button
-   showCombinedSuccessBanner();
+   showBruceBookBanner();
     
     // Remove the lead capture banner
     const banner = document.getElementById('leadCaptureBanner');
