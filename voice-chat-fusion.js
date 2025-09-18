@@ -1341,6 +1341,22 @@ function sendConfirmationEmail() {
         addAIMessage("Email service temporarily unavailable.");
     }
 }
+
+function replaceBannerWithThankYou() {
+    console.log('🎯 Replacing banner with thank you message');
+    
+    // Remove existing banners
+    const existingBanner = document.getElementById('leadCaptureBanner') || 
+                          document.querySelector('.success-banner') ||
+                          document.querySelector('.email-confirmation-banner');
+    
+    if (existingBanner) {
+        existingBanner.remove();
+    }
+    
+    // Show thank you banner
+    showThankYouBanner();
+}
 // ===================================================
 // 📧 EMAILJS INTEGRATION - STREAMLINED SYSTEM
 // ===================================================
