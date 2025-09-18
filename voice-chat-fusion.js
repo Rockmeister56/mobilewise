@@ -549,8 +549,8 @@ function processUserResponse(userText) {
         const response = userText.toLowerCase().trim();
         
         if (response.includes('yes') || response.includes('sure') || response.includes('okay') || response.includes('send')) {
-            // ❌ DUPLICATE EMAIL CALL REMOVED - Let the main function handle this!
-            console.log('✅ Email permission granted - delegating to main handler');
+            // Send confirmation email - this will handle the flow internally
+            sendConfirmationEmail();
             
             // Clear duplicate prevention
             setTimeout(() => {
@@ -1312,6 +1312,37 @@ function completeLeadCollection() {
         sendLeadEmail(leadData);
     }, 2000);
 }
+
+// ✅ EMAIL VALIDATION BEFORE SENDING - LINE 1316 FIX
+if (!leadData || !leadData.email || !leadData.name) {
+    console.log('❌ Missing lead data - skipping confirmation email');
+    console.log('LeadData status:', {
+        exists: !!leadData,
+        hasEmail: !!(leadData && leadData.email),
+        hasName: !!(leadData && leadData.name),
+        leadData: leadData
+    });
+    
+    // Still show the banner even if email fails
+    showThankYouBanner();
+    return;
+}
+
+// ✅ ADDITIONAL EMAIL FORMAT VALIDATION
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+if (!emailRegex.test(leadData.email)) {
+    console.log('❌ Invalid email format:', leadData.email);
+    addAIMessage("There seems to be an issue with the email format. But don't worry, our specialist will still contact you!");
+    
+    // Still show the banner
+    showThankYouBanner();
+    return;
+}
+
+console.log('✅ Email validation passed - proceeding with confirmation email');
+
+// NOW CALL YOUR EXISTING sendConfirmationEmail() - Line 1316
+sendConfirmationEmail();
 
 function sendConfirmationEmail() {
     console.log('📧 Sending confirmation email to user:', leadData.email);
