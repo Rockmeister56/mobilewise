@@ -549,8 +549,8 @@ function processUserResponse(userText) {
         const response = userText.toLowerCase().trim();
         
         if (response.includes('yes') || response.includes('sure') || response.includes('okay') || response.includes('send')) {
-            // Send confirmation email - this will handle the flow internally
-            sendConfirmationEmail();
+            // ❌ DUPLICATE EMAIL CALL REMOVED - Let the main function handle this!
+            console.log('✅ Email permission granted - delegating to main handler');
             
             // Clear duplicate prevention
             setTimeout(() => {
