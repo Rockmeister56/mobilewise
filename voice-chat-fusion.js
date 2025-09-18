@@ -1317,13 +1317,13 @@ function sendConfirmationEmail() {
     console.log('📧 Sending confirmation email to user:', leadData.email);
     
     const templateParams = {
-        to_email: leadData.email,                    // ✅ Goes to user
-        name: leadData.name,                         // ✅ Matches {{name}} in template
-        email: "bizboost.expert@gmail.com",        // ✅ Reply-to address
-        book_title: "7 Secrets to Selling Your Practice",
-        book_link: "https://your-actual-book-download-link.com", // ← Update with real link
-        from_name: "Bruce Clark"
-    };
+    to_email: leadData.email,                    // ✅ Matches {{to_email}}
+    name: leadData.name,                         // ✅ Matches {{name}}  
+    email: leadData.email,                       // ✅ THIS is what Reply To expects!
+    book_title: "7 Secrets to Selling Your Practice",
+    book_link: "https://your-actual-book-download-link.com",
+    from_name: "Bruce Clark"
+};
     
     console.log('📧 Template params being sent:', templateParams); // ← Debug line
     
