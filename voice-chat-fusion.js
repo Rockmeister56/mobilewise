@@ -1303,8 +1303,7 @@ function completeLeadCollection() {
     // Update banner to show email sending
     const banner = document.getElementById('leadCaptureBanner');
     if (banner) {
-        banner.innerHTML = '📧 SENDING EMAIL TO CONSUMER AWARENESS FOUNDATION...';
-        banner.style.background = 'linear-gradient(135deg, #ff6b6b, #ee5a24)';
+        banner.remove(); // ← Just delete the banner entirely!
     }
     
     // Send email via EmailJS
