@@ -541,7 +541,7 @@ function processUserResponse(userText) {
     
     // Replace combined banner with confirmation banner
     setTimeout(() => {
-        showEmailConfirmationBanner();
+        showBruceBookBanner();
     }, 1000);
     
     conversationState = 'final_question';
