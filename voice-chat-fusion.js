@@ -1330,21 +1330,24 @@ function replaceBannerWithThankYou() {
 }
 
 function sendConfirmationEmail() {
-    console.log('📧 Sending confirmation email to user...');
+    console.log('📧 Sending confirmation email to user:', leadData.email);
     
     const templateParams = {
-        to_email: leadData.email,
-        to_name: leadData.name,
+        to_email: leadData.email,                    // ✅ Goes to user
+        name: leadData.name,                         // ✅ Matches {{name}} in template
+        email: "bizboost.expert@gmail.com",        // ✅ Reply-to address
         book_title: "7 Secrets to Selling Your Practice",
-        book_link: "https://your-book-download-link.com", // Add your actual book link
+        book_link: "https://your-actual-book-download-link.com", // ← Update with real link
         from_name: "Bruce Clark"
     };
     
+    console.log('📧 Template params being sent:', templateParams); // ← Debug line
+    
     if (typeof emailjs !== 'undefined') {
-        emailjs.send('service_b9bppgb', 'YOUR_CONFIRMATION_TEMPLATE_ID', templateParams)
+        emailjs.send('service_b9bppgb', 'template_8kx812d', templateParams) // ← Fixed template ID
             .then(function(response) {
-                console.log('✅ Confirmation email sent successfully!', response);
-                showEmailConfirmationBanner();
+                console.log('✅ CONFIRMATION EMAIL SENT!', response);
+                showCombinedSuccessBanner(); // ← Shows Bruce's book banner!
             })
             .catch(function(error) {
                 console.log('❌ Confirmation email failed:', error);
@@ -1355,7 +1358,6 @@ function sendConfirmationEmail() {
         addAIMessage("Email service temporarily unavailable.");
     }
 }
-
 // ===================================================
 // 📧 EMAILJS INTEGRATION - STREAMLINED SYSTEM
 // ===================================================
@@ -1549,13 +1551,20 @@ function showCombinedSuccessBanner() {
 }
 
 function showThankYouBanner() {
-    console.log('🙏 Showing Thank You Banner');
+    console.log('🙏 Showing Thank You Banner with Audio');
     
     // Remove any existing banners
     const existingBruce = document.getElementById('bruceBookBanner');
     const existingThankYou = document.getElementById('thankYouBanner');
+    const existingLeadCapture = document.getElementById('leadCaptureBanner');
+    const existingEmailConfirmation = document.querySelector('.email-confirmation-banner');
+    const existingSuccess = document.querySelector('.success-banner');
+    
     if (existingBruce) existingBruce.remove();
     if (existingThankYou) existingThankYou.remove();
+    if (existingLeadCapture) existingLeadCapture.remove();
+    if (existingEmailConfirmation) existingEmailConfirmation.remove();
+    if (existingSuccess) existingSuccess.remove();
     
     // Hide smart button
     const smartButton = document.getElementById('smartButton');
@@ -1589,6 +1598,9 @@ function showThankYouBanner() {
                 We appreciate your time and interest.<br>
                 <em style="font-size: 16px; opacity: 0.9;">Have a wonderful day!</em>
             </p>
+            <div style="margin-top: 15px; color: rgba(255,255,255,0.8); font-size: 14px;">
+                🎵 <em>Playing farewell message...</em>
+            </div>
         </div>
         <div style="position: absolute; top: -50%; right: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%); pointer-events: none;"></div>
     `;
@@ -1613,7 +1625,27 @@ function showThankYouBanner() {
         container.insertBefore(thankYouBanner, container.firstChild);
     }
     
-    console.log('🙏 Thank You Banner displayed successfully');
+    // 🎵 PLAY YOUR THANK YOU AUDIO MESSAGE
+    setTimeout(() => {
+        const thankYouAudio = new Audio('https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/audio-intros/ai_intro_1758148837523.mp3');
+        thankYouAudio.volume = 0.8;
+        thankYouAudio.preload = 'auto';
+        
+        thankYouAudio.play().then(() => {
+            console.log('🎵 Thank You audio playing successfully');
+        }).catch(error => {
+            console.log('🎵 Thank you audio failed to play:', error);
+        });
+        
+        // Optional: Fade out banner after audio completes
+        thankYouAudio.onended = function() {
+            console.log('🎵 Thank you audio completed');
+            // Banner stays visible - user can see the thank you message
+        };
+        
+    }, 500); // Small delay to ensure banner is visible first
+    
+    console.log('🙏 Thank You Banner with Audio displayed successfully');
 }
 
 function showEmailConfirmationBanner() {
