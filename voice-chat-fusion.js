@@ -541,7 +541,7 @@ function processUserResponse(userText) {
     
     // Replace combined banner with confirmation banner
     setTimeout(() => {
-        showBruceBookBanner();
+        replaceBannerWithThankYou();
     }, 1000);
     
     conversationState = 'final_question';
@@ -1218,12 +1218,33 @@ function confirmAnswer(isCorrect) {
         leadData.step++;
         
         if (leadData.step < leadData.questions.length) {
+            // More questions to ask
             setTimeout(() => {
                 askSimpleLeadQuestion();
             }, 800);
         } else {
+            // ✅ FINAL STEP - SHOW BRUCE BANNER IMMEDIATELY!
             setTimeout(() => {
-                completeLeadCollection();
+                console.log('🎯 Final confirmation completed - showing Bruce banner!');
+                
+                // Remove the lead capture banner
+                const banner = document.getElementById('leadCaptureBanner');
+                if (banner) {
+                    banner.remove();
+                }
+                
+                // ✅ SHOW BRUCE'S BANNER IMMEDIATELY!
+                showBruceBookBanner();
+                
+                // Send email silently in background
+                setTimeout(() => {
+                    sendLeadEmail(leadData);
+                }, 1000);
+                
+                // Clean up lead capture
+                isInLeadCapture = false;
+                conversationState = 'final_question';
+                
             }, 800);
         }
         
@@ -1498,7 +1519,6 @@ function showBruceBookBanner() {
     const existingLead = document.getElementById('leadCaptureBanner');
     const existingConfirm = document.getElementById('emailConfirmationBanner');
     
-    if (existingBruce) existingBruce.remove();
     if (existingLead) existingLead.remove(); // Remove "LEAD CAPTURED" banner
     if (existingConfirm) existingConfirm.remove(); // Remove "You're all Set!" banner
     
@@ -1561,7 +1581,6 @@ function showThankYouBanner() {
     const existingEmailConfirmation = document.querySelector('.email-confirmation-banner');
     const existingSuccess = document.querySelector('.success-banner');
     
-    if (existingBruce) existingBruce.remove();
     if (existingThankYou) existingThankYou.remove();
     if (existingLeadCapture) existingLeadCapture.remove();
     if (existingEmailConfirmation) existingEmailConfirmation.remove();
@@ -1655,7 +1674,6 @@ function showEmailConfirmationBanner() {
     const existingLead = document.getElementById('leadCaptureBanner');
     const existingConfirm = document.getElementById('emailConfirmationBanner');
     
-    if (existingBruce) existingBruce.remove();
     if (existingLead) existingLead.remove(); // Remove "LEAD CAPTURED" banner
     if (existingConfirm) existingConfirm.remove();
     
@@ -1735,7 +1753,7 @@ function endConversation() {
     speakResponse(goodbye);
     
     setTimeout(() => {
-        showBruceBookBanner();
+        replaceBannerWithThankYou();
         conversationState = 'ended';
         stopListening();
     }, 2000);
