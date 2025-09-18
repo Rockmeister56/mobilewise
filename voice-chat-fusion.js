@@ -1804,6 +1804,18 @@ function sendConfirmationEmail() {
         transcript: `CONFIRMATION: Appointment scheduled for ${leadData.contactTime}\n\nFree Book: "7 Secrets to Selling Your Practice"\nDownload Link: https://bruces-book-link.com/download\n\nThank you for choosing New Clients Inc!`,
         timestamp: new Date().toLocaleString()
     };
+
+    // ✅ MAP TO EMAILJS EXPECTED PARAMETERS
+const emailParams = {
+    to_email: confirmationParams.email,    // What EmailJS expects
+    name: confirmationParams.name,         // What EmailJS expects  
+    email: confirmationParams.email,       // What EmailJS expects for Reply-To
+    message: confirmationParams.transcript, // Your business message
+    book_title: "7 Secrets to Selling Your Practice",
+    from_name: "Bruce Clark"
+};
+
+emailjs.send('service_b9bppgb', 'template_8kx812d', emailParams)
     
     if (typeof emailjs !== 'undefined') {
         emailjs.send('service_b9bppgb', 'template_8kx812d', confirmationParams)
