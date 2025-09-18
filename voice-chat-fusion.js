@@ -525,51 +525,39 @@ function processUserResponse(userText) {
             speakResponse(goodbye);
             
             setTimeout(() => {
-                showThankYouBanner(); // Use showThankYouBanner instead
+                showThankYouBanner(); // Final goodbye banner
                 conversationState = 'ended';
                 stopListening();
-                // ✅ CLEAR DUPLICATE PREVENTION
                 window.lastProcessedMessage = null;
             }, 2000);
             
-            return; // ✅ STOPS THE LOOP!
+            return;
         }
-    
-    // Replace combined banner with confirmation banner
-    setTimeout(() => {
-        replaceBannerWithThankYou();
-    }, 1000);
-    
-    conversationState = 'final_question';
-    return;
-}
         
         // If unclear, ask again
         addAIMessage("Is there anything else I can help you with today?");
         speakResponse("Is there anything else I can help you with today?");
         setTimeout(() => {
             startListening();
-            // ✅ CLEAR DUPLICATE PREVENTION
             window.lastProcessedMessage = null;
         }, 1000);
         return;
     }
     
-    // 🆕 NEW STATE: Handle email permission question
+    // 🆕 SINGLE EMAIL PERMISSION HANDLER - NO DUPLICATES
     if (conversationState === 'asking_for_email_permission') {
         const response = userText.toLowerCase().trim();
         
         if (response.includes('yes') || response.includes('sure') || response.includes('okay') || response.includes('send')) {
-            // Send confirmation email
+            // Send confirmation email - this will handle the flow internally
             sendConfirmationEmail();
-            // showEmailConfirmationBanner() gets called inside sendConfirmationEmail()
             
-            conversationState = 'final_question';
-            // ✅ CLEAR DUPLICATE PREVENTION
+            // Clear duplicate prevention
             setTimeout(() => {
                 window.lastProcessedMessage = null;
             }, 2000);
             return;
+            
         } else if (response.includes('no') || response.includes('skip') || response.includes("don't")) {
             // Skip email, go to final question
             const skipMessage = "No problem! Is there anything else I can help you with today?";
@@ -579,10 +567,10 @@ function processUserResponse(userText) {
             
             setTimeout(() => {
                 startListening();
-                // ✅ CLEAR DUPLICATE PREVENTION
                 window.lastProcessedMessage = null;
             }, 1000);
             return;
+            
         } else {
             // Clarify
             const clarifyMessage = "Would you like me to send you the book and confirmation email? Just say yes or no.";
@@ -591,7 +579,6 @@ function processUserResponse(userText) {
             
             setTimeout(() => {
                 startListening();
-                // ✅ CLEAR DUPLICATE PREVENTION
                 window.lastProcessedMessage = null;
             }, 1000);
             return;
@@ -600,13 +587,13 @@ function processUserResponse(userText) {
     
     // 🆕 CHECK IF LEAD CAPTURE SHOULD HANDLE THIS FIRST
     if (processLeadResponse(userText)) {
-        // ✅ CLEAR DUPLICATE PREVENTION AFTER LEAD RESPONSE
         setTimeout(() => {
             window.lastProcessedMessage = null;
         }, 2000);
         return;
     }
     
+    // Default AI response handler
     setTimeout(() => {
         const responseText = getAIResponse(userText);
         lastAIResponse = responseText;
@@ -619,14 +606,11 @@ function processUserResponse(userText) {
         
         updateSmartButton(shouldShowSmartButton, smartButtonText, smartButtonAction);
         
-        // ✅ CLEAR DUPLICATE PREVENTION AFTER AI RESPONDS
         setTimeout(() => {
             window.lastProcessedMessage = null;
         }, 3000);
     }, 800);
 }
-
-
 
 // ===================================================
 // 🔊 VOICE SYNTHESIS SYSTEM
