@@ -1361,6 +1361,7 @@ function sendLeadEmail(data) {
         name: data.name || 'No name provided',
         phone: data.phone || 'No phone provided',
         email: data.email || 'No email provided',
+        to_email: data.email || 'No email provided',
         contactTime: data.contactTime || 'No preference specified',
         inquiryType: (data.inquiryType || 'general').toUpperCase(),
         transcript: transcript,
