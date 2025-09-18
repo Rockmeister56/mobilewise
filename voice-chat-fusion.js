@@ -1313,7 +1313,10 @@ function completeLeadCollection() {
     }, 2000);
 }
 
-// ✅ EMAIL VALIDATION BEFORE SENDING - LINE 1316 FIX
+function sendConfirmationEmail() {
+    console.log('📧 Sending confirmation email to user:', leadData.email);
+
+    // ✅ EMAIL VALIDATION BEFORE SENDING - LINE 1316 FIX
 if (!leadData || !leadData.email || !leadData.name) {
     console.log('❌ Missing lead data - skipping confirmation email');
     console.log('LeadData status:', {
@@ -1343,9 +1346,6 @@ console.log('✅ Email validation passed - proceeding with confirmation email');
 
 // NOW CALL YOUR EXISTING sendConfirmationEmail() - Line 1316
 sendConfirmationEmail();
-
-function sendConfirmationEmail() {
-    console.log('📧 Sending confirmation email to user:', leadData.email);
     
     const templateParams = {
     to_email: leadData.email,                    // ✅ Matches {{to_email}}
