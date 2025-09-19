@@ -167,28 +167,6 @@
             margin-bottom: 10px;
         }
 
-        /* ===================================================
-           🔵 SMART CTA BUTTON (TOP POSITIONING)
-           ================================================== */
-        .smart-button {
-            position: sticky;
-            top: 10px;
-            z-index: 1000;
-            width: 100%;
-            padding: 15px;
-            background: var(--cta-gradient);
-            color: white;
-            border: none;
-            border-radius: 25px;
-            cursor: pointer;
-            font-weight: bold;
-            margin-bottom: 15px;
-            text-align: center;
-            font-size: 16px;
-            animation: pulse-attention 1.5s infinite;
-            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.4);
-        }
-
         @keyframes pulse-attention {
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.05); }
@@ -494,13 +472,6 @@
         margin-bottom: 5px;
     }
     
-    /* Compact spacing for mobile */
-    .smart-button {
-        margin-bottom: 10px; /* Reduced margin */
-        padding: 12px; /* Slightly smaller padding */
-        font-size: 14px;
-    }
-    
     .mic-status {
         margin-bottom: 10px; /* Reduced margin */
         padding: 8px;
@@ -673,9 +644,6 @@
             <h1>AI VOICE CHAT</h1>
             <p class="subtitle">Your Personal AI Assistant</p>
         </header>
-        
-        <!-- Smart CTA Button (appears at top when triggered) -->
-        <div class="smart-button" id="smartButton" style="display: none;"></div>
 
         <div id="centerMicActivation" style="
     position: fixed;
