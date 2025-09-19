@@ -855,76 +855,144 @@ function getAIResponse(userInput) {
 
 
 // ===================================================
-// 🎨 SMART BUTTON - BANNER TRANSPARENCY BUTTON STYLE
+// 🎨 SMART BUTTON → SMART BANNER (HEADER STYLE)
 // ===================================================
 function updateSmartButton(shouldShow, buttonText, action) {
-    const smartButton = document.getElementById('smartButton');
-    if (!smartButton) return;
+    const existingBanner = document.getElementById('smartButton');
+    if (existingBanner) {
+        existingBanner.remove();
+    }
     
     if (shouldShow) {
-        smartButton.textContent = buttonText;
-        smartButton.style.display = 'block';
+        const smartBanner = document.createElement('div');
+        smartBanner.id = 'smartButton'; // Keep same ID for compatibility
         
-        // 🎨 BANNER-STYLE TRANSPARENCY BUTTON
-        smartButton.style.cssText = `
-            display: block;
+        // 🎨 FULL-WIDTH HEADER BANNER STYLE
+        smartBanner.style.cssText = `
             position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
+            top: 80px;
+            left: 0;
+            right: 0;
+            width: 100%;
             background: rgba(255, 255, 255, 0.15);
             backdrop-filter: blur(15px);
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 25px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 16px;
-            text-align: center;
-            min-width: 200px;
-            max-width: 320px;
-            transition: all 0.3s ease;
-            animation: softGlow 2s infinite alternate;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+            z-index: 999;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            animation: slideDownBanner 0.5s ease-out;
         `;
         
-        smartButton.onclick = () => handleSmartButtonClick(action);
+        // 🎯 LEFT SIDE - FREE CONSULTATION
+        const leftSection = document.createElement('div');
+        leftSection.style.cssText = `
+            flex: 1;
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 10px 15px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            text-align: left;
+        `;
+        leftSection.innerHTML = `
+            <div style="font-size: 18px; margin-bottom: 4px;">
+                📞 ${buttonText}
+            </div>
+            <div style="font-size: 14px; opacity: 0.9;">
+                Click here to schedule →
+            </div>
+        `;
         
-        // Hover effects
-        smartButton.addEventListener('mouseenter', () => {
-            smartButton.style.background = 'rgba(255, 255, 255, 0.25)';
-            smartButton.style.transform = 'translateX(-50%) translateY(-2px)';
-            smartButton.style.boxShadow = '0 12px 40px rgba(0, 0, 0, 0.15)';
+        // 🎁 RIGHT SIDE - FREE BOOK OFFER  
+        const rightSection = document.createElement('div');
+        rightSection.style.cssText = `
+            flex: 1;
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 10px 15px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            text-align: right;
+            border-left: 1px solid rgba(255, 255, 255, 0.2);
+            margin-left: 20px;
+        `;
+        rightSection.innerHTML = `
+            <div style="font-size: 18px; margin-bottom: 4px;">
+                📚 FREE Practice Guide
+            </div>
+            <div style="font-size: 14px; opacity: 0.9;">
+                ← Download your copy
+            </div>
+        `;
+        
+        // 🎯 CLICK HANDLERS
+        leftSection.addEventListener('click', () => {
+            handleSmartButtonClick(action);
         });
         
-        smartButton.addEventListener('mouseleave', () => {
-            smartButton.style.background = 'rgba(255, 255, 255, 0.15)';
-            smartButton.style.transform = 'translateX(-50%) translateY(0)';
-            smartButton.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.1)';
+        rightSection.addEventListener('click', () => {
+            // Handle book download - you can customize this
+            handleBookDownload();
         });
+        
+        // 🎨 HOVER EFFECTS
+        leftSection.addEventListener('mouseenter', () => {
+            leftSection.style.background = 'rgba(255, 255, 255, 0.1)';
+        });
+        leftSection.addEventListener('mouseleave', () => {
+            leftSection.style.background = 'transparent';
+        });
+        
+        rightSection.addEventListener('mouseenter', () => {
+            rightSection.style.background = 'rgba(255, 255, 255, 0.1)';
+        });
+        rightSection.addEventListener('mouseleave', () => {
+            rightSection.style.background = 'transparent';
+        });
+        
+        // 🏗️ BUILD THE BANNER
+        smartBanner.appendChild(leftSection);
+        smartBanner.appendChild(rightSection);
+        document.body.appendChild(smartBanner);
         
     } else {
-        smartButton.style.display = 'none';
+        // Hide banner logic stays the same
+        const smartButton = document.getElementById('smartButton');
+        if (smartButton) {
+            smartButton.style.display = 'none';
+        }
     }
 }
 
-// 🎨 SOFT GLOW ANIMATION
-const smartButtonGlowStyle = document.createElement('style');
-smartButtonGlowStyle.textContent = `
-    @keyframes softGlow {
-        0% { 
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            border-color: rgba(255, 255, 255, 0.2);
+// 📚 BOOK DOWNLOAD HANDLER
+function handleBookDownload() {
+    console.log('📚 Book download clicked!');
+    // You can add book download logic here
+    alert('Free Practice Guide - Coming Soon!');
+}
+
+// 🎨 SLIDE DOWN ANIMATION
+const bannerAnimationStyle = document.createElement('style');
+bannerAnimationStyle.textContent = `
+    @keyframes slideDownBanner {
+        from { 
+            transform: translateY(-100%);
+            opacity: 0;
         }
-        100% { 
-            box-shadow: 0 8px 32px rgba(255, 255, 255, 0.1);
-            border-color: rgba(255, 255, 255, 0.4);
+        to { 
+            transform: translateY(0);
+            opacity: 1;
         }
     }
 `;
-document.head.appendChild(smartButtonGlowStyle);
+document.head.appendChild(bannerAnimationStyle);
 
 // ===================================================
 // 🚀 FIXED SMART BUTTON CLICK HANDLER + BANNER
