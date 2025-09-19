@@ -1455,7 +1455,7 @@ function sendFollowUpEmail() {
                 }
             });
     } else {
-      //  showThankYouBanner();
+        showThankYouBanner();
         const smartButton = document.getElementById('smartButton');
         if (smartButton) {
             smartButton.style.display = 'none !important';
