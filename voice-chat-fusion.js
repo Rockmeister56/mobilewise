@@ -1441,7 +1441,7 @@ function sendFollowUpEmail() {
     
     // ✅ YOUR EXACT EMAIL LOGIC
     if (typeof emailjs !== 'undefined') {
-        emailjs.send('service_b9bppgb', 'template_yf09xm5', confirmationParams)
+        emailjs.send('service_b9bppgb', 'template_8kx812d', confirmationParams)
             .then(function(response) {
                 console.log('✅ CONFIRMATION EMAIL SENT!');
             
