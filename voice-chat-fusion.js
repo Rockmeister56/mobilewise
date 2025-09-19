@@ -371,7 +371,7 @@ function forceStartListening() {
 }
 
 // ===================================================
-// 📧 EMAIL FORMATTING FUNCTION
+// 📧 EMAIL FORMATTING FUNCTION - FIXED
 // ===================================================
 function formatEmailFromSpeech(speechText) {
     let formattedEmail = speechText.toLowerCase().trim();
@@ -381,7 +381,8 @@ function formatEmailFromSpeech(speechText) {
         .replace(/\s*at\s+/g, '@')           // "at" becomes @
         .replace(/\s*dot\s+/g, '.')          // "dot" becomes .
         .replace(/\s+/g, '')                 // Remove all spaces
-        .replace(/,/g, '');                  // Remove commas
+        .replace(/,/g, '')                   // Remove commas
+        .replace(/\.+$/, '');                // ✅ Remove trailing periods!
     
     console.log('📧 Email conversion:', speechText, '→', formattedEmail);
     return formattedEmail;
@@ -1779,9 +1780,6 @@ function startFollowUpSequence() {
     
     addAIMessage(combinedMessage);
     speakResponse(combinedMessage);
-    
-    // ✅ NEW: Show Bruce's Book Banner instead of smart button
-   showThankYouBanner();
     
     // Remove the lead capture banner
     const banner = document.getElementById('leadCaptureBanner');
