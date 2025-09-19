@@ -1532,17 +1532,17 @@ function resetLeadCaptureSystem() {
     }, 2000);
 }
 
-function showBruceBookBanner() {
-    console.log('📚 Showing Bruce Book Banner - SLEEK VERSION');
+function showConsultationConfirmedBanner() {
+    console.log('🎯 Showing Consultation Confirmed Banner - DUAL SECTION');
     
-    // Remove ALL existing banners (UPDATED CLEANUP)
+    // Remove ALL existing banners (Same cleanup as your working version)
     const existingBruce = document.getElementById('bruceBookBanner');
     const existingLead = document.getElementById('leadCaptureBanner');
     const existingConfirm = document.getElementById('emailConfirmationBanner');
     
     if (existingBruce) existingBruce.remove();
-    if (existingLead) existingLead.remove(); // Remove "LEAD CAPTURED" banner
-    if (existingConfirm) existingConfirm.remove(); // Remove "You're all Set!" banner
+    if (existingLead) existingLead.remove();
+    if (existingConfirm) existingConfirm.remove();
     
     // Hide smart button
     const smartButton = document.getElementById('smartButton');
@@ -1550,10 +1550,10 @@ function showBruceBookBanner() {
         smartButton.style.display = 'none !important';
     }
     
-    // Create SMALLER, transparent banner
-    const bookBanner = document.createElement('div');
-    bookBanner.id = 'bruceBookBanner';
-    bookBanner.style.cssText = `
+    // Create DUAL-SECTION banner (keeping your exact styling)
+    const confirmationBanner = document.createElement('div');
+    confirmationBanner.id = 'consultationConfirmedBanner';
+    confirmationBanner.style.cssText = `
         background: rgba(255, 255, 255, 0.15);
         backdrop-filter: blur(10px);
         border: 1px solid rgba(255, 255, 255, 0.2);
@@ -1563,34 +1563,45 @@ function showBruceBookBanner() {
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         position: relative;
         overflow: hidden;
-        max-width: 400px;
+        max-width: 500px;
         margin-left: auto;
         margin-right: auto;
     `;
     
-    bookBanner.innerHTML = `
-        <div style="display: flex; align-items: center; gap: 12px;">
-            <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758088515492_nci-book.png" 
-                 style="width: 60px; height: auto; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);" 
-                 alt="Bruce's Book">
+    confirmationBanner.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 16px;">
+            
+            <!-- LEFT SECTION: Consultation Confirmed -->
             <div style="color: white; text-align: left; flex: 1;">
-                <div style="font-size: 14px; font-weight: bold; margin-bottom: 4px;">📚 FREE Book for ${leadData.name}!</div>
-                <div style="font-size: 11px; opacity: 0.9; line-height: 1.3;">"7 Secrets to Selling Your Practice"</div>
+                <div style="font-size: 14px; font-weight: bold; margin-bottom: 4px;">🎯 Free Consultation Confirmed!</div>
+                <div style="font-size: 11px; opacity: 0.9; line-height: 1.3;">Your information has been submitted</div>
             </div>
+            
+            <!-- RIGHT SECTION: Book (Your exact working code) -->
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758088515492_nci-book.png" 
+                     style="width: 60px; height: auto; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);" 
+                     alt="Bruce's Book">
+                <div style="color: white; text-align: left;">
+                    <div style="font-size: 14px; font-weight: bold; margin-bottom: 4px;">📚 FREE Book for ${leadData.name}!</div>
+                    <div style="font-size: 11px; opacity: 0.9; line-height: 1.3;">"7 Secrets to Selling Your Practice"</div>
+                </div>
+            </div>
+            
         </div>
     `;
     
-    // Insert into container
+    // Insert using your exact working method
     const container = document.querySelector('.container');
     const header = container.querySelector('header');
     
     if (header && header.nextSibling) {
-        container.insertBefore(bookBanner, header.nextSibling);
+        container.insertBefore(confirmationBanner, header.nextSibling);
     } else {
-        container.insertBefore(bookBanner, container.firstChild);
+        container.insertBefore(confirmationBanner, container.firstChild);
     }
     
-    console.log('📚 Sleek banner displayed successfully');
+    console.log('🎯 Consultation confirmed banner displayed successfully');
 }
 
 function showThankYouBanner() {
