@@ -183,6 +183,9 @@ function getApologyResponse() {
                 .map(result => result[0])
                 .map(result => result.transcript)
                 .join('');
+
+                 // ✅ REMOVE TRAILING PERIODS FROM SPEECH RECOGNITION
+    transcript = transcript.replace(/\.+$/, '');
             
             const transcriptText = document.getElementById('transcriptText');
             const userInput = document.getElementById('userInput');
