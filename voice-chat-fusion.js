@@ -733,197 +733,172 @@ function getAIResponse(userInput) {
     const userText = userInput.toLowerCase();
     let responseText = '';
     
-    if (conversationState === 'initial') {
-        if (userText.includes('buy') || userText.includes('purchase') || userText.includes('buying') || userText.includes('acquire')) {
-            responseText = "Excellent! Bruce has some fantastic opportunities available. Let me learn more about what you're looking for. What's your budget range for acquiring a practice?";
-            conversationState = 'buying_budget_question';
-            shouldShowSmartButton = false;
-            
-        } else if (userText.includes('sell') || userText.includes('selling')) {
-            responseText = "I'd love to help you with selling your practice! Let me ask you a few quick questions to better understand your situation. How large is your practice - how many clients do you currently serve?";
-            conversationState = 'selling_size_question';
-            shouldShowSmartButton = false;
-            
-        } else if (userText.includes('value') || userText.includes('worth') || userText.includes('valuation') || userText.includes('evaluate')) {
-            responseText = "I'd be happy to help with a practice valuation! To give you the most accurate assessment, what's your practice's approximate annual revenue?";
-            conversationState = 'valuation_revenue_question';
-            shouldShowSmartButton = false;
-            
-        } else {
-            responseText = "Welcome! I'm here to help with CPA firm transactions - buying, selling, and practice valuations. What brings you here today?";
-        }
-        
-    } else if (conversationState === 'selling_size_question') {
-        responseText = "That's helpful information! And what's your practice's approximate annual revenue range? This helps Bruce understand the scope and value.";
-        conversationState = 'selling_revenue_question';
-        
-    } else if (conversationState === 'selling_revenue_question') {
-        responseText = "Perfect! One more question - what's driving your decision to sell? Retirement, new opportunities, or something else? Understanding your motivation helps Bruce tailor the best approach.";
-        conversationState = 'selling_motivation_question';
-        
-    } else if (conversationState === 'selling_motivation_question') {
-        responseText = "Thank you for sharing that with me! Based on what you've told me, Bruce can definitely help you get maximum value for your practice. The market is very strong right now. Would you like to schedule a FREE consultation with Bruce to discuss your selling strategy?";
-        conversationState = 'asking_selling_consultation';
-        
-    } else if (conversationState === 'asking_selling_consultation') {
-        if (userText.includes('yes') || userText.includes('sure') || userText.includes('okay') || userText.includes('definitely') || userText.includes('absolutely')) {
-            responseText = "Fantastic! Please click the button above and we'll get your information over to Bruce immediately. He'll reach out within 24 hours for your FREE practice valuation.";
-            shouldShowSmartButton = true;
-            smartButtonText = '📞 Schedule Free Valuation';
-            smartButtonAction = 'valuation';
-            conversationState = 'button_activated_selling';
-        } else if (userText.includes('no') || userText.includes('not now') || userText.includes('maybe later')) {
-            responseText = "No problem at all! If you change your mind, I'm here to help. Is there anything else about selling your practice that you'd like to know?";
-            conversationState = 'initial';
-        } else {
-            responseText = "I want to make sure I understand - would you like Bruce to call you for a free consultation about selling your practice? Just say yes or no.";
-        }
-        
-    } else if (conversationState === 'buying_budget_question') {
-        responseText = "Great! And are you specifically looking for a CPA practice, or would a general accounting practice work for you as well?";
-        conversationState = 'buying_type_question';
-        
-    } else if (conversationState === 'buying_type_question') {
-        responseText = "Perfect! One more important question - how soon are you looking to complete a purchase? This helps Bruce prioritize which opportunities to show you first.";
-        conversationState = 'buying_timeline_question';
-        
-    } else if (conversationState === 'buying_timeline_question') {
-        responseText = "Excellent! Bruce has exclusive off-market opportunities that aren't advertised anywhere else. Based on your criteria, he definitely has some practices that would interest you. Would you like Bruce to show you the available practices that match what you're looking for?";
-        conversationState = 'asking_buying_consultation';
-        
-    } else if (conversationState === 'asking_buying_consultation') {
-        if (userText.includes('yes') || userText.includes('sure') || userText.includes('okay') || userText.includes('definitely') || userText.includes('absolutely')) {
-            responseText = "Outstanding! Please click the button above and Bruce will reach out with current opportunities that match your criteria. Many of these deals move fast!";
-            shouldShowSmartButton = true;
-            smartButtonText = '🏢 View Available Practices';
-            smartButtonAction = 'buying';
-            conversationState = 'button_activated_buying';
-        } else if (userText.includes('no') || userText.includes('not now') || userText.includes('maybe later')) {
-            responseText = "That's perfectly fine! When you're ready to see what's available, just let me know. Anything else about buying a practice I can help with?";
-            conversationState = 'initial';
-        } else {
-            responseText = "Would you like Bruce to show you the practices he has available? Just let me know yes or no.";
-        }
-        
-    } else if (conversationState === 'valuation_revenue_question') {
-        responseText = "Thank you! And how many years have you been in practice? The longevity and stability really impact the valuation.";
-        conversationState = 'valuation_years_question';
-        
-    } else if (conversationState === 'valuation_years_question') {
-        responseText = "Perfect! Your practice sounds well-established. Bruce can provide you with a comprehensive FREE valuation that shows you exactly what your practice is worth in today's market. Would you like to schedule that free valuation consultation with Bruce?";
-        conversationState = 'asking_valuation_consultation';
-        
-    } else if (conversationState === 'asking_valuation_consultation') {
-        if (userText.includes('yes') || userText.includes('sure') || userText.includes('okay') || userText.includes('definitely') || userText.includes('absolutely')) {
-            responseText = "Wonderful! Please click the button above and we'll get you connected with Bruce for your FREE practice valuation. You might be surprised at what your practice is worth!";
-            shouldShowSmartButton = true;
-            smartButtonText = '📈 Get Practice Valuation';
-            smartButtonAction = 'valuation';
-            conversationState = 'button_activated_valuation';
-        } else if (userText.includes('no') || userText.includes('not now') || userText.includes('maybe later')) {
-            responseText = "No worries! The valuation offer stands whenever you're ready. Is there anything else about practice valuations I can explain?";
-            conversationState = 'initial';
-        } else {
-            responseText = "Would you like Bruce to provide you with a free practice valuation? Just say yes or no and I'll take care of the rest.";
-        }
-        
-    } else if (conversationState === 'button_activated_selling' || conversationState === 'button_activated_buying' || conversationState === 'button_activated_valuation') {
-        responseText = "Perfect! I see you're ready to connect with Bruce. Just click that button above and we'll get everything set up for you right away!";
-        
-    } else if (conversationState === 'asking_anything_else') {
-        if (userText.includes('yes') || userText.includes('sure') || userText.includes('help')) {
-            responseText = "I'm here to help! What else can I assist you with regarding your practice?";
-            conversationState = 'initial'; // Back to normal conversation
-        } else {
-            endConversation();
-            return ""; // Don't return text, endConversation handles it
-        }
-        
-    } else {
-        // ✅ FIXED THE PROBLEMATIC ELSE CLAUSE
-        if (conversationState !== 'ended') {
-            responseText = "Thanks for your message! Is there anything else about buying, selling, or valuing a CPA practice that I can help you with?";
-            conversationState = 'initial';
-            shouldShowSmartButton = false;
-        } else {
-            responseText = "Thank you for visiting! Have a great day.";
+    // ===== BUYING PATH =====
+if (conversationState === 'buying_budget_question') {
+    responseText = "Great budget range! Are you looking specifically for a CPA practice or would a general accounting practice work?";
+    conversationState = 'buying_type_question';
+    
+} else if (conversationState === 'buying_type_question') {
+    responseText = "Perfect choice! How soon are you looking to purchase?";
+    conversationState = 'buying_timeline_question';
+    
+} else if (conversationState === 'buying_timeline_question') {
+    responseText = "Thank you for sharing that with me.";
+    // 🎁 BANNER TRIGGER HERE
+    showBuyingBanner(); 
+    setTimeout(() => {
+        responseText = "Bruce has exclusive off-market opportunities. Want to see what matches your criteria?";
+        conversationState = 'buying_close';
+    }, 2000);
+
+// ===== SELLING PATH =====  
+} else if (conversationState === 'selling_size_question') {
+    // ADD COMPLIMENT BASED ON SIZE
+    const compliment = userText.includes('thousand') || userText.match(/\d{4,}/) ? "Wow, that's impressive! " : "Nice solid practice! ";
+    responseText = compliment + "What's your approximate annual revenue?";
+    conversationState = 'selling_revenue_question';
+    
+} else if (conversationState === 'selling_revenue_question') {
+    responseText = "Excellent numbers! What's driving your decision to sell?";
+    conversationState = 'selling_motivation_question';
+    
+} else if (conversationState === 'selling_motivation_question') {
+    responseText = "Thank you for sharing that with me.";
+    // 🎁 BANNER TRIGGER HERE  
+    showSellingBanner();
+    setTimeout(() => {
+        responseText = "Your practice has great value in today's market. Ready for Bruce's selling strategy consultation?";
+        conversationState = 'selling_close';
+    }, 2000);
+
+// ===== VALUATION PATH =====
+} else if (conversationState === 'valuation_revenue_question') {
+    responseText = "Strong revenue! How many years have you been in practice?";
+    conversationState = 'valuation_years_question';
+    
+} else if (conversationState === 'valuation_years_question') {
+    const compliment = parseInt(userText) >= 10 ? "Well-established! " : "Great foundation! ";
+    responseText = "Thank you for sharing that with me.";
+    // 🎁 BANNER TRIGGER HERE
+    showValuationBanner();
+    setTimeout(() => {
+        responseText = compliment + "Want Bruce's professional valuation of what your practice is worth?";
+        conversationState = 'valuation_close';
+    }, 2000);
         }
     }
-    
-    return responseText;
+
+// ===================================================
+// 🚀 SMART BANNER BUTTON - COMPLETE SYSTEM
+// ===================================================
+
+// 1. MAIN FUNCTION - Creates the clickable banner
+function createSmartBannerButton(consultationType = 'valuation', customMessage = null) {
+    // Remove any existing banner first
+    const existingBanner = document.getElementById('smartBannerButton');
+    if (existingBanner) {
+        existingBanner.remove();
+    }
+
+    const banner = document.createElement('div');
+    banner.id = 'smartBannerButton';
+    banner.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 15px 25px;
+        border-radius: 12px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        z-index: 1000;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        animation: slideUp 0.5s ease-out;
+        max-width: 90%;
+        text-align: center;
+    `;
+
+    // Dynamic content based on consultation type
+    const bannerContent = getBannerContent(consultationType, customMessage);
+    banner.innerHTML = bannerContent;
+
+    // THE MAGIC CLICK HANDLER
+    banner.addEventListener('click', () => {
+        console.log(`🚨 Smart Banner clicked: ${consultationType}`);
+        handleSmartBannerClick(consultationType);
+    });
+
+    // Hover effects
+    banner.addEventListener('mouseenter', () => {
+        banner.style.transform = 'translateX(-50%) translateY(-5px)';
+        banner.style.boxShadow = '0 12px 30px rgba(0,0,0,0.4)';
+    });
+
+    banner.addEventListener('mouseleave', () => {
+        banner.style.transform = 'translateX(-50%) translateY(0)';
+        banner.style.boxShadow = '0 8px 25px rgba(0,0,0,0.3)';
+    });
+
+    document.body.appendChild(banner);
+    console.log(`✅ Smart Banner Button created for: ${consultationType}`);
 }
 
-
-// ===================================================
-// 🎯 SMART BUTTON SYSTEM WITH BANNER
-// ===================================================
-function updateSmartButton(shouldShow, buttonText, action) {
-    const smartButton = document.getElementById('smartButton');
-    if (!smartButton) return;
-    
-    if (shouldShow) {
-        smartButton.textContent = buttonText;
-        smartButton.style.display = 'block';
-        smartButton.onclick = () => handleSmartButtonClick(action);
-    } else {
-        smartButton.style.display = 'none';
+// 2. BANNER CONTENT GENERATOR
+function getBannerContent(type, customMessage) {
+    if (customMessage) {
+        return `<div style="font-size: 16px; font-weight: 600;">${customMessage}</div>`;
     }
+
+    const messages = {
+        buying: `
+            <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">
+                🏢 Exclusive Off-Market Opportunities!
+            </div>
+            <div style="font-size: 14px; opacity: 0.9;">
+                Click to see practices that match your criteria →
+            </div>
+        `,
+        selling: `
+            <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">
+                💰 Maximize Your Practice Value!
+            </div>
+            <div style="font-size: 14px; opacity: 0.9;">
+                Ready for Bruce's expert consultation? →
+            </div>
+        `,
+        valuation: `
+            <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">
+                🎁 FREE Practice Valuation Worth $2,500!
+            </div>
+            <div style="font-size: 14px; opacity: 0.9;">
+                Click for Bruce's professional assessment →
+            </div>
+        `
+    };
+
+    return messages[type] || messages.valuation;
 }
 
-// ===================================================
-// 🚀 FIXED SMART BUTTON CLICK HANDLER + BANNER
-// ===================================================
-function handleSmartButtonClick(buttonType) {
-    console.log(`🚨 Smart button clicked: ${buttonType}`);
-    
-    // Fix buttonType if it's an event object
-    if (typeof buttonType === 'object') {
-        buttonType = 'valuation';
+// 3. CLICK HANDLER - Uses your existing smart button logic
+function handleSmartBannerClick(consultationType) {
+    // Hide the banner immediately
+    const banner = document.getElementById('smartBannerButton');
+    if (banner) {
+        banner.style.display = 'none';
     }
 
-    // 1. HIDE THE SMART BUTTON IMMEDIATELY
-    const smartButton = document.getElementById('smartButton');
-    if (smartButton) {
-        smartButton.style.display = 'none';
+    // Use your existing handleSmartButtonClick function
+    handleSmartButtonClick(consultationType);
+}
+
+// 4. HIDE BANNER FUNCTION
+function hideSmartBannerButton() {
+    const banner = document.getElementById('smartBannerButton');
+    if (banner) {
+        banner.remove();
     }
-    
-    // 2. CREATE AND SHOW THE PROFESSIONAL BANNER
-    createLeadCaptureBanner();
-    
-    // 3. STOP SPEECH RECOGNITION COMPLETELY - NO LISTENING YET!
-    if (recognition) {
-        try {
-            recognition.stop();
-            isListening = false;
-            console.log('🔇 Speech recognition stopped for lead capture');
-        } catch (error) {
-            console.log('Speech already stopped');
-        }
-    }
-    
-    // 4. HIDE THE GREEN "SPEAK NOW" BANNER - DON'T SHOW IT YET!
-    const liveTranscript = document.getElementById('liveTranscript');
-    if (liveTranscript) {
-        liveTranscript.style.display = 'none'; // ← CRITICAL: Hide it!
-    }
-    
-    // 5. UPDATE UI ELEMENTS
-    const transcriptText = document.getElementById('transcriptText');
-    if (transcriptText) {
-        transcriptText.textContent = '';
-        transcriptText.style.display = 'none';
-    }
-    
-    const micButton = document.querySelector('.mic-btn');
-    if (micButton) {
-        micButton.innerHTML = '📋';
-        micButton.style.background = 'linear-gradient(135deg, #ff6b6b, #ee5a24)';
-    }
-    
-    console.log('🎯 Starting lead capture for:', buttonType);
-    
-    // 6. START LEAD CAPTURE SYSTEM (BUT NO LISTENING YET!)
-    initializeLeadCapture(buttonType);
 }
 
 // ===================================================
@@ -1873,7 +1848,7 @@ function initializeChatInterface() {
 // 🌍 GLOBAL FUNCTIONS
 // ===================================================
 window.askQuickQuestion = askQuickQuestion;
-window.handleSmartButtonClick = handleSmartButtonClick;
+window.handleSmartButtonClick = handleSmartBannerClick;
 
 // ===================================================
 // 🚀 INITIALIZE THE APPLICATION
