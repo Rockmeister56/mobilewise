@@ -184,8 +184,8 @@ function getApologyResponse() {
                 .map(result => result.transcript)
                 .join('');
 
-                 // ✅ REMOVE TRAILING PERIODS FROM SPEECH RECOGNITION
-    transcript = transcript.replace(/\.+$/, '');
+                  // ✅ REMOVE TRAILING PERIODS FROM SPEECH RECOGNITION - FIXED
+    transcript = transcript.replace(/\.+$/, '');  // ← Now this WORKS!
             
             const transcriptText = document.getElementById('transcriptText');
             const userInput = document.getElementById('userInput');
@@ -386,6 +386,12 @@ function formatEmailFromSpeech(speechText) {
         .replace(/\s+/g, '')                 // Remove all spaces
         .replace(/,/g, '')                   // Remove commas
         .replace(/\.+$/, '');                // ✅ Remove trailing periods!
+
+            console.log('📧 Email conversion DEBUG:', {
+        original: speechText,
+        cleaned: formattedEmail,
+        hasTrailingPeriod: /\.$/.test(speechText)
+    });
     
     console.log('📧 Email conversion:', speechText, '→', formattedEmail);
     return formattedEmail;
