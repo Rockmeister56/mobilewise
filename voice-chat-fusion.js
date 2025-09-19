@@ -1432,7 +1432,7 @@ function sendFollowUpEmail() {
                 console.log('✅ CONFIRMATION EMAIL SENT!');
                 
                 // ✅ REPLACE BRUCE'S BANNER WITH THANK YOU BANNER
-                showThankYouBanner();
+               // showThankYouBanner();
                 
                 // ✅ HIDE SMART BUTTON PERMANENTLY
                 const smartButton = document.getElementById('smartButton');
@@ -1444,14 +1444,14 @@ function sendFollowUpEmail() {
                 
             }, function(error) {
                 console.error('❌ EMAIL FAILED:', error);
-                showThankYouBanner();
+               // showThankYouBanner();
                 const smartButton = document.getElementById('smartButton');
                 if (smartButton) {
                     smartButton.style.display = 'none !important';
                 }
             });
     } else {
-        showThankYouBanner();
+      //  showThankYouBanner();
         const smartButton = document.getElementById('smartButton');
         if (smartButton) {
             smartButton.style.display = 'none !important';
