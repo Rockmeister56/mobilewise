@@ -999,15 +999,13 @@ if (!document.getElementById('bannerGlowAnimation')) {
     bannerGlowStyle.id = 'bannerGlowAnimation';
     bannerGlowStyle.textContent = `
         @keyframes shimmerGlow {
-            0%, 100% { 
-                background: rgba(255, 255, 255, 0.15);
-                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-                border-color: rgba(255, 255, 255, 0.2);
-            }
-            50% { 
-                background: rgba(255, 255, 255, 0.25);
-                box-shadow: 0 4px 20px rgba(0, 123, 255, 0.6), 0 2px 10px rgba(0, 123, 255, 0.3);
-                border-color: rgba(0, 123, 255, 0.8);
+    0%, 100% { 
+        background: rgba(255, 255, 255, 0.15);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    50% { 
+        background: rgba(0, 255, 55, 1);
+        box-shadow: 0 4px 15px rgba(0, 255, 98, 1);
             }
         }
     `;
