@@ -1224,7 +1224,7 @@ function confirmAnswer(isCorrect) {
                 }
                 
                 // ✅ SHOW BRUCE'S BANNER IMMEDIATELY!
-                showBruceBookBanner();
+                showConsultationConfirmedBanner()
                 
                 // Send email silently in background
                 setTimeout(() => {
