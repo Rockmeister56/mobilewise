@@ -1397,6 +1397,91 @@ function sendLeadEmail(data) {
     }
 }
 
+// ===================================================
+// 📧 FOLLOW-UP EMAIL - WITH ALL YOUR CURRENT LOGIC
+// ===================================================
+function sendFollowUpEmail() {
+    console.log('📧 DEBUG: leadData at function start:', leadData);
+    console.log('📧 DEBUG: leadData.email specifically:', leadData.email);
+    
+    // Add validation logging
+    if (!leadData || !leadData.email) {
+        console.error('❌ CRITICAL: leadData or email is missing!');
+        console.log('leadData object:', leadData);
+        showThankYouBanner(); // Still show banner
+        return;
+    }
+    
+    const confirmationParams = {
+        name: leadData.name,
+        phone: leadData.phone,
+        email: leadData.email,
+        to_email: leadData.email, // ← Critical field for EmailJS
+        contactTime: leadData.contactTime,
+        inquiryType: 'CONFIRMATION EMAIL WITH BOOK LINK',
+        transcript: `CONFIRMATION: Appointment scheduled for ${leadData.contactTime}\n\nFree Book: "7 Secrets to Selling Your Practice"\nDownload Link: https://bruces-book-link.com/download\n\nThank you for choosing New Clients Inc!`,
+        timestamp: new Date().toLocaleString()
+    };
+    
+    console.log('📧 DEBUG: Full confirmationParams:', confirmationParams);
+    
+    // ✅ YOUR EXACT EMAIL LOGIC
+    if (typeof emailjs !== 'undefined') {
+        emailjs.send('service_b9bppgb', 'template_8kx812d', confirmationParams)
+            .then(function(response) {
+                console.log('✅ CONFIRMATION EMAIL SENT!');
+                
+                // ✅ REPLACE BRUCE'S BANNER WITH THANK YOU BANNER
+                showThankYouBanner();
+                
+                // ✅ HIDE SMART BUTTON PERMANENTLY
+                const smartButton = document.getElementById('smartButton');
+                if (smartButton) {
+                    smartButton.style.display = 'none !important';
+                }
+                
+                // ✅ NO MORE TEXT - JUST THE THANK YOU BANNER
+                
+            }, function(error) {
+                console.error('❌ EMAIL FAILED:', error);
+                showThankYouBanner();
+                const smartButton = document.getElementById('smartButton');
+                if (smartButton) {
+                    smartButton.style.display = 'none !important';
+                }
+            });
+    } else {
+        showThankYouBanner();
+        const smartButton = document.getElementById('smartButton');
+        if (smartButton) {
+            smartButton.style.display = 'none !important';
+        }
+    }
+}
+
+// ===================================================
+// 🔘 QUICK QUESTIONS SYSTEM
+// ===================================================
+function askQuickQuestion(questionText) {
+    console.log('📋 Quick question clicked:', questionText);
+    
+    if (isSpeaking) {
+        console.log('Ignoring quick question - system busy');
+        return;
+    }
+    
+    addUserMessage(questionText);
+    
+    setTimeout(() => {
+        const response = getAIResponse(questionText);
+        lastAIResponse = response;
+        addAIMessage(response);
+        speakResponse(response);
+        
+        updateSmartButton(shouldShowSmartButton, smartButtonText, smartButtonAction);
+    }, 800);
+}
+
 function resetLeadCaptureSystem() {
     console.log('🔄 Resetting lead capture system...');
     
@@ -1700,80 +1785,6 @@ function startFollowUpSequence() {
     }
     
     isInLeadCapture = false;
-}
-
-// ===================================================
-// 📧 FOLLOW-UP EMAIL - WITH ALL YOUR CURRENT LOGIC
-// ===================================================
-function sendFollowUpEmail() {
-    console.log('📧 Sending follow-up email...');
-    
-    // ✅ YOUR EXACT PARAMETER STRUCTURE
-    const confirmationParams = {
-        name: leadData.name,
-        phone: leadData.phone,
-        email: leadData.email,
-        contactTime: leadData.contactTime,
-        inquiryType: 'CONFIRMATION EMAIL WITH BOOK LINK',
-        transcript: `CONFIRMATION: Appointment scheduled for ${leadData.contactTime}\n\nFree Book: "7 Secrets to Selling Your Practice"\nDownload Link: https://bruces-book-link.com/download\n\nThank you for choosing New Clients Inc!`,
-        timestamp: new Date().toLocaleString()
-    };
-    
-    // ✅ YOUR EXACT EMAIL LOGIC
-    if (typeof emailjs !== 'undefined') {
-        emailjs.send('service_b9bppgb', 'template_8kx812d', confirmationParams)
-            .then(function(response) {
-                console.log('✅ CONFIRMATION EMAIL SENT!');
-                
-                // ✅ REPLACE BRUCE'S BANNER WITH THANK YOU BANNER
-                showThankYouBanner();
-                
-                // ✅ HIDE SMART BUTTON PERMANENTLY
-                const smartButton = document.getElementById('smartButton');
-                if (smartButton) {
-                    smartButton.style.display = 'none !important';
-                }
-                
-                // ✅ NO MORE TEXT - JUST THE THANK YOU BANNER
-                
-            }, function(error) {
-                console.error('❌ EMAIL FAILED:', error);
-                showThankYouBanner();
-                const smartButton = document.getElementById('smartButton');
-                if (smartButton) {
-                    smartButton.style.display = 'none !important';
-                }
-            });
-    } else {
-        showThankYouBanner();
-        const smartButton = document.getElementById('smartButton');
-        if (smartButton) {
-            smartButton.style.display = 'none !important';
-        }
-    }
-}
-
-// ===================================================
-// 🔘 QUICK QUESTIONS SYSTEM
-// ===================================================
-function askQuickQuestion(questionText) {
-    console.log('📋 Quick question clicked:', questionText);
-    
-    if (isSpeaking) {
-        console.log('Ignoring quick question - system busy');
-        return;
-    }
-    
-    addUserMessage(questionText);
-    
-    setTimeout(() => {
-        const response = getAIResponse(questionText);
-        lastAIResponse = response;
-        addAIMessage(response);
-        speakResponse(response);
-        
-        updateSmartButton(shouldShowSmartButton, smartButtonText, smartButtonAction);
-    }, 800);
 }
 
 // ===================================================
