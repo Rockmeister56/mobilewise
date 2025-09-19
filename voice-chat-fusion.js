@@ -929,6 +929,40 @@ function updateSmartButton(shouldShow, buttonText, action) {
             justify-content: flex-end;
             gap: 8px;
         `;
+smartBanner.style.cssText = `
+    width: 100%;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    margin: 10px 0;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    animation: shimmerGlow 2.5s ease-in-out infinite;
+    cursor: pointer;
+    transition: all 0.3s ease;
+`;
+
+// Add the glow animation
+const bannerGlowStyle = document.createElement('style');
+bannerGlowStyle.textContent = `
+    @keyframes shimmerGlow {
+        0%, 100% { 
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        50% { 
+            background: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+    }
+`;
+document.head.appendChild(bannerGlowStyle);
+
         rightSection.innerHTML = `📚 FREE Practice Guide`;
         
         // 🎯 CLICK HANDLER (ENTIRE BANNER CLICKABLE)
