@@ -853,8 +853,9 @@ function getAIResponse(userInput) {
     return responseText;
 }
 
+
 // ===================================================
-// 🎨 SMART BUTTON - BANNER STYLE MAKEOVER
+// 🎨 SMART BUTTON - BANNER TRANSPARENCY BUTTON STYLE
 // ===================================================
 function updateSmartButton(shouldShow, buttonText, action) {
     const smartButton = document.getElementById('smartButton');
@@ -864,41 +865,44 @@ function updateSmartButton(shouldShow, buttonText, action) {
         smartButton.textContent = buttonText;
         smartButton.style.display = 'block';
         
-        // 🎨 NEW BANNER-STYLE DESIGN
+        // 🎨 BANNER-STYLE TRANSPARENCY BUTTON
         smartButton.style.cssText = `
             display: block;
             position: fixed;
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            color: #333;
-            padding: 15px 25px;
-            border-radius: 12px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             z-index: 1000;
             cursor: pointer;
             font-weight: 600;
             font-size: 16px;
             text-align: center;
-            max-width: 90%;
+            min-width: 200px;
+            max-width: 320px;
             transition: all 0.3s ease;
-            animation: gentlePulse 2s infinite;
+            animation: softGlow 2s infinite alternate;
         `;
         
         smartButton.onclick = () => handleSmartButtonClick(action);
         
-        // Add hover effects
+        // Hover effects
         smartButton.addEventListener('mouseenter', () => {
-            smartButton.style.transform = 'translateX(-50%) translateY(-3px)';
-            smartButton.style.boxShadow = '0 12px 30px rgba(0, 0, 0, 0.2)';
+            smartButton.style.background = 'rgba(255, 255, 255, 0.25)';
+            smartButton.style.transform = 'translateX(-50%) translateY(-2px)';
+            smartButton.style.boxShadow = '0 12px 40px rgba(0, 0, 0, 0.15)';
         });
         
         smartButton.addEventListener('mouseleave', () => {
+            smartButton.style.background = 'rgba(255, 255, 255, 0.15)';
             smartButton.style.transform = 'translateX(-50%) translateY(0)';
-            smartButton.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.15)';
+            smartButton.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.1)';
         });
         
     } else {
@@ -906,19 +910,21 @@ function updateSmartButton(shouldShow, buttonText, action) {
     }
 }
 
-// 🎨 ADD GENTLE PULSE ANIMATION
-const smartButtonStyle = document.createElement('style');
-smartButtonStyle.textContent = `
-    @keyframes gentlePulse {
-        0%, 100% { 
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15); 
+// 🎨 SOFT GLOW ANIMATION
+const smartButtonGlowStyle = document.createElement('style');
+smartButtonGlowStyle.textContent = `
+    @keyframes softGlow {
+        0% { 
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
         }
-        50% { 
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25); 
+        100% { 
+            box-shadow: 0 8px 32px rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.4);
         }
     }
 `;
-document.head.appendChild(smartButtonStyle);
+document.head.appendChild(smartButtonGlowStyle);
 
 // ===================================================
 // 🚀 FIXED SMART BUTTON CLICK HANDLER + BANNER
