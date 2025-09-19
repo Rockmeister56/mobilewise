@@ -1431,12 +1431,10 @@ function sendFollowUpEmail() {
     
     // ✅ YOUR EXACT EMAIL LOGIC
     if (typeof emailjs !== 'undefined') {
-        emailjs.send('service_b9bppgb', 'template_8kx812d', confirmationParams)
+        emailjs.send('service_b9bppgb', 'template_yf09xm5', confirmationParams)
             .then(function(response) {
                 console.log('✅ CONFIRMATION EMAIL SENT!');
-                
-                // ✅ REPLACE BRUCE'S BANNER WITH THANK YOU BANNER
-               // showThankYouBanner();
+            
                 
                 // ✅ HIDE SMART BUTTON PERMANENTLY
                 const smartButton = document.getElementById('smartButton');
@@ -1445,10 +1443,13 @@ function sendFollowUpEmail() {
                 }
                 
                 // ✅ NO MORE TEXT - JUST THE THANK YOU BANNER
+
+                // ✅ REPLACE BRUCE'S BANNER WITH THANK YOU BANNER
+                   showThankYouBanner();
                 
             }, function(error) {
                 console.error('❌ EMAIL FAILED:', error);
-               // showThankYouBanner();
+                showThankYouBanner();
                 const smartButton = document.getElementById('smartButton');
                 if (smartButton) {
                     smartButton.style.display = 'none !important';
