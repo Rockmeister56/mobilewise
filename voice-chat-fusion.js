@@ -1004,8 +1004,8 @@ if (!document.getElementById('bannerGlowAnimation')) {
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     }
     35% { 
-        background: rgba(0, 255, 55, 1);
-        box-shadow: 0 4px 15px rgba(0, 255, 98, 1);
+        background: rgba(0, 255, 55, .2);
+        box-shadow: 0 4px 15px rgba(0, 255, 98, .2);
             }
         }
     `;
