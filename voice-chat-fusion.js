@@ -855,7 +855,7 @@ function getAIResponse(userInput) {
 
 
 // ===================================================
-// 🎨 SMART BUTTON → SMART BANNER (HEADER STYLE)
+// 🎨 COMPACT SMART BANNER (RED OUTLINE SIZE)
 // ===================================================
 function updateSmartButton(shouldShow, buttonText, action) {
     const existingBanner = document.getElementById('smartButton');
@@ -867,103 +867,93 @@ function updateSmartButton(shouldShow, buttonText, action) {
         const smartBanner = document.createElement('div');
         smartBanner.id = 'smartButton'; // Keep same ID for compatibility
         
-        // 🎨 FULL-WIDTH HEADER BANNER STYLE
+        // 🎨 COMPACT HEADER BANNER - EXACT RED OUTLINE SIZE
         smartBanner.style.cssText = `
             position: fixed;
-            top: 80px;
-            left: 0;
-            right: 0;
-            width: 100%;
+            top: 60px;
+            left: 20px;
+            right: 20px;
+            height: 50px;
             background: rgba(255, 255, 255, 0.15);
             backdrop-filter: blur(15px);
-            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
             z-index: 999;
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            padding: 15px 20px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            animation: slideDownBanner 0.5s ease-out;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            animation: slideDownCompact 0.4s ease-out;
+            cursor: pointer;
+            transition: all 0.3s ease;
         `;
         
-        // 🎯 LEFT SIDE - FREE CONSULTATION
+        // 🎯 LEFT SIDE - CONSULTATION
         const leftSection = document.createElement('div');
         leftSection.style.cssText = `
             flex: 1;
             color: white;
             font-weight: 600;
-            font-size: 16px;
-            cursor: pointer;
-            padding: 10px 15px;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            text-align: left;
+            font-size: 14px;
+            padding: 0 15px;
+            display: flex;
+            align-items: center;
         `;
-        leftSection.innerHTML = `
-            <div style="font-size: 18px; margin-bottom: 4px;">
-                📞 ${buttonText}
-            </div>
-            <div style="font-size: 14px; opacity: 0.9;">
-                Click here to schedule →
-            </div>
-        `;
+        leftSection.innerHTML = `📞 ${buttonText}`;
         
-        // 🎁 RIGHT SIDE - FREE BOOK OFFER  
+        // 🎯 MIDDLE - CLICK HERE
+        const middleSection = document.createElement('div');
+        middleSection.style.cssText = `
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+            padding: 8px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        `;
+        middleSection.innerHTML = `👆 CLICK HERE 👆`;
+        
+        // 🎁 RIGHT SIDE - BOOK OFFER
         const rightSection = document.createElement('div');
         rightSection.style.cssText = `
             flex: 1;
             color: white;
             font-weight: 600;
-            font-size: 16px;
-            cursor: pointer;
-            padding: 10px 15px;
-            border-radius: 8px;
-            transition: all 0.3s ease;
+            font-size: 14px;
+            padding: 0 15px;
             text-align: right;
-            border-left: 1px solid rgba(255, 255, 255, 0.2);
-            margin-left: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
         `;
-        rightSection.innerHTML = `
-            <div style="font-size: 18px; margin-bottom: 4px;">
-                📚 FREE Practice Guide
-            </div>
-            <div style="font-size: 14px; opacity: 0.9;">
-                ← Download your copy
-            </div>
-        `;
+        rightSection.innerHTML = `📚 FREE Practice Guide`;
         
-        // 🎯 CLICK HANDLERS
-        leftSection.addEventListener('click', () => {
+        // 🎯 CLICK HANDLER (ENTIRE BANNER CLICKABLE)
+        smartBanner.addEventListener('click', () => {
             handleSmartButtonClick(action);
         });
         
-        rightSection.addEventListener('click', () => {
-            // Handle book download - you can customize this
-            handleBookDownload();
+        // 🎨 HOVER EFFECT (ENTIRE BANNER)
+        smartBanner.addEventListener('mouseenter', () => {
+            smartBanner.style.background = 'rgba(255, 255, 255, 0.25)';
+            smartBanner.style.transform = 'translateY(-1px)';
         });
         
-        // 🎨 HOVER EFFECTS
-        leftSection.addEventListener('mouseenter', () => {
-            leftSection.style.background = 'rgba(255, 255, 255, 0.1)';
-        });
-        leftSection.addEventListener('mouseleave', () => {
-            leftSection.style.background = 'transparent';
+        smartBanner.addEventListener('mouseleave', () => {
+            smartBanner.style.background = 'rgba(255, 255, 255, 0.15)';
+            smartBanner.style.transform = 'translateY(0)';
         });
         
-        rightSection.addEventListener('mouseenter', () => {
-            rightSection.style.background = 'rgba(255, 255, 255, 0.1)';
-        });
-        rightSection.addEventListener('mouseleave', () => {
-            rightSection.style.background = 'transparent';
-        });
-        
-        // 🏗️ BUILD THE BANNER
+        // 🏗️ BUILD THE COMPACT BANNER
         smartBanner.appendChild(leftSection);
+        smartBanner.appendChild(middleSection);
         smartBanner.appendChild(rightSection);
         document.body.appendChild(smartBanner);
         
     } else {
-        // Hide banner logic stays the same
         const smartButton = document.getElementById('smartButton');
         if (smartButton) {
             smartButton.style.display = 'none';
@@ -971,19 +961,12 @@ function updateSmartButton(shouldShow, buttonText, action) {
     }
 }
 
-// 📚 BOOK DOWNLOAD HANDLER
-function handleBookDownload() {
-    console.log('📚 Book download clicked!');
-    // You can add book download logic here
-    alert('Free Practice Guide - Coming Soon!');
-}
-
-// 🎨 SLIDE DOWN ANIMATION
-const bannerAnimationStyle = document.createElement('style');
-bannerAnimationStyle.textContent = `
-    @keyframes slideDownBanner {
+// 🎨 COMPACT SLIDE DOWN ANIMATION
+const compactBannerStyle = document.createElement('style');
+compactBannerStyle.textContent = `
+    @keyframes slideDownCompact {
         from { 
-            transform: translateY(-100%);
+            transform: translateY(-60px);
             opacity: 0;
         }
         to { 
@@ -992,7 +975,7 @@ bannerAnimationStyle.textContent = `
         }
     }
 `;
-document.head.appendChild(bannerAnimationStyle);
+document.head.appendChild(compactBannerStyle);
 
 // ===================================================
 // 🚀 FIXED SMART BUTTON CLICK HANDLER + BANNER
