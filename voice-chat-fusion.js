@@ -855,116 +855,75 @@ function getAIResponse(userInput) {
 
 
 // ===================================================
-// 🚀 SMART BANNER BUTTON - COMPLETE SYSTEM
+// 🎯 SMART BUTTON SYSTEM WITH BANNER
 // ===================================================
-
-// 1. MAIN FUNCTION - Creates the clickable banner
-function createSmartBannerButton(consultationType = 'valuation', customMessage = null) {
-    // Remove any existing banner first
-    const existingBanner = document.getElementById('smartBannerButton');
-    if (existingBanner) {
-        existingBanner.remove();
+function updateSmartButton(shouldShow, buttonText, action) {
+    const smartButton = document.getElementById('smartButton');
+    if (!smartButton) return;
+    
+    if (shouldShow) {
+        smartButton.textContent = buttonText;
+        smartButton.style.display = 'block';
+        smartButton.onclick = () => handleSmartButtonClick(action);
+    } else {
+        smartButton.style.display = 'none';
     }
-
-    const banner = document.createElement('div');
-    banner.id = 'smartBannerButton';
-    banner.style.cssText = `
-        position: fixed;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 15px 25px;
-        border-radius: 12px;
-        box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-        z-index: 1000;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        animation: slideUp 0.5s ease-out;
-        max-width: 90%;
-        text-align: center;
-    `;
-
-    // Dynamic content based on consultation type
-    const bannerContent = getBannerContent(consultationType, customMessage);
-    banner.innerHTML = bannerContent;
-
-    // THE MAGIC CLICK HANDLER
-    banner.addEventListener('click', () => {
-        console.log(`🚨 Smart Banner clicked: ${consultationType}`);
-        handleSmartBannerClick(consultationType);
-    });
-
-    // Hover effects
-    banner.addEventListener('mouseenter', () => {
-        banner.style.transform = 'translateX(-50%) translateY(-5px)';
-        banner.style.boxShadow = '0 12px 30px rgba(0,0,0,0.4)';
-    });
-
-    banner.addEventListener('mouseleave', () => {
-        banner.style.transform = 'translateX(-50%) translateY(0)';
-        banner.style.boxShadow = '0 8px 25px rgba(0,0,0,0.3)';
-    });
-
-    document.body.appendChild(banner);
-    console.log(`✅ Smart Banner Button created for: ${consultationType}`);
 }
 
-// 2. BANNER CONTENT GENERATOR
-function getBannerContent(type, customMessage) {
-    if (customMessage) {
-        return `<div style="font-size: 16px; font-weight: 600;">${customMessage}</div>`;
+// ===================================================
+// 🚀 FIXED SMART BUTTON CLICK HANDLER + BANNER
+// ===================================================
+function handleSmartButtonClick(buttonType) {
+    console.log(`🚨 Smart button clicked: ${buttonType}`);
+    
+    // Fix buttonType if it's an event object
+    if (typeof buttonType === 'object') {
+        buttonType = 'valuation';
     }
 
-    const messages = {
-        buying: `
-            <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">
-                🏢 Exclusive Off-Market Opportunities!
-            </div>
-            <div style="font-size: 14px; opacity: 0.9;">
-                Click to see practices that match your criteria →
-            </div>
-        `,
-        selling: `
-            <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">
-                💰 Maximize Your Practice Value!
-            </div>
-            <div style="font-size: 14px; opacity: 0.9;">
-                Ready for Bruce's expert consultation? →
-            </div>
-        `,
-        valuation: `
-            <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">
-                🎁 FREE Practice Valuation Worth $2,500!
-            </div>
-            <div style="font-size: 14px; opacity: 0.9;">
-                Click for Bruce's professional assessment →
-            </div>
-        `
-    };
-
-    return messages[type] || messages.valuation;
-}
-
-// 3. CLICK HANDLER - Uses your existing smart button logic
-function handleSmartBannerClick(consultationType) {
-    // Hide the banner immediately
-    const banner = document.getElementById('smartBannerButton');
-    if (banner) {
-        banner.style.display = 'none';
+    // 1. HIDE THE SMART BUTTON IMMEDIATELY
+    const smartButton = document.getElementById('smartButton');
+    if (smartButton) {
+        smartButton.style.display = 'none';
     }
-
-    // Use your existing handleSmartButtonClick function
-    handleSmartButtonClick(consultationType);
-}
-
-// 4. HIDE BANNER FUNCTION
-function hideSmartBannerButton() {
-    const banner = document.getElementById('smartBannerButton');
-    if (banner) {
-        banner.remove();
+    
+    // 2. CREATE AND SHOW THE PROFESSIONAL BANNER
+    createLeadCaptureBanner();
+    
+    // 3. STOP SPEECH RECOGNITION COMPLETELY - NO LISTENING YET!
+    if (recognition) {
+        try {
+            recognition.stop();
+            isListening = false;
+            console.log('🔇 Speech recognition stopped for lead capture');
+        } catch (error) {
+            console.log('Speech already stopped');
+        }
     }
+    
+    // 4. HIDE THE GREEN "SPEAK NOW" BANNER - DON'T SHOW IT YET!
+    const liveTranscript = document.getElementById('liveTranscript');
+    if (liveTranscript) {
+        liveTranscript.style.display = 'none'; // ← CRITICAL: Hide it!
+    }
+    
+    // 5. UPDATE UI ELEMENTS
+    const transcriptText = document.getElementById('transcriptText');
+    if (transcriptText) {
+        transcriptText.textContent = '';
+        transcriptText.style.display = 'none';
+    }
+    
+    const micButton = document.querySelector('.mic-btn');
+    if (micButton) {
+        micButton.innerHTML = '📋';
+        micButton.style.background = 'linear-gradient(135deg, #ff6b6b, #ee5a24)';
+    }
+    
+    console.log('🎯 Starting lead capture for:', buttonType);
+    
+    // 6. START LEAD CAPTURE SYSTEM (BUT NO LISTENING YET!)
+    initializeLeadCapture(buttonType);
 }
 
 // ===================================================
