@@ -179,13 +179,13 @@ function getApologyResponse() {
         }
 
         recognition.onresult = function(event) {
-            const transcript = Array.from(event.results)
+            let transcript = Array.from(event.results)
                 .map(result => result[0])
                 .map(result => result.transcript)
                 .join('');
 
                   // ✅ REMOVE TRAILING PERIODS FROM SPEECH RECOGNITION - FIXED
-    transcript = transcript.replace(/\.+$/, '');  // ← Now this WORKS!
+             transcript = transcript.replace(/\.+$/, '');  // ← Now this WORKS!
             
             const transcriptText = document.getElementById('transcriptText');
             const userInput = document.getElementById('userInput');
