@@ -614,7 +614,7 @@ function processUserResponse(userText) {
         addAIMessage(responseText);
         speakResponse(responseText);
         
-        updateSmartButton(shouldShowSmartButton, smartButtonText, smartButtonAction);
+        updateSmartButtonParallel(shouldShowSmartButton, smartButtonText, smartButtonAction);
         
         setTimeout(() => {
             window.lastProcessedMessage = null;
@@ -1493,7 +1493,7 @@ function askQuickQuestion(questionText) {
         addAIMessage(response);
         speakResponse(response);
         
-        updateSmartButton(shouldShowSmartButton, smartButtonText, smartButtonAction);
+        updateSmartButtonParallel(shouldShowSmartButton, smartButtonText, smartButtonAction);
     }, 800);
 }
 
@@ -1888,3 +1888,186 @@ document.addEventListener('DOMContentLoaded', function() {
         chatContainer.innerHTML = '';
     }
 });
+
+// ===================================================
+// 🎯 PARALLEL SMART BANNER BUTTON SYSTEM - SAFE VERSION
+// ===================================================
+
+// 1. SAFE BANNER CREATION - PARALLEL TO EXISTING SYSTEM
+function createSmartBannerButtonParallel(consultationType = 'valuation', customMessage = null) {
+    // Remove any existing smart banner (not regular banner)
+    const existingBanner = document.getElementById('smartBannerButtonParallel');
+    if (existingBanner) {
+        existingBanner.remove();
+    }
+
+    const banner = document.createElement('div');
+    banner.id = 'smartBannerButtonParallel';
+    banner.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 15px 25px;
+        border-radius: 12px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        z-index: 1000;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        animation: slideUpParallel 0.5s ease-out;
+        max-width: 90%;
+        text-align: center;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    `;
+
+    // Dynamic content based on consultation type
+    const bannerContent = getSmartBannerContent(consultationType, customMessage);
+    banner.innerHTML = bannerContent;
+
+    // SAFE CLICK HANDLER - Uses your existing working logic
+    banner.addEventListener('click', () => {
+        console.log(`🚨 Smart Banner (Parallel) clicked: ${consultationType}`);
+        handleSmartBannerClickParallel(consultationType);
+    });
+
+    // Hover effects for better UX
+    banner.addEventListener('mouseenter', () => {
+        banner.style.transform = 'translateX(-50%) translateY(-5px)';
+        banner.style.boxShadow = '0 12px 30px rgba(0,0,0,0.4)';
+    });
+
+    banner.addEventListener('mouseleave', () => {
+        banner.style.transform = 'translateX(-50%) translateY(0)';
+        banner.style.boxShadow = '0 8px 25px rgba(0,0,0,0.3)';
+    });
+
+    // Add slide up animation
+    const style = document.createElement('style');
+    if (!document.getElementById('smartBannerStyles')) {
+        style.id = 'smartBannerStyles';
+        style.textContent = `
+            @keyframes slideUpParallel {
+                from { 
+                    opacity: 0; 
+                    transform: translateX(-50%) translateY(100px); 
+                }
+                to { 
+                    opacity: 1; 
+                    transform: translateX(-50%) translateY(0); 
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    document.body.appendChild(banner);
+    console.log(`✅ Smart Banner (Parallel) created for: ${consultationType}`);
+}
+
+// 2. BANNER CONTENT GENERATOR
+function getSmartBannerContent(type, customMessage) {
+    if (customMessage) {
+        return `<div style="font-size: 16px; font-weight: 600;">${customMessage}</div>`;
+    }
+
+    const messages = {
+        buying: `
+            <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">
+                🏢 Exclusive Off-Market Opportunities!
+            </div>
+            <div style="font-size: 14px; opacity: 0.9;">
+                Click to see practices that match your criteria →
+            </div>
+        `,
+        selling: `
+            <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">
+                💰 Maximize Your Practice Value!
+            </div>
+            <div style="font-size: 14px; opacity: 0.9;">
+                Ready for Bruce's expert consultation? →
+            </div>
+        `,
+        valuation: `
+            <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">
+                🎁 FREE Practice Valuation Worth $2,500!
+            </div>
+            <div style="font-size: 14px; opacity: 0.9;">
+                Click for Bruce's professional assessment →
+            </div>
+        `
+    };
+
+    return messages[type] || messages.valuation;
+}
+
+// 3. SAFE CLICK HANDLER - PRESERVES YOUR SPEECH SYSTEM
+function handleSmartBannerClickParallel(consultationType) {
+    console.log(`🎯 Smart Banner (Parallel) handling: ${consultationType}`);
+    
+    // Hide the parallel banner immediately
+    const banner = document.getElementById('smartBannerButtonParallel');
+    if (banner) {
+        banner.style.display = 'none';
+    }
+
+    // ✅ USE YOUR EXISTING WORKING SYSTEM!
+    // This calls your existing handleSmartButtonClick function
+    // which already has all the speech management logic
+    handleSmartButtonClick(consultationType);
+}
+
+// 4. HIDE PARALLEL BANNER FUNCTION
+function hideSmartBannerButtonParallel() {
+    const banner = document.getElementById('smartBannerButtonParallel');
+    if (banner) {
+        banner.remove();
+    }
+}
+
+// ===================================================
+// 🎯 SIMPLE CALL-TO-ACTION FUNCTIONS - PARALLEL SYSTEM
+// ===================================================
+
+// For BUYING consultation path
+function showBuyingBannerParallel() {
+    createSmartBannerButtonParallel('buying');
+}
+
+// For SELLING consultation path  
+function showSellingBannerParallel() {
+    createSmartBannerButtonParallel('selling');
+}
+
+// For VALUATION consultation path
+function showValuationBannerParallel() {
+    createSmartBannerButtonParallel('valuation');
+}
+
+// Custom message banner
+function showCustomBannerParallel(message) {
+    createSmartBannerButtonParallel('valuation', message);
+}
+
+// ===================================================
+// 🔄 INTEGRATION REPLACEMENT FUNCTIONS
+// ===================================================
+
+// REPLACE your existing updateSmartButton calls with these:
+function updateSmartButtonParallel(shouldShow, buttonText, consultationType) {
+    if (shouldShow) {
+        // Show the smart banner instead of smart button
+        const customMessage = `
+            <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">
+                ${buttonText}
+            </div>
+            <div style="font-size: 14px; opacity: 0.9;">
+                Click to continue →
+            </div>
+        `;
+        createSmartBannerButtonParallel(consultationType, customMessage);
+    } else {
+        hideSmartBannerButtonParallel();
+    }
+}
