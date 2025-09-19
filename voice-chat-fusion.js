@@ -550,7 +550,7 @@ function processUserResponse(userText) {
         
         if (response.includes('yes') || response.includes('sure') || response.includes('okay') || response.includes('send')) {
             // Send confirmation email - this will handle the flow internally
-            sendConfirmationEmail();
+            sendFollowUpEmail();
             
             // Clear duplicate prevention
             setTimeout(() => {
@@ -1299,96 +1299,6 @@ function moveToNextQuestion() {
     }
 }
 
-function completeLeadCollection() {
-    
-    // Update banner to show email sending
-    const banner = document.getElementById('leadCaptureBanner');
-    if (banner) {
-        banner.remove(); // ← Just delete the banner entirely!
-    }
-    
-    // Send email via EmailJS
-    setTimeout(() => {
-        sendLeadEmail(leadData);
-    }, 2000);
-}
-
-function sendConfirmationEmail() {
-    console.log('📧 Sending confirmation email to user:', leadData.email);
-
-    // ✅ EMAIL VALIDATION BEFORE SENDING - LINE 1316 FIX
-if (!leadData || !leadData.email || !leadData.name) {
-    console.log('❌ Missing lead data - skipping confirmation email');
-    console.log('LeadData status:', {
-        exists: !!leadData,
-        hasEmail: !!(leadData && leadData.email),
-        hasName: !!(leadData && leadData.name),
-        leadData: leadData
-    });
-    
-    // Still show the banner even if email fails
-    showThankYouBanner();
-    return;
-}
-
-// ✅ ADDITIONAL EMAIL FORMAT VALIDATION
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-if (!emailRegex.test(leadData.email)) {
-    console.log('❌ Invalid email format:', leadData.email);
-    addAIMessage("There seems to be an issue with the email format. But don't worry, our specialist will still contact you!");
-    
-    // Still show the banner
-    showThankYouBanner();
-    return;
-}
-
-console.log('✅ Email validation passed - proceeding with confirmation email');
-
-// NOW CALL YOUR EXISTING sendConfirmationEmail() - Line 1316
-sendConfirmationEmail();
-    
-    const templateParams = {
-    to_email: leadData.email,                    // ✅ Matches {{to_email}}
-    name: leadData.name,                         // ✅ Matches {{name}}  
-    email: leadData.email,                       // ✅ THIS is what Reply To expects!
-    book_title: "7 Secrets to Selling Your Practice",
-    book_link: "https://your-actual-book-download-link.com",
-    from_name: "Bruce Clark"
-};
-    
-    console.log('📧 Template params being sent:', templateParams); // ← Debug line
-    
-    if (typeof emailjs !== 'undefined') {
-        emailjs.send('service_b9bppgb', 'template_8kx812d', templateParams) // ← Fixed template ID
-            .then(function(response) {
-                console.log('✅ CONFIRMATION EMAIL SENT!', response);
-                showThankYouBanner(); // ← Shows Bruce's book banner!
-            })
-            .catch(function(error) {
-                console.log('❌ Confirmation email failed:', error);
-                addAIMessage("Sorry, there was an issue sending the confirmation email.");
-            });
-    } else {
-        console.error('EmailJS not available');
-        addAIMessage("Email service temporarily unavailable.");
-    }
-}
-
-function replaceBannerWithThankYou() {
-    console.log('🎯 Replacing banner with thank you message');
-    
-    // Remove existing banners
-    const existingBanner = document.getElementById('leadCaptureBanner') || 
-                          document.querySelector('.success-banner') ||
-                          document.querySelector('.email-confirmation-banner');
-    
-    if (existingBanner) {
-        existingBanner.remove();
-    }
-    
-    // Show thank you banner
-    showThankYouBanner();
-}
 // ===================================================
 // 📧 EMAILJS INTEGRATION - STREAMLINED SYSTEM
 // ===================================================
@@ -1792,9 +1702,13 @@ function startFollowUpSequence() {
     isInLeadCapture = false;
 }
 
-function sendConfirmationEmail() {
-    console.log('📧 Sending confirmation email...');
+// ===================================================
+// 📧 FOLLOW-UP EMAIL - WITH ALL YOUR CURRENT LOGIC
+// ===================================================
+function sendFollowUpEmail() {
+    console.log('📧 Sending follow-up email...');
     
+    // ✅ YOUR EXACT PARAMETER STRUCTURE
     const confirmationParams = {
         name: leadData.name,
         phone: leadData.phone,
@@ -1804,19 +1718,8 @@ function sendConfirmationEmail() {
         transcript: `CONFIRMATION: Appointment scheduled for ${leadData.contactTime}\n\nFree Book: "7 Secrets to Selling Your Practice"\nDownload Link: https://bruces-book-link.com/download\n\nThank you for choosing New Clients Inc!`,
         timestamp: new Date().toLocaleString()
     };
-
-    // ✅ MAP TO EMAILJS EXPECTED PARAMETERS
-const emailParams = {
-    to_email: confirmationParams.email,    // What EmailJS expects
-    name: confirmationParams.name,         // What EmailJS expects  
-    email: confirmationParams.email,       // What EmailJS expects for Reply-To
-    message: confirmationParams.transcript, // Your business message
-    book_title: "7 Secrets to Selling Your Practice",
-    from_name: "Bruce Clark"
-};
-
-emailjs.send('service_b9bppgb', 'template_8kx812d', emailParams)
     
+    // ✅ YOUR EXACT EMAIL LOGIC
     if (typeof emailjs !== 'undefined') {
         emailjs.send('service_b9bppgb', 'template_8kx812d', confirmationParams)
             .then(function(response) {
