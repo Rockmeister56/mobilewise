@@ -1003,9 +1003,9 @@ if (!document.getElementById('bannerGlowAnimation')) {
         background: rgba(255, 255, 255, 0.15);
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     }
-    35% { 
-        background: rgba(0, 255, 55, .2);
-        box-shadow: 0 4px 15px rgba(0, 255, 98, .2);
+    50% { 
+        background: rgba(0, 255, 55, 0.65);
+        box-shadow: 0 4px 15px rgba(0, 255, 98, 0.4);
             }
         }
     `;
