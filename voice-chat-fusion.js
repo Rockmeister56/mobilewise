@@ -1402,28 +1402,32 @@ function sendLeadEmail(data) {
 // ===================================================
 function sendFollowUpEmail() {
     console.log('📧 DEBUG: leadData at function start:', leadData);
-    console.log('📧 DEBUG: leadData.email specifically:', leadData.email);
     
-    // Add validation logging
     if (!leadData || !leadData.email) {
         console.error('❌ CRITICAL: leadData or email is missing!');
-        console.log('leadData object:', leadData);
-        showThankYouBanner(); // Still show banner
+        showThankYouBanner();
         return;
     }
     
+    // ✅ SUPER CLEAN EMAIL - Remove any hidden characters
+    const cleanEmail = String(leadData.email).trim().replace(/[^\w@.-]/g, '');
+    
+    console.log('📧 DEBUG: Original email:', leadData.email);
+    console.log('📧 DEBUG: Cleaned email:', cleanEmail);
+    console.log('📧 DEBUG: Email length:', cleanEmail.length);
+    
     const confirmationParams = {
-        name: leadData.name,
+        to_email: cleanEmail,        // ✅ Matches {{to_email}}
+        name: leadData.name,         // ✅ Matches {{name}}
+        email: cleanEmail,           // ✅ Matches {{email}} (Reply To)
         phone: leadData.phone,
-        email: leadData.email,
-        to_email: leadData.email, // ← Critical field for EmailJS
         contactTime: leadData.contactTime,
         inquiryType: 'CONFIRMATION EMAIL WITH BOOK LINK',
         transcript: `CONFIRMATION: Appointment scheduled for ${leadData.contactTime}\n\nFree Book: "7 Secrets to Selling Your Practice"\nDownload Link: https://bruces-book-link.com/download\n\nThank you for choosing New Clients Inc!`,
         timestamp: new Date().toLocaleString()
     };
     
-    console.log('📧 DEBUG: Full confirmationParams:', confirmationParams);
+    console.log('📧 DEBUG: to_email specifically:', confirmationParams.to_email);
     
     // ✅ YOUR EXACT EMAIL LOGIC
     if (typeof emailjs !== 'undefined') {
