@@ -992,7 +992,7 @@ headerBannerStyle.textContent = `
 document.head.appendChild(headerBannerStyle);
 
 // ===================================================
-// 🎨 GLOW ANIMATION FOR SMART BANNER
+// 🎨 ELECTRIC BLUE GLOW ANIMATION FOR SMART BANNER
 // ===================================================
 if (!document.getElementById('bannerGlowAnimation')) {
     const bannerGlowStyle = document.createElement('style');
@@ -1006,8 +1006,8 @@ if (!document.getElementById('bannerGlowAnimation')) {
             }
             50% { 
                 background: rgba(255, 255, 255, 0.25);
-                box-shadow: 0 4px 15px rgba(255, 255, 255, 0.15);
-                border-color: rgba(255, 255, 255, 0.4);
+                box-shadow: 0 4px 20px rgba(0, 123, 255, 0.6), 0 2px 10px rgba(0, 123, 255, 0.3);
+                border-color: rgba(0, 123, 255, 0.8);
             }
         }
     `;
