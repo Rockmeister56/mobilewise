@@ -429,10 +429,9 @@ async function activateMicrophone() {
                 micButton.classList.add('listening');
             }
             
-            // 🎯 CAPTAIN'S SURGICAL STRIKE - SHOW THE QUICK QUESTIONS
-            document.querySelector('.quick-questions').style.display = 'block';
-            
             initializeSpeechRecognition();
+
+            document.getElementById('quickButtonsContainer').style.display = 'block';
 
             setTimeout(() => {
                 const greeting = "Hi! I'm Bruce's assistant. How can I help you?";
