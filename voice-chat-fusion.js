@@ -891,8 +891,8 @@ function showSpeakNowInstantly() {
         display: flex;
         align-items: center;
         justify-content: center;
-        min-width: 250px;
-        min-height: 60px;
+        min-width: 300px;
+        min-height: 40px;
         transition: all 0.3s ease;
         cursor: pointer;
     `;
@@ -923,7 +923,7 @@ if (!document.getElementById('speakNowWholeButtonGlowAnimation')) {
                 box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
             }
             50% { 
-                background: rgba(34, 197, 94, 0.4);
+                background: rgba(27, 214, 96, 0.4);
                 border-color: rgba(34, 197, 94, 0.6);
                 box-shadow: 0 8px 30px rgba(34, 197, 94, 0.3);
             }
