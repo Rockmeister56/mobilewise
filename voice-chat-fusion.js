@@ -890,8 +890,8 @@ liveTranscript.style.cssText = `
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 280px;
-    height: 45px;
+    width: 340px;
+    height: 30px;
     transition: all 0.3s ease;
     cursor: pointer;
     white-space: nowrap;
