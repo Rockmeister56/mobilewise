@@ -687,7 +687,8 @@
     <div style="margin-top: 15px; font-size: 0.9em; color: #ccc;">
         Click to activate microphone
     </div>
-</div>     
+</div>
+        
         
         <!-- Chat Messages Area -->
            <div class="chat-messages" id="chatMessages">
@@ -744,38 +745,15 @@
             white-space: nowrap;">Send</button>
     </div>
     
-    <!-- ESSENTIAL CHAT CONTROLS -->
+    <!-- CONTROL BUTTONS - MATCHING YOUR ORIGINAL QUICK BUTTONS -->
     <div style="
         display: flex;
-        gap: 15px;
+        gap: 10px;
         justify-content: center;
         margin: 0;">
         
-        <button onclick="switchToTextMode()" style="
-            padding: 8px 20px;
-            background: rgba(0, 0, 0, 0.7);
-            color: white;
-            border: none;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;">
-            Switch to Text
-        </button>
-        
-        <button onclick="exitChat()" style="
-            padding: 8px 20px;
-            background: rgba(0, 0, 0, 0.7);
-            color: white;
-            border: none;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;">
-            Exit
-        </button>
+        <button class="quick-btn" onclick="switchToTextMode()">Switch to Text</button>
+        <button class="quick-btn" onclick="exitChat()">Exit</button>
     </div>
 </div>
         
