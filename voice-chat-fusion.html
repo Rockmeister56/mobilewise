@@ -239,6 +239,18 @@ h1, h2, .title {
     visibility: visible !important;
 }
 
+/* Add this to your CSS - targeting the actual class name */
+.quick-questions {
+    display: none !important;
+    visibility: hidden !important;
+}
+
+/* Also hide individual quick-btn elements */
+.quick-btn {
+    display: none !important;
+    visibility: hidden !important;
+}
+
         /* 🎯 SEPARATE CHAT AREA FROM BUTTON AREAS */
 .chat-messages,
 .messages-container,
@@ -730,6 +742,28 @@ h1, h2, .title {
         <!-- Permission Status -->
         <div id="permissionStatus"></div>
     </div>
+
+    <script>
+// Wait for page to load completely
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // Find your mic button (adjust selector if needed)
+    const micButton = document.querySelector('.mic-button') || 
+                     document.querySelector('[onclick*="startRecording"]') ||
+                     document.querySelector('button:contains("activate")');
+    
+    if (micButton) {
+        micButton.addEventListener('click', function() {
+            // Show the quick questions when mic is activated
+            const quickQuestions = document.querySelector('.quick-questions');
+            if (quickQuestions) {
+                quickQuestions.style.display = 'block';
+                quickQuestions.style.visibility = 'visible';
+            }
+        });
+    }
+});
+</script>
 
     <script src="voice-chat-fusion.js"></script>
 </body>
