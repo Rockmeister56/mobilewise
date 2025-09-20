@@ -429,6 +429,9 @@ async function activateMicrophone() {
                 micButton.classList.add('listening');
             }
             
+            // 🎯 CAPTAIN'S SURGICAL STRIKE - SHOW THE QUICK QUESTIONS
+            document.querySelector('.quick-questions').style.display = 'block';
+            
             initializeSpeechRecognition();
 
             setTimeout(() => {
