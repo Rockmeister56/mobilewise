@@ -407,7 +407,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ===================================================
-// 🎤 MICROPHONE ACTIVATION SYSTEM - COMPLETE WITH BUTTON CONTROL
+// 🎤 MICROPHONE ACTIVATION SYSTEM
 // ===================================================
 async function activateMicrophone() {
     console.log('🎤 Activating microphone...');
@@ -430,18 +430,6 @@ async function activateMicrophone() {
             }
             
             initializeSpeechRecognition();
-
-            // 🎯 NEW: SHOW ALL BUTTONS AFTER MIC ACTIVATION
-            showControlButtons();                    // Shows Switch to Text + Exit
-            showQuickButtonsAfterMicActivation();   // Shows Practice Valuation, etc.
-            
-            // 🎯 NEW: HIDE THE MIC ACTIVATION SCREEN
-            const centerMicActivation = document.getElementById('centerMicActivation');
-            if (centerMicActivation) {
-                centerMicActivation.style.display = 'none';
-            }
-            
-            console.log('🎤 All buttons now available after mic activation');
 
             setTimeout(() => {
                 const greeting = "Hi! I'm Bruce's assistant. How can I help you?";
@@ -502,95 +490,6 @@ function scrollChatToBottom() {
     if (chatMessages) {
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
-}
-
-// ===================================================
-// 🔄 RESTORE ORIGINAL CONTROL BUTTONS
-// ===================================================
-function restoreOriginalControlButtons() {
-    // Find the button container (try multiple possible locations)
-    const buttonContainer = document.querySelector('.bottom-buttons, .control-buttons, .action-buttons') || 
-                           document.querySelector('.container') ||
-                           document.body;
-    
-    if (buttonContainer) {
-        // 📝 SWITCH TO TEXT BUTTON
-        const switchToTextBtn = document.createElement('button');
-        switchToTextBtn.id = 'switchToTextBtn';
-        switchToTextBtn.innerHTML = '📝 Switch to Text';
-        switchToTextBtn.className = 'control-btn text-mode-btn';
-        switchToTextBtn.onclick = () => switchToTextMode();
-        switchToTextBtn.style.cssText = `
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            color: white;
-            padding: 12px 20px;
-            border-radius: 20px;
-            margin: 5px;
-            cursor: pointer;
-            font-weight: 600;
-            display: none;
-        `;
-        
-        // 🚪 EXIT BUTTON  
-        const exitBtn = document.createElement('button');
-        exitBtn.id = 'exitBtn';
-        exitBtn.innerHTML = '🚪 Exit';
-        exitBtn.className = 'control-btn exit-btn';
-        exitBtn.onclick = () => exitVoiceChat();
-        exitBtn.style.cssText = `
-            background: rgba(255, 107, 107, 0.2);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 107, 107, 0.4);
-            color: white;
-            padding: 12px 20px;
-            border-radius: 20px;
-            margin: 5px;
-            cursor: pointer;
-            font-weight: 600;
-            display: none;
-        `;
-        
-        // Add buttons to container
-        buttonContainer.appendChild(switchToTextBtn);
-        buttonContainer.appendChild(exitBtn);
-        
-        console.log('✅ Original control buttons restored and hidden');
-    }
-}
-
-// 📝 SWITCH TO TEXT MODE FUNCTION
-function switchToTextMode() {
-    isAudioMode = false;
-    stopListening();
-    
-    // Hide speak now button
-    const liveTranscript = document.getElementById('liveTranscript');
-    if (liveTranscript) {
-        liveTranscript.style.display = 'none';
-    }
-    
-    console.log('📝 Switched to text mode');
-}
-
-// 🚪 EXIT FUNCTION
-function exitVoiceChat() {
-    if (confirm('Are you sure you want to exit?')) {
-        stopListening();
-        window.location.reload(); // or redirect to homepage
-    }
-}
-
-// 👁️ SHOW CONTROL BUTTONS (call after mic activation)
-function showControlButtons() {
-    const switchBtn = document.getElementById('switchToTextBtn');
-    const exitBtn = document.getElementById('exitBtn');
-    
-    if (switchBtn) switchBtn.style.display = 'inline-block';
-    if (exitBtn) exitBtn.style.display = 'inline-block';
-    
-    console.log('👁️ Control buttons now visible');
 }
 
 // ===================================================
