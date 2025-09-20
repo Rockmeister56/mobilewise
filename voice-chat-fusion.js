@@ -870,7 +870,7 @@ function showSpeakNowInstantly() {
         console.log('🏗️ Created transcriptText element');
     }
     
-// 🎨 SLIM & SLEEK SPEAK NOW BUTTON
+// 🎨 DIRECT SIZE CONTROL - SLIM & WIDE SPEAK NOW BUTTON
 liveTranscript.style.cssText = `
     position: fixed;
     bottom: 120px;
@@ -880,7 +880,6 @@ liveTranscript.style.cssText = `
     backdrop-filter: blur(15px);
     border: 2px solid rgba(255, 255, 255, 0.3);
     border-radius: 25px;
-    padding: 06px 75px;
     color: white;
     font-weight: 600;
     font-size: 16px;
@@ -891,12 +890,12 @@ liveTranscript.style.cssText = `
     display: flex;
     align-items: center;
     justify-content: center;
-    min-width: 200px;
-    height: auto;
+    width: 280px;
+    height: 45px;
     transition: all 0.3s ease;
     cursor: pointer;
+    white-space: nowrap;
 `;
-    
     transcriptText.textContent = 'Speak Now';
     transcriptText.style.cssText = `
         color: white;
