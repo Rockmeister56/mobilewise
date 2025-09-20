@@ -880,7 +880,7 @@ liveTranscript.style.cssText = `
     backdrop-filter: blur(15px);
     border: 2px solid rgba(255, 255, 255, 0.3);
     border-radius: 25px;
-    padding: 12px 35px;
+    padding: 08px 50px;
     color: white;
     font-weight: 600;
     font-size: 16px;
