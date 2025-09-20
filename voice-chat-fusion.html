@@ -722,6 +722,39 @@
         align-items: center;
         width: 100%;
         margin: 0;">
+
+         <div style="
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        margin-top: 10px;">
+        
+        <button onclick="switchToTextMode()" style="
+            padding: 8px 20px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;">
+            Switch to Text
+        </button>
+        
+        <button onclick="exitChat()" style="
+            padding: 8px 20px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;">
+            Exit
+        </button>
+    </div>
         
         <input type="text" id="userInput" placeholder="Type or click mic to speak..." style="
             flex: 1;
