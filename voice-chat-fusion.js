@@ -847,7 +847,7 @@ function getAIResponse(userInput) {
 }
 
 // ===================================================
-// 🎤 INSTANT SPEAK NOW DISPLAY - CREATES ELEMENTS DYNAMICALLY
+// 🎤 INSTANT SPEAK NOW - WHOLE BUTTON COLOR GLOW + BIGGER SIZE
 // ===================================================
 function showSpeakNowInstantly() {
     // 🏗️ CREATE THE ELEMENTS IF THEY DON'T EXIST
@@ -870,60 +870,62 @@ function showSpeakNowInstantly() {
         console.log('🏗️ Created transcriptText element');
     }
     
-    // 🎨 APPLY GLASSMORPHISM STYLING WITH GREEN GLOW
+    // 🎨 BIGGER SIZE + WHOLE BUTTON COLOR GLOW
     liveTranscript.style.cssText = `
         position: fixed;
-        bottom: 80px;
+        bottom: 120px;
         left: 50%;
         transform: translateX(-50%);
         background: rgba(255, 255, 255, 0.15);
         backdrop-filter: blur(15px);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        border-radius: 25px;
-        padding: 15px 30px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 30px;
+        padding: 20px 40px;
         color: white;
         font-weight: 600;
-        font-size: 16px;
+        font-size: 18px;
         text-align: center;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
         z-index: 998;
-        animation: speakNowGreenGlow 2s ease-in-out infinite;
+        animation: speakNowWholeButtonGlow 2.5s ease-in-out infinite;
         display: flex;
         align-items: center;
         justify-content: center;
-        min-width: 200px;
+        min-width: 250px;
+        min-height: 60px;
         transition: all 0.3s ease;
+        cursor: pointer;
     `;
     
     transcriptText.textContent = 'Speak Now';
     transcriptText.style.cssText = `
         color: white;
-        font-weight: 600;
-        font-size: 16px;
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        font-weight: 700;
+        font-size: 18px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         display: block;
     `;
     
-    console.log('🎤 INSTANT Speak Now with GREEN GLOW displayed!');
+    console.log('🎤 BIGGER Speak Now with WHOLE BUTTON GLOW displayed!');
 }
 
 // ===================================================
-// 🎨 GREEN GLOW ANIMATION FOR SPEAK NOW BUTTON
+// 🎨 WHOLE BUTTON COLOR GLOW ANIMATION - UPDATED
 // ===================================================
-if (!document.getElementById('speakNowGreenGlowAnimation')) {
+if (!document.getElementById('speakNowWholeButtonGlowAnimation')) {
     const speakNowGlowStyle = document.createElement('style');
-    speakNowGlowStyle.id = 'speakNowGreenGlowAnimation';
+    speakNowGlowStyle.id = 'speakNowWholeButtonGlowAnimation';
     speakNowGlowStyle.textContent = `
-        @keyframes speakNowGreenGlow {
+        @keyframes speakNowWholeButtonGlow {
             0%, 100% { 
-                border-color: rgba(255, 255, 255, 0.3);
-                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
                 background: rgba(255, 255, 255, 0.15);
+                border-color: rgba(255, 255, 255, 0.3);
+                box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
             }
             50% { 
-                border-color: rgba(34, 197, 94, 0.8);
-                box-shadow: 0 4px 20px rgba(34, 197, 94, 0.4), 0 0 30px rgba(34, 197, 94, 0.2);
-                background: rgba(255, 255, 255, 0.25);
+                background: rgba(34, 197, 94, 0.4);
+                border-color: rgba(34, 197, 94, 0.6);
+                box-shadow: 0 8px 30px rgba(34, 197, 94, 0.3);
             }
         }
     `;
