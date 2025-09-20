@@ -769,7 +769,7 @@ function getAIResponse(userInput) {
         if (userText.includes('yes') || userText.includes('sure') || userText.includes('okay') || userText.includes('definitely') || userText.includes('absolutely')) {
             responseText = "Fantastic! Please click the button above and we'll get your information over to Bruce immediately. He'll reach out within 24 hours for your FREE practice valuation.";
             shouldShowSmartButton = true;
-            smartButtonText = '📞 Schedule Free Valuation';
+            smartButtonText = '📞 Free Valuation';
             smartButtonAction = 'valuation';
             conversationState = 'button_activated_selling';
         } else if (userText.includes('no') || userText.includes('not now') || userText.includes('maybe later')) {
@@ -911,7 +911,7 @@ function updateSmartButton(shouldShow, buttonText, action) {
             gap: 5px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         `;
-        middleSection.innerHTML = `👆 CLICK HERE 👆`;
+        middleSection.innerHTML = `👆 CLICK HERE`;
         
         // 📚 RIGHT SIDE - BOOK OFFER
         const rightSection = document.createElement('div');
@@ -928,7 +928,7 @@ function updateSmartButton(shouldShow, buttonText, action) {
             gap: 8px;
         `;
         
-        rightSection.innerHTML = `📚 FREE Practice Guide`;
+        rightSection.innerHTML = `📚 FREE eBOOK`;
         
         // 🎯 CLICK HANDLER (ENTIRE BANNER CLICKABLE)
         smartBanner.addEventListener('click', () => {
