@@ -870,32 +870,32 @@ function showSpeakNowInstantly() {
         console.log('🏗️ Created transcriptText element');
     }
     
-    // 🎨 BIGGER SIZE + WHOLE BUTTON COLOR GLOW
-    liveTranscript.style.cssText = `
-        position: fixed;
-        bottom: 120px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: rgba(255, 255, 255, 0.15);
-        backdrop-filter: blur(15px);
-        border: 2px solid rgba(255, 255, 255, 0.3);
-        border-radius: 30px;
-        padding: 20px 40px;
-        color: white;
-        font-weight: 600;
-        font-size: 18px;
-        text-align: center;
-        box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
-        z-index: 998;
-        animation: speakNowWholeButtonGlow 2.5s ease-in-out infinite;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 300px;
-        min-height: 25px;
-        transition: all 0.3s ease;
-        cursor: pointer;
-    `;
+// 🎨 SLIM & SLEEK SPEAK NOW BUTTON
+liveTranscript.style.cssText = `
+    position: fixed;
+    bottom: 120px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(15px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 25px;
+    padding: 12px 35px;
+    color: white;
+    font-weight: 600;
+    font-size: 16px;
+    text-align: center;
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
+    z-index: 998;
+    animation: speakNowWholeButtonGlow 2.5s ease-in-out infinite;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 200px;
+    height: auto;
+    transition: all 0.3s ease;
+    cursor: pointer;
+`;
     
     transcriptText.textContent = 'Speak Now';
     transcriptText.style.cssText = `
