@@ -694,10 +694,10 @@
            <div class="chat-messages" id="chatMessages">
         </div>
         
-   <!-- 🎯 COMPLETE BUTTONS + TEXT INPUT + CONTROLS SYSTEM -->
+   <!-- 🎯 COMPLETE BUTTONS SYSTEM - MOVED UP + BIGGER BUTTONS -->
 <div id="quickButtonsContainer" style="
     position: fixed;
-    bottom: 20px;
+    bottom: 80px;
     left: 50%;
     transform: translateX(-50%);
     width: 95%;
@@ -721,7 +721,7 @@
         gap: 8px;
         align-items: center;
         width: 100%;
-        margin: 0 0 10px 0;">
+        margin: 0 0 12px 0;">
         
         <input type="text" id="userInput" placeholder="Type or click mic to speak..." style="
             flex: 1;
@@ -745,15 +745,34 @@
             white-space: nowrap;">Send</button>
     </div>
     
-    <!-- CONTROL BUTTONS - MATCHING YOUR ORIGINAL QUICK BUTTONS -->
+    <!-- BIGGER CONTROL BUTTONS -->
     <div style="
         display: flex;
-        gap: 10px;
+        gap: 12px;
         justify-content: center;
         margin: 0;">
         
-        <button class="quick-btn" onclick="switchToTextMode()">Switch to Text</button>
-        <button class="quick-btn" onclick="exitChat()">Exit</button>
+        <button class="quick-btn" onclick="switchToTextMode()" style="
+            padding: 12px 25px;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            min-width: 120px;">Switch to Text</button>
+        
+        <button class="quick-btn" onclick="exitToMainSite()" style="
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #ff4757, #ff3742);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            min-width: 80px;">EXIT</button>
     </div>
 </div>
         

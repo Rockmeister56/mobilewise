@@ -2137,29 +2137,18 @@ function switchToTextMode() {
     addAIMessage("Switched to text mode. You can type your questions below.");
 }
 
-// NEW FUNCTION: Exit chat completely
-function exitChat() {
-    // Hide the buttons container
-    document.getElementById('quickButtonsContainer').style.display = 'none';
-    
-    // Reset to initial state
+// 🚨 NEW FUNCTION: Exit to main website
+function exitToMainSite() {
+    // Clear chat state
     isAudioMode = false;
     micPermissionGranted = false;
     stopListening();
     
-    // Show the center mic activation again
-    const centerMic = document.getElementById('centerMicActivation');
-    if (centerMic) {
-        centerMic.style.display = 'block';
-    }
+    // Navigate back to main website
+    window.location.href = '/'; // Or whatever your main site URL is
     
-    // Reset mic button
-    const micButton = document.getElementById('micButton');
-    if (micButton) {
-        micButton.classList.remove('listening');
-    }
-    
-    addAIMessage("Thanks for using Bruce's assistant! Click the microphone to start again.");
+    // Alternative: Close chat overlay if it's a modal
+    // document.querySelector('.chat-container').style.display = 'none';
 }
 
 // NEW FUNCTION: Contact Bruce (functional)
