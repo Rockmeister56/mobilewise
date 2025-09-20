@@ -2107,3 +2107,85 @@ document.addEventListener('DOMContentLoaded', function() {
         chatContainer.innerHTML = '';
     }
 });
+
+// ===================================================
+// 🎯 CAPTAIN'S MISSING EMPIRE FUNCTIONS
+// ===================================================
+
+// NEW FUNCTION: Send text message from empire text input
+function sendTextMessage() {
+    const textInput = document.getElementById('empireTextInput') || document.getElementById('textInput');
+    const message = textInput?.value.trim();
+    
+    if (message) {
+        addUserMessage(message);
+        processUserResponse(message);
+        textInput.value = '';
+    }
+}
+
+// NEW FUNCTION: Switch to text mode
+function switchToTextMode() {
+    isAudioMode = false;
+    stopListening();
+    
+    const micButton = document.getElementById('micButton');
+    if (micButton) {
+        micButton.classList.remove('listening');
+    }
+    
+    addAIMessage("Switched to text mode. You can type your questions below.");
+}
+
+// NEW FUNCTION: Exit chat completely
+function exitChat() {
+    // Hide the buttons container
+    document.getElementById('quickButtonsContainer').style.display = 'none';
+    
+    // Reset to initial state
+    isAudioMode = false;
+    micPermissionGranted = false;
+    stopListening();
+    
+    // Show the center mic activation again
+    const centerMic = document.getElementById('centerMicActivation');
+    if (centerMic) {
+        centerMic.style.display = 'block';
+    }
+    
+    // Reset mic button
+    const micButton = document.getElementById('micButton');
+    if (micButton) {
+        micButton.classList.remove('listening');
+    }
+    
+    addAIMessage("Thanks for using Bruce's assistant! Click the microphone to start again.");
+}
+
+// NEW FUNCTION: Contact Bruce (functional)
+function contactBruce() {
+    const contactMessage = "I'd like to speak directly with Bruce about my practice.";
+    addUserMessage(contactMessage);
+    addAIMessage("I'll connect you with Bruce right away! He'll be in touch within 24 hours. Is there anything specific you'd like me to tell him?");
+}
+
+// NEW FUNCTION: Ask quick question (from buttons)
+function askQuickQuestion(question) {
+    addUserMessage(question);
+    processUserResponse(question);
+}
+
+// ENHANCED: Allow Enter key to send message
+document.addEventListener('DOMContentLoaded', function() {
+    // Add event listener for the empire text input
+    setTimeout(() => {
+        const textInput = document.getElementById('empireTextInput') || document.getElementById('textInput');
+        if (textInput) {
+            textInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendTextMessage();
+                }
+            });
+        }
+    }, 1000);
+});
