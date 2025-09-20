@@ -407,7 +407,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ===================================================
-// 🎤 MICROPHONE ACTIVATION SYSTEM
+// 🎤 MICROPHONE ACTIVATION SYSTEM - COMPLETE WITH BUTTON CONTROL
 // ===================================================
 async function activateMicrophone() {
     console.log('🎤 Activating microphone...');
@@ -430,6 +430,18 @@ async function activateMicrophone() {
             }
             
             initializeSpeechRecognition();
+
+            // 🎯 NEW: SHOW ALL BUTTONS AFTER MIC ACTIVATION
+            showControlButtons();                    // Shows Switch to Text + Exit
+            showQuickButtonsAfterMicActivation();   // Shows Practice Valuation, etc.
+            
+            // 🎯 NEW: HIDE THE MIC ACTIVATION SCREEN
+            const centerMicActivation = document.getElementById('centerMicActivation');
+            if (centerMicActivation) {
+                centerMicActivation.style.display = 'none';
+            }
+            
+            console.log('🎤 All buttons now available after mic activation');
 
             setTimeout(() => {
                 const greeting = "Hi! I'm Bruce's assistant. How can I help you?";
