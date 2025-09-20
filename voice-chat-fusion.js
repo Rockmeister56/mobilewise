@@ -407,7 +407,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ===================================================
-// 🎤 MICROPHONE ACTIVATION SYSTEM - INTEGRATED WITH BUTTON CONTROL
+// 🎤 MICROPHONE ACTIVATION SYSTEM
 // ===================================================
 async function activateMicrophone() {
     console.log('🎤 Activating microphone...');
@@ -430,11 +430,6 @@ async function activateMicrophone() {
             }
             
             initializeSpeechRecognition();
-
-            // 🎯 SHOW ALL HIDDEN BUTTONS AFTER MIC ACTIVATION
-            showControlButtons();                    // Shows Switch to Text + Exit
-            showQuickButtonsAfterMicActivation();   // Shows Practice Valuation, etc.
-            console.log('🎤 All buttons now available after mic activation');
 
             setTimeout(() => {
                 const greeting = "Hi! I'm Bruce's assistant. How can I help you?";
@@ -463,16 +458,6 @@ async function activateMicrophone() {
     }
 }
 
-// ===================================================
-// 👁️ SHOW QUICK BUTTONS AFTER MIC ACTIVATION
-// ===================================================
-function showQuickButtonsAfterMicActivation() {
-    const quickButtons = document.querySelectorAll('.quick-btn, [class*="quick"], [id*="quick"], [onclick*="askQuickQuestion"]');
-    quickButtons.forEach(button => {
-        button.style.display = 'block';
-    });
-    console.log('✅ Quick buttons shown after mic activation');
-}
 // ===================================================
 // 💭 MESSAGE HANDLING SYSTEM
 // ===================================================
