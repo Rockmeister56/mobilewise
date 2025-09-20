@@ -314,10 +314,7 @@ function getApologyResponse() {
         isListening = true;
         
         // ✅ SHOW THE GREEN "SPEAK NOW" BANNER
-        const liveTranscript = document.getElementById('liveTranscript');
-        if (liveTranscript) {
-            liveTranscript.style.display = 'flex';
-        }
+        showSpeakNowInstantly();
 
         console.log('✅ Speech recognition started successfully');
 
@@ -360,11 +357,7 @@ function forceStartListening() {
         recognition.start();
         isListening = true;
         
-        // Show the green "SPEAK NOW" banner
-        const liveTranscript = document.getElementById('liveTranscript');
-        if (liveTranscript) {
-            liveTranscript.style.display = 'flex';
-        }
+       showSpeakNowInstantly();
         
         console.log('✅ Force speech recognition started successfully');
         
@@ -1914,11 +1907,8 @@ function forceScrollToBottom() {
             behavior: 'smooth'
         });
         
-        // ✅ MOBILE SPECIFIC - ENSURE SPEAK NOW IS VISIBLE
-        const speakButton = document.getElementById('speakNowButton');
-        if (speakButton) {
-            speakButton.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
+     showSpeakNowInstantly();
+   
     }, 100);
 }
 
