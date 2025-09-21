@@ -938,11 +938,28 @@ function updateSmartButton(shouldShow, buttonText, action) {
             border-radius: 25px;
             border: 1px solid rgba(255, 255, 255, 0.4);
             display: flex;
-            align-items: right;
+            align-items: center;
             gap: 5px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         `;
         middleSection.innerHTML = `👆 CLICK HERE`;
+        
+        // 📚 RIGHT SIDE - BOOK OFFER
+        const rightSection = document.createElement('div');
+        rightSection.style.cssText = `
+            flex: 1;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+            padding: 0 20px;
+            text-align: right;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+        `;
+        
+        rightSection.innerHTML = `📚 FREE eBOOK`;
         
         // 🎯 CLICK HANDLER (ENTIRE BANNER CLICKABLE)
         smartBanner.addEventListener('click', () => {
