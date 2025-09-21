@@ -1083,24 +1083,42 @@ if (!document.getElementById('bannerGlowAnimation')) {
     document.head.appendChild(bannerGlowStyle);
 }
 
-// 🎯 AUTO-SCROLL CHAT WHEN BANNER APPEARS
+// 🎯 ENHANCED AUTO-SCROLL CHAT WHEN BANNER APPEARS
 function adjustChatForBanner(bannerHeight = 80) {
     const chatMessages = document.getElementById('chatMessages');
     if (chatMessages) {
-        // Calculate new height to accommodate banner
+        // Calculate new height to accommodate banner + breathing room
         const currentHeight = chatMessages.offsetHeight;
-        const newHeight = currentHeight - bannerHeight;
+        const newHeight = currentHeight - bannerHeight - 20; // Added 20px breathing room
         
         // Adjust chat area height
         chatMessages.style.height = newHeight + 'px';
         chatMessages.style.maxHeight = newHeight + 'px';
+        chatMessages.style.marginBottom = '20px'; // Extra spacing from buttons
         
         // Force scroll to bottom to show latest messages
         setTimeout(() => {
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }, 100);
         
-        console.log(`📊 Chat adjusted: ${currentHeight}px → ${newHeight}px`);
+        console.log(`📊 Chat adjusted: ${currentHeight}px → ${newHeight}px (with ${bannerHeight + 20}px total space)`);
+    }
+}
+
+// 🎯 RESTORE CHAT WHEN BANNER DISAPPEARS
+function restoreChatHeight() {
+    const chatMessages = document.getElementById('chatMessages');
+    if (chatMessages) {
+        // Restore original height
+        chatMessages.style.height = '45vh'; // Your original height
+        chatMessages.style.maxHeight = '45vh';
+        chatMessages.style.marginBottom = '15px'; // Standard spacing
+        
+        setTimeout(() => {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }, 100);
+        
+        console.log('📊 Chat height restored to original');
     }
 }
 
