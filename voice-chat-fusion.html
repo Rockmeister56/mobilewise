@@ -243,6 +243,22 @@
     clear: both !important; /* Prevent overlap */
 }
 
+/* 🎯 BREATHING ROOM BETWEEN CHAT AND BUTTONS */
+#chatMessages {
+    padding-bottom: 25px !important;
+    margin-bottom: 15px !important;
+}
+
+/* Alternative: Target the last message specifically */
+#chatMessages .message:last-child {
+    margin-bottom: 20px !important;
+}
+
+/* Or adjust the container position slightly */
+#quickButtonsContainer {
+    bottom: 73px !important; /* Move up 5px from your current 68px */
+}
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
