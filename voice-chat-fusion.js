@@ -961,42 +961,54 @@ function updateSmartButton(shouldShow, buttonText, action) {
     cursor: pointer;
     transition: all 0.3s ease;
 `;
-
-// 📚 LEFT SIDE - CLEAN COMBINED TEXT
-const leftSection = document.createElement('div');
-leftSection.style.cssText = `
-    flex: 1;
-    color: white;
-    font-weight: 600;
-    font-size: 14px;
-    padding: 0 20px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-`;
-leftSection.innerHTML = `📚 Free Valuation & eBook`;
-
-// 🎯 RIGHT SIDE - CLICK HERE (MOVED TO RIGHT)
-const rightSection = document.createElement('div');
-rightSection.style.cssText = `
-    color: white;
-    font-weight: bold;
-    font-size: 14px;
-    padding: 12px 25px;
-    background: rgba(255, 255, 255, 0.25);
-    border-radius: 25px;
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    margin-right: 10px;
-`;
-rightSection.innerHTML = `👆 CLICK HERE`;
-
-// 🏗️ BUILD BANNER WITH ONLY 2 SECTIONS
-smartBanner.appendChild(leftSection);
-smartBanner.appendChild(rightSection);
+        
+        // 📅 LEFT SIDE - CALENDAR + CONSULTATION
+        const leftSection = document.createElement('div');
+        leftSection.style.cssText = `
+            flex: 1;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        `;
+        leftSection.innerHTML = `📅 ${buttonText}`;
+        
+        // 🎯 MIDDLE - CLICK HERE (BIGGER)
+        const middleSection = document.createElement('div');
+        middleSection.style.cssText = `
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+            padding: 12px 25px;
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        `;
+        middleSection.innerHTML = `👆 CLICK HERE`;
+        
+        // 📚 RIGHT SIDE - BOOK OFFER
+        const rightSection = document.createElement('div');
+        rightSection.style.cssText = `
+            flex: 1;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+            padding: 0 20px;
+            text-align: right;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+        `;
+        
+        rightSection.innerHTML = `📚 FREE eBOOK`;
         
         // 🎯 CLICK HANDLER (ENTIRE BANNER CLICKABLE)
         smartBanner.addEventListener('click', () => {
@@ -1083,42 +1095,24 @@ if (!document.getElementById('bannerGlowAnimation')) {
     document.head.appendChild(bannerGlowStyle);
 }
 
-// 🎯 ENHANCED AUTO-SCROLL CHAT WHEN BANNER APPEARS
+// 🎯 AUTO-SCROLL CHAT WHEN BANNER APPEARS
 function adjustChatForBanner(bannerHeight = 80) {
     const chatMessages = document.getElementById('chatMessages');
     if (chatMessages) {
-        // Calculate new height to accommodate banner + breathing room
+        // Calculate new height to accommodate banner
         const currentHeight = chatMessages.offsetHeight;
-        const newHeight = currentHeight - bannerHeight - 20; // Added 20px breathing room
+        const newHeight = currentHeight - bannerHeight;
         
         // Adjust chat area height
         chatMessages.style.height = newHeight + 'px';
         chatMessages.style.maxHeight = newHeight + 'px';
-        chatMessages.style.marginBottom = '20px'; // Extra spacing from buttons
         
         // Force scroll to bottom to show latest messages
         setTimeout(() => {
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }, 100);
         
-        console.log(`📊 Chat adjusted: ${currentHeight}px → ${newHeight}px (with ${bannerHeight + 20}px total space)`);
-    }
-}
-
-// 🎯 RESTORE CHAT WHEN BANNER DISAPPEARS
-function restoreChatHeight() {
-    const chatMessages = document.getElementById('chatMessages');
-    if (chatMessages) {
-        // Restore original height
-        chatMessages.style.height = '45vh'; // Your original height
-        chatMessages.style.maxHeight = '45vh';
-        chatMessages.style.marginBottom = '15px'; // Standard spacing
-        
-        setTimeout(() => {
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }, 100);
-        
-        console.log('📊 Chat height restored to original');
+        console.log(`📊 Chat adjusted: ${currentHeight}px → ${newHeight}px`);
     }
 }
 
