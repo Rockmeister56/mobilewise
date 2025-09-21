@@ -314,7 +314,7 @@ function getApologyResponse() {
         isListening = true;
         
         // showSpeakNow();✅ SHOW THE GREEN "SPEAK NOW" BANNER
-         showSpeakNow();
+         //showSpeakNow();
 
         console.log('✅ Speech recognition started successfully');
 
