@@ -2203,6 +2203,11 @@ function askQuickQuestion(question) {
     processUserResponse(question);
 }
 
+// ADD THIS AT THE VERY BOTTOM OF YOUR EXISTING JS FILE
+document.addEventListener('DOMContentLoaded', () => {
+    const avatarController = new AIAvatarController();
+});
+
 // ENHANCED: Allow Enter key to send message
 document.addEventListener('DOMContentLoaded', function() {
     // Add event listener for the empire text input
