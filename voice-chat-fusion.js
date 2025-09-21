@@ -1031,8 +1031,7 @@ function updateSmartButton(shouldShow, buttonText, action) {
         smartBanner.appendChild(middleSection);
         smartBanner.appendChild(rightSection);
 
-        adjustChatForBanner(80); // Adjust based on your banner height
-        restoreChatHeight();
+        adjustChatForBanner(80);
         
         // 🎯 FIND HEADER AND INSERT BANNER
         const header = document.querySelector('header') || document.querySelector('.header') || document.querySelector('.container > *:first-child');
@@ -1054,6 +1053,7 @@ function updateSmartButton(shouldShow, buttonText, action) {
         const smartButton = document.getElementById('smartButton');
         if (smartButton) {
             smartButton.style.display = 'none';
+            restoreContainerPosition(); // ← Add this when hiding banner
         }
     }
 }
