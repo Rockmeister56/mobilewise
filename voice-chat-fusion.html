@@ -702,6 +702,11 @@
     [class*="mic"] {
         display: none !important;
     }
+
+    #micButton {
+    /* Your existing styles here */
+    text-align: center; /* Add this line */
+}
     
     /* Expand text input to full width */
     .text-input,
@@ -1006,8 +1011,9 @@
         <div class="ai-avatar-container" id="avatarContainer">
             <div class="avatar-video" id="videoState" style="display: none;">
                 <video id="aiAvatar" muted playsinline>
-                    <source src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1758443293187.mp4" type="video/mp4">
-                </video>
+    <source src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1758443293187.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+</video>
                 <div class="ai-equipped-badge">AI Voice Equipped</div>
             </div>
         </div>
