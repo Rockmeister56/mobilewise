@@ -83,6 +83,45 @@
     }
 }
 
+@media (min-width: 769px) {
+    /* Fix container positioning on desktop */
+    #quickButtonsContainer {
+        position: relative !important;
+        bottom: auto !important;
+        left: auto !important;
+        transform: none !important;
+        width: 100% !important;
+        max-width: none !important;
+        margin: 20px 0 !important;
+        background: rgba(255, 255, 255, 0.1) !important;
+    }
+    
+    /* Fix speak now button on desktop */
+    #liveTranscript {
+        position: relative !important;
+        bottom: auto !important;
+        left: auto !important;
+        transform: none !important;
+        margin: 15px 0 !important;
+        width: auto !important;
+    }
+    
+    /* Desktop chat area adjustment */
+    #chatMessages {
+        height: 50vh !important;
+        max-height: 50vh !important;
+        margin-bottom: 20px !important;
+    }
+    
+    /* Center the mic activation on desktop */
+    #centerMicActivation {
+        position: fixed !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+    }
+}
+
 /* ✅ MOBILE STYLES */
 @media (max-width: 768px) {
     .container {
