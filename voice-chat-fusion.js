@@ -313,8 +313,8 @@ function getApologyResponse() {
         recognition.start();
         isListening = true;
         
-        // ✅ SHOW THE GREEN "SPEAK NOW" BANNER
-        showSpeakNowInstantly();
+        // showSpeakNow();✅ SHOW THE GREEN "SPEAK NOW" BANNER
+       // showSpeakNow();
 
         console.log('✅ Speech recognition started successfully');
 
@@ -357,7 +357,7 @@ function forceStartListening() {
         recognition.start();
         isListening = true;
         
-       showSpeakNowInstantly();
+       showSpeakNow();
         
         console.log('✅ Force speech recognition started successfully');
         
@@ -851,63 +851,13 @@ function getAIResponse(userInput) {
 // ===================================================
 // 🎤 INSTANT SPEAK NOW - WHOLE BUTTON COLOR GLOW + BIGGER SIZE
 // ===================================================
-function showSpeakNowInstantly() {
-    // 🏗️ CREATE THE ELEMENTS IF THEY DON'T EXIST
-    let liveTranscript = document.getElementById('liveTranscript');
-    let transcriptText = document.getElementById('transcriptText');
-    
-    // Create liveTranscript if it doesn't exist
-    if (!liveTranscript) {
-        liveTranscript = document.createElement('div');
-        liveTranscript.id = 'liveTranscript';
-        document.body.appendChild(liveTranscript);
-        console.log('🏗️ Created liveTranscript element');
-    }
-    
-    // Create transcriptText if it doesn't exist  
-    if (!transcriptText) {
-        transcriptText = document.createElement('div');
-        transcriptText.id = 'transcriptText';
-        liveTranscript.appendChild(transcriptText);
-        console.log('🏗️ Created transcriptText element');
-    }
-    
-// 🎨 DIRECT SIZE CONTROL - SLIM & WIDE SPEAK NOW BUTTON
-liveTranscript.style.cssText = `
-    position: fixed;
-    bottom: 120px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(15px);
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-radius: 25px;
-    color: white;
-    font-weight: 600;
-    font-size: 16px;
-    text-align: center;
-    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
-    z-index: 998;
-    animation: speakNowWholeButtonGlow 2.5s ease-in-out infinite;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 340px;
-    height: 30px;
-    transition: all 0.3s ease;
-    cursor: pointer;
-    white-space: nowrap;
-`;
-    transcriptText.textContent = 'Speak Now';
-    transcriptText.style.cssText = `
-        color: white;
-        font-weight: 700;
-        font-size: 18px;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-        display: block;
-    `;
-    
-    console.log('🎤 BIGGER Speak Now with WHOLE BUTTON GLOW displayed!');
+
+function showSpeakNow() {
+    document.getElementById('speakNowButton').style.display = 'flex';
+}
+
+function hideSpeakNow() {
+    document.getElementById('speakNowButton').style.display = 'none';
 }
 
 // ===================================================
@@ -2032,7 +1982,7 @@ function forceScrollToBottom() {
             behavior: 'smooth'
         });
         
-     showSpeakNowInstantly();
+     //showSpeakNow();
    
     }, 100);
 }
