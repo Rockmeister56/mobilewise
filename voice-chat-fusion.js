@@ -895,116 +895,89 @@ function updateSmartButton(shouldShow, buttonText, action) {
     
     if (shouldShow) {
         const smartBanner = document.createElement('div');
-        smartBanner.id = 'smartButton'; // Keep same ID for compatibility
+        smartBanner.id = 'smartButton';
         
-  smartBanner.style.cssText = `
-    width: 100%;
-    height: 60px;
-    background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(15px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 8px;
-    margin: 10px 0;
-    display: flex;
-    align-items: center;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    animation: shimmerGlow 2.5s ease-in-out infinite;
-    cursor: pointer;
-    transition: all 0.3s ease;
-`;
+        smartBanner.style.cssText = `
+            width: 100%;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            animation: shimmerGlow 2.5s ease-in-out infinite;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 0 25px;
+        `;
         
-        // 📅 LEFT SIDE - CALENDAR + CONSULTATION
+        // 📅 LEFT SIDE - Free Consultation
         const leftSection = document.createElement('div');
         leftSection.style.cssText = `
-            flex: 1;
             color: white;
             font-weight: 600;
-            font-size: 14px;
-            padding: 0 20px;
+            font-size: 16px;
             display: flex;
             align-items: center;
-            gap: 8px;
         `;
-        leftSection.innerHTML = `📅 ${buttonText}`;
+        leftSection.innerHTML = `📅 Free Consultation`;
         
-        // 🎯 MIDDLE - CLICK HERE (BIGGER)
-        const middleSection = document.createElement('div');
-        middleSection.style.cssText = `
-            color: white;
-            font-weight: bold;
-            font-size: 14px;
-            padding: 12px 25px;
-            background: rgba(255, 255, 255, 0.25);
-            border-radius: 25px;
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        `;
-        middleSection.innerHTML = `👆 CLICK HERE`;
-        
-        // 📚 RIGHT SIDE - BOOK OFFER
+        // 🎯 RIGHT SIDE - CLICK NOW
         const rightSection = document.createElement('div');
         rightSection.style.cssText = `
-            flex: 1;
             color: white;
-            font-weight: 600;
-            font-size: 14px;
-            padding: 0 20px;
-            text-align: right;
+            font-weight: bold;
+            font-size: 16px;
+            padding: 10px 20px;
+            background: rgba(34, 197, 94, 0.3);
+            border-radius: 20px;
+            border: 1px solid rgba(34, 197, 94, 0.5);
             display: flex;
             align-items: center;
-            justify-content: flex-end;
-            gap: 8px;
         `;
+        rightSection.innerHTML = `CLICK NOW`;
         
-        rightSection.innerHTML = `📚 FREE eBOOK`;
-        
-        // 🎯 CLICK HANDLER (ENTIRE BANNER CLICKABLE)
+        // Click handler
         smartBanner.addEventListener('click', () => {
             handleSmartButtonClick(action);
         });
         
-        // 🎨 HOVER EFFECT
+        // Hover effects
         smartBanner.addEventListener('mouseenter', () => {
             smartBanner.style.background = 'rgba(255, 255, 255, 0.25)';
-            smartBanner.style.transform = 'translateY(-1px)';
+            rightSection.style.background = 'rgba(34, 197, 94, 0.5)';
         });
         
         smartBanner.addEventListener('mouseleave', () => {
             smartBanner.style.background = 'rgba(255, 255, 255, 0.15)';
-            smartBanner.style.transform = 'translateY(0)';
+            rightSection.style.background = 'rgba(34, 197, 94, 0.3)';
         });
         
-        // 🏗️ INSERT INTO HEADER CONTAINER
+        // Build the banner
         smartBanner.appendChild(leftSection);
-        smartBanner.appendChild(middleSection);
         smartBanner.appendChild(rightSection);
-
+        
         adjustChatForBanner(80);
         
-        // 🎯 FIND HEADER AND INSERT BANNER
+        // Insert into header
         const header = document.querySelector('header') || document.querySelector('.header') || document.querySelector('.container > *:first-child');
-        
         if (header) {
-            // Insert after the header title but before chat area
             header.appendChild(smartBanner);
-            console.log('✅ Smart banner inserted into header');
         } else {
-            // Fallback: insert at top of container
             const container = document.querySelector('.container');
             if (container && container.firstChild) {
                 container.insertBefore(smartBanner, container.firstChild.nextSibling);
             }
-            console.log('✅ Smart banner inserted into container');
         }
-        
     } else {
         const smartButton = document.getElementById('smartButton');
         if (smartButton) {
             smartButton.style.display = 'none';
-            restoreContainerPosition(); // ← Add this when hiding banner
+            restoreContainerPosition();
         }
     }
 }
