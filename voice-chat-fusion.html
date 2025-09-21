@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head> <link rel="icon" type="image/x-icon" href="/favicon.ico">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VoiceChat Direct</title>
@@ -49,7 +49,7 @@
     --client-primary: #052c99;        /* Deep midnight blue-black */
     --client-secondary: #1E3A5F;      /* Rich steel blue */
     --client-accent: #2b5adb;         /* Bright electric blue */
-    --primary-gradient: linear-gradient(135deg, #0A1428, #1048c0, #003674, #3fa5ce);
+    --primary-gradient: linear-gradient(135deg, #0A1428, #1048c0, #003674, #87CEEB);
 }
 
         /* ===================================================
@@ -702,11 +702,6 @@
     [class*="mic"] {
         display: none !important;
     }
-
-    #micButton {
-    /* Your existing styles here */
-    text-align: center; /* Add this line */
-}
     
     /* Expand text input to full width */
     .text-input,
@@ -757,118 +752,11 @@
         .pulse-animation {
             animation: pulse 2s infinite;
         }
-   .container {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    background: var(--primary-gradient);
-}
-
-.ai-header {
-    /* TOP section - stays at top */
-    flex-shrink: 0;
-}
-
-.middle-section {
-    /* MIDDLE section - centers the mic button */
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-
-.ai-avatar-container {
-    /* BOTTOM section - where she appears */
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 50vh; /* Takes up bottom half */
-    z-index: 10;
-}
-
-/* AI Header Styling - ADD THIS */
-.ai-header h1 {
-    color: #FF8C42;
-    font-size: 2.5rem;
-    font-weight: bold;
-    margin: 0;
-    text-shadow: 0 0 20px rgba(255, 140, 66, 0.6);
-}
-
-.ai-header p {
-    color: white;
-    margin: 10px 0 0 0;
-    opacity: 0.9;
-}
-
-/* Video Avatar State - ADD THIS */
-.avatar-video {
-    position: relative;
-    width: 100%;
-    height: 100%;
-}
-
-.avatar-video video {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 20px;
-}
-
-/* AI Equipped Badge - ADD THIS */
-.ai-equipped-badge {
-    position: absolute;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(0, 255, 179, 0.9);
-    color: #0A1428;
-    padding: 10px 20px;
-    border-radius: 25px;
-    font-weight: bold;
-    font-size: 1.1rem;
-    box-shadow: 0 0 20px rgba(0, 255, 179, 0.6);
-    animation: glow 2s ease-in-out infinite alternate;
-}
-
-#avatarContainer {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-}
-
-/* Glow Animation - ADD THIS */
-@keyframes glow {
-    from { box-shadow: 0 0 20px rgba(0, 255, 179, 0.6); }
-    to { box-shadow: 0 0 30px rgba(0, 255, 179, 1); }
-}
-
-/* Fade Transitions - ADD THIS */
-.fade-in {
-    animation: fadeIn 0.5s ease-in;
-}
-
-.fade-out {
-    animation: fadeOut 0.5s ease-out;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: scale(0.9); }
-    to { opacity: 1; transform: scale(1); }
-}
-
-@keyframes fadeOut {
-    from { opacity: 1; transform: scale(1); }
-    to { opacity: 0; transform: scale(0.9); }
-}
-   
-   </style>
+    </style>
 </head>
-<body class="deep-blue-theme">
+<body>
     <div class="container">
+        <body class="deep-blue-theme"></body>
         <!-- Header -->
         <header>
             <h1>AI VOICE CHAT</h1>
@@ -878,7 +766,6 @@
         <!-- Smart CTA Button (appears at top when triggered) -->
         <div class="smart-button" id="smartButton" style="display: none;"></div>
 
-        <!-- CENTER: Your Existing Microphone Button (Perfect!) -->
         <div id="centerMicActivation" style="
     position: fixed;
     top: 37%;
@@ -886,209 +773,137 @@
     transform: translate(-50%, -50%);
     text-align: center;
     z-index: 1000;
-    display: block !important;">
+    display: block;">
     
-    <button id="micButton" style="
-        background: linear-gradient(45deg, #00ff88, #00ccff) !important;
-        border: none !important;
-        border-radius: 50% !important;
-        width: 100px !important;
-        height: 100px !important;
-        font-size: 2em !important;
-        cursor: pointer !important;
-        box-shadow: 0 4px 15px rgba(0,255,136,0.3) !important;
-        display: block !important;
-        position: relative !important;">
+    <button id="mainMicButton" style="
+        background: linear-gradient(45deg, #00ff88, #00ccff);
+        border: none;
+        border-radius: 50%;
+        width: 100px;
+        height: 100px;
+        font-size: 2em;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(0,255,136,0.3);">
         🎤
     </button>
-            
-            <div style="margin-top: 15px; font-size: 0.9em; color: #ccc;">
-                Click to activate microphone
-            </div>
-        </div>
+    
+    <div style="margin-top: 15px; font-size: 0.9em; color: #ccc;">
+        Click to activate microphone
+    </div>
+</div>
+        
         
         <!-- Chat Messages Area -->
-        <div class="chat-messages" id="chatMessages"></div>
+           <div class="chat-messages" id="chatMessages">
+        </div>
         
-        <!-- Speak Now Button -->
-        <div id="speakNowButton" style="
-            width: 340px;
-            height: 30px;
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(15px);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 25px;
-            color: white;
-            font-weight: 600;
-            font-size: 16px;
-            text-align: center;
-            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
-            animation: speakNowWholeButtonGlow 2.5s ease-in-out infinite;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            margin: 10px auto;
-            cursor: pointer;">
-            Speak Now
-        </div>
+   <!-- 🎯 COMPLETE BUTTONS SYSTEM - MOVED UP + BIGGER BUTTONS -->
+<div id="speakNowButton" style="
+    width: 340px;
+    height: 30px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(15px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 25px;
+    color: white;
+    font-weight: 600;
+    font-size: 16px;
+    text-align: center;
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
+    animation: speakNowWholeButtonGlow 2.5s ease-in-out infinite;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    margin: 10px auto;
+    cursor: pointer;">
+    Speak Now
+</div>
 
-        <!-- Quick Buttons Container -->
-        <div id="quickButtonsContainer" style="
-            position: fixed;
-            bottom: 54px;
-            left: 50%;
-            transform: translateX(-50%);
+<div id="quickButtonsContainer" style="
+    position: fixed;
+    bottom: 54px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 610px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 10px;
+    backdrop-filter: blur(10px);
+    display: none;">
+    
+    <!-- ORIGINAL SIMPLE QUICK BUTTONS -->
+    <div class="quick-questions" style="margin-bottom: 12px;">
+        <button class="quick-btn" onclick="askQuickQuestion('How much is my practice worth?')">Practice Valuation</button>
+        <button class="quick-btn" onclick="askQuickQuestion('I want to sell my practice')">Selling Options</button>
+        <button class="quick-btn" onclick="askQuickQuestion('I want to buy a practice')">Buying Options</button>
+    </div>
+    
+    <!-- FULL WIDTH TEXT INPUT -->
+    <div class="input-area" style="
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        width: 100%;
+        margin: 0 0 12px 0;">
+        
+        <input type="text" id="userInput" placeholder="Type or click mic to speak..." style="
+            flex: 1;
             width: 100%;
-            max-width: 610px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 10px;
-            backdrop-filter: blur(10px);
-            display: none;">
-            
-            <!-- Quick Questions -->
-            <div class="quick-questions" style="margin-bottom: 12px;">
-                <button class="quick-btn" onclick="askQuickQuestion('How much is my practice worth?')">Practice Valuation</button>
-                <button class="quick-btn" onclick="askQuickQuestion('I want to sell my practice')">Selling Options</button>
-                <button class="quick-btn" onclick="askQuickQuestion('I want to buy a practice')">Buying Options</button>
-            </div>
-            
-            <!-- Text Input Area -->
-            <div class="input-area" style="
-                display: flex;
-                gap: 8px;
-                align-items: center;
-                width: 100%;
-                margin: 0 0 12px 0;">
-                
-                <input type="text" id="userInput" placeholder="Type or click mic to speak..." style="
-                    flex: 1;
-                    width: 100%;
-                    padding: 12px;
-                    border: none;
-                    border-radius: 25px;
-                    background: rgba(255, 255, 255, 0.9);
-                    color: #333;
-                    font-size: 16px;
-                    outline: none;">
-                
-                <button id="sendBtn" onclick="sendMessage()" style="
-                    padding: 12px 20px;
-                    background: linear-gradient(90deg, #ff7e5f, #feb47b);
-                    color: white;
-                    border: none;
-                    border-radius: 25px;
-                    font-weight: bold;
-                    cursor: pointer;
-                    white-space: nowrap;">Send</button>
-            </div>
-            
-            <!-- Control Buttons -->
-            <div style="
-                display: flex;
-                gap: 12px;
-                justify-content: center;
-                margin: 0;">
-                
-                <button class="quick-btn" onclick="switchToTextMode()" style="
-                    padding: 12px 25px;
-                    background: rgba(255, 255, 255, 0.15);
-                    color: white;
-                    border: none;
-                    border-radius: 20px;
-                    cursor: pointer;
-                    font-size: 14px;
-                    font-weight: 600;
-                    min-width: 120px;">Switch to Text</button>
-                
-                <button class="quick-btn" onclick="exitToMainSite()" style="
-                    padding: 12px 25px;
-                    background: linear-gradient(135deg, #ff4757, #ff3742);
-                    color: white;
-                    border: none;
-                    border-radius: 20px;
-                    cursor: pointer;
-                    font-size: 14px;
-                    font-weight: 600;
-                    min-width: 80px;">EXIT</button>
-            </div>
-        </div>
-
-        <!-- BOTTOM: AI Avatar Video Container -->
-        <div class="ai-avatar-container" id="avatarContainer">
-            <div class="avatar-video" id="videoState" style="display: none;">
-                <video id="aiAvatar" muted playsinline style="width: 100%; height: 100%;">
-    <source src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1758443293187.mp4" type="video/mp4">
-</video>
-                <div class="ai-equipped-badge">AI Voice Equipped</div>
-            </div>
-        </div>
-
+            padding: 12px;
+            border: none;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            font-size: 16px;
+            outline: none;">
+        
+        <button id="sendBtn" onclick="sendMessage()" style="
+            padding: 12px 20px;
+            background: linear-gradient(90deg, #ff7e5f, #feb47b);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            white-space: nowrap;">Send</button>
+    </div>
+    
+    <!-- BIGGER CONTROL BUTTONS -->
+    <div style="
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        margin: 0;">
+        
+        <button class="quick-btn" onclick="switchToTextMode()" style="
+            padding: 12px 25px;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            min-width: 120px;">Switch to Text</button>
+        
+        <button class="quick-btn" onclick="exitToMainSite()" style="
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #ff4757, #ff3742);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            min-width: 80px;">EXIT</button>
+    </div>
+</div>
+        
         <!-- Permission Status -->
         <div id="permissionStatus"></div>
     </div>
-    
-  <script src="voice-chat-fusion.js"></script>
 
-   <script>
-    // AI Avatar Controller
-    document.addEventListener('DOMContentLoaded', function() {
-        const micButton = document.getElementById('micButton');
-        const avatarContainer = document.getElementById('avatarContainer');
-        const videoState = document.getElementById('videoState');
-        const aiAvatar = document.getElementById('aiAvatar');
-        
-        console.log('Avatar elements check:', {
-            micButton: micButton,
-            avatarContainer: avatarContainer,
-            videoState: videoState,
-            aiAvatar: aiAvatar
-        });
-        
-        if (micButton) {
-            micButton.addEventListener('click', function() {
-                console.log('Microphone clicked - activating avatar');
-                activateAvatar();
-            });
-        } else {
-            console.error('micButton element still not found!');
-        }
-        
-        function activateAvatar() {
-            // Show avatar container
-            if (avatarContainer) {
-                avatarContainer.style.display = 'block';
-            }
-            
-            // Show video state
-            if (videoState) {
-                videoState.style.display = 'block';
-                videoState.classList.add('fade-in');
-            }
-            
-            // Play avatar video
-            if (aiAvatar) {
-                aiAvatar.play().then(() => {
-                    console.log('Avatar video started playing');
-                }).catch(error => {
-                    console.error('Error playing avatar video:', error);
-                });
-            }
-            
-            // Hide mic button
-            if (micButton.parentElement) {
-                micButton.parentElement.style.display = 'none';
-            }
-        }
-    });
-    </script>
+    <script src="voice-chat-fusion.js"></script>
 </body>
-
-    <script>
-console.log('🔍 DIAGNOSTIC CHECK:');
-console.log('avatarContainer:', document.getElementById('avatarContainer'));
-console.log('videoState:', document.getElementById('videoState'));  
-console.log('aiAvatar:', document.getElementById('aiAvatar'));
-console.log('micButton:', document.getElementById('micButton'));
-</script>
-</body>
+</html>
