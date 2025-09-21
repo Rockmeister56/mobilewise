@@ -269,6 +269,7 @@ function getApologyResponse() {
 
 
       recognition.onend = function() {
+      hideSpeakNow();
     console.log('🔚 Recognition ended');
     
     const userInput = document.getElementById('userInput');
@@ -314,7 +315,7 @@ function getApologyResponse() {
         isListening = true;
         
         // showSpeakNow();✅ SHOW THE GREEN "SPEAK NOW" BANNER
-         //showSpeakNow();
+           showSpeakNow();
 
         console.log('✅ Speech recognition started successfully');
 
