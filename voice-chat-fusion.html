@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+<head> <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VoiceChat Direct</title>
@@ -868,25 +868,27 @@
 
         <!-- CENTER: Your Existing Microphone Button (Perfect!) -->
         <div id="centerMicActivation" style="
-            position: fixed;
-            top: 37%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            z-index: 1000;
-            display: block;">
-            
-            <button id="micButton" style="
-                background: linear-gradient(45deg, #00ff88, #00ccff);
-                border: none;
-                border-radius: 50%;
-                width: 100px;
-                height: 100px;
-                font-size: 2em;
-                cursor: pointer;
-                box-shadow: 0 4px 15px rgba(0,255,136,0.3);">
-                🎤
-            </button>
+    position: fixed;
+    top: 37%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 1000;
+    display: block !important;">
+    
+    <button id="micButton" style="
+        background: linear-gradient(45deg, #00ff88, #00ccff) !important;
+        border: none !important;
+        border-radius: 50% !important;
+        width: 100px !important;
+        height: 100px !important;
+        font-size: 2em !important;
+        cursor: pointer !important;
+        box-shadow: 0 4px 15px rgba(0,255,136,0.3) !important;
+        display: block !important;
+        position: relative !important;">
+        🎤
+    </button>
             
             <div style="margin-top: 15px; font-size: 0.9em; color: #ccc;">
                 Click to activate microphone
@@ -1015,6 +1017,60 @@
     </div>
     
   <script src="voice-chat-fusion.js"></script>
+
+   <script>
+    // AI Avatar Controller
+    document.addEventListener('DOMContentLoaded', function() {
+        const micButton = document.getElementById('micButton');
+        const avatarContainer = document.getElementById('avatarContainer');
+        const videoState = document.getElementById('videoState');
+        const aiAvatar = document.getElementById('aiAvatar');
+        
+        console.log('Avatar elements check:', {
+            micButton: micButton,
+            avatarContainer: avatarContainer,
+            videoState: videoState,
+            aiAvatar: aiAvatar
+        });
+        
+        if (micButton) {
+            micButton.addEventListener('click', function() {
+                console.log('Microphone clicked - activating avatar');
+                activateAvatar();
+            });
+        } else {
+            console.error('micButton element still not found!');
+        }
+        
+        function activateAvatar() {
+            // Show avatar container
+            if (avatarContainer) {
+                avatarContainer.style.display = 'block';
+            }
+            
+            // Show video state
+            if (videoState) {
+                videoState.style.display = 'block';
+                videoState.classList.add('fade-in');
+            }
+            
+            // Play avatar video
+            if (aiAvatar) {
+                aiAvatar.play().then(() => {
+                    console.log('Avatar video started playing');
+                }).catch(error => {
+                    console.error('Error playing avatar video:', error);
+                });
+            }
+            
+            // Hide mic button
+            if (micButton.parentElement) {
+                micButton.parentElement.style.display = 'none';
+            }
+        }
+    });
+    </script>
+</body>
 
     <script>
 console.log('🔍 DIAGNOSTIC CHECK:');
