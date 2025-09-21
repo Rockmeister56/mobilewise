@@ -123,12 +123,25 @@
 }
 
    
- /* 🎯 SPEAK NOW BUTTON - DESKTOP ONLY SIZING (NO POSITION OVERRIDES) */
-#liveTranscript {
-    width: 750px !important;              /* Keep your width */
-    height: 40px !important;              /* Keep your height */
-    margin: -5px auto 25px auto !important; /* Keep your spacing */
-    /* REMOVED all position and display overrides - let JS control visibility */
+/* 🖥️ DESKTOP ONLY - SPEAK NOW SIZING */
+@media (min-width: 769px) {
+    #liveTranscript {
+        width: 750px !important;
+        height: 40px !important;
+        margin: -5px auto 25px auto !important;
+    }
+}
+
+/* 📱 MOBILE ONLY - SPEAK NOW POSITIONING */
+@media (max-width: 768px) {
+    #liveTranscript {
+        position: fixed !important;
+        bottom: 200px !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        width: 340px !important;
+        height: 30px !important;
+    }
 }
     
     /* 🎯 CONTAINER - MOVE DOWN A BIT */
