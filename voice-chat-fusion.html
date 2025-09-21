@@ -278,6 +278,63 @@
             20%, 80% { opacity: 1; }
         }
 
+        /* 🎤 PULSATING MIC BUTTON ANIMATION */
+#mainMicButton {
+    /* Keep your existing styles and ADD these */
+    animation: pulse-glow 2s ease-in-out infinite alternate;
+    box-shadow: 
+        0 0 20px rgba(0, 255, 136, 0.6),
+        0 0 40px rgba(0, 255, 136, 0.4),
+        0 0 60px rgba(0, 255, 136, 0.2);
+}
+
+/* Pulsating glow keyframes */
+@keyframes pulse-glow {
+    0% {
+        transform: scale(1);
+        box-shadow: 
+            0 0 20px rgba(0, 255, 136, 0.6),
+            0 0 40px rgba(0, 255, 136, 0.4),
+            0 0 60px rgba(0, 255, 136, 0.2);
+    }
+    100% {
+        transform: scale(1.05);
+        box-shadow: 
+            0 0 30px rgba(0, 255, 136, 0.8),
+            0 0 60px rgba(0, 255, 136, 0.6),
+            0 0 90px rgba(0, 255, 136, 0.4);
+    }
+}
+
+/* Enhanced hover effect */
+#mainMicButton:hover {
+    animation-duration: 0.5s;
+    transform: scale(1.1);
+}
+
+/* Click ripple effect */
+#mainMicButton:active {
+    animation: ripple 0.6s linear;
+}
+
+@keyframes ripple {
+    0% {
+        box-shadow: 
+            0 0 0 0 rgba(0, 255, 136, 0.7),
+            0 0 20px rgba(0, 255, 136, 0.6);
+    }
+    70% {
+        box-shadow: 
+            0 0 0 60px rgba(0, 255, 136, 0),
+            0 0 20px rgba(0, 255, 136, 0.6);
+    }
+    100% {
+        box-shadow: 
+            0 0 0 0 rgba(0, 255, 136, 0),
+            0 0 20px rgba(0, 255, 136, 0.6);
+    }
+}
+
         /* ===================================================
            💭 CHAT MESSAGES AREA
            ================================================== */
@@ -775,18 +832,18 @@
     z-index: 1000;
     display: block;">
     
-    <button id="mainMicButton" style="
-        background: linear-gradient(45deg, #00ff88, #00ccff);
-        border: none;
-        border-radius: 50%;
-        width: 100px;
-        height: 100px;
-        font-size: 2em;
-        cursor: pointer;
-        box-shadow: 0 4px 15px rgba(0,255,136,0.3);">
-        🎤
-    </button>
-    
+   <button id="mainMicButton" style="
+    background: linear-gradient(45deg, #00ff88, #00ccff);
+    border: none;
+    border-radius: 50%;
+    width: 100px;
+    height: 100px;
+    font-size: 2em;
+    cursor: pointer;
+    color: white;
+    transition: all 0.3s ease;">
+    🎤
+</button>
     <div style="margin-top: 15px; font-size: 0.9em; color: #ccc;">
         Click to activate microphone
     </div>
