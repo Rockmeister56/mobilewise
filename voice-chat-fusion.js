@@ -1340,25 +1340,34 @@ function speakMessage(message) {
         };
         
         utterance.onend = function() {
-            console.log('🔊 AI finished speaking - showing Speak Now after delay');
-            // ✅ PERFECT TIMING: Show "Speak Now" after short delay
-            setTimeout(() => {
-                if (isInLeadCapture) {
-                    const liveTranscript = document.getElementById('liveTranscript');
-                    const transcriptText = document.getElementById('transcriptText');
-                    
-                    if (liveTranscript && transcriptText) {
-                        transcriptText.textContent = 'Speak Now...'; // ✅ ADD TEXT!
-                        transcriptText.style.display = 'block';
-                        liveTranscript.style.display = 'flex';
-                    }
-                    
-                    if (recognition && !isListening) {
-                        startListening();
-                    }
-                }
-            }, 300); // ✅ HALF SECOND DELAY - Perfect timing!
-        };
+    console.log('🔊 AI finished speaking - pre-warming recognition...');
+    
+    // PRE-WARM recognition engine BEFORE showing UI
+    if (recognition && isInLeadCapture) {
+        // Initialize recognition early
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.maxAlternatives = 3; // Enhanced accuracy
+        
+        // Start recognition but don't show UI yet
+        if (!isListening) {
+            startListening(); // Gets engine ready
+        }
+        
+        // NOW show "Speak Now" with engine already hot
+        setTimeout(() => {
+            const liveTranscript = document.getElementById('liveTranscript');
+            const transcriptText = document.getElementById('transcriptText');
+            
+            if (liveTranscript && transcriptText) {
+                transcriptText.textContent = 'Speak Now...'; 
+                transcriptText.style.display = 'block';
+                liveTranscript.style.display = 'flex';
+                console.log('🔥 Recognition HOT - Ready for input!');
+            }
+        }, 500); // Increased to 500ms for engine warmup
+    }
+};
         
         window.speechSynthesis.speak(utterance);
     }
