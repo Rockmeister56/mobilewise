@@ -1994,38 +1994,30 @@ function showEmailConfirmationBanner() {
     
     const confirmationBanner = document.createElement('div');
     confirmationBanner.id = 'emailConfirmationBanner';
+    
+    // ONLY styling - NO positioning (let CSS handle that!)
     confirmationBanner.style.cssText = `
-        position: absolute !important;
-        top: 90px !important;  /* ADJUST THIS VALUE to control vertical position */
-        left: 50% !important;
-        transform: translateX(-50%) !important;
-        z-index: 9998 !important;
-        width: calc(100% - 20px) !important;
-        max-width: 400px !important;
         background: rgba(76, 175, 80, 0.2);
         backdrop-filter: blur(10px);
         border: 1px solid rgba(76, 175, 80, 0.3);
         border-radius: 12px;
         padding: 12px 16px;
         text-align: center;
-        margin: 0 !important;
-        box-sizing: border-box;
+        color: white;
     `;
     
     confirmationBanner.innerHTML = `
-        <div style="color: white; font-size: 14px;">
+        <div style="font-size: 14px;">
             ✅ <strong>Confirmation Email Sent!</strong><br>
             <span style="font-size: 12px; opacity: 0.9;">Please check your email for the book link</span>
         </div>
     `;
     
-    // Insert into body for absolute positioning control
+    // Append to body (your CSS will handle positioning)
     document.body.appendChild(confirmationBanner);
 
     setTimeout(() => {
         confirmationBanner.remove();
-        // Don't call any other banner - just remove this one
-        // The conversation continues to final question
     }, 4000);
 }
 
