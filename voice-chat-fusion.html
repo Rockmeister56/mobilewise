@@ -810,6 +810,42 @@
             animation: pulse 2s infinite;
         }
 
+        /* ===== MOBILE-WISE AI BANNER ABSOLUTE POSITIONING ===== */
+.lead-capture-banner,
+.consultation-banner,
+#leadCaptureBanner,
+#emailConfirmationBanner,
+#thankYouBanner,
+.email-confirmation-banner,
+.success-banner,
+.consultation-confirmed-banner {
+    position: absolute !important;
+    top: 10px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    z-index: 9999 !important;
+    width: calc(100% - 20px) !important;
+    max-width: 400px !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+}
+
+/* Container - NO min-height forcing */
+.container {
+    position: relative !important;
+    padding-top: 80px !important; /* Just breathing room for banners */
+}
+
+/* Smart button stays visible */
+.smart-button,
+#smartButton {
+    position: fixed !important;
+    bottom: 20px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    z-index: 8888 !important;
+}
+
     </style>
 </head>
 <body>
@@ -888,42 +924,6 @@
     .mobile-slogan-adjust {
         right: 10px !important; /* Adjust slogan position on mobile */
     }
-}
-
-/* ===== MOBILE-WISE AI BANNER ABSOLUTE POSITIONING ===== */
-.lead-capture-banner,
-.consultation-banner,
-#leadCaptureBanner,
-#emailConfirmationBanner,
-#thankYouBanner,
-.email-confirmation-banner,
-.success-banner,
-.consultation-confirmed-banner {
-    position: absolute !important;
-    top: 10px !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    z-index: 9999 !important;
-    width: calc(100% - 20px) !important;
-    max-width: 400px !important;
-    margin: 0 !important;
-    box-sizing: border-box !important;
-}
-
-/* Container - NO min-height forcing */
-.container {
-    position: relative !important;
-    padding-top: 80px !important; /* Just breathing room for banners */
-}
-
-/* Smart button stays visible */
-.smart-button,
-#smartButton {
-    position: fixed !important;
-    bottom: 20px !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    z-index: 8888 !important;
 }
 </style>
     </div>
