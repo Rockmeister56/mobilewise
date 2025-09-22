@@ -1183,7 +1183,7 @@ function handleSmartButtonClick(buttonType) {
 }
 
 // ===================================================
-// 🎨 CREATE PROFESSIONAL BANNER SYSTEM
+// 🎨 CREATE PROFESSIONAL BANNER SYSTEM - FIXED POSITION
 // ===================================================
 function createLeadCaptureBanner() {
     // Remove any existing banner
@@ -1196,41 +1196,70 @@ function createLeadCaptureBanner() {
     const banner = document.createElement('div');
     banner.id = 'leadCaptureBanner';
     banner.style.cssText = `
+        position: fixed;
+        top: 80px;
+        left: 10px;
+        right: 10px;
+        width: calc(100% - 20px);
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         border: 2px solid rgba(255, 255, 255, 0.3);
         border-radius: 15px;
         padding: 15px 20px;
-        margin: 10px 0 20px 0;
         text-align: center;
         font-weight: bold;
         font-size: 18px;
         color: white;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         animation: bannerSlideIn 0.5s ease-out;
+        z-index: 999;
+        box-sizing: border-box;
     `;
     banner.innerHTML = '📝 YOUR CONTACT INFO';
     
     // Add animation keyframes
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes bannerSlideIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-    `;
-    document.head.appendChild(style);
-    
-    // Insert banner at the top of the container, after the header
-    const container = document.querySelector('.container');
-    const header = container.querySelector('header');
-    
-    if (header && header.nextSibling) {
-        container.insertBefore(banner, header.nextSibling);
-    } else {
-        container.insertBefore(banner, container.firstChild);
+    if (!document.getElementById('leadBannerAnimation')) {
+        const style = document.createElement('style');
+        style.id = 'leadBannerAnimation';
+        style.textContent = `
+            @keyframes bannerSlideIn {
+                from { opacity: 0; transform: translateY(-20px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+        `;
+        document.head.appendChild(style);
     }
     
-    console.log('🎨 Professional banner created and displayed');
+    // 🎯 FORCE INSERT INTO BODY - NO MORE CONTAINER PUSHING!
+    document.body.appendChild(banner);
+    
+    // 🎯 ADD EXTRA PADDING TO MAIN CONTENT FOR LEAD CAPTURE
+    const container = document.querySelector('.container');
+    if (container) {
+        const currentPadding = parseInt(container.style.paddingTop) || 0;
+        container.style.paddingTop = (currentPadding + 70) + 'px'; // Add space for lead banner
+        container.style.transition = 'padding-top 0.3s ease';
+    }
+    
+    console.log('🎨 Fixed position lead capture banner created');
+}
+
+// ===================================================
+// 🎯 REMOVE LEAD CAPTURE BANNER
+// ===================================================
+function removeLeadCaptureBanner() {
+    const existingBanner = document.getElementById('leadCaptureBanner');
+    if (existingBanner) {
+        existingBanner.remove();
+    }
+    
+    // 🎯 RESTORE ORIGINAL PADDING
+    const container = document.querySelector('.container');
+    if (container) {
+        const currentPadding = parseInt(container.style.paddingTop) || 0;
+        container.style.paddingTop = Math.max(0, currentPadding - 70) + 'px';
+    }
+    
+    console.log('🎨 Lead capture banner removed and padding restored');
 }
 
 // ===================================================
@@ -1476,7 +1505,7 @@ function confirmAnswer(isCorrect) {
                 // Remove the lead capture banner
                 const banner = document.getElementById('leadCaptureBanner');
                 if (banner) {
-                    banner.remove();
+                    removeLeadCaptureBanner();
                 }
                 
                 // ✅ SHOW BRUCE'S BANNER IMMEDIATELY!
@@ -1759,7 +1788,7 @@ function resetLeadCaptureSystem() {
     // Remove banner
     const banner = document.getElementById('leadCaptureBanner');
     if (banner) {
-        banner.remove();
+        removeLeadCaptureBanner();
     }
     
     // Reset variables
@@ -1791,15 +1820,14 @@ function resetLeadCaptureSystem() {
 function showConsultationConfirmedBanner() {
     console.log('🎯 Showing Consultation Confirmed Banner - DUAL SECTION');
     
-    // Remove ALL existing banners (Same cleanup as your working version)
-    const existingBruce = document.getElementById('bruceBookBanner');
-    const existingLead = document.getElementById('leadCaptureBanner');
-    const existingConfirm = document.getElementById('emailConfirmationBanner');
-    
-    if (existingBruce) existingBruce.remove();
-    if (existingLead) existingLead.remove();
-    if (existingConfirm) existingConfirm.remove();
-    
+   // Remove ALL existing banners (Same cleanup as your working version)
+const existingBruce = document.getElementById('bruceBookBanner');
+const existingConfirm = document.getElementById('emailConfirmationBanner');
+
+if (existingBruce) existingBruce.remove();
+removeLeadCaptureBanner(); // Standardized lead capture removal
+if (existingConfirm) existingConfirm.remove
+
     // Hide smart button
     const smartButton = document.getElementById('smartButton');
     if (smartButton) {
@@ -1863,17 +1891,16 @@ function showConsultationConfirmedBanner() {
 function showThankYouBanner() {
     console.log('🙏 Showing Thank You Banner with Audio');
     
-    // Remove any existing banners
-    const existingBruce = document.getElementById('bruceBookBanner');
-    const existingThankYou = document.getElementById('thankYouBanner');
-    const existingLeadCapture = document.getElementById('leadCaptureBanner');
-    const existingEmailConfirmation = document.querySelector('.email-confirmation-banner');
-    const existingSuccess = document.querySelector('.success-banner');
-    
-    if (existingThankYou) existingThankYou.remove();
-    if (existingLeadCapture) existingLeadCapture.remove();
-    if (existingEmailConfirmation) existingEmailConfirmation.remove();
-    if (existingSuccess) existingSuccess.remove();
+  // Remove any existing banners
+const existingBruce = document.getElementById('bruceBookBanner');
+const existingThankYou = document.getElementById('thankYouBanner');
+const existingEmailConfirmation = document.querySelector('.email-confirmation-banner');
+const existingSuccess = document.querySelector('.success-banner');
+
+if (existingThankYou) existingThankYou.remove();
+removeLeadCaptureBanner(); // Standardized lead capture removal
+if (existingEmailConfirmation) existingEmailConfirmation.remove();
+if (existingSuccess) existingSuccess.remove();
     
     // Hide smart button
     const smartButton = document.getElementById('smartButton');
@@ -1959,12 +1986,11 @@ function showThankYouBanner() {
 
 function showEmailConfirmationBanner() {
     // Remove ALL existing banners
-    const existingBruce = document.getElementById('bruceBookBanner');
-    const existingLead = document.getElementById('leadCaptureBanner');
-    const existingConfirm = document.getElementById('emailConfirmationBanner');
-    
-    if (existingLead) existingLead.remove(); // Remove "LEAD CAPTURED" banner
-    if (existingConfirm) existingConfirm.remove();
+   const existingBruce = document.getElementById('bruceBookBanner');
+const existingConfirm = document.getElementById('emailConfirmationBanner');
+
+removeLeadCaptureBanner(); // Use standardized removal function
+if (existingConfirm) existingConfirm.remove();
     
     const confirmationBanner = document.createElement('div');
     confirmationBanner.id = 'emailConfirmationBanner';
@@ -2057,7 +2083,7 @@ function startFollowUpSequence() {
     // Remove the lead capture banner
     const banner = document.getElementById('leadCaptureBanner');
     if (banner) {
-        banner.remove();
+        removeLeadCaptureBanner();
     }
     
     isInLeadCapture = false;
