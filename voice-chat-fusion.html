@@ -889,6 +889,43 @@
         right: 10px !important; /* Adjust slogan position on mobile */
     }
 }
+
+/* ===== MOBILE-WISE AI BANNER ABSOLUTE POSITIONING ===== */
+.lead-capture-banner,
+.consultation-banner,
+#leadCaptureBanner,
+#emailConfirmationBanner,
+#thankYouBanner,
+.email-confirmation-banner,
+.success-banner,
+.consultation-confirmed-banner {
+    position: absolute !important;
+    top: 10px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    z-index: 9999 !important;
+    width: calc(100% - 20px) !important;
+    max-width: 400px !important;
+    margin: 0 !important; /* Override any existing margins */
+    box-sizing: border-box !important;
+}
+
+/* Extra protection for container stability */
+.container {
+    position: relative !important;
+    min-height: 100vh !important;
+    padding-top: 80px !important; /* Space for banners */
+}
+
+/* Smart button positioning fix */
+.smart-button,
+#smartButton {
+    position: fixed !important;
+    bottom: 20px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    z-index: 8888 !important;
+}
 </style>
     </div>
 </div>
