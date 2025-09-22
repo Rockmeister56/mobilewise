@@ -816,18 +816,33 @@
         <body class="deep-blue-theme"></body>
         <!-- Header -->
         <header>
-            
-            <!-- Add this INSIDE your existing <header> tag -->
-<div style="float: left; margin-bottom: 10px;">
-    <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758507868460_logo.png" 
-         style="width: 70px; height: 70px; float: left; margin-right: 8px;">
-    <span style="color: white; line-height: 50px;">Mobile-Wise AI</span>
+     <!-- DEDICATED HEADER CONTAINER (won't interfere with chat) -->
+<div style="
+    position: relative;
+    width: 100%;
+    height: 60px;
+    padding: 15px 20px;
+    box-sizing: border-box;
+    margin-bottom: 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);">
+    
+    <!-- LEFT SIDE: Logo + Text -->
+    <div style="float: left;">
+        <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758507868460_logo.png" 
+             style="width: 40px; height: 40px; float: left; margin-right: 8px;">
+        <span style="color: white; font-size: 1rem; line-height: 40px;">Mobile-Wise AI</span>
+    </div>
+    
+    <!-- RIGHT SIDE: Slogan -->
+    <div style="float: right;">
+        <span style="color: #87CEEB; font-size: 1rem; font-weight: 600; line-height: 40px;">HELPFUL - AI VOICE CHAT</span>
+    </div>
+    
+    <!-- CLEAR FLOATS -->
     <div style="clear: both;"></div>
 </div>
-         <!-- SLOGAN (RIGHT SIDE) -->
-<div style="position: absolute; top: 15px; right: 20px;">
-    <span style="color: #87CEEB; font-size: 1rem; font-weight: 600;">HELPFUL - AI VOICE CHAT</span>
-</div>
+        </header>
+        
         <!-- Smart CTA Button (appears at top when triggered) -->
         <div class="smart-button" id="smartButton" style="display: none;"></div>
 
