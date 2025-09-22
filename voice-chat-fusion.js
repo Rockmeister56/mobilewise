@@ -947,7 +947,7 @@ if (!document.getElementById('speakNowWholeButtonGlowAnimation')) {
 }
 
 // ===================================================
-// 🎨 SMART BANNER - INSIDE HEADER CONTAINER
+// 🎨 SMART BANNER - AGGRESSIVE TOP POSITIONING
 // ===================================================
 function updateSmartButton(shouldShow, buttonText, action) {
     const existingBanner = document.getElementById('smartButton');
@@ -960,13 +960,16 @@ function updateSmartButton(shouldShow, buttonText, action) {
         smartBanner.id = 'smartButton';
         
         smartBanner.style.cssText = `
-            width: 100%;
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            width: calc(100% - 20px);
             height: 60px;
             background: rgba(255, 255, 255, 0.15);
             backdrop-filter: blur(15px);
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 8px;
-            margin: 10px 0;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -975,6 +978,8 @@ function updateSmartButton(shouldShow, buttonText, action) {
             cursor: pointer;
             transition: all 0.3s ease;
             padding: 0 25px;
+            z-index: 1000;
+            box-sizing: border-box;
         `;
         
         // 📅 LEFT SIDE - Free Consultation
@@ -1023,23 +1028,28 @@ function updateSmartButton(shouldShow, buttonText, action) {
         smartBanner.appendChild(leftSection);
         smartBanner.appendChild(rightSection);
         
-        adjustChatForBanner(80);
+        // 🎯 FORCE INSERT AT TOP OF BODY - NO MORE GUESSING!
+        document.body.appendChild(smartBanner);
         
-        // Insert into header
-        const header = document.querySelector('header') || document.querySelector('.header') || document.querySelector('.container > *:first-child');
-        if (header) {
-            header.appendChild(smartBanner);
-        } else {
-            const container = document.querySelector('.container');
-            if (container && container.firstChild) {
-                container.insertBefore(smartBanner, container.firstChild.nextSibling);
-            }
+        // 🎯 PUSH MAIN CONTENT DOWN TO AVOID OVERLAP
+        const container = document.querySelector('.container');
+        if (container) {
+            container.style.paddingTop = '80px'; // Make room for fixed banner
+            container.style.transition = 'padding-top 0.3s ease';
         }
+        
+        console.log('🎯 Smart button FORCED to top with fixed positioning');
+        
     } else {
         const smartButton = document.getElementById('smartButton');
         if (smartButton) {
-            smartButton.style.display = 'none';
-            restoreContainerPosition();
+            smartButton.remove();
+        }
+        
+        // 🎯 RESTORE NORMAL PADDING
+        const container = document.querySelector('.container');
+        if (container) {
+            container.style.paddingTop = '0';
         }
     }
 }
