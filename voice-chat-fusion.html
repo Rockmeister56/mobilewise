@@ -521,7 +521,6 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
 
-
         /* ===================================================
            🔘 QUICK ACTION BUTTONS
            ================================================== */
@@ -824,7 +823,7 @@
         <!-- Smart CTA Button (appears at top when triggered) -->
         <div class="smart-button" id="smartButton" style="display: none;"></div>
 
-       <div id="centerMicActivation" style="
+        <div id="centerMicActivation" style="
     position: fixed;
     top: 37%;
     left: 50%;
@@ -833,15 +832,17 @@
     z-index: 1000;
     display: block;">
     
-    <button class="mic-button" id="mainMicButton" onclick="activateVoiceChat()">
-        <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758507730523_mic-activate.png" 
-             alt="Activate Microphone" class="mic-img">
+    <button id="mainMicButton" style="
+        background: linear-gradient(45deg, #00ff88, #00ccff);
+        border: none;
+        border-radius: 50%;
+        width: 100px;
+        height: 100px;
+        font-size: 2em;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(0,255,136,0.3);">
+        🎤
     </button>
-    
-    <div style="margin-top: 15px; font-size: 0.9em; color: #ccc;">
-        Click to activate microphone
-    </div>
-</div>
     
     <div style="margin-top: 15px; font-size: 0.9em; color: #ccc;">
         Click to activate microphone
