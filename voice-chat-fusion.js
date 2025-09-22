@@ -798,7 +798,7 @@ function getAIResponse(userInput) {
             shouldShowSmartButton = false;
             
         } else if (userText.includes('sell') || userText.includes('selling')) {
-            responseText = "I'd love to help you with selling your practice! Let me ask you a few quick questions to better understand your situation. How large is your practice - how many clients do you currently serve?";
+            responseText = "I'd love to help you with selling your practice! Let me ask you a few quick questions to better understand your situation - how many clients do you currently serve?";
             conversationState = 'selling_size_question';
             shouldShowSmartButton = false;
             
