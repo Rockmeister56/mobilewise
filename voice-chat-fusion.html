@@ -235,29 +235,33 @@
             margin-bottom: 10px;
         }
 
-     /* ===================================================
-   🔵 UNIVERSAL SMART BUTTON (BANNER SYSTEM)
-   ================================================== */
-.smart-button,
-.smart-button-banner {
-    /* Inherit from your Universal Banner positioning */
-    background: var(--cta-gradient);
-    color: white;
-    border: none;
-    border-radius: 25px;
-    cursor: pointer;
-    font-weight: bold;
-    text-align: center;
-    font-size: 16px;
-    animation: pulse-attention 1.5s infinite;
-    box-shadow: 0 4px 15px rgba(33, 150, 243, 0.4);
-    padding: 15px;
-}
+        /* ===================================================
+           🔵 SMART CTA BUTTON (TOP POSITIONING)
+           ================================================== */
+        .smart-button {
+            position: sticky;
+            top: 10px;
+            z-index: 1000;
+            width: 100%;
+            padding: 15px;
+            background: var(--cta-gradient);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 16px;
+            animation: pulse-attention 1.5s infinite;
+            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.4);
+        }
 
-@keyframes pulse-attention {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-}
+        @keyframes pulse-attention {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
         /* ===================================================
            🎤 MICROPHONE STATUS INDICATOR
            ================================================== */
@@ -869,6 +873,85 @@ button[class*="smart"] {
         <body class="deep-blue-theme"></body>
         <!-- Header -->
         <header>
+            
+        <!-- FLOATING OVERLAY HEADER (doesn't push anything down) -->
+<div style="
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    pointer-events: none;
+    padding: 15px 20px;">
+    
+    <!-- LEFT: Logo + Text -->
+    <div style="
+        position: absolute;
+        top: 10px;
+        left: 20px;
+        pointer-events: auto;">
+        <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758507868460_logo.png" 
+             style="width: 70px; height: 70px; float: left; margin-right: -5px;">
+        <span style="color: white; font-size: 0.8rem; line-height: 70px;">Mobile-Wise AI</span>
+     <div class="mobile-logo-adjust" style="position: absolute; top: 15px; left: 20px; pointer-events: auto;"></div>
+    </div>
+    
+    <!-- RIGHT: Slogan -->
+    <div style="
+        position: absolute;
+        top: 15px;
+        right: 25px;
+        pointer-events: auto;">
+        <span style="color: #87CEEB; font-size: 1rem; font-weight: 600;">AI VOICE CHAT</span>
+        <div class="mobile-slogan-adjust" style="position: absolute; top: 20px; right: 7px; pointer-events: auto;"></div>
+       
+    </div>
+</div>
+        
+        <!-- Smart CTA Button (appears at top when triggered) -->
+        <div class="smart-button" id="smartButton" style="display: none;"></div>
+
+        <div id="centerMicActivation" style="
+    position: fixed;
+    top: calc(37% + 15px);
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 1000;
+    display: block;">
+    
+    <button id="mainMicButton" style="
+    background: none;
+    border: none;
+    border-radius: 50%;
+    width: 200px;
+    height: 200px;
+    cursor: pointer;
+    padding: 0;">
+    <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758507730523_mic-activate.png" 
+         style="width: 100%; height: 100%; border-radius: 50%;">
+</button>
+    
+    <div style="margin-top: 15px; font-size: 0.9em; color: #ccc;">
+        Click to activate microphone
+        <style>
+@media (max-width: 768px) {
+    /* Mobile positioning controls */
+    .mobile-logo-adjust {
+        left: 10px !important; /* Adjust logo position on mobile */
+    }
+    
+    .mobile-slogan-adjust {
+        right: 10px !important; /* Adjust slogan position on mobile */
+    }
+}
+</style>
+    </div>
+</div>
+
+<!-- SPACER/BREAK -->
+<div style="height: 70px;"></div>
+        
         
         <!-- Chat Messages Area -->
            <div class="chat-messages" id="chatMessages">
