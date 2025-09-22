@@ -1996,7 +1996,7 @@ function showEmailConfirmationBanner() {
     confirmationBanner.id = 'emailConfirmationBanner';
     confirmationBanner.style.cssText = `
         position: absolute !important;
-        top: 70px !important;  /* ADJUST THIS VALUE to control vertical position */
+        top: 90px !important;  /* ADJUST THIS VALUE to control vertical position */
         left: 50% !important;
         transform: translateX(-50%) !important;
         z-index: 9998 !important;
