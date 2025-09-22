@@ -1198,13 +1198,13 @@ function createLeadCaptureBanner() {
     banner.style.cssText = `
         position: fixed;
         top: 20px;
-        left: 10px;
-        right: 10px;
+        left: 0px;
+        right: 0px;
         width: calc(100% - 20px);
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         border: 2px solid rgba(255, 255, 255, 0.3);
         border-radius: 15px;
-        padding: 15px 20px;
+        padding: 20px 30px;
         text-align: center;
         font-weight: bold;
         font-size: 18px;
