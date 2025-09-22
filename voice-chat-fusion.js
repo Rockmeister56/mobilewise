@@ -885,6 +885,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
+    // ===================================================================
+// 🎯 MOBILE-WISE AI UNIVERSAL BANNER ENGINE - PERMANENT INSTALLATION
+// ===================================================================
+    document.addEventListener('DOMContentLoaded', function() {
+
     // Universal Banner Engine
     window.showUniversalBanner = function(bannerType, customContent = null, options = {}) {
         console.log(`🎯 Deploying Universal Banner: ${bannerType}`);
