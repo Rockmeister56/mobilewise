@@ -233,27 +233,26 @@
             margin-bottom: 10px;
         }
 
-/* 🦉 OWL LOGO POSITIONING CONTROLS */
+/* 🦉 OWL LOGO - MOVE RIGHT */
 .owl-logo {
-    width: 75px;
-    height: 75px;
+    width: 70px;
+    height: 70px;
     transition: transform 0.3s ease;
-    margin-left: 15px;  /* ← MOVE LOGO RIGHT */
-    margin-right: 10px; /* ← SPACE BETWEEN LOGO & TEXT */
+    transform: translateX(10px); /* ← MOVE RIGHT without affecting layout */
 }
 
 .owl-logo:hover {
     transform: scale(1.1);
 }
 
-/* 📝 BRAND TEXT POSITIONING CONTROLS */
+/* 📝 BRAND TEXT - MOVE LEFT */
 .brand-text {
     font-size: 1.1rem;
     font-weight: normal;
     color: white;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     transition: color 0.3s ease;
-    margin-left: -20px;  /* ← MOVE TEXT LEFT (negative = left) */
+    transform: translateX(-10px); /* ← MOVE LEFT without affecting layout */
 }
 
 .brand-text:hover {
