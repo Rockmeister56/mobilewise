@@ -906,18 +906,17 @@
     z-index: 9999 !important;
     width: calc(100% - 20px) !important;
     max-width: 400px !important;
-    margin: 0 !important; /* Override any existing margins */
+    margin: 0 !important;
     box-sizing: border-box !important;
 }
 
-/* Extra protection for container stability */
+/* Container - NO min-height forcing */
 .container {
     position: relative !important;
-    min-height: 100vh !important;
-    padding-top: 80px !important; /* Space for banners */
+    padding-top: 80px !important; /* Just breathing room for banners */
 }
 
-/* Smart button positioning fix */
+/* Smart button stays visible */
 .smart-button,
 #smartButton {
     position: fixed !important;
