@@ -1197,7 +1197,7 @@ function createLeadCaptureBanner() {
     banner.id = 'leadCaptureBanner';
     banner.style.cssText = `
         position: fixed;
-        top: 80px;
+        top: 20px;
         left: 10px;
         right: 10px;
         width: calc(100% - 20px);
