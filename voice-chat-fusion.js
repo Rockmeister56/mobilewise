@@ -1986,25 +1986,30 @@ if (existingSuccess) existingSuccess.remove();
 
 function showEmailConfirmationBanner() {
     // Remove ALL existing banners
-   const existingBruce = document.getElementById('bruceBookBanner');
-const existingConfirm = document.getElementById('emailConfirmationBanner');
+    const existingBruce = document.getElementById('bruceBookBanner');
+    const existingConfirm = document.getElementById('emailConfirmationBanner');
 
-removeLeadCaptureBanner(); // Use standardized removal function
-if (existingConfirm) existingConfirm.remove();
+    removeLeadCaptureBanner(); // Use standardized removal function
+    if (existingConfirm) existingConfirm.remove();
     
     const confirmationBanner = document.createElement('div');
     confirmationBanner.id = 'emailConfirmationBanner';
     confirmationBanner.style.cssText = `
+        position: absolute !important;
+        top: 70px !important;  /* ADJUST THIS VALUE to control vertical position */
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        z-index: 9998 !important;
+        width: calc(100% - 20px) !important;
+        max-width: 400px !important;
         background: rgba(76, 175, 80, 0.2);
         backdrop-filter: blur(10px);
         border: 1px solid rgba(76, 175, 80, 0.3);
         border-radius: 12px;
         padding: 12px 16px;
-        margin: 8px 0;
         text-align: center;
-        max-width: 400px;
-        margin-left: auto;
-        margin-right: auto;
+        margin: 0 !important;
+        box-sizing: border-box;
     `;
     
     confirmationBanner.innerHTML = `
@@ -2014,21 +2019,14 @@ if (existingConfirm) existingConfirm.remove();
         </div>
     `;
     
-    // Insert into container
-    const container = document.querySelector('.container');
-    const header = container.querySelector('header');
-    
-    if (header && header.nextSibling) {
-        container.insertBefore(confirmationBanner, header.nextSibling);
-    } else {
-        container.insertBefore(confirmationBanner, container.firstChild);
-    }
+    // Insert into body for absolute positioning control
+    document.body.appendChild(confirmationBanner);
 
     setTimeout(() => {
-    confirmationBanner.remove();
-    // Don't call any other banner - just remove this one
-    // The conversation continues to final question
-}, 4000);
+        confirmationBanner.remove();
+        // Don't call any other banner - just remove this one
+        // The conversation continues to final question
+    }, 4000);
 }
 
 function forceScrollToBottom() {
