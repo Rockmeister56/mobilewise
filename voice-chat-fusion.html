@@ -233,6 +233,45 @@
             margin-bottom: 10px;
         }
 
+/* 🦉 OWL LOGO POSITIONING CONTROLS */
+.owl-logo {
+    width: 75px;
+    height: 75px;
+    transition: transform 0.3s ease;
+    margin-left: 15px;  /* ← MOVE LOGO RIGHT */
+    margin-right: 10px; /* ← SPACE BETWEEN LOGO & TEXT */
+}
+
+.owl-logo:hover {
+    transform: scale(1.1);
+}
+
+/* 📝 BRAND TEXT POSITIONING CONTROLS */
+.brand-text {
+    font-size: 1.1rem;
+    font-weight: normal;
+    color: white;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    transition: color 0.3s ease;
+    margin-left: -20px;  /* ← MOVE TEXT LEFT (negative = left) */
+}
+
+.brand-text:hover {
+    color: #00E5CC;
+}
+
+/* 📱 MOBILE RESPONSIVE */
+@media (max-width: 600px) {
+    .owl-logo {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .brand-text {
+        font-size: 0.9rem;
+    }
+}
+
         /* ===================================================
            🔵 SMART CTA BUTTON (TOP POSITIONING)
            ================================================== */
@@ -817,11 +856,11 @@
         <!-- Header -->
         <header>
            
-            <div style="position: absolute; top: 15px; left: 15px; display: flex; align-items: center; gap: 10px; z-index: 100;">
+            <div style="display: flex; align-items: center; gap: 12px;">
     <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758507868460_logo.png" 
          alt="Mobile-Wise AI Logo" 
-         style="width: 75px; height: 75px;">
-    <span style="font-size: 1rem; font-weight: normal; color: white;">Mobile-Wise AI</span>
+         class="owl-logo">
+    <span class="brand-text">Mobile-Wise AI</span>
 </div>
             <h1>AI VOICE CHAT</h1>
             <p class="subtitle">Your Personal AI Assistant</p>
