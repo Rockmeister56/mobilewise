@@ -25,6 +25,52 @@ let isInLeadCapture = false;
 let leadData = null;
 
 // ===================================================
+// 🎯 SPEECH RECOGNITION PRE-WARMING SYSTEM  
+// ===================================================
+class SpeechEngineManager {
+    constructor() {
+        this.recognition = null;
+        this.isWarmedUp = false;
+        this.isPrepping = false;
+        console.log('🎯 Speech Engine Manager created');
+    }
+    
+    async initializeEngine() {
+        if (this.recognition) {
+            console.log('🔥 Engine already exists');
+            return true;
+        }
+        
+        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+            console.log('❌ Speech not supported');
+            return false;
+        }
+        
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        this.recognition = new SpeechRecognition();
+        
+        this.recognition.continuous = false;
+        this.recognition.interimResults = true;
+        this.recognition.lang = 'en-US';
+        
+        console.log('🎯 Speech engine created successfully');
+        return true;
+    }
+    
+    getEngine() {
+        return this.recognition;
+    }
+    
+    isReady() {
+        return this.recognition !== null;
+    }
+}
+
+// Create global engine manager
+const speechEngine = new SpeechEngineManager();
+console.log('🚀 Speech Engine Manager initialized');
+
+// ===================================================
 // 📧 EMAILJS INITIALIZATION (FROM YOUR WORKING SYSTEM)
 // ===================================================
 (function(){
