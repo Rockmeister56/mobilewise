@@ -199,13 +199,13 @@
 }
 
 @media (min-width: 769px) {
-    /* Desktop specific - smart centering that respects banners */
+    /* Desktop specific - keep your center alignment BUT accommodate banners */
     .chat-container {
         position: fixed !important;
-        top: 10px !important; /* Start below banner zone */
+        top: calc(50% + 40px) !important; /* Offset for banner space */
         left: 50% !important;
-        transform: translateX(-50%) !important; /* Only horizontal centering */
-        height: calc(100vh - 160px) !important; /* Full height minus top/bottom space */
+        transform: translate(-50%, -50%) !important;
+        max-height: calc(100vh - 160px) !important; /* Breathing room top/bottom */
         overflow-y: auto !important;
         /* Your existing desktop styles */
     }
