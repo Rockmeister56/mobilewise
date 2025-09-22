@@ -235,27 +235,29 @@
             margin-bottom: 10px;
         }
 
-        /* ===================================================
-           🔵 SMART CTA BUTTON (TOP POSITIONING)
-           ================================================== */
-        .smart-button {
-            position: sticky;
-            top: 10px;
-            z-index: 1000;
-            width: 100%;
-            padding: 15px;
-            background: var(--cta-gradient);
-            color: white;
-            border: none;
-            border-radius: 25px;
-            cursor: pointer;
-            font-weight: bold;
-            margin-bottom: 15px;
-            text-align: center;
-            font-size: 16px;
-            animation: pulse-attention 1.5s infinite;
-            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.4);
-        }
+     /* ===================================================
+   🔵 UNIVERSAL SMART BUTTON (BANNER SYSTEM)
+   ================================================== */
+.smart-button,
+.smart-button-banner {
+    /* Inherit from your Universal Banner positioning */
+    background: var(--cta-gradient);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+    text-align: center;
+    font-size: 16px;
+    animation: pulse-attention 1.5s infinite;
+    box-shadow: 0 4px 15px rgba(33, 150, 243, 0.4);
+    padding: 15px;
+}
+
+@keyframes pulse-attention {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
 
         @keyframes pulse-attention {
             0%, 100% { transform: scale(1); }
@@ -812,31 +814,6 @@
             animation: pulse 2s infinite;
         }
 
-        /* ===== MOBILE-WISE AI BANNER ABSOLUTE POSITIONING ===== */
- #universalBanner,
-.smart-button-banner,
-.email-sent-banner,
-.free-book-banner,
-.click-to-call-banner
-.lead-capture-banner,
-.consultation-banner,
-#leadCaptureBanner,
-#emailConfirmationBanner,
-#thankYouBanner,
-.email-confirmation-banner,
-.success-banner,
-.consultation-confirmed-banner {
-    position: absolute !important;
-    top: 10px !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    z-index: 9999 !important;
-    width: calc(100% - 20px) !important;
-    max-width: 400px !important;
-    margin: 0 !important;
-    box-sizing: border-box !important;
-}
-
 /* Container - NO min-height forcing */
 .container {
     position: relative !important;
@@ -864,6 +841,32 @@ button[class*="smart"] {
     transform: translateX(-50%) !important;
     z-index: 9999 !important;
     margin: 0 !important;
+}
+
+/* ===== MOBILE-WISE AI BANNER ABSOLUTE POSITIONING ===== */
+.lead-capture-banner,
+.consultation-banner,
+#leadCaptureBanner,
+#emailConfirmationBanner,
+#thankYouBanner,
+.email-confirmation-banner,
+.success-banner,
+.consultation-confirmed-banner {
+    position: absolute !important;
+    top: 10px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    z-index: 9999 !important;
+    width: calc(100% - 20px) !important;
+    max-width: 400px !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+}
+
+/* SPECIAL: Branding banner at very top */
+.branding-header-banner {
+    top: 5px !important; /* Higher than other banners */
+    z-index: 10000 !important; /* Above other banners */
 }
 
     </style>
