@@ -809,6 +809,7 @@
         .pulse-animation {
             animation: pulse 2s infinite;
         }
+
     </style>
 </head>
 <body>
@@ -836,6 +837,7 @@
         <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758507868460_logo.png" 
              style="width: 45px; height: 45px; float: left; margin-right: 10px;">
         <span style="color: white; font-size: 0.8rem; line-height: 50px;">Mobile-Wise AI</span>
+     <div class="mobile-logo-adjust" style="position: absolute; top: 15px; left: 20px; pointer-events: auto;"></div>
     </div>
     
     <!-- RIGHT: Slogan -->
@@ -845,6 +847,8 @@
         right: 34px;
         pointer-events: auto;">
         <span style="color: #87CEEB; font-size: 1rem; font-weight: 600;">AI VOICE CHAT</span>
+        <div class="mobile-slogan-adjust" style="position: absolute; top: 15px; right: 20px; pointer-events: auto;"></div>
+       
     </div>
 </div>
         
@@ -874,6 +878,18 @@
     
     <div style="margin-top: 15px; font-size: 0.9em; color: #ccc;">
         Click to activate microphone
+        <style>
+@media (max-width: 768px) {
+    /* Mobile positioning controls */
+    .mobile-logo-adjust {
+        left: 10px !important; /* Adjust logo position on mobile */
+    }
+    
+    .mobile-slogan-adjust {
+        right: 10px !important; /* Adjust slogan position on mobile */
+    }
+}
+</style>
     </div>
 </div>
 
