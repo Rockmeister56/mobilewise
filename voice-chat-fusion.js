@@ -961,7 +961,7 @@ function updateSmartButton(shouldShow, buttonText, action) {
         
         smartBanner.style.cssText = `
             position: fixed;
-            top: 10px;
+            top: 70;
             left: 10px;
             right: 10px;
             width: calc(100% - 20px);
