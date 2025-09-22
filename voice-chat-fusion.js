@@ -2186,29 +2186,7 @@ function showEmailConfirmationBanner() {
     removeLeadCaptureBanner(); // Use standardized removal function
     if (existingConfirm) existingConfirm.remove();
     
-    const confirmationBanner = document.createElement('div');
-    confirmationBanner.id = 'emailConfirmationBanner';
-    
-    // ONLY styling - NO positioning (let CSS handle that!)
-    confirmationBanner.style.cssText = `
-        background: rgba(76, 175, 80, 0.2);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(76, 175, 80, 0.3);
-        border-radius: 12px;
-        padding: 12px 16px;
-        text-align: center;
-        color: white;
-    `;
-    
-    confirmationBanner.innerHTML = `
-        <div style="font-size: 14px;">
-            ✅ <strong>Confirmation Email Sent!</strong><br>
-            <span style="font-size: 12px; opacity: 0.9;">Please check your email for the book link</span>
-        </div>
-    `;
-    
-    // Append to body (your CSS will handle positioning)
-    document.body.appendChild(confirmationBanner);
+   showUniversalBanner('emailSent');
 
     setTimeout(() => {
         confirmationBanner.remove();
