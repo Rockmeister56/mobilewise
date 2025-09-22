@@ -206,164 +206,180 @@ function getApologyResponse() {
     return sorryMessages[Math.floor(Math.random() * sorryMessages.length)];
 }
     
-  function startListening() {
-    // ✅ NEW: Smart button gate-keeper - BLOCK listening if smart button is active!
+  // ===================================================
+// 🎤 START LISTENING new function
+// ===================================================
+    async function startListening() {
+    // Smart button gate-keeper (keep this)
     const smartButton = document.getElementById('smartButton');
     if (smartButton && smartButton.style.display !== 'none') {
         console.log('🚫 Smart button active - BLOCKING startListening()');
-        return; // EXIT IMMEDIATELY!
+        return;
     }
     
-    // ✅ REMOVED THE LEAD CAPTURE BLOCKING - Allow speech during lead capture!
     console.log('🎯 startListening() called');
     if (!checkSpeechSupport()) return;
     if (isSpeaking) return;
     
     try {
+        // 🎯 MOBILE-SPECIFIC PRE-WARMING
+        const isMobile = isMobileDevice();
+        
+        if (isMobile && !speechEngine.isReady()) {
+            console.log('📱 Mobile detected - pre-warming engine...');
+            await speechEngine.initializeEngine();
+        }
+        
         if (!recognition) {
-            initializeSpeechRecognition();
+            if (isMobile && speechEngine.isReady()) {
+                recognition = speechEngine.getEngine();
+                console.log('📱 Using pre-warmed mobile engine');
+            } else {
+                initializeSpeechRecognition();
+            }
         }
 
+        // Keep ALL your existing event handlers - they're perfect
         recognition.onresult = function(event) {
             let transcript = Array.from(event.results)
                 .map(result => result[0])
                 .map(result => result.transcript)
                 .join('');
 
-                  // ✅ REMOVE TRAILING PERIODS FROM SPEECH RECOGNITION - FIXED
-             transcript = transcript.replace(/\.+$/, '');  // ← Now this WORKS!
+            transcript = transcript.replace(/\.+$/, '');
             
             const transcriptText = document.getElementById('transcriptText');
             const userInput = document.getElementById('userInput');
             
             if (transcriptText) {
-                transcriptText.textContent = 'Speak Now'; // ✅ KEEP EXACTLY AS IS
+                transcriptText.textContent = 'Speak Now';
             }
             
             if (userInput) {
-                userInput.value = transcript; // ✅ KEEP EXACTLY AS IS
+                userInput.value = transcript;
             }
             
-            // ✅ ONLY ADDITION: Special handling for lead capture timing
             if (isInLeadCapture) {
-                // Give a tiny bit more time for complete names/phone numbers
                 clearTimeout(window.leadCaptureTimeout);
                 window.leadCaptureTimeout = setTimeout(() => {
                     if (transcript.trim().length > 1 && userInput.value === transcript) {
                         console.log('🎯 Lead capture auto-send:', transcript);
                         sendMessage();
                     }
-                }, 1500); // Slightly longer delay for lead capture
+                }, 1500);
             }
         };
 
+        // Keep your existing onerror and onend handlers exactly as they are
         recognition.onerror = function(event) {
-    console.log('🔊 Speech error:', event.error);
-    
-    if (event.error === 'no-speech') {
-        const transcriptText = document.getElementById('transcriptText');
-        
-        if (isMobileDevice()) {
-            console.log('📱 Mobile: Using visual apology');
+            console.log('🔊 Speech error:', event.error);
             
-            if (transcriptText) {
-                const originalText = transcriptText.textContent;
-                transcriptText.textContent = 'Please speak again...';
+            if (event.error === 'no-speech') {
+                const transcriptText = document.getElementById('transcriptText');
                 
-                setTimeout(() => {
+                if (isMobile) {
+                    console.log('📱 Mobile: Using visual apology + pre-warm restart');
+                    
                     if (transcriptText) {
-                        transcriptText.textContent = 'Speak Now'; // ← Reset to "Speak Now"
+                        const originalText = transcriptText.textContent;
+                        transcriptText.textContent = 'Please speak again...';
+                        
+                        setTimeout(() => {
+                            if (transcriptText) {
+                                transcriptText.textContent = 'Speak Now';
+                            }
+                            
+                            if (isAudioMode && !isSpeaking) {
+                                console.log('🔄 Mobile: Pre-warmed restart');
+                                isListening = false;
+                                
+                                setTimeout(() => {
+                                    startListening(); // Will use pre-warmed engine
+                                }, 500);
+                            }
+                        }, 2000);
                     }
                     
-                    // ✅ FORCE RESTART - Bypass gate-keeper for mobile reset!
-                    if (isAudioMode && !isSpeaking) {
-                        console.log('🔄 Mobile: Force restarting speech recognition');
-                        isListening = false; // Reset listening state
+                } else {
+                    console.log('🖥️ Desktop: Using voice apology');
+                    
+                    lastMessageWasApology = true;
+                    const apologyResponse = getApologyResponse();
+                    
+                    stopListening();
+                    
+                    setTimeout(() => {
+                        addAIMessage(apologyResponse);
+                        speakResponse(apologyResponse);
                         
-                        // Direct restart without gate-keeper check
-                        setTimeout(() => {
-                            forceStartListening(); // ← New function!
-                        }, 500);
-                    }
-                }, 2000);
-            }
-            
-        } else {
-            console.log('🖥️ Desktop: Using voice apology');
-            
-            lastMessageWasApology = true;
-            const apologyResponse = getApologyResponse();
-            
-            stopListening();
-            
-            setTimeout(() => {
-                addAIMessage(apologyResponse);
-                speakResponse(apologyResponse);
-                
-                if (restartTimeout) clearTimeout(restartTimeout);
-                
-                restartTimeout = setTimeout(() => {
-                    if (isAudioMode && !isListening && !isSpeaking) {
-                        startListening();
-                    }
-                    lastMessageWasApology = false;
-                }, 3000);
-            }, 500);
-        }
-    }
-};
-
-
-      recognition.onend = function() {
-      hideSpeakNow();
-    console.log('🔚 Recognition ended');
-    
-    const userInput = document.getElementById('userInput');
-    
-    if (userInput && userInput.value.trim().length > 0) {
-        const currentMessage = userInput.value.trim();
-        
-        // ✅ IMPROVED DUPLICATE PREVENTION - Allow same message after 3 seconds
-        const now = Date.now();
-        const timeSinceLastMessage = now - (window.lastMessageTime || 0);
-        
-        if (!window.lastProcessedMessage || 
-            window.lastProcessedMessage !== currentMessage || 
-            timeSinceLastMessage > 3000) { // 3 second cooldown
-            
-            console.log('✅ Sending new message:', currentMessage);
-            window.lastProcessedMessage = currentMessage;
-            window.lastMessageTime = now;
-            sendMessage();
-        } else {
-            console.log('🚫 Prevented duplicate message (within 3 seconds):', currentMessage);
-            userInput.value = '';
-        }
-    } else {
-        // Restart listening logic (keep existing)
-        if (isAudioMode && !isSpeaking && isListening && !lastMessageWasApology) {
-            console.log('🔄 No speech detected via onend - restarting');
-            setTimeout(() => {
-                try {
-                    if (recognition) {
-                        startListening();
-                    }
-                } catch (error) {
-                    console.log('Restart error:', error);
+                        if (restartTimeout) clearTimeout(restartTimeout);
+                        
+                        restartTimeout = setTimeout(() => {
+                            if (isAudioMode && !isListening && !isSpeaking) {
+                                startListening();
+                            }
+                            lastMessageWasApology = false;
+                        }, 3000);
+                    }, 500);
                 }
-            }, 1000);
-        }
-    }
-};
-        
-        console.log('🎤 Starting speech recognition...');
-        recognition.start();
-        isListening = true;
-        
-        // showSpeakNow();✅ SHOW THE GREEN "SPEAK NOW" BANNER
-           showSpeakNow();
+            }
+        };
 
-        console.log('✅ Speech recognition started successfully');
+        recognition.onend = function() {
+            // Keep your existing onend logic - it's perfect
+            hideSpeakNow();
+            console.log('🔚 Recognition ended');
+            
+            const userInput = document.getElementById('userInput');
+            
+            if (userInput && userInput.value.trim().length > 0) {
+                const currentMessage = userInput.value.trim();
+                const now = Date.now();
+                const timeSinceLastMessage = now - (window.lastMessageTime || 0);
+                
+                if (!window.lastProcessedMessage || 
+                    window.lastProcessedMessage !== currentMessage || 
+                    timeSinceLastMessage > 3000) {
+                    
+                    console.log('✅ Sending new message:', currentMessage);
+                    window.lastProcessedMessage = currentMessage;
+                    window.lastMessageTime = now;
+                    sendMessage();
+                } else {
+                    console.log('🚫 Prevented duplicate message (within 3 seconds):', currentMessage);
+                    userInput.value = '';
+                }
+            } else {
+                if (isAudioMode && !isSpeaking && isListening && !lastMessageWasApology) {
+                    console.log('🔄 No speech detected via onend - restarting');
+                    setTimeout(() => {
+                        try {
+                            if (recognition) {
+                                startListening();
+                            }
+                        } catch (error) {
+                            console.log('Restart error:', error);
+                        }
+                    }, 1000);
+                }
+            }
+        };
+        
+        // 🎯 MOBILE TIMING DELAY
+        const delay = isMobile ? 800 : 0; // Only delay on mobile
+        
+        if (delay > 0) {
+            console.log(`⏱️ Adding ${delay}ms mobile delay`);
+        }
+        
+        setTimeout(() => {
+            console.log('🎤 Starting speech recognition...');
+            recognition.start();
+            isListening = true;
+            
+            showSpeakNow();
+            console.log('✅ Speech recognition started successfully');
+        }, delay);
 
     } catch (error) {
         console.error('❌ Error starting speech recognition:', error);
