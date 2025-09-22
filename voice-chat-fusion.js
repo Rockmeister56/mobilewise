@@ -933,7 +933,9 @@ function showUniversalBanner(bannerType, customContent = null, options = {}) {
 // Banner Background Styles
 function getBannerBackground(bannerType) {
     const backgrounds = {
-        branding: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        branding: 'rgba(255, 255, 255, 0.1)', // ← TRANSPARENT WHITE
+        // OR completely transparent:
+        // branding: 'transparent', 
         smartButton: 'var(--cta-gradient)',
         emailSent: 'rgba(76, 175, 80, 0.2)',
         freeBook: 'linear-gradient(135deg, #FF6B6B, #4ECDC4)',
