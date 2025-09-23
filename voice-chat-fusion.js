@@ -224,6 +224,11 @@ function getApologyResponse() {
     try {
         // 🎯 MOBILE-SPECIFIC PRE-WARMING
         const isMobile = isMobileDevice();
+
+        if (recognition) {
+    recognition.onsoundstart = null; // Disable browser beep
+    recognition.onaudiostart = null; // Disable browser beep
+}
         
         if (isMobile && !speechEngine.isReady()) {
             console.log('📱 Mobile detected - pre-warming engine...');
@@ -681,7 +686,7 @@ function processUserResponse(userText) {
 }
 
 // ============================================
-// MOBILE-WISE AI HYBRID READY SEQUENCE  
+// MOBILE-WISE AI HYBRID READY SEQUENCE - RED GLOW VERSION
 // ============================================
 function showHybridReadySequence() {
     const liveTranscript = document.getElementById('liveTranscript');
@@ -689,25 +694,24 @@ function showHybridReadySequence() {
     
     if (!liveTranscript || !transcriptText) return;
     
-    // Show the container
+    // Show container immediately
     liveTranscript.style.display = 'flex';
     transcriptText.style.display = 'block';
     
-    // Phase 1: "Get Ready to Speak" (1.3 seconds)
-    transcriptText.textContent = 'Get Ready to Speak...';
-    transcriptText.style.color = '#667eea';
+    // RED GLOW "Get Ready to Speak" with animation
+    transcriptText.textContent = 'Get Ready to Speak';
+    transcriptText.style.color = '#ff4757';
     transcriptText.style.fontWeight = 'bold';
+    transcriptText.style.fontSize = '18px';
+    transcriptText.style.textShadow = '0 0 15px #ff4757, 0 0 25px #ff4757, 0 0 35px #ff4757';
+    transcriptText.style.animation = 'redGlow 1.2s ease-in-out infinite';
     
-    // Phase 2: Switch to "Listening..." and start
-    setTimeout(() => {
-        transcriptText.textContent = 'Listening...';
-        transcriptText.style.color = '#28a745';
-        
-        // Start your existing listening function
-        if (recognition && !isListening) {
-            startListening();
-        }
-    }, 1300); // Adjustable timing
+    // Container styling - transparent white with red glow border
+    liveTranscript.style.background = 'rgba(255, 255, 255, 0.15)';
+    liveTranscript.style.border = '2px solid #ff4757';
+    liveTranscript.style.borderRadius = '25px';
+    liveTranscript.style.boxShadow = '0 0 20px rgba(255, 71, 87, 0.6), inset 0 0 20px rgba(255, 255, 255, 0.1)';
+    liveTranscript.style.backdropFilter = 'blur(10px)';
 }
 
 // ===================================================
@@ -748,7 +752,7 @@ function speakResponse(message) {
                 if (isAudioMode && !isListening && !lastMessageWasApology) {
                     setTimeout(() => {
                         startListening();
-                    }, 1200);
+                    }, 1000);
                 }
             };
             
@@ -773,15 +777,19 @@ function speakResponse(message) {
         };
         
         utterance.onend = function() {
-            isSpeaking = false;
-            console.log('🔊 AI finished speaking');
-            
-            if (isAudioMode && !isListening && !lastMessageWasApology) {
-                setTimeout(() => {
-                    startListening();
-                }, 800);
-            }
-        };
+    isSpeaking = false;
+    console.log('🔊 AI finished speaking');
+    
+    // Show "Get Ready" button IMMEDIATELY 
+    showHybridReadySequence();
+    
+    // Keep your existing startListening timing unchanged
+    if (isAudioMode && !isListening && !lastMessageWasApology) {
+        setTimeout(() => {
+            startListening();
+        }, 800); // Keep original timing
+    }
+};
         
         utterance.onerror = function(event) {
             console.log('❌ Speech error:', event.error);
