@@ -330,14 +330,14 @@ function getApologyResponse() {
             }
         };
 
-       recognition.onend = function() {
+     recognition.onend = function() {
     // Keep your existing onend logic - it's perfect
     hideSpeakNow();
     
-    // CLEAR THE SLOT when recognition ends - this is what we're adding!
+    // Clear the slot when recognition ends
     const speakNowSlot = document.getElementById('speakNowSlot');
     if (speakNowSlot) {
-        speakNowSlot.innerHTML = ''; // This just empties the slot content
+        speakNowSlot.innerHTML = '';
     }
     
     console.log('🔚 Recognition ended');
@@ -345,6 +345,7 @@ function getApologyResponse() {
     const userInput = document.getElementById('userInput');
     
     if (userInput && userInput.value.trim().length > 0) {
+        // User said something - process it
         const currentMessage = userInput.value.trim();
         const now = Date.now();
         const timeSinceLastMessage = now - (window.lastMessageTime || 0);
@@ -362,16 +363,11 @@ function getApologyResponse() {
             userInput.value = '';
         }
     } else {
+        // No speech detected - RESTART the hybrid sequence!
         if (isAudioMode && !isSpeaking && isListening && !lastMessageWasApology) {
-            console.log('🔄 No speech detected via onend - restarting');
+            console.log('🔄 No speech detected - restarting hybrid sequence');
             setTimeout(() => {
-                try {
-                    if (recognition) {
-                        startListening();
-                    }
-                } catch (error) {
-                    console.log('Restart error:', error);
-                }
+                showHybridReadySequence(); // Restart the whole sequence!
             }, 1000);
         }
     }
