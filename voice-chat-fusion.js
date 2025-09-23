@@ -1735,26 +1735,13 @@ utterance.onend = function() {
         if (!isListening) {
             startListening();
         }
-    }
-};
-*/
-        
-        // NOW show "Speak Now" with engine already hot
-        setTimeout(() => {
-            const liveTranscript = document.getElementById('liveTranscript');
-            const transcriptText = document.getElementById('transcriptText');
-            
-          if (liveTranscript && transcriptText) {
-    console.log('🔥 Recognition HOT - Starting hybrid sequence!');
-    showHybridReadySequence();
-            }
-        }, 50); // Increased to 500ms for engine warmup
-    }
+*/   
+ }
+
 };
         
         window.speechSynthesis.speak(utterance);
-    }
-}
+
 
 // ===================================================
 // 📧 EMAIL FORMATTING FUNCTION
