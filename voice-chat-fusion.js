@@ -1006,6 +1006,25 @@ window.removeLeadCaptureBanner = function() {
 
 console.log('🎖️ Complete Universal Banner Engine loaded - 7 banner types ready!');
 
+// ===================================================
+// 🏆 AUTO-DEPLOY BRANDING BANNER ON PAGE LOAD
+// ===================================================
+document.addEventListener('DOMContentLoaded', function() {
+    // Wait a moment for page to fully load, then deploy branding
+    setTimeout(() => {
+        console.log('🏆 Auto-deploying Mobile-Wise AI branding banner...');
+        showUniversalBanner('branding');
+    }, 500); // Half second delay to ensure everything is loaded
+});
+
+// BACKUP: If DOMContentLoaded already fired
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    setTimeout(() => {
+        console.log('🏆 Backup branding banner deployment...');
+        showUniversalBanner('branding');
+    }, 100);
+}
+
 
 // ===================================================
 // 🧠 AI RESPONSE SYSTEM
