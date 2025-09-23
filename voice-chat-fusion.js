@@ -95,9 +95,14 @@ console.log('🚀 Speech Engine Manager initialized');
 // 📱 MOBILE DEVICE DETECTION
 // ===================================================
 function isMobileDevice() {
-    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    // Force mobile detection for testing - remove this later
+    return true;
+    
+    /* Original detection (keep this for later)
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+           (navigator.maxTouchPoints && navigator.maxTouchPoints > 2 && /MacIntel/.test(navigator.platform));
+    */
 }
-
 // ===================================================
 // 🎤 MICROPHONE PERMISSION SYSTEM
 // ===================================================
