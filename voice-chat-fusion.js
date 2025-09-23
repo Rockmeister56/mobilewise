@@ -778,7 +778,6 @@ function addUserMessage(message) {
     scrollChatToBottom();
 }
 
-document.addEventListener('DOMContentLoaded', function() {
     // ===================================================================
     // 🎯 MOBILE-WISE AI UNIVERSAL BANNER ENGINE
     // ===================================================================
@@ -885,87 +884,233 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
-    // ===================================================================
-// 🎯 MOBILE-WISE AI UNIVERSAL BANNER ENGINE - PERMANENT INSTALLATION
+   // ===================================================================
+// 🎯 MOBILE-WISE AI UNIVERSAL BANNER ENGINE - COMPLETE ARSENAL
 // ===================================================================
-    document.addEventListener('DOMContentLoaded', function() {
-
-    // Universal Banner Engine
-    window.showUniversalBanner = function(bannerType, customContent = null, options = {}) {
-        console.log(`🎯 Deploying Universal Banner: ${bannerType}`);
+window.showUniversalBanner = function(bannerType, customContent = null, options = {}) {
+    console.log(`🎯 Deploying Universal Banner: ${bannerType}`);
+    
+    // COMPLETE BANNER LIBRARY - All 7 Banner Types
+    const bannerLibrary = {
+        // 1. BRANDING HEADER
+        branding: {
+            content: `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 20px;">
+                    <div style="display: flex; align-items: center;">
+                        <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758507868460_logo.png" 
+                             style="width: 50px; height: 50px; margin-right: 10px;">
+                        <span style="color: white; font-size: 16px; font-weight: bold;">Mobile-Wise AI</span>
+                    </div>
+                    <div>
+                        <span style="color: #87CEEB; font-size: 14px; font-weight: 600;">AI VOICE CHAT</span>
+                    </div>
+                </div>
+            `,
+            background: 'rgba(255, 255, 255, 0.1)',
+            duration: 0
+        },
         
-        // Remove any existing banners first
-        removeAllBanners();
+        // 2. SMART BUTTON (Free Consultation)
+        smartButton: {
+            content: `
+                <div style="text-align: center; padding: 15px;">
+                    <div style="font-size: 18px; font-weight: bold; margin-bottom: 10px; color: white;">
+                        🎯 FREE Consultation Available
+                    </div>
+                    <button onclick="startConsultationProcess()" style="
+                        background: var(--cta-gradient);
+                        color: white;
+                        border: none;
+                        padding: 15px 30px;
+                        border-radius: 25px;
+                        cursor: pointer;
+                        font-weight: bold;
+                        font-size: 16px;
+                        animation: pulse-attention 1.5s infinite;
+                        box-shadow: 0 4px 15px rgba(33, 150, 243, 0.4);
+                    ">
+                        Get Started Now
+                    </button>
+                </div>
+            `,
+            background: 'var(--cta-gradient)',
+            duration: 0
+        },
         
-        // Get banner config
-        const bannerConfig = bannerLibrary[bannerType];
-        if (!bannerConfig && !customContent) {
-            console.error(`❌ Banner type "${bannerType}" not found in library`);
-            return null;
+        // 3. EMAIL SENT CONFIRMATION
+        emailSent: {
+            content: `
+                <div style="text-align: center; padding: 15px; color: white;">
+                    <div style="font-size: 16px; font-weight: bold;">
+                        ✅ <strong>Confirmation Email Sent!</strong>
+                    </div>
+                    <div style="font-size: 12px; opacity: 0.9; margin-top: 5px;">
+                        Please check your email for the book link
+                    </div>
+                </div>
+            `,
+            background: 'rgba(76, 175, 80, 0.2)',
+            duration: 4000
+        },
+        
+        // 4. FREE BOOK OFFER
+        freeBook: {
+            content: `
+                <div style="text-align: center; padding: 15px;">
+                    <div style="font-size: 16px; font-weight: bold; color: white; margin-bottom: 10px;">
+                        📚 FREE Book for You!
+                    </div>
+                    <div style="font-size: 14px; color: #ccc; margin-bottom: 10px;">
+                        "7 Secrets to Selling Your Practice"
+                    </div>
+                    <button onclick="requestFreeBook()" style="
+                        background: linear-gradient(135deg, #FF6B6B, #4ECDC4);
+                        color: white;
+                        border: none;
+                        padding: 12px 25px;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-weight: bold;
+                    ">
+                        Get Free Book
+                    </button>
+                </div>
+            `,
+            background: 'linear-gradient(135deg, #FF6B6B, #4ECDC4)',
+            duration: 0
+        },
+        
+        // 5. CONSULTATION CONFIRMED
+        consultationConfirmed: {
+            content: `
+                <div style="text-align: center; padding: 15px; color: white;">
+                    <div style="font-size: 16px; font-weight: bold;">
+                        🎉 Consultation Confirmed!
+                    </div>
+                    <div style="font-size: 12px; opacity: 0.9; margin-top: 5px;">
+                        Bruce will reach out within 24 hours for your FREE practice valuation
+                    </div>
+                </div>
+            `,
+            background: 'rgba(33, 150, 243, 0.2)',
+            duration: 5000
+        },
+        
+        // 6. CLICK-TO-CALL BANNER
+        clickToCall: {
+            content: `
+                <div style="text-align: center; padding: 15px;">
+                    <div style="font-size: 16px; font-weight: bold; color: white; margin-bottom: 10px;">
+                        📞 Talk to Bruce Now
+                    </div>
+                    <button onclick="callBruce()" style="
+                        background: linear-gradient(135deg, #4CAF50, #8BC34A);
+                        color: white;
+                        border: none;
+                        padding: 12px 25px;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-weight: bold;
+                        animation: pulse-attention 2s infinite;
+                    ">
+                        📞 Call Now
+                    </button>
+                </div>
+            `,
+            background: 'linear-gradient(135deg, #4CAF50, #8BC34A)',
+            duration: 0
+        },
+        
+        // 7. LEAD CAPTURE ACTIVE
+        leadCapture: {
+            content: `
+                <div style="text-align: center; padding: 15px; color: white;">
+                    <div style="font-size: 16px; font-weight: bold;">
+                        📋 Collecting Your Information...
+                    </div>
+                    <div style="font-size: 12px; opacity: 0.9; margin-top: 5px;">
+                        Please provide your details for the consultation
+                    </div>
+                </div>
+            `,
+            background: 'rgba(255, 193, 7, 0.2)',
+            duration: 0
         }
-        
-        // Create banner element
-        const banner = document.createElement('div');
-        banner.id = 'universalBanner';
-        banner.className = `universal-banner ${bannerConfig?.style || bannerType}-banner`;
-        
-        // Set content (custom or from library)
-        banner.innerHTML = customContent || bannerConfig.content;
-        
-        // Apply universal positioning (your CSS will handle this)
-        banner.style.cssText = `
-            background: ${getBannerBackground(bannerType)};
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 12px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        `;
-        
-        // Deploy banner
-        document.body.appendChild(banner);
-        
-        // Auto-remove if duration set
-        const duration = options.duration || bannerConfig?.duration;
-        if (duration && duration > 0) {
-            setTimeout(() => {
-                removeAllBanners();
-            }, duration);
-        }
-        
-        console.log(`✅ Universal Banner "${bannerType}" deployed successfully`);
-        return banner;
     };
+    
+    // Remove existing banner
+    const existing = document.getElementById('universalBanner');
+    if (existing) existing.remove();
+    
+    // Get banner config
+    const bannerConfig = bannerLibrary[bannerType];
+    if (!bannerConfig && !customContent) {
+        console.error(`❌ Banner type "${bannerType}" not found in library`);
+        return null;
+    }
+    
+    // Find container
+    const container = document.querySelector('.container') || 
+                     document.querySelector('.chat-container') || 
+                     document.querySelector('#chatContainer') ||
+                     document.body;
+    
+    // Create banner
+    const banner = document.createElement('div');
+    banner.id = 'universalBanner';
+    banner.className = `universal-banner ${bannerType}-banner`;
+    banner.innerHTML = customContent || bannerConfig.content;
+    
+    // Apply styling
+    banner.style.cssText = `
+        position: absolute !important;
+        top: 10px !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        z-index: 9999 !important;
+        width: calc(100% - 20px) !important;
+        max-width: 400px !important;
+        background: ${bannerConfig?.background || 'rgba(255, 255, 255, 0.1)'};
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        margin: 0 !important;
+        box-sizing: border-box !important;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    `;
+    
+    // Deploy banner
+    container.insertBefore(banner, container.firstChild);
+    
+    // Auto-remove if duration set
+    const duration = options.duration || bannerConfig?.duration;
+    if (duration && duration > 0) {
+        setTimeout(() => {
+            const bannerToRemove = document.getElementById('universalBanner');
+            if (bannerToRemove) bannerToRemove.remove();
+        }, duration);
+    }
+    
+    console.log(`✅ Universal Banner "${bannerType}" deployed successfully`);
+    return banner;
+};
 
-    // Banner Background Styles
-    window.getBannerBackground = function(bannerType) {
-        const backgrounds = {
-            branding: 'rgba(255, 255, 255, 0.1)', // Transparent white
-            smartButton: 'var(--cta-gradient)',
-            emailSent: 'rgba(76, 175, 80, 0.2)',
-            freeBook: 'linear-gradient(135deg, #FF6B6B, #4ECDC4)',
-            consultationConfirmed: 'rgba(33, 150, 243, 0.2)',
-            confirmation: 'rgba(255, 255, 255, 0.1)'
-        };
-        return backgrounds[bannerType] || 'rgba(255, 255, 255, 0.1)';
-    };
+// Universal Banner Removal
+window.removeAllBanners = function() {
+    const existingBanner = document.getElementById('universalBanner');
+    if (existingBanner) {
+        existingBanner.remove();
+        console.log('🗑️ Banner removed');
+    }
+};
 
-    // Universal Banner Removal
-    window.removeAllBanners = function() {
-        const existingBanner = document.getElementById('universalBanner');
-        if (existingBanner) {
-            existingBanner.remove();
-            console.log('🗑️ Previous banner removed');
-        }
-    };
+// Enhanced removeLeadCaptureBanner for compatibility
+window.removeLeadCaptureBanner = function() {
+    removeAllBanners();
+    console.log('🎯 Lead capture banner removal (Universal system)');
+};
 
-    // Enhanced removeLeadCaptureBanner for compatibility
-    window.removeLeadCaptureBanner = function() {
-        removeAllBanners(); // Now handles all banner removal
-        console.log('🎯 Lead capture banner removal (Universal system)');
-    };
-
-    console.log('🎖️ Universal Banner Engine loaded and ready!');
-});
+console.log('🎖️ Complete Universal Banner Engine loaded - 7 banner types ready!');
 
 
 // ===================================================
