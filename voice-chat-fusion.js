@@ -224,11 +224,6 @@ function getApologyResponse() {
     try {
         // 🎯 MOBILE-SPECIFIC PRE-WARMING
         const isMobile = isMobileDevice();
-
-        if (recognition) {
-    recognition.onsoundstart = null; // Disable browser beep
-    recognition.onaudiostart = null; // Disable browser beep
-}
         
         if (isMobile && !speechEngine.isReady()) {
             console.log('📱 Mobile detected - pre-warming engine...');
@@ -685,33 +680,78 @@ function processUserResponse(userText) {
     }, 800);
 }
 
-// ============================================
-// MOBILE-WISE AI HYBRID READY SEQUENCE - RED GLOW VERSION
-// ============================================
-function showHybridReadySequence() {
+// =================================================== 
+// 🎯 MOBILE-WISE AI INSTANT SPEECH READY SYSTEM
+// =================================================== 
+function showInstantSpeechReady() {
+    console.log('🚀 Showing instant speech ready UI');
+    
     const liveTranscript = document.getElementById('liveTranscript');
     const transcriptText = document.getElementById('transcriptText');
     
-    if (!liveTranscript || !transcriptText) return;
+    if (!liveTranscript || !transcriptText) {
+        console.error('❌ Missing speech UI elements');
+        return;
+    }
     
-    // Show container immediately
+    // INSTANT VISUAL - Show immediately (no delay)
     liveTranscript.style.display = 'flex';
     transcriptText.style.display = 'block';
     
-    // RED GLOW "Get Ready to Speak" with animation
+    // PHASE 1: "GET READY TO SPEAK" (Instant) - Your preferred clean style
     transcriptText.textContent = 'Get Ready to Speak';
-    transcriptText.style.color = '#ff4757';
+    transcriptText.style.color = '#ffffff';
     transcriptText.style.fontWeight = 'bold';
-    transcriptText.style.fontSize = '18px';
-    transcriptText.style.textShadow = '0 0 15px #ff4757, 0 0 25px #ff4757, 0 0 35px #ff4757';
-    transcriptText.style.animation = 'redGlow 1.2s ease-in-out infinite';
+    transcriptText.style.fontSize = '16px';
+    transcriptText.style.textShadow = '0 0 15px rgba(255, 255, 255, 0.8), 0 0 25px rgba(255, 255, 255, 0.6)';
     
-    // Container styling - transparent white with red glow border
+    // Clean transparent look with subtle glow (no red borders!)
     liveTranscript.style.background = 'rgba(255, 255, 255, 0.15)';
-    liveTranscript.style.border = '2px solid #ff4757';
-    liveTranscript.style.borderRadius = '25px';
-    liveTranscript.style.boxShadow = '0 0 20px rgba(255, 71, 87, 0.6), inset 0 0 20px rgba(255, 255, 255, 0.1)';
-    liveTranscript.style.backdropFilter = 'blur(10px)';
+    liveTranscript.style.border = '2px solid rgba(255, 255, 255, 0.3)';
+    liveTranscript.style.boxShadow = '0 0 25px rgba(255, 255, 255, 0.4)';
+    liveTranscript.style.backdropFilter = 'blur(15px)';
+    
+    // PRE-WARM ENGINE IMMEDIATELY 
+    preWarmSpeechEngine();
+    
+    // PHASE 2: Switch to "LISTENING" after engine is warm
+    setTimeout(() => {
+        if (transcriptText) {
+            transcriptText.textContent = 'Listening...';
+            transcriptText.style.color = '#00ff88';
+            transcriptText.style.textShadow = '0 0 15px #00ff88, 0 0 25px #00ff88';
+            
+            liveTranscript.style.boxShadow = '0 0 25px rgba(0, 255, 136, 0.6)';
+        }
+    }, 800);
+}
+
+// =================================================== 
+// 🔥 CRITICAL: PRE-WARM SPEECH ENGINE
+// =================================================== 
+function preWarmSpeechEngine() {
+    console.log('🔥 Pre-warming speech engine for mobile...');
+    
+    if (!recognition) {
+        initializeSpeechRecognition();
+    }
+    
+    // Mobile-specific optimizations
+    if (isMobileDevice()) {
+        try {
+            recognition.start();
+            
+            // Stop it immediately - just warming the engine
+            setTimeout(() => {
+                if (recognition && isListening) {
+                    recognition.stop();
+                    console.log('✅ Speech engine pre-warmed');
+                }
+            }, 100);
+        } catch (error) {
+            console.log('🔧 Engine already warming:', error.message);
+        }
+    }
 }
 
 // ===================================================
