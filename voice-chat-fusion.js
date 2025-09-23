@@ -1740,25 +1740,16 @@ function speakMessage(message) {
                 liveTranscript.style.display = 'none';
             }
         };
-        
-      /*
-utterance.onend = function() {
-    console.log('🔊 AI finished speaking - pre-warming recognition...');
-    
-    if (recognition && isInLeadCapture) {
-        recognition.continuous = true;
-        recognition.interimResults = true;
-        recognition.maxAlternatives = 3;
-        
-        if (!isListening) {
-            startListening();
-        }
-*/   
- }
 
-};
+        utterance.onend = function() {
+            console.log('🔊 AI finished speaking');
+            // Add any completion logic here if needed
+        };
         
         window.speechSynthesis.speak(utterance);
+    }
+}
+
 
 
 // ===================================================
