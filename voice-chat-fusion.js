@@ -741,20 +741,16 @@ function speakResponse(message) {
                 }
             };
             
-           utterance.onend = function() {
-    isSpeaking = false;
-    console.log('🔊 AI finished speaking');
-    
-    if (isAudioMode && !isListening && !lastMessageWasApology) {
-        // Start hybrid sequence immediately
-        const liveTranscript = document.getElementById('liveTranscript');
-        const transcriptText = document.getElementById('transcriptText');
-        
-        if (liveTranscript && transcriptText) {
-            showHybridReadySequence();
-        }
-    }
-};
+            utterance.onend = function() {
+                isSpeaking = false;
+                console.log('🔊 AI finished speaking (mobile)');
+                
+                if (isAudioMode && !isListening && !lastMessageWasApology) {
+                    setTimeout(() => {
+                        startListening();
+                    }, 1200);
+                }
+            };
             
             utterance.onerror = function(event) {
                 console.log('❌ Speech error:', event.error);
@@ -777,19 +773,15 @@ function speakResponse(message) {
         };
         
         utterance.onend = function() {
-    isSpeaking = false;
-    console.log('🔊 AI finished speaking (mobile)');
-    
-    if (isAudioMode && !isListening && !lastMessageWasApology) {
-        // Start hybrid sequence immediately
-        const liveTranscript = document.getElementById('liveTranscript');
-        const transcriptText = document.getElementById('transcriptText');
-        
-        if (liveTranscript && transcriptText) {
-            showHybridReadySequence();
-        }
-    }
-};
+            isSpeaking = false;
+            console.log('🔊 AI finished speaking');
+            
+            if (isAudioMode && !isListening && !lastMessageWasApology) {
+                setTimeout(() => {
+                    startListening();
+                }, 800);
+            }
+        };
         
         utterance.onerror = function(event) {
             console.log('❌ Speech error:', event.error);
