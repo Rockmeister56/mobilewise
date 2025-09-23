@@ -925,7 +925,32 @@ button[class*="smart"] {
         <!-- Chat Messages Area -->
            <div class="chat-messages" id="chatMessages">
         </div>
-        
+
+        <!-- ✅ ADD THIS - Live Transcript Display -->
+<div id="liveTranscript" style="
+    width: 340px;
+    height: 30px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(15px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 25px;
+    color: white;
+    font-weight: 600;
+    font-size: 16px;
+    text-align: center;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    margin: 10px auto;
+    position: fixed;
+    bottom: 170px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;">
+    
+    <div id="transcriptText">Speak Now</div>
+</div>
+
 <div id="quickButtonsContainer" style="
     position: fixed;
     bottom: 54px;
