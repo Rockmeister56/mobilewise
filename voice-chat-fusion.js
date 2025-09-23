@@ -276,35 +276,41 @@ function getApologyResponse() {
         };
 
         // Keep your existing onerror and onend handlers exactly as they are
-        recognition.onerror = function(event) {
+      recognition.onerror = function(event) {
     console.log('🔊 Speech error:', event.error);
     
     if (event.error === 'no-speech') {
         const transcriptText = document.getElementById('transcriptText');
         
         if (isMobileDevice()) {
-            console.log('📱 Mobile: Using visual apology + hybrid restart');
+            console.log('📱 Mobile: Using visual apology');
             
             if (transcriptText) {
                 const originalText = transcriptText.textContent;
                 transcriptText.textContent = 'Please speak again...';
                 
                 setTimeout(() => {
+                    if (transcriptText) {
+                        transcriptText.textContent = 'Speak Now'; // Reset text
+                    }
+                    
                     // Clear the slot and restart with hybrid sequence
                     const speakNowSlot = document.getElementById('speakNowSlot');
                     if (speakNowSlot) {
                         speakNowSlot.innerHTML = '';
                     }
                     
+                    // ✅ FORCE RESTART - Bypass gate-keeper for mobile reset!
                     if (isAudioMode && !isSpeaking) {
-                        console.log('🔄 Mobile: Restarting with hybrid sequence');
-                        isListening = false;
+                        console.log('🔄 Mobile: Force restarting speech recognition');
+                        isListening = false; // Reset listening state
                         
+                        // Direct restart with hybrid sequence
                         setTimeout(() => {
-                            showHybridReadySequence(); // This will restart everything!
+                            showHybridReadySequence(); // Use hybrid instead of forceStartListening()
                         }, 500);
                     }
-                }, 1500);
+                }, 2000); // Keep original 2000ms timing that was working
             }
             
         } else {
