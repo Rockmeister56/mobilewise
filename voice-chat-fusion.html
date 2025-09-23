@@ -101,7 +101,6 @@
         max-width: none !important;
         margin: 20px 0 !important;
         background: rgba(255, 255, 255, 0.1) !important;
-        display: none !important; /* ← ADD THIS LINE */
     }
     
     /* Fix speak now button on desktop */
@@ -113,25 +112,6 @@
         margin: 15px 0 !important;
         width: auto !important;
     }
-
-    #liveTranscript {
-    position: relative !important;  /* Changed from fixed */
-    bottom: auto !important;        /* Reset bottom */
-    left: auto !important;          /* Reset left */
-    transform: none !important;     /* Reset transform */
-    margin: 15px auto !important;   /* Center it with margin */
-    width: 340px !important;        /* Keep width */
-    height: auto !important;        /* Let height adjust */
-    display: none;                  /* Hidden by default */
-}
-
-/* Mobile specific */
-@media (max-width: 768px) {
-    #liveTranscript {
-        width: 300px !important;    /* Slightly smaller on mobile */
-        margin: 10px auto !important;
-    }
-}
 
     @media (max-width: 768px) {
     #liveTranscript {
@@ -965,26 +945,8 @@ button[class*="smart"] {
     backdrop-filter: blur(10px);
     display: none;">
 
-    <!-- ✅ LIVE TRANSCRIPT INSIDE CONTAINER -->
-    <div id="liveTranscript" style="
-        width: 340px;
-        height: 30px;
-        background: rgba(255, 255, 255, 0.15);
-        backdrop-filter: blur(15px);
-        border: 2px solid rgba(255, 255, 255, 0.3);
-        border-radius: 25px;
-        color: white;
-        font-weight: 600;
-        font-size: 16px;
-        text-align: center;
-        display: none;
-        align-items: center;
-        justify-content: center;
-        margin: 10px auto 15px auto;
-        position: relative;">
-        
-        <div id="transcriptText">Get Ready to Speak</div>
-    </div>
+    <!-- ADD THIS ONE LINE -->
+    <div id="speakNowSlot" style="margin-bottom: 12px; display: none;"></div>
     
     <!-- QUICK BUTTONS -->
     <div class="quick-questions" style="margin-bottom: 12px;">

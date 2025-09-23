@@ -330,45 +330,52 @@ function getApologyResponse() {
             }
         };
 
-        recognition.onend = function() {
-            // Keep your existing onend logic - it's perfect
-            hideSpeakNow();
-            console.log('🔚 Recognition ended');
+       recognition.onend = function() {
+    // Keep your existing onend logic - it's perfect
+    hideSpeakNow();
+    
+    // CLEAR THE SLOT when recognition ends - this is what we're adding!
+    const speakNowSlot = document.getElementById('speakNowSlot');
+    if (speakNowSlot) {
+        speakNowSlot.innerHTML = ''; // This just empties the slot content
+    }
+    
+    console.log('🔚 Recognition ended');
+    
+    const userInput = document.getElementById('userInput');
+    
+    if (userInput && userInput.value.trim().length > 0) {
+        const currentMessage = userInput.value.trim();
+        const now = Date.now();
+        const timeSinceLastMessage = now - (window.lastMessageTime || 0);
+        
+        if (!window.lastProcessedMessage || 
+            window.lastProcessedMessage !== currentMessage || 
+            timeSinceLastMessage > 3000) {
             
-            const userInput = document.getElementById('userInput');
-            
-            if (userInput && userInput.value.trim().length > 0) {
-                const currentMessage = userInput.value.trim();
-                const now = Date.now();
-                const timeSinceLastMessage = now - (window.lastMessageTime || 0);
-                
-                if (!window.lastProcessedMessage || 
-                    window.lastProcessedMessage !== currentMessage || 
-                    timeSinceLastMessage > 3000) {
-                    
-                    console.log('✅ Sending new message:', currentMessage);
-                    window.lastProcessedMessage = currentMessage;
-                    window.lastMessageTime = now;
-                    sendMessage();
-                } else {
-                    console.log('🚫 Prevented duplicate message (within 3 seconds):', currentMessage);
-                    userInput.value = '';
+            console.log('✅ Sending new message:', currentMessage);
+            window.lastProcessedMessage = currentMessage;
+            window.lastMessageTime = now;
+            sendMessage();
+        } else {
+            console.log('🚫 Prevented duplicate message (within 3 seconds):', currentMessage);
+            userInput.value = '';
+        }
+    } else {
+        if (isAudioMode && !isSpeaking && isListening && !lastMessageWasApology) {
+            console.log('🔄 No speech detected via onend - restarting');
+            setTimeout(() => {
+                try {
+                    if (recognition) {
+                        startListening();
+                    }
+                } catch (error) {
+                    console.log('Restart error:', error);
                 }
-            } else {
-                if (isAudioMode && !isSpeaking && isListening && !lastMessageWasApology) {
-                    console.log('🔄 No speech detected via onend - restarting');
-                    setTimeout(() => {
-                        try {
-                            if (recognition) {
-                                startListening();
-                            }
-                        } catch (error) {
-                            console.log('Restart error:', error);
-                        }
-                    }, 1000);
-                }
-            }
-        };
+            }, 1000);
+        }
+    }
+};
         
         // 🎯 MOBILE TIMING DELAY
         const delay = isMobile ? 800 : 0; // Only delay on mobile
@@ -716,54 +723,76 @@ function createBeep(frequency, duration, volume) {
 }
 
 // ===================================================
-// 🚀 MOBILE-WISE AI INSTANT SPEECH READY SYSTEM (WORKING VERSION)
+// 🚀 MOBILE-WISE AI HYBRID READY SEQUENCE - SLOT VERSION
 // ===================================================
 function showHybridReadySequence() {
     console.log('🚀 Showing instant speech ready UI');
     
-    const liveTranscript = document.getElementById('liveTranscript');
-    const transcriptText = document.getElementById('transcriptText');
+    // CREATE the transcript element dynamically
+    const transcriptElement = document.createElement('div');
+    transcriptElement.id = 'liveTranscript';
+    transcriptElement.innerHTML = '<div id="transcriptText">Get Ready to Speak</div>';
     
-    if (!liveTranscript || !transcriptText) {
-        console.error('❌ Missing speech UI elements');
+    // Style it with JavaScript
+    transcriptElement.style.cssText = `
+        width: 340px;
+        height: 30px;
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(15px);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 25px;
+        color: white;
+        font-weight: 600;
+        font-size: 16px;
+        text-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 10px auto;
+        cursor: pointer;
+    `;
+    
+    // ADD CLICK HANDLER - This is what was missing!
+    transcriptElement.addEventListener('click', function() {
+        if (!isListening) {
+            startListening();
+            const transcriptText = document.getElementById('transcriptText');
+            if (transcriptText) {
+                transcriptText.textContent = 'Listening...';
+                transcriptText.style.color = '#ff4444';
+                transcriptText.style.textShadow = '0 0 15px rgba(255, 68, 68, 0.8)';
+            }
+        }
+    });
+    
+    // INSERT into the slot inside the container
+    const speakNowSlot = document.getElementById('speakNowSlot');
+    if (speakNowSlot) {
+        speakNowSlot.innerHTML = ''; // Clear any existing content
+        speakNowSlot.appendChild(transcriptElement);
+        speakNowSlot.style.display = 'block'; // Show the slot
+        console.log('✅ Transcript element added to container slot');
+    } else {
+        console.error('❌ speakNowSlot not found');
         return;
     }
     
-    // INSTANT VISUAL - Show immediately (no delay)
-    liveTranscript.style.display = 'block';
-    transcriptText.style.display = 'block';
-    
-    // PHASE 1: "GET READY TO SPEAK" (Instant) - Clean white glow
-    transcriptText.textContent = 'Get Ready to Speak';
-    transcriptText.style.color = '#ffffff';
-    transcriptText.style.fontWeight = 'bold';
-    transcriptText.style.fontSize = '18px';
-    transcriptText.style.textShadow = '0 0 15px rgba(255, 255, 255, 0.8), 0 0 25px rgba(255, 255, 255, 0.6)';
-    
-    // Clean transparent look with subtle glow (your preferred style)
-    liveTranscript.style.background = 'rgba(255, 255, 255, 0.15)';
-    liveTranscript.style.border = '2px solid rgba(255, 255, 255, 0.3)';
-    liveTranscript.style.boxShadow = '0 0 25px rgba(255, 255, 255, 0.4)';
-    liveTranscript.style.backdropFilter = 'blur(15px)';
-    liveTranscript.style.borderRadius = '25px';
-    
-    // PRE-WARM ENGINE IMMEDIATELY (SILENT - NO BEEP)
+    // PRE-WARM ENGINE
     preWarmSpeechEngine();
     
-    // PHASE 2: Switch to "LISTENING" after engine is warm
+    // PHASE 2: Switch to "Speak Now" after engine is warm
     setTimeout(() => {
+        const transcriptText = document.getElementById('transcriptText');
         if (transcriptText) {
-            transcriptText.textContent = 'Listening...';
+            transcriptText.textContent = '🎤 Speak Now';
             transcriptText.style.color = '#00ff88';
-            transcriptText.style.textShadow = '0 0 15px rgba(0, 255, 136, 0.8), 0 0 25px rgba(0, 255, 136, 0.6)';
+            transcriptText.style.textShadow = '0 0 15px rgba(0, 255, 136, 0.8)';
             
-            liveTranscript.style.boxShadow = '0 0 25px rgba(0, 255, 136, 0.6)';
-            liveTranscript.style.border = '2px solid rgba(0, 255, 136, 0.5)';
+            transcriptElement.style.border = '2px solid rgba(0, 255, 136, 0.5)';
+            transcriptElement.style.boxShadow = '0 0 25px rgba(0, 255, 136, 0.6)';
             
-            // 🚀 CRITICAL: Actually start listening now
-            if (recognition && !isListening) {
-                startListening();
-            }
+            console.log('✅ Ready for user to click and speak');
         }
     }, 800);
 }
@@ -833,63 +862,47 @@ function speakResponse(message) {
                 }
             };
             
-            utterance.onend = function() {
+          utterance.onend = function() {
     isSpeaking = false;
     console.log('🔊 AI finished speaking (mobile)');
     
-    // ADD THIS LINE - Show hybrid sequence on mobile too!
     showHybridReadySequence();
-    
-    if (isAudioMode && !isListening && !lastMessageWasApology) {
-        setTimeout(() => {
-            startListening();
-        }, 1000);
-    }
 };
             
-            utterance.onerror = function(event) {
-                console.log('❌ Speech error:', event.error);
-                isSpeaking = false;
-            };
-            
-            window.speechSynthesis.speak(utterance);
-            currentAudio = utterance;
-        }, 500);
-    } else {
-        const utterance = new SpeechSynthesisUtterance(message);
-        
-        utterance.rate = 1.0;
-        utterance.pitch = 1.0;
-        utterance.volume = 0.9;
-        
-        utterance.onstart = function() {
-            isSpeaking = true;
-            console.log('🔊 AI started speaking');
-        };
-        
-        utterance.onend = function() {
+utterance.onerror = function(event) {
+    console.log('❌ Speech error:', event.error);
     isSpeaking = false;
-    console.log('🔊 AI finished speaking');
-    
-    // Show "Get Ready" button IMMEDIATELY 
-    showHybridReadySequence();
-    
-    // Keep your existing startListening timing unchanged
-    if (isAudioMode && !isListening && !lastMessageWasApology) {
-        setTimeout(() => {
-            startListening();
-        }, 800); // Keep original timing
-    }
 };
+
+window.speechSynthesis.speak(utterance);
+currentAudio = utterance;
+}, 500);
+} else {
+    const utterance = new SpeechSynthesisUtterance(message);
+    
+    utterance.rate = 1.0;
+    utterance.pitch = 1.0;
+    utterance.volume = 0.9;
+    
+    utterance.onstart = function() {
+        isSpeaking = true;
+        console.log('🔊 AI started speaking');
+    };
+    
+    utterance.onend = function() {
+        isSpeaking = false;
+        console.log('🔊 AI finished speaking');
         
-        utterance.onerror = function(event) {
-            console.log('❌ Speech error:', event.error);
-            isSpeaking = false;
-        };
-        
-        window.speechSynthesis.speak(utterance);
-        currentAudio = utterance;
-    }
+        showHybridReadySequence();
+    };
+    
+    utterance.onerror = function(event) {
+        console.log('❌ Speech error:', event.error);
+        isSpeaking = false;
+    };
+    
+    window.speechSynthesis.speak(utterance);
+    currentAudio = utterance;
 }
 
 function addUserMessage(message) {
@@ -905,6 +918,8 @@ function addUserMessage(message) {
     
     chatMessages.appendChild(messageElement);
     scrollChatToBottom();
+}
+
 }
 
    // ===================================================================
