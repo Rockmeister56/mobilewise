@@ -744,10 +744,25 @@ function createBeep(frequency, duration, volume) {
 }
 
 // ===================================================
-// 🚀 MOBILE-WISE AI HYBRID READY SEQUENCE - SLOT VERSION
+// 🚀 ENHANCED HYBRID READY SEQUENCE WITH RESTART HANDLING
 // ===================================================
 function showHybridReadySequence() {
-    console.log('🚀 Showing instant speech ready UI');
+    console.log('🚀 Showing hybrid ready sequence');
+    
+    // CLEAR ANY EXISTING TIMEOUTS to prevent conflicts
+    if (window.hybridTimeout) {
+        clearTimeout(window.hybridTimeout);
+        window.hybridTimeout = null;
+    }
+    
+    // Clear any existing content first
+    const speakNowSlot = document.getElementById('speakNowSlot');
+    if (speakNowSlot) {
+        speakNowSlot.innerHTML = '';
+    } else {
+        console.error('❌ speakNowSlot not found');
+        return;
+    }
     
     // CREATE the transcript element dynamically
     const transcriptElement = document.createElement('div');
@@ -774,47 +789,29 @@ function showHybridReadySequence() {
         cursor: pointer;
     `;
     
-    // ADD CLICK HANDLER - This is what was missing!
-    transcriptElement.addEventListener('click', function() {
-        if (!isListening) {
-            startListening();
-            const transcriptText = document.getElementById('transcriptText');
-            if (transcriptText) {
-                transcriptText.textContent = 'Listening...';
-                transcriptText.style.color = '#ff4444';
-                transcriptText.style.textShadow = '0 0 15px rgba(255, 68, 68, 0.8)';
-            }
-        }
-    });
-    
-    // INSERT into the slot inside the container
-    const speakNowSlot = document.getElementById('speakNowSlot');
-    if (speakNowSlot) {
-        speakNowSlot.innerHTML = ''; // Clear any existing content
-        speakNowSlot.appendChild(transcriptElement);
-        speakNowSlot.style.display = 'block'; // Show the slot
-        console.log('✅ Transcript element added to container slot');
-    } else {
-        console.error('❌ speakNowSlot not found');
-        return;
-    }
+    // INSERT into the slot
+    speakNowSlot.appendChild(transcriptElement);
+    speakNowSlot.style.display = 'block';
     
     // PRE-WARM ENGINE
     preWarmSpeechEngine();
     
-   setTimeout(() => {
-    const transcriptText = document.getElementById('transcriptText');
-    if (transcriptText) {
-        transcriptText.textContent = 'Listening...';
-        transcriptText.style.color = '#ff4444';
-        transcriptText.style.textShadow = '0 0 15px rgba(255, 68, 68, 0.8)';
-    }
-    
-    // AUTO-START listening - no click required!
-    if (!isListening) {
-        startListening();
-    }
-}, 800);
+    // PHASE 2: Switch to "LISTENING" and start recognition
+    window.hybridTimeout = setTimeout(() => {
+        const transcriptText = document.getElementById('transcriptText');
+        if (transcriptText) {
+            transcriptText.textContent = 'Listening...';
+            transcriptText.style.color = '#00ff88';
+            transcriptText.style.textShadow = '0 0 15px rgba(0, 255, 136, 0.8)';
+        }
+        
+        // AUTO-START listening - with proper restart handling
+        if (!isListening && !isSpeaking && isAudioMode) {
+            console.log('🎯 Hybrid system starting recognition');
+            isListening = false; // Reset state first
+            startListening();
+        }
+    }, 800);
 }
 
 // ===================================================
