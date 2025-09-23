@@ -286,7 +286,7 @@ function getApologyResponse() {
                         
                         setTimeout(() => {
                             if (transcriptText) {
-                                transcriptText.textContent = 'Speak Now';
+                               showHybridReadySequence();
                             }
                             
                             if (isAudioMode && !isSpeaking) {
@@ -678,6 +678,36 @@ function processUserResponse(userText) {
             window.lastProcessedMessage = null;
         }, 3000);
     }, 800);
+}
+
+// ============================================
+// MOBILE-WISE AI HYBRID READY SEQUENCE  
+// ============================================
+function showHybridReadySequence() {
+    const liveTranscript = document.getElementById('liveTranscript');
+    const transcriptText = document.getElementById('transcriptText');
+    
+    if (!liveTranscript || !transcriptText) return;
+    
+    // Show the container
+    liveTranscript.style.display = 'flex';
+    transcriptText.style.display = 'block';
+    
+    // Phase 1: "Get Ready to Speak" (1.3 seconds)
+    transcriptText.textContent = 'Get Ready to Speak...';
+    transcriptText.style.color = '#667eea';
+    transcriptText.style.fontWeight = 'bold';
+    
+    // Phase 2: Switch to "Listening..." and start
+    setTimeout(() => {
+        transcriptText.textContent = 'Listening...';
+        transcriptText.style.color = '#28a745';
+        
+        // Start your existing listening function
+        if (recognition && !isListening) {
+            startListening();
+        }
+    }, 1300); // Adjustable timing
 }
 
 // ===================================================
@@ -1607,11 +1637,9 @@ function speakMessage(message) {
             const liveTranscript = document.getElementById('liveTranscript');
             const transcriptText = document.getElementById('transcriptText');
             
-            if (liveTranscript && transcriptText) {
-                transcriptText.textContent = 'Speak Now...'; 
-                transcriptText.style.display = 'block';
-                liveTranscript.style.display = 'flex';
-                console.log('🔥 Recognition HOT - Ready for input!');
+          if (liveTranscript && transcriptText) {
+    console.log('🔥 Recognition HOT - Starting hybrid sequence!');
+    showHybridReadySequence();
             }
         }, 500); // Increased to 500ms for engine warmup
     }
@@ -1797,14 +1825,8 @@ function confirmAnswer(isCorrect) {
             const transcriptText = document.getElementById('transcriptText');
             
             if (liveTranscript && transcriptText) {
-                transcriptText.textContent = 'Speak Now...';
-                transcriptText.style.display = 'block';
-                liveTranscript.style.display = 'flex';
-            }
-            
-            if (recognition && !isListening) {
-                startListening();
-            }
+    showHybridReadySequence();
+}
         }, 300);
     }
 }
