@@ -700,6 +700,7 @@ function showInstantSpeechReady() {
     
     // PHASE 1: "GET READY TO SPEAK" (Instant) - Your preferred clean style
     transcriptText.textContent = 'Get Ready to Speak';
+    playGetReadyBeep();
     transcriptText.style.color = '#ffffff';
     transcriptText.style.fontWeight = 'bold';
     transcriptText.style.fontSize = '16px';
@@ -718,6 +719,7 @@ function showInstantSpeechReady() {
     setTimeout(() => {
         if (transcriptText) {
             transcriptText.textContent = 'Listening...';
+            playListeningBeep();
             transcriptText.style.color = '#00ff88';
             transcriptText.style.textShadow = '0 0 15px #00ff88, 0 0 25px #00ff88';
             
@@ -752,6 +754,36 @@ function preWarmSpeechEngine() {
             console.log('🔧 Engine already warming:', error.message);
         }
     }
+}
+
+// =================================================== 
+// 🔊 MOBILE-WISE AI CUSTOM BEEP SYSTEM
+// =================================================== 
+function playGetReadyBeep() {
+    // Soft "get ready" tone
+    createBeep(440, 0.2, 0.3); // A note, 0.2 seconds, medium volume
+}
+
+function playListeningBeep() {
+    // Professional "ready to listen" double-beep
+    createBeep(660, 0.15, 0.4);
+    setTimeout(() => createBeep(880, 0.15, 0.4), 200);
+}
+
+function createBeep(frequency, duration, volume) {
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+    gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+    
+    oscillator.start();
+    oscillator.stop(audioContext.currentTime + duration);
 }
 
 // ===================================================
