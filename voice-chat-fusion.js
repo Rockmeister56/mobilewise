@@ -781,20 +781,19 @@ function showHybridReadySequence() {
     // PRE-WARM ENGINE
     preWarmSpeechEngine();
     
-    // PHASE 2: Switch to "Speak Now" after engine is warm
-    setTimeout(() => {
-        const transcriptText = document.getElementById('transcriptText');
-        if (transcriptText) {
-            transcriptText.textContent = '🎤 Speak Now';
-            transcriptText.style.color = '#00ff88';
-            transcriptText.style.textShadow = '0 0 15px rgba(0, 255, 136, 0.8)';
-            
-            transcriptElement.style.border = '2px solid rgba(0, 255, 136, 0.5)';
-            transcriptElement.style.boxShadow = '0 0 25px rgba(0, 255, 136, 0.6)';
-            
-            console.log('✅ Ready for user to click and speak');
-        }
-    }, 800);
+   setTimeout(() => {
+    const transcriptText = document.getElementById('transcriptText');
+    if (transcriptText) {
+        transcriptText.textContent = 'Listening...';
+        transcriptText.style.color = '#ff4444';
+        transcriptText.style.textShadow = '0 0 15px rgba(255, 68, 68, 0.8)';
+    }
+    
+    // AUTO-START listening - no click required!
+    if (!isListening) {
+        startListening();
+    }
+}, 800);
 }
 
 // ===================================================
