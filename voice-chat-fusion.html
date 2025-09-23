@@ -950,32 +950,6 @@ button[class*="smart"] {
         <!-- Chat Messages Area -->
            <div class="chat-messages" id="chatMessages">
         </div>
-
-        <!-- ✅ ADD THIS - Live Transcript Display -->
-<div id="liveTranscript" style="
-    width: 340px;
-    height: 30px;
-    background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(15px);
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-radius: 25px;
-    color: white;
-    font-weight: 600;
-    font-size: 16px;
-    text-align: center;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    margin: 10px auto;
-    position: fixed;
-    bottom: 170px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 1000;">
-    
-    <div id="transcriptText">Speak Now</div>
-</div>
-
 <div id="quickButtonsContainer" style="
     position: fixed;
     bottom: 54px;
@@ -989,24 +963,38 @@ button[class*="smart"] {
     backdrop-filter: blur(10px);
     display: none;">
 
-    <div id="quickButtonsContainer">
-    <!-- Add this inside the container -->
-    <div id="liveTranscript">
+    <!-- ✅ LIVE TRANSCRIPT INSIDE CONTAINER -->
+    <div id="liveTranscript" style="
+        width: 340px;
+        height: 30px;
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(15px);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 25px;
+        color: white;
+        font-weight: 600;
+        font-size: 16px;
+        text-align: center;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        margin: 10px auto 15px auto;
+        position: relative;">
+        
         <div id="transcriptText">Get Ready to Speak</div>
     </div>
     
-    <!-- Your existing quick buttons -->
-    <div class="quick-questions">
-        <!-- ... your buttons ... -->
-    </div>
-</di>
-    
-    <!-- ORIGINAL SIMPLE QUICK BUTTONS -->
+    <!-- QUICK BUTTONS -->
     <div class="quick-questions" style="margin-bottom: 12px;">
         <button class="quick-btn" onclick="askQuickQuestion('How much is my practice worth?')">Practice Valuation</button>
         <button class="quick-btn" onclick="askQuickQuestion('I want to sell my practice')">Selling Options</button>
         <button class="quick-btn" onclick="askQuickQuestion('I want to buy a practice')">Buying Options</button>
     </div>
+    
+    <!-- REST OF YOUR EXISTING CONTAINER CONTENT -->
+    <!-- ... your input area, send button, etc. ... -->
+    
+</div>
     
     <!-- FULL WIDTH TEXT INPUT -->
     <div class="input-area" style="
