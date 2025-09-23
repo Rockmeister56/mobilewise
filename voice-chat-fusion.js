@@ -834,15 +834,18 @@ function speakResponse(message) {
             };
             
             utterance.onend = function() {
-                isSpeaking = false;
-                console.log('🔊 AI finished speaking (mobile)');
-                
-                if (isAudioMode && !isListening && !lastMessageWasApology) {
-                    setTimeout(() => {
-                        startListening();
-                    }, 1000);
-                }
-            };
+    isSpeaking = false;
+    console.log('🔊 AI finished speaking (mobile)');
+    
+    // ADD THIS LINE - Show hybrid sequence on mobile too!
+    showHybridReadySequence();
+    
+    if (isAudioMode && !isListening && !lastMessageWasApology) {
+        setTimeout(() => {
+            startListening();
+        }, 1000);
+    }
+};
             
             utterance.onerror = function(event) {
                 console.log('❌ Speech error:', event.error);
