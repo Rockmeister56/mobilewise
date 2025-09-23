@@ -351,21 +351,16 @@ function getApologyResponse() {
     }
 };
 
-       recognition.onend = function() {
-    // Keep your existing onend logic - it's perfect
-    hideSpeakNow();
-    
-    // CLEAR THE SLOT when recognition ends - this is what we're adding!
-    const speakNowSlot = document.getElementById('speakNowSlot');
-    if (speakNowSlot) {
-        speakNowSlot.innerHTML = ''; // This just empties the slot content
-    }
-    
+      recognition.onend = function() {
     console.log('🔚 Recognition ended');
+    
+    // DON'T clear the slot here - let the hybrid system manage it
+    // (This was causing premature clearing)
     
     const userInput = document.getElementById('userInput');
     
     if (userInput && userInput.value.trim().length > 0) {
+        // User said something - process the message
         const currentMessage = userInput.value.trim();
         const now = Date.now();
         const timeSinceLastMessage = now - (window.lastMessageTime || 0);
@@ -383,15 +378,17 @@ function getApologyResponse() {
             userInput.value = '';
         }
     } else {
-        if (isAudioMode && !isSpeaking && isListening && !lastMessageWasApology) {
-            console.log('🔄 No speech detected via onend - restarting');
+        // No speech detected - restart with hybrid system
+        if (isAudioMode && !isSpeaking && !lastMessageWasApology) {
+            console.log('🔄 No speech detected via onend - restarting with hybrid system');
+            
+            // Clear listening state and restart properly
+            isListening = false;
+            
+            // Use hybrid system for restart (not direct startListening)
             setTimeout(() => {
-                try {
-                    if (recognition) {
-                        showHybridReadySequence();
-                    }
-                } catch (error) {
-                    console.log('Restart error:', error);
+                if (!isSpeaking && isAudioMode) {
+                    showHybridReadySequence();
                 }
             }, 1000);
         }
