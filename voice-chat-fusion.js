@@ -778,112 +778,6 @@ function addUserMessage(message) {
     scrollChatToBottom();
 }
 
-    // ===================================================================
-    // 🎯 MOBILE-WISE AI UNIVERSAL BANNER ENGINE
-    // ===================================================================
-    
-    // Banner Library - All your banner types
-    const bannerLibrary = {
-        branding: {
-            content: `
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 20px;">
-                    <div style="display: flex; align-items: center;">
-                        <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758507868460_logo.png" 
-                             style="width: 50px; height: 50px; margin-right: 10px;">
-                        <span style="color: white; font-size: 16px; font-weight: bold;">Mobile-Wise AI</span>
-                    </div>
-                    <div>
-                        <span style="color: #87CEEB; font-size: 14px; font-weight: 600;">AI VOICE CHAT</span>
-                    </div>
-                </div>
-            `,
-            style: 'branding-header',
-            duration: 0
-        },
-        
-        smartButton: {
-            content: `
-                <div style="text-align: center; padding: 15px;">
-                    <div style="font-size: 18px; font-weight: bold; margin-bottom: 10px;">
-                        🎯 FREE Consultation Available
-                    </div>
-                    <button onclick="startConsultationProcess()" style="
-                        background: var(--cta-gradient);
-                        color: white;
-                        border: none;
-                        padding: 15px 30px;
-                        border-radius: 25px;
-                        cursor: pointer;
-                        font-weight: bold;
-                        font-size: 16px;
-                        animation: pulse-attention 1.5s infinite;
-                        box-shadow: 0 4px 15px rgba(33, 150, 243, 0.4);
-                    ">
-                        Get Started Now
-                    </button>
-                </div>
-            `,
-            style: 'smart-button-banner',
-            duration: 0
-        },
-        
-        emailSent: {
-            content: `
-                <div style="text-align: center; padding: 15px; color: white;">
-                    <div style="font-size: 16px; font-weight: bold;">
-                        ✅ <strong>Confirmation Email Sent!</strong>
-                    </div>
-                    <div style="font-size: 12px; opacity: 0.9; margin-top: 5px;">
-                        Please check your email for the book link
-                    </div>
-                </div>
-            `,
-            style: 'email-confirmation-banner',
-            duration: 4000
-        },
-        
-        freeBook: {
-            content: `
-                <div style="text-align: center; padding: 15px;">
-                    <div style="font-size: 16px; font-weight: bold; color: white; margin-bottom: 10px;">
-                        📚 FREE Book for You!
-                    </div>
-                    <div style="font-size: 14px; color: #ccc; margin-bottom: 10px;">
-                        "7 Secrets to Selling Your Practice"
-                    </div>
-                    <button onclick="requestFreeBook()" style="
-                        background: linear-gradient(135deg, #FF6B6B, #4ECDC4);
-                        color: white;
-                        border: none;
-                        padding: 12px 25px;
-                        border-radius: 20px;
-                        cursor: pointer;
-                        font-weight: bold;
-                    ">
-                        Get Free Book
-                    </button>
-                </div>
-            `,
-            style: 'free-book-banner',
-            duration: 0
-        },
-        
-        consultationConfirmed: {
-            content: `
-                <div style="text-align: center; padding: 15px; color: white;">
-                    <div style="font-size: 16px; font-weight: bold;">
-                        🎉 Consultation Confirmed!
-                    </div>
-                    <div style="font-size: 12px; opacity: 0.9; margin-top: 5px;">
-                        Bruce will reach out within 24 hours
-                    </div>
-                </div>
-            `,
-            style: 'consultation-confirmed-banner',
-            duration: 5000
-        }
-    };
-
    // ===================================================================
 // 🎯 MOBILE-WISE AI UNIVERSAL BANNER ENGINE - COMPLETE ARSENAL
 // ===================================================================
@@ -1110,20 +1004,8 @@ window.removeLeadCaptureBanner = function() {
     console.log('🎯 Lead capture banner removal (Universal system)');
 };
 
-
 console.log('🎖️ Complete Universal Banner Engine loaded - 7 banner types ready!');
 
-function showEmailConfirmationBanner() {
-    // Remove ALL existing banners
-    const existingBruce = document.getElementById('bruceBookBanner');
-    const existingConfirm = document.getElementById('emailConfirmationBanner');
-
-    removeLeadCaptureBanner(); // Use standardized removal function
-    if (existingConfirm) existingConfirm.remove();
-    
-    // Deploy Universal Banner
-    showUniversalBanner('emailSent');
-}
 
 // ===================================================
 // 🧠 AI RESPONSE SYSTEM
@@ -2351,7 +2233,7 @@ function showEmailConfirmationBanner() {
    showUniversalBanner('emailSent');
 
     setTimeout(() => {
-        confirmationBanner.remove();
+     removeAllBanners(); // Use Universal Banner removal
     }, 4000);
 }
 
