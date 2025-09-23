@@ -833,16 +833,18 @@ function speakResponse(message) {
                 }
             };
             
-            utterance.onend = function() {
-                isSpeaking = false;
-                console.log('🔊 AI finished speaking (mobile)');
-                
-                if (isAudioMode && !isListening && !lastMessageWasApology) {
-                    setTimeout(() => {
-                        startListening();
-                    }, 1000);
-                }
-            };
+          /*
+utterance.onend = function() {
+    isSpeaking = false;
+    console.log('🔊 AI finished speaking (mobile)');
+    
+    if (isAudioMode && !isListening && !lastMessageWasApology) {
+        setTimeout(() => {
+            startListening();
+        }, 1000);
+    }
+};
+*/
             
             utterance.onerror = function(event) {
                 console.log('❌ Speech error:', event.error);
@@ -872,11 +874,13 @@ function speakResponse(message) {
     showHybridReadySequence();
     
     // Keep your existing startListening timing unchanged
-    if (isAudioMode && !isListening && !lastMessageWasApology) {
-        setTimeout(() => {
-            startListening();
-        }, 800); // Keep original timing
-    }
+   /*
+if (isAudioMode && !isListening && !lastMessageWasApology) {
+    setTimeout(() => {
+        startListening();
+    }, 800);
+}
+*/
 };
         
         utterance.onerror = function(event) {
