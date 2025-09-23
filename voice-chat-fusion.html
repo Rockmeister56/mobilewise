@@ -112,7 +112,26 @@
         margin: 15px 0 !important;
         width: auto !important;
     }
-    
+
+    #liveTranscript {
+    position: relative !important;  /* Changed from fixed */
+    bottom: auto !important;        /* Reset bottom */
+    left: auto !important;          /* Reset left */
+    transform: none !important;     /* Reset transform */
+    margin: 15px auto !important;   /* Center it with margin */
+    width: 340px !important;        /* Keep width */
+    height: auto !important;        /* Let height adjust */
+    display: none;                  /* Hidden by default */
+}
+
+/* Mobile specific */
+@media (max-width: 768px) {
+    #liveTranscript {
+        width: 300px !important;    /* Slightly smaller on mobile */
+        margin: 10px auto !important;
+    }
+}
+
     @media (max-width: 768px) {
     #liveTranscript {
         bottom: 280px !important;  /* Higher on mobile */
@@ -969,6 +988,18 @@ button[class*="smart"] {
     padding: 10px;
     backdrop-filter: blur(10px);
     display: none;">
+
+    <div id="quickButtonsContainer">
+    <!-- Add this inside the container -->
+    <div id="liveTranscript">
+        <div id="transcriptText">Get Ready to Speak</div>
+    </div>
+    
+    <!-- Your existing quick buttons -->
+    <div class="quick-questions">
+        <!-- ... your buttons ... -->
+    </div>
+</di>
     
     <!-- ORIGINAL SIMPLE QUICK BUTTONS -->
     <div class="quick-questions" style="margin-bottom: 12px;">
