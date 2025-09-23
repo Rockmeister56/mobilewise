@@ -1110,8 +1110,20 @@ window.removeLeadCaptureBanner = function() {
     console.log('🎯 Lead capture banner removal (Universal system)');
 };
 
+
 console.log('🎖️ Complete Universal Banner Engine loaded - 7 banner types ready!');
 
+function showEmailConfirmationBanner() {
+    // Remove ALL existing banners
+    const existingBruce = document.getElementById('bruceBookBanner');
+    const existingConfirm = document.getElementById('emailConfirmationBanner');
+
+    removeLeadCaptureBanner(); // Use standardized removal function
+    if (existingConfirm) existingConfirm.remove();
+    
+    // Deploy Universal Banner
+    showUniversalBanner('emailSent');
+}
 
 // ===================================================
 // 🧠 AI RESPONSE SYSTEM
