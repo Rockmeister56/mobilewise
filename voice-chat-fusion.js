@@ -369,7 +369,7 @@ function getApologyResponse() {
             setTimeout(() => {
                 try {
                     if (recognition) {
-                        startListening();
+                        showHybridReadySequence();
                     }
                 } catch (error) {
                     console.log('Restart error:', error);
