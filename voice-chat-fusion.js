@@ -281,57 +281,59 @@ function getApologyResponse() {
         };
 
         // Keep your existing onerror and onend handlers exactly as they are
-      recognition.onerror = function(event) {
+    recognition.onerror = function(event) {
     console.log('🔊 Speech error:', event.error);
-    
+
     if (event.error === 'no-speech') {
         const transcriptText = document.getElementById('transcriptText');
-        
+
         if (isMobileDevice()) {
-            console.log('📱 Mobile: Using visual apology');
-            
-            if (transcriptText) {
-                const originalText = transcriptText.textContent;
-                transcriptText.textContent = 'Please speak again...';
-                
-                setTimeout(() => {
-                    if (transcriptText) {
-                        transcriptText.textContent = 'Speak Now'; // Reset text
-                    }
-                    
-                    // Clear the slot and restart with hybrid sequence
-                    const speakNowSlot = document.getElementById('speakNowSlot');
-                    if (speakNowSlot) {
-                        speakNowSlot.innerHTML = '';
-                    }
-                    
-                    // ✅ FORCE RESTART - Bypass gate-keeper for mobile reset!
-                    if (isAudioMode && !isSpeaking) {
-                        console.log('🔄 Mobile: Force restarting speech recognition');
-                        isListening = false; // Reset listening state
-                        
-                        // Direct restart with hybrid sequence
-                        setTimeout(() => {
-                            showHybridReadySequence(); // Use hybrid instead of forceStartListening()
-                        }, 500);
-                    }
-                }, 2000); // Keep original 2000ms timing that was working
+            console.log('📱 Mobile: Using visual feedback system');
+
+            // Clear any existing timeouts to prevent conflicts
+            if (window.noSpeechTimeout) {
+                clearTimeout(window.noSpeechTimeout);
             }
-            
+
+            // Show immediate visual feedback
+            if (transcriptText) {
+                transcriptText.textContent = 'I didn\'t hear anything...';
+                transcriptText.style.color = '#ff6b6b';
+
+                // Wait a moment, then reset to listening state
+                window.noSpeechTimeout = setTimeout(() => {
+                    if (transcriptText) {
+                        transcriptText.textContent = 'Please speak now';
+                        transcriptText.style.color = '#ffffff';
+                    }
+
+                    // Restart listening with hybrid system
+                    if (isAudioMode && !isSpeaking) {
+                        console.log('🔄 Mobile: Restarting via hybrid system');
+                        isListening = false;
+
+                        // Use the hybrid system instead of direct restart
+                        setTimeout(() => {
+                            showHybridReadySequence();
+                        }, 800);
+                    }
+                }, 1500);
+            }
+
         } else {
-            console.log('🖥️ Desktop: Using voice apology');
-            
+            console.log('🖥️ Desktop: Using voice apology system');
+
             lastMessageWasApology = true;
             const apologyResponse = getApologyResponse();
-            
+
             stopListening();
-            
+
             setTimeout(() => {
                 addAIMessage(apologyResponse);
                 speakResponse(apologyResponse);
-                
+
                 if (restartTimeout) clearTimeout(restartTimeout);
-                
+
                 restartTimeout = setTimeout(() => {
                     if (isAudioMode && !isListening && !isSpeaking) {
                         startListening();
@@ -340,6 +342,12 @@ function getApologyResponse() {
                 }, 3000);
             }, 500);
         }
+    } else if (event.error === 'audio-capture') {
+        console.log('🎤 No microphone detected');
+        addAIMessage("I can't detect your microphone. Please check your audio settings.");
+    } else if (event.error === 'not-allowed') {
+        console.log('🔒 Permission denied');
+        addAIMessage("Microphone permission was denied. Please allow microphone access to continue.");
     }
 };
 
