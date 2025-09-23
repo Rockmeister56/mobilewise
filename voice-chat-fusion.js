@@ -277,67 +277,69 @@ function getApologyResponse() {
 
         // Keep your existing onerror and onend handlers exactly as they are
         recognition.onerror = function(event) {
-            console.log('🔊 Speech error:', event.error);
+    console.log('🔊 Speech error:', event.error);
+    
+    if (event.error === 'no-speech') {
+        const transcriptText = document.getElementById('transcriptText');
+        
+        if (isMobileDevice()) {
+            console.log('📱 Mobile: Using visual apology + hybrid restart');
             
-            if (event.error === 'no-speech') {
-                const transcriptText = document.getElementById('transcriptText');
+            if (transcriptText) {
+                const originalText = transcriptText.textContent;
+                transcriptText.textContent = 'Please speak again...';
                 
-                if (isMobile) {
-                    console.log('📱 Mobile: Using visual apology + pre-warm restart');
-                    
-                    if (transcriptText) {
-                        const originalText = transcriptText.textContent;
-                        transcriptText.textContent = 'Please speak again...';
-                        
-                        setTimeout(() => {
-                            if (transcriptText) {
-                               showHybridReadySequence();
-                            }
-                            
-                            if (isAudioMode && !isSpeaking) {
-                                console.log('🔄 Mobile: Pre-warmed restart');
-                                isListening = false;
-                                
-                                setTimeout(() => {
-                                    startListening(); // Will use pre-warmed engine
-                                }, 500);
-                            }
-                        }, 2000);
+                setTimeout(() => {
+                    // Clear the slot and restart with hybrid sequence
+                    const speakNowSlot = document.getElementById('speakNowSlot');
+                    if (speakNowSlot) {
+                        speakNowSlot.innerHTML = '';
                     }
                     
-                } else {
-                    console.log('🖥️ Desktop: Using voice apology');
-                    
-                    lastMessageWasApology = true;
-                    const apologyResponse = getApologyResponse();
-                    
-                    stopListening();
-                    
-                    setTimeout(() => {
-                        addAIMessage(apologyResponse);
-                        speakResponse(apologyResponse);
+                    if (isAudioMode && !isSpeaking) {
+                        console.log('🔄 Mobile: Restarting with hybrid sequence');
+                        isListening = false;
                         
-                        if (restartTimeout) clearTimeout(restartTimeout);
-                        
-                        restartTimeout = setTimeout(() => {
-                            if (isAudioMode && !isListening && !isSpeaking) {
-                                startListening();
-                            }
-                            lastMessageWasApology = false;
-                        }, 3000);
-                    }, 500);
-                }
+                        setTimeout(() => {
+                            showHybridReadySequence(); // This will restart everything!
+                        }, 500);
+                    }
+                }, 1500);
             }
-        };
+            
+        } else {
+            console.log('🖥️ Desktop: Using voice apology');
+            
+            lastMessageWasApology = true;
+            const apologyResponse = getApologyResponse();
+            
+            stopListening();
+            
+            setTimeout(() => {
+                addAIMessage(apologyResponse);
+                speakResponse(apologyResponse);
+                
+                if (restartTimeout) clearTimeout(restartTimeout);
+                
+                restartTimeout = setTimeout(() => {
+                    if (isAudioMode && !isListening && !isSpeaking) {
+                        startListening();
+                    }
+                    lastMessageWasApology = false;
+                }, 3000);
+            }, 500);
+        }
+    }
+};
 
-     recognition.onend = function() {
+       recognition.onend = function() {
     // Keep your existing onend logic - it's perfect
     hideSpeakNow();
     
-    // Clear the slot when recognition ends
+    // CLEAR THE SLOT when recognition ends - this is what we're adding!
     const speakNowSlot = document.getElementById('speakNowSlot');
     if (speakNowSlot) {
-        speakNowSlot.innerHTML = '';
+        speakNowSlot.innerHTML = ''; // This just empties the slot content
     }
     
     console.log('🔚 Recognition ended');
@@ -345,7 +347,6 @@ function getApologyResponse() {
     const userInput = document.getElementById('userInput');
     
     if (userInput && userInput.value.trim().length > 0) {
-        // User said something - process it
         const currentMessage = userInput.value.trim();
         const now = Date.now();
         const timeSinceLastMessage = now - (window.lastMessageTime || 0);
@@ -363,11 +364,16 @@ function getApologyResponse() {
             userInput.value = '';
         }
     } else {
-        // No speech detected - RESTART the hybrid sequence!
         if (isAudioMode && !isSpeaking && isListening && !lastMessageWasApology) {
-            console.log('🔄 No speech detected - restarting hybrid sequence');
+            console.log('🔄 No speech detected via onend - restarting');
             setTimeout(() => {
-                showHybridReadySequence(); // Restart the whole sequence!
+                try {
+                    if (recognition) {
+                        startListening();
+                    }
+                } catch (error) {
+                    console.log('Restart error:', error);
+                }
             }, 1000);
         }
     }
