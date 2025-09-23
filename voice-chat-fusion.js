@@ -1190,15 +1190,25 @@ function getAIResponse(userInput) {
 }
 
 // ===================================================
-// 🎤 INSTANT SPEAK NOW - WHOLE BUTTON COLOR GLOW + BIGGER SIZE
+// 🎤 HYBRID SPEAK NOW SYSTEM - MOBILE-WISE AI
 // ===================================================
 
 function showSpeakNow() {
-    document.getElementById('speakNowButton').style.display = 'flex';
+    // Use new hybrid system instead of old button
+    showHybridReadySequence();
 }
 
 function hideSpeakNow() {
-    document.getElementById('speakNowButton').style.display = 'none';
+    // Hide transcript display
+    const liveTranscript = document.getElementById('liveTranscript');
+    const transcriptText = document.getElementById('transcriptText');
+    
+    if (liveTranscript) {
+        liveTranscript.style.display = 'none';
+    }
+    if (transcriptText) {
+        transcriptText.style.display = 'none';
+    }
 }
 
 // ===================================================
