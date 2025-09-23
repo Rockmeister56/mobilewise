@@ -1651,7 +1651,7 @@ function speakMessage(message) {
     console.log('🔥 Recognition HOT - Starting hybrid sequence!');
     showHybridReadySequence();
             }
-        }, 500); // Increased to 500ms for engine warmup
+        }, 50); // Increased to 500ms for engine warmup
     }
 };
         
