@@ -220,6 +220,11 @@ function getApologyResponse() {
 // 🎤 START LISTENING new function
 // ===================================================
     async function startListening() {
+     // ✅ PREVENT MULTIPLE STARTS
+    if (recognition && recognition.state === 'started') {
+        console.log('🚫 Recognition already running - skipping start');
+        return;
+    }
     // Smart button gate-keeper (keep this)
     const smartButton = document.getElementById('smartButton');
     if (smartButton && smartButton.style.display !== 'none') {
@@ -1747,6 +1752,7 @@ function speakMessage(message) {
         utterance.pitch = 1.1;
         
         utterance.onstart = function() {
+            isSpeaking = true; // Add this for proper state management
             console.log('🔊 AI started speaking - hiding Speak Now');
             // Hide the green banner while AI speaks
             const liveTranscript = document.getElementById('liveTranscript');
@@ -1756,8 +1762,15 @@ function speakMessage(message) {
         };
 
         utterance.onend = function() {
-            console.log('🔊 AI finished speaking');
-            // Add any completion logic here if needed
+            isSpeaking = false; // Add this for proper state management
+            console.log('🔊 AI finished speaking for lead capture');
+            
+            // ✅ THE FIX: Show hybrid sequence for lead capture questions
+            if (isInLeadCapture) {
+                setTimeout(() => {
+                    showHybridReadySequence(); // This shows "Get Ready to Speak" → "Listening"
+                }, 800);
+            }
         };
         
         window.speechSynthesis.speak(utterance);
