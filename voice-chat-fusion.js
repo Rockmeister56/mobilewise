@@ -874,13 +874,11 @@ utterance.onend = function() {
     showHybridReadySequence();
     
     // Keep your existing startListening timing unchanged
-   /*
-if (isAudioMode && !isListening && !lastMessageWasApology) {
-    setTimeout(() => {
-        startListening();
-    }, 800);
-}
-*/
+    if (isAudioMode && !isListening && !lastMessageWasApology) {
+        setTimeout(() => {
+            startListening();
+        }, 800); // Keep original timing
+    }
 };
         
         utterance.onerror = function(event) {
