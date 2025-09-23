@@ -680,8 +680,8 @@ function processUserResponse(userText) {
     }, 800);
 }
 
-/// ============================================
-// MOBILE-WISE AI HYBRID READY SEQUENCE - FIXED
+// ============================================
+// MOBILE-WISE AI HYBRID READY SEQUENCE  
 // ============================================
 function showHybridReadySequence() {
     const liveTranscript = document.getElementById('liveTranscript');
@@ -693,29 +693,21 @@ function showHybridReadySequence() {
     liveTranscript.style.display = 'flex';
     transcriptText.style.display = 'block';
     
-    // Phase 1: "Get Ready to Speak" - RED GLOW
+    // Phase 1: "Get Ready to Speak" (1.3 seconds)
     transcriptText.textContent = 'Get Ready to Speak...';
-    transcriptText.style.color = '#ff4757';
+    transcriptText.style.color = '#667eea';
     transcriptText.style.fontWeight = 'bold';
-    transcriptText.style.textShadow = '0 0 15px #ff4757';
     
-    // Update container for better visibility
-    liveTranscript.style.background = 'rgba(0, 0, 0, 0.8)';
-    liveTranscript.style.border = '2px solid #ff4757';
-    
-    // Phase 2: Switch to "Listening..." - GREEN GLOW
+    // Phase 2: Switch to "Listening..." and start
     setTimeout(() => {
         transcriptText.textContent = 'Listening...';
-        transcriptText.style.color = '#00ff88';
-        transcriptText.style.textShadow = '0 0 15px #00ff88';
+        transcriptText.style.color = '#28a745';
         
-        // Update container to green
-        liveTranscript.style.border = '2px solid #00ff88';
-        
-        // REMOVE THIS LINE - Don't call startListening() here!
-        // Let the other system handle speech recognition timing
-        
-    }, 1300);
+        // Start your existing listening function
+        if (recognition && !isListening) {
+            startListening();
+        }
+    }, 1300); // Adjustable timing
 }
 
 // ===================================================
