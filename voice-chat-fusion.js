@@ -1723,20 +1723,21 @@ function speakMessage(message) {
             }
         };
         
-        utterance.onend = function() {
+      /*
+utterance.onend = function() {
     console.log('🔊 AI finished speaking - pre-warming recognition...');
     
-    // PRE-WARM recognition engine BEFORE showing UI
     if (recognition && isInLeadCapture) {
-        // Initialize recognition early
         recognition.continuous = true;
         recognition.interimResults = true;
-        recognition.maxAlternatives = 3; // Enhanced accuracy
+        recognition.maxAlternatives = 3;
         
-        // Start recognition but don't show UI yet
         if (!isListening) {
-            startListening(); // Gets engine ready
+            startListening();
         }
+    }
+};
+*/
         
         // NOW show "Speak Now" with engine already hot
         setTimeout(() => {
