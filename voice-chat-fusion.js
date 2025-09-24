@@ -1932,31 +1932,6 @@ function handleSmartButtonClick(buttonType) {
 }
 
 // ===================================================
-// 🎯 BANNER TRIGGER CONFIGURATION
-// ===================================================
-function setupBannerTriggers() {
-    console.log('🤖 Setting up banner triggers...');
-    
-    // Only banner-related triggers (NO EMAIL!)
-    BannerOrchestrator.registerAITrigger('appointment', 'smartButton', { priority: 3 });
-    BannerOrchestrator.registerAITrigger('consultation', 'smartButton', { priority: 3 });
-    BannerOrchestrator.registerAITrigger('schedule', 'smartButton', { priority: 2 });
-    BannerOrchestrator.registerAITrigger('free book', 'freeBook', { priority: 4 });
-    BannerOrchestrator.registerAITrigger('call bruce', 'clickToCall', { priority: 5 });
-    
-    console.log('✅ Banner triggers loaded');
-}
-
-// Auto-initialize when page loads
-document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(() => {
-        if (typeof BannerOrchestrator !== 'undefined') {
-            setupBannerTriggers();
-        }
-    }, 1000);
-});
-
-// ===================================================
 // 🎯 REMOVE LEAD CAPTURE BANNER
 // ===================================================
 function removeLeadCaptureBanner() {
