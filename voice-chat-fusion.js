@@ -364,6 +364,7 @@ function getApologyResponse() {
 };
 
       recognition.onend = function() {
+     hideSpeakNow();
     console.log('🔚 Recognition ended');
     
     // DON'T clear the slot here - let the hybrid system manage it
