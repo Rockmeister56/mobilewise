@@ -326,13 +326,6 @@ function getApologyResponse() {
 
                         // Use the hybrid system instead of direct restart
                         setTimeout(() => {
-
-  // 🛡️ SIMPLE FIX: Don't show "Speak Now" if smart button is visible
-    const smartButton = document.getElementById('smartButton');
-    if (smartButton && smartButton.style.display !== 'none') {
-        return; // Exit early, don't call showHybridReadySequence()
-    }
-
                             showHybridReadySequence();
                         }, 800);
                     }
@@ -754,11 +747,29 @@ function createBeep(frequency, duration, volume) {
     oscillator.stop(audioContext.currentTime + duration);
 }
 
+// ✅ NEW FUNCTION - Called shouldBlockSpeakNow()
+function shouldBlockSpeakNow() {
+    if (typeof BannerOrchestrator !== 'undefined') {
+        const isSmartButtonActive = BannerOrchestrator.currentBanner === 'smartButton';
+        
+        if (isSmartButtonActive) {
+            console.log('🔇 BLOCKING Speak Now - smartButton (FREE Consultation) is active');
+        }
+        
+        return isSmartButtonActive;
+    }
+    
+    return false;
+}
+
 // ===================================================
 // 🚀 ENHANCED HYBRID READY SEQUENCE WITH RESTART HANDLING
 // ===================================================
 function showHybridReadySequence() {
     console.log('🚀 Showing hybrid ready sequence');
+
+      if (shouldBlockSpeakNow()) return;
+}
     
     // CLEAR ANY EXISTING TIMEOUTS to prevent conflicts
     if (window.hybridTimeout) {
@@ -893,7 +904,7 @@ function speakResponse(message) {
           utterance.onend = function() {
     isSpeaking = false;
     console.log('🔊 AI finished speaking (mobile)');
-
+    
     showHybridReadySequence();
 };
             
@@ -920,12 +931,6 @@ currentAudio = utterance;
     utterance.onend = function() {
         isSpeaking = false;
         console.log('🔊 AI finished speaking');
-
-          // 🛡️ SIMPLE FIX: Don't show "Speak Now" if smart button is visible
-    const smartButton = document.getElementById('smartButton');
-    if (smartButton && smartButton.style.display !== 'none') {
-        return; // Exit early, don't call showHybridReadySequence()
-    }
         
         showHybridReadySequence();
     };
@@ -1764,13 +1769,6 @@ function getAIResponse(userInput) {
 
 function showSpeakNow() {
     // Use new hybrid system instead of old button
-
-      // 🛡️ SIMPLE FIX: Don't show "Speak Now" if smart button is visible
-    const smartButton = document.getElementById('smartButton');
-    if (smartButton && smartButton.style.display !== 'none') {
-        return; // Exit early, don't call showHybridReadySequence()
-    }
-
     showHybridReadySequence();
 }
 
@@ -2099,13 +2097,6 @@ function speakMessage(message) {
             // ✅ THE FIX: Show hybrid sequence for lead capture questions
             if (isInLeadCapture) {
                 setTimeout(() => {
-
-  // 🛡️ SIMPLE FIX: Don't show "Speak Now" if smart button is visible
-    const smartButton = document.getElementById('smartButton');
-    if (smartButton && smartButton.style.display !== 'none') {
-        return; // Exit early, don't call showHybridReadySequence()
-    }
-
                     showHybridReadySequence(); // This shows "Get Ready to Speak" → "Listening"
                 }, 800);
             }
