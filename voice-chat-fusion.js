@@ -317,6 +317,13 @@ function getApologyResponse() {
                         console.log('🔄 Mobile: Restarting via hybrid system');
                         isListening = false;
 
+                        // 🛡️ CHECK FOR SMART BUTTON BEFORE RESTARTING
+                        const smartButton = document.getElementById('smartButton');
+                        if (smartButton && smartButton.style.display !== 'none') {
+                            console.log('🔇 Smart button active - blocking hybrid restart in onerror');
+                            return;
+                        }
+
                         // Use the hybrid system instead of direct restart
                         setTimeout(() => {
                             showHybridReadySequence();
@@ -393,6 +400,13 @@ function getApologyResponse() {
             // Use hybrid system for restart (not direct startListening)
             setTimeout(() => {
                 if (!isSpeaking && isAudioMode) {
+                    // 🛡️ CHECK FOR SMART BUTTON BEFORE RESTARTING
+                    const smartButton = document.getElementById('smartButton');
+                    if (smartButton && smartButton.style.display !== 'none') {
+                        console.log('🔇 Smart button active - blocking hybrid restart in onend');
+                        return;
+                    }
+                    
                     showHybridReadySequence();
                 }
             }, 1000);
