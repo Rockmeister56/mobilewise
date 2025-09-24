@@ -747,19 +747,15 @@ function createBeep(frequency, duration, volume) {
     oscillator.stop(audioContext.currentTime + duration);
 }
 
-// ✅ NEW FUNCTION - Called shouldBlockSpeakNow()
-function shouldBlockSpeakNow() {
-    if (typeof BannerOrchestrator !== 'undefined') {
-        const isSmartButtonActive = BannerOrchestrator.currentBanner === 'smartButton';
-        
-        if (isSmartButtonActive) {
-            console.log('🔇 BLOCKING Speak Now - smartButton (FREE Consultation) is active');
-        }
-        
-        return isSmartButtonActive;
-    }
+// 🛡 BRAND NEW FUNCTION - Paste this anywhere in your JavaScript
+function isUniversalBannerVisible() {
+    const universalBanner = document.getElementById('universalBanner');
+    const bannerHeaderContainer = document.getElementById('bannerHeaderContainer');
+    const smartButton = document.getElementById('smartButton');
     
-    return false;
+    return (universalBanner && universalBanner.style.display !== 'none') || 
+           (bannerHeaderContainer && bannerHeaderContainer.style.display !== 'none') || 
+           (smartButton && smartButton.style.display !== 'none');
 }
 
 // ===================================================
@@ -767,9 +763,6 @@ function shouldBlockSpeakNow() {
 // ===================================================
 function showHybridReadySequence() {
     console.log('🚀 Showing hybrid ready sequence');
-
-      if (shouldBlockSpeakNow()) return;
-}
     
     // CLEAR ANY EXISTING TIMEOUTS to prevent conflicts
     if (window.hybridTimeout) {
