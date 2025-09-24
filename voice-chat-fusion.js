@@ -1448,21 +1448,45 @@ function handleSmartButtonClick(buttonType) {
     }
 }
 
-// ===================================================  
-// 🎯 STEP 2: RETROFITTED updateSmartButton()
+// ===================================================
+// 🎯 STEP 2: RETROFITTED updateSmartButton() - BANNER ORCHESTRATOR
 // ===================================================
 function updateSmartButton(shouldShow, buttonText, action) {
     if (shouldShow) {
-        // 🚀 Use Banner Orchestrator WITHOUT custom content
+        console.log('🚨 SMART BUTTON ACTIVATED - PAUSING SPEECH RECOGNITION');
+        
+        // 🚨 CRITICAL: STOP SPEECH RECOGNITION IMMEDIATELY
+        if (recognition && isListening) {
+            try {
+                recognition.stop();
+                isListening = false;
+                console.log('🔇 Speech recognition stopped for smart button');
+            } catch (error) {
+                console.log('Speech already stopped');
+            }
+        }
+        
+        // 🚨 HIDE THE "SPEAK NOW" UI ELEMENTS
+        const liveTranscript = document.getElementById('liveTranscript');
+        const speakNowSlot = document.getElementById('speakNowSlot');
+        const transcriptText = document.getElementById('transcriptText');
+        
+        if (liveTranscript) liveTranscript.style.display = 'none';
+        if (speakNowSlot) speakNowSlot.style.display = 'none';
+        if (transcriptText) transcriptText.style.display = 'none';
+        
+        // 🚀 NEW: Use Banner Orchestrator for smartButton
         BannerOrchestrator.deploy('smartButton', {
             trigger: 'system_call',
             buttonText: buttonText,
-            action: action
-            // ← NO customContent! Let it use the header-optimized library version
+            action: action,
+            callback: (result) => {
+                console.log('🎯 Smart button deployed:', result);
+            }
         });
     } else {
         // Remove smartButton if it's current
-        if (BannerOrchestrator.currentBanner === 'smartButton') {
+        if (typeof BannerOrchestrator !== 'undefined' && BannerOrchestrator.currentBanner === 'smartButton') {
             BannerOrchestrator.removeCurrentBanner();
         }
     }
