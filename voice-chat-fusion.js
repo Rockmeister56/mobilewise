@@ -747,58 +747,69 @@ function createBeep(frequency, duration, volume) {
     oscillator.stop(audioContext.currentTime + duration);
 }
 
-// 🛡 BRAND NEW FUNCTION - Paste this anywhere in your JavaScript
-function isUniversalBannerVisible() {
-    const universalBanner = document.getElementById('universalBanner');
-    const bannerHeaderContainer = document.getElementById('bannerHeaderContainer');
-    const smartButton = document.getElementById('smartButton');
+// ===================================================
+// 🚀 ENHANCED HYBRID READY SEQUENCE WITH RESTART HANDLING
+// ===================================================
+function showHybridReadySequence() {
+    console.log('🚀 Showing hybrid ready sequence');
     
-    return (universalBanner && universalBanner.style.display !== 'none') || 
-           (bannerHeaderContainer && bannerHeaderContainer.style.display !== 'none') || 
-           (smartButton && smartButton.style.display !== 'none');
-}
-
-// ✅ Keep this function 
-function shouldBlockSpeakNow() {
-    if (typeof BannerOrchestrator !== 'undefined') {
-        const isSmartButtonActive = BannerOrchestrator.currentBanner === 'smartButton';
-        
-        if (isSmartButtonActive) {
-            console.log('🔇 BLOCKING Speak Now - smartButton (FREE Consultation) is active');
+    // Clear any existing content first
+    const speakNowSlot = document.getElementById('speakNowSlot');
+    if (speakNowSlot) {
+        speakNowSlot.innerHTML = '';
+    } else {
+        console.error('❌ speakNowSlot not found');
+        return;
+    }
+    
+    // CREATE the transcript element dynamically
+    const transcriptElement = document.createElement('div');
+    transcriptElement.id = 'liveTranscript';
+    transcriptElement.innerHTML = '<div id="transcriptText">Get Ready to Speak</div>';
+    
+    // Style it with JavaScript
+    transcriptElement.style.cssText = `
+        width: 340px;
+        height: 30px;
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(15px);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 25px;
+        color: white;
+        font-weight: 600;
+        font-size: 16px;
+        text-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 10px auto;
+        cursor: pointer;
+    `;
+    
+    // INSERT into the slot
+    speakNowSlot.appendChild(transcriptElement);
+    speakNowSlot.style.display = 'block';
+    
+    // PRE-WARM ENGINE
+    preWarmSpeechEngine();
+    
+    // PHASE 2: Switch to "LISTENING" and start recognition
+    window.hybridTimeout = setTimeout(() => {
+        const transcriptText = document.getElementById('transcriptText');
+        if (transcriptText) {
+            transcriptText.textContent = 'Listening...';
+            transcriptText.style.color = '#00ff88';
+            transcriptText.style.textShadow = '0 0 15px rgba(0, 255, 136, 0.8)';
         }
         
-        return isSmartButtonActive;
-    }
-    
-    return false;
-}
-
-function showHybridReadySequence() {
-    console.log('🚀 Showing hybrid ready sequence - START');
-    
-    // 🔍 DIAGNOSTIC - Let's see what's going on
-    console.log('=== BLOCKING DIAGNOSTIC ===');
-    console.log('BannerOrchestrator exists:', typeof BannerOrchestrator !== 'undefined');
-    
-    if (typeof BannerOrchestrator !== 'undefined') {
-        console.log('Current banner:', BannerOrchestrator.currentBanner);
-        console.log('Will block?', BannerOrchestrator.currentBanner === 'smartButton');
-    } else {
-        console.log('BannerOrchestrator is undefined - should NOT block');
-    }
-    
-    // 🚫 The blocking check with my original code
-    if (typeof BannerOrchestrator !== 'undefined' && 
-        BannerOrchestrator.currentBanner === 'smartButton') {
-        console.log('🔇 BLOCKING TRIGGERED - This is why branding disappeared!');
-        return; 
-    }
-    
-    console.log('✅ NOT BLOCKING - Continuing with hybrid sequence...');
-    
-    // ... rest of your existing showHybridReadySequence() code stays the same ...
-    
-    console.log('🚀 Hybrid sequence COMPLETED');
+        // AUTO-START listening - with proper restart handling
+        if (!isListening && !isSpeaking && isAudioMode) {
+            console.log('🎯 Hybrid system starting recognition');
+            isListening = false; // Reset state first
+            startListening();
+        }
+    }, 1000);
 }
 
 // ===================================================
