@@ -317,13 +317,6 @@ function getApologyResponse() {
                         console.log('🔄 Mobile: Restarting via hybrid system');
                         isListening = false;
 
-                        // 🛡️ CHECK FOR SMART BUTTON BEFORE RESTARTING
-                        const smartButton = document.getElementById('smartButton');
-                        if (smartButton && smartButton.style.display !== 'none') {
-                            console.log('🔇 Smart button active - blocking hybrid restart in onerror');
-                            return;
-                        }
-
                         // Use the hybrid system instead of direct restart
                         setTimeout(() => {
                             showHybridReadySequence();
@@ -364,7 +357,6 @@ function getApologyResponse() {
 };
 
       recognition.onend = function() {
-     hideSpeakNow();
     console.log('🔚 Recognition ended');
     
     // DON'T clear the slot here - let the hybrid system manage it
@@ -401,13 +393,6 @@ function getApologyResponse() {
             // Use hybrid system for restart (not direct startListening)
             setTimeout(() => {
                 if (!isSpeaking && isAudioMode) {
-                    // 🛡️ CHECK FOR SMART BUTTON BEFORE RESTARTING
-                    const smartButton = document.getElementById('smartButton');
-                    if (smartButton && smartButton.style.display !== 'none') {
-                        console.log('🔇 Smart button active - blocking hybrid restart in onend');
-                        return;
-                    }
-                    
                     showHybridReadySequence();
                 }
             }, 1000);
@@ -456,6 +441,10 @@ function forceStartListening() {
         if (!recognition) {
             initializeSpeechRecognition();
         }
+        
+        console.log('🎤 Force starting speech recognition...');
+        recognition.start();
+        isListening = true;
         
        showSpeakNow();
         
@@ -747,9 +736,18 @@ function createBeep(frequency, duration, volume) {
     oscillator.stop(audioContext.currentTime + duration);
 }
 
-// Add this to see WHICH call is the problematic one
+// ===================================================
+// 🚀 ENHANCED HYBRID READY SEQUENCE WITH RESTART HANDLING
+// ===================================================
 function showHybridReadySequence() {
- 
+    console.log('🚀 Showing hybrid ready sequence');
+    
+    // CLEAR ANY EXISTING TIMEOUTS to prevent conflicts
+    if (window.hybridTimeout) {
+        clearTimeout(window.hybridTimeout);
+        window.hybridTimeout = null;
+    }
+    
     // Clear any existing content first
     const speakNowSlot = document.getElementById('speakNowSlot');
     if (speakNowSlot) {
@@ -874,7 +872,7 @@ function speakResponse(message) {
                 }
             };
             
-          utterance.onend = function() {
+              utterance.onend = function() {
     isSpeaking = false;
     console.log('🔊 AI finished speaking (mobile)');
     
@@ -887,6 +885,7 @@ function speakResponse(message) {
     
     // Only call it if Smart Button is NOT active
     showHybridReadySequence();
+
 };
             
 utterance.onerror = function(event) {
@@ -1259,36 +1258,6 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
 }
 
 // ===================================================
-// 🔇 SPEECH RECOGNITION PAUSE FUNCTION
-// ===================================================
-function pauseSpeechForBannerInteraction() {
-    console.log('🔇 Pausing speech recognition for banner interaction');
-    
-    // Stop current recognition
-    if (recognition && isListening) {
-        try {
-            recognition.stop();
-            isListening = false;
-        } catch (error) {
-            console.log('Recognition already stopped');
-        }
-    }
-    
-    // Hide the "Speak Now" / "Get Ready to Speak" UI
-    const speakNowSlot = document.getElementById('speakNowSlot');
-    if (speakNowSlot) {
-        speakNowSlot.style.display = 'none';
-    }
-    
-    const liveTranscript = document.getElementById('liveTranscript');
-    if (liveTranscript) {
-        liveTranscript.style.display = 'none';
-    }
-    
-    console.log('🔇 Speech recognition paused - waiting for banner interaction');
-}
-
-// ===================================================
 // 🎖️ BANNER STATE MANAGEMENT SYSTEM
 // ===================================================
 window.BannerOrchestrator = {
@@ -1447,45 +1416,21 @@ function handleSmartButtonClick(buttonType) {
     }
 }
 
-// ===================================================
-// 🎯 STEP 2: RETROFITTED updateSmartButton() - BANNER ORCHESTRATOR
+// ===================================================  
+// 🎯 STEP 2: RETROFITTED updateSmartButton()
 // ===================================================
 function updateSmartButton(shouldShow, buttonText, action) {
     if (shouldShow) {
-        console.log('🚨 SMART BUTTON ACTIVATED - PAUSING SPEECH RECOGNITION');
-        
-        // 🚨 CRITICAL: STOP SPEECH RECOGNITION IMMEDIATELY
-        if (recognition && isListening) {
-            try {
-                recognition.stop();
-                isListening = false;
-                console.log('🔇 Speech recognition stopped for smart button');
-            } catch (error) {
-                console.log('Speech already stopped');
-            }
-        }
-        
-        // 🚨 HIDE THE "SPEAK NOW" UI ELEMENTS
-        const liveTranscript = document.getElementById('liveTranscript');
-        const speakNowSlot = document.getElementById('speakNowSlot');
-        const transcriptText = document.getElementById('transcriptText');
-        
-        if (liveTranscript) liveTranscript.style.display = 'none';
-        if (speakNowSlot) speakNowSlot.style.display = 'none';
-        if (transcriptText) transcriptText.style.display = 'none';
-        
-        // 🚀 NEW: Use Banner Orchestrator for smartButton
+        // 🚀 Use Banner Orchestrator WITHOUT custom content
         BannerOrchestrator.deploy('smartButton', {
             trigger: 'system_call',
             buttonText: buttonText,
-            action: action,
-            callback: (result) => {
-                console.log('🎯 Smart button deployed:', result);
-            }
+            action: action
+            // ← NO customContent! Let it use the header-optimized library version
         });
     } else {
         // Remove smartButton if it's current
-        if (typeof BannerOrchestrator !== 'undefined' && BannerOrchestrator.currentBanner === 'smartButton') {
+        if (BannerOrchestrator.currentBanner === 'smartButton') {
             BannerOrchestrator.removeCurrentBanner();
         }
     }
@@ -1789,37 +1734,7 @@ if (!document.getElementById('speakNowWholeButtonGlowAnimation')) {
     document.head.appendChild(speakNowGlowStyle);
 }
 
-// ===================================================
-// 🔇 SPEECH RECOGNITION PAUSE FUNCTION
-// ===================================================
-function pauseSpeechForBannerInteraction() {
-    console.log('🔇 Pausing speech recognition for banner interaction');
-    
-    // Stop current recognition
-    if (recognition && isListening) {
-        try {
-            recognition.stop();
-            isListening = false;
-        } catch (error) {
-            console.log('Recognition already stopped');
-        }
-    }
-    
-    // Hide the "Speak Now" / "Get Ready to Speak" UI
-    const speakNowSlot = document.getElementById('speakNowSlot');
-    if (speakNowSlot) {
-        speakNowSlot.style.display = 'none';
-    }
-    
-    const liveTranscript = document.getElementById('liveTranscript');
-    if (liveTranscript) {
-        liveTranscript.style.display = 'none';
-    }
-    
-    console.log('🔇 Speech recognition paused - waiting for banner interaction');
-}
-
-// 🎨 HEADER SLIDE ANIMATION (UNCHANGED)
+// 🎨 HEADER SLIDE ANIMATION
 const headerBannerStyle = document.createElement('style');
 headerBannerStyle.textContent = `
     @keyframes slideDownHeader {
