@@ -2051,23 +2051,24 @@ function speakMessage(message) {
     isSpeaking = false; // Add this for proper state management
     console.log('🔊 AI finished speaking for lead capture');
     
-    // 🛡️ CHECK FOR SMART BUTTON BEFORE SHOWING HYBRID SEQUENCE
-    const smartButton = document.getElementById('smartButton');
-    if (smartButton && smartButton.style.display !== 'none') {
-        console.log('🔇 Smart button active - blocking hybrid sequence after AI speech');
-        return;
+    // 🛡️ ONLY BLOCK IF THIS IS THE "CLICK BUTTON" MESSAGE
+    // Check if the message contains consultation/button keywords
+    const lastAIMessage = document.querySelector('.ai-message:last-child')?.textContent || '';
+    const isClickButtonMessage = lastAIMessage.includes('click the button') || 
+                                 lastAIMessage.includes('click that button') ||
+                                 lastAIMessage.includes('Please click');
+    
+    if (isClickButtonMessage) {
+        const smartButton = document.getElementById('smartButton');
+        if (smartButton && smartButton.style.display !== 'none') {
+            console.log('🔇 Click button message detected - blocking hybrid sequence');
+            return;
+        }
     }
     
     // ✅ THE FIX: Show hybrid sequence for lead capture questions
     if (isInLeadCapture) {
         setTimeout(() => {
-            // 🛡️ DOUBLE-CHECK SMART BUTTON BEFORE TIMEOUT EXECUTES
-            const smartButtonCheck = document.getElementById('smartButton');
-            if (smartButtonCheck && smartButtonCheck.style.display !== 'none') {
-                console.log('🔇 Smart button appeared during timeout - blocking hybrid sequence');
-                return;
-            }
-            
             showHybridReadySequence(); // This shows "Get Ready to Speak" → "Listening"
         }, 800);
     }
