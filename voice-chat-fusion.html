@@ -818,29 +818,6 @@
     padding-top: 10px !important; /* Just breathing room for banners */
 }
 
-/* Smart button stays visible */
-.smart-button,
-#smartButton {
-    position: fixed !important;
-    bottom: 20px !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    z-index: 8888 !important;
-}
-
-/* Smart Button - Force Bottom Position */
-.smart-button,
-#smartButton,
-[class*="smart"] button,
-button[class*="smart"] {
-    position: fixed !important;
-    bottom: 100px !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    z-index: 9999 !important;
-    margin: 0 !important;
-}
-
 /* ===== MOBILE-WISE AI BANNER ABSOLUTE POSITIONING ===== */
 .lead-capture-banner,
 .consultation-banner,
@@ -865,6 +842,45 @@ button[class*="smart"] {
 .branding-header-banner {
     top: 5px !important; /* Higher than other banners */
     z-index: 10000 !important; /* Above other banners */
+
+    /* ===================================================
+   🎯 HEADER BANNER CONTAINER - PRECISION POSITIONING
+   =================================================== */
+.banner-header-container {
+    position: fixed !important;
+    top: 0 !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: 830px !important;
+    height: 85px !important;
+    max-width: 830px !important;
+    max-height: 85px !important;
+    z-index: 9999 !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+}
+
+/* Banner content must fit within container */
+.banner-header-container #universalBanner {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    border-radius: 8px !important;
+    box-sizing: border-box !important;
+}
+
+/* Mobile responsive - scale down on small screens */
+@media (max-width: 850px) {
+    .banner-header-container {
+        width: calc(100vw - 20px) !important;
+        max-width: 830px !important;
+        height: 70px !important;
+    }
+}
+
 }
 
     </style>

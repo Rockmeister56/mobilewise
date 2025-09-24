@@ -535,7 +535,7 @@ async function activateMicrophone() {
                 const greeting = "Hi! I'm Bruce's assistant. How can I help you?";
                 addAIMessage(greeting);
                 speakResponse(greeting);
-            }, 1300);
+            }, 1400);
 
         } else {
             throw new Error('Microphone permission denied');
@@ -643,7 +643,7 @@ function processUserResponse(userText) {
         setTimeout(() => {
             startListening();
             window.lastProcessedMessage = null;
-        }, 1000);
+        }, 800);
         return;
     }
     
@@ -813,7 +813,7 @@ function showHybridReadySequence() {
             isListening = false; // Reset state first
             startListening();
         }
-    }, 800);
+    }, 1000);
 }
 
 // ===================================================
@@ -941,8 +941,8 @@ function addUserMessage(message) {
 
 }
 
-   // ===================================================================
-// 🎯 MOBILE-WISE AI UNIVERSAL BANNER ENGINE - COMPLETE ARSENAL
+// ===================================================================
+// 🎯 MOBILE-WISE AI UNIVERSAL BANNER ENGINE - HEADER CONTAINER EDITION
 // ===================================================================
 window.showUniversalBanner = function(bannerType, customContent = null, options = {}) {
     console.log(`🎯 Deploying Universal Banner: ${bannerType}`);
@@ -952,10 +952,10 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
         // 1. BRANDING HEADER
         branding: {
             content: `
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; height: 100%; padding: 0 20px;">
                     <div style="display: flex; align-items: center;">
                         <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758507868460_logo.png" 
-                             style="width: 50px; height: 50px; margin-right: 10px;">
+                             style="width: 40px; height: 40px; margin-right: 10px;">
                         <span style="color: white; font-size: 16px; font-weight: bold;">Mobile-Wise AI</span>
                     </div>
                     <div>
@@ -970,64 +970,69 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
         // 2. SMART BUTTON (Free Consultation)
         smartButton: {
             content: `
-                <div style="text-align: center; padding: 15px;">
-                    <div style="font-size: 18px; font-weight: bold; margin-bottom: 10px; color: white;">
-                        🎯 FREE Consultation Available
+                <div style="display: flex; justify-content: space-between; align-items: center; height: 100%; padding: 0 20px;">
+                    <div style="color: white; font-weight: 600; font-size: 16px;">
+                        📅 FREE Consultation Available
                     </div>
-                    <button onclick="startConsultationProcess()" style="
-                        background: var(--cta-gradient);
+                    <button onclick="handleSmartButtonClick('valuation')" style="
+                        background: rgba(34, 197, 94, 0.3);
                         color: white;
-                        border: none;
-                        padding: 15px 30px;
-                        border-radius: 25px;
+                        border: 1px solid rgba(34, 197, 94, 0.5);
+                        padding: 8px 20px;
+                        border-radius: 20px;
                         cursor: pointer;
                         font-weight: bold;
-                        font-size: 16px;
-                        animation: pulse-attention 1.5s infinite;
-                        box-shadow: 0 4px 15px rgba(33, 150, 243, 0.4);
-                    ">
-                        Get Started Now
+                        font-size: 14px;
+                        transition: all 0.3s ease;
+                    " onmouseover="this.style.background='rgba(34, 197, 94, 0.5)'" 
+                       onmouseout="this.style.background='rgba(34, 197, 94, 0.3)'">
+                        CLICK NOW
                     </button>
                 </div>
             `,
-            background: 'var(--cta-gradient)',
+            background: 'rgba(255, 255, 255, 0.15)',
             duration: 0
         },
         
         // 3. EMAIL SENT CONFIRMATION
         emailSent: {
             content: `
-                <div style="text-align: center; padding: 15px; color: white;">
-                    <div style="font-size: 16px; font-weight: bold;">
-                        ✅ <strong>Confirmation Email Sent!</strong>
-                    </div>
-                    <div style="font-size: 12px; opacity: 0.9; margin-top: 5px;">
-                        Please check your email for the book link
+                <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: white;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 16px; font-weight: bold;">
+                            ✅ <strong>Confirmation Email Sent!</strong>
+                        </div>
+                        <div style="font-size: 12px; opacity: 0.9; margin-top: 5px;">
+                            Please check your email for the book link
+                        </div>
                     </div>
                 </div>
             `,
-            background: 'rgba(76, 175, 80, 0.2)',
+            background: 'rgba(76, 175, 80, 0.3)',
             duration: 4000
         },
         
         // 4. FREE BOOK OFFER
         freeBook: {
             content: `
-                <div style="text-align: center; padding: 15px;">
-                    <div style="font-size: 16px; font-weight: bold; color: white; margin-bottom: 10px;">
-                        📚 FREE Book for You!
-                    </div>
-                    <div style="font-size: 14px; color: #ccc; margin-bottom: 10px;">
-                        "7 Secrets to Selling Your Practice"
+                <div style="display: flex; justify-content: space-between; align-items: center; height: 100%; padding: 0 20px;">
+                    <div style="color: white;">
+                        <div style="font-size: 16px; font-weight: bold; margin-bottom: 5px;">
+                            📚 FREE Book for You!
+                        </div>
+                        <div style="font-size: 12px; color: #ccc;">
+                            "7 Secrets to Selling Your Practice"
+                        </div>
                     </div>
                     <button onclick="requestFreeBook()" style="
                         background: linear-gradient(135deg, #FF6B6B, #4ECDC4);
                         color: white;
                         border: none;
-                        padding: 12px 25px;
+                        padding: 8px 20px;
                         border-radius: 20px;
                         cursor: pointer;
                         font-weight: bold;
+                        font-size: 14px;
                     ">
                         Get Free Book
                     </button>
@@ -1040,34 +1045,37 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
         // 5. CONSULTATION CONFIRMED
         consultationConfirmed: {
             content: `
-                <div style="text-align: center; padding: 15px; color: white;">
-                    <div style="font-size: 16px; font-weight: bold;">
-                        🎉 Consultation Confirmed!
-                    </div>
-                    <div style="font-size: 12px; opacity: 0.9; margin-top: 5px;">
-                        Bruce will reach out within 24 hours for your FREE practice valuation
+                <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: white;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 16px; font-weight: bold;">
+                            🎉 Consultation Confirmed!
+                        </div>
+                        <div style="font-size: 12px; opacity: 0.9; margin-top: 5px;">
+                            Bruce will reach out within 24 hours for your FREE practice valuation
+                        </div>
                     </div>
                 </div>
             `,
-            background: 'rgba(33, 150, 243, 0.2)',
+            background: 'rgba(33, 150, 243, 0.3)',
             duration: 5000
         },
         
         // 6. CLICK-TO-CALL BANNER
         clickToCall: {
             content: `
-                <div style="text-align: center; padding: 15px;">
-                    <div style="font-size: 16px; font-weight: bold; color: white; margin-bottom: 10px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; height: 100%; padding: 0 20px;">
+                    <div style="color: white; font-weight: 600; font-size: 16px;">
                         📞 Talk to Bruce Now
                     </div>
                     <button onclick="callBruce()" style="
                         background: linear-gradient(135deg, #4CAF50, #8BC34A);
                         color: white;
                         border: none;
-                        padding: 12px 25px;
+                        padding: 8px 20px;
                         border-radius: 20px;
                         cursor: pointer;
                         font-weight: bold;
+                        font-size: 14px;
                         animation: pulse-attention 2s infinite;
                     ">
                         📞 Call Now
@@ -1081,23 +1089,28 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
         // 7. LEAD CAPTURE ACTIVE
         leadCapture: {
             content: `
-                <div style="text-align: center; padding: 15px; color: white;">
-                    <div style="font-size: 16px; font-weight: bold;">
-                        📋 Collecting Your Information...
-                    </div>
-                    <div style="font-size: 12px; opacity: 0.9; margin-top: 5px;">
-                        Please provide your details for the consultation
+                <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: white;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 16px; font-weight: bold;">
+                            📋 YOUR CONTACT INFO
+                        </div>
+                        <div style="font-size: 12px; opacity: 0.9; margin-top: 5px;">
+                            Please provide your details for the consultation
+                        </div>
                     </div>
                 </div>
             `,
-            background: 'rgba(255, 193, 7, 0.2)',
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
             duration: 0
         }
     };
     
-    // Remove existing banner
-    const existing = document.getElementById('universalBanner');
-    if (existing) existing.remove();
+    // 🎯 REMOVE EXISTING BANNERS AND CONTAINERS
+    const existingBanner = document.getElementById('universalBanner');
+    if (existingBanner) existingBanner.remove();
+    
+    const existingContainer = document.getElementById('bannerHeaderContainer');
+    if (existingContainer) existingContainer.remove();
     
     // Get banner config
     const bannerConfig = bannerLibrary[bannerType];
@@ -1106,62 +1119,91 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
         return null;
     }
     
-    // Find container
-    const container = document.querySelector('.container') || 
-                     document.querySelector('.chat-container') || 
-                     document.querySelector('#chatContainer') ||
-                     document.body;
+    // 🚀 CREATE HEADER CONTAINER (830x85)
+    const headerContainer = document.createElement('div');
+    headerContainer.id = 'bannerHeaderContainer';
+    headerContainer.style.cssText = `
+        position: fixed !important;
+        top: 0 !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        width: 830px !important;
+        height: 85px !important;
+        max-width: 830px !important;
+        max-height: 85px !important;
+        z-index: 9999 !important;
+        overflow: hidden !important;
+        box-sizing: border-box !important;
+    `;
     
-    // Create banner
+    // 🚀 CREATE BANNER WITHIN CONTAINER
     const banner = document.createElement('div');
     banner.id = 'universalBanner';
     banner.className = `universal-banner ${bannerType}-banner`;
     banner.innerHTML = customContent || bannerConfig.content;
     
-    // Apply styling
+    // 🎯 BANNER STYLING (FITS WITHIN 830x85)
     banner.style.cssText = `
         position: absolute !important;
-        top: 10px !important;
-        left: 50% !important;
-        transform: translateX(-50%) !important;
-        z-index: 9999 !important;
-        width: calc(100% - 20px) !important;
-        max-width: 400px !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
         background: ${bannerConfig?.background || 'rgba(255, 255, 255, 0.1)'};
         backdrop-filter: blur(10px);
         border: 1px solid rgba(255, 255, 255, 0.2);
-        border-radius: 12px;
+        border-radius: 8px;
         margin: 0 !important;
+        padding: 0 !important;
         box-sizing: border-box !important;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        color: white;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     `;
     
-    // Deploy banner
-    container.insertBefore(banner, container.firstChild);
+    // 🎯 MOBILE RESPONSIVE ADJUSTMENT
+    if (window.innerWidth <= 850) {
+        headerContainer.style.width = 'calc(100vw - 20px)';
+        headerContainer.style.maxWidth = '830px';
+        headerContainer.style.height = '70px';
+    }
+    
+    // 🚀 DEPLOY BANNER SYSTEM
+    headerContainer.appendChild(banner);
+    document.body.appendChild(headerContainer);
     
     // Auto-remove if duration set
     const duration = options.duration || bannerConfig?.duration;
     if (duration && duration > 0) {
         setTimeout(() => {
-            const bannerToRemove = document.getElementById('universalBanner');
-            if (bannerToRemove) bannerToRemove.remove();
+            const containerToRemove = document.getElementById('bannerHeaderContainer');
+            if (containerToRemove) containerToRemove.remove();
         }, duration);
     }
     
-    console.log(`✅ Universal Banner "${bannerType}" deployed successfully`);
+    console.log(`✅ Header-constrained banner "${bannerType}" deployed (830x85)`);
     return banner;
 };
 
-// Universal Banner Removal
+// ✅ KEEP: Enhanced removal with header container support
 window.removeAllBanners = function() {
+    const existingContainer = document.getElementById('bannerHeaderContainer');
+    if (existingContainer) {
+        existingContainer.remove();
+        console.log('🗑️ Header banner container removed');
+    }
+    
     const existingBanner = document.getElementById('universalBanner');
     if (existingBanner) {
         existingBanner.remove();
-        console.log('🗑️ Banner removed');
+        console.log('🗑️ Universal banner removed');
     }
 };
 
-// Enhanced removeLeadCaptureBanner for compatibility
+// ✅ KEEP: Backward compatibility wrapper
 window.removeLeadCaptureBanner = function() {
     removeAllBanners();
     console.log('🎯 Lead capture banner removal (Universal system)');
@@ -1187,10 +1229,6 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
         showUniversalBanner('branding');
     }, 100);
 }
-
-// ===================================================================
-// 🎯 MOBILE-WISE AI COMPLETE BANNER ORCHESTRATION ENGINE V2.0
-// ===================================================================
 
 // ===================================================
 // 🎖️ BANNER STATE MANAGEMENT SYSTEM
