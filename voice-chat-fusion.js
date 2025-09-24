@@ -2047,32 +2047,21 @@ function speakMessage(message) {
             }
         };
 
-       utterance.onend = function() {
-    isSpeaking = false; // Add this for proper state management
-    console.log('🔊 AI finished speaking for lead capture');
-    
-    // 🛡️ ONLY BLOCK IF THIS IS THE "CLICK BUTTON" MESSAGE
-    // Check if the message contains consultation/button keywords
-    const lastAIMessage = document.querySelector('.ai-message:last-child')?.textContent || '';
-    const isClickButtonMessage = lastAIMessage.includes('click the button') || 
-                                 lastAIMessage.includes('click that button') ||
-                                 lastAIMessage.includes('Please click');
-    
-    if (isClickButtonMessage) {
-        const smartButton = document.getElementById('smartButton');
-        if (smartButton && smartButton.style.display !== 'none') {
-            console.log('🔇 Click button message detected - blocking hybrid sequence');
-            return;
-        }
+        utterance.onend = function() {
+            isSpeaking = false; // Add this for proper state management
+            console.log('🔊 AI finished speaking for lead capture');
+            
+            // ✅ THE FIX: Show hybrid sequence for lead capture questions
+            if (isInLeadCapture) {
+                setTimeout(() => {
+                    showHybridReadySequence(); // This shows "Get Ready to Speak" → "Listening"
+                }, 800);
+            }
+        };
+        
+        window.speechSynthesis.speak(utterance);
     }
-    
-    // ✅ THE FIX: Show hybrid sequence for lead capture questions
-    if (isInLeadCapture) {
-        setTimeout(() => {
-            showHybridReadySequence(); // This shows "Get Ready to Speak" → "Listening"
-        }, 800);
-    }
-};
+}
 
 
 
