@@ -367,8 +367,12 @@ function getApologyResponse() {
      hideSpeakNow();
     console.log('🔚 Recognition ended');
     
-    // DON'T clear the slot here - let the hybrid system manage it
-    // (This was causing premature clearing)
+       // 🚨 ADD THIS CHECK: Don't restart if smart button is active
+    const smartButton = document.getElementById('smartButton');
+    if (smartButton && smartButton.style.display !== 'none') {
+        console.log('🔇 Smart button active - BLOCKING auto-restart in onend');
+        return; // 🚨 CRITICAL: Exit early, don't restart listening!
+    }
     
     const userInput = document.getElementById('userInput');
     
