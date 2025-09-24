@@ -1818,31 +1818,6 @@ if (!document.getElementById('speakNowWholeButtonGlowAnimation')) {
     `;
     document.head.appendChild(speakNowGlowStyle);
 }
-// ===================================================
-// 🎯 STEP 2: RETROFITTED updateSmartButton() - BANNER ORCHESTRATOR
-// ===================================================
-function updateSmartButton(shouldShow, buttonText, action) {
-    if (shouldShow) {
-        // 🚀 NEW: Use Banner Orchestrator for smartButton
-        BannerOrchestrator.deploy('smartButton', {
-            trigger: 'system_call',
-            buttonText: buttonText,
-            action: action,
-            // 🔇 ADD CALLBACK TO PAUSE SPEECH
-            callback: (result) => {
-                console.log('🎯 Smart button deployed:', result);
-                
-                // PAUSE SPEECH RECOGNITION FOR BANNER INTERACTION
-                pauseSpeechForBannerInteraction();
-            }
-        });
-    } else {
-        // Remove smartButton if it's current
-        if (typeof BannerOrchestrator !== 'undefined' && BannerOrchestrator.currentBanner === 'smartButton') {
-            BannerOrchestrator.removeCurrentBanner();
-        }
-    }
-}
 
 // ===================================================
 // 🔇 SPEECH RECOGNITION PAUSE FUNCTION
