@@ -1245,6 +1245,36 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
 }
 
 // ===================================================
+// 🔇 SPEECH RECOGNITION PAUSE FUNCTION
+// ===================================================
+function pauseSpeechForBannerInteraction() {
+    console.log('🔇 Pausing speech recognition for banner interaction');
+    
+    // Stop current recognition
+    if (recognition && isListening) {
+        try {
+            recognition.stop();
+            isListening = false;
+        } catch (error) {
+            console.log('Recognition already stopped');
+        }
+    }
+    
+    // Hide the "Speak Now" / "Get Ready to Speak" UI
+    const speakNowSlot = document.getElementById('speakNowSlot');
+    if (speakNowSlot) {
+        speakNowSlot.style.display = 'none';
+    }
+    
+    const liveTranscript = document.getElementById('liveTranscript');
+    if (liveTranscript) {
+        liveTranscript.style.display = 'none';
+    }
+    
+    console.log('🔇 Speech recognition paused - waiting for banner interaction');
+}
+
+// ===================================================
 // 🎖️ BANNER STATE MANAGEMENT SYSTEM
 // ===================================================
 window.BannerOrchestrator = {
@@ -1720,7 +1750,6 @@ if (!document.getElementById('speakNowWholeButtonGlowAnimation')) {
     `;
     document.head.appendChild(speakNowGlowStyle);
 }
-
 // ===================================================
 // 🎯 STEP 2: RETROFITTED updateSmartButton() - BANNER ORCHESTRATOR
 // ===================================================
@@ -1730,7 +1759,14 @@ function updateSmartButton(shouldShow, buttonText, action) {
         BannerOrchestrator.deploy('smartButton', {
             trigger: 'system_call',
             buttonText: buttonText,
-            action: action
+            action: action,
+            // 🔇 ADD CALLBACK TO PAUSE SPEECH
+            callback: (result) => {
+                console.log('🎯 Smart button deployed:', result);
+                
+                // PAUSE SPEECH RECOGNITION FOR BANNER INTERACTION
+                pauseSpeechForBannerInteraction();
+            }
         });
     } else {
         // Remove smartButton if it's current
@@ -1740,7 +1776,37 @@ function updateSmartButton(shouldShow, buttonText, action) {
     }
 }
 
-// 🎨 HEADER SLIDE ANIMATION
+// ===================================================
+// 🔇 SPEECH RECOGNITION PAUSE FUNCTION
+// ===================================================
+function pauseSpeechForBannerInteraction() {
+    console.log('🔇 Pausing speech recognition for banner interaction');
+    
+    // Stop current recognition
+    if (recognition && isListening) {
+        try {
+            recognition.stop();
+            isListening = false;
+        } catch (error) {
+            console.log('Recognition already stopped');
+        }
+    }
+    
+    // Hide the "Speak Now" / "Get Ready to Speak" UI
+    const speakNowSlot = document.getElementById('speakNowSlot');
+    if (speakNowSlot) {
+        speakNowSlot.style.display = 'none';
+    }
+    
+    const liveTranscript = document.getElementById('liveTranscript');
+    if (liveTranscript) {
+        liveTranscript.style.display = 'none';
+    }
+    
+    console.log('🔇 Speech recognition paused - waiting for banner interaction');
+}
+
+// 🎨 HEADER SLIDE ANIMATION (UNCHANGED)
 const headerBannerStyle = document.createElement('style');
 headerBannerStyle.textContent = `
     @keyframes slideDownHeader {
