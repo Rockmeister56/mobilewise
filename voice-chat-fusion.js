@@ -952,20 +952,20 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
         // 1. BRANDING HEADER
         branding: {
             content: `
-                <div style="display: flex; justify-content: space-between; align-items: center; height: 100%; padding: 0 20px;">
-                    <div style="display: flex; align-items: center;">
-                        <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758507868460_logo.png" 
-                             style="width: 40px; height: 40px; margin-right: 10px;">
-                        <span style="color: white; font-size: 16px; font-weight: bold;">Mobile-Wise AI</span>
-                    </div>
-                    <div>
-                        <span style="color: #87CEEB; font-size: 14px; font-weight: 600;">AI VOICE CHAT</span>
-                    </div>
-                </div>
-            `,
-            background: 'rgba(255, 255, 255, 0.1)',
-            duration: 0
-        },
+<div style="display: flex; justify-content: space-between; align-items: center; height: 100%; padding: 0 20px;">
+            <div style="display: flex; align-items: center;">
+                <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758507868460_logo.png" 
+                     style="width: 40px; height: 40px; margin-right: 10px;">
+                <span style="color: white; font-size: 16px; font-weight: bold;">Mobile-Wise AI</span>
+            </div>
+            <div>
+                <span style="color: #87CEEB; font-size: 14px; font-weight: 600;">AI VOICE CHAT</span>
+            </div>
+        </div>
+    `,
+    background: 'transparent', // ← 100% TRANSPARENT!
+    duration: 0
+},
         
         // 2. SMART BUTTON (Free Consultation)
         smartButton: {
@@ -1163,6 +1163,33 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     `;
+
+    // In showUniversalBanner function, special case for branding:
+if (bannerType === 'branding') {
+    banner.style.cssText = `
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        background: transparent !important; /* NO background */
+        border: none !important; /* NO border */
+        backdrop-filter: none !important; /* NO blur effect */
+        border-radius: 0 !important; /* NO rounded corners */
+        margin: 0 !important;
+        padding: 0 !important;
+        box-sizing: border-box !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        color: white;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        box-shadow: none !important; /* NO shadow */
+    `;
+} else {
+    // Keep existing styling for other banners
+}
+
     
     // 🎯 MOBILE RESPONSIVE ADJUSTMENT
     if (window.innerWidth <= 850) {
