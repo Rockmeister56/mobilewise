@@ -367,12 +367,8 @@ function getApologyResponse() {
      hideSpeakNow();
     console.log('🔚 Recognition ended');
     
-       // 🚨 ADD THIS CHECK: Don't restart if smart button is active
-    const smartButton = document.getElementById('smartButton');
-    if (smartButton && smartButton.style.display !== 'none') {
-        console.log('🔇 Smart button active - BLOCKING auto-restart in onend');
-        return; // 🚨 CRITICAL: Exit early, don't restart listening!
-    }
+    // DON'T clear the slot here - let the hybrid system manage it
+    // (This was causing premature clearing)
     
     const userInput = document.getElementById('userInput');
     
@@ -890,6 +886,12 @@ function speakResponse(message) {
           utterance.onend = function() {
     isSpeaking = false;
     console.log('🔊 AI finished speaking (mobile)');
+
+      // 🛡️ SIMPLE FIX: Don't show "Speak Now" if smart button is visible
+    const smartButton = document.getElementById('smartButton');
+    if (smartButton && smartButton.style.display !== 'none') {
+        return; // Exit early, don't call showHybridReadySequence()
+    }
     
     showHybridReadySequence();
 };
@@ -1407,31 +1409,6 @@ window.BannerOrchestrator = {
 // ===================================================
 function handleSmartButtonClick(buttonType) {
     console.log(`🚨 Smart button clicked: ${buttonType}`);
-
-    // 🚨 AGGRESSIVE SPEECH RECOGNITION SHUTDOWN
-    if (recognition) {
-        try {
-            recognition.stop();
-            recognition.onend = null; // Prevent any restart callbacks
-            recognition.onerror = null;
-            isListening = false;
-            console.log('🔇 Speech recognition forcefully stopped');
-        } catch (error) {
-            console.log('Speech recognition already stopped');
-        }
-    }
-    
-    // 🚨 HIDE ALL SPEECH UI ELEMENTS
-    const speechUIElements = [
-        'liveTranscript',
-        'speakNowSlot', 
-        'transcriptText'
-    ];
-    
-    speechUIElements.forEach(id => {
-        const element = document.getElementById(id);
-        if (element) element.style.display = 'none';
-    });
     
     // Fix buttonType if it's an event object
     if (typeof buttonType === 'object') {
@@ -1818,6 +1795,31 @@ if (!document.getElementById('speakNowWholeButtonGlowAnimation')) {
     `;
     document.head.appendChild(speakNowGlowStyle);
 }
+// ===================================================
+// 🎯 STEP 2: RETROFITTED updateSmartButton() - BANNER ORCHESTRATOR
+// ===================================================
+function updateSmartButton(shouldShow, buttonText, action) {
+    if (shouldShow) {
+        // 🚀 NEW: Use Banner Orchestrator for smartButton
+        BannerOrchestrator.deploy('smartButton', {
+            trigger: 'system_call',
+            buttonText: buttonText,
+            action: action,
+            // 🔇 ADD CALLBACK TO PAUSE SPEECH
+            callback: (result) => {
+                console.log('🎯 Smart button deployed:', result);
+                
+                // PAUSE SPEECH RECOGNITION FOR BANNER INTERACTION
+                pauseSpeechForBannerInteraction();
+            }
+        });
+    } else {
+        // Remove smartButton if it's current
+        if (typeof BannerOrchestrator !== 'undefined' && BannerOrchestrator.currentBanner === 'smartButton') {
+            BannerOrchestrator.removeCurrentBanner();
+        }
+    }
+}
 
 // ===================================================
 // 🔇 SPEECH RECOGNITION PAUSE FUNCTION
@@ -1926,31 +1928,6 @@ function restoreChatHeight() {
 // ===================================================
 function handleSmartButtonClick(buttonType) {
     console.log(`🚨 Smart button clicked: ${buttonType}`);
-    
-     // 🚨 AGGRESSIVE SPEECH RECOGNITION SHUTDOWN
-    if (recognition) {
-        try {
-            recognition.stop();
-            recognition.onend = null; // Prevent any restart callbacks
-            recognition.onerror = null;
-            isListening = false;
-            console.log('🔇 Speech recognition forcefully stopped');
-        } catch (error) {
-            console.log('Speech recognition already stopped');
-        }
-    }
-    
-    // 🚨 HIDE ALL SPEECH UI ELEMENTS
-    const speechUIElements = [
-        'liveTranscript',
-        'speakNowSlot', 
-        'transcriptText'
-    ];
-    
-    speechUIElements.forEach(id => {
-        const element = document.getElementById(id);
-        if (element) element.style.display = 'none';
-    });
     
     // Fix buttonType if it's an event object
     if (typeof buttonType === 'object') {
