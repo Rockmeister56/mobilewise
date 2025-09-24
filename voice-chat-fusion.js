@@ -1427,32 +1427,17 @@ function handleSmartButtonClick(buttonType) {
     }
 }
 
-// ===================================================
+// ===================================================  
 // 🎯 STEP 2: RETROFITTED updateSmartButton()
 // ===================================================
 function updateSmartButton(shouldShow, buttonText, action) {
     if (shouldShow) {
-        // 🚀 NEW: Use Banner Orchestrator for smartButton
+        // 🚀 Use Banner Orchestrator WITHOUT custom content
         BannerOrchestrator.deploy('smartButton', {
             trigger: 'system_call',
             buttonText: buttonText,
-            action: action,
-            customContent: `
-                <div style="display: flex; align-items: center; justify-content: space-between; padding: 15px 25px;">
-                    <div style="color: white; font-weight: 600; font-size: 16px;">
-                        📅 ${buttonText || 'Free Consultation'}
-                    </div>
-                    <div onclick="handleSmartButtonClick('${action || 'valuation'}')" style="
-                        color: white; font-weight: bold; font-size: 16px; padding: 10px 20px;
-                        background: rgba(34, 197, 94, 0.3); border-radius: 20px; 
-                        border: 1px solid rgba(34, 197, 94, 0.5); cursor: pointer;
-                        transition: all 0.3s ease;
-                    " onmouseover="this.style.background='rgba(34, 197, 94, 0.5)'" 
-                       onmouseout="this.style.background='rgba(34, 197, 94, 0.3)'">
-                        CLICK NOW
-                    </div>
-                </div>
-            `
+            action: action
+            // ← NO customContent! Let it use the header-optimized library version
         });
     } else {
         // Remove smartButton if it's current
