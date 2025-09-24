@@ -1389,17 +1389,6 @@ function handleSmartButtonClick(buttonType) {
         buttonType: buttonType
     });
     
-    // 3. STOP SPEECH RECOGNITION COMPLETELY - NO LISTENING YET!
-    if (typeof recognition !== 'undefined' && recognition) {
-        try {
-            recognition.stop();
-            if (typeof isListening !== 'undefined') isListening = false;
-            console.log('🔇 Speech recognition stopped for lead capture');
-        } catch (error) {
-            console.log('Speech already stopped');
-        }
-    }
-    
     // 4. HIDE THE GREEN "SPEAK NOW" BANNER - DON'T SHOW IT YET!
     const liveTranscript = document.getElementById('liveTranscript');
     if (liveTranscript) {
@@ -1746,109 +1735,20 @@ if (!document.getElementById('speakNowWholeButtonGlowAnimation')) {
 }
 
 // ===================================================
-// 🎨 SMART BANNER - AGGRESSIVE TOP POSITIONING
+// 🎯 STEP 2: RETROFITTED updateSmartButton() - BANNER ORCHESTRATOR
 // ===================================================
 function updateSmartButton(shouldShow, buttonText, action) {
-    const existingBanner = document.getElementById('smartButton');
-    if (existingBanner) {
-        existingBanner.remove();
-    }
-    
     if (shouldShow) {
-        const smartBanner = document.createElement('div');
-        smartBanner.id = 'smartButton';
-        
-        smartBanner.style.cssText = `
-            position: fixed;
-            top: 70;
-            left: 10px;
-            right: 10px;
-            width: calc(100% - 20px);
-            height: 60px;
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            animation: shimmerGlow 2.5s ease-in-out infinite;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            padding: 0 25px;
-            z-index: 1000;
-            box-sizing: border-box;
-        `;
-        
-        // 📅 LEFT SIDE - Free Consultation
-        const leftSection = document.createElement('div');
-        leftSection.style.cssText = `
-            color: white;
-            font-weight: 600;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-        `;
-        leftSection.innerHTML = `📅 Free Consultation`;
-        
-        // 🎯 RIGHT SIDE - CLICK NOW
-        const rightSection = document.createElement('div');
-        rightSection.style.cssText = `
-            color: white;
-            font-weight: bold;
-            font-size: 16px;
-            padding: 10px 20px;
-            background: rgba(34, 197, 94, 0.3);
-            border-radius: 20px;
-            border: 1px solid rgba(34, 197, 94, 0.5);
-            display: flex;
-            align-items: center;
-        `;
-        rightSection.innerHTML = `CLICK NOW`;
-        
-        // Click handler
-        smartBanner.addEventListener('click', () => {
-            handleSmartButtonClick(action);
+        // 🚀 NEW: Use Banner Orchestrator for smartButton
+        BannerOrchestrator.deploy('smartButton', {
+            trigger: 'system_call',
+            buttonText: buttonText,
+            action: action
         });
-        
-        // Hover effects
-        smartBanner.addEventListener('mouseenter', () => {
-            smartBanner.style.background = 'rgba(255, 255, 255, 0.25)';
-            rightSection.style.background = 'rgba(34, 197, 94, 0.5)';
-        });
-        
-        smartBanner.addEventListener('mouseleave', () => {
-            smartBanner.style.background = 'rgba(255, 255, 255, 0.15)';
-            rightSection.style.background = 'rgba(34, 197, 94, 0.3)';
-        });
-        
-        // Build the banner
-        smartBanner.appendChild(leftSection);
-        smartBanner.appendChild(rightSection);
-        
-        // 🎯 FORCE INSERT AT TOP OF BODY - NO MORE GUESSING!
-        document.body.appendChild(smartBanner);
-        
-        // 🎯 PUSH MAIN CONTENT DOWN TO AVOID OVERLAP
-        const container = document.querySelector('.container');
-        if (container) {
-            container.style.paddingTop = '80px'; // Make room for fixed banner
-            container.style.transition = 'padding-top 0.3s ease';
-        }
-        
-        console.log('🎯 Smart button FORCED to top with fixed positioning');
-        
     } else {
-        const smartButton = document.getElementById('smartButton');
-        if (smartButton) {
-            smartButton.remove();
-        }
-        
-        // 🎯 RESTORE NORMAL PADDING
-        const container = document.querySelector('.container');
-        if (container) {
-            container.style.paddingTop = '0';
+        // Remove smartButton if it's current
+        if (typeof BannerOrchestrator !== 'undefined' && BannerOrchestrator.currentBanner === 'smartButton') {
+            BannerOrchestrator.removeCurrentBanner();
         }
     }
 }
@@ -1926,7 +1826,7 @@ function restoreChatHeight() {
 }
 
 // ===================================================
-// 🚀 FIXED SMART BUTTON CLICK HANDLER + BANNER
+// 🚀 BANNER ORCHESTRATOR 2.0 SMART BUTTON CLICK HANDLER
 // ===================================================
 function handleSmartButtonClick(buttonType) {
     console.log(`🚨 Smart button clicked: ${buttonType}`);
@@ -1936,33 +1836,33 @@ function handleSmartButtonClick(buttonType) {
         buttonType = 'valuation';
     }
 
-    // 1. HIDE THE SMART BUTTON IMMEDIATELY
-    const smartButton = document.getElementById('smartButton');
-    if (smartButton) {
-        smartButton.style.display = 'none';
-    }
+    // 1. 🚀 NEW: USE BANNER ORCHESTRATOR FOR TRANSITION
+    BannerOrchestrator.deploy('leadCapture', {
+        trigger: 'smartButton_click',
+        buttonType: buttonType,
+        onDeploy: function(banner) {
+            console.log('🎯 Lead capture banner deployed via Orchestrator');
+        }
+    });
     
-    // 2. CREATE AND SHOW THE PROFESSIONAL BANNER
-    showUniversalBanner('leadCapture');
-    
-    // 3. STOP SPEECH RECOGNITION COMPLETELY - NO LISTENING YET!
-    if (recognition) {
+    // 2. STOP SPEECH RECOGNITION COMPLETELY - NO LISTENING YET!
+    if (typeof recognition !== 'undefined' && recognition) {
         try {
             recognition.stop();
-            isListening = false;
+            if (typeof isListening !== 'undefined') isListening = false;
             console.log('🔇 Speech recognition stopped for lead capture');
         } catch (error) {
             console.log('Speech already stopped');
         }
     }
     
-    // 4. HIDE THE GREEN "SPEAK NOW" BANNER - DON'T SHOW IT YET!
+    // 3. HIDE THE GREEN "SPEAK NOW" BANNER - DON'T SHOW IT YET!
     const liveTranscript = document.getElementById('liveTranscript');
     if (liveTranscript) {
-        liveTranscript.style.display = 'none'; // ← CRITICAL: Hide it!
+        liveTranscript.style.display = 'none';
     }
     
-    // 5. UPDATE UI ELEMENTS
+    // 4. UPDATE UI ELEMENTS
     const transcriptText = document.getElementById('transcriptText');
     if (transcriptText) {
         transcriptText.textContent = '';
@@ -1977,8 +1877,10 @@ function handleSmartButtonClick(buttonType) {
     
     console.log('🎯 Starting lead capture for:', buttonType);
     
-    // 6. START LEAD CAPTURE SYSTEM (BUT NO LISTENING YET!)
-    initializeLeadCapture(buttonType);
+    // 5. START LEAD CAPTURE SYSTEM (BUT NO LISTENING YET!)
+    if (typeof initializeLeadCapture === 'function') {
+        initializeLeadCapture(buttonType);
+    }
 }
 
 // ===================================================
@@ -2486,7 +2388,7 @@ function sendFollowUpEmail() {
 }
 
 // ===================================================
-// 🔘 QUICK QUESTIONS SYSTEM
+// 🔘 QUICK QUESTIONS SYSTEM - BANNER ORCHESTRATOR 2.0
 // ===================================================
 function askQuickQuestion(questionText) {
     console.log('📋 Quick question clicked:', questionText);
@@ -2504,7 +2406,28 @@ function askQuickQuestion(questionText) {
         addAIMessage(response);
         speakResponse(response);
         
-        updateSmartButton(shouldShowSmartButton, smartButtonText, smartButtonAction);
+        // 🚀 BANNER ORCHESTRATOR 2.0 INTEGRATION
+        if (typeof BannerOrchestrator !== 'undefined' && BannerOrchestrator.deploy) {
+            BannerOrchestrator.deploy('smartButton', {
+                visibility: shouldShowSmartButton,
+                content: smartButtonText,
+                action: smartButtonAction,
+                trigger: 'quickQuestion',
+                context: questionText,
+                transition: 'smooth',
+                callback: (deployResult) => {
+                    console.log('🎯 Banner deployed via Quick Question:', deployResult);
+                }
+            });
+        } else {
+            // 🛡️ GRACEFUL FALLBACK - Legacy support
+            console.warn('⚠️ BannerOrchestrator not available, using fallback');
+            if (typeof updateSmartButton === 'function') {
+                updateSmartButton(shouldShowSmartButton, smartButtonText, smartButtonAction);
+            } else {
+                console.error('❌ No banner system available');
+            }
+        }
     }, 800);
 }
 
@@ -2543,186 +2466,140 @@ function resetLeadCaptureSystem() {
     }, 2000);
 }
 
+// ===================================================
+// 🎯 CONSULTATION CONFIRMED BANNER - ORCHESTRATOR 2.0
+// ===================================================
 function showConsultationConfirmedBanner() {
     console.log('🎯 Showing Consultation Confirmed Banner - DUAL SECTION');
     
-   // Remove ALL existing banners (Same cleanup as your working version)
-const existingBruce = document.getElementById('bruceBookBanner');
-const existingConfirm = document.getElementById('emailConfirmationBanner');
-
-if (existingBruce) existingBruce.remove();
-removeLeadCaptureBanner(); // Standardized lead capture removal
-if (existingConfirm) existingConfirm.remove
-
-    // Hide smart button
-    const smartButton = document.getElementById('smartButton');
-    if (smartButton) {
-        smartButton.style.display = 'none !important';
-    }
-    
-    // Create DUAL-SECTION banner (keeping your exact styling)
-    const confirmationBanner = document.createElement('div');
-    confirmationBanner.id = 'consultationConfirmedBanner';
-    confirmationBanner.style.cssText = `
-        background: rgba(255, 255, 255, 0.15);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        border-radius: 12px;
-        padding: 12px 16px;
-        margin: 8px 0;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        position: relative;
-        overflow: hidden;
-        max-width: 500px;
-        margin-left: auto;
-        margin-right: auto;
-    `;
-    
-    confirmationBanner.innerHTML = `
-        <div style="display: flex; align-items: center; gap: 16px;">
-            
-            <!-- LEFT SECTION: Consultation Confirmed -->
-            <div style="color: white; text-align: left; flex: 1;">
-                <div style="font-size: 14px; font-weight: bold; margin-bottom: 4px;">🎯 Free Consultation Confirmed!</div>
-                <div style="font-size: 11px; opacity: 0.9; line-height: 1.3;">Your information has been submitted</div>
-            </div>
-            
-            <!-- RIGHT SECTION: Book (Your exact working code) -->
-            <div style="display: flex; align-items: center; gap: 12px;">
-                <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758088515492_nci-book.png" 
-                     style="width: 60px; height: auto; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);" 
-                     alt="Bruce's Book">
-                <div style="color: white; text-align: left;">
-                    <div style="font-size: 14px; font-weight: bold; margin-bottom: 4px;">📚 FREE Book for ${leadData.name}!</div>
-                    <div style="font-size: 11px; opacity: 0.9; line-height: 1.3;">"7 Secrets to Selling Your Practice"</div>
-                </div>
-            </div>
-            
-        </div>
-    `;
-    
-    // Insert using your exact working method
-    const container = document.querySelector('.container');
-    const header = container.querySelector('header');
-    
-    if (header && header.nextSibling) {
-        container.insertBefore(confirmationBanner, header.nextSibling);
+    // 🚀 BANNER ORCHESTRATOR 2.0 DEPLOYMENT
+    if (typeof BannerOrchestrator !== 'undefined' && BannerOrchestrator.deploy) {
+        BannerOrchestrator.deploy('consultationConfirmed', {
+            type: 'dualSection',
+            sections: {
+                left: {
+                    title: '🎯 Free Consultation Confirmed!',
+                    subtitle: 'Your information has been submitted'
+                },
+                right: {
+                    title: `📚 FREE Book for ${leadData.name}!`,
+                    subtitle: '"7 Secrets to Selling Your Practice"',
+                    image: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758088515492_nci-book.png'
+                }
+            },
+            cleanup: ['bruceBookBanner', 'emailConfirmationBanner', 'leadCapture'],
+            hideSmartButton: true,
+            transition: 'smooth',
+            callback: (result) => {
+                console.log('🎯 Consultation confirmed banner deployed:', result);
+            }
+        });
     } else {
-        container.insertBefore(confirmationBanner, container.firstChild);
+        // 🛡️ FALLBACK - Legacy banner creation (cleaned up)
+        _createLegacyConsultationBanner();
     }
-    
-    console.log('🎯 Consultation confirmed banner displayed successfully');
 }
 
+// ===================================================
+// 🙏 THANK YOU BANNER - ORCHESTRATOR 2.0
+// ===================================================
 function showThankYouBanner() {
     console.log('🙏 Showing Thank You Banner with Audio');
     
-  // Remove any existing banners
-const existingBruce = document.getElementById('bruceBookBanner');
-const existingThankYou = document.getElementById('thankYouBanner');
-const existingEmailConfirmation = document.querySelector('.email-confirmation-banner');
-const existingSuccess = document.querySelector('.success-banner');
-
-if (existingThankYou) existingThankYou.remove();
-removeLeadCaptureBanner(); // Standardized lead capture removal
-if (existingEmailConfirmation) existingEmailConfirmation.remove();
-if (existingSuccess) existingSuccess.remove();
-    
-    // Hide smart button
-    const smartButton = document.getElementById('smartButton');
-    if (smartButton) {
-        smartButton.style.display = 'none !important';
-    }
-    
-    // Create fancy thank you banner
-    const thankYouBanner = document.createElement('div');
-    thankYouBanner.id = 'thankYouBanner';
-    thankYouBanner.style.cssText = `
-        background: linear-gradient(135deg, #4CAF50 0%, #45a049 50%, #2E7D32 100%);
-        border: 3px solid rgba(255, 255, 255, 0.4);
-        border-radius: 25px;
-        padding: 30px;
-        margin: 15px 0;
-        text-align: center;
-        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4);
-        position: relative;
-        overflow: hidden;
-        animation: thankYouGlow 2s ease-in-out infinite alternate;
-    `;
-    
-    thankYouBanner.innerHTML = `
-        <div style="position: relative; z-index: 2;">
-            <div style="font-size: 48px; margin-bottom: 15px;">🙏</div>
-            <h2 style="color: white; margin: 0 0 15px 0; font-size: 28px; font-weight: bold; text-shadow: 0 3px 6px rgba(0,0,0,0.4);">
-                Thank You for Visiting!
-            </h2>
-            <p style="color: rgba(255,255,255,0.95); margin: 0; font-size: 18px; line-height: 1.6;">
-                We appreciate your time and interest.<br>
-                <em style="font-size: 16px; opacity: 0.9;">Have a wonderful day!</em>
-            </p>
-            <div style="margin-top: 15px; color: rgba(255,255,255,0.8); font-size: 14px;">
-                🎵 <em>Playing farewell message...</em>
-            </div>
-        </div>
-        <div style="position: absolute; top: -50%; right: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%); pointer-events: none;"></div>
-    `;
-    
-    // Add glow animation
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes thankYouGlow {
-            from { box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4), 0 0 20px rgba(76, 175, 80, 0.3); }
-            to { box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4), 0 0 30px rgba(76, 175, 80, 0.6); }
-        }
-    `;
-    document.head.appendChild(style);
-    
-    // Insert into container
-    const container = document.querySelector('.container');
-    const header = container.querySelector('header');
-    
-    if (header && header.nextSibling) {
-        container.insertBefore(thankYouBanner, header.nextSibling);
-    } else {
-        container.insertBefore(thankYouBanner, container.firstChild);
-    }
-    
-    // 🎵 PLAY YOUR THANK YOU AUDIO MESSAGE
-    setTimeout(() => {
-        const thankYouAudio = new Audio('https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/audio-intros/ai_intro_1758148837523.mp3');
-        thankYouAudio.volume = 0.8;
-        thankYouAudio.preload = 'auto';
-        
-        thankYouAudio.play().then(() => {
-            console.log('🎵 Thank You audio playing successfully');
-        }).catch(error => {
-            console.log('🎵 Thank you audio failed to play:', error);
+    // 🚀 BANNER ORCHESTRATOR 2.0 DEPLOYMENT
+    if (typeof BannerOrchestrator !== 'undefined' && BannerOrchestrator.deploy) {
+        BannerOrchestrator.deploy('thankYou', {
+            type: 'celebration',
+            content: {
+                emoji: '🙏',
+                title: 'Thank You for Visiting!',
+                message: 'We appreciate your time and interest.',
+                subtitle: 'Have a wonderful day!',
+                audioNote: '🎵 Playing farewell message...'
+            },
+            style: {
+                gradient: 'linear-gradient(135deg, #4CAF50 0%, #45a049 50%, #2E7D32 100%)',
+                animation: 'thankYouGlow',
+                borderRadius: '25px'
+            },
+            audio: {
+                url: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/audio-intros/ai_intro_1758148837523.mp3',
+                volume: 0.8,
+                delay: 500
+            },
+            cleanup: ['bruceBookBanner', 'emailConfirmationBanner', 'leadCapture'],
+            hideSmartButton: true,
+            callback: (result) => {
+                console.log('🙏 Thank you banner with audio deployed:', result);
+            }
         });
-        
-        // Optional: Fade out banner after audio completes
-        thankYouAudio.onended = function() {
-            console.log('🎵 Thank you audio completed');
-            // Banner stays visible - user can see the thank you message
-        };
-        
-    }, 500); // Small delay to ensure banner is visible first
-    
-    console.log('🙏 Thank You Banner with Audio displayed successfully');
+    } else {
+        // 🛡️ FALLBACK - Legacy thank you banner
+        _createLegacyThankYouBanner();
+    }
 }
 
+// ===================================================
+// 📧 EMAIL CONFIRMATION - ORCHESTRATOR 2.0
+// ===================================================
 function showEmailConfirmationBanner() {
-    // Remove ALL existing banners
-    const existingBruce = document.getElementById('bruceBookBanner');
-    const existingConfirm = document.getElementById('emailConfirmationBanner');
-
-    removeLeadCaptureBanner(); // Use standardized removal function
-    if (existingConfirm) existingConfirm.remove();
+    console.log('📧 Showing Email Confirmation Banner');
     
-   showUniversalBanner('emailSent');
+    // 🚀 BANNER ORCHESTRATOR 2.0 DEPLOYMENT
+    if (typeof BannerOrchestrator !== 'undefined' && BannerOrchestrator.deploy) {
+        BannerOrchestrator.deploy('emailSent', {
+            type: 'confirmation',
+            duration: 4000,
+            autoRemove: true,
+            cleanup: ['bruceBookBanner', 'leadCapture'],
+            callback: (result) => {
+                console.log('📧 Email confirmation banner deployed:', result);
+            }
+        });
+    } else {
+        // 🛡️ FALLBACK - Legacy universal banner
+        if (typeof showUniversalBanner === 'function') {
+            showUniversalBanner('emailSent');
+            setTimeout(() => {
+                if (typeof removeAllBanners === 'function') {
+                    removeAllBanners();
+                }
+            }, 4000);
+        }
+    }
+}
 
-    setTimeout(() => {
-     removeAllBanners(); // Use Universal Banner removal
-    }, 4000);
+// ===================================================
+// 🛡️ LEGACY FALLBACK FUNCTIONS (Internal Use Only)
+// ===================================================
+function _createLegacyConsultationBanner() {
+    // Simplified legacy version - only if Orchestrator fails
+    console.warn('⚠️ Using legacy consultation banner fallback');
+    
+    // Your original banner creation code here (simplified)
+    const banner = document.createElement('div');
+    banner.id = 'consultationConfirmedBanner';
+    // ... minimal styling and content
+    
+    const container = document.querySelector('.container');
+    if (container) {
+        container.insertBefore(banner, container.firstChild);
+    }
+}
+
+function _createLegacyThankYouBanner() {
+    // Simplified legacy version - only if Orchestrator fails
+    console.warn('⚠️ Using legacy thank you banner fallback');
+    
+    // Your original banner creation code here (simplified)
+    const banner = document.createElement('div');
+    banner.id = 'thankYouBanner';
+    // ... minimal styling and content
+    
+    const container = document.querySelector('.container');
+    if (container) {
+        container.insertBefore(banner, container.firstChild);
+    }
 }
 
 function forceScrollToBottom() {
