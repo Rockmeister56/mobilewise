@@ -749,15 +749,7 @@ function createBeep(frequency, duration, volume) {
 
 // Add this to see WHICH call is the problematic one
 function showHybridReadySequence() {
-    // 🚫 Block ONLY when Smart Button consultation banner is active
-    if (typeof BannerOrchestrator !== 'undefined' && 
-        BannerOrchestrator.currentBanner === 'smartButton') {
-        console.log('🔇 BLOCKED: Smart Button active - no Speak Now needed');
-        return;
-    }
-    
-    console.log('🚀 Showing hybrid ready sequence');
-    
+ 
     // Clear any existing content first
     const speakNowSlot = document.getElementById('speakNowSlot');
     if (speakNowSlot) {
@@ -886,6 +878,14 @@ function speakResponse(message) {
     isSpeaking = false;
     console.log('🔊 AI finished speaking (mobile)');
     
+        // 🚫 DON'T TRIGGER if Smart Button is active
+    if (typeof BannerOrchestrator !== 'undefined' && 
+        BannerOrchestrator.currentBanner === 'smartButton') {
+        console.log('🔇 TRIGGER BLOCKED: Smart Button active - no speech restart');
+        return; // Don't call showHybridReadySequence()
+    }
+    
+    // Only call it if Smart Button is NOT active
     showHybridReadySequence();
 };
             
@@ -1787,31 +1787,6 @@ if (!document.getElementById('speakNowWholeButtonGlowAnimation')) {
         }
     `;
     document.head.appendChild(speakNowGlowStyle);
-}
-// ===================================================
-// 🎯 STEP 2: RETROFITTED updateSmartButton() - BANNER ORCHESTRATOR
-// ===================================================
-function updateSmartButton(shouldShow, buttonText, action) {
-    if (shouldShow) {
-        // 🚀 NEW: Use Banner Orchestrator for smartButton
-        BannerOrchestrator.deploy('smartButton', {
-            trigger: 'system_call',
-            buttonText: buttonText,
-            action: action,
-            // 🔇 ADD CALLBACK TO PAUSE SPEECH
-            callback: (result) => {
-                console.log('🎯 Smart button deployed:', result);
-                
-                // PAUSE SPEECH RECOGNITION FOR BANNER INTERACTION
-                pauseSpeechForBannerInteraction();
-            }
-        });
-    } else {
-        // Remove smartButton if it's current
-        if (typeof BannerOrchestrator !== 'undefined' && BannerOrchestrator.currentBanner === 'smartButton') {
-            BannerOrchestrator.removeCurrentBanner();
-        }
-    }
 }
 
 // ===================================================
