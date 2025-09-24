@@ -749,9 +749,14 @@ function createBeep(frequency, duration, volume) {
 
 // Add this to see WHICH call is the problematic one
 function showHybridReadySequence() {
+    // 🚫 Block ONLY when Smart Button consultation banner is active
+    if (typeof BannerOrchestrator !== 'undefined' && 
+        BannerOrchestrator.currentBanner === 'smartButton') {
+        console.log('🔇 BLOCKED: Smart Button active - no Speak Now needed');
+        return;
+    }
+    
     console.log('🚀 Showing hybrid ready sequence');
-    console.log('🔍 Called from:', (new Error()).stack.split('\n')[2]); // Shows what called this
-    console.log('🎪 Banner state:', typeof BannerOrchestrator !== 'undefined' ? BannerOrchestrator.currentBanner : 'undefined');
     
     // Clear any existing content first
     const speakNowSlot = document.getElementById('speakNowSlot');
