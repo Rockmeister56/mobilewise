@@ -882,9 +882,16 @@ function speakResponse(message) {
                 }
             };
             
-          utterance.onend = function() {
+         utterance.onend = function() {
     isSpeaking = false;
-    console.log('🔊 AI finished speaking (mobile)');
+    console.log('🔊 AI finished speaking');
+    
+    // 🛡️ CHECK FOR SMART BUTTON BEFORE HYBRID SEQUENCE
+    const smartButton = document.getElementById('smartButton');
+    if (smartButton && smartButton.style.display !== 'none') {
+        console.log('🔇 Smart button active - blocking hybrid sequence');
+        return;
+    }
     
     showHybridReadySequence();
 };
@@ -909,12 +916,19 @@ currentAudio = utterance;
         console.log('🔊 AI started speaking');
     };
     
-    utterance.onend = function() {
-        isSpeaking = false;
-        console.log('🔊 AI finished speaking');
-        
-        showHybridReadySequence();
-    };
+   utterance.onend = function() {
+    isSpeaking = false;
+    console.log('🔊 AI finished speaking');
+    
+    // 🛡️ CHECK FOR SMART BUTTON BEFORE HYBRID SEQUENCE
+    const smartButton = document.getElementById('smartButton');
+    if (smartButton && smartButton.style.display !== 'none') {
+        console.log('🔇 Smart button active - blocking hybrid sequence');
+        return;
+    }
+    
+    showHybridReadySequence();
+};
     
     utterance.onerror = function(event) {
         console.log('❌ Speech error:', event.error);
