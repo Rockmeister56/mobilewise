@@ -406,15 +406,6 @@ function getApologyResponse() {
         if (delay > 0) {
             console.log(`⏱️ Adding ${delay}ms mobile delay`);
         }
-        
-        setTimeout(() => {
-            console.log('🎤 Starting speech recognition...');
-            recognition.start();
-            isListening = true;
-            
-            showSpeakNow();
-            console.log('✅ Speech recognition started successfully');
-        }, delay);
 
     } catch (error) {
         console.error('❌ Error starting speech recognition:', error);
@@ -450,10 +441,6 @@ function forceStartListening() {
         if (!recognition) {
             initializeSpeechRecognition();
         }
-        
-        console.log('🎤 Force starting speech recognition...');
-        recognition.start();
-        isListening = true;
         
        showSpeakNow();
         
