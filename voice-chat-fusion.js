@@ -733,10 +733,19 @@ function createBeep(frequency, duration, volume) {
 }
 
 // ===================================================
-// 🚀 ENHANCED HYBRID READY SEQUENCE WITH RESTART HANDLING
+// 🚀 ENHANCED HYBRID READY SEQUENCE WITH BANNER AWARENESS
 // ===================================================
 function showHybridReadySequence() {
     console.log('🚀 Showing hybrid ready sequence');
+    
+    // 🛡️ BANNER ORCHESTRATOR 2.0 PAUSE LOGIC
+    if (waitingForBannerClick || document.getElementById('leadCapture') || document.getElementById('smartButton')) {
+        console.log('🔇 Pausing recognition - waiting for banner interaction');
+        
+        // Still show the UI but DON'T start listening
+        createHybridReadyUI();
+        return; // EXIT WITHOUT STARTING RECOGNITION
+    }
     
     // CLEAR ANY EXISTING TIMEOUTS to prevent conflicts
     if (window.hybridTimeout) {
@@ -794,6 +803,12 @@ function showHybridReadySequence() {
             transcriptText.style.textShadow = '0 0 15px rgba(0, 255, 136, 0.8)';
         }
         
+        // 🛡️ DOUBLE-CHECK BEFORE STARTING (Banner could appear during timeout)
+        if (waitingForBannerClick || document.getElementById('leadCapture') || document.getElementById('smartButton')) {
+            console.log('🔇 Banner appeared during timeout - canceling recognition start');
+            return;
+        }
+        
         // AUTO-START listening - with proper restart handling
         if (!isListening && !isSpeaking && isAudioMode) {
             console.log('🎯 Hybrid system starting recognition');
@@ -801,6 +816,59 @@ function showHybridReadySequence() {
             startListening();
         }
     }, 1000);
+}
+
+// ===================================================
+// 🎨 HELPER FUNCTION - CREATE UI WITHOUT STARTING RECOGNITION
+// ===================================================
+function createHybridReadyUI() {
+    const speakNowSlot = document.getElementById('speakNowSlot');
+    if (!speakNowSlot) return;
+    
+    speakNowSlot.innerHTML = '';
+    
+    const transcriptElement = document.createElement('div');
+    transcriptElement.id = 'liveTranscript';
+    transcriptElement.innerHTML = '<div id="transcriptText">Click Banner Above</div>';
+    
+    transcriptElement.style.cssText = `
+        width: 340px;
+        height: 30px;
+        background: rgba(255, 165, 0, 0.15);
+        backdrop-filter: blur(15px);
+        border: 2px solid rgba(255, 165, 0, 0.3);
+        border-radius: 25px;
+        color: #FFA500;
+        font-weight: 600;
+        font-size: 16px;
+        text-shadow: 0 0 15px rgba(255, 165, 0, 0.8);
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 10px auto;
+        cursor: pointer;
+    `;
+    
+    speakNowSlot.appendChild(transcriptElement);
+    speakNowSlot.style.display = 'block';
+}
+
+// ===================================================
+// 🎯 GLOBAL BANNER STATE MANAGEMENT
+// ===================================================
+let waitingForBannerClick = false;
+
+// Set this flag when AI mentions banner interaction
+function setWaitingForBanner(waiting = true) {
+    waitingForBannerClick = waiting;
+    console.log(`🎯 Banner waiting state: ${waiting}`);
+}
+
+// Clear flag when banner is clicked
+function clearWaitingForBanner() {
+    waitingForBannerClick = false;
+    console.log('🎯 Banner interaction completed - recognition can resume');
 }
 
 // ===================================================
