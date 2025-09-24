@@ -1407,6 +1407,31 @@ window.BannerOrchestrator = {
 // ===================================================
 function handleSmartButtonClick(buttonType) {
     console.log(`🚨 Smart button clicked: ${buttonType}`);
+
+    // 🚨 AGGRESSIVE SPEECH RECOGNITION SHUTDOWN
+    if (recognition) {
+        try {
+            recognition.stop();
+            recognition.onend = null; // Prevent any restart callbacks
+            recognition.onerror = null;
+            isListening = false;
+            console.log('🔇 Speech recognition forcefully stopped');
+        } catch (error) {
+            console.log('Speech recognition already stopped');
+        }
+    }
+    
+    // 🚨 HIDE ALL SPEECH UI ELEMENTS
+    const speechUIElements = [
+        'liveTranscript',
+        'speakNowSlot', 
+        'transcriptText'
+    ];
+    
+    speechUIElements.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) element.style.display = 'none';
+    });
     
     // Fix buttonType if it's an event object
     if (typeof buttonType === 'object') {
