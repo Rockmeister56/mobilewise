@@ -1188,6 +1188,334 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
     }, 100);
 }
 
+// ===================================================================
+// 🎯 MOBILE-WISE AI COMPLETE BANNER ORCHESTRATION ENGINE V2.0
+// ===================================================================
+
+// ===================================================
+// 🎖️ BANNER STATE MANAGEMENT SYSTEM
+// ===================================================
+window.BannerOrchestrator = {
+    currentBanner: null,
+    bannerHistory: [],
+    aiTriggers: new Map(),
+    transitionRules: new Map(),
+    
+    // 🎯 CORE ORCHESTRATION ENGINE
+    deploy: function(bannerType, options = {}) {
+        console.log(`🎯 Banner Orchestration: Deploying ${bannerType}`);
+        
+        // 1. LOG TRANSITION
+        if (this.currentBanner) {
+            console.log(`🔄 Banner Transition: ${this.currentBanner} → ${bannerType}`);
+            this.bannerHistory.push({
+                from: this.currentBanner,
+                to: bannerType,
+                timestamp: new Date(),
+                trigger: options.trigger || 'manual'
+            });
+        }
+        
+        // 2. INTELLIGENT REMOVAL (avoid conflicts)
+        this.removeCurrentBanner();
+        
+        // 3. DEPLOY NEW BANNER
+        const banner = showUniversalBanner(bannerType, options.customContent, options);
+        
+        // 4. UPDATE STATE
+        this.currentBanner = bannerType;
+        
+        // 5. TRIGGER CALLBACKS
+        if (options.onDeploy) options.onDeploy(banner);
+        
+        return banner;
+    },
+    
+    // 🎯 INTELLIGENT BANNER REMOVAL
+    removeCurrentBanner: function() {
+        if (this.currentBanner) {
+            removeAllBanners();
+            console.log(`🗑️ Removed banner: ${this.currentBanner}`);
+            this.currentBanner = null;
+        }
+    },
+    
+    // 🎯 AI TRIGGER REGISTRATION (for client dashboard)
+    registerAITrigger: function(keyword, bannerType, options = {}) {
+        this.aiTriggers.set(keyword.toLowerCase(), {
+            bannerType,
+            options,
+            priority: options.priority || 1
+        });
+        console.log(`🤖 AI Trigger registered: "${keyword}" → ${bannerType}`);
+    },
+    
+    // 🎯 BANNER TRANSITION RULES (for complex flows)
+    setTransitionRule: function(fromBanner, toBanner, condition = 'auto') {
+        if (!this.transitionRules.has(fromBanner)) {
+            this.transitionRules.set(fromBanner, []);
+        }
+        this.transitionRules.get(fromBanner).push({
+            toBanner,
+            condition,
+            timestamp: new Date()
+        });
+        console.log(`📋 Transition rule: ${fromBanner} → ${toBanner} (${condition})`);
+    },
+    
+    // 🎯 AI MESSAGE PROCESSOR
+    processAIMessage: function(message) {
+        const lowerMessage = message.toLowerCase();
+        let triggeredBanner = null;
+        let highestPriority = 0;
+        
+        // Check all registered triggers
+        this.aiTriggers.forEach((trigger, keyword) => {
+            if (lowerMessage.includes(keyword) && trigger.priority >= highestPriority) {
+                triggeredBanner = trigger;
+                highestPriority = trigger.priority;
+            }
+        });
+        
+        // Deploy banner if trigger found
+        if (triggeredBanner) {
+            console.log(`🤖 AI triggered banner: ${triggeredBanner.bannerType}`);
+            this.deploy(triggeredBanner.bannerType, {
+                ...triggeredBanner.options,
+                trigger: 'AI'
+            });
+            return true;
+        }
+        
+        return false;
+    },
+    
+    // 🎯 GET SYSTEM STATUS (for development dashboard)
+    getStatus: function() {
+        return {
+            currentBanner: this.currentBanner,
+            history: this.bannerHistory,
+            triggers: Array.from(this.aiTriggers.entries()),
+            rules: Array.from(this.transitionRules.entries())
+        };
+    }
+};
+
+// ===================================================
+// 🎯 STEP 1: RETROFITTED handleSmartButtonClick()
+// ===================================================
+function handleSmartButtonClick(buttonType) {
+    console.log(`🚨 Smart button clicked: ${buttonType}`);
+    
+    // Fix buttonType if it's an event object
+    if (typeof buttonType === 'object') {
+        buttonType = 'valuation';
+    }
+
+    // 1. HIDE THE SMART BUTTON IMMEDIATELY
+    const smartButton = document.getElementById('smartButton');
+    if (smartButton) {
+        smartButton.style.display = 'none';
+    }
+    
+    // 2. 🚀 NEW: USE BANNER ORCHESTRATOR (replaces createLeadCaptureBanner)
+    BannerOrchestrator.deploy('leadCapture', {
+        trigger: 'smartButton_click',
+        buttonType: buttonType
+    });
+    
+    // 3. STOP SPEECH RECOGNITION COMPLETELY - NO LISTENING YET!
+    if (typeof recognition !== 'undefined' && recognition) {
+        try {
+            recognition.stop();
+            if (typeof isListening !== 'undefined') isListening = false;
+            console.log('🔇 Speech recognition stopped for lead capture');
+        } catch (error) {
+            console.log('Speech already stopped');
+        }
+    }
+    
+    // 4. HIDE THE GREEN "SPEAK NOW" BANNER - DON'T SHOW IT YET!
+    const liveTranscript = document.getElementById('liveTranscript');
+    if (liveTranscript) {
+        liveTranscript.style.display = 'none';
+    }
+    
+    // 5. UPDATE UI ELEMENTS
+    const transcriptText = document.getElementById('transcriptText');
+    if (transcriptText) {
+        transcriptText.textContent = '';
+        transcriptText.style.display = 'none';
+    }
+    
+    const micButton = document.querySelector('.mic-btn');
+    if (micButton) {
+        micButton.innerHTML = '📋';
+        micButton.style.background = 'linear-gradient(135deg, #ff6b6b, #ee5a24)';
+    }
+    
+    console.log('🎯 Starting lead capture for:', buttonType);
+    
+    // 6. START LEAD CAPTURE SYSTEM (BUT NO LISTENING YET!)
+    if (typeof initializeLeadCapture === 'function') {
+        initializeLeadCapture(buttonType);
+    }
+}
+
+// ===================================================
+// 🎯 STEP 2: RETROFITTED updateSmartButton()
+// ===================================================
+function updateSmartButton(shouldShow, buttonText, action) {
+    if (shouldShow) {
+        // 🚀 NEW: Use Banner Orchestrator for smartButton
+        BannerOrchestrator.deploy('smartButton', {
+            trigger: 'system_call',
+            buttonText: buttonText,
+            action: action,
+            customContent: `
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 15px 25px;">
+                    <div style="color: white; font-weight: 600; font-size: 16px;">
+                        📅 ${buttonText || 'Free Consultation'}
+                    </div>
+                    <div onclick="handleSmartButtonClick('${action || 'valuation'}')" style="
+                        color: white; font-weight: bold; font-size: 16px; padding: 10px 20px;
+                        background: rgba(34, 197, 94, 0.3); border-radius: 20px; 
+                        border: 1px solid rgba(34, 197, 94, 0.5); cursor: pointer;
+                        transition: all 0.3s ease;
+                    " onmouseover="this.style.background='rgba(34, 197, 94, 0.5)'" 
+                       onmouseout="this.style.background='rgba(34, 197, 94, 0.3)'">
+                        CLICK NOW
+                    </div>
+                </div>
+            `
+        });
+    } else {
+        // Remove smartButton if it's current
+        if (BannerOrchestrator.currentBanner === 'smartButton') {
+            BannerOrchestrator.removeCurrentBanner();
+        }
+    }
+}
+
+// ===================================================
+// 🎯 STEP 3: BANNER ORCHESTRATION INTELLIGENCE
+// ===================================================
+
+// 🤖 AI TRIGGER SETUP (for client dashboard configuration)
+function setupAITriggers() {
+    console.log('🤖 Setting up AI triggers for banner orchestration...');
+    
+    // Register common AI triggers
+    BannerOrchestrator.registerAITrigger('appointment', 'smartButton', { priority: 3 });
+    BannerOrchestrator.registerAITrigger('consultation', 'smartButton', { priority: 3 });
+    BannerOrchestrator.registerAITrigger('schedule', 'smartButton', { priority: 2 });
+    BannerOrchestrator.registerAITrigger('free book', 'freeBook', { priority: 4 });
+    BannerOrchestrator.registerAITrigger('call bruce', 'clickToCall', { priority: 5 });
+    BannerOrchestrator.registerAITrigger('phone number', 'clickToCall', { priority: 3 });
+    
+    console.log('✅ AI triggers registered successfully');
+}
+
+// 🔄 BANNER TRANSITION RULES SETUP
+function setupBannerTransitions() {
+    console.log('📋 Setting up banner transition rules...');
+    
+    // Define banner flow logic
+    BannerOrchestrator.setTransitionRule('smartButton', 'leadCapture', 'click');
+    BannerOrchestrator.setTransitionRule('leadCapture', 'consultationConfirmed', 'completion');
+    BannerOrchestrator.setTransitionRule('consultationConfirmed', 'freeBook', 'ai_offer');
+    
+    console.log('✅ Banner transition rules established');
+}
+
+// 🎯 CLIENT DASHBOARD INTEGRATION FUNCTIONS
+window.MobileWiseBannerDashboard = {
+    // Add custom banner for client
+    addCustomBanner: function(bannerName, content, styling = {}) {
+        // Add to Universal Banner Library
+        if (typeof showUniversalBanner === 'function') {
+            console.log(`🎨 Custom banner added: ${bannerName}`);
+            return BannerOrchestrator.deploy(bannerName, {
+                customContent: content,
+                ...styling
+            });
+        }
+    },
+    
+    // Add AI trigger for client
+    addAITrigger: function(keyword, bannerType, priority = 1) {
+        BannerOrchestrator.registerAITrigger(keyword, bannerType, { priority });
+    },
+    
+    // Get analytics for client dashboard
+    getAnalytics: function() {
+        return BannerOrchestrator.getStatus();
+    },
+    
+    // Test banner system
+    testBanner: function(bannerType) {
+        return BannerOrchestrator.deploy(bannerType, { trigger: 'test' });
+    }
+};
+
+// ===================================================
+// 🎯 AUTO-INITIALIZATION SYSTEM
+// ===================================================
+function initializeBannerOrchestration() {
+    console.log('🚀 Initializing Mobile-Wise AI Banner Orchestration Engine...');
+    
+    // Setup AI triggers
+    setupAITriggers();
+    
+    // Setup transition rules  
+    setupBannerTransitions();
+    
+    // Deploy initial branding banner
+    setTimeout(() => {
+        BannerOrchestrator.deploy('branding', { trigger: 'initialization' });
+    }, 500);
+    
+    console.log('✅ Banner Orchestration Engine fully operational!');
+}
+
+// ===================================================
+// 🎯 ENHANCED UNIVERSAL BANNER COMPATIBILITY
+// ===================================================
+
+// Override removeLeadCaptureBanner for full compatibility
+window.removeLeadCaptureBanner = function() {
+    BannerOrchestrator.removeCurrentBanner();
+    console.log('🎯 Lead capture banner removal (Orchestration system)');
+};
+
+// Enhanced removeAllBanners
+window.removeAllBanners = function() {
+    const existingBanner = document.getElementById('universalBanner');
+    if (existingBanner) {
+        existingBanner.remove();
+        console.log('🗑️ Universal banner removed');
+    }
+    BannerOrchestrator.currentBanner = null;
+};
+
+// ===================================================
+// 🎯 AUTO-START ORCHESTRATION ENGINE
+// ===================================================
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(() => {
+        initializeBannerOrchestration();
+    }, 1000);
+});
+
+// Backup initialization
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    setTimeout(() => {
+        initializeBannerOrchestration();
+    }, 500);
+}
+
+console.log('🎖️ Mobile-Wise AI Complete Banner Orchestration Engine V2.0 Loaded!');
+
 
 // ===================================================
 // 🧠 AI RESPONSE SYSTEM
@@ -1565,7 +1893,7 @@ function handleSmartButtonClick(buttonType) {
     }
     
     // 2. CREATE AND SHOW THE PROFESSIONAL BANNER
-    createLeadCaptureBanner();
+    showUniversalBanner('leadCapture');
     
     // 3. STOP SPEECH RECOGNITION COMPLETELY - NO LISTENING YET!
     if (recognition) {
@@ -1604,65 +1932,29 @@ function handleSmartButtonClick(buttonType) {
 }
 
 // ===================================================
-// 🎨 CREATE PROFESSIONAL BANNER SYSTEM - FIXED POSITION
+// 🎯 BANNER TRIGGER CONFIGURATION
 // ===================================================
-function createLeadCaptureBanner() {
-    // Remove any existing banner
-    const existingBanner = document.getElementById('leadCaptureBanner');
-    if (existingBanner) {
-        existingBanner.remove();
-    }
+function setupBannerTriggers() {
+    console.log('🤖 Setting up banner triggers...');
     
-    // Create new banner
-    const banner = document.createElement('div');
-    banner.id = 'leadCaptureBanner';
-    banner.style.cssText = `
-        position: fixed;
-        top: 20px;
-        left: 0px;
-        right: 0px;
-        width: calc(100% - 20px);
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border: 2px solid rgba(255, 255, 255, 0.3);
-        border-radius: 15px;
-        padding: 20px 30px;
-        text-align: center;
-        font-weight: bold;
-        font-size: 18px;
-        color: white;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        animation: bannerSlideIn 0.5s ease-out;
-        z-index: 999;
-        box-sizing: border-box;
-    `;
-    banner.innerHTML = '📝 YOUR CONTACT INFO';
+    // Only banner-related triggers (NO EMAIL!)
+    BannerOrchestrator.registerAITrigger('appointment', 'smartButton', { priority: 3 });
+    BannerOrchestrator.registerAITrigger('consultation', 'smartButton', { priority: 3 });
+    BannerOrchestrator.registerAITrigger('schedule', 'smartButton', { priority: 2 });
+    BannerOrchestrator.registerAITrigger('free book', 'freeBook', { priority: 4 });
+    BannerOrchestrator.registerAITrigger('call bruce', 'clickToCall', { priority: 5 });
     
-    // Add animation keyframes
-    if (!document.getElementById('leadBannerAnimation')) {
-        const style = document.createElement('style');
-        style.id = 'leadBannerAnimation';
-        style.textContent = `
-            @keyframes bannerSlideIn {
-                from { opacity: 0; transform: translateY(-20px); }
-                to { opacity: 1; transform: translateY(0); }
-            }
-        `;
-        document.head.appendChild(style);
-    }
-    
-    // 🎯 FORCE INSERT INTO BODY - NO MORE CONTAINER PUSHING!
-    document.body.appendChild(banner);
-    
-    // 🎯 ADD EXTRA PADDING TO MAIN CONTENT FOR LEAD CAPTURE
-    const container = document.querySelector('.container');
-    if (container) {
-        const currentPadding = parseInt(container.style.paddingTop) || 0;
-        container.style.paddingTop = (currentPadding + 70) + 'px'; // Add space for lead banner
-        container.style.transition = 'padding-top 0.3s ease';
-    }
-    
-    console.log('🎨 Fixed position lead capture banner created');
+    console.log('✅ Banner triggers loaded');
 }
+
+// Auto-initialize when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(() => {
+        if (typeof BannerOrchestrator !== 'undefined') {
+            setupBannerTriggers();
+        }
+    }, 1000);
+});
 
 // ===================================================
 // 🎯 REMOVE LEAD CAPTURE BANNER
