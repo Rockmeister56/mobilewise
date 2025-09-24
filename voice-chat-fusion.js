@@ -747,11 +747,11 @@ function createBeep(frequency, duration, volume) {
     oscillator.stop(audioContext.currentTime + duration);
 }
 
-// ===================================================
-// 🚀 ENHANCED HYBRID READY SEQUENCE WITH RESTART HANDLING
-// ===================================================
+// Add this to see WHICH call is the problematic one
 function showHybridReadySequence() {
     console.log('🚀 Showing hybrid ready sequence');
+    console.log('🔍 Called from:', (new Error()).stack.split('\n')[2]); // Shows what called this
+    console.log('🎪 Banner state:', typeof BannerOrchestrator !== 'undefined' ? BannerOrchestrator.currentBanner : 'undefined');
     
     // Clear any existing content first
     const speakNowSlot = document.getElementById('speakNowSlot');
