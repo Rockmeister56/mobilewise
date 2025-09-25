@@ -2569,6 +2569,39 @@ function showThankYouBanner() {
 }
 
 // ===================================================
+// 🌉 BANNER ORCHESTRATOR 2.0 BRIDGE TO NEW SYSTEM
+// ===================================================
+window.BannerOrchestrator = {
+    currentBanner: null,
+    
+    deploy: function(bannerType, options = {}) {
+        console.log(`🌉 BannerOrchestrator Bridge: ${bannerType} → New System`);
+        
+        // Map old banner types to new trigger system
+        const bannerMap = {
+            'emailSent': 'email_sent',
+            'thankYou': 'thank_you', 
+            'consultationConfirmed': 'consultation_confirmed',
+            'smartButton': 'smart_button',
+            'freeBook': 'free_book'
+        };
+        
+        const newBannerType = bannerMap[bannerType] || bannerType;
+        
+        // Use our trigger system
+        triggerBanner(newBannerType, {
+            duration: options.duration || 4000,
+            callback: options.callback
+        });
+        
+        this.currentBanner = bannerType;
+        return true;
+    }
+};
+
+console.log('🌉 BannerOrchestrator 2.0 Bridge installed - routing to Universal System');
+
+// ===================================================
 // 📧 EMAIL CONFIRMATION - ORCHESTRATOR 2.0
 // ===================================================
 function showEmailConfirmationBanner() {
