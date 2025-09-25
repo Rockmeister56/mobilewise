@@ -1189,13 +1189,13 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
 const headerContainer = document.createElement('div');
 headerContainer.id = 'bannerHeaderContainer';
 const bannerHeight = bannerConfig?.customHeight || 85;
-const bannerWidth = bannerConfig?.customWidth || 815; // 🚀 NEW WIDTH CONTROL
+const bannerWidth = bannerConfig?.customWidth || 810; // 🚀 NEW WIDTH CONTROL
 headerContainer.style.cssText = `
     position: absolute !important;
     top: 10px !important;
     left: 50% !important;
     transform: translateX(-50%) !important;
-    width: 100% !important;
+    width: 90% !important;
     height: ${bannerHeight}px !important;
     max-width: ${bannerWidth}px !important;
     z-index: 9999 !important;
