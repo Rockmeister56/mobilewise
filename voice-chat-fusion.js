@@ -954,7 +954,7 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
     content: `
         <div style="display: flex; align-items: center; height: 100%; width: 100%; position: relative;">
             <!-- LEFT: Logo Zone (FLEXIBLE WIDTH) -->
-            <div style="width: 120px; display: flex; justify-content: flex-start; padding-left: 60px;">
+            <div style="width: 10px; display: flex; justify-content: flex-start; padding-left: 60px;">
                 <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758507868460_logo.png" 
                      style="width: 60px; height: 60px;">
             </div>
