@@ -952,22 +952,22 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
         // 1. BRANDING HEADER (🚀 UPDATED LAYOUT)
         branding: {
     content: `
-        <div style="display: grid; grid-template-columns: 1fr 2fr 1fr; align-items: center; height: 100%; width: 100%; padding: 0 80px;">
-            <!-- LEFT: Logo -->
-            <div style="justify-self: start;">
+        <div style="display: flex; align-items: center; height: 100%; width: 100%; position: relative;">
+            <!-- LEFT: Logo Zone (FLEXIBLE WIDTH) -->
+            <div style="width: 120px; display: flex; justify-content: flex-start; padding-left: 25px;">
                 <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758507868460_logo.png" 
-                     style="width: 60px; height: 60px;">
+                     style="width: 45px; height: 45px;">
             </div>
             
             <!-- CENTER: Company Name -->
-            <div style="justify-self: center; text-align: center;">
+            <div style="flex: 1; display: flex; justify-content: center;">
                 <div style="color: white; font-size: 18px; font-weight: bold; letter-spacing: 1.5px;">
                     MOBILE-WISE AI
                 </div>
             </div>
             
-            <!-- RIGHT: Slogan -->
-            <div style="justify-self: end; text-align: right;">
+            <!-- RIGHT: Slogan Zone (FLEXIBLE WIDTH) -->
+            <div style="width: 120px; display: flex; justify-content: flex-end; padding-right: 25px;">
                 <div style="color: #87CEEB; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px;">
                     AI Voice Chat
                 </div>
