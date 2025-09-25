@@ -947,38 +947,23 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
         // 1. BRANDING HEADER (🚀 UPDATED LAYOUT)
         branding: {
     content: `
-        <style>
-            /* Desktop positioning (default) */
-            .banner-logo { position: absolute; left: 30px; top: 17px; }
-            .banner-name { position: absolute; left: 85px; top: 40px; }
-            .banner-slogan { position: absolute; right: 40px; top: 10px; }
-            
-            /* Mobile overrides */
-            @media (max-width: 768px) {
-                .banner-logo { left: 1px !important; top: 15px !important; }
-                .banner-name { left: 30% !important; transform: translateX(-50%) !important; top: 20px !important; }
-                .banner-slogan { right: 1px !important; top: 25px !important; }
-            }
-        </style>
-        
-        <div style="display: flex; align-items: center; height: 100%; padding: 0 20px; position: relative;">
-            <!-- LOGO: Responsive positioning -->
-            <div class="banner-logo">
+        <div style="display: flex; align-items: center; height: 100%; padding: 0 20px;">
+            <div style="position: absolute; left: 30px; top: 17;">
                 <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758507868460_logo.png" 
-                     style="width: 45px; height: 45px;">
+                     style="width: 65px; height: 65px;">
             </div>
             
-            <!-- COMPANY NAME: Responsive positioning -->
-            <div class="banner-name">
-                <div style="color: white; font-size: 18px; font-weight: bold; letter-spacing: 1.5px;">
-                    MOBILE-WISE AI
+             <!-- COMPANY NAME: Controllable positioning -->
+            <div style="position: absolute; left: 85px; top: 40px;">
+                <div style="color: white; font-size: 14px; font-weight: bold; letter-spacing: 1.5px;">
+                    Mobile-Wise AI
                 </div>
             </div>
             
-            <!-- SLOGAN: Responsive positioning -->
-            <div class="banner-slogan">
-                <div style="color: #87CEEB; font-size: 11px; font-weight: 600; text-transform: uppercase;">
-                    &check; SMART  <br> &check; HELPFUL <br> &check; AI VOICE CHAT
+            <!-- SLOGAN: Controllable positioning -->
+            <div style="position: absolute; right: 40px; top: 10px;">
+                <div style="color: #87CEEB; font-size: 14px; font-weight: 600; text-transform: uppercase;">
+                   &check; SMART  <br> &check; HELPFUL <br> &check; AI VOICE CHAT
                 </div>
             </div>
         </div>
