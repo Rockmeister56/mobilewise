@@ -1196,7 +1196,7 @@ headerContainer.style.cssText = `
     transform: translateX(-50%) !important;
     width: 100% !important;
     height: ${bannerHeight}px !important;
-    max-width: 830px !important;
+    max-width: 815px !important;
     z-index: 9999 !important;
     overflow: hidden !important;
     box-sizing: border-box !important;
