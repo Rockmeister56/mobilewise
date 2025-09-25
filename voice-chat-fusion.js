@@ -98,7 +98,6 @@ function isMobileDevice() {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 }
 
-
 // ===================================================
 // 🎤 MICROPHONE PERMISSION SYSTEM
 // ===================================================
@@ -946,44 +945,46 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
     // COMPLETE BANNER LIBRARY - All 9 Banner Types
     const bannerLibrary = {
         // 1. BRANDING HEADER (🚀 UPDATED LAYOUT)
-       brandingDesktop: {
+        branding: {
     content: `
-        <div style="position: relative; height: 85px; width: 100%;">
-            <div style="position: absolute; left: 30px; top: 20px;">
+        <style>
+            /* Desktop positioning (default) */
+            .banner-logo { position: absolute; left: 30px; top: 17px; }
+            .banner-name { position: absolute; left: 85px; top: 40px; }
+            .banner-slogan { position: absolute; right: 40px; top: 10px; }
+            
+            /* Mobile overrides */
+            @media (max-width: 768px) {
+                .banner-logo { left: 1px !important; top: 15px !important; }
+                .banner-name { left: 30% !important; transform: translateX(-50%) !important; top: 20px !important; }
+                .banner-slogan { right: 1px !important; top: 25px !important; }
+            }
+        </style>
+        
+        <div style="display: flex; align-items: center; height: 100%; padding: 0 20px; position: relative;">
+            <!-- LOGO: Responsive positioning -->
+            <div class="banner-logo">
                 <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758507868460_logo.png" 
                      style="width: 45px; height: 45px;">
             </div>
-            <div style="position: absolute; left: 320px; top: 25px; color: white; font-size: 18px; font-weight: bold;">
-                MOBILE-WISE AI
+            
+            <!-- COMPANY NAME: Responsive positioning -->
+            <div class="banner-name">
+                <div style="color: white; font-size: 18px; font-weight: bold; letter-spacing: 1.5px;">
+                    MOBILE-WISE AI
+                </div>
             </div>
-            <div style="position: absolute; right: 40px; top: 30px; color: #87CEEB; font-size: 11px; font-weight: 600;">
-                AI VOICE CHAT
-            </div>
-        </div>
-    `,
-    background: 'transparent',
-    duration: 0
-},
-
-// Mobile version  
-brandingMobile: {
-    content: `
-        <div style="position: relative; height: 70px; width: 100%;">
-            <div style="position: absolute; left: 10px; top: 15px;">
-                <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758507868460_logo.png" 
-                     style="width: 40px; height: 40px;">
-            </div>
-            <div style="position: absolute; left: 50%; top: 20px; transform: translateX(-50%); color: white; font-size: 16px; font-weight: bold;">
-                MOBILE-WISE AI
-            </div>
-            <div style="position: absolute; right: 10px; top: 25px; color: #87CEEB; font-size: 10px; font-weight: 600;">
-                AI VOICE CHAT
+            
+            <!-- SLOGAN: Responsive positioning -->
+            <div class="banner-slogan">
+                <div style="color: #87CEEB; font-size: 11px; font-weight: 600; text-transform: uppercase;">
+                    &check; SMART  <br> &check; HELPFUL <br> &check; AI VOICE CHAT
+                </div>
             </div>
         </div>
     `,
     background: 'transparent',
     duration: 0
-
         },
         
         // 2. SMART BUTTON (Free Consultation)
