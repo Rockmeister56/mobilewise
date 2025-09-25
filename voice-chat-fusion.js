@@ -946,77 +946,44 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
     // COMPLETE BANNER LIBRARY - All 9 Banner Types
     const bannerLibrary = {
         // 1. BRANDING HEADER (🚀 UPDATED LAYOUT)
-       branding: {
+       brandingDesktop: {
     content: `
-        <div style="display: flex; align-items: center; height: 100%; padding: 0 20px; position: relative;">
-            <!-- LOGO: Full X/Y control -->
-            <div id="banner-logo" style="position: absolute;">
+        <div style="position: relative; height: 85px; width: 100%;">
+            <div style="position: absolute; left: 30px; top: 20px;">
                 <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758507868460_logo.png" 
-                     style="width: 60px; height: 60px;">
+                     style="width: 45px; height: 45px;">
             </div>
-            
-            <!-- COMPANY NAME: Full X/Y control -->
-            <div id="banner-name" style="position: absolute;">
-                <div style="color: white; font-size: 18px; font-weight: bold; letter-spacing: 1.5px;">
-                    MOBILE-WISE AI
-                </div>
+            <div style="position: absolute; left: 320px; top: 25px; color: white; font-size: 18px; font-weight: bold;">
+                MOBILE-WISE AI
             </div>
-            
-            <!-- SLOGAN: Full X/Y control -->
-            <div id="banner-slogan" style="position: absolute;">
-                <div style="color: #87CEEB; font-size: 11px; font-weight: 600; text-transform: uppercase;">
-                    AI VOICE CHAT
-                </div>
+            <div style="position: absolute; right: 40px; top: 30px; color: #87CEEB; font-size: 11px; font-weight: 600;">
+                AI VOICE CHAT
             </div>
         </div>
-        
-        <script>
-            // Apply full positioning based on screen size
-            function setBannerPositioning() {
-                const logo = document.getElementById('banner-logo');
-                const name = document.getElementById('banner-name');  
-                const slogan = document.getElementById('banner-slogan');
-                
-                if (window.innerWidth <= 768) {
-                    // MOBILE positioning (X + Y)
-                    logo.style.left = '10px';
-                    logo.style.top = '15px';
-                    logo.style.right = 'auto';
-                    
-                    name.style.left = '50%';
-                    name.style.top = '20px';
-                    name.style.transform = 'translateX(-50%)';
-                    name.style.right = 'auto';
-                    
-                    slogan.style.right = '10px';
-                    slogan.style.top = '25px';
-                    slogan.style.left = 'auto';
-                } else {
-                    // DESKTOP positioning (X + Y)
-                    logo.style.left = '30px';
-                    logo.style.top = '17px';
-                    logo.style.right = 'auto';
-                    
-                    name.style.left = '85px';
-                    name.style.top = '40px';
-                    name.style.transform = 'none';
-                    name.style.right = 'auto';
-                    
-                    slogan.style.right = '40px';
-                    slogan.style.top = '10px';
-                    slogan.style.left = 'auto';
-                }
-            }
-            
-            // Set positioning immediately
-            setBannerPositioning();
-            
-            // Update on window resize
-            window.addEventListener('resize', setBannerPositioning);
-        </script>
     `,
     background: 'transparent',
     duration: 0
+},
+
+// Mobile version  
+brandingMobile: {
+    content: `
+        <div style="position: relative; height: 70px; width: 100%;">
+            <div style="position: absolute; left: 10px; top: 15px;">
+                <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758507868460_logo.png" 
+                     style="width: 40px; height: 40px;">
+            </div>
+            <div style="position: absolute; left: 50%; top: 20px; transform: translateX(-50%); color: white; font-size: 16px; font-weight: bold;">
+                MOBILE-WISE AI
+            </div>
+            <div style="position: absolute; right: 10px; top: 25px; color: #87CEEB; font-size: 10px; font-weight: 600;">
+                AI VOICE CHAT
+            </div>
+        </div>
+    `,
+    background: 'transparent',
+    duration: 0
+
         },
         
         // 2. SMART BUTTON (Free Consultation)
