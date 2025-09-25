@@ -1002,22 +1002,21 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
         // 3. EMAIL SENT CONFIRMATION
         emailSent: {
     content: `
-        <div style="width: 715px; max-width: 715px; margin: 0 auto; background: rgba(32, 178, 170, 0.8); border-radius: 8px; backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2);">
-            <div style="display: flex; align-items: center; justify-content: center; height: 50px; padding: 0 15px; color: white;">
-                <div style="text-align: center;">
-                    <div style="font-size: 14px; font-weight: bold;">
-                        ✅ <strong>Confirmation Email Sent!</strong>
-                    </div>
-                    <div style="font-size: 11px; opacity: 0.9; margin-top: 3px;">
-                        Please check your email for the book link
-                    </div>
+        <div style="width: ${620}px; max-width: ${620}px; margin: 0 auto; background: rgba(32, 178, 170, 0.8); border-radius: 6px; height: 50px; display: flex; align-items: center; justify-content: center;">
+            <div style="text-align: center; color: white;">
+                <div style="font-size: 14px; font-weight: bold;">
+                    ✅ <strong>Confirmation Email Sent!</strong>
+                </div>
+                <div style="font-size: 11px; opacity: 0.9; margin-top: 3px;">
+                    Please check your email for the book link
                 </div>
             </div>
         </div>
     `,
-    background: 'transparent', // Background is now in the content
-    duration: 4000,
-    customHeight: 60
+    background: 'rgba(255, 255, 255, 0.2)', // 🎯 WHITE LAYER
+    containerWidth: 720, // 🚀 WHITE LAYER WIDTH CONTROL
+    customHeight: 60, // 🚀 WHITE LAYER HEIGHT CONTROL
+    duration: 4000
 },
         
         // 4. FREE BOOK OFFER
@@ -1187,6 +1186,7 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
         return null;
     }
     
+    
     // 🚀 CREATE HEADER CONTAINER (INSIDE MAIN CONTAINER - CLEAN!)
 const headerContainer = document.createElement('div');
 headerContainer.id = 'bannerHeaderContainer';
@@ -1271,6 +1271,20 @@ headerContainer.style.cssText = `
                           document.querySelector('#container') || 
                           document.querySelector('#app') ||
                           document.body;
+    }
+
+                          // 🚀 CREATE BANNER WITHIN CONTAINER
+const banner = document.createElement('div');
+banner.id = 'universalBanner';
+banner.className = `universal-banner ${bannerType}-banner`;
+banner.innerHTML = customContent || bannerConfig.content;
+
+// 🚀 DUAL-LAYER CONTROL (ADD THIS)
+if (bannerConfig?.containerWidth) {
+    banner.style.width = `${bannerConfig.containerWidth}px`;
+    banner.style.maxWidth = `${bannerConfig.containerWidth}px`;
+    banner.style.margin = '0 auto';
+}
 
     headerContainer.appendChild(banner);
     mainContainer.insertBefore(headerContainer, mainContainer.firstChild);
