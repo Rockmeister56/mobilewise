@@ -952,11 +952,11 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
         // 1. BRANDING HEADER (🚀 UPDATED LAYOUT)
         branding: {
     content: `
-        <div style="display: grid; grid-template-columns: 1fr 2fr 1fr; align-items: center; height: 100%; width: 100%; padding: 0 15px;">
+        <div style="display: grid; grid-template-columns: 1fr 2fr 1fr; align-items: center; height: 100%; width: 100%; padding: 0 80px;">
             <!-- LEFT: Logo -->
             <div style="justify-self: start;">
                 <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758507868460_logo.png" 
-                     style="width: 45px; height: 45px;">
+                     style="width: 60px; height: 60px;">
             </div>
             
             <!-- CENTER: Company Name -->
