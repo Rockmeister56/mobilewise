@@ -1325,6 +1325,82 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
     }, 100);
 }
 
+// ===================================================================
+// 🎯 MASTER BANNER TRIGGER SYSTEM - ADD THIS AFTER showUniversalBanner
+// ===================================================================
+
+// Master trigger configuration
+const bannerTriggers = {
+    email_sent: {
+        bannerType: 'emailSent',
+        delay: 0,
+        duration: 4000,
+        conditions: ['email_success']
+    },
+    
+    more_questions: {
+        bannerType: 'moreQuestions', 
+        delay: 15000,
+        duration: 0,
+        conditions: ['conversation_state:asking_if_more_help']
+    },
+    
+    lead_magnet: {
+        bannerType: 'leadMagnet',
+        delay: 3000,
+        duration: 0,
+        conditions: ['has_lead_magnet']
+    },
+    
+    consultation_confirmed: {
+        bannerType: 'consultationConfirmed',
+        delay: 0,
+        duration: 5000,
+        conditions: ['booking_success']
+    }
+};
+
+// Master trigger function
+function triggerBanner(triggerName, additionalData = {}) {
+    console.log(`🎯 Master Trigger: ${triggerName}`);
+    
+    const config = bannerTriggers[triggerName];
+    if (!config) {
+        console.error(`❌ Trigger "${triggerName}" not found`);
+        return;
+    }
+    
+    // Check conditions
+    if (!checkTriggerConditions(config.conditions, additionalData)) {
+        console.log(`⏸️ Trigger "${triggerName}" conditions not met`);
+        return;
+    }
+    
+    // Execute with delay
+    setTimeout(() => {
+        showUniversalBanner(config.bannerType, null, {
+            duration: config.duration
+        });
+        console.log(`✅ Banner "${config.bannerType}" triggered`);
+    }, config.delay);
+}
+
+// Condition checker
+function checkTriggerConditions(conditions, data) {
+    return conditions.every(condition => {
+        if (condition === 'email_success') return data.emailSuccess === true;
+        if (condition === 'has_lead_magnet') return getActiveLeadMagnet() !== null;
+        if (condition === 'booking_success') return data.bookingSuccess === true;
+        if (condition.startsWith('conversation_state:')) {
+            const state = condition.split(':')[1];
+            return conversationState === state;
+        }
+        return true;
+    });
+}
+
+console.log('🎖️ Master Banner Trigger System loaded!');
+
 // ===================================================
 // 🎯 BANNER SYSTEM 2.0 - WITH LEAD MAGNET INTEGRATION
 // ===================================================
