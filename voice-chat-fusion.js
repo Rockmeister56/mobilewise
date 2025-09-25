@@ -1002,7 +1002,7 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
         // 3. EMAIL SENT CONFIRMATION
         emailSent: {
     content: `
-        <div style="display: flex; align-items: center; justify-content: center; height: 60px; padding: 0 15px; color: white;">
+        <div style="display: flex; align-items: center; justify-content: center; height: 50px; padding: 0 15px; color: white;">
             <div style="text-align: center;">
                 <div style="font-size: 14px; font-weight: bold;">
                     ✅ <strong>Confirmation Email Sent!</strong>
@@ -1013,9 +1013,10 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
             </div>
         </div>
     `,
-    background: 'rgba(32, 178, 170, 0.8)', // 🎯 TEAL GREEN
-    duration: 4000
-        },
+    background: 'rgba(32, 178, 170, 0.8)',
+    duration: 4000,
+    customHeight: 60 // 🚀 NEW: Custom height control
+},
         
         // 4. FREE BOOK OFFER
         freeBook: {
@@ -1185,15 +1186,16 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
     }
     
     // 🚀 CREATE HEADER CONTAINER (INSIDE MAIN CONTAINER - CLEAN!)
-    const headerContainer = document.createElement('div');
-    headerContainer.id = 'bannerHeaderContainer';
-    headerContainer.style.cssText = `
+const headerContainer = document.createElement('div');
+headerContainer.id = 'bannerHeaderContainer';
+const bannerHeight = bannerConfig?.customHeight || 85; // ADD THIS LINE
+headerContainer.style.cssText = `
     position: absolute !important;
     top: 10px !important;
     left: 50% !important;
     transform: translateX(-50%) !important;
     width: 100% !important;
-    height: 85px !important;
+    height: ${bannerHeight}px !important;
     max-width: 830px !important;
     z-index: 9999 !important;
     overflow: hidden !important;
