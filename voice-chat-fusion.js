@@ -613,12 +613,14 @@ function processUserResponse(userText) {
             addAIMessage(goodbye);
             speakResponse(goodbye);
             
+            
             setTimeout(() => {
-                showThankYouBanner(); // Final goodbye banner
-                conversationState = 'ended';
-                stopListening();
-                window.lastProcessedMessage = null;
-            }, 2000);
+    // Continue conversation instead of ending abruptly
+    addMessage("Is there anything else I can help you with today?", 'ai');
+    conversationState = 'asking_if_more_help';
+    stopListening();
+    window.lastProcessedMessage = null;
+     }, 1500);
             
             return;
         }
@@ -972,33 +974,6 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
     duration: 0
         },
         
-        // 2. SMART BUTTON (Free Consultation)
-        smartButton: {
-            content: `
-                <div style="display: flex; justify-content: space-between; align-items: center; height: 100%; padding: 0 20px;">
-                    <div style="color: white; font-weight: 600; font-size: 16px;">
-                        📅 FREE Consultation Available
-                    </div>
-                    <button onclick="handleSmartButtonClick('valuation')" style="
-                        background: rgba(34, 197, 94, 0.3);
-                        color: white;
-                        border: 1px solid rgba(34, 197, 94, 0.5);
-                        padding: 8px 20px;
-                        border-radius: 20px;
-                        cursor: pointer;
-                        font-weight: bold;
-                        font-size: 14px;
-                        transition: all 0.3s ease;
-                    " onmouseover="this.style.background='rgba(34, 197, 94, 0.5)'" 
-                       onmouseout="this.style.background='rgba(34, 197, 94, 0.3)'">
-                        CLICK NOW
-                    </button>
-                </div>
-            `,
-            background: 'rgba(255, 255, 255, 0.15)',
-            duration: 0
-        },
-        
         // 3. EMAIL SENT CONFIRMATION
         emailSent: {
     content: `
@@ -1018,140 +993,200 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
     customHeight: 65, // 🚀 WHITE LAYER HEIGHT CONTROL
     duration: 4000
 },
-        
-        // 4. FREE BOOK OFFER
-        freeBook: {
-            content: `
-                <div style="display: flex; justify-content: space-between; align-items: center; height: 100%; padding: 0 20px;">
-                    <div style="color: white;">
-                        <div style="font-size: 16px; font-weight: bold; margin-bottom: 5px;">
-                            📚 FREE Book for You!
-                        </div>
-                        <div style="font-size: 12px; color: #ccc;">
-                            "7 Secrets to Selling Your Practice"
-                        </div>
-                    </div>
-                    <button onclick="requestFreeBook()" style="
-                        background: linear-gradient(135deg, #FF6B6B, #4ECDC4);
-                        color: white;
-                        border: none;
-                        padding: 8px 20px;
-                        border-radius: 20px;
-                        cursor: pointer;
-                        font-weight: bold;
-                        font-size: 14px;
-                    ">
-                        Get Free Book
-                    </button>
-                </div>
-            `,
-            background: 'linear-gradient(135deg, #FF6B6B, #4ECDC4)',
-            duration: 0
-        },
-        
-        // 5. CONSULTATION CONFIRMED
-        consultationConfirmed: {
-            content: `
-                <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: white;">
-                    <div style="text-align: center;">
-                        <div style="font-size: 16px; font-weight: bold;">
-                            🎉 Consultation Confirmed!
-                        </div>
-                        <div style="font-size: 12px; opacity: 0.9; margin-top: 5px;">
-                            Bruce will reach out within 24 hours for your FREE practice valuation
-                        </div>
-                    </div>
-                </div>
-            `,
-            background: 'rgba(33, 150, 243, 0.3)',
-            duration: 5000
-        },
-        
-        // 6. CLICK-TO-CALL BANNER
-        clickToCall: {
-            content: `
-                <div style="display: flex; justify-content: space-between; align-items: center; height: 100%; padding: 0 20px;">
-                    <div style="color: white; font-weight: 600; font-size: 16px;">
-                        📞 Talk to Bruce Now
-                    </div>
-                    <button onclick="callBruce()" style="
-                        background: linear-gradient(135deg, #4CAF50, #8BC34A);
-                        color: white;
-                        border: none;
-                        padding: 8px 20px;
-                        border-radius: 20px;
-                        cursor: pointer;
-                        font-weight: bold;
-                        font-size: 14px;
-                        animation: pulse-attention 2s infinite;
-                    ">
-                        📞 Call Now
-                    </button>
-                </div>
-            `,
-            background: 'linear-gradient(135deg, #4CAF50, #8BC34A)',
-            duration: 0
-        },
 
-        // 7. MORE QUESTIONS BANNER
-        moreQuestions: {
-            content: `
-                <div style="display: flex; flex-direction: column; align-items: center; height: 100%; padding: 15px 20px; text-align: center;">
-                    <div style="color: white; margin-bottom: 15px;">
-                        <div style="font-size: 18px; font-weight: bold; margin-bottom: 5px;">
-                            ❓ Still Have Questions?
-                        </div>
-                        <div style="font-size: 12px; color: #ccc;">
-                            I'm here to help with anything else!
-                        </div>
-                    </div>
-                    <button onclick="restartConversation()" style="
-                        background: white;
-                        color: #667eea;
-                        border: none;
-                        padding: 10px 24px;
-                        border-radius: 25px;
-                        cursor: pointer;
-                        font-weight: bold;
-                        font-size: 14px;
-                    ">
-                        Ask Another Question
-                    </button>
-                </div>
-            `,
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            duration: 0
-        },
+  
+// 2. SMART BUTTON (Free Consultation)
+smartButton: {
+    content: `
+        <div style="width: ${742}px; max-width: ${742}px; margin: 0 auto; height: 58px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; border-radius: 6px; background: rgba(255, 255, 255, 0.1);">
+            <div style="color: white; font-weight: 600; font-size: 16px;">
+                📅 FREE Consultation Available
+            </div>
+            <button onclick="handleSmartButtonClick('valuation')" style="
+                background: rgba(34, 197, 94, 0.3);
+                color: white;
+                border: 1px solid rgba(34, 197, 94, 0.5);
+                padding: 8px 20px;
+                border-radius: 20px;
+                cursor: pointer;
+                font-weight: bold;
+                font-size: 14px;
+                transition: all 0.3s ease;
+            " onmouseover="this.style.background='rgba(34, 197, 94, 0.5)'" 
+               onmouseout="this.style.background='rgba(34, 197, 94, 0.3)'">
+                CLICK NOW
+            </button>
+        </div>
+    `,
+    background: 'rgba(255, 255, 255, 0.15)',
+    containerWidth: 752, // 🚀 WHITE LAYER WIDTH CONTROL
+    customHeight: 65, // 🚀 WHITE LAYER HEIGHT CONTROL
+    duration: 0
+},
 
-        // 8. LEAD MAGNET BANNER
-        leadMagnet: {
-            content: `
-                <div style="display: flex; justify-content: space-between; align-items: center; height: 100%; padding: 0 20px;">
-                    <div style="color: white;">
-                        <div style="font-size: 16px; font-weight: bold; margin-bottom: 5px;">
-                            🎁 Your Free Gift is Ready!
-                        </div>
-                        <div style="font-size: 12px; color: #ccc;">
-                            Download your exclusive guide now
-                        </div>
-                    </div>
-                    <button onclick="window.open(getActiveLeadMagnet().downloadLink, '_blank')" style="
-                        background: white;
-                        color: #28a745;
-                        border: none;
-                        padding: 8px 20px;
-                        border-radius: 20px;
-                        cursor: pointer;
-                        font-weight: bold;
-                        font-size: 14px;
-                    ">
-                        📥 Download Now
-                    </button>
+// 3. EMAIL SENT CONFIRMATION (Already standardized - keeping as reference)
+emailSent: {
+    content: `
+        <div style="width: ${742}px; max-width: ${742}px; margin: 0 auto; background: rgba(32, 178, 170, 0.8); border-radius: 6px; height: 58px; display: flex; align-items: center; justify-content: center;">
+            <div style="text-align: center; color: white;">
+                <div style="font-size: 14px; font-weight: bold;">
+                    ✅ <strong>Confirmation Email Sent!</strong>
                 </div>
-            `,
-            background: 'linear-gradient(135deg, #28a745 0%, #20c997 100%)',
-            duration: 0
-        },
+                <div style="font-size: 11px; opacity: 0.9; margin-top: 3px;">
+                    Please check your email for the book link
+                </div>
+            </div>
+        </div>
+    `,
+    background: 'rgba(255, 255, 255, 0.2)', // 🎯 WHITE LAYER
+    containerWidth: 752, // 🚀 WHITE LAYER WIDTH CONTROL
+    customHeight: 65, // 🚀 WHITE LAYER HEIGHT CONTROL
+    duration: 4000
+},
+
+// 4. FREE BOOK OFFER
+freeBook: {
+    content: `
+        <div style="width: ${742}px; max-width: ${742}px; margin: 0 auto; height: 58px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; border-radius: 6px; background: linear-gradient(135deg, #FF6B6B, #4ECDC4);">
+            <div style="color: white;">
+                <div style="font-size: 16px; font-weight: bold; margin-bottom: 2px;">
+                    📚 FREE Book for You!
+                </div>
+                <div style="font-size: 12px; color: #fff; opacity: 0.9;">
+                    "7 Secrets to Selling Your Practice"
+                </div>
+            </div>
+            <button onclick="requestFreeBook()" style="
+                background: rgba(255, 255, 255, 0.2);
+                color: white;
+                border: 1px solid rgba(255, 255, 255, 0.3);
+                padding: 8px 20px;
+                border-radius: 20px;
+                cursor: pointer;
+                font-weight: bold;
+                font-size: 14px;
+            ">
+                Get Free Book
+            </button>
+        </div>
+    `,
+    background: 'rgba(255, 255, 255, 0.15)',
+    containerWidth: 752, // 🚀 WHITE LAYER WIDTH CONTROL
+    customHeight: 65, // 🚀 WHITE LAYER HEIGHT CONTROL
+    duration: 0
+},
+
+// 5. CONSULTATION CONFIRMED
+consultationConfirmed: {
+    content: `
+        <div style="width: ${742}px; max-width: ${742}px; margin: 0 auto; height: 58px; display: flex; align-items: center; justify-content: center; border-radius: 6px; background: rgba(33, 150, 243, 0.8);">
+            <div style="text-align: center; color: white;">
+                <div style="font-size: 16px; font-weight: bold;">
+                    🎉 Consultation Confirmed!
+                </div>
+                <div style="font-size: 12px; opacity: 0.9; margin-top: 2px;">
+                    Bruce will reach out within 24 hours for your FREE practice valuation
+                </div>
+            </div>
+        </div>
+    `,
+    background: 'rgba(255, 255, 255, 0.2)',
+    containerWidth: 752, // 🚀 WHITE LAYER WIDTH CONTROL
+    customHeight: 65, // 🚀 WHITE LAYER HEIGHT CONTROL
+    duration: 5000
+},
+
+// 6. CLICK-TO-CALL BANNER
+clickToCall: {
+    content: `
+        <div style="width: ${742}px; max-width: ${742}px; margin: 0 auto; height: 58px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; border-radius: 6px; background: linear-gradient(135deg, #4CAF50, #8BC34A);">
+            <div style="color: white; font-weight: 600; font-size: 16px;">
+                📞 Talk to Bruce Now
+            </div>
+            <button onclick="callBruce()" style="
+                background: rgba(255, 255, 255, 0.2);
+                color: white;
+                border: 1px solid rgba(255, 255, 255, 0.3);
+                padding: 8px 20px;
+                border-radius: 20px;
+                cursor: pointer;
+                font-weight: bold;
+                font-size: 14px;
+                animation: pulse-attention 2s infinite;
+            ">
+                📞 Call Now
+            </button>
+        </div>
+    `,
+    background: 'rgba(255, 255, 255, 0.15)',
+    containerWidth: 752, // 🚀 WHITE LAYER WIDTH CONTROL
+    customHeight: 65, // 🚀 WHITE LAYER HEIGHT CONTROL
+    duration: 0
+},
+
+// 7. MORE QUESTIONS BANNER
+moreQuestions: {
+    content: `
+        <div style="width: ${742}px; max-width: ${742}px; margin: 0 auto; height: 58px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-radius: 6px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <div style="color: white;">
+                <div style="font-size: 16px; font-weight: bold;">
+                    ❓ Still Have Questions?
+                </div>
+                <div style="font-size: 12px; color: #fff; opacity: 0.9;">
+                    I'm here to help with anything else!
+                </div>
+            </div>
+            <button onclick="restartConversation()" style="
+                background: white;
+                color: #667eea;
+                border: none;
+                padding: 8px 20px;
+                border-radius: 20px;
+                cursor: pointer;
+                font-weight: bold;
+                font-size: 14px;
+            ">
+                Ask Another Question
+            </button>
+        </div>
+    `,
+    background: 'rgba(255, 255, 255, 0.15)',
+    containerWidth: 752, // 🚀 WHITE LAYER WIDTH CONTROL
+    customHeight: 65, // 🚀 WHITE LAYER HEIGHT CONTROL
+    duration: 0
+},
+
+// 8. LEAD MAGNET BANNER
+leadMagnet: {
+    content: `
+        <div style="width: ${742}px; max-width: ${742}px; margin: 0 auto; height: 58px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; border-radius: 6px; background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+            <div style="color: white;">
+                <div style="font-size: 16px; font-weight: bold;">
+                    🎁 Your Free Gift is Ready!
+                </div>
+                <div style="font-size: 12px; color: #fff; opacity: 0.9;">
+                    Download your exclusive guide now
+                </div>
+            </div>
+            <button onclick="window.open(getActiveLeadMagnet().downloadLink, '_blank')" style="
+                background: white;
+                color: #28a745;
+                border: none;
+                padding: 8px 20px;
+                border-radius: 20px;
+                cursor: pointer;
+                font-weight: bold;
+                font-size: 14px;
+            ">
+                📥 Download Now
+            </button>
+        </div>
+    `,
+    background: 'rgba(255, 255, 255, 0.15)',
+    containerWidth: 752, // 🚀 WHITE LAYER WIDTH CONTROL
+    customHeight: 65, // 🚀 WHITE LAYER HEIGHT CONTROL
+    duration: 0
+}
         
         // 9. LEAD CAPTURE ACTIVE
         leadCapture: {
@@ -1352,41 +1387,72 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
 }
 
 // ===================================================================
-// 🎯 MASTER BANNER TRIGGER SYSTEM - ADD THIS AFTER showUniversalBanner
+// 🎯 UNIVERSAL MASTER BANNER TRIGGER SYSTEM - ALL INDUSTRIES
 // ===================================================================
 
-// Master trigger configuration
+// Universal trigger configuration (easily customizable per industry)
 const bannerTriggers = {
+    // CONSULTATION/SERVICE TRIGGERS
+    consultation_offer: {
+        bannerType: 'smartButton',
+        content: {
+            selling: '📞 FREE Practice Valuation - Connect with Bruce Now',
+            buying: '🏢 View Available Practices - Connect with Bruce', 
+            valuation: '📈 Get Your FREE Practice Valuation - Talk to Bruce',
+            default: '📅 FREE Consultation Available'
+        },
+        delay: 500,
+        duration: 0,
+        conditions: ['consultation_ready']
+    },
+    
+    // EMAIL CONFIRMATION
     email_sent: {
         bannerType: 'emailSent',
+        content: '✅ Information Sent! We\'ll contact you within 24 hours',
         delay: 0,
         duration: 4000,
         conditions: ['email_success']
     },
     
-    more_questions: {
-        bannerType: 'moreQuestions', 
-        delay: 15000,
+    // FREE OFFER (Book, Guide, Calculator, etc.)
+    free_offer: {
+        bannerType: 'freeBook',
+        content: '📚 FREE Book: "7 Secrets to Selling Your Practice"',
+        delay: 2000,
         duration: 0,
-        conditions: ['conversation_state:asking_if_more_help']
+        conditions: ['consultation_declined']
     },
     
+    // THANK YOU / MORE QUESTIONS
+    more_questions: {
+        bannerType: 'moreQuestions', 
+        content: '🙏 Thank you for visiting! Have a wonderful day!',
+        delay: 1000,
+        duration: 0,
+        conditions: ['conversation_ended']
+    },
+    
+    // LEAD MAGNET
     lead_magnet: {
         bannerType: 'leadMagnet',
+        content: '🎁 Your Free Gift is Ready!',
         delay: 3000,
         duration: 0,
         conditions: ['has_lead_magnet']
     },
     
+    // CONSULTATION CONFIRMED
     consultation_confirmed: {
         bannerType: 'consultationConfirmed',
+        content: '🎉 Consultation Confirmed!',
         delay: 0,
         duration: 5000,
         conditions: ['booking_success']
     }
 };
 
-// Master trigger function
+// Master trigger function (COMPLETE with all your existing logic)
 function triggerBanner(triggerName, additionalData = {}) {
     console.log(`🎯 Master Trigger: ${triggerName}`);
     
@@ -1402,21 +1468,30 @@ function triggerBanner(triggerName, additionalData = {}) {
         return;
     }
     
+    // Handle dynamic content
+    let content = config.content;
+    if (typeof content === 'object' && additionalData.type) {
+        content = content[additionalData.type] || content.default;
+    }
+    
     // Execute with delay
     setTimeout(() => {
-        showUniversalBanner(config.bannerType, null, {
+        showUniversalBanner(config.bannerType, content, {
             duration: config.duration
         });
         console.log(`✅ Banner "${config.bannerType}" triggered`);
     }, config.delay);
 }
 
-// Condition checker
+// Condition checker (COMPLETE with all your logic)
 function checkTriggerConditions(conditions, data) {
     return conditions.every(condition => {
         if (condition === 'email_success') return data.emailSuccess === true;
         if (condition === 'has_lead_magnet') return getActiveLeadMagnet() !== null;
         if (condition === 'booking_success') return data.bookingSuccess === true;
+        if (condition === 'consultation_ready') return true; // Always allow consultation offers
+        if (condition === 'consultation_declined') return true; // Always allow fallback offers
+        if (condition === 'conversation_ended') return true; // Always allow thank you
         if (condition.startsWith('conversation_state:')) {
             const state = condition.split(':')[1];
             return conversationState === state;
@@ -1425,7 +1500,7 @@ function checkTriggerConditions(conditions, data) {
     });
 }
 
-console.log('🎖️ Master Banner Trigger System loaded!');
+console.log('🎖️ Universal Master Banner Trigger System loaded - Ready for any industry!');
 
 // ===================================================
 // 🎯 BANNER SYSTEM 2.0 - WITH LEAD MAGNET INTEGRATION
@@ -1542,9 +1617,9 @@ function getAIResponse(userInput) {
     }
     
     const userText = userInput.toLowerCase();
-    let responseText = '';
-    
-    if (conversationState === 'initial') {
+let responseText = '';
+
+if (conversationState === 'initial') {
     if (userText.includes('buy') || userText.includes('purchase') || userText.includes('buying') || userText.includes('acquire')) {
         responseText = "Excellent! Bruce has some fantastic opportunities available. Let me learn more about what you're looking for. What's your budget range for acquiring a practice?";
         conversationState = 'buying_budget_question';
@@ -1583,9 +1658,17 @@ function getAIResponse(userInput) {
         smartButtonText = '📞 Free Valuation';
         smartButtonAction = 'valuation';
         conversationState = 'button_activated_selling';
+        
+        // 🎯 TRIGGER: Consultation banner for selling
+        triggerBanner('consultation_offer', { type: 'selling' });
+        
     } else if (userText.includes('no') || userText.includes('not now') || userText.includes('maybe later')) {
         responseText = "No problem at all! If you change your mind, I'm here to help. Is there anything else about selling your practice that you'd like to know?";
         conversationState = 'initial';
+        
+        // 🎯 TRIGGER: Free offer banner when consultation declined
+        triggerBanner('free_offer');
+        
     } else {
         responseText = "I want to make sure I understand - would you like Bruce to call you for a free consultation about selling your practice? Just say yes or no.";
     }
@@ -1609,9 +1692,17 @@ function getAIResponse(userInput) {
         smartButtonText = '🏢 View Available Practices';
         smartButtonAction = 'buying';
         conversationState = 'button_activated_buying';
+        
+        // 🎯 TRIGGER: Consultation banner for buying
+        triggerBanner('consultation_offer', { type: 'buying' });
+        
     } else if (userText.includes('no') || userText.includes('not now') || userText.includes('maybe later')) {
         responseText = "That's perfectly fine! When you're ready to see what's available, just let me know. Anything else about buying a practice I can help with?";
         conversationState = 'initial';
+        
+        // 🎯 TRIGGER: Free offer banner when consultation declined
+        triggerBanner('free_offer');
+        
     } else {
         responseText = "Would you like Bruce to show you the practices he has available? Just let me know yes or no.";
     }
@@ -1631,9 +1722,17 @@ function getAIResponse(userInput) {
         smartButtonText = '📈 Get Practice Valuation';
         smartButtonAction = 'valuation';
         conversationState = 'button_activated_valuation';
+        
+        // 🎯 TRIGGER: Consultation banner for valuation
+        triggerBanner('consultation_offer', { type: 'valuation' });
+        
     } else if (userText.includes('no') || userText.includes('not now') || userText.includes('maybe later')) {
         responseText = "No worries! The valuation offer stands whenever you're ready. Is there anything else about practice valuations I can explain?";
         conversationState = 'initial';
+        
+        // 🎯 TRIGGER: Free offer banner when consultation declined
+        triggerBanner('free_offer');
+        
     } else {
         responseText = "Would you like Bruce to provide you with a free practice valuation? Just say yes or no and I'll take care of the rest.";
     }
@@ -1641,16 +1740,17 @@ function getAIResponse(userInput) {
 } else if (conversationState === 'button_activated_selling' || conversationState === 'button_activated_buying' || conversationState === 'button_activated_valuation') {
     responseText = "Perfect! I see you're ready to connect with Bruce. Just click that button above and we'll get everything set up for you right away!";
 
-// 🚀 NEW: ADD THE NATURAL CONVERSATION FLOW STATE    
 } else if (conversationState === 'asking_if_more_help') {
     if (userText.includes('no') || userText.includes('nothing') || userText.includes('done') || 
         userText.includes('that\'s all') || userText.includes('nope') || userText.includes('thanks')) {
-        // NOW we show the Thank You banner
-        showThankYouBanner();
+        
         responseText = "Thank you so much for visiting! Have a wonderful day! 🌟";
         conversationState = 'ended';
+        
+        // 🎯 TRIGGER: Thank you banner when conversation ends
+        triggerBanner('more_questions');
+        
     } else {
-        // They have more questions - keep the conversation alive!
         conversationState = 'initial';
         responseText = "Absolutely! What else would you like to know about buying, selling, or valuing a CPA practice?";
     }
@@ -1660,13 +1760,11 @@ function getAIResponse(userInput) {
         responseText = "I'm here to help! What else can I assist you with regarding your practice?";
         conversationState = 'initial';
     } else {
-        // 🚀 REPLACE endConversation() with natural flow
         conversationState = 'asking_if_more_help';
         responseText = "Perfect! Is there anything else I can help you with today?";
     }
     
 } else {
-    // ✅ FIXED THE PROBLEMATIC ELSE CLAUSE
     if (conversationState !== 'ended') {
         responseText = "Thanks for your message! Is there anything else about buying, selling, or valuing a CPA practice that I can help you with?";
         conversationState = 'initial';
@@ -2298,11 +2396,14 @@ function sendLeadEmail(data) {
 function sendFollowUpEmail() {
     console.log('📧 DEBUG: leadData at function start:', leadData);
     
-    if (!leadData || !leadData.email) {
-        console.error('❌ CRITICAL: leadData or email is missing!');
-        showThankYouBanner();
-        return;
-    }
+ if (!leadData || !leadData.email) {
+    console.error('❌ CRITICAL: leadData or email is missing!');
+    
+    // Try to continue conversation even with missing data
+    addMessage("Is there anything else I can help you with today?", 'ai');
+    conversationState = 'asking_if_more_help';
+    return;
+}
     
     // ✅ SUPER CLEAN EMAIL - Remove any hidden characters
     const cleanEmail = String(leadData.email).trim().replace(/[^\w@.-]/g, '');
@@ -2356,29 +2457,37 @@ function sendFollowUpEmail() {
                 conversationState = 'asking_if_more_help';
                 addMessage("Perfect! Your confirmation email is on its way to " + cleanEmail + ". Is there anything else I can help you with today?", 'ai');
                 
-                // 🎯 BACKUP BANNER
-                setTimeout(() => {
-                    if (conversationState === 'asking_if_more_help') {
-                        showUniversalBanner('moreQuestions');
-                    }
-                }, 15000);
-                
-            }, function(error) {
-                console.error('❌ EMAIL FAILED:', error);
-                showThankYouBanner();
-                const smartButton = document.getElementById('smartButton');
-                if (smartButton) {
-                    smartButton.style.display = 'none !important';
-                }
-            });
-    } else {
-        showThankYouBanner();
-        const smartButton = document.getElementById('smartButton');
-        if (smartButton) {
-            smartButton.style.display = 'none !important';
-        }
+              // 🎯 TRIGGER: Email confirmation banner
+triggerBanner('email_sent', { emailSuccess: true });
+
+// 🎯 AFTER 4.5 seconds, continue conversation naturally
+setTimeout(() => {
+    addMessage("Is there anything else I can help you with today?", 'ai');
+    conversationState = 'asking_if_more_help';
+}, 4500);
+
+}, function(error) {
+    console.error('❌ EMAIL FAILED:', error);
+    
+    // Still continue conversation even if email fails
+    addMessage("Is there anything else I can help you with today?", 'ai');
+    conversationState = 'asking_if_more_help';
+    
+    const smartButton = document.getElementById('smartButton');
+    if (smartButton) {
+        smartButton.style.display = 'none !important';
     }
-}
+});
+} else {
+    // Continue conversation even if emailjs not available
+    addMessage("Is there anything else I can help you with today?", 'ai');
+    conversationState = 'asking_if_more_help';
+    
+    const smartButton = document.getElementById('smartButton');
+    if (smartButton) {
+        smartButton.style.display = 'none !important';
+    }
+}}
 
 // ===================================================
 // 🎯 CONSULTATION CONFIRMED BANNER - ORCHESTRATOR 2.0
