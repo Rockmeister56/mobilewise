@@ -1002,7 +1002,7 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
         // 3. EMAIL SENT CONFIRMATION
         emailSent: {
     content: `
-        <div style="width: ${700}px; max-width: ${700}px; margin: 0 auto; background: rgba(32, 178, 170, 0.8); border-radius: 6px; height: 50px; display: flex; align-items: center; justify-content: center;">
+        <div style="width: ${620}px; max-width: ${620}px; margin: 0 auto; background: rgba(32, 178, 170, 0.8); border-radius: 6px; height: 50px; display: flex; align-items: center; justify-content: center;">
             <div style="text-align: center; color: white;">
                 <div style="font-size: 14px; font-weight: bold;">
                     ✅ <strong>Confirmation Email Sent!</strong>
@@ -1186,32 +1186,39 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
         return null;
     }
     
-    
     // 🚀 CREATE HEADER CONTAINER (INSIDE MAIN CONTAINER - CLEAN!)
-const headerContainer = document.createElement('div');
-headerContainer.id = 'bannerHeaderContainer';
-const bannerHeight = bannerConfig?.customHeight || 85;
-const bannerWidth = bannerConfig?.customWidth || 830; // 🚀 NEW WIDTH CONTROL
-headerContainer.style.cssText = `
-    position: absolute !important;
-    top: 10px !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    width: 100% !important;
-    height: ${bannerHeight}px !important;
-    max-width: ${bannerWidth}px !important;
-    z-index: 9999 !important;
-    overflow: hidden !important;
-    box-sizing: border-box !important;
-    pointer-events: none !important;
-    margin: 0 !important;
-`;
+    const headerContainer = document.createElement('div');
+    headerContainer.id = 'bannerHeaderContainer';
+    const bannerHeight = bannerConfig?.customHeight || 85;
+    const bannerWidth = bannerConfig?.customWidth || 830; // 🚀 NEW WIDTH CONTROL
+    headerContainer.style.cssText = `
+        position: absolute !important;
+        top: 10px !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        width: 100% !important;
+        height: ${bannerHeight}px !important;
+        max-width: ${bannerWidth}px !important;
+        z-index: 9999 !important;
+        overflow: hidden !important;
+        box-sizing: border-box !important;
+        pointer-events: none !important;
+        margin: 0 !important;
+    `;
     
     // 🚀 CREATE BANNER WITHIN CONTAINER
     const banner = document.createElement('div');
     banner.id = 'universalBanner';
     banner.className = `universal-banner ${bannerType}-banner`;
     banner.innerHTML = customContent || bannerConfig.content;
+    
+    // 🚀 DUAL-LAYER CONTROL (PROPERLY INTEGRATED!)
+    if (bannerConfig?.containerWidth) {
+        headerContainer.style.maxWidth = `${bannerConfig.containerWidth}px`;
+        banner.style.width = `${bannerConfig.containerWidth}px`;
+        banner.style.maxWidth = `${bannerConfig.containerWidth}px`;
+        banner.style.margin = '0 auto';
+    }
     
     // 🎯 BANNER STYLING (FITS WITHIN CONTAINER)
     if (bannerType === 'branding') {
@@ -1271,21 +1278,7 @@ headerContainer.style.cssText = `
                           document.querySelector('#container') || 
                           document.querySelector('#app') ||
                           document.body;
-    }
-
-                          // 🚀 CREATE BANNER WITHIN CONTAINER
-const banner = document.createElement('div');
-banner.id = 'universalBanner';
-banner.className = `universal-banner ${bannerType}-banner`;
-banner.innerHTML = customContent || bannerConfig.content;
-
-// 🚀 DUAL-LAYER CONTROL (ADD THIS)
-if (bannerConfig?.containerWidth) {
-    banner.style.width = `${bannerConfig.containerWidth}px`;
-    banner.style.maxWidth = `${bannerConfig.containerWidth}px`;
-    banner.style.margin = '0 auto';
-}
-
+    
     headerContainer.appendChild(banner);
     mainContainer.insertBefore(headerContainer, mainContainer.firstChild);
     
