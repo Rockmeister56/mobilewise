@@ -951,30 +951,19 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
     const bannerLibrary = {
         // 1. BRANDING HEADER
         branding: {
-    content: `
-        <div style="display: flex; justify-content: space-between; align-items: center; height: 100%; padding: 0 20px;">
-            <!-- LEFT SIDE: Logo Only -->
+            content: `
+<div style="display: flex; justify-content: space-between; align-items: center; height: 100%; padding: 0 20px;">
             <div style="display: flex; align-items: center;">
                 <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758507868460_logo.png" 
-                     style="width: 45px; height: 45px;">
+                     style="width: 40px; height: 40px; margin-right: 10px;">
+                <span style="color: white; font-size: 16px; font-weight: bold;">Mobile-Wise AI</span>
             </div>
-            
-            <!-- CENTER: Company Name -->
-            <div style="text-align: center;">
-                <div style="color: white; font-size: 18px; font-weight: bold; letter-spacing: 1px;">
-                    Mobile-Wise AI
-                </div>
-            </div>
-            
-            <!-- RIGHT SIDE: Slogan -->
-            <div style="text-align: right;">
-                <div style="color: #87CEEB; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
-                    AI Voice Chat
-                </div>
+            <div>
+                <span style="color: #87CEEB; font-size: 14px; font-weight: 600;">AI VOICE CHAT</span>
             </div>
         </div>
     `,
-    background: 'transparent',
+    background: 'transparent', // ← 100% TRANSPARENT!
     duration: 0
 },
         
