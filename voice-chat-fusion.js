@@ -1002,7 +1002,7 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
         // 3. EMAIL SENT CONFIRMATION
         emailSent: {
     content: `
-        <div style="width: 700px; max-width: 700px; margin: 0 auto; background: rgba(32, 178, 170, 0.8); border-radius: 8px; backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2);">
+        <div style="width: 715px; max-width: 715px; margin: 0 auto; background: rgba(32, 178, 170, 0.8); border-radius: 8px; backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2);">
             <div style="display: flex; align-items: center; justify-content: center; height: 50px; padding: 0 15px; color: white;">
                 <div style="text-align: center;">
                     <div style="font-size: 14px; font-weight: bold;">
