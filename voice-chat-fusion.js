@@ -1188,7 +1188,8 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
     // 🚀 CREATE HEADER CONTAINER (INSIDE MAIN CONTAINER - CLEAN!)
 const headerContainer = document.createElement('div');
 headerContainer.id = 'bannerHeaderContainer';
-const bannerHeight = bannerConfig?.customHeight || 85; // ADD THIS LINE
+const bannerHeight = bannerConfig?.customHeight || 85;
+const bannerWidth = bannerConfig?.customWidth || 815; // 🚀 NEW WIDTH CONTROL
 headerContainer.style.cssText = `
     position: absolute !important;
     top: 10px !important;
@@ -1196,7 +1197,7 @@ headerContainer.style.cssText = `
     transform: translateX(-50%) !important;
     width: 100% !important;
     height: ${bannerHeight}px !important;
-    max-width: 815px !important;
+    max-width: ${bannerWidth}px !important;
     z-index: 9999 !important;
     overflow: hidden !important;
     box-sizing: border-box !important;
