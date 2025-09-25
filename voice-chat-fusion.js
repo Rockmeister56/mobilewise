@@ -956,7 +956,7 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
                     <!-- LOGO: Far Left -->
                     <div style="position: absolute; left: 10px;">
                         <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758507868460_logo.png" 
-                             style="width: 50px; height: 50px;">
+                             style="width: 10px; height: 50px;">
                     </div>
                     
                     <!-- COMPANY NAME: Center -->
