@@ -953,20 +953,20 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
         branding: {
     content: `
         <div style="display: flex; align-items: center; height: 100%; padding: 0 20px;">
-            <div style="margin-right: 50px;">
+            <div style="margin-right: 70px;">
                 <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758507868460_logo.png" 
-                     style="width: 45px; height: 45px;">
+                     style="width: 60px; height: 60px;">
             </div>
             
             <div style="flex: 1; text-align: center;">
                 <div style="color: white; font-size: 18px; font-weight: bold;">
-                    MOBILE-WISE AI
+                    Mobile-Wise AI
                 </div>
             </div>
             
             <div style="margin-left: 50px;">
-                <div style="color: #87CEEB; font-size: 11px; font-weight: 600;">
-                    AI VOICE CHAT
+                <div style="color: #87CEEB; font-size: 25px; font-weight: 700;">
+                    ACCOMMODATING - AI VOICE CHAT
                 </div>
             </div>
         </div>
