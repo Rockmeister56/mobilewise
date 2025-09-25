@@ -947,23 +947,34 @@ function addUserMessage(message) {
 window.showUniversalBanner = function(bannerType, customContent = null, options = {}) {
     console.log(`🎯 Deploying Universal Banner: ${bannerType}`);
     
-    // COMPLETE BANNER LIBRARY - All 7 Banner Types
+    // COMPLETE BANNER LIBRARY - All 9 Banner Types
     const bannerLibrary = {
         // 1. BRANDING HEADER
         branding: {
-            content: `
-<div style="display: flex; justify-content: space-between; align-items: center; height: 100%; padding: 0 20px;">
+    content: `
+        <div style="display: flex; justify-content: space-between; align-items: center; height: 100%; padding: 0 20px;">
+            <!-- LEFT SIDE: Logo Only -->
             <div style="display: flex; align-items: center;">
                 <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758507868460_logo.png" 
-                     style="width: 40px; height: 40px; margin-right: 10px;">
-                <span style="color: white; font-size: 16px; font-weight: bold;">Mobile-Wise AI</span>
+                     style="width: 45px; height: 45px;">
             </div>
-            <div>
-                <span style="color: #87CEEB; font-size: 14px; font-weight: 600;">AI VOICE CHAT</span>
+            
+            <!-- CENTER: Company Name -->
+            <div style="text-align: center;">
+                <div style="color: white; font-size: 18px; font-weight: bold; letter-spacing: 1px;">
+                    Mobile-Wise AI
+                </div>
+            </div>
+            
+            <!-- RIGHT SIDE: Slogan -->
+            <div style="text-align: right;">
+                <div style="color: #87CEEB; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                    AI Voice Chat
+                </div>
             </div>
         </div>
     `,
-    background: 'transparent', // ← 100% TRANSPARENT!
+    background: 'transparent',
     duration: 0
 },
         
@@ -1085,8 +1096,68 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
             background: 'linear-gradient(135deg, #4CAF50, #8BC34A)',
             duration: 0
         },
+
+        // 7. MORE QUESTIONS BANNER (🚀 NEW!)
+        moreQuestions: {
+            content: `
+                <div style="display: flex; flex-direction: column; align-items: center; height: 100%; padding: 15px 20px; text-align: center;">
+                    <div style="color: white; margin-bottom: 15px;">
+                        <div style="font-size: 18px; font-weight: bold; margin-bottom: 5px;">
+                            ❓ Still Have Questions?
+                        </div>
+                        <div style="font-size: 12px; color: #ccc;">
+                            I'm here to help with anything else!
+                        </div>
+                    </div>
+                    <button onclick="restartConversation()" style="
+                        background: white;
+                        color: #667eea;
+                        border: none;
+                        padding: 10px 24px;
+                        border-radius: 25px;
+                        cursor: pointer;
+                        font-weight: bold;
+                        font-size: 14px;
+                    ">
+                        Ask Another Question
+                    </button>
+                </div>
+            `,
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            duration: 0
+        },
+
+        // 8. LEAD MAGNET BANNER (🚀 NEW!)
+        leadMagnet: {
+            content: `
+                <div style="display: flex; justify-content: space-between; align-items: center; height: 100%; padding: 0 20px;">
+                    <div style="color: white;">
+                        <div style="font-size: 16px; font-weight: bold; margin-bottom: 5px;">
+                            🎁 Your Free Gift is Ready!
+                        </div>
+                        <div style="font-size: 12px; color: #ccc;">
+                            Download your exclusive guide now
+                        </div>
+                    </div>
+                    <button onclick="window.open('https://bruces-book-link.com/download', '_blank')" style="
+                        background: white;
+                        color: #28a745;
+                        border: none;
+                        padding: 8px 20px;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-weight: bold;
+                        font-size: 14px;
+                    ">
+                        📥 Download Now
+                    </button>
+                </div>
+            `,
+            background: 'linear-gradient(135deg, #28a745 0%, #20c997 100%)',
+            duration: 0
+        },
         
-        // 7. LEAD CAPTURE ACTIVE
+        // 9. LEAD CAPTURE ACTIVE
         leadCapture: {
             content: `
                 <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: white;">
@@ -1143,53 +1214,49 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
     banner.innerHTML = customContent || bannerConfig.content;
     
     // 🎯 BANNER STYLING (FITS WITHIN 830x85)
-    banner.style.cssText = `
-        position: absolute !important;
-        top: 0 !important;
-        left: 0 !important;
-        width: 100% !important;
-        height: 100% !important;
-        background: ${bannerConfig?.background || 'rgba(255, 255, 255, 0.1)'};
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        border-radius: 8px;
-        margin: 0 !important;
-        padding: 0 !important;
-        box-sizing: border-box !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        color: white;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-    `;
-
-    // In showUniversalBanner function, special case for branding:
-if (bannerType === 'branding') {
-    banner.style.cssText = `
-        position: absolute !important;
-        top: 0 !important;
-        left: 0 !important;
-        width: 100% !important;
-        height: 100% !important;
-        background: transparent !important; /* NO background */
-        border: none !important; /* NO border */
-        backdrop-filter: none !important; /* NO blur effect */
-        border-radius: 0 !important; /* NO rounded corners */
-        margin: 0 !important;
-        padding: 0 !important;
-        box-sizing: border-box !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        color: white;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        box-shadow: none !important; /* NO shadow */
-    `;
-} else {
-    // Keep existing styling for other banners
-}
-
+    if (bannerType === 'branding') {
+        banner.style.cssText = `
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            background: transparent !important; /* NO background */
+            border: none !important; /* NO border */
+            backdrop-filter: none !important; /* NO blur effect */
+            border-radius: 0 !important; /* NO rounded corners */
+            margin: 0 !important;
+            padding: 0 !important;
+            box-sizing: border-box !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            color: white;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            box-shadow: none !important; /* NO shadow */
+        `;
+    } else {
+        banner.style.cssText = `
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            background: ${bannerConfig?.background || 'rgba(255, 255, 255, 0.1)'};
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            margin: 0 !important;
+            padding: 0 !important;
+            box-sizing: border-box !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            color: white;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        `;
+    }
     
     // 🎯 MOBILE RESPONSIVE ADJUSTMENT
     if (window.innerWidth <= 850) {
@@ -1236,7 +1303,7 @@ window.removeLeadCaptureBanner = function() {
     console.log('🎯 Lead capture banner removal (Universal system)');
 };
 
-console.log('🎖️ Complete Universal Banner Engine loaded - 7 banner types ready!');
+console.log('🎖️ Complete Universal Banner Engine loaded - 9 banner types ready!');
 
 // ===================================================
 // 🏆 AUTO-DEPLOY BRANDING BANNER ON PAGE LOAD
@@ -1255,6 +1322,116 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
         console.log('🏆 Backup branding banner deployment...');
         showUniversalBanner('branding');
     }, 100);
+}
+
+// ===================================================
+// 🎯 BANNER SYSTEM 2.0 - WITH LEAD MAGNET INTEGRATION
+// ===================================================
+
+// 🚀 LEAD MAGNET CONFIGURATION (Dashboard Configurable)
+const leadMagnetConfig = {
+    active: true,
+    title: "7 Secrets to Selling Your Practice",
+    description: "Get Bruce's exclusive guide delivered instantly!",
+    downloadLink: "https://bruces-book-link.com/download",
+    emailText: "FREE BONUS: Your copy of '7 Secrets to Selling Your Practice' is included below:",
+    includeInEmail: true,
+    showInBanner: true,
+    deliveryMethod: "both" // "email", "banner", or "both"
+};
+
+// 🎯 GET ACTIVE LEAD MAGNET (Called by Email System)
+function getActiveLeadMagnet() {
+    return leadMagnetConfig.active ? leadMagnetConfig : null;
+}
+
+// 🚀 DELIVER LEAD MAGNET (Called After Email Success)
+function deliverLeadMagnet(leadMagnet, userEmail) {
+    if (!leadMagnet) return;
+    
+    console.log('🎁 DELIVERING LEAD MAGNET:', leadMagnet.title);
+    
+    if (leadMagnet.showInBanner && leadMagnet.deliveryMethod !== "email") {
+        setTimeout(() => {
+            showUniversalBanner('leadMagnet');
+        }, 3000); // Show lead magnet banner after 3 seconds
+    }
+}
+
+// 🎯 ENHANCED UNIVERSAL BANNER SYSTEM
+function showUniversalBanner(bannerType, customData = null) {
+    let bannerHtml = '';
+    
+    switch(bannerType) {
+        case 'leadMagnet':
+            const leadMagnet = getActiveLeadMagnet();
+            if (leadMagnet) {
+                bannerHtml = `
+                    <div style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); 
+                                color: white; padding: 25px; text-align: center; 
+                                border-radius: 15px; margin: 20px 0; box-shadow: 0 6px 20px rgba(40,167,69,0.3);
+                                animation: slideIn 0.5s ease-out;">
+                        <div style="font-size: 2em; margin-bottom: 10px;">🎁</div>
+                        <h3 style="margin: 0 0 10px 0; font-size: 1.4em;">${leadMagnet.title}</h3>
+                        <p style="margin: 0 0 20px 0; opacity: 0.9;">${leadMagnet.description}</p>
+                        <a href="${leadMagnet.downloadLink}" target="_blank" 
+                           style="background: white; color: #28a745; text-decoration: none; 
+                                  padding: 15px 30px; border-radius: 25px; font-weight: bold; 
+                                  display: inline-block; transition: all 0.3s ease;
+                                  box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                            📥 Download Now
+                        </a>
+                        <div style="margin-top: 15px; font-size: 0.9em; opacity: 0.8;">
+                            Also check your email for the direct link!
+                        </div>
+                    </div>
+                `;
+            }
+            break;
+            
+        case 'moreQuestions':
+            bannerHtml = `
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                            color: white; padding: 20px; text-align: center; 
+                            border-radius: 10px; margin: 20px 0; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                    <h3 style="margin: 0 0 10px 0;">❓ Still Have Questions?</h3>
+                    <p style="margin: 0 0 15px 0;">I'm here to help with anything else!</p>
+                    <button onclick="restartConversation()" 
+                            style="background: white; color: #667eea; border: none; 
+                                   padding: 12px 24px; border-radius: 25px; 
+                                   font-weight: bold; cursor: pointer;">
+                        Ask Another Question
+                    </button>
+                </div>
+            `;
+            break;
+            
+        case 'thankYou':
+            bannerHtml = `
+                <div style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%); 
+                            color: white; padding: 25px; text-align: center; 
+                            border-radius: 15px; margin: 20px 0; box-shadow: 0 6px 20px rgba(255,107,107,0.3);">
+                    <div style="font-size: 2.5em; margin-bottom: 15px;">🙏</div>
+                    <h2 style="margin: 0 0 10px 0;">Thank You!</h2>
+                    <p style="margin: 0; font-size: 1.1em;">We appreciate your time and look forward to helping you!</p>
+                </div>
+            `;
+            break;
+    }
+    
+    if (bannerHtml) {
+        const banner = document.createElement('div');
+        banner.innerHTML = bannerHtml;
+        banner.className = 'universal-banner';
+        document.getElementById('chat-messages').appendChild(banner);
+        banner.scrollIntoView({ behavior: 'smooth' });
+    }
+}
+
+// 🚀 RESTART CONVERSATION FUNCTION
+function restartConversation() {
+    conversationState = 'initial';
+    addMessage("Great! What else can I help you with regarding your practice?", 'ai');
 }
 
 // ===================================================
@@ -1570,124 +1747,138 @@ function getAIResponse(userInput) {
     let responseText = '';
     
     if (conversationState === 'initial') {
-        if (userText.includes('buy') || userText.includes('purchase') || userText.includes('buying') || userText.includes('acquire')) {
-            responseText = "Excellent! Bruce has some fantastic opportunities available. Let me learn more about what you're looking for. What's your budget range for acquiring a practice?";
-            conversationState = 'buying_budget_question';
-            shouldShowSmartButton = false;
-            
-        } else if (userText.includes('sell') || userText.includes('selling')) {
-            responseText = "I'd love to help you with selling your practice! Let me ask you a few quick questions to better understand your situation - how many clients do you currently serve?";
-            conversationState = 'selling_size_question';
-            shouldShowSmartButton = false;
-            
-        } else if (userText.includes('value') || userText.includes('worth') || userText.includes('valuation') || userText.includes('evaluate')) {
-            responseText = "I'd be happy to help with a practice valuation! To give you the most accurate assessment, what's your practice's approximate annual revenue?";
-            conversationState = 'valuation_revenue_question';
-            shouldShowSmartButton = false;
-            
-        } else {
-            responseText = "Welcome! I'm here to help with CPA firm transactions - buying, selling, and practice valuations. What brings you here today?";
-        }
+    if (userText.includes('buy') || userText.includes('purchase') || userText.includes('buying') || userText.includes('acquire')) {
+        responseText = "Excellent! Bruce has some fantastic opportunities available. Let me learn more about what you're looking for. What's your budget range for acquiring a practice?";
+        conversationState = 'buying_budget_question';
+        shouldShowSmartButton = false;
         
-    } else if (conversationState === 'selling_size_question') {
-        responseText = "That's helpful information! And what's your practice's approximate annual revenue range? This helps Bruce understand the scope and value.";
-        conversationState = 'selling_revenue_question';
+    } else if (userText.includes('sell') || userText.includes('selling')) {
+        responseText = "I'd love to help you with selling your practice! Let me ask you a few quick questions to better understand your situation - how many clients do you currently serve?";
+        conversationState = 'selling_size_question';
+        shouldShowSmartButton = false;
         
-    } else if (conversationState === 'selling_revenue_question') {
-        responseText = "Perfect! One more question - what's driving your decision to sell? Retirement, new opportunities, or something else? Understanding your motivation helps Bruce tailor the best approach.";
-        conversationState = 'selling_motivation_question';
-        
-    } else if (conversationState === 'selling_motivation_question') {
-        responseText = "Thank you for sharing that with me! Based on what you've told me, Bruce can definitely help you get maximum value for your practice. The market is very strong right now. Would you like to schedule a FREE consultation with Bruce to discuss your selling strategy?";
-        conversationState = 'asking_selling_consultation';
-        
-    } else if (conversationState === 'asking_selling_consultation') {
-        if (userText.includes('yes') || userText.includes('sure') || userText.includes('okay') || userText.includes('definitely') || userText.includes('absolutely')) {
-            responseText = "Fantastic! Please click the button above and we'll get your information over to Bruce immediately. He'll reach out within 24 hours for your FREE practice valuation.";
-            shouldShowSmartButton = true;
-            smartButtonText = '📞 Free Valuation';
-            smartButtonAction = 'valuation';
-            conversationState = 'button_activated_selling';
-        } else if (userText.includes('no') || userText.includes('not now') || userText.includes('maybe later')) {
-            responseText = "No problem at all! If you change your mind, I'm here to help. Is there anything else about selling your practice that you'd like to know?";
-            conversationState = 'initial';
-        } else {
-            responseText = "I want to make sure I understand - would you like Bruce to call you for a free consultation about selling your practice? Just say yes or no.";
-        }
-        
-    } else if (conversationState === 'buying_budget_question') {
-        responseText = "Great! And are you specifically looking for a CPA practice, or would a general accounting practice work for you as well?";
-        conversationState = 'buying_type_question';
-        
-    } else if (conversationState === 'buying_type_question') {
-        responseText = "Perfect! One more important question - how soon are you looking to complete a purchase? This helps Bruce prioritize which opportunities to show you first.";
-        conversationState = 'buying_timeline_question';
-        
-    } else if (conversationState === 'buying_timeline_question') {
-        responseText = "Excellent! Bruce has exclusive off-market opportunities that aren't advertised anywhere else. Based on your criteria, he definitely has some practices that would interest you. Would you like Bruce to show you the available practices that match what you're looking for?";
-        conversationState = 'asking_buying_consultation';
-        
-    } else if (conversationState === 'asking_buying_consultation') {
-        if (userText.includes('yes') || userText.includes('sure') || userText.includes('okay') || userText.includes('definitely') || userText.includes('absolutely')) {
-            responseText = "Outstanding! Please click the button above and Bruce will reach out with current opportunities that match your criteria. Many of these deals move fast!";
-            shouldShowSmartButton = true;
-            smartButtonText = '🏢 View Available Practices';
-            smartButtonAction = 'buying';
-            conversationState = 'button_activated_buying';
-        } else if (userText.includes('no') || userText.includes('not now') || userText.includes('maybe later')) {
-            responseText = "That's perfectly fine! When you're ready to see what's available, just let me know. Anything else about buying a practice I can help with?";
-            conversationState = 'initial';
-        } else {
-            responseText = "Would you like Bruce to show you the practices he has available? Just let me know yes or no.";
-        }
-        
-    } else if (conversationState === 'valuation_revenue_question') {
-        responseText = "Thank you! And how many years have you been in practice? The longevity and stability really impact the valuation.";
-        conversationState = 'valuation_years_question';
-        
-    } else if (conversationState === 'valuation_years_question') {
-        responseText = "Perfect! Your practice sounds well-established. Bruce can provide you with a comprehensive FREE valuation that shows you exactly what your practice is worth in today's market. Would you like to schedule that free valuation consultation with Bruce?";
-        conversationState = 'asking_valuation_consultation';
-        
-    } else if (conversationState === 'asking_valuation_consultation') {
-        if (userText.includes('yes') || userText.includes('sure') || userText.includes('okay') || userText.includes('definitely') || userText.includes('absolutely')) {
-            responseText = "Wonderful! Please click the button above and we'll get you connected with Bruce for your FREE practice valuation. You might be surprised at what your practice is worth!";
-            shouldShowSmartButton = true;
-            smartButtonText = '📈 Get Practice Valuation';
-            smartButtonAction = 'valuation';
-            conversationState = 'button_activated_valuation';
-        } else if (userText.includes('no') || userText.includes('not now') || userText.includes('maybe later')) {
-            responseText = "No worries! The valuation offer stands whenever you're ready. Is there anything else about practice valuations I can explain?";
-            conversationState = 'initial';
-        } else {
-            responseText = "Would you like Bruce to provide you with a free practice valuation? Just say yes or no and I'll take care of the rest.";
-        }
-        
-    } else if (conversationState === 'button_activated_selling' || conversationState === 'button_activated_buying' || conversationState === 'button_activated_valuation') {
-        responseText = "Perfect! I see you're ready to connect with Bruce. Just click that button above and we'll get everything set up for you right away!";
-        
-    } else if (conversationState === 'asking_anything_else') {
-        if (userText.includes('yes') || userText.includes('sure') || userText.includes('help')) {
-            responseText = "I'm here to help! What else can I assist you with regarding your practice?";
-            conversationState = 'initial'; // Back to normal conversation
-        } else {
-            endConversation();
-            return ""; // Don't return text, endConversation handles it
-        }
+    } else if (userText.includes('value') || userText.includes('worth') || userText.includes('valuation') || userText.includes('evaluate')) {
+        responseText = "I'd be happy to help with a practice valuation! To give you the most accurate assessment, what's your practice's approximate annual revenue?";
+        conversationState = 'valuation_revenue_question';
+        shouldShowSmartButton = false;
         
     } else {
-        // ✅ FIXED THE PROBLEMATIC ELSE CLAUSE
-        if (conversationState !== 'ended') {
-            responseText = "Thanks for your message! Is there anything else about buying, selling, or valuing a CPA practice that I can help you with?";
-            conversationState = 'initial';
-            shouldShowSmartButton = false;
-        } else {
-            responseText = "Thank you for visiting! Have a great day.";
-        }
+        responseText = "Welcome! I'm here to help with CPA firm transactions - buying, selling, and practice valuations. What brings you here today?";
     }
     
-    return responseText;
+} else if (conversationState === 'selling_size_question') {
+    responseText = "That's helpful information! And what's your practice's approximate annual revenue range? This helps Bruce understand the scope and value.";
+    conversationState = 'selling_revenue_question';
+    
+} else if (conversationState === 'selling_revenue_question') {
+    responseText = "Perfect! One more question - what's driving your decision to sell? Retirement, new opportunities, or something else? Understanding your motivation helps Bruce tailor the best approach.";
+    conversationState = 'selling_motivation_question';
+    
+} else if (conversationState === 'selling_motivation_question') {
+    responseText = "Thank you for sharing that with me! Based on what you've told me, Bruce can definitely help you get maximum value for your practice. The market is very strong right now. Would you like to schedule a FREE consultation with Bruce to discuss your selling strategy?";
+    conversationState = 'asking_selling_consultation';
+    
+} else if (conversationState === 'asking_selling_consultation') {
+    if (userText.includes('yes') || userText.includes('sure') || userText.includes('okay') || userText.includes('definitely') || userText.includes('absolutely')) {
+        responseText = "Fantastic! Please click the button above and we'll get your information over to Bruce immediately. He'll reach out within 24 hours for your FREE practice valuation.";
+        shouldShowSmartButton = true;
+        smartButtonText = '📞 Free Valuation';
+        smartButtonAction = 'valuation';
+        conversationState = 'button_activated_selling';
+    } else if (userText.includes('no') || userText.includes('not now') || userText.includes('maybe later')) {
+        responseText = "No problem at all! If you change your mind, I'm here to help. Is there anything else about selling your practice that you'd like to know?";
+        conversationState = 'initial';
+    } else {
+        responseText = "I want to make sure I understand - would you like Bruce to call you for a free consultation about selling your practice? Just say yes or no.";
+    }
+    
+} else if (conversationState === 'buying_budget_question') {
+    responseText = "Great! And are you specifically looking for a CPA practice, or would a general accounting practice work for you as well?";
+    conversationState = 'buying_type_question';
+    
+} else if (conversationState === 'buying_type_question') {
+    responseText = "Perfect! One more important question - how soon are you looking to complete a purchase? This helps Bruce prioritize which opportunities to show you first.";
+    conversationState = 'buying_timeline_question';
+    
+} else if (conversationState === 'buying_timeline_question') {
+    responseText = "Excellent! Bruce has exclusive off-market opportunities that aren't advertised anywhere else. Based on your criteria, he definitely has some practices that would interest you. Would you like Bruce to show you the available practices that match what you're looking for?";
+    conversationState = 'asking_buying_consultation';
+    
+} else if (conversationState === 'asking_buying_consultation') {
+    if (userText.includes('yes') || userText.includes('sure') || userText.includes('okay') || userText.includes('definitely') || userText.includes('absolutely')) {
+        responseText = "Outstanding! Please click the button above and Bruce will reach out with current opportunities that match your criteria. Many of these deals move fast!";
+        shouldShowSmartButton = true;
+        smartButtonText = '🏢 View Available Practices';
+        smartButtonAction = 'buying';
+        conversationState = 'button_activated_buying';
+    } else if (userText.includes('no') || userText.includes('not now') || userText.includes('maybe later')) {
+        responseText = "That's perfectly fine! When you're ready to see what's available, just let me know. Anything else about buying a practice I can help with?";
+        conversationState = 'initial';
+    } else {
+        responseText = "Would you like Bruce to show you the practices he has available? Just let me know yes or no.";
+    }
+    
+} else if (conversationState === 'valuation_revenue_question') {
+    responseText = "Thank you! And how many years have you been in practice? The longevity and stability really impact the valuation.";
+    conversationState = 'valuation_years_question';
+    
+} else if (conversationState === 'valuation_years_question') {
+    responseText = "Perfect! Your practice sounds well-established. Bruce can provide you with a comprehensive FREE valuation that shows you exactly what your practice is worth in today's market. Would you like to schedule that free valuation consultation with Bruce?";
+    conversationState = 'asking_valuation_consultation';
+    
+} else if (conversationState === 'asking_valuation_consultation') {
+    if (userText.includes('yes') || userText.includes('sure') || userText.includes('okay') || userText.includes('definitely') || userText.includes('absolutely')) {
+        responseText = "Wonderful! Please click the button above and we'll get you connected with Bruce for your FREE practice valuation. You might be surprised at what your practice is worth!";
+        shouldShowSmartButton = true;
+        smartButtonText = '📈 Get Practice Valuation';
+        smartButtonAction = 'valuation';
+        conversationState = 'button_activated_valuation';
+    } else if (userText.includes('no') || userText.includes('not now') || userText.includes('maybe later')) {
+        responseText = "No worries! The valuation offer stands whenever you're ready. Is there anything else about practice valuations I can explain?";
+        conversationState = 'initial';
+    } else {
+        responseText = "Would you like Bruce to provide you with a free practice valuation? Just say yes or no and I'll take care of the rest.";
+    }
+    
+} else if (conversationState === 'button_activated_selling' || conversationState === 'button_activated_buying' || conversationState === 'button_activated_valuation') {
+    responseText = "Perfect! I see you're ready to connect with Bruce. Just click that button above and we'll get everything set up for you right away!";
+
+// 🚀 NEW: ADD THE NATURAL CONVERSATION FLOW STATE    
+} else if (conversationState === 'asking_if_more_help') {
+    if (userText.includes('no') || userText.includes('nothing') || userText.includes('done') || 
+        userText.includes('that\'s all') || userText.includes('nope') || userText.includes('thanks')) {
+        // NOW we show the Thank You banner
+        showThankYouBanner();
+        responseText = "Thank you so much for visiting! Have a wonderful day! 🌟";
+        conversationState = 'ended';
+    } else {
+        // They have more questions - keep the conversation alive!
+        conversationState = 'initial';
+        responseText = "Absolutely! What else would you like to know about buying, selling, or valuing a CPA practice?";
+    }
+    
+} else if (conversationState === 'asking_anything_else') {
+    if (userText.includes('yes') || userText.includes('sure') || userText.includes('help')) {
+        responseText = "I'm here to help! What else can I assist you with regarding your practice?";
+        conversationState = 'initial';
+    } else {
+        // 🚀 REPLACE endConversation() with natural flow
+        conversationState = 'asking_if_more_help';
+        responseText = "Perfect! Is there anything else I can help you with today?";
+    }
+    
+} else {
+    // ✅ FIXED THE PROBLEMATIC ELSE CLAUSE
+    if (conversationState !== 'ended') {
+        responseText = "Thanks for your message! Is there anything else about buying, selling, or valuing a CPA practice that I can help you with?";
+        conversationState = 'initial';
+        shouldShowSmartButton = false;
+    } else {
+        responseText = "Thank you for visiting! Have a great day.";
+    }
 }
+
+return responseText;
 
 // ===================================================
 // 🎤 HYBRID SPEAK NOW SYSTEM - MOBILE-WISE AI
@@ -2302,7 +2493,7 @@ function sendLeadEmail(data) {
 }
 
 // ===================================================
-// 📧 FOLLOW-UP EMAIL - WITH ALL YOUR CURRENT LOGIC
+// 📧 FOLLOW-UP EMAIL - CLEAN SEPARATION
 // ===================================================
 function sendFollowUpEmail() {
     console.log('📧 DEBUG: leadData at function start:', leadData);
@@ -2320,14 +2511,27 @@ function sendFollowUpEmail() {
     console.log('📧 DEBUG: Cleaned email:', cleanEmail);
     console.log('📧 DEBUG: Email length:', cleanEmail.length);
     
+    // 🚀 GET LEAD MAGNET FROM BANNER SYSTEM
+    const leadMagnet = getActiveLeadMagnet(); // Calls banner system
+    
+    // ✅ DYNAMIC EMAIL TRANSCRIPT
+    let emailTranscript = `CONFIRMATION: Appointment scheduled for ${leadData.contactTime}\n\nThank you for choosing New Clients Inc! We'll be in touch within 24 hours.`;
+    
+    // 🎯 ADD LEAD MAGNET IF CONFIGURED
+    if (leadMagnet && leadMagnet.includeInEmail) {
+        emailTranscript += `\n\n${leadMagnet.emailText}\n${leadMagnet.downloadLink}`;
+    }
+    
+    emailTranscript += `\n\nBest regards,\nBruce`;
+    
     const confirmationParams = {
         to_email: cleanEmail,        // ✅ Matches {{to_email}}
         name: leadData.name,         // ✅ Matches {{name}}
         email: cleanEmail,           // ✅ Matches {{email}} (Reply To)
         phone: leadData.phone,
         contactTime: leadData.contactTime,
-        inquiryType: 'CONFIRMATION EMAIL WITH BOOK LINK',
-        transcript: `CONFIRMATION: Appointment scheduled for ${leadData.contactTime}\n\nFree Book: "7 Secrets to Selling Your Practice"\nDownload Link: https://bruces-book-link.com/download\n\nThank you for choosing New Clients Inc!`,
+        inquiryType: 'CONFIRMATION EMAIL',
+        transcript: emailTranscript, // ✅ Dynamic transcript
         timestamp: new Date().toLocaleString()
     };
     
@@ -2339,17 +2543,25 @@ function sendFollowUpEmail() {
             .then(function(response) {
                 console.log('✅ CONFIRMATION EMAIL SENT!');
             
-                
                 // ✅ HIDE SMART BUTTON PERMANENTLY
                 const smartButton = document.getElementById('smartButton');
                 if (smartButton) {
                     smartButton.style.display = 'none !important';
                 }
                 
-                // ✅ NO MORE TEXT - JUST THE THANK YOU BANNER
-
-                // ✅ REPLACE BRUCE'S BANNER WITH THANK YOU BANNER
-                   showThankYouBanner();
+                // 🚀 TRIGGER BANNER SYSTEM FOR LEAD MAGNET DELIVERY
+                deliverLeadMagnet(leadMagnet, cleanEmail);
+                
+                // 🚀 NATURAL CONVERSATION FLOW
+                conversationState = 'asking_if_more_help';
+                addMessage("Perfect! Your confirmation email is on its way to " + cleanEmail + ". Is there anything else I can help you with today?", 'ai');
+                
+                // 🎯 BACKUP BANNER
+                setTimeout(() => {
+                    if (conversationState === 'asking_if_more_help') {
+                        showUniversalBanner('moreQuestions');
+                    }
+                }, 15000);
                 
             }, function(error) {
                 console.error('❌ EMAIL FAILED:', error);
@@ -2366,85 +2578,6 @@ function sendFollowUpEmail() {
             smartButton.style.display = 'none !important';
         }
     }
-}
-
-// ===================================================
-// 🔘 QUICK QUESTIONS SYSTEM - BANNER ORCHESTRATOR 2.0
-// ===================================================
-function askQuickQuestion(questionText) {
-    console.log('📋 Quick question clicked:', questionText);
-    
-    if (isSpeaking) {
-        console.log('Ignoring quick question - system busy');
-        return;
-    }
-    
-    addUserMessage(questionText);
-    
-    setTimeout(() => {
-        const response = getAIResponse(questionText);
-        lastAIResponse = response;
-        addAIMessage(response);
-        speakResponse(response);
-        
-        // 🚀 BANNER ORCHESTRATOR 2.0 INTEGRATION
-        if (typeof BannerOrchestrator !== 'undefined' && BannerOrchestrator.deploy) {
-            BannerOrchestrator.deploy('smartButton', {
-                visibility: shouldShowSmartButton,
-                content: smartButtonText,
-                action: smartButtonAction,
-                trigger: 'quickQuestion',
-                context: questionText,
-                transition: 'smooth',
-                callback: (deployResult) => {
-                    console.log('🎯 Banner deployed via Quick Question:', deployResult);
-                }
-            });
-        } else {
-            // 🛡️ GRACEFUL FALLBACK - Legacy support
-            console.warn('⚠️ BannerOrchestrator not available, using fallback');
-            if (typeof updateSmartButton === 'function') {
-                updateSmartButton(shouldShowSmartButton, smartButtonText, smartButtonAction);
-            } else {
-                console.error('❌ No banner system available');
-            }
-        }
-    }, 800);
-}
-
-function resetLeadCaptureSystem() {
-    console.log('🔄 Resetting lead capture system...');
-    
-    // Remove banner
-    const banner = document.getElementById('leadCaptureBanner');
-    if (banner) {
-        removeLeadCaptureBanner();
-    }
-    
-    // Reset variables
-    isInLeadCapture = false;
-    leadData = null;
-    
-    // 🆕 ENHANCED: Clear any confirmation buttons that might be hanging around
-    const confirmButtons = document.querySelector('.confirmation-buttons');
-    if (confirmButtons) {
-        confirmButtons.remove();
-    }
-    
-    // ✅ SET THE STATE FOR FINAL QUESTION
-    conversationState = 'final_question';
-    
-    // ✅ ASK THE FINAL QUESTION
-    const finalMessage = "Is there anything else I can help you with today?";
-    addAIMessage(finalMessage);
-    speakResponse(finalMessage);
-    
-    // 🆕 IMPROVED: Better speech restart logic
-    setTimeout(() => {
-        if (isAudioMode && recognition && !isListening && !isSpeaking) {
-            startListening();
-        }
-    }, 2000);
 }
 
 // ===================================================
