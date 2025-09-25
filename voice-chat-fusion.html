@@ -844,6 +844,18 @@
     z-index: 10000 !important; /* Above other banners */
 }
 
+/* Allow JavaScript width control to work */
+#bannerHeaderContainer[style*="max-width"] {
+    max-width: inherit !important;
+}
+
+/* Force banner to respect container width */
+#universalBanner {
+    width: calc(100% - 40px) !important; /* 20px margin on each side */
+    margin: 0 20px !important;
+    max-width: none !important;
+}
+
 /* Mobile responsive adjustments for branding banner */
 @media (max-width: 768px) {
     /* Move logo closer to left edge on mobile */
