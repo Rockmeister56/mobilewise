@@ -1014,7 +1014,7 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
         </div>
     `,
     background: 'rgba(255, 255, 255, 0.2)', // 🎯 WHITE LAYER
-    containerWidth: 745, // 🚀 WHITE LAYER WIDTH CONTROL
+    containerWidth: 749, // 🚀 WHITE LAYER WIDTH CONTROL
     customHeight: 65, // 🚀 WHITE LAYER HEIGHT CONTROL
     duration: 4000
 },
