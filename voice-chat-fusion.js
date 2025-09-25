@@ -1002,7 +1002,7 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
         // 3. EMAIL SENT CONFIRMATION
         emailSent: {
     content: `
-        <div style="width: ${738}px; max-width: ${738}px; margin: 0 auto; background: rgba(32, 178, 170, 0.8); border-radius: 6px; height: 50px; display: flex; align-items: center; justify-content: center;">
+        <div style="width: ${738}px; max-width: ${738}px; margin: 0 auto; background: rgba(32, 178, 170, 0.8); border-radius: 6px; height: 58px; display: flex; align-items: center; justify-content: center;">
             <div style="text-align: center; color: white;">
                 <div style="font-size: 14px; font-weight: bold;">
                     ✅ <strong>Confirmation Email Sent!</strong>
@@ -1015,7 +1015,7 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
     `,
     background: 'rgba(255, 255, 255, 0.2)', // 🎯 WHITE LAYER
     containerWidth: 740, // 🚀 WHITE LAYER WIDTH CONTROL
-    customHeight: 70, // 🚀 WHITE LAYER HEIGHT CONTROL
+    customHeight: 60, // 🚀 WHITE LAYER HEIGHT CONTROL
     duration: 4000
 },
         
