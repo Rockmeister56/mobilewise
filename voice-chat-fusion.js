@@ -958,15 +958,17 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
                      style="width: 60px; height: 60px;">
             </div>
             
-            <div style="flex: 1; text-align: center;">
-                <div style="color: white; font-size: 18px; font-weight: bold;">
-                    Mobile-Wise AI
+             <!-- COMPANY NAME: Controllable positioning -->
+            <div style="position: absolute; left: 320px;">
+                <div style="color: white; font-size: 18px; font-weight: bold; letter-spacing: 1.5px;">
+                    MOBILE-WISE AI
                 </div>
             </div>
             
-            <div style="margin-left: 50px;">
-                <div style="color: #87CEEB; font-size: 25px; font-weight: 700;">
-                    ACCOMMODATING - AI VOICE CHAT
+            <!-- SLOGAN: Controllable positioning -->
+            <div style="position: absolute; right: 40px;">
+                <div style="color: #87CEEB; font-size: 11px; font-weight: 600; text-transform: uppercase;">
+                    AI VOICE CHAT
                 </div>
             </div>
         </div>
