@@ -959,14 +959,14 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
             </div>
             
              <!-- COMPANY NAME: Controllable positioning -->
-            <div style="position: absolute; left: 320px; top: 30px;">
+            <div style="position: absolute; left: 60px; top: 40px;">
                 <div style="color: white; font-size: 14px; font-weight: bold; letter-spacing: 1.5px;">
-                    MOBILE-WISE AI
+                    Mobile-Wise AI
                 </div>
             </div>
             
             <!-- SLOGAN: Controllable positioning -->
-            <div style="position: absolute; right: 40px; top: 25px;">
+            <div style="position: absolute; right: 40px; top: 15px;">
                 <div style="color: #87CEEB; font-size: 14px; font-weight: 600; text-transform: uppercase;">
                    &check; SMART  <br> &check; HELPFUL <br> &check; AI VOICE CHAT
                 </div>
