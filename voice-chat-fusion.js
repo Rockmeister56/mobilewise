@@ -954,7 +954,7 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
             </div>
             
              <!-- COMPANY NAME: Controllable positioning -->
-            <div style="position: absolute; left: 85px; top: 40px;">
+            <div style="position: absolute; left: 85px; top: 45px;">
                 <div style="color: white; font-size: 14px; font-weight: bold; letter-spacing: 1.5px;">
                     Mobile-Wise AI
                 </div>
