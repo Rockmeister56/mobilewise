@@ -956,9 +956,9 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
             
             /* Mobile overrides */
             @media (max-width: 768px) {
-                .banner-logo { left: 1px !important; top: 15px !important; }
-                .banner-name { left: 30% !important; transform: translateX(-50%) !important; top: 20px !important; }
-                .banner-slogan { right: 1px !important; top: 25px !important; }
+                .banner-logo { left: 30px !important; top: 15px !important; }
+                .banner-name { left: 80% !important; transform: translateX(-50%) !important; top: 20px !important; }
+                .banner-slogan { right: 25px !important; top: 25px !important; }
             }
         </style>
         
@@ -972,7 +972,7 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
             <!-- COMPANY NAME: Responsive positioning -->
             <div class="banner-name">
                 <div style="color: white; font-size: 18px; font-weight: bold; letter-spacing: 1.5px;">
-                    MOBILE-WISE AI
+                    Mobile-Wise AI
                 </div>
             </div>
             
