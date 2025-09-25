@@ -1194,15 +1194,19 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
     const headerContainer = document.createElement('div');
     headerContainer.id = 'bannerHeaderContainer';
     headerContainer.style.cssText = `
-        position: relative !important;
-        width: 100% !important;
-        height: 85px !important;
-        max-width: 830px !important;
-        margin: 10px auto 20px auto !important;
-        z-index: 9999 !important;
-        overflow: hidden !important;
-        box-sizing: border-box !important;
-    `;
+    position: absolute !important;
+    top: 10px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: 100% !important;
+    height: 85px !important;
+    max-width: 830px !important;
+    z-index: 9999 !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+    pointer-events: none !important;
+    margin: 0 !important;
+`;
     
     // 🚀 CREATE BANNER WITHIN CONTAINER
     const banner = document.createElement('div');
