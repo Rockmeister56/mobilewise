@@ -961,7 +961,7 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
             </div>
             
             <!-- SLOGAN: Controllable positioning -->
-            <div style="position: absolute; right: 40px; top: 10px;">
+            <div style="position: absolute; right: 40px; top: 5px;">
                 <div style="color: #87CEEB; font-size: 14px; font-weight: 600; text-transform: uppercase;">
                    &check; SMART  <br> &check; HELPFUL <br> &check; AI VOICE CHAT
                 </div>
