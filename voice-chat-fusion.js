@@ -954,20 +954,20 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
             content: `
                 <div style="display: flex; align-items: center; height: 100%; padding: 0 20px; position: relative;">
                     <!-- LOGO: Far Left -->
-                    <div style="position: absolute; left: 20px;">
+                    <div style="position: absolute; left: 10px;">
                         <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758507868460_logo.png" 
                              style="width: 50px; height: 50px;">
                     </div>
                     
                     <!-- COMPANY NAME: Center -->
                     <div style="flex: 1; text-align: center;">
-                        <div style="color: white; font-size: 20px; font-weight: bold; letter-spacing: 2px;">
-                            MOBILE-WISE AI
+                        <div style="color: white; font-size: 14px; font-weight: bold; letter-spacing: 2px;">
+                            Mobile-Wise AI
                         </div>
                     </div>
                     
                     <!-- SLOGAN: Far Right -->
-                    <div style="position: absolute; right: 20px;">
+                    <div style="position: absolute; right: 10px;">
                         <div style="color: #87CEEB; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">
                             AI Voice Chat
                         </div>
