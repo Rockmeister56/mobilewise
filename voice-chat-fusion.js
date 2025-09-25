@@ -960,7 +960,7 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
                     </div>
                     
                     <!-- COMPANY NAME: Center -->
-                    <div style="flex: 1; text-align: center;">
+                    <div style="flex: 1; text-align: left;">
                         <div style="color: white; font-size: 14px; font-weight: bold; letter-spacing: 2px;">
                             Mobile-Wise AI
                         </div>
