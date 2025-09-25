@@ -1002,7 +1002,7 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
         // 3. EMAIL SENT CONFIRMATION
         emailSent: {
     content: `
-        <div style="width: ${742}px; max-width: ${742}px; margin: 0 auto; background: rgba(32, 178, 170, 0.8); border-radius: 6px; height: 58px; display: flex; align-items: center; justify-content: center;">
+        <div style="width: ${620}px; max-width: ${620}px; margin: 0 auto; background: rgba(32, 178, 170, 0.8); border-radius: 6px; height: 50px; display: flex; align-items: center; justify-content: center;">
             <div style="text-align: center; color: white;">
                 <div style="font-size: 14px; font-weight: bold;">
                     ✅ <strong>Confirmation Email Sent!</strong>
@@ -1014,8 +1014,8 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
         </div>
     `,
     background: 'rgba(255, 255, 255, 0.2)', // 🎯 WHITE LAYER
-    containerWidth: 752, // 🚀 WHITE LAYER WIDTH CONTROL
-    customHeight: 65, // 🚀 WHITE LAYER HEIGHT CONTROL
+    containerWidth: 700, // 🚀 WHITE LAYER WIDTH CONTROL
+    customHeight: 70, // 🚀 WHITE LAYER HEIGHT CONTROL
     duration: 4000
 },
         
@@ -1282,12 +1282,11 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
     headerContainer.appendChild(banner);
     mainContainer.insertBefore(headerContainer, mainContainer.firstChild);
     
-    // Auto-remove if duration set
+    // 🚀 AUTO-REMOVE WITH BRANDING RESTORE (FIXED!)
     const duration = options.duration || bannerConfig?.duration;
     if (duration && duration > 0) {
         setTimeout(() => {
-            const containerToRemove = document.getElementById('bannerHeaderContainer');
-            if (containerToRemove) containerToRemove.remove();
+            removeAllBanners(); // ← CHANGED: Now uses the auto-restore system!
         }, duration);
     }
     
@@ -1295,12 +1294,27 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
     return banner;
 };
 
-// ✅ KEEP: Enhanced removal with header container support
-window.removeAllBanners = function() {
+// 🚀 AUTO-RESTORE BRANDING SYSTEM
+window.restoreBrandingBanner = function() {
+    const existingContainer = document.getElementById('bannerHeaderContainer');
+    if (!existingContainer) {
+        console.log('🔄 Restoring default branding banner...');
+        window.showUniversalBanner('branding');
+    }
+};
+
+// 🚀 ENHANCED REMOVE WITH AUTO-RESTORE
+window.removeAllBanners = function(restoreBranding = true) {
     const existingContainer = document.getElementById('bannerHeaderContainer');
     if (existingContainer) {
         existingContainer.remove();
         console.log('🗑️ Header banner container removed');
+        
+        if (restoreBranding) {
+            setTimeout(() => {
+                window.restoreBrandingBanner();
+            }, 300);
+        }
     }
     
     const existingBanner = document.getElementById('universalBanner');
@@ -1447,191 +1461,6 @@ function deliverLeadMagnet(leadMagnet, userEmail) {
     }
 }
 
-// 🎯 ENHANCED UNIVERSAL BANNER SYSTEM
-function showUniversalBanner(bannerType, customData = null) {
-    let bannerHtml = '';
-    
-    switch(bannerType) {
-        case 'leadMagnet':
-            const leadMagnet = getActiveLeadMagnet();
-            if (leadMagnet) {
-                bannerHtml = `
-                    <div style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); 
-                                color: white; padding: 25px; text-align: center; 
-                                border-radius: 15px; margin: 20px 0; box-shadow: 0 6px 20px rgba(40,167,69,0.3);
-                                animation: slideIn 0.5s ease-out;">
-                        <div style="font-size: 2em; margin-bottom: 10px;">🎁</div>
-                        <h3 style="margin: 0 0 10px 0; font-size: 1.4em;">${leadMagnet.title}</h3>
-                        <p style="margin: 0 0 20px 0; opacity: 0.9;">${leadMagnet.description}</p>
-                        <a href="${leadMagnet.downloadLink}" target="_blank" 
-                           style="background: white; color: #28a745; text-decoration: none; 
-                                  padding: 15px 30px; border-radius: 25px; font-weight: bold; 
-                                  display: inline-block; transition: all 0.3s ease;
-                                  box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
-                            📥 Download Now
-                        </a>
-                        <div style="margin-top: 15px; font-size: 0.9em; opacity: 0.8;">
-                            Also check your email for the direct link!
-                        </div>
-                    </div>
-                `;
-            }
-            break;
-            
-        case 'moreQuestions':
-            bannerHtml = `
-                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-                            color: white; padding: 20px; text-align: center; 
-                            border-radius: 10px; margin: 20px 0; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
-                    <h3 style="margin: 0 0 10px 0;">❓ Still Have Questions?</h3>
-                    <p style="margin: 0 0 15px 0;">I'm here to help with anything else!</p>
-                    <button onclick="restartConversation()" 
-                            style="background: white; color: #667eea; border: none; 
-                                   padding: 12px 24px; border-radius: 25px; 
-                                   font-weight: bold; cursor: pointer;">
-                        Ask Another Question
-                    </button>
-                </div>
-            `;
-            break;
-            
-        case 'thankYou':
-            bannerHtml = `
-                <div style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%); 
-                            color: white; padding: 25px; text-align: center; 
-                            border-radius: 15px; margin: 20px 0; box-shadow: 0 6px 20px rgba(255,107,107,0.3);">
-                    <div style="font-size: 2.5em; margin-bottom: 15px;">🙏</div>
-                    <h2 style="margin: 0 0 10px 0;">Thank You!</h2>
-                    <p style="margin: 0; font-size: 1.1em;">We appreciate your time and look forward to helping you!</p>
-                </div>
-            `;
-            break;
-    }
-    
-    if (bannerHtml) {
-        const banner = document.createElement('div');
-        banner.innerHTML = bannerHtml;
-        banner.className = 'universal-banner';
-        document.getElementById('chat-messages').appendChild(banner);
-        banner.scrollIntoView({ behavior: 'smooth' });
-    }
-}
-
-// 🚀 RESTART CONVERSATION FUNCTION
-function restartConversation() {
-    conversationState = 'initial';
-    addMessage("Great! What else can I help you with regarding your practice?", 'ai');
-}
-
-// ===================================================
-// 🎖️ BANNER STATE MANAGEMENT SYSTEM
-// ===================================================
-window.BannerOrchestrator = {
-    currentBanner: null,
-    bannerHistory: [],
-    aiTriggers: new Map(),
-    transitionRules: new Map(),
-    
-    // 🎯 CORE ORCHESTRATION ENGINE
-    deploy: function(bannerType, options = {}) {
-        console.log(`🎯 Banner Orchestration: Deploying ${bannerType}`);
-        
-        // 1. LOG TRANSITION
-        if (this.currentBanner) {
-            console.log(`🔄 Banner Transition: ${this.currentBanner} → ${bannerType}`);
-            this.bannerHistory.push({
-                from: this.currentBanner,
-                to: bannerType,
-                timestamp: new Date(),
-                trigger: options.trigger || 'manual'
-            });
-        }
-        
-        // 2. INTELLIGENT REMOVAL (avoid conflicts)
-        this.removeCurrentBanner();
-        
-        // 3. DEPLOY NEW BANNER
-        const banner = showUniversalBanner(bannerType, options.customContent, options);
-        
-        // 4. UPDATE STATE
-        this.currentBanner = bannerType;
-        
-        // 5. TRIGGER CALLBACKS
-        if (options.onDeploy) options.onDeploy(banner);
-        
-        return banner;
-    },
-    
-    // 🎯 INTELLIGENT BANNER REMOVAL
-    removeCurrentBanner: function() {
-        if (this.currentBanner) {
-            removeAllBanners();
-            console.log(`🗑️ Removed banner: ${this.currentBanner}`);
-            this.currentBanner = null;
-        }
-    },
-    
-    // 🎯 AI TRIGGER REGISTRATION (for client dashboard)
-    registerAITrigger: function(keyword, bannerType, options = {}) {
-        this.aiTriggers.set(keyword.toLowerCase(), {
-            bannerType,
-            options,
-            priority: options.priority || 1
-        });
-        console.log(`🤖 AI Trigger registered: "${keyword}" → ${bannerType}`);
-    },
-    
-    // 🎯 BANNER TRANSITION RULES (for complex flows)
-    setTransitionRule: function(fromBanner, toBanner, condition = 'auto') {
-        if (!this.transitionRules.has(fromBanner)) {
-            this.transitionRules.set(fromBanner, []);
-        }
-        this.transitionRules.get(fromBanner).push({
-            toBanner,
-            condition,
-            timestamp: new Date()
-        });
-        console.log(`📋 Transition rule: ${fromBanner} → ${toBanner} (${condition})`);
-    },
-    
-    // 🎯 AI MESSAGE PROCESSOR
-    processAIMessage: function(message) {
-        const lowerMessage = message.toLowerCase();
-        let triggeredBanner = null;
-        let highestPriority = 0;
-        
-        // Check all registered triggers
-        this.aiTriggers.forEach((trigger, keyword) => {
-            if (lowerMessage.includes(keyword) && trigger.priority >= highestPriority) {
-                triggeredBanner = trigger;
-                highestPriority = trigger.priority;
-            }
-        });
-        
-        // Deploy banner if trigger found
-        if (triggeredBanner) {
-            console.log(`🤖 AI triggered banner: ${triggeredBanner.bannerType}`);
-            this.deploy(triggeredBanner.bannerType, {
-                ...triggeredBanner.options,
-                trigger: 'AI'
-            });
-            return true;
-        }
-        
-        return false;
-    },
-    
-    // 🎯 GET SYSTEM STATUS (for development dashboard)
-    getStatus: function() {
-        return {
-            currentBanner: this.currentBanner,
-            history: this.bannerHistory,
-            triggers: Array.from(this.aiTriggers.entries()),
-            rules: Array.from(this.transitionRules.entries())
-        };
-    }
-};
-
 // ===================================================
 // 🎯 STEP 1: RETROFITTED handleSmartButtonClick()
 // ===================================================
@@ -1701,126 +1530,6 @@ function updateSmartButton(shouldShow, buttonText, action) {
         }
     }
 }
-
-// ===================================================
-// 🎯 STEP 3: BANNER ORCHESTRATION INTELLIGENCE
-// ===================================================
-
-// 🤖 AI TRIGGER SETUP (for client dashboard configuration)
-function setupAITriggers() {
-    console.log('🤖 Setting up AI triggers for banner orchestration...');
-    
-    // Register common AI triggers
-    BannerOrchestrator.registerAITrigger('appointment', 'smartButton', { priority: 3 });
-    BannerOrchestrator.registerAITrigger('consultation', 'smartButton', { priority: 3 });
-    BannerOrchestrator.registerAITrigger('schedule', 'smartButton', { priority: 2 });
-    BannerOrchestrator.registerAITrigger('free book', 'freeBook', { priority: 4 });
-    BannerOrchestrator.registerAITrigger('call bruce', 'clickToCall', { priority: 5 });
-    BannerOrchestrator.registerAITrigger('phone number', 'clickToCall', { priority: 3 });
-    
-    console.log('✅ AI triggers registered successfully');
-}
-
-// 🔄 BANNER TRANSITION RULES SETUP
-function setupBannerTransitions() {
-    console.log('📋 Setting up banner transition rules...');
-    
-    // Define banner flow logic
-    BannerOrchestrator.setTransitionRule('smartButton', 'leadCapture', 'click');
-    BannerOrchestrator.setTransitionRule('leadCapture', 'consultationConfirmed', 'completion');
-    BannerOrchestrator.setTransitionRule('consultationConfirmed', 'freeBook', 'ai_offer');
-    
-    console.log('✅ Banner transition rules established');
-}
-
-// 🎯 CLIENT DASHBOARD INTEGRATION FUNCTIONS
-window.MobileWiseBannerDashboard = {
-    // Add custom banner for client
-    addCustomBanner: function(bannerName, content, styling = {}) {
-        // Add to Universal Banner Library
-        if (typeof showUniversalBanner === 'function') {
-            console.log(`🎨 Custom banner added: ${bannerName}`);
-            return BannerOrchestrator.deploy(bannerName, {
-                customContent: content,
-                ...styling
-            });
-        }
-    },
-    
-    // Add AI trigger for client
-    addAITrigger: function(keyword, bannerType, priority = 1) {
-        BannerOrchestrator.registerAITrigger(keyword, bannerType, { priority });
-    },
-    
-    // Get analytics for client dashboard
-    getAnalytics: function() {
-        return BannerOrchestrator.getStatus();
-    },
-    
-    // Test banner system
-    testBanner: function(bannerType) {
-        return BannerOrchestrator.deploy(bannerType, { trigger: 'test' });
-    }
-};
-
-// ===================================================
-// 🎯 AUTO-INITIALIZATION SYSTEM
-// ===================================================
-function initializeBannerOrchestration() {
-    console.log('🚀 Initializing Mobile-Wise AI Banner Orchestration Engine...');
-    
-    // Setup AI triggers
-    setupAITriggers();
-    
-    // Setup transition rules  
-    setupBannerTransitions();
-    
-    // Deploy initial branding banner
-    setTimeout(() => {
-        BannerOrchestrator.deploy('branding', { trigger: 'initialization' });
-    }, 500);
-    
-    console.log('✅ Banner Orchestration Engine fully operational!');
-}
-
-// ===================================================
-// 🎯 ENHANCED UNIVERSAL BANNER COMPATIBILITY
-// ===================================================
-
-// Override removeLeadCaptureBanner for full compatibility
-window.removeLeadCaptureBanner = function() {
-    BannerOrchestrator.removeCurrentBanner();
-    console.log('🎯 Lead capture banner removal (Orchestration system)');
-};
-
-// Enhanced removeAllBanners
-window.removeAllBanners = function() {
-    const existingBanner = document.getElementById('universalBanner');
-    if (existingBanner) {
-        existingBanner.remove();
-        console.log('🗑️ Universal banner removed');
-    }
-    BannerOrchestrator.currentBanner = null;
-};
-
-// ===================================================
-// 🎯 AUTO-START ORCHESTRATION ENGINE
-// ===================================================
-document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(() => {
-        initializeBannerOrchestration();
-    }, 1000);
-});
-
-// Backup initialization
-if (document.readyState === 'complete' || document.readyState === 'interactive') {
-    setTimeout(() => {
-        initializeBannerOrchestration();
-    }, 500);
-}
-
-console.log('🎖️ Mobile-Wise AI Complete Banner Orchestration Engine V2.0 Loaded!');
-
 
 // ===================================================
 // 🧠 AI RESPONSE SYSTEM
