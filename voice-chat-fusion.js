@@ -942,41 +942,41 @@ function addUserMessage(message) {
 }
 
 // ===================================================================
-// 🎯 MOBILE-WISE AI UNIVERSAL BANNER ENGINE - HEADER CONTAINER EDITION
+// 🎯 MOBILE-WISE AI UNIVERSAL BANNER ENGINE - CLEAN CONTAINER EDITION
 // ===================================================================
 window.showUniversalBanner = function(bannerType, customContent = null, options = {}) {
     console.log(`🎯 Deploying Universal Banner: ${bannerType}`);
     
     // COMPLETE BANNER LIBRARY - All 9 Banner Types
     const bannerLibrary = {
-        // 1. BRANDING HEADER
+        // 1. BRANDING HEADER (🚀 UPDATED LAYOUT)
         branding: {
-    content: `
-        <div style="display: flex; justify-content: space-between; align-items: center; height: 100%; padding: 0 20px;">
-            <!-- LEFT SIDE: Logo Only -->
-            <div style="display: flex; align-items: center;">
-                <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758507868460_logo.png" 
-                     style="width: 45px; height: 45px;">
-            </div>
-            
-            <!-- CENTER: Company Name -->
-            <div style="text-align: center;">
-                <div style="color: white; font-size: 18px; font-weight: bold; letter-spacing: 1px;">
-                    Mobile-Wise AI
+            content: `
+                <div style="display: flex; align-items: center; height: 100%; padding: 0 20px; position: relative;">
+                    <!-- LOGO: Far Left -->
+                    <div style="position: absolute; left: 20px;">
+                        <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758507868460_logo.png" 
+                             style="width: 50px; height: 50px;">
+                    </div>
+                    
+                    <!-- COMPANY NAME: Center -->
+                    <div style="flex: 1; text-align: center;">
+                        <div style="color: white; font-size: 20px; font-weight: bold; letter-spacing: 2px;">
+                            MOBILE-WISE AI
+                        </div>
+                    </div>
+                    
+                    <!-- SLOGAN: Far Right -->
+                    <div style="position: absolute; right: 20px;">
+                        <div style="color: #87CEEB; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">
+                            AI Voice Chat
+                        </div>
+                    </div>
                 </div>
-            </div>
-            
-            <!-- RIGHT SIDE: Slogan -->
-            <div style="text-align: right;">
-                <div style="color: #87CEEB; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
-                    AI Voice Chat
-                </div>
-            </div>
-        </div>
-    `,
-    background: 'transparent',
-    duration: 0
-},
+            `,
+            background: 'transparent',
+            duration: 0
+        },
         
         // 2. SMART BUTTON (Free Consultation)
         smartButton: {
@@ -1097,7 +1097,7 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
             duration: 0
         },
 
-        // 7. MORE QUESTIONS BANNER (🚀 NEW!)
+        // 7. MORE QUESTIONS BANNER
         moreQuestions: {
             content: `
                 <div style="display: flex; flex-direction: column; align-items: center; height: 100%; padding: 15px 20px; text-align: center;">
@@ -1127,7 +1127,7 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
             duration: 0
         },
 
-        // 8. LEAD MAGNET BANNER (🚀 NEW!)
+        // 8. LEAD MAGNET BANNER
         leadMagnet: {
             content: `
                 <div style="display: flex; justify-content: space-between; align-items: center; height: 100%; padding: 0 20px;">
@@ -1139,7 +1139,7 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
                             Download your exclusive guide now
                         </div>
                     </div>
-                    <button onclick="window.open('https://bruces-book-link.com/download', '_blank')" style="
+                    <button onclick="window.open(getActiveLeadMagnet().downloadLink, '_blank')" style="
                         background: white;
                         color: #28a745;
                         border: none;
@@ -1190,18 +1190,15 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
         return null;
     }
     
-    // 🚀 CREATE HEADER CONTAINER (830x85)
+    // 🚀 CREATE HEADER CONTAINER (INSIDE MAIN CONTAINER - CLEAN!)
     const headerContainer = document.createElement('div');
     headerContainer.id = 'bannerHeaderContainer';
     headerContainer.style.cssText = `
-        position: fixed !important;
-        top: 0 !important;
-        left: 50% !important;
-        transform: translateX(-50%) !important;
-        width: 830px !important;
+        position: relative !important;
+        width: 100% !important;
         height: 85px !important;
         max-width: 830px !important;
-        max-height: 85px !important;
+        margin: 10px auto 20px auto !important;
         z-index: 9999 !important;
         overflow: hidden !important;
         box-sizing: border-box !important;
@@ -1213,7 +1210,7 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
     banner.className = `universal-banner ${bannerType}-banner`;
     banner.innerHTML = customContent || bannerConfig.content;
     
-    // 🎯 BANNER STYLING (FITS WITHIN 830x85)
+    // 🎯 BANNER STYLING (FITS WITHIN CONTAINER)
     if (bannerType === 'branding') {
         banner.style.cssText = `
             position: absolute !important;
@@ -1221,10 +1218,10 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
             left: 0 !important;
             width: 100% !important;
             height: 100% !important;
-            background: transparent !important; /* NO background */
-            border: none !important; /* NO border */
-            backdrop-filter: none !important; /* NO blur effect */
-            border-radius: 0 !important; /* NO rounded corners */
+            background: transparent !important;
+            border: none !important;
+            backdrop-filter: none !important;
+            border-radius: 0 !important;
             margin: 0 !important;
             padding: 0 !important;
             box-sizing: border-box !important;
@@ -1233,7 +1230,7 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
             justify-content: center !important;
             color: white;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            box-shadow: none !important; /* NO shadow */
+            box-shadow: none !important;
         `;
     } else {
         banner.style.cssText = `
@@ -1265,9 +1262,15 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
         headerContainer.style.height = '70px';
     }
     
-    // 🚀 DEPLOY BANNER SYSTEM
+    // 🚀 DEPLOY INSIDE MAIN CONTAINER (THE KEY CHANGE!)
+    const mainContainer = document.querySelector('.container') || 
+                          document.querySelector('#main-container') || 
+                          document.querySelector('#container') || 
+                          document.querySelector('#app') ||
+                          document.body;
+
     headerContainer.appendChild(banner);
-    document.body.appendChild(headerContainer);
+    mainContainer.insertBefore(headerContainer, mainContainer.firstChild);
     
     // Auto-remove if duration set
     const duration = options.duration || bannerConfig?.duration;
@@ -1278,7 +1281,7 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
         }, duration);
     }
     
-    console.log(`✅ Header-constrained banner "${bannerType}" deployed (830x85)`);
+    console.log(`✅ Container-based banner "${bannerType}" deployed (Clean positioning)`);
     return banner;
 };
 
@@ -1303,7 +1306,7 @@ window.removeLeadCaptureBanner = function() {
     console.log('🎯 Lead capture banner removal (Universal system)');
 };
 
-console.log('🎖️ Complete Universal Banner Engine loaded - 9 banner types ready!');
+console.log('🎖️ Complete Universal Banner Engine loaded - 9 banner types ready (Clean Container Edition)!');
 
 // ===================================================
 // 🏆 AUTO-DEPLOY BRANDING BANNER ON PAGE LOAD
