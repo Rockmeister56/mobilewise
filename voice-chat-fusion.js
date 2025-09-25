@@ -946,43 +946,74 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
     // COMPLETE BANNER LIBRARY - All 9 Banner Types
     const bannerLibrary = {
         // 1. BRANDING HEADER (🚀 UPDATED LAYOUT)
-        branding: {
+       branding: {
     content: `
-        <style>
-            /* Desktop positioning (default) */
-            .banner-logo { position: absolute; left: 30px; top: 17px; }
-            .banner-name { position: absolute; left: 85px; top: 40px; }
-            .banner-slogan { position: absolute; right: 40px; top: 10px; }
-            
-            /* Mobile overrides */
-            @media (max-width: 768px) {
-                .banner-logo { left: 30px !important; top: 15px !important; }
-                .banner-name { left: 80% !important; transform: translateX(-50%) !important; top: 20px !important; }
-                .banner-slogan { right: 25px !important; top: 25px !important; }
-            }
-        </style>
-        
         <div style="display: flex; align-items: center; height: 100%; padding: 0 20px; position: relative;">
-            <!-- LOGO: Responsive positioning -->
-            <div class="banner-logo">
+            <!-- LOGO: Full X/Y control -->
+            <div id="banner-logo" style="position: absolute;">
                 <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758507868460_logo.png" 
-                     style="width: 45px; height: 45px;">
+                     style="width: 60px; height: 60px;">
             </div>
             
-            <!-- COMPANY NAME: Responsive positioning -->
-            <div class="banner-name">
+            <!-- COMPANY NAME: Full X/Y control -->
+            <div id="banner-name" style="position: absolute;">
                 <div style="color: white; font-size: 18px; font-weight: bold; letter-spacing: 1.5px;">
-                    Mobile-Wise AI
+                    MOBILE-WISE AI
                 </div>
             </div>
             
-            <!-- SLOGAN: Responsive positioning -->
-            <div class="banner-slogan">
+            <!-- SLOGAN: Full X/Y control -->
+            <div id="banner-slogan" style="position: absolute;">
                 <div style="color: #87CEEB; font-size: 11px; font-weight: 600; text-transform: uppercase;">
-                    &check; SMART  <br> &check; HELPFUL <br> &check; AI VOICE CHAT
+                    AI VOICE CHAT
                 </div>
             </div>
         </div>
+        
+        <script>
+            // Apply full positioning based on screen size
+            function setBannerPositioning() {
+                const logo = document.getElementById('banner-logo');
+                const name = document.getElementById('banner-name');  
+                const slogan = document.getElementById('banner-slogan');
+                
+                if (window.innerWidth <= 768) {
+                    // MOBILE positioning (X + Y)
+                    logo.style.left = '10px';
+                    logo.style.top = '15px';
+                    logo.style.right = 'auto';
+                    
+                    name.style.left = '50%';
+                    name.style.top = '20px';
+                    name.style.transform = 'translateX(-50%)';
+                    name.style.right = 'auto';
+                    
+                    slogan.style.right = '10px';
+                    slogan.style.top = '25px';
+                    slogan.style.left = 'auto';
+                } else {
+                    // DESKTOP positioning (X + Y)
+                    logo.style.left = '30px';
+                    logo.style.top = '17px';
+                    logo.style.right = 'auto';
+                    
+                    name.style.left = '85px';
+                    name.style.top = '40px';
+                    name.style.transform = 'none';
+                    name.style.right = 'auto';
+                    
+                    slogan.style.right = '40px';
+                    slogan.style.top = '10px';
+                    slogan.style.left = 'auto';
+                }
+            }
+            
+            // Set positioning immediately
+            setBannerPositioning();
+            
+            // Update on window resize
+            window.addEventListener('resize', setBannerPositioning);
+        </script>
     `,
     background: 'transparent',
     duration: 0
