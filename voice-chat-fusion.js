@@ -1186,21 +1186,21 @@ leadMagnet: {
     containerWidth: 752, // 🚀 WHITE LAYER WIDTH CONTROL
     customHeight: 65, // 🚀 WHITE LAYER HEIGHT CONTROL
     duration: 0
-}
-        
-        // 9. LEAD CAPTURE ACTIVE
-        leadCapture: {
-            content: `
-                <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: white;">
-                    <div style="text-align: center;">
-                        <div style="font-size: 16px; font-weight: bold;">
-                            📋 YOUR CONTACT INFO
-                        </div>
-                        <div style="font-size: 12px; opacity: 0.9; margin-top: 5px;">
-                            Please provide your details for the consultation
-                        </div>
-                    </div>
+}, // 🚨 THIS COMMA WAS MISSING!
+
+// 9. LEAD CAPTURE ACTIVE
+leadCapture: {
+    content: `
+        <div style="width: ${742}px; max-width: ${742}px; margin: 0 auto; height: 58px; display: flex; align-items: center; justify-content: center; border-radius: 6px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <div style="text-align: center; color: white;">
+                <div style="font-size: 16px; font-weight: bold;">
+                    📋 YOUR CONTACT INFO
                 </div>
+                <div style="font-size: 12px; opacity: 0.9; margin-top: 2px;">
+                    Please provide your details for the consultation
+                </div>
+            </div>
+        </div>
             `,
             background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
             duration: 0
