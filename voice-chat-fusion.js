@@ -95,14 +95,10 @@ console.log('🚀 Speech Engine Manager initialized');
 // 📱 MOBILE DEVICE DETECTION
 // ===================================================
 function isMobileDevice() {
-    // Force mobile detection for testing - remove this later
-    return true;
-    
-    /* Original detection (keep this for later)
-    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
-           (navigator.maxTouchPoints && navigator.maxTouchPoints > 2 && /MacIntel/.test(navigator.platform));
-    */
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 }
+
+
 // ===================================================
 // 🎤 MICROPHONE PERMISSION SYSTEM
 // ===================================================
@@ -960,9 +956,9 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
             
             /* Mobile overrides */
             @media (max-width: 768px) {
-                .banner-logo { left: 10px !important; top: 15px !important; }
-                .banner-name { left: 50% !important; transform: translateX(-50%) !important; top: 20px !important; }
-                .banner-slogan { right: 10px !important; top: 25px !important; }
+                .banner-logo { left: 1px !important; top: 15px !important; }
+                .banner-name { left: 30% !important; transform: translateX(-50%) !important; top: 20px !important; }
+                .banner-slogan { right: 1px !important; top: 25px !important; }
             }
         </style>
         
