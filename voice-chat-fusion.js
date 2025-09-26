@@ -1396,13 +1396,13 @@ window.restoreBrandingBanner = function() {
     if (!existingContainer) {
         console.log('🔄 Restoring default branding banner...');
         window.showUniversalBanner('branding');
+    } else if (existingContainer.innerHTML.length === 0) {
+        // 🎯 CONTAINER EXISTS BUT IS EMPTY - FORCE RESTORE CONTENT!
+        console.log('🔄 Container exists but empty - forcing branding content restoration...');
+        existingContainer.remove(); // Remove empty container
+        window.showUniversalBanner('branding'); // Create fresh branding banner
     } else {
-        // 🎯 NEW: Check what's actually in the container
-        console.log('✅ Branding banner container exists');
-        console.log('📊 Container display:', existingContainer.style.display);
-        console.log('📊 Container visibility:', existingContainer.style.visibility);
-        console.log('📊 Container innerHTML length:', existingContainer.innerHTML.length);
-        console.log('📊 Container content preview:', existingContainer.innerHTML.substring(0, 100));
+        console.log('✅ Branding banner container exists with content');
     }
 };
 
