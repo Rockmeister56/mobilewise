@@ -1538,13 +1538,6 @@ window.triggerBanner = function(bannerType, options = {}) {
     showUniversalBanner(actualBannerType, null, options);
 };
 
-
-// Bridge function for existing smart button calls
-function handleSmartButtonClick() {
-    console.log('🎖️ Smart button clicked - routing to consultation handler');
-    return handleConsultationClick();
-}
-
 // Condition checker (COMPLETE with all your logic)
 function checkTriggerConditions(conditions, data) {
     return conditions.every(condition => {
