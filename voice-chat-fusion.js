@@ -1509,13 +1509,13 @@ window.triggerBanner = function(bannerType, options = {}) {
 
 
 // ===================================================
-// 🎯 CONSULTATION BUTTON HANDLER
+// 🎯 CONSULTATION BUTTON HANDLER - FIXED
 // ===================================================
-function handleConsultationClick() {
-    console.log('🎯 Starting lead capture flow...');
+function handleConsultationClick(type = 'consultation') {
+    console.log(`🎯 Starting lead capture flow for: ${type}`);
     
-    // Trigger lead capture banner
-    triggerBanner('lead_capture');
+    // DON'T trigger lead capture banner - keep button visible!
+    // triggerBanner('lead_capture'); // ← COMMENTED OUT!
     
     // Start lead capture conversation state
     conversationState = 'lead_capture';
