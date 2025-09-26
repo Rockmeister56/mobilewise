@@ -2369,7 +2369,7 @@ function sendFollowUpEmail() {
     console.error('❌ CRITICAL: leadData or email is missing!');
     
     // Try to continue conversation even with missing data
-    addMessage("Is there anything else I can help you with today?", 'ai');
+    addAIMessage("Is there anything else I can help you with today?", 'ai');
     conversationState = 'asking_if_more_help';
     return;
 }
@@ -2439,7 +2439,7 @@ setTimeout(() => {
     console.error('❌ EMAIL FAILED:', error);
     
     // Still continue conversation even if email fails
-    addMessage("Is there anything else I can help you with today?", 'ai');
+    addAIMessage("Is there anything else I can help you with today?", 'ai');
     conversationState = 'asking_if_more_help';
     
     const smartButton = document.getElementById('smartButton');
@@ -2449,7 +2449,7 @@ setTimeout(() => {
 });
 } else {
     // Continue conversation even if emailjs not available
-    addMessage("Is there anything else I can help you with today?", 'ai');
+    addAIMessage("Is there anything else I can help you with today?", 'ai');
     conversationState = 'asking_if_more_help';
     
     const smartButton = document.getElementById('smartButton');
