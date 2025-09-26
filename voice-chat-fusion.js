@@ -1391,14 +1391,18 @@ if (duration && duration > 0) {
     return banner;
 };
 
-// 🚀 AUTO-RESTORE BRANDING SYSTEM
 window.restoreBrandingBanner = function() {
     const existingContainer = document.getElementById('bannerHeaderContainer');
     if (!existingContainer) {
         console.log('🔄 Restoring default branding banner...');
         window.showUniversalBanner('branding');
     } else {
-        console.log('✅ Branding banner already exists - no restoration needed');
+        // 🎯 NEW: Check what's actually in the container
+        console.log('✅ Branding banner container exists');
+        console.log('📊 Container display:', existingContainer.style.display);
+        console.log('📊 Container visibility:', existingContainer.style.visibility);
+        console.log('📊 Container innerHTML length:', existingContainer.innerHTML.length);
+        console.log('📊 Container content preview:', existingContainer.innerHTML.substring(0, 100));
     }
 };
 
