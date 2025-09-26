@@ -1376,13 +1376,16 @@ leadCapture: {
     headerContainer.appendChild(banner);
     mainContainer.insertBefore(headerContainer, mainContainer.firstChild);
     
-    // 🚀 AUTO-REMOVE WITH BRANDING RESTORE (FIXED!)
-    const duration = options.duration || bannerConfig?.duration;
-    if (duration && duration > 0) {
-        setTimeout(() => {
-            removeAllBanners(); // ← CHANGED: Now uses the auto-restore system!
-        }, duration);
-    }
+    // 🚀 AUTO-REMOVE WITH BRANDING PROTECTION
+const duration = options.duration || bannerConfig?.duration;
+if (duration && duration > 0) {
+    setTimeout(() => {
+        // 🎯 DON'T remove branding banners - they should be permanent!
+        if (bannerType !== 'branding') {
+            removeAllBanners(); // Only remove non-branding banners
+        }
+    }, duration);
+}
     
     console.log(`✅ Container-based banner "${bannerType}" deployed (Clean positioning)`);
     return banner;
@@ -1527,6 +1530,7 @@ window.triggerBanner = function(bannerType, options = {}) {
     
     const bannerMap = {
         'smart_button': 'smartButton',
+        'consultation_offer': 'smartButton',  // ← ADD THIS LINE!
         'email_sent': 'emailSent', 
         'free_book': 'freeBook',
         'consultation_confirmed': 'consultationConfirmed',
@@ -1603,6 +1607,12 @@ function deliverLeadMagnet(leadMagnet, userEmail) {
 // ===================================================
 function handleSmartButtonClick(buttonType) {
     console.log(`🚨 Smart button clicked: ${buttonType}`);
+
+    // 🎯 IMMEDIATELY restore branding banner when button is clicked
+    setTimeout(() => {
+        console.log('🎯 Button clicked - immediately restoring branding');
+        window.restoreBrandingBanner();
+    }, 200); // Very short delay, just to ensure smooth transition
     
     // Fix buttonType if it's an event object
     if (typeof buttonType === 'object') {
