@@ -1397,8 +1397,11 @@ window.restoreBrandingBanner = function() {
     if (!existingContainer) {
         console.log('🔄 Restoring default branding banner...');
         window.showUniversalBanner('branding');
+    } else {
+        console.log('✅ Branding banner already exists - no restoration needed');
     }
 };
+
 
 // 🚀 ENHANCED REMOVE WITH AUTO-RESTORE
 window.removeAllBanners = function(restoreBranding = true) {
