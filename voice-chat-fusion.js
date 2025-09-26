@@ -1459,6 +1459,28 @@ const bannerTriggers = {
 };
 
 // ===================================================
+// 🎯 CONSULTATION BUTTON HANDLER
+// ===================================================
+function handleConsultationClick(type = 'consultation') {
+    console.log(`🎯 Starting lead capture flow for: ${type}`);
+    
+    // Trigger lead capture banner
+    triggerBanner('lead_capture');
+    
+    // Start lead capture conversation state
+    conversationState = 'lead_capture';
+    isInLeadCapture = true;
+    
+    // Start the interview process
+    const leadMessage = "Great! Let's get your FREE practice valuation started. What's your name?";
+    addAIMessage(leadMessage);
+    speakResponse(leadMessage);
+    
+    // Pause speech recognition temporarily for banner interaction
+    pauseSpeechForBannerInteraction();
+}
+
+// ===================================================
 // 🎖️ UNIVERSAL MASTER BANNER TRIGGER SYSTEM
 // ===================================================
 window.triggerBanner = function(bannerType, options = {}) {
@@ -1476,6 +1498,8 @@ window.triggerBanner = function(bannerType, options = {}) {
     const actualBannerType = bannerMap[bannerType] || bannerType;
     showUniversalBanner(actualBannerType, null, options);
 };
+
+console.log('🌉 BannerOrchestrator 2.0 Bridge installed - routing to Universal System');
 
 // ===================================================
 // 🎖️ BANNER ORCHESTRATOR 2.0 (Missing Component)
@@ -1531,6 +1555,12 @@ function handleConsultationClick() {
     
     // Pause speech recognition temporarily for banner interaction
     pauseSpeechForBannerInteraction();
+}
+
+// Bridge function for existing smart button calls
+function handleSmartButtonClick() {
+    console.log('🎖️ Smart button clicked - routing to consultation handler');
+    return handleConsultationClick();
 }
 
 console.log('🎖️ BannerOrchestrator 2.0 restored - bridging to Universal Banner System');
@@ -2644,27 +2674,6 @@ window.BannerOrchestrator = {
         return true;
     }
 };
-
-// ===================================================
-// 🎖️ UNIVERSAL MASTER BANNER TRIGGER SYSTEM
-// ===================================================
-window.triggerBanner = function(bannerType, options = {}) {
-    console.log(`🎖️ Triggering banner: ${bannerType}`);
-    
-    const bannerMap = {
-        'smart_button': 'smartButton',
-        'email_sent': 'emailSent', 
-        'free_book': 'freeBook',
-        'consultation_confirmed': 'consultationConfirmed',
-        'thank_you': 'thankYou',
-        'lead_capture': 'leadCapture'
-    };
-    
-    const actualBannerType = bannerMap[bannerType] || bannerType;
-    showUniversalBanner(actualBannerType, null, options);
-};
-
-console.log('🌉 BannerOrchestrator 2.0 Bridge installed - routing to Universal System');
 
 // ===================================================
 // 📧 EMAIL CONFIRMATION - ORCHESTRATOR 2.0
