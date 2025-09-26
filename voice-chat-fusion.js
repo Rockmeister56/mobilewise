@@ -1605,11 +1605,18 @@ function deliverLeadMagnet(leadMagnet, userEmail) {
 function handleSmartButtonClick(buttonType) {
     console.log(`🚨 Smart button clicked: ${buttonType}`);
 
-    // 🎯 IMMEDIATELY restore branding banner when button is clicked
-    setTimeout(() => {
-        console.log('🎯 Button clicked - immediately restoring branding');
-        window.restoreBrandingBanner();
-    }, 200); // Very short delay, just to ensure smooth transition
+  // 1. REMOVE THE CONSULTATION BANNER IMMEDIATELY
+const existingContainer = document.getElementById('bannerHeaderContainer');
+if (existingContainer) {
+    existingContainer.remove();
+    console.log('🗑️ Consultation banner removed');
+}
+
+// 2. IMMEDIATELY restore branding banner
+setTimeout(() => {
+    console.log('🎯 Button clicked - immediately restoring branding');
+    window.restoreBrandingBanner();
+}, 200);
     
     // Fix buttonType if it's an event object
     if (typeof buttonType === 'object') {
