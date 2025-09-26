@@ -2424,7 +2424,7 @@ function sendFollowUpEmail() {
                 
                 // 🚀 NATURAL CONVERSATION FLOW
                 conversationState = 'asking_if_more_help';
-                addMessage("Perfect! Your confirmation email is on its way to " + cleanEmail + ". Is there anything else I can help you with today?", 'ai');
+                addAIMessage("Perfect! Your confirmation email is on its way to " + cleanEmail + ". Is there anything else I can help you with today?", 'ai');
                 
               // 🎯 TRIGGER: Email confirmation banner
 triggerBanner('email_sent', { emailSuccess: true });
