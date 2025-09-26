@@ -956,6 +956,24 @@ function addUserMessage(message) {
 // ===================================================================
 window.showUniversalBanner = function(bannerType, customContent = null, options = {}) {
     console.log(`🎯 Deploying Universal Banner: ${bannerType}`);
+
+    console.log(`🎯 Deploying Universal Banner: ${bannerType}`);
+
+// 🕵️‍♂️ ADD THE MONITORING CODE RIGHT HERE:
+setTimeout(() => {
+    const container = document.getElementById('bannerHeaderContainer');
+    if (container) {
+        // Monitor for content changes
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.type === 'childList' && container.innerHTML.length === 0) {
+                    console.trace('🚨 BANNER CONTENT CLEARED BY:');
+                }
+            });
+        });
+        observer.observe(container, { childList: true, subtree: true });
+    }
+}, 500);
     
     // COMPLETE BANNER LIBRARY - All 9 Banner Types
     const bannerLibrary = {
