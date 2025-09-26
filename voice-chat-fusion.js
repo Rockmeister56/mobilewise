@@ -956,24 +956,6 @@ function addUserMessage(message) {
 // ===================================================================
 window.showUniversalBanner = function(bannerType, customContent = null, options = {}) {
     console.log(`🎯 Deploying Universal Banner: ${bannerType}`);
-
-    console.log(`🎯 Deploying Universal Banner: ${bannerType}`);
-
-// 🕵️‍♂️ ADD THE MONITORING CODE RIGHT HERE:
-setTimeout(() => {
-    const container = document.getElementById('bannerHeaderContainer');
-    if (container) {
-        // Monitor for content changes
-        const observer = new MutationObserver((mutations) => {
-            mutations.forEach((mutation) => {
-                if (mutation.type === 'childList' && container.innerHTML.length === 0) {
-                    console.trace('🚨 BANNER CONTENT CLEARED BY:');
-                }
-            });
-        });
-        observer.observe(container, { childList: true, subtree: true });
-    }
-}, 500);
     
     // COMPLETE BANNER LIBRARY - All 9 Banner Types
     const bannerLibrary = {
@@ -1394,36 +1376,26 @@ leadCapture: {
     headerContainer.appendChild(banner);
     mainContainer.insertBefore(headerContainer, mainContainer.firstChild);
     
-    // 🚀 AUTO-REMOVE WITH BRANDING PROTECTION
-const duration = options.duration || bannerConfig?.duration;
-if (duration && duration > 0) {
-    setTimeout(() => {
-        // 🎯 DON'T remove branding banners - they should be permanent!
-        if (bannerType !== 'branding') {
-            removeAllBanners(); // Only remove non-branding banners
-        }
-    }, duration);
-}
+    // 🚀 AUTO-REMOVE WITH BRANDING RESTORE (FIXED!)
+    const duration = options.duration || bannerConfig?.duration;
+    if (duration && duration > 0) {
+        setTimeout(() => {
+            removeAllBanners(); // ← CHANGED: Now uses the auto-restore system!
+        }, duration);
+    }
     
     console.log(`✅ Container-based banner "${bannerType}" deployed (Clean positioning)`);
     return banner;
 };
 
+// 🚀 AUTO-RESTORE BRANDING SYSTEM
 window.restoreBrandingBanner = function() {
     const existingContainer = document.getElementById('bannerHeaderContainer');
     if (!existingContainer) {
         console.log('🔄 Restoring default branding banner...');
         window.showUniversalBanner('branding');
-    } else if (existingContainer.innerHTML.length === 0) {
-        // 🎯 CONTAINER EXISTS BUT IS EMPTY - FORCE RESTORE CONTENT!
-        console.log('🔄 Container exists but empty - forcing branding content restoration...');
-        existingContainer.remove(); // Remove empty container
-        window.showUniversalBanner('branding'); // Create fresh branding banner
-    } else {
-        console.log('✅ Branding banner container exists with content');
     }
 };
-
 
 // 🚀 ENHANCED REMOVE WITH AUTO-RESTORE
 window.removeAllBanners = function(restoreBranding = true) {
@@ -1682,20 +1654,14 @@ function handleSmartButtonClick(buttonType) {
 // ===================================================
 function updateSmartButton(shouldShow, buttonText, action) {
     if (shouldShow) {
-        // 🚀 DIRECT TRIGGER - NO BRIDGE NEEDED
         triggerBanner('smart_button', {
             trigger: 'system_call',
             buttonText: buttonText,
             action: action
-            // ← Uses clean banner library version
         });
-    } else {
-        // Remove smartButton banner directly
-        const existingBanner = document.getElementById('universalBanner');
-        if (existingBanner) {
-            existingBanner.remove();
-        }
     }
+    // ✅ REMOVE THE ELSE BLOCK ENTIRELY!
+    // Let your Universal Banner 2.0 system handle all removal/restoration
 }
 
 // ===================================================
@@ -1721,12 +1687,6 @@ if (conversationState === 'initial') {
         responseText = "I'd love to help you with selling your practice! Let me ask you a few quick questions to better understand your situation - how many clients do you currently serve?";
         conversationState = 'selling_size_question';
         shouldShowSmartButton = false;
-
-            // 🎯 DEBUG: Force branding banner to stay visible
-    setTimeout(() => {
-        console.log('🔍 Forcing branding banner restoration...');
-        window.restoreBrandingBanner();
-    }, 1000);
         
     } else if (userText.includes('value') || userText.includes('worth') || userText.includes('valuation') || userText.includes('evaluate')) {
         responseText = "I'd be happy to help with a practice valuation! To give you the most accurate assessment, what's your practice's approximate annual revenue?";
