@@ -1696,6 +1696,12 @@ if (conversationState === 'initial') {
         responseText = "I'd love to help you with selling your practice! Let me ask you a few quick questions to better understand your situation - how many clients do you currently serve?";
         conversationState = 'selling_size_question';
         shouldShowSmartButton = false;
+
+            // 🎯 DEBUG: Force branding banner to stay visible
+    setTimeout(() => {
+        console.log('🔍 Forcing branding banner restoration...');
+        window.restoreBrandingBanner();
+    }, 1000);
         
     } else if (userText.includes('value') || userText.includes('worth') || userText.includes('valuation') || userText.includes('evaluate')) {
         responseText = "I'd be happy to help with a practice valuation! To give you the most accurate assessment, what's your practice's approximate annual revenue?";
