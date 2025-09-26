@@ -1018,6 +1018,7 @@ smartButton: {
                 font-weight: bold;
                 font-size: 14px;
                 transition: all 0.3s ease;
+                pointer-events: auto !important;
             " onmouseover="this.style.background='rgba(34, 197, 94, 0.5)'" 
                onmouseout="this.style.background='rgba(34, 197, 94, 0.3)'">
                 CLICK NOW
