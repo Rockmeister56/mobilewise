@@ -1723,6 +1723,22 @@ if (conversationState === 'initial') {
         smartButtonText = '📞 Free Valuation';
         smartButtonAction = 'valuation';
         conversationState = 'button_activated_selling';
+       
+    } else if (conversationState === 'asking_for_email_permission') {
+    const response = userText.toLowerCase().trim();
+    
+    if (response.includes('yes') || response.includes('sure') || response.includes('okay') || response.includes('send')) {
+        // 🎯 VOICE-TRIGGERED EMAIL - NO BUTTON!
+        sendFollowUpEmail(); // Your existing email function
+        conversationState = 'email_sent';
+        
+    } else if (response.includes('no') || response.includes('skip') || response.includes("don't")) {
+        responseText = "No problem! Is there anything else I can help you with today?";
+        conversationState = 'final_question';
+        
+    } else {
+        responseText = "Would you like me to send you the book and confirmation email? Just say yes or no.";
+    }
         
         // 🎯 TRIGGER: Consultation banner for selling
         triggerBanner('consultation_offer', { type: 'selling' });
