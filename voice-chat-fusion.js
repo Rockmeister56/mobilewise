@@ -1672,8 +1672,11 @@ function updateSmartButton(shouldShow, buttonText, action) {
     // Let your Universal Banner 2.0 system handle all removal/restoration
 }
 
-// 🎯 MOBILE-WISE AI FORMVISER - CONVERSATION ENGINE V2.1
-// Built for Captain's Agency Empire Scaling - FIXED OBJECT ISSUE
+// ===================================================
+// 🧠 AI RESPONSE SYSTEM
+// ===================================================
+// 🎯 MOBILE-WISE AI FORMVISER - CONVERSATION ENGINE V2.0
+// Built for Captain's Agency Empire Scaling
 
 function processConversation(userInput, conversationState) {
     const userText = userInput.toLowerCase().trim();
@@ -1681,7 +1684,6 @@ function processConversation(userInput, conversationState) {
     let shouldShowSmartButton = false;
     let smartButtonText = '';
     let smartButtonAction = '';
-    let triggerBanner = null;
     
     // 🔥 CONVERSATION STATE MACHINE - BULLETPROOF ARCHITECTURE
     
@@ -1689,163 +1691,187 @@ function processConversation(userInput, conversationState) {
         
         // ========== INITIAL STATE - CONVERSATION ENTRY POINT ==========
         case 'initial':
-            responseText = handleInitialState(userText);
-            break;
+            return handleInitialState(userText);
             
         // ========== SELLING WORKFLOW STATES ==========
         case 'selling_size_question':
-            responseText = "That's helpful information! And what's your practice's approximate annual revenue range? This helps Bruce understand the scope and value.";
-            conversationState = 'selling_revenue_question';
-            break;
+            return {
+                responseText: "That's helpful information! And what's your practice's approximate annual revenue range? This helps Bruce understand the scope and value.",
+                conversationState: 'selling_revenue_question',
+                shouldShowSmartButton: false,
+                smartButtonText: '',
+                smartButtonAction: ''
+            };
             
         case 'selling_revenue_question':
-            responseText = "Perfect! One more key question - what's driving your decision to sell? Retirement, new opportunities, or something else? Understanding your motivation helps Bruce tailor the best approach.";
-            conversationState = 'selling_motivation_question';
-            break;
+            return {
+                responseText: "Perfect! One more key question - what's driving your decision to sell? Retirement, new opportunities, or something else? Understanding your motivation helps Bruce tailor the best approach.",
+                conversationState: 'selling_motivation_question',
+                shouldShowSmartButton: false,
+                smartButtonText: '',
+                smartButtonAction: ''
+            };
             
         case 'selling_motivation_question':
-            responseText = "Thank you for sharing that with me! Based on what you've told me, Bruce can definitely help you get maximum value for your practice. The market is exceptionally strong right now. Would you like to schedule a FREE consultation with Bruce to discuss your selling strategy?";
-            conversationState = 'asking_selling_consultation';
-            break;
+            return {
+                responseText: "Thank you for sharing that with me! Based on what you've told me, Bruce can definitely help you get maximum value for your practice. The market is exceptionally strong right now. Would you like to schedule a FREE consultation with Bruce to discuss your selling strategy?",
+                conversationState: 'asking_selling_consultation',
+                shouldShowSmartButton: false,
+                smartButtonText: '',
+                smartButtonAction: ''
+            };
             
         case 'asking_selling_consultation':
-            const sellingResponse = handleSellingConsultationResponse(userText);
-            responseText = sellingResponse.responseText;
-            conversationState = sellingResponse.conversationState;
-            shouldShowSmartButton = sellingResponse.shouldShowSmartButton || false;
-            smartButtonText = sellingResponse.smartButtonText || '';
-            smartButtonAction = sellingResponse.smartButtonAction || '';
-            triggerBanner = sellingResponse.triggerBanner || null;
-            break;
+            return handleSellingConsultationResponse(userText);
             
         // ========== BUYING WORKFLOW STATES ==========
         case 'buying_budget_question':
-            responseText = "Excellent! And are you specifically looking for a CPA practice, or would a general accounting practice work for you as well?";
-            conversationState = 'buying_type_question';
-            break;
+            return {
+                responseText: "Excellent! And are you specifically looking for a CPA practice, or would a general accounting practice work for you as well?",
+                conversationState: 'buying_type_question',
+                shouldShowSmartButton: false,
+                smartButtonText: '',
+                smartButtonAction: ''
+            };
             
         case 'buying_type_question':
-            responseText = "Perfect! One more important question - how soon are you looking to complete a purchase? This helps Bruce prioritize which opportunities to show you first.";
-            conversationState = 'buying_timeline_question';
-            break;
+            return {
+                responseText: "Perfect! One more important question - how soon are you looking to complete a purchase? This helps Bruce prioritize which opportunities to show you first.",
+                conversationState: 'buying_timeline_question',
+                shouldShowSmartButton: false,
+                smartButtonText: '',
+                smartButtonAction: ''
+            };
             
         case 'buying_timeline_question':
-            responseText = "Excellent! Bruce has exclusive off-market opportunities that aren't advertised anywhere else. Based on your criteria, he definitely has some practices that would interest you. Would you like Bruce to show you the available practices that match what you're looking for?";
-            conversationState = 'asking_buying_consultation';
-            break;
+            return {
+                responseText: "Excellent! Bruce has exclusive off-market opportunities that aren't advertised anywhere else. Based on your criteria, he definitely has some practices that would interest you. Would you like Bruce to show you the available practices that match what you're looking for?",
+                conversationState: 'asking_buying_consultation',
+                shouldShowSmartButton: false,
+                smartButtonText: '',
+                smartButtonAction: ''
+            };
             
         case 'asking_buying_consultation':
-            const buyingResponse = handleBuyingConsultationResponse(userText);
-            responseText = buyingResponse.responseText;
-            conversationState = buyingResponse.conversationState;
-            shouldShowSmartButton = buyingResponse.shouldShowSmartButton || false;
-            smartButtonText = buyingResponse.smartButtonText || '';
-            smartButtonAction = buyingResponse.smartButtonAction || '';
-            triggerBanner = buyingResponse.triggerBanner || null;
-            break;
+            return handleBuyingConsultationResponse(userText);
             
         // ========== VALUATION WORKFLOW STATES ==========
         case 'valuation_revenue_question':
-            responseText = "Thank you! And how many years have you been in practice? The longevity and stability really impact the valuation significantly.";
-            conversationState = 'valuation_years_question';
-            break;
+            return {
+                responseText: "Thank you! And how many years have you been in practice? The longevity and stability really impact the valuation significantly.",
+                conversationState: 'valuation_years_question',
+                shouldShowSmartButton: false,
+                smartButtonText: '',
+                smartButtonAction: ''
+            };
             
         case 'valuation_years_question':
-            responseText = "Perfect! Your practice sounds well-established. Bruce can provide you with a comprehensive FREE valuation that shows you exactly what your practice is worth in today's market. Would you like to schedule that free valuation consultation with Bruce?";
-            conversationState = 'asking_valuation_consultation';
-            break;
+            return {
+                responseText: "Perfect! Your practice sounds well-established. Bruce can provide you with a comprehensive FREE valuation that shows you exactly what your practice is worth in today's market. Would you like to schedule that free valuation consultation with Bruce?",
+                conversationState: 'asking_valuation_consultation',
+                shouldShowSmartButton: false,
+                smartButtonText: '',
+                smartButtonAction: ''
+            };
             
         case 'asking_valuation_consultation':
-            const valuationResponse = handleValuationConsultationResponse(userText);
-            responseText = valuationResponse.responseText;
-            conversationState = valuationResponse.conversationState;
-            shouldShowSmartButton = valuationResponse.shouldShowSmartButton || false;
-            smartButtonText = valuationResponse.smartButtonText || '';
-            smartButtonAction = valuationResponse.smartButtonAction || '';
-            triggerBanner = valuationResponse.triggerBanner || null;
-            break;
+            return handleValuationConsultationResponse(userText);
             
         // ========== ACTIVATED BUTTON STATES ==========
         case 'button_activated_selling':
         case 'button_activated_buying':
         case 'button_activated_valuation':
-            responseText = "Perfect! I see you're ready to connect with Bruce. Just click that button above and we'll get everything set up for you right away! Is there anything else I can help you with while you're here?";
-            conversationState = 'asking_if_more_help';
-            break;
+            return {
+                responseText: "Perfect! I see you're ready to connect with Bruce. Just click that button above and we'll get everything set up for you right away! Is there anything else I can help you with while you're here?",
+                conversationState: 'asking_if_more_help',
+                shouldShowSmartButton: false,
+                smartButtonText: '',
+                smartButtonAction: ''
+            };
             
         // ========== EMAIL WORKFLOW STATES ==========
         case 'asking_for_email_permission':
-            const emailResponse = handleEmailPermissionResponse(userText);
-            responseText = emailResponse.responseText;
-            conversationState = emailResponse.conversationState;
-            break;
+            return handleEmailPermissionResponse(userText);
             
         case 'email_sent':
-            responseText = "Great! I've sent that information to your email. Bruce will also follow up personally within 24 hours. Is there anything else I can help you with today?";
-            conversationState = 'asking_if_more_help';
-            break;
+            return {
+                responseText: "Great! I've sent that information to your email. Bruce will also follow up personally within 24 hours. Is there anything else I can help you with today?",
+                conversationState: 'asking_if_more_help',
+                shouldShowSmartButton: false,
+                smartButtonText: '',
+                smartButtonAction: ''
+            };
             
         // ========== CONVERSATION FLOW MANAGEMENT STATES ==========
         case 'asking_if_more_help':
-            const moreHelpResponse = handleMoreHelpResponse(userText);
-            responseText = moreHelpResponse.responseText;
-            conversationState = moreHelpResponse.conversationState;
-            triggerBanner = moreHelpResponse.triggerBanner || null;
-            break;
+            return handleMoreHelpResponse(userText);
             
         case 'asking_anything_else':
-            const anythingElseResponse = handleAnythingElseResponse(userText);
-            responseText = anythingElseResponse.responseText;
-            conversationState = anythingElseResponse.conversationState;
-            break;
+            return handleAnythingElseResponse(userText);
             
         case 'final_question':
-            responseText = "Thank you so much for visiting! Have a wonderful day, and remember - Bruce is here whenever you're ready to move forward! 🌟";
-            conversationState = 'ended';
-            triggerBanner = { type: 'thank_you' };
-            break;
+            return {
+                responseText: "Thank you so much for visiting! Have a wonderful day, and remember - Bruce is here whenever you're ready to move forward! 🌟",
+                conversationState: 'ended',
+                shouldShowSmartButton: false,
+                smartButtonText: '',
+                smartButtonAction: '',
+                triggerBanner: 'thank_you'
+            };
             
         case 'ended':
-            responseText = "Thank you for visiting! Have a great day. If you need any help with practice transactions in the future, just come back anytime!";
-            break;
+            return {
+                responseText: "Thank you for visiting! Have a great day. If you need any help with practice transactions in the future, just come back anytime!",
+                conversationState: 'ended',
+                shouldShowSmartButton: false,
+                smartButtonText: '',
+                smartButtonAction: ''
+            };
             
         // ========== DEFAULT FALLBACK HANDLER ==========
         default:
-            responseText = "I want to make sure I give you the best help possible! Are you interested in buying a practice, selling your practice, or getting a practice valuation?";
-            conversationState = 'initial';
-            shouldShowSmartButton = false;
-            break;
+            return {
+                responseText: "I want to make sure I give you the best help possible! Are you interested in buying a practice, selling your practice, or getting a practice valuation?",
+                conversationState: 'initial',
+                shouldShowSmartButton: false,
+                smartButtonText: '',
+                smartButtonAction: ''
+            };
     }
-    
-    // 🎯 ALWAYS RETURN CONSISTENT OBJECT STRUCTURE
-    return {
-        responseText: responseText,
-        conversationState: conversationState,
-        shouldShowSmartButton: shouldShowSmartButton,
-        smartButtonText: smartButtonText,
-        smartButtonAction: smartButtonAction,
-        triggerBanner: triggerBanner
-    };
 }
 
-// ========== SPECIALIZED HANDLER FUNCTIONS - FIXED TO ALWAYS RETURN OBJECTS ==========
+// ========== SPECIALIZED HANDLER FUNCTIONS ==========
 
 function handleInitialState(userText) {
+    let responseText = '';
+    let nextState = 'initial';
+    
     if (containsKeywords(userText, ['buy', 'purchase', 'buying', 'acquire'])) {
-        return "Excellent! Bruce has some fantastic opportunities available. Let me learn more about what you're looking for. What's your budget range for acquiring a practice?";
+        nextState = 'buying_budget_question';
+        responseText = "Excellent! Bruce has some fantastic opportunities available. Let me learn more about what you're looking for. What's your budget range for acquiring a practice?";
         
     } else if (containsKeywords(userText, ['sell', 'selling'])) {
-        return "I'd love to help you with selling your practice! Let me ask you a few quick questions to better understand your situation - how many clients do you currently serve?";
+        nextState = 'selling_size_question';
+        responseText = "I'd love to help you with selling your practice! Let me ask you a few quick questions to better understand your situation - how many clients do you currently serve?";
         
     } else if (containsKeywords(userText, ['value', 'worth', 'valuation', 'evaluate'])) {
-        return "I'd be happy to help with a practice valuation! To give you the most accurate assessment, what's your practice's approximate annual revenue?";
+        nextState = 'valuation_revenue_question';
+        responseText = "I'd be happy to help with a practice valuation! To give you the most accurate assessment, what's your practice's approximate annual revenue?";
         
     } else if (containsKeywords(userText, ['help', 'info', 'information', 'what', 'how'])) {
-        return "I'm here to help with CPA firm transactions - buying, selling, and practice valuations. Bruce specializes in maximizing value for practice owners. What brings you here today?";
+        responseText = "I'm here to help with CPA firm transactions - buying, selling, and practice valuations. Bruce specializes in maximizing value for practice owners. What brings you here today?";
         
     } else {
-        return "Welcome! I'm here to help with CPA firm transactions - buying, selling, and practice valuations. What brings you here today?";
+        responseText = "Welcome! I'm here to help with CPA firm transactions - buying, selling, and practice valuations. What brings you here today?";
     }
+    
+    return {
+        responseText: responseText,
+        conversationState: nextState,
+        shouldShowSmartButton: false,
+        smartButtonText: '',
+        smartButtonAction: ''
+    };
 }
 
 function handleSellingConsultationResponse(userText) {
@@ -1863,13 +1889,19 @@ function handleSellingConsultationResponse(userText) {
         return {
             responseText: "No problem at all! If you change your mind, I'm here to help. Would you like me to send you Bruce's free guide on 'Maximizing Your Practice Value' instead?",
             conversationState: 'asking_for_email_permission',
+            shouldShowSmartButton: false,
+            smartButtonText: '',
+            smartButtonAction: '',
             triggerBanner: { type: 'free_offer' }
         };
         
     } else {
         return {
             responseText: "I want to make sure I understand - would you like Bruce to call you for a free consultation about selling your practice? Just say yes or no.",
-            conversationState: 'asking_selling_consultation'
+            conversationState: 'asking_selling_consultation',
+            shouldShowSmartButton: false,
+            smartButtonText: '',
+            smartButtonAction: ''
         };
     }
 }
@@ -1889,13 +1921,19 @@ function handleBuyingConsultationResponse(userText) {
         return {
             responseText: "That's perfectly fine! When you're ready to see what's available, just let me know. Would you like me to send you information about the current market trends instead?",
             conversationState: 'asking_for_email_permission',
+            shouldShowSmartButton: false,
+            smartButtonText: '',
+            smartButtonAction: '',
             triggerBanner: { type: 'free_offer' }
         };
         
     } else {
         return {
             responseText: "Would you like Bruce to show you the practices he has available that match your criteria? Just let me know yes or no.",
-            conversationState: 'asking_buying_consultation'
+            conversationState: 'asking_buying_consultation',
+            shouldShowSmartButton: false,
+            smartButtonText: '',
+            smartButtonAction: ''
         };
     }
 }
@@ -1915,34 +1953,51 @@ function handleValuationConsultationResponse(userText) {
         return {
             responseText: "No worries! The valuation offer stands whenever you're ready. Would you like me to send you Bruce's practice valuation guide so you can learn more?",
             conversationState: 'asking_for_email_permission',
+            shouldShowSmartButton: false,
+            smartButtonText: '',
+            smartButtonAction: '',
             triggerBanner: { type: 'free_offer' }
         };
         
     } else {
         return {
             responseText: "Would you like Bruce to provide you with a free practice valuation? Just say yes or no and I'll take care of the rest.",
-            conversationState: 'asking_valuation_consultation'
+            conversationState: 'asking_valuation_consultation',
+            shouldShowSmartButton: false,
+            smartButtonText: '',
+            smartButtonAction: ''
         };
     }
 }
 
 function handleEmailPermissionResponse(userText) {
     if (containsPositiveKeywords(userText)) {
+        // 🎯 TRIGGER EMAIL AUTOMATION
+        sendFollowUpEmail();
         return {
             responseText: "Perfect! I've sent that information to your email right now. You should receive it within the next few minutes. Is there anything else I can help you with today?",
-            conversationState: 'asking_if_more_help'
+            conversationState: 'asking_if_more_help',
+            shouldShowSmartButton: false,
+            smartButtonText: '',
+            smartButtonAction: ''
         };
         
     } else if (containsNegativeKeywords(userText)) {
         return {
             responseText: "No problem! Is there anything else I can help you with today?",
-            conversationState: 'asking_if_more_help'
+            conversationState: 'asking_if_more_help',
+            shouldShowSmartButton: false,
+            smartButtonText: '',
+            smartButtonAction: ''
         };
         
     } else {
         return {
             responseText: "Would you like me to send you that helpful information via email? Just say yes or no.",
-            conversationState: 'asking_for_email_permission'
+            conversationState: 'asking_for_email_permission',
+            shouldShowSmartButton: false,
+            smartButtonText: '',
+            smartButtonAction: ''
         };
     }
 }
@@ -1952,19 +2007,28 @@ function handleMoreHelpResponse(userText) {
         return {
             responseText: "Thank you so much for visiting! Have a wonderful day, and remember - Bruce is here whenever you're ready! 🌟",
             conversationState: 'ended',
+            shouldShowSmartButton: false,
+            smartButtonText: '',
+            smartButtonAction: '',
             triggerBanner: { type: 'thank_you' }
         };
         
     } else if (containsPositiveKeywords(userText) || containsKeywords(userText, ['help', 'question', 'more'])) {
         return {
             responseText: "Absolutely! What else would you like to know about buying, selling, or valuing a CPA practice?",
-            conversationState: 'initial'
+            conversationState: 'initial',
+            shouldShowSmartButton: false,
+            smartButtonText: '',
+            smartButtonAction: ''
         };
         
     } else {
         return {
             responseText: "Is there anything else I can help you with regarding CPA practice transactions?",
-            conversationState: 'asking_if_more_help'
+            conversationState: 'asking_if_more_help',
+            shouldShowSmartButton: false,
+            smartButtonText: '',
+            smartButtonAction: ''
         };
     }
 }
@@ -1973,12 +2037,18 @@ function handleAnythingElseResponse(userText) {
     if (containsPositiveKeywords(userText)) {
         return {
             responseText: "Perfect! What else can I assist you with regarding your practice?",
-            conversationState: 'initial'
+            conversationState: 'initial',
+            shouldShowSmartButton: false,
+            smartButtonText: '',
+            smartButtonAction: ''
         };
     } else {
         return {
             responseText: "Thank you for visiting! If you think of anything else, just let me know!",
-            conversationState: 'final_question'
+            conversationState: 'final_question',
+            shouldShowSmartButton: false,
+            smartButtonText: '',
+            smartButtonAction: ''
         };
     }
 }
@@ -1997,6 +2067,12 @@ function containsPositiveKeywords(text) {
 function containsNegativeKeywords(text) {
     const negativeKeywords = ['no', 'not now', 'maybe later', 'not interested', 'not today', "don't", 'nope'];
     return containsKeywords(text, negativeKeywords);
+}
+
+// ========== EMAIL FUNCTION (PLACEHOLDER) ==========
+function sendFollowUpEmail() {
+    // 🎯 This would integrate with your email automation system
+    console.log("📧 Email automation triggered!");
 }
 
 function handleEmailPermissionResponse(userText) {
