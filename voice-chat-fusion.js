@@ -692,7 +692,7 @@ function processUserResponse(userText) {
     
     // Default AI response handler
     setTimeout(() => {
-        const responseText = getAIResponse(userText);
+        const responseText = processConversation(userText);
         lastAIResponse = responseText;
 
         console.log('🎯 USER SAID:', userText);
