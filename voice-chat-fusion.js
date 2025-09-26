@@ -1672,11 +1672,8 @@ function updateSmartButton(shouldShow, buttonText, action) {
     // Let your Universal Banner 2.0 system handle all removal/restoration
 }
 
-// ===================================================
-// 🧠 AI RESPONSE SYSTEM
-// ===================================================
-// 🎯 MOBILE-WISE AI FORMVISER - CONVERSATION ENGINE V2.0
-// Built for Captain's Agency Empire Scaling
+// 🎯 MOBILE-WISE AI FORMVISER - CONVERSATION ENGINE V2.1
+// Built for Captain's Agency Empire Scaling - FIXED OBJECT ISSUE
 
 function processConversation(userInput, conversationState) {
     const userText = userInput.toLowerCase().trim();
@@ -1684,6 +1681,7 @@ function processConversation(userInput, conversationState) {
     let shouldShowSmartButton = false;
     let smartButtonText = '';
     let smartButtonAction = '';
+    let triggerBanner = null;
     
     // 🔥 CONVERSATION STATE MACHINE - BULLETPROOF ARCHITECTURE
     
@@ -1711,7 +1709,14 @@ function processConversation(userInput, conversationState) {
             break;
             
         case 'asking_selling_consultation':
-            return handleSellingConsultationResponse(userText);
+            const sellingResponse = handleSellingConsultationResponse(userText);
+            responseText = sellingResponse.responseText;
+            conversationState = sellingResponse.conversationState;
+            shouldShowSmartButton = sellingResponse.shouldShowSmartButton || false;
+            smartButtonText = sellingResponse.smartButtonText || '';
+            smartButtonAction = sellingResponse.smartButtonAction || '';
+            triggerBanner = sellingResponse.triggerBanner || null;
+            break;
             
         // ========== BUYING WORKFLOW STATES ==========
         case 'buying_budget_question':
@@ -1730,7 +1735,14 @@ function processConversation(userInput, conversationState) {
             break;
             
         case 'asking_buying_consultation':
-            return handleBuyingConsultationResponse(userText);
+            const buyingResponse = handleBuyingConsultationResponse(userText);
+            responseText = buyingResponse.responseText;
+            conversationState = buyingResponse.conversationState;
+            shouldShowSmartButton = buyingResponse.shouldShowSmartButton || false;
+            smartButtonText = buyingResponse.smartButtonText || '';
+            smartButtonAction = buyingResponse.smartButtonAction || '';
+            triggerBanner = buyingResponse.triggerBanner || null;
+            break;
             
         // ========== VALUATION WORKFLOW STATES ==========
         case 'valuation_revenue_question':
@@ -1744,7 +1756,14 @@ function processConversation(userInput, conversationState) {
             break;
             
         case 'asking_valuation_consultation':
-            return handleValuationConsultationResponse(userText);
+            const valuationResponse = handleValuationConsultationResponse(userText);
+            responseText = valuationResponse.responseText;
+            conversationState = valuationResponse.conversationState;
+            shouldShowSmartButton = valuationResponse.shouldShowSmartButton || false;
+            smartButtonText = valuationResponse.smartButtonText || '';
+            smartButtonAction = valuationResponse.smartButtonAction || '';
+            triggerBanner = valuationResponse.triggerBanner || null;
+            break;
             
         // ========== ACTIVATED BUTTON STATES ==========
         case 'button_activated_selling':
@@ -1756,7 +1775,10 @@ function processConversation(userInput, conversationState) {
             
         // ========== EMAIL WORKFLOW STATES ==========
         case 'asking_for_email_permission':
-            return handleEmailPermissionResponse(userText);
+            const emailResponse = handleEmailPermissionResponse(userText);
+            responseText = emailResponse.responseText;
+            conversationState = emailResponse.conversationState;
+            break;
             
         case 'email_sent':
             responseText = "Great! I've sent that information to your email. Bruce will also follow up personally within 24 hours. Is there anything else I can help you with today?";
@@ -1765,15 +1787,22 @@ function processConversation(userInput, conversationState) {
             
         // ========== CONVERSATION FLOW MANAGEMENT STATES ==========
         case 'asking_if_more_help':
-            return handleMoreHelpResponse(userText);
+            const moreHelpResponse = handleMoreHelpResponse(userText);
+            responseText = moreHelpResponse.responseText;
+            conversationState = moreHelpResponse.conversationState;
+            triggerBanner = moreHelpResponse.triggerBanner || null;
+            break;
             
         case 'asking_anything_else':
-            return handleAnythingElseResponse(userText);
+            const anythingElseResponse = handleAnythingElseResponse(userText);
+            responseText = anythingElseResponse.responseText;
+            conversationState = anythingElseResponse.conversationState;
+            break;
             
         case 'final_question':
             responseText = "Thank you so much for visiting! Have a wonderful day, and remember - Bruce is here whenever you're ready to move forward! 🌟";
             conversationState = 'ended';
-            triggerBanner('thank_you');
+            triggerBanner = { type: 'thank_you' };
             break;
             
         case 'ended':
@@ -1788,28 +1817,27 @@ function processConversation(userInput, conversationState) {
             break;
     }
     
+    // 🎯 ALWAYS RETURN CONSISTENT OBJECT STRUCTURE
     return {
         responseText: responseText,
         conversationState: conversationState,
         shouldShowSmartButton: shouldShowSmartButton,
         smartButtonText: smartButtonText,
-        smartButtonAction: smartButtonAction
+        smartButtonAction: smartButtonAction,
+        triggerBanner: triggerBanner
     };
 }
 
-// ========== SPECIALIZED HANDLER FUNCTIONS ==========
+// ========== SPECIALIZED HANDLER FUNCTIONS - FIXED TO ALWAYS RETURN OBJECTS ==========
 
 function handleInitialState(userText) {
     if (containsKeywords(userText, ['buy', 'purchase', 'buying', 'acquire'])) {
-        conversationState = 'buying_budget_question';
         return "Excellent! Bruce has some fantastic opportunities available. Let me learn more about what you're looking for. What's your budget range for acquiring a practice?";
         
     } else if (containsKeywords(userText, ['sell', 'selling'])) {
-        conversationState = 'selling_size_question';
         return "I'd love to help you with selling your practice! Let me ask you a few quick questions to better understand your situation - how many clients do you currently serve?";
         
     } else if (containsKeywords(userText, ['value', 'worth', 'valuation', 'evaluate'])) {
-        conversationState = 'valuation_revenue_question';
         return "I'd be happy to help with a practice valuation! To give you the most accurate assessment, what's your practice's approximate annual revenue?";
         
     } else if (containsKeywords(userText, ['help', 'info', 'information', 'what', 'how'])) {
@@ -1900,8 +1928,6 @@ function handleValuationConsultationResponse(userText) {
 
 function handleEmailPermissionResponse(userText) {
     if (containsPositiveKeywords(userText)) {
-        // 🎯 TRIGGER EMAIL AUTOMATION
-        sendFollowUpEmail();
         return {
             responseText: "Perfect! I've sent that information to your email right now. You should receive it within the next few minutes. Is there anything else I can help you with today?",
             conversationState: 'asking_if_more_help'
