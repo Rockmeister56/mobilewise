@@ -1509,28 +1509,6 @@ window.triggerBanner = function(bannerType, options = {}) {
 };
 
 
-// ===================================================
-// 🎯 CONSULTATION BUTTON HANDLER - FIXED
-// ===================================================
-function handleConsultationClick(type = 'consultation') {
-    console.log(`🎯 Starting lead capture flow for: ${type}`);
-    
-    // DON'T trigger lead capture banner - keep button visible!
-    // triggerBanner('lead_capture'); // ← COMMENTED OUT!
-    
-    // Start lead capture conversation state
-    conversationState = 'lead_capture';
-    isInLeadCapture = true;
-    
-    // Start the interview process
-    const leadMessage = "Great! Let's get your FREE practice valuation started. What's your name?";
-    addAIMessage(leadMessage);
-    speakResponse(leadMessage);
-    
-    // Pause speech recognition temporarily for banner interaction
-    pauseSpeechForBannerInteraction();
-}
-
 // Bridge function for existing smart button calls
 function handleSmartButtonClick() {
     console.log('🎖️ Smart button clicked - routing to consultation handler');
