@@ -1015,7 +1015,7 @@ smartButton: {
             <div style="color: white; font-weight: 600; font-size: 16px;">
                 📅 FREE Consultation Available
             </div>
-                onclick="handleSmartButtonClick('valuation')" style="
+            <button onclick="handleConsultationClick('valuation')" style="
                 background: rgba(34, 197, 94, 0.3);
                 color: white;
                 border: 1px solid rgba(34, 197, 94, 0.5);
