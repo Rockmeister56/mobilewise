@@ -1459,13 +1459,13 @@ const bannerTriggers = {
 };
 
 // ===================================================
-// 🎯 CONSULTATION BUTTON HANDLER
+// 🎯 CONSULTATION BUTTON HANDLER - FIXED
 // ===================================================
 function handleConsultationClick(type = 'consultation') {
     console.log(`🎯 Starting lead capture flow for: ${type}`);
     
-    // Trigger lead capture banner
-    triggerBanner('lead_capture');
+    // DON'T trigger lead capture banner - keep button visible!
+    // triggerBanner('lead_capture'); // ← COMMENTED OUT - THIS WAS THE PROBLEM!
     
     // Start lead capture conversation state
     conversationState = 'lead_capture';
@@ -1478,6 +1478,14 @@ function handleConsultationClick(type = 'consultation') {
     
     // Pause speech recognition temporarily for banner interaction
     pauseSpeechForBannerInteraction();
+}
+
+// ===================================================
+// 🔇 SPEECH PAUSE HELPER
+// ===================================================
+function pauseSpeechForBannerInteraction() {
+    console.log('🔇 Speech paused for banner interaction');
+    // Add any speech pausing logic here if needed
 }
 
 // ===================================================
@@ -1499,41 +1507,6 @@ window.triggerBanner = function(bannerType, options = {}) {
     showUniversalBanner(actualBannerType, null, options);
 };
 
-console.log('🌉 BannerOrchestrator 2.0 Bridge installed - routing to Universal System');
-
-// ===================================================
-// 🎖️ BANNER ORCHESTRATOR 2.0 (Missing Component)
-// ===================================================
-window.BannerOrchestrator = {
-    currentBanner: null,
-    
-    deploy: function(bannerType, options = {}) {
-        console.log(`🎖️ BannerOrchestrator.deploy: ${bannerType}`);
-        
-        // Remove existing banners first
-        removeAllBanners();
-        
-        // Deploy the banner using your Universal Banner System
-        const banner = showUniversalBanner(bannerType, null, {
-            duration: options.duration || 0,
-            callback: options.callback
-        });
-        
-        this.currentBanner = bannerType;
-        
-        // Handle special cases
-        if (options.trigger === 'smartButton_click') {
-            console.log('🎯 Smart button triggered lead capture');
-        }
-        
-        return banner;
-    },
-    
-    remove: function(bannerType) {
-        removeAllBanners();
-        this.currentBanner = null;
-    }
-};
 
 // ===================================================
 // 🎯 CONSULTATION BUTTON HANDLER
@@ -1563,8 +1536,6 @@ function handleSmartButtonClick() {
     return handleConsultationClick();
 }
 
-console.log('🎖️ BannerOrchestrator 2.0 restored - bridging to Universal Banner System');
-
 // Condition checker (COMPLETE with all your logic)
 function checkTriggerConditions(conditions, data) {
     return conditions.every(condition => {
@@ -1580,6 +1551,13 @@ function checkTriggerConditions(conditions, data) {
         }
         return true;
     });
+}
+
+// ===================================================
+// 🔇 SPEECH PAUSE HELPER
+// ===================================================
+function pauseSpeechForBannerInteraction() {
+    console.log('🔇 Speech paused for banner interaction');
 }
 
 console.log('🎖️ Universal Master Banner Trigger System loaded - Ready for any industry!');
@@ -1635,12 +1613,6 @@ function handleSmartButtonClick(buttonType) {
         smartButton.style.display = 'none';
     }
     
-    // 2. 🚀 NEW: USE BANNER ORCHESTRATOR (replaces createLeadCaptureBanner)
-    BannerOrchestrator.deploy('leadCapture', {
-        trigger: 'smartButton_click',
-        buttonType: buttonType
-    });
-    
     // 4. HIDE THE GREEN "SPEAK NOW" BANNER - DON'T SHOW IT YET!
     const liveTranscript = document.getElementById('liveTranscript');
     if (liveTranscript) {
@@ -1669,21 +1641,22 @@ function handleSmartButtonClick(buttonType) {
 }
 
 // ===================================================  
-// 🎯 STEP 2: RETROFITTED updateSmartButton()
+// 🎯 STEP 2: CLEAN updateSmartButton()
 // ===================================================
 function updateSmartButton(shouldShow, buttonText, action) {
     if (shouldShow) {
-        // 🚀 Use Banner Orchestrator WITHOUT custom content
-        BannerOrchestrator.deploy('smartButton', {
+        // 🚀 DIRECT TRIGGER - NO BRIDGE NEEDED
+        triggerBanner('smart_button', {
             trigger: 'system_call',
             buttonText: buttonText,
             action: action
-            // ← NO customContent! Let it use the header-optimized library version
+            // ← Uses clean banner library version
         });
     } else {
-        // Remove smartButton if it's current
-        if (BannerOrchestrator.currentBanner === 'smartButton') {
-            BannerOrchestrator.removeCurrentBanner();
+        // Remove smartButton banner directly
+        const existingBanner = document.getElementById('universalBanner');
+        if (existingBanner) {
+            existingBanner.remove();
         }
     }
 }
@@ -1987,15 +1960,6 @@ function handleSmartButtonClick(buttonType) {
     if (typeof buttonType === 'object') {
         buttonType = 'valuation';
     }
-
-    // 1. 🚀 NEW: USE BANNER ORCHESTRATOR FOR TRANSITION
-    BannerOrchestrator.deploy('leadCapture', {
-        trigger: 'smartButton_click',
-        buttonType: buttonType,
-        onDeploy: function(banner) {
-            console.log('🎯 Lead capture banner deployed via Orchestrator');
-        }
-    });
     
     // 2. STOP SPEECH RECOGNITION COMPLETELY - NO LISTENING YET!
     if (typeof recognition !== 'undefined' && recognition) {
@@ -2572,137 +2536,84 @@ setTimeout(() => {
 }}
 
 // ===================================================
-// 🎯 CONSULTATION CONFIRMED BANNER - ORCHESTRATOR 2.0
+// 🎯 CONSULTATION CONFIRMED BANNER - CLEAN VERSION
 // ===================================================
 function showConsultationConfirmedBanner() {
-    console.log('🎯 Showing Consultation Confirmed Banner - DUAL SECTION');
+    console.log('🎯 Showing Consultation Confirmed Banner - Clean Version');
     
-    // 🚀 BANNER ORCHESTRATOR 2.0 DEPLOYMENT
-    if (typeof BannerOrchestrator !== 'undefined' && BannerOrchestrator.deploy) {
-        BannerOrchestrator.deploy('consultationConfirmed', {
-            type: 'dualSection',
-            sections: {
-                left: {
-                    title: '🎯 Free Consultation Confirmed!',
-                    subtitle: 'Your information has been submitted'
-                },
-                right: {
-                    title: `📚 FREE Book for ${leadData.name}!`,
-                    subtitle: '"7 Secrets to Selling Your Practice"',
-                    image: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758088515492_nci-book.png'
-                }
+    // 🚀 DIRECT TRIGGER - NO BRIDGE NEEDED
+    triggerBanner('consultation_confirmed', {
+        type: 'dualSection',
+        sections: {
+            left: {
+                title: '🎯 Free Consultation Confirmed!',
+                subtitle: 'Your information has been submitted'
             },
-            cleanup: ['bruceBookBanner', 'emailConfirmationBanner', 'leadCapture'],
-            hideSmartButton: true,
-            transition: 'smooth',
-            callback: (result) => {
-                console.log('🎯 Consultation confirmed banner deployed:', result);
+            right: {
+                title: `📚 FREE Book for ${leadData.name}!`,
+                subtitle: '"7 Secrets to Selling Your Practice"',
+                image: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758088515492_nci-book.png'
             }
-        });
-    } else {
-        // 🛡️ FALLBACK - Legacy banner creation (cleaned up)
-        _createLegacyConsultationBanner();
-    }
+        },
+        cleanup: ['bruceBookBanner', 'emailConfirmationBanner', 'leadCapture'],
+        hideSmartButton: true,
+        transition: 'smooth',
+        callback: (result) => {
+            console.log('🎯 Consultation confirmed banner deployed:', result);
+        }
+    });
 }
 
 // ===================================================
-// 🙏 THANK YOU BANNER - ORCHESTRATOR 2.0
+// 🙏 THANK YOU BANNER - CLEAN VERSION
 // ===================================================
 function showThankYouBanner() {
-    console.log('🙏 Showing Thank You Banner with Audio');
+    console.log('🙏 Showing Thank You Banner with Audio - Clean Version');
     
-    // 🚀 BANNER ORCHESTRATOR 2.0 DEPLOYMENT
-    if (typeof BannerOrchestrator !== 'undefined' && BannerOrchestrator.deploy) {
-        BannerOrchestrator.deploy('thankYou', {
-            type: 'celebration',
-            content: {
-                emoji: '🙏',
-                title: 'Thank You for Visiting!',
-                message: 'We appreciate your time and interest.',
-                subtitle: 'Have a wonderful day!',
-                audioNote: '🎵 Playing farewell message...'
-            },
-            style: {
-                gradient: 'linear-gradient(135deg, #4CAF50 0%, #45a049 50%, #2E7D32 100%)',
-                animation: 'thankYouGlow',
-                borderRadius: '25px'
-            },
-            audio: {
-                url: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/audio-intros/ai_intro_1758148837523.mp3',
-                volume: 0.8,
-                delay: 500
-            },
-            cleanup: ['bruceBookBanner', 'emailConfirmationBanner', 'leadCapture'],
-            hideSmartButton: true,
-            callback: (result) => {
-                console.log('🙏 Thank you banner with audio deployed:', result);
-            }
-        });
-    } else {
-        // 🛡️ FALLBACK - Legacy thank you banner
-        _createLegacyThankYouBanner();
-    }
+    // 🚀 DIRECT TRIGGER - NO BRIDGE NEEDED
+    triggerBanner('thank_you', {
+        type: 'celebration',
+        content: {
+            emoji: '🙏',
+            title: 'Thank You for Visiting!',
+            message: 'We appreciate your time and interest.',
+            subtitle: 'Have a wonderful day!',
+            audioNote: '🎵 Playing farewell message...'
+        },
+        style: {
+            gradient: 'linear-gradient(135deg, #4CAF50 0%, #45a049 50%, #2E7D32 100%)',
+            animation: 'thankYouGlow',
+            borderRadius: '25px'
+        },
+        audio: {
+            url: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/audio-intros/ai_intro_1758148837523.mp3',
+            volume: 0.8,
+            delay: 500
+        },
+        cleanup: ['bruceBookBanner', 'emailConfirmationBanner', 'leadCapture'],
+        hideSmartButton: true,
+        callback: (result) => {
+            console.log('🙏 Thank you banner with audio deployed:', result);
+        }
+    });
 }
 
 // ===================================================
-// 🌉 BANNER ORCHESTRATOR 2.0 BRIDGE TO NEW SYSTEM
-// ===================================================
-window.BannerOrchestrator = {
-    currentBanner: null,
-    
-    deploy: function(bannerType, options = {}) {
-        console.log(`🌉 BannerOrchestrator Bridge: ${bannerType} → New System`);
-        
-        // Map old banner types to new trigger system
-        const bannerMap = {
-            'emailSent': 'email_sent',
-            'thankYou': 'thank_you', 
-            'consultationConfirmed': 'consultation_confirmed',
-            'smartButton': 'smart_button',
-            'freeBook': 'free_book'
-        };
-        
-        const newBannerType = bannerMap[bannerType] || bannerType;
-        
-        // Use our trigger system
-        triggerBanner(newBannerType, {
-            duration: options.duration || 4000,
-            callback: options.callback
-        });
-        
-        this.currentBanner = bannerType;
-        return true;
-    }
-};
-
-// ===================================================
-// 📧 EMAIL CONFIRMATION - ORCHESTRATOR 2.0
+// 📧 EMAIL CONFIRMATION - CLEAN VERSION
 // ===================================================
 function showEmailConfirmationBanner() {
-    console.log('📧 Showing Email Confirmation Banner');
+    console.log('📧 Showing Email Confirmation Banner - Clean Version');
     
-    // 🚀 BANNER ORCHESTRATOR 2.0 DEPLOYMENT
-    if (typeof BannerOrchestrator !== 'undefined' && BannerOrchestrator.deploy) {
-        BannerOrchestrator.deploy('emailSent', {
-            type: 'confirmation',
-            duration: 4000,
-            autoRemove: true,
-            cleanup: ['bruceBookBanner', 'leadCapture'],
-            callback: (result) => {
-                console.log('📧 Email confirmation banner deployed:', result);
-            }
-        });
-    } else {
-        // 🛡️ FALLBACK - Legacy universal banner
-        if (typeof showUniversalBanner === 'function') {
-            showUniversalBanner('emailSent');
-            setTimeout(() => {
-                if (typeof removeAllBanners === 'function') {
-                    removeAllBanners();
-                }
-            }, 4000);
+    // 🚀 DIRECT TRIGGER - NO BRIDGE NEEDED
+    triggerBanner('email_sent', {
+        type: 'confirmation',
+        duration: 4000,
+        autoRemove: true,
+        cleanup: ['bruceBookBanner', 'leadCapture'],
+        callback: (result) => {
+            console.log('📧 Email confirmation banner deployed:', result);
         }
-    }
+    });
 }
 
 // ===================================================
