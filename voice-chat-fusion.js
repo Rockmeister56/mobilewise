@@ -844,6 +844,13 @@ function preWarmSpeechEngine() {
     }
 }
 
+// This is what your banner calls:
+function handleConsultationClick(type) {
+    console.log(`🎯 Bridge: ${type}`);
+    // Call the existing working function:
+    handleSmartButtonClick(type);
+}
+
 // ===================================================
 // 🔊 VOICE SYNTHESIS SYSTEM
 // ===================================================
@@ -1008,7 +1015,7 @@ smartButton: {
             <div style="color: white; font-weight: 600; font-size: 16px;">
                 📅 FREE Consultation Available
             </div>
-            <button onclick="handleConsultationClick('valuation')" style="
+                onclick="handleSmartButtonClick('valuation')" style="
                 background: rgba(34, 197, 94, 0.3);
                 color: white;
                 border: 1px solid rgba(34, 197, 94, 0.5);
@@ -1505,28 +1512,6 @@ const bannerTriggers = {
 };
 
 // ===================================================
-// 🎯 CONSULTATION BUTTON HANDLER - FIXED
-// ===================================================
-function handleConsultationClick(type = 'consultation') {
-    console.log(`🎯 Starting lead capture flow for: ${type}`);
-    
-    // DON'T trigger lead capture banner - keep button visible!
-    // triggerBanner('lead_capture'); // ← COMMENTED OUT - THIS WAS THE PROBLEM!
-    
-    // Start lead capture conversation state
-    conversationState = 'lead_capture';
-    isInLeadCapture = true;
-    
-    // Start the interview process
-    const leadMessage = "Great! Let's get your FREE practice valuation started. What's your name?";
-    addAIMessage(leadMessage);
-    speakResponse(leadMessage);
-    
-    // Pause speech recognition temporarily for banner interaction
-    pauseSpeechForBannerInteraction();
-}
-
-// ===================================================
 // 🔇 SPEECH PAUSE HELPER
 // ===================================================
 function pauseSpeechForBannerInteraction() {
@@ -1971,55 +1956,6 @@ function restoreChatHeight() {
         setTimeout(() => {
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }, 100);
-    }
-}
-
-// ===================================================
-// 🚀 BANNER ORCHESTRATOR 2.0 SMART BUTTON CLICK HANDLER
-// ===================================================
-function handleSmartButtonClick(buttonType) {
-    console.log(`🚨 Smart button clicked: ${buttonType}`);
-    
-    // Fix buttonType if it's an event object
-    if (typeof buttonType === 'object') {
-        buttonType = 'valuation';
-    }
-    
-    // 2. STOP SPEECH RECOGNITION COMPLETELY - NO LISTENING YET!
-    if (typeof recognition !== 'undefined' && recognition) {
-        try {
-            recognition.stop();
-            if (typeof isListening !== 'undefined') isListening = false;
-            console.log('🔇 Speech recognition stopped for lead capture');
-        } catch (error) {
-            console.log('Speech already stopped');
-        }
-    }
-    
-    // 3. HIDE THE GREEN "SPEAK NOW" BANNER - DON'T SHOW IT YET!
-    const liveTranscript = document.getElementById('liveTranscript');
-    if (liveTranscript) {
-        liveTranscript.style.display = 'none';
-    }
-    
-    // 4. UPDATE UI ELEMENTS
-    const transcriptText = document.getElementById('transcriptText');
-    if (transcriptText) {
-        transcriptText.textContent = '';
-        transcriptText.style.display = 'none';
-    }
-    
-    const micButton = document.querySelector('.mic-btn');
-    if (micButton) {
-        micButton.innerHTML = '📋';
-        micButton.style.background = 'linear-gradient(135deg, #ff6b6b, #ee5a24)';
-    }
-    
-    console.log('🎯 Starting lead capture for:', buttonType);
-    
-    // 5. START LEAD CAPTURE SYSTEM (BUT NO LISTENING YET!)
-    if (typeof initializeLeadCapture === 'function') {
-        initializeLeadCapture(buttonType);
     }
 }
 
