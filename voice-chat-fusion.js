@@ -1083,6 +1083,51 @@ freeBook: {
     duration: 0
 },
 
+freeBook: {
+    content: `
+        <div style="width: 742px; max-width: 742px; margin: 0 auto; height: 80px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #FF6B6B, #4ECDC4); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+            
+            <!-- LEFT: Book Image -->
+            <div style="display: flex; align-items: center;">
+                <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758088515492_nci-book.png" 
+                     style="width: 60px; height: 60px; border-radius: 8px; margin-right: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">
+                
+                <!-- Book Info -->
+                <div style="color: white;">
+                    <div style="font-size: 18px; font-weight: bold; margin-bottom: 3px;">
+                        📚 FREE Book + Consultation
+                    </div>
+                    <div style="font-size: 13px; color: #fff; opacity: 0.95;">
+                        "7 Secrets to Selling Your Practice" + Personal Consultation
+                    </div>
+                </div>
+            </div>
+            
+            <!-- RIGHT: Action Button -->
+            <button onclick="handleConsultationClick('book_consultation')" style="
+                background: rgba(255, 255, 255, 0.9);
+                color: #FF6B6B;
+                border: 2px solid white;
+                padding: 12px 24px;
+                border-radius: 25px;
+                cursor: pointer;
+                font-weight: bold;
+                font-size: 14px;
+                transition: all 0.3s ease;
+                pointer-events: auto !important;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            " onmouseover="this.style.background='white'; this.style.transform='scale(1.05)'" 
+               onmouseout="this.style.background='rgba(255, 255, 255, 0.9)'; this.style.transform='scale(1)'">
+                📞 CLAIM BOTH NOW
+            </button>
+        </div>
+    `,
+    background: 'rgba(255, 255, 255, 0.15)',
+    containerWidth: 762,
+    customHeight: 90,
+    duration: 0
+},
+
 // 5. CONSULTATION CONFIRMED
 consultationConfirmed: {
     content: `
