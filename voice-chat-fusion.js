@@ -906,14 +906,11 @@ function speakResponse(message) {
     }
     
     // ✅ EVERYTHING ELSE CONTINUES NORMALLY
-    // This allows all other banners to show, just blocks the "Speak Now" restart
     showHybridReadySequence(); // Or whatever your normal flow is
 };
     
     // Only call it if Smart Button is NOT active
     showHybridReadySequence();
-
-};
             
 utterance.onerror = function(event) {
     console.log('❌ Speech error:', event.error);
