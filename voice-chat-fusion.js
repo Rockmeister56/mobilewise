@@ -2376,14 +2376,14 @@ function sendLeadEmail(data) {
 function sendFollowUpEmail() {
     console.log('📧 DEBUG: leadData at function start:', leadData);
     
- if (!leadData || !leadData.email) {
-    console.error('❌ CRITICAL: leadData or email is missing!');
-    
-    // Try to continue conversation even with missing data
-    addAIMessage("Is there anything else I can help you with today?", 'ai');
-    conversationState = 'asking_if_more_help';
-    return;
-}
+    if (!leadData || !leadData.email) {
+        console.error('❌ CRITICAL: leadData or email is missing!');
+        
+        // Try to continue conversation even with missing data
+        addAIMessage("Is there anything else I can help you with today?", 'ai');
+        conversationState = 'asking_if_more_help';
+        return;
+    }
     
     // ✅ SUPER CLEAN EMAIL - Remove any hidden characters
     const cleanEmail = String(leadData.email).trim().replace(/[^\w@.-]/g, '');
@@ -2418,49 +2418,42 @@ function sendFollowUpEmail() {
     
     console.log('📧 DEBUG: to_email specifically:', confirmationParams.to_email);
     
-    // ✅ YOUR EXACT EMAIL LOGIC
+    // ✅ CLEAN EMAIL SENDING - NO CONFLICTS
     if (typeof emailjs !== 'undefined') {
         emailjs.send('service_b9bppgb', 'template_8kx812d', confirmationParams)
             .then(function(response) {
                 console.log('✅ CONFIRMATION EMAIL SENT!');
-            
-              showUniversalBanner('emailSent');
                 
-                // 🚀 NATURAL CONVERSATION FLOW
+                // ✅ NEW BANNER SYSTEM ONLY
+                showUniversalBanner('emailSent');
+                
+                // ✅ CLEAN CONVERSATION FLOW - ONE MESSAGE, ONE VOICE
                 conversationState = 'asking_if_more_help';
                 addAIMessage("Perfect! Your confirmation email is on its way to " + cleanEmail + ". Is there anything else I can help you with today?", 'ai');
                 
-              // 🎯 TRIGGER: Email confirmation banner
-triggerBanner('email_sent', { emailSuccess: true });
-
-// 🎯 AFTER 4.5 seconds, continue conversation naturally
-setTimeout(() => {
-    addAIMessage("Is there anything else I can help you with today?", 'ai');
-    conversationState = 'asking_if_more_help';
-}, 4500);
-
-}, function(error) {
-    console.error('❌ EMAIL FAILED:', error);
-    
-    // Still continue conversation even if email fails
-    addAIMessage("Is there anything else I can help you with today?", 'ai');
-    conversationState = 'asking_if_more_help';
-    
-    const smartButton = document.getElementById('smartButton');
-    if (smartButton) {
-        smartButton.style.display = 'none !important';
+            }, function(error) {
+                console.error('❌ EMAIL FAILED:', error);
+                
+                // Still continue conversation even if email fails
+                addAIMessage("Is there anything else I can help you with today?", 'ai');
+                conversationState = 'asking_if_more_help';
+                
+                const smartButton = document.getElementById('smartButton');
+                if (smartButton) {
+                    smartButton.style.display = 'none !important';
+                }
+            });
+    } else {
+        // Continue conversation even if emailjs not available
+        addAIMessage("Is there anything else I can help you with today?", 'ai');
+        conversationState = 'asking_if_more_help';
+        
+        const smartButton = document.getElementById('smartButton');
+        if (smartButton) {
+            smartButton.style.display = 'none !important';
+        }
     }
-});
-} else {
-    // Continue conversation even if emailjs not available
-    addAIMessage("Is there anything else I can help you with today?", 'ai');
-    conversationState = 'asking_if_more_help';
-    
-    const smartButton = document.getElementById('smartButton');
-    if (smartButton) {
-        smartButton.style.display = 'none !important';
-    }
-}}
+}
 
 // ===================================================
 // 🎯 CONSULTATION CONFIRMED BANNER - CLEAN VERSION
