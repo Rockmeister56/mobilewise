@@ -2999,7 +2999,7 @@ function showHybridReadySequence() {
         document.head.appendChild(style);
     }
     
-    // 🚀 IMMEDIATE BUTTON CREATION with proper reference
+    // 🚀 IMMEDIATE BUTTON CREATION
     speakSequenceButton = document.createElement('button');
     speakSequenceButton.id = 'speak-sequence-button';
     speakSequenceButton.className = 'quick-btn';
@@ -3021,7 +3021,7 @@ function showHybridReadySequence() {
     quickButtonsContainer.appendChild(speakSequenceButton);
     console.log('🔴 Red stage active IMMEDIATELY');
     
-    // START LISTENING DURING RED STAGE (at 800ms like before)
+    // START LISTENING DURING RED STAGE
     setTimeout(() => {
         console.log('🎤 Starting listening during RED stage...');
         if (isContactInterview) {
@@ -3040,12 +3040,11 @@ function showHybridReadySequence() {
         }
     }, 100);
     
-    // STAGE 2: After 1.5 seconds, switch to green (listening already active)
+    // STAGE 2: After 1.5 seconds, switch to green
     const greenTransition = setTimeout(() => {
         if (speakSequenceButton && speakSequenceActive) {
             console.log('🟢 Switching to green stage (listening already active)');
             
-            // Static "Speak Now" with blinking green dot
             speakSequenceButton.innerHTML = '<span class="green-dot-blink">🟢</span> Speak Now';
             speakSequenceButton.style.cssText = `
                 width: 100% !important;
@@ -3069,6 +3068,131 @@ function showHybridReadySequence() {
         if (speechWatcher) clearInterval(speechWatcher);
         cleanupSpeakSequence();
     }, 25000);
+}
+
+// 🎯 DETECT CONTACT INTERVIEW MODE
+function checkContactInterviewMode() {
+    const indicators = [
+        typeof isInLeadCapture !== 'undefined' && isInLeadCapture,
+        typeof currentConversationState !== 'undefined' && 
+            (currentConversationState.includes('email') || 
+             currentConversationState.includes('contact') ||
+             currentConversationState.includes('lead')),
+        document.querySelector('[id*="email"]') !== null,
+        document.querySelector('[id*="contact"]') !== null,
+        document.querySelector('[id*="lead"]') !== null
+    ];
+    
+    return indicators.some(indicator => indicator === true);
+}
+
+// 🎯 NORMAL INTERVIEW LISTENING 
+function startNormalInterviewListening() {
+    const userInput = document.getElementById('userInput');
+    if (userInput) {
+        userInput.value = '';
+        console.log('🧹 Cleared userInput field (normal mode)');
+    }
+    
+    setTimeout(() => {
+        if (typeof startListening === 'function') {
+            try {
+                startListening();
+                console.log('✅ Normal startListening() called successfully');
+            } catch (error) {
+                console.error('❌ Normal startListening() error:', error);
+            }
+        }
+    }, 50);
+    
+    setTimeout(() => {
+        if (typeof forceStartListening === 'function' && !isListening) {
+            try {
+                console.log('🔄 Normal backup: calling forceStartListening()');
+                forceStartListening();
+            } catch (error) {
+                console.error('❌ Normal forceStartListening() error:', error);
+            }
+        }
+    }, 150);
+}
+
+// 🎯 CONTACT INTERVIEW LISTENING 
+function startContactInterviewListening() {
+    console.log('📧 === CONTACT INTERVIEW SPEECH SETUP ===');
+    
+    const userInput = document.getElementById('userInput');
+    if (userInput) {
+        userInput.value = '';
+        console.log('🧹 Cleared userInput field (contact mode)');
+    }
+    
+    setTimeout(() => {
+        if (typeof startListening === 'function') {
+            try {
+                console.log('📧 Contact mode: calling startListening()');
+                startListening();
+                console.log('✅ Contact startListening() called successfully');
+            } catch (error) {
+                console.error('❌ Contact startListening() error:', error);
+            }
+        }
+    }, 50);
+    
+    setTimeout(() => {
+        if (typeof forceStartListening === 'function' && !isListening) {
+            try {
+                console.log('📧 Contact mode backup: calling forceStartListening()');
+                forceStartListening();
+            } catch (error) {
+                console.error('❌ Contact forceStartListening() error:', error);
+            }
+        }
+    }, 200);
+    
+    setTimeout(() => {
+        if (typeof recognition !== 'undefined' && recognition && !isListening) {
+            try {
+                console.log('📧 Contact mode final try: direct recognition.start()');
+                recognition.start();
+                isListening = true;
+            } catch (error) {
+                console.error('❌ Contact direct recognition error:', error);
+            }
+        }
+    }, 350);
+    
+    console.log('📧 === END CONTACT INTERVIEW SETUP ===');
+}
+
+// Enhanced cleanup function
+function cleanupSpeakSequence() {
+    console.log('🧹 Cleaning up speak sequence');
+    speakSequenceActive = false;
+    
+    if (speakSequenceCleanupTimer) {
+        clearTimeout(speakSequenceCleanupTimer);
+        speakSequenceCleanupTimer = null;
+    }
+    
+    if (speakSequenceButton) {
+        speakSequenceButton.remove();
+        speakSequenceButton = null;
+    }
+    
+    // Restore original buttons
+    const quickButtonsContainer = document.querySelector('.quick-questions') || 
+                                  document.querySelector('.quick-buttons') || 
+                                  document.getElementById('quickButtonsContainer');
+    if (quickButtonsContainer) {
+        const buttons = quickButtonsContainer.querySelectorAll('.quick-btn');
+        buttons.forEach(btn => btn.style.display = '');
+    }
+}
+
+// Updated hide function
+function hideSpeakNowBanner() {
+    cleanupSpeakSequence();
 }
 
 // ENHANCED: Allow Enter key to send message
