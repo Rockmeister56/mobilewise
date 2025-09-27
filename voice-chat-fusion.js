@@ -1465,6 +1465,95 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
     }, 100);
 }
 
+// ===================================================
+// 🎤 SPEAK NOW BANNER - REPLACES QUICK BUTTONS TEMPORARILY  
+// ===================================================
+function showHybridReadySequence() {
+    // ... your existing blocking conditions ...
+    
+    console.log('🎤 Showing Speak Now by replacing quick buttons');
+    
+    // ✅ FIND THE QUICK BUTTONS CONTAINER 
+    const quickButtonsContainer = document.querySelector('.quick-buttons'); // Adjust selector as needed
+    
+    if (quickButtonsContainer) {
+        // ✅ HIDE QUICK BUTTONS TEMPORARILY
+        quickButtonsContainer.style.display = 'none';
+        
+        // ✅ CREATE SPEAK NOW REPLACEMENT
+        const speakNowContainer = document.createElement('div');
+        speakNowContainer.id = 'speakNowReplacement';
+        speakNowContainer.style.cssText = `
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            border-radius: 15px;
+            margin-bottom: 15px;
+            text-align: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+            animation: pulseSpeak 2s infinite;
+            cursor: pointer;
+        `;
+        
+        speakNowContainer.innerHTML = `
+            <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
+                <div style="font-size: 24px;">🎤</div>
+                <div>
+                    <div style="font-size: 18px; margin-bottom: 3px;">Speak Now</div>
+                    <div style="font-size: 12px; opacity: 0.9;">Tap to start speaking</div>
+                </div>
+                <div style="font-size: 20px; animation: bounce 1s infinite;">🔊</div>
+            </div>
+        `;
+        
+        // ✅ INSERT WHERE QUICK BUTTONS WERE
+        quickButtonsContainer.parentNode.insertBefore(speakNowContainer, quickButtonsContainer);
+        
+        // ✅ ADD CLICK HANDLER
+        speakNowContainer.addEventListener('click', () => {
+            startListening(); // Your existing function
+        });
+        
+        // ✅ RESTORE QUICK BUTTONS AFTER SPEECH
+        setTimeout(() => {
+            restoreQuickButtons();
+        }, 10000); // Or when speech is detected
+    }
+}
+
+// ===================================================
+// 🔄 RESTORE QUICK BUTTONS FUNCTION
+// ===================================================
+function restoreQuickButtons() {
+    const speakNowReplacement = document.getElementById('speakNowReplacement');
+    const quickButtonsContainer = document.querySelector('.quick-buttons');
+    
+    if (speakNowReplacement) {
+        speakNowReplacement.remove();
+    }
+    
+    if (quickButtonsContainer) {
+        quickButtonsContainer.style.display = 'flex'; // Or whatever the original display was
+    }
+}
+
+// ✅ ADD CSS ANIMATIONS
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes pulseSpeak {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.02); opacity: 0.9; }
+    }
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-3px); }
+    }
+`;
+document.head.appendChild(style);
+
 // ===================================================================
 // 🎯 UNIVERSAL MASTER BANNER TRIGGER SYSTEM - ALL INDUSTRIES
 // ===================================================================
