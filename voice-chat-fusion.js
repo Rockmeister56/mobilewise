@@ -743,7 +743,7 @@ function createBeep(frequency, duration, volume) {
 // 🚀 ENHANCED HYBRID READY SEQUENCE WITH RESTART HANDLING
 // ===================================================
 function showHybridReadySequence() {
-// ✅ DON'T SHOW "Speak Now" if Smart Button is active
+    // ✅ DON'T SHOW "Speak Now" if Smart Button is active
     if (typeof BannerOrchestrator !== 'undefined' && 
         BannerOrchestrator.currentBanner === 'smartButton') {
         console.log('🔇 HYBRID BLOCKED: Smart Button active');
@@ -762,14 +762,12 @@ function showHybridReadySequence() {
         return;
     }
     
-    // ✅ NEW - DON'T SHOW "Speak Now" during consultation offer states
-    if (conversationState === 'asking_selling_consultation' || 
-        conversationState === 'asking_buying_consultation' || 
-        conversationState === 'asking_valuation_consultation') {
-        console.log('🔇 HYBRID BLOCKED: Consultation offer active - waiting for user decision');
+    // ✅ NEW - DON'T SHOW "Speak Now" if Smart Button is visible on page
+    if (document.querySelector('[onclick*="handleConsultationClick"]')) {
+        console.log('🔇 HYBRID BLOCKED: Smart Button visible - user should click button');
         return;
     }
-
+    
     console.log('🚀 Showing hybrid ready sequence');
     
     // CLEAR ANY EXISTING TIMEOUTS to prevent conflicts
