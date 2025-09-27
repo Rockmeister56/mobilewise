@@ -976,12 +976,6 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
                 </div>
             </div>
             
-            <!-- CENTER: NCI Logo -->
-            <div style="position: absolute; left: 50%; top: 40%; transform: translate(-50%, -50%);">
-                <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1755208928390_logo3.PNG" 
-                     style="width: 120px; height: auto;">
-            </div>
-            
             <!-- RIGHT: SLOGAN -->
             <div style="position: absolute; right: 40px; top: 5px;">
                 <div style="color: #87CEEB; font-size: 14px; font-weight: 600; text-transform: uppercase;">
