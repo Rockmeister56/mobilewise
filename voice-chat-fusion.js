@@ -2954,7 +2954,7 @@ function showHybridReadySequence() {
         existingSpeakBtn.remove();
     }
     
-    // Add styles ONCE
+    // Add styles ONCE with FIXED dots animation
     if (!document.getElementById('speak-sequence-styles')) {
         const style = document.createElement('style');
         style.id = 'speak-sequence-styles';
@@ -2983,11 +2983,13 @@ function showHybridReadySequence() {
                 }
             }
             
-            .dots-animation::after {
+            /* FIXED: Only animate the dots, not the text */
+            .dots-only::after {
                 content: '';
-                animation: dots 1.5s infinite;
+                animation: dotsOnly 1.5s infinite;
+                display: inline;
             }
-            @keyframes dots {
+            @keyframes dotsOnly {
                 0% { content: ''; }
                 25% { content: '.'; }
                 50% { content: '..'; }
@@ -3021,31 +3023,45 @@ function showHybridReadySequence() {
     
     // STAGE 2: After 1.5 seconds, switch to green ONCE
     const greenTransition = setTimeout(() => {
-    if (speakSequenceButton && speakSequenceActive) {
-        console.log('🟢 Switching to green stage');
-        
-        speakSequenceButton.innerHTML = '🎤 Speak Now<span class="dots-animation"></span>';
-        speakSequenceButton.style.cssText = `
-            width: 100% !important;
-            background: rgba(34, 197, 94, 0.4) !important;
-            color: #ffffff !important;
-            border: 2px solid rgba(34, 197, 94, 0.8) !important;
-            padding: 15px !important;
-            min-height: 45px !important;
-            font-weight: bold !important;
-            border-radius: 20px !important;
-        `;
-        speakSequenceButton.className = 'quick-btn green-button-glow';
-        
-        // 🎯 CALL THE RIGHT FUNCTION - START LISTENING!
-        console.log('🎤 Starting speech recognition via startListening()...');
-        if (typeof startListening === 'function') {
-            startListening(); // THIS IS THE CORRECT FUNCTION!
-        } else {
-            console.error('❌ startListening function not found');
+        if (speakSequenceButton && speakSequenceActive) {
+            console.log('🟢 Switching to green stage');
+            
+            // FIXED: Static "Speak Now" with only dots animating
+            speakSequenceButton.innerHTML = '🎤 Speak Now<span class="dots-only"></span>';
+            speakSequenceButton.style.cssText = `
+                width: 100% !important;
+                background: rgba(34, 197, 94, 0.4) !important;
+                color: #ffffff !important;
+                border: 2px solid rgba(34, 197, 94, 0.8) !important;
+                padding: 15px !important;
+                min-height: 45px !important;
+                font-weight: bold !important;
+                border-radius: 20px !important;
+            `;
+            speakSequenceButton.className = 'quick-btn green-button-glow';
+            
+            // 🎯 ENHANCED LISTENING START with error handling
+            console.log('🎤 Starting speech recognition...');
+            
+            // Try multiple approaches to start listening
+            setTimeout(() => {
+                if (typeof startListening === 'function') {
+                    console.log('🎯 Calling startListening()');
+                    startListening();
+                } else if (typeof forceStartListening === 'function') {
+                    console.log('🔄 Calling forceStartListening()');
+                    forceStartListening();
+                } else {
+                    console.error('❌ No listening function found!');
+                }
+                
+                // Also try to show the transcript area
+                if (typeof showSpeakNow === 'function') {
+                    showSpeakNow();
+                }
+            }, 200); // Small delay to ensure button is rendered
         }
-    }
-}, 1500);
+    }, 1500);
     
     // Cleanup after 8 seconds
     const cleanup = setTimeout(() => {
