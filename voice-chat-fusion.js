@@ -882,18 +882,33 @@ function speakResponse(message) {
                 }
             };
             
-              // 🚫 DON'T TRIGGER if Smart Button is active
+              utterance.onend = function() {
+    isSpeaking = false;
+    console.log('🔊 AI finished speaking (mobile)');
+    
+    // 🚫 DON'T TRIGGER "Speak Now" if Smart Button is specifically active
     if (typeof BannerOrchestrator !== 'undefined' && 
         BannerOrchestrator.currentBanner === 'smartButton') {
-        console.log('🔇 TRIGGER BLOCKED: Smart Button active - no speech restart');
+        console.log('🔇 SPEAK NOW BLOCKED: Smart Button active - no speech restart');
         return; // Don't call showHybridReadySequence()
     }
     
-    // ✅ ADD THIS - DON'T TRIGGER if Splash Screen is active
-    if (document.getElementById('thankYouSplash') || conversationState === 'ended' || conversationState === 'splash_screen_active') {
-        console.log('🔇 TRIGGER BLOCKED: Thank you splash screen active - no speech restart');
+    // 🚫 DON'T TRIGGER "Speak Now" if Thank You Splash Screen exists
+    if (document.getElementById('thankYouSplash')) {
+        console.log('🔇 SPEAK NOW BLOCKED: Thank you splash screen active - no speech restart');
         return; // Don't call showHybridReadySequence()
     }
+    
+    // 🚫 DON'T TRIGGER "Speak Now" if conversation is specifically ended
+    if (conversationState === 'ended' || conversationState === 'splash_screen_active') {
+        console.log('🔇 SPEAK NOW BLOCKED: Conversation ended - no speech restart');
+        return; // Don't call showHybridReadySequence()
+    }
+    
+    // ✅ EVERYTHING ELSE CONTINUES NORMALLY
+    // This allows all other banners to show, just blocks the "Speak Now" restart
+    showHybridReadySequence(); // Or whatever your normal flow is
+};
     
     // Only call it if Smart Button is NOT active
     showHybridReadySequence();
