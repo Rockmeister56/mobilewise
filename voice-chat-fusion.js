@@ -2940,18 +2940,80 @@ function showHybridReadySequence() {
         existingSpeakBtn.remove();
     }
     
-    // Create the "Speak Now" button using your exact quick-btn styling  
-    const speakNowButton = document.createElement('button');
-    speakNowButton.id = 'speak-now-button';
-    speakNowButton.className = 'quick-btn'; // Use your existing class!
-    speakNowButton.innerHTML = '🎤 Speak Now - Listening...';
-    speakNowButton.style.animation = 'speakNowWholeButtonGlow 1.5s infinite'; // Use your existing animation!
-    speakNowButton.style.width = '100%'; // Full width like your other buttons
+    // STAGE 1: "Get Ready to Speak" button (Red glow)
+    const getReadyButton = document.createElement('button');
+    getReadyButton.id = 'speak-now-button';
+    getReadyButton.className = 'quick-btn';
+    getReadyButton.innerHTML = '🔴 Get Ready to Speak';
+    getReadyButton.style.cssText = `
+        width: 100% !important;
+        background: rgba(255, 255, 255, 0.15) !important;
+        color: #ff4444 !important;
+        border: 2px solid rgba(255, 68, 68, 0.6) !important;
+        padding: 15px 15px !important;
+        height: auto !important;
+        min-height: 45px !important;
+        animation: redGlow 1s infinite !important;
+        font-weight: bold !important;
+        border-radius: 20px !important;
+    `;
     
-    // Add it to your quick buttons container
-    quickButtonsContainer.appendChild(speakNowButton);
+    // Add the red glow animation
+    if (!document.getElementById('red-glow-animation')) {
+        const style = document.createElement('style');
+        style.id = 'red-glow-animation';
+        style.textContent = `
+            @keyframes redGlow {
+                0%, 100% { 
+                    background: rgba(255, 255, 255, 0.15);
+                    color: #ff4444;
+                    border-color: rgba(255, 68, 68, 0.6);
+                }
+                50% { 
+                    background: rgba(255, 68, 68, 0.3);
+                    color: #ffffff;
+                    border-color: rgba(255, 68, 68, 0.9);
+                }
+            }
+            @keyframes greenGlow {
+                0%, 100% { 
+                    background: rgba(34, 197, 94, 0.4);
+                    color: #ffffff;
+                    border-color: rgba(34, 197, 94, 0.8);
+                }
+                50% { 
+                    background: rgba(34, 197, 94, 0.6);
+                    color: #ffffff;
+                    border-color: rgba(34, 197, 94, 1);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
     
-    // Auto-remove after 8 seconds and restore original buttons
+    // Add to container
+    quickButtonsContainer.appendChild(getReadyButton);
+    
+    // STAGE 2: After 1.5 seconds, switch to "Speak Now" (Green)
+    setTimeout(() => {
+        if (document.getElementById('speak-now-button')) {
+            getReadyButton.innerHTML = '🎤 Speak Now';
+            getReadyButton.style.cssText = `
+                width: 100% !important;
+                background: rgba(34, 197, 94, 0.4) !important;
+                color: #ffffff !important;
+                border: 2px solid rgba(34, 197, 94, 0.8) !important;
+                padding: 15px 15px !important;
+                height: auto !important;
+                min-height: 45px !important;
+                animation: greenGlow 1.5s infinite !important;
+                font-weight: bold !important;
+                border-radius: 20px !important;
+            `;
+        }
+    }, 1500); // 1.5 seconds delay
+    
+    // Auto-remove after total of 8 seconds and restore original buttons
     setTimeout(() => {
         if (document.getElementById('speak-now-button')) {
             document.getElementById('speak-now-button').remove();
