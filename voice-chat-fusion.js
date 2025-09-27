@@ -2934,10 +2934,6 @@ function showHybridReadySequence() {
     console.log('🎬 Starting speak sequence...');
     speakSequenceActive = true;
     
-    // 🎯 START LISTENING IMMEDIATELY - BEFORE any visuals!
-    console.log('🎤 STARTING LISTENING FIRST (before visuals)...');
-    startListeningImmediately();
-    
     // 🎯 DETECT CONTACT INTERVIEW MODE
     const isContactInterview = checkContactInterviewMode();
     console.log('📧 Contact interview mode:', isContactInterview);
@@ -3008,7 +3004,7 @@ function showHybridReadySequence() {
     speakSequenceButton.id = 'speak-sequence-button';
     speakSequenceButton.className = 'quick-btn';
     
-    // STAGE 1: Red "Get Ready to Speak" (but listening is ALREADY active!)
+    // STAGE 1: Red "Get Ready to Speak"
     speakSequenceButton.innerHTML = '<span class="red-dot-blink">🔴</span> Get Ready to Speak';
     speakSequenceButton.style.cssText = `
         width: 100% !important;
@@ -3022,7 +3018,17 @@ function showHybridReadySequence() {
     `;
     
     quickButtonsContainer.appendChild(speakSequenceButton);
-    console.log('🔴 Red stage active (but microphone is ALREADY listening!)');
+    console.log('🔴 Red stage active');
+    
+    // 🎯 START LISTENING DURING RED STAGE (but still respect timing)
+    setTimeout(() => {
+        console.log('🎤 Starting listening during RED stage...');
+        if (isContactInterview) {
+            startContactInterviewListening();
+        } else {
+            startNormalInterviewListening();
+        }
+    }, 800); // Start during red stage, but give it time to initialize
     
     // AI speaking detection
     let speechWatcher = setInterval(() => {
@@ -3033,10 +3039,10 @@ function showHybridReadySequence() {
         }
     }, 100);
     
-    // STAGE 2: After 1.5 seconds, switch to green (but don't restart listening!)
+    // STAGE 2: After 1.5 seconds, switch to green (listening already active)
     const greenTransition = setTimeout(() => {
         if (speakSequenceButton && speakSequenceActive) {
-            console.log('🟢 Switching to green stage (microphone still active)');
+            console.log('🟢 Switching to green stage (listening already active)');
             
             // Static "Speak Now" with blinking green dot
             speakSequenceButton.innerHTML = '<span class="green-dot-blink">🟢</span> Speak Now';
@@ -3052,48 +3058,16 @@ function showHybridReadySequence() {
             `;
             speakSequenceButton.className = 'quick-btn green-button-glow';
             
-            // DON'T restart listening - it's already active!
-            console.log('✅ Visual switched to green - microphone was already listening');
+            console.log('✅ Visual changed to green - listening was already started');
         }
-    }, 1500); // Visual change only
+    }, 1500);
     
     // Extended cleanup timer 
     speakSequenceCleanupTimer = setTimeout(() => {
         console.log('⏰ Extended listening time reached - cleaning up');
         if (speechWatcher) clearInterval(speechWatcher);
         cleanupSpeakSequence();
-    }, 25000); // 25 seconds total
-}
-
-// 🎯 IMMEDIATE LISTENING START - No delays, no waiting
-function startListeningImmediately() {
-    console.log('⚡ IMMEDIATE LISTENING START...');
-    
-    const userInput = document.getElementById('userInput');
-    if (userInput) {
-        userInput.value = '';
-        console.log('🧹 Cleared userInput field');
-    }
-    
-    // Start listening RIGHT NOW - no setTimeout delays!
-    if (typeof startListening === 'function') {
-        try {
-            startListening();
-            console.log('✅ IMMEDIATE startListening() called successfully');
-        } catch (error) {
-            console.error('❌ IMMEDIATE startListening() error:', error);
-            
-            // Immediate backup attempt
-            if (typeof forceStartListening === 'function') {
-                try {
-                    console.log('⚡ IMMEDIATE backup: calling forceStartListening()');
-                    forceStartListening();
-                } catch (backupError) {
-                    console.error('❌ IMMEDIATE forceStartListening() error:', backupError);
-                }
-            }
-        }
-    }
+    }, 25000);
 }
 
 // 🎯 DETECT CONTACT INTERVIEW MODE
@@ -3110,6 +3084,85 @@ function checkContactInterviewMode() {
     ];
     
     return indicators.some(indicator => indicator === true);
+}
+
+// 🎯 NORMAL INTERVIEW LISTENING 
+function startNormalInterviewListening() {
+    const userInput = document.getElementById('userInput');
+    if (userInput) {
+        userInput.value = '';
+        console.log('🧹 Cleared userInput field (normal mode)');
+    }
+    
+    setTimeout(() => {
+        if (typeof startListening === 'function') {
+            try {
+                startListening();
+                console.log('✅ Normal startListening() called successfully');
+            } catch (error) {
+                console.error('❌ Normal startListening() error:', error);
+            }
+        }
+    }, 50);
+    
+    setTimeout(() => {
+        if (typeof forceStartListening === 'function' && !isListening) {
+            try {
+                console.log('🔄 Normal backup: calling forceStartListening()');
+                forceStartListening();
+            } catch (error) {
+                console.error('❌ Normal forceStartListening() error:', error);
+            }
+        }
+    }, 150);
+}
+
+// 🎯 CONTACT INTERVIEW LISTENING 
+function startContactInterviewListening() {
+    console.log('📧 === CONTACT INTERVIEW SPEECH SETUP ===');
+    
+    const userInput = document.getElementById('userInput');
+    if (userInput) {
+        userInput.value = '';
+        console.log('🧹 Cleared userInput field (contact mode)');
+    }
+    
+    setTimeout(() => {
+        if (typeof startListening === 'function') {
+            try {
+                console.log('📧 Contact mode: calling startListening()');
+                startListening();
+                console.log('✅ Contact startListening() called successfully');
+            } catch (error) {
+                console.error('❌ Contact startListening() error:', error);
+            }
+        }
+    }, 50);
+    
+    setTimeout(() => {
+        if (typeof forceStartListening === 'function' && !isListening) {
+            try {
+                console.log('📧 Contact mode backup: calling forceStartListening()');
+                forceStartListening();
+            } catch (error) {
+                console.error('❌ Contact forceStartListening() error:', error);
+            }
+        }
+    }, 200);
+    
+    setTimeout(() => {
+        if (typeof recognition !== 'undefined' && recognition && !isListening) {
+            try {
+                console.log('📧 Contact mode final try: direct recognition.start()');
+                recognition.start();
+                isListening = true;
+            } catch (error) {
+                console.error('❌ Contact direct recognition error:', error);
+            }
+        }
+    }, 350);
+    
+    console.log('📧 === END CONTACT INTERVIEW SETUP ===');
 }
 
 // Enhanced cleanup function
