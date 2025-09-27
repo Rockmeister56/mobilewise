@@ -2923,7 +2923,6 @@ function askQuickQuestion(question) {
 let speakSequenceActive = false;
 let speakSequenceButton = null;
 let speakSequenceCleanupTimer = null;
-let speakSequenceCallCount = 0;
 
 function showHybridReadySequence() {
     // Prevent multiple instances running
@@ -2932,8 +2931,7 @@ function showHybridReadySequence() {
         return;
     }
     
-    speakSequenceCallCount++;
-    console.log(`🎬 Starting speak sequence (Call #${speakSequenceCallCount})...`);
+    console.log('🎬 Starting speak sequence...');
     speakSequenceActive = true;
     
     // Find the quick buttons container
@@ -3046,57 +3044,40 @@ function showHybridReadySequence() {
             `;
             speakSequenceButton.className = 'quick-btn green-button-glow';
             
-            // 🎯 SURGICAL FIX: Force fresh speech setup
-            console.log(`🔧 FORCING FRESH SPEECH SETUP (Call #${speakSequenceCallCount})...`);
+            // 🎯 BACK TO WORKING APPROACH - No engine tampering
+            console.log('🎤 Starting listening (working approach)...');
             
+            // Clear input field
+            const userInput = document.getElementById('userInput');
+            if (userInput) {
+                userInput.value = '';
+                console.log('🧹 Cleared userInput field');
+            }
+            
+            // Use the approach that WAS working
             setTimeout(() => {
-                // Clear the input field first
-                const userInput = document.getElementById('userInput');
-                if (userInput) {
-                    userInput.value = '';
-                    console.log('🧹 Cleared userInput field');
-                }
-                
-                // 🎯 KEY FIX: Force fresh engine instead of reusing corrupted one
-                if (speakSequenceCallCount > 1) {
-                    console.log('🔄 Subsequent call - forcing fresh engine setup...');
-                    
-                    // Reset speech engine state
-                    if (typeof speechEngine !== 'undefined' && speechEngine.reset) {
-                        speechEngine.reset();
-                        console.log('🔄 Speech engine reset');
-                    }
-                    
-                    // Force re-initialization of recognition
-                    if (typeof recognition !== 'undefined') {
-                        recognition = null;
-                        console.log('🔄 Recognition object cleared');
-                    }
-                    
-                    // Force re-initialization
-                    if (typeof initializeSpeechRecognition === 'function') {
-                        initializeSpeechRecognition();
-                        console.log('🔄 Speech recognition re-initialized');
-                    }
-                }
-                
-                // Now start listening with fresh setup
                 if (typeof startListening === 'function') {
                     try {
                         startListening();
-                        console.log('✅ startListening() called with fresh setup');
+                        console.log('✅ startListening() called successfully');
                     } catch (error) {
                         console.error('❌ startListening() error:', error);
-                        
-                        // Fallback: try force start
-                        if (typeof forceStartListening === 'function') {
-                            console.log('🆘 Fallback: trying forceStartListening()');
-                            forceStartListening();
-                        }
                     }
                 }
-                
-            }, 200); // Slightly longer delay for setup
+            }, 100);
+            
+            // Backup attempt (this was working before)
+            setTimeout(() => {
+                if (typeof forceStartListening === 'function' && !isListening) {
+                    try {
+                        console.log('🔄 Backup: calling forceStartListening()');
+                        forceStartListening();
+                        console.log('✅ forceStartListening() called successfully');
+                    } catch (error) {
+                        console.error('❌ forceStartListening() error:', error);
+                    }
+                }
+            }, 300);
         }
     }, 1500);
     
@@ -3109,7 +3090,7 @@ function showHybridReadySequence() {
 
 // Enhanced cleanup function
 function cleanupSpeakSequence() {
-    console.log(`🧹 Cleaning up speak sequence (was Call #${speakSequenceCallCount})`);
+    console.log('🧹 Cleaning up speak sequence');
     speakSequenceActive = false;
     
     if (speakSequenceCleanupTimer) {
