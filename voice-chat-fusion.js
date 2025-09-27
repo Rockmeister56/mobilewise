@@ -2922,6 +2922,7 @@ function askQuickQuestion(question) {
 // Global flag to prevent multiple instances
 let speakSequenceActive = false;
 let speakSequenceButton = null;
+let speakSequenceCleanupTimer = null;
 
 function showHybridReadySequence() {
     // Prevent multiple instances running
@@ -2932,13 +2933,6 @@ function showHybridReadySequence() {
     
     console.log('🎬 Starting speak sequence...');
     speakSequenceActive = true;
-    
-    // 🎯 DEBUG: Check text input elements
-    const userInput = document.getElementById('userInput');
-    const transcriptText = document.getElementById('transcriptText');
-    console.log('🔍 Text input elements check:');
-    console.log('userInput element:', userInput ? 'EXISTS' : 'MISSING');
-    console.log('transcriptText element:', transcriptText ? 'EXISTS' : 'MISSING');
     
     // Find the quick buttons container
     const quickButtonsContainer = document.querySelector('.quick-questions') || 
@@ -3022,6 +3016,19 @@ function showHybridReadySequence() {
     quickButtonsContainer.appendChild(speakSequenceButton);
     console.log('🔴 Red stage active');
     
+    // 🎯 SURGICAL FIX: Set up AI speaking detection
+    const originalIsSpeaking = window.isSpeaking;
+    let speechWatcher;
+    
+    // Watch for AI speaking to auto-cleanup
+    speechWatcher = setInterval(() => {
+        if (typeof isSpeaking !== 'undefined' && isSpeaking && speakSequenceActive) {
+            console.log('🔊 AI started speaking - auto-cleaning up speak sequence');
+            clearInterval(speechWatcher);
+            cleanupSpeakSequence();
+        }
+    }, 100); // Check every 100ms
+    
     // STAGE 2: After 1.5 seconds, switch to green ONCE
     const greenTransition = setTimeout(() => {
         if (speakSequenceButton && speakSequenceActive) {
@@ -3041,70 +3048,49 @@ function showHybridReadySequence() {
             `;
             speakSequenceButton.className = 'quick-btn green-button-glow';
             
-            // 🎯 ENHANCED DEBUG AND LISTENING START
-            console.log('🎤 === ENHANCED LISTENING DEBUG ===');
-            console.log('Current recognition state:', recognition ? recognition.state : 'no recognition object');
-            console.log('isListening:', typeof isListening !== 'undefined' ? isListening : 'undefined');
-            console.log('isSpeaking:', typeof isSpeaking !== 'undefined' ? isSpeaking : 'undefined');
-            
-            // Clear text input first to ensure clean start
-            if (userInput) {
-                userInput.value = '';
-                console.log('🧹 Cleared userInput field');
-            }
-            
-            // Attempt 1: startListening (primary)
+            // Start listening
             setTimeout(() => {
                 if (typeof startListening === 'function') {
                     try {
-                        console.log('🎯 Calling startListening()...');
                         startListening();
-                        console.log('✅ startListening() called successfully');
-                        
-                        // Double-check elements after startListening
-                        setTimeout(() => {
-                            const userInputCheck = document.getElementById('userInput');
-                            const transcriptCheck = document.getElementById('transcriptText');
-                            console.log('🔍 POST-START check:');
-                            console.log('userInput exists:', userInputCheck ? 'YES' : 'NO');
-                            console.log('userInput value:', userInputCheck ? userInputCheck.value : 'N/A');
-                            console.log('transcriptText exists:', transcriptCheck ? 'YES' : 'NO');
-                            console.log('recognition object state:', recognition ? recognition.state : 'no recognition');
-                        }, 1000);
-                        
+                        console.log('✅ Speech recognition started');
                     } catch (error) {
                         console.error('❌ startListening() error:', error);
                     }
                 }
             }, 100);
             
-            // Attempt 2: forceStartListening (backup) - only if needed
+            // Backup: forceStartListening if needed
             setTimeout(() => {
                 if (typeof forceStartListening === 'function' && !isListening) {
                     try {
                         console.log('🔄 Backup: calling forceStartListening()');
                         forceStartListening();
-                        console.log('✅ forceStartListening() called successfully');
                     } catch (error) {
                         console.error('❌ forceStartListening() error:', error);
                     }
                 }
             }, 300);
-            
-            console.log('🎤 === END ENHANCED DEBUG ===');
         }
     }, 1500);
     
-    // Cleanup after 15 seconds
-    const cleanup = setTimeout(() => {
+    // 🎯 ENHANCED: Backup cleanup with speech watcher cleanup
+    speakSequenceCleanupTimer = setTimeout(() => {
+        if (speechWatcher) clearInterval(speechWatcher);
         cleanupSpeakSequence();
     }, 15000);
 }
 
-// Separate cleanup function
+// Enhanced cleanup function
 function cleanupSpeakSequence() {
     console.log('🧹 Cleaning up speak sequence');
     speakSequenceActive = false;
+    
+    // Clear timers
+    if (speakSequenceCleanupTimer) {
+        clearTimeout(speakSequenceCleanupTimer);
+        speakSequenceCleanupTimer = null;
+    }
     
     if (speakSequenceButton) {
         speakSequenceButton.remove();
