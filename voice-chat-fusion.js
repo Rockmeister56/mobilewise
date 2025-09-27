@@ -963,19 +963,26 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
         branding: {
     content: `
         <div style="display: flex; align-items: center; height: 100%; padding: 0 20px;">
+            <!-- LEFT: Mobile-Wise AI Logo -->
             <div style="position: absolute; left: 30px; top: 17;">
                 <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758507868460_logo.png" 
                      style="width: 65px; height: 65px;">
             </div>
             
-             <!-- COMPANY NAME: Controllable positioning -->
+            <!-- COMPANY NAME: Controllable positioning -->
             <div style="position: absolute; left: 85px; top: 45px;">
                 <div style="color: white; font-size: 14px; font-weight: bold; letter-spacing: 1.5px;">
                     Mobile-Wise AI
                 </div>
             </div>
             
-            <!-- SLOGAN: Controllable positioning -->
+            <!-- CENTER: NCI Logo -->
+            <div style="position: absolute; left: 50%; top: 40%; transform: translate(-50%, -50%);">
+                <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1755208928390_logo3.PNG" 
+                     style="width: 120px; height: auto;">
+            </div>
+            
+            <!-- RIGHT: SLOGAN -->
             <div style="position: absolute; right: 40px; top: 5px;">
                 <div style="color: #87CEEB; font-size: 14px; font-weight: 600; text-transform: uppercase;">
                    &check; SMART  <br> &check; HELPFUL <br> &check; AI VOICE CHAT
@@ -985,7 +992,7 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
     `,
     background: 'transparent',
     duration: 0
-        },
+},
         
         // 3. EMAIL SENT CONFIRMATION
         emailSent: {
@@ -1093,7 +1100,7 @@ freeBookSimple: {
 // 5. FREE BOOK OFFER 2
 freeBookWithConsultation: {
     content: `
-        <div style="width: 742px; max-width: 742px; margin: 0 auto; height: 80px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #FF6B6B, #4ECDC4); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+        <div style="width: 742px; max-width: 742px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #2196F3, #64B5F6); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
             
             <!-- LEFT: Book Image -->
             <div style="display: flex; align-items: center;">
@@ -1101,33 +1108,15 @@ freeBookWithConsultation: {
                      style="width: 60px; height: 60px; border-radius: 8px; margin-right: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">
                 
                 <!-- Book Info -->
-                <div style="color: white;">
+                <div style="color: white; text-align: left;">
                     <div style="font-size: 18px; font-weight: bold; margin-bottom: 3px;">
-                        📚 FREE Book + Consultation
+                        📚 FREE Consultation
                     </div>
                     <div style="font-size: 13px; color: #fff; opacity: 0.95;">
-                        "7 Secrets to Selling Your Practice" + Personal Consultation
+                        "7 Secrets to Selling Your Practice" Book Included
                     </div>
                 </div>
             </div>
-            
-            <!-- RIGHT: Action Button -->
-            <button onclick="handleConsultationClick('book_consultation')" style="
-                background: rgba(255, 255, 255, 0.9);
-                color: #FF6B6B;
-                border: 2px solid white;
-                padding: 12px 24px;
-                border-radius: 25px;
-                cursor: pointer;
-                font-weight: bold;
-                font-size: 14px;
-                transition: all 0.3s ease;
-                pointer-events: auto !important;
-                box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-            " onmouseover="this.style.background='white'; this.style.transform='scale(1.05)'" 
-               onmouseout="this.style.background='rgba(255, 255, 255, 0.9)'; this.style.transform='scale(1)'">
-                📞 CLAIM BOTH NOW
-            </button>
         </div>
     `,
     background: 'rgba(255, 255, 255, 0.15)',
@@ -2381,6 +2370,7 @@ function sendFollowUpEmail() {
         
         // Try to continue conversation even with missing data
         addAIMessage("Is there anything else I can help you with today?", 'ai');
+        speakResponse("Is there anything else I can help you with today?");
         conversationState = 'asking_if_more_help';
         return;
     }
@@ -2418,7 +2408,7 @@ function sendFollowUpEmail() {
     
     console.log('📧 DEBUG: to_email specifically:', confirmationParams.to_email);
     
-    // ✅ CLEAN EMAIL SENDING - NO CONFLICTS
+    // ✅ CLEAN EMAIL SENDING WITH COMPLETE FLOW
     if (typeof emailjs !== 'undefined') {
         emailjs.send('service_b9bppgb', 'template_8kx812d', confirmationParams)
             .then(function(response) {
@@ -2427,16 +2417,20 @@ function sendFollowUpEmail() {
                 // ✅ NEW BANNER SYSTEM ONLY
                 showUniversalBanner('emailSent');
                 
-                // ✅ CLEAN CONVERSATION FLOW - ONE MESSAGE, ONE VOICE
+                // ✅ COMPLETE CONVERSATION FLOW - VOICE + LISTENING
                 conversationState = 'asking_if_more_help';
-                addAIMessage("Perfect! Your confirmation email is on its way to " + cleanEmail + ". Is there anything else I can help you with today?", 'ai');
+                const finalMessage = "Perfect! Your confirmation email is on its way to " + cleanEmail + ". Is there anything else I can help you with today?";
+                addAIMessage(finalMessage, 'ai');
+                speakResponse(finalMessage); // ✅ TRIGGERS VOICE + "SPEAK NOW" BANNER
                 
             }, function(error) {
                 console.error('❌ EMAIL FAILED:', error);
                 
                 // Still continue conversation even if email fails
-                addAIMessage("Is there anything else I can help you with today?", 'ai');
                 conversationState = 'asking_if_more_help';
+                const errorMessage = "Is there anything else I can help you with today?";
+                addAIMessage(errorMessage, 'ai');
+                speakResponse(errorMessage);
                 
                 const smartButton = document.getElementById('smartButton');
                 if (smartButton) {
@@ -2445,8 +2439,10 @@ function sendFollowUpEmail() {
             });
     } else {
         // Continue conversation even if emailjs not available
-        addAIMessage("Is there anything else I can help you with today?", 'ai');
         conversationState = 'asking_if_more_help';
+        const fallbackMessage = "Is there anything else I can help you with today?";
+        addAIMessage(fallbackMessage, 'ai');
+        speakResponse(fallbackMessage);
         
         const smartButton = document.getElementById('smartButton');
         if (smartButton) {
