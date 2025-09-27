@@ -1148,7 +1148,7 @@ consultationConfirmed: {
 // 6. CLICK-TO-CALL BANNER
 clickToCall: {
     content: `
-        <div style="width: ${742}px; max-width: ${742}px; margin: 0 auto; height: 58px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; border-radius: 6px; background: linear-gradient(135deg, #4CAF50, #8BC34A);">
+        <div style="width: ${742}px; max-width: ${742}px; margin: 0 auto; height: 58px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; border-radius: 6px; background: linear-gradient(135deg, #0044ffff, #0a0b50ff);">
             <div style="color: white; font-weight: 600; font-size: 16px;">
                 📞 Talk to Bruce Now
             </div>
