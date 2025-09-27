@@ -2424,14 +2424,7 @@ function sendFollowUpEmail() {
             .then(function(response) {
                 console.log('✅ CONFIRMATION EMAIL SENT!');
             
-                // ✅ HIDE SMART BUTTON PERMANENTLY
-                const smartButton = document.getElementById('smartButton');
-                if (smartButton) {
-                    smartButton.style.display = 'none !important';
-                }
-                
-                // 🚀 TRIGGER BANNER SYSTEM FOR LEAD MAGNET DELIVERY
-                deliverLeadMagnet(leadMagnet, cleanEmail);
+              showUniversalBanner('emailSent');
                 
                 // 🚀 NATURAL CONVERSATION FLOW
                 conversationState = 'asking_if_more_help';
