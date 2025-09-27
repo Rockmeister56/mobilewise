@@ -2954,7 +2954,7 @@ function showHybridReadySequence() {
         existingSpeakBtn.remove();
     }
     
-    // Add styles ONCE with FIXED dots animation
+    // Add styles ONCE - SIMPLIFIED with blinking dots only
     if (!document.getElementById('speak-sequence-styles')) {
         const style = document.createElement('style');
         style.id = 'speak-sequence-styles';
@@ -2963,6 +2963,14 @@ function showHybridReadySequence() {
                 animation: redDotBlink 0.8s infinite;
             }
             @keyframes redDotBlink {
+                0%, 100% { opacity: 1; }
+                50% { opacity: 0.2; }
+            }
+            
+            .green-dot-blink {
+                animation: greenDotBlink 0.8s infinite;
+            }
+            @keyframes greenDotBlink {
                 0%, 100% { opacity: 1; }
                 50% { opacity: 0.2; }
             }
@@ -2981,20 +2989,6 @@ function showHybridReadySequence() {
                     border-color: rgba(34, 197, 94, 1) !important;
                     box-shadow: 0 0 20px rgba(34, 197, 94, 0.9) !important;
                 }
-            }
-            
-            /* FIXED: Only animate the dots, not the text */
-            .dots-only::after {
-                content: '';
-                animation: dotsOnly 1.5s infinite;
-                display: inline;
-            }
-            @keyframes dotsOnly {
-                0% { content: ''; }
-                25% { content: '.'; }
-                50% { content: '..'; }
-                75% { content: '...'; }
-                100% { content: ''; }
             }
         `;
         document.head.appendChild(style);
@@ -3026,8 +3020,8 @@ function showHybridReadySequence() {
         if (speakSequenceButton && speakSequenceActive) {
             console.log('🟢 Switching to green stage');
             
-            // FIXED: Static "Speak Now" with only dots animating
-            speakSequenceButton.innerHTML = '🎤 Speak Now<span class="dots-only"></span>';
+            // FIXED: Static "Speak Now" with blinking green dot (no moving text!)
+            speakSequenceButton.innerHTML = '<span class="green-dot-blink">🟢</span> Speak Now';
             speakSequenceButton.style.cssText = `
                 width: 100% !important;
                 background: rgba(34, 197, 94, 0.4) !important;
@@ -3040,26 +3034,61 @@ function showHybridReadySequence() {
             `;
             speakSequenceButton.className = 'quick-btn green-button-glow';
             
-            // 🎯 ENHANCED LISTENING START with error handling
-            console.log('🎤 Starting speech recognition...');
+            // 🎯 EXTENSIVE DEBUGGING for listening issue
+            console.log('🎤 === STARTING LISTENING DEBUG ===');
+            console.log('🎤 Available functions check:');
+            console.log('startListening exists:', typeof startListening);
+            console.log('forceStartListening exists:', typeof forceStartListening);
+            console.log('speakResponse exists:', typeof speakResponse);
+            console.log('recognition object exists:', typeof recognition);
+            console.log('isAudioMode:', typeof isAudioMode !== 'undefined' ? isAudioMode : 'undefined');
+            console.log('isSpeaking:', typeof isSpeaking !== 'undefined' ? isSpeaking : 'undefined');
+            console.log('isListening:', typeof isListening !== 'undefined' ? isListening : 'undefined');
             
-            // Try multiple approaches to start listening
+            // Try multiple approaches with delays
             setTimeout(() => {
+                console.log('🎯 Attempt 1: startListening()');
                 if (typeof startListening === 'function') {
-                    console.log('🎯 Calling startListening()');
-                    startListening();
-                } else if (typeof forceStartListening === 'function') {
-                    console.log('🔄 Calling forceStartListening()');
-                    forceStartListening();
+                    try {
+                        startListening();
+                        console.log('✅ startListening() called successfully');
+                    } catch (error) {
+                        console.error('❌ startListening() error:', error);
+                    }
                 } else {
-                    console.error('❌ No listening function found!');
+                    console.log('❌ startListening not available');
                 }
-                
-                // Also try to show the transcript area
-                if (typeof showSpeakNow === 'function') {
-                    showSpeakNow();
+            }, 100);
+            
+            setTimeout(() => {
+                console.log('🎯 Attempt 2: forceStartListening()');
+                if (typeof forceStartListening === 'function') {
+                    try {
+                        forceStartListening();
+                        console.log('✅ forceStartListening() called successfully');
+                    } catch (error) {
+                        console.error('❌ forceStartListening() error:', error);
+                    }
+                } else {
+                    console.log('❌ forceStartListening not available');
                 }
-            }, 200); // Small delay to ensure button is rendered
+            }, 300);
+            
+            setTimeout(() => {
+                console.log('🎯 Attempt 3: Direct recognition.start()');
+                if (typeof recognition !== 'undefined' && recognition) {
+                    try {
+                        recognition.start();
+                        console.log('✅ Direct recognition.start() called');
+                    } catch (error) {
+                        console.error('❌ Direct recognition.start() error:', error);
+                    }
+                } else {
+                    console.log('❌ recognition object not available');
+                }
+            }, 500);
+            
+            console.log('🎤 === END LISTENING DEBUG ===');
         }
     }, 1500);
     
