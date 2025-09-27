@@ -960,22 +960,29 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
     // COMPLETE BANNER LIBRARY - All 9 Banner Types
     const bannerLibrary = {
         // 1. BRANDING HEADER (🚀 UPDATED LAYOUT)
-        branding: {
+      branding: {
     content: `
         <div style="display: flex; align-items: center; height: 100%; padding: 0 20px;">
+            <!-- LEFT: Mobile-Wise AI Logo -->
             <div style="position: absolute; left: 30px; top: 17;">
                 <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758507868460_logo.png" 
                      style="width: 65px; height: 65px;">
             </div>
             
-             <!-- COMPANY NAME: Controllable positioning -->
+            <!-- COMPANY NAME: Controllable positioning -->
             <div style="position: absolute; left: 85px; top: 45px;">
                 <div style="color: white; font-size: 14px; font-weight: bold; letter-spacing: 1.5px;">
                     Mobile-Wise AI
                 </div>
             </div>
             
-            <!-- SLOGAN: Controllable positioning -->
+            <!-- CENTER: NCI Logo -->
+            <div style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);">
+                <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1755208928390_logo3.PNG" 
+                     style="width: 80px; height: auto;">
+            </div>
+            
+            <!-- RIGHT: SLOGAN -->
             <div style="position: absolute; right: 40px; top: 5px;">
                 <div style="color: #87CEEB; font-size: 14px; font-weight: 600; text-transform: uppercase;">
                    &check; SMART  <br> &check; HELPFUL <br> &check; AI VOICE CHAT
@@ -985,7 +992,7 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
     `,
     background: 'transparent',
     duration: 0
-        },
+},
         
         // 3. EMAIL SENT CONFIRMATION
         emailSent: {
