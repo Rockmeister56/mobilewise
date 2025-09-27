@@ -2922,7 +2922,6 @@ function askQuickQuestion(question) {
 // Global flag to prevent multiple instances
 let speakSequenceActive = false;
 let speakSequenceButton = null;
-let speakSequenceCleanupTimer = null;
 
 function showHybridReadySequence() {
     // Prevent multiple instances running
@@ -2933,11 +2932,6 @@ function showHybridReadySequence() {
     
     console.log('🎬 Starting speak sequence...');
     speakSequenceActive = true;
-    
-    // Clear any existing cleanup timer
-    if (speakSequenceCleanupTimer) {
-        clearTimeout(speakSequenceCleanupTimer);
-    }
     
     // Find the quick buttons container
     const quickButtonsContainer = document.querySelector('.quick-questions') || 
@@ -3040,42 +3034,46 @@ function showHybridReadySequence() {
             `;
             speakSequenceButton.className = 'quick-btn green-button-glow';
             
-            // 🎯 SINGLE, CLEAN LISTENING START
-            console.log('🎤 Starting listening (single call)...');
+            // 🎯 RESTORED - Multiple attempts (but smarter)
+            console.log('🎤 Starting listening (multiple fallbacks)...');
+            
+            // Attempt 1: startListening (primary)
             setTimeout(() => {
                 if (typeof startListening === 'function') {
                     try {
                         startListening();
-                        console.log('✅ Speech recognition started cleanly');
+                        console.log('✅ startListening() called successfully');
                     } catch (error) {
                         console.error('❌ startListening() error:', error);
                     }
-                } else {
-                    console.log('❌ startListening not available');
                 }
             }, 100);
             
-            // 🎯 EXTENDED CLEANUP - Give more time to speak
-            speakSequenceCleanupTimer = setTimeout(() => {
-                if (speakSequenceActive) {
-                    console.log('⏰ Extended listening time reached - cleaning up');
-                    cleanupSpeakSequence();
+            // Attempt 2: forceStartListening (backup) - only if needed
+            setTimeout(() => {
+                if (typeof forceStartListening === 'function' && !isListening) {
+                    try {
+                        console.log('🔄 Backup: calling forceStartListening()');
+                        forceStartListening();
+                        console.log('✅ forceStartListening() called successfully');
+                    } catch (error) {
+                        console.error('❌ forceStartListening() error:', error);
+                    }
                 }
-            }, 20000); // 20 seconds total (18.5 seconds of listening time!)
+            }, 300);
         }
     }, 1500);
+    
+    // Cleanup after 15 seconds (longer than before)
+    const cleanup = setTimeout(() => {
+        cleanupSpeakSequence();
+    }, 15000); // Extended time
 }
 
 // Separate cleanup function
 function cleanupSpeakSequence() {
     console.log('🧹 Cleaning up speak sequence');
     speakSequenceActive = false;
-    
-    // Clear cleanup timer
-    if (speakSequenceCleanupTimer) {
-        clearTimeout(speakSequenceCleanupTimer);
-        speakSequenceCleanupTimer = null;
-    }
     
     if (speakSequenceButton) {
         speakSequenceButton.remove();
@@ -3092,23 +3090,9 @@ function cleanupSpeakSequence() {
     }
 }
 
-// Updated hide function - also cleans up early if needed
+// Updated hide function
 function hideSpeakNowBanner() {
     cleanupSpeakSequence();
-}
-
-// 🎯 NEW: Function to extend listening time if user is speaking
-function extendSpeakSequence() {
-    if (speakSequenceActive && speakSequenceCleanupTimer) {
-        console.log('🔄 Extending speak sequence - user is active');
-        clearTimeout(speakSequenceCleanupTimer);
-        speakSequenceCleanupTimer = setTimeout(() => {
-            if (speakSequenceActive) {
-                console.log('⏰ Extended listening time reached - cleaning up');
-                cleanupSpeakSequence();
-            }
-        }, 15000); // Another 15 seconds
-    }
 }
 
 // ENHANCED: Allow Enter key to send message
