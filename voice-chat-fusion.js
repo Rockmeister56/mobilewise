@@ -622,7 +622,7 @@ function processUserResponse(userText) {
             
             setTimeout(() => {
     // Continue conversation instead of ending abruptly
-    addMessage("Is there anything else I can help you with today?", 'ai');
+    addAIMessage("Is there anything else I can help you with today?", 'ai');
     conversationState = 'asking_if_more_help';
     stopListening();
     window.lastProcessedMessage = null;
@@ -2442,7 +2442,7 @@ triggerBanner('email_sent', { emailSuccess: true });
 
 // 🎯 AFTER 4.5 seconds, continue conversation naturally
 setTimeout(() => {
-    addMessage("Is there anything else I can help you with today?", 'ai');
+    addAIMessage("Is there anything else I can help you with today?", 'ai');
     conversationState = 'asking_if_more_help';
 }, 4500);
 
