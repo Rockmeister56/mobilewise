@@ -882,14 +882,16 @@ function speakResponse(message) {
                 }
             };
             
-              utterance.onend = function() {
-    isSpeaking = false;
-    console.log('🔊 AI finished speaking (mobile)');
-    
-        // 🚫 DON'T TRIGGER if Smart Button is active
+              // 🚫 DON'T TRIGGER if Smart Button is active
     if (typeof BannerOrchestrator !== 'undefined' && 
         BannerOrchestrator.currentBanner === 'smartButton') {
         console.log('🔇 TRIGGER BLOCKED: Smart Button active - no speech restart');
+        return; // Don't call showHybridReadySequence()
+    }
+    
+    // ✅ ADD THIS - DON'T TRIGGER if Splash Screen is active
+    if (document.getElementById('thankYouSplash') || conversationState === 'ended' || conversationState === 'splash_screen_active') {
+        console.log('🔇 TRIGGER BLOCKED: Thank you splash screen active - no speech restart');
         return; // Don't call showHybridReadySequence()
     }
     
