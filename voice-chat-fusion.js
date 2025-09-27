@@ -3004,8 +3004,7 @@ function showHybridReadySequence() {
     speakSequenceButton.id = 'speak-sequence-button';
     speakSequenceButton.className = 'quick-btn';
     
-    // 🎯 ALWAYS START WITH RED STAGE (even for redo)
-    console.log('🔴 Starting RED stage (including redo scenarios)');
+    // STAGE 1: Red "Get Ready to Speak"
     speakSequenceButton.innerHTML = '<span class="red-dot-blink">🔴</span> Get Ready to Speak';
     speakSequenceButton.style.cssText = `
         width: 100% !important;
@@ -3021,7 +3020,7 @@ function showHybridReadySequence() {
     quickButtonsContainer.appendChild(speakSequenceButton);
     console.log('🔴 Red stage active');
     
-    // 🎯 ENHANCED AI speaking detection with extended listening protection
+    // AI speaking detection
     let speechWatcher = setInterval(() => {
         if (typeof isSpeaking !== 'undefined' && isSpeaking && speakSequenceActive) {
             console.log('🔊 AI started speaking - auto-cleaning up speak sequence');
@@ -3049,23 +3048,23 @@ function showHybridReadySequence() {
             `;
             speakSequenceButton.className = 'quick-btn green-button-glow';
             
-            // Start appropriate listening mode
+            // Start appropriate listening mode with SPEED OPTIMIZATION
             if (isContactInterview) {
-                console.log('📧 Using contact interview speech approach...');
+                console.log('📧 Using FAST contact interview speech approach...');
                 startContactInterviewListening();
             } else {
-                console.log('💬 Using normal interview speech approach...');
+                console.log('💬 Using FAST normal interview speech approach...');
                 startNormalInterviewListening();
             }
         }
     }, 1500); // Keep 1.5 second red stage
     
-    // 🎯 EXTENDED cleanup timer - More time for thinking/pausing
+    // Keep extended cleanup timer for thinking time
     speakSequenceCleanupTimer = setTimeout(() => {
         console.log('⏰ Extended listening time reached - cleaning up');
         if (speechWatcher) clearInterval(speechWatcher);
         cleanupSpeakSequence();
-    }, 25000); // 25 seconds total! (23.5 seconds of actual listening)
+    }, 25000); // Still 25 seconds total
 }
 
 // 🎯 DETECT CONTACT INTERVIEW MODE
@@ -3084,7 +3083,7 @@ function checkContactInterviewMode() {
     return indicators.some(indicator => indicator === true);
 }
 
-// 🎯 NORMAL INTERVIEW LISTENING 
+// 🎯 SPEED OPTIMIZED NORMAL INTERVIEW LISTENING 
 function startNormalInterviewListening() {
     const userInput = document.getElementById('userInput');
     if (userInput) {
@@ -3092,32 +3091,34 @@ function startNormalInterviewListening() {
         console.log('🧹 Cleared userInput field (normal mode)');
     }
     
+    // 🚀 IMMEDIATE START - No delays for faster capture
     setTimeout(() => {
         if (typeof startListening === 'function') {
             try {
                 startListening();
-                console.log('✅ Normal startListening() called successfully');
+                console.log('⚡ FAST Normal startListening() called successfully');
             } catch (error) {
                 console.error('❌ Normal startListening() error:', error);
             }
         }
-    }, 100);
+    }, 50); // Reduced from 100ms to 50ms
     
+    // Faster backup attempt
     setTimeout(() => {
         if (typeof forceStartListening === 'function' && !isListening) {
             try {
-                console.log('🔄 Normal backup: calling forceStartListening()');
+                console.log('⚡ FAST Normal backup: calling forceStartListening()');
                 forceStartListening();
             } catch (error) {
                 console.error('❌ Normal forceStartListening() error:', error);
             }
         }
-    }, 300);
+    }, 150); // Reduced from 300ms to 150ms
 }
 
-// 🎯 CONTACT INTERVIEW LISTENING 
+// 🎯 SPEED OPTIMIZED CONTACT INTERVIEW LISTENING 
 function startContactInterviewListening() {
-    console.log('📧 === CONTACT INTERVIEW SPEECH SETUP ===');
+    console.log('📧 === FAST CONTACT INTERVIEW SPEECH SETUP ===');
     
     const userInput = document.getElementById('userInput');
     if (userInput) {
@@ -3125,42 +3126,43 @@ function startContactInterviewListening() {
         console.log('🧹 Cleared userInput field (contact mode)');
     }
     
+    // 🚀 IMMEDIATE START - Faster contact mode
     setTimeout(() => {
         if (typeof startListening === 'function') {
             try {
-                console.log('📧 Contact mode: calling startListening()');
+                console.log('⚡ FAST Contact mode: calling startListening()');
                 startListening();
-                console.log('✅ Contact startListening() called successfully');
+                console.log('✅ FAST Contact startListening() called successfully');
             } catch (error) {
                 console.error('❌ Contact startListening() error:', error);
             }
         }
-    }, 100);
+    }, 50); // Reduced from 100ms to 50ms
     
     setTimeout(() => {
         if (typeof forceStartListening === 'function' && !isListening) {
             try {
-                console.log('📧 Contact mode backup: calling forceStartListening()');
+                console.log('⚡ FAST Contact mode backup: calling forceStartListening()');
                 forceStartListening();
             } catch (error) {
                 console.error('❌ Contact forceStartListening() error:', error);
             }
         }
-    }, 400);
+    }, 200); // Reduced from 400ms to 200ms
     
     setTimeout(() => {
         if (typeof recognition !== 'undefined' && recognition && !isListening) {
             try {
-                console.log('📧 Contact mode final try: direct recognition.start()');
+                console.log('⚡ FAST Contact mode final try: direct recognition.start()');
                 recognition.start();
                 isListening = true;
             } catch (error) {
                 console.error('❌ Contact direct recognition error:', error);
             }
         }
-    }, 700);
+    }, 350); // Reduced from 700ms to 350ms
     
-    console.log('📧 === END CONTACT INTERVIEW SETUP ===');
+    console.log('📧 === END FAST CONTACT INTERVIEW SETUP ===');
 }
 
 // Enhanced cleanup function
