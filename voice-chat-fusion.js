@@ -960,29 +960,22 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
     // COMPLETE BANNER LIBRARY - All 9 Banner Types
     const bannerLibrary = {
         // 1. BRANDING HEADER (🚀 UPDATED LAYOUT)
-      branding: {
+        branding: {
     content: `
         <div style="display: flex; align-items: center; height: 100%; padding: 0 20px;">
-            <!-- LEFT: Mobile-Wise AI Logo -->
             <div style="position: absolute; left: 30px; top: 17;">
                 <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758507868460_logo.png" 
                      style="width: 65px; height: 65px;">
             </div>
             
-            <!-- COMPANY NAME: Controllable positioning -->
+             <!-- COMPANY NAME: Controllable positioning -->
             <div style="position: absolute; left: 85px; top: 45px;">
                 <div style="color: white; font-size: 14px; font-weight: bold; letter-spacing: 1.5px;">
                     Mobile-Wise AI
                 </div>
             </div>
             
-            <!-- CENTER: NCI Logo -->
-            <div style="position: absolute; left: 50%; top: 40%; transform: translate(-50%, -50%);">
-                <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1755208928390_logo3.PNG" 
-                     style="width: 120px; height: auto;">
-            </div>
-            
-            <!-- RIGHT: SLOGAN -->
+            <!-- SLOGAN: Controllable positioning -->
             <div style="position: absolute; right: 40px; top: 5px;">
                 <div style="color: #87CEEB; font-size: 14px; font-weight: 600; text-transform: uppercase;">
                    &check; SMART  <br> &check; HELPFUL <br> &check; AI VOICE CHAT
@@ -992,7 +985,7 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
     `,
     background: 'transparent',
     duration: 0
-},
+        },
         
         // 3. EMAIL SENT CONFIRMATION
         emailSent: {
@@ -1100,7 +1093,7 @@ freeBookSimple: {
 // 5. FREE BOOK OFFER 2
 freeBookWithConsultation: {
     content: `
-        <div style="width: 742px; max-width: 742px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #2196F3, #64B5F6); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+        <div style="width: 742px; max-width: 742px; margin: 0 auto; height: 80px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #FF6B6B, #4ECDC4); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
             
             <!-- LEFT: Book Image -->
             <div style="display: flex; align-items: center;">
@@ -1108,15 +1101,33 @@ freeBookWithConsultation: {
                      style="width: 60px; height: 60px; border-radius: 8px; margin-right: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">
                 
                 <!-- Book Info -->
-                <div style="color: white; text-align: left;">
+                <div style="color: white;">
                     <div style="font-size: 18px; font-weight: bold; margin-bottom: 3px;">
-                        📚 FREE Consultation
+                        📚 FREE Book + Consultation
                     </div>
                     <div style="font-size: 13px; color: #fff; opacity: 0.95;">
-                        "7 Secrets to Selling Your Practice" Book Included
+                        "7 Secrets to Selling Your Practice" + Personal Consultation
                     </div>
                 </div>
             </div>
+            
+            <!-- RIGHT: Action Button -->
+            <button onclick="handleConsultationClick('book_consultation')" style="
+                background: rgba(255, 255, 255, 0.9);
+                color: #FF6B6B;
+                border: 2px solid white;
+                padding: 12px 24px;
+                border-radius: 25px;
+                cursor: pointer;
+                font-weight: bold;
+                font-size: 14px;
+                transition: all 0.3s ease;
+                pointer-events: auto !important;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            " onmouseover="this.style.background='white'; this.style.transform='scale(1.05)'" 
+               onmouseout="this.style.background='rgba(255, 255, 255, 0.9)'; this.style.transform='scale(1)'">
+                📞 CLAIM BOTH NOW
+            </button>
         </div>
     `,
     background: 'rgba(255, 255, 255, 0.15)',
@@ -2313,8 +2324,6 @@ function sendLeadEmail(data) {
                     } else if (data.inquiryType === 'valuation') {
                         askEmailMessage += ` You'll receive a comprehensive practice valuation analysis.`;
                     }
-
-                    showUniversalBanner('freeBookWithConsultation');
                     
                     askEmailMessage += ` May I send you Bruce's book "7 Secrets to Selling Your Practice" and a confirmation email now?`;
                     
@@ -2384,7 +2393,7 @@ function sendFollowUpEmail() {
     console.log('📧 DEBUG: Email length:', cleanEmail.length);
     
     // 🚀 GET LEAD MAGNET FROM BANNER SYSTEM
-    showUniversalBanner('freeBookWithConsultation');
+    const leadMagnet = getActiveLeadMagnet(); // Calls banner system
     
     // ✅ DYNAMIC EMAIL TRANSCRIPT
     let emailTranscript = `CONFIRMATION: Appointment scheduled for ${leadData.contactTime}\n\nThank you for choosing New Clients Inc! We'll be in touch within 24 hours.`;
@@ -2414,13 +2423,22 @@ function sendFollowUpEmail() {
         emailjs.send('service_b9bppgb', 'template_8kx812d', confirmationParams)
             .then(function(response) {
                 console.log('✅ CONFIRMATION EMAIL SENT!');
+            
+                // ✅ HIDE SMART BUTTON PERMANENTLY
+                const smartButton = document.getElementById('smartButton');
+                if (smartButton) {
+                    smartButton.style.display = 'none !important';
+                }
+                
+                // 🚀 TRIGGER BANNER SYSTEM FOR LEAD MAGNET DELIVERY
+                deliverLeadMagnet(leadMagnet, cleanEmail);
                 
                 // 🚀 NATURAL CONVERSATION FLOW
                 conversationState = 'asking_if_more_help';
                 addAIMessage("Perfect! Your confirmation email is on its way to " + cleanEmail + ". Is there anything else I can help you with today?", 'ai');
                 
               // 🎯 TRIGGER: Email confirmation banner
-   showUniversalBanner('emailSent');
+triggerBanner('email_sent', { emailSuccess: true });
 
 // 🎯 AFTER 4.5 seconds, continue conversation naturally
 setTimeout(() => {
