@@ -904,13 +904,10 @@ function speakResponse(message) {
         console.log('🔇 SPEAK NOW BLOCKED: Conversation ended - no speech restart');
         return; // Don't call showHybridReadySequence()
     }
-    
-    // ✅ EVERYTHING ELSE CONTINUES NORMALLY
-    showHybridReadySequence(); // Or whatever your normal flow is
-};
-    
-    // Only call it if Smart Button is NOT active
+    // ✅ BACK TO SIMPLE - let showHybridReadySequence() handle the blocking
     showHybridReadySequence();
+};
+       
             
 utterance.onerror = function(event) {
     console.log('❌ Speech error:', event.error);
