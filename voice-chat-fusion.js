@@ -2919,6 +2919,11 @@ function askQuickQuestion(question) {
     processUserResponse(question);
 }
 
+// Global flag to prevent multiple instances
+let speakSequenceActive = false;
+let speakSequenceButton = null;
+let speakSequenceCleanupTimer = null;
+
 function showHybridReadySequence() {
     // Prevent multiple instances running
     if (speakSequenceActive) {
@@ -2994,8 +2999,8 @@ function showHybridReadySequence() {
         document.head.appendChild(style);
     }
     
-    // 🚀 IMMEDIATE BUTTON CREATION - No delays!
-    const speakSequenceButton = document.createElement('button');
+    // 🚀 IMMEDIATE BUTTON CREATION with proper reference
+    speakSequenceButton = document.createElement('button');
     speakSequenceButton.id = 'speak-sequence-button';
     speakSequenceButton.className = 'quick-btn';
     
@@ -3012,12 +3017,9 @@ function showHybridReadySequence() {
         border-radius: 20px !important;
     `;
     
-    // 🚀 ADD TO DOM IMMEDIATELY - No setTimeout, no delays!
+    // 🚀 ADD TO DOM IMMEDIATELY
     quickButtonsContainer.appendChild(speakSequenceButton);
     console.log('🔴 Red stage active IMMEDIATELY');
-    
-    // Store reference globally
-    window.speakSequenceButton = speakSequenceButton;
     
     // START LISTENING DURING RED STAGE (at 800ms like before)
     setTimeout(() => {
@@ -3040,12 +3042,12 @@ function showHybridReadySequence() {
     
     // STAGE 2: After 1.5 seconds, switch to green (listening already active)
     const greenTransition = setTimeout(() => {
-        if (window.speakSequenceButton && speakSequenceActive) {
+        if (speakSequenceButton && speakSequenceActive) {
             console.log('🟢 Switching to green stage (listening already active)');
             
             // Static "Speak Now" with blinking green dot
-            window.speakSequenceButton.innerHTML = '<span class="green-dot-blink">🟢</span> Speak Now';
-            window.speakSequenceButton.style.cssText = `
+            speakSequenceButton.innerHTML = '<span class="green-dot-blink">🟢</span> Speak Now';
+            speakSequenceButton.style.cssText = `
                 width: 100% !important;
                 background: rgba(34, 197, 94, 0.4) !important;
                 color: #ffffff !important;
@@ -3055,11 +3057,11 @@ function showHybridReadySequence() {
                 font-weight: bold !important;
                 border-radius: 20px !important;
             `;
-            window.speakSequenceButton.className = 'quick-btn green-button-glow';
+            speakSequenceButton.className = 'quick-btn green-button-glow';
             
             console.log('✅ Visual changed to green - listening was already started');
         }
-    }, 1400);
+    }, 1500);
     
     // Extended cleanup timer 
     speakSequenceCleanupTimer = setTimeout(() => {
