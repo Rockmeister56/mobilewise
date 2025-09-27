@@ -1100,7 +1100,7 @@ freeBookSimple: {
 // 5. FREE BOOK OFFER 2
 freeBookWithConsultation: {
     content: `
-        <div style="width: 742px; max-width: 742px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #2196F3, #64B5F6); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+        <div style="width: 742px; max-width: 742px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #0f5ef0ff, #000000ff); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
             
             <!-- LEFT: Book Image -->
             <div style="display: flex; align-items: center;">
