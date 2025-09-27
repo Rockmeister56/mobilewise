@@ -1790,6 +1790,10 @@ function getAIResponse(userInput) {
             responseText = "Thank you for visiting! Have a great day.";
         }
     }
+    // In your main conversation processing function, add this check:
+if (window.emailFollowUpHandler && window.emailFollowUpHandler(userInput)) {
+    return; // Handler took care of it
+}
     
     return responseText;
 }
@@ -2360,7 +2364,7 @@ function sendLeadEmail(data) {
 }
 
 // ===================================================
-// 📧 FOLLOW-UP EMAIL - CLEAN SEPARATION
+// 📧 FOLLOW-UP EMAIL WITH BUILT-IN THANK YOU FLOW
 // ===================================================
 function sendFollowUpEmail() {
     console.log('📧 DEBUG: leadData at function start:', leadData);
@@ -2408,7 +2412,7 @@ function sendFollowUpEmail() {
     
     console.log('📧 DEBUG: to_email specifically:', confirmationParams.to_email);
     
-    // ✅ CLEAN EMAIL SENDING WITH COMPLETE FLOW
+    // ✅ COMPLETE EMAIL SENDING WITH BUILT-IN THANK YOU FLOW
     if (typeof emailjs !== 'undefined') {
         emailjs.send('service_b9bppgb', 'template_8kx812d', confirmationParams)
             .then(function(response) {
@@ -2417,11 +2421,32 @@ function sendFollowUpEmail() {
                 // ✅ NEW BANNER SYSTEM ONLY
                 showUniversalBanner('emailSent');
                 
-                // ✅ COMPLETE CONVERSATION FLOW - VOICE + LISTENING
+                // ✅ COMPLETE CONVERSATION FLOW WITH BUILT-IN RESPONSE HANDLING
                 conversationState = 'asking_if_more_help';
                 const finalMessage = "Perfect! Your confirmation email is on its way to " + cleanEmail + ". Is there anything else I can help you with today?";
                 addAIMessage(finalMessage, 'ai');
-                speakResponse(finalMessage); // ✅ TRIGGERS VOICE + "SPEAK NOW" BANNER
+                speakResponse(finalMessage);
+                
+                // ✅ SET UP DIRECT RESPONSE HANDLER FOR "NO"
+                window.emailFollowUpHandler = function(userInput) {
+                    const userText = userInput.toLowerCase();
+                    
+                    if (userText.includes('no') || userText.includes('nothing') || userText.includes('done') || 
+                        userText.includes('that\'s all') || userText.includes('nope') || userText.includes('thanks')) {
+                        
+                        // ✅ DIRECT TO CINEMATIC SPLASH SCREEN
+                        setTimeout(() => {
+                            showThankYouSplashScreen();
+                        }, 500);
+                        
+                        conversationState = 'ended';
+                        return true; // Signal that we handled this response
+                    }
+                    
+                    // If not "no", continue normal conversation
+                    conversationState = 'initial';
+                    return false; // Let normal conversation flow handle it
+                };
                 
             }, function(error) {
                 console.error('❌ EMAIL FAILED:', error);
@@ -2449,6 +2474,60 @@ function sendFollowUpEmail() {
             smartButton.style.display = 'none !important';
         }
     }
+}
+
+// ===================================================
+// 🎬 CINEMATIC THANK YOU SPLASH SCREEN
+// ===================================================
+function showThankYouSplashScreen() {
+    console.log('🎬 Deploying cinematic thank you splash screen...');
+    
+    const splashOverlay = document.createElement('div');
+    splashOverlay.id = 'thankYouSplash';
+    splashOverlay.style.cssText = `
+        position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 25%, #4a90e2 50%, #2a5298 75%, #1e3c72 100%);
+        z-index: 99999; display: flex; align-items: center; justify-content: center;
+        animation: fadeInSplash 0.8s ease-in; cursor: pointer;
+        box-shadow: inset 0 0 100px rgba(74, 144, 226, 0.3);
+    `;
+    
+    splashOverlay.innerHTML = `
+        <div style="text-align: center; color: white; animation: slideInContent 1s ease-out 0.3s both;">
+            <div style="margin-bottom: 30px;">
+                <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758507868460_logo.png" 
+                     style="width: 80px; height: 80px; filter: drop-shadow(0 0 20px rgba(255,255,255,0.3));">
+            </div>
+            <div style="font-size: 48px; margin-bottom: 20px; text-shadow: 0 0 30px rgba(255,255,255,0.5);">🙏</div>
+            <h1 style="font-size: 42px; margin-bottom: 15px; font-weight: 300; letter-spacing: 2px; text-shadow: 0 2px 10px rgba(0,0,0,0.3);">Thank You for Visiting!</h1>
+            <p style="font-size: 20px; opacity: 0.9; margin-bottom: 10px; font-weight: 300;">We appreciate your time and interest.</p>
+            <p style="font-size: 18px; margin-top: 20px; opacity: 0.8; font-weight: 300;">Have a wonderful day!</p>
+            <div style="margin-top: 40px; font-size: 16px; opacity: 0.7; letter-spacing: 1px;">Mobile-Wise AI</div>
+        </div>
+    `;
+    
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes fadeInSplash { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        @keyframes slideInContent { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    `;
+    document.head.appendChild(style);
+    document.body.appendChild(splashOverlay);
+    
+    setTimeout(() => {
+        const audio = new Audio('https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/audio-intros/ai_intro_1758148837523.mp3');
+        audio.volume = 0.8;
+        audio.play().catch(e => console.log('Audio play failed:', e));
+    }, 500);
+    
+    splashOverlay.addEventListener('click', () => {
+        splashOverlay.style.animation = 'fadeInSplash 0.5s ease-out reverse';
+        setTimeout(() => { splashOverlay.remove(); style.remove(); }, 500);
+    });
+    
+    setTimeout(() => {
+        if (document.getElementById('thankYouSplash')) splashOverlay.click();
+    }, 8000);
 }
 
 // ===================================================
@@ -2481,37 +2560,113 @@ function showConsultationConfirmedBanner() {
 }
 
 // ===================================================
-// 🙏 THANK YOU BANNER - CLEAN VERSION
+// 🎬 MOBILE-WISE AI CINEMATIC OUTRO SPLASH SCREEN
 // ===================================================
-function showThankYouBanner() {
-    console.log('🙏 Showing Thank You Banner with Audio - Clean Version');
+function showThankYouSplashScreen() {
+    console.log('🎬 Deploying cinematic thank you splash screen...');
     
-    // 🚀 DIRECT TRIGGER - NO BRIDGE NEEDED
-    triggerBanner('thank_you', {
-        type: 'celebration',
-        content: {
-            emoji: '🙏',
-            title: 'Thank You for Visiting!',
-            message: 'We appreciate your time and interest.',
-            subtitle: 'Have a wonderful day!',
-            audioNote: '🎵 Playing farewell message...'
-        },
-        style: {
-            gradient: 'linear-gradient(135deg, #4CAF50 0%, #45a049 50%, #2E7D32 100%)',
-            animation: 'thankYouGlow',
-            borderRadius: '25px'
-        },
-        audio: {
-            url: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/audio-intros/ai_intro_1758148837523.mp3',
-            volume: 0.8,
-            delay: 500
-        },
-        cleanup: ['bruceBookBanner', 'emailConfirmationBanner', 'leadCapture'],
-        hideSmartButton: true,
-        callback: (result) => {
-            console.log('🙏 Thank you banner with audio deployed:', result);
+    // Create full-screen overlay with your color scheme
+    const splashOverlay = document.createElement('div');
+    splashOverlay.id = 'thankYouSplash';
+    splashOverlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 25%, #4a90e2 50%, #2a5298 75%, #1e3c72 100%);
+        z-index: 99999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: fadeInSplash 0.8s ease-in;
+        cursor: pointer;
+        box-shadow: inset 0 0 100px rgba(74, 144, 226, 0.3);
+    `;
+    
+    splashOverlay.innerHTML = `
+        <div style="text-align: center; color: white; animation: slideInContent 1s ease-out 0.3s both;">
+            <!-- Mobile-Wise AI Logo -->
+            <div style="margin-bottom: 30px;">
+                <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758507868460_logo.png" 
+                     style="width: 80px; height: 80px; filter: drop-shadow(0 0 20px rgba(255,255,255,0.3));">
+            </div>
+            
+            <!-- Thank You Message -->
+            <div style="font-size: 48px; margin-bottom: 20px; text-shadow: 0 0 30px rgba(255,255,255,0.5);">🙏</div>
+            <h1 style="font-size: 42px; margin-bottom: 15px; font-weight: 300; letter-spacing: 2px; text-shadow: 0 2px 10px rgba(0,0,0,0.3);">
+                Thank You for Visiting!
+            </h1>
+            <p style="font-size: 20px; opacity: 0.9; margin-bottom: 10px; font-weight: 300;">
+                We appreciate your time and interest.
+            </p>
+            <p style="font-size: 18px; margin-top: 20px; opacity: 0.8; font-weight: 300;">
+                Have a wonderful day!
+            </p>
+            
+            <!-- Mobile-Wise AI Branding -->
+            <div style="margin-top: 40px; font-size: 16px; opacity: 0.7; letter-spacing: 1px;">
+                Mobile-Wise AI
+            </div>
+            
+            <!-- Dismiss hint (appears after 3 seconds) -->
+            <div id="dismissHint" style="
+                position: absolute; 
+                bottom: 30px; 
+                left: 50%; 
+                transform: translateX(-50%); 
+                font-size: 14px; 
+                opacity: 0; 
+                animation: fadeInHint 1s ease-in 3s both;
+                color: rgba(255,255,255,0.6);
+            ">
+                Click anywhere to close
+            </div>
+        </div>
+    `;
+    
+    // Add CSS animations
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes fadeInSplash {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
         }
+        @keyframes slideInContent {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInHint {
+            from { opacity: 0; }
+            to { opacity: 0.6; }
+        }
+    `;
+    document.head.appendChild(style);
+    
+    document.body.appendChild(splashOverlay);
+    
+    // Play your outro audio with slight delay
+    setTimeout(() => {
+        const audio = new Audio('https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/audio-intros/ai_intro_1758148837523.mp3');
+        audio.volume = 0.8;
+        audio.play().catch(e => console.log('Audio play failed:', e));
+    }, 500);
+    
+    // Click to dismiss
+    splashOverlay.addEventListener('click', () => {
+        splashOverlay.style.animation = 'fadeInSplash 0.5s ease-out reverse';
+        setTimeout(() => {
+            splashOverlay.remove();
+            style.remove();
+        }, 500);
     });
+    
+    // Auto-dismiss after 8 seconds
+    setTimeout(() => {
+        if (document.getElementById('thankYouSplash')) {
+            splashOverlay.click();
+        }
+    }, 8000);
 }
 
 // ===================================================
