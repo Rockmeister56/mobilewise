@@ -2923,6 +2923,7 @@ function askQuickQuestion(question) {
 let speakSequenceActive = false;
 let speakSequenceButton = null;
 let speakSequenceCleanupTimer = null;
+let speakSequenceCallCount = 0; // Track how many times we've been called
 
 function showHybridReadySequence() {
     // Prevent multiple instances running
@@ -2931,7 +2932,8 @@ function showHybridReadySequence() {
         return;
     }
     
-    console.log('🎬 Starting speak sequence...');
+    speakSequenceCallCount++;
+    console.log(`🎬 Starting speak sequence (Call #${speakSequenceCallCount})...`);
     speakSequenceActive = true;
     
     // Find the quick buttons container
@@ -3016,18 +3018,14 @@ function showHybridReadySequence() {
     quickButtonsContainer.appendChild(speakSequenceButton);
     console.log('🔴 Red stage active');
     
-    // 🎯 SURGICAL FIX: Set up AI speaking detection
-    const originalIsSpeaking = window.isSpeaking;
-    let speechWatcher;
-    
-    // Watch for AI speaking to auto-cleanup
-    speechWatcher = setInterval(() => {
+    // AI speaking detection
+    let speechWatcher = setInterval(() => {
         if (typeof isSpeaking !== 'undefined' && isSpeaking && speakSequenceActive) {
             console.log('🔊 AI started speaking - auto-cleaning up speak sequence');
             clearInterval(speechWatcher);
             cleanupSpeakSequence();
         }
-    }, 100); // Check every 100ms
+    }, 100);
     
     // STAGE 2: After 1.5 seconds, switch to green ONCE
     const greenTransition = setTimeout(() => {
@@ -3048,23 +3046,66 @@ function showHybridReadySequence() {
             `;
             speakSequenceButton.className = 'quick-btn green-button-glow';
             
-            // Start listening
+            // 🎯 ENHANCED DIAGNOSTIC LOGGING
+            console.log(`🔍 === DIAGNOSTIC INFO (Call #${speakSequenceCallCount}) ===`);
+            
+            // Check DOM elements
+            const userInput = document.getElementById('userInput');
+            const transcriptText = document.getElementById('transcriptText');
+            console.log('📝 DOM Elements:');
+            console.log('  userInput:', userInput ? 'EXISTS' : 'MISSING');
+            console.log('  userInput value:', userInput ? `"${userInput.value}"` : 'N/A');
+            console.log('  transcriptText:', transcriptText ? 'EXISTS' : 'MISSING');
+            
+            // Check speech recognition state
+            console.log('🎤 Speech Recognition State:');
+            console.log('  recognition object:', typeof recognition);
+            console.log('  recognition state:', recognition ? recognition.state : 'no object');
+            console.log('  isListening:', typeof isListening !== 'undefined' ? isListening : 'undefined');
+            console.log('  isSpeaking:', typeof isSpeaking !== 'undefined' ? isSpeaking : 'undefined');
+            
+            // Check speech engine
+            if (typeof speechEngine !== 'undefined') {
+                console.log('🏗️ Speech Engine:');
+                console.log('  speechEngine ready:', speechEngine.isReady ? speechEngine.isReady() : 'no isReady method');
+            }
+            
+            console.log(`🔍 === END DIAGNOSTIC (Call #${speakSequenceCallCount}) ===`);
+            
+            // Start listening with enhanced error checking
             setTimeout(() => {
+                console.log(`🎯 Attempting to start listening (Call #${speakSequenceCallCount})...`);
+                
                 if (typeof startListening === 'function') {
                     try {
+                        // Clear the input field first
+                        if (userInput) {
+                            userInput.value = '';
+                            console.log('🧹 Cleared userInput field');
+                        }
+                        
                         startListening();
-                        console.log('✅ Speech recognition started');
+                        console.log('✅ startListening() called successfully');
+                        
+                        // Check state after 1 second
+                        setTimeout(() => {
+                            console.log('🔍 POST-START CHECK:');
+                            console.log('  recognition state:', recognition ? recognition.state : 'no object');
+                            console.log('  isListening:', typeof isListening !== 'undefined' ? isListening : 'undefined');
+                            console.log('  userInput value:', userInput ? `"${userInput.value}"` : 'N/A');
+                        }, 1000);
+                        
                     } catch (error) {
                         console.error('❌ startListening() error:', error);
                     }
                 }
             }, 100);
             
-            // Backup: forceStartListening if needed
+            // Backup attempt
             setTimeout(() => {
                 if (typeof forceStartListening === 'function' && !isListening) {
                     try {
-                        console.log('🔄 Backup: calling forceStartListening()');
+                        console.log(`🔄 Backup: calling forceStartListening() (Call #${speakSequenceCallCount})`);
                         forceStartListening();
                     } catch (error) {
                         console.error('❌ forceStartListening() error:', error);
@@ -3074,7 +3115,7 @@ function showHybridReadySequence() {
         }
     }, 1500);
     
-    // 🎯 ENHANCED: Backup cleanup with speech watcher cleanup
+    // Cleanup timer
     speakSequenceCleanupTimer = setTimeout(() => {
         if (speechWatcher) clearInterval(speechWatcher);
         cleanupSpeakSequence();
@@ -3083,10 +3124,9 @@ function showHybridReadySequence() {
 
 // Enhanced cleanup function
 function cleanupSpeakSequence() {
-    console.log('🧹 Cleaning up speak sequence');
+    console.log(`🧹 Cleaning up speak sequence (was Call #${speakSequenceCallCount})`);
     speakSequenceActive = false;
     
-    // Clear timers
     if (speakSequenceCleanupTimer) {
         clearTimeout(speakSequenceCleanupTimer);
         speakSequenceCleanupTimer = null;
