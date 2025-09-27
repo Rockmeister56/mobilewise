@@ -2934,6 +2934,10 @@ function showHybridReadySequence() {
     console.log('🎬 Starting speak sequence...');
     speakSequenceActive = true;
     
+    // 🎯 DETECT CONTACT INTERVIEW MODE
+    const isContactInterview = checkContactInterviewMode();
+    console.log('📧 Contact interview mode:', isContactInterview);
+    
     // Find the quick buttons container
     const quickButtonsContainer = document.querySelector('.quick-questions') || 
                                   document.querySelector('.quick-buttons') || 
@@ -3044,40 +3048,14 @@ function showHybridReadySequence() {
             `;
             speakSequenceButton.className = 'quick-btn green-button-glow';
             
-            // 🎯 BACK TO WORKING APPROACH - No engine tampering
-            console.log('🎤 Starting listening (working approach)...');
-            
-            // Clear input field
-            const userInput = document.getElementById('userInput');
-            if (userInput) {
-                userInput.value = '';
-                console.log('🧹 Cleared userInput field');
+            // 🎯 CONTACT INTERVIEW ENHANCED APPROACH
+            if (isContactInterview) {
+                console.log('📧 Using contact interview speech approach...');
+                startContactInterviewListening();
+            } else {
+                console.log('💬 Using normal interview speech approach...');
+                startNormalInterviewListening();
             }
-            
-            // Use the approach that WAS working
-            setTimeout(() => {
-                if (typeof startListening === 'function') {
-                    try {
-                        startListening();
-                        console.log('✅ startListening() called successfully');
-                    } catch (error) {
-                        console.error('❌ startListening() error:', error);
-                    }
-                }
-            }, 100);
-            
-            // Backup attempt (this was working before)
-            setTimeout(() => {
-                if (typeof forceStartListening === 'function' && !isListening) {
-                    try {
-                        console.log('🔄 Backup: calling forceStartListening()');
-                        forceStartListening();
-                        console.log('✅ forceStartListening() called successfully');
-                    } catch (error) {
-                        console.error('❌ forceStartListening() error:', error);
-                    }
-                }
-            }, 300);
         }
     }, 1500);
     
@@ -3086,6 +3064,106 @@ function showHybridReadySequence() {
         if (speechWatcher) clearInterval(speechWatcher);
         cleanupSpeakSequence();
     }, 15000);
+}
+
+// 🎯 DETECT CONTACT INTERVIEW MODE
+function checkContactInterviewMode() {
+    // Check various indicators that we're in contact interview
+    const indicators = [
+        typeof isInLeadCapture !== 'undefined' && isInLeadCapture,
+        typeof currentConversationState !== 'undefined' && 
+            (currentConversationState.includes('email') || 
+             currentConversationState.includes('contact') ||
+             currentConversationState.includes('lead')),
+        document.querySelector('[id*="email"]') !== null,
+        document.querySelector('[id*="contact"]') !== null,
+        document.querySelector('[id*="lead"]') !== null
+    ];
+    
+    return indicators.some(indicator => indicator === true);
+}
+
+// 🎯 NORMAL INTERVIEW LISTENING (your working approach)
+function startNormalInterviewListening() {
+    const userInput = document.getElementById('userInput');
+    if (userInput) {
+        userInput.value = '';
+        console.log('🧹 Cleared userInput field (normal mode)');
+    }
+    
+    setTimeout(() => {
+        if (typeof startListening === 'function') {
+            try {
+                startListening();
+                console.log('✅ Normal startListening() called successfully');
+            } catch (error) {
+                console.error('❌ Normal startListening() error:', error);
+            }
+        }
+    }, 100);
+    
+    setTimeout(() => {
+        if (typeof forceStartListening === 'function' && !isListening) {
+            try {
+                console.log('🔄 Normal backup: calling forceStartListening()');
+                forceStartListening();
+            } catch (error) {
+                console.error('❌ Normal forceStartListening() error:', error);
+            }
+        }
+    }, 300);
+}
+
+// 🎯 CONTACT INTERVIEW LISTENING (enhanced approach)
+function startContactInterviewListening() {
+    console.log('📧 === CONTACT INTERVIEW SPEECH SETUP ===');
+    
+    const userInput = document.getElementById('userInput');
+    if (userInput) {
+        userInput.value = '';
+        console.log('🧹 Cleared userInput field (contact mode)');
+    }
+    
+    // Enhanced approach for contact interview
+    setTimeout(() => {
+        // First try: Normal start with contact mode flag
+        if (typeof startListening === 'function') {
+            try {
+                console.log('📧 Contact mode: calling startListening()');
+                startListening();
+                console.log('✅ Contact startListening() called successfully');
+            } catch (error) {
+                console.error('❌ Contact startListening() error:', error);
+            }
+        }
+    }, 100);
+    
+    setTimeout(() => {
+        // Second try: Force start if needed
+        if (typeof forceStartListening === 'function' && !isListening) {
+            try {
+                console.log('📧 Contact mode backup: calling forceStartListening()');
+                forceStartListening();
+            } catch (error) {
+                console.error('❌ Contact forceStartListening() error:', error);
+            }
+        }
+    }, 400); // Longer delay for contact mode
+    
+    setTimeout(() => {
+        // Third try: Direct recognition start if available
+        if (typeof recognition !== 'undefined' && recognition && !isListening) {
+            try {
+                console.log('📧 Contact mode final try: direct recognition.start()');
+                recognition.start();
+                isListening = true;
+            } catch (error) {
+                console.error('❌ Contact direct recognition error:', error);
+            }
+        }
+    }, 700); // Even longer delay
+    
+    console.log('📧 === END CONTACT INTERVIEW SETUP ===');
 }
 
 // Enhanced cleanup function
