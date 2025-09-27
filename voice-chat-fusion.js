@@ -2502,10 +2502,10 @@ function sendFollowUpEmail() {
 }
 
 // ===================================================
-// 🎬 CINEMATIC THANK YOU SPLASH SCREEN WITH KILL SWITCHES
+// 🎬 CINEMATIC THANK YOU SPLASH SCREEN WITH EXIT BUTTON
 // ===================================================
 function showThankYouSplashScreen() {
-    console.log('🎬 Deploying cinematic thank you splash screen with full system shutdown...');
+    console.log('🎬 Deploying cinematic thank you splash screen with exit button...');
     
     // ✅ NUCLEAR OPTION - KILL ALL SPEECH SYSTEMS
     if (window.speechRecognition) {
@@ -2535,12 +2535,12 @@ function showThankYouSplashScreen() {
         position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
         background: linear-gradient(135deg, #1e3c72 0%, #2a5298 25%, #4a90e2 50%, #2a5298 75%, #1e3c72 100%);
         z-index: 99999; display: flex; align-items: center; justify-content: center;
-        animation: fadeInSplash 0.8s ease-in; cursor: pointer;
+        animation: fadeInSplash 0.8s ease-in;
         box-shadow: inset 0 0 100px rgba(74, 144, 226, 0.3);
     `;
     
     splashOverlay.innerHTML = `
-        <div style="text-align: center; color: white; animation: slideInContent 1s ease-out 0.3s both;">
+        <div style="text-align: center; color: white; animation: slideInContent 1s ease-out 0.3s both; position: relative;">
             <div style="margin-bottom: 30px;">
                 <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758507868460_logo.png" 
                      style="width: 80px; height: 80px; filter: drop-shadow(0 0 20px rgba(255,255,255,0.3));">
@@ -2550,6 +2550,29 @@ function showThankYouSplashScreen() {
             <p style="font-size: 20px; opacity: 0.9; margin-bottom: 10px; font-weight: 300;">We appreciate your time and interest.</p>
             <p style="font-size: 18px; margin-top: 20px; opacity: 0.8; font-weight: 300;">Have a wonderful day!</p>
             <div style="margin-top: 40px; font-size: 16px; opacity: 0.7; letter-spacing: 1px;">Mobile-Wise AI</div>
+            
+            <!-- BIG EXIT BUTTON -->
+            <button onclick="exitApplication()" style="
+                position: absolute;
+                bottom: -80px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: linear-gradient(135deg, #ff4757, #ff3742);
+                color: white;
+                border: none;
+                padding: 18px 40px;
+                border-radius: 50px;
+                cursor: pointer;
+                font-weight: bold;
+                font-size: 18px;
+                box-shadow: 0 8px 25px rgba(255, 71, 87, 0.4);
+                transition: all 0.3s ease;
+                min-width: 140px;
+                animation: slideInButton 1s ease-out 1s both;
+            " onmouseover="this.style.transform='translateX(-50%) scale(1.05)'; this.style.boxShadow='0 12px 35px rgba(255, 71, 87, 0.6)'" 
+               onmouseout="this.style.transform='translateX(-50%) scale(1)'; this.style.boxShadow='0 8px 25px rgba(255, 71, 87, 0.4)'">
+                🚪 EXIT
+            </button>
         </div>
     `;
     
@@ -2557,6 +2580,7 @@ function showThankYouSplashScreen() {
     style.textContent = `
         @keyframes fadeInSplash { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
         @keyframes slideInContent { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideInButton { from { opacity: 0; transform: translateX(-50%) translateY(20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
     `;
     document.head.appendChild(style);
     document.body.appendChild(splashOverlay);
@@ -2568,22 +2592,33 @@ function showThankYouSplashScreen() {
         audio.play().catch(e => console.log('Audio play failed:', e));
     }, 500);
     
-    // ✅ CLICK TO DISMISS
-    splashOverlay.addEventListener('click', () => {
-        splashOverlay.style.animation = 'fadeInSplash 0.5s ease-out reverse';
-        setTimeout(() => { 
-            splashOverlay.remove(); 
-            style.remove(); 
-            console.log('🎬 Thank you splash screen dismissed');
-        }, 500);
-    });
-    
-    // ✅ AUTO-DISMISS AFTER 8 SECONDS
+    // ✅ AUTO-DISMISS AFTER 20 SECONDS (instead of 8)
     setTimeout(() => {
         if (document.getElementById('thankYouSplash')) {
-            splashOverlay.click();
+            exitApplication();
         }
-    }, 8000);
+    }, 20000);
+}
+
+// ===================================================
+// 🚪 EXIT APPLICATION FUNCTION
+// ===================================================
+function exitApplication() {
+    console.log('🚪 Exiting application...');
+    
+    const splash = document.getElementById('thankYouSplash');
+    if (splash) {
+        splash.style.animation = 'fadeInSplash 0.5s ease-out reverse';
+        setTimeout(() => {
+            splash.remove();
+            // Close the window/tab or redirect back to original site
+            if (window.opener) {
+                window.close(); // If opened in popup
+            } else {
+                window.history.back(); // Go back to previous page
+            }
+        }, 500);
+    }
 }
 
 // ===================================================
