@@ -2940,52 +2940,61 @@ function showHybridReadySequence() {
         existingSpeakBtn.remove();
     }
     
-    // STAGE 1: "Get Ready to Speak" button (Red glow)
+    // STAGE 1: "Get Ready to Speak" button (Red background, white text)
     const getReadyButton = document.createElement('button');
     getReadyButton.id = 'speak-now-button';
     getReadyButton.className = 'quick-btn';
-    getReadyButton.innerHTML = '🔴 Get Ready to Speak';
+    getReadyButton.innerHTML = '🔴 Get Ready to Speak<span id="loading-dots">...</span>';
     getReadyButton.style.cssText = `
         width: 100% !important;
-        background: rgba(255, 255, 255, 0.15) !important;
-        color: #ff4444 !important;
-        border: 2px solid rgba(255, 68, 68, 0.6) !important;
+        background: rgba(255, 68, 68, 0.4) !important;
+        color: #ffffff !important;
+        border: 2px solid rgba(255, 68, 68, 0.8) !important;
         padding: 15px 15px !important;
         height: auto !important;
         min-height: 45px !important;
-        animation: redGlow 1s infinite !important;
+        animation: redPulse 1s infinite !important;
         font-weight: bold !important;
         border-radius: 20px !important;
     `;
     
-    // Add the red glow animation
-    if (!document.getElementById('red-glow-animation')) {
+    // Add the animations
+    if (!document.getElementById('speak-ready-animations')) {
         const style = document.createElement('style');
-        style.id = 'red-glow-animation';
+        style.id = 'speak-ready-animations';
         style.textContent = `
-            @keyframes redGlow {
+            @keyframes redPulse {
                 0%, 100% { 
-                    background: rgba(255, 255, 255, 0.15);
-                    color: #ff4444;
-                    border-color: rgba(255, 68, 68, 0.6);
+                    background: rgba(255, 68, 68, 0.4);
+                    border-color: rgba(255, 68, 68, 0.8);
                 }
                 50% { 
-                    background: rgba(255, 68, 68, 0.3);
-                    color: #ffffff;
-                    border-color: rgba(255, 68, 68, 0.9);
+                    background: rgba(255, 68, 68, 0.6);
+                    border-color: rgba(255, 68, 68, 1);
                 }
             }
             @keyframes greenGlow {
                 0%, 100% { 
                     background: rgba(34, 197, 94, 0.4);
-                    color: #ffffff;
                     border-color: rgba(34, 197, 94, 0.8);
+                    box-shadow: 0 0 5px rgba(34, 197, 94, 0.5);
+                    transform: scale(1);
                 }
                 50% { 
-                    background: rgba(34, 197, 94, 0.6);
-                    color: #ffffff;
+                    background: rgba(34, 197, 94, 0.7);
                     border-color: rgba(34, 197, 94, 1);
+                    box-shadow: 0 0 20px rgba(34, 197, 94, 0.8);
+                    transform: scale(1.02);
                 }
+            }
+            @keyframes loadingDots {
+                0% { opacity: 0; }
+                33% { opacity: 1; }
+                66% { opacity: 0; }
+                100% { opacity: 0; }
+            }
+            #loading-dots {
+                animation: loadingDots 1.5s infinite;
             }
         `;
         document.head.appendChild(style);
@@ -2994,7 +3003,7 @@ function showHybridReadySequence() {
     // Add to container
     quickButtonsContainer.appendChild(getReadyButton);
     
-    // STAGE 2: After 1.5 seconds, switch to "Speak Now" (Green)
+    // STAGE 2: After 1.5 seconds, switch to "Speak Now" with GLOWING animation
     setTimeout(() => {
         if (document.getElementById('speak-now-button')) {
             getReadyButton.innerHTML = '🎤 Speak Now';
@@ -3006,10 +3015,15 @@ function showHybridReadySequence() {
                 padding: 15px 15px !important;
                 height: auto !important;
                 min-height: 45px !important;
-                animation: greenGlow 1.5s infinite !important;
+                animation: greenGlow 1.2s infinite !important;
                 font-weight: bold !important;
                 border-radius: 20px !important;
             `;
+            
+            // 🎯 CRITICAL: Trigger speech recognition here!
+            if (typeof speakResponse === 'function') {
+                speakResponse(); // This starts the actual listening
+            }
         }
     }, 1500); // 1.5 seconds delay
     
