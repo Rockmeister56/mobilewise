@@ -2146,6 +2146,14 @@ function showConfirmationButtons(answer) {
     scrollChatToBottom();
 }
 
+function removeLastUserMessage() {
+    const chatMessages = document.getElementById('chatMessages');
+    const userMessages = chatMessages.querySelectorAll('.user-message');
+    if (userMessages.length > 0) {
+        userMessages[userMessages.length - 1].remove();
+    }
+}
+
 function confirmAnswer(isCorrect) {
     console.log('🎯 User clicked:', isCorrect ? 'Correct' : 'Redo');
     
@@ -2199,6 +2207,9 @@ function confirmAnswer(isCorrect) {
     } else {
         // 🔄 REDO - Skip AI speech, go straight to listening
         console.log('🔄 Redo - clearing field and starting listening immediately');
+        
+        // ✅ REMOVE THE WRONG ANSWER FROM CHAT
+        removeLastUserMessage();
         
         // Clear temp answer and text field
         leadData.tempAnswer = '';
