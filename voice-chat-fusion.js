@@ -3021,31 +3021,31 @@ function showHybridReadySequence() {
     
     // STAGE 2: After 1.5 seconds, switch to green ONCE
     const greenTransition = setTimeout(() => {
-        if (speakSequenceButton && speakSequenceActive) {
-            console.log('🟢 Switching to green stage');
-            
-            speakSequenceButton.innerHTML = '🎤 Speak Now<span class="dots-animation"></span>';
-            speakSequenceButton.style.cssText = `
-                width: 100% !important;
-                background: rgba(34, 197, 94, 0.4) !important;
-                color: #ffffff !important;
-                border: 2px solid rgba(34, 197, 94, 0.8) !important;
-                padding: 15px !important;
-                min-height: 45px !important;
-                font-weight: bold !important;
-                border-radius: 20px !important;
-            `;
-            speakSequenceButton.className = 'quick-btn green-button-glow';
-            
-            // Start speech recognition
-            console.log('🎤 Triggering speech recognition...');
-            if (typeof speakResponse === 'function') {
-                speakResponse();
-            } else {
-                console.error('❌ speakResponse function not found');
-            }
+    if (speakSequenceButton && speakSequenceActive) {
+        console.log('🟢 Switching to green stage');
+        
+        speakSequenceButton.innerHTML = '🎤 Speak Now<span class="dots-animation"></span>';
+        speakSequenceButton.style.cssText = `
+            width: 100% !important;
+            background: rgba(34, 197, 94, 0.4) !important;
+            color: #ffffff !important;
+            border: 2px solid rgba(34, 197, 94, 0.8) !important;
+            padding: 15px !important;
+            min-height: 45px !important;
+            font-weight: bold !important;
+            border-radius: 20px !important;
+        `;
+        speakSequenceButton.className = 'quick-btn green-button-glow';
+        
+        // 🎯 CALL THE RIGHT FUNCTION - START LISTENING!
+        console.log('🎤 Starting speech recognition via startListening()...');
+        if (typeof startListening === 'function') {
+            startListening(); // THIS IS THE CORRECT FUNCTION!
+        } else {
+            console.error('❌ startListening function not found');
         }
-    }, 1500);
+    }
+}, 1500);
     
     // Cleanup after 8 seconds
     const cleanup = setTimeout(() => {
