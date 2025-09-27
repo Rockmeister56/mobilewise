@@ -743,6 +743,33 @@ function createBeep(frequency, duration, volume) {
 // 🚀 ENHANCED HYBRID READY SEQUENCE WITH RESTART HANDLING
 // ===================================================
 function showHybridReadySequence() {
+// ✅ DON'T SHOW "Speak Now" if Smart Button is active
+    if (typeof BannerOrchestrator !== 'undefined' && 
+        BannerOrchestrator.currentBanner === 'smartButton') {
+        console.log('🔇 HYBRID BLOCKED: Smart Button active');
+        return;
+    }
+    
+    // ✅ DON'T SHOW "Speak Now" if Thank You Splash Screen exists
+    if (document.getElementById('thankYouSplash')) {
+        console.log('🔇 HYBRID BLOCKED: Thank you splash screen active');
+        return;
+    }
+    
+    // ✅ DON'T SHOW "Speak Now" if conversation is ended
+    if (conversationState === 'ended' || conversationState === 'splash_screen_active') {
+        console.log('🔇 HYBRID BLOCKED: Conversation ended');
+        return;
+    }
+    
+    // ✅ NEW - DON'T SHOW "Speak Now" during consultation offer states
+    if (conversationState === 'asking_selling_consultation' || 
+        conversationState === 'asking_buying_consultation' || 
+        conversationState === 'asking_valuation_consultation') {
+        console.log('🔇 HYBRID BLOCKED: Consultation offer active - waiting for user decision');
+        return;
+    }
+
     console.log('🚀 Showing hybrid ready sequence');
     
     // CLEAR ANY EXISTING TIMEOUTS to prevent conflicts
