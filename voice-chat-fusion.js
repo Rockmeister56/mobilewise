@@ -2940,12 +2940,48 @@ function showHybridReadySequence() {
         existingSpeakBtn.remove();
     }
     
-    // STAGE 1: "Get Ready to Speak" button (Red background, white text)
-    const getReadyButton = document.createElement('button');
-    getReadyButton.id = 'speak-now-button';
-    getReadyButton.className = 'quick-btn';
-    getReadyButton.innerHTML = '🔴 Get Ready to Speak<span id="loading-dots">...</span>';
-    getReadyButton.style.cssText = `
+    // Add the animations ONCE
+    if (!document.getElementById('speak-ready-animations')) {
+        const style = document.createElement('style');
+        style.id = 'speak-ready-animations';
+        style.textContent = `
+            @keyframes redDotBlink {
+                0%, 100% { opacity: 1; }
+                50% { opacity: 0.3; }
+            }
+            @keyframes greenButtonGlow {
+                0%, 100% { 
+                    background: rgba(34, 197, 94, 0.4);
+                    border-color: rgba(34, 197, 94, 0.8);
+                    box-shadow: 0 0 5px rgba(34, 197, 94, 0.5);
+                }
+                50% { 
+                    background: rgba(34, 197, 94, 0.6);
+                    border-color: rgba(34, 197, 94, 1);
+                    box-shadow: 0 0 15px rgba(34, 197, 94, 0.8);
+                }
+            }
+            @keyframes speakNowDots {
+                0% { content: ""; }
+                25% { content: "."; }
+                50% { content: ".."; }
+                75% { content: "..."; }
+                100% { content: ""; }
+            }
+            .speak-now-dots::after {
+                content: "";
+                animation: speakNowDots 1.5s infinite;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    // STAGE 1: "Get Ready to Speak" with blinking red dot
+    const speakButton = document.createElement('button');
+    speakButton.id = 'speak-now-button';
+    speakButton.className = 'quick-btn';
+    speakButton.innerHTML = '<span style="animation: redDotBlink 1s infinite;">🔴</span> Get Ready to Speak';
+    speakButton.style.cssText = `
         width: 100% !important;
         background: rgba(255, 68, 68, 0.4) !important;
         color: #ffffff !important;
@@ -2953,61 +2989,20 @@ function showHybridReadySequence() {
         padding: 15px 15px !important;
         height: auto !important;
         min-height: 45px !important;
-        animation: redPulse 1s infinite !important;
         font-weight: bold !important;
         border-radius: 20px !important;
     `;
     
-    // Add the animations
-    if (!document.getElementById('speak-ready-animations')) {
-        const style = document.createElement('style');
-        style.id = 'speak-ready-animations';
-        style.textContent = `
-            @keyframes redPulse {
-                0%, 100% { 
-                    background: rgba(255, 68, 68, 0.4);
-                    border-color: rgba(255, 68, 68, 0.8);
-                }
-                50% { 
-                    background: rgba(255, 68, 68, 0.6);
-                    border-color: rgba(255, 68, 68, 1);
-                }
-            }
-            @keyframes greenGlow {
-                0%, 100% { 
-                    background: rgba(34, 197, 94, 0.4);
-                    border-color: rgba(34, 197, 94, 0.8);
-                    box-shadow: 0 0 5px rgba(34, 197, 94, 0.5);
-                    transform: scale(1);
-                }
-                50% { 
-                    background: rgba(34, 197, 94, 0.7);
-                    border-color: rgba(34, 197, 94, 1);
-                    box-shadow: 0 0 20px rgba(34, 197, 94, 0.8);
-                    transform: scale(1.02);
-                }
-            }
-            @keyframes loadingDots {
-                0% { opacity: 0; }
-                33% { opacity: 1; }
-                66% { opacity: 0; }
-                100% { opacity: 0; }
-            }
-            #loading-dots {
-                animation: loadingDots 1.5s infinite;
-            }
-        `;
-        document.head.appendChild(style);
-    }
-    
     // Add to container
-    quickButtonsContainer.appendChild(getReadyButton);
+    quickButtonsContainer.appendChild(speakButton);
     
-    // STAGE 2: After 1.5 seconds, switch to "Speak Now" with GLOWING animation
+    // STAGE 2: After 1.5 seconds, switch to "Speak Now" ONCE and start listening
     setTimeout(() => {
-        if (document.getElementById('speak-now-button')) {
-            getReadyButton.innerHTML = '🎤 Speak Now';
-            getReadyButton.style.cssText = `
+        const button = document.getElementById('speak-now-button');
+        if (button) {
+            // Change to Speak Now with animated dots
+            button.innerHTML = '🎤 Speak Now<span class="speak-now-dots"></span>';
+            button.style.cssText = `
                 width: 100% !important;
                 background: rgba(34, 197, 94, 0.4) !important;
                 color: #ffffff !important;
@@ -3015,24 +3010,26 @@ function showHybridReadySequence() {
                 padding: 15px 15px !important;
                 height: auto !important;
                 min-height: 45px !important;
-                animation: greenGlow 1.2s infinite !important;
+                animation: greenButtonGlow 1.5s infinite !important;
                 font-weight: bold !important;
                 border-radius: 20px !important;
             `;
             
-            // 🎯 CRITICAL: Trigger speech recognition here!
+            // 🎯 START SPEECH RECOGNITION NOW
+            console.log('Starting speech recognition...');
             if (typeof speakResponse === 'function') {
-                speakResponse(); // This starts the actual listening
+                speakResponse();
+            } else {
+                console.error('speakResponse function not found!');
             }
         }
-    }, 1500); // 1.5 seconds delay
+    }, 1500); // 1.5 seconds - HAPPENS ONLY ONCE
     
-    // Auto-remove after total of 8 seconds and restore original buttons
+    // Auto-remove after 8 seconds total and restore buttons
     setTimeout(() => {
         if (document.getElementById('speak-now-button')) {
             document.getElementById('speak-now-button').remove();
         }
-        // Show the original buttons again
         existingButtons.forEach(btn => btn.style.display = '');
     }, 8000);
 }
