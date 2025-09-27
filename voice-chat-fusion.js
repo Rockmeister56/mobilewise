@@ -2922,6 +2922,7 @@ function askQuickQuestion(question) {
 // Global flag to prevent multiple instances
 let speakSequenceActive = false;
 let speakSequenceButton = null;
+let speakSequenceCleanupTimer = null;
 
 function showHybridReadySequence() {
     // Prevent multiple instances running
@@ -2932,6 +2933,11 @@ function showHybridReadySequence() {
     
     console.log('🎬 Starting speak sequence...');
     speakSequenceActive = true;
+    
+    // Clear any existing cleanup timer
+    if (speakSequenceCleanupTimer) {
+        clearTimeout(speakSequenceCleanupTimer);
+    }
     
     // Find the quick buttons container
     const quickButtonsContainer = document.querySelector('.quick-questions') || 
@@ -2954,7 +2960,7 @@ function showHybridReadySequence() {
         existingSpeakBtn.remove();
     }
     
-    // Add styles ONCE - SIMPLIFIED with blinking dots only
+    // Add styles ONCE
     if (!document.getElementById('speak-sequence-styles')) {
         const style = document.createElement('style');
         style.id = 'speak-sequence-styles';
@@ -3047,20 +3053,29 @@ function showHybridReadySequence() {
                 } else {
                     console.log('❌ startListening not available');
                 }
-            }, 100); // Single small delay
+            }, 100);
+            
+            // 🎯 EXTENDED CLEANUP - Give more time to speak
+            speakSequenceCleanupTimer = setTimeout(() => {
+                if (speakSequenceActive) {
+                    console.log('⏰ Extended listening time reached - cleaning up');
+                    cleanupSpeakSequence();
+                }
+            }, 20000); // 20 seconds total (18.5 seconds of listening time!)
         }
     }, 1500);
-    
-    // Cleanup after 8 seconds
-    const cleanup = setTimeout(() => {
-        cleanupSpeakSequence();
-    }, 8000);
 }
 
 // Separate cleanup function
 function cleanupSpeakSequence() {
     console.log('🧹 Cleaning up speak sequence');
     speakSequenceActive = false;
+    
+    // Clear cleanup timer
+    if (speakSequenceCleanupTimer) {
+        clearTimeout(speakSequenceCleanupTimer);
+        speakSequenceCleanupTimer = null;
+    }
     
     if (speakSequenceButton) {
         speakSequenceButton.remove();
@@ -3077,9 +3092,23 @@ function cleanupSpeakSequence() {
     }
 }
 
-// Updated hide function
+// Updated hide function - also cleans up early if needed
 function hideSpeakNowBanner() {
     cleanupSpeakSequence();
+}
+
+// 🎯 NEW: Function to extend listening time if user is speaking
+function extendSpeakSequence() {
+    if (speakSequenceActive && speakSequenceCleanupTimer) {
+        console.log('🔄 Extending speak sequence - user is active');
+        clearTimeout(speakSequenceCleanupTimer);
+        speakSequenceCleanupTimer = setTimeout(() => {
+            if (speakSequenceActive) {
+                console.log('⏰ Extended listening time reached - cleaning up');
+                cleanupSpeakSequence();
+            }
+        }, 15000); // Another 15 seconds
+    }
 }
 
 // ENHANCED: Allow Enter key to send message
