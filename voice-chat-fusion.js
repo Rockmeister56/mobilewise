@@ -1105,7 +1105,7 @@ freeBookWithConsultation: {
             <!-- LEFT: Book Image -->
             <div style="display: flex; align-items: center;">
                 <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758088515492_nci-book.png" 
-                     style="width: 60px; height: 60px; border-radius: 8px; margin-right: 15px; box-shadow: 0 0px 8px rgba(0,0,0,0.3);">
+                     style="width: 60px; height: 70px; border-radius: 8px; margin-right: 15px; box-shadow: 0 0px 0px rgba(0,0,0,0.3);">
                 
                 <!-- Book Info -->
                 <div style="color: white; text-align: left;">
