@@ -3004,7 +3004,8 @@ function showHybridReadySequence() {
     speakSequenceButton.id = 'speak-sequence-button';
     speakSequenceButton.className = 'quick-btn';
     
-    // STAGE 1: Red "Get Ready to Speak"
+    // 🎯 ALWAYS START WITH RED STAGE (even for redo)
+    console.log('🔴 Starting RED stage (including redo scenarios)');
     speakSequenceButton.innerHTML = '<span class="red-dot-blink">🔴</span> Get Ready to Speak';
     speakSequenceButton.style.cssText = `
         width: 100% !important;
@@ -3020,7 +3021,7 @@ function showHybridReadySequence() {
     quickButtonsContainer.appendChild(speakSequenceButton);
     console.log('🔴 Red stage active');
     
-    // AI speaking detection
+    // 🎯 ENHANCED AI speaking detection with extended listening protection
     let speechWatcher = setInterval(() => {
         if (typeof isSpeaking !== 'undefined' && isSpeaking && speakSequenceActive) {
             console.log('🔊 AI started speaking - auto-cleaning up speak sequence');
@@ -3048,7 +3049,7 @@ function showHybridReadySequence() {
             `;
             speakSequenceButton.className = 'quick-btn green-button-glow';
             
-            // 🎯 CONTACT INTERVIEW ENHANCED APPROACH
+            // Start appropriate listening mode
             if (isContactInterview) {
                 console.log('📧 Using contact interview speech approach...');
                 startContactInterviewListening();
@@ -3057,18 +3058,18 @@ function showHybridReadySequence() {
                 startNormalInterviewListening();
             }
         }
-    }, 1500);
+    }, 1500); // Keep 1.5 second red stage
     
-    // Cleanup timer
+    // 🎯 EXTENDED cleanup timer - More time for thinking/pausing
     speakSequenceCleanupTimer = setTimeout(() => {
+        console.log('⏰ Extended listening time reached - cleaning up');
         if (speechWatcher) clearInterval(speechWatcher);
         cleanupSpeakSequence();
-    }, 15000);
+    }, 25000); // 25 seconds total! (23.5 seconds of actual listening)
 }
 
 // 🎯 DETECT CONTACT INTERVIEW MODE
 function checkContactInterviewMode() {
-    // Check various indicators that we're in contact interview
     const indicators = [
         typeof isInLeadCapture !== 'undefined' && isInLeadCapture,
         typeof currentConversationState !== 'undefined' && 
@@ -3083,7 +3084,7 @@ function checkContactInterviewMode() {
     return indicators.some(indicator => indicator === true);
 }
 
-// 🎯 NORMAL INTERVIEW LISTENING (your working approach)
+// 🎯 NORMAL INTERVIEW LISTENING 
 function startNormalInterviewListening() {
     const userInput = document.getElementById('userInput');
     if (userInput) {
@@ -3114,7 +3115,7 @@ function startNormalInterviewListening() {
     }, 300);
 }
 
-// 🎯 CONTACT INTERVIEW LISTENING (enhanced approach)
+// 🎯 CONTACT INTERVIEW LISTENING 
 function startContactInterviewListening() {
     console.log('📧 === CONTACT INTERVIEW SPEECH SETUP ===');
     
@@ -3124,9 +3125,7 @@ function startContactInterviewListening() {
         console.log('🧹 Cleared userInput field (contact mode)');
     }
     
-    // Enhanced approach for contact interview
     setTimeout(() => {
-        // First try: Normal start with contact mode flag
         if (typeof startListening === 'function') {
             try {
                 console.log('📧 Contact mode: calling startListening()');
@@ -3139,7 +3138,6 @@ function startContactInterviewListening() {
     }, 100);
     
     setTimeout(() => {
-        // Second try: Force start if needed
         if (typeof forceStartListening === 'function' && !isListening) {
             try {
                 console.log('📧 Contact mode backup: calling forceStartListening()');
@@ -3148,10 +3146,9 @@ function startContactInterviewListening() {
                 console.error('❌ Contact forceStartListening() error:', error);
             }
         }
-    }, 400); // Longer delay for contact mode
+    }, 400);
     
     setTimeout(() => {
-        // Third try: Direct recognition start if available
         if (typeof recognition !== 'undefined' && recognition && !isListening) {
             try {
                 console.log('📧 Contact mode final try: direct recognition.start()');
@@ -3161,7 +3158,7 @@ function startContactInterviewListening() {
                 console.error('❌ Contact direct recognition error:', error);
             }
         }
-    }, 700); // Even longer delay
+    }, 700);
     
     console.log('📧 === END CONTACT INTERVIEW SETUP ===');
 }
