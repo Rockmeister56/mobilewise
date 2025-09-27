@@ -2933,6 +2933,13 @@ function showHybridReadySequence() {
     console.log('🎬 Starting speak sequence...');
     speakSequenceActive = true;
     
+    // 🎯 DEBUG: Check text input elements
+    const userInput = document.getElementById('userInput');
+    const transcriptText = document.getElementById('transcriptText');
+    console.log('🔍 Text input elements check:');
+    console.log('userInput element:', userInput ? 'EXISTS' : 'MISSING');
+    console.log('transcriptText element:', transcriptText ? 'EXISTS' : 'MISSING');
+    
     // Find the quick buttons container
     const quickButtonsContainer = document.querySelector('.quick-questions') || 
                                   document.querySelector('.quick-buttons') || 
@@ -3034,15 +3041,37 @@ function showHybridReadySequence() {
             `;
             speakSequenceButton.className = 'quick-btn green-button-glow';
             
-            // 🎯 RESTORED - Multiple attempts (but smarter)
-            console.log('🎤 Starting listening (multiple fallbacks)...');
+            // 🎯 ENHANCED DEBUG AND LISTENING START
+            console.log('🎤 === ENHANCED LISTENING DEBUG ===');
+            console.log('Current recognition state:', recognition ? recognition.state : 'no recognition object');
+            console.log('isListening:', typeof isListening !== 'undefined' ? isListening : 'undefined');
+            console.log('isSpeaking:', typeof isSpeaking !== 'undefined' ? isSpeaking : 'undefined');
+            
+            // Clear text input first to ensure clean start
+            if (userInput) {
+                userInput.value = '';
+                console.log('🧹 Cleared userInput field');
+            }
             
             // Attempt 1: startListening (primary)
             setTimeout(() => {
                 if (typeof startListening === 'function') {
                     try {
+                        console.log('🎯 Calling startListening()...');
                         startListening();
                         console.log('✅ startListening() called successfully');
+                        
+                        // Double-check elements after startListening
+                        setTimeout(() => {
+                            const userInputCheck = document.getElementById('userInput');
+                            const transcriptCheck = document.getElementById('transcriptText');
+                            console.log('🔍 POST-START check:');
+                            console.log('userInput exists:', userInputCheck ? 'YES' : 'NO');
+                            console.log('userInput value:', userInputCheck ? userInputCheck.value : 'N/A');
+                            console.log('transcriptText exists:', transcriptCheck ? 'YES' : 'NO');
+                            console.log('recognition object state:', recognition ? recognition.state : 'no recognition');
+                        }, 1000);
+                        
                     } catch (error) {
                         console.error('❌ startListening() error:', error);
                     }
@@ -3061,13 +3090,15 @@ function showHybridReadySequence() {
                     }
                 }
             }, 300);
+            
+            console.log('🎤 === END ENHANCED DEBUG ===');
         }
     }, 1500);
     
-    // Cleanup after 15 seconds (longer than before)
+    // Cleanup after 15 seconds
     const cleanup = setTimeout(() => {
         cleanupSpeakSequence();
-    }, 15000); // Extended time
+    }, 15000);
 }
 
 // Separate cleanup function
