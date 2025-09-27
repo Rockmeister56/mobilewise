@@ -2919,23 +2919,37 @@ function askQuickQuestion(question) {
     processUserResponse(question);
 }
 
+// Global flag to prevent multiple instances
+let speakSequenceActive = false;
+let speakSequenceButton = null;
+
 function showHybridReadySequence() {
+    // Prevent multiple instances running
+    if (speakSequenceActive) {
+        console.log('🛑 Speak sequence already active, ignoring duplicate call');
+        return;
+    }
+    
+    console.log('🎬 Starting speak sequence...');
+    speakSequenceActive = true;
+    
     // Find the quick buttons container
     const quickButtonsContainer = document.querySelector('.quick-questions') || 
                                   document.querySelector('.quick-buttons') || 
                                   document.getElementById('quickButtonsContainer');
     
     if (!quickButtonsContainer) {
-        console.log('Quick buttons container not found');
+        console.log('❌ Quick buttons container not found');
+        speakSequenceActive = false;
         return;
     }
     
-    // Hide existing quick buttons temporarily
+    // Hide existing quick buttons
     const existingButtons = quickButtonsContainer.querySelectorAll('.quick-btn');
     existingButtons.forEach(btn => btn.style.display = 'none');
     
-    // Remove any existing speak now button
-    const existingSpeakBtn = document.getElementById('speak-now-button');
+    // Remove any existing speak button
+    const existingSpeakBtn = document.getElementById('speak-sequence-button');
     if (existingSpeakBtn) {
         existingSpeakBtn.remove();
     }
@@ -2954,18 +2968,18 @@ function showHybridReadySequence() {
             }
             
             .green-button-glow {
-                animation: greenGlow 1.5s infinite;
+                animation: greenGlow 1.5s infinite !important;
             }
             @keyframes greenGlow {
                 0%, 100% { 
                     background: rgba(34, 197, 94, 0.4) !important;
                     border-color: rgba(34, 197, 94, 0.8) !important;
-                    box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
+                    box-shadow: 0 0 8px rgba(34, 197, 94, 0.6) !important;
                 }
                 50% { 
                     background: rgba(34, 197, 94, 0.6) !important;
                     border-color: rgba(34, 197, 94, 1) !important;
-                    box-shadow: 0 0 20px rgba(34, 197, 94, 0.9);
+                    box-shadow: 0 0 20px rgba(34, 197, 94, 0.9) !important;
                 }
             }
             
@@ -2984,81 +2998,72 @@ function showHybridReadySequence() {
         document.head.appendChild(style);
     }
     
-    // Create button ONCE
-    const speakButton = document.createElement('button');
-    speakButton.id = 'speak-now-button';
-    speakButton.className = 'quick-btn';
+    // Create the button with unique ID
+    speakSequenceButton = document.createElement('button');
+    speakSequenceButton.id = 'speak-sequence-button';
+    speakSequenceButton.className = 'quick-btn';
     
-    // STEP 1: Set up RED "Get Ready to Speak" state
-    function setRedState() {
-        speakButton.innerHTML = '<span class="red-dot-blink">🔴</span> Get Ready to Speak';
-        speakButton.style.cssText = `
-            width: 100% !important;
-            background: rgba(255, 68, 68, 0.4) !important;
-            color: #ffffff !important;
-            border: 2px solid rgba(255, 68, 68, 0.8) !important;
-            padding: 15px !important;
-            min-height: 45px !important;
-            font-weight: bold !important;
-            border-radius: 20px !important;
-        `;
-        speakButton.className = 'quick-btn'; // Remove any glow classes
-    }
+    // STAGE 1: Red "Get Ready to Speak"
+    speakSequenceButton.innerHTML = '<span class="red-dot-blink">🔴</span> Get Ready to Speak';
+    speakSequenceButton.style.cssText = `
+        width: 100% !important;
+        background: rgba(255, 68, 68, 0.4) !important;
+        color: #ffffff !important;
+        border: 2px solid rgba(255, 68, 68, 0.8) !important;
+        padding: 15px !important;
+        min-height: 45px !important;
+        font-weight: bold !important;
+        border-radius: 20px !important;
+    `;
     
-    // STEP 2: Set up GREEN "Speak Now" state  
-    function setGreenState() {
-        speakButton.innerHTML = '🎤 Speak Now<span class="dots-animation"></span>';
-        speakButton.style.cssText = `
-            width: 100% !important;
-            background: rgba(34, 197, 94, 0.4) !important;
-            color: #ffffff !important;
-            border: 2px solid rgba(34, 197, 94, 0.8) !important;
-            padding: 15px !important;
-            min-height: 45px !important;
-            font-weight: bold !important;
-            border-radius: 20px !important;
-        `;
-        speakButton.className = 'quick-btn green-button-glow'; // Add glow
-        
-        // 🎯 START SPEECH RECOGNITION
-        console.log('🎤 Starting speech recognition now...');
-        if (typeof speakResponse === 'function') {
-            speakResponse();
-        } else {
-            console.error('❌ speakResponse function not available!');
-        }
-    }
+    quickButtonsContainer.appendChild(speakSequenceButton);
+    console.log('🔴 Red stage active');
     
-    // Start with RED state
-    setRedState();
-    quickButtonsContainer.appendChild(speakButton);
-    
-    // After 1.5 seconds, switch to GREEN state ONCE
-    let hasTransitioned = false;
-    setTimeout(() => {
-        if (!hasTransitioned && document.getElementById('speak-now-button')) {
-            hasTransitioned = true;
-            setGreenState();
+    // STAGE 2: After 1.5 seconds, switch to green ONCE
+    const greenTransition = setTimeout(() => {
+        if (speakSequenceButton && speakSequenceActive) {
+            console.log('🟢 Switching to green stage');
+            
+            speakSequenceButton.innerHTML = '🎤 Speak Now<span class="dots-animation"></span>';
+            speakSequenceButton.style.cssText = `
+                width: 100% !important;
+                background: rgba(34, 197, 94, 0.4) !important;
+                color: #ffffff !important;
+                border: 2px solid rgba(34, 197, 94, 0.8) !important;
+                padding: 15px !important;
+                min-height: 45px !important;
+                font-weight: bold !important;
+                border-radius: 20px !important;
+            `;
+            speakSequenceButton.className = 'quick-btn green-button-glow';
+            
+            // Start speech recognition
+            console.log('🎤 Triggering speech recognition...');
+            if (typeof speakResponse === 'function') {
+                speakResponse();
+            } else {
+                console.error('❌ speakResponse function not found');
+            }
         }
     }, 1500);
     
-    // Cleanup after 8 seconds total
-    setTimeout(() => {
-        if (document.getElementById('speak-now-button')) {
-            document.getElementById('speak-now-button').remove();
-        }
-        existingButtons.forEach(btn => btn.style.display = '');
+    // Cleanup after 8 seconds
+    const cleanup = setTimeout(() => {
+        cleanupSpeakSequence();
     }, 8000);
 }
 
-// Clean hide function
-function hideSpeakNowBanner() {
-    const speakNowButton = document.getElementById('speak-now-button');
-    if (speakNowButton) {
-        speakNowButton.remove();
+// Separate cleanup function
+function cleanupSpeakSequence() {
+    console.log('🧹 Cleaning up speak sequence');
+    speakSequenceActive = false;
+    
+    if (speakSequenceButton) {
+        speakSequenceButton.remove();
+        speakSequenceButton = null;
     }
     
-    // Restore buttons
+    // Restore original buttons
     const quickButtonsContainer = document.querySelector('.quick-questions') || 
                                   document.querySelector('.quick-buttons') || 
                                   document.getElementById('quickButtonsContainer');
@@ -3066,6 +3071,11 @@ function hideSpeakNowBanner() {
         const buttons = quickButtonsContainer.querySelectorAll('.quick-btn');
         buttons.forEach(btn => btn.style.display = '');
     }
+}
+
+// Updated hide function
+function hideSpeakNowBanner() {
+    cleanupSpeakSequence();
 }
 
 // ENHANCED: Allow Enter key to send message
