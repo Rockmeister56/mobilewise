@@ -2919,36 +2919,61 @@ function askQuickQuestion(question) {
     processUserResponse(question);
 }
 
-// REVISED showHybridReadySequence function - FULL VERSION
 function showHybridReadySequence() {
-    // Remove any existing speak now container
-    const existingSpeakNow = document.getElementById('speak-now-banner');
-    if (existingSpeakNow) {
-        existingSpeakNow.remove();
+    // Find the quick buttons container
+    const quickButtonsContainer = document.querySelector('.quick-questions') || 
+                                  document.querySelector('.quick-buttons') || 
+                                  document.getElementById('quickButtonsContainer');
+    
+    if (!quickButtonsContainer) {
+        console.log('Quick buttons container not found');
+        return;
     }
     
-    // Create the Speak Now banner
-    const speakNowContainer = document.createElement('div');
-    speakNowContainer.id = 'speak-now-banner';
-    speakNowContainer.className = 'speak-now-container';
-    speakNowContainer.innerHTML = '🎤 Speak Now - Listening...';
+    // Hide existing quick buttons temporarily
+    const existingButtons = quickButtonsContainer.querySelectorAll('.quick-btn');
+    existingButtons.forEach(btn => btn.style.display = 'none');
     
-    // Add to body (guaranteed to work)
-    document.body.appendChild(speakNowContainer);
+    // Remove any existing speak now button
+    const existingSpeakBtn = document.getElementById('speak-now-button');
+    if (existingSpeakBtn) {
+        existingSpeakBtn.remove();
+    }
     
-    // Auto-remove after 8 seconds (adjust as needed)
+    // Create the "Speak Now" button using your exact quick-btn styling  
+    const speakNowButton = document.createElement('button');
+    speakNowButton.id = 'speak-now-button';
+    speakNowButton.className = 'quick-btn'; // Use your existing class!
+    speakNowButton.innerHTML = '🎤 Speak Now - Listening...';
+    speakNowButton.style.animation = 'speakNowWholeButtonGlow 1.5s infinite'; // Use your existing animation!
+    speakNowButton.style.width = '100%'; // Full width like your other buttons
+    
+    // Add it to your quick buttons container
+    quickButtonsContainer.appendChild(speakNowButton);
+    
+    // Auto-remove after 8 seconds and restore original buttons
     setTimeout(() => {
-        if (document.getElementById('speak-now-banner')) {
-            document.getElementById('speak-now-banner').remove();
+        if (document.getElementById('speak-now-button')) {
+            document.getElementById('speak-now-button').remove();
         }
+        // Show the original buttons again
+        existingButtons.forEach(btn => btn.style.display = '');
     }, 8000);
 }
 
-// Function to hide the Speak Now banner immediately
+// Function to hide immediately and restore buttons
 function hideSpeakNowBanner() {
-    const speakNowBanner = document.getElementById('speak-now-banner');
-    if (speakNowBanner) {
-        speakNowBanner.remove();
+    const speakNowButton = document.getElementById('speak-now-button');
+    if (speakNowButton) {
+        speakNowButton.remove();
+        // Restore original buttons
+        const quickButtonsContainer = document.querySelector('.quick-questions') || 
+                                      document.querySelector('.quick-buttons') || 
+                                      document.getElementById('quickButtonsContainer');
+        if (quickButtonsContainer) {
+            const existingButtons = quickButtonsContainer.querySelectorAll('.quick-btn');
+            existingButtons.forEach(btn => btn.style.display = '');
+        }
     }
 }
 
