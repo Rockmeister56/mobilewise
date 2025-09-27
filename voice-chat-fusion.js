@@ -2940,92 +2940,109 @@ function showHybridReadySequence() {
         existingSpeakBtn.remove();
     }
     
-    // Add the animations ONCE
-    if (!document.getElementById('speak-ready-animations')) {
+    // Add styles ONCE
+    if (!document.getElementById('speak-sequence-styles')) {
         const style = document.createElement('style');
-        style.id = 'speak-ready-animations';
+        style.id = 'speak-sequence-styles';
         style.textContent = `
+            .red-dot-blink {
+                animation: redDotBlink 0.8s infinite;
+            }
             @keyframes redDotBlink {
                 0%, 100% { opacity: 1; }
-                50% { opacity: 0.3; }
+                50% { opacity: 0.2; }
             }
-            @keyframes greenButtonGlow {
+            
+            .green-button-glow {
+                animation: greenGlow 1.5s infinite;
+            }
+            @keyframes greenGlow {
                 0%, 100% { 
-                    background: rgba(34, 197, 94, 0.4);
-                    border-color: rgba(34, 197, 94, 0.8);
-                    box-shadow: 0 0 5px rgba(34, 197, 94, 0.5);
+                    background: rgba(34, 197, 94, 0.4) !important;
+                    border-color: rgba(34, 197, 94, 0.8) !important;
+                    box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
                 }
                 50% { 
-                    background: rgba(34, 197, 94, 0.6);
-                    border-color: rgba(34, 197, 94, 1);
-                    box-shadow: 0 0 15px rgba(34, 197, 94, 0.8);
+                    background: rgba(34, 197, 94, 0.6) !important;
+                    border-color: rgba(34, 197, 94, 1) !important;
+                    box-shadow: 0 0 20px rgba(34, 197, 94, 0.9);
                 }
             }
-            @keyframes speakNowDots {
-                0% { content: ""; }
-                25% { content: "."; }
-                50% { content: ".."; }
-                75% { content: "..."; }
-                100% { content: ""; }
+            
+            .dots-animation::after {
+                content: '';
+                animation: dots 1.5s infinite;
             }
-            .speak-now-dots::after {
-                content: "";
-                animation: speakNowDots 1.5s infinite;
+            @keyframes dots {
+                0% { content: ''; }
+                25% { content: '.'; }
+                50% { content: '..'; }
+                75% { content: '...'; }
+                100% { content: ''; }
             }
         `;
         document.head.appendChild(style);
     }
     
-    // STAGE 1: "Get Ready to Speak" with blinking red dot
+    // Create button ONCE
     const speakButton = document.createElement('button');
     speakButton.id = 'speak-now-button';
     speakButton.className = 'quick-btn';
-    speakButton.innerHTML = '<span style="animation: redDotBlink 1s infinite;">🔴</span> Get Ready to Speak';
-    speakButton.style.cssText = `
-        width: 100% !important;
-        background: rgba(255, 68, 68, 0.4) !important;
-        color: #ffffff !important;
-        border: 2px solid rgba(255, 68, 68, 0.8) !important;
-        padding: 15px 15px !important;
-        height: auto !important;
-        min-height: 45px !important;
-        font-weight: bold !important;
-        border-radius: 20px !important;
-    `;
     
-    // Add to container
+    // STEP 1: Set up RED "Get Ready to Speak" state
+    function setRedState() {
+        speakButton.innerHTML = '<span class="red-dot-blink">🔴</span> Get Ready to Speak';
+        speakButton.style.cssText = `
+            width: 100% !important;
+            background: rgba(255, 68, 68, 0.4) !important;
+            color: #ffffff !important;
+            border: 2px solid rgba(255, 68, 68, 0.8) !important;
+            padding: 15px !important;
+            min-height: 45px !important;
+            font-weight: bold !important;
+            border-radius: 20px !important;
+        `;
+        speakButton.className = 'quick-btn'; // Remove any glow classes
+    }
+    
+    // STEP 2: Set up GREEN "Speak Now" state  
+    function setGreenState() {
+        speakButton.innerHTML = '🎤 Speak Now<span class="dots-animation"></span>';
+        speakButton.style.cssText = `
+            width: 100% !important;
+            background: rgba(34, 197, 94, 0.4) !important;
+            color: #ffffff !important;
+            border: 2px solid rgba(34, 197, 94, 0.8) !important;
+            padding: 15px !important;
+            min-height: 45px !important;
+            font-weight: bold !important;
+            border-radius: 20px !important;
+        `;
+        speakButton.className = 'quick-btn green-button-glow'; // Add glow
+        
+        // 🎯 START SPEECH RECOGNITION
+        console.log('🎤 Starting speech recognition now...');
+        if (typeof speakResponse === 'function') {
+            speakResponse();
+        } else {
+            console.error('❌ speakResponse function not available!');
+        }
+    }
+    
+    // Start with RED state
+    setRedState();
     quickButtonsContainer.appendChild(speakButton);
     
-    // STAGE 2: After 1.5 seconds, switch to "Speak Now" ONCE and start listening
+    // After 1.5 seconds, switch to GREEN state ONCE
+    let hasTransitioned = false;
     setTimeout(() => {
-        const button = document.getElementById('speak-now-button');
-        if (button) {
-            // Change to Speak Now with animated dots
-            button.innerHTML = '🎤 Speak Now<span class="speak-now-dots"></span>';
-            button.style.cssText = `
-                width: 100% !important;
-                background: rgba(34, 197, 94, 0.4) !important;
-                color: #ffffff !important;
-                border: 2px solid rgba(34, 197, 94, 0.8) !important;
-                padding: 15px 15px !important;
-                height: auto !important;
-                min-height: 45px !important;
-                animation: greenButtonGlow 1.5s infinite !important;
-                font-weight: bold !important;
-                border-radius: 20px !important;
-            `;
-            
-            // 🎯 START SPEECH RECOGNITION NOW
-            console.log('Starting speech recognition...');
-            if (typeof speakResponse === 'function') {
-                speakResponse();
-            } else {
-                console.error('speakResponse function not found!');
-            }
+        if (!hasTransitioned && document.getElementById('speak-now-button')) {
+            hasTransitioned = true;
+            setGreenState();
         }
-    }, 1500); // 1.5 seconds - HAPPENS ONLY ONCE
+    }, 1500);
     
-    // Auto-remove after 8 seconds total and restore buttons
+    // Cleanup after 8 seconds total
     setTimeout(() => {
         if (document.getElementById('speak-now-button')) {
             document.getElementById('speak-now-button').remove();
@@ -3034,19 +3051,20 @@ function showHybridReadySequence() {
     }, 8000);
 }
 
-// Function to hide immediately and restore buttons
+// Clean hide function
 function hideSpeakNowBanner() {
     const speakNowButton = document.getElementById('speak-now-button');
     if (speakNowButton) {
         speakNowButton.remove();
-        // Restore original buttons
-        const quickButtonsContainer = document.querySelector('.quick-questions') || 
-                                      document.querySelector('.quick-buttons') || 
-                                      document.getElementById('quickButtonsContainer');
-        if (quickButtonsContainer) {
-            const existingButtons = quickButtonsContainer.querySelectorAll('.quick-btn');
-            existingButtons.forEach(btn => btn.style.display = '');
-        }
+    }
+    
+    // Restore buttons
+    const quickButtonsContainer = document.querySelector('.quick-questions') || 
+                                  document.querySelector('.quick-buttons') || 
+                                  document.getElementById('quickButtonsContainer');
+    if (quickButtonsContainer) {
+        const buttons = quickButtonsContainer.querySelectorAll('.quick-btn');
+        buttons.forEach(btn => btn.style.display = '');
     }
 }
 
