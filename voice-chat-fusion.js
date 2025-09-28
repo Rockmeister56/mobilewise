@@ -1701,14 +1701,21 @@ function getAIResponse(userInput) {
         return "Thank you for visiting! Have a great day.";
     }
     
-    const userText = userInput.toLowerCase();
+const userText = userInput.toLowerCase();
 let responseText = '';
 let firstName = leadData.firstName || ''; // Store first name from lead capture
 
 if (conversationState === 'initial') {
+    // 🎯 FIRST NAME CAPTURE - Always ask for name first unless they jump straight to business
+    if (!leadData.firstName && !userText.includes('buy') && !userText.includes('sell') && !userText.includes('value') && !userText.includes('purchase') && !userText.includes('acquire')) {
+        responseText = "Hi there! I'm here to help with CPA firm transactions - buying, selling, and practice valuations. Before we dive in, what's your first name?";
+        conversationState = 'getting_first_name';
+        return responseText;
+    }
+    
     if (userText.includes('buy') || userText.includes('purchase') || userText.includes('buying') || userText.includes('acquire')) {
         responseText = firstName ? 
-            `Excellent, ${firstName}! Bruce has some fantastic opportunities available right now - some really impressive practices that aren't even on the market yet. Tell me, what's your budget range for acquiring a practice?` :
+            `Excellent, ${firstName}! Bruce has some fantastic opportunities available right now - some exclusive off-market deals that would blow you away. Tell me, what's your budget range for acquiring a practice?` :
             "Excellent! Bruce has some fantastic opportunities available - some exclusive off-market deals that would blow you away. What's your budget range for acquiring a practice?";
         conversationState = 'buying_budget_question';
         shouldShowSmartButton = false;
@@ -1728,7 +1735,23 @@ if (conversationState === 'initial') {
         shouldShowSmartButton = false;
         
     } else {
-        responseText = "Hi there! I'm here to help with CPA firm transactions - buying, selling, and practice valuations. Bruce has been doing this for years and has some incredible opportunities right now. What brings you here today?";
+        responseText = firstName ?
+            `${firstName}, I'm here to help with CPA firm transactions - buying, selling, and practice valuations. Bruce has been doing this for years and has some incredible opportunities right now. What brings you here today?` :
+            "Hi there! I'm here to help with CPA firm transactions - buying, selling, and practice valuations. Bruce has been doing this for years and has some incredible opportunities right now. What brings you here today?";
+    }
+
+} else if (conversationState === 'getting_first_name') {
+    // 🎯 EXTRACT AND STORE FIRST NAME
+    const words = userInput.trim().split(' ');
+    const extractedName = words[0].replace(/[^a-zA-Z]/g, ''); // Remove any punctuation
+    if (extractedName.length > 0) {
+        leadData.firstName = extractedName.charAt(0).toUpperCase() + extractedName.slice(1).toLowerCase();
+        firstName = leadData.firstName;
+        
+        responseText = `Great to meet you, ${firstName}! Now, what brings you here today - are you looking to buy a practice, sell your practice, or get a practice valuation?`;
+        conversationState = 'initial';
+    } else {
+        responseText = "I didn't catch your name. Could you tell me your first name?";
     }
     
 } else if (conversationState === 'selling_size_question') {
@@ -1764,6 +1787,8 @@ if (conversationState === 'initial') {
         smartButtonText = '📞 Free Valuation';
         smartButtonAction = 'valuation';
         conversationState = 'button_activated_selling';
+        
+        // 🎯 TRIGGER: Consultation banner for selling
         triggerBanner('consultation_offer', { type: 'selling' });
         
     } else if (userText.includes('no') || userText.includes('not now') || userText.includes('maybe later')) {
@@ -1771,6 +1796,8 @@ if (conversationState === 'initial') {
             `No problem at all, ${firstName}! I totally understand - selling a practice is a big decision and you want to think it through. The offer stands whenever you're ready. Is there anything else about selling your practice that you'd like to know?` :
             "No problem! It's a big decision. The offer stands whenever you're ready. Anything else about selling you'd like to know?";
         conversationState = 'initial';
+        
+        // 🎯 TRIGGER: Free offer banner when consultation declined
         triggerBanner('free_offer');
         
     } else {
@@ -1809,6 +1836,8 @@ if (conversationState === 'initial') {
         smartButtonText = '🏢 View Available Practices';
         smartButtonAction = 'buying';
         conversationState = 'button_activated_buying';
+        
+        // 🎯 TRIGGER: Consultation banner for buying
         triggerBanner('consultation_offer', { type: 'buying' });
         
     } else if (userText.includes('no') || userText.includes('not now') || userText.includes('maybe later')) {
@@ -1816,6 +1845,8 @@ if (conversationState === 'initial') {
             `That's perfectly fine, ${firstName}! When you're ready to see what's available, just let me know. These opportunities don't stay on the market long, but I understand you want to think it through. Anything else about buying a practice I can help with?` :
             "That's fine! When ready, let me know. These opportunities move quickly. Anything else about buying I can help with?";
         conversationState = 'initial';
+        
+        // 🎯 TRIGGER: Free offer banner when consultation declined
         triggerBanner('free_offer');
         
     } else {
@@ -1851,6 +1882,8 @@ if (conversationState === 'initial') {
         smartButtonText = '📈 Get Practice Valuation';
         smartButtonAction = 'valuation';
         conversationState = 'button_activated_valuation';
+        
+        // 🎯 TRIGGER: Consultation banner for valuation
         triggerBanner('consultation_offer', { type: 'valuation' });
         
     } else if (userText.includes('no') || userText.includes('not now') || userText.includes('maybe later')) {
@@ -1858,6 +1891,8 @@ if (conversationState === 'initial') {
             `No worries, ${firstName}! The valuation offer stands whenever you're ready - Bruce isn't going anywhere. Is there anything else about practice valuations I can explain for you?` :
             "No worries! The offer stands whenever you're ready. Anything else about valuations I can explain?";
         conversationState = 'initial';
+        
+        // 🎯 TRIGGER: Free offer banner when consultation declined
         triggerBanner('free_offer');
         
     } else {
@@ -1879,6 +1914,8 @@ if (conversationState === 'initial') {
             `Thank you so much for visiting, ${firstName}! It's been great talking with you. Have a wonderful day! 🌟` :
             "Thank you so much for visiting! Have a wonderful day! 🌟";
         conversationState = 'ended';
+        
+        // 🎯 TRIGGER: Thank you banner when conversation ends
         triggerBanner('more_questions');
         
     } else {
@@ -1913,6 +1950,11 @@ if (conversationState === 'initial') {
             `Thank you for visiting, ${firstName}! Have a great day.` :
             "Thank you for visiting! Have a great day.";
     }
+}
+
+// 🎯 EMAIL FOLLOW-UP HANDLER CHECK
+if (window.emailFollowUpHandler && window.emailFollowUpHandler(userInput)) {
+    return; // Handler took care of it
 }
 
 return responseText;
