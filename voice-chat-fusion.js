@@ -1785,7 +1785,7 @@ if (conversationState === 'initial') {
        window.leadData.firstName = extractedName.charAt(0).toUpperCase() + extractedName.slice(1).toLowerCase();
         firstName = window.leadData.firstName;
         
-        responseText = `Great to meet you, ${firstName}! Now, what brings you here today - are you looking to buy a practice, sell your practice, or get a practice valuation?`;
+        responseText = `Great to meet you ${firstName}! Now, what brings you here today - are you looking to buy a practice, sell your practice, or get a practice valuation?`;
         conversationState = 'initial';
     } else {
         responseText = "I didn't catch your name. Could you tell me your first name?";
@@ -1805,13 +1805,13 @@ if (conversationState === 'initial') {
     const revenue = revenueMatch ? revenueMatch[0] : 'that kind of revenue';
     
     responseText = firstName ?
-        `That's excellent, ${firstName}! ${revenue} in revenue - you've definitely built a valuable practice there. Bruce is going to love working with you on this. Now, I'm curious - what's driving your decision to sell? Is it retirement, new opportunities, or maybe you're just ready for the next chapter? Understanding your motivation helps Bruce create the perfect exit strategy for you.` :
+        `That's excellent ${firstName}! ${revenue} in revenue - you've definitely built a valuable practice there. Bruce is going to love working with you on this. Now, I'm curious - what's driving your decision to sell? Is it retirement, new opportunities, or maybe you're just ready for the next chapter? Understanding your motivation helps Bruce create the perfect exit strategy for you.` :
         `Excellent! ${revenue} in revenue - that's a solid practice! What's driving your decision to sell? Retirement, new opportunities, or something else? This helps Bruce tailor the perfect approach.`;
     conversationState = 'selling_motivation_question';
     
 } else if (conversationState === 'selling_motivation_question') {
     responseText = firstName ?
-        `Thank you for sharing that with me, ${firstName}! You know what? Based on everything you've told me - your client base, revenue, and your goals - Bruce can definitely help you get top dollar for your practice. The market is absolutely on fire right now for practices like yours. Honestly, ${firstName}, this could be perfect timing for you. Would you like to schedule a FREE consultation with Bruce to discuss your selling strategy?` :
+        `Thank you for sharing that with me ${firstName}! You know what? Based on everything you've told me - your client base, revenue, and your goals - Bruce can definitely help you get top dollar for your practice. The market is absolutely on fire right now for practices like yours. Honestly, ${firstName}, this could be perfect timing for you. Would you like to schedule a FREE consultation with Bruce to discuss your selling strategy?` :
         "Thank you for sharing that! Based on what you've told me, Bruce can definitely help you maximize your practice value. The market is incredibly strong right now. Would you like a FREE consultation with Bruce?";
     conversationState = 'asking_selling_consultation';
     
@@ -3301,7 +3301,7 @@ if (speakSequenceActive) {
                 color: #ffffff !important;
                 border: 2px solid rgba(34, 197, 94, 0.8) !important;
                 padding: 15px !important;
-                min-height: 30px !important;
+                min-height: 25px !important;
                 font-weight: bold !important;
                 font-size: 14px !important;
                 border-radius: 16px !important;
