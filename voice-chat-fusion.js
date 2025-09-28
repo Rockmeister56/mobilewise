@@ -823,80 +823,55 @@ function showHybridReadySequence() {
         return;
     }
     
-// CREATE the transcript element dynamically
-const transcriptElement = document.createElement('div');
-transcriptElement.id = 'liveTranscript';
-transcriptElement.innerHTML = `
-    <div id="transcriptText">Get Ready to Speak</div>
-    <div id="progressContainer" style="width: 90%; height: 6px; background: rgba(255,255,255,0.2); border-radius: 3px; margin: 8px auto 0; overflow: hidden;">
-        <div id="readyProgressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #4fc3f7, #1976d2); border-radius: 3px; transition: width 0.1s ease;"></div>
-    </div>
-`;
-
-// Style it with JavaScript (adjusted height for progress bar)
-transcriptElement.style.cssText = `
-    width: 340px;
-    height: 50px;
-    background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(15px);
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-radius: 25px;
-    color: white;
-    font-weight: 600;
-    font-size: 16px;
-    text-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    margin: 10px auto;
-    cursor: pointer;
-`;
-
-// INSERT into the slot
-speakNowSlot.appendChild(transcriptElement);
-speakNowSlot.style.display = 'block';
-
-// PRE-WARM ENGINE
-preWarmSpeechEngine();
-
-// START PROGRESS BAR ANIMATION
-let progress = 0;
-const progressInterval = setInterval(() => {
-    progress += 10; // 10% every 100ms = 1 second total
-    const progressBar = document.getElementById('readyProgressBar');
-    if (progressBar) {
-        progressBar.style.width = progress + '%';
-    }
-    if (progress >= 100) {
-        clearInterval(progressInterval);
-    }
-}, 100);
-
-// PHASE 2: Switch to "LISTENING" and start recognition
-window.hybridTimeout = setTimeout(() => {
-    const transcriptText = document.getElementById('transcriptText');
-    if (transcriptText) {
-        transcriptText.textContent = 'Speak Now!';
-        transcriptText.style.color = '#00ff88';
-        transcriptText.style.textShadow = '0 0 15px rgba(0, 255, 136, 0.8)';
-    }
+    // CREATE the transcript element dynamically
+    const transcriptElement = document.createElement('div');
+    transcriptElement.id = 'liveTranscript';
+    transcriptElement.innerHTML = '<div id="transcriptText">Get Ready to Speak</div>';
     
-    // Make progress bar green when ready
-    const progressBar = document.getElementById('readyProgressBar');
-    if (progressBar) {
-        progressBar.style.background = 'linear-gradient(90deg, #4caf50, #2e7d32)';
-    }
+    // Style it with JavaScript
+    transcriptElement.style.cssText = `
+        width: 340px;
+        height: 30px;
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(15px);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 25px;
+        color: white;
+        font-weight: 600;
+        font-size: 16px;
+        text-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 10px auto;
+        cursor: pointer;
+    `;
     
-    // AUTO-START listening - with proper restart handling
-    if (!isListening && !isSpeaking && isAudioMode) {
-        console.log('🎯 Hybrid system starting recognition');
-        isListening = false; // Reset state first
-        startListening();
-    }
-}, 1000);
-} 
+    // INSERT into the slot
+    speakNowSlot.appendChild(transcriptElement);
+    speakNowSlot.style.display = 'block';
+    
+    // PRE-WARM ENGINE
+    preWarmSpeechEngine();
+    
+    // PHASE 2: Switch to "LISTENING" and start recognition
+    window.hybridTimeout = setTimeout(() => {
+        const transcriptText = document.getElementById('transcriptText');
+        if (transcriptText) {
+            transcriptText.textContent = 'Listening...';
+            transcriptText.style.color = '#00ff88';
+            transcriptText.style.textShadow = '0 0 15px rgba(0, 255, 136, 0.8)';
+        }
+        
+        // AUTO-START listening - with proper restart handling
+        if (!isListening && !isSpeaking && isAudioMode) {
+            console.log('🎯 Hybrid system starting recognition');
+            isListening = false; // Reset state first
+            startListening();
+        }
+    }, 1000);
+}
 
 // ===================================================
 // 🔥 PRE-WARM ENGINE (SILENT - NO BEEP)
@@ -3203,24 +3178,51 @@ if (speakSequenceActive) {
                     box-shadow: 0 0 20px rgba(34, 197, 94, 0.9) !important;
                 }
             }
+            
+            .progress-bar-container {
+                width: 90%;
+                height: 4px;
+                background: rgba(255,255,255,0.2);
+                border-radius: 2px;
+                margin: 8px auto 0;
+                overflow: hidden;
+            }
+            
+            .progress-bar {
+                width: 0%;
+                height: 100%;
+                background: linear-gradient(90deg, #4fc3f7, #1976d2);
+                border-radius: 2px;
+                transition: width 0.15s ease;
+            }
         `;
         document.head.appendChild(style);
     }
     
-    // 🚀 IMMEDIATE BUTTON CREATION
+    // 🚀 IMMEDIATE BUTTON CREATION WITH PROGRESS BAR
     speakSequenceButton = document.createElement('button');
     speakSequenceButton.id = 'speak-sequence-button';
     speakSequenceButton.className = 'quick-btn';
     
-    // STAGE 1: Red "Get Ready to Speak" - APPEARS IMMEDIATELY
-    speakSequenceButton.innerHTML = '<span class="red-dot-blink">🔴</span> Get Ready to Speak';
+    // STAGE 1: Red "Get Ready to Speak" with Progress Bar - APPEARS IMMEDIATELY
+    speakSequenceButton.innerHTML = `
+        <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+            <div style="margin-bottom: 6px;">
+                <span class="red-dot-blink">🔴</span> Get Ready to Speak
+            </div>
+            <div class="progress-bar-container">
+                <div id="readyProgressBar" class="progress-bar"></div>
+            </div>
+        </div>
+    `;
+    
     speakSequenceButton.style.cssText = `
         width: 100% !important;
         background: rgba(255, 68, 68, 0.4) !important;
         color: #ffffff !important;
         border: 2px solid rgba(255, 68, 68, 0.8) !important;
         padding: 15px !important;
-        min-height: 45px !important;
+        min-height: 55px !important;
         font-weight: bold !important;
         border-radius: 20px !important;
     `;
@@ -3228,6 +3230,19 @@ if (speakSequenceActive) {
     // 🚀 ADD TO DOM IMMEDIATELY
     quickButtonsContainer.appendChild(speakSequenceButton);
     console.log('🔴 Red stage active IMMEDIATELY');
+    
+    // START PROGRESS BAR ANIMATION
+    let progress = 0;
+    const progressInterval = setInterval(() => {
+        progress += 6.67; // ~15 steps over 1.5 seconds
+        const progressBar = document.getElementById('readyProgressBar');
+        if (progressBar) {
+            progressBar.style.width = progress + '%';
+        }
+        if (progress >= 100) {
+            clearInterval(progressInterval);
+        }
+    }, 100);
     
     // START LISTENING DURING RED STAGE
     setTimeout(() => {
@@ -3244,6 +3259,7 @@ if (speakSequenceActive) {
         if (typeof isSpeaking !== 'undefined' && isSpeaking && speakSequenceActive) {
             console.log('🔊 AI started speaking - auto-cleaning up speak sequence');
             clearInterval(speechWatcher);
+            if (progressInterval) clearInterval(progressInterval);
             cleanupSpeakSequence();
         }
     }, 100);
@@ -3253,14 +3269,31 @@ if (speakSequenceActive) {
         if (speakSequenceButton && speakSequenceActive) {
             console.log('🟢 Switching to green stage (listening already active)');
             
-            speakSequenceButton.innerHTML = '<span class="green-dot-blink">🟢</span> Speak Now';
+            // Turn progress bar green
+            const progressBar = document.getElementById('readyProgressBar');
+            if (progressBar) {
+                progressBar.style.background = 'linear-gradient(90deg, #4caf50, #2e7d32)';
+                progressBar.style.width = '100%';
+            }
+            
+            speakSequenceButton.innerHTML = `
+                <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+                    <div style="margin-bottom: 6px;">
+                        <span class="green-dot-blink">🟢</span> Speak Now!
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #4caf50, #2e7d32);"></div>
+                    </div>
+                </div>
+            `;
+            
             speakSequenceButton.style.cssText = `
                 width: 100% !important;
                 background: rgba(34, 197, 94, 0.4) !important;
                 color: #ffffff !important;
                 border: 2px solid rgba(34, 197, 94, 0.8) !important;
                 padding: 15px !important;
-                min-height: 45px !important;
+                min-height: 55px !important;
                 font-weight: bold !important;
                 border-radius: 20px !important;
             `;
@@ -3274,6 +3307,7 @@ if (speakSequenceActive) {
     speakSequenceCleanupTimer = setTimeout(() => {
         console.log('⏰ Extended listening time reached - cleaning up');
         if (speechWatcher) clearInterval(speechWatcher);
+        if (progressInterval) clearInterval(progressInterval);
         cleanupSpeakSequence();
     }, 25000);
 }
