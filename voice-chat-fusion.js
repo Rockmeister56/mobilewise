@@ -2421,6 +2421,7 @@ function confirmAnswer(isCorrect) {
         showHybridReadySequence(); // Restart the full red -> green sequence
     }, 100); // Back to 100ms to allow force stop to complete
 }
+}
 
 function askSimpleLeadQuestion() {
     if (!isInLeadCapture || !leadData) return;
