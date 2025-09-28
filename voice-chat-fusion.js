@@ -3207,7 +3207,7 @@ if (speakSequenceActive) {
     // STAGE 1: Red "Get Ready to Speak" with Progress Bar - APPEARS IMMEDIATELY
     speakSequenceButton.innerHTML = `
         <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
-            <div style="margin-bottom: 5px;">
+            <div style="margin-bottom: 6px;">
                 <span class="red-dot-blink">🔴</span> Get Ready to Speak
             </div>
             <div class="progress-bar-container">
@@ -3222,7 +3222,7 @@ if (speakSequenceActive) {
         color: #ffffff !important;
         border: 2px solid rgba(255, 68, 68, 0.8) !important;
         padding: 15px !important;
-        min-height: 525px !important;
+        min-height: 55px !important;
         font-weight: bold !important;
         border-radius: 20px !important;
     `;
@@ -3300,7 +3300,7 @@ if (speakSequenceActive) {
                 color: #ffffff !important;
                 border: 2px solid rgba(34, 197, 94, 0.8) !important;
                 padding: 15px !important;
-                min-height: 25px !important;
+                min-height: 55px !important;
                 font-weight: bold !important;
                 border-radius: 20px !important;
             `;
@@ -3320,7 +3320,7 @@ if (speakSequenceActive) {
                 }, 2000);
             }
         }
-    }, 1500);
+    }, 1400);
     
     // FASTER cleanup timer - 8 seconds instead of 25
     speakSequenceCleanupTimer = setTimeout(() => {
