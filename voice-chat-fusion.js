@@ -523,18 +523,17 @@ async function activateMicrophone() {
 
             document.getElementById('quickButtonsContainer').style.display = 'block';
 
-            setTimeout(() => {
-                conversationState = 'initial'; // Set initial state
-leadData.firstName = ''; // Clear any existing first name
-
-// This will trigger the "What's your first name?" question
-const initialResponse = generateAIResponse('initial', '');
-addAIMessage(initialResponse);
-speakResponse(initialResponse);
-            }, 1400);
-
-        } else {
-            throw new Error('Microphone permission denied');
+           setTimeout(() => {
+    // Initialize conversation system
+    conversationState = 'initial';
+    if (!leadData.firstName) {
+        conversationState = 'getting_first_name';
+    }
+    
+    const greeting = "Hi there! I'm here to help with CPA firm transactions - buying, selling, and practice valuations. Before we dive in, what's your first name?";
+    addAIMessage(greeting);
+    speakResponse(greeting);
+}, 1400);
         }
 
     } catch (error) {
