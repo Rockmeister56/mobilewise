@@ -524,7 +524,7 @@ async function activateMicrophone() {
             document.getElementById('quickButtonsContainer').style.display = 'block';
 
             setTimeout(() => {
-                const greeting = "Hi! I'm Bruce's assistant. How can I help you?";
+                const greeting = generateAIResponse('initial', ''); // Use your new conversation system
                 addAIMessage(greeting);
                 speakResponse(greeting);
             }, 1400);
