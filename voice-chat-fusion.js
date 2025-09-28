@@ -2228,8 +2228,11 @@ function confirmAnswer(isCorrect) {
         }
         
     } else {
-        // 🔄 REDO - Skip AI speech, go straight to listening
-        console.log('🔄 Redo - clearing field and starting listening immediately');
+// Instead of calling startListening() directly, restart the whole sequence
+cleanupSpeakSequence(); // Clean up any existing sequence first
+setTimeout(() => {
+    showHybridReadySequence(); // Restart the full red -> green sequence
+}, 100);
         
         // ✅ REMOVE THE WRONG ANSWER FROM CHAT
         removeLastUserMessage();
