@@ -2396,28 +2396,30 @@ function confirmAnswer(isCorrect) {
             }, 800);
         }
         
-    } else {
-    // Redo - LIGHTER cleanup approach
+  } else {
+    // Redo - LIGHTER cleanup approach with FORCE STOP
     console.log('🔄 Redo - clearing field and restarting speak sequence');
+    
+    // 🎯 NEW: FORCE STOP the active sequence first
+    isInSpeakSequence = false; // Reset the flag that's blocking us
+    if (window.recognition) {
+        window.recognition.stop(); // Stop any active recognition
+    }
     
     // ✅ KEEP the main fix - remove wrong answer FIRST
     removeLastUserMessage();
     
     // ✅ KEEP basic cleanup
-    leadData.tempAnswer = '';
+    window.leadData.tempAnswer = ''; // Use window.leadData for consistency
     const userInput = document.getElementById('userInput');
     if (userInput) {
         userInput.value = '';
     }
     
-    // ❌ REMOVE the aggressive cleanupSpeakSequence() 
-    // ❌ This might be over-cleaning and interfering with normal flow
-    
-    // ✅ KEEP the restart but maybe shorter timeout
+    // ✅ KEEP the restart with slightly longer timeout for cleanup
     setTimeout(() => {
         showHybridReadySequence(); // Restart the full red -> green sequence
-    }, 50); // Reduced from 100ms - less aggressive
-}
+    }, 100); // Back to 100ms to allow force stop to complete
 }
 
 function askSimpleLeadQuestion() {
