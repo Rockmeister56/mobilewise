@@ -2228,25 +2228,26 @@ function confirmAnswer(isCorrect) {
         }
         
     } else {
-    // Redo section - NUCLEAR cleanup approach
-    console.log('🔄 Redo - FULL SYSTEM RESET');
+    // Redo - LIGHTER cleanup approach
+    console.log('🔄 Redo - clearing field and restarting speak sequence');
     
-    // ✅ NUCLEAR CLEANUP - Stop everything
-    stopAllSpeechRecognition(); // Stop any running recognition
-    clearAllTimeouts(); // Clear any pending timeouts
-    isInSpeakSequence = false; // Force reset the flag
-    
-    // ✅ Clean up chat and state
+    // ✅ KEEP the main fix - remove wrong answer FIRST
     removeLastUserMessage();
+    
+    // ✅ KEEP basic cleanup
     leadData.tempAnswer = '';
     const userInput = document.getElementById('userInput');
-    if (userInput) userInput.value = '';
+    if (userInput) {
+        userInput.value = '';
+    }
     
-    // ✅ Wait longer before restart to ensure full cleanup
+    // ❌ REMOVE the aggressive cleanupSpeakSequence() 
+    // ❌ This might be over-cleaning and interfering with normal flow
+    
+    // ✅ KEEP the restart but maybe shorter timeout
     setTimeout(() => {
-        console.log('🚀 Starting fresh sequence after full cleanup');
-        showHybridReadySequence();
-    }, 500); // Increased delay for thorough cleanup
+        showHybridReadySequence(); // Restart the full red -> green sequence
+    }, 50); // Reduced from 100ms - less aggressive
 }
 }
 
