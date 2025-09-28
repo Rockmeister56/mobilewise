@@ -1745,6 +1745,9 @@ function getAIResponse(userInput) {
     
 const userText = userInput.toLowerCase();
 let responseText = '';
+console.log('🔍 DEBUG: leadData is:', leadData);
+console.log('🔍 DEBUG: typeof leadData:', typeof leadData);
+console.log('🔍 DEBUG: window.leadData is:', window.leadData);
 let firstName = leadData.firstName || ''; // Store first name from lead capture
 
 if (conversationState === 'initial') {
