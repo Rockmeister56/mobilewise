@@ -53,15 +53,6 @@ window.leadData = window.leadData || {
 };
 let leadData = window.leadData;
 
-// Keep existing recognition handlers (if they don't already exist elsewhere)
-recognition.onerror = function(event) {
-    console.log('🔊 Speech error: ' + event.error);
-    
-    if (event.error === 'no-speech') {
-        console.log('📱 Mobile: Using visual feedback system');
-    }
-};
-
 recognition.onend = function() {
     console.log('🔚 Recognition ended');
     
