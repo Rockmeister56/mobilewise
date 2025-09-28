@@ -524,10 +524,16 @@ async function activateMicrophone() {
             document.getElementById('quickButtonsContainer').style.display = 'block';
 
            setTimeout(() => {
-    // Initialize conversation system
-    conversationState = 'initial';
-    if (!leadData.firstName) {
+    // Initialize conversation system - BULLETPROOF VERSION
+    if (typeof conversationState === 'undefined') {
+        window.conversationState = 'getting_first_name';
+    } else {
         conversationState = 'getting_first_name';
+    }
+    
+    // Initialize leadData if it doesn't exist
+    if (typeof leadData === 'undefined' || !leadData) {
+        window.leadData = { firstName: '' };
     }
     
     const greeting = "Hi there! I'm here to help with CPA firm transactions - buying, selling, and practice valuations. Before we dive in, what's your first name?";
