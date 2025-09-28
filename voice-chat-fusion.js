@@ -2919,7 +2919,11 @@ function askQuickQuestion(question) {
     processUserResponse(question);
 }
 
-// 🎯 ENHANCED: Detect if we're being called from a redo
+// Global flag to prevent multiple instances
+let speakSequenceActive = false;
+let speakSequenceButton = null;
+let speakSequenceCleanupTimer = null;
+
 function showHybridReadySequence() {
     // Prevent multiple instances running
     if (speakSequenceActive) {
@@ -2933,12 +2937,6 @@ function showHybridReadySequence() {
     // 🎯 DETECT CONTACT INTERVIEW MODE
     const isContactInterview = checkContactInterviewMode();
     console.log('📧 Contact interview mode:', isContactInterview);
-    
-    // 🎯 DETECT REDO SCENARIO - Check if we're in middle of lead capture
-    const isRedoScenario = typeof isInLeadCapture !== 'undefined' && isInLeadCapture;
-    if (isRedoScenario) {
-        console.log('🔄 REDO SCENARIO DETECTED - Using special redo handling');
-    }
     
     // Find the quick buttons container
     const quickButtonsContainer = document.querySelector('.quick-questions') || 
@@ -3006,84 +3004,32 @@ function showHybridReadySequence() {
     speakSequenceButton.id = 'speak-sequence-button';
     speakSequenceButton.className = 'quick-btn';
     
-    // 🎯 HANDLE REDO SCENARIO DIFFERENTLY
-    if (isRedoScenario) {
-        console.log('🔄 REDO: Starting with immediate GREEN stage');
-        // For redo, go straight to green since user is ready to speak again
-        speakSequenceButton.innerHTML = '<span class="green-dot-blink">🟢</span> Speak Now';
-        speakSequenceButton.style.cssText = `
-            width: 100% !important;
-            background: rgba(34, 197, 94, 0.4) !important;
-            color: #ffffff !important;
-            border: 2px solid rgba(34, 197, 94, 0.8) !important;
-            padding: 15px !important;
-            min-height: 45px !important;
-            font-weight: bold !important;
-            border-radius: 20px !important;
-        `;
-        speakSequenceButton.className = 'quick-btn green-button-glow';
-        
-        // Start listening immediately for redo
-        setTimeout(() => {
-            console.log('🔄 REDO: Starting listening immediately...');
-            if (isContactInterview) {
-                startContactInterviewListening();
-            } else {
-                startNormalInterviewListening();
-            }
-        }, 200); // Shorter delay for redo
-        
-    } else {
-        console.log('🔴 NORMAL: Starting with RED stage');
-        // Normal flow - start with red "Get Ready to Speak"
-        speakSequenceButton.innerHTML = '<span class="red-dot-blink">🔴</span> Get Ready to Speak';
-        speakSequenceButton.style.cssText = `
-            width: 100% !important;
-            background: rgba(255, 68, 68, 0.4) !important;
-            color: #ffffff !important;
-            border: 2px solid rgba(255, 68, 68, 0.8) !important;
-            padding: 15px !important;
-            min-height: 45px !important;
-            font-weight: bold !important;
-            border-radius: 20px !important;
-        `;
-        
-        // START LISTENING DURING RED STAGE
-        setTimeout(() => {
-            console.log('🎤 Starting listening during RED stage...');
-            if (isContactInterview) {
-                startContactInterviewListening();
-            } else {
-                startNormalInterviewListening();
-            }
-        }, 800);
-        
-        // STAGE 2: After 1.5 seconds, switch to green
-        setTimeout(() => {
-            if (speakSequenceButton && speakSequenceActive) {
-                console.log('🟢 Switching to green stage (listening already active)');
-                
-                speakSequenceButton.innerHTML = '<span class="green-dot-blink">🟢</span> Speak Now';
-                speakSequenceButton.style.cssText = `
-                    width: 100% !important;
-                    background: rgba(34, 197, 94, 0.4) !important;
-                    color: #ffffff !important;
-                    border: 2px solid rgba(34, 197, 94, 0.8) !important;
-                    padding: 15px !important;
-                    min-height: 45px !important;
-                    font-weight: bold !important;
-                    border-radius: 20px !important;
-                `;
-                speakSequenceButton.className = 'quick-btn green-button-glow';
-                
-                console.log('✅ Visual changed to green - listening was already started');
-            }
-        }, 1400);
-    }
+    // STAGE 1: Red "Get Ready to Speak" - APPEARS IMMEDIATELY
+    speakSequenceButton.innerHTML = '<span class="red-dot-blink">🔴</span> Get Ready to Speak';
+    speakSequenceButton.style.cssText = `
+        width: 100% !important;
+        background: rgba(255, 68, 68, 0.4) !important;
+        color: #ffffff !important;
+        border: 2px solid rgba(255, 68, 68, 0.8) !important;
+        padding: 15px !important;
+        min-height: 45px !important;
+        font-weight: bold !important;
+        border-radius: 20px !important;
+    `;
     
     // 🚀 ADD TO DOM IMMEDIATELY
     quickButtonsContainer.appendChild(speakSequenceButton);
-    console.log('🔴 Button stage active IMMEDIATELY');
+    console.log('🔴 Red stage active IMMEDIATELY');
+    
+    // START LISTENING DURING RED STAGE
+    setTimeout(() => {
+        console.log('🎤 Starting listening during RED stage...');
+        if (isContactInterview) {
+            startContactInterviewListening();
+        } else {
+            startNormalInterviewListening();
+        }
+    }, 800);
     
     // AI speaking detection
     let speechWatcher = setInterval(() => {
@@ -3094,13 +3040,159 @@ function showHybridReadySequence() {
         }
     }, 100);
     
-    // 🎯 EXTENDED CLEANUP - But not for redo scenarios
-    const cleanupTime = isRedoScenario ? 30000 : 25000; // Extra time for redo
+    // STAGE 2: After 1.5 seconds, switch to green
+    const greenTransition = setTimeout(() => {
+        if (speakSequenceButton && speakSequenceActive) {
+            console.log('🟢 Switching to green stage (listening already active)');
+            
+            speakSequenceButton.innerHTML = '<span class="green-dot-blink">🟢</span> Speak Now';
+            speakSequenceButton.style.cssText = `
+                width: 100% !important;
+                background: rgba(34, 197, 94, 0.4) !important;
+                color: #ffffff !important;
+                border: 2px solid rgba(34, 197, 94, 0.8) !important;
+                padding: 15px !important;
+                min-height: 45px !important;
+                font-weight: bold !important;
+                border-radius: 20px !important;
+            `;
+            speakSequenceButton.className = 'quick-btn green-button-glow';
+            
+            console.log('✅ Visual changed to green - listening was already started');
+        }
+    }, 1500);
+    
+    // Extended cleanup timer 
     speakSequenceCleanupTimer = setTimeout(() => {
         console.log('⏰ Extended listening time reached - cleaning up');
         if (speechWatcher) clearInterval(speechWatcher);
         cleanupSpeakSequence();
-    }, cleanupTime);
+    }, 25000);
+}
+
+// 🎯 DETECT CONTACT INTERVIEW MODE
+function checkContactInterviewMode() {
+    const indicators = [
+        typeof isInLeadCapture !== 'undefined' && isInLeadCapture,
+        typeof currentConversationState !== 'undefined' && 
+            (currentConversationState.includes('email') || 
+             currentConversationState.includes('contact') ||
+             currentConversationState.includes('lead')),
+        document.querySelector('[id*="email"]') !== null,
+        document.querySelector('[id*="contact"]') !== null,
+        document.querySelector('[id*="lead"]') !== null
+    ];
+    
+    return indicators.some(indicator => indicator === true);
+}
+
+// 🎯 NORMAL INTERVIEW LISTENING 
+function startNormalInterviewListening() {
+    const userInput = document.getElementById('userInput');
+    if (userInput) {
+        userInput.value = '';
+        console.log('🧹 Cleared userInput field (normal mode)');
+    }
+    
+    setTimeout(() => {
+        if (typeof startListening === 'function') {
+            try {
+                startListening();
+                console.log('✅ Normal startListening() called successfully');
+            } catch (error) {
+                console.error('❌ Normal startListening() error:', error);
+            }
+        }
+    }, 50);
+    
+    setTimeout(() => {
+        if (typeof forceStartListening === 'function' && !isListening) {
+            try {
+                console.log('🔄 Normal backup: calling forceStartListening()');
+                forceStartListening();
+            } catch (error) {
+                console.error('❌ Normal forceStartListening() error:', error);
+            }
+        }
+    }, 150);
+}
+
+// 🎯 CONTACT INTERVIEW LISTENING 
+function startContactInterviewListening() {
+    console.log('📧 === CONTACT INTERVIEW SPEECH SETUP ===');
+    
+    const userInput = document.getElementById('userInput');
+    if (userInput) {
+        userInput.value = '';
+        console.log('🧹 Cleared userInput field (contact mode)');
+    }
+    
+    setTimeout(() => {
+        if (typeof startListening === 'function') {
+            try {
+                console.log('📧 Contact mode: calling startListening()');
+                startListening();
+                console.log('✅ Contact startListening() called successfully');
+            } catch (error) {
+                console.error('❌ Contact startListening() error:', error);
+            }
+        }
+    }, 50);
+    
+    setTimeout(() => {
+        if (typeof forceStartListening === 'function' && !isListening) {
+            try {
+                console.log('📧 Contact mode backup: calling forceStartListening()');
+                forceStartListening();
+            } catch (error) {
+                console.error('❌ Contact forceStartListening() error:', error);
+            }
+        }
+    }, 200);
+    
+    setTimeout(() => {
+        if (typeof recognition !== 'undefined' && recognition && !isListening) {
+            try {
+                console.log('📧 Contact mode final try: direct recognition.start()');
+                recognition.start();
+                isListening = true;
+            } catch (error) {
+                console.error('❌ Contact direct recognition error:', error);
+            }
+        }
+    }, 350);
+    
+    console.log('📧 === END CONTACT INTERVIEW SETUP ===');
+}
+
+// Enhanced cleanup function
+function cleanupSpeakSequence() {
+    console.log('🧹 Cleaning up speak sequence');
+    speakSequenceActive = false;
+    
+    if (speakSequenceCleanupTimer) {
+        clearTimeout(speakSequenceCleanupTimer);
+        speakSequenceCleanupTimer = null;
+    }
+    
+    if (speakSequenceButton) {
+        speakSequenceButton.remove();
+        speakSequenceButton = null;
+    }
+    
+    // Restore original buttons
+    const quickButtonsContainer = document.querySelector('.quick-questions') || 
+                                  document.querySelector('.quick-buttons') || 
+                                  document.getElementById('quickButtonsContainer');
+    if (quickButtonsContainer) {
+        const buttons = quickButtonsContainer.querySelectorAll('.quick-btn');
+        buttons.forEach(btn => btn.style.display = '');
+    }
+}
+
+// Updated hide function
+function hideSpeakNowBanner() {
+    cleanupSpeakSequence();
 }
 
 // ENHANCED: Allow Enter key to send message
