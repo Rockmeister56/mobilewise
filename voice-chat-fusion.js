@@ -2934,11 +2934,38 @@ function showHybridReadySequence() {
     const isContactInterview = checkContactInterviewMode();
     console.log('📧 Contact interview mode:', isContactInterview);
     
-    // 🎯 DETECT REDO SCENARIO - Check if we're in middle of lead capture
-    const isRedoScenario = typeof isInLeadCapture !== 'undefined' && isInLeadCapture;
-    if (isRedoScenario) {
-        console.log('🔄 REDO SCENARIO DETECTED - Using special redo handling');
-    }
+   const isRedoScenario = typeof isInLeadCapture !== 'undefined' && isInLeadCapture;
+
+if (isRedoScenario) {
+    console.log('🔄 REDO DETECTED - Starting with GREEN');
+    // For redo, go straight to green
+    speakSequenceButton.innerHTML = '<span class="green-dot-blink">🟢</span> Speak Now';
+    speakSequenceButton.style.cssText = `
+        width: 100% !important;
+        background: rgba(34, 197, 94, 0.4) !important;
+        color: #ffffff !important;
+        border: 2px solid rgba(34, 197, 94, 0.8) !important;
+        padding: 15px !important;
+        min-height: 45px !important;
+        font-weight: bold !important;
+        border-radius: 20px !important;
+    `;
+    speakSequenceButton.className = 'quick-btn green-button-glow';
+} else {
+    console.log('🔴 NORMAL - Starting with RED');
+    // Normal flow - red "Get Ready to Speak"
+    speakSequenceButton.innerHTML = '<span class="red-dot-blink">🔴</span> Get Ready to Speak';
+    speakSequenceButton.style.cssText = `
+        width: 100% !important;
+        background: rgba(255, 68, 68, 0.4) !important;
+        color: #ffffff !important;
+        border: 2px solid rgba(255, 68, 68, 0.8) !important;
+        padding: 15px !important;
+        min-height: 45px !important;
+        font-weight: bold !important;
+        border-radius: 20px !important;
+    `;
+}
     
     // Find the quick buttons container
     const quickButtonsContainer = document.querySelector('.quick-questions') || 
