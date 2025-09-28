@@ -3336,14 +3336,34 @@ function resetSpeechSystem() {
     // Remove failsafe button
     document.getElementById('failsafeContainer')?.remove();
     
-    // Force reset everything
+    // 🎯 NUCLEAR RESET - Stop everything possible
     isInSpeakSequence = false;
     isListening = false;
+    speakSequenceActive = false; // Add this line - might be the missing flag!
     
-    // Restart fresh
+    // Stop all recognition instances
+    if (window.recognition) {
+        try {
+            window.recognition.stop();
+            window.recognition.abort();
+        } catch(e) { console.log('Recognition already stopped'); }
+    }
+    if (window.speechRecognition) {
+        try {
+            window.speechRecognition.stop();
+            window.speechRecognition.abort();
+        } catch(e) { console.log('SpeechRecognition already stopped'); }
+    }
+    
+    // Clear all timeouts
+    if (window.speakSequenceCleanupTimer) clearTimeout(window.speakSequenceCleanupTimer);
+    if (window.extendedListeningTimeout) clearTimeout(window.extendedListeningTimeout);
+    
+    // Wait longer for complete cleanup
     setTimeout(() => {
+        console.log('🚀 Starting fresh after nuclear reset');
         showHybridReadySequence();
-    }, 100);
+    }, 500); // Increased from 100ms to 500ms
 }
 
 // 🎯 DETECT CONTACT INTERVIEW MODE
