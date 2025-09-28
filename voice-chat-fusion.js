@@ -2228,33 +2228,28 @@ function confirmAnswer(isCorrect) {
         }
         
     } else {
-// Instead of calling startListening() directly, restart the whole sequence
-cleanupSpeakSequence(); // Clean up any existing sequence first
-setTimeout(() => {
-    showHybridReadySequence(); // Restart the full red -> green sequence
-}, 100);
-        
-        // ✅ REMOVE THE WRONG ANSWER FROM CHAT
-        removeLastUserMessage();
-        
-        // Clear temp answer and text field
-        leadData.tempAnswer = '';
-        const userInput = document.getElementById('userInput');
-        if (userInput) {
-            userInput.value = '';
-        }
-        
-        // ✅ NO AI SPEECH - Go straight to "Speak Now"
-        setTimeout(() => {
-            const liveTranscript = document.getElementById('liveTranscript');
-            const transcriptText = document.getElementById('transcriptText');
-            
-            if (liveTranscript && transcriptText) {
-    showHybridReadySequence();
-}
-        }, 300);
+    // Instead of calling startListening() directly, restart the whole sequence
+    console.log('🔄 Redo - clearing field and restarting speak sequence');
+    
+    // ✅ CLEAN UP FIRST - BEFORE restarting sequence
+    cleanupSpeakSequence(); // Clean up any existing sequence first
+    
+    // ✅ REMOVE THE WRONG ANSWER FROM CHAT  
+    removeLastUserMessage();
+    
+    // ✅ Clear temp answer and text field
+    leadData.tempAnswer = '';
+    const userInput = document.getElementById('userInput');
+    if (userInput) {
+        userInput.value = '';
     }
+    
+    // ✅ THEN restart the sequence
+    setTimeout(() => {
+        showHybridReadySequence(); // Restart the full red -> green sequence
+    }, 100);
 }
+    }
 
 function askSimpleLeadQuestion() {
     if (!isInLeadCapture || !leadData) return;
