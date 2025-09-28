@@ -41,7 +41,17 @@ let smartButtonAction = 'default';
 let restartTimeout = null;
 let lastMessageWasApology = false;
 let isInLeadCapture = false;
-let leadData = null;
+window.leadData = window.leadData || {
+    firstName: '',
+    step: 0,
+    tempAnswer: '',
+    name: '',
+    phone: '',
+    email: '',
+    contactTime: '',
+    inquiryType: ''
+};
+let leadData = window.leadData;
 
 // ===================================================
 // 🎯 SPEECH RECOGNITION PRE-WARMING SYSTEM  
@@ -1723,32 +1733,14 @@ function updateSmartButton(shouldShow, buttonText, action) {
 // 🧠 AI RESPONSE SYSTEM
 // ===================================================
 function getAIResponse(userInput) {
-     // 🎯 FORCE LEADDATA INITIALIZATION - BULLETPROOF VERSION
-    if (!window.leadData || window.leadData === null) {
-        window.leadData = { 
-            firstName: '', 
-            step: 0,
-            tempAnswer: '',
-            name: '',
-            phone: '',
-            email: '',
-            contactTime: '',
-            inquiryType: ''
-        };
-        console.log('🔧 LeadData initialized in getAIResponse');
-    }
-
- // ✅ STOP PROCESSING IF CONVERSATION IS ENDED
+    // ✅ STOP PROCESSING IF CONVERSATION IS ENDED
     if (conversationState === 'ended') {
         return "Thank you for visiting! Have a great day.";
     }
     
-const userText = userInput.toLowerCase();
-let responseText = '';
-console.log('🔍 DEBUG: leadData is:', leadData);
-console.log('🔍 DEBUG: typeof leadData:', typeof leadData);
-console.log('🔍 DEBUG: window.leadData is:', window.leadData);
-let firstName = (window.leadData && window.leadData.firstName) ? window.leadData.firstName : ''; // Store first name from lead capture
+    const userText = userInput.toLowerCase();
+    let responseText = '';
+    let firstName = leadData.firstName || ''; // Store first name from lead capture
 
 if (conversationState === 'initial') {
     // 🎯 FIRST NAME CAPTURE - Always ask for name first unless they jump straight to business
