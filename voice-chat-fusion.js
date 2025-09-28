@@ -1759,7 +1759,7 @@ if (conversationState === 'initial') {
         
     } else if (userText.includes('sell') || userText.includes('selling')) {
         responseText = firstName ? 
-            Wow `${firstName}, that's a huge decision - you've probably poured your heart and soul into building something special there. Tell me, how many clients are you currently serving?` :
+             `Wow ${firstName}! That's a huge decision - you've probably poured your heart and soul into building something special there. Tell me, how many clients are you currently serving?` :
             "I'd love to help you with selling your practice! That's a big decision - you've probably built something really special. How many clients are you currently serving?";
         conversationState = 'selling_size_question';
         shouldShowSmartButton = false;
