@@ -3099,11 +3099,17 @@ let speakSequenceButton = null;
 let speakSequenceCleanupTimer = null;
 
 function showHybridReadySequence() {
-    // Simple blocking - trust the original logic
-    if (speakSequenceActive) {
-        console.log('🔄 Speak sequence already active');
+   // Allow restarts when speech times out but block rapid duplicates
+if (speakSequenceActive) {
+    console.log('🔄 Speak sequence already active - checking if restart needed');
+    // Only block if we haven't had enough time for a legitimate timeout
+    if (Date.now() - window.lastSequenceStart < 15000) {
+        console.log('🔄 Allowing restart - sequence may have timed out');
+    } else {
+        console.log('🛑 Blocking duplicate call');
         return;
     }
+}
     
     // Track when sequence starts
     window.lastSequenceStart = Date.now();
