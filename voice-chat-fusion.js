@@ -53,55 +53,31 @@ window.leadData = window.leadData || {
 };
 let leadData = window.leadData;
 
-let timeoutRestartPending = false;
-
-// Modify the speech error handling (around line 320)
+// Keep existing recognition handlers (if they don't already exist elsewhere)
 recognition.onerror = function(event) {
     console.log('🔊 Speech error: ' + event.error);
     
     if (event.error === 'no-speech') {
-        timeoutRestartPending = true; // Flag that this is a legitimate timeout restart
         console.log('📱 Mobile: Using visual feedback system');
     }
 };
 
-// Modify the onend restart logic (around line 418)
 recognition.onend = function() {
     console.log('🔚 Recognition ended');
     
     if (shouldRestartRecognition && !isProcessingResponse) {
         console.log('🔄 No speech detected via onend - restarting with hybrid system');
-        timeoutRestartPending = true; // Flag this as timeout restart
         showHybridReadySequence();
     }
 };
 
-// Modify the showHybridReadySequence blocking logic
 function showHybridReadySequence() {
     console.log('🎬 Starting speak sequence...');
-    
-    // Smart blocking with timeout restart exception
+  }  
+    // Simple blocking - trust the original logic
     if (speakSequenceActive) {
-        console.log('⚠️ Speak sequence active - checking if restart is needed');
-        
-        // Allow timeout restarts to bypass blocking
-        if (timeoutRestartPending) {
-            console.log('🔄 Timeout restart detected - bypassing blocking logic');
-            timeoutRestartPending = false; // Reset flag
-        } else if (Date.now() - lastSpeakSequenceStart < 2000) {
-            console.log('🛑 Speak sequence recently started, ignoring duplicate call');
-            return;
-        }
-    }
-    
-    // Reset timeout flag at start of new sequence
-    timeoutRestartPending = false;
-    
-    // Rest of the function continues as normal...
-    speakSequenceActive = true;
-    lastSpeakSequenceStart = Date.now();
-    // ... existing code
-}
+
+};        
 
 // ===================================================
 // 🎯 SPEECH RECOGNITION PRE-WARMING SYSTEM  
@@ -3149,20 +3125,17 @@ let speakSequenceButton = null;
 let speakSequenceCleanupTimer = null;
 
 function showHybridReadySequence() {
-    // More intelligent duplicate prevention
+    console.log('🎬 Starting speak sequence...');
+    
+    // Simple blocking - trust the original logic
     if (speakSequenceActive) {
-        console.log('⚠️ Speak sequence active - checking if restart is needed');
-        
-        // Allow restart if it's been too long or system is stuck
-        const now = Date.now();
-        if (!window.lastSequenceStart || (now - window.lastSequenceStart) > 10000) {
-            console.log('🔄 Forcing restart - sequence has been active too long');
-            speakSequenceActive = false; // Force reset
-        } else {
-            console.log('🛑 Speak sequence recently started, ignoring duplicate call');
-            return;
-        }
+        console.log('🔄 Speak sequence already active');
+        return;
     }
+    
+    // Set the flag and continue
+    speakSequenceActive = true;
+    window.lastSequenceStart = Date.now();
     
     // Track when sequence starts
     window.lastSequenceStart = Date.now();
