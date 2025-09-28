@@ -3095,11 +3095,24 @@ let speakSequenceButton = null;
 let speakSequenceCleanupTimer = null;
 
 function showHybridReadySequence() {
-    // Prevent multiple instances running
+    // More intelligent duplicate prevention
     if (speakSequenceActive) {
-        console.log('🛑 Speak sequence already active, ignoring duplicate call');
-        return;
+        console.log('⚠️ Speak sequence active - checking if restart is needed');
+        
+        // Allow restart if it's been too long or system is stuck
+        const now = Date.now();
+        if (!window.lastSequenceStart || (now - window.lastSequenceStart) > 10000) {
+            console.log('🔄 Forcing restart - sequence has been active too long');
+            speakSequenceActive = false; // Force reset
+        } else {
+            console.log('🛑 Speak sequence recently started, ignoring duplicate call');
+            return;
+        }
     }
+    
+    // Track when sequence starts
+    window.lastSequenceStart = Date.now();
+    speakSequenceActive = true;
     
     console.log('🎬 Starting speak sequence...');
     speakSequenceActive = true;
