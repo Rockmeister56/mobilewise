@@ -412,7 +412,7 @@ function getApologyResponse() {
             console.log('🚫 Prevented duplicate message (within 3 seconds):', currentMessage);
             userInput.value = '';
         }
-    } else {
+} else {
     // No speech detected - restart with hybrid system
     if (isAudioMode && !isSpeaking && !lastMessageWasApology) {
         console.log('🔄 No speech detected via onend - restarting with hybrid system');
@@ -432,10 +432,8 @@ function getApologyResponse() {
                 showHybridReadySequence();
             }
         }, 1000);
-        }
-    }
-};
-        
+    } // ← Fixed: Only one closing brace here
+};       
         // 🎯 MOBILE TIMING DELAY
         const delay = isMobile ? 800 : 0; // Only delay on mobile
         
