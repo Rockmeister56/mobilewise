@@ -1723,6 +1723,20 @@ function updateSmartButton(shouldShow, buttonText, action) {
 // 🧠 AI RESPONSE SYSTEM
 // ===================================================
 function getAIResponse(userInput) {
+     // 🎯 FORCE LEADDATA INITIALIZATION - BULLETPROOF VERSION
+    if (!window.leadData || window.leadData === null) {
+        window.leadData = { 
+            firstName: '', 
+            step: 0,
+            tempAnswer: '',
+            name: '',
+            phone: '',
+            email: '',
+            contactTime: '',
+            inquiryType: ''
+        };
+        console.log('🔧 LeadData initialized in getAIResponse');
+    }
 
  // ✅ STOP PROCESSING IF CONVERSATION IS ENDED
     if (conversationState === 'ended') {
