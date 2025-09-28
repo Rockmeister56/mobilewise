@@ -3301,7 +3301,7 @@ if (speakSequenceActive) {
                 color: #ffffff !important;
                 border: 2px solid rgba(34, 197, 94, 0.8) !important;
                 padding: 15px !important;
-                min-height: 35px !important;
+                min-height: 30px !important;
                 font-weight: bold !important;
                 font-size: 14px !important;
                 border-radius: 16px !important;
