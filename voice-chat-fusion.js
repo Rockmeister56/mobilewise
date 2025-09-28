@@ -3181,10 +3181,10 @@ if (speakSequenceActive) {
             
             .progress-bar-container {
                 width: 90%;
-                height: 4px;
+                height: 2px;
                 background: rgba(255,255,255,0.2);
-                border-radius: 2px;
-                margin: 8px auto 0;
+                border-radius: 1px;
+                margin: 6px auto 0;
                 overflow: hidden;
             }
             
@@ -3192,7 +3192,7 @@ if (speakSequenceActive) {
                 width: 0%;
                 height: 100%;
                 background: linear-gradient(90deg, #4fc3f7, #1976d2);
-                border-radius: 2px;
+                border-radius: 1px;
                 transition: width 0.15s ease;
             }
         `;
@@ -3222,8 +3222,9 @@ if (speakSequenceActive) {
         color: #ffffff !important;
         border: 2px solid rgba(255, 68, 68, 0.8) !important;
         padding: 15px !important;
-        min-height: 55px !important;
+        min-height: 45px !important;
         font-weight: bold !important;
+        font-size: 18px !important;
         border-radius: 20px !important;
     `;
     
@@ -3300,8 +3301,9 @@ if (speakSequenceActive) {
                 color: #ffffff !important;
                 border: 2px solid rgba(34, 197, 94, 0.8) !important;
                 padding: 15px !important;
-                min-height: 55px !important;
+                min-height: 45px !important;
                 font-weight: bold !important;
+                font-size: 18px !important;
                 border-radius: 20px !important;
             `;
             speakSequenceButton.className = 'quick-btn green-button-glow';
@@ -3309,7 +3311,7 @@ if (speakSequenceActive) {
             console.log('✅ Visual changed to green - listening was already started');
             
             // Add mobile debugging
-            if (/Mobi|Android/i.test(navigator.userAgent)) {
+            if (/Mobi|Android/i.test(navigator.userUser)) {
                 console.log('📱 MOBILE DEBUG: Green stage activated');
                 
                 // Extra mobile stability check
@@ -3320,7 +3322,7 @@ if (speakSequenceActive) {
                 }, 2000);
             }
         }
-    }, 1400);
+    }, 1500);
     
     // FASTER cleanup timer - 8 seconds instead of 25
     speakSequenceCleanupTimer = setTimeout(() => {
