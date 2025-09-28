@@ -2924,6 +2924,21 @@ let speakSequenceActive = false;
 let speakSequenceButton = null;
 let speakSequenceCleanupTimer = null;
 
+function checkContactInterviewMode() {
+    const indicators = [
+        typeof isInLeadCapture !== 'undefined' && isInLeadCapture,
+        typeof currentConversationState !== 'undefined' && 
+            (currentConversationState.includes('email') || 
+             currentConversationState.includes('contact') ||
+             currentConversationState.includes('lead')),
+        document.querySelector('[id*="email"]') !== null,
+        document.querySelector('[id*="contact"]') !== null,
+        document.querySelector('[id*="lead"]') !== null
+    ];
+    
+    return indicators.some(indicator => indicator === true);
+}
+
 // 🎯 ENHANCED: Detect if we're being called from a redo
 function showHybridReadySequence() {
     // Prevent multiple instances running
