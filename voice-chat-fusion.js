@@ -524,9 +524,13 @@ async function activateMicrophone() {
             document.getElementById('quickButtonsContainer').style.display = 'block';
 
             setTimeout(() => {
-                const greeting = generateAIResponse('initial', ''); // Use your new conversation system
-                addAIMessage(greeting);
-                speakResponse(greeting);
+                conversationState = 'initial'; // Set initial state
+leadData.firstName = ''; // Clear any existing first name
+
+// This will trigger the "What's your first name?" question
+const initialResponse = generateAIResponse('initial', '');
+addAIMessage(initialResponse);
+speakResponse(initialResponse);
             }, 1400);
 
         } else {
