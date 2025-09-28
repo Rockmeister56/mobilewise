@@ -3222,7 +3222,7 @@ if (speakSequenceActive) {
         color: #ffffff !important;
         border: 2px solid rgba(255, 68, 68, 0.8) !important;
         padding: 15px !important;
-        min-height: 45px !important;
+        min-height: 35px !important;
         font-weight: bold !important;
         font-size: 18px !important;
         border-radius: 20px !important;
@@ -3301,9 +3301,9 @@ if (speakSequenceActive) {
                 color: #ffffff !important;
                 border: 2px solid rgba(34, 197, 94, 0.8) !important;
                 padding: 15px !important;
-                min-height: 45px !important;
+                min-height: 35px !important;
                 font-weight: bold !important;
-                font-size: 18px !important;
+                font-size: 14px !important;
                 border-radius: 20px !important;
             `;
             speakSequenceButton.className = 'quick-btn green-button-glow';
