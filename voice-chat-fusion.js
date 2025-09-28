@@ -53,23 +53,6 @@ window.leadData = window.leadData || {
 };
 let leadData = window.leadData;
 
-recognition.onend = function() {
-    console.log('🔚 Recognition ended');
-    
-    if (shouldRestartRecognition && !isProcessingResponse) {
-        console.log('🔄 No speech detected via onend - restarting with hybrid system');
-        showHybridReadySequence();
-    }
-};
-
-function showHybridReadySequence() {
-    console.log('🎬 Starting speak sequence...');
-  }  
-    // Simple blocking - trust the original logic
-    if (speakSequenceActive) {
-
-};        
-
 // ===================================================
 // 🎯 SPEECH RECOGNITION PRE-WARMING SYSTEM  
 // ===================================================
@@ -3116,24 +3099,17 @@ let speakSequenceButton = null;
 let speakSequenceCleanupTimer = null;
 
 function showHybridReadySequence() {
-    console.log('🎬 Starting speak sequence...');
-    
     // Simple blocking - trust the original logic
     if (speakSequenceActive) {
         console.log('🔄 Speak sequence already active');
         return;
     }
     
-    // Set the flag and continue
-    speakSequenceActive = true;
-    window.lastSequenceStart = Date.now();
-    
     // Track when sequence starts
     window.lastSequenceStart = Date.now();
     speakSequenceActive = true;
     
     console.log('🎬 Starting speak sequence...');
-    speakSequenceActive = true;
     
     // 🎯 DETECT CONTACT INTERVIEW MODE
     const isContactInterview = checkContactInterviewMode();
