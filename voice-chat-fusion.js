@@ -2228,28 +2228,27 @@ function confirmAnswer(isCorrect) {
         }
         
     } else {
-    // Instead of calling startListening() directly, restart the whole sequence
-    console.log('🔄 Redo - clearing field and restarting speak sequence');
+    // Redo section - NUCLEAR cleanup approach
+    console.log('🔄 Redo - FULL SYSTEM RESET');
     
-    // ✅ CLEAN UP FIRST - BEFORE restarting sequence
-    cleanupSpeakSequence(); // Clean up any existing sequence first
+    // ✅ NUCLEAR CLEANUP - Stop everything
+    stopAllSpeechRecognition(); // Stop any running recognition
+    clearAllTimeouts(); // Clear any pending timeouts
+    isInSpeakSequence = false; // Force reset the flag
     
-    // ✅ REMOVE THE WRONG ANSWER FROM CHAT  
+    // ✅ Clean up chat and state
     removeLastUserMessage();
-    
-    // ✅ Clear temp answer and text field
     leadData.tempAnswer = '';
     const userInput = document.getElementById('userInput');
-    if (userInput) {
-        userInput.value = '';
-    }
+    if (userInput) userInput.value = '';
     
-    // ✅ THEN restart the sequence
+    // ✅ Wait longer before restart to ensure full cleanup
     setTimeout(() => {
-        showHybridReadySequence(); // Restart the full red -> green sequence
-    }, 100);
+        console.log('🚀 Starting fresh sequence after full cleanup');
+        showHybridReadySequence();
+    }, 500); // Increased delay for thorough cleanup
 }
-    }
+}
 
 function askSimpleLeadQuestion() {
     if (!isInLeadCapture || !leadData) return;
