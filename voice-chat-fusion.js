@@ -3207,7 +3207,7 @@ if (speakSequenceActive) {
     // STAGE 1: Red "Get Ready to Speak" with Progress Bar - APPEARS IMMEDIATELY
     speakSequenceButton.innerHTML = `
         <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
-            <div style="margin-bottom: 6px;">
+            <div style="margin-bottom: 5px;">
                 <span class="red-dot-blink">🔴</span> Get Ready to Speak
             </div>
             <div class="progress-bar-container">
@@ -3222,10 +3222,17 @@ if (speakSequenceActive) {
         color: #ffffff !important;
         border: 2px solid rgba(255, 68, 68, 0.8) !important;
         padding: 15px !important;
-        min-height: 35px !important;
+        min-height: 525px !important;
         font-weight: bold !important;
         border-radius: 20px !important;
     `;
+    
+    // Mobile stability enhancement
+    if (/Mobi|Android/i.test(navigator.userAgent)) {
+        speakSequenceButton.style.position = 'relative';
+        speakSequenceButton.style.zIndex = '1000';
+        console.log('📱 Mobile stability enhancements applied');
+    }
     
     // 🚀 ADD TO DOM IMMEDIATELY
     quickButtonsContainer.appendChild(speakSequenceButton);
@@ -3293,23 +3300,35 @@ if (speakSequenceActive) {
                 color: #ffffff !important;
                 border: 2px solid rgba(34, 197, 94, 0.8) !important;
                 padding: 15px !important;
-                min-height: 35px !important;
+                min-height: 25px !important;
                 font-weight: bold !important;
                 border-radius: 20px !important;
             `;
             speakSequenceButton.className = 'quick-btn green-button-glow';
             
             console.log('✅ Visual changed to green - listening was already started');
+            
+            // Add mobile debugging
+            if (/Mobi|Android/i.test(navigator.userAgent)) {
+                console.log('📱 MOBILE DEBUG: Green stage activated');
+                
+                // Extra mobile stability check
+                setTimeout(() => {
+                    if (speakSequenceButton && !speakSequenceButton.parentNode) {
+                        console.log('🚨 MOBILE BUG: Button disappeared from DOM!');
+                    }
+                }, 2000);
+            }
         }
     }, 1500);
     
-    // Extended cleanup timer 
+    // FASTER cleanup timer - 8 seconds instead of 25
     speakSequenceCleanupTimer = setTimeout(() => {
         console.log('⏰ Extended listening time reached - cleaning up');
         if (speechWatcher) clearInterval(speechWatcher);
         if (progressInterval) clearInterval(progressInterval);
         cleanupSpeakSequence();
-    }, 25000);
+    }, 8000);
 }
 
 // 🎯 DETECT CONTACT INTERVIEW MODE
