@@ -413,19 +413,25 @@ function getApologyResponse() {
             userInput.value = '';
         }
     } else {
-        // No speech detected - restart with hybrid system
-        if (isAudioMode && !isSpeaking && !lastMessageWasApology) {
-            console.log('🔄 No speech detected via onend - restarting with hybrid system');
-            
-            // Clear listening state and restart properly
-            isListening = false;
-            
-            // Use hybrid system for restart (not direct startListening)
-            setTimeout(() => {
-                if (!isSpeaking && isAudioMode) {
-                    showHybridReadySequence();
-                }
-            }, 1000);
+    // No speech detected - restart with hybrid system
+    if (isAudioMode && !isSpeaking && !lastMessageWasApology) {
+        console.log('🔄 No speech detected via onend - restarting with hybrid system');
+        
+        // 🎯 FORCE STOP the existing sequence first
+        isInSpeakSequence = false; // Reset the blocking flag
+        if (window.recognition) {
+            window.recognition.stop(); // Stop any active recognition
+        }
+        
+        // Clear listening state and restart properly
+        isListening = false;
+        
+        // Use hybrid system for restart (not direct startListening)
+        setTimeout(() => {
+            if (!isSpeaking && isAudioMode) {
+                showHybridReadySequence();
+            }
+        }, 1000);
         }
     }
 };
