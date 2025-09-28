@@ -2396,11 +2396,15 @@ function confirmAnswer(isCorrect) {
             }, 800);
         }
         
-  } else {
+} else {
     // Redo - LIGHTER cleanup approach with FORCE STOP
     console.log('🔄 Redo - clearing field and restarting speak sequence');
     
-    // 🎯 NEW: FORCE STOP the active sequence first
+    // 🎯 FORCE BYPASS - Reset the timing check for user-initiated redo
+    window.lastSequenceStart = 0; // Reset timing so blocking allows restart
+    speakSequenceActive = false; // Force reset the flag
+    
+    // 🎯 FORCE STOP the active sequence first
     isInSpeakSequence = false; // Reset the flag that's blocking us
     if (window.recognition) {
         window.recognition.stop(); // Stop any active recognition
