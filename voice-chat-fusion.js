@@ -2919,6 +2919,11 @@ function askQuickQuestion(question) {
     processUserResponse(question);
 }
 
+// Global flag to prevent multiple instances
+let speakSequenceActive = false;
+let speakSequenceButton = null;
+let speakSequenceCleanupTimer = null;
+
 // 🎯 ENHANCED: Detect if we're being called from a redo
 function showHybridReadySequence() {
     // Prevent multiple instances running
