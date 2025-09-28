@@ -53,6 +53,56 @@ window.leadData = window.leadData || {
 };
 let leadData = window.leadData;
 
+let timeoutRestartPending = false;
+
+// Modify the speech error handling (around line 320)
+recognition.onerror = function(event) {
+    console.log('🔊 Speech error: ' + event.error);
+    
+    if (event.error === 'no-speech') {
+        timeoutRestartPending = true; // Flag that this is a legitimate timeout restart
+        console.log('📱 Mobile: Using visual feedback system');
+    }
+};
+
+// Modify the onend restart logic (around line 418)
+recognition.onend = function() {
+    console.log('🔚 Recognition ended');
+    
+    if (shouldRestartRecognition && !isProcessingResponse) {
+        console.log('🔄 No speech detected via onend - restarting with hybrid system');
+        timeoutRestartPending = true; // Flag this as timeout restart
+        showHybridReadySequence();
+    }
+};
+
+// Modify the showHybridReadySequence blocking logic
+function showHybridReadySequence() {
+    console.log('🎬 Starting speak sequence...');
+    
+    // Smart blocking with timeout restart exception
+    if (speakSequenceActive) {
+        console.log('⚠️ Speak sequence active - checking if restart is needed');
+        
+        // Allow timeout restarts to bypass blocking
+        if (timeoutRestartPending) {
+            console.log('🔄 Timeout restart detected - bypassing blocking logic');
+            timeoutRestartPending = false; // Reset flag
+        } else if (Date.now() - lastSpeakSequenceStart < 2000) {
+            console.log('🛑 Speak sequence recently started, ignoring duplicate call');
+            return;
+        }
+    }
+    
+    // Reset timeout flag at start of new sequence
+    timeoutRestartPending = false;
+    
+    // Rest of the function continues as normal...
+    speakSequenceActive = true;
+    lastSpeakSequenceStart = Date.now();
+    // ... existing code
+}
+
 // ===================================================
 // 🎯 SPEECH RECOGNITION PRE-WARMING SYSTEM  
 // ===================================================
