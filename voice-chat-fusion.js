@@ -1782,8 +1782,8 @@ if (conversationState === 'initial') {
     const words = userInput.trim().split(' ');
     const extractedName = words[0].replace(/[^a-zA-Z]/g, ''); // Remove any punctuation
     if (extractedName.length > 0) {
-        leadData.firstName = extractedName.charAt(0).toUpperCase() + extractedName.slice(1).toLowerCase();
-        firstName = leadData.firstName;
+       window.leadData.firstName = extractedName.charAt(0).toUpperCase() + extractedName.slice(1).toLowerCase();
+        firstName = window.leadData.firstName;
         
         responseText = `Great to meet you, ${firstName}! Now, what brings you here today - are you looking to buy a practice, sell your practice, or get a practice valuation?`;
         conversationState = 'initial';
