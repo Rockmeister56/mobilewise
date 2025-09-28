@@ -1748,7 +1748,7 @@ let responseText = '';
 console.log('🔍 DEBUG: leadData is:', leadData);
 console.log('🔍 DEBUG: typeof leadData:', typeof leadData);
 console.log('🔍 DEBUG: window.leadData is:', window.leadData);
-let firstName = leadData.firstName || ''; // Store first name from lead capture
+let firstName = (window.leadData && window.leadData.firstName) ? window.leadData.firstName : ''; // Store first name from lead capture
 
 if (conversationState === 'initial') {
     // 🎯 FIRST NAME CAPTURE - Always ask for name first unless they jump straight to business
