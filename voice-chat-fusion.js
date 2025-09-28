@@ -2919,26 +2919,6 @@ function askQuickQuestion(question) {
     processUserResponse(question);
 }
 
-// Global flag to prevent multiple instances
-let speakSequenceActive = false;
-let speakSequenceButton = null;
-let speakSequenceCleanupTimer = null;
-
-function checkContactInterviewMode() {
-    const indicators = [
-        typeof isInLeadCapture !== 'undefined' && isInLeadCapture,
-        typeof currentConversationState !== 'undefined' && 
-            (currentConversationState.includes('email') || 
-             currentConversationState.includes('contact') ||
-             currentConversationState.includes('lead')),
-        document.querySelector('[id*="email"]') !== null,
-        document.querySelector('[id*="contact"]') !== null,
-        document.querySelector('[id*="lead"]') !== null
-    ];
-    
-    return indicators.some(indicator => indicator === true);
-}
-
 // 🎯 ENHANCED: Detect if we're being called from a redo
 function showHybridReadySequence() {
     // Prevent multiple instances running
@@ -2954,38 +2934,11 @@ function showHybridReadySequence() {
     const isContactInterview = checkContactInterviewMode();
     console.log('📧 Contact interview mode:', isContactInterview);
     
-   const isRedoScenario = typeof isInLeadCapture !== 'undefined' && isInLeadCapture;
-
-if (isRedoScenario) {
-    console.log('🔄 REDO DETECTED - Starting with GREEN');
-    // For redo, go straight to green
-    speakSequenceButton.innerHTML = '<span class="green-dot-blink">🟢</span> Speak Now';
-    speakSequenceButton.style.cssText = `
-        width: 100% !important;
-        background: rgba(34, 197, 94, 0.4) !important;
-        color: #ffffff !important;
-        border: 2px solid rgba(34, 197, 94, 0.8) !important;
-        padding: 15px !important;
-        min-height: 45px !important;
-        font-weight: bold !important;
-        border-radius: 20px !important;
-    `;
-    speakSequenceButton.className = 'quick-btn green-button-glow';
-} else {
-    console.log('🔴 NORMAL - Starting with RED');
-    // Normal flow - red "Get Ready to Speak"
-    speakSequenceButton.innerHTML = '<span class="red-dot-blink">🔴</span> Get Ready to Speak';
-    speakSequenceButton.style.cssText = `
-        width: 100% !important;
-        background: rgba(255, 68, 68, 0.4) !important;
-        color: #ffffff !important;
-        border: 2px solid rgba(255, 68, 68, 0.8) !important;
-        padding: 15px !important;
-        min-height: 45px !important;
-        font-weight: bold !important;
-        border-radius: 20px !important;
-    `;
-}
+    // 🎯 DETECT REDO SCENARIO - Check if we're in middle of lead capture
+    const isRedoScenario = typeof isInLeadCapture !== 'undefined' && isInLeadCapture;
+    if (isRedoScenario) {
+        console.log('🔄 REDO SCENARIO DETECTED - Using special redo handling');
+    }
     
     // Find the quick buttons container
     const quickButtonsContainer = document.querySelector('.quick-questions') || 
