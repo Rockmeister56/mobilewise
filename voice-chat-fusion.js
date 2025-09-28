@@ -823,55 +823,79 @@ function showHybridReadySequence() {
         return;
     }
     
-    // CREATE the transcript element dynamically
-    const transcriptElement = document.createElement('div');
-    transcriptElement.id = 'liveTranscript';
-    transcriptElement.innerHTML = '<div id="transcriptText">Get Ready to Speak</div>';
+// CREATE the transcript element dynamically
+const transcriptElement = document.createElement('div');
+transcriptElement.id = 'liveTranscript';
+transcriptElement.innerHTML = `
+    <div id="transcriptText">Get Ready to Speak</div>
+    <div id="progressContainer" style="width: 90%; height: 6px; background: rgba(255,255,255,0.2); border-radius: 3px; margin: 8px auto 0; overflow: hidden;">
+        <div id="readyProgressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #4fc3f7, #1976d2); border-radius: 3px; transition: width 0.1s ease;"></div>
+    </div>
+`;
+
+// Style it with JavaScript (adjusted height for progress bar)
+transcriptElement.style.cssText = `
+    width: 340px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(15px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 25px;
+    color: white;
+    font-weight: 600;
+    font-size: 16px;
+    text-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 10px auto;
+    cursor: pointer;
+`;
+
+// INSERT into the slot
+speakNowSlot.appendChild(transcriptElement);
+speakNowSlot.style.display = 'block';
+
+// PRE-WARM ENGINE
+preWarmSpeechEngine();
+
+// START PROGRESS BAR ANIMATION
+let progress = 0;
+const progressInterval = setInterval(() => {
+    progress += 10; // 10% every 100ms = 1 second total
+    const progressBar = document.getElementById('readyProgressBar');
+    if (progressBar) {
+        progressBar.style.width = progress + '%';
+    }
+    if (progress >= 100) {
+        clearInterval(progressInterval);
+    }
+}, 100);
+
+// PHASE 2: Switch to "LISTENING" and start recognition
+window.hybridTimeout = setTimeout(() => {
+    const transcriptText = document.getElementById('transcriptText');
+    if (transcriptText) {
+        transcriptText.textContent = 'Speak Now!';
+        transcriptText.style.color = '#00ff88';
+        transcriptText.style.textShadow = '0 0 15px rgba(0, 255, 136, 0.8)';
+    }
     
-    // Style it with JavaScript
-    transcriptElement.style.cssText = `
-        width: 340px;
-        height: 30px;
-        background: rgba(255, 255, 255, 0.15);
-        backdrop-filter: blur(15px);
-        border: 2px solid rgba(255, 255, 255, 0.3);
-        border-radius: 25px;
-        color: white;
-        font-weight: 600;
-        font-size: 16px;
-        text-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
-        text-align: center;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 10px auto;
-        cursor: pointer;
-    `;
+    // Make progress bar green when ready
+    const progressBar = document.getElementById('readyProgressBar');
+    if (progressBar) {
+        progressBar.style.background = 'linear-gradient(90deg, #4caf50, #2e7d32)';
+    }
     
-    // INSERT into the slot
-    speakNowSlot.appendChild(transcriptElement);
-    speakNowSlot.style.display = 'block';
-    
-    // PRE-WARM ENGINE
-    preWarmSpeechEngine();
-    
-    // PHASE 2: Switch to "LISTENING" and start recognition
-    window.hybridTimeout = setTimeout(() => {
-        const transcriptText = document.getElementById('transcriptText');
-        if (transcriptText) {
-            transcriptText.textContent = 'Listening...';
-            transcriptText.style.color = '#00ff88';
-            transcriptText.style.textShadow = '0 0 15px rgba(0, 255, 136, 0.8)';
-        }
-        
-        // AUTO-START listening - with proper restart handling
-        if (!isListening && !isSpeaking && isAudioMode) {
-            console.log('🎯 Hybrid system starting recognition');
-            isListening = false; // Reset state first
-            startListening();
-        }
-    }, 1000);
-}
+    // AUTO-START listening - with proper restart handling
+    if (!isListening && !isSpeaking && isAudioMode) {
+        console.log('🎯 Hybrid system starting recognition');
+        isListening = false; // Reset state first
+        startListening();
+    }
+}, 1000);
 
 // ===================================================
 // 🔥 PRE-WARM ENGINE (SILENT - NO BEEP)
