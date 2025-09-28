@@ -2637,7 +2637,7 @@ function sendFollowUpEmail() {
                 window.emailFollowUpHandler = function(userInput) {
                     const userText = userInput.toLowerCase();
                     
-                    if (userText.includes('no') || userText.includes('nothing') || userText.includes('done') || 
+                  if (userText.includes('no') || userText.includes('nothing') || userText.includes('done') || 
                         userText.includes('that\'s all') || userText.includes('nope') || userText.includes('thanks')) {
                         
                         console.log('🛑 User said no - killing all speech systems and showing splash');
@@ -2664,6 +2664,33 @@ function sendFollowUpEmail() {
                         // ✅ SHOW SPLASH SCREEN AFTER BRIEF DELAY
                         setTimeout(() => {
                             showThankYouSplashScreen();
+                            
+                            // 🔧 ADD FAILSAFE BUTTON TO SPLASH SCREEN
+                            setTimeout(() => {
+                                if (conversationState === 'ended') {
+                                    // Modified failsafe for ended conversation
+                                    const failsafeHTML = `
+                                        <div id="failsafeContainer" style="text-align: center; margin: 20px;">
+                                            <div style="color: #4CAF50; margin-bottom: 10px;">
+                                                💬 Changed your mind?
+                                            </div>
+                                            <button onclick="restartConversation()" style="
+                                                background: #4CAF50; 
+                                                color: white; 
+                                                border: none; 
+                                                padding: 15px 30px; 
+                                                border-radius: 25px; 
+                                                font-size: 16px;
+                                                cursor: pointer;
+                                            ">
+                                                🔄 Start New Conversation
+                                            </button>
+                                        </div>
+                                    `;
+                                    document.getElementById('chatMessages').insertAdjacentHTML('beforeend', failsafeHTML);
+                                }
+                            }, 8000); // Show restart option after 8 seconds
+                            
                         }, 500);
                         
                         return true; // Signal that we handled this response
@@ -2700,6 +2727,34 @@ function sendFollowUpEmail() {
             smartButton.style.display = 'none !important';
         }
     }
+
+// 🔧 ADD THIS RESTART FUNCTION AFTER THE BLOCK ABOVE
+function restartConversation() {
+    console.log('🔄 Restarting conversation from splash screen');
+    
+    // Remove failsafe button
+    document.getElementById('failsafeContainer')?.remove();
+    
+    // Reset all states
+    conversationState = 'initial';
+    window.leadData.firstName = '';
+    isInSpeakSequence = false;
+    isListening = false;
+    
+    // Clear chat and restart
+    const chatMessages = document.getElementById('chatMessages');
+    if (chatMessages) {
+        chatMessages.innerHTML = '';
+    }
+    
+    // Restart the whole system
+    setTimeout(() => {
+        const greeting = "Hi there! I'm here to help with CPA firm transactions - buying, selling, and practice valuations. Before we dive in, what's your first name?";
+        addAIMessage(greeting);
+        speakResponse(greeting);
+        conversationState = 'getting_first_name';
+    }, 500);
+}
 }
 
 // ===================================================
@@ -3246,6 +3301,51 @@ function showHybridReadySequence() {
     }, 25000);
 }
 
+// 🔧 FAILSAFE RESET BUTTON - Add this entire block
+function showFailsafeButton() {
+    const failsafeHTML = `
+        <div id="failsafeContainer" style="text-align: center; margin: 20px;">
+            <div style="color: #ff6b6b; margin-bottom: 10px;">
+                🔧 Having trouble hearing you?
+            </div>
+            <button onclick="resetSpeechSystem()" style="
+                background: #4CAF50; 
+                color: white; 
+                border: none; 
+                padding: 15px 30px; 
+                border-radius: 25px; 
+                font-size: 16px;
+                cursor: pointer;
+            ">
+                🎤 Click to Continue
+            </button>
+        </div>
+    `;
+    
+    // Show failsafe button after extended timeout
+    setTimeout(() => {
+        if (!isSpeaking && isAudioMode) {
+            document.getElementById('chatMessages').insertAdjacentHTML('beforeend', failsafeHTML);
+        }
+    }, 5000); // 5 seconds after cleanup
+}
+
+function resetSpeechSystem() {
+    console.log('🔧 Failsafe reset activated');
+    
+    // Remove failsafe button
+    document.getElementById('failsafeContainer')?.remove();
+    
+    // Force reset everything
+    isInSpeakSequence = false;
+    isListening = false;
+    
+    // Restart fresh
+    setTimeout(() => {
+        showHybridReadySequence();
+    }, 100);
+}
+
 // 🎯 DETECT CONTACT INTERVIEW MODE
 function checkContactInterviewMode() {
     const indicators = [
@@ -3364,11 +3464,59 @@ function cleanupSpeakSequence() {
         const buttons = quickButtonsContainer.querySelectorAll('.quick-btn');
         buttons.forEach(btn => btn.style.display = '');
     }
+    
+    // 🔧 FAILSAFE - Show reset button after cleanup
+    showFailsafeButton();
 }
 
 // Updated hide function
 function hideSpeakNowBanner() {
     cleanupSpeakSequence();
+}
+
+// 🔧 FAILSAFE RESET BUTTON FUNCTIONS
+function showFailsafeButton() {
+    const failsafeHTML = `
+        <div id="failsafeContainer" style="text-align: center; margin: 20px;">
+            <div style="color: #ff6b6b; margin-bottom: 10px;">
+                🔧 Having trouble hearing you?
+            </div>
+            <button onclick="resetSpeechSystem()" style="
+                background: #4CAF50; 
+                color: white; 
+                border: none; 
+                padding: 15px 30px; 
+                border-radius: 25px; 
+                font-size: 16px;
+                cursor: pointer;
+            ">
+                🎤 Click to Continue
+            </button>
+        </div>
+    `;
+    
+    // Show failsafe button after 5 seconds
+    setTimeout(() => {
+        if (!isSpeaking && isAudioMode && !document.getElementById('failsafeContainer')) {
+            document.getElementById('chatMessages').insertAdjacentHTML('beforeend', failsafeHTML);
+        }
+    }, 5000);
+}
+
+function resetSpeechSystem() {
+    console.log('🔧 Failsafe reset activated');
+    
+    // Remove failsafe button
+    document.getElementById('failsafeContainer')?.remove();
+    
+    // Force reset everything
+    isInSpeakSequence = false;
+    isListening = false;
+    
+    // Restart fresh
+    setTimeout(() => {
+        showHybridReadySequence();
+    }, 100);
 }
 
 // ENHANCED: Allow Enter key to send message
