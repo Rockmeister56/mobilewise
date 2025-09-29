@@ -731,13 +731,13 @@ function processUserResponse(userText) {
     // Default AI response handler
     setTimeout(() => {
         const responseText = getAIResponse(userText);
-        lastAIResponse = responseText;
 
         console.log('🎯 USER SAID:', userText);
         console.log('🎯 AI RESPONSE:', responseText);
         
         addAIMessage(responseText);
         speakResponse(responseText);
+        lastAIResponse = responseText;
         
         updateSmartButton(shouldShowSmartButton, smartButtonText, smartButtonAction);
         
