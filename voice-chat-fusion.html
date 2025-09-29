@@ -81,7 +81,7 @@
 /* ✅ DESKTOP STYLES */
 @media (min-width: 769px) {
     .container {
-        margin-top: 20px !important;
+        margin-top: 110px !important;
         margin-left: auto !important;
         margin-right: auto !important;
         position: relative;
@@ -215,7 +215,7 @@
            📍 HEADER STYLING
            ================================================== */
         header {
-            text-align: left;
+            text-align: center;
             margin-bottom: 20px;
         }
 
@@ -815,7 +815,30 @@
 /* Container - NO min-height forcing */
 .container {
     position: relative !important;
-    padding-top: 1px !important; /* Just breathing room for banners */
+    padding-top: 10px !important; /* Just breathing room for banners */
+}
+
+/* Smart button stays visible */
+.smart-button,
+#smartButton {
+    position: fixed !important;
+    bottom: 20px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    z-index: 8888 !important;
+}
+
+/* Smart Button - Force Bottom Position */
+.smart-button,
+#smartButton,
+[class*="smart"] button,
+button[class*="smart"] {
+    position: fixed !important;
+    bottom: 100px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    z-index: 9999 !important;
+    margin: 0 !important;
 }
 
 /* ===== MOBILE-WISE AI BANNER ABSOLUTE POSITIONING ===== */
@@ -840,35 +863,8 @@
 
 /* SPECIAL: Branding banner at very top */
 .branding-header-banner {
-    top: 0px !important; /* Higher than other banners */
+    top: 5px !important; /* Higher than other banners */
     z-index: 10000 !important; /* Above other banners */
-}
-
-/* Mobile responsive adjustments for branding banner */
-@media (max-width: 768px) {
-    /* Move logo closer to left edge on mobile */
-    #bannerHeaderContainer img {
-        margin-left: -25px !important;
-    }
-    
-    /* Center company name on mobile */
-    #bannerHeaderContainer div[style*="MOBILE-WISE AI"] {
-        left: 5% !important;
-        transform: translateX(-50%) !important;
-    }
-    
-    /* Move slogan closer to right edge on mobile */
-    #bannerHeaderContainer div:last-child {
-        right: 7px !important;
-    }
-
-    @media (max-width: 768px) {
-    /* Target the company name specifically */
-    #universalBanner div:nth-child(2) {
-        left: 12% !important;
-    }
-}
-
 }
 
     </style>
