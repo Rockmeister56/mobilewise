@@ -523,39 +523,6 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
 
-    /* 📱 MOBILE - ABSOLUTE PIXEL POSITIONING */
-@media (max-width: 768px) {
-    .ai-avatar-container {
-        position: fixed !important;
-        top: 270px !important;  /* FORCE TO PIXEL 600 */
-        left: 50% !important;
-        transform: translateX(-50%) !important;
-        z-index: 9999 !important;
-        width: 150px !important;
-        height: 200px !important;
-    }
-}
-    
-    .ai-avatar-image {
-        width: 150px !important;  /* Smaller for mobile */
-        height: auto !important;
-        display: block !important;
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-
-
-/* 🖥️ DESKTOP - ADJUST TO NOT GO TOO LOW */
-@media (min-width: 100px) {
-    .ai-avatar-container {
-        position: fixed !important;
-        bottom: -150px !important;  /* HIGHER on desktop */
-        left: 50% !important;
-        transform: translateX(-50%) !important;
-        z-index: 9999 !important;
-    }
-}
-
         /* ===================================================
            🔘 QUICK ACTION BUTTONS
            ================================================== */
@@ -915,7 +882,7 @@ button[class*="smart"] {
 
 /* SPECIAL: Branding banner at very top */
 .branding-header-banner {
-    top: 5px !important; /* Higher than other banners */
+    top: 0px !important; /* Higher than other banners */
     z-index: 10000 !important; /* Above other banners */
 }
 
