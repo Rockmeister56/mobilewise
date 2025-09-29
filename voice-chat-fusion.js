@@ -33,7 +33,6 @@ let currentAudio = null;
 let persistentMicStream = null;
 let micPermissionGranted = false;
 let conversationState = 'initial';
-let lastAIResponse = '';
 let userResponseCount = 0;
 let shouldShowSmartButton = false;
 let smartButtonText = 'AI Smart Button';
@@ -41,6 +40,7 @@ let smartButtonAction = 'default';
 let restartTimeout = null;
 let lastMessageWasApology = false;
 let isInLeadCapture = false;
+let currentAIResponse = '';
 window.leadData = window.leadData || {
     firstName: '',
     step: 0,
