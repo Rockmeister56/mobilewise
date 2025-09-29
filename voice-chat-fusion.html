@@ -566,6 +566,25 @@
         padding: 10px;
         min-height: 100vh;
     }
+
+    /* ===================================================
+   📱 MOBILE OPTIMIZATION - CLEAN VERSION
+   ================================================== */
+@media (max-width: 600px) {
+    /* Your existing mobile styles stay here */
+}
+
+/* 🎯 BANNER OPTIMIZATION - ADD THIS NEW SECTION */
+@media (max-width: 768px) {
+    body {
+        padding: 10px !important;  /* Reduce from 20px to 10px for banners */
+    }
+    
+    /* Compensate container for smaller body padding */
+    .container {
+        margin-top: -5px !important;  /* Room for banner */
+    }
+}
     
     /* SINGLE CHAT AREA HEIGHT RULE */
     .chat-messages,
