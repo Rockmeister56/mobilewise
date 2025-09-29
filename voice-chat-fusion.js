@@ -1132,7 +1132,6 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
     customHeight: 65, // 🚀 WHITE LAYER HEIGHT CONTROL
     duration: 4000
 },
-
   
 // 2. SMART BUTTON (Free Consultation)
 smartButton: {
@@ -1152,7 +1151,7 @@ smartButton: {
                 font-size: 14px;
                 transition: all 0.3s ease;
                 pointer-events: auto !important;
-            " onmouseover="this.style.background='rgba(34, 151, 197, 0.5)'" 
+            " onmouseover="this.style.background='rgba(34, 197, 175, 0.5)'" 
                onmouseout="this.style.background='rgba(34, 197, 94, 0.3)'">
                 CLICK NOW
             </button>
