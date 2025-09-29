@@ -2028,11 +2028,6 @@ if (conversationState === 'initial') {
 }
 
 
-// 🎯 EMAIL FOLLOW-UP HANDLER CHECK
-if (window.emailFollowUpHandler && window.emailFollowUpHandler(userInput)) {
-    return; // Handler took care of it
-}
-
 // ✅ SAVE RESPONSE TEXT TO lastAIResponse BEFORE RETURNING
   function setAIResponse(response) {
     currentAIResponse = response;
