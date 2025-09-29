@@ -854,6 +854,12 @@ function speakResponse(message) {
     isSpeaking = false;
     console.log('🔊 AI finished speaking (mobile)');
     
+    // 🐛 DEBUG: Let's see what we're working with
+    console.log('🐛 DEBUG BannerOrchestrator:', typeof BannerOrchestrator);
+    if (typeof BannerOrchestrator !== 'undefined') {
+        console.log('🐛 DEBUG currentBanner:', BannerOrchestrator.currentBanner);
+    }
+    
     // 🚫 DON'T TRIGGER "Speak Now" if ANY Smart Button related banner is active
     if (typeof BannerOrchestrator !== 'undefined' && 
         BannerOrchestrator.currentBanner && 
@@ -874,6 +880,8 @@ function speakResponse(message) {
         console.log('🔇 SPEAK NOW BLOCKED: Conversation ended - no speech restart');
         return; // Don't call showHybridReadySequence()
     }
+    
+    console.log('🐛 DEBUG: No blocking conditions met - calling showHybridReadySequence()');
     // ✅ BACK TO SIMPLE - let showHybridReadySequence() handle the blocking
     showHybridReadySequence();
 };
