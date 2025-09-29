@@ -1086,18 +1086,17 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
         // 1. BRANDING HEADER (🚀 UPDATED LAYOUT)
         branding: {
     content: `
-                <style>
+        <style>
             .bruce-logo-container { 
                 width: 100% !important; 
-                height: calc(100% + 10px) !important; 
+                height: 100% !important; 
                 background: white !important; 
                 display: flex !important; 
                 align-items: center !important; 
                 justify-content: center !important; 
-                margin: -10px 0 0 0 !important; 
-                padding: 0 !important; 
-                position: relative !important;
-                top: -10px !important;
+                margin: 0 !important; 
+                padding: 0 !important;
+                top: -2px !important; 
             }
             .bruce-logo { 
                 width: 230px !important; 
