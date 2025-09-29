@@ -737,7 +737,7 @@ function processUserResponse(userText) {
         
         addAIMessage(responseText);
         speakResponse(responseText);
-        lastAIResponse = responseText;
+        currentAIResponse = responseText;
         
         updateSmartButton(shouldShowSmartButton, smartButtonText, smartButtonAction);
         
@@ -851,36 +851,32 @@ function speakResponse(message) {
             
             utterance.onend = function() {
     console.log('🔍 WHICH HANDLER IS RUNNING: Smart Button Blocking Handler');
-    isSpeaking = false;
-    console.log('🔊 AI finished speaking (mobile)');
-    
-    // 🐛 DEBUG: Show what we're checking
-    console.log('🐛 DEBUG lastAIResponse:', lastAIResponse);
-    
-    // 🚫 Block when AI tells user to click the button
-    if (lastAIResponse && (lastAIResponse.includes('click') || lastAIResponse.includes('button above'))) {
-        console.log('🔇 SPEAK NOW BLOCKED: Click or button above detected - no speech restart');
-        
-        // ✅ CLEAR THE RESPONSE SO IT DOESN'T BLOCK FOREVER
-        lastAIResponse = '';
-        
-        return;
-    }
-    
-    // 🚫 DON'T TRIGGER "Speak Now" if Thank You Splash Screen exists
-    if (document.getElementById('thankYouSplash')) {
-        console.log('🔇 SPEAK NOW BLOCKED: Thank you splash screen active - no speech restart');
-        return;
-    }
-    
-    // 🚫 DON'T TRIGGER "Speak Now" if conversation is specifically ended
-    if (conversationState === 'ended' || conversationState === 'splash_screen_active') {
-        console.log('🔇 SPEAK NOW BLOCKED: Conversation ended - no speech restart');
-        return;
-    }
-    
-    console.log('🐛 DEBUG: No click or button above detected - calling showHybridReadySequence()');
-    showHybridReadySequence();
+isSpeaking = false;
+console.log('🔊 AI finished speaking (mobile)');
+
+// 🐛 DEBUG: Show what we're checking
+console.log('🐛 DEBUG currentAIResponse:', currentAIResponse);
+
+// 🚫 Block when AI tells user to click the button
+if (currentAIResponse && (currentAIResponse.includes('click') || currentAIResponse.includes('button above'))) {
+    console.log('🔇 SPEAK NOW BLOCKED: Click or button above detected - no speech restart');
+    return;
+}
+
+// 🚫 DON'T TRIGGER "Speak Now" if Thank You Splash Screen exists
+if (document.getElementById('thankYouSplash')) {
+    console.log('🔇 SPEAK NOW BLOCKED: Thank you splash screen active - no speech restart');
+    return;
+}
+
+// 🚫 DON'T TRIGGER "Speak Now" if conversation is specifically ended
+if (conversationState === 'ended' || conversationState === 'splash_screen_active') {
+    console.log('🔇 SPEAK NOW BLOCKED: Conversation ended - no speech restart');
+    return;
+}
+
+console.log('🐛 DEBUG: No click or button above detected - calling showHybridReadySequence()');
+showHybridReadySequence();
 };
        
             
@@ -1922,7 +1918,7 @@ if (window.emailFollowUpHandler && window.emailFollowUpHandler(userInput)) {
 }
 
 // ✅ SAVE RESPONSE TEXT TO lastAIResponse BEFORE RETURNING
-lastAIResponse = responseText;
+  currentAIResponse = responseText;
 
 return responseText;
 }
