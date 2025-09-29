@@ -3019,7 +3019,7 @@ let speakSequenceButton = null;
 let speakSequenceCleanupTimer = null;
 
 function showHybridReadySequence() {
-    // ✅ SMART BUTTON BLOCKING (FROM FUNCTION 1)
+    // ✅ SMART BUTTON BLOCKING - CHECK IF ACTUALLY VISIBLE
     if (typeof BannerOrchestrator !== 'undefined' && 
         BannerOrchestrator.currentBanner === 'smartButton') {
         console.log('🔇 HYBRID BLOCKED: Smart Button active');
@@ -3036,15 +3036,22 @@ function showHybridReadySequence() {
         return;
     }
     
-    if (document.querySelector('#smartButton') || 
-        document.querySelector('.smart-button') ||
-        document.querySelector('[data-smart-button]') ||
-        document.getElementById('consultationButton')) {
-        console.log('🔇 SMART BUTTON DETECTED - blocking speech');
+    // ✅ SMARTER SMART BUTTON DETECTION - CHECK IF ACTUALLY VISIBLE
+    const smartButtonCheck = document.querySelector('#smartButton') || 
+                            document.querySelector('.smart-button') ||
+                            document.querySelector('[data-smart-button]') ||
+                            document.getElementById('consultationButton');
+
+    if (smartButtonCheck && 
+        smartButtonCheck.style.display !== 'none' && 
+        smartButtonCheck.offsetParent !== null &&
+        smartButtonCheck.offsetWidth > 0 && 
+        smartButtonCheck.offsetHeight > 0) {
+        console.log('🔇 SMART BUTTON DETECTED AND VISIBLE - blocking speech');
         return;
     }
 
-    // ✅ TIMEOUT RESTART LOGIC (FROM FUNCTION 2)
+    // ✅ TIMEOUT RESTART LOGIC
     if (speakSequenceActive) {
         console.log('🔄 Speak sequence already active - checking if restart needed');
         if (Date.now() - window.lastSequenceStart < 15000) {
