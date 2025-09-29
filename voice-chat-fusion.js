@@ -3023,7 +3023,6 @@ function showHybridReadySequence() {
     if (typeof BannerOrchestrator !== 'undefined' && 
         BannerOrchestrator.currentBanner === 'smartButton') {
         console.log('🔇 HYBRID BLOCKED: Smart Button active');
-        showClickButtonAbovePrompt();
         return;
     }
     
@@ -3035,25 +3034,6 @@ function showHybridReadySequence() {
     if (conversationState === 'ended' || conversationState === 'splash_screen_active') {
         console.log('🔇 HYBRID BLOCKED: Conversation ended');
         return;
-    }
-    
-    // ✅ ONLY CHECK FOR SMART BUTTON IF WE'RE IN A CONSULTATION CONTEXT
-    // Look for specific consultation keywords in recent AI response
-    const chatMessages = document.getElementById('chatMessages');
-    if (chatMessages) {
-        const lastAIMessage = chatMessages.querySelector('.ai-message:last-child');
-        if (lastAIMessage && lastAIMessage.textContent) {
-            const messageText = lastAIMessage.textContent.toLowerCase();
-            if ((messageText.includes('click') && messageText.includes('button')) ||
-                (messageText.includes('consultation') || messageText.includes('schedule')) &&
-                (document.querySelector('#smartButton') || 
-                 document.querySelector('.smart-button') ||
-                 document.querySelector('[data-smart-button]'))) {
-                console.log('🎯 Consultation context + Smart Button detected - showing click prompt');
-                showClickButtonAbovePrompt();
-                return;
-            }
-        }
     }
 
     // ✅ TIMEOUT RESTART LOGIC
