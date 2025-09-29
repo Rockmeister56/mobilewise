@@ -1917,6 +1917,9 @@ if (window.emailFollowUpHandler && window.emailFollowUpHandler(userInput)) {
     return; // Handler took care of it
 }
 
+// ✅ SAVE RESPONSE TEXT TO lastAIResponse BEFORE RETURNING
+lastAIResponse = responseText;
+
 return responseText;
 }
 
