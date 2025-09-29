@@ -99,6 +99,104 @@ class SpeechEngineManager {
 const speechEngine = new SpeechEngineManager();
 console.log('🚀 Speech Engine Manager initialized');
 
+// ===========================================
+// ELEVENLABS CONFIGURATION
+// ===========================================
+const ELEVENLABS_API_KEY = 'sk_9e7fa2741be74e8cc4af95744fe078712c1e8201cdcada93';
+const VOICE_ID = 'zGjIP4SZlMnY9m93k97r';
+
+// ===========================================
+// ELEVENLABS SPEECH SYNTHESIS
+// ===========================================
+async function speakWithElevenLabs(text) {
+    try {
+        console.log('🎤 ElevenLabs: Starting speech synthesis...');
+        isSpeaking = true;
+        
+        const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'audio/mpeg',
+                'Content-Type': 'application/json',
+                'xi-api-key': ELEVENLABS_API_KEY
+            },
+            body: JSON.stringify({
+                text: text,
+                model_id: 'eleven_monolingual_v1',
+                voice_settings: {
+                    stability: 0.5,
+                    similarity_boost: 0.5
+                }
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`ElevenLabs API error: ${response.status}`);
+        }
+
+        const audioBlob = await response.blob();
+        const audioUrl = URL.createObjectURL(audioBlob);
+        
+        // Create audio element
+        const audio = new Audio(audioUrl);
+        
+        // Set up event handlers (this maintains your existing blocking logic)
+        audio.onloadstart = function() {
+            console.log('🔊 ElevenLabs: AI started speaking (mobile)');
+            isSpeaking = true;
+        };
+        
+        audio.onended = function() {
+            console.log('🔍 WHICH HANDLER IS RUNNING: Smart Button Blocking Handler');
+            isSpeaking = false;
+            console.log('🔊 AI finished speaking (mobile)');
+            
+            // 🚫 BLOCK if we recently mentioned clicking
+            const clickMentionTime = window.lastClickMentionTime || 0;
+            const timeSinceClickMention = Date.now() - clickMentionTime;
+            
+            if (timeSinceClickMention < 10000) { // Block for 10 seconds after click mention
+                console.log('🔇 SPEAK NOW BLOCKED: Recent click mention - waiting for user action');
+                return;
+            }
+            
+            // 🚫 DON'T TRIGGER "Speak Now" if Thank You Splash Screen exists
+            if (document.getElementById('thankYouSplash')) {
+                console.log('🔇 SPEAK NOW BLOCKED: Thank you splash screen active - no speech restart');
+                return;
+            }
+            
+            // 🚫 DON'T TRIGGER "Speak Now" if conversation is specifically ended
+            if (conversationState === 'ended' || conversationState === 'splash_screen_active') {
+                console.log('🔇 SPEAK NOW BLOCKED: Conversation ended - no speech restart');
+                return;
+            }
+            
+            console.log('🐛 DEBUG: No blocking conditions - calling showHybridReadySequence()');
+            showHybridReadySequence();
+            
+            // Clean up
+            URL.revokeObjectURL(audioUrl);
+        };
+        
+        audio.onerror = function(error) {
+            console.error('🚫 ElevenLabs: Audio playback error:', error);
+            isSpeaking = false;
+        };
+        
+        // Play the audio
+        await audio.play();
+        
+    } catch (error) {
+        console.error('🚫 ElevenLabs: Speech synthesis error:', error);
+        isSpeaking = false;
+        
+        // Fallback to browser TTS if ElevenLabs fails
+        console.log('🔄 Falling back to browser TTS...');
+        speakResponseOriginal(text);
+    }
+}
+
 // ===================================================
 // 📧 EMAILJS INITIALIZATION (FROM YOUR WORKING SYSTEM)
 // ===================================================
@@ -736,7 +834,8 @@ function processUserResponse(userText) {
         console.log('🎯 AI RESPONSE:', responseText);
         
         addAIMessage(responseText);
-        speakResponse(responseText);
+        setAIResponse(responseText);
+        speakWithElevenLabs(responseText);
        function setAIResponse(response) {
     currentAIResponse = response;
     
