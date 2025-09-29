@@ -1523,6 +1523,21 @@ window.removeLeadCaptureBanner = function() {
 
 console.log('🎖️ Complete Universal Banner Engine loaded - 9 banner types ready (Clean Container Edition)!');
 
+// Hide avatar when microphone is activated
+function hideAvatarOnMicClick() {
+    const avatar = document.getElementById('aiAvatar');
+    if (avatar) {
+        avatar.classList.add('hidden');
+    }
+}
+
+// Add this to your existing microphone click handlers
+document.addEventListener('click', function(e) {
+    if (e.target.id === 'mainMicButton' || e.target.closest('#centerMicActivation')) {
+        hideAvatarOnMicClick();
+    }
+});
+
 // ===================================================
 // 🏆 AUTO-DEPLOY BRANDING BANNER ON PAGE LOAD
 // ===================================================

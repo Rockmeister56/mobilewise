@@ -524,6 +524,87 @@
         }
 
         /* ===================================================
+   🤖 AI AVATAR - ALIVE WITH PULSATING GLOW
+   ================================================== */
+.ai-avatar-container {
+    position: fixed;
+    bottom: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 500;
+    text-align: center;
+    transition: all 0.5s ease;
+    opacity: 1;
+}
+
+.ai-avatar-container.hidden {
+    opacity: 0;
+    transform: translateX(-50%) translateY(50px);
+    pointer-events: none;
+}
+
+.ai-avatar-image {
+    width: 280px;
+    height: auto;
+    max-width: 90vw;
+    border-radius: 15px;
+    animation: ai-alive-glow 2s ease-in-out infinite, gentle-float 3s ease-in-out infinite;
+    box-shadow: 
+        0 0 20px rgba(0, 255, 136, 0.6),
+        0 0 40px rgba(0, 255, 136, 0.4),
+        0 0 60px rgba(0, 255, 136, 0.2),
+        0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+/* AI ALIVE Pulsating Glow Animation */
+@keyframes ai-alive-glow {
+    0% {
+        box-shadow: 
+            0 0 20px rgba(0, 255, 136, 0.6),
+            0 0 40px rgba(0, 255, 136, 0.4),
+            0 0 60px rgba(0, 255, 136, 0.2),
+            0 8px 25px rgba(0, 0, 0, 0.3);
+        filter: brightness(1);
+    }
+    50% {
+        box-shadow: 
+            0 0 30px rgba(0, 255, 136, 0.9),
+            0 0 60px rgba(0, 255, 136, 0.7),
+            0 0 100px rgba(0, 255, 136, 0.4),
+            0 0 140px rgba(0, 255, 136, 0.2),
+            0 8px 25px rgba(0, 0, 0, 0.3);
+        filter: brightness(1.1);
+    }
+    100% {
+        box-shadow: 
+            0 0 20px rgba(0, 255, 136, 0.6),
+            0 0 40px rgba(0, 255, 136, 0.4),
+            0 0 60px rgba(0, 255, 136, 0.2),
+            0 8px 25px rgba(0, 0, 0, 0.3);
+        filter: brightness(1);
+    }
+}
+
+/* Gentle floating animation */
+@keyframes gentle-float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-8px); }
+}
+
+/* Mobile optimization */
+@media (max-width: 768px) {
+    .ai-avatar-image {
+        width: 250px;
+    }
+}
+
+/* Enhanced hover effect - Extra glow when user hovers */
+.ai-avatar-image:hover {
+    animation-duration: 1s, 2s; /* Faster pulsing on hover */
+    transform: scale(1.02);
+}
+
+        /* ===================================================
            🔘 QUICK ACTION BUTTONS
            ================================================== */
         .quick-questions {
@@ -920,7 +1001,15 @@ button[class*="smart"] {
     
     <div style="margin-top: 15px; font-size: 0.9em; color: #ccc;">
         Click to activate microphone
-        <style>
+       
+       <!-- AI Avatar - Add this right before closing </body> tag -->
+<div id="aiAvatar" class="ai-avatar-container">
+    <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1759157630991_AI-Voice-Equiped3.png" 
+         class="ai-avatar-image" 
+         alt="AI Voice Equipped">
+</div>       
+       
+       <style>
 @media (max-width: 768px) {
     /* Mobile positioning controls */
     .mobile-logo-adjust {
