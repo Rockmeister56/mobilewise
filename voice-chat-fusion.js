@@ -3019,10 +3019,11 @@ let speakSequenceButton = null;
 let speakSequenceCleanupTimer = null;
 
 function showHybridReadySequence() {
-    // ✅ SMART BUTTON BLOCKING - CHECK IF ACTUALLY VISIBLE
+    // ✅ BASIC BLOCKING CHECKS
     if (typeof BannerOrchestrator !== 'undefined' && 
         BannerOrchestrator.currentBanner === 'smartButton') {
         console.log('🔇 HYBRID BLOCKED: Smart Button active');
+        showClickButtonAbovePrompt();
         return;
     }
     
@@ -3036,17 +3037,24 @@ function showHybridReadySequence() {
         return;
     }
     
-   // ✅ CHECK FOR SMART BUTTON - IF EXISTS, SHOW CLICK PROMPT INSTEAD
-const smartButtonCheck = document.querySelector('#smartButton') || 
-                        document.querySelector('.smart-button') ||
-                        document.querySelector('[data-smart-button]') ||
-                        document.getElementById('consultationButton');
-
-if (smartButtonCheck) {
-    console.log('🎯 Smart Button detected - showing Click Button Above prompt');
-    showClickButtonAbovePrompt();
-    return;
-}
+    // ✅ ONLY CHECK FOR SMART BUTTON IF WE'RE IN A CONSULTATION CONTEXT
+    // Look for specific consultation keywords in recent AI response
+    const chatMessages = document.getElementById('chatMessages');
+    if (chatMessages) {
+        const lastAIMessage = chatMessages.querySelector('.ai-message:last-child');
+        if (lastAIMessage && lastAIMessage.textContent) {
+            const messageText = lastAIMessage.textContent.toLowerCase();
+            if ((messageText.includes('click') && messageText.includes('button')) ||
+                (messageText.includes('consultation') || messageText.includes('schedule')) &&
+                (document.querySelector('#smartButton') || 
+                 document.querySelector('.smart-button') ||
+                 document.querySelector('[data-smart-button]'))) {
+                console.log('🎯 Consultation context + Smart Button detected - showing click prompt');
+                showClickButtonAbovePrompt();
+                return;
+            }
+        }
+    }
 
     // ✅ TIMEOUT RESTART LOGIC
     if (speakSequenceActive) {
@@ -3085,6 +3093,12 @@ if (smartButtonCheck) {
     const existingSpeakBtn = document.getElementById('speak-sequence-button');
     if (existingSpeakBtn) {
         existingSpeakBtn.remove();
+    }
+    
+    // Remove any existing click prompts
+    const existingPrompt = document.getElementById('click-button-prompt');
+    if (existingPrompt) {
+        existingPrompt.remove();
     }
     
     // ✅ ADD STYLES ONCE
@@ -3139,6 +3153,19 @@ if (smartButtonCheck) {
                 background: linear-gradient(90deg, #4fc3f7, #1976d2);
                 border-radius: 1px;
                 transition: width 0.15s ease;
+            }
+            
+            @keyframes pulseBlue {
+                0%, 100% { 
+                    background: rgba(79, 195, 247, 0.4) !important;
+                    border-color: rgba(79, 195, 247, 0.8) !important;
+                    box-shadow: 0 0 8px rgba(79, 195, 247, 0.6) !important;
+                }
+                50% { 
+                    background: rgba(79, 195, 247, 0.6) !important;
+                    border-color: rgba(79, 195, 247, 1) !important;
+                    box-shadow: 0 0 20px rgba(79, 195, 247, 0.9) !important;
+                }
             }
         `;
         document.head.appendChild(style);
@@ -3262,6 +3289,54 @@ if (smartButtonCheck) {
         if (progressInterval) clearInterval(progressInterval);
         cleanupSpeakSequence();
     }, 8000);
+}
+
+// ✅ CLICK BUTTON ABOVE PROMPT FUNCTION
+function showClickButtonAbovePrompt() {
+    const quickButtonsContainer = document.querySelector('.quick-questions') || 
+                                  document.querySelector('.quick-buttons') || 
+                                  document.getElementById('quickButtonsContainer');
+    
+    if (!quickButtonsContainer) return;
+    
+    // Hide existing buttons
+    const existingButtons = quickButtonsContainer.querySelectorAll('.quick-btn');
+    existingButtons.forEach(btn => btn.style.display = 'none');
+    
+    // Remove any existing prompts
+    const existingPrompt = document.getElementById('click-button-prompt');
+    if (existingPrompt) {
+        existingPrompt.remove();
+    }
+    
+    // Create click prompt button
+    const clickPrompt = document.createElement('button');
+    clickPrompt.id = 'click-button-prompt';
+    clickPrompt.className = 'quick-btn';
+    
+    clickPrompt.innerHTML = `
+        <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+            <div style="font-size: 24px; margin-bottom: 8px;">👆</div>
+            <div style="font-size: 18px; font-weight: bold;">Click the Button Above</div>
+            <div style="font-size: 14px; margin-top: 4px;">to Schedule with Bruce</div>
+        </div>
+    `;
+    
+    clickPrompt.style.cssText = `
+        width: 100% !important;
+        background: rgba(79, 195, 247, 0.4) !important;
+        color: #ffffff !important;
+        border: 2px solid rgba(79, 195, 247, 0.8) !important;
+        padding: 20px !important;
+        min-height: 60px !important;
+        font-weight: bold !important;
+        border-radius: 20px !important;
+        cursor: default !important;
+        animation: pulseBlue 2s infinite !important;
+    `;
+    
+    quickButtonsContainer.appendChild(clickPrompt);
+    console.log('👆 Click Button Above prompt displayed');
 }
 
 function showClickButtonAbovePrompt() {
