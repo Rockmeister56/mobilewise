@@ -1086,29 +1086,30 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
         // 1. BRANDING HEADER (🚀 UPDATED LAYOUT)
         branding: {
     content: `
-        <div style="display: flex; align-items: center; height: 100%; padding: 0 20px;">
-            <!-- LEFT: Mobile-Wise AI Logo -->
-            <div style="position: absolute; left: 30px; top: 17;">
-                <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758507868460_logo.png" 
-                     style="width: 65px; height: 65px;">
-            </div>
-            
-            <!-- COMPANY NAME: Controllable positioning -->
-            <div style="position: absolute; left: 85px; top: 45px;">
-                <div style="color: white; font-size: 14px; font-weight: bold; letter-spacing: 1.5px;">
-                    Mobile-Wise AI
+        <div style="display: flex; align-items: center; justify-content: center; height: 100%; padding: 0 20px; background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            <!-- CENTER: Bruce's Logo -->
+            <div style="text-align: center;">
+                <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1759148392591_nci.PNG" 
+                     style="width: 80px; height: 80px; margin-bottom: 10px;">
+                
+                <!-- Bruce's Company Info -->
+                <div style="color: #333; font-size: 16px; font-weight: bold; margin-bottom: 5px;">
+                    Bruce's Company Name
+                </div>
+                
+                <!-- Phone Number -->
+                <div style="color: #666; font-size: 14px; font-weight: 600;">
+                    📞 (555) 123-4567
                 </div>
             </div>
             
-            <!-- RIGHT: SLOGAN -->
-            <div style="position: absolute; right: 40px; top: 5px;">
-                <div style="color: #87CEEB; font-size: 14px; font-weight: 600; text-transform: uppercase;">
-                   &check; SMART  <br> &check; HELPFUL <br> &check; AI VOICE CHAT
-                </div>
+            <!-- Powered by Mobile-Wise AI -->
+            <div style="position: absolute; bottom: 5px; right: 10px; color: #999; font-size: 10px;">
+                Powered by Mobile-Wise AI
             </div>
         </div>
     `,
-    background: 'transparent',
+    background: 'white',
     duration: 0
 },
         
