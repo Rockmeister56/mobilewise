@@ -156,38 +156,11 @@ async function speakWithElevenLabs(message) {
         };
         
         // YOUR EXISTING BLOCKING LOGIC HERE:
-        audio.onended = function() {
-            console.log('🔍 WHICH HANDLER IS RUNNING: Smart Button Blocking Handler');
-            isSpeaking = false;
-            console.log('🔊 AI finished speaking (mobile)');
-            
-            // 🚫 BLOCK if we recently mentioned clicking
-            const clickMentionTime = window.lastClickMentionTime || 0;
-            const timeSinceClickMention = Date.now() - clickMentionTime;
-            
-            if (timeSinceClickMention < 10000) {
-                console.log('🔇 SPEAK NOW BLOCKED: Recent click mention - waiting for user action');
-                return;
-            }
-            
-            // 🚫 DON'T TRIGGER "Speak Now" if Thank You Splash Screen exists
-            if (document.getElementById('thankYouSplash')) {
-                console.log('🔇 SPEAK NOW BLOCKED: Thank you splash screen active - no speech restart');
-                return;
-            }
-            
-            // 🚫 DON'T TRIGGER "Speak Now" if conversation is specifically ended
-            if (conversationState === 'ended' || conversationState === 'splash_screen_active') {
-                console.log('🔇 SPEAK NOW BLOCKED: Conversation ended - no speech restart');
-                return;
-            }
-            
-            console.log('🐛 DEBUG: No blocking conditions - calling showHybridReadySequence()');
-            showHybridReadySequence();
-            
-            // Clean up
-            URL.revokeObjectURL(audioUrl);
-        };
+audio.onended = function() {
+    handleSpeechEnd();  // ← Use the shared function
+    // Clean up
+    URL.revokeObjectURL(audioUrl);
+};
         
         audio.onerror = function(error) {
             console.error('🚫 ElevenLabs: Audio playback error:', error);
@@ -201,6 +174,16 @@ async function speakWithElevenLabs(message) {
         console.error('🚫 ElevenLabs: Speech synthesis error:', error);
         isSpeaking = false;
         speakResponseOriginal(message);
+    }
+}
+
+function setAIResponse(response) {
+    currentAIResponse = response;
+    
+    // THIS IS THE MISSING PIECE:
+    if (response && (response.includes('click') || response.includes('button above'))) {
+        window.lastClickMentionTime = Date.now();  // ← SET THE TIMESTAMP!
+        console.log('⏰ Click mention detected - setting 20-second blocking window');
     }
 }
 
@@ -945,33 +928,7 @@ function speakResponseOriginal(message) {
             };
             
             utterance.onend = function() {
-    console.log('🔍 WHICH HANDLER IS RUNNING: Smart Button Blocking Handler');
-    isSpeaking = false;
-    console.log('🔊 AI finished speaking (mobile)');
-    
-    // 🚫 BLOCK if we recently mentioned clicking
-    const clickMentionTime = window.lastClickMentionTime || 0;
-    const timeSinceClickMention = Date.now() - clickMentionTime;
-    
-    if (timeSinceClickMention < 20000) { // Block for 10 seconds after click mention
-        console.log('🔇 SPEAK NOW BLOCKED: Recent click mention - waiting for user action');
-        return;
-    }
-    
-    // 🚫 DON'T TRIGGER "Speak Now" if Thank You Splash Screen exists
-    if (document.getElementById('thankYouSplash')) {
-        console.log('🔇 SPEAK NOW BLOCKED: Thank you splash screen active - no speech restart');
-        return;
-    }
-    
-    // 🚫 DON'T TRIGGER "Speak Now" if conversation is specifically ended
-    if (conversationState === 'ended' || conversationState === 'splash_screen_active') {
-        console.log('🔇 SPEAK NOW BLOCKED: Conversation ended - no speech restart');
-        return;
-    }
-    
-    console.log('🐛 DEBUG: No blocking conditions - calling showHybridReadySequence()');
-    showHybridReadySequence();
+    handleSpeechEnd();
 };
        
             
@@ -1041,6 +998,48 @@ function addUserMessage(message) {
     scrollChatToBottom();
 }
 
+}
+
+// ===========================================
+// SHARED BLOCKING LOGIC FUNCTION
+// ===========================================
+function handleSpeechEnd() {
+    console.log('🔍 WHICH HANDLER IS RUNNING: Smart Button Blocking Handler');
+    isSpeaking = false;
+    console.log('🔊 AI finished speaking (mobile)');
+    
+    // 🐛 DEBUG: Show what we're checking
+    console.log('🐛 DEBUG currentAIResponse:', currentAIResponse);
+    
+    // 🚫 Block when AI tells user to click the button (ORIGINAL CHECK)
+    if (currentAIResponse && (currentAIResponse.includes('click') || currentAIResponse.includes('button above'))) {
+        console.log('🔇 SPEAK NOW BLOCKED: Click or button above detected - no speech restart');
+        return;
+    }
+    
+    // 🚫 BLOCK if we recently mentioned clicking (TIME-BASED BACKUP)
+    const clickMentionTime = window.lastClickMentionTime || 0;
+    const timeSinceClickMention = Date.now() - clickMentionTime;
+    
+    if (timeSinceClickMention < 20000) {
+        console.log('🔇 SPEAK NOW BLOCKED: Recent click mention - waiting for user action (20 sec window)');
+        return;
+    }
+    
+    // 🚫 DON'T TRIGGER "Speak Now" if Thank You Splash Screen exists
+    if (document.getElementById('thankYouSplash')) {
+        console.log('🔇 SPEAK NOW BLOCKED: Thank you splash screen active - no speech restart');
+        return;
+    }
+    
+    // 🚫 DON'T TRIGGER "Speak Now" if conversation is specifically ended
+    if (conversationState === 'ended' || conversationState === 'splash_screen_active') {
+        console.log('🔇 SPEAK NOW BLOCKED: Conversation ended - no speech restart');
+        return;
+    }
+    
+    console.log('🐛 DEBUG: No blocking conditions - calling showHybridReadySequence()');
+    showHybridReadySequence();
 }
 
 // ===========================================
