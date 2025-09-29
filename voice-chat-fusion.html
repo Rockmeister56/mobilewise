@@ -818,7 +818,7 @@
     padding-top: 1px !important; /* Just breathing room for banners */
 }
 
-/* ===== MOBILE-WISE AI BANNER ABSOLUTE POSITIONING - FIXED ===== */
+/* ===== MOBILE-WISE AI BANNER ABSOLUTE POSITIONING ===== */
 .lead-capture-banner,
 .consultation-banner,
 #leadCaptureBanner,
@@ -826,73 +826,50 @@
 #thankYouBanner,
 .email-confirmation-banner,
 .success-banner,
-.consultation-confirmed-banner,
-.branding-header-banner {
+.consultation-confirmed-banner {
     position: absolute !important;
-    top: 0px !important;           /* ← NO gap at top */
-    left: 0px !important;          /* ← NO gap on left */
-    right: 0px !important;         /* ← NO gap on right */
-    width: 100% !important;        /* ← FULL WIDTH */
-    max-width: none !important;    /* ← NO ARTIFICIAL LIMITS */
-    margin: 0 !important;
-    padding: 0 !important;
+    top: 10px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
     z-index: 9999 !important;
+    width: calc(100% - 20px) !important;
+    max-width: 400px !important;
+    margin: 0 !important;
     box-sizing: border-box !important;
 }
 
-/* Branding banner stays on top */
+/* SPECIAL: Branding banner at very top */
 .branding-header-banner {
-    z-index: 10000 !important;
+    top: 0px !important; /* Higher than other banners */
+    z-index: 10000 !important; /* Above other banners */
 }
 
-/* BRUCE'S BANNER - FORCE FULL COVERAGE */
-.branding-header-banner {
-    top: 0px !important;
-    left: 0px !important;
-    right: 0px !important;
-    width: 100% !important;
-    max-width: none !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    z-index: 10000 !important;
-    position: absolute !important;
-}
-
-.bruce-logo-container {
-    position: absolute !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    background: white !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-}
-
-/*
+/* Mobile responsive adjustments for branding banner */
 @media (max-width: 768px) {
+    /* Move logo closer to left edge on mobile */
     #bannerHeaderContainer img {
         margin-left: -25px !important;
     }
     
+    /* Center company name on mobile */
     #bannerHeaderContainer div[style*="MOBILE-WISE AI"] {
         left: 5% !important;
         transform: translateX(-50%) !important;
     }
     
+    /* Move slogan closer to right edge on mobile */
     #bannerHeaderContainer div:last-child {
         right: 7px !important;
     }
 
+    @media (max-width: 768px) {
+    /* Target the company name specifically */
     #universalBanner div:nth-child(2) {
         left: 12% !important;
     }
 }
-*/
+
+}
 
     </style>
 </head>
