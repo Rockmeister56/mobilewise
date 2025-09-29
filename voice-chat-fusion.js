@@ -1086,30 +1086,18 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
         // 1. BRANDING HEADER (🚀 UPDATED LAYOUT)
         branding: {
     content: `
-        <style>
-            .bruce-logo-container { 
-                width: 110% !important; 
-                height: calc(100% + -9px) !important;
-                background: white !important; 
-                display: flex !important; 
-                align-items: center !important; 
-                justify-content: center !important; 
-                margin: 0 !important; 
-                padding: 0 !important;
-                top: -8px !important; 
-            }
-            .bruce-logo { 
-                width: 230px !important; 
-                height: auto !important; 
-                max-width: none !important; 
-                min-width: 230px !important; 
-            }
-        </style>
-        <div class="bruce-logo-container">
-            <img class="bruce-logo" src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1759148392591_nci.PNG">
+        <div style="width: 742px; max-width: 742px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+            
+            <!-- CENTER: NCI Logo -->
+            <div style="display: flex; align-items: center; justify-content: center;">
+                <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1759148392591_nci.PNG" 
+                     style="width: 80px; height: auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            </div>
         </div>
     `,
-    background: 'white',
+    background: 'rgba(255, 255, 255, 0.15)',
+    containerWidth: 762,
+    customHeight: 90,
     duration: 0
 },
         
