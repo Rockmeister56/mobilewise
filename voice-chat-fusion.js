@@ -944,37 +944,25 @@ function speakResponseOriginal(message) {
                 }
             };
             
-            utterance.onend = function() {
-    console.log('🔍 WHICH HANDLER IS RUNNING: Smart Button Blocking Handler');
+  utterance.onend = function() {
+    console.log('🔊 AI finished speaking');
     isSpeaking = false;
-    console.log('🔊 AI finished speaking (mobile)');
     
-    // 🚫 BLOCK if we recently mentioned clicking
-    const clickMentionTime = window.lastClickMentionTime || 0;
-    const timeSinceClickMention = Date.now() - clickMentionTime;
-    
-    if (timeSinceClickMention < 20000) { // Block for 10 seconds after click mention
-        console.log('🔇 SPEAK NOW BLOCKED: Recent click mention - waiting for user action');
-        return;
-    }
-    
-    // 🚫 DON'T TRIGGER "Speak Now" if Thank You Splash Screen exists
+    // DON'T TRIGGER if Thank You Splash Screen exists
     if (document.getElementById('thankYouSplash')) {
-        console.log('🔇 SPEAK NOW BLOCKED: Thank you splash screen active - no speech restart');
+        console.log('🔇 SPEAK NOW BLOCKED: Thank you splash screen active');
         return;
     }
     
-    // 🚫 DON'T TRIGGER "Speak Now" if conversation is specifically ended
+    // DON'T TRIGGER if conversation is ended
     if (conversationState === 'ended' || conversationState === 'splash_screen_active') {
-        console.log('🔇 SPEAK NOW BLOCKED: Conversation ended - no speech restart');
+        console.log('🔇 SPEAK NOW BLOCKED: Conversation ended');
         return;
     }
     
-    console.log('🐛 DEBUG: No blocking conditions - calling showHybridReadySequence()');
     showHybridReadySequence();
 };
-       
-            
+                  
 utterance.onerror = function(event) {
     console.log('❌ Speech error:', event.error);
     isSpeaking = false;
@@ -994,19 +982,6 @@ currentAudio = utterance;
         isSpeaking = true;
         console.log('🔊 AI started speaking');
     };
-    
-    utterance.onend = function() {
-    isSpeaking = false;
-    console.log('🔊 AI finished speaking');
-    
-    // ✅ ADD SMART BUTTON BLOCKING HERE
-    if (document.querySelector('#smartButton') || 
-        document.querySelector('.smart-button') ||
-        document.querySelector('[data-smart-button]') ||
-        document.getElementById('consultationButton')) {
-        console.log('🔇 SIMPLE HANDLER: Smart Button detected - blocking speech');
-        return;
-    }
     
     // Check conversation state
     if (conversationState === 'ended' || conversationState === 'splash_screen_active') {
@@ -1039,8 +1014,6 @@ function addUserMessage(message) {
     
     chatMessages.appendChild(messageElement);
     scrollChatToBottom();
-}
-
 }
 
 // ===========================================
@@ -1552,6 +1525,23 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
         showUniversalBanner('branding');
     }, 100);
 }
+
+// ===================================================
+// 🏆 listeners to coordinate speech blocking
+// ===================================================
+document.addEventListener('clickIntentDetected', function() {
+    console.log('🔇 SPEAK NOW BLOCKED: Click intent detected');
+    window.clickIntentActive = true;
+});
+
+document.addEventListener('clickIntentResolved', function() {
+    console.log('🔄 Click intent resolved - speech re-enabled');
+    window.clickIntentActive = false;
+    // Resume normal speech flow
+    if (typeof showHybridReadySequence === 'function') {
+        showHybridReadySequence();
+    }
+});
 
 // ===================================================================
 // 🎯 UNIVERSAL MASTER BANNER TRIGGER SYSTEM - ALL INDUSTRIES
@@ -2275,8 +2265,15 @@ function speakMessage(message) {
         };
 
         utterance.onend = function() {
+            console.log('🔍 WHICH HANDLER IS RUNNING: Event-Based Blocking Handler');
             isSpeaking = false; // Add this for proper state management
             console.log('🔊 AI finished speaking for lead capture');
+
+    // CHECK FOR CLICK INTENT FIRST
+    if (window.clickIntentActive) {
+        console.log('🔇 SPEAK NOW BLOCKED: Click intent active');
+        return; // Stop here - don't restart speech
+    }
             
             // ✅ THE FIX: Show hybrid sequence for lead capture questions
             if (isInLeadCapture) {
@@ -2290,7 +2287,17 @@ function speakMessage(message) {
     }
 }
 
+// When AI says "click the button above" or similar
+function handleClickPrompt() {
+    document.dispatchEvent(new CustomEvent('clickIntentDetected'));
+    // Your banner shows normally, but speech won't restart
+}
 
+// When user clicks button or dismisses banner
+function handleClickResolution() {
+    document.dispatchEvent(new CustomEvent('clickIntentResolved'));
+    // Speech resumes normally
+}
 
 // ===================================================
 // 📧 EMAIL FORMATTING FUNCTION
