@@ -1053,21 +1053,6 @@ button[class*="smart"] {
         <div id="permissionStatus"></div>
     </div>
 
-    <!-- ADD THIS NEW SCRIPT TAG -->
-<script>
-window.addEventListener('load', function() {
-    if (window.showUniversalBanner) {
-        const originalShowUniversalBanner = window.showUniversalBanner;
-        window.showUniversalBanner = function(bannerType, ...args) {
-            console.log(`Banner requested: ${bannerType}, forcing to: smartButton`);
-            return originalShowUniversalBanner.call(this, 'smartButton', ...args);
-        };
-        // Force immediate redeploy
-        showUniversalBanner('smartButton');
-    }
-});
-</script>
-
     <script src="voice-chat-fusion.js"></script>
 </body>
 </html>
