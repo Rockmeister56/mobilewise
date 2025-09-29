@@ -857,9 +857,9 @@ function speakResponse(message) {
     // 🐛 DEBUG: Show what we're checking
     console.log('🐛 DEBUG lastAIResponse:', lastAIResponse);
     
-    // 🚫 Check if we're in consultation flow - BACK TO SIMPLE THAT WORKED
-    if (lastAIResponse && (lastAIResponse.includes('consultation') || lastAIResponse.includes('click'))) {
-        console.log('🔇 SPEAK NOW BLOCKED: Consultation detected in AI response - no speech restart');
+    // 🚫 Block when AI tells user to click the button
+    if (lastAIResponse && (lastAIResponse.includes('click') || lastAIResponse.includes('button above'))) {
+        console.log('🔇 SPEAK NOW BLOCKED: Click or button above detected - no speech restart');
         return;
     }
     
@@ -875,7 +875,7 @@ function speakResponse(message) {
         return;
     }
     
-    console.log('🐛 DEBUG: No consultation detected - calling showHybridReadySequence()');
+    console.log('🐛 DEBUG: No click or button above detected - calling showHybridReadySequence()');
     showHybridReadySequence();
 };
        
