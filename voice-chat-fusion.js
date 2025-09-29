@@ -918,6 +918,16 @@ function handleConsultationClick(type) {
     handleSmartButtonClick(type);
 }
 
+// Just add this ONE block of code somewhere in your system
+function checkForClickMentions(responseText) {
+    const clickPhrases = ['click the button above', 'click above', 'just click', 'click that button'];
+    
+    if (clickPhrases.some(phrase => responseText.toLowerCase().includes(phrase))) {
+        console.log('🎯 AUTO-DETECTED: AI mentioned clicking - triggering block');
+        document.dispatchEvent(new CustomEvent('clickIntentDetected'));
+    }
+}
+
 // ===================================================
 // 🔊 VOICE SYNTHESIS SYSTEM
 // ===================================================
