@@ -818,7 +818,7 @@
     padding-top: 1px !important; /* Just breathing room for banners */
 }
 
-/* ===== MOBILE-WISE AI BANNER ABSOLUTE POSITIONING ===== */
+/* ===== MOBILE-WISE AI BANNER ABSOLUTE POSITIONING - FIXED ===== */
 .lead-capture-banner,
 .consultation-banner,
 #leadCaptureBanner,
@@ -826,16 +826,29 @@
 #thankYouBanner,
 .email-confirmation-banner,
 .success-banner,
-.consultation-confirmed-banner {
+.consultation-confirmed-banner,
+.branding-header-banner {
     position: absolute !important;
-    top: 10px !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    z-index: 9999 !important;
-    width: calc(100% - 20px) !important;
-    max-width: 400px !important;
+    top: 0px !important;           /* ← NO gap at top */
+    left: 0px !important;          /* ← NO gap on left */
+    right: 0px !important;         /* ← NO gap on right */
+    width: 100% !important;        /* ← FULL WIDTH */
+    max-width: none !important;    /* ← NO ARTIFICIAL LIMITS */
     margin: 0 !important;
+    padding: 0 !important;
+    z-index: 9999 !important;
     box-sizing: border-box !important;
+}
+
+/* Branding banner stays on top */
+.branding-header-banner {
+    z-index: 10000 !important;
+}
+
+/* BRUCE'S BANNER - Override mobile adjustments */
+.bruce-logo-container img {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
 }
 
 /* SPECIAL: Branding banner at very top */
