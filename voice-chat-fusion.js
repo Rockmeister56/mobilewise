@@ -1096,7 +1096,7 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
                 justify-content: center !important; 
                 margin: 0 !important; 
                 padding: 0 !important;
-                top: -2px !important; 
+                top: -6px !important; 
             }
             .bruce-logo { 
                 width: 230px !important; 
