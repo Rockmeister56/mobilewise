@@ -997,11 +997,26 @@ currentAudio = utterance;
     };
     
     utterance.onend = function() {
-        isSpeaking = false;
-        console.log('🔊 AI finished speaking');
-        
-        showHybridReadySequence();
-    };
+    isSpeaking = false;
+    console.log('🔊 AI finished speaking');
+    
+    // ✅ ADD SMART BUTTON BLOCKING HERE
+    if (document.querySelector('#smartButton') || 
+        document.querySelector('.smart-button') ||
+        document.querySelector('[data-smart-button]') ||
+        document.getElementById('consultationButton')) {
+        console.log('🔇 SIMPLE HANDLER: Smart Button detected - blocking speech');
+        return;
+    }
+    
+    // Check conversation state
+    if (conversationState === 'ended' || conversationState === 'splash_screen_active') {
+        console.log('🔇 SIMPLE HANDLER: Conversation ended - blocking speech');
+        return;
+    }
+    
+    showHybridReadySequence();
+};
     
     utterance.onerror = function(event) {
         console.log('❌ Speech error:', event.error);
