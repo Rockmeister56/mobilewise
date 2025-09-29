@@ -849,7 +849,7 @@ function speakResponse(message) {
                 }
             };
             
-            // Global flag to track consultation flow
+            // Put this OUTSIDE the function (global scope)
 let consultationOffered = false;
 
 utterance.onend = function() {
@@ -869,8 +869,9 @@ utterance.onend = function() {
     
     // Step 2: Block only AFTER user says yes and AI responds positively
     if (consultationOffered && lastAIResponse && 
-        (lastAIResponse.includes('Great') || lastAIResponse.includes('Fantastic') || lastAIResponse.includes('click'))) {
+        (lastAIResponse.includes('Fantastic') || lastAIResponse.includes('Great') || lastAIResponse.includes('click'))) {
         console.log('🔇 SPEAK NOW BLOCKED: User accepted consultation - Smart Button should appear');
+        consultationOffered = false; // Reset flag after blocking
         return;
     }
     
