@@ -953,7 +953,7 @@ function speakResponseOriginal(message) {
     const clickMentionTime = window.lastClickMentionTime || 0;
     const timeSinceClickMention = Date.now() - clickMentionTime;
     
-    if (timeSinceClickMention < 10000) { // Block for 10 seconds after click mention
+    if (timeSinceClickMention < 20000) { // Block for 10 seconds after click mention
         console.log('🔇 SPEAK NOW BLOCKED: Recent click mention - waiting for user action');
         return;
     }
@@ -1139,12 +1139,12 @@ smartButton: {
     content: `
         <div style="width: ${742}px; max-width: ${742}px; margin: 0 auto; height: 58px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; border-radius: 6px; background: rgba(255, 255, 255, 0.1);">
             <div style="color: white; font-weight: 600; font-size: 16px;">
-                📅 FREE Consultation Available
+                📅 FREE Evauation 
             </div>
             <button onclick="handleConsultationClick('valuation')" style="
                 background: rgba(34, 197, 94, 0.3);
                 color: white;
-                border: 1px solid rgba(34, 197, 94, 0.5);
+                border: 1px solid rgba(0, 235, 86, 0.65);
                 padding: 8px 20px;
                 border-radius: 20px;
                 cursor: pointer;
@@ -1152,7 +1152,7 @@ smartButton: {
                 font-size: 14px;
                 transition: all 0.3s ease;
                 pointer-events: auto !important;
-            " onmouseover="this.style.background='rgba(34, 197, 94, 0.5)'" 
+            " onmouseover="this.style.background='rgba(10, 204, 178, 0.5)'" 
                onmouseout="this.style.background='rgba(34, 197, 94, 0.3)'">
                 CLICK NOW
             </button>
