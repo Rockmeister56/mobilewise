@@ -108,12 +108,13 @@ const VOICE_ID = 'zGjIP4SZlMnY9m93k97r';
 // ===========================================
 // ELEVENLABS SPEECH SYNTHESIS
 // ===========================================
-async function speakWithElevenLabs(text) {
+async function speakWithElevenLabs(message) {
     try {
         console.log('🎤 ElevenLabs: Starting speech synthesis...');
         isSpeaking = true;
         
-        const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}`, {
+        // Start API call immediately (don't await yet)
+        const audioPromise = fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}`, {
             method: 'POST',
             headers: {
                 'Accept': 'audio/mpeg',
@@ -121,15 +122,22 @@ async function speakWithElevenLabs(text) {
                 'xi-api-key': ELEVENLABS_API_KEY
             },
             body: JSON.stringify({
-                text: text,
-                model_id: 'eleven_monolingual_v1',
+                text: message,
+                model_id: 'eleven_turbo_v2',  // ← FASTER MODEL
                 voice_settings: {
                     stability: 0.5,
-                    similarity_boost: 0.5
+                    similarity_boost: 0.5,
+                    style: 0.0,  // ← SPEED OPTIMIZATION
+                    use_speaker_boost: true
                 }
             })
         });
 
+        // Show loading indicator while waiting
+        console.log('🔄 ElevenLabs: Processing audio...');
+        
+        const response = await audioPromise;
+        
         if (!response.ok) {
             throw new Error(`ElevenLabs API error: ${response.status}`);
         }
@@ -137,15 +145,17 @@ async function speakWithElevenLabs(text) {
         const audioBlob = await response.blob();
         const audioUrl = URL.createObjectURL(audioBlob);
         
-        // Create audio element
-        const audio = new Audio(audioUrl);
+        // Preload audio
+        const audio = new Audio();
+        audio.preload = 'auto';  // ← PRELOAD OPTIMIZATION
         
-        // Set up event handlers (this maintains your existing blocking logic)
-        audio.onloadstart = function() {
-            console.log('🔊 ElevenLabs: AI started speaking (mobile)');
-            isSpeaking = true;
+        // Set up event handlers BEFORE setting src
+        audio.oncanplaythrough = function() {
+            console.log('🎤 ElevenLabs: Audio ready - starting playback');
+            audio.play();
         };
         
+        // YOUR EXISTING BLOCKING LOGIC HERE:
         audio.onended = function() {
             console.log('🔍 WHICH HANDLER IS RUNNING: Smart Button Blocking Handler');
             isSpeaking = false;
@@ -155,7 +165,7 @@ async function speakWithElevenLabs(text) {
             const clickMentionTime = window.lastClickMentionTime || 0;
             const timeSinceClickMention = Date.now() - clickMentionTime;
             
-            if (timeSinceClickMention < 10000) { // Block for 10 seconds after click mention
+            if (timeSinceClickMention < 10000) {
                 console.log('🔇 SPEAK NOW BLOCKED: Recent click mention - waiting for user action');
                 return;
             }
@@ -184,39 +194,15 @@ async function speakWithElevenLabs(text) {
             isSpeaking = false;
         };
         
-        // Play the audio
-        await audio.play();
+        // Set source (triggers loading)
+        audio.src = audioUrl;
         
     } catch (error) {
         console.error('🚫 ElevenLabs: Speech synthesis error:', error);
         isSpeaking = false;
-        
-        // Fallback to browser TTS if ElevenLabs fails
-        console.log('🔄 Falling back to browser TTS...');
-        speakResponseOriginal(text);
+        speakResponseOriginal(message);
     }
 }
-
-// ===================================================
-// 📧 EMAILJS INITIALIZATION (FROM YOUR WORKING SYSTEM)
-// ===================================================
-(function(){
-    if (typeof emailjs !== 'undefined') {
-        emailjs.init("7-9oxa3UC3uKxtqGM"); // Your public key
-        console.log("📧 EmailJS initialized successfully");
-    } else {
-        console.log("📧 EmailJS not loaded yet - will initialize when available");
-        
-        // Load EmailJS if not already loaded
-        const script = document.createElement('script');
-        script.src = 'https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js';
-        script.onload = () => {
-            emailjs.init("7-9oxa3UC3uKxtqGM");
-            console.log("📧 EmailJS loaded and initialized");
-        };
-        document.head.appendChild(script);
-    }
-})();
 
 // ===================================================
 // 📱 MOBILE DEVICE DETECTION
