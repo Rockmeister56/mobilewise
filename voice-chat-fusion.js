@@ -849,33 +849,32 @@ function speakResponse(message) {
                 }
             };
             
-            utterance.onend = function() {
+            // Global flag to track consultation flow
+let consultationOffered = false;
+
+utterance.onend = function() {
     console.log('🔍 WHICH HANDLER IS RUNNING: Smart Button Blocking Handler');
     isSpeaking = false;
     console.log('🔊 AI finished speaking (mobile)');
     
     // 🐛 DEBUG: Show what we're checking
     console.log('🐛 DEBUG lastAIResponse:', lastAIResponse);
+    console.log('🐛 DEBUG consultationOffered flag:', consultationOffered);
     
-    // 🚫 Check if we're in consultation flow (before banner gets deployed)
-    if (lastAIResponse && lastAIResponse.includes('consultation')) {
-        console.log('🔇 SPEAK NOW BLOCKED: Consultation detected in AI response - no speech restart');
+    // Step 1: Just FLAG if consultation is offered (don't block yet)
+    if (lastAIResponse && lastAIResponse.includes('consultation') && lastAIResponse.includes('?')) {
+        consultationOffered = true;
+        console.log('🎯 CONSULTATION OFFERED: Flag set - waiting for user response');
+    }
+    
+    // Step 2: Block only AFTER user says yes and AI responds positively
+    if (consultationOffered && lastAIResponse && 
+        (lastAIResponse.includes('Great') || lastAIResponse.includes('Fantastic') || lastAIResponse.includes('click'))) {
+        console.log('🔇 SPEAK NOW BLOCKED: User accepted consultation - Smart Button should appear');
         return;
     }
     
-    // 🚫 DON'T TRIGGER "Speak Now" if Thank You Splash Screen exists
-    if (document.getElementById('thankYouSplash')) {
-        console.log('🔇 SPEAK NOW BLOCKED: Thank you splash screen active - no speech restart');
-        return;
-    }
-    
-    // 🚫 DON'T TRIGGER "Speak Now" if conversation is specifically ended
-    if (conversationState === 'ended' || conversationState === 'splash_screen_active') {
-        console.log('🔇 SPEAK NOW BLOCKED: Conversation ended - no speech restart');
-        return;
-    }
-    
-    console.log('🐛 DEBUG: No consultation detected - calling showHybridReadySequence()');
+    console.log('🐛 DEBUG: Normal flow - calling showHybridReadySequence()');
     showHybridReadySequence();
 };
        
