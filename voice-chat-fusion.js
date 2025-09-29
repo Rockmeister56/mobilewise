@@ -1086,26 +1086,11 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
         // 1. BRANDING HEADER (🚀 UPDATED LAYOUT)
         branding: {
     content: `
-        <div style="display: flex; align-items: center; justify-content: center; height: 100%; padding: 0 20px; background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-            <!-- CENTER: Bruce's Logo -->
+        <div style="display: flex; align-items: center; justify-content: center; height: 100%; padding: 0 20px; background: white;">
+            <!-- CENTER: Bruce's Logo Only -->
             <div style="text-align: center;">
                 <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1759148392591_nci.PNG" 
-                     style="width: 80px; height: 80px; margin-bottom: 10px;">
-                
-                <!-- Bruce's Company Info -->
-                <div style="color: #333; font-size: 16px; font-weight: bold; margin-bottom: 5px;">
-                    Bruce's Company Name
-                </div>
-                
-                <!-- Phone Number -->
-                <div style="color: #666; font-size: 14px; font-weight: 600;">
-                    📞 (555) 123-4567
-                </div>
-            </div>
-            
-            <!-- Powered by Mobile-Wise AI -->
-            <div style="position: absolute; bottom: 5px; right: 10px; color: #999; font-size: 10px;">
-                Powered by Mobile-Wise AI
+                     style="width: 65px; height: 65px;">
             </div>
         </div>
     `,
