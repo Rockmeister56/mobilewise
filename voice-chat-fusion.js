@@ -909,6 +909,11 @@ function preWarmSpeechEngine() {
 // This is what your banner calls:
 function handleConsultationClick(type) {
     console.log(`🎯 Bridge: ${type}`);
+    
+    // RESOLVE the click intent - speech can resume normally
+    document.dispatchEvent(new CustomEvent('clickIntentResolved'));
+    console.log('🔄 Click intent resolved - button clicked');
+    
     // Call the existing working function:
     handleSmartButtonClick(type);
 }
@@ -2297,7 +2302,7 @@ function handleClickPrompt() {
 function handleClickResolution() {
     document.dispatchEvent(new CustomEvent('clickIntentResolved'));
     // Speech resumes normally
-}
+} 
 
 // ===================================================
 // 📧 EMAIL FORMATTING FUNCTION
