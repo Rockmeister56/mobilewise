@@ -81,7 +81,7 @@
 /* ✅ DESKTOP STYLES */
 @media (min-width: 769px) {
     .container {
-        margin-top: 110px !important;
+        margin-top: 20px !important;
         margin-left: auto !important;
         margin-right: auto !important;
         position: relative;
@@ -215,7 +215,7 @@
            📍 HEADER STYLING
            ================================================== */
         header {
-            text-align: center;
+            text-align: left;
             margin-bottom: 20px;
         }
 
@@ -561,30 +561,11 @@
 /* ===================================================
    📱 MOBILE OPTIMIZATION - CLEAN VERSION
    ================================================== */
-    @media (max-width: 610px) {
+@media (max-width: 600px) {
     body {
-        padding: 5px;
+        padding: 10px;
         min-height: 100vh;
     }
-
-    /* ===================================================
-   📱 MOBILE OPTIMIZATION - CLEAN VERSION
-   ================================================== */
-@media (max-width: 600px) {
-    /* Your existing mobile styles stay here */
-}
-
-/* 🎯 BANNER OPTIMIZATION - ADD THIS NEW SECTION */
-@media (max-width: 775px) {
-    body {
-        padding: 5px !important;  /* Reduce from 20px to 10px for banners */
-    }
-    
-    /* Compensate container for smaller body padding */
-    .container {
-        margin-top: 0px !important;  /* Room for banner */
-    }
-}
     
     /* SINGLE CHAT AREA HEIGHT RULE */
     .chat-messages,
@@ -834,30 +815,7 @@
 /* Container - NO min-height forcing */
 .container {
     position: relative !important;
-    padding-top: 10px !important; /* Just breathing room for banners */
-}
-
-/* Smart button stays visible */
-.smart-button,
-#smartButton {
-    position: fixed !important;
-    bottom: 20px !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    z-index: 8888 !important;
-}
-
-/* Smart Button - Force Bottom Position */
-.smart-button,
-#smartButton,
-[class*="smart"] button,
-button[class*="smart"] {
-    position: fixed !important;
-    bottom: 100px !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    z-index: 9999 !important;
-    margin: 0 !important;
+    padding-top: 1px !important; /* Just breathing room for banners */
 }
 
 /* ===== MOBILE-WISE AI BANNER ABSOLUTE POSITIONING ===== */
@@ -882,9 +840,50 @@ button[class*="smart"] {
 
 /* SPECIAL: Branding banner at very top */
 .branding-header-banner {
+    top: 0px !important;
+    z-index: 10000 !important;
+}
+
+/* BRUCE'S BANNER - Override mobile adjustments */
+.bruce-logo-container img {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+/* SPECIAL: Branding banner at very top */
+.branding-header-banner {
     top: 0px !important; /* Higher than other banners */
     z-index: 10000 !important; /* Above other banners */
+
+    /* Force banner to ignore ALL header styling */
+.bruce-logo-container {
+    text-align: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    position: relative !important;
 }
+}
+
+/*
+@media (max-width: 768px) {
+    #bannerHeaderContainer img {
+        margin-left: -25px !important;
+    }
+    
+    #bannerHeaderContainer div[style*="MOBILE-WISE AI"] {
+        left: 5% !important;
+        transform: translateX(-50%) !important;
+    }
+    
+    #bannerHeaderContainer div:last-child {
+        right: 7px !important;
+    }
+
+    #universalBanner div:nth-child(2) {
+        left: 12% !important;
+    }
+}
+*/
 
     </style>
 </head>
