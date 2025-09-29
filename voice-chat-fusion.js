@@ -1086,9 +1086,26 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
         // 1. BRANDING HEADER (🚀 UPDATED LAYOUT)
         branding: {
     content: `
-        <div style="width: 100%; height: 100%; background: white; display: flex; align-items: center; justify-content: center; margin: 0; padding: 0; box-sizing: border-box; position: absolute; top: 0; left: 0; right: 0; bottom: 0;">
-            <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1759148392591_nci.PNG" 
-                 style="height: calc(100% - 4px); width: auto; max-width: 215px;">
+        <style>
+            .bruce-logo-container { 
+                width: 100% !important; 
+                height: 100% !important; 
+                background: white !important; 
+                display: flex !important; 
+                align-items: center !important; 
+                justify-content: center !important; 
+                margin: 0 !important; 
+                padding: 0 !important; 
+            }
+            .bruce-logo { 
+                width: 220px !important; 
+                height: auto !important; 
+                max-width: none !important; 
+                min-width: 220px !important; 
+            }
+        </style>
+        <div class="bruce-logo-container">
+            <img class="bruce-logo" src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1759148392591_nci.PNG">
         </div>
     `,
     background: 'white',
