@@ -524,61 +524,83 @@
         }
 
         /* ===================================================
-   🤖 AI AVATAR - CLEAN TRANSPARENT WITH GLOW
+   🤖 AI AVATAR - MOBILE & DESKTOP OPTIMIZED
    ================================================== */
-.ai-avatar-container {
-    position: fixed;
-    bottom: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 500;
-    text-align: center;
-    transition: opacity 0.5s ease;
-    opacity: 1;
+
+/* 🖥️ DESKTOP VERSION */
+@media (min-width: 769px) {
+    .ai-avatar-container {
+        position: fixed;
+        bottom: 0px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 500;
+        text-align: center;
+        transition: opacity 0.5s ease;
+        opacity: 1;
+    }
+    
+    .ai-avatar-image {
+        width: 200px; /* Reduced from 280px - about 30% smaller */
+        height: auto;
+        background: none !important;
+        background-color: transparent !important;
+        animation: ai-alive-glow 2s ease-in-out infinite;
+        filter: drop-shadow(0 0 15px rgba(0, 255, 136, 0.6)) 
+                drop-shadow(0 0 30px rgba(0, 255, 136, 0.4));
+        display: block;
+        margin: 0;
+        padding: 0;
+    }
 }
 
+/* 📱 MOBILE VERSION */
+@media (max-width: 768px) {
+    .ai-avatar-container {
+        position: fixed;
+        bottom: 0px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 500;
+        text-align: center;
+        transition: opacity 0.5s ease;
+        opacity: 1;
+    }
+    
+    .ai-avatar-image {
+        width: 175px; /* Even smaller for mobile - 30% smaller than 250px */
+        height: auto;
+        background: none !important;
+        background-color: transparent !important;
+        animation: ai-alive-glow 2s ease-in-out infinite;
+        filter: drop-shadow(0 0 12px rgba(0, 255, 136, 0.6)) 
+                drop-shadow(0 0 25px rgba(0, 255, 136, 0.4));
+        display: block;
+        margin: 0;
+        padding: 0;
+    }
+}
+
+/* Hidden state for both */
 .ai-avatar-container.hidden {
     opacity: 0;
     pointer-events: none;
 }
 
-.ai-avatar-image {
-    width: 280px;
-    height: auto;
-    max-width: 90vw;
-    background: none !important;
-    background-color: transparent !important;
-    animation: ai-alive-glow 2s ease-in-out infinite;
-    /* Only glow shadow - no box shadow that creates backgrounds */
-    filter: drop-shadow(0 0 20px rgba(0, 255, 136, 0.6)) 
-            drop-shadow(0 0 40px rgba(0, 255, 136, 0.4));
-}
-
-/* AI ALIVE Pulsating Glow Animation - Using filter instead of box-shadow */
+/* AI ALIVE Pulsating Glow Animation */
 @keyframes ai-alive-glow {
     0% {
-        filter: drop-shadow(0 0 20px rgba(0, 255, 136, 0.6)) 
-                drop-shadow(0 0 40px rgba(0, 255, 136, 0.4));
+        filter: drop-shadow(0 0 15px rgba(0, 255, 136, 0.6)) 
+                drop-shadow(0 0 30px rgba(0, 255, 136, 0.4));
     }
     50% {
-        filter: drop-shadow(0 0 30px rgba(0, 255, 136, 0.9)) 
-                drop-shadow(0 0 60px rgba(0, 255, 136, 0.7))
-                drop-shadow(0 0 100px rgba(0, 255, 136, 0.4));
+        filter: drop-shadow(0 0 25px rgba(0, 255, 136, 0.9)) 
+                drop-shadow(0 0 50px rgba(0, 255, 136, 0.7))
+                drop-shadow(0 0 80px rgba(0, 255, 136, 0.4));
     }
     100% {
-        filter: drop-shadow(0 0 20px rgba(0, 255, 136, 0.6)) 
-                drop-shadow(0 0 40px rgba(0, 255, 136, 0.4));
-    }
-}
-
-/* Mobile optimization */
-@media (max-width: 768px) {
-    .ai-avatar-image {
-        width: 250px;
-    }
-    
-    .ai-avatar-container {
-        bottom: 5px;
+        filter: drop-shadow(0 0 15px rgba(0, 255, 136, 0.6)) 
+                drop-shadow(0 0 30px rgba(0, 255, 136, 0.4));
     }
 }
 
