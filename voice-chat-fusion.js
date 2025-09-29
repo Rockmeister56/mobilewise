@@ -1523,7 +1523,7 @@ window.removeLeadCaptureBanner = function() {
 
 console.log('🎖️ Complete Universal Banner Engine loaded - 9 banner types ready (Clean Container Edition)!');
 
-// Hide avatar when microphone is activated
+// SAFER APPROACH - Bind directly to mic buttons only
 function hideAvatarOnMicClick() {
     const avatar = document.getElementById('aiAvatar');
     if (avatar) {
@@ -1531,12 +1531,16 @@ function hideAvatarOnMicClick() {
     }
 }
 
-// Add this to your existing microphone click handlers
-document.addEventListener('click', function(e) {
-    if (e.target.id === 'mainMicButton' || e.target.closest('#centerMicActivation')) {
-        hideAvatarOnMicClick();
-    }
-});
+// Only bind to specific buttons when they exist
+const micButton = document.getElementById('mainMicButton');
+const micActivation = document.getElementById('centerMicActivation');
+
+if (micButton) {
+    micButton.addEventListener('click', hideAvatarOnMicClick);
+}
+if (micActivation) {
+    micActivation.addEventListener('click', hideAvatarOnMicClick);
+}
 
 // ===================================================
 // 🏆 AUTO-DEPLOY BRANDING BANNER ON PAGE LOAD
