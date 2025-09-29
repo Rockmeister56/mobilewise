@@ -737,7 +737,17 @@ function processUserResponse(userText) {
         
         addAIMessage(responseText);
         speakResponse(responseText);
-        currentAIResponse = responseText;
+       function setAIResponse(response) {
+    currentAIResponse = response;
+    
+    // Track when we mention clicking
+    if (response && (response.includes('click') || response.includes('button above'))) {
+        window.lastClickMentionTime = Date.now();
+        console.log('⏰ Click mention detected - setting blocking window');
+    }
+}
+
+// Then use: setAIResponse(responseText); instead of currentAIResponse = responseText;
         
         updateSmartButton(shouldShowSmartButton, smartButtonText, smartButtonAction);
         
@@ -851,32 +861,32 @@ function speakResponse(message) {
             
             utterance.onend = function() {
     console.log('🔍 WHICH HANDLER IS RUNNING: Smart Button Blocking Handler');
-isSpeaking = false;
-console.log('🔊 AI finished speaking (mobile)');
-
-// 🐛 DEBUG: Show what we're checking
-console.log('🐛 DEBUG currentAIResponse:', currentAIResponse);
-
-// 🚫 Block when AI tells user to click the button
-if (currentAIResponse && (currentAIResponse.includes('click') || currentAIResponse.includes('button above'))) {
-    console.log('🔇 SPEAK NOW BLOCKED: Click or button above detected - no speech restart');
-    return;
-}
-
-// 🚫 DON'T TRIGGER "Speak Now" if Thank You Splash Screen exists
-if (document.getElementById('thankYouSplash')) {
-    console.log('🔇 SPEAK NOW BLOCKED: Thank you splash screen active - no speech restart');
-    return;
-}
-
-// 🚫 DON'T TRIGGER "Speak Now" if conversation is specifically ended
-if (conversationState === 'ended' || conversationState === 'splash_screen_active') {
-    console.log('🔇 SPEAK NOW BLOCKED: Conversation ended - no speech restart');
-    return;
-}
-
-console.log('🐛 DEBUG: No click or button above detected - calling showHybridReadySequence()');
-showHybridReadySequence();
+    isSpeaking = false;
+    console.log('🔊 AI finished speaking (mobile)');
+    
+    // 🚫 BLOCK if we recently mentioned clicking
+    const clickMentionTime = window.lastClickMentionTime || 0;
+    const timeSinceClickMention = Date.now() - clickMentionTime;
+    
+    if (timeSinceClickMention < 10000) { // Block for 10 seconds after click mention
+        console.log('🔇 SPEAK NOW BLOCKED: Recent click mention - waiting for user action');
+        return;
+    }
+    
+    // 🚫 DON'T TRIGGER "Speak Now" if Thank You Splash Screen exists
+    if (document.getElementById('thankYouSplash')) {
+        console.log('🔇 SPEAK NOW BLOCKED: Thank you splash screen active - no speech restart');
+        return;
+    }
+    
+    // 🚫 DON'T TRIGGER "Speak Now" if conversation is specifically ended
+    if (conversationState === 'ended' || conversationState === 'splash_screen_active') {
+        console.log('🔇 SPEAK NOW BLOCKED: Conversation ended - no speech restart');
+        return;
+    }
+    
+    console.log('🐛 DEBUG: No blocking conditions - calling showHybridReadySequence()');
+    showHybridReadySequence();
 };
        
             
@@ -1918,7 +1928,17 @@ if (window.emailFollowUpHandler && window.emailFollowUpHandler(userInput)) {
 }
 
 // ✅ SAVE RESPONSE TEXT TO lastAIResponse BEFORE RETURNING
-  currentAIResponse = responseText;
+  function setAIResponse(response) {
+    currentAIResponse = response;
+    
+    // Track when we mention clicking
+    if (response && (response.includes('click') || response.includes('button above'))) {
+        window.lastClickMentionTime = Date.now();
+        console.log('⏰ Click mention detected - setting blocking window');
+    }
+}
+
+// Then use: setAIResponse(responseText); instead of currentAIResponse = responseText;
 
 return responseText;
 }
