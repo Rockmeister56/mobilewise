@@ -801,10 +801,13 @@ function showHybridReadySequence() {
     }
     
     // ✅ NEW - DON'T SHOW "Speak Now" if Smart Button is visible on page
-    if (document.querySelector('[onclick*="handleConsultationClick"]')) {
-        console.log('🔇 HYBRID BLOCKED: Smart Button visible - user should click button');
-        return;
-    }
+   if (document.querySelector('#smartButton') || 
+    document.querySelector('.smart-button') ||
+    document.querySelector('[data-smart-button]') ||
+    document.getElementById('consultationButton')) {
+    console.log('🔇 SMART BUTTON DETECTED - blocking speech');
+    return;
+}
     
     console.log('🚀 Showing hybrid ready sequence');
     
@@ -946,6 +949,7 @@ function speakResponse(message) {
             };
             
               utterance.onend = function() {
+            console.log('🔍 WHICH HANDLER IS RUNNING: Smart Button Blocking Handler');
     isSpeaking = false;
     console.log('🔊 AI finished speaking (mobile)');
     
@@ -1796,7 +1800,7 @@ if (conversationState === 'initial') {
     const number = clientCount ? clientCount[0] : 'that many';
     
     responseText = firstName ?
-        `Wow, ${firstName}! ${number} clients - that's fantastic! You've clearly built something substantial there. I bet Bruce would be really excited to hear about your practice. With that kind of client base, you're probably generating some solid revenue too. What's your approximate annual revenue range?` :
+        `Incredible ${firstName}! ${number} clients - that's fantastic! You've clearly built something substantial there. I bet Bruce would be really excited to hear about your practice. With that kind of client base, you're probably generating some solid revenue too. What's your approximate annual revenue range?` :
         `Wow! ${number} clients - that's impressive! You've built something substantial. With that client base, what's your approximate annual revenue range?`;
     conversationState = 'selling_revenue_question';
     
