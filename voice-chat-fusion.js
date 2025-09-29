@@ -156,11 +156,38 @@ async function speakWithElevenLabs(message) {
         };
         
         // YOUR EXISTING BLOCKING LOGIC HERE:
-audio.onended = function() {
-    handleSpeechEnd();  // ← Use the shared function
-    // Clean up
-    URL.revokeObjectURL(audioUrl);
-};
+        audio.onended = function() {
+            console.log('🔍 WHICH HANDLER IS RUNNING: Smart Button Blocking Handler');
+            isSpeaking = false;
+            console.log('🔊 AI finished speaking (mobile)');
+            
+            // 🚫 BLOCK if we recently mentioned clicking
+            const clickMentionTime = window.lastClickMentionTime || 0;
+            const timeSinceClickMention = Date.now() - clickMentionTime;
+            
+            if (timeSinceClickMention < 10000) {
+                console.log('🔇 SPEAK NOW BLOCKED: Recent click mention - waiting for user action');
+                return;
+            }
+            
+            // 🚫 DON'T TRIGGER "Speak Now" if Thank You Splash Screen exists
+            if (document.getElementById('thankYouSplash')) {
+                console.log('🔇 SPEAK NOW BLOCKED: Thank you splash screen active - no speech restart');
+                return;
+            }
+            
+            // 🚫 DON'T TRIGGER "Speak Now" if conversation is specifically ended
+            if (conversationState === 'ended' || conversationState === 'splash_screen_active') {
+                console.log('🔇 SPEAK NOW BLOCKED: Conversation ended - no speech restart');
+                return;
+            }
+            
+            console.log('🐛 DEBUG: No blocking conditions - calling showHybridReadySequence()');
+            showHybridReadySequence();
+            
+            // Clean up
+            URL.revokeObjectURL(audioUrl);
+        };
         
         audio.onerror = function(error) {
             console.error('🚫 ElevenLabs: Audio playback error:', error);
@@ -174,16 +201,6 @@ audio.onended = function() {
         console.error('🚫 ElevenLabs: Speech synthesis error:', error);
         isSpeaking = false;
         speakResponseOriginal(message);
-    }
-}
-
-function setAIResponse(response) {
-    currentAIResponse = response;
-    
-    // THIS IS THE MISSING PIECE:
-    if (response && (response.includes('click') || response.includes('button above'))) {
-        window.lastClickMentionTime = Date.now();  // ← SET THE TIMESTAMP!
-        console.log('⏰ Click mention detected - setting 20-second blocking window');
     }
 }
 
@@ -928,7 +945,33 @@ function speakResponseOriginal(message) {
             };
             
             utterance.onend = function() {
-    handleSpeechEnd();
+    console.log('🔍 WHICH HANDLER IS RUNNING: Smart Button Blocking Handler');
+    isSpeaking = false;
+    console.log('🔊 AI finished speaking (mobile)');
+    
+    // 🚫 BLOCK if we recently mentioned clicking
+    const clickMentionTime = window.lastClickMentionTime || 0;
+    const timeSinceClickMention = Date.now() - clickMentionTime;
+    
+    if (timeSinceClickMention < 20000) { // Block for 10 seconds after click mention
+        console.log('🔇 SPEAK NOW BLOCKED: Recent click mention - waiting for user action');
+        return;
+    }
+    
+    // 🚫 DON'T TRIGGER "Speak Now" if Thank You Splash Screen exists
+    if (document.getElementById('thankYouSplash')) {
+        console.log('🔇 SPEAK NOW BLOCKED: Thank you splash screen active - no speech restart');
+        return;
+    }
+    
+    // 🚫 DON'T TRIGGER "Speak Now" if conversation is specifically ended
+    if (conversationState === 'ended' || conversationState === 'splash_screen_active') {
+        console.log('🔇 SPEAK NOW BLOCKED: Conversation ended - no speech restart');
+        return;
+    }
+    
+    console.log('🐛 DEBUG: No blocking conditions - calling showHybridReadySequence()');
+    showHybridReadySequence();
 };
        
             
@@ -1001,48 +1044,6 @@ function addUserMessage(message) {
 }
 
 // ===========================================
-// SHARED BLOCKING LOGIC FUNCTION
-// ===========================================
-function handleSpeechEnd() {
-    console.log('🔍 WHICH HANDLER IS RUNNING: Smart Button Blocking Handler');
-    isSpeaking = false;
-    console.log('🔊 AI finished speaking (mobile)');
-    
-    // 🐛 DEBUG: Show what we're checking
-    console.log('🐛 DEBUG currentAIResponse:', currentAIResponse);
-    
-    // 🚫 Block when AI tells user to click the button (ORIGINAL CHECK)
-    if (currentAIResponse && (currentAIResponse.includes('click') || currentAIResponse.includes('button above'))) {
-        console.log('🔇 SPEAK NOW BLOCKED: Click or button above detected - no speech restart');
-        return;
-    }
-    
-    // 🚫 BLOCK if we recently mentioned clicking (TIME-BASED BACKUP)
-    const clickMentionTime = window.lastClickMentionTime || 0;
-    const timeSinceClickMention = Date.now() - clickMentionTime;
-    
-    if (timeSinceClickMention < 20000) {
-        console.log('🔇 SPEAK NOW BLOCKED: Recent click mention - waiting for user action (20 sec window)');
-        return;
-    }
-    
-    // 🚫 DON'T TRIGGER "Speak Now" if Thank You Splash Screen exists
-    if (document.getElementById('thankYouSplash')) {
-        console.log('🔇 SPEAK NOW BLOCKED: Thank you splash screen active - no speech restart');
-        return;
-    }
-    
-    // 🚫 DON'T TRIGGER "Speak Now" if conversation is specifically ended
-    if (conversationState === 'ended' || conversationState === 'splash_screen_active') {
-        console.log('🔇 SPEAK NOW BLOCKED: Conversation ended - no speech restart');
-        return;
-    }
-    
-    console.log('🐛 DEBUG: No blocking conditions - calling showHybridReadySequence()');
-    showHybridReadySequence();
-}
-
-// ===========================================
 // MASTER SPEECH CONTROLLER
 // ===========================================
 async function speakResponse(text) {
@@ -1086,18 +1087,29 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
         // 1. BRANDING HEADER (🚀 UPDATED LAYOUT)
         branding: {
     content: `
-        <div style="width: 742px; max-width: 742px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+        <div style="display: flex; align-items: center; height: 100%; padding: 0 20px;">
+            <!-- LEFT: Mobile-Wise AI Logo -->
+            <div style="position: absolute; left: 30px; top: 17;">
+                <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758507868460_logo.png" 
+                     style="width: 65px; height: 65px;">
+            </div>
             
-            <!-- CENTER: NCI Logo -->
-            <div style="display: flex; align-items: center; justify-content: left;">
-                <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1759148392591_nci.PNG" 
-                     style="width: 230px; height: auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <!-- COMPANY NAME: Controllable positioning -->
+            <div style="position: absolute; left: 85px; top: 45px;">
+                <div style="color: white; font-size: 14px; font-weight: bold; letter-spacing: 1.5px;">
+                    Mobile-Wise AI
+                </div>
+            </div>
+            
+            <!-- RIGHT: SLOGAN -->
+            <div style="position: absolute; right: 40px; top: 5px;">
+                <div style="color: #87CEEB; font-size: 14px; font-weight: 600; text-transform: uppercase;">
+                   &check; SMART  <br> &check; HELPFUL <br> &check; AI VOICE CHAT
+                </div>
             </div>
         </div>
     `,
-    background: 'rgba(255, 255, 255, 0.15)',
-    containerWidth: 762,
-    customHeight: 90,
+    background: 'transparent',
     duration: 0
 },
         
@@ -1140,7 +1152,7 @@ smartButton: {
                 font-size: 14px;
                 transition: all 0.3s ease;
                 pointer-events: auto !important;
-            " onmouseover="this.style.background='rgba(10, 204, 178, 0.5)'" 
+            " onmouseover="this.style.background='rgba(34, 151, 197, 0.5)'" 
                onmouseout="this.style.background='rgba(34, 197, 94, 0.3)'">
                 CLICK NOW
             </button>
