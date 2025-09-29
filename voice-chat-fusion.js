@@ -930,7 +930,7 @@ function handleConsultationClick(type) {
 // ===================================================
 // 🔊 VOICE SYNTHESIS SYSTEM
 // ===================================================
-function speakResponse(message) {
+function speakResponseOriginal(message) {
     if (!window.speechSynthesis) {
         console.log('❌ Speech synthesis not supported');
         return;
@@ -1055,6 +1055,39 @@ function addUserMessage(message) {
     scrollChatToBottom();
 }
 
+}
+
+// ===========================================
+// MASTER SPEECH CONTROLLER
+// ===========================================
+async function speakResponse(text) {
+    console.log('🎤 Master Speech: Attempting ElevenLabs first...');
+    
+    try {
+        // Try ElevenLabs first
+        await speakWithElevenLabs(text);
+    } catch (error) {
+        console.log('🔄 ElevenLabs failed, switching to browser TTS...');
+        // Fallback to your original browser TTS
+        speakResponseOriginal(text);
+    }
+}
+
+// Toggle function for easy switching
+function toggleSpeechEngine() {
+    window.useElevenLabs = !window.useElevenLabs;
+    console.log(`🔄 Speech engine: ${window.useElevenLabs ? 'ElevenLabs' : 'Browser TTS'}`);
+}
+
+// Manual override functions
+function forceElevenLabs(text) {
+    setAIResponse(text);
+    speakWithElevenLabs(text);
+}
+
+function forceBrowserTTS(text) {
+    setAIResponse(text);
+    speakResponseOriginal(text);
 }
 
 // ===================================================================
