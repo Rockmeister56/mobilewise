@@ -1088,15 +1088,15 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
     content: `
         <style>
             .bruce-logo-container { 
-                width: 100% !important; 
-                height: calc(100% + 8px) !important;
+                width: 110% !important; 
+                height: calc(100% + 1px) !important;
                 background: white !important; 
                 display: flex !important; 
                 align-items: center !important; 
                 justify-content: center !important; 
                 margin: 0 !important; 
                 padding: 0 !important;
-                top: 10px !important; 
+                top: -8px !important; 
             }
             .bruce-logo { 
                 width: 230px !important; 
