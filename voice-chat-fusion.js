@@ -854,35 +854,28 @@ function speakResponse(message) {
     isSpeaking = false;
     console.log('🔊 AI finished speaking (mobile)');
     
-    // 🐛 DEBUG: Let's see what we're working with
-    console.log('🐛 DEBUG BannerOrchestrator:', typeof BannerOrchestrator);
-    if (typeof BannerOrchestrator !== 'undefined') {
-        console.log('🐛 DEBUG currentBanner:', BannerOrchestrator.currentBanner);
-    }
+    // 🐛 DEBUG: Show what we're checking
+    console.log('🐛 DEBUG lastAIResponse:', lastAIResponse);
     
-    // 🚫 DON'T TRIGGER "Speak Now" if ANY Smart Button related banner is active
-    if (typeof BannerOrchestrator !== 'undefined' && 
-        BannerOrchestrator.currentBanner && 
-        (BannerOrchestrator.currentBanner.includes('smart') || 
-         BannerOrchestrator.currentBanner.includes('consultation'))) {
-        console.log('🔇 SPEAK NOW BLOCKED: ' + BannerOrchestrator.currentBanner + ' active - no speech restart');
+    // 🚫 Check if we're in consultation flow (before banner gets deployed)
+    if (lastAIResponse && lastAIResponse.includes('consultation')) {
+        console.log('🔇 SPEAK NOW BLOCKED: Consultation detected in AI response - no speech restart');
         return;
     }
     
     // 🚫 DON'T TRIGGER "Speak Now" if Thank You Splash Screen exists
     if (document.getElementById('thankYouSplash')) {
         console.log('🔇 SPEAK NOW BLOCKED: Thank you splash screen active - no speech restart');
-        return; // Don't call showHybridReadySequence()
+        return;
     }
     
     // 🚫 DON'T TRIGGER "Speak Now" if conversation is specifically ended
     if (conversationState === 'ended' || conversationState === 'splash_screen_active') {
         console.log('🔇 SPEAK NOW BLOCKED: Conversation ended - no speech restart');
-        return; // Don't call showHybridReadySequence()
+        return;
     }
     
-    console.log('🐛 DEBUG: No blocking conditions met - calling showHybridReadySequence()');
-    // ✅ BACK TO SIMPLE - let showHybridReadySequence() handle the blocking
+    console.log('🐛 DEBUG: No consultation detected - calling showHybridReadySequence()');
     showHybridReadySequence();
 };
        
