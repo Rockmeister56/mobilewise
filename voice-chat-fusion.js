@@ -1086,12 +1086,9 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
         // 1. BRANDING HEADER (🚀 UPDATED LAYOUT)
         branding: {
     content: `
-        <div style="display: flex; align-items: center; justify-content: center; height: 100%; padding: 0 20px; background: white;">
-            <!-- CENTER: Bruce's Logo Only -->
-            <div style="text-align: center;">
-                <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1759148392591_nci.PNG" 
-                     style="width: 65px; height: 65px;">
-            </div>
+        <div style="width: 100%; height: 100%; background: white; display: flex; align-items: center; justify-content: center; margin: 0; padding: 2px 0; box-sizing: border-box;">
+            <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1759148392591_nci.PNG" 
+                 style="height: calc(100% - 4px); width: auto; max-width: 200px;">
         </div>
     `,
     background: 'white',
