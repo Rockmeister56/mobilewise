@@ -2712,6 +2712,9 @@ function sendFollowUpEmail() {
                         setTimeout(() => {
                             showThankYouSplashScreen();
                         }, 500);
+
+                        conversationFlow = 'awaiting_action';
+                        console.log("🚫 Flow: awaiting_action - speech blocked");
                         
                         return true; // Signal that we handled this response
                     }
