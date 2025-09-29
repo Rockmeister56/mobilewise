@@ -523,21 +523,18 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
 
-        /* 📱 MOBILE ONLY - SPECIAL VIEWPORT HANDLING */
+    /* 📱 MOBILE - ABSOLUTE PIXEL POSITIONING */
 @media (max-width: 768px) {
     .ai-avatar-container {
         position: fixed !important;
-        bottom: 10px !important;  /* Simple bottom positioning */
+        top: 600px !important;  /* FORCE TO PIXEL 600 */
         left: 50% !important;
         transform: translateX(-50%) !important;
         z-index: 9999 !important;
-        /* KILL VIEWPORT HEIGHT CALCULATIONS ON MOBILE */
-        top: unset !important;
-        height: auto !important;
-        width: auto !important;
-        /* MOBILE VIEWPORT RESET */
-        -webkit-transform: translateX(-50%) !important;
+        width: 150px !important;
+        height: 200px !important;
     }
+}
     
     .ai-avatar-image {
         width: 150px !important;  /* Smaller for mobile */
@@ -546,7 +543,6 @@
         margin: 0 !important;
         padding: 0 !important;
     }
-}
 
 /* 🖥️ DESKTOP - ADJUST TO NOT GO TOO LOW */
 @media (min-width: 769px) {
