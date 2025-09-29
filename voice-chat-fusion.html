@@ -845,24 +845,32 @@
     z-index: 10000 !important;
 }
 
-/* BRUCE'S BANNER - Override mobile adjustments */
-.bruce-logo-container img {
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-}
-
-/* SPECIAL: Branding banner at very top */
+/* BRUCE'S BANNER - FORCE FULL COVERAGE */
 .branding-header-banner {
-    top: 0px !important; /* Higher than other banners */
-    z-index: 10000 !important; /* Above other banners */
-
-    /* Force banner to ignore ALL header styling */
-.bruce-logo-container {
-    text-align: center !important;
+    top: 0px !important;
+    left: 0px !important;
+    right: 0px !important;
+    width: 100% !important;
+    max-width: none !important;
     margin: 0 !important;
     padding: 0 !important;
-    position: relative !important;
+    z-index: 10000 !important;
+    position: absolute !important;
 }
+
+.bruce-logo-container {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: white !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 
 /*
