@@ -1523,25 +1523,6 @@ window.removeLeadCaptureBanner = function() {
 
 console.log('🎖️ Complete Universal Banner Engine loaded - 9 banner types ready (Clean Container Edition)!');
 
-// SAFER APPROACH - Bind directly to mic buttons only
-function hideAvatarOnMicClick() {
-    const avatar = document.getElementById('aiAvatar');
-    if (avatar) {
-        avatar.classList.add('hidden');
-    }
-}
-
-// Only bind to specific buttons when they exist
-const micButton = document.getElementById('mainMicButton');
-const micActivation = document.getElementById('centerMicActivation');
-
-if (micButton) {
-    micButton.addEventListener('click', hideAvatarOnMicClick);
-}
-if (micActivation) {
-    micActivation.addEventListener('click', hideAvatarOnMicClick);
-}
-
 // ===================================================
 // 🏆 AUTO-DEPLOY BRANDING BANNER ON PAGE LOAD
 // ===================================================
