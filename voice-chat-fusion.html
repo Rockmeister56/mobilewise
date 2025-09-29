@@ -523,61 +523,39 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
 
-        /* ===================================================
-   🤖 AI AVATAR - FORCED TO BOTTOM
-   ================================================== */
-
-/* 🖥️ DESKTOP VERSION */
-@media (min-width: 769px) {
-    .ai-avatar-container {
-        position: fixed !important;
-        top: calc(100vh - 220px) !important; /* Force to bottom - adjust 220px as needed */
-        left: 50% !important;
-        transform: translateX(-50%) !important;
-        z-index: 500 !important;
-        text-align: center;
-        transition: opacity 0.5s ease;
-        opacity: 1;
-    }
-    
-    .ai-avatar-image {
-        width: 200px;
-        height: auto;
-        background: none !important;
-        background-color: transparent !important;
-        animation: ai-alive-glow 2s ease-in-out infinite;
-        filter: drop-shadow(0 0 15px rgba(0, 255, 136, 0.6)) 
-                drop-shadow(0 0 30px rgba(0, 255, 136, 0.4));
-        display: block;
-        margin: 0;
-        padding: 0;
-    }
-}
-
-/* 📱 MOBILE VERSION */
+        /* 📱 MOBILE ONLY - SPECIAL VIEWPORT HANDLING */
 @media (max-width: 768px) {
     .ai-avatar-container {
         position: fixed !important;
-        top: calc(100vh - 190px) !important; /* Force to bottom - adjust 190px as needed */
+        bottom: 10px !important;  /* Simple bottom positioning */
         left: 50% !important;
         transform: translateX(-50%) !important;
-        z-index: 500 !important;
-        text-align: center;
-        transition: opacity 0.5s ease;
-        opacity: 1;
+        z-index: 9999 !important;
+        /* KILL VIEWPORT HEIGHT CALCULATIONS ON MOBILE */
+        top: unset !important;
+        height: auto !important;
+        width: auto !important;
+        /* MOBILE VIEWPORT RESET */
+        -webkit-transform: translateX(-50%) !important;
     }
     
     .ai-avatar-image {
-        width: 175px;
-        height: auto;
-        background: none !important;
-        background-color: transparent !important;
-        animation: ai-alive-glow 2s ease-in-out infinite;
-        filter: drop-shadow(0 0 12px rgba(0, 255, 136, 0.6)) 
-                drop-shadow(0 0 25px rgba(0, 255, 136, 0.4));
-        display: block;
-        margin: 0;
-        padding: 0;
+        width: 150px !important;  /* Smaller for mobile */
+        height: auto !important;
+        display: block !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+}
+
+/* 🖥️ DESKTOP - ADJUST TO NOT GO TOO LOW */
+@media (min-width: 769px) {
+    .ai-avatar-container {
+        position: fixed !important;
+        bottom: 50px !important;  /* HIGHER on desktop */
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        z-index: 9999 !important;
     }
 }
 
