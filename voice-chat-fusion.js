@@ -860,6 +860,10 @@ function speakResponse(message) {
     // 🚫 Block when AI tells user to click the button
     if (lastAIResponse && (lastAIResponse.includes('click') || lastAIResponse.includes('button above'))) {
         console.log('🔇 SPEAK NOW BLOCKED: Click or button above detected - no speech restart');
+        
+        // ✅ CLEAR THE RESPONSE SO IT DOESN'T BLOCK FOREVER
+        lastAIResponse = '';
+        
         return;
     }
     
