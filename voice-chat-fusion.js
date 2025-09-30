@@ -972,6 +972,11 @@ function handleSpeechEnd(speechType) {
     console.log(`🔊 ${speechType} finished speaking`);
     isSpeaking = false;
 
+     // 🚨 TEMPORARY FIX: ADD THESE 2 LINES:
+    if (!audio) audio = new Audio();
+    if (!utterance) utterance = new SpeechSynthesisUtterance();
+    // 🚨 END TEMPORARY FIX
+
     // 🚨 BLOCKING CHECK - WORKS FOR BOTH SYSTEMS
     if (conversationFlow !== 'normal') {
         console.log("🚫 SPEECH BLOCKED: Waiting for user action");
