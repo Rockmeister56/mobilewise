@@ -44,6 +44,7 @@ let currentAIResponse = '';
 let conversationFlow = 'normal';
 let audio = null;
 let utterance = null;
+let audioContextWarmed = false;
 window.leadData = window.leadData || {
     firstName: '',
     step: 0,
@@ -98,9 +99,126 @@ class SpeechEngineManager {
     }
 }
 
-// Create global engine manager
-const speechEngine = new SpeechEngineManager();
-console.log('🚀 Speech Engine Manager initialized');
+// ===================================================
+// 🎧 ADD THIS NEW CLASS BELOW YOUR EXISTING ONE
+// ===================================================
+class AudioPlaybackManager {
+    constructor() {
+        this.audioContextWarmed = false;
+        this.isPrepping = false;
+        console.log('🎧 Audio Playback Manager created');
+    }
+    
+    async initializeAudioContext() {
+        if (this.audioContextWarmed || this.isPrepping) {
+            console.log('🎧 Audio already warmed or warming');
+            return true;
+        }
+        
+        this.isPrepping = true;
+        console.log('🎧 Starting audio context warm-up...');
+        
+        try {
+            const silentAudio = new Audio();
+            silentAudio.src = 'data:audio/wav;base64,UklGRnoAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoAAAC';
+            silentAudio.volume = 0;
+            
+            await silentAudio.play();
+            await new Promise(resolve => setTimeout(resolve, 100));
+            silentAudio.pause();
+            
+            this.audioContextWarmed = true;
+            this.isPrepping = false;
+            console.log('🎧 Audio context pre-warmed successfully');
+            return true;
+            
+        } catch (error) {
+            console.log('🎧 Silent audio failed, using fallback');
+            const audio = new Audio();
+            this.audioContextWarmed = true;
+            this.isPrepping = false;
+            console.log('🎧 Audio fallback warm-up complete');
+            return true;
+        }
+    }
+    
+    isReady() {
+        return this.audioContextWarmed;
+    }
+}
+
+// ===================================================
+// 🚀 ADD THIS NEW CLASS BELOW THE AUDIO MANAGER
+// ===================================================
+class SystemPreWarmManager {
+    constructor() {
+        this.speechManager = new SpeechEngineManager();
+        this.audioManager = new AudioPlaybackManager();
+        this.initialized = false;
+        console.log('🚀 System Pre-Warm Manager created');
+    }
+    
+    async initializeCompleteSystem() {
+        if (this.initialized) {
+            console.log('🚀 System already initialized');
+            return true;
+        }
+        
+        console.log('🚀 Starting complete system pre-warm...');
+        
+        try {
+            const speechReady = await this.speechManager.initializeEngine();
+            const audioReady = await this.audioManager.initializeAudioContext();
+            
+            this.initialized = speechReady && audioReady;
+            
+            if (this.initialized) {
+                console.log('🎉 COMPLETE SYSTEM READY: Listening + Speaking optimized!');
+            } else {
+                console.log('⚠️ System partially initialized');
+            }
+            
+            return this.initialized;
+            
+        } catch (error) {
+            console.log('❌ System initialization failed:', error);
+            return false;
+        }
+    }
+    
+    getSpeechManager() {
+        return this.speechManager;
+    }
+    
+    getAudioManager() {
+        return this.audioManager;
+    }
+    
+    getStatus() {
+        return {
+            speechReady: this.speechManager.isReady(),
+            audioReady: this.audioManager.isReady(),
+            fullyInitialized: this.initialized
+        };
+    }
+    
+    isSystemReady() {
+        return this.initialized;
+    }
+}
+
+// 🚀 CREATE GLOBAL UNIFIED SYSTEM MANAGER
+const systemManager = new SystemPreWarmManager();
+console.log('🚀 Unified System Manager created');
+
+// Initialize complete system (speech + audio)
+systemManager.initializeCompleteSystem().then(success => {
+    if (success) {
+        console.log('🎉 COMPLETE SYSTEM READY: Listening + Speaking optimized!');
+    } else {
+        console.log('⚠️ System partially initialized - some features may be slower');
+    }
+});
 
 // ===========================================
 // ELEVENLABS CONFIGURATION
@@ -252,22 +370,25 @@ function checkSpeechSupport() {
     return true;
 }
 
-function initializeSpeechRecognition() {
+async function initializeSpeechRecognition() {  // ← ADD 'async' HERE
     if (!checkSpeechSupport()) return false;
 
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    recognition = new SpeechRecognition();
+    // 🚀 USE THE PRE-WARMED SYSTEM INSTEAD OF CREATING NEW
+    const speechManager = systemManager.getSpeechManager();
     
-    recognition.continuous = false;
-    recognition.interimResults = true;
-    recognition.lang = 'en-US';
+    if (!speechManager.isReady()) {
+        console.log('🔥 Warming up speech engine...');
+        await systemManager.initializeCompleteSystem();
+    }
+    
+    recognition = speechManager.getEngine();
+    
+    if (!recognition) {
+        console.log('❌ Failed to get speech engine');
+        return false;
+    }
 
-     // 🚫 CRITICAL: DISABLE BROWSER BEEP
-    recognition.onsoundstart = null;
-    recognition.onaudiostart = null;
-    recognition.onstart = null;
-
-    console.log('✅ Speech recognition initialized');
+    console.log('✅ Speech recognition initialized (from pre-warmed system)');
     return true;
 }
 
@@ -325,15 +446,16 @@ function correctSpeechErrors(transcript) {
     return corrected;
 }
     
-  // ===================================================
+// ===================================================
 // 🎤 START LISTENING new function
 // ===================================================
-    async function startListening() {
-     // ✅ PREVENT MULTIPLE STARTS
+async function startListening() {
+    // ✅ PREVENT MULTIPLE STARTS
     if (recognition && recognition.state === 'started') {
         console.log('🚫 Recognition already running - skipping start');
         return;
     }
+    
     // Smart button gate-keeper (keep this)
     const smartButton = document.getElementById('smartButton');
     if (smartButton && smartButton.style.display !== 'none') {
@@ -348,22 +470,23 @@ function correctSpeechErrors(transcript) {
     try {
         // 🎯 MOBILE-SPECIFIC PRE-WARMING
         const isMobile = isMobileDevice();
-        
-        if (isMobile && !speechEngine.isReady()) {
+        const speechManager = systemManager.getSpeechManager();
+
+        if (isMobile && !speechManager.isReady()) {
             console.log('📱 Mobile detected - pre-warming engine...');
-            await speechEngine.initializeEngine();
+            await systemManager.initializeCompleteSystem();
         }
         
         if (!recognition) {
-            if (isMobile && speechEngine.isReady()) {
-                recognition = speechEngine.getEngine();
+            if (isMobile && speechManager.isReady()) {
+                recognition = speechManager.getEngine();
                 console.log('📱 Using pre-warmed mobile engine');
             } else {
-                initializeSpeechRecognition();
+                await initializeSpeechRecognition();
             }
         }
 
-        // Keep ALL your existing event handlers - they're perfect
+        // 🎯 SET UP EVENT HANDLERS (MOVED INSIDE THE TRY BLOCK)
         recognition.onresult = function(event) {
             let transcript = Array.from(event.results)
                 .map(result => result[0])
@@ -394,127 +517,111 @@ function correctSpeechErrors(transcript) {
             }
         };
 
-        // Keep your existing onerror and onend handlers exactly as they are
-    recognition.onerror = function(event) {
-    console.log('🔊 Speech error:', event.error);
+        recognition.onerror = function(event) {
+            console.log('🔊 Speech error:', event.error);
 
-    if (event.error === 'no-speech') {
-        const transcriptText = document.getElementById('transcriptText');
+            if (event.error === 'no-speech') {
+                const transcriptText = document.getElementById('transcriptText');
 
-        if (isMobileDevice()) {
-            console.log('📱 Mobile: Using visual feedback system');
+                if (isMobileDevice()) {
+                    console.log('📱 Mobile: Using visual feedback system');
 
-            // Clear any existing timeouts to prevent conflicts
-            if (window.noSpeechTimeout) {
-                clearTimeout(window.noSpeechTimeout);
-            }
+                    if (window.noSpeechTimeout) {
+                        clearTimeout(window.noSpeechTimeout);
+                    }
 
-            // Show immediate visual feedback
-            if (transcriptText) {
-                transcriptText.textContent = 'I didn\'t hear anything...';
-                transcriptText.style.color = '#ff6b6b';
-
-                // Wait a moment, then reset to listening state
-                window.noSpeechTimeout = setTimeout(() => {
                     if (transcriptText) {
-                        transcriptText.textContent = 'Please speak now';
-                        transcriptText.style.color = '#ffffff';
+                        transcriptText.textContent = 'I didn\'t hear anything...';
+                        transcriptText.style.color = '#ff6b6b';
+
+                        window.noSpeechTimeout = setTimeout(() => {
+                            if (transcriptText) {
+                                transcriptText.textContent = 'Please speak now';
+                                transcriptText.style.color = '#ffffff';
+                            }
+
+                            if (isAudioMode && !isSpeaking) {
+                                console.log('🔄 Mobile: Restarting via hybrid system');
+                                isListening = false;
+                                setTimeout(() => {
+                                    showHybridReadySequence();
+                                }, 800);
+                            }
+                        }, 1500);
                     }
-
-                    // Restart listening with hybrid system
-                    if (isAudioMode && !isSpeaking) {
-                        console.log('🔄 Mobile: Restarting via hybrid system');
-                        isListening = false;
-
-                        // Use the hybrid system instead of direct restart
-                        setTimeout(() => {
-                            showHybridReadySequence();
-                        }, 800);
-                    }
-                }, 1500);
-            }
-
-        } else {
-            console.log('🖥️ Desktop: Using voice apology system');
-
-            lastMessageWasApology = true;
-            const apologyResponse = getApologyResponse();
-
-            stopListening();
-
-            setTimeout(() => {
-                addAIMessage(apologyResponse);
-                speakResponse(apologyResponse);
-
-                if (restartTimeout) clearTimeout(restartTimeout);
-
-                restartTimeout = setTimeout(() => {
-                    if (isAudioMode && !isListening && !isSpeaking) {
-                        startListening();
-                    }
-                    lastMessageWasApology = false;
-                }, 3000);
-            }, 500);
-        }
-    } else if (event.error === 'audio-capture') {
-        console.log('🎤 No microphone detected');
-        addAIMessage("I can't detect your microphone. Please check your audio settings.");
-    } else if (event.error === 'not-allowed') {
-        console.log('🔒 Permission denied');
-        addAIMessage("Microphone permission was denied. Please allow microphone access to continue.");
-    }
-};
-
-      recognition.onend = function() {
-    console.log('🔚 Recognition ended');
-    
-    // DON'T clear the slot here - let the hybrid system manage it
-    // (This was causing premature clearing)
-    
-    const userInput = document.getElementById('userInput');
-    
-    if (userInput && userInput.value.trim().length > 0) {
-        // User said something - process the message
-        const currentMessage = userInput.value.trim();
-        const now = Date.now();
-        const timeSinceLastMessage = now - (window.lastMessageTime || 0);
-        
-        if (!window.lastProcessedMessage || 
-            window.lastProcessedMessage !== currentMessage || 
-            timeSinceLastMessage > 3000) {
-            
-            console.log('✅ Sending new message:', currentMessage);
-            window.lastProcessedMessage = currentMessage;
-            window.lastMessageTime = now;
-            sendMessage();
-        } else {
-            console.log('🚫 Prevented duplicate message (within 3 seconds):', currentMessage);
-            userInput.value = '';
-        }
-    } else {
-        // No speech detected - restart with hybrid system
-        if (isAudioMode && !isSpeaking && !lastMessageWasApology) {
-            console.log('🔄 No speech detected via onend - restarting with hybrid system');
-            
-            // Clear listening state and restart properly
-            isListening = false;
-            
-            // Use hybrid system for restart (not direct startListening)
-            setTimeout(() => {
-                if (!isSpeaking && isAudioMode) {
-                    showHybridReadySequence();
+                } else {
+                    console.log('🖥️ Desktop: Using voice apology system');
+                    lastMessageWasApology = true;
+                    const apologyResponse = getApologyResponse();
+                    stopListening();
+                    setTimeout(() => {
+                        addAIMessage(apologyResponse);
+                        speakResponse(apologyResponse);
+                        if (restartTimeout) clearTimeout(restartTimeout);
+                        restartTimeout = setTimeout(() => {
+                            if (isAudioMode && !isListening && !isSpeaking) {
+                                startListening();
+                            }
+                            lastMessageWasApology = false;
+                        }, 3000);
+                    }, 500);
                 }
-            }, 1000);
-        }
-    }
-};
+            } else if (event.error === 'audio-capture') {
+                console.log('🎤 No microphone detected');
+                addAIMessage("I can't detect your microphone. Please check your audio settings.");
+            } else if (event.error === 'not-allowed') {
+                console.log('🔒 Permission denied');
+                addAIMessage("Microphone permission was denied. Please allow microphone access to continue.");
+            }
+        };
+
+        recognition.onend = function() {
+            console.log('🔚 Recognition ended');
+            
+            const userInput = document.getElementById('userInput');
+            
+            if (userInput && userInput.value.trim().length > 0) {
+                const currentMessage = userInput.value.trim();
+                const now = Date.now();
+                const timeSinceLastMessage = now - (window.lastMessageTime || 0);
+                
+                if (!window.lastProcessedMessage || 
+                    window.lastProcessedMessage !== currentMessage || 
+                    timeSinceLastMessage > 3000) {
+                    
+                    console.log('✅ Sending new message:', currentMessage);
+                    window.lastProcessedMessage = currentMessage;
+                    window.lastMessageTime = now;
+                    sendMessage();
+                } else {
+                    console.log('🚫 Prevented duplicate message (within 3 seconds):', currentMessage);
+                    userInput.value = '';
+                }
+            } else {
+                if (isAudioMode && !isSpeaking && !lastMessageWasApology) {
+                    console.log('🔄 No speech detected via onend - restarting with hybrid system');
+                    isListening = false;
+                    setTimeout(() => {
+                        if (!isSpeaking && isAudioMode) {
+                            showHybridReadySequence();
+                        }
+                    }, 1000);
+                }
+            }
+        };
         
         // 🎯 MOBILE TIMING DELAY
-        const delay = isMobile ? 800 : 0; // Only delay on mobile
+        const delay = isMobile ? 800 : 0;
         
         if (delay > 0) {
             console.log(`⏱️ Adding ${delay}ms mobile delay`);
+            await new Promise(resolve => setTimeout(resolve, delay));
         }
+
+        // 🎯 START RECOGNITION
+        console.log('🎤 Starting speech recognition...');
+        recognition.start();
+        isListening = true;
 
     } catch (error) {
         console.error('❌ Error starting speech recognition:', error);
@@ -540,7 +647,7 @@ function stopListening() {
 // ===================================================
 // 🔄 FORCE START LISTENING (BYPASSES GATE-KEEPER)
 // ===================================================
-function forceStartListening() {
+async function forceStartListening() {  // ← ADD async
     console.log('🔄 FORCE starting speech recognition (mobile reset)');
     
     if (!checkSpeechSupport()) return;
@@ -548,14 +655,14 @@ function forceStartListening() {
     
     try {
         if (!recognition) {
-            initializeSpeechRecognition();
+            await initializeSpeechRecognition(); // ← ADD await
         }
         
         console.log('🎤 Force starting speech recognition...');
         recognition.start();
         isListening = true;
         
-       showSpeakNow();
+        showSpeakNow();
         
         console.log('✅ Force speech recognition started successfully');
         
@@ -627,7 +734,13 @@ async function activateMicrophone() {
                 micButton.classList.add('listening');
             }
             
-            initializeSpeechRecognition();
+                        // 🎯 REPLACED THESE 3 LINES:
+            const success = await initializeSpeechRecognition();
+            if (!success) {
+                console.log('❌ Failed to initialize speech recognition');
+                addAIMessage("Failed to initialize speech recognition. Please try again.");
+                return;
+            }
 
             document.getElementById('quickButtonsContainer').style.display = 'block';
 
@@ -867,14 +980,11 @@ function createBeep(frequency, duration, volume) {
     oscillator.stop(audioContext.currentTime + duration);
 }
 
-// ===================================================
-// 🔥 PRE-WARM ENGINE (SILENT - NO BEEP)
-// ===================================================
-function preWarmSpeechEngine() {
+async function preWarmSpeechEngine() {  // ← ADD async
     console.log('🔥 Pre-warming speech engine...');
     
     if (!recognition) {
-        initializeSpeechRecognition();
+        await initializeSpeechRecognition(); // ← ADD await
     }
     
     // Mobile-specific optimizations
