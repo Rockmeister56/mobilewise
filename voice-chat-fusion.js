@@ -42,6 +42,8 @@ let lastMessageWasApology = false;
 let isInLeadCapture = false;
 let currentAIResponse = '';
 let conversationFlow = 'normal';
+let audio = null;
+let utterance = null;
 window.leadData = window.leadData || {
     firstName: '',
     step: 0,
@@ -110,6 +112,7 @@ const VOICE_ID = 'zGjIP4SZlMnY9m93k97r';
 // ELEVENLABS SPEECH SYNTHESIS
 // ===========================================
 async function speakWithElevenLabs(message) {
+    audio = new Audio();
     try {
         console.log('🎤 ElevenLabs: Starting speech synthesis...');
         isSpeaking = true;
@@ -990,6 +993,7 @@ function handleSpeechEnd(speechType) {
 // 🔊 VOICE SYNTHESIS SYSTEM
 // ===================================================
 function speakResponseOriginal(message) {
+    utterance = new SpeechSynthesisUtterance();
     if (!window.speechSynthesis) {
         console.log('❌ Speech synthesis not supported');
         return;
@@ -3597,4 +3601,11 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     }, 1000);
+
+    // 🎯 SAFE HANDLER SETUP (put this at the very end)
+setTimeout(() => {
+    if (audio) audio.onended = () => handleSpeechEnd('ElevenLabs');
+    if (utterance) utterance.onend = () => handleSpeechEnd('Browser TTS');
+    console.log("🎯 Speech handlers ready");
+}, 2000);
 });
