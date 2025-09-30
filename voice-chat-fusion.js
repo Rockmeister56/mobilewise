@@ -954,6 +954,42 @@ function handleConsultationClick(type) {
     handleSmartButtonClick(type);
 }
 
+// Shared blocking logic function
+function handleSpeechEnd(source) {
+    console.log(`🔊 ${source} finished speaking`);
+    isSpeaking = false;
+    
+    if (conversationFlow !== 'normal') {
+        console.log(`🚫 SPEECH BLOCKED by ${source}`);
+        setTimeout(() => { 
+            if (conversationFlow !== 'normal') {
+                console.log(`🔄 Auto-resolving ${source} block after timeout`);
+                conversationFlow = 'normal';
+                showHybridReadySequence();
+            }
+        }, 25000);
+        return;
+    }
+    
+    showHybridReadySequence();
+}
+
+// Browser Speech Synthesis (utterance.onend)
+utterance.onend = function() {
+    handleSpeechEnd('Browser TTS');
+};
+
+// ElevenLabs Audio (audio.onend) 
+// Add this wherever your ElevenLabs audio is created
+audio.onended = function() {
+    handleSpeechEnd('ElevenLabs');
+};
+
+// Alternative if using different audio event
+audio.addEventListener('ended', function() {
+    handleSpeechEnd('ElevenLabs');
+});
+
 // ===================================================
 // 🔊 VOICE SYNTHESIS SYSTEM
 // ===================================================
@@ -985,19 +1021,13 @@ function speakResponseOriginal(message) {
                 }
             };
             
-  utterance.onend = function() {
-    isSpeaking = false;
-    if (conversationFlow !== 'normal') {
-        console.log("🚫 SPEECH BLOCKED");
-        setTimeout(() => { 
-            if (conversationFlow !== 'normal') {
-                conversationFlow = 'normal';
-                showHybridReadySequence();
-            }
-        }, 25000);
-        return;
-    }
-    showHybridReadySequence();
+ utterance.onend = function() {
+    handleSpeechEnd();
+};
+
+
+audio.onended = function() {
+    handleSpeechEnd();
 };
 
                   
