@@ -230,29 +230,10 @@ const VOICE_ID = 'zGjIP4SZlMnY9m93k97r';
 async function speakWithElevenLabs(message) {
     try {
         console.log('🎤 ElevenLabs: Starting speech synthesis...');
-        isSpeaking = true;
-
-        // Clean audio creation
-        if (!audio) {
-            audio = new Audio();
-        }
-        
-        // Clean handler
-        audio.onended = function() {
-            handleSpeechEnd('ElevenLabs');
-        };
         
         const startTime = performance.now();
         
-        // ✅ MAXIMUM SPEED SETTINGS (proven to be 500ms faster!)
-        const voiceSettings = {
-            stability: 0.1,           // Minimum for maximum speed
-            similarity_boost: 0.3,     // Very low for speed
-            style: 0.0,
-            use_speaker_boost: false
-        };
-        
-        const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/zGjIP4SZlMnY9m93k97r/stream`, {
+        const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/zGjIP4SZlMnY9m93k97r`, {
             method: 'POST',
             headers: {
                 'Accept': 'audio/mpeg',
@@ -261,8 +242,8 @@ async function speakWithElevenLabs(message) {
             },
             body: JSON.stringify({
                 text: message,
-                model_id: "eleven_monolingual_v1",
-                voice_settings: voiceSettings
+                model_id: "eleven_monolingual_v1"
+                // NO voice_settings - use defaults for speed!
             })
         });
 
@@ -275,7 +256,15 @@ async function speakWithElevenLabs(message) {
         const audioBlob = await response.blob();
         const audioUrl = URL.createObjectURL(audioBlob);
         
-        audio.src = audioUrl;
+        // Create new audio instance (don't reuse)
+        const audio = new Audio(audioUrl);
+        
+        // Simple event handling
+        audio.onended = function() {
+            console.log('🔊 ElevenLabs finished speaking');
+            handleSpeechEnd('ElevenLabs');
+        };
+        
         await audio.play();
         
         console.log('🎤 ElevenLabs: Audio ready - starting playback');
