@@ -913,16 +913,9 @@ function handleSpeechEnd(speechType) {
     console.log(`🔊 ${speechType} finished speaking`);
     isSpeaking = false;
 
-     // 🚨 TEMPORARY FIX: ADD THESE 2 LINES:
-    if (!audio) audio = new Audio();
-    if (!utterance) utterance = new SpeechSynthesisUtterance();
-    // 🚨 END TEMPORARY FIX
-
-    // 🚨 BLOCKING CHECK - WORKS FOR BOTH SYSTEMS
+    // 🎯 CLEAN FLOW CONTROL ONLY
     if (conversationFlow !== 'normal') {
         console.log("🚫 SPEECH BLOCKED: Waiting for user action");
-        
-        // Auto-resume safety net
         setTimeout(() => { 
             if (conversationFlow !== 'normal') {
                 conversationFlow = 'normal';
@@ -935,11 +928,7 @@ function handleSpeechEnd(speechType) {
     showHybridReadySequence();
 }
 
-// ===================================================
-// 🔊 VOICE SYNTHESIS SYSTEM
-// ===================================================
 function speakResponseOriginal(message) {
-    utterance = new SpeechSynthesisUtterance();
     if (!window.speechSynthesis) {
         console.log('❌ Speech synthesis not supported');
         return;
@@ -947,82 +936,47 @@ function speakResponseOriginal(message) {
 
     window.speechSynthesis.cancel();
     
-    if (isMobileDevice()) {
-        setTimeout(() => {
-            utterance = new SpeechSynthesisUtterance(message);
-            
-            utterance.rate = 0.9;
-            utterance.pitch = 1.0;
-            utterance.volume = 0.95;
-            
-            utterance.onstart = function() {
-                isSpeaking = true;
-                console.log('🔊 AI started speaking (mobile)');
-
-                if (isMobileDevice()) {
-                    const micButton = document.getElementById('micButton');
-                    const liveTranscript = document.getElementById('liveTranscript');
-                    if (micButton) micButton.classList.remove('listening');
-                    if (liveTranscript) liveTranscript.style.display = 'none';
-                }
-            };
-            
-// ElevenLabs Audio (audio.onended) 
-audio.onended = function() {
-    handleSpeechEnd('ElevenLabs');
-};
-                  
-// Browser Speech Synthesis (utterance.onend)
-utterance.onend = function() {
-    handleSpeechEnd('Browser TTS');
-};
-
-window.speechSynthesis.speak(utterance);
-currentAudio = utterance;
-}, 500);
-} else {
-     utterance = new SpeechSynthesisUtterance(message);
+    // 🎯 CREATE UTTERANCE ONCE (with message)
+    utterance = new SpeechSynthesisUtterance(message);
     
-    utterance.rate = 1.0;
-    utterance.pitch = 1.0;
-    utterance.volume = 0.9;
+    // 🎯 COMMON SETTINGS
+    utterance.rate = isMobileDevice() ? 0.9 : 1.0;
+    utterance.pitch = isMobileDevice() ? 1.0 : 1.0;
+    utterance.volume = isMobileDevice() ? 0.95 : 0.9;
     
+    // 🎯 COMMON HANDLERS
     utterance.onstart = function() {
         isSpeaking = true;
-        console.log('🔊 AI started speaking');
+        console.log('🔊 AI started speaking' + (isMobileDevice() ? ' (mobile)' : ''));
+        
+        if (isMobileDevice()) {
+            const micButton = document.getElementById('micButton');
+            const liveTranscript = document.getElementById('liveTranscript');
+            if (micButton) micButton.classList.remove('listening');
+            if (liveTranscript) liveTranscript.style.display = 'none';
+        }
     };
     
-    // Check conversation state
-    if (conversationState === 'ended' || conversationState === 'splash_screen_active') {
-        console.log('🔇 SIMPLE HANDLER: Conversation ended - blocking speech');
-        return;
-    }
-    
-    showHybridReadySequence();
-};
+    // 🎯 SINGLE END HANDLER
+    utterance.onend = function() {
+        handleSpeechEnd('Browser TTS');
+    };
     
     utterance.onerror = function(event) {
         console.log('❌ Speech error:', event.error);
         isSpeaking = false;
     };
     
-    window.speechSynthesis.speak(utterance);
-    currentAudio = utterance;
-}
-
-function addUserMessage(message) {
-    console.log('🎯 DEBUG: addUserMessage called with:', message);
-    console.trace(); // This shows the call stack - WHO called this function
-    
-    const chatMessages = document.getElementById('chatMessages');
-    if (!chatMessages) return;
-    
-    const messageElement = document.createElement('div');
-    messageElement.className = 'message user-message';
-    messageElement.textContent = message;
-    
-    chatMessages.appendChild(messageElement);
-    scrollChatToBottom();
+    // 🎯 DELAY FOR MOBILE ONLY
+    if (isMobileDevice()) {
+        setTimeout(() => {
+            window.speechSynthesis.speak(utterance);
+            currentAudio = utterance;
+        }, 500);
+    } else {
+        window.speechSynthesis.speak(utterance);
+        currentAudio = utterance;
+    }
 }
 
 // ===========================================
