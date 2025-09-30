@@ -227,6 +227,84 @@ systemManager.initializeCompleteSystem().then(success => {
 const ELEVENLABS_API_KEY = 'sk_9e7fa2741be74e8cc4af95744fe078712c1e8201cdcada93';
 const VOICE_ID = 'zGjIP4SZlMnY9m93k97r';
 
+async function speakWithElevenLabs(message) {
+    try {
+        console.log('🎤 ElevenLabs: Starting PROGRESSIVE BUFFERING...');
+        isSpeaking = true;
+
+        if (!audio) {
+            audio = new Audio();
+        }
+        
+        audio.onended = function() {
+            handleSpeechEnd('ElevenLabs');
+        };
+        
+        const startTime = performance.now();
+        
+        const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}/stream`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'audio/mpeg',
+                'Content-Type': 'application/json',
+                'xi-api-key': ELEVENLABS_API_KEY
+            },
+            body: JSON.stringify({
+                text: message,
+                model_id: "eleven_monolingual_v1",
+                voice_settings: {
+                    stability: 0.5,
+                    similarity_boost: 0.5,
+                    style: 0.0,
+                    use_speaker_boost: false
+                }
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        console.log('⏱️ API Response:', performance.now() - startTime + 'ms');
+        
+        // ✅ PROGRESSIVE BUFFERING
+        const mediaSource = new MediaSource();
+        audio.src = URL.createObjectURL(mediaSource);
+        
+        mediaSource.addEventListener('sourceopen', async () => {
+            const sourceBuffer = mediaSource.addSourceBuffer('audio/mpeg');
+            const reader = response.body.getReader();
+            
+            let firstChunk = true;
+            
+            while (true) {
+                const { done, value } = await reader.read();
+                
+                if (done) {
+                    mediaSource.endOfStream();
+                    break;
+                }
+                
+                sourceBuffer.appendBuffer(value);
+                
+                // ✅ START PLAYBACK AFTER FIRST CHUNK
+                if (firstChunk) {
+                    firstChunk = false;
+                    audio.play().then(() => {
+                        console.log('🚀 PROGRESSIVE: Playback started:', performance.now() - startTime + 'ms');
+                    }).catch(console.error);
+                }
+            }
+        });
+        
+        console.log('🎤 ElevenLabs: Progressive buffering started');
+        
+    } catch (error) {
+        console.log("🚫 ElevenLabs: Speech synthesis error:", error);
+        throw error;
+    }
+}
+
 // ===========================================
 // ELEVENLABS SPEECH SYNTHESIS
 // ===========================================
