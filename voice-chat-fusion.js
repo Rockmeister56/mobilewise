@@ -276,6 +276,20 @@ async function speakWithElevenLabs(message) {
     }
 }
 
+// Add these simple functions if you don't have them
+function showAIThinkingIndicator() {
+    const indicator = document.createElement('div');
+    indicator.id = 'ai-thinking';
+    indicator.innerHTML = '🤔 AI is thinking...';
+    indicator.style.cssText = 'position:fixed; top:20px; right:20px; background:#333; color:white; padding:10px; border-radius:5px; z-index:1000;';
+    document.body.appendChild(indicator);
+}
+
+function hideAIThinkingIndicator() {
+    const indicator = document.getElementById('ai-thinking');
+    if (indicator) indicator.remove();
+}
+
 // ===================================================
 // 📱 MOBILE DEVICE DETECTION
 // ===================================================
