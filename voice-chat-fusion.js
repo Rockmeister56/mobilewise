@@ -112,12 +112,11 @@ const VOICE_ID = 'zGjIP4SZlMnY9m93k97r';
 // ELEVENLABS SPEECH SYNTHESIS
 // ===========================================
 async function speakWithElevenLabs(message) {
-    audio = new Audio();
     try {
         console.log('🎤 ElevenLabs: Starting speech synthesis...');
         isSpeaking = true;
 
-               // 🎯 CREATE AUDIO ONCE:
+        // 🎯 CREATE AUDIO ONCE:
         if (!audio) {
             audio = new Audio();
         }
@@ -130,8 +129,11 @@ async function speakWithElevenLabs(message) {
         
         console.log("🔍 HANDLER SET SUCCESSFULLY");
         
-        // Start API call immediately (don't await yet)
-        const audioPromise = fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}`, {
+        // 🎯 DEBUG BEFORE API CALL:
+        console.log("🔍 AUDIO BEFORE API CALL:", audio);
+        
+        // Your existing ElevenLabs API code...
+        const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}`, {
             method: 'POST',
             headers: {
                 'Accept': 'audio/mpeg',
@@ -140,94 +142,39 @@ async function speakWithElevenLabs(message) {
             },
             body: JSON.stringify({
                 text: message,
-                model_id: 'eleven_turbo_v2',  // ← FASTER MODEL
+                model_id: "eleven_monolingual_v1",
                 voice_settings: {
                     stability: 0.5,
-                    similarity_boost: 0.5,
-                    style: 0.0,  // ← SPEED OPTIMIZATION
-                    use_speaker_boost: true
+                    similarity_boost: 0.5
                 }
             })
         });
 
-        // Show loading indicator while waiting
-        console.log('🔄 ElevenLabs: Processing audio...');
-        
-        const response = await audioPromise;
+        // 🎯 DEBUG AFTER API CALL:
+        console.log("🔍 AUDIO AFTER API CALL:", audio);
         
         if (!response.ok) {
-            throw new Error(`ElevenLabs API error: ${response.status}`);
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
-
+        
         const audioBlob = await response.blob();
         const audioUrl = URL.createObjectURL(audioBlob);
         
-        // Preload audio
-        audio = new Audio();  // ← GLOBAL variable (CORREC
-        audio.preload = 'auto';  // ← PRELOAD OPTIMIZATION
-
-// ElevenLabs Audio
-audio.onended = function() {
-    handleSpeechEnd('ElevenLabs');
-};
-
-// Browser Speech Synthesis  
-utterance.onend = function() {
-    handleSpeechEnd('Browser TTS');
-};
-    
-        // Set up event handlers BEFORE setting src
-        audio.oncanplaythrough = function() {
-            console.log('🎤 ElevenLabs: Audio ready - starting playback');
-            audio.play();
-        };
+        // 🎯 DEBUG BEFORE SETTING SRC:
+        console.log("🔍 AUDIO BEFORE SRC:", audio);
         
-        // YOUR EXISTING BLOCKING LOGIC HERE:
-        audio.onended = function() {
-            console.log('🔍 WHICH HANDLER IS RUNNING: Smart Button Blocking Handler');
-            isSpeaking = false;
-            console.log('🔊 AI finished speaking (mobile)');
-            
-            // 🚫 BLOCK if we recently mentioned clicking
-            const clickMentionTime = window.lastClickMentionTime || 0;
-            const timeSinceClickMention = Date.now() - clickMentionTime;
-            
-            if (timeSinceClickMention < 10000) {
-                console.log('🔇 SPEAK NOW BLOCKED: Recent click mention - waiting for user action');
-                return;
-            }
-            
-            // 🚫 DON'T TRIGGER "Speak Now" if Thank You Splash Screen exists
-            if (document.getElementById('thankYouSplash')) {
-                console.log('🔇 SPEAK NOW BLOCKED: Thank you splash screen active - no speech restart');
-                return;
-            }
-            
-            // 🚫 DON'T TRIGGER "Speak Now" if conversation is specifically ended
-            if (conversationState === 'ended' || conversationState === 'splash_screen_active') {
-                console.log('🔇 SPEAK NOW BLOCKED: Conversation ended - no speech restart');
-                return;
-            }
-            
-            console.log('🐛 DEBUG: No blocking conditions - calling showHybridReadySequence()');
-            showHybridReadySequence();
-            
-            // Clean up
-            URL.revokeObjectURL(audioUrl);
-        };
-        
-        audio.onerror = function(error) {
-            console.error('🚫 ElevenLabs: Audio playback error:', error);
-            isSpeaking = false;
-        };
-        
-        // Set source (triggers loading)
         audio.src = audioUrl;
         
+        // 🎯 DEBUG AFTER SETTING SRC:
+        console.log("🔍 AUDIO AFTER SRC:", audio);
+        
+        await audio.play();
+        console.log('🎤 ElevenLabs: Audio ready - starting playback');
+        
     } catch (error) {
-        console.error('🚫 ElevenLabs: Speech synthesis error:', error);
-        isSpeaking = false;
-        speakResponseOriginal(message);
+        console.log("🚫 ElevenLabs: Speech synthesis error:", error);
+        console.log("🔍 AUDIO IN CATCH:", audio); // Debug in catch
+        throw error;
     }
 }
 
