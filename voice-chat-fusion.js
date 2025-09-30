@@ -235,17 +235,18 @@ async function speakWithElevenLabs(message) {
         console.log('🎤 ElevenLabs: Starting speech synthesis...');
         isSpeaking = true;
 
-        // Clean audio creation
+        // ✅ Clean audio creation (from your working version)
         if (!audio) {
             audio = new Audio();
         }
         
-        // Clean handler
+        // ✅ Clean handler (from your working version)
         audio.onended = function() {
             handleSpeechEnd('ElevenLabs');
         };
         
-        const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}`, {
+        // Use streaming endpoint for faster response
+        const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}/stream`, {
             method: 'POST',
             headers: {
                 'Accept': 'audio/mpeg',
@@ -256,11 +257,11 @@ async function speakWithElevenLabs(message) {
                 text: message,
                 model_id: "eleven_monolingual_v1",
                 voice_settings: {
-    stability: 0.5,    // Lower = faster processing
-    similarity_boost: 0.5,  // Lower = faster processing
-    style: 0.0,        // No style processing
-    use_speaker_boost: false
-}
+                    stability: 0.5,
+                    similarity_boost: 0.5,
+                    style: 0.0,
+                    use_speaker_boost: false
+                }
             })
         });
 
@@ -280,6 +281,7 @@ async function speakWithElevenLabs(message) {
         throw error;
     }
 }
+
 // ===================================================
 // 📱 MOBILE DEVICE DETECTION
 // ===================================================
