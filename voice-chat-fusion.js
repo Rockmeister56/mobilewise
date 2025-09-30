@@ -149,6 +149,11 @@ async function speakWithElevenLabs(message) {
         // Preload audio
         const audio = new Audio();
         audio.preload = 'auto';  // ← PRELOAD OPTIMIZATION
+
+// ElevenLabs Audio
+audio.onended = function() {
+    handleSpeechEnd('ElevenLabs');
+};
         
         // Set up event handlers BEFORE setting src
         audio.oncanplaythrough = function() {
@@ -975,11 +980,6 @@ function handleSpeechEnd(speechType) {
 
     showHybridReadySequence();
 }
-
-// ElevenLabs Audio
-audio.onended = function() {
-    handleSpeechEnd('ElevenLabs');
-};
 
 // Browser Speech Synthesis  
 utterance.onend = function() {
