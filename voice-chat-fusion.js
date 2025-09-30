@@ -58,34 +58,6 @@ window.leadData = window.leadData || {
 };
 let leadData = window.leadData;
 
-async function streamElevenLabsAudio(text) {
-    showSpeakingBubble(); // Immediate feedback
-    
-    const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}/stream`, {
-        method: 'POST',
-        headers: {
-            'Accept': 'audio/mpeg',
-            'Content-Type': 'application/json',
-            'xi-api-key': apiKey
-        },
-        body: JSON.stringify({
-            text: text,
-            model_id: "eleven_monolingual_v1", // Faster model
-            voice_settings: {
-                stability: 0.5,
-                similarity_boost: 0.5
-            }
-        })
-    });
-
-    const audioBlob = await response.blob();
-    const audioUrl = URL.createObjectURL(audioBlob);
-    const audio = new Audio(audioUrl);
-    
-    audio.onended = () => handleSpeechEnd('ElevenLabs');
-    audio.play();
-}
-
 // ===================================================
 // 🎯 SPEECH RECOGNITION PRE-WARMING SYSTEM  
 // ===================================================
@@ -258,56 +230,49 @@ const VOICE_ID = 'zGjIP4SZlMnY9m93k97r';
 // ===========================================
 // ELEVENLABS SPEECH SYNTHESIS
 // ===========================================
-async function speakWithElevenLabs(message) {
+// Replace your current ElevenLabs call with streaming
+async function streamElevenLabsAudio(text) {
+    console.log('🎯 USING ELEVENLABS STREAMING...');
+    const startTime = performance.now();
+    
     try {
-        console.log('🎤 ElevenLabs: Starting speech synthesis...');
-        isSpeaking = true;
-
-        // Clean audio creation
-        if (!audio) {
-            audio = new Audio();
-        }
-        
-        // Clean handler
-        audio.onended = function() {
-            handleSpeechEnd('ElevenLabs');
-        };
-        
-        const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}`, {
+        const response = await fetch('https://api.elevenlabs.io/v1/text-to-speech/zGjIP4SZlMnY9m93k97r/stream', {
             method: 'POST',
             headers: {
                 'Accept': 'audio/mpeg',
                 'Content-Type': 'application/json',
-                'xi-api-key': ELEVENLABS_API_KEY
+                'xi-api-key': 'YOUR_API_KEY'
             },
             body: JSON.stringify({
-                text: message,
+                text: text,
                 model_id: "eleven_monolingual_v1",
                 voice_settings: {
-    stability: 0.5,    // Lower = faster processing
-    similarity_boost: 0.5,  // Lower = faster processing
-    style: 0.0,        // No style processing
-    use_speaker_boost: false
-}
+                    stability: 0.5,
+                    similarity_boost: 0.5
+                }
             })
         });
 
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
+        // Start playing IMMEDIATELY as data arrives
+        const audio = new Audio();
+        audio.src = URL.createObjectURL(await response.blob());
         
-        const audioBlob = await response.blob();
-        const audioUrl = URL.createObjectURL(audioBlob);
-        
-        audio.src = audioUrl;
-        await audio.play();
-        console.log('🎤 ElevenLabs: Audio ready - starting playback');
-        
+        audio.addEventListener('canplay', () => {
+            console.log('🚀 STREAMING - Audio can play:', performance.now() - startTime + 'ms');
+            audio.play();
+        });
+
+        audio.addEventListener('play', () => {
+            console.log('▶️ STREAMING - Playback started:', performance.now() - startTime + 'ms');
+        });
+
     } catch (error) {
-        console.log("🚫 ElevenLabs: Speech synthesis error:", error);
-        throw error;
+        console.log('❌ Streaming error:', error);
+        // Fallback to normal method
+        speakWithElevenLabs(text);
     }
 }
+
 // ===================================================
 // 📱 MOBILE DEVICE DETECTION
 // ===================================================
