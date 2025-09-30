@@ -230,9 +230,13 @@ const VOICE_ID = 'zGjIP4SZlMnY9m93k97r';
 // ===========================================
 // ELEVENLABS SPEECH SYNTHESIS
 // ===========================================
-// Replace your existing speakWithElevenLabs with this:
-async function speakWithElevenLabs(text) {
-    console.log('🎯 USING ELEVENLABS STREAMING...');
+// Test streaming with your actual API key
+async function testStreamingWithRealKey() {
+    console.log('🚀 TESTING STREAMING WITH REAL API KEY...');
+    
+    const testText = "Hello, this is a test of streaming audio with the real API key.";
+    const ELEVENLABS_API_KEY = 'sk_9e7fa2741be74e8cc4af95744fe078712c1e8201cdcada93';
+    
     const startTime = performance.now();
     
     try {
@@ -241,43 +245,61 @@ async function speakWithElevenLabs(text) {
             headers: {
                 'Accept': 'audio/mpeg',
                 'Content-Type': 'application/json',
-                'xi-api-key': 'sk_9e7fa2741be74e8cc4af95744fe078712c1e8201cdcada93'
+                'xi-api-key': ELEVENLABS_API_KEY
             },
             body: JSON.stringify({
-                text: text,
+                text: testText,
                 model_id: "eleven_monolingual_v1",
                 voice_settings: {
-                    stability: 0.3,  // Slightly lower for speed
-                    similarity_boost: 0.7
+                    stability: 0.5,
+                    similarity_boost: 0.5
                 }
             })
         });
-
-        if (!response.ok) {
-            throw new Error(`Streaming API error: ${response.status}`);
+        
+        console.log('📡 Streaming Response Status:', response.status);
+        console.log('⏱️ API Response Time:', performance.now() - startTime + 'ms');
+        
+        if (response.ok) {
+            console.log('✅ Streaming successful! Testing playback timing...');
+            
+            const audioBlob = await response.blob();
+            console.log('💾 Blob created:', performance.now() - startTime + 'ms');
+            
+            const audioUrl = URL.createObjectURL(audioBlob);
+            console.log('🔗 Object URL created:', performance.now() - startTime + 'ms');
+            
+            // Test the audio loading
+            const audio = new Audio(audioUrl);
+            
+            audio.addEventListener('canplay', () => {
+                console.log('🎵 Audio can play:', performance.now() - startTime + 'ms');
+            });
+            
+            audio.addEventListener('canplaythrough', () => {
+                console.log('🚀 Audio can play through:', performance.now() - startTime + 'ms');
+            });
+            
+            audio.addEventListener('play', () => {
+                console.log('▶️ Playback started:', performance.now() - startTime + 'ms');
+            });
+            
+            // Try to play
+            await audio.play();
+            
+        } else {
+            const error = await response.text();
+            console.log('❌ API Error:', error);
         }
-
-        const audioBlob = await response.blob();
-        const audioUrl = URL.createObjectURL(audioBlob);
-        const audio = new Audio(audioUrl);
-        
-        console.log('🚀 Streaming audio ready:', performance.now() - startTime + 'ms');
-        
-        // Play the audio
-        await audio.play();
-        
-        // Clean up
-        audio.addEventListener('ended', () => {
-            URL.revokeObjectURL(audioUrl);
-        });
         
     } catch (error) {
-        console.log('❌ Streaming failed, falling back to regular method');
-        // Fallback to original non-streaming method
-        // You might need to keep your original function as a fallback
-        speakWithElevenLabsFallback(text);
+        console.log('❌ Fetch Error:', error);
     }
 }
+
+// Now run the test
+testStreamingWithRealKey();
+
 // ===================================================
 // 📱 MOBILE DEVICE DETECTION
 // ===================================================
