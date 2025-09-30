@@ -242,27 +242,26 @@ async function speakWithElevenLabs(message) {
             handleSpeechEnd('ElevenLabs');
         };
         
-        const startTime = performance.now();
-        
-        // ✅ USE HARDCODED API KEY (since ELEVENLABS_API_KEY isn't available)
+        // ✅ ADD OPTIMIZED VOICE SETTINGS HERE:
         const voiceSettings = {
-            stability: 0.3,
-            similarity_boost: 0.7,
-            style: 0.0,
-            use_speaker_boost: false
+            stability: 0.3,           // Lower = much faster processing
+            similarity_boost: 0.7,     // Balanced for speed/quality
+            style: 0.0,               // No style = faster
+            use_speaker_boost: false, // No boost = faster
+            optimization: "normal"    // Not "highest_quality"
         };
         
-        const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/zGjIP4SZlMnY9m93k97r/stream`, {
+        const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}/stream`, {
             method: 'POST',
             headers: {
                 'Accept': 'audio/mpeg',
                 'Content-Type': 'application/json',
-                'xi-api-key': 'sk_9e7fa2741be74e8cc4af95744fe078712c1e8201cdcada93' // ✅ HARDCODED KEY
+                'xi-api-key': ELEVENLABS_API_KEY
             },
             body: JSON.stringify({
                 text: message,
                 model_id: "eleven_monolingual_v1",
-                voice_settings: voiceSettings
+                voice_settings: voiceSettings  // ✅ USE THE OPTIMIZED SETTINGS
             })
         });
 
@@ -270,17 +269,12 @@ async function speakWithElevenLabs(message) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         
-        console.log('⏱️ API Response:', performance.now() - startTime + 'ms');
-        
-        // Simple approach - wait for complete download
         const audioBlob = await response.blob();
         const audioUrl = URL.createObjectURL(audioBlob);
         
         audio.src = audioUrl;
         await audio.play();
-        
         console.log('🎤 ElevenLabs: Audio ready - starting playback');
-        console.log('⏱️ Total time:', performance.now() - startTime + 'ms');
         
     } catch (error) {
         console.log("🚫 ElevenLabs: Speech synthesis error:", error);
