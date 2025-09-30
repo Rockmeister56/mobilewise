@@ -246,7 +246,7 @@ async function speakWithElevenLabs(message) {
         
         // ✅ OPTIMIZED VOICE SETTINGS
         const voiceSettings = {
-            stability: 0.3,
+            stability: 0.2,
             similarity_boost: 0.7,
             style: 0.0,
             use_speaker_boost: false
