@@ -101,11 +101,60 @@ class SpeechEngineManager {
 }
 
 // ===================================================
+// 🎧 ADD THIS NEW CLASS BELOW YOUR EXISTING ONE
+// ===================================================
+class AudioPlaybackManager {
+    constructor() {
+        this.audioContextWarmed = false;
+        this.isPrepping = false;
+        console.log('🎧 Audio Playback Manager created');
+    }
+    
+    async initializeAudioContext() {
+        if (this.audioContextWarmed || this.isPrepping) {
+            console.log('🎧 Audio already warmed or warming');
+            return true;
+        }
+        
+        this.isPrepping = true;
+        console.log('🎧 Starting audio context warm-up...');
+        
+        try {
+            const silentAudio = new Audio();
+            silentAudio.src = 'data:audio/wav;base64,UklGRnoAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoAAAC';
+            silentAudio.volume = 0;
+            
+            await silentAudio.play();
+            await new Promise(resolve => setTimeout(resolve, 100));
+            silentAudio.pause();
+            
+            this.audioContextWarmed = true;
+            this.isPrepping = false;
+            console.log('🎧 Audio context pre-warmed successfully');
+            return true;
+            
+        } catch (error) {
+            console.log('🎧 Silent audio failed, using fallback');
+            const audio = new Audio();
+            this.audioContextWarmed = true;
+            this.isPrepping = false;
+            console.log('🎧 Audio fallback warm-up complete');
+            return true;
+        }
+    }
+    
+    isReady() {
+        return this.audioContextWarmed;
+    }
+}
+
+// ===================================================
 // 🚀 ADD THIS NEW CLASS BELOW THE AUDIO MANAGER
 // ===================================================
 class SystemPreWarmManager {
     constructor() {
         this.speechManager = new SpeechEngineManager();
+        this.audioManager = new AudioPlaybackManager();
         this.initialized = false;
         console.log('🚀 System Pre-Warm Manager created');
     }
@@ -1079,6 +1128,41 @@ function speakResponseOriginal(message) {
     } else {
         window.speechSynthesis.speak(utterance);
         currentAudio = utterance;
+    }
+}
+
+// Add these if they don't exist
+function showAIThinkingIndicator() {
+    // Remove existing first
+    hideAIThinkingIndicator();
+    
+    const indicator = document.createElement('div');
+    indicator.id = 'ai-thinking';
+    indicator.innerHTML = '🎤 AI is preparing response...';
+    indicator.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: #2d3748;
+        color: white;
+        padding: 15px 25px;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: bold;
+        z-index: 10000;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        border: 2px solid #4299e1;
+    `;
+    document.body.appendChild(indicator);
+    console.log('✅ Loading indicator shown');
+}
+
+function hideAIThinkingIndicator() {
+    const indicator = document.getElementById('ai-thinking');
+    if (indicator) {
+        indicator.remove();
+        console.log('✅ Loading indicator hidden');
     }
 }
 
