@@ -228,6 +228,9 @@ const ELEVENLABS_API_KEY = 'sk_9e7fa2741be74e8cc4af95744fe078712c1e8201cdcada93'
 const VOICE_ID = 'zGjIP4SZlMnY9m93k97r';
 
 async function speakWithElevenLabs(message) {
+    // Add this timing to your current speakWithElevenLabs function temporarily
+console.log('⏱️ CURRENT SYSTEM TIMING:');
+console.log('Performance now:', performance.now());
     try {
         console.log('🎤 ElevenLabs: Starting speech synthesis...');
         isSpeaking = true;
