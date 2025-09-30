@@ -230,8 +230,8 @@ const VOICE_ID = 'zGjIP4SZlMnY9m93k97r';
 // ===========================================
 // ELEVENLABS SPEECH SYNTHESIS
 // ===========================================
-// Replace your current ElevenLabs call with streaming
-async function streamElevenLabsAudio(text) {
+// Replace your existing speakWithElevenLabs with this:
+async function speakWithElevenLabs(text) {
     console.log('🎯 USING ELEVENLABS STREAMING...');
     const startTime = performance.now();
     
@@ -241,38 +241,43 @@ async function streamElevenLabsAudio(text) {
             headers: {
                 'Accept': 'audio/mpeg',
                 'Content-Type': 'application/json',
-                'xi-api-key': 'YOUR_API_KEY'
+                'xi-api-key': 'sk_9e7fa2741be74e8cc4af95744fe078712c1e8201cdcada93'
             },
             body: JSON.stringify({
                 text: text,
                 model_id: "eleven_monolingual_v1",
                 voice_settings: {
-                    stability: 0.5,
-                    similarity_boost: 0.5
+                    stability: 0.3,  // Slightly lower for speed
+                    similarity_boost: 0.7
                 }
             })
         });
 
-        // Start playing IMMEDIATELY as data arrives
-        const audio = new Audio();
-        audio.src = URL.createObjectURL(await response.blob());
+        if (!response.ok) {
+            throw new Error(`Streaming API error: ${response.status}`);
+        }
+
+        const audioBlob = await response.blob();
+        const audioUrl = URL.createObjectURL(audioBlob);
+        const audio = new Audio(audioUrl);
         
-        audio.addEventListener('canplay', () => {
-            console.log('🚀 STREAMING - Audio can play:', performance.now() - startTime + 'ms');
-            audio.play();
+        console.log('🚀 Streaming audio ready:', performance.now() - startTime + 'ms');
+        
+        // Play the audio
+        await audio.play();
+        
+        // Clean up
+        audio.addEventListener('ended', () => {
+            URL.revokeObjectURL(audioUrl);
         });
-
-        audio.addEventListener('play', () => {
-            console.log('▶️ STREAMING - Playback started:', performance.now() - startTime + 'ms');
-        });
-
+        
     } catch (error) {
-        console.log('❌ Streaming error:', error);
-        // Fallback to normal method
-        speakWithElevenLabs(text);
+        console.log('❌ Streaming failed, falling back to regular method');
+        // Fallback to original non-streaming method
+        // You might need to keep your original function as a fallback
+        speakWithElevenLabsFallback(text);
     }
 }
-
 // ===================================================
 // 📱 MOBILE DEVICE DETECTION
 // ===================================================
