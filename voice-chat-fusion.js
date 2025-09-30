@@ -954,41 +954,37 @@ function handleConsultationClick(type) {
     handleSmartButtonClick(type);
 }
 
-// Shared blocking logic function
-function handleSpeechEnd(source) {
-    console.log(`🔊 ${source} finished speaking`);
+// 🎯 UNIFIED SPEECH END HANDLER - WORKS FOR BOTH ELEVENLABS & BROWSER TTS
+function handleSpeechEnd(speechType) {
+    console.log(`🔊 ${speechType} finished speaking`);
     isSpeaking = false;
-    
+
+    // 🚨 BLOCKING CHECK - WORKS FOR BOTH SYSTEMS
     if (conversationFlow !== 'normal') {
-        console.log(`🚫 SPEECH BLOCKED by ${source}`);
+        console.log("🚫 SPEECH BLOCKED: Waiting for user action");
+        
+        // Auto-resume safety net
         setTimeout(() => { 
             if (conversationFlow !== 'normal') {
-                console.log(`🔄 Auto-resolving ${source} block after timeout`);
                 conversationFlow = 'normal';
                 showHybridReadySequence();
             }
         }, 25000);
         return;
     }
-    
+
     showHybridReadySequence();
 }
 
-// Browser Speech Synthesis (utterance.onend)
-utterance.onend = function() {
-    handleSpeechEnd('Browser TTS');
-};
-
-// ElevenLabs Audio (audio.onend) 
-// Add this wherever your ElevenLabs audio is created
+// ElevenLabs Audio
 audio.onended = function() {
     handleSpeechEnd('ElevenLabs');
 };
 
-// Alternative if using different audio event
-audio.addEventListener('ended', function() {
-    handleSpeechEnd('ElevenLabs');
-});
+// Browser Speech Synthesis  
+utterance.onend = function() {
+    handleSpeechEnd('Browser TTS');
+};
 
 // ===================================================
 // 🔊 VOICE SYNTHESIS SYSTEM
@@ -1021,10 +1017,6 @@ function speakResponseOriginal(message) {
                 }
             };
             
- utterance.onend = function() {
-    handleSpeechEnd();
-};
-
 // ElevenLabs Audio (audio.onended) 
 audio.onended = function() {
     handleSpeechEnd('ElevenLabs');
