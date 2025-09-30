@@ -154,7 +154,12 @@ async function speakWithElevenLabs(message) {
 audio.onended = function() {
     handleSpeechEnd('ElevenLabs');
 };
-        
+
+// Browser Speech Synthesis  
+utterance.onend = function() {
+    handleSpeechEnd('Browser TTS');
+};
+    
         // Set up event handlers BEFORE setting src
         audio.oncanplaythrough = function() {
             console.log('🎤 ElevenLabs: Audio ready - starting playback');
@@ -980,11 +985,6 @@ function handleSpeechEnd(speechType) {
 
     showHybridReadySequence();
 }
-
-// Browser Speech Synthesis  
-utterance.onend = function() {
-    handleSpeechEnd('Browser TTS');
-};
 
 // ===================================================
 // 🔊 VOICE SYNTHESIS SYSTEM
