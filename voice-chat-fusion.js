@@ -230,69 +230,56 @@ const VOICE_ID = 'zGjIP4SZlMnY9m93k97r';
 // ===========================================
 // ELEVENLABS SPEECH SYNTHESIS
 // ===========================================
-// UPDATED streaming function with event callbacks
-async function speakWithElevenLabs(text) {
-    console.log('🎤 ElevenLabs: Starting speech synthesis...');
-    const startTime = performance.now();
-    
-    // ✅ ADD THIS: Notify system that AI started speaking
-    if (typeof onAIStartedSpeaking === 'function') {
-        onAIStartedSpeaking();
-    }
-    
+async function speakWithElevenLabs(message) {
     try {
-        const response = await fetch('https://api.elevenlabs.io/v1/text-to-speech/zGjIP4SZlMnY9m93k97r/stream', {
+        console.log('🎤 ElevenLabs: Starting speech synthesis...');
+        isSpeaking = true;
+
+        // Clean audio creation
+        if (!audio) {
+            audio = new Audio();
+        }
+        
+        // Clean handler
+        audio.onended = function() {
+            handleSpeechEnd('ElevenLabs');
+        };
+        
+        const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}`, {
             method: 'POST',
             headers: {
                 'Accept': 'audio/mpeg',
                 'Content-Type': 'application/json',
-                'xi-api-key': 'sk_9e7fa2741be74e8cc4af95744fe078712c1e8201cdcada93'
+                'xi-api-key': ELEVENLABS_API_KEY
             },
             body: JSON.stringify({
-                text: text,
+                text: message,
                 model_id: "eleven_monolingual_v1",
                 voice_settings: {
-                    stability: 0.5,
-                    similarity_boost: 0.5
-                }
+    stability: 0.5,    // Lower = faster processing
+    similarity_boost: 0.5,  // Lower = faster processing
+    style: 0.0,        // No style processing
+    use_speaker_boost: false
+}
             })
         });
 
         if (!response.ok) {
-            throw new Error(`Streaming API error: ${response.status}`);
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
-
+        
         const audioBlob = await response.blob();
         const audioUrl = URL.createObjectURL(audioBlob);
-        const audio = new Audio(audioUrl);
         
-        console.log('🎤 ElevenLabs: Audio ready - starting playback');
-        console.log('⏱️ Total time to playback:', performance.now() - startTime + 'ms');
-        
-        // Play the audio
+        audio.src = audioUrl;
         await audio.play();
-        
-        // Clean up when done
-        audio.addEventListener('ended', () => {
-            URL.revokeObjectURL(audioUrl);
-            console.log('🔊 ElevenLabs finished speaking');
-            
-            // ✅ ADD THIS: Notify system that AI finished speaking
-            if (typeof onAIFinishedSpeaking === 'function') {
-                onAIFinishedSpeaking();
-            }
-        });
+        console.log('🎤 ElevenLabs: Audio ready - starting playback');
         
     } catch (error) {
-        console.log('❌ ElevenLabs streaming failed:', error);
-        
-        // ✅ ADD THIS: Notify system even if there's an error
-        if (typeof onAIFinishedSpeaking === 'function') {
-            setTimeout(onAIFinishedSpeaking, 1000);
-        }
+        console.log("🚫 ElevenLabs: Speech synthesis error:", error);
+        throw error;
     }
 }
-
 // ===================================================
 // 📱 MOBILE DEVICE DETECTION
 // ===================================================
