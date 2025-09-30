@@ -230,26 +230,10 @@ const VOICE_ID = 'zGjIP4SZlMnY9m93k97r';
 async function speakWithElevenLabs(message) {
     try {
         console.log('🎤 ElevenLabs: Starting speech synthesis...');
-        isSpeaking = true;
-
-        // ✅ ADD THIS: Show loading indicator
-        showAIThinkingIndicator();
-        
-        // Your existing audio setup...
-        if (!audio) {
-            audio = new Audio();
-        }
-        
-        // ✅ MODIFY THIS: Add hide to onended
-        audio.onended = function() {
-            handleSpeechEnd('ElevenLabs');
-            hideAIThinkingIndicator(); // ✅ ADD THIS
-        };
         
         const startTime = performance.now();
         
-        // Your existing API call...
-        const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/zGjIP4SZlMnY9m93k97r/stream`, {
+        const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/zGjIP4SZlMnY9m93k97r`, {
             method: 'POST',
             headers: {
                 'Accept': 'audio/mpeg',
@@ -258,26 +242,36 @@ async function speakWithElevenLabs(message) {
             },
             body: JSON.stringify({
                 text: message,
-                model_id: "eleven_monolingual_v1",
-                voice_settings: {
-                    stability: 0.3,
-                    similarity_boost: 0.7,
-                    style: 0.0,
-                    use_speaker_boost: false
-                }
+                model_id: "eleven_monolingual_v1"
+                // NO voice_settings - use defaults for speed!
             })
         });
 
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        console.log('⏱️ API Response:', performance.now() - startTime + 'ms');
+        
         const audioBlob = await response.blob();
         const audioUrl = URL.createObjectURL(audioBlob);
-        audio.src = audioUrl;
+        
+        // Create new audio instance (don't reuse)
+        const audio = new Audio(audioUrl);
+        
+        // Simple event handling
+        audio.onended = function() {
+            console.log('🔊 ElevenLabs finished speaking');
+            handleSpeechEnd('ElevenLabs');
+        };
+        
         await audio.play();
         
         console.log('🎤 ElevenLabs: Audio ready - starting playback');
+        console.log('⏱️ Total time:', performance.now() - startTime + 'ms');
         
     } catch (error) {
         console.log("🚫 ElevenLabs: Speech synthesis error:", error);
-        hideAIThinkingIndicator(); // ✅ ADD THIS: Hide on error too
         throw error;
     }
 }
@@ -1078,9 +1072,6 @@ function speakResponseOriginal(message) {
         return;
     }
 
-    // ✅ ADD THIS: Show loading indicator
-    showAIThinkingIndicator();
-
     window.speechSynthesis.cancel();
     
     // 🎯 CREATE UTTERANCE ONCE (with message)
@@ -1095,9 +1086,6 @@ function speakResponseOriginal(message) {
     utterance.onstart = function() {
         isSpeaking = true;
         console.log('🔊 AI started speaking' + (isMobileDevice() ? ' (mobile)' : ''));
-        
-        // ✅ ADD THIS: Hide loading indicator when speech starts
-        hideAIThinkingIndicator();
         
         if (isMobileDevice()) {
             const micButton = document.getElementById('micButton');
@@ -1115,8 +1103,6 @@ function speakResponseOriginal(message) {
     utterance.onerror = function(event) {
         console.log('❌ Speech error:', event.error);
         isSpeaking = false;
-        // ✅ ADD THIS: Hide loading indicator on error
-        hideAIThinkingIndicator();
     };
     
     // 🎯 DELAY FOR MOBILE ONLY
@@ -1128,41 +1114,6 @@ function speakResponseOriginal(message) {
     } else {
         window.speechSynthesis.speak(utterance);
         currentAudio = utterance;
-    }
-}
-
-// Add these if they don't exist
-function showAIThinkingIndicator() {
-    // Remove existing first
-    hideAIThinkingIndicator();
-    
-    const indicator = document.createElement('div');
-    indicator.id = 'ai-thinking';
-    indicator.innerHTML = '🎤 AI is preparing response...';
-    indicator.style.cssText = `
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: #2d3748;
-        color: white;
-        padding: 15px 25px;
-        border-radius: 10px;
-        font-size: 16px;
-        font-weight: bold;
-        z-index: 10000;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        border: 2px solid #4299e1;
-    `;
-    document.body.appendChild(indicator);
-    console.log('✅ Loading indicator shown');
-}
-
-function hideAIThinkingIndicator() {
-    const indicator = document.getElementById('ai-thinking');
-    if (indicator) {
-        indicator.remove();
-        console.log('✅ Loading indicator hidden');
     }
 }
 
