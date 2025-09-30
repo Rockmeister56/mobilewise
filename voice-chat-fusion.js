@@ -1025,15 +1025,14 @@ function speakResponseOriginal(message) {
     handleSpeechEnd();
 };
 
-
+// ElevenLabs Audio (audio.onended) 
 audio.onended = function() {
-    handleSpeechEnd();
+    handleSpeechEnd('ElevenLabs');
 };
-
                   
-utterance.onerror = function(event) {
-    console.log('❌ Speech error:', event.error);
-    isSpeaking = false;
+// Browser Speech Synthesis (utterance.onend)
+utterance.onend = function() {
+    handleSpeechEnd('Browser TTS');
 };
 
 window.speechSynthesis.speak(utterance);
