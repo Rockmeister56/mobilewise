@@ -3550,10 +3550,15 @@ function startNormalInterviewListening() {
         }
     }, 50);
 }
-
 // 🎯 CONTACT INTERVIEW LISTENING 
 function startContactInterviewListening() {
     console.log('📧 === CONTACT INTERVIEW SPEECH SETUP ===');
+
+    // ✅ ADD THIS CHECK RIGHT HERE:
+    if (isRecognitionActive) {
+        console.log('🔇 Contact interview: Recognition already active - skipping entire setup');
+        return;
+    }
     
     const userInput = document.getElementById('userInput');
     if (userInput) {
