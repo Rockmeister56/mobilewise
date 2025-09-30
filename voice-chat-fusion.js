@@ -451,10 +451,16 @@ function correctSpeechErrors(transcript) {
 // ===================================================
 async function startListening() {
     // ✅ PREVENT MULTIPLE STARTS
-    if (recognition && recognition.state === 'started') {
+    if (recognition) {
+    if (recognition.state === 'started') {
         console.log('🚫 Recognition already running - skipping start');
         return;
     }
+    if (recognition.state === 'starting') {
+        console.log('🚫 Recognition already starting - skipping start');
+        return;
+    }
+}
     
     // Smart button gate-keeper (keep this)
     const smartButton = document.getElementById('smartButton');
@@ -644,18 +650,21 @@ function stopListening() {
     isListening = false;
 }
 
-// ===================================================
-// 🔄 FORCE START LISTENING (BYPASSES GATE-KEEPER)
-// ===================================================
-async function forceStartListening() {  // ← ADD async
+async function forceStartListening() {
     console.log('🔄 FORCE starting speech recognition (mobile reset)');
+    
+    // ✅ ADD THIS SAFETY CHECK
+    if (recognition && recognition.state === 'started') {
+        console.log('🚫 Recognition already running - skipping force start');
+        return;
+    }
     
     if (!checkSpeechSupport()) return;
     if (isSpeaking) return;
     
     try {
         if (!recognition) {
-            await initializeSpeechRecognition(); // ← ADD await
+            await initializeSpeechRecognition();
         }
         
         console.log('🎤 Force starting speech recognition...');
@@ -3489,14 +3498,18 @@ function checkContactInterviewMode() {
     return indicators.some(indicator => indicator === true);
 }
 
-// 🎯 NORMAL INTERVIEW LISTENING 
+// 🎯 NORMAL INTERVIEW LISTENING (SINGLE CALL VERSION)
 function startNormalInterviewListening() {
+    console.log('🎤 Starting normal interview listening...');
+    
+    // Clear input field
     const userInput = document.getElementById('userInput');
     if (userInput) {
         userInput.value = '';
         console.log('🧹 Cleared userInput field (normal mode)');
     }
     
+    // 🚀 CALL ONLY ONE FUNCTION TO PREVENT RACE CONDITIONS
     setTimeout(() => {
         if (typeof startListening === 'function') {
             try {
@@ -3504,20 +3517,17 @@ function startNormalInterviewListening() {
                 console.log('✅ Normal startListening() called successfully');
             } catch (error) {
                 console.error('❌ Normal startListening() error:', error);
+                
+                // 🆘 ONLY FALLBACK TO FORCE START IF REGULAR START FAILS
+                if (typeof forceStartListening === 'function') {
+                    console.log('🔄 Falling back to forceStartListening()');
+                    setTimeout(() => {
+                        forceStartListening();
+                    }, 100);
+                }
             }
         }
     }, 50);
-    
-    setTimeout(() => {
-        if (typeof forceStartListening === 'function' && !isListening) {
-            try {
-                console.log('🔄 Normal backup: calling forceStartListening()');
-                forceStartListening();
-            } catch (error) {
-                console.error('❌ Normal forceStartListening() error:', error);
-            }
-        }
-    }, 150);
 }
 
 // 🎯 CONTACT INTERVIEW LISTENING 
