@@ -150,7 +150,7 @@ async function speakWithElevenLabs(message) {
         const audioUrl = URL.createObjectURL(audioBlob);
         
         // Preload audio
-        const audio = new Audio();
+        audio = new Audio();  // ← GLOBAL variable (CORREC
         audio.preload = 'auto';  // ← PRELOAD OPTIMIZATION
 
 // ElevenLabs Audio
@@ -1008,7 +1008,7 @@ function speakResponseOriginal(message) {
     
     if (isMobileDevice()) {
         setTimeout(() => {
-            const utterance = new SpeechSynthesisUtterance(message);
+            utterance = new SpeechSynthesisUtterance(message);
             
             utterance.rate = 0.9;
             utterance.pitch = 1.0;
@@ -1040,7 +1040,7 @@ window.speechSynthesis.speak(utterance);
 currentAudio = utterance;
 }, 500);
 } else {
-    const utterance = new SpeechSynthesisUtterance(message);
+     utterance = new SpeechSynthesisUtterance(message);
     
     utterance.rate = 1.0;
     utterance.pitch = 1.0;
@@ -2311,7 +2311,7 @@ function askLeadQuestion() {
 function speakMessage(message) {
     if (window.speechSynthesis) {
         window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(message);
+        utterance = new SpeechSynthesisUtterance(message);
         utterance.rate = 0.9;
         utterance.pitch = 1.1;
         
