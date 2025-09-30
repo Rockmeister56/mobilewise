@@ -58,6 +58,34 @@ window.leadData = window.leadData || {
 };
 let leadData = window.leadData;
 
+async function streamElevenLabsAudio(text) {
+    showSpeakingBubble(); // Immediate feedback
+    
+    const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}/stream`, {
+        method: 'POST',
+        headers: {
+            'Accept': 'audio/mpeg',
+            'Content-Type': 'application/json',
+            'xi-api-key': apiKey
+        },
+        body: JSON.stringify({
+            text: text,
+            model_id: "eleven_monolingual_v1", // Faster model
+            voice_settings: {
+                stability: 0.5,
+                similarity_boost: 0.5
+            }
+        })
+    });
+
+    const audioBlob = await response.blob();
+    const audioUrl = URL.createObjectURL(audioBlob);
+    const audio = new Audio(audioUrl);
+    
+    audio.onended = () => handleSpeechEnd('ElevenLabs');
+    audio.play();
+}
+
 // ===================================================
 // 🎯 SPEECH RECOGNITION PRE-WARMING SYSTEM  
 // ===================================================
@@ -256,9 +284,11 @@ async function speakWithElevenLabs(message) {
                 text: message,
                 model_id: "eleven_monolingual_v1",
                 voice_settings: {
-                    stability: 0.5,
-                    similarity_boost: 0.5
-                }
+    stability: 0.5,    // Lower = faster processing
+    similarity_boost: 0.5,  // Lower = faster processing
+    style: 0.0,        // No style processing
+    use_speaker_boost: false
+}
             })
         });
 
