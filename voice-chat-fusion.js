@@ -244,7 +244,7 @@ async function speakWithElevenLabs(message) {
         
         const startTime = performance.now();
         
-        // ✅ OPTIMIZED VOICE SETTINGS
+        // ✅ USE HARDCODED API KEY (since ELEVENLABS_API_KEY isn't available)
         const voiceSettings = {
             stability: 0.3,
             similarity_boost: 0.7,
@@ -252,13 +252,12 @@ async function speakWithElevenLabs(message) {
             use_speaker_boost: false
         };
         
-        // ✅ USE STREAMING ENDPOINT (but wait for complete download)
-        const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}/stream`, {
+        const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/zGjIP4SZlMnY9m93k97r/stream`, {
             method: 'POST',
             headers: {
                 'Accept': 'audio/mpeg',
                 'Content-Type': 'application/json',
-                'xi-api-key': ELEVENLABS_API_KEY
+                'xi-api-key': 'sk_9e7fa2741be74e8cc4af95744fe078712c1e8201cdcada93' // ✅ HARDCODED KEY
             },
             body: JSON.stringify({
                 text: message,
@@ -273,7 +272,7 @@ async function speakWithElevenLabs(message) {
         
         console.log('⏱️ API Response:', performance.now() - startTime + 'ms');
         
-        // ✅ SIMPLE APPROACH - Wait for complete download but use streaming endpoint
+        // Simple approach - wait for complete download
         const audioBlob = await response.blob();
         const audioUrl = URL.createObjectURL(audioBlob);
         
