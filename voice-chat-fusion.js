@@ -117,18 +117,18 @@ async function speakWithElevenLabs(message) {
         console.log('🎤 ElevenLabs: Starting speech synthesis...');
         isSpeaking = true;
 
-          // 🎯 DEBUG: Check audio before setting handler
-        console.log("🔍 AUDIO BEFORE HANDLER:", audio);
-        
-        audio = new Audio();
-        console.log("🔍 AUDIO AFTER CREATION:", audio);
+               // 🎯 CREATE AUDIO ONCE:
+        if (!audio) {
+            audio = new Audio();
+        }
+        console.log("🔍 AUDIO OBJECT:", audio);
         
         // 🎯 SET THE HANDLER:
         audio.onended = function() {
             handleSpeechEnd('ElevenLabs');
         };
         
-        console.log("🔍 AUDIO AFTER HANDLER:", audio);
+        console.log("🔍 HANDLER SET SUCCESSFULLY");
         
         // Start API call immediately (don't await yet)
         const audioPromise = fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}`, {
