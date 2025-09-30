@@ -116,23 +116,16 @@ async function speakWithElevenLabs(message) {
         console.log('🎤 ElevenLabs: Starting speech synthesis...');
         isSpeaking = true;
 
-        // 🎯 CREATE AUDIO ONCE:
+        // Clean audio creation
         if (!audio) {
             audio = new Audio();
         }
-        console.log("🔍 AUDIO OBJECT:", audio);
         
-        // 🎯 SET THE HANDLER:
+        // Clean handler
         audio.onended = function() {
             handleSpeechEnd('ElevenLabs');
         };
         
-        console.log("🔍 HANDLER SET SUCCESSFULLY");
-        
-        // 🎯 DEBUG BEFORE API CALL:
-        console.log("🔍 AUDIO BEFORE API CALL:", audio);
-        
-        // Your existing ElevenLabs API code...
         const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}`, {
             method: 'POST',
             headers: {
@@ -150,9 +143,6 @@ async function speakWithElevenLabs(message) {
             })
         });
 
-        // 🎯 DEBUG AFTER API CALL:
-        console.log("🔍 AUDIO AFTER API CALL:", audio);
-        
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -160,24 +150,15 @@ async function speakWithElevenLabs(message) {
         const audioBlob = await response.blob();
         const audioUrl = URL.createObjectURL(audioBlob);
         
-        // 🎯 DEBUG BEFORE SETTING SRC:
-        console.log("🔍 AUDIO BEFORE SRC:", audio);
-        
         audio.src = audioUrl;
-        
-        // 🎯 DEBUG AFTER SETTING SRC:
-        console.log("🔍 AUDIO AFTER SRC:", audio);
-        
         await audio.play();
         console.log('🎤 ElevenLabs: Audio ready - starting playback');
         
     } catch (error) {
         console.log("🚫 ElevenLabs: Speech synthesis error:", error);
-        console.log("🔍 AUDIO IN CATCH:", audio); // Debug in catch
         throw error;
     }
 }
-
 // ===================================================
 // 📱 MOBILE DEVICE DETECTION
 // ===================================================
