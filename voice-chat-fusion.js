@@ -230,9 +230,15 @@ const VOICE_ID = 'zGjIP4SZlMnY9m93k97r';
 // ===========================================
 // ELEVENLABS SPEECH SYNTHESIS
 // ===========================================
+// UPDATED streaming function with event callbacks
 async function speakWithElevenLabs(text) {
     console.log('🎤 ElevenLabs: Starting speech synthesis...');
     const startTime = performance.now();
+    
+    // ✅ ADD THIS: Notify system that AI started speaking
+    if (typeof onAIStartedSpeaking === 'function') {
+        onAIStartedSpeaking();
+    }
     
     try {
         const response = await fetch('https://api.elevenlabs.io/v1/text-to-speech/zGjIP4SZlMnY9m93k97r/stream', {
@@ -270,11 +276,20 @@ async function speakWithElevenLabs(text) {
         audio.addEventListener('ended', () => {
             URL.revokeObjectURL(audioUrl);
             console.log('🔊 ElevenLabs finished speaking');
+            
+            // ✅ ADD THIS: Notify system that AI finished speaking
+            if (typeof onAIFinishedSpeaking === 'function') {
+                onAIFinishedSpeaking();
+            }
         });
         
     } catch (error) {
         console.log('❌ ElevenLabs streaming failed:', error);
-        // You might want to keep a fallback to the original method here
+        
+        // ✅ ADD THIS: Notify system even if there's an error
+        if (typeof onAIFinishedSpeaking === 'function') {
+            setTimeout(onAIFinishedSpeaking, 1000);
+        }
     }
 }
 
