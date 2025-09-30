@@ -108,6 +108,14 @@ console.log('🚀 Speech Engine Manager initialized');
 const ELEVENLABS_API_KEY = 'sk_9e7fa2741be74e8cc4af95744fe078712c1e8201cdcada93';
 const VOICE_ID = 'zGjIP4SZlMnY9m93k97r';
 
+// Initialize EmailJS - add this when your page loads
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof emailjs !== 'undefined') {
+        emailjs.init('YOUR_PUBLIC_KEY'); // Replace with your actual EmailJS public key
+        console.log('✅ EmailJS initialized successfully');
+    }
+});
+
 // ===========================================
 // ELEVENLABS SPEECH SYNTHESIS
 // ===========================================
