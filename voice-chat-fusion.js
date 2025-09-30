@@ -45,6 +45,7 @@ let conversationFlow = 'normal';
 let audio = null;
 let utterance = null;
 let audioContextWarmed = false;
+let isRecognitionActive = false;
 window.leadData = window.leadData || {
     firstName: '',
     step: 0,
@@ -451,16 +452,30 @@ function correctSpeechErrors(transcript) {
 // ===================================================
 async function startListening() {
     // ✅ PREVENT MULTIPLE STARTS
-    if (recognition) {
+    if (isRecognitionActive) {
+        console.log('🔇 Recognition already active - skipping duplicate start');
+        return;
+    }
+    
+    console.log('🎯 startListening() called');
+    
+    if (!recognition) {
+        console.log('❌ Recognition object not available');
+        return;
+    }
+    
+    // ✅ ADD STATE CHECKS HERE (after the recognition check)
     if (recognition.state === 'started') {
         console.log('🚫 Recognition already running - skipping start');
+        isRecognitionActive = true; // Keep this in sync
         return;
     }
+    
     if (recognition.state === 'starting') {
         console.log('🚫 Recognition already starting - skipping start');
+        isRecognitionActive = true; // Keep this in sync  
         return;
     }
-}
     
     // Smart button gate-keeper (keep this)
     const smartButton = document.getElementById('smartButton');
@@ -523,98 +538,104 @@ async function startListening() {
             }
         };
 
-        recognition.onerror = function(event) {
-            console.log('🔊 Speech error:', event.error);
+       recognition.onerror = function(event) {
+    // ✅ ADD THIS ONE LINE
+    isRecognitionActive = false;
+    
+    console.log('🔊 Speech error:', event.error);
 
-            if (event.error === 'no-speech') {
-                const transcriptText = document.getElementById('transcriptText');
+    if (event.error === 'no-speech') {
+        const transcriptText = document.getElementById('transcriptText');
 
-                if (isMobileDevice()) {
-                    console.log('📱 Mobile: Using visual feedback system');
+        if (isMobileDevice()) {
+            console.log('📱 Mobile: Using visual feedback system');
 
-                    if (window.noSpeechTimeout) {
-                        clearTimeout(window.noSpeechTimeout);
-                    }
+            if (window.noSpeechTimeout) {
+                clearTimeout(window.noSpeechTimeout);
+            }
 
+            if (transcriptText) {
+                transcriptText.textContent = 'I didn\'t hear anything...';
+                transcriptText.style.color = '#ff6b6b';
+
+                window.noSpeechTimeout = setTimeout(() => {
                     if (transcriptText) {
-                        transcriptText.textContent = 'I didn\'t hear anything...';
-                        transcriptText.style.color = '#ff6b6b';
-
-                        window.noSpeechTimeout = setTimeout(() => {
-                            if (transcriptText) {
-                                transcriptText.textContent = 'Please speak now';
-                                transcriptText.style.color = '#ffffff';
-                            }
-
-                            if (isAudioMode && !isSpeaking) {
-                                console.log('🔄 Mobile: Restarting via hybrid system');
-                                isListening = false;
-                                setTimeout(() => {
-                                    showHybridReadySequence();
-                                }, 800);
-                            }
-                        }, 1500);
+                        transcriptText.textContent = 'Please speak now';
+                        transcriptText.style.color = '#ffffff';
                     }
-                } else {
-                    console.log('🖥️ Desktop: Using voice apology system');
-                    lastMessageWasApology = true;
-                    const apologyResponse = getApologyResponse();
-                    stopListening();
-                    setTimeout(() => {
-                        addAIMessage(apologyResponse);
-                        speakResponse(apologyResponse);
-                        if (restartTimeout) clearTimeout(restartTimeout);
-                        restartTimeout = setTimeout(() => {
-                            if (isAudioMode && !isListening && !isSpeaking) {
-                                startListening();
-                            }
-                            lastMessageWasApology = false;
-                        }, 3000);
-                    }, 500);
-                }
-            } else if (event.error === 'audio-capture') {
-                console.log('🎤 No microphone detected');
-                addAIMessage("I can't detect your microphone. Please check your audio settings.");
-            } else if (event.error === 'not-allowed') {
-                console.log('🔒 Permission denied');
-                addAIMessage("Microphone permission was denied. Please allow microphone access to continue.");
-            }
-        };
 
-        recognition.onend = function() {
-            console.log('🔚 Recognition ended');
-            
-            const userInput = document.getElementById('userInput');
-            
-            if (userInput && userInput.value.trim().length > 0) {
-                const currentMessage = userInput.value.trim();
-                const now = Date.now();
-                const timeSinceLastMessage = now - (window.lastMessageTime || 0);
-                
-                if (!window.lastProcessedMessage || 
-                    window.lastProcessedMessage !== currentMessage || 
-                    timeSinceLastMessage > 3000) {
-                    
-                    console.log('✅ Sending new message:', currentMessage);
-                    window.lastProcessedMessage = currentMessage;
-                    window.lastMessageTime = now;
-                    sendMessage();
-                } else {
-                    console.log('🚫 Prevented duplicate message (within 3 seconds):', currentMessage);
-                    userInput.value = '';
-                }
-            } else {
-                if (isAudioMode && !isSpeaking && !lastMessageWasApology) {
-                    console.log('🔄 No speech detected via onend - restarting with hybrid system');
-                    isListening = false;
-                    setTimeout(() => {
-                        if (!isSpeaking && isAudioMode) {
+                    if (isAudioMode && !isSpeaking) {
+                        console.log('🔄 Mobile: Restarting via hybrid system');
+                        isListening = false;
+                        setTimeout(() => {
                             showHybridReadySequence();
-                        }
-                    }, 1000);
-                }
+                        }, 800);
+                    }
+                }, 1500);
             }
-        };
+        } else {
+            console.log('🖥️ Desktop: Using voice apology system');
+            lastMessageWasApology = true;
+            const apologyResponse = getApologyResponse();
+            stopListening();
+            setTimeout(() => {
+                addAIMessage(apologyResponse);
+                speakResponse(apologyResponse);
+                if (restartTimeout) clearTimeout(restartTimeout);
+                restartTimeout = setTimeout(() => {
+                    if (isAudioMode && !isListening && !isSpeaking) {
+                        startListening();
+                    }
+                    lastMessageWasApology = false;
+                }, 3000);
+            }, 500);
+        }
+    } else if (event.error === 'audio-capture') {
+        console.log('🎤 No microphone detected');
+        addAIMessage("I can't detect your microphone. Please check your audio settings.");
+    } else if (event.error === 'not-allowed') {
+        console.log('🔒 Permission denied');
+        addAIMessage("Microphone permission was denied. Please allow microphone access to continue.");
+    }
+};
+
+     recognition.onend = function() {
+    // ✅ ADD THIS ONE LINE
+    isRecognitionActive = false;
+    
+    console.log('🔚 Recognition ended');
+    
+    const userInput = document.getElementById('userInput');
+    
+    if (userInput && userInput.value.trim().length > 0) {
+        const currentMessage = userInput.value.trim();
+        const now = Date.now();
+        const timeSinceLastMessage = now - (window.lastMessageTime || 0);
+        
+        if (!window.lastProcessedMessage || 
+            window.lastProcessedMessage !== currentMessage || 
+            timeSinceLastMessage > 3000) {
+            
+            console.log('✅ Sending new message:', currentMessage);
+            window.lastProcessedMessage = currentMessage;
+            window.lastMessageTime = now;
+            sendMessage();
+        } else {
+            console.log('🚫 Prevented duplicate message (within 3 seconds):', currentMessage);
+            userInput.value = '';
+        }
+    } else {
+        if (isAudioMode && !isSpeaking && !lastMessageWasApology) {
+            console.log('🔄 No speech detected via onend - restarting with hybrid system');
+            isListening = false;
+            setTimeout(() => {
+                if (!isSpeaking && isAudioMode) {
+                    showHybridReadySequence();
+                }
+            }, 1000);
+        }
+    }
+};
         
         // 🎯 MOBILE TIMING DELAY
         const delay = isMobile ? 800 : 0;
