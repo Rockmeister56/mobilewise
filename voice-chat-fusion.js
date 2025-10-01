@@ -1247,10 +1247,10 @@ freeBookWithConsultation: {
         
         @keyframes redPulseGlow {
             0%, 100% { 
-                box-shadow: 0 0px 15px rgba(0,0,0,0.2), 0 0 5px rgba(0, 195, 255, 1);
+                box-shadow: 0 0px 0px rgba(0,0,0,0.0), 0 0 5px rgba(0, 195, 255, 1);
             }
             50% { 
-                box-shadow: 0 0px 15px rgba(0,0,0,0.2), 0 0 25px rgba(0, 132, 255, 1);
+                box-shadow: 0 0px 0px rgba(0,0,0,0.0), 0 0 25px rgba(0, 132, 255, 1);
             }
         }
         
