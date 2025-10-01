@@ -1295,8 +1295,6 @@ freeBookWithConsultation: {
     animation: glowLayerPulse 2s ease-in-out infinite;
         }
     <style>
- 
-        /* 🌟 ADD THE HIGHLIGHTER EFFECT HERE */
         .banner-glow-container::after {
             content: '';
             position: absolute;
