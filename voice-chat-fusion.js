@@ -1286,10 +1286,10 @@ freeBookWithConsultation: {
         .banner-glow-container::before {
             content: '';
             position: absolute;
-            width: 120%;
+            width: 140%;
             height: 120%;
             top: -10%;
-            left: -10%;
+            left: -20%;
             background: rgba(255, 255, 255, 0.1);
             border-radius: 12px;
             z-index: -1;
