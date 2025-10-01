@@ -1262,7 +1262,7 @@ freeBookWithConsultation: {
         @keyframes bookWhiteGlow {
             0%, 100% { 
                 box-shadow: 0 0 0px rgba(255,255,255,0.5);
-                transform: scale(1);
+                transform: scale(3);
             }
             50% { 
                 box-shadow: 0 0 0px rgba(255,255,255,0.9);
