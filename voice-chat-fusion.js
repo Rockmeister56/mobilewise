@@ -1223,7 +1223,7 @@ freeBookWithConsultation: {
             <!-- LEFT: Book Image -->
             <div style="display: flex; align-items: center;">
                 <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758088515492_nci-book.png" 
-                     class="book-pulse"
+                     class="book-white-glow"
                      style="width: 60px; height: 70px; border-radius: 8px; margin-right: 15px; box-shadow: 0 0px 0px rgba(0,0,0,0.3);">
                 
                 <!-- Book Info -->
@@ -1239,29 +1239,35 @@ freeBookWithConsultation: {
         </div>
         
         <style>
-        /* 🌟 SUBTLE WHITE LAYER GLOW */
+        /* 🔴 RED PULSING GLOW AROUND BANNER */
         .banner-glow-container {
             position: relative;
-            animation: subtleWhiteGlow 3s ease-in-out infinite;
+            animation: redPulseGlow 2s ease-in-out infinite;
         }
         
-        @keyframes subtleWhiteGlow {
+        @keyframes redPulseGlow {
             0%, 100% { 
-                box-shadow: 0 4px 15px rgba(0,0,0,0.2), 0 0 0 rgba(255,255,255,0.3);
+                box-shadow: 0 4px 15px rgba(0,0,0,0.2), 0 0 5px rgba(255,0,0,0.4);
             }
             50% { 
-                box-shadow: 0 4px 15px rgba(0,0,0,0.2), 0 0 15px rgba(255,255,255,0.6);
+                box-shadow: 0 4px 15px rgba(0,0,0,0.2), 0 0 25px rgba(255,0,0,0.8);
             }
         }
         
-        /* 📚 SUBTLE BOOK PULSE */
-        .book-pulse {
-            animation: bookPulse 4s ease-in-out infinite;
+        /* 📚 WHITE GLOW BEHIND BOOK */
+        .book-white-glow {
+            animation: bookWhiteGlow 3s ease-in-out infinite;
         }
         
-        @keyframes bookPulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+        @keyframes bookWhiteGlow {
+            0%, 100% { 
+                box-shadow: 0 0 10px rgba(255,255,255,0.5);
+                transform: scale(1);
+            }
+            50% { 
+                box-shadow: 0 0 20px rgba(255,255,255,0.9);
+                transform: scale(1.03);
+            }
         }
         
         /* ✨ FREE TEXT GLOW */
