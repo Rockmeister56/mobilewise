@@ -1247,10 +1247,10 @@ freeBookWithConsultation: {
         
         @keyframes redPulseGlow {
             0%, 100% { 
-                box-shadow: 0 0px 0px rgba(0,0,0,0.0), 0 0 5px rgba(0, 195, 255, 1);
+                box-shadow: 0 10px 0px rgba(0,0,0,0.0), 0 0 5px rgba(0, 195, 255, 1);
             }
             50% { 
-                box-shadow: 0 0px 0px rgba(0,0,0,0.0), 0 0 25px rgba(0, 132, 255, 1);
+                box-shadow: 0 20px 0px rgba(0,0,0,0.0), 0 0 25px rgba(0, 132, 255, 1);
             }
         }
         
@@ -1265,7 +1265,7 @@ freeBookWithConsultation: {
                 transform: scale(1);
             }
             50% { 
-                box-shadow: 0 0 10px rgba(255,255,255,0.9);
+                box-shadow: 0 0 0px rgba(255,255,255,0.9);
                 transform: scale(1.03);
             }
         }
