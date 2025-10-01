@@ -3403,7 +3403,7 @@ function showHybridReadySequence() {
             
             console.log('✅ Visual changed to green - listening was already started');
         }
-    }, 1500);
+    }, 2000);
     
     // ✅ CLEANUP TIMER
     speakSequenceCleanupTimer = setTimeout(() => {
