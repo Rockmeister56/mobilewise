@@ -111,7 +111,7 @@ const VOICE_ID = 'zGjIP4SZlMnY9m93k97r';
 // Initialize EmailJS - add this when your page loads
 document.addEventListener('DOMContentLoaded', function() {
     if (typeof emailjs !== 'undefined') {
-        emailjs.init('YOUR_PUBLIC_KEY'); // Replace with your actual EmailJS public key
+        emailjs.init('7-9oxa3UC3uKxtqGM'); // <-- Replace with your actual key
         console.log('✅ EmailJS initialized successfully');
     }
 });
@@ -291,46 +291,6 @@ function getApologyResponse() {
     setTimeout(() => { lastMessageWasApology = false; }, 5000);
     
     return sorryMessages[Math.floor(Math.random() * sorryMessages.length)];
-}
-
-// Add this function to fix common speech recognition errors
-function correctSpeechErrors(transcript) {
-    const corrections = {
-        // Name corrections
-        'brad': 'Brett',
-        'bread': 'Brett', 
-        'bret': 'Brett',
-        'bright': 'Brett',
-        'breath': 'Brett',
-        'bert': 'Brett',
-        
-        // "Selling" corrections
-        'salad': 'selling',
-        'sailing': 'selling', 
-        'ceiling': 'selling',
-        'sealing': 'selling',
-        'saling': 'selling',
-        'salon': 'selling',
-        'solid': 'selling'
-    };
-    
-    let corrected = transcript.toLowerCase().trim();
-    
-    // Check for exact matches
-    if (corrections[corrected]) {
-        console.log(`🔧 Speech correction: "${transcript}" → "${corrections[corrected]}"`);
-        return corrections[corrected];
-    }
-    
-    // Check for partial matches in longer phrases
-    Object.keys(corrections).forEach(mistake => {
-        if (corrected.includes(mistake)) {
-            corrected = corrected.replace(mistake, corrections[mistake]);
-            console.log(`🔧 Speech correction in phrase: "${transcript}" → "${corrected}"`);
-        }
-    });
-    
-    return corrected;
 }
     
   // ===================================================
