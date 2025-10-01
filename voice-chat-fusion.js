@@ -3656,23 +3656,6 @@ function showHybridReadySequence() {
                         utterance.volume = 0.7;
                         utterance.rate = 1.1;
                         utterance.pitch = 1;
-
-                        // Simple version - just wait for speech to end
-utterance.onend = function() {
-    console.log('🔊 AI finished speaking sorry message');
-    // Wait 1 second then restart listening
-    setTimeout(() => {
-        if (speakSequenceActive) {
-            console.log('🔄 Restarting listening after AI finished speaking');
-            window.lastRecognitionResult = null;
-            if (isContactInterview) {
-                startContactInterviewListening();
-            } else {
-                startNormalInterviewListening();
-            }
-        }
-    }, 1000);
-};
                         
                         // Better mobile compatibility
                         utterance.voice = speechSynthesis.getVoices().find(voice => 
@@ -3713,6 +3696,27 @@ utterance.onend = function() {
                         speakSequenceButton.className = 'quick-btn green-button-glow';
                         
                         console.log('🔄 Restarting listening after sorry message');
+                        
+                        // Restart listening with slight delay for better mobile performance
+                        setTimeout(() => {
+                            if (speakSequenceActive) {
+                                // Clear any previous recognition result flag
+                                window.lastRecognitionResult = null;
+                                
+                                if (isContactInterview) {
+                                    startContactInterviewListening();
+                                } else {
+                                    // Use mobile-optimized version if available
+                                    if (typeof startMobileListening === 'function') {
+                                        startMobileListening();
+                                    } else {
+                                        startNormalInterviewListening();
+                                    }
+                                }
+                            }
+                        }, 800);
+                    }
+                }, 6000); // Extended display time for sorry message
                 
             } else if (error === 'network') {
                 // Network error handling with progress bar
