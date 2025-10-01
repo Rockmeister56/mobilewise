@@ -216,6 +216,11 @@ if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
     console.log('📱 Full mobile enhancements applied');
 }
 
+// ✅ ADD THIS FUNCTION ANYWHERE IN YOUR CODE
+function isMobileDevice() {
+    return /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+}
+
 // ===================================================
 // 🎤 MICROPHONE PERMISSION SYSTEM
 // ===================================================
