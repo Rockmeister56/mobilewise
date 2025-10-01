@@ -563,6 +563,96 @@ function forceStartListening() {
     }
 }
 
+// ✅ MOBILE ERROR HANDLER HOOK (Add this after your startMobileListening function)
+function setupMobileErrorHandlers() {
+    if (!/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) return;
+    
+    console.log('📱 Setting up mobile error handlers');
+    
+    // Hook into the global recognition object if it exists
+    let checkCount = 0;
+    const maxChecks = 10;
+    
+    const waitForRecognition = setInterval(() => {
+        if (typeof recognition !== 'undefined') {
+            console.log('📱 Found recognition object - attaching mobile error handlers');
+            
+            recognition.onerror = function(event) {
+                console.log('📱 MOBILE Speech error:', event.error);
+                handleSpeechRecognitionError(event.error);
+            };
+            
+            recognition.onend = function() {
+                console.log('📱 MOBILE Recognition ended');
+                handleSpeechRecognitionEnd();
+            };
+            
+            recognition.onresult = function(event) {
+                console.log('📱 MOBILE Speech result received');
+                handleSpeechRecognitionResult(event);
+                // Preserve existing result handling
+                if (typeof originalOnResult === 'function') {
+                    originalOnResult(event);
+                }
+            };
+            
+            clearInterval(waitForRecognition);
+        }
+        
+        checkCount++;
+        if (checkCount >= maxChecks) {
+            console.log('📱 Mobile: Recognition object not found after waiting');
+            clearInterval(waitForRecognition);
+        }
+    }, 100);
+}
+
+// ✅ REPLACE YOUR LISTENING START SECTION WITH THIS:
+// In your showHybridReadySequence function, replace the listening start timeout with:
+
+setTimeout(() => {
+    console.log('🎤 Starting listening during RED stage...');
+    
+    // Clear any previous result flag
+    window.lastRecognitionResult = null;
+    
+    // 🎯 CRITICAL MOBILE FIX: Set up error handlers BEFORE starting listening
+    if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
+        console.log('📱 Mobile device - using enhanced error handler setup');
+        setupMobileErrorHandlers();
+    } else {
+        // Desktop error handler setup (your existing code)
+        if (typeof recognition !== 'undefined') {
+            recognition.onerror = function(event) {
+                console.log('🚨 Speech error:', event.error);
+                handleSpeechRecognitionError(event.error);
+            };
+            
+            recognition.onend = function() {
+                handleSpeechRecognitionEnd();
+            };
+            
+            recognition.onresult = function(event) {
+                handleSpeechRecognitionResult(event);
+                if (typeof originalOnResult === 'function') {
+                    originalOnResult(event);
+                }
+            };
+        }
+    }
+    
+    if (isContactInterview) {
+        startContactInterviewListening();
+    } else {
+        // Use mobile-optimized version if available
+        if (typeof startMobileListening === 'function') {
+            startMobileListening();
+        } else {
+            startNormalInterviewListening();
+        }
+    }
+}, 800);
+
 // ===================================================
 // 📧 EMAIL FORMATTING FUNCTION - FIXED
 // ===================================================
