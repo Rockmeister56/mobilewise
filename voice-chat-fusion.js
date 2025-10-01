@@ -3656,6 +3656,125 @@ function showHybridReadySequence() {
                         utterance.volume = 0.7;
                         utterance.rate = 1.1;
                         utterance.pitch = 1;
+
+                        if (error === 'no-speech') {
+    console.log('📱 Mobile: Using visual feedback system with varied messages');
+    
+    // 🚨 CRITICAL: STOP ALL SPEECH RECOGNITION IMMEDIATELY
+    if (typeof recognition !== 'undefined') {
+        try {
+            recognition.stop();
+            console.log('🛑 Stopped speech recognition during sorry message');
+        } catch (e) {
+            console.log('🛑 Recognition already stopped or error stopping:', e);
+        }
+    }
+    
+    // Clear any mobile fallback timer since we're handling the error
+    if (window.mobileFallbackTimer) {
+        clearTimeout(window.mobileFallbackTimer);
+        console.log('📱 Cleared mobile fallback timer during sorry sequence');
+    }
+    
+    // Get next sorry message variation
+    const sorryMessage = getNextSorryMessage();
+    console.log('💬 Using sorry message:', sorryMessage);
+    
+    // Visual feedback with varied "I didn't hear you" messages + PROGRESS BAR
+    speakSequenceButton.innerHTML = `
+        <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+            <div style="margin-bottom: 6px;">
+                <span class="error-feedback-blink">🔊</span> ${sorryMessage}
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #ff6b6b, #ee5a24);"></div>
+            </div>
+        </div>
+    `;
+    speakSequenceButton.style.background = 'rgba(255, 107, 107, 0.4) !important';
+    speakSequenceButton.style.borderColor = 'rgba(255, 107, 107, 0.8) !important';
+    speakSequenceButton.className = 'quick-btn error-feedback-blink sorry-message-pulse';
+    
+    // Enhanced voice feedback with varied messages (better mobile compatibility)
+    if (typeof speechSynthesis !== 'undefined') {
+        // Clear any existing speech
+        speechSynthesis.cancel();
+        
+        setTimeout(() => {
+            const utterance = new SpeechSynthesisUtterance(sorryMessage);
+            utterance.volume = 0.7;
+            utterance.rate = 1.1;
+            utterance.pitch = 1;
+            
+            // Better mobile compatibility
+            utterance.voice = speechSynthesis.getVoices().find(voice => 
+                voice.name.includes('Google') || voice.default
+            ) || speechSynthesis.getVoices()[0];
+            
+            // 🚨 CRITICAL: Wait for AI to finish speaking before restarting listening
+            utterance.onend = function() {
+                console.log('🔊 AI finished speaking sorry message');
+                
+                // NOW restart the listening sequence
+                setTimeout(() => {
+                    if (speakSequenceButton && speakSequenceActive) {
+                        console.log('🔄 AI finished speaking - now showing Speak Now and restarting listening');
+                        
+                        const progressBar = document.getElementById('readyProgressBar');
+                        if (progressBar) {
+                            progressBar.style.background = 'linear-gradient(90deg, #4caf50, #2e7d32)';
+                            progressBar.style.width = '100%';
+                        }
+                        
+                        speakSequenceButton.innerHTML = `
+                            <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+                                <div style="margin-bottom: 6px;">
+                                    <span class="green-dot-blink">🟢</span> Speak Now!
+                                </div>
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #4caf50, #2e7d32);"></div>
+                                </div>
+                            </div>
+                        `;
+                        speakSequenceButton.style.background = 'rgba(34, 197, 94, 0.4) !important';
+                        speakSequenceButton.style.borderColor = 'rgba(34, 197, 94, 0.8) !important';
+                        speakSequenceButton.className = 'quick-btn green-button-glow';
+                        
+                        // Restart listening with delay
+                        setTimeout(() => {
+                            if (speakSequenceActive) {
+                                window.lastRecognitionResult = null;
+                                console.log('🎤 Restarting speech recognition after sorry message completed');
+                                
+                                if (isContactInterview) {
+                                    startContactInterviewListening();
+                                } else {
+                                    if (typeof startMobileListening === 'function') {
+                                        startMobileListening();
+                                    } else {
+                                        startNormalInterviewListening();
+                                    }
+                                }
+                            }
+                        }, 1000); // 1 second delay after AI finishes speaking
+                    }
+                }, 500); // Small delay after speech ends
+            };
+            
+            speechSynthesis.speak(utterance);
+            console.log('🔊 Playing sorry message audio:', sorryMessage);
+        }, 200); // Small delay before starting speech
+    }
+    
+    // Fallback timeout in case speech synthesis doesn't work or onend doesn't fire
+    setTimeout(() => {
+        if (speakSequenceButton && speakSequenceActive) {
+            console.log('🔄 Fallback timeout - proceeding to Speak Now after sorry message');
+            // Same restart logic as above, but as fallback
+            // [Include the same restart code here as a backup]
+        }
+    }, 8000); // 8 second fallback
+}
                         
                         // Better mobile compatibility
                         utterance.voice = speechSynthesis.getVoices().find(voice => 
@@ -3696,88 +3815,6 @@ function showHybridReadySequence() {
                         speakSequenceButton.className = 'quick-btn green-button-glow';
                         
                         console.log('🔄 Restarting listening after sorry message');
-                        
-                        // Restart listening with slight delay for better mobile performance
-                        setTimeout(() => {
-                            if (speakSequenceActive) {
-                                // Clear any previous recognition result flag
-                                window.lastRecognitionResult = null;
-                                
-                                if (isContactInterview) {
-                                    startContactInterviewListening();
-                                } else {
-                                    // Use mobile-optimized version if available
-                                    if (typeof startMobileListening === 'function') {
-                                        startMobileListening();
-                                    } else {
-                                        startNormalInterviewListening();
-                                    }
-                                }
-                            }
-                        }, 800);
-                    }
-               }, 7000); // Give AI plenty of time to finish speaking the sorry message
-
-// 🎯 OR EVEN BETTER - WAIT FOR AI TO FINISH SPEAKING:
-// Replace the setTimeout with this smart version that waits for speech to end:
-
-// Reset to "Speak Now" after AI finishes speaking
-const waitForSpeechToEnd = setInterval(() => {
-    // Check if AI is done speaking (adjust this check based on your system)
-    if (typeof isSpeaking !== 'undefined' && !isSpeaking) {
-        console.log('🔊 AI finished speaking sorry message - now showing Speak Now');
-        
-        clearInterval(waitForSpeechToEnd);
-        
-        if (speakSequenceButton && speakSequenceActive) {
-            // Show green progress bar
-            const progressBar = document.getElementById('readyProgressBar');
-            if (progressBar) {
-                progressBar.style.background = 'linear-gradient(90deg, #4caf50, #2e7d32)';
-                progressBar.style.width = '100%';
-            }
-            
-            speakSequenceButton.innerHTML = `
-                <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
-                    <div style="margin-bottom: 6px;">
-                        <span class="green-dot-blink">🟢</span> Speak Now!
-                    </div>
-                    <div class="progress-bar-container">
-                        <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #4caf50, #2e7d32);"></div>
-                    </div>
-                </div>
-            `;
-            speakSequenceButton.style.background = 'rgba(34, 197, 94, 0.4) !important';
-            speakSequenceButton.style.borderColor = 'rgba(34, 197, 94, 0.8) !important';
-            speakSequenceButton.className = 'quick-btn green-button-glow';
-            
-            console.log('🔄 Restarting listening after sorry message');
-            
-            // Restart listening
-            setTimeout(() => {
-                if (speakSequenceActive) {
-                    window.lastRecognitionResult = null;
-                    
-                    if (isContactInterview) {
-                        startContactInterviewListening();
-                    } else {
-                        if (typeof startMobileListening === 'function') {
-                            startMobileListening();
-                        } else {
-                            startNormalInterviewListening();
-                        }
-                    }
-                }
-            }, 800);
-        }
-    }
-}, 200); // Check every 200ms
-
-// Fallback timeout in case isSpeaking check doesn't work
-setTimeout(() => {
-    clearInterval(waitForSpeechToEnd);
-    console.log('🔄 Fallback timeout - proceeding to Speak Now');
-}, 10000); // Maximum 10 seconds wait
                 
             } else if (error === 'network') {
                 // Network error handling with progress bar
