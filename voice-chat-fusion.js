@@ -1250,7 +1250,7 @@ freeBookWithConsultation: {
                 box-shadow: 0 10px 10px rgba(0,0,7,0.0), 0 0 10px rgba(0, 255, 0, 1);
             }
             50% { 
-                box-shadow: 0 20px 10px rgba(0,0,7,0.0), 0 0 25px rgba(0, 217, 255, 1);
+                box-shadow: 0 20px 10px rgba(0,0,9,0.0), 0 0 25px rgba(0, 217, 255, 1);
             }
         }
         
