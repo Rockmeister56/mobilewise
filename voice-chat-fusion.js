@@ -1281,7 +1281,8 @@ freeBookWithConsultation: {
             </div>
         </div>
         
-   .banner-glow-container::before {
+        <style>
+        .banner-glow-container::before {
     content: '';
     position: absolute;
     width: calc(100% + 50px);  /* <-- CHANGE 50px to make wider/narrower */
@@ -1292,7 +1293,7 @@ freeBookWithConsultation: {
     border-radius: 12px;
     z-index: -1;
     animation: glowLayerPulse 2s ease-in-out infinite;
-}
+        }
         
         @keyframes glowLayerPulse {
             0%, 100% { 
