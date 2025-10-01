@@ -1295,7 +1295,7 @@ freeBookWithConsultation: {
     animation: glowLayerPulse 2s ease-in-out infinite;
         }
     <style>
-
+ 
         /* 🌟 ADD THE HIGHLIGHTER EFFECT HERE */
         .banner-glow-container::after {
             content: '';
@@ -1312,7 +1312,7 @@ freeBookWithConsultation: {
             );
             animation: highlighterSweep 5s ease-in-out infinite;
             z-index: 1;
-            border-radius: 6px;
+            border-radius: 8px;
         }
 
         @keyframes highlighterSweep {
