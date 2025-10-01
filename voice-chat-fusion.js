@@ -1281,20 +1281,18 @@ freeBookWithConsultation: {
             </div>
         </div>
         
-        <style>
-        /* 🌟 WIDER GLOWING LAYER BEHIND BANNER */
-        .banner-glow-container::before {
-            content: '';
-            position: absolute;
-            width: 140%;
-            height: 120%;
-            top: -10%;
-            left: -20%;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            z-index: -1;
-            animation: glowLayerPulse 2s ease-in-out infinite;
-        }
+   .banner-glow-container::before {
+    content: '';
+    position: absolute;
+    width: calc(100% + 50px);  /* <-- CHANGE 50px to make wider/narrower */
+    height: calc(100% + 20px);
+    top: -10px;
+    left: -25px;               /* <-- Keep this half of the width addition */
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    z-index: -1;
+    animation: glowLayerPulse 2s ease-in-out infinite;
+}
         
         @keyframes glowLayerPulse {
             0%, 100% { 
