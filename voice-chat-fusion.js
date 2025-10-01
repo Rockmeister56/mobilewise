@@ -1042,8 +1042,7 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
     background: 'rgba(255, 255, 255, 0.15)',
     containerWidth: 762,
     customHeight: 90,
-    duration: 0
-};
+},
         
         // 3. EMAIL SENT CONFIRMATION
         emailSent: {
