@@ -1313,11 +1313,11 @@ freeBookWithConsultation: {
 }
 
 @keyframes highlighterSweep {
-    0%, 85% { left: -100%; opacity: 0; }     /* Wait hidden */
-    86% { left: -100%; opacity: 1; }         /* Appear at left */
-    94% { left: 100%; opacity: 1; }          /* Sweep right */
-    95% { left: 100%; opacity: 0; }          /* Disappear at right */
-    100% { left: -100%; opacity: 0; }        /* Reset hidden */
+    0%, 85% { left: -100%; opacity: 0; }     
+    86% { left: -100%; opacity: 1; }         
+    97% { left: 100%; opacity: 1; }          /* <-- Changed from 94% to 97% */
+    98% { left: 100%; opacity: 0; }          /* <-- Adjust this too */
+    100% { left: -100%; opacity: 0; }        
 }
         
         @keyframes glowLayerPulse {
