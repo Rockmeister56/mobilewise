@@ -205,16 +205,6 @@ async function speakWithElevenLabs(message) {
     }
 }
 
-// ✅ ENHANCED MOBILE CHECK (your associate's version)
-if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
-    speakSequenceButton.style.cssText += `
-        position: relative !important;
-        z-index: 1000 !important;
-        min-height: 50px !important; /* Larger touch target */
-        padding: 18px !important;
-    `;
-    console.log('📱 Full mobile enhancements applied');
-}
 
 // ✅ ADD THIS FUNCTION ANYWHERE IN YOUR CODE
 function isMobileDevice() {
