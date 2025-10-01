@@ -1218,17 +1218,18 @@ freeBookSimple: {
 // 5. FREE BOOK OFFER 2
 freeBookWithConsultation: {
     content: `
-        <div style="width: 742px; max-width: 742px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #0f5ef0ff, #000000ff); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+        <div class="banner-glow-container" style="width: 742px; max-width: 742px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #0f5ef0ff, #000000ff); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
             
             <!-- LEFT: Book Image -->
             <div style="display: flex; align-items: center;">
                 <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758088515492_nci-book.png" 
+                     class="book-pulse"
                      style="width: 60px; height: 70px; border-radius: 8px; margin-right: 15px; box-shadow: 0 0px 0px rgba(0,0,0,0.3);">
                 
                 <!-- Book Info -->
                 <div style="color: white; text-align: left;">
                     <div style="font-size: 18px; font-weight: bold; margin-bottom: 3px;">
-                        📚 FREE Consultation
+                        📚 <span class="free-glow">FREE</span> Consultation
                     </div>
                     <div style="font-size: 13px; color: #fff; opacity: 0.95;">
                         "7 Secrets to Selling Your Practice" Book Included
@@ -1236,6 +1237,44 @@ freeBookWithConsultation: {
                 </div>
             </div>
         </div>
+        
+        <style>
+        /* 🌟 SUBTLE WHITE LAYER GLOW */
+        .banner-glow-container {
+            position: relative;
+            animation: subtleWhiteGlow 3s ease-in-out infinite;
+        }
+        
+        @keyframes subtleWhiteGlow {
+            0%, 100% { 
+                box-shadow: 0 4px 15px rgba(0,0,0,0.2), 0 0 0 rgba(255,255,255,0.3);
+            }
+            50% { 
+                box-shadow: 0 4px 15px rgba(0,0,0,0.2), 0 0 15px rgba(255,255,255,0.6);
+            }
+        }
+        
+        /* 📚 SUBTLE BOOK PULSE */
+        .book-pulse {
+            animation: bookPulse 4s ease-in-out infinite;
+        }
+        
+        @keyframes bookPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        /* ✨ FREE TEXT GLOW */
+        .free-glow {
+            text-shadow: 0 0 8px rgba(255,255,255,0.8);
+            animation: freeTextGlow 2.5s ease-in-out infinite;
+        }
+        
+        @keyframes freeTextGlow {
+            0%, 100% { text-shadow: 0 0 8px rgba(255,255,255,0.8); }
+            50% { text-shadow: 0 0 12px rgba(255,255,255,1); }
+        }
+        </style>
     `,
     background: 'rgba(255, 255, 255, 0.15)',
     containerWidth: 762,
@@ -1616,6 +1655,27 @@ const bannerTriggers = {
         delay: 0,
         duration: 5000,
         conditions: ['booking_success']
+    },
+
+     pre_valuation_scheduling: {
+        bannerType: 'preValuationScheduling',
+        delay: 0,
+        duration: 0,  // <-- 0 = PERSISTENT (stays until manually changed)
+        conditions: ['valuation_interview_active']
+    },
+    
+    meeting_request_sent: {
+        bannerType: 'meetingRequestSent', 
+        delay: 0,
+        duration: 3000,  // <-- Brief 3-second display
+        conditions: ['booking_success']
+    },
+    
+    free_book_offer: {
+        bannerType: 'freeBookOffer',
+        delay: 0,
+        duration: 0,  // <-- PERSISTENT until user interacts
+        conditions: ['lead_captured']
     }
 };
 
@@ -1867,16 +1927,20 @@ if (conversationState === 'initial') {
     
 } else if (conversationState === 'asking_selling_consultation') {
     if (userText.includes('yes') || userText.includes('sure') || userText.includes('okay') || userText.includes('definitely') || userText.includes('absolutely')) {
+        // 🎯 NEW STREAMLINED FLOW: Skip button, go straight to interview
         responseText = firstName ?
-            `Fantastic, ${firstName}! I'm so excited for you - Bruce is going to have some great ideas for maximizing your practice value. Just click the button above and we'll get your information over to Bruce immediately. He'll reach out within 24 hours with your FREE practice valuation and selling strategy. This is going to be great!` :
-            "Fantastic! Bruce is going to be excited to work with you. Click the button above and he'll reach out within 24 hours for your FREE practice valuation!";
-        shouldShowSmartButton = true;
-        smartButtonText = '📞 Free Valuation';
-        smartButtonAction = 'valuation';
-        conversationState = 'button_activated_selling';
+            `Perfect ${firstName}! Let me get your information so Bruce can contact you directly. This will just take a moment...` :
+            "Perfect! Let me get your information so Bruce can contact you directly. This will just take a moment...";
         
-        // 🎯 TRIGGER: Consultation banner for selling
-        triggerBanner('consultation_offer', { type: 'selling' });
+        // 🎯 NEW: Show persistent Pre-Valuation Scheduling banner
+        triggerBanner('pre_valuation_scheduling', { valuation_interview_active: true });
+        
+        // 🎯 NEW: Go straight to lead capture interview
+        setTimeout(() => {
+            initializeLeadCapture('selling');
+        }, 1500);
+        
+        conversationState = 'lead_capture_active';
         
     } else if (userText.includes('no') || userText.includes('not now') || userText.includes('maybe later')) {
         responseText = firstName ?
@@ -1916,16 +1980,20 @@ if (conversationState === 'initial') {
     
 } else if (conversationState === 'asking_buying_consultation') {
     if (userText.includes('yes') || userText.includes('sure') || userText.includes('okay') || userText.includes('definitely') || userText.includes('absolutely')) {
+        // 🎯 NEW STREAMLINED FLOW: Skip button, go straight to interview
         responseText = firstName ?
-            `Outstanding, ${firstName}! I'm really excited for you - Bruce has some incredible opportunities that I think you're going to love. Click the button above and Bruce will reach out with current practices that match your criteria perfectly. Fair warning though - many of these deals move fast, so don't wait too long!` :
-            "Outstanding! Bruce has incredible opportunities you'll love. Click above and he'll reach out with matching practices. These deals move fast!";
-        shouldShowSmartButton = true;
-        smartButtonText = '🏢 View Available Practices';
-        smartButtonAction = 'buying';
-        conversationState = 'button_activated_buying';
+            `Outstanding ${firstName}! Let me get your information so Bruce can reach out with practices that match your criteria perfectly. This will just take a moment...` :
+            "Outstanding! Let me get your information so Bruce can reach out with matching practices. This will just take a moment...";
         
-        // 🎯 TRIGGER: Consultation banner for buying
-        triggerBanner('consultation_offer', { type: 'buying' });
+        // 🎯 NEW: Show persistent Pre-Valuation Scheduling banner
+        triggerBanner('pre_valuation_scheduling', { valuation_interview_active: true });
+        
+        // 🎯 NEW: Go straight to lead capture interview
+        setTimeout(() => {
+            initializeLeadCapture('buying');
+        }, 1500);
+        
+        conversationState = 'lead_capture_active';
         
     } else if (userText.includes('no') || userText.includes('not now') || userText.includes('maybe later')) {
         responseText = firstName ?
@@ -1962,16 +2030,20 @@ if (conversationState === 'initial') {
     
 } else if (conversationState === 'asking_valuation_consultation') {
     if (userText.includes('yes') || userText.includes('sure') || userText.includes('okay') || userText.includes('definitely') || userText.includes('absolutely')) {
+        // 🎯 NEW STREAMLINED FLOW: Skip button, go straight to interview
         responseText = firstName ?
-            `Wonderful, ${firstName}! I'm so excited for you to see what your practice is actually worth. Click the button above and we'll get you connected with Bruce for your FREE practice valuation. Honestly, ${firstName}, you might be shocked at what your practice is worth in today's market!` :
-            "Wonderful! Click above for your FREE valuation with Bruce. You might be shocked at what your practice is worth!";
-        shouldShowSmartButton = true;
-        smartButtonText = '📈 Get Practice Valuation';
-        smartButtonAction = 'valuation';
-        conversationState = 'button_activated_valuation';
+            `Wonderful ${firstName}! Let me get your information so Bruce can provide your FREE practice valuation. This will just take a moment...` :
+            "Wonderful! Let me get your information so Bruce can provide your FREE valuation. This will just take a moment...";
         
-        // 🎯 TRIGGER: Consultation banner for valuation
-        triggerBanner('consultation_offer', { type: 'valuation' });
+        // 🎯 NEW: Show persistent Pre-Valuation Scheduling banner
+        triggerBanner('pre_valuation_scheduling', { valuation_interview_active: true });
+        
+        // 🎯 NEW: Go straight to lead capture interview
+        setTimeout(() => {
+            initializeLeadCapture('valuation');
+        }, 1500);
+        
+        conversationState = 'lead_capture_active';
         
     } else if (userText.includes('no') || userText.includes('not now') || userText.includes('maybe later')) {
         responseText = firstName ?
@@ -1988,10 +2060,11 @@ if (conversationState === 'initial') {
             "Would you like Bruce to provide a free valuation? Yes or no?";
     }
     
-} else if (conversationState === 'button_activated_selling' || conversationState === 'button_activated_buying' || conversationState === 'button_activated_valuation') {
+} else if (conversationState === 'lead_capture_active') {
+    // 🎯 NEW: Handle responses during lead capture interview
     responseText = firstName ?
-        `Perfect, ${firstName}! I can see you're ready to connect with Bruce. Just click that button above and we'll get everything set up for you right away!` :
-        "Perfect! Ready to connect with Bruce? Click that button above!";
+        `Thanks ${firstName}! I'm still collecting your information for Bruce. Please continue with the interview questions.` :
+        "Thanks! Please continue with the interview questions so Bruce can contact you.";
 
 } else if (conversationState === 'asking_if_more_help') {
     if (userText.includes('no') || userText.includes('nothing') || userText.includes('done') || 
@@ -3403,7 +3476,7 @@ function showHybridReadySequence() {
             
             console.log('✅ Visual changed to green - listening was already started');
         }
-    }, 2000);
+    }, 1500);
     
     // ✅ CLEANUP TIMER
     speakSequenceCleanupTimer = setTimeout(() => {
