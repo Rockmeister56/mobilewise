@@ -1282,6 +1282,29 @@ freeBookWithConsultation: {
         </div>
         
         <style>
+        /* 🌟 WIDER GLOWING LAYER BEHIND BANNER */
+        .banner-glow-container::before {
+            content: '';
+            position: absolute;
+            width: 120%;
+            height: 120%;
+            top: -10%;
+            left: -10%;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            z-index: -1;
+            animation: glowLayerPulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes glowLayerPulse {
+            0%, 100% { 
+                box-shadow: 0 0 15px rgba(0, 255, 0, 0.6);
+            }
+            50% { 
+                box-shadow: 0 0 30px rgba(0, 217, 255, 0.8);
+            }
+        }
+        
         /* Blue PULSING GLOW AROUND BANNER */
         .banner-glow-container {
             position: relative;
@@ -1326,10 +1349,11 @@ freeBookWithConsultation: {
         </style>
     `,
     background: 'rgba(255, 255, 255, 0.15)',
-    containerWidth: 762,
+    containerWidth: 770,
     customHeight: 90,
     duration: 0
 },
+
 
 // 5. CONSULTATION CONFIRMED
 consultationConfirmed: {
