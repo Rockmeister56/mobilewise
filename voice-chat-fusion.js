@@ -1135,31 +1135,74 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
   
 // 2. SMART BUTTON (Free Consultation)
 smartButton: {
-    content: `
-        <div style="width: ${742}px; max-width: ${742}px; margin: 0 auto; height: 58px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; border-radius: 6px; background: rgba(255, 255, 255, 0.1);">
-            <div style="color: white; font-weight: 600; font-size: 16px;">
-                📅 FREE Evauation 
+   content: `
+        <div class="banner-glow-container" style="width: 742px; max-width: 742px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #0f5ef0ff, #000000ff); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+            
+            <!-- LEFT: Book Image -->
+            <div style="display: flex; align-items: center;">
+                <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758088515492_nci-book.png" 
+                     class="book-white-glow"
+                     style="width: 60px; height: 70px; border-radius: 0px; margin-right: 15px;">
+                
+                <!-- Book Info -->
+                <div style="color: white; text-align: left;">
+                    <div style="font-size: 18px; font-weight: bold; margin-bottom: 3px;">
+                        📚 <span class="free-glow">FREE</span> Consultation
+                    </div>
+                    <div style="font-size: 13px; color: #00ffb3ff; opacity: 0.95;">
+                        "7 Secrets to Selling Your Practice" Book Included
+                    </div>
+                </div>
             </div>
-            <button onclick="handleConsultationClick('valuation')" style="
-                background: rgba(34, 197, 94, 0.3);
-                color: white;
-                border: 1px solid rgba(0, 235, 86, 0.65);
-                padding: 8px 20px;
-                border-radius: 20px;
-                cursor: pointer;
-                font-weight: bold;
-                font-size: 14px;
-                transition: all 0.3s ease;
-                pointer-events: auto !important;
-            " onmouseover="this.style.background='rgba(34, 197, 175, 0.5)'" 
-               onmouseout="this.style.background='rgba(34, 197, 94, 0.3)'">
-                CLICK NOW
-            </button>
         </div>
+        
+        <style>
+        /* Blue PULSING GLOW AROUND BANNER */
+        .banner-glow-container {
+            position: relative;
+            animation: redPulseGlow 2s ease-in-out infinite;
+        }
+        
+        @keyframes redPulseGlow {
+            0%, 100% { 
+                box-shadow: 0 10px 10px rgba(0,0,7,0.0), 0 0 10px rgba(0, 255, 0, 1);
+            }
+            50% { 
+                box-shadow: 0 20px 10px rgba(0,0,9,0.0), 0 0 25px rgba(0, 217, 255, 1);
+            }
+        }
+        
+        /* 📚 WHITE GLOW BEHIND BOOK */
+        .book-white-glow {
+            animation: bookWhiteGlow 3s ease-in-out infinite;
+        }
+        
+        @keyframes bookWhiteGlow {
+            0%, 100% { 
+                box-shadow: 0 0 0px rgba(255,255,255,0.5);
+                transform: scale(1.2);
+            }
+            50% { 
+                box-shadow: 0 0 0px rgba(255,255,255,0.9);
+                transform: scale(1.03);
+            }
+        }
+        
+        /* ✨ FREE TEXT GLOW */
+        .free-glow {
+            text-shadow: 0 0 8px rgba(255,255,255,0.8);
+            animation: freeTextGlow 2.5s ease-in-out infinite;
+        }
+        
+        @keyframes freeTextGlow {
+            0%, 100% { text-shadow: 0 0 8px rgba(255,255,255,0.8); }
+            50% { text-shadow: 0 0 12px rgba(255,255,255,1); }
+        }
+        </style>
     `,
     background: 'rgba(255, 255, 255, 0.15)',
-    containerWidth: 752, // 🚀 WHITE LAYER WIDTH CONTROL
-    customHeight: 65, // 🚀 WHITE LAYER HEIGHT CONTROL
+    containerWidth: 762,
+    customHeight: 90,
     duration: 0
 },
 
@@ -1218,7 +1261,7 @@ freeBookSimple: {
 // 5. FREE BOOK OFFER 2
 freeBookWithConsultation: {
     content: `
-        <div class="banner-glow-container" style="width: 742px; max-width: 742px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #0f5ef0ff, #000000ff); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+        <div class="banner-glow-container" style="width: 760px; max-width: 760px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #0f5ef0ff, #000000ff); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
             
             <!-- LEFT: Book Image -->
             <div style="display: flex; align-items: center;">
