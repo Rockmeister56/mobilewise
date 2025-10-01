@@ -1294,6 +1294,36 @@ freeBookWithConsultation: {
     z-index: -1;
     animation: glowLayerPulse 2s ease-in-out infinite;
         }
+    <style>
+        /* 🌟 Your existing styles... */
+        .banner-glow-container::before {
+            /* Your existing glow layer code */
+        }
+        
+        /* 🌟 ADD THE HIGHLIGHTER EFFECT HERE */
+        .banner-glow-container::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.4),
+                transparent
+            );
+            animation: highlighterSweep 3s ease-in-out infinite;
+            z-index: 1;
+            border-radius: 8px;
+        }
+
+        @keyframes highlighterSweep {
+            0% { left: -100%; }
+            50% { left: 100%; }
+            100% { left: -100%; }
+        }
         
         @keyframes glowLayerPulse {
             0%, 100% { 
@@ -1309,12 +1339,6 @@ freeBookWithConsultation: {
             position: relative;
             animation: redPulseGlow 2s ease-in-out infinite;
         }
-            @keyframes highlighterSweep {
-    0%, 70% { left: -100%; opacity: 0; }
-    80% { opacity: 1; }
-    90% { opacity: 1; }
-    100% { left: 100%; opacity: 0; }
-}
         
         @keyframes redPulseGlow {
             0%, 100% { 
