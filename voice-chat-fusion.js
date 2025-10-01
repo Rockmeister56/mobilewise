@@ -3870,6 +3870,50 @@ function showHybridReadySequence() {
             }
         }
     }, 800);
+
+    // MOBILE FALLBACK TIMER - FORCE "I'M SORRY" SEQUENCE
+if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
+    console.log('📱 MOBILE: Setting up fallback timer for "I\'m sorry" sequence');
+    
+    // Temporary visible debug (remove after testing)
+    const debugMsg = document.createElement('div');
+    debugMsg.style.cssText = 'position:fixed; top:10px; left:10px; background:red; color:white; padding:10px; z-index:9999;';
+    debugMsg.textContent = '📱 Mobile: "I\'m sorry" in 6s if no speech';
+    document.body.appendChild(debugMsg);
+    
+    window.mobileFallbackTimer = setTimeout(() => {
+        if (speakSequenceActive && !window.lastRecognitionResult) {
+            console.log('📱 MOBILE FALLBACK: No speech detected - forcing "I\'m sorry"');
+            
+            // Remove debug message
+            debugMsg.remove();
+            
+            handleSpeechRecognitionError('no-speech');
+        }
+    }, 6000); // 6 second timeout for mobile
+}
+
+// 🎯 UPDATE YOUR handleSpeechRecognitionResult FUNCTION TO INCLUDE THIS:
+
+function handleSpeechRecognitionResult(event) {
+    console.log('✅ Speech recognition result received');
+    window.lastRecognitionResult = Date.now();
+
+    // 🎯 ADD THESE LINES:
+    if (window.mobileFallbackTimer) {
+        clearTimeout(window.mobileFallbackTimer);
+        console.log('📱 Mobile fallback timer cleared - speech detected');
+    }
+    
+    // 🎯 CRITICAL: Clear the mobile fallback timer if speech is detected
+    if (window.mobileFallbackTimer) {
+        clearTimeout(window.mobileFallbackTimer);
+        console.log('📱 Mobile fallback timer cleared - speech detected');
+    }
+    
+    // Process the result normally (existing logic continues)
+    // This flag prevents the "no-speech" error from triggering
+}
     
     // ✅ AI SPEAKING DETECTION
     let speechWatcher = setInterval(() => {
