@@ -1231,7 +1231,7 @@ freeBookWithConsultation: {
                     <div style="font-size: 18px; font-weight: bold; margin-bottom: 3px;">
                         📚 <span class="free-glow">FREE</span> Consultation
                     </div>
-                    <div style="font-size: 13px; color: #fff; opacity: 0.95;">
+                    <div style="font-size: 13px; color: #00ffb3ff; opacity: 0.95;">
                         "7 Secrets to Selling Your Practice" Book Included
                     </div>
                 </div>
@@ -1247,10 +1247,10 @@ freeBookWithConsultation: {
         
         @keyframes redPulseGlow {
             0%, 100% { 
-                box-shadow: 0 10px 0px rgba(0,0,0,0.0), 0 0 5px rgba(0, 195, 255, 1);
+                box-shadow: 0 10px 0px rgba(0,0,0,0.0), 0 0 5px rgba(0, 195, 255, 2);
             }
             50% { 
-                box-shadow: 0 20px 0px rgba(0,0,0,0.0), 0 0 25px rgba(0, 132, 255, 1);
+                box-shadow: 0 20px 0px rgba(0,0,0,0.0), 0 0 25px rgba(0, 132, 255, 2);
             }
         }
         
