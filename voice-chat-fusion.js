@@ -1261,11 +1261,11 @@ freeBookWithConsultation: {
         
         @keyframes bookWhiteGlow {
             0%, 100% { 
-                box-shadow: 0 0 10px rgba(255,255,255,0.5);
+                box-shadow: 0 0 0px rgba(255,255,255,0.5);
                 transform: scale(1);
             }
             50% { 
-                box-shadow: 0 0 20px rgba(255,255,255,0.9);
+                box-shadow: 0 0 0px rgba(255,255,255,0.9);
                 transform: scale(1.03);
             }
         }
