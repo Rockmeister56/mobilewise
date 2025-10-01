@@ -1224,7 +1224,7 @@ freeBookWithConsultation: {
             <div style="display: flex; align-items: center;">
                 <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758088515492_nci-book.png" 
                      class="book-white-glow"
-                     style="width: 60px; height: 70px; border-radius: 0px; margin-right: 0px;">
+                     style="width: 60px; height: 70px; border-radius: 0px; margin-right: 15px;">
                 
                 <!-- Book Info -->
                 <div style="color: white; text-align: left;">
@@ -1247,10 +1247,10 @@ freeBookWithConsultation: {
         
         @keyframes redPulseGlow {
             0%, 100% { 
-                box-shadow: 0 4px 15px rgba(0,0,0,0.2), 0 0 5px rgba(0, 195, 255, 1);
+                box-shadow: 0 0px 15px rgba(0,0,0,0.2), 0 0 5px rgba(0, 195, 255, 1);
             }
             50% { 
-                box-shadow: 0 4px 15px rgba(0,0,0,0.2), 0 0 25px rgba(0, 132, 255, 1);
+                box-shadow: 0 0px 15px rgba(0,0,0,0.2), 0 0 25px rgba(0, 132, 255, 1);
             }
         }
         
