@@ -1309,6 +1309,12 @@ freeBookWithConsultation: {
             position: relative;
             animation: redPulseGlow 2s ease-in-out infinite;
         }
+            @keyframes highlighterSweep {
+    0%, 70% { left: -100%; opacity: 0; }
+    80% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { left: 100%; opacity: 0; }
+}
         
         @keyframes redPulseGlow {
             0%, 100% { 
