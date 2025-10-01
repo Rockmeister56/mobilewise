@@ -3419,12 +3419,6 @@ function showHybridReadySequence() {
     
     window.lastSequenceStart = Date.now();
     speakSequenceActive = true;
-    
-    // 🔥 NEW: SORRY MESSAGE SPEECH TRACKING
-    if (typeof window.aiSpeakingSorryMessage === 'undefined') {
-        window.aiSpeakingSorryMessage = false;
-    }
-    
     console.log('🎬 Starting speak sequence...');
     
     // 🎯 MULTIPLE "SORRY" MESSAGE VARIATIONS
@@ -3625,7 +3619,7 @@ function showHybridReadySequence() {
         }
     }, 100);
     
-    // 🔥 FIXED: ENHANCED SPEECH RECOGNITION ERROR HANDLER WITH PROPER RESTART CONTROL
+    // 🎯 ENHANCED SPEECH RECOGNITION ERROR HANDLER WITH MULTIPLE SORRY MESSAGES
     function handleSpeechRecognitionError(error) {
         console.log('🚨 Speech recognition error:', error);
         
@@ -3652,12 +3646,8 @@ function showHybridReadySequence() {
                 speakSequenceButton.style.borderColor = 'rgba(255, 107, 107, 0.8) !important';
                 speakSequenceButton.className = 'quick-btn error-feedback-blink sorry-message-pulse';
                 
-                // 🔥 FIXED: Enhanced voice feedback with restart control
+                // Enhanced voice feedback with varied messages (better mobile compatibility)
                 if (typeof speechSynthesis !== 'undefined') {
-                    // 🔥 SET FLAG TO PREVENT RESTARTS DURING SPEECH
-                    window.aiSpeakingSorryMessage = true;
-                    console.log('🔥 BLOCKING RESTARTS: AI speaking sorry message');
-                    
                     // Clear any existing speech
                     speechSynthesis.cancel();
                     
@@ -3667,26 +3657,6 @@ function showHybridReadySequence() {
                         utterance.rate = 1.1;
                         utterance.pitch = 1;
                         
-                        // 🔥 CRITICAL: Clear flag when speech completes
-                        utterance.onend = function() {
-                            window.aiSpeakingSorryMessage = false;
-                            console.log('🔥 UNBLOCKING RESTARTS: Sorry message speech completed');
-                            
-                            // 🔥 NOW safe to restart - speech is done
-                            setTimeout(() => {
-                                if (speakSequenceButton && speakSequenceActive) {
-                                    console.log('🔄 Speech completed - now safe to restart listening');
-                                    proceedToGreenStateAndRestart();
-                                }
-                            }, 500);
-                        };
-                        
-                        // 🔥 FALLBACK: Clear flag after max expected speech time
-                        utterance.onerror = function() {
-                            window.aiSpeakingSorryMessage = false;
-                            console.log('🔥 UNBLOCKING RESTARTS: Speech error occurred');
-                        };
-                        
                         // Better mobile compatibility
                         utterance.voice = speechSynthesis.getVoices().find(voice => 
                             voice.name.includes('Google') || voice.default
@@ -3694,32 +3664,59 @@ function showHybridReadySequence() {
                         
                         speechSynthesis.speak(utterance);
                         console.log('🔊 Playing sorry message audio:', sorryMessage);
-                        
-                        // 🔥 SAFETY TIMEOUT: Force unblock after 5 seconds max
-                        setTimeout(() => {
-                            if (window.aiSpeakingSorryMessage) {
-                                window.aiSpeakingSorryMessage = false;
-                                console.log('🔥 SAFETY UNBLOCK: Forcing restart unblock after 5s');
-                                if (speakSequenceButton && speakSequenceActive) {
-                                    proceedToGreenStateAndRestart();
-                                }
-                            }
-                        }, 5000);
-                        
                     }, 100);
-                } else {
-                    // 🔥 NO SPEECH SYNTHESIS: Proceed normally after visual display
-                    setTimeout(() => {
-                        if (speakSequenceButton && speakSequenceActive) {
-                            proceedToGreenStateAndRestart();
-                        }
-                    }, 3000);
                 }
                 
                 // Mobile error beep for additional feedback
                 if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
                     playMobileErrorBeep();
                 }
+                
+                // Reset to "Speak Now" after feedback with visual cue + PROGRESS BAR
+                setTimeout(() => {
+                    if (speakSequenceButton && speakSequenceActive) {
+                        const progressBar = document.getElementById('readyProgressBar');
+                        if (progressBar) {
+                            progressBar.style.background = 'linear-gradient(90deg, #4caf50, #2e7d32)';
+                            progressBar.style.width = '100%';
+                        }
+                        
+                        speakSequenceButton.innerHTML = `
+                            <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+                                <div style="margin-bottom: 6px;">
+                                    <span class="green-dot-blink">🟢</span> Speak Now!
+                                </div>
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #4caf50, #2e7d32);"></div>
+                                </div>
+                            </div>
+                        `;
+                        speakSequenceButton.style.background = 'rgba(34, 197, 94, 0.4) !important';
+                        speakSequenceButton.style.borderColor = 'rgba(34, 197, 94, 0.8) !important';
+                        speakSequenceButton.className = 'quick-btn green-button-glow';
+                        
+                        console.log('🔄 Restarting listening after sorry message');
+                        
+                        // Restart listening with slight delay for better mobile performance
+                           setTimeout(() => {
+                           if (speakSequenceActive && !window.aiSpeakingSorryMessage) {
+                                // Clear any previous recognition result flag
+                                window.lastRecognitionResult = null;
+                                
+                                if (isContactInterview) {
+                                    startContactInterviewListening();
+                                } else {
+                                    // Use mobile-optimized version if available
+                                    if (typeof startMobileListening === 'function') {
+                                        startMobileListening();
+                                    } else {
+                                        startNormalInterviewListening();
+                                    }
+                                }
+                            }
+                        }, 800);
+                    }
+                }, 6000); // Extended display time for sorry message
                 
             } else if (error === 'network') {
                 // Network error handling with progress bar
@@ -3737,7 +3734,7 @@ function showHybridReadySequence() {
                 speakSequenceButton.style.borderColor = 'rgba(255, 193, 7, 0.8) !important';
                 speakSequenceButton.className = 'quick-btn error-feedback-blink';
                 
-                setTimeout(() => proceedToGreenStateAndRestart(), 2500);
+                setTimeout(() => resetToGreenState(), 2500);
                 
             } else if (error === 'not-allowed') {
                 // Microphone permission error with progress bar
@@ -3755,7 +3752,7 @@ function showHybridReadySequence() {
                 speakSequenceButton.style.borderColor = 'rgba(220, 38, 127, 0.8) !important';
                 speakSequenceButton.className = 'quick-btn error-feedback-blink';
                 
-                setTimeout(() => proceedToGreenStateAndRestart(), 3000);
+                setTimeout(() => resetToGreenState(), 3000);
                 
             } else {
                 // Generic error handling with progress bar
@@ -3773,26 +3770,14 @@ function showHybridReadySequence() {
                 speakSequenceButton.style.borderColor = 'rgba(255, 193, 7, 0.8) !important';
                 speakSequenceButton.className = 'quick-btn error-feedback-blink';
                 
-                setTimeout(() => proceedToGreenStateAndRestart(), 2000);
+                setTimeout(() => resetToGreenState(), 2000);
             }
         }
     }
     
-    // 🔥 NEW FUNCTION: Handles the transition to green state and restart (with speech completion check)
-    function proceedToGreenStateAndRestart() {
-        // 🔥 CRITICAL CHECK: Don't restart if AI is still speaking
-        if (window.aiSpeakingSorryMessage) {
-            console.log('🔥 RESTART BLOCKED: AI still speaking sorry message');
-            return;
-        }
-        
+    // Helper function to reset to green listening state with progress bar
+    function resetToGreenState() {
         if (speakSequenceButton && speakSequenceActive) {
-            const progressBar = document.getElementById('readyProgressBar');
-            if (progressBar) {
-                progressBar.style.background = 'linear-gradient(90deg, #4caf50, #2e7d32)';
-                progressBar.style.width = '100%';
-            }
-            
             speakSequenceButton.innerHTML = `
                 <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
                     <div style="margin-bottom: 6px;">
@@ -3807,12 +3792,9 @@ function showHybridReadySequence() {
             speakSequenceButton.style.borderColor = 'rgba(34, 197, 94, 0.8) !important';
             speakSequenceButton.className = 'quick-btn green-button-glow';
             
-            console.log('🔄 Restarting listening after sorry message completed');
-            
-            // Restart listening with slight delay for better mobile performance
+            // Restart listening
             setTimeout(() => {
-                if (speakSequenceActive && !window.aiSpeakingSorryMessage) {
-                    // Clear any previous recognition result flag
+                if (speakSequenceActive) {
                     window.lastRecognitionResult = null;
                     
                     if (isContactInterview) {
@@ -3826,30 +3808,13 @@ function showHybridReadySequence() {
                         }
                     }
                 }
-            }, 800);
+            }, 500);
         }
     }
     
-    // 🔥 FIXED: Helper function to reset to green listening state with speech completion check
-    function resetToGreenState() {
-        // 🔥 CRITICAL CHECK: Don't restart if AI is still speaking
-        if (window.aiSpeakingSorryMessage) {
-            console.log('🔥 RESET BLOCKED: AI still speaking sorry message');
-            return;
-        }
-        
-        proceedToGreenStateAndRestart();
-    }
-    
-    // 🔥 FIXED: ENHANCED SPEECH RECOGNITION RESTART HANDLER
+    // 🎯 ENHANCED SPEECH RECOGNITION RESTART HANDLER
     function handleSpeechRecognitionEnd() {
         console.log('🔚 Recognition ended');
-        
-        // 🔥 CHECK: Don't restart if AI is speaking
-        if (window.aiSpeakingSorryMessage) {
-            console.log('🔥 END RESTART BLOCKED: AI speaking sorry message');
-            return;
-        }
         
         // Check if we got a result or if it was an error
         if (!window.lastRecognitionResult && speakSequenceActive) {
@@ -3905,6 +3870,50 @@ function showHybridReadySequence() {
             }
         }
     }, 800);
+
+    // MOBILE FALLBACK TIMER - FORCE "I'M SORRY" SEQUENCE
+if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
+    console.log('📱 MOBILE: Setting up fallback timer for "I\'m sorry" sequence');
+    
+    // Temporary visible debug (remove after testing)
+    const debugMsg = document.createElement('div');
+    debugMsg.style.cssText = 'position:fixed; top:10px; left:10px; background:red; color:white; padding:10px; z-index:9999;';
+    debugMsg.textContent = '📱 Mobile: "I\'m sorry" in 6s if no speech';
+    document.body.appendChild(debugMsg);
+    
+    window.mobileFallbackTimer = setTimeout(() => {
+        if (speakSequenceActive && !window.lastRecognitionResult) {
+            console.log('📱 MOBILE FALLBACK: No speech detected - forcing "I\'m sorry"');
+            
+            // Remove debug message
+            debugMsg.remove();
+            
+            handleSpeechRecognitionError('no-speech');
+        }
+    }, 6000); // 6 second timeout for mobile
+}
+
+// 🎯 UPDATE YOUR handleSpeechRecognitionResult FUNCTION TO INCLUDE THIS:
+
+function handleSpeechRecognitionResult(event) {
+    console.log('✅ Speech recognition result received');
+    window.lastRecognitionResult = Date.now();
+
+    // 🎯 ADD THESE LINES:
+    if (window.mobileFallbackTimer) {
+        clearTimeout(window.mobileFallbackTimer);
+        console.log('📱 Mobile fallback timer cleared - speech detected');
+    }
+    
+    // 🎯 CRITICAL: Clear the mobile fallback timer if speech is detected
+    if (window.mobileFallbackTimer) {
+        clearTimeout(window.mobileFallbackTimer);
+        console.log('📱 Mobile fallback timer cleared - speech detected');
+    }
+    
+    // Process the result normally (existing logic continues)
+    // This flag prevents the "no-speech" error from triggering
+}
     
     // ✅ AI SPEAKING DETECTION
     let speechWatcher = setInterval(() => {
