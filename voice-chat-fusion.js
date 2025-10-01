@@ -1310,7 +1310,7 @@ freeBookWithConsultation: {
                 rgba(255, 255, 255, 0.4),
                 transparent
             );
-            animation: highlighterSweep 5s ease-in-out infinite;
+            animation: highlighterSweep 3s ease-in-out infinite;
             z-index: 1;
             border-radius: 8px;
         }
