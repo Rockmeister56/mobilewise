@@ -3727,6 +3727,32 @@ function showHybridReadySequence() {
 function handleSpeechRecognitionError(error) {
     console.log('🚨💣 NUCLEAR: Speech recognition error detected - KILLING ALL LISTENING');
 
+     // 🎯 DESKTOP: Use original working code
+    const isRealMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+    if (!isRealMobile) {
+        console.log('🖥️ DESKTOP: Using original working sorry system');
+        
+        // Your original desktop code that was working
+        if (error === 'no-speech' && speakSequenceButton && speakSequenceActive) {
+            const sorryMessage = getNextSorryMessage();
+            
+            if (typeof speechSynthesis !== 'undefined') {
+                speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(sorryMessage);
+                utterance.volume = 0.7;
+                utterance.onend = function() {
+                    setTimeout(() => {
+                        if (speakSequenceActive) {
+                            startNormalInterviewListening();
+                        }
+                    }, 800);
+                };
+                speechSynthesis.speak(utterance);
+            }
+            return; // Stop here for desktop
+        }
+    }
+
     // 💣 CALL GLOBAL NUKE FUNCTION
     nukeAllListening();
     
