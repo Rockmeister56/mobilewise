@@ -3572,6 +3572,12 @@ function showHybridReadySequence() {
     function handleSpeechRecognitionError(error) {
         console.log('🚨 Speech recognition error:', error);
         
+        // 🛑 CRITICAL FIX: Check if AI is currently speaking before showing error
+        if (typeof isSpeaking !== 'undefined' && isSpeaking) {
+            console.log('🔇 AI is currently speaking - blocking error message to prevent overlap');
+            return;
+        }
+        
         if (speakSequenceButton && speakSequenceActive) {
             if (error === 'no-speech') {
                 console.log('📱 Mobile: Using visual feedback system with varied messages');
@@ -3726,6 +3732,13 @@ function showHybridReadySequence() {
     
     // Helper function to reset to green listening state with progress bar
     function resetToGreenState() {
+        // 🛑 CRITICAL FIX: Check if AI is speaking before resetting
+        if (typeof isSpeaking !== 'undefined' && isSpeaking) {
+            console.log('🔇 AI is speaking - delaying reset to green state');
+            setTimeout(resetToGreenState, 500);
+            return;
+        }
+        
         if (speakSequenceButton && speakSequenceActive) {
             speakSequenceButton.innerHTML = `
                 <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
@@ -3764,6 +3777,13 @@ function showHybridReadySequence() {
     // 🎯 ENHANCED SPEECH RECOGNITION RESTART HANDLER
     function handleSpeechRecognitionEnd() {
         console.log('🔚 Recognition ended');
+        
+        // 🛑 CRITICAL FIX: Check if AI is speaking before handling end
+        if (typeof isSpeaking !== 'undefined' && isSpeaking) {
+            console.log('🔇 AI is speaking - delaying speech recognition end handling');
+            setTimeout(handleSpeechRecognitionEnd, 500);
+            return;
+        }
         
         // Check if we got a result or if it was an error
         if (!window.lastRecognitionResult && speakSequenceActive) {
@@ -3808,6 +3828,19 @@ function showHybridReadySequence() {
             };
         }
         
+        // 🎯 CRITICAL MOBILE DETECTION - ADDED BACK!
+        if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
+            console.log('📱 MOBILE: Setting up enhanced speech recognition handlers');
+            
+            // Enhanced mobile fallback timer
+            const mobileFallbackTimer = setTimeout(() => {
+                if (speakSequenceActive && !window.lastRecognitionResult) {
+                    console.log('📱 MOBILE FALLBACK: No speech detected - triggering sorry message');
+                    handleSpeechRecognitionError('no-speech');
+                }
+            }, 4000); // Mobile gets slightly longer timeout
+        }
+        
         if (isContactInterview) {
             startContactInterviewListening();
         } else {
@@ -3820,54 +3853,73 @@ function showHybridReadySequence() {
         }
     }, 800);
     
-    // ✅ AI SPEAKING DETECTION
+    // ✅ ENHANCED AI SPEAKING DETECTION WITH BETTER TIMING
     let speechWatcher = setInterval(() => {
         if (typeof isSpeaking !== 'undefined' && isSpeaking && speakSequenceActive) {
             console.log('🔊 AI started speaking - auto-cleaning up speak sequence');
             clearInterval(speechWatcher);
             if (progressInterval) clearInterval(progressInterval);
-            cleanupSpeakSequence();
+            
+            // 🛑 CRITICAL FIX: Add a small delay to ensure AI speech is fully captured
+            setTimeout(() => {
+                cleanupSpeakSequence();
+            }, 500);
         }
     }, 100);
     
     // ✅ GREEN TRANSITION
     const greenTransition = setTimeout(() => {
+        // 🛑 CRITICAL FIX: Check if AI is speaking before transitioning to green
+        if (typeof isSpeaking !== 'undefined' && isSpeaking) {
+            console.log('🔇 AI is speaking - delaying green transition');
+            setTimeout(() => {
+                if (speakSequenceButton && speakSequenceActive) {
+                    performGreenTransition();
+                }
+            }, 1000);
+            return;
+        }
+        
         if (speakSequenceButton && speakSequenceActive) {
-            console.log('🟢 Switching to green stage (listening already active)');
-            
-            const progressBar = document.getElementById('readyProgressBar');
-            if (progressBar) {
-                progressBar.style.background = 'linear-gradient(90deg, #4caf50, #2e7d32)';
-                progressBar.style.width = '100%';
-            }
-            
-            speakSequenceButton.innerHTML = `
-                <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
-                    <div style="margin-bottom: 6px;">
-                        <span class="green-dot-blink">🟢</span> Speak Now!
-                    </div>
-                    <div class="progress-bar-container">
-                        <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #4caf50, #2e7d32);"></div>
-                    </div>
-                </div>
-            `;
-            
-            speakSequenceButton.style.cssText = `
-                width: 100% !important;
-                background: rgba(34, 197, 94, 0.4) !important;
-                color: #ffffff !important;
-                border: 2px solid rgba(34, 197, 94, 0.8) !important;
-                padding: 15px !important;
-                min-height: 45px !important;
-                font-weight: bold !important;
-                font-size: 18px !important;
-                border-radius: 20px !important;
-            `;
-            speakSequenceButton.className = 'quick-btn green-button-glow';
-            
-            console.log('✅ Visual changed to green - listening was already started');
+            performGreenTransition();
         }
     }, 1500);
+    
+    function performGreenTransition() {
+        console.log('🟢 Switching to green stage (listening already active)');
+        
+        const progressBar = document.getElementById('readyProgressBar');
+        if (progressBar) {
+            progressBar.style.background = 'linear-gradient(90deg, #4caf50, #2e7d32)';
+            progressBar.style.width = '100%';
+        }
+        
+        speakSequenceButton.innerHTML = `
+            <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+                <div style="margin-bottom: 6px;">
+                    <span class="green-dot-blink">🟢</span> Speak Now!
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #4caf50, #2e7d32);"></div>
+                </div>
+            </div>
+        `;
+        
+        speakSequenceButton.style.cssText = `
+            width: 100% !important;
+            background: rgba(34, 197, 94, 0.4) !important;
+            color: #ffffff !important;
+            border: 2px solid rgba(34, 197, 94, 0.8) !important;
+            padding: 15px !important;
+            min-height: 45px !important;
+            font-weight: bold !important;
+            font-size: 18px !important;
+            border-radius: 20px !important;
+        `;
+        speakSequenceButton.className = 'quick-btn green-button-glow';
+        
+        console.log('✅ Visual changed to green - listening was already started');
+    }
     
     // ✅ CLEANUP TIMER
     speakSequenceCleanupTimer = setTimeout(() => {
