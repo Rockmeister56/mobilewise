@@ -351,7 +351,7 @@ function getApologyResponse() {
     
     try {
         // 🎯 MOBILE-SPECIFIC PRE-WARMING
-        const isMobile = isMobileDevice();
+        const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
         
         if (isMobile && !speechEngine.isReady()) {
             console.log('📱 Mobile detected - pre-warming engine...');
@@ -407,10 +407,9 @@ function getApologyResponse() {
 
           // 🔍 ADD DEBUG LINE RIGHT HERE:
         console.log('🔍 MOBILE DEBUG:', {
-            userAgent: navigator.userAgent,
-            isMobile: /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent),
-            isMobileDevice: typeof isMobileDevice === 'function' ? isMobileDevice() : 'function not found'
-        });
+    userAgent: navigator.userAgent,
+    isMobile: /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)
+});
 
         if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
           console.log('📱 Mobile: Using visual feedback system');
