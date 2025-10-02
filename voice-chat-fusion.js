@@ -408,8 +408,11 @@ function getApologyResponse() {
             isTouch: ('ontouchstart' in window || navigator.maxTouchPoints > 0)
         });
 
-         if ('ontouchstart' in window || navigator.maxTouchPoints > 0 || window.innerWidth <= 768) {
-            console.log('📱 Mobile: Using visual feedback system');
+         // 🚨 NUCLEAR MOBILE DETECTION - REPLACE THE OLD CHECK
+const isDefinitelyMobile = window.innerWidth <= 768 || window.innerHeight <= 1024;
+
+if (isDefinitelyMobile) {
+    console.log('📱📱📱 NUCLEAR MOBILE DETECTED: Using visual feedback system');
 
             if (window.noSpeechTimeout) {
                 clearTimeout(window.noSpeechTimeout);
