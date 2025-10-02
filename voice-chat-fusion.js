@@ -3384,8 +3384,8 @@ let speakSequenceCleanupTimer = null;
 
 function showHybridReadySequence() {
     // ✅ CALL MOBILE STABILITY FIRST
-   // applyMobileStability();
-    // setupMobileTouchEvents();
+    applyMobileStability();
+    setupMobileTouchEvents();
     
     // ✅ BASIC BLOCKING CHECKS
     if (typeof BannerOrchestrator !== 'undefined' && 
@@ -3973,8 +3973,6 @@ function startNormalInterviewListening() {
         }
     }, 150);
 }
-
-
 
 // 🎯 CONTACT INTERVIEW LISTENING 
 function startContactInterviewListening() {
