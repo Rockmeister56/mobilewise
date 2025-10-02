@@ -3427,6 +3427,24 @@ function playMobileErrorBeep() {
 // ✅ MAIN FUNCTION WITH ALL FIXES
 function showHybridReadySequence() {
     // ✅ CALL MOBILE STABILITY FIRST
+
+        // 🛑 CRITICAL: PREVENT MULTIPLE SIMULTANEOUS SESSIONS
+    if (window.speakSequenceBlocked) {
+        console.log('🔇 HYBRID BLOCKED: Another session already running');
+        return;
+    }
+    window.speakSequenceBlocked = true;
+    
+    // 🛑 CRITICAL: STOP ANY EXISTING LISTENING FIRST
+    if (typeof recognition !== 'undefined' && recognition) {
+        try {
+            recognition.stop();
+            console.log('🔇 Stopped any existing recognition session');
+        } catch (e) {
+            console.log('🔇 Recognition already stopped or stopping failed');
+        }
+    }
+
     applyMobileStability();
     setupMobileTouchEvents();
     
@@ -4119,6 +4137,10 @@ function startContactInterviewListening() {
 
 // Enhanced cleanup function
 function cleanupSpeakSequence() {
+     // 🛑 CRITICAL: RE-ENABLE FUTURE SESSIONS
+    window.speakSequenceBlocked = false;
+    speakSequenceActive = false;
+    
     console.log('🧹 Cleaning up speak sequence');
     speakSequenceActive = false;
     
