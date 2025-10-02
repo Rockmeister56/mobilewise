@@ -3424,7 +3424,6 @@ function playMobileErrorBeep() {
     }
 }
 
-
 // ✅ MAIN FUNCTION WITH ALL FIXES
 function showHybridReadySequence() {
     // ✅ CALL MOBILE STABILITY FIRST
