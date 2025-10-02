@@ -205,14 +205,9 @@ async function speakWithElevenLabs(message) {
     }
 }
 
-// 🔧 ENHANCED MOBILE DETECTION
-function isMobileEnhanced() {
-    const ua = navigator.userAgent;
-    return /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua) || 
-           /Android|webOS|iPhone|iPad|iPod|BlackBerry|Windows Phone/i.test(ua) ||
-           (typeof window.orientation !== "undefined") || 
-           (navigator.maxTouchPoints && navigator.maxTouchPoints > 2);
-}
+// 🔧 FORCE MOBILE DETECTION - your mobile is hiding as desktop
+if ('ontouchstart' in window || navigator.maxTouchPoints > 0 || window.innerWidth <= 768) {
+    console.log('📱 Mobile: Using visual feedback system');
 
 // Then use:
 if (isMobileEnhanced()) {
@@ -411,10 +406,12 @@ function getApologyResponse() {
         console.log('🔍 MOBILE DEBUG:', {
             userAgent: navigator.userAgent,
             isMobile: /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent),
-            isTouch: ('ontouchstart' in window || navigator.maxTouchPoints > 0)
+            isTouch: ('ontouchstart' in window || navigator.maxTouchPoints > 0),
+            screenWidth: window.innerWidth
         });
 
-        if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+        // 🔧 FORCE MOBILE DETECTION - use screen width as backup
+        if ('ontouchstart' in window || navigator.maxTouchPoints > 0 || window.innerWidth <= 768) {
             console.log('📱 Mobile: Using visual feedback system');
 
             if (window.noSpeechTimeout) {
