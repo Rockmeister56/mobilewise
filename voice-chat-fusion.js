@@ -948,7 +948,7 @@ function speakResponseOriginal(message) {
     console.log('🔊 Sorry message finished - going to SPEAK NOW');
     
     if (speakSequenceButton && speakSequenceActive) {
-        // 🎯 GO DIRECTLY TO "SPEAK NOW" - NOT "GET READY"
+        // 🎯 GO DIRECTLY TO "SPEAK NOW" - BUT DON'T START LISTENING YET
         speakSequenceButton.innerHTML = `
             <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
                 <div style="margin-bottom: 6px;">
@@ -963,11 +963,16 @@ function speakResponseOriginal(message) {
         speakSequenceButton.style.borderColor = 'rgba(34, 197, 94, 0.8) !important';
         speakSequenceButton.className = 'quick-btn green-button-glow';
         
-        // 🎯 RESTART LISTENING IMMEDIATELY
-        console.log('🔄 Restarting listening after sorry message');
+        console.log('✅ Visual changed to "Speak Now" - waiting before starting listening');
+        
+        // 🎯 CRITICAL: WAIT 1-2 SECONDS BEFORE STARTING LISTENING
+        // This gives time for the "Speak Now" visual to appear AND ensures
+        // any residual "sorry" audio is completely finished
         setTimeout(() => {
             if (speakSequenceActive) {
+                console.log('🔄 NOW starting listening (safe delay completed)');
                 window.lastRecognitionResult = null;
+                
                 if (isContactInterview) {
                     startContactInterviewListening();
                 } else {
@@ -978,9 +983,10 @@ function speakResponseOriginal(message) {
                     }
                 }
             }
-        }, 500);
+        }, 1500); // 1.5 second delay to ensure clean restart
     }
-};       
+};
+       
             
 utterance.onerror = function(event) {
     console.log('❌ Speech error:', event.error);
@@ -3687,7 +3693,23 @@ function showHybridReadySequence() {
     
     // 🎯 ENHANCED SPEECH RECOGNITION ERROR HANDLER WITH MULTIPLE SORRY MESSAGES
     function handleSpeechRecognitionError(error) {
-        console.log('🚨 Speech recognition error:', error);
+            console.log('🚨 Speech recognition error:', error);
+
+                // 🛑 CRITICAL: STOP ALL LISTENING IMMEDIATELY WHEN SORRY MESSAGE STARTS
+    if (typeof recognition !== 'undefined' && recognition) {
+        try {
+            recognition.stop();
+            console.log('🔇 Stopped recognition to prevent catching sorry message');
+        } catch (e) {
+            console.log('🔇 Recognition already stopped');
+        }
+    }
+    
+    // 🛑 CRITICAL: Check if AI is currently speaking before showing error
+    if (typeof isSpeaking !== 'undefined' && isSpeaking) {
+        console.log('🔇 AI is currently speaking - blocking error message');
+        return;
+    }
         
         // 🛑 CRITICAL FIX: Check if AI is currently speaking before showing error
         if (typeof isSpeaking !== 'undefined' && isSpeaking) {
