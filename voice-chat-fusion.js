@@ -3333,6 +3333,98 @@ let speakSequenceCleanupTimer = null;
 
 
 
+// ✅ MOBILE STABILITY FUNCTIONS - ADD THESE
+function applyMobileStability() {
+    console.log('📱 Applying mobile stability enhancements...');
+    
+    // Prevent unwanted zoom on focus
+    const viewport = document.querySelector('meta[name="viewport"]');
+    if (viewport && /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
+        viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
+    }
+    
+    // Enhanced touch event prevention for mobile
+    document.addEventListener('touchstart', function(e) {
+        if (e.touches.length > 1) {
+            e.preventDefault();
+        }
+    }, { passive: false });
+    
+    // Prevent double-tap zoom
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', function(e) {
+        const now = Date.now();
+        if (now - lastTouchEnd <= 300) {
+            e.preventDefault();
+        }
+        lastTouchEnd = now;
+    }, { passive: false });
+    
+    // Force layout stability
+    document.body.style.webkitTransform = 'translateZ(0)';
+    document.body.style.transform = 'translateZ(0)';
+}
+
+function setupMobileTouchEvents() {
+    console.log('📱 Setting up mobile touch events...');
+    
+    // Enhanced touch handling for speak sequence button
+    document.addEventListener('touchstart', function(e) {
+        if (e.target && e.target.id === 'speak-sequence-button') {
+            e.preventDefault();
+            e.target.style.transform = 'scale(0.98)';
+        }
+    }, { passive: false });
+    
+    document.addEventListener('touchend', function(e) {
+        if (e.target && e.target.id === 'speak-sequence-button') {
+            e.preventDefault();
+            e.target.style.transform = 'scale(1)';
+        }
+    }, { passive: false });
+    
+    // Prevent ghost clicks
+    document.addEventListener('touchmove', function(e) {
+        if (e.target && e.target.id === 'speak-sequence-button') {
+            e.preventDefault();
+        }
+    }, { passive: false });
+}
+
+function playMobileErrorBeep() {
+    try {
+        // Create audio context for mobile-compatible beep
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.value = 300;
+        oscillator.type = 'sine';
+        
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.3);
+        
+        console.log('📱 Mobile error beep played');
+    } catch (error) {
+        console.log('📱 Mobile beep failed, using fallback:', error);
+        // Fallback: try using a simple beep if Web Audio API fails
+        try {
+            const beep = new Audio('data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU');
+            beep.volume = 0.1;
+            beep.play();
+        } catch (fallbackError) {
+            console.log('📱 Fallback beep also failed');
+        }
+    }
+}
+
+// ✅ MAIN FUNCTION WITH ALL FIXES
 function showHybridReadySequence() {
     // ✅ CALL MOBILE STABILITY FIRST
     applyMobileStability();
@@ -3540,7 +3632,7 @@ function showHybridReadySequence() {
         border-radius: 20px !important;
     `;
     
-    // ✅ ENHANCED MOBILE STABILITY (FROM YOUR ASSOCIATE'S CODE)
+    // ✅ ENHANCED MOBILE STABILITY
     if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
         speakSequenceButton.style.cssText += `
             position: relative !important;
