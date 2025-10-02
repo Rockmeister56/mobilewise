@@ -3411,8 +3411,8 @@ function showHybridReadySequence() {
     clearAllHybridTimers();
 
     // ✅ CALL MOBILE STABILITY FIRST
-    applyMobileStability();
-    setupMobileTouchEvents();
+     // applyMobileStability();
+    // setupMobileTouchEvents();
     
     // ✅ BASIC BLOCKING CHECKS
     if (typeof BannerOrchestrator !== 'undefined' && 
