@@ -205,10 +205,15 @@ async function speakWithElevenLabs(message) {
     }
 }
 
-
-// ✅ ADD THIS FUNCTION ANYWHERE IN YOUR CODE
-function isMobileDevice() {
-    return /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+// ✅ ENHANCED MOBILE CHECK (your associate's version)
+if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
+    speakSequenceButton.style.cssText += `
+        position: relative !important;
+        z-index: 1000 !important;
+        min-height: 50px !important; /* Larger touch target */
+        padding: 18px !important;
+    `;
+    console.log('📱 Full mobile enhancements applied');
 }
 
 // ===================================================
@@ -400,8 +405,15 @@ function getApologyResponse() {
     if (event.error === 'no-speech') {
         const transcriptText = document.getElementById('transcriptText');
 
-        if (isMobileDevice()) {
-            console.log('📱 Mobile: Using visual feedback system');
+          // 🔍 ADD DEBUG LINE RIGHT HERE:
+        console.log('🔍 MOBILE DEBUG:', {
+            userAgent: navigator.userAgent,
+            isMobile: /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent),
+            isMobileDevice: typeof isMobileDevice === 'function' ? isMobileDevice() : 'function not found'
+        });
+
+        if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
+          console.log('📱 Mobile: Using visual feedback system');
 
             // Clear any existing timeouts to prevent conflicts
             if (window.noSpeechTimeout) {
@@ -561,63 +573,6 @@ function forceStartListening() {
     } catch (error) {
         console.error('❌ Error force starting speech recognition:', error);
     }
-}
-
-// ✅ MOBILE ERROR HANDLER HOOK (FIXED)
-function setupMobileErrorHandlers() {
-    if (!/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) return;
-    
-    console.log('📱 Setting up mobile error handlers');
-    
-    // Hook into the global recognition object if it exists
-    let checkCount = 0;
-    const maxChecks = 10;
-    
-    const waitForRecognition = setInterval(() => {
-        if (typeof recognition !== 'undefined') {
-            console.log('📱 Found recognition object - attaching mobile error handlers');
-            
-            // 🎯 CRITICAL: Store the original handlers before overriding
-            const originalOnError = recognition.onerror;
-            const originalOnEnd = recognition.onend;
-            const originalOnResult = recognition.onresult;
-            
-            recognition.onerror = function(event) {
-                console.log('📱 MOBILE Speech error:', event.error);
-                handleSpeechRecognitionError(event.error);
-                // Call original handler if it exists
-                if (typeof originalOnError === 'function') {
-                    originalOnError(event);
-                }
-            };
-            
-            recognition.onend = function() {
-                console.log('📱 MOBILE Recognition ended');
-                handleSpeechRecognitionEnd();
-                // Call original handler if it exists
-                if (typeof originalOnEnd === 'function') {
-                    originalOnEnd();
-                }
-            };
-            
-            recognition.onresult = function(event) {
-                console.log('📱 MOBILE Speech result received');
-                handleSpeechRecognitionResult(event);
-                // Call original handler if it exists
-                if (typeof originalOnResult === 'function') {
-                    originalOnResult(event);
-                }
-            };
-            
-            clearInterval(waitForRecognition);
-        }
-        
-        checkCount++;
-        if (checkCount >= maxChecks) {
-            console.log('📱 Mobile: Recognition object not found after waiting');
-            clearInterval(waitForRecognition);
-        }
-    }, 100);
 }
 
 // ===================================================
@@ -3382,10 +3337,12 @@ let speakSequenceActive = false;
 let speakSequenceButton = null;
 let speakSequenceCleanupTimer = null;
 
+
+
 function showHybridReadySequence() {
     // ✅ CALL MOBILE STABILITY FIRST
-   // applyMobileStability();
-   // setupMobileTouchEvents();
+    applyMobileStability();
+    setupMobileTouchEvents();
     
     // ✅ BASIC BLOCKING CHECKS
     if (typeof BannerOrchestrator !== 'undefined' && 
@@ -3925,6 +3882,110 @@ function showHybridReadySequence() {
         if (progressInterval) clearInterval(progressInterval);
         cleanupSpeakSequence();
     }, 8000);
+}
+
+// ✅ ESSENTIAL MOBILE STABILITY (Safe Version)
+function applyMobileStability() {
+    if (!/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) return;
+    
+    console.log('📱 Applying comprehensive mobile stability fixes');
+    
+    // 1. PREVENT ZOOM ON FOCUS (Critical for iOS)
+    const viewportMeta = document.querySelector('meta[name="viewport"]');
+    if (viewportMeta) {
+        viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
+    }
+    
+    // 2. PREVENT TOUCH HIGHLIGHTS & CALLOUTS
+    const mobileStyles = document.createElement('style');
+    mobileStyles.textContent = `
+        #speak-sequence-button {
+            -webkit-tap-highlight-color: transparent !important;  /* Remove blue tap flash */
+            -webkit-touch-callout: none !important;               /* Remove "copy/paste" popup */
+            -webkit-user-select: none !important;                 /* Prevent text selection */
+            user-select: none !important;
+            touch-action: manipulation !important;                /* Remove 300ms delay */
+        }
+        
+        .quick-btn {
+            -webkit-tap-highlight-color: transparent !important;
+            touch-action: manipulation !important;
+        }
+        
+        /* Prevent double-tap zoom */
+        * {
+            touch-action: manipulation;
+        }
+    `;
+    document.head.appendChild(mobileStyles);
+}
+
+// ✅ SAFER MOBILE TOUCH EVENTS (Much Better Than Original)
+function setupMobileTouchEvents() {
+    if (!/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) return;
+    
+    console.log('📱 Setting up safe mobile touch events');
+    
+    let lastTouchTime = 0;
+    
+    document.addEventListener('touchstart', function(e) {
+        if (e.target.classList.contains('quick-btn')) {
+            const now = Date.now();
+            // Only block if tapped within 300ms (much more reasonable than 1000ms)
+            if (now - lastTouchTime < 300) {
+                e.preventDefault();
+                console.log('📱 Prevented rapid double-tap');
+                return;
+            }
+            lastTouchTime = now;
+        }
+    }, { passive: false });
+}
+
+// ✅ MOBILE AUDIO CONTEXT (From Your Associate's Code)
+function createMobileAudioContext() {
+    // Mobile browsers require user interaction first
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    
+    // Resume context on touch (mobile requirement)
+    document.addEventListener('touchstart', function resumeAudio() {
+        if (audioContext.state === 'suspended') {
+            audioContext.resume();
+        }
+        document.removeEventListener('touchstart', resumeAudio);
+    }, { once: true });
+    
+    return audioContext;
+}
+
+// ✅ MOBILE ERROR BEEP (From Your Associate's Code)
+function playMobileErrorBeep() {
+    try {
+        const audioContext = createMobileAudioContext();
+        
+        // Create beep with mobile-safe parameters
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        // Mobile-friendly frequency and timing
+        oscillator.frequency.value = 400;
+        oscillator.type = 'sine';
+        gainNode.gain.value = 0.05; // Quieter for mobile
+        
+        oscillator.start();
+        gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.2);
+        oscillator.stop(audioContext.currentTime + 0.2);
+        
+    } catch (error) {
+        console.log('📱 Mobile beep fallback:', error);
+        // Fallback: Use HTML5 audio if Web Audio fails
+        const fallbackBeep = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLXv559NEAxQlNzzxXUpBiiR1/LMeSwFJHfM89aMOAoZaLbv559NEAxQlNzzxXUpBiiR1/LMeSwFJHfM89aMOAo=');
+        fallbackBeep.volume = 0.1;
+        fallbackBeep.play().catch(e => console.log('Mobile audio completely blocked'));
+    }
 }
 
 // 🎯 DETECT CONTACT INTERVIEW MODE
