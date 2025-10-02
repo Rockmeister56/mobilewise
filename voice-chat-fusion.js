@@ -3385,6 +3385,31 @@ let speakSequenceCleanupTimer = null;
 
 
 function showHybridReadySequence() {
+    // ✅ TIMER MANAGEMENT SYSTEM (Add this at the top of your function)
+    function clearAllHybridTimers() {
+        console.log('🕒 Clearing all hybrid timers');
+        
+        // Clear all known timers
+        if (window.hybridTimers) {
+            window.hybridTimers.forEach(timer => {
+                if (timer) clearTimeout(timer);
+                if (timer) clearInterval(timer);
+            });
+            window.hybridTimers = [];
+        }
+        
+        // Clear individual timers
+        if (window.mobileFallbackTimer) clearTimeout(window.mobileFallbackTimer);
+    }
+
+    // Initialize timer array
+    if (!window.hybridTimers) {
+        window.hybridTimers = [];
+    }
+
+    // Clear any existing timers at start
+    clearAllHybridTimers();
+
     // ✅ CALL MOBILE STABILITY FIRST
     applyMobileStability();
     setupMobileTouchEvents();
@@ -3591,7 +3616,7 @@ function showHybridReadySequence() {
         border-radius: 20px !important;
     `;
     
-    // ✅ ENHANCED MOBILE STABILITY (FROM YOUR ASSOCIATE'S CODE)
+    // ✅ ENHANCED MOBILE STABILITY
     if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
         speakSequenceButton.style.cssText += `
             position: relative !important;
@@ -3618,10 +3643,14 @@ function showHybridReadySequence() {
             clearInterval(progressInterval);
         }
     }, 100);
+    window.hybridTimers.push(progressInterval);
     
-    // 🎯 ENHANCED SPEECH RECOGNITION ERROR HANDLER WITH MULTIPLE SORRY MESSAGES
+    // 🎯 ENHANCED SPEECH RECOGNITION ERROR HANDLER WITH TIMER COORDINATION
     function handleSpeechRecognitionError(error) {
         console.log('🚨 Speech recognition error:', error);
+        
+        // 🎯 CRITICAL: Clear ALL timers before starting error sequence
+        clearAllHybridTimers();
         
         if (speakSequenceButton && speakSequenceActive) {
             if (error === 'no-speech') {
@@ -3651,7 +3680,8 @@ function showHybridReadySequence() {
                     // Clear any existing speech
                     speechSynthesis.cancel();
                     
-                    setTimeout(() => {
+                    // 🎯 USE TIMER MANAGEMENT FOR SPEECH
+                    const speechTimer = setTimeout(() => {
                         const utterance = new SpeechSynthesisUtterance(sorryMessage);
                         utterance.volume = 0.7;
                         utterance.rate = 1.1;
@@ -3662,9 +3692,19 @@ function showHybridReadySequence() {
                             voice.name.includes('Google') || voice.default
                         ) || speechSynthesis.getVoices()[0];
                         
+                        // 🎯 CRITICAL: Clear banners during speech
+                        utterance.onstart = function() {
+                            console.log('🔊 Sorry message speech started - blocking other banners');
+                        };
+                        
+                        utterance.onend = function() {
+                            console.log('🔊 Sorry message speech ended - safe to continue');
+                        };
+                        
                         speechSynthesis.speak(utterance);
                         console.log('🔊 Playing sorry message audio:', sorryMessage);
                     }, 100);
+                    window.hybridTimers.push(speechTimer);
                 }
                 
                 // Mobile error beep for additional feedback
@@ -3672,9 +3712,11 @@ function showHybridReadySequence() {
                     playMobileErrorBeep();
                 }
                 
-                // Reset to "Speak Now" after feedback with visual cue + PROGRESS BAR
-                setTimeout(() => {
+                // 🎯 COORDINATED RESET: Wait for speech to complete + buffer
+                const resetTimer = setTimeout(() => {
                     if (speakSequenceButton && speakSequenceActive) {
+                        console.log('🔄 Restarting listening after sorry message');
+                        
                         const progressBar = document.getElementById('readyProgressBar');
                         if (progressBar) {
                             progressBar.style.background = 'linear-gradient(90deg, #4caf50, #2e7d32)';
@@ -3695,10 +3737,8 @@ function showHybridReadySequence() {
                         speakSequenceButton.style.borderColor = 'rgba(34, 197, 94, 0.8) !important';
                         speakSequenceButton.className = 'quick-btn green-button-glow';
                         
-                        console.log('🔄 Restarting listening after sorry message');
-                        
                         // Restart listening with slight delay for better mobile performance
-                        setTimeout(() => {
+                        const restartTimer = setTimeout(() => {
                             if (speakSequenceActive) {
                                 // Clear any previous recognition result flag
                                 window.lastRecognitionResult = null;
@@ -3713,10 +3753,19 @@ function showHybridReadySequence() {
                                         startNormalInterviewListening();
                                     }
                                 }
+                                
+                                // 🎯 RESTART THE CLEANUP TIMER
+                                const newCleanupTimer = setTimeout(() => {
+                                    console.log('⏰ Extended listening time reached - cleaning up');
+                                    cleanupSpeakSequence();
+                                }, 8000);
+                                window.hybridTimers.push(newCleanupTimer);
                             }
                         }, 800);
+                        window.hybridTimers.push(restartTimer);
                     }
-                }, 6000); // Extended display time for sorry message
+                }, 4000); // Extended to ensure speech completes + buffer
+                window.hybridTimers.push(resetTimer);
                 
             } else if (error === 'network') {
                 // Network error handling with progress bar
@@ -3734,7 +3783,8 @@ function showHybridReadySequence() {
                 speakSequenceButton.style.borderColor = 'rgba(255, 193, 7, 0.8) !important';
                 speakSequenceButton.className = 'quick-btn error-feedback-blink';
                 
-                setTimeout(() => resetToGreenState(), 2500);
+                const networkResetTimer = setTimeout(() => resetToGreenState(), 2500);
+                window.hybridTimers.push(networkResetTimer);
                 
             } else if (error === 'not-allowed') {
                 // Microphone permission error with progress bar
@@ -3752,7 +3802,8 @@ function showHybridReadySequence() {
                 speakSequenceButton.style.borderColor = 'rgba(220, 38, 127, 0.8) !important';
                 speakSequenceButton.className = 'quick-btn error-feedback-blink';
                 
-                setTimeout(() => resetToGreenState(), 3000);
+                const micResetTimer = setTimeout(() => resetToGreenState(), 3000);
+                window.hybridTimers.push(micResetTimer);
                 
             } else {
                 // Generic error handling with progress bar
@@ -3770,12 +3821,13 @@ function showHybridReadySequence() {
                 speakSequenceButton.style.borderColor = 'rgba(255, 193, 7, 0.8) !important';
                 speakSequenceButton.className = 'quick-btn error-feedback-blink';
                 
-                setTimeout(() => resetToGreenState(), 2000);
+                const genericResetTimer = setTimeout(() => resetToGreenState(), 2000);
+                window.hybridTimers.push(genericResetTimer);
             }
         }
     }
     
-    // Helper function to reset to green listening state with progress bar
+    // Helper function to reset to green listening state
     function resetToGreenState() {
         if (speakSequenceButton && speakSequenceActive) {
             speakSequenceButton.innerHTML = `
@@ -3793,7 +3845,7 @@ function showHybridReadySequence() {
             speakSequenceButton.className = 'quick-btn green-button-glow';
             
             // Restart listening
-            setTimeout(() => {
+            const restartTimer = setTimeout(() => {
                 if (speakSequenceActive) {
                     window.lastRecognitionResult = null;
                     
@@ -3809,6 +3861,7 @@ function showHybridReadySequence() {
                     }
                 }
             }, 500);
+            window.hybridTimers.push(restartTimer);
         }
     }
     
@@ -3833,7 +3886,7 @@ function showHybridReadySequence() {
     }
     
     // ✅ START LISTENING
-    setTimeout(() => {
+    const startListeningTimer = setTimeout(() => {
         console.log('🎤 Starting listening during RED stage...');
         
         // Clear any previous result flag
@@ -3870,50 +3923,7 @@ function showHybridReadySequence() {
             }
         }
     }, 800);
-
-    // MOBILE FALLBACK TIMER - FORCE "I'M SORRY" SEQUENCE
-if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
-    console.log('📱 MOBILE: Setting up fallback timer for "I\'m sorry" sequence');
-    
-    // Temporary visible debug (remove after testing)
-    const debugMsg = document.createElement('div');
-    debugMsg.style.cssText = 'position:fixed; top:10px; left:10px; background:red; color:white; padding:10px; z-index:9999;';
-    debugMsg.textContent = '📱 Mobile: "I\'m sorry" in 6s if no speech';
-    document.body.appendChild(debugMsg);
-    
-    window.mobileFallbackTimer = setTimeout(() => {
-        if (speakSequenceActive && !window.lastRecognitionResult) {
-            console.log('📱 MOBILE FALLBACK: No speech detected - forcing "I\'m sorry"');
-            
-            // Remove debug message
-            debugMsg.remove();
-            
-            handleSpeechRecognitionError('no-speech');
-        }
-    }, 6000); // 6 second timeout for mobile
-}
-
-// 🎯 UPDATE YOUR handleSpeechRecognitionResult FUNCTION TO INCLUDE THIS:
-
-function handleSpeechRecognitionResult(event) {
-    console.log('✅ Speech recognition result received');
-    window.lastRecognitionResult = Date.now();
-
-    // 🎯 ADD THESE LINES:
-    if (window.mobileFallbackTimer) {
-        clearTimeout(window.mobileFallbackTimer);
-        console.log('📱 Mobile fallback timer cleared - speech detected');
-    }
-    
-    // 🎯 CRITICAL: Clear the mobile fallback timer if speech is detected
-    if (window.mobileFallbackTimer) {
-        clearTimeout(window.mobileFallbackTimer);
-        console.log('📱 Mobile fallback timer cleared - speech detected');
-    }
-    
-    // Process the result normally (existing logic continues)
-    // This flag prevents the "no-speech" error from triggering
-}
+    window.hybridTimers.push(startListeningTimer);
     
     // ✅ AI SPEAKING DETECTION
     let speechWatcher = setInterval(() => {
@@ -3924,6 +3934,7 @@ function handleSpeechRecognitionResult(event) {
             cleanupSpeakSequence();
         }
     }, 100);
+    window.hybridTimers.push(speechWatcher);
     
     // ✅ GREEN TRANSITION
     const greenTransition = setTimeout(() => {
@@ -3963,118 +3974,15 @@ function handleSpeechRecognitionResult(event) {
             console.log('✅ Visual changed to green - listening was already started');
         }
     }, 1500);
+    window.hybridTimers.push(greenTransition);
     
     // ✅ CLEANUP TIMER
     speakSequenceCleanupTimer = setTimeout(() => {
         console.log('⏰ Extended listening time reached - cleaning up');
-        if (speechWatcher) clearInterval(speechWatcher);
-        if (progressInterval) clearInterval(progressInterval);
+        clearAllHybridTimers();
         cleanupSpeakSequence();
     }, 8000);
-}
-
-// ✅ ESSENTIAL MOBILE STABILITY (Safe Version)
-function applyMobileStability() {
-    if (!/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) return;
-    
-    console.log('📱 Applying comprehensive mobile stability fixes');
-    
-    // 1. PREVENT ZOOM ON FOCUS (Critical for iOS)
-    const viewportMeta = document.querySelector('meta[name="viewport"]');
-    if (viewportMeta) {
-        viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
-    }
-    
-    // 2. PREVENT TOUCH HIGHLIGHTS & CALLOUTS
-    const mobileStyles = document.createElement('style');
-    mobileStyles.textContent = `
-        #speak-sequence-button {
-            -webkit-tap-highlight-color: transparent !important;  /* Remove blue tap flash */
-            -webkit-touch-callout: none !important;               /* Remove "copy/paste" popup */
-            -webkit-user-select: none !important;                 /* Prevent text selection */
-            user-select: none !important;
-            touch-action: manipulation !important;                /* Remove 300ms delay */
-        }
-        
-        .quick-btn {
-            -webkit-tap-highlight-color: transparent !important;
-            touch-action: manipulation !important;
-        }
-        
-        /* Prevent double-tap zoom */
-        * {
-            touch-action: manipulation;
-        }
-    `;
-    document.head.appendChild(mobileStyles);
-}
-
-// ✅ SAFER MOBILE TOUCH EVENTS (Much Better Than Original)
-function setupMobileTouchEvents() {
-    if (!/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) return;
-    
-    console.log('📱 Setting up safe mobile touch events');
-    
-    let lastTouchTime = 0;
-    
-    document.addEventListener('touchstart', function(e) {
-        if (e.target.classList.contains('quick-btn')) {
-            const now = Date.now();
-            // Only block if tapped within 300ms (much more reasonable than 1000ms)
-            if (now - lastTouchTime < 300) {
-                e.preventDefault();
-                console.log('📱 Prevented rapid double-tap');
-                return;
-            }
-            lastTouchTime = now;
-        }
-    }, { passive: false });
-}
-
-// ✅ MOBILE AUDIO CONTEXT (From Your Associate's Code)
-function createMobileAudioContext() {
-    // Mobile browsers require user interaction first
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    
-    // Resume context on touch (mobile requirement)
-    document.addEventListener('touchstart', function resumeAudio() {
-        if (audioContext.state === 'suspended') {
-            audioContext.resume();
-        }
-        document.removeEventListener('touchstart', resumeAudio);
-    }, { once: true });
-    
-    return audioContext;
-}
-
-// ✅ MOBILE ERROR BEEP (From Your Associate's Code)
-function playMobileErrorBeep() {
-    try {
-        const audioContext = createMobileAudioContext();
-        
-        // Create beep with mobile-safe parameters
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-        
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        
-        // Mobile-friendly frequency and timing
-        oscillator.frequency.value = 400;
-        oscillator.type = 'sine';
-        gainNode.gain.value = 0.05; // Quieter for mobile
-        
-        oscillator.start();
-        gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.2);
-        oscillator.stop(audioContext.currentTime + 0.2);
-        
-    } catch (error) {
-        console.log('📱 Mobile beep fallback:', error);
-        // Fallback: Use HTML5 audio if Web Audio fails
-        const fallbackBeep = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLXv559NEAxQlNzzxXUpBiiR1/LMeSwFJHfM89aMOAoZaLbv559NEAxQlNzzxXUpBiiR1/LMeSwFJHfM89aMOAo=');
-        fallbackBeep.volume = 0.1;
-        fallbackBeep.play().catch(e => console.log('Mobile audio completely blocked'));
-    }
+    window.hybridTimers.push(speakSequenceCleanupTimer);
 }
 
 // 🎯 DETECT CONTACT INTERVIEW MODE
