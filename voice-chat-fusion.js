@@ -205,10 +205,6 @@ async function speakWithElevenLabs(message) {
     }
 }
 
-// 🔧 FORCE MOBILE DETECTION - your mobile is hiding as desktop
-if ('ontouchstart' in window || navigator.maxTouchPoints > 0 || window.innerWidth <= 768) {
-    console.log('📱 Mobile: Using visual feedback system');
-
 // Then use:
 if (isMobileEnhanced()) {
     console.log('📱 Mobile: Using visual feedback system');
@@ -409,7 +405,7 @@ function getApologyResponse() {
             isTouch: ('ontouchstart' in window || navigator.maxTouchPoints > 0)
         });
 
-        if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+         if ('ontouchstart' in window || navigator.maxTouchPoints > 0 || window.innerWidth <= 768) {
             console.log('📱 Mobile: Using visual feedback system');
 
             if (window.noSpeechTimeout) {
