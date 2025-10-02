@@ -406,11 +406,9 @@ function getApologyResponse() {
         console.log('🔍 MOBILE DEBUG:', {
             userAgent: navigator.userAgent,
             isMobile: /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent),
-            isTouch: ('ontouchstart' in window || navigator.maxTouchPoints > 0),
-            screenWidth: window.innerWidth
+            isTouch: ('ontouchstart' in window || navigator.maxTouchPoints > 0)
         });
 
-        // 🔧 FORCE MOBILE DETECTION - use screen width as backup
         if ('ontouchstart' in window || navigator.maxTouchPoints > 0 || window.innerWidth <= 768) {
             console.log('📱 Mobile: Using visual feedback system');
 
