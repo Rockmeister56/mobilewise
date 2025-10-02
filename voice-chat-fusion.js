@@ -944,36 +944,43 @@ function speakResponseOriginal(message) {
                 }
             };
             
-            utterance.onend = function() {
-    console.log('🔍 WHICH HANDLER IS RUNNING: Smart Button Blocking Handler');
-    isSpeaking = false;
-    console.log('🔊 AI finished speaking (mobile)');
+           utterance.onend = function() {
+    console.log('🔊 Sorry message finished - going to SPEAK NOW');
     
-    // 🚫 BLOCK if we recently mentioned clicking
-    const clickMentionTime = window.lastClickMentionTime || 0;
-    const timeSinceClickMention = Date.now() - clickMentionTime;
-    
-    if (timeSinceClickMention < 20000) { // Block for 10 seconds after click mention
-        console.log('🔇 SPEAK NOW BLOCKED: Recent click mention - waiting for user action');
-        return;
+    if (speakSequenceButton && speakSequenceActive) {
+        // 🎯 GO DIRECTLY TO "SPEAK NOW" - NOT "GET READY"
+        speakSequenceButton.innerHTML = `
+            <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+                <div style="margin-bottom: 6px;">
+                    <span class="green-dot-blink">🟢</span> Speak Now!
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #4caf50, #2e7d32);"></div>
+                </div>
+            </div>
+        `;
+        speakSequenceButton.style.background = 'rgba(34, 197, 94, 0.4) !important';
+        speakSequenceButton.style.borderColor = 'rgba(34, 197, 94, 0.8) !important';
+        speakSequenceButton.className = 'quick-btn green-button-glow';
+        
+        // 🎯 RESTART LISTENING IMMEDIATELY
+        console.log('🔄 Restarting listening after sorry message');
+        setTimeout(() => {
+            if (speakSequenceActive) {
+                window.lastRecognitionResult = null;
+                if (isContactInterview) {
+                    startContactInterviewListening();
+                } else {
+                    if (typeof startMobileListening === 'function') {
+                        startMobileListening();
+                    } else {
+                        startNormalInterviewListening();
+                    }
+                }
+            }
+        }, 500);
     }
-    
-    // 🚫 DON'T TRIGGER "Speak Now" if Thank You Splash Screen exists
-    if (document.getElementById('thankYouSplash')) {
-        console.log('🔇 SPEAK NOW BLOCKED: Thank you splash screen active - no speech restart');
-        return;
-    }
-    
-    // 🚫 DON'T TRIGGER "Speak Now" if conversation is specifically ended
-    if (conversationState === 'ended' || conversationState === 'splash_screen_active') {
-        console.log('🔇 SPEAK NOW BLOCKED: Conversation ended - no speech restart');
-        return;
-    }
-    
-    console.log('🐛 DEBUG: No blocking conditions - calling showHybridReadySequence()');
-    showHybridReadySequence();
-};
-       
+};       
             
 utterance.onerror = function(event) {
     console.log('❌ Speech error:', event.error);
