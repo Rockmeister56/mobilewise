@@ -4037,7 +4037,7 @@ function handleSpeechRecognitionResult(event) {
             // 🛑 CRITICAL FIX: Add a small delay to ensure AI speech is fully captured
             setTimeout(() => {
                 cleanupSpeakSequence();
-            }, 500);
+            }, 2000);
         }
     }, 100);
     
