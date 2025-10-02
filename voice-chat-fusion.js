@@ -205,15 +205,18 @@ async function speakWithElevenLabs(message) {
     }
 }
 
-// ✅ ENHANCED MOBILE CHECK (your associate's version)
-if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
-    speakSequenceButton.style.cssText += `
-        position: relative !important;
-        z-index: 1000 !important;
-        min-height: 50px !important; /* Larger touch target */
-        padding: 18px !important;
-    `;
-    console.log('📱 Full mobile enhancements applied');
+// 🔧 ENHANCED MOBILE DETECTION
+function isMobileEnhanced() {
+    const ua = navigator.userAgent;
+    return /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua) || 
+           /Android|webOS|iPhone|iPad|iPod|BlackBerry|Windows Phone/i.test(ua) ||
+           (typeof window.orientation !== "undefined") || 
+           (navigator.maxTouchPoints && navigator.maxTouchPoints > 2);
+}
+
+// Then use:
+if (isMobileEnhanced()) {
+    console.log('📱 Mobile: Using visual feedback system');
 }
 
 // ===================================================
@@ -405,38 +408,33 @@ function getApologyResponse() {
     if (event.error === 'no-speech') {
         const transcriptText = document.getElementById('transcriptText');
 
-          // 🔍 ADD DEBUG LINE RIGHT HERE:
         console.log('🔍 MOBILE DEBUG:', {
-    userAgent: navigator.userAgent,
-    isMobile: /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)
-});
+            userAgent: navigator.userAgent,
+            isMobile: /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent),
+            isTouch: ('ontouchstart' in window || navigator.maxTouchPoints > 0)
+        });
 
-        if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
-          console.log('📱 Mobile: Using visual feedback system');
+        if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+            console.log('📱 Mobile: Using visual feedback system');
 
-            // Clear any existing timeouts to prevent conflicts
             if (window.noSpeechTimeout) {
                 clearTimeout(window.noSpeechTimeout);
             }
 
-            // Show immediate visual feedback
             if (transcriptText) {
                 transcriptText.textContent = 'I didn\'t hear anything...';
                 transcriptText.style.color = '#ff6b6b';
 
-                // Wait a moment, then reset to listening state
                 window.noSpeechTimeout = setTimeout(() => {
                     if (transcriptText) {
                         transcriptText.textContent = 'Please speak now';
                         transcriptText.style.color = '#ffffff';
                     }
 
-                    // Restart listening with hybrid system
                     if (isAudioMode && !isSpeaking) {
                         console.log('🔄 Mobile: Restarting via hybrid system');
                         isListening = false;
 
-                        // Use the hybrid system instead of direct restart
                         setTimeout(() => {
                             showHybridReadySequence();
                         }, 800);
@@ -3792,26 +3790,6 @@ function showHybridReadySequence() {
         
         // Clear any previous result flag
         window.lastRecognitionResult = null;
-        
-        // Set up enhanced error handling for the recognition session
-        if (typeof recognition !== 'undefined') {
-            recognition.onerror = function(event) {
-                console.log('🚨 Speech error:', event.error);
-                handleSpeechRecognitionError(event.error);
-            };
-            
-            recognition.onend = function() {
-                handleSpeechRecognitionEnd();
-            };
-            
-            recognition.onresult = function(event) {
-                handleSpeechRecognitionResult(event);
-                // Let the original result handler continue
-                if (typeof originalOnResult === 'function') {
-                    originalOnResult(event);
-                }
-            };
-        }
         
         if (isContactInterview) {
             startContactInterviewListening();
