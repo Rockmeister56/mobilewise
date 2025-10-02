@@ -205,12 +205,13 @@ async function speakWithElevenLabs(message) {
     }
 }
 
-// ===================================================
-// 🎤 Mobile detection?
-// ===================================================
-if ('ontouchstart' in window || navigator.maxTouchPoints > 0 || window.innerWidth <= 768) {
-    console.log('📱 Mobile: Using visual feedback system');
-}
+// 🚨 NUCLEAR MOBILE DETECTION
+const isDefinitelyMobile = window.innerWidth <= 768 || window.innerHeight <= 1024;
+
+if (isDefinitelyMobile) {
+    console.log('📱📱📱 NUCLEAR MOBILE DETECTED: Using visual feedback system');
+
+    }
 
 // ===================================================
 // 🎤 MICROPHONE PERMISSION SYSTEM
