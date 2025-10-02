@@ -205,8 +205,10 @@ async function speakWithElevenLabs(message) {
     }
 }
 
-// Then use:
-if (isMobileEnhanced()) {
+// ===================================================
+// 🎤 Mobile detection?
+// ===================================================
+if ('ontouchstart' in window || navigator.maxTouchPoints > 0 || window.innerWidth <= 768) {
     console.log('📱 Mobile: Using visual feedback system');
 }
 
