@@ -16,6 +16,16 @@ window.addEventListener('unhandledrejection', function(e) {
 
 alert('🔍 Mobile error detector active - testing now...');
 
+// 🎯 TEMPORARY FIX - ADD AT VERY TOP
+function handleSpeechRecognitionError(error) {
+    console.log('🔇 Quick error handler:', error);
+    setTimeout(() => {
+        if (typeof startSmartListening === 'function') {
+            startSmartListening();
+        }
+    }, 1000);
+}
+
 // 💣 ADD THIS GLOBAL NUKE FUNCTION AT THE TOP OF YOUR FILE
 function nukeAllListening() {
     console.log('💣 GLOBAL NUKE: Killing all speech recognition');
