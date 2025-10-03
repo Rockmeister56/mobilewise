@@ -3491,19 +3491,17 @@ function handleDesktopSorryMessage(error) {
     }
 }
 
-// ✅ CALL MOBILE STABILITY FIRST
-applyMobileStability();
-setupMobileTouchEvents();
+// ✅ MAIN FUNCTION WITH ALL FIXES
+function showHybridReadySequence() {
+    // ✅ CALL MOBILE STABILITY FIRST
+    applyMobileStability();
+    setupMobileTouchEvents();
 
-// ✅ SIMPLE SESSION MANAGEMENT
-if (speakSequenceActive) {
-    console.log('🔄 Speak sequence already active - allowing restart');
-    // Just continue - don't block, don't cleanup
-}
-
-window.lastSequenceStart = Date.now();
-speakSequenceActive = true;
-console.log('🎬 Starting speak sequence...');
+    // ✅ SUPER SIMPLE SESSION MANAGEMENT
+    if (speakSequenceActive) {
+        console.log('🔄 Speak sequence already active - continuing anyway');
+        // That's it - no return, no cleanup, just log and continue
+    }
     
     // ✅ BASIC BLOCKING CHECKS
     if (typeof BannerOrchestrator !== 'undefined' && 
@@ -3522,17 +3520,7 @@ console.log('🎬 Starting speak sequence...');
         return;
     }
 
-    // ✅ TIMEOUT RESTART LOGIC
-    if (speakSequenceActive) {
-        console.log('🔄 Speak sequence already active - checking if restart needed');
-        if (Date.now() - window.lastSequenceStart < 15000) {
-            console.log('🔄 Allowing restart - sequence may have timed out');
-        } else {
-            console.log('🛑 Blocking duplicate call');
-            return;
-        }
-    }
-    
+    // ✅ NOW START THE SEQUENCE
     window.lastSequenceStart = Date.now();
     speakSequenceActive = true;
     console.log('🎬 Starting speak sequence...');
