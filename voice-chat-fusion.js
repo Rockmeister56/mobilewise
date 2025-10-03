@@ -26,6 +26,11 @@ if ('webkitSpeechRecognition' in window) {
     console.log('❌ Speech Recognition: NOT AVAILABLE');
 }
 
+// 🎯 FINAL MOBILE TEST
+console.log('📱 MOBILE TEST: Auto-start protection active');
+console.log('📱 User Agent:', navigator.userAgent);
+console.log('📱 canAutoStart():', canAutoStart());
+
 // Check if recognition object exists
 setTimeout(() => {
     if (typeof recognition !== 'undefined') {
@@ -297,17 +302,28 @@ function handleDesktopNoSpeechError() {
 }
     
     // 🛑 ULTRA SIMPLE: Just restart listening, no UI changes
-    setTimeout(() => {
-        if (typeof startNormalInterviewListening === 'function') {
-            startNormalInterviewListening();
-        }
-    }, 1000);
+setTimeout(() => {
+    // 🛑 ADD CANAUTOSTART CHECK!
+    if (!canAutoStart()) {
+        console.log('🔇 Simple restart blocked');
+        return;
+    }
+    
+    if (typeof startNormalInterviewListening === 'function') {
+        startNormalInterviewListening();
+    }
+}, 1000);
 
-    function startMobileListening() {
+function startMobileListening() {
+    // 🛑 ADD CANAUTOSTART CHECK!
+    if (!canAutoStart()) {
+        console.log('🔇 startMobileListening BLOCKED');
+        return;
+    }
+    
     console.log('📱 MOBILE: Starting mobile listening');
     startNormalInterviewListening(); // or your mobile logic
 }
-
 // ===================================================
 // 🎤 MICROPHONE PERMISSION SYSTEM
 // ===================================================
@@ -426,6 +442,11 @@ function handleDesktopSorryMessage(error) {
     
     // Simple desktop approach - just restart
     setTimeout(() => {
+        // 🛑 ADD CANAUTOSTART CHECK!
+        if (!canAutoStart()) {
+            console.log('🔇 Sorry restart blocked - waiting for manual activation');
+            return;
+        }
         startSmartListening();
     }, 1000);
 }
@@ -555,12 +576,19 @@ function handleDesktopSorryMessage(error) {
 
                 if (restartTimeout) clearTimeout(restartTimeout);
 
-                restartTimeout = setTimeout(() => {
-                    if (isAudioMode && !isListening && !isSpeaking) {
-                        startListening();
-                    }
-                    lastMessageWasApology = false;
-                }, 3000);
+restartTimeout = setTimeout(() => {
+    // 🛑 ADD CANAUTOSTART CHECK!
+    if (!canAutoStart()) {
+        console.log('🔇 Auto-restart after apology blocked');
+        lastMessageWasApology = false;
+        return;
+    }
+    
+    if (isAudioMode && !isListening && !isSpeaking) {
+        startListening();
+    }
+    lastMessageWasApology = false;
+}, 3000);
             }, 500);
         }
     } else if (event.error === 'audio-capture') {
@@ -646,6 +674,12 @@ function stopListening() {
 
 // 🎯 UNIFIED LISTENING STARTER (Mobile/Desktop Auto-Detection)
 function startSmartListening() {
+    // 🛑 ADD THIS CHECK FIRST!
+    if (!canAutoStart()) {
+        console.log('🔇 startSmartListening BLOCKED by canAutoStart()');
+        return; // Stop here if auto-start is blocked
+    }
+    
     const isDefinitelyMobile = window.innerWidth <= 768 || window.innerHeight <= 1024;
     const isRealMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
     const shouldUseMobileSystem = isDefinitelyMobile && isRealMobile;
@@ -894,14 +928,18 @@ function processUserResponse(userText) {
             return;
         }
         
-        // If unclear, ask again
         addAIMessage("Is there anything else I can help you with today?");
-        speakResponse("Is there anything else I can help you with today?");
-        setTimeout(() => {
-            startListening();
-            window.lastProcessedMessage = null;
-        }, 800);
+speakResponse("Is there anything else I can help you with today?");
+setTimeout(() => {
+    // 🛑 ADD CANAUTOSTART CHECK!
+    if (!canAutoStart()) {
+        console.log('🔇 Auto-restart after unclear message blocked');
         return;
+    }
+    startListening();
+    window.lastProcessedMessage = null;
+}, 800);
+return;
     }
     
     // 🆕 SINGLE EMAIL PERMISSION HANDLER - NO DUPLICATES
@@ -1106,20 +1144,24 @@ function speakResponseOriginal(message) {
         
         console.log('✅ Visual changed to "Speak Now" - waiting before starting listening');
         
-        // 🎯 CRITICAL: WAIT 1-2 SECONDS BEFORE STARTING LISTENING
-        // This gives time for the "Speak Now" visual to appear AND ensures
-        // any residual "sorry" audio is completely finished
-        setTimeout(() => {
-            if (speakSequenceActive) {
-                console.log('🔄 NOW starting listening (safe delay completed)');
-                window.lastRecognitionResult = null;
-                
-             if (isContactInterview) {
-    startContactInterviewListening();
-} else {
-    startSmartListening();
-}
-}
+       // 🎯 CRITICAL: WAIT 1.5 SECONDS BEFORE STARTING LISTENING
+setTimeout(() => {
+    if (speakSequenceActive) {
+        console.log('🔄 NOW starting listening (safe delay completed)');
+        window.lastRecognitionResult = null;
+        
+        // 🛑 ADD CANAUTOSTART CHECK!
+        if (!canAutoStart()) {
+            console.log('🔇 Auto-start blocked - waiting for manual activation');
+            return;
+        }
+        
+        if (isContactInterview) {
+            startContactInterviewListening();
+        } else {
+            startSmartListening();
+        }
+    }
 }, 1500); // 1.5 second delay to ensure clean restart
 }
 };
@@ -3908,21 +3950,28 @@ function handleSpeechRecognitionError(error) {
                                 
                                 console.log('✅ Visual changed to "Speak Now" - waiting before starting listening');
                                 
-                                // 🎯 CRITICAL: WAIT 1.5 SECONDS BEFORE STARTING LISTENING
-                                setTimeout(() => {
-                                    if (speakSequenceActive) {
-                                        console.log('🔄 NOW starting listening (safe delay completed)');
-                                        window.lastRecognitionResult = null;
-                                        
-                                      if (isContactInterview) {
-                               startContactInterviewListening();
-                               } else {
-                                 startSmartListening();
-                                 }
-                                }
-                                 }, 1500); // 1.5 second delay to ensure clean restart
-                                 }
-                                 };
+                               // 🎯 CRITICAL: WAIT 1.5 SECONDS BEFORE STARTING LISTENING
+setTimeout(() => {
+    if (speakSequenceActive) {
+        console.log('🔄 NOW starting listening (safe delay completed)');
+        window.lastRecognitionResult = null;
+        
+        // 🛑 ADD CANAUTOSTART CHECK!
+        if (!canAutoStart()) {
+            console.log('🔇 Auto-start blocked - waiting for manual activation');
+            return;
+        }
+        
+        if (isContactInterview) {
+            startContactInterviewListening();
+        } else {
+            startSmartListening();
+        }
+    }
+}, 1500); // 1.5 second delay to ensure clean restart
+}
+};
+
                         
                         speechSynthesis.speak(utterance);
                         console.log('🔊 Playing sorry message audio:', sorryMessage);
@@ -4020,20 +4069,26 @@ function resetToGreenState() {
         speakSequenceButton.style.borderColor = 'rgba(34, 197, 94, 0.8) !important';
         speakSequenceButton.className = 'quick-btn green-button-glow';
         
-        // Restart listening
-        setTimeout(() => {
-            if (speakSequenceActive) {
-                window.lastRecognitionResult = null;
-                
-                if (isContactInterview) {
-                    startContactInterviewListening();
-                } else {
-                    // Use mobile-optimized version if available
-                    startSmartListening();
-                }
-            }
-        }, 500);
-    } // ← ADDED this missing closing brace
+     // Restart listening
+setTimeout(() => {
+    if (speakSequenceActive) {
+        window.lastRecognitionResult = null;
+        
+        // 🛑 ADD CANAUTOSTART CHECK HERE TOO!
+        if (!canAutoStart()) {
+            console.log('🔇 Auto-start blocked - waiting for manual activation');
+            return;
+        }
+        
+        if (isContactInterview) {
+            startContactInterviewListening();
+        } else {
+            // Use mobile-optimized version if available
+            startSmartListening();
+        }
+    }
+}, 500);
+} // ← ADDED this missing closing brace
 } // ← ADDED this missing closing brace for the function
 
 // 🎯 ENHANCED SPEECH RECOGNITION RESTART HANDLER
@@ -4106,14 +4161,18 @@ if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
 }
 
 if (isContactInterview) {
-    startContactInterviewListening();
+    // 🛑 ADD CANAUTOSTART CHECK HERE TOO!
+    if (canAutoStart()) {
+        startContactInterviewListening();
+    } else {
+        console.log('🔇 Contact interview auto-start blocked');
+    }
 } else { 
-    // ✅ WITH THIS:
+    // ✅ THIS PART IS ALREADY FIXED
     if (canAutoStart()) {
         startSmartListening();
     } else {
         console.log('🔇 Auto-start blocked - waiting for user interaction');
-        // Optional: Show a "Tap to start" button for mobile
     }
 }
 }, 800);
@@ -4217,33 +4276,51 @@ function checkContactInterviewMode() {
 
 // 🎯 NORMAL INTERVIEW LISTENING 
 function startNormalInterviewListening() {
+    // 🛑 ADD CANAUTOSTART CHECK FIRST!
+    if (!canAutoStart()) {
+        console.log('🔇 startNormalInterviewListening BLOCKED');
+        return;
+    }
+    
     const userInput = document.getElementById('userInput');
     if (userInput) {
         userInput.value = '';
         console.log('🧹 Cleared userInput field (normal mode)');
     }
     
-    setTimeout(() => {
-        if (typeof startListening === 'function') {
-            try {
-                startListening();
-                console.log('✅ Normal startListening() called successfully');
-            } catch (error) {
-                console.error('❌ Normal startListening() error:', error);
-            }
+  setTimeout(() => {
+    // 🛑 ADD CANAUTOSTART CHECK!
+    if (!canAutoStart()) {
+        console.log('🔇 startListening() call blocked');
+        return;
+    }
+    
+    if (typeof startListening === 'function') {
+        try {
+            startListening();
+            console.log('✅ Normal startListening() called successfully');
+        } catch (error) {
+            console.error('❌ Normal startListening() error:', error);
         }
-    }, 50);
+    }
+}, 50);
     
     setTimeout(() => {
-        if (typeof forceStartListening === 'function' && !isListening) {
-            try {
-                console.log('🔄 Normal backup: calling forceStartListening()');
-                forceStartListening();
-            } catch (error) {
-                console.error('❌ Normal forceStartListening() error:', error);
-            }
+    // 🛑 ADD CANAUTOSTART CHECK!
+    if (!canAutoStart()) {
+        console.log('🔇 forceStartListening() call blocked');
+        return;
+    }
+    
+    if (typeof forceStartListening === 'function' && !isListening) {
+        try {
+            console.log('🔄 Normal backup: calling forceStartListening()');
+            forceStartListening();
+        } catch (error) {
+            console.error('❌ Normal forceStartListening() error:', error);
         }
-    }, 150);
+    }
+}, 150);
 }
 
 // 🎯 CONTACT INTERVIEW LISTENING 
