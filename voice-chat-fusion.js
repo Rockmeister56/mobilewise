@@ -3,39 +3,6 @@
 // Smart Button + Lead Capture + EmailJS + Banner System
 // ===================================================
 
-// 🎯 TEMPORARY FIX - ADD AT VERY TOP (what was working)
-function handleSpeechRecognitionError(error) {
-    alert('🚨 TEMPORARY FUNCTION CALLED: ' + error);
-    console.log('🔇 Quick error handler:', error);
-    setTimeout(() => {
-        if (typeof startSmartListening === 'function') {
-            startSmartListening();
-        }
-    }, 1000);
-}
-
-alert('📱 TEMPORARY FUNCTION ADDED - Testing continues');
-
-// 🎯 SIMPLE MOBILE DIAGNOSTIC
-console.log('📱 Mobile diagnostic started');
-
-// Check basic speech recognition
-if ('webkitSpeechRecognition' in window) {
-    console.log('✅ Speech Recognition: AVAILABLE');
-} else {
-    console.log('❌ Speech Recognition: NOT AVAILABLE');
-}
-
-// Check if recognition object exists
-setTimeout(() => {
-    if (typeof recognition !== 'undefined') {
-        console.log('✅ Recognition object: EXISTS');
-        console.log('🔍 Recognition state:', recognition.readyState);
-    } else {
-        console.log('❌ Recognition object: MISSING');
-    }
-}, 2000);
-
 // 💣 ADD THIS GLOBAL NUKE FUNCTION AT THE TOP OF YOUR FILE
 function nukeAllListening() {
     console.log('💣 GLOBAL NUKE: Killing all speech recognition');
@@ -66,12 +33,6 @@ function nukeAllListening() {
     
     // Reset flags
     window.lastRecognitionResult = null;
-}
-
-// 🎯 TEMPORARY - REMOVE LATER
-function getNextSorryMessage() {
-    console.log('🔇 Sorry message called - but disabled');
-    return "Please try again"; // Simple fallback
 }
 
 // Add this at the VERY TOP of your JavaScript file (like line 1)
@@ -113,14 +74,6 @@ let lastMessageWasApology = false;
 let isInLeadCapture = false;
 let speechDetected = false;
 let currentAIResponse = '';
-let userHasInteracted = false;
-
-document.addEventListener('click', function() {
-    userHasInteracted = true;
-    console.log('✅ User interacted - audio unlocked');
-}, { once: true });
-canAutoStart() 
-
 window.leadData = window.leadData || {
     firstName: '',
     step: 0,
@@ -284,48 +237,14 @@ async function speakWithElevenLabs(message) {
     }
 }
 
-// ✅ DESKTOP vs MOBILE SEPARATION
-const isDefinitelyMobile = window.innerWidth <= 768;
-const isRealMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
-const shouldUseMobileSystem = isDefinitelyMobile && isRealMobile;
+// 🚨 NUCLEAR MOBILE DETECTION
+const isDefinitelyMobile = window.innerWidth <= 768 || window.innerHeight <= 1024;
 
-if (shouldUseMobileSystem) {
-    console.log('📱 REAL Mobile: Using visual feedback system');
-    handleSpeechRecognitionError('no-speech');
-} else {
-    console.log('🖥️ Desktop: Using simple voice system');
-    handleDesktopNoSpeechError(); // This should reset to green state
-}
+if (isDefinitelyMobile) {
+    console.log('📱📱📱 NUCLEAR MOBILE DETECTED: Using visual feedback system');
 
-// 🖥️ DESKTOP ERROR HANDLER - ADD THIS FUNCTION
-function handleDesktopNoSpeechError() {
-    console.log('🖥️ DESKTOP: Simple restart');
-    setTimeout(() => startSmartListening(), 1000);
-}
-    
-    // 🛑 ULTRA SIMPLE: Just restart listening, no UI changes
-setTimeout(() => {
-    // 🛑 ADD CANAUTOSTART CHECK!
-    if (!canAutoStart()) {
-        console.log('🔇 Simple restart blocked');
-        return;
     }
-    
-    if (typeof startNormalInterviewListening === 'function') {
-        startNormalInterviewListening();
-    }
-}, 1000);
 
-function startMobileListening() {
-    // 🛑 ADD CANAUTOSTART CHECK!
-    if (!canAutoStart()) {
-        console.log('🔇 startMobileListening BLOCKED');
-        return;
-    }
-    
-    console.log('📱 MOBILE: Starting mobile listening');
-    startNormalInterviewListening(); // or your mobile logic
-}
 // ===================================================
 // 🎤 MICROPHONE PERMISSION SYSTEM
 // ===================================================
@@ -438,21 +357,6 @@ function getApologyResponse() {
     
     return sorryMessages[Math.floor(Math.random() * sorryMessages.length)];
 }
-
-function handleDesktopSorryMessage(error) {
-    console.log('🖥️ DESKTOP: Handling sorry message for', error);
-    
-    // Simple desktop approach - just restart
-    setTimeout(() => {
-        // 🛑 ADD CANAUTOSTART CHECK!
-        if (!canAutoStart()) {
-            console.log('🔇 Sorry restart blocked - waiting for manual activation');
-            return;
-        }
-        startSmartListening();
-    }, 1000);
-}
-
     
   // ===================================================
 // 🎤 START LISTENING new function
@@ -527,17 +431,20 @@ function handleDesktopSorryMessage(error) {
     recognition.onerror = function(event) {
     console.log('🔊 Speech error:', event.error);
 
-      if (event.error === 'no-speech') {
-        // ✅ USE THE UNIFIED MOBILE DETECTION
-        const isDefinitelyMobile = window.innerWidth <= 768;
-        const isRealMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
-        const shouldUseMobileSystem = isDefinitelyMobile && isRealMobile;
+    if (event.error === 'no-speech') {
+        const transcriptText = document.getElementById('transcriptText');
 
-        if (shouldUseMobileSystem) {
-        console.log('📱📱📱 NUCLEAR MOBILE DETECTED: Using visual feedback system');
-        // ✅ SHOULD CALL EXISTING MOBILE FUNCTION:
-         handleSpeechRecognitionError('no-speech');
-         // OR your existing mobile visual feedback code
+        console.log('🔍 MOBILE DEBUG:', {
+            userAgent: navigator.userAgent,
+            isMobile: /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent),
+            isTouch: ('ontouchstart' in window || navigator.maxTouchPoints > 0)
+        });
+
+         // 🚨 NUCLEAR MOBILE DETECTION - REPLACE THE OLD CHECK
+const isDefinitelyMobile = window.innerWidth <= 768 || window.innerHeight <= 1024;
+
+if (isDefinitelyMobile) {
+    console.log('📱📱📱 NUCLEAR MOBILE DETECTED: Using visual feedback system');
 
             if (window.noSpeechTimeout) {
                 clearTimeout(window.noSpeechTimeout);
@@ -578,19 +485,12 @@ function handleDesktopSorryMessage(error) {
 
                 if (restartTimeout) clearTimeout(restartTimeout);
 
-restartTimeout = setTimeout(() => {
-    // 🛑 ADD CANAUTOSTART CHECK!
-    if (!canAutoStart()) {
-        console.log('🔇 Auto-restart after apology blocked');
-        lastMessageWasApology = false;
-        return;
-    }
-    
-    if (isAudioMode && !isListening && !isSpeaking) {
-        startListening();
-    }
-    lastMessageWasApology = false;
-}, 3000);
+                restartTimeout = setTimeout(() => {
+                    if (isAudioMode && !isListening && !isSpeaking) {
+                        startListening();
+                    }
+                    lastMessageWasApology = false;
+                }, 3000);
             }, 500);
         }
     } else if (event.error === 'audio-capture') {
@@ -674,46 +574,6 @@ function stopListening() {
     isListening = false;
 }
 
-// 🎯 UNIFIED LISTENING STARTER (Mobile/Desktop Auto-Detection)
-function startSmartListening() {
-    // 🛑 ADD THIS CHECK FIRST!
-    if (!canAutoStart()) {
-        console.log('🔇 startSmartListening BLOCKED by canAutoStart()');
-        return; // Stop here if auto-start is blocked
-    }
-    
-    const isDefinitelyMobile = window.innerWidth <= 768;
-    const isRealMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
-    const shouldUseMobileSystem = isDefinitelyMobile && isRealMobile;
-    
-    if (shouldUseMobileSystem && typeof startMobileListening === 'function') {
-        console.log('📱 SMART: Starting mobile listening');
-        startMobileListening();
-    } else {
-        console.log('🖥️ SMART: Starting normal listening');
-        startNormalInterviewListening();
-    }
-}
-
-// 🎯 AUTO-START CONTROLLER - STRICTER MOBILE BLOCKING
-function canAutoStart() {
-    const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
-    
-    // 🗑️ COMMENT OUT DEBUG LOGS:
-    // console.log('🔍 canAutoStart() DEBUG:');
-    // console.log('🔍 isMobile:', isMobile);
-    // console.log('🔍 userHasInteracted:', userHasInteracted);
-    
-    // 🛑 STRICTER MOBILE BLOCKING - NEVER auto-start on mobile
-    if (isMobile) {
-        console.log('📱 MOBILE: Auto-start COMPLETELY BLOCKED - manual only');
-        return false; // Never auto-start on mobile, period
-    }
-    
-    console.log('✅ Auto-start allowed (desktop only)');
-    return true;
-}
-
 // ===================================================
 // 🔄 FORCE START LISTENING (BYPASSES GATE-KEEPER)
 // ===================================================
@@ -780,11 +640,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
-
-document.addEventListener('click', function() {
-    userHasInteracted = true;
-    console.log('✅ User interacted - audio unlocked');
-}, { once: true });
 
 // ===================================================
 // 🎤 MICROPHONE ACTIVATION SYSTEM
@@ -930,18 +785,14 @@ function processUserResponse(userText) {
             return;
         }
         
+        // If unclear, ask again
         addAIMessage("Is there anything else I can help you with today?");
-speakResponse("Is there anything else I can help you with today?");
-setTimeout(() => {
-    // 🛑 ADD CANAUTOSTART CHECK!
-    if (!canAutoStart()) {
-        console.log('🔇 Auto-restart after unclear message blocked');
+        speakResponse("Is there anything else I can help you with today?");
+        setTimeout(() => {
+            startListening();
+            window.lastProcessedMessage = null;
+        }, 800);
         return;
-    }
-    startListening();
-    window.lastProcessedMessage = null;
-}, 800);
-return;
     }
     
     // 🆕 SINGLE EMAIL PERMISSION HANDLER - NO DUPLICATES
@@ -1146,26 +997,26 @@ function speakResponseOriginal(message) {
         
         console.log('✅ Visual changed to "Speak Now" - waiting before starting listening');
         
-       // 🎯 CRITICAL: WAIT 1.5 SECONDS BEFORE STARTING LISTENING
-setTimeout(() => {
-    if (speakSequenceActive) {
-        console.log('🔄 NOW starting listening (safe delay completed)');
-        window.lastRecognitionResult = null;
-        
-        // 🛑 ADD CANAUTOSTART CHECK!
-        if (!canAutoStart()) {
-            console.log('🔇 Auto-start blocked - waiting for manual activation');
-            return;
-        }
-        
-        if (isContactInterview) {
-            startContactInterviewListening();
-        } else {
-            startSmartListening();
-        }
+        // 🎯 CRITICAL: WAIT 1-2 SECONDS BEFORE STARTING LISTENING
+        // This gives time for the "Speak Now" visual to appear AND ensures
+        // any residual "sorry" audio is completely finished
+        setTimeout(() => {
+            if (speakSequenceActive) {
+                console.log('🔄 NOW starting listening (safe delay completed)');
+                window.lastRecognitionResult = null;
+                
+                if (isContactInterview) {
+                    startContactInterviewListening();
+                } else {
+                    if (typeof startMobileListening === 'function') {
+                        startMobileListening();
+                    } else {
+                        startNormalInterviewListening();
+                    }
+                }
+            }
+        }, 1500); // 1.5 second delay to ensure clean restart
     }
-}, 1500); // 1.5 second delay to ensure clean restart
-}
 };
        
             
@@ -3618,40 +3469,31 @@ function playMobileErrorBeep() {
     }
 }
 
-// 🖥️ DESKTOP-SPECIFIC SORRY HANDLER
-function handleDesktopSorryMessage(error) {
-    if (error === 'no-speech' && speakSequenceActive) {
-        const sorryMessage = getNextSorryMessage();
-        console.log('🖥️ Desktop sorry:', sorryMessage);
-        
-        if (typeof speechSynthesis !== 'undefined') {
-            speechSynthesis.cancel();
-            const utterance = new SpeechSynthesisUtterance(sorryMessage);
-            utterance.volume = 0.7;
-            utterance.onend = function() {
-                setTimeout(() => {
-                    if (speakSequenceActive) {
-                        startNormalInterviewListening();
-                    }
-                }, 800);
-            };
-            speechSynthesis.speak(utterance);
-        }
-    }
-}
 // ✅ MAIN FUNCTION WITH ALL FIXES
 function showHybridReadySequence() {
     // ✅ CALL MOBILE STABILITY FIRST
-    applyMobileStability();
-    setupMobileTouchEvents();
 
-    // ✅ SESSION MANAGEMENT - ONLY ONCE
-    if (speakSequenceActive) {
-        console.log('🔇 HYBRID BLOCKED: Session already active - use existing one');
-        return; // 🛑 STOP here - don't create multiple sessions
+        // 🛑 CRITICAL: PREVENT MULTIPLE SIMULTANEOUS SESSIONS
+    if (window.speakSequenceBlocked) {
+        console.log('🔇 HYBRID BLOCKED: Another session already running');
+        return;
+    }
+    window.speakSequenceBlocked = true;
+    
+    // 🛑 CRITICAL: STOP ANY EXISTING LISTENING FIRST
+    if (typeof recognition !== 'undefined' && recognition) {
+        try {
+            recognition.stop();
+            console.log('🔇 Stopped any existing recognition session');
+        } catch (e) {
+            console.log('🔇 Recognition already stopped or stopping failed');
+        }
     }
 
-    // ✅ BASIC BLOCKING CHECKS - ONLY ONCE
+    applyMobileStability();
+    setupMobileTouchEvents();
+    
+    // ✅ BASIC BLOCKING CHECKS
     if (typeof BannerOrchestrator !== 'undefined' && 
         BannerOrchestrator.currentBanner === 'smartButton') {
         console.log('🔇 HYBRID BLOCKED: Smart Button active');
@@ -3668,7 +3510,17 @@ function showHybridReadySequence() {
         return;
     }
 
-    // ✅ NOW START THE SEQUENCE
+    // ✅ TIMEOUT RESTART LOGIC
+    if (speakSequenceActive) {
+        console.log('🔄 Speak sequence already active - checking if restart needed');
+        if (Date.now() - window.lastSequenceStart < 15000) {
+            console.log('🔄 Allowing restart - sequence may have timed out');
+        } else {
+            console.log('🛑 Blocking duplicate call');
+            return;
+        }
+    }
+    
     window.lastSequenceStart = Date.now();
     speakSequenceActive = true;
     console.log('🎬 Starting speak sequence...');
@@ -3690,6 +3542,13 @@ function showHybridReadySequence() {
         "I didn't quite get that",
         "Sorry, please speak again"
     ];
+    
+    // Function to get next sorry message (rotates through array)
+    function getNextSorryMessage() {
+        const message = sorryMessages[window.errorMessageIndex];
+        window.errorMessageIndex = (window.errorMessageIndex + 1) % sorryMessages.length;
+        return message;
+    }
     
     // ✅ CONTACT INTERVIEW DETECTION
     const isContactInterview = checkContactInterviewMode();
@@ -3864,36 +3723,65 @@ function showHybridReadySequence() {
         }
     }, 100);
     
+   // 🎯 ENHANCED SPEECH RECOGNITION ERROR HANDLER WITH MULTIPLE SORRY MESSAGES
 function handleSpeechRecognitionError(error) {
-    console.log('🚨 Speech recognition error:', error);
-    
-    // 🛑 USE THE EXACT SAME LOGIC AS showHybridReadySequence
-    const isDefinitelyMobile = window.innerWidth <= 768;
+    console.log('🚨💣 NUCLEAR: Speech recognition error detected - KILLING ALL LISTENING');
+
+     // 🎯 DESKTOP: Use original working code
     const isRealMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
-    const shouldUseMobileSystem = isDefinitelyMobile && isRealMobile;
-    
-    // 🛑 SIMPLE: Just stop current recognition (NO NUCLEAR NUKING)
-    if (typeof recognition !== 'undefined') {
-        try {
-            recognition.stop();
-            console.log('🔇 Stopped recognition');
-        } catch (e) {
-            console.log('🔇 Recognition already stopped');
+    if (!isRealMobile) {
+        console.log('🖥️ DESKTOP: Using original working sorry system');
+        
+        // Your original desktop code that was working
+        if (error === 'no-speech' && speakSequenceButton && speakSequenceActive) {
+            const sorryMessage = getNextSorryMessage();
+            
+            if (typeof speechSynthesis !== 'undefined') {
+                speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(sorryMessage);
+                utterance.volume = 0.7;
+                utterance.onend = function() {
+                    setTimeout(() => {
+                        if (speakSequenceActive) {
+                            startNormalInterviewListening();
+                        }
+                    }, 800);
+                };
+                speechSynthesis.speak(utterance);
+            }
+            return; // Stop here for desktop
         }
     }
+
+    // 💣 CALL GLOBAL NUKE FUNCTION
+    nukeAllListening();
     
-    // 🛑 CRITICAL FIX: Check if AI is currently speaking before showing error
-    if (typeof isSpeaking !== 'undefined' && isSpeaking) {
-        console.log('🔇 AI is currently speaking - blocking error message to prevent overlap');
-        return;
-    }
-    
-    if (speakSequenceButton && speakSequenceActive) {
-        if (error === 'no-speech') {
-            if (shouldUseMobileSystem) {
-                console.log('📱 MOBILE ERROR: Using visual feedback');
-                // ... your existing mobile visual code continues HERE
-                // KEEP ALL YOUR MOBILE SORRY MESSAGE CODE FROM BEFORE
+    // Wait a moment to ensure everything is dead
+    setTimeout(() => {
+        console.log('🚨 Now handling error after nuclear cleanup:', error);
+        
+        // 💣 NUKE ALL LISTENING IMMEDIATELY (redundant but safe)
+        if (typeof recognition !== 'undefined') {
+            try {
+                recognition.onresult = null; // Disable result handler FIRST
+                recognition.onerror = null;   // Disable error handler  
+                recognition.onend = null;     // Disable end handler
+                recognition.stop();           // Stop recognition
+                console.log('💣 NUKED: Recognition stopped and handlers disabled');
+            } catch (e) {
+                console.log('💣 NUKED: Recognition nuked successfully');
+            }
+        }
+        
+        // 🛑 CRITICAL FIX: Check if AI is currently speaking before showing error
+        if (typeof isSpeaking !== 'undefined' && isSpeaking) {
+            console.log('🔇 AI is currently speaking - blocking error message to prevent overlap');
+            return;
+        }
+        
+        if (speakSequenceButton && speakSequenceActive) {
+            if (error === 'no-speech') {
+                console.log('📱 Mobile: Using visual feedback system with varied messages');
                 
                 // Get next sorry message variation
                 const sorryMessage = getNextSorryMessage();
@@ -3952,28 +3840,25 @@ function handleSpeechRecognitionError(error) {
                                 
                                 console.log('✅ Visual changed to "Speak Now" - waiting before starting listening');
                                 
-                               // 🎯 CRITICAL: WAIT 1.5 SECONDS BEFORE STARTING LISTENING
-setTimeout(() => {
-    if (speakSequenceActive) {
-        console.log('🔄 NOW starting listening (safe delay completed)');
-        window.lastRecognitionResult = null;
-        
-        // 🛑 ADD CANAUTOSTART CHECK!
-        if (!canAutoStart()) {
-            console.log('🔇 Auto-start blocked - waiting for manual activation');
-            return;
-        }
-        
-        if (isContactInterview) {
-            startContactInterviewListening();
-        } else {
-            startSmartListening();
-        }
-    }
-}, 1500); // 1.5 second delay to ensure clean restart
-}
-};
-
+                                // 🎯 CRITICAL: WAIT 1.5 SECONDS BEFORE STARTING LISTENING
+                                setTimeout(() => {
+                                    if (speakSequenceActive) {
+                                        console.log('🔄 NOW starting listening (safe delay completed)');
+                                        window.lastRecognitionResult = null;
+                                        
+                                        if (isContactInterview) {
+                                            startContactInterviewListening();
+                                        } else {
+                                            if (typeof startMobileListening === 'function') {
+                                                startMobileListening();
+                                            } else {
+                                                startNormalInterviewListening();
+                                            }
+                                        }
+                                    }
+                                }, 1500); // 1.5 second delay to ensure clean restart
+                            }
+                        };
                         
                         speechSynthesis.speak(utterance);
                         console.log('🔊 Playing sorry message audio:', sorryMessage);
@@ -3985,67 +3870,63 @@ setTimeout(() => {
                     playMobileErrorBeep();
                 }
                 
+            } else if (error === 'network') {
+                // Network error handling with progress bar
+                speakSequenceButton.innerHTML = `
+                    <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+                        <div style="margin-bottom: 6px;">
+                            <span class="error-feedback-blink">📶</span> Connection issue - Try again
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #ffc107, #ff8f00);"></div>
+                        </div>
+                    </div>
+                `;
+                speakSequenceButton.style.background = 'rgba(255, 193, 7, 0.4) !important';
+                speakSequenceButton.style.borderColor = 'rgba(255, 193, 7, 0.8) !important';
+                speakSequenceButton.className = 'quick-btn error-feedback-blink';
+                
+                setTimeout(() => resetToGreenState(), 2500);
+                
+            } else if (error === 'not-allowed') {
+                // Microphone permission error with progress bar
+                speakSequenceButton.innerHTML = `
+                    <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+                        <div style="margin-bottom: 6px;">
+                            <span class="error-feedback-blink">🎤</span> Microphone access needed
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #dc267f, #b91c5c);"></div>
+                        </div>
+                    </div>
+                `;
+                speakSequenceButton.style.background = 'rgba(220, 38, 127, 0.4) !important';
+                speakSequenceButton.style.borderColor = 'rgba(220, 38, 127, 0.8) !important';
+                speakSequenceButton.className = 'quick-btn error-feedback-blink';
+                
+                setTimeout(() => resetToGreenState(), 3000);
+                
             } else {
-                console.log('🖥️ DESKTOP ERROR: Using voice system');
-                handleDesktopSorryMessage(error);
-                return; // Stop here for desktop
+                // Generic error handling with progress bar
+                speakSequenceButton.innerHTML = `
+                    <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+                        <div style="margin-bottom: 6px;">
+                            <span class="error-feedback-blink">⚠️</span> Please try again
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #ffc107, #ff8f00);"></div>
+                        </div>
+                    </div>
+                `;
+                speakSequenceButton.style.background = 'rgba(255, 193, 7, 0.4) !important';
+                speakSequenceButton.style.borderColor = 'rgba(255, 193, 7, 0.8) !important';
+                speakSequenceButton.className = 'quick-btn error-feedback-blink';
+                
+                setTimeout(() => resetToGreenState(), 2000);
             }
-        } else if (error === 'network') {
-            // Network error handling with progress bar
-            speakSequenceButton.innerHTML = `
-                <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
-                    <div style="margin-bottom: 6px;">
-                        <span class="error-feedback-blink">📶</span> Connection issue - Try again
-                    </div>
-                    <div class="progress-bar-container">
-                        <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #ffc107, #ff8f00);"></div>
-                    </div>
-                </div>
-            `;
-            speakSequenceButton.style.background = 'rgba(255, 193, 7, 0.4) !important';
-            speakSequenceButton.style.borderColor = 'rgba(255, 193, 7, 0.8) !important';
-            speakSequenceButton.className = 'quick-btn error-feedback-blink';
-            
-            setTimeout(() => resetToGreenState(), 2500);
-            
-        } else if (error === 'not-allowed') {
-            // Microphone permission error with progress bar
-            speakSequenceButton.innerHTML = `
-                <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
-                    <div style="margin-bottom: 6px;">
-                        <span class="error-feedback-blink">🎤</span> Microphone access needed
-                    </div>
-                    <div class="progress-bar-container">
-                        <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #dc267f, #b91c5c);"></div>
-                    </div>
-                </div>
-            `;
-            speakSequenceButton.style.background = 'rgba(220, 38, 127, 0.4) !important';
-            speakSequenceButton.style.borderColor = 'rgba(220, 38, 127, 0.8) !important';
-            speakSequenceButton.className = 'quick-btn error-feedback-blink';
-            
-            setTimeout(() => resetToGreenState(), 3000);
-            
-        } else {
-    // Generic error handling with progress bar
-    speakSequenceButton.innerHTML = `
-        <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
-            <div style="margin-bottom: 6px;">
-                <span class="error-feedback-blink">⚠️</span> Please try again
-            </div>
-            <div class="progress-bar-container">
-                <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #ffc107, #ff8f00);"></div>
-            </div>
-        </div>
-    `;
-    speakSequenceButton.style.background = 'rgba(255, 193, 7, 0.4) !important';
-    speakSequenceButton.style.borderColor = 'rgba(255, 193, 7, 0.8) !important';
-    speakSequenceButton.className = 'quick-btn error-feedback-blink';
-    
-    setTimeout(() => resetToGreenState(), 2000);
+        }
+    }, 100); // Short delay to ensure nuke completed
 }
-}
-} // ← THIS is the missing closing brace for the main function
 
 // Helper function to reset to green listening state with progress bar
 function resetToGreenState() {
@@ -4071,27 +3952,25 @@ function resetToGreenState() {
         speakSequenceButton.style.borderColor = 'rgba(34, 197, 94, 0.8) !important';
         speakSequenceButton.className = 'quick-btn green-button-glow';
         
-     // Restart listening
-setTimeout(() => {
-    if (speakSequenceActive) {
-        window.lastRecognitionResult = null;
-        
-        // 🛑 ADD CANAUTOSTART CHECK HERE TOO!
-        if (!canAutoStart()) {
-            console.log('🔇 Auto-start blocked - waiting for manual activation');
-            return;
-        }
-        
-        if (isContactInterview) {
-            startContactInterviewListening();
-        } else {
-            // Use mobile-optimized version if available
-            startSmartListening();
-        }
+        // Restart listening
+        setTimeout(() => {
+            if (speakSequenceActive) {
+                window.lastRecognitionResult = null;
+                
+                if (isContactInterview) {
+                    startContactInterviewListening();
+                } else {
+                    // Use mobile-optimized version if available
+                    if (typeof startMobileListening === 'function') {
+                        startMobileListening();
+                    } else {
+                        startNormalInterviewListening();
+                    }
+                }
+            }
+        }, 500);
     }
-}, 500);
-} // ← ADDED this missing closing brace
-} // ← ADDED this missing closing brace for the function
+}
 
 // 🎯 ENHANCED SPEECH RECOGNITION RESTART HANDLER
 function handleSpeechRecognitionEnd() {
@@ -4150,52 +4029,43 @@ function handleSpeechRecognitionResult(event) {
         }
         
         // 🎯 CRITICAL MOBILE DETECTION - ADDED BACK!
-if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
-    console.log('📱 MOBILE: Setting up enhanced speech recognition handlers');
-    
-    // Enhanced mobile fallback timer
-    const mobileFallbackTimer = setTimeout(() => {
-        if (speakSequenceActive && !window.lastRecognitionResult) {
-            console.log('📱 MOBILE FALLBACK: No speech detected - triggering sorry message');
-            handleSpeechRecognitionError('no-speech');
+        if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
+            console.log('📱 MOBILE: Setting up enhanced speech recognition handlers');
+            
+            // Enhanced mobile fallback timer
+            const mobileFallbackTimer = setTimeout(() => {
+                if (speakSequenceActive && !window.lastRecognitionResult) {
+                    console.log('📱 MOBILE FALLBACK: No speech detected - triggering sorry message');
+                    handleSpeechRecognitionError('no-speech');
+                }
+            }, 4000); // Mobile gets slightly longer timeout
         }
-    }, 4000); // Mobile gets slightly longer timeout
-}
-
-if (isContactInterview) {
-    // 🛑 ADD CANAUTOSTART CHECK HERE TOO!
-    if (canAutoStart()) {
-        startContactInterviewListening();
-    } else {
-        console.log('🔇 Contact interview auto-start blocked');
-    }
-} else { 
-    // ✅ THIS PART IS ALREADY FIXED
-    if (canAutoStart()) {
-        startSmartListening();
-    } else {
-        console.log('🔇 Auto-start blocked - waiting for user interaction');
-    }
-}
-}, 800);
-    
-   // ✅ ENHANCED AI SPEAKING DETECTION - PREVENT DUPLICATES
-let speechWatcher = setInterval(() => {
-    if (typeof isSpeaking !== 'undefined' && isSpeaking && speakSequenceActive) {
-        console.log('🔊 AI started speaking - cleaning up ONCE');
-        clearInterval(speechWatcher);
-        if (window.progressInterval) clearInterval(window.progressInterval);
         
-        // 🛑 ADD FLAG TO PREVENT MULTIPLE CLEANUPS
-        if (!window.cleanupInProgress) {
-            window.cleanupInProgress = true;
+        if (isContactInterview) {
+            startContactInterviewListening();
+        } else {
+            // Use mobile-optimized version if available
+            if (typeof startMobileListening === 'function') {
+                startMobileListening();
+            } else {
+                startNormalInterviewListening();
+            }
+        }
+    }, 800);
+    
+    // ✅ ENHANCED AI SPEAKING DETECTION WITH BETTER TIMING
+    let speechWatcher = setInterval(() => {
+        if (typeof isSpeaking !== 'undefined' && isSpeaking && speakSequenceActive) {
+            console.log('🔊 AI started speaking - auto-cleaning up speak sequence');
+            clearInterval(speechWatcher);
+            if (progressInterval) clearInterval(progressInterval);
+            
+            // 🛑 CRITICAL FIX: Add a small delay to ensure AI speech is fully captured
             setTimeout(() => {
                 cleanupSpeakSequence();
-                window.cleanupInProgress = false; // Reset flag
             }, 2000);
         }
-    }
-}, 100);
+    }, 100);
     
     // ✅ GREEN TRANSITION
     const greenTransition = setTimeout(() => {
@@ -4257,7 +4127,7 @@ let speechWatcher = setInterval(() => {
         if (speechWatcher) clearInterval(speechWatcher);
         if (progressInterval) clearInterval(progressInterval);
         cleanupSpeakSequence();
-    }, 30000);
+    }, 8000);
 }
 
 // 🎯 DETECT CONTACT INTERVIEW MODE
@@ -4278,51 +4148,33 @@ function checkContactInterviewMode() {
 
 // 🎯 NORMAL INTERVIEW LISTENING 
 function startNormalInterviewListening() {
-    // 🛑 ADD CANAUTOSTART CHECK FIRST!
-    if (!canAutoStart()) {
-        console.log('🔇 startNormalInterviewListening BLOCKED');
-        return;
-    }
-    
     const userInput = document.getElementById('userInput');
     if (userInput) {
         userInput.value = '';
         console.log('🧹 Cleared userInput field (normal mode)');
     }
     
-  setTimeout(() => {
-    // 🛑 ADD CANAUTOSTART CHECK!
-    if (!canAutoStart()) {
-        console.log('🔇 startListening() call blocked');
-        return;
-    }
-    
-    if (typeof startListening === 'function') {
-        try {
-            startListening();
-            console.log('✅ Normal startListening() called successfully');
-        } catch (error) {
-            console.error('❌ Normal startListening() error:', error);
+    setTimeout(() => {
+        if (typeof startListening === 'function') {
+            try {
+                startListening();
+                console.log('✅ Normal startListening() called successfully');
+            } catch (error) {
+                console.error('❌ Normal startListening() error:', error);
+            }
         }
-    }
-}, 50);
+    }, 50);
     
     setTimeout(() => {
-    // 🛑 ADD CANAUTOSTART CHECK!
-    if (!canAutoStart()) {
-        console.log('🔇 forceStartListening() call blocked');
-        return;
-    }
-    
-    if (typeof forceStartListening === 'function' && !isListening) {
-        try {
-            console.log('🔄 Normal backup: calling forceStartListening()');
-            forceStartListening();
-        } catch (error) {
-            console.error('❌ Normal forceStartListening() error:', error);
+        if (typeof forceStartListening === 'function' && !isListening) {
+            try {
+                console.log('🔄 Normal backup: calling forceStartListening()');
+                forceStartListening();
+            } catch (error) {
+                console.error('❌ Normal forceStartListening() error:', error);
+            }
         }
-    }
-}, 150);
+    }, 150);
 }
 
 // 🎯 CONTACT INTERVIEW LISTENING 
