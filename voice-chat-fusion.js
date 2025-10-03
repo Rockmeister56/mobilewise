@@ -3806,45 +3806,47 @@ function handleSpeechRecognitionError(error) {
                         
                         // 🎯 CRITICAL: ADD LISTENER TO RESTART AFTER SPEECH FINISHES
                         utterance.onend = function() {
-                            console.log('🔊 Sorry message finished - going to SPEAK NOW');
-                            
-                            if (speakSequenceButton && speakSequenceActive) {
-                                // 🎯 GO DIRECTLY TO "SPEAK NOW"
-                                speakSequenceButton.innerHTML = `
-                                    <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
-                                        <div style="margin-bottom: 6px;">
-                                            <span class="green-dot-blink">🟢</span> Speak Now!
-                                        </div>
-                                        <div class="progress-bar-container">
-                                            <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #4caf50, #2e7d32);"></div>
-                                        </div>
-                                    </div>
-                                `;
-                                speakSequenceButton.style.background = 'rgba(34, 197, 94, 0.4) !important';
-                                speakSequenceButton.style.borderColor = 'rgba(34, 197, 94, 0.8) !important';
-                                speakSequenceButton.className = 'quick-btn green-button-glow';
-                                
-                                console.log('✅ Visual changed to "Speak Now" - waiting before starting listening');
-                                
-                                // 🎯 CRITICAL: WAIT 1.5 SECONDS BEFORE STARTING LISTENING
-                                setTimeout(() => {
-                                    if (speakSequenceActive) {
-                                        console.log('🔄 NOW starting listening (safe delay completed)');
-                                        window.lastRecognitionResult = null;
-                                        
-                                        if (isContactInterview) {
-                                            startContactInterviewListening();
-                                        } else {
-                                            if (typeof startMobileListening === 'function') {
-                                                startMobileListening();
-                                            } else {
-                                                startNormalInterviewListening();
-                                            }
-                                        }
-                                    }
-                                }, 1500); // 1.5 second delay to ensure clean restart
-                            }
-                        };
+    console.log('🔊 Sorry message finished - going to SPEAK NOW');
+    
+    if (speakSequenceButton && speakSequenceActive) {
+        // 🎯 GO DIRECTLY TO "SPEAK NOW"
+        speakSequenceButton.innerHTML = `...`; // your speak now HTML
+        
+        console.log('✅ Visual changed to "Speak Now"');
+        
+        // 🎯 DEBUG: Add detailed logging
+        setTimeout(() => {
+            if (speakSequenceActive) {
+                console.log('🔄 Attempting to start listening...');
+                console.log('📊 speakSequenceActive:', speakSequenceActive);
+                console.log('🎤 Available functions:');
+                console.log('- startNormalInterviewListening:', typeof startNormalInterviewListening);
+                console.log('- startMobileListening:', typeof startMobileListening);
+                console.log('- startContactInterviewListening:', typeof startContactInterviewListening);
+                
+                window.lastRecognitionResult = null;
+                
+                if (isContactInterview) {
+                    console.log('🎯 Calling startContactInterviewListening()');
+                    startContactInterviewListening();
+                } else {
+                    if (typeof startMobileListening === 'function') {
+                        console.log('🎯 Calling startMobileListening()');
+                        startMobileListening();
+                    } else {
+                        console.log('🎯 Calling startNormalInterviewListening()');
+                        startNormalInterviewListening();
+                    }
+                }
+                console.log('✅ Listening restart attempted');
+            } else {
+                console.log('❌ speakSequenceActive is false - cannot start listening');
+            }
+        }, 1500);
+    } else {
+        console.log('❌ speakSequenceButton missing or speakSequenceActive false');
+    }
+};
                         
                         speechSynthesis.speak(utterance);
                         console.log('🔊 Playing sorry message audio:', sorryMessage);
