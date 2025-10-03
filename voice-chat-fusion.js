@@ -240,21 +240,14 @@ async function speakWithElevenLabs(message) {
 // ✅ DESKTOP vs MOBILE SEPARATION
 const isDefinitelyMobile = window.innerWidth <= 768 || window.innerHeight <= 1024;
 const isRealMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+const shouldUseMobileSystem = isDefinitelyMobile && isRealMobile;
 
-// ✅ USE BOTH: Only use mobile system if BOTH are true
-if (isDefinitelyMobile && isRealMobile) {
+if (shouldUseMobileSystem) {
     console.log('📱 REAL Mobile: Using visual feedback system');
-    // Continue with mobile code
+    handleMobileNoSpeechError();
 } else {
     console.log('🖥️ Desktop: Using simple voice system');
-    handleDesktopSequence();
-    return;
-}
-
-// 🖥️ DESKTOP-SPECIFIC SEQUENCE (PUT THIS OUTSIDE)
-function handleDesktopSequence() {
-    console.log('🎬 DESKTOP: Starting simple listening...');
-    startNormalInterviewListening();
+    handleDesktopNoSpeechError(); // This should reset to green state
 }
 
 // ===================================================
