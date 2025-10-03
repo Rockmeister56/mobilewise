@@ -74,6 +74,7 @@ let lastMessageWasApology = false;
 let isInLeadCapture = false;
 let speechDetected = false;
 let currentAIResponse = '';
+let allowAutoStart = false;
 window.leadData = window.leadData || {
     firstName: '',
     step: 0,
@@ -624,6 +625,24 @@ function startSmartListening() {
     }
 }
 
+function canAutoStart() {
+    const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+    
+    console.log('🔍 canAutoStart() DEBUG:');
+    console.log('🔍 isMobile:', isMobile);
+    console.log('🔍 userHasInteracted:', userHasInteracted);
+    console.log('🔍 navigator.userAgent:', navigator.userAgent);
+    
+    // Only block auto-start on mobile before first interaction
+    if (isMobile && !userHasInteracted) {
+        console.log('📱 Mobile auto-start blocked - waiting for user interaction');
+        return false;
+    }
+    
+    console.log('✅ Auto-start allowed');
+    return true;
+}
+
 // ===================================================
 // 🔄 FORCE START LISTENING (BYPASSES GATE-KEEPER)
 // ===================================================
@@ -690,6 +709,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+document.addEventListener('click', function() {
+    userHasInteracted = true;
+    console.log('✅ User interacted - audio unlocked');
+}, { once: true });
 
 // ===================================================
 // 🎤 MICROPHONE ACTIVATION SYSTEM
@@ -4034,23 +4058,28 @@ function handleSpeechRecognitionResult(event) {
         }
         
         // 🎯 CRITICAL MOBILE DETECTION - ADDED BACK!
-        if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
-            console.log('📱 MOBILE: Setting up enhanced speech recognition handlers');
-            
-            // Enhanced mobile fallback timer
-            const mobileFallbackTimer = setTimeout(() => {
-                if (speakSequenceActive && !window.lastRecognitionResult) {
-                    console.log('📱 MOBILE FALLBACK: No speech detected - triggering sorry message');
-                    handleSpeechRecognitionError('no-speech');
-                }
-            }, 4000); // Mobile gets slightly longer timeout
+if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
+    console.log('📱 MOBILE: Setting up enhanced speech recognition handlers');
+    
+    // Enhanced mobile fallback timer
+    const mobileFallbackTimer = setTimeout(() => {
+        if (speakSequenceActive && !window.lastRecognitionResult) {
+            console.log('📱 MOBILE FALLBACK: No speech detected - triggering sorry message');
+            handleSpeechRecognitionError('no-speech');
         }
-        
-        if (isContactInterview) {
+    }, 4000); // Mobile gets slightly longer timeout
+}
+
+if (isContactInterview) {
     startContactInterviewListening();
-} else {
-    // Use mobile-optimized version if available
-    startSmartListening();
+} else { 
+    // ✅ WITH THIS:
+    if (canAutoStart()) {
+        startSmartListening();
+    } else {
+        console.log('🔇 Auto-start blocked - waiting for user interaction');
+        // Optional: Show a "Tap to start" button for mobile
+    }
 }
 }, 800);
     
