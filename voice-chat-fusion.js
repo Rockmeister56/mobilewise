@@ -96,8 +96,6 @@ if (typeof window.conversationState === 'undefined') {
 // ===================================================
 // 🏗️ GLOBAL VARIABLES
 // ===================================================
-let userHasInteracted = false
-canAutoStart() 
 let recognition = null;
 let isListening = false;
 let isSpeaking = false;
@@ -115,6 +113,14 @@ let lastMessageWasApology = false;
 let isInLeadCapture = false;
 let speechDetected = false;
 let currentAIResponse = '';
+let userHasInteracted = false;
+
+document.addEventListener('click', function() {
+    userHasInteracted = true;
+    console.log('✅ User interacted - audio unlocked');
+}, { once: true });
+canAutoStart() 
+
 window.leadData = window.leadData || {
     firstName: '',
     step: 0,
@@ -279,7 +285,7 @@ async function speakWithElevenLabs(message) {
 }
 
 // ✅ DESKTOP vs MOBILE SEPARATION
-const isDefinitelyMobile = window.innerWidth <= 768 || window.innerHeight <= 1024;
+const isDefinitelyMobile = window.innerWidth <= 768;
 const isRealMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
 const shouldUseMobileSystem = isDefinitelyMobile && isRealMobile;
 
@@ -523,7 +529,7 @@ function handleDesktopSorryMessage(error) {
 
       if (event.error === 'no-speech') {
         // ✅ USE THE UNIFIED MOBILE DETECTION
-        const isDefinitelyMobile = window.innerWidth <= 768 || window.innerHeight <= 1024;
+        const isDefinitelyMobile = window.innerWidth <= 768;
         const isRealMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
         const shouldUseMobileSystem = isDefinitelyMobile && isRealMobile;
 
@@ -676,7 +682,7 @@ function startSmartListening() {
         return; // Stop here if auto-start is blocked
     }
     
-    const isDefinitelyMobile = window.innerWidth <= 768 || window.innerHeight <= 1024;
+    const isDefinitelyMobile = window.innerWidth <= 768;
     const isRealMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
     const shouldUseMobileSystem = isDefinitelyMobile && isRealMobile;
     
@@ -3862,7 +3868,7 @@ function handleSpeechRecognitionError(error) {
     console.log('🚨 Speech recognition error:', error);
     
     // 🛑 USE THE EXACT SAME LOGIC AS showHybridReadySequence
-    const isDefinitelyMobile = window.innerWidth <= 768 || window.innerHeight <= 1024;
+    const isDefinitelyMobile = window.innerWidth <= 768;
     const isRealMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
     const shouldUseMobileSystem = isDefinitelyMobile && isRealMobile;
     
