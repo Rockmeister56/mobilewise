@@ -699,10 +699,10 @@ function startSmartListening() {
 function canAutoStart() {
     const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
     
-    console.log('🔍 canAutoStart() DEBUG:');
-    console.log('🔍 isMobile:', isMobile);
-    console.log('🔍 userHasInteracted:', userHasInteracted);
-    console.log('🔍 navigator.userAgent:', navigator.userAgent);
+    // 🗑️ COMMENT OUT DEBUG LOGS:
+    // console.log('🔍 canAutoStart() DEBUG:');
+    // console.log('🔍 isMobile:', isMobile);
+    // console.log('🔍 userHasInteracted:', userHasInteracted);
     
     // 🛑 STRICTER MOBILE BLOCKING - NEVER auto-start on mobile
     if (isMobile) {
