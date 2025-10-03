@@ -3,6 +3,19 @@
 // Smart Button + Lead Capture + EmailJS + Banner System
 // ===================================================
 
+// 🎯 TEMPORARY FIX - ADD AT VERY TOP (what was working)
+function handleSpeechRecognitionError(error) {
+    alert('🚨 TEMPORARY FUNCTION CALLED: ' + error);
+    console.log('🔇 Quick error handler:', error);
+    setTimeout(() => {
+        if (typeof startSmartListening === 'function') {
+            startSmartListening();
+        }
+    }, 1000);
+}
+
+alert('📱 TEMPORARY FUNCTION ADDED - Testing continues');
+
 // 🎯 SIMPLE MOBILE DIAGNOSTIC
 console.log('📱 Mobile diagnostic started');
 
