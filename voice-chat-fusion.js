@@ -74,7 +74,7 @@ let lastMessageWasApology = false;
 let isInLeadCapture = false;
 let speechDetected = false;
 let currentAIResponse = '';
-let allowAutoStart = false;
+let userHasInteracted = false;
 window.leadData = window.leadData || {
     firstName: '',
     step: 0,
