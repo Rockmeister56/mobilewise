@@ -50,26 +50,6 @@ function handleSpeechRecognitionError(error) {
     }, 1000);
 }
 
-// 🎯 MOBILE ERROR DETECTOR - ADD AT VERY TOP OF FILE
-window.addEventListener('error', function(e) {
-    alert('🚨 CRITICAL ERROR: ' + e.message + ' at line ' + e.lineno);
-    console.error('🚨 CRITICAL ERROR:', e);
-});
-
-window.addEventListener('unhandledrejection', function(e) {
-    alert('🚨 PROMISE ERROR: ' + e.reason);
-    console.error('🚨 PROMISE ERROR:', e.reason);
-});
-
-alert('🔍 Mobile error detector active - testing now...');
-
-// 🎯 MOBILE DEBUG - ADD AT VERY TOP
-alert('📱 JS FILE LOADING - Testing mobile');
-
-
-
-alert('📱 TEMPORARY FUNCTION ADDED - Testing continues');
-
 // 💣 ADD THIS GLOBAL NUKE FUNCTION AT THE TOP OF YOUR FILE
 function nukeAllListening() {
     console.log('💣 GLOBAL NUKE: Killing all speech recognition');
