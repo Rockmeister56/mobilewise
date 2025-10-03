@@ -26,11 +26,6 @@ if ('webkitSpeechRecognition' in window) {
     console.log('❌ Speech Recognition: NOT AVAILABLE');
 }
 
-// 🎯 FINAL MOBILE TEST
-console.log('📱 MOBILE TEST: Auto-start protection active');
-console.log('📱 User Agent:', navigator.userAgent);
-console.log('📱 canAutoStart():', canAutoStart());
-
 // Check if recognition object exists
 setTimeout(() => {
     if (typeof recognition !== 'undefined') {
