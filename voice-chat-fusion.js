@@ -3,7 +3,18 @@
 // Smart Button + Lead Capture + EmailJS + Banner System
 // ===================================================
 
-alert('📱 Mobile JS loaded - testing');
+// 🎯 MOBILE ERROR DETECTOR - ADD AT VERY TOP OF FILE
+window.addEventListener('error', function(e) {
+    alert('🚨 CRITICAL ERROR: ' + e.message + ' at line ' + e.lineno);
+    console.error('🚨 CRITICAL ERROR:', e);
+});
+
+window.addEventListener('unhandledrejection', function(e) {
+    alert('🚨 PROMISE ERROR: ' + e.reason);
+    console.error('🚨 PROMISE ERROR:', e.reason);
+});
+
+alert('🔍 Mobile error detector active - testing now...');
 
 // 💣 ADD THIS GLOBAL NUKE FUNCTION AT THE TOP OF YOUR FILE
 function nukeAllListening() {
