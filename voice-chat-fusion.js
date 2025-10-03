@@ -426,6 +426,43 @@ function handleDesktopSorryMessage(error) {
         startSmartListening();
     }, 1000);
 }
+
+// 🎯 MICROPHONE ACCESS TEST
+function testMicrophoneAccess() {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        alert('❌ Media Devices API not supported on this browser');
+        return;
+    }
+    
+    navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(stream => {
+            alert('✅ Microphone ACCESS GRANTED - Should work!');
+            // Clean up
+            stream.getTracks().forEach(track => track.stop());
+        })
+        .catch(err => {
+            alert('❌ Microphone BLOCKED: ' + err.name + ' - ' + err.message);
+        });
+}
+
+// Test when mic button is clicked
+document.addEventListener('click', function(event) {
+    if (event.target.matches('[id*="mic"], [class*="mic"], button')) {
+        console.log('🎤 Mic button clicked - testing access');
+        testMicrophoneAccess();
+    }
+});
+
+// 🎯 SPEECH RECOGNITION TEST
+function testSpeechRecognition() {
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        alert('✅ Speech Recognition: AVAILABLE');
+        return true;
+    } else {
+        alert('❌ Speech Recognition: NOT AVAILABLE on this browser');
+        return false;
+    }
+}
     
   // ===================================================
 // 🎤 START LISTENING new function
