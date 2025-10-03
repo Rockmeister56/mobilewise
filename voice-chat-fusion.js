@@ -3469,6 +3469,28 @@ function playMobileErrorBeep() {
     }
 }
 
+// 🖥️ DESKTOP-SPECIFIC SORRY HANDLER
+function handleDesktopSorryMessage(error) {
+    if (error === 'no-speech' && speakSequenceActive) {
+        const sorryMessage = getNextSorryMessage();
+        console.log('🖥️ Desktop sorry:', sorryMessage);
+        
+        if (typeof speechSynthesis !== 'undefined') {
+            speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(sorryMessage);
+            utterance.volume = 0.7;
+            utterance.onend = function() {
+                setTimeout(() => {
+                    if (speakSequenceActive) {
+                        startNormalInterviewListening();
+                    }
+                }, 800);
+            };
+            speechSynthesis.speak(utterance);
+        }
+    }
+}
+
 // ✅ MAIN FUNCTION WITH ALL FIXES
 function showHybridReadySequence() {
     // ✅ CALL MOBILE STABILITY FIRST
@@ -3755,7 +3777,20 @@ function handleSpeechRecognitionError(error) {
         
         if (speakSequenceButton && speakSequenceActive) {
             if (error === 'no-speech') {
-                console.log('📱 Mobile: Using visual feedback system with varied messages');
+    // ✅ FIXED MOBILE DETECTION - KEEPS MOBILE WORKING, FIXES DESKTOP
+    const isNuclearMobile = window.innerWidth <= 768 || window.innerHeight <= 1024;
+    const isRealMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+    const shouldUseMobileSystem = isNuclearMobile && isRealMobile;
+    
+    if (shouldUseMobileSystem) {
+        console.log('📱 REAL Mobile: Using visual feedback system');
+        // ... your existing mobile visual code continues
+    } else {
+        console.log('🖥️ Desktop: Using voice system');
+        // Add desktop voice code here (your original working code)
+        handleDesktopSorryMessage(error);
+        return; // Stop here for desktop
+    }
                 
                 // Get next sorry message variation
                 const sorryMessage = getNextSorryMessage();
