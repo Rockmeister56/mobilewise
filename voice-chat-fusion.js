@@ -35,6 +35,12 @@ function nukeAllListening() {
     window.lastRecognitionResult = null;
 }
 
+// 🎯 TEMPORARY - REMOVE LATER
+function getNextSorryMessage() {
+    console.log('🔇 Sorry message called - but disabled');
+    return "Please try again"; // Simple fallback
+}
+
 // Add this at the VERY TOP of your JavaScript file (like line 1)
 if (typeof window.leadData === 'undefined' || !window.leadData) {
     window.leadData = { 
