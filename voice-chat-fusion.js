@@ -3491,29 +3491,27 @@ function handleDesktopSorryMessage(error) {
     }
 }
 
-// ✅ MAIN FUNCTION WITH ALL FIXES
-function showHybridReadySequence() {
     // ✅ CALL MOBILE STABILITY FIRST
+applyMobileStability();
+setupMobileTouchEvents();
 
-        // 🛑 CRITICAL: PREVENT MULTIPLE SIMULTANEOUS SESSIONS
-    if (window.speakSequenceBlocked) {
-        console.log('🔇 HYBRID BLOCKED: Another session already running');
-        return;
-    }
-    window.speakSequenceBlocked = true;
-    
-    // 🛑 CRITICAL: STOP ANY EXISTING LISTENING FIRST
-    if (typeof recognition !== 'undefined' && recognition) {
-        try {
-            recognition.stop();
-            console.log('🔇 Stopped any existing recognition session');
-        } catch (e) {
-            console.log('🔇 Recognition already stopped or stopping failed');
-        }
-    }
+// ✅ SIMPLE SESSION MANAGEMENT
+if (speakSequenceActive) {
+    console.log('🔄 Cleaning up previous session first');
+    cleanupSpeakSequence();
+    // Small delay to ensure clean restart
+    setTimeout(() => {
+        startFreshSequence();
+    }, 300);
+    return;
+}
 
-    applyMobileStability();
-    setupMobileTouchEvents();
+function startFreshSequence() {
+    window.lastSequenceStart = Date.now();
+    speakSequenceActive = true;
+    console.log('🎬 Starting FRESH speak sequence...');
+    // ... continue with the rest of your sequence code
+}
     
     // ✅ BASIC BLOCKING CHECKS
     if (typeof BannerOrchestrator !== 'undefined' && 
