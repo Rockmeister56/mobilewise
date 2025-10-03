@@ -3842,16 +3842,18 @@ function startFreshHybridSequence() {
    }
    
    // ✅ START LISTENING
-   setTimeout(() => {
-       console.log('🎤 Starting listening during RED stage...');
-       
-       // Clear any previous result flag
-       window.lastRecognitionResult = null;
+setTimeout(() => {
+    console.log('🎤 Starting listening during RED stage...');
+    
+    // Clear any previous result flag
+    window.lastRecognitionResult = null;
 
-        // 🛑 ADD NULL CHECK HERE:
+    // 🛑 FIX: SINGLE PROPER NULL CHECK (REMOVE THE DUPLICATE BELOW)
     if (typeof recognition !== 'undefined' && recognition !== null) {
+        // 💣 PRE-EMPTIVE NUKE + HANDLER SETUP (ALL IN ONE PLACE)
         recognition.onerror = function(event) {
-            console.log('🚨 Speech error:', event.error);
+            console.log('🚨💣 PRE-EMPTIVE NUKE: Speech error detected');
+            nukeAllListening(); // NUKE FIRST!
             handleSpeechRecognitionError(event.error);
         };
         
@@ -3865,56 +3867,37 @@ function startFreshHybridSequence() {
                 originalOnResult(event);
             }
         };
+        
+        console.log('✅ Recognition handlers set up successfully');
     } else {
         console.log('❌ recognition is null or undefined - skipping handler setup');
     }
-       
-       // Set up enhanced error handling for the recognition session
-       if (typeof recognition !== 'undefined') {
-           // 💣 ADD PRE-EMPTIVE NUKE HERE:
-           recognition.onerror = function(event) {
-               console.log('🚨💣 PRE-EMPTIVE NUKE: Speech error detected');
-               nukeAllListening(); // NUKE FIRST!
-               handleSpeechRecognitionError(event.error);
-           };
-           
-           recognition.onend = function() {
-               handleSpeechRecognitionEnd();
-           };
-           
-           recognition.onresult = function(event) {
-               handleSpeechRecognitionResult(event);
-               // Let the original result handler continue
-               if (typeof originalOnResult === 'function') {
-                   originalOnResult(event);
-               }
-           };
-       }
-       
-       // 🎯 CRITICAL MOBILE DETECTION - ADDED BACK!
-       if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
-           console.log('📱 MOBILE: Setting up enhanced speech recognition handlers');
-           
-           // Enhanced mobile fallback timer
-           const mobileFallbackTimer = setTimeout(() => {
-               if (speakSequenceActive && !window.lastRecognitionResult) {
-                   console.log('📱 MOBILE FALLBACK: No speech detected - triggering sorry message');
-                   handleSpeechRecognitionError('no-speech');
-               }
-           }, 4000); // Mobile gets slightly longer timeout
-       }
-       
-       if (isContactInterview) {
-           startContactInterviewListening();
-       } else {
-           // Use mobile-optimized version if available
-           if (typeof startMobileListening === 'function') {
-               startMobileListening();
-           } else {
-               startNormalInterviewListening();
-           }
-       }
-   }, 800);
+    // 🚨 DELETE THE ENTIRE DUPLICATE BLOCK BELOW THIS LINE!
+    
+    // 🎯 CRITICAL MOBILE DETECTION - USE isActuallyMobile()
+    if (isActuallyMobile()) {
+        console.log('📱 MOBILE: Setting up enhanced speech recognition handlers');
+        
+        // Enhanced mobile fallback timer
+        const mobileFallbackTimer = setTimeout(() => {
+            if (speakSequenceActive && !window.lastRecognitionResult) {
+                console.log('📱 MOBILE FALLBACK: No speech detected - triggering sorry message');
+                handleSpeechRecognitionError('no-speech');
+            }
+        }, 4000);
+    }
+    
+    if (isContactInterview) {
+        startContactInterviewListening();
+    } else {
+        // Use mobile-optimized version if available
+        if (typeof startMobileListening === 'function') {
+            startMobileListening();
+        } else {
+            startNormalInterviewListening();
+        }
+    }
+}, 800);
    
    // ✅ ENHANCED AI SPEAKING DETECTION WITH BETTER TIMING
    let speechWatcher = setInterval(() => {
@@ -4305,36 +4288,39 @@ function startContactInterviewListening() {
 
 // Enhanced cleanup function
 function cleanupSpeakSequence() {
-
-     // 🛑 CRITICAL: RE-ENABLE FUTURE SESSIONS
+    // 🛑 CRITICAL: RE-ENABLE FUTURE SESSIONS
     window.speakSequenceBlocked = false;
     speakSequenceActive = false;
     
     console.log('🧹 Cleaning up speak sequence');
     
-    if (speakSequenceCleanupTimer) {
-        clearTimeout(speakSequenceCleanupTimer);
-        speakSequenceCleanupTimer = null;
-    }
-    
-    // 🛑 ADD CLEANUP FOR progressInterval
+    // 🛑 CLEANUP FOR progressInterval
     if (window.progressInterval) {
         clearInterval(window.progressInterval);
         window.progressInterval = null;
     }
     
-    console.log('🧹 Cleaning up speak sequence');
-    
+    // 🛑 CLEANUP FOR speakSequenceCleanupTimer (ONCE)
     if (speakSequenceCleanupTimer) {
         clearTimeout(speakSequenceCleanupTimer);
         speakSequenceCleanupTimer = null;
     }
     
+    // 🛑 CLEANUP BUTTON
     if (speakSequenceButton) {
         speakSequenceButton.remove();
         speakSequenceButton = null;
     }
     
+    // Restore original buttons
+    const quickButtonsContainer = document.querySelector('.quick-questions') || 
+                                  document.querySelector('.quick-buttons') || 
+                                  document.getElementById('quickButtonsContainer');
+    if (quickButtonsContainer) {
+        const buttons = quickButtonsContainer.querySelectorAll('.quick-btn');
+        buttons.forEach(btn => btn.style.display = '');
+    }
+}
     // Restore original buttons
     const quickButtonsContainer = document.querySelector('.quick-questions') || 
                                   document.querySelector('.quick-buttons') || 
