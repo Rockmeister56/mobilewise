@@ -87,21 +87,6 @@ window.leadData = window.leadData || {
 };
 let leadData = window.leadData;
 
-function getNextSorryMessage() {
-    const sorryMessages = [
-        "I didn't hear you",
-        "Sorry, I missed that", 
-        "Could you repeat that?",
-        "I didn't catch that"
-    ];
-    
-    if (!window.sorryMessageIndex) window.sorryMessageIndex = 0;
-    const message = sorryMessages[window.sorryMessageIndex];
-    window.sorryMessageIndex = (window.sorryMessageIndex + 1) % sorryMessages.length;
-    
-    return message;
-}
-
 // ===================================================
 // 🎯 SPEECH RECOGNITION PRE-WARMING SYSTEM  
 // ===================================================
