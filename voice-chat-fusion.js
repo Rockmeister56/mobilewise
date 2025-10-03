@@ -4027,19 +4027,19 @@ function handleSpeechRecognitionResult(event) {
         }
     }, 800);
     
-    // ✅ ENHANCED AI SPEAKING DETECTION WITH BETTER TIMING
-    let speechWatcher = setInterval(() => {
-        if (typeof isSpeaking !== 'undefined' && isSpeaking && speakSequenceActive) {
-            console.log('🔊 AI started speaking - auto-cleaning up speak sequence');
-            clearInterval(speechWatcher);
-            if (progressInterval) clearInterval(progressInterval);
-            
-            // 🛑 CRITICAL FIX: Add a small delay to ensure AI speech is fully captured
-            setTimeout(() => {
-                cleanupSpeakSequence();
-            }, 2000);
-        }
-    }, 100);
+   // ✅ ENHANCED AI SPEAKING DETECTION WITH BETTER TIMING
+let speechWatcher = setInterval(() => {
+    if (typeof isSpeaking !== 'undefined' && isSpeaking && speakSequenceActive) {
+        console.log('🔊 AI started speaking - auto-cleaning up speak sequence');
+        clearInterval(speechWatcher);
+        if (window.progressInterval) clearInterval(window.progressInterval); // ← FIX THIS LINE
+        
+        // 🛑 CRITICAL FIX: Add a small delay to ensure AI speech is fully captured
+        setTimeout(() => {
+            cleanupSpeakSequence();
+        }, 2000);
+    }
+}, 100);
     
     // ✅ GREEN TRANSITION
     const greenTransition = setTimeout(() => {
@@ -4101,7 +4101,7 @@ function handleSpeechRecognitionResult(event) {
         if (speechWatcher) clearInterval(speechWatcher);
         if (progressInterval) clearInterval(progressInterval);
         cleanupSpeakSequence();
-    }, 8000);
+    }, 30000);
 }
 
 // 🎯 DETECT CONTACT INTERVIEW MODE
