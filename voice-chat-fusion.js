@@ -3766,186 +3766,164 @@ function handleSpeechRecognitionError(error) {
         
         if (speakSequenceButton && speakSequenceActive) {
             if (error === 'no-speech') {
-                // ✅ FIXED MOBILE DETECTION - KEEPS MOBILE WORKING, FIXES DESKTOP
-                const isNuclearMobile = window.innerWidth <= 768 || window.innerHeight <= 1024;
-                const isRealMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
-                const shouldUseMobileSystem = isNuclearMobile && isRealMobile;
+    // ✅ FIXED MOBILE DETECTION - KEEPS MOBILE WORKING, FIXES DESKTOP
+    const isNuclearMobile = window.innerWidth <= 768 || window.innerHeight <= 1024;
+    const isRealMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+    const shouldUseMobileSystem = isNuclearMobile && isRealMobile;
+    
+    if (shouldUseMobileSystem) {
+        console.log('📱 REAL Mobile: Using visual feedback system');
+        // ... your existing mobile visual code continues
+    } else {
+        console.log('🖥️ Desktop: Using voice system');
+        // Add desktop voice code here (your original working code)
+        handleDesktopSorryMessage(error);
+        return; // Stop here for desktop
+    }
                 
-                if (shouldUseMobileSystem) {
-                    console.log('📱 REAL Mobile: Using visual feedback system');
-                    handleMobileNoSpeechError();
-                } else {
-                    console.log('🖥️ Desktop: Using voice system');
-                    handleDesktopNoSpeechError();
-                    return; // Stop here for desktop
+                // Get next sorry message variation
+                const sorryMessage = getNextSorryMessage();
+                console.log('💬 Using sorry message:', sorryMessage);
+                
+                // Visual feedback with varied "I didn't hear you" messages + PROGRESS BAR
+                speakSequenceButton.innerHTML = `
+                    <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+                        <div style="margin-bottom: 6px;">
+                            <span class="error-feedback-blink">🔊</span> ${sorryMessage}
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #ff6b6b, #ee5a24);"></div>
+                        </div>
+                    </div>
+                `;
+                speakSequenceButton.style.background = 'rgba(255, 107, 107, 0.4) !important';
+                speakSequenceButton.style.borderColor = 'rgba(255, 107, 107, 0.8) !important';
+                speakSequenceButton.className = 'quick-btn error-feedback-blink sorry-message-pulse';
+                
+                // Enhanced voice feedback with varied messages (better mobile compatibility)
+                if (typeof speechSynthesis !== 'undefined') {
+                    // Clear any existing speech
+                    speechSynthesis.cancel();
+                    
+                    setTimeout(() => {
+                        const utterance = new SpeechSynthesisUtterance(sorryMessage);
+                        utterance.volume = 0.7;
+                        utterance.rate = 1.1;
+                        utterance.pitch = 1;
+                        
+                        // Better mobile compatibility
+                        utterance.voice = speechSynthesis.getVoices().find(voice => 
+                            voice.name.includes('Google') || voice.default
+                        ) || speechSynthesis.getVoices()[0];
+                        
+                        // 🎯 CRITICAL: ADD LISTENER TO RESTART AFTER SPEECH FINISHES
+                        utterance.onend = function() {
+                            console.log('🔊 Sorry message finished - going to SPEAK NOW');
+                            
+                            if (speakSequenceButton && speakSequenceActive) {
+                                // 🎯 GO DIRECTLY TO "SPEAK NOW"
+                                speakSequenceButton.innerHTML = `
+                                    <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+                                        <div style="margin-bottom: 6px;">
+                                            <span class="green-dot-blink">🟢</span> Speak Now!
+                                        </div>
+                                        <div class="progress-bar-container">
+                                            <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #4caf50, #2e7d32);"></div>
+                                        </div>
+                                    </div>
+                                `;
+                                speakSequenceButton.style.background = 'rgba(34, 197, 94, 0.4) !important';
+                                speakSequenceButton.style.borderColor = 'rgba(34, 197, 94, 0.8) !important';
+                                speakSequenceButton.className = 'quick-btn green-button-glow';
+                                
+                                console.log('✅ Visual changed to "Speak Now" - waiting before starting listening');
+                                
+                                // 🎯 CRITICAL: WAIT 1.5 SECONDS BEFORE STARTING LISTENING
+                                setTimeout(() => {
+                                    if (speakSequenceActive) {
+                                        console.log('🔄 NOW starting listening (safe delay completed)');
+                                        window.lastRecognitionResult = null;
+                                        
+                                        if (isContactInterview) {
+                                            startContactInterviewListening();
+                                        } else {
+                                            if (typeof startMobileListening === 'function') {
+                                                startMobileListening();
+                                            } else {
+                                                startNormalInterviewListening();
+                                            }
+                                        }
+                                    }
+                                }, 1500); // 1.5 second delay to ensure clean restart
+                            }
+                        };
+                        
+                        speechSynthesis.speak(utterance);
+                        console.log('🔊 Playing sorry message audio:', sorryMessage);
+                    }, 100);
                 }
+                
+                // Mobile error beep for additional feedback
+                if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
+                    playMobileErrorBeep();
+                }
+                
             } else if (error === 'network') {
-                handleNetworkError();
+                // Network error handling with progress bar
+                speakSequenceButton.innerHTML = `
+                    <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+                        <div style="margin-bottom: 6px;">
+                            <span class="error-feedback-blink">📶</span> Connection issue - Try again
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #ffc107, #ff8f00);"></div>
+                        </div>
+                    </div>
+                `;
+                speakSequenceButton.style.background = 'rgba(255, 193, 7, 0.4) !important';
+                speakSequenceButton.style.borderColor = 'rgba(255, 193, 7, 0.8) !important';
+                speakSequenceButton.className = 'quick-btn error-feedback-blink';
+                
+                setTimeout(() => resetToGreenState(), 2500);
+                
             } else if (error === 'not-allowed') {
-                handleMicrophonePermissionError();
+                // Microphone permission error with progress bar
+                speakSequenceButton.innerHTML = `
+                    <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+                        <div style="margin-bottom: 6px;">
+                            <span class="error-feedback-blink">🎤</span> Microphone access needed
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #dc267f, #b91c5c);"></div>
+                        </div>
+                    </div>
+                `;
+                speakSequenceButton.style.background = 'rgba(220, 38, 127, 0.4) !important';
+                speakSequenceButton.style.borderColor = 'rgba(220, 38, 127, 0.8) !important';
+                speakSequenceButton.className = 'quick-btn error-feedback-blink';
+                
+                setTimeout(() => resetToGreenState(), 3000);
+                
             } else {
-                handleGenericError();
+                // Generic error handling with progress bar
+                speakSequenceButton.innerHTML = `
+                    <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+                        <div style="margin-bottom: 6px;">
+                            <span class="error-feedback-blink">⚠️</span> Please try again
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #ffc107, #ff8f00);"></div>
+                        </div>
+                    </div>
+                `;
+                speakSequenceButton.style.background = 'rgba(255, 193, 7, 0.4) !important';
+                speakSequenceButton.style.borderColor = 'rgba(255, 193, 7, 0.8) !important';
+                speakSequenceButton.className = 'quick-btn error-feedback-blink';
+                
+                setTimeout(() => resetToGreenState(), 2000);
             }
         }
     }, 100); // Short delay to ensure nuke completed
-}
-
-// 🎯 MOBILE NO-SPEECH ERROR HANDLER
-function handleMobileNoSpeechError() {
-    // Get next sorry message variation
-    const sorryMessage = getNextSorryMessage();
-    console.log('💬 Using sorry message:', sorryMessage);
-    
-    // Visual feedback with varied "I didn't hear you" messages + PROGRESS BAR
-    speakSequenceButton.innerHTML = `
-        <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
-            <div style="margin-bottom: 6px;">
-                <span class="error-feedback-blink">🔊</span> ${sorryMessage}
-            </div>
-            <div class="progress-bar-container">
-                <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #ff6b6b, #ee5a24);"></div>
-            </div>
-        </div>
-    `;
-    speakSequenceButton.style.background = 'rgba(255, 107, 107, 0.4) !important';
-    speakSequenceButton.style.borderColor = 'rgba(255, 107, 107, 0.8) !important';
-    speakSequenceButton.className = 'quick-btn error-feedback-blink sorry-message-pulse';
-    
-    // Enhanced voice feedback with varied messages (better mobile compatibility)
-    if (typeof speechSynthesis !== 'undefined') {
-        // Clear any existing speech
-        speechSynthesis.cancel();
-        
-        setTimeout(() => {
-            const utterance = new SpeechSynthesisUtterance(sorryMessage);
-            utterance.volume = 0.7;
-            utterance.rate = 1.1;
-            utterance.pitch = 1;
-            
-            // Better mobile compatibility
-            utterance.voice = speechSynthesis.getVoices().find(voice => 
-                voice.name.includes('Google') || voice.default
-            ) || speechSynthesis.getVoices()[0];
-            
-            // 🎯 CRITICAL: ADD LISTENER TO RESTART AFTER SPEECH FINISHES
-            utterance.onend = function() {
-                console.log('🔊 Sorry message finished - going to SPEAK NOW');
-                
-                if (speakSequenceButton && speakSequenceActive) {
-                    // 🎯 GO DIRECTLY TO "SPEAK NOW"
-                    speakSequenceButton.innerHTML = `
-                        <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
-                            <div style="margin-bottom: 6px;">
-                                <span class="green-dot-blink">🟢</span> Speak Now!
-                            </div>
-                            <div class="progress-bar-container">
-                                <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #4caf50, #2e7d32);"></div>
-                            </div>
-                        </div>
-                    `;
-                    speakSequenceButton.style.background = 'rgba(34, 197, 94, 0.4) !important';
-                    speakSequenceButton.style.borderColor = 'rgba(34, 197, 94, 0.8) !important';
-                    speakSequenceButton.className = 'quick-btn green-button-glow';
-                    
-                    console.log('✅ Visual changed to "Speak Now" - waiting before starting listening');
-                    
-                    // 🎯 CRITICAL: WAIT 1.5 SECONDS BEFORE STARTING LISTENING
-                    setTimeout(() => {
-                        if (speakSequenceActive) {
-                            console.log('🔄 NOW starting listening (safe delay completed)');
-                            window.lastRecognitionResult = null;
-                            
-                            if (isContactInterview) {
-                                startContactInterviewListening();
-                            } else {
-                                if (typeof startMobileListening === 'function') {
-                                    startMobileListening();
-                                } else {
-                                    startNormalInterviewListening();
-                                }
-                            }
-                        }
-                    }, 1500); // 1.5 second delay to ensure clean restart
-                }
-            };
-            
-            speechSynthesis.speak(utterance);
-            console.log('🔊 Playing sorry message audio:', sorryMessage);
-        }, 100);
-    }
-    
-    // Mobile error beep for additional feedback
-    if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
-        playMobileErrorBeep();
-    }
-}
-
-// 🎯 DESKTOP NO-SPEECH ERROR HANDLER  
-function handleDesktopNoSpeechError() {
-    // Add your desktop-specific error handling here
-    console.log('🖥️ Desktop no-speech error handling');
-    // For now, just reset to green state
-    resetToGreenState();
-}
-
-// 🎯 NETWORK ERROR HANDLER
-function handleNetworkError() {
-    // Network error handling with progress bar
-    speakSequenceButton.innerHTML = `
-        <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
-            <div style="margin-bottom: 6px;">
-                <span class="error-feedback-blink">📶</span> Connection issue - Try again
-            </div>
-            <div class="progress-bar-container">
-                <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #ffc107, #ff8f00);"></div>
-            </div>
-        </div>
-    `;
-    speakSequenceButton.style.background = 'rgba(255, 193, 7, 0.4) !important';
-    speakSequenceButton.style.borderColor = 'rgba(255, 193, 7, 0.8) !important';
-    speakSequenceButton.className = 'quick-btn error-feedback-blink';
-    
-    setTimeout(() => resetToGreenState(), 2500);
-}
-
-// 🎯 MICROPHONE PERMISSION ERROR HANDLER
-function handleMicrophonePermissionError() {
-    // Microphone permission error with progress bar
-    speakSequenceButton.innerHTML = `
-        <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
-            <div style="margin-bottom: 6px;">
-                <span class="error-feedback-blink">🎤</span> Microphone access needed
-            </div>
-            <div class="progress-bar-container">
-                <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #dc267f, #b91c5c);"></div>
-            </div>
-        </div>
-    `;
-    speakSequenceButton.style.background = 'rgba(220, 38, 127, 0.4) !important';
-    speakSequenceButton.style.borderColor = 'rgba(220, 38, 127, 0.8) !important';
-    speakSequenceButton.className = 'quick-btn error-feedback-blink';
-    
-    setTimeout(() => resetToGreenState(), 3000);
-}
-
-// 🎯 GENERIC ERROR HANDLER
-function handleGenericError() {
-    // Generic error handling with progress bar
-    speakSequenceButton.innerHTML = `
-        <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
-            <div style="margin-bottom: 6px;">
-                <span class="error-feedback-blink">⚠️</span> Please try again
-            </div>
-            <div class="progress-bar-container">
-                <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #ffc107, #ff8f00);"></div>
-            </div>
-        </div>
-    `;
-    speakSequenceButton.style.background = 'rgba(255, 193, 7, 0.4) !important';
-    speakSequenceButton.style.borderColor = 'rgba(255, 193, 7, 0.8) !important';
-    speakSequenceButton.className = 'quick-btn error-feedback-blink';
-    
-    setTimeout(() => resetToGreenState(), 2000);
 }
 
 // Helper function to reset to green listening state with progress bar
@@ -4017,6 +3995,188 @@ function handleSpeechRecognitionResult(event) {
     
     // Process the result normally (existing logic continues)
     // This flag prevents the "no-speech" error from triggering
+}
+    
+    // ✅ START LISTENING
+    setTimeout(() => {
+        console.log('🎤 Starting listening during RED stage...');
+        
+        // Clear any previous result flag
+        window.lastRecognitionResult = null;
+        
+          // Set up enhanced error handling for the recognition session
+    if (typeof recognition !== 'undefined') {
+        // 💣 ADD PRE-EMPTIVE NUKE HERE:
+        recognition.onerror = function(event) {
+            console.log('🚨💣 PRE-EMPTIVE NUKE: Speech error detected');
+            nukeAllListening(); // NUKE FIRST!
+            handleSpeechRecognitionError(event.error);
+        };
+            
+            recognition.onend = function() {
+                handleSpeechRecognitionEnd();
+            };
+            
+            recognition.onresult = function(event) {
+                handleSpeechRecognitionResult(event);
+                // Let the original result handler continue
+                if (typeof originalOnResult === 'function') {
+                    originalOnResult(event);
+                }
+            };
+        }
+        
+        // 🎯 CRITICAL MOBILE DETECTION - ADDED BACK!
+        if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
+            console.log('📱 MOBILE: Setting up enhanced speech recognition handlers');
+            
+            // Enhanced mobile fallback timer
+            const mobileFallbackTimer = setTimeout(() => {
+                if (speakSequenceActive && !window.lastRecognitionResult) {
+                    console.log('📱 MOBILE FALLBACK: No speech detected - triggering sorry message');
+                    handleSpeechRecognitionError('no-speech');
+                }
+            }, 4000); // Mobile gets slightly longer timeout
+        }
+        
+        if (isContactInterview) {
+            startContactInterviewListening();
+        } else {
+            // Use mobile-optimized version if available
+            if (typeof startMobileListening === 'function') {
+                startMobileListening();
+            } else {
+                startNormalInterviewListening();
+            }
+        }
+    }, 800);
+    
+   // ✅ ENHANCED AI SPEAKING DETECTION - PREVENT DUPLICATES
+let speechWatcher = setInterval(() => {
+    if (typeof isSpeaking !== 'undefined' && isSpeaking && speakSequenceActive) {
+        console.log('🔊 AI started speaking - cleaning up ONCE');
+        clearInterval(speechWatcher);
+        if (window.progressInterval) clearInterval(window.progressInterval);
+        
+        // 🛑 ADD FLAG TO PREVENT MULTIPLE CLEANUPS
+        if (!window.cleanupInProgress) {
+            window.cleanupInProgress = true;
+            setTimeout(() => {
+                cleanupSpeakSequence();
+                window.cleanupInProgress = false; // Reset flag
+            }, 2000);
+        }
+    }
+}, 100);
+    
+    // ✅ GREEN TRANSITION
+    const greenTransition = setTimeout(() => {
+        // 🛑 CRITICAL FIX: Check if AI is speaking before transitioning to green
+        if (typeof isSpeaking !== 'undefined' && isSpeaking) {
+            console.log('🔇 AI is speaking - delaying green transition');
+            setTimeout(() => {
+                if (speakSequenceButton && speakSequenceActive) {
+                    performGreenTransition();
+                }
+            }, 1000);
+            return;
+        }
+        
+        if (speakSequenceButton && speakSequenceActive) {
+            performGreenTransition();
+        }
+    }, 1500);
+    
+    function performGreenTransition() {
+        console.log('🟢 Switching to green stage (listening already active)');
+        
+        const progressBar = document.getElementById('readyProgressBar');
+        if (progressBar) {
+            progressBar.style.background = 'linear-gradient(90deg, #4caf50, #2e7d32)';
+            progressBar.style.width = '100%';
+        }
+        
+        speakSequenceButton.innerHTML = `
+            <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+                <div style="margin-bottom: 6px;">
+                    <span class="green-dot-blink">🟢</span> Speak Now!
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #4caf50, #2e7d32);"></div>
+                </div>
+            </div>
+        `;
+        
+        speakSequenceButton.style.cssText = `
+            width: 100% !important;
+            background: rgba(34, 197, 94, 0.4) !important;
+            color: #ffffff !important;
+            border: 2px solid rgba(34, 197, 94, 0.8) !important;
+            padding: 15px !important;
+            min-height: 45px !important;
+            font-weight: bold !important;
+            font-size: 18px !important;
+            border-radius: 20px !important;
+        `;
+        speakSequenceButton.className = 'quick-btn green-button-glow';
+        
+        console.log('✅ Visual changed to green - listening was already started');
+    }
+    
+    // ✅ CLEANUP TIMER
+    speakSequenceCleanupTimer = setTimeout(() => {
+        console.log('⏰ Extended listening time reached - cleaning up');
+        if (speechWatcher) clearInterval(speechWatcher);
+        if (progressInterval) clearInterval(progressInterval);
+        cleanupSpeakSequence();
+    }, 30000);
+}
+
+// 🎯 DETECT CONTACT INTERVIEW MODE
+function checkContactInterviewMode() {
+    const indicators = [
+        typeof isInLeadCapture !== 'undefined' && isInLeadCapture,
+        typeof currentConversationState !== 'undefined' && 
+            (currentConversationState.includes('email') || 
+             currentConversationState.includes('contact') ||
+             currentConversationState.includes('lead')),
+        document.querySelector('[id*="email"]') !== null,
+        document.querySelector('[id*="contact"]') !== null,
+        document.querySelector('[id*="lead"]') !== null
+    ];
+    
+    return indicators.some(indicator => indicator === true);
+}
+
+// 🎯 NORMAL INTERVIEW LISTENING 
+function startNormalInterviewListening() {
+    const userInput = document.getElementById('userInput');
+    if (userInput) {
+        userInput.value = '';
+        console.log('🧹 Cleared userInput field (normal mode)');
+    }
+    
+    setTimeout(() => {
+        if (typeof startListening === 'function') {
+            try {
+                startListening();
+                console.log('✅ Normal startListening() called successfully');
+            } catch (error) {
+                console.error('❌ Normal startListening() error:', error);
+            }
+        }
+    }, 50);
+    
+    setTimeout(() => {
+        if (typeof forceStartListening === 'function' && !isListening) {
+            try {
+                console.log('🔄 Normal backup: calling forceStartListening()');
+                forceStartListening();
+            } catch (error) {
+                console.error('❌ Normal forceStartListening() error:', error);
+            }
+        }
+    }, 150);
 }
 
 // 🎯 CONTACT INTERVIEW LISTENING 
