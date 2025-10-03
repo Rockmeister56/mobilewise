@@ -264,7 +264,7 @@ const shouldUseMobileSystem = isDefinitelyMobile && isRealMobile;
 
 if (shouldUseMobileSystem) {
     console.log('📱 REAL Mobile: Using visual feedback system');
-    handleMobileNoSpeechError();
+    handleSpeechRecognitionError('no-speech');
 } else {
     console.log('🖥️ Desktop: Using simple voice system');
     handleDesktopNoSpeechError(); // This should reset to green state
