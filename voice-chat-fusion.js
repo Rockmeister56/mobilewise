@@ -3490,20 +3490,19 @@ function handleDesktopSorryMessage(error) {
         }
     }
 }
-
 // ✅ MAIN FUNCTION WITH ALL FIXES
 function showHybridReadySequence() {
     // ✅ CALL MOBILE STABILITY FIRST
     applyMobileStability();
     setupMobileTouchEvents();
 
-    // ✅ SUPER SIMPLE SESSION MANAGEMENT
+    // ✅ SESSION MANAGEMENT - ONLY ONCE
     if (speakSequenceActive) {
-        console.log('🔄 Speak sequence already active - continuing anyway');
-        // That's it - no return, no cleanup, just log and continue
+        console.log('🔇 HYBRID BLOCKED: Session already active - use existing one');
+        return; // 🛑 STOP here - don't create multiple sessions
     }
-    
-    // ✅ BASIC BLOCKING CHECKS
+
+    // ✅ BASIC BLOCKING CHECKS - ONLY ONCE
     if (typeof BannerOrchestrator !== 'undefined' && 
         BannerOrchestrator.currentBanner === 'smartButton') {
         console.log('🔇 HYBRID BLOCKED: Smart Button active');
@@ -4040,17 +4039,21 @@ function handleSpeechRecognitionResult(event) {
         }
     }, 800);
     
-   // ✅ ENHANCED AI SPEAKING DETECTION WITH BETTER TIMING
+   // ✅ ENHANCED AI SPEAKING DETECTION - PREVENT DUPLICATES
 let speechWatcher = setInterval(() => {
     if (typeof isSpeaking !== 'undefined' && isSpeaking && speakSequenceActive) {
-        console.log('🔊 AI started speaking - auto-cleaning up speak sequence');
+        console.log('🔊 AI started speaking - cleaning up ONCE');
         clearInterval(speechWatcher);
-        if (window.progressInterval) clearInterval(window.progressInterval); // ← FIX THIS LINE
+        if (window.progressInterval) clearInterval(window.progressInterval);
         
-        // 🛑 CRITICAL FIX: Add a small delay to ensure AI speech is fully captured
-        setTimeout(() => {
-            cleanupSpeakSequence();
-        }, 2000);
+        // 🛑 ADD FLAG TO PREVENT MULTIPLE CLEANUPS
+        if (!window.cleanupInProgress) {
+            window.cleanupInProgress = true;
+            setTimeout(() => {
+                cleanupSpeakSequence();
+                window.cleanupInProgress = false; // Reset flag
+            }, 2000);
+        }
     }
 }, 100);
     
