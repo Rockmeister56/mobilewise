@@ -250,6 +250,42 @@ if (shouldUseMobileSystem) {
     handleDesktopNoSpeechError(); // This should reset to green state
 }
 
+// 📱 MOBILE LISTENING - SIMPLE VERSION
+function startMobileListening() {
+    console.log('📱 MOBILE: Starting listening (using normal system)');
+    startNormalInterviewListening();
+}
+
+// 🖥️ DESKTOP ERROR HANDLER - ADD THIS FUNCTION
+function handleDesktopNoSpeechError() {
+    console.log('🖥️ DESKTOP: Handling no-speech error with simple reset');
+    
+    // For desktop, just reset to green state immediately
+    if (speakSequenceButton && speakSequenceActive) {
+        speakSequenceButton.innerHTML = `
+            <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+                <div style="margin-bottom: 6px;">
+                    <span class="green-dot-blink">🟢</span> Speak Now!
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #4caf50, #2e7d32);"></div>
+                </div>
+            </div>
+        `;
+        speakSequenceButton.style.background = 'rgba(34, 197, 94, 0.4) !important';
+        speakSequenceButton.style.borderColor = 'rgba(34, 197, 94, 0.8) !important';
+        speakSequenceButton.className = 'quick-btn green-button-glow';
+    }
+    
+    // Restart listening for desktop (simple approach)
+    setTimeout(() => {
+        if (speakSequenceActive) {
+            window.lastRecognitionResult = null;
+            startNormalInterviewListening();
+        }
+    }, 500);
+}
+
 // ===================================================
 // 🎤 MICROPHONE PERMISSION SYSTEM
 // ===================================================
