@@ -96,6 +96,8 @@ if (typeof window.conversationState === 'undefined') {
 // ===================================================
 // 🏗️ GLOBAL VARIABLES
 // ===================================================
+let userHasInteracted = false
+canAutoStart() 
 let recognition = null;
 let isListening = false;
 let isSpeaking = false;
@@ -113,7 +115,6 @@ let lastMessageWasApology = false;
 let isInLeadCapture = false;
 let speechDetected = false;
 let currentAIResponse = '';
-let userHasInteracted = false;
 window.leadData = window.leadData || {
     firstName: '',
     step: 0,
