@@ -3967,28 +3967,6 @@ setTimeout(() => {
        console.log('✅ Visual changed to green - listening was already started');
    }
 
-   // ✅ PROGRESS BAR ANIMATION - ADD THIS MISSING CODE
-progress = 0;
-window.progressInterval = setInterval(() => {
-    progress += 6.67;
-    const progressBar = document.getElementById('readyProgressBar');
-    if (progressBar) {
-        progressBar.style.width = progress + '%';
-    }
-    if (progress >= 100) {
-        clearInterval(window.progressInterval);
-    }
-}, 100);
-
-// ✅ CLEANUP TIMER
-speakSequenceCleanupTimer = setTimeout(() => {
-    console.log('⏰ Extended listening time reached - cleaning up');
-    if (speechWatcher) clearInterval(speechWatcher);
-    if (window.progressInterval) clearInterval(window.progressInterval); // ← Use window.progressInterval
-    cleanupSpeakSequence();
-}, 8000);
-}
-
 // Helper function to reset to green listening state with progress bar
 function resetToGreenState() {
     // 🛑 CRITICAL FIX: Check if AI is speaking before resetting
@@ -4060,15 +4038,16 @@ function handleSpeechRecognitionResult(event) {
     // This flag prevents the "no-speech" error from triggering
 }
     
-    // ✅ START LISTENING
-    setTimeout(() => {
-        console.log('🎤 Starting listening during RED stage...');
-        
-        // Clear any previous result flag
-        window.lastRecognitionResult = null;
-        
-          // Set up enhanced error handling for the recognition session
-    if (typeof recognition !== 'undefined') {
+   // ✅ START LISTENING
+setTimeout(() => {
+    console.log('🎤 Starting listening during RED stage...');
+    
+    // Clear any previous result flag
+    window.lastRecognitionResult = null;
+    
+    // 🛑 CRITICAL: ADD NULL CHECK HERE
+    if (typeof recognition !== 'undefined' && recognition !== null) {
+        // Set up enhanced error handling for the recognition session
         // 💣 ADD PRE-EMPTIVE NUKE HERE:
         recognition.onerror = function(event) {
             console.log('🚨💣 PRE-EMPTIVE NUKE: Speech error detected');
@@ -4076,18 +4055,27 @@ function handleSpeechRecognitionResult(event) {
             handleSpeechRecognitionError(event.error);
         };
             
-            recognition.onend = function() {
-                handleSpeechRecognitionEnd();
-            };
+        recognition.onend = function() {
+            handleSpeechRecognitionEnd();
+        };
             
-            recognition.onresult = function(event) {
-                handleSpeechRecognitionResult(event);
-                // Let the original result handler continue
-                if (typeof originalOnResult === 'function') {
-                    originalOnResult(event);
-                }
-            };
+        recognition.onresult = function(event) {
+            handleSpeechRecognitionResult(event);
+            // Let the original result handler continue
+            if (typeof originalOnResult === 'function') {
+                originalOnResult(event);
+            }
+        };
+        
+        console.log('✅ Recognition handlers set up successfully');
+    } else {
+        console.log('❌ recognition is null or undefined - skipping handler setup');
+        // 🛑 TRY TO INITIALIZE RECOGNITION IF IT'S NULL
+        if (!recognition) {
+            console.log('🔄 Attempting to initialize recognition...');
+            initializeSpeechRecognition(); // Or whatever creates recognition
         }
+    }
         
         // 🎯 CRITICAL MOBILE DETECTION - ADDED BACK!
         if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
@@ -4113,6 +4101,8 @@ function handleSpeechRecognitionResult(event) {
             }
         }
     }, 800);
+
+    }
     
     // ✅ ENHANCED AI SPEAKING DETECTION WITH BETTER TIMING
     let speechWatcher = setInterval(() => {
@@ -4182,14 +4172,26 @@ function handleSpeechRecognitionResult(event) {
         console.log('✅ Visual changed to green - listening was already started');
     }
     
-    // ✅ CLEANUP TIMER
-    speakSequenceCleanupTimer = setTimeout(() => {
-        console.log('⏰ Extended listening time reached - cleaning up');
-        if (speechWatcher) clearInterval(speechWatcher);
-        if (progressInterval) clearInterval(progressInterval);
-        cleanupSpeakSequence();
-    }, 8000);
-  
+    // ✅ PROGRESS BAR ANIMATION - JUST RESET EXISTING VARIABLE
+progress = 0;  // ← NO 'let' - just reset the existing variable
+window.progressInterval = setInterval(() => {
+    progress += 6.67;
+    const progressBar = document.getElementById('readyProgressBar');
+    if (progressBar) {
+        progressBar.style.width = progress + '%';
+    }
+    if (progress >= 100) {
+        clearInterval(window.progressInterval);
+    }
+}, 100);
+
+// ✅ CLEANUP TIMER
+speakSequenceCleanupTimer = setTimeout(() => {
+    console.log('⏰ Extended listening time reached - cleaning up');
+    if (speechWatcher) clearInterval(speechWatcher);
+    if (window.progressInterval) clearInterval(window.progressInterval);
+    cleanupSpeakSequence();
+}, 8000);
 
 // 🎯 DETECT CONTACT INTERVIEW MODE
 function checkContactInterviewMode() {
