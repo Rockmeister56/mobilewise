@@ -655,6 +655,7 @@ function startSmartListening() {
     }
 }
 
+// 🎯 AUTO-START CONTROLLER - STRICTER MOBILE BLOCKING
 function canAutoStart() {
     const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
     
@@ -663,13 +664,13 @@ function canAutoStart() {
     console.log('🔍 userHasInteracted:', userHasInteracted);
     console.log('🔍 navigator.userAgent:', navigator.userAgent);
     
-    // Only block auto-start on mobile before first interaction
-    if (isMobile && !userHasInteracted) {
-        console.log('📱 Mobile auto-start blocked - waiting for user interaction');
-        return false;
+    // 🛑 STRICTER MOBILE BLOCKING - NEVER auto-start on mobile
+    if (isMobile) {
+        console.log('📱 MOBILE: Auto-start COMPLETELY BLOCKED - manual only');
+        return false; // Never auto-start on mobile, period
     }
     
-    console.log('✅ Auto-start allowed');
+    console.log('✅ Auto-start allowed (desktop only)');
     return true;
 }
 
