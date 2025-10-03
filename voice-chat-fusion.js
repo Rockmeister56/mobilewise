@@ -3847,6 +3847,27 @@ function startFreshHybridSequence() {
        
        // Clear any previous result flag
        window.lastRecognitionResult = null;
+
+        // 🛑 ADD NULL CHECK HERE:
+    if (typeof recognition !== 'undefined' && recognition !== null) {
+        recognition.onerror = function(event) {
+            console.log('🚨 Speech error:', event.error);
+            handleSpeechRecognitionError(event.error);
+        };
+        
+        recognition.onend = function() {
+            handleSpeechRecognitionEnd();
+        };
+        
+        recognition.onresult = function(event) {
+            handleSpeechRecognitionResult(event);
+            if (typeof originalOnResult === 'function') {
+                originalOnResult(event);
+            }
+        };
+    } else {
+        console.log('❌ recognition is null or undefined - skipping handler setup');
+    }
        
        // Set up enhanced error handling for the recognition session
        if (typeof recognition !== 'undefined') {
@@ -3962,14 +3983,27 @@ function startFreshHybridSequence() {
        
        console.log('✅ Visual changed to green - listening was already started');
    }
-   
-   // ✅ CLEANUP TIMER
-   speakSequenceCleanupTimer = setTimeout(() => {
-       console.log('⏰ Extended listening time reached - cleaning up');
-       if (speechWatcher) clearInterval(speechWatcher);
-       if (progressInterval) clearInterval(progressInterval);
-       cleanupSpeakSequence();
-   }, 8000);
+
+   // ✅ PROGRESS BAR ANIMATION - ADD THIS MISSING CODE
+progress = 0;
+window.progressInterval = setInterval(() => {
+    progress += 6.67;
+    const progressBar = document.getElementById('readyProgressBar');
+    if (progressBar) {
+        progressBar.style.width = progress + '%';
+    }
+    if (progress >= 100) {
+        clearInterval(window.progressInterval);
+    }
+}, 100);
+
+// ✅ CLEANUP TIMER
+speakSequenceCleanupTimer = setTimeout(() => {
+    console.log('⏰ Extended listening time reached - cleaning up');
+    if (speechWatcher) clearInterval(speechWatcher);
+    if (window.progressInterval) clearInterval(window.progressInterval); // ← Use window.progressInterval
+    cleanupSpeakSequence();
+}, 8000);
 }
 
 // Helper function to reset to green listening state with progress bar
@@ -4271,9 +4305,23 @@ function startContactInterviewListening() {
 
 // Enhanced cleanup function
 function cleanupSpeakSequence() {
-    // 🛑 CRITICAL: RE-ENABLE FUTURE SESSIONS
+
+     // 🛑 CRITICAL: RE-ENABLE FUTURE SESSIONS
     window.speakSequenceBlocked = false;
     speakSequenceActive = false;
+    
+    console.log('🧹 Cleaning up speak sequence');
+    
+    if (speakSequenceCleanupTimer) {
+        clearTimeout(speakSequenceCleanupTimer);
+        speakSequenceCleanupTimer = null;
+    }
+    
+    // 🛑 ADD CLEANUP FOR progressInterval
+    if (window.progressInterval) {
+        clearInterval(window.progressInterval);
+        window.progressInterval = null;
+    }
     
     console.log('🧹 Cleaning up speak sequence');
     
