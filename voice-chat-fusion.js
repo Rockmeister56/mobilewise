@@ -3491,7 +3491,7 @@ function handleDesktopSorryMessage(error) {
     }
 }
 
-    // ✅ CALL MOBILE STABILITY FIRST
+// ✅ CALL MOBILE STABILITY FIRST
 applyMobileStability();
 setupMobileTouchEvents();
 
@@ -3510,8 +3510,6 @@ function startFreshSequence() {
     window.lastSequenceStart = Date.now();
     speakSequenceActive = true;
     console.log('🎬 Starting FRESH speak sequence...');
-    // ... continue with the rest of your sequence code
-}
     
     // ✅ BASIC BLOCKING CHECKS
     if (typeof BannerOrchestrator !== 'undefined' && 
