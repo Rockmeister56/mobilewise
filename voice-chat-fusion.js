@@ -4172,7 +4172,7 @@ function handleSpeechRecognitionResult(event) {
         if (progressInterval) clearInterval(progressInterval);
         cleanupSpeakSequence();
     }, 8000);
-}
+  
 
 // 🎯 DETECT CONTACT INTERVIEW MODE
 function checkContactInterviewMode() {
