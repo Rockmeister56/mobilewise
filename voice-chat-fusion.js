@@ -3727,52 +3727,36 @@ function showHybridReadySequence() {
         }
     }, 100);
     
-   // 🎯 ENHANCED SPEECH RECOGNITION ERROR HANDLER WITH MULTIPLE SORRY MESSAGES
 function handleSpeechRecognitionError(error) {
-    console.log('🚨💣 NUCLEAR: Speech recognition error detected - KILLING ALL LISTENING');
-
-    // 💣 CALL GLOBAL NUKE FUNCTION
-    nukeAllListening();
+    console.log('🚨 Speech recognition error:', error);
     
-    // Wait a moment to ensure everything is dead
-    setTimeout(() => {
-        console.log('🚨 Now handling error after nuclear cleanup:', error);
-        
-        // 💣 NUKE ALL LISTENING IMMEDIATELY (redundant but safe)
-        if (typeof recognition !== 'undefined') {
-            try {
-                recognition.onresult = null; // Disable result handler FIRST
-                recognition.onerror = null;   // Disable error handler  
-                recognition.onend = null;     // Disable end handler
-                recognition.stop();           // Stop recognition
-                console.log('💣 NUKED: Recognition stopped and handlers disabled');
-            } catch (e) {
-                console.log('💣 NUKED: Recognition nuked successfully');
-            }
-        }
-        
-        // 🛑 CRITICAL FIX: Check if AI is currently speaking before showing error
-        if (typeof isSpeaking !== 'undefined' && isSpeaking) {
-            console.log('🔇 AI is currently speaking - blocking error message to prevent overlap');
-            return;
-        }
-        
-        if (speakSequenceButton && speakSequenceActive) {
-            if (error === 'no-speech') {
-    // ✅ FIXED MOBILE DETECTION - KEEPS MOBILE WORKING, FIXES DESKTOP
-    const isNuclearMobile = window.innerWidth <= 768 || window.innerHeight <= 1024;
+    // 🛑 USE THE EXACT SAME LOGIC AS showHybridReadySequence
+    const isDefinitelyMobile = window.innerWidth <= 768 || window.innerHeight <= 1024;
     const isRealMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
-    const shouldUseMobileSystem = isNuclearMobile && isRealMobile;
+    const shouldUseMobileSystem = isDefinitelyMobile && isRealMobile;
     
-    if (shouldUseMobileSystem) {
-        console.log('📱 REAL Mobile: Using visual feedback system');
-        // ... your existing mobile visual code continues
-    } else {
-        console.log('🖥️ Desktop: Using voice system');
-        // Add desktop voice code here (your original working code)
-        handleDesktopSorryMessage(error);
-        return; // Stop here for desktop
+    // 🛑 SIMPLE: Just stop current recognition (NO NUCLEAR NUKING)
+    if (typeof recognition !== 'undefined') {
+        try {
+            recognition.stop();
+            console.log('🔇 Stopped recognition');
+        } catch (e) {
+            console.log('🔇 Recognition already stopped');
+        }
     }
+    
+    // 🛑 CRITICAL FIX: Check if AI is currently speaking before showing error
+    if (typeof isSpeaking !== 'undefined' && isSpeaking) {
+        console.log('🔇 AI is currently speaking - blocking error message to prevent overlap');
+        return;
+    }
+    
+    if (speakSequenceButton && speakSequenceActive) {
+        if (error === 'no-speech') {
+            if (shouldUseMobileSystem) {
+                console.log('📱 MOBILE ERROR: Using visual feedback');
+                // ... your existing mobile visual code continues HERE
+                // KEEP ALL YOUR MOBILE SORRY MESSAGE CODE FROM BEFORE
                 
                 // Get next sorry message variation
                 const sorryMessage = getNextSorryMessage();
@@ -3861,63 +3845,67 @@ function handleSpeechRecognitionError(error) {
                     playMobileErrorBeep();
                 }
                 
-            } else if (error === 'network') {
-                // Network error handling with progress bar
-                speakSequenceButton.innerHTML = `
-                    <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
-                        <div style="margin-bottom: 6px;">
-                            <span class="error-feedback-blink">📶</span> Connection issue - Try again
-                        </div>
-                        <div class="progress-bar-container">
-                            <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #ffc107, #ff8f00);"></div>
-                        </div>
-                    </div>
-                `;
-                speakSequenceButton.style.background = 'rgba(255, 193, 7, 0.4) !important';
-                speakSequenceButton.style.borderColor = 'rgba(255, 193, 7, 0.8) !important';
-                speakSequenceButton.className = 'quick-btn error-feedback-blink';
-                
-                setTimeout(() => resetToGreenState(), 2500);
-                
-            } else if (error === 'not-allowed') {
-                // Microphone permission error with progress bar
-                speakSequenceButton.innerHTML = `
-                    <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
-                        <div style="margin-bottom: 6px;">
-                            <span class="error-feedback-blink">🎤</span> Microphone access needed
-                        </div>
-                        <div class="progress-bar-container">
-                            <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #dc267f, #b91c5c);"></div>
-                        </div>
-                    </div>
-                `;
-                speakSequenceButton.style.background = 'rgba(220, 38, 127, 0.4) !important';
-                speakSequenceButton.style.borderColor = 'rgba(220, 38, 127, 0.8) !important';
-                speakSequenceButton.className = 'quick-btn error-feedback-blink';
-                
-                setTimeout(() => resetToGreenState(), 3000);
-                
             } else {
-                // Generic error handling with progress bar
-                speakSequenceButton.innerHTML = `
-                    <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
-                        <div style="margin-bottom: 6px;">
-                            <span class="error-feedback-blink">⚠️</span> Please try again
-                        </div>
-                        <div class="progress-bar-container">
-                            <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #ffc107, #ff8f00);"></div>
-                        </div>
-                    </div>
-                `;
-                speakSequenceButton.style.background = 'rgba(255, 193, 7, 0.4) !important';
-                speakSequenceButton.style.borderColor = 'rgba(255, 193, 7, 0.8) !important';
-                speakSequenceButton.className = 'quick-btn error-feedback-blink';
-                
-                setTimeout(() => resetToGreenState(), 2000);
+                console.log('🖥️ DESKTOP ERROR: Using voice system');
+                handleDesktopSorryMessage(error);
+                return; // Stop here for desktop
             }
+        } else if (error === 'network') {
+            // Network error handling with progress bar
+            speakSequenceButton.innerHTML = `
+                <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+                    <div style="margin-bottom: 6px;">
+                        <span class="error-feedback-blink">📶</span> Connection issue - Try again
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #ffc107, #ff8f00);"></div>
+                    </div>
+                </div>
+            `;
+            speakSequenceButton.style.background = 'rgba(255, 193, 7, 0.4) !important';
+            speakSequenceButton.style.borderColor = 'rgba(255, 193, 7, 0.8) !important';
+            speakSequenceButton.className = 'quick-btn error-feedback-blink';
+            
+            setTimeout(() => resetToGreenState(), 2500);
+            
+        } else if (error === 'not-allowed') {
+            // Microphone permission error with progress bar
+            speakSequenceButton.innerHTML = `
+                <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+                    <div style="margin-bottom: 6px;">
+                        <span class="error-feedback-blink">🎤</span> Microphone access needed
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #dc267f, #b91c5c);"></div>
+                    </div>
+                </div>
+            `;
+            speakSequenceButton.style.background = 'rgba(220, 38, 127, 0.4) !important';
+            speakSequenceButton.style.borderColor = 'rgba(220, 38, 127, 0.8) !important';
+            speakSequenceButton.className = 'quick-btn error-feedback-blink';
+            
+            setTimeout(() => resetToGreenState(), 3000);
+            
+        } else {
+            // Generic error handling with progress bar
+            speakSequenceButton.innerHTML = `
+                <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+                    <div style="margin-bottom: 6px;">
+                        <span class="error-feedback-blink">⚠️</span> Please try again
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #ffc107, #ff8f00);"></div>
+                    </div>
+                </div>
+            `;
+            speakSequenceButton.style.background = 'rgba(255, 193, 7, 0.4) !important';
+            speakSequenceButton.style.borderColor = 'rgba(255, 193, 7, 0.8) !important';
+            speakSequenceButton.className = 'quick-btn error-feedback-blink';
+            
+            setTimeout(() => resetToGreenState(), 2000);
         }
-    }, 100); // Short delay to ensure nuke completed
-}
+    }
+} // ← THIS is the missing closing brace for the main function
 
 // Helper function to reset to green listening state with progress bar
 function resetToGreenState() {
