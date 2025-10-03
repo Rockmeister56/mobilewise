@@ -4329,7 +4329,6 @@ function cleanupSpeakSequence() {
         const buttons = quickButtonsContainer.querySelectorAll('.quick-btn');
         buttons.forEach(btn => btn.style.display = '');
     }
-}
 
 // Updated hide function
 function hideSpeakNowBanner() {
