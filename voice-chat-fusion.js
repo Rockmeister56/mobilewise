@@ -272,7 +272,9 @@ if (shouldUseMobileSystem) {
 
 // 🖥️ DESKTOP ERROR HANDLER - ADD THIS FUNCTION
 function handleDesktopNoSpeechError() {
-    console.log('🖥️ DESKTOP: Simple restart for no-speech error');
+    console.log('🖥️ DESKTOP: Simple restart');
+    setTimeout(() => startSmartListening(), 1000);
+}
     
     // 🛑 ULTRA SIMPLE: Just restart listening, no UI changes
     setTimeout(() => {
@@ -280,6 +282,10 @@ function handleDesktopNoSpeechError() {
             startNormalInterviewListening();
         }
     }, 1000);
+
+    function startMobileListening() {
+    console.log('📱 MOBILE: Starting mobile listening');
+    startNormalInterviewListening(); // or your mobile logic
 }
 
 // ===================================================
@@ -484,7 +490,10 @@ function handleDesktopSorryMessage(error) {
         const shouldUseMobileSystem = isDefinitelyMobile && isRealMobile;
 
         if (shouldUseMobileSystem) {
-            console.log('📱📱📱 NUCLEAR MOBILE DETECTED: Using visual feedback system');
+        console.log('📱📱📱 NUCLEAR MOBILE DETECTED: Using visual feedback system');
+        // ✅ SHOULD CALL EXISTING MOBILE FUNCTION:
+         handleSpeechRecognitionError('no-speech');
+         // OR your existing mobile visual feedback code
 
             if (window.noSpeechTimeout) {
                 clearTimeout(window.noSpeechTimeout);
