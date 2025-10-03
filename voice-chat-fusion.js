@@ -3,6 +3,16 @@
 // Smart Button + Lead Capture + EmailJS + Banner System
 // ===================================================
 
+function handleSpeechRecognitionError(error) {
+    alert('🚨 TEMPORARY FUNCTION CALLED: ' + error);
+    console.log('🔇 Quick error handler:', error);
+    setTimeout(() => {
+        if (typeof startSmartListening === 'function') {
+            startSmartListening();
+        }
+    }, 1000);
+}
+
 // 🎯 MOBILE ERROR DETECTOR - ADD AT VERY TOP OF FILE
 window.addEventListener('error', function(e) {
     alert('🚨 CRITICAL ERROR: ' + e.message + ' at line ' + e.lineno);
@@ -16,15 +26,12 @@ window.addEventListener('unhandledrejection', function(e) {
 
 alert('🔍 Mobile error detector active - testing now...');
 
-// 🎯 TEMPORARY FIX - ADD AT VERY TOP
-function handleSpeechRecognitionError(error) {
-    console.log('🔇 Quick error handler:', error);
-    setTimeout(() => {
-        if (typeof startSmartListening === 'function') {
-            startSmartListening();
-        }
-    }, 1000);
-}
+// 🎯 MOBILE DEBUG - ADD AT VERY TOP
+alert('📱 JS FILE LOADING - Testing mobile');
+
+
+
+alert('📱 TEMPORARY FUNCTION ADDED - Testing continues');
 
 // 💣 ADD THIS GLOBAL NUKE FUNCTION AT THE TOP OF YOUR FILE
 function nukeAllListening() {
