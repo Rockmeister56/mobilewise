@@ -3497,19 +3497,13 @@ setupMobileTouchEvents();
 
 // ✅ SIMPLE SESSION MANAGEMENT
 if (speakSequenceActive) {
-    console.log('🔄 Cleaning up previous session first');
-    cleanupSpeakSequence();
-    // Small delay to ensure clean restart
-    setTimeout(() => {
-        startFreshSequence();
-    }, 300);
-    return;
+    console.log('🔄 Speak sequence already active - allowing restart');
+    // Just continue - don't block, don't cleanup
 }
 
-function startFreshSequence() {
-    window.lastSequenceStart = Date.now();
-    speakSequenceActive = true;
-    console.log('🎬 Starting FRESH speak sequence...');
+window.lastSequenceStart = Date.now();
+speakSequenceActive = true;
+console.log('🎬 Starting speak sequence...');
     
     // ✅ BASIC BLOCKING CHECKS
     if (typeof BannerOrchestrator !== 'undefined' && 
