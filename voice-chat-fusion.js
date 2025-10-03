@@ -86,6 +86,21 @@ window.leadData = window.leadData || {
 };
 let leadData = window.leadData;
 
+function getNextSorryMessage() {
+    const sorryMessages = [
+        "I didn't hear you",
+        "Sorry, I missed that", 
+        "Could you repeat that?",
+        "I didn't catch that"
+    ];
+    
+    if (!window.sorryMessageIndex) window.sorryMessageIndex = 0;
+    const message = sorryMessages[window.sorryMessageIndex];
+    window.sorryMessageIndex = (window.sorryMessageIndex + 1) % sorryMessages.length;
+    
+    return message;
+}
+
 // ===================================================
 // 🎯 SPEECH RECOGNITION PRE-WARMING SYSTEM  
 // ===================================================
@@ -600,7 +615,13 @@ function startSmartListening() {
     const isRealMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
     const shouldUseMobileSystem = isDefinitelyMobile && isRealMobile;
     
-    startSmartListening();
+    if (shouldUseMobileSystem && typeof startMobileListening === 'function') {
+        console.log('📱 SMART: Starting mobile listening');
+        startMobileListening();
+    } else {
+        console.log('🖥️ SMART: Starting normal listening');
+        startNormalInterviewListening();
+    }
 }
 
 // ===================================================
@@ -3566,13 +3587,6 @@ function showHybridReadySequence() {
         "I didn't quite get that",
         "Sorry, please speak again"
     ];
-    
-    // Function to get next sorry message (rotates through array)
-    function getNextSorryMessage() {
-        const message = sorryMessages[window.errorMessageIndex];
-        window.errorMessageIndex = (window.errorMessageIndex + 1) % sorryMessages.length;
-        return message;
-    }
     
     // ✅ CONTACT INTERVIEW DETECTION
     const isContactInterview = checkContactInterviewMode();
