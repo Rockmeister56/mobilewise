@@ -3,52 +3,25 @@
 // Smart Button + Lead Capture + EmailJS + Banner System
 // ===================================================
 
-// 🎯 MICROPHONE ACCESS TEST
-function testMicrophoneAccess() {
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        alert('❌ Media Devices API not supported on this browser');
-        return;
-    }
-    
-    navigator.mediaDevices.getUserMedia({ audio: true })
-        .then(stream => {
-            alert('✅ Microphone ACCESS GRANTED - Should work!');
-            // Clean up
-            stream.getTracks().forEach(track => track.stop());
-        })
-        .catch(err => {
-            alert('❌ Microphone BLOCKED: ' + err.name + ' - ' + err.message);
-        });
+// 🎯 SIMPLE MOBILE DIAGNOSTIC
+console.log('📱 Mobile diagnostic started');
+
+// Check basic speech recognition
+if ('webkitSpeechRecognition' in window) {
+    console.log('✅ Speech Recognition: AVAILABLE');
+} else {
+    console.log('❌ Speech Recognition: NOT AVAILABLE');
 }
 
-// Test when mic button is clicked
-document.addEventListener('click', function(event) {
-    if (event.target.matches('[id*="mic"], [class*="mic"], button')) {
-        console.log('🎤 Mic button clicked - testing access');
-        testMicrophoneAccess();
-    }
-});
-
-// 🎯 SPEECH RECOGNITION TEST
-function testSpeechRecognition() {
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-        alert('✅ Speech Recognition: AVAILABLE');
-        return true;
+// Check if recognition object exists
+setTimeout(() => {
+    if (typeof recognition !== 'undefined') {
+        console.log('✅ Recognition object: EXISTS');
+        console.log('🔍 Recognition state:', recognition.readyState);
     } else {
-        alert('❌ Speech Recognition: NOT AVAILABLE on this browser');
-        return false;
+        console.log('❌ Recognition object: MISSING');
     }
-}
-
-function handleSpeechRecognitionError(error) {
-    alert('🚨 TEMPORARY FUNCTION CALLED: ' + error);
-    console.log('🔇 Quick error handler:', error);
-    setTimeout(() => {
-        if (typeof startSmartListening === 'function') {
-            startSmartListening();
-        }
-    }, 1000);
-}
+}, 2000);
 
 // 💣 ADD THIS GLOBAL NUKE FUNCTION AT THE TOP OF YOUR FILE
 function nukeAllListening() {
