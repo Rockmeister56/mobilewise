@@ -3,6 +3,8 @@
 // Smart Button + Lead Capture + EmailJS + Banner System
 // ===================================================
 
+alert('📱 Mobile JS loaded - testing');
+
 // 💣 ADD THIS GLOBAL NUKE FUNCTION AT THE TOP OF YOUR FILE
 function nukeAllListening() {
     console.log('💣 GLOBAL NUKE: Killing all speech recognition');
