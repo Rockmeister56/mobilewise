@@ -374,6 +374,15 @@ function getApologyResponse() {
     
     return sorryMessages[Math.floor(Math.random() * sorryMessages.length)];
 }
+
+function handleDesktopSorryMessage(error) {
+    console.log('🖥️ DESKTOP: Handling sorry message for', error);
+    
+    // Simple desktop approach - just restart
+    setTimeout(() => {
+        startSmartListening();
+    }, 1000);
+}
     
   // ===================================================
 // 🎤 START LISTENING new function
