@@ -3563,42 +3563,48 @@ function showHybridReadySequence() {
         "Sorry, please speak again"
     ];
     
-    // Function to get next sorry message (rotates through array)
-    function getNextSorryMessage() {
-        const message = sorryMessages[window.errorMessageIndex];
-        window.errorMessageIndex = (window.errorMessageIndex + 1) % sorryMessages.length;
-        return message;
-    }
-    
-    // ✅ CONTACT INTERVIEW DETECTION
-    const isContactInterview = checkContactInterviewMode();
-    console.log('📧 Contact interview mode:', isContactInterview);
-    
-    // ✅ FIND CONTAINER
-    const quickButtonsContainer = document.querySelector('.quick-questions') || 
-                                  document.querySelector('.quick-buttons') || 
-                                  document.getElementById('quickButtonsContainer');
-    
-    if (!quickButtonsContainer) {
-        console.log('❌ Quick buttons container not found');
+   // Function to get next sorry message (rotates through array)
+function getNextSorryMessage() {
+    const message = sorryMessages[window.errorMessageIndex];
+    window.errorMessageIndex = (window.errorMessageIndex + 1) % sorryMessages.length;
+    return message;
+}
+
+// 🎯 MARK THAT SORRY MESSAGE IS STARTING (PROTECT FROM CLEANUP)
+window.playingSorryMessage = true;
+
+// ✅ CONTACT INTERVIEW DETECTION
+const isContactInterview = checkContactInterviewMode();
+console.log('📧 Contact interview mode:', isContactInterview);
+
+// ✅ FIND CONTAINER
+const quickButtonsContainer = document.querySelector('.quick-questions') || 
+                              document.querySelector('.quick-buttons') || 
+                              document.getElementById('quickButtonsContainer');
+
+if (!quickButtonsContainer) {
+    console.log('❌ Quick buttons container not found');
+    // 🎯 CLEANUP PROTECTION: Only set false if not in sorry message
+    if (!window.playingSorryMessage) {
         speakSequenceActive = false;
-        return;
     }
-    
-    // ✅ HIDE EXISTING BUTTONS
-    const existingButtons = quickButtonsContainer.querySelectorAll('.quick-btn');
-    existingButtons.forEach(btn => btn.style.display = 'none');
-    
-    const existingSpeakBtn = document.getElementById('speak-sequence-button');
-    if (existingSpeakBtn) {
-        existingSpeakBtn.remove();
-    }
-    
-    // Remove any existing click prompts
-    const existingPrompt = document.getElementById('click-button-prompt');
-    if (existingPrompt) {
-        existingPrompt.remove();
-    }
+    return;
+}
+
+// ✅ HIDE EXISTING BUTTONS
+const existingButtons = quickButtonsContainer.querySelectorAll('.quick-btn');
+existingButtons.forEach(btn => btn.style.display = 'none');
+
+const existingSpeakBtn = document.getElementById('speak-sequence-button');
+if (existingSpeakBtn) {
+    existingSpeakBtn.remove();
+}
+
+// Remove any existing click prompts
+const existingPrompt = document.getElementById('click-button-prompt');
+if (existingPrompt) {
+    existingPrompt.remove();
+}
     
     // ✅ ADD STYLES ONCE
     if (!document.getElementById('speak-sequence-styles')) {
@@ -4261,12 +4267,18 @@ function startContactInterviewListening() {
 
 // Enhanced cleanup function
 function cleanupSpeakSequence() {
-     // 🛑 CRITICAL: RE-ENABLE FUTURE SESSIONS
+    // 🎯 DON'T CLEANUP DURING SORRY MESSAGES
+    if (window.playingSorryMessage) {
+        console.log('🛡️ Blocking cleanup - sorry message in progress');
+        return; // Exit without cleaning up
+    }
+    
+    // 🛑 CRITICAL: RE-ENABLE FUTURE SESSIONS
     window.speakSequenceBlocked = false;
     speakSequenceActive = false;
     
     console.log('🧹 Cleaning up speak sequence');
-    speakSequenceActive = false;
+    // 🚫 REMOVE THIS DUPLICATE LINE: speakSequenceActive = false;
     
     if (speakSequenceCleanupTimer) {
         clearTimeout(speakSequenceCleanupTimer);
