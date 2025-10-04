@@ -4066,11 +4066,18 @@ setTimeout(() => {
             handleSpeechRecognitionEnd();
         };
         
-        recognition.onresult = function(event) {
-            handleSpeechRecognitionResult(event);
-            // Let the original result handler continue
-            if (typeof originalOnResult === 'function') {
-                originalOnResult(event);
+       recognition.onresult = function(event) {
+    // 🎯 CANCEL FALLBACK TIMER WHEN SPEECH DETECTED
+    if (window.mobileFallbackTimer) {
+        console.log('⏰ Canceling mobile fallback timer - speech detected!');
+        clearTimeout(window.mobileFallbackTimer);
+        window.mobileFallbackTimer = null;
+    }
+    
+    handleSpeechRecognitionResult(event);
+    // Let the original result handler continue
+    if (typeof originalOnResult === 'function') {
+        originalOnResult(event);
             }
         };
     }
@@ -4080,7 +4087,7 @@ setTimeout(() => {
         console.log('📱 MOBILE: Setting up enhanced speech recognition handlers');
         
         // Enhanced mobile fallback timer
-        const mobileFallbackTimer = setTimeout(() => {
+           window.mobileFallbackTimer = setTimeout(() => {
             if (speakSequenceActive && !window.lastRecognitionResult) {
                 console.log('📱 MOBILE FALLBACK: No speech detected - triggering sorry message');
                 handleSpeechRecognitionError('no-speech');
