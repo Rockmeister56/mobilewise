@@ -4025,6 +4025,9 @@ function handleSpeechRecognitionEnd() {
 // 🎯 ENHANCED RESULT HANDLER
 function handleSpeechRecognitionResult(event) {
     console.log('✅ Speech recognition result received');
+     console.log('🔍 DEBUG: handleSpeechRecognitionResult CALLED at:', Date.now());
+    console.log('🔍 DEBUG: speakSequenceActive:', speakSequenceActive);
+    console.log('🔍 DEBUG: Event results:', event.results);
     window.lastRecognitionResult = Date.now();
 
         // 🎯 CLOSE SPEAK NOW BANNER WHEN SPEECH SUCCESSFULLY CAPTURED
