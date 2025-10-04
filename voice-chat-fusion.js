@@ -4062,6 +4062,22 @@ setTimeout(() => {
         };
         
         recognition.onend = function() {
+        console.log('🔚 Recognition ended');
+    
+    // 🎯 ADD BANNER CLEANUP HERE - CLOSE WHEN SPEECH SUCCESSFULLY ENDS
+    if (speakSequenceActive) {
+        console.log('✅ Recognition ended with active session - closing Speak Now banner');
+        
+        // Cancel cleanup timer
+        if (speakSequenceCleanupTimer) {
+            clearTimeout(speakSequenceCleanupTimer);
+            speakSequenceCleanupTimer = null;
+        }
+        
+        // Close banner immediately
+        cleanupSpeakSequence();
+    }
+
             handleSpeechRecognitionEnd();
         };
         
