@@ -3,37 +3,6 @@
 // Smart Button + Lead Capture + EmailJS + Banner System
 // ===================================================
 
-// 💣 ADD THIS GLOBAL NUKE FUNCTION AT THE TOP OF YOUR FILE
-// function nukeAllListening() {
-    console.log('💣 GLOBAL NUKE: Killing all speech recognition');
-    
-    // Kill recognition
-    if (typeof recognition !== 'undefined' && recognition) {
-        try {
-            recognition.onresult = null;
-            recognition.onerror = null; 
-           // recognition.onend = null;
-            recognition.stop();
-            console.log('💣 Recognition nuked');
-        } catch (e) {
-            console.log('💣 Recognition already dead');
-        }
-    }
-    
-    // Kill speech synthesis
-    if (typeof speechSynthesis !== 'undefined') {
-        speechSynthesis.cancel();
-        console.log('💣 Speech synthesis nuked');
-    }
-    
-    // Clear timeouts
-    if (window.sorryMessageTimeout) clearTimeout(window.sorryMessageTimeout);
-    if (window.listeningRestartTimeout) clearTimeout(window.listeningRestartTimeout);
-    if (window.mobileFallbackTimer) clearTimeout(window.mobileFallbackTimer);
-    
-    // Reset flags
-    window.lastRecognitionResult = null;
-
 // Add this at the VERY TOP of your JavaScript file (like line 1)
 if (typeof window.leadData === 'undefined' || !window.leadData) {
     window.leadData = { 
