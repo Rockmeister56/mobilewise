@@ -952,107 +952,50 @@ function speakResponseOriginal(message) {
 
     window.speechSynthesis.cancel();
     
-    if (isMobileDevice()) {
-        setTimeout(() => {
-            const utterance = new SpeechSynthesisUtterance(message);
-            
-            utterance.rate = 0.9;
-            utterance.pitch = 1.0;
-            utterance.volume = 0.95;
-            
-            utterance.onstart = function() {
-                isSpeaking = true;
-                console.log('🔊 AI started speaking (mobile)');
-
-                if (isMobileDevice()) {
-                    const micButton = document.getElementById('micButton');
-                    const liveTranscript = document.getElementById('liveTranscript');
-                    if (micButton) micButton.classList.remove('listening');
-                    if (liveTranscript) liveTranscript.style.display = 'none';
-                }
-    
-    if (speakSequenceButton && speakSequenceActive) {
-        // 🎯 GO DIRECTLY TO "SPEAK NOW" - BUT DON'T START LISTENING YET
-        speakSequenceButton.innerHTML = `
-            <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
-                <div style="margin-bottom: 6px;">
-                    <span class="green-dot-blink">🟢</span> Speak Now!
-                </div>
-                <div class="progress-bar-container">
-                    <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #4caf50, #2e7d32);"></div>
-                </div>
-            </div>
-        `;
-        speakSequenceButton.style.background = 'rgba(34, 197, 94, 0.4) !important';
-        speakSequenceButton.style.borderColor = 'rgba(34, 197, 94, 0.8) !important';
-        speakSequenceButton.className = 'quick-btn green-button-glow';
-        
-        console.log('✅ Visual changed to "Speak Now" - waiting before starting listening');
-        
-        // 🎯 CRITICAL: WAIT 1-2 SECONDS BEFORE STARTING LISTENING
-        // This gives time for the "Speak Now" visual to appear AND ensures
-        // any residual "sorry" audio is completely finished
-        setTimeout(() => {
-            if (speakSequenceActive) {
-                console.log('🔄 NOW starting listening (safe delay completed)');
-                window.lastRecognitionResult = null;
-                
-                if (isContactInterview) {
-                    startContactInterviewListening();
-                } else {
-                    if (typeof startMobileListening === 'function') {
-                        startMobileListening();
-                    } else {
-                        startNormalInterviewListening();
-                    }
-                }
-            }
-        }, 1500); // 1.5 second delay to ensure clean restart
-    }
-};
-       
-            
-utterance.onerror = function(event) {
-    console.log('❌ Speech error:', event.error);
-    isSpeaking = false;
-};
-
-window.speechSynthesis.speak(utterance);
-currentAudio = utterance;
-}, 500);
-} else {
     const utterance = new SpeechSynthesisUtterance(message);
     
-    utterance.rate = 1.0;
+    // Consistent settings for both mobile and desktop
+    utterance.rate = isMobileDevice() ? 0.9 : 1.0;
     utterance.pitch = 1.0;
-    utterance.volume = 0.9;
+    utterance.volume = isMobileDevice() ? 0.95 : 0.9;
     
     utterance.onstart = function() {
         isSpeaking = true;
-        console.log('🔊 AI started speaking');
+        console.log('🔊 AI started speaking' + (isMobileDevice() ? ' (mobile)' : ''));
+        
+        // Visual feedback that AI is speaking
+        if (isMobileDevice()) {
+            const micButton = document.getElementById('micButton');
+            const liveTranscript = document.getElementById('liveTranscript');
+            if (micButton) micButton.classList.remove('listening');
+            if (liveTranscript) liveTranscript.style.display = 'none';
+        }
     };
     
     utterance.onend = function() {
-    isSpeaking = false;
-    console.log('🔊 AI finished speaking');
-    
-    // ✅ ADD SMART BUTTON BLOCKING HERE
-    if (document.querySelector('#smartButton') || 
-        document.querySelector('.smart-button') ||
-        document.querySelector('[data-smart-button]') ||
-        document.getElementById('consultationButton')) {
-        console.log('🔇 SIMPLE HANDLER: Smart Button detected - blocking speech');
-        return;
-    }
-    
-    // Check conversation state
-    if (conversationState === 'ended' || conversationState === 'splash_screen_active') {
-        console.log('🔇 SIMPLE HANDLER: Conversation ended - blocking speech');
-        return;
-    }
-    
-    showHybridReadySequence();
-};
+        isSpeaking = false;
+        console.log('🔊 AI finished speaking' + (isMobileDevice() ? ' (mobile)' : ''));
+        
+        // ✅ CONSISTENT: Use the same logic for both mobile and desktop
+        if (document.querySelector('#smartButton') || 
+            document.querySelector('.smart-button') ||
+            document.querySelector('[data-smart-button]') ||
+            document.getElementById('consultationButton')) {
+            console.log('🔇 SIMPLE HANDLER: Smart Button detected - blocking speech');
+            return;
+        }
+        
+        // Check conversation state
+        if (conversationState === 'ended' || conversationState === 'splash_screen_active') {
+            console.log('🔇 SIMPLE HANDLER: Conversation ended - blocking speech');
+            return;
+        }
+        
+        // Wait a moment then start listening
+        setTimeout(() => {
+            showHybridReadySequence();
+        }, 800); // Short delay after speech ends
+    };
     
     utterance.onerror = function(event) {
         console.log('❌ Speech error:', event.error);
@@ -1061,23 +1004,6 @@ currentAudio = utterance;
     
     window.speechSynthesis.speak(utterance);
     currentAudio = utterance;
-}
-
-function addUserMessage(message) {
-    console.log('🎯 DEBUG: addUserMessage called with:', message);
-    console.trace(); // This shows the call stack - WHO called this function
-    
-    const chatMessages = document.getElementById('chatMessages');
-    if (!chatMessages) return;
-    
-    const messageElement = document.createElement('div');
-    messageElement.className = 'message user-message';
-    messageElement.textContent = message;
-    
-    chatMessages.appendChild(messageElement);
-    scrollChatToBottom();
-}
-
 }
 
 // ===========================================
