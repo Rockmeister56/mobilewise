@@ -33,7 +33,6 @@
     
     // Reset flags
     window.lastRecognitionResult = null;
-}
 
 // Add this at the VERY TOP of your JavaScript file (like line 1)
 if (typeof window.leadData === 'undefined' || !window.leadData) {
