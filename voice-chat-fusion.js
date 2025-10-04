@@ -980,24 +980,6 @@ function speakResponseOriginal(message) {
                     if (micButton) micButton.classList.remove('listening');
                     if (liveTranscript) liveTranscript.style.display = 'none';
                 }
-            };
-            
-         //  utterance.onend = function() {
-       // console.log('🔊 Sorry message finished - going to SPEAK NOW');
-
-       utterance.onend = function() {
-    console.log('🔊 Sorry message finished - checking cleanup timer...');
-    console.log('🔍 Cleanup timer exists:', !!window.speakSequenceTimeout);
-    console.log('🔍 speakSequenceActive:', speakSequenceActive);
-    
-    // 🎯 THEN RESTART LISTENING AFTER SORRY MESSAGE
-    if (speakSequenceActive) {
-        setTimeout(() => {
-            console.log('🔊 Attempting to restart listening after sorry message');
-            startNormalInterviewListening();
-        }, 800);
-    }
-
     
     if (speakSequenceButton && speakSequenceActive) {
         // 🎯 GO DIRECTLY TO "SPEAK NOW" - BUT DON'T START LISTENING YET
@@ -3877,11 +3859,10 @@ function handleSpeechRecognitionError(error) {
             cleanupSpeakSequence();
         }, 8000);
         
-        // 🎯 CRITICAL: ACTUALLY RESTART LISTENING!
-        console.log('🎤 CALLING: startNormalInterviewListening()');
-        startNormalInterviewListening();
+        // 🎯 CRITICAL: USE THE CORRECT FUNCTION!
+        console.log('🎤 CALLING: forceStartListening()');
+        forceStartListening();
     }, 800);
-
                             
                             if (speakSequenceButton && speakSequenceActive) {
                                 // 🎯 GO DIRECTLY TO "SPEAK NOW"
