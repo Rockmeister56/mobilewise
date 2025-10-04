@@ -3550,6 +3550,13 @@ function showHybridReadySequence() {
     if (typeof window.errorMessageIndex === 'undefined') {
         window.errorMessageIndex = 0;
     }
+
+    // 🎯 CANCEL THE CLEANUP TIMER WHEN SORRY MESSAGE STARTS
+if (speakSequenceCleanupTimer) {
+    console.log('⏰ Canceling cleanup timer for sorry message');
+    clearTimeout(speakSequenceCleanupTimer);
+    speakSequenceCleanupTimer = null;
+}
     
     const sorryMessages = [
         "I'm sorry, I didn't catch that",
@@ -3849,9 +3856,19 @@ function handleSpeechRecognitionError(error) {
                           //  console.log('🔊 Sorry message finished - going to SPEAK NOW');
 
                           utterance.onend = function() {
+    console.log('🕒 TIMING CHECK: Sorry finished at', Date.now());                       
     console.log('🔊 Sorry message finished - checking cleanup timer...');
     console.log('🔍 Cleanup timer exists:', !!window.speakSequenceTimeout);
     console.log('🔍 speakSequenceActive:', speakSequenceActive);
+    
+    // 🎯 RESTART THE CLEANUP TIMER (fresh 8 seconds)
+    speakSequenceCleanupTimer = setTimeout(() => {
+        console.log('⏰ Extended listening time reached - cleaning up');
+        if (speechWatcher) clearInterval(speechWatcher);
+        if (progressInterval) clearInterval(progressInterval);
+        cleanupSpeakSequence();
+    }, 8000);
+    console.log('⏰ Restarted cleanup timer for 8 seconds');
     
     // 🎯 THEN RESTART LISTENING AFTER SORRY MESSAGE
     if (speakSequenceActive) {
@@ -3860,6 +3877,7 @@ function handleSpeechRecognitionError(error) {
             startNormalInterviewListening();
         }, 800);
     }
+
 
                             
                             if (speakSequenceButton && speakSequenceActive) {
