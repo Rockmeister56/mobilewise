@@ -494,21 +494,24 @@ if (isDefinitelyMobile) {
         window.lastProcessedMessage !== currentMessage || 
         timeSinceLastMessage > 3000) {
         
-        console.log('✅ Sending new message:', currentMessage);
-        
-        // 🎯 ADD BANNER CLEANUP HERE - RIGHT AFTER MESSAGE IS SENT
-        if (typeof speakSequenceActive !== 'undefined' && speakSequenceActive) {
-            console.log('🎯 Closing Speak Now banner - message sent');
-            
-            // Cancel cleanup timer
-            if (speakSequenceCleanupTimer) {
-                clearTimeout(speakSequenceCleanupTimer);
-                speakSequenceCleanupTimer = null;
-            }
-            
-            // Close banner immediately
-            cleanupSpeakSequence();
-        }
+      console.log('✅ Sending new message:', currentMessage);
+
+// 🎯 ADD BANNER CLEANUP HERE - RIGHT AFTER MESSAGE IS SENT
+if (typeof speakSequenceActive !== 'undefined' && speakSequenceActive) {
+    console.log('🎯 Closing Speak Now banner - message sent');
+    
+    // 🎯 RESET SORRY MESSAGE PROTECTION
+    window.playingSorryMessage = false;
+    
+    // Cancel cleanup timer
+    if (speakSequenceCleanupTimer) {
+        clearTimeout(speakSequenceCleanupTimer);
+        speakSequenceCleanupTimer = null;
+    }
+    
+    // Close banner immediately
+    cleanupSpeakSequence();
+}
         
         window.lastProcessedMessage = currentMessage;
         window.lastMessageTime = now;
