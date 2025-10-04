@@ -4,7 +4,7 @@
 // ===================================================
 
 // 💣 ADD THIS GLOBAL NUKE FUNCTION AT THE TOP OF YOUR FILE
-function nukeAllListening() {
+// function nukeAllListening() {
     console.log('💣 GLOBAL NUKE: Killing all speech recognition');
     
     // Kill recognition
