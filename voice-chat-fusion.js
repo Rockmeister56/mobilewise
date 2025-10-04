@@ -1235,10 +1235,10 @@ freeBookWithConsultation: {
                 <!-- Book Info -->
                 <div style="color: white; text-align: left;">
                     <div style="font-size: 18px; font-weight: bold; margin-bottom: 3px;">
-                        📚 <span class="free-glow">FREE</span> Consultation
+                        📚 <span class="free-glow">FREE</span> Consultation & Book
                     </div>
                     <div style="font-size: 13px; color: #00ffb3ff; opacity: 0.95;">
-                        "7 Secrets to Selling Your Practice" Book Included
+                        "7 Secrets to Selling Your Practice" FREE!
                     </div>
                 </div>
             </div>
