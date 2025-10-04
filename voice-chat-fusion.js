@@ -991,7 +991,6 @@ function speakResponseOriginal(message) {
             startNormalInterviewListening();
         }, 800);
     }
-};
     
     if (speakSequenceButton && speakSequenceActive) {
         // 🎯 GO DIRECTLY TO "SPEAK NOW" - BUT DON'T START LISTENING YET
