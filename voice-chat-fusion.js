@@ -4007,21 +4007,17 @@ setTimeout(() => {
     window.lastRecognitionResult = null;
     
     // Set up enhanced error handling for the recognition session
-if (typeof recognition !== 'undefined') {
-    // 🎯 SMARTER ERROR HANDLING:
-    recognition.onerror = function(event) {
-        console.log('🚨 Speech error detected:', event.error);
+    if (typeof recognition !== 'undefined') {
+        // 💣 ADD PRE-EMPTIVE NUKE HERE:
+        recognition.onerror = function(event) {
+            console.log('🚨💣 PRE-EMPTIVE NUKE: Speech error detected');
+            nukeAllListening(); // NUKE FIRST!
+            handleSpeechRecognitionError(event.error);
+        };
         
-        // 🛑 DON'T NUKE ON MOBILE - let the system recover naturally
-        if (!/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
-            console.log('💣 Desktop: Nuking listening');
-            nukeAllListening();
-        } else {
-            console.log('📱 Mobile: Letting system recover naturally');
-        }
-        
-        handleSpeechRecognitionError(event.error);
-    };
+        recognition.onend = function() {
+            handleSpeechRecognitionEnd();
+        };
         
         recognition.onresult = function(event) {
             handleSpeechRecognitionResult(event);
@@ -4042,7 +4038,7 @@ if (typeof recognition !== 'undefined') {
                 console.log('📱 MOBILE FALLBACK: No speech detected - triggering sorry message');
                 handleSpeechRecognitionError('no-speech');
             }
-        }, 8000); // Mobile gets slightly longer timeout
+        }, 4000); // Mobile gets slightly longer timeout
     }
     
     if (isContactInterview) {
