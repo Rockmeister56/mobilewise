@@ -3855,28 +3855,33 @@ function handleSpeechRecognitionError(error) {
                          // utterance.onend = function() {
                           //  console.log('🔊 Sorry message finished - going to SPEAK NOW');
 
-                          utterance.onend = function() {
-    console.log('🕒 TIMING CHECK: Sorry finished at', Date.now());                       
-    console.log('🔊 Sorry message finished - checking cleanup timer...');
-    console.log('🔍 Cleanup timer exists:', !!window.speakSequenceTimeout);
-    console.log('🔍 speakSequenceActive:', speakSequenceActive);
+                         utterance.onend = function() {
+    console.log('🔊 Sorry message finished - FORCING listening restart');
     
-    // 🎯 RESTART THE CLEANUP TIMER (fresh 8 seconds)
-    speakSequenceCleanupTimer = setTimeout(() => {
-        console.log('⏰ Extended listening time reached - cleaning up');
-        if (speechWatcher) clearInterval(speechWatcher);
-        if (progressInterval) clearInterval(progressInterval);
-        cleanupSpeakSequence();
-    }, 8000);
-    console.log('⏰ Restarted cleanup timer for 8 seconds');
-    
-    // 🎯 THEN RESTART LISTENING AFTER SORRY MESSAGE
-    if (speakSequenceActive) {
-        setTimeout(() => {
-            console.log('🔊 Attempting to restart listening after sorry message');
-            startNormalInterviewListening();
-        }, 800);
+    // 🎯 CANCEL ANY EXISTING CLEANUP TIMER
+    if (speakSequenceCleanupTimer) {
+        console.log('⏰ Canceling old cleanup timer');
+        clearTimeout(speakSequenceCleanupTimer);
+        speakSequenceCleanupTimer = null;
     }
+    
+    // 🎯 FORCE RESTART - NO CONDITIONS!
+    setTimeout(() => {
+        console.log('🔊 FORCE RESTARTING listening after sorry message');
+        
+        // 🎯 RESTART CLEANUP TIMER (fresh 8 seconds)
+        speakSequenceCleanupTimer = setTimeout(() => {
+            console.log('⏰ Extended listening time reached - cleaning up');
+            if (speechWatcher) clearInterval(speechWatcher);
+            if (progressInterval) clearInterval(progressInterval);
+            cleanupSpeakSequence();
+        }, 8000);
+        
+        // 🎯 CRITICAL: ACTUALLY RESTART LISTENING!
+        console.log('🎤 CALLING: startNormalInterviewListening()');
+        startNormalInterviewListening();
+    }, 800);
+};
 
 
                             
