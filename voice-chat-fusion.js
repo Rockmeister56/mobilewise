@@ -980,9 +980,18 @@ function speakResponseOriginal(message) {
        // console.log('🔊 Sorry message finished - going to SPEAK NOW');
 
        utterance.onend = function() {
-    console.log('🔊 Sorry message finished - Handler #1 (line 979)');
+    console.log('🔊 Sorry message finished - checking cleanup timer...');
+    console.log('🔍 Cleanup timer exists:', !!window.speakSequenceTimeout);
     console.log('🔍 speakSequenceActive:', speakSequenceActive);
-    console.log('🔍 Button exists:', !!speakSequenceButton);
+    
+    // 🎯 THEN RESTART LISTENING AFTER SORRY MESSAGE
+    if (speakSequenceActive) {
+        setTimeout(() => {
+            console.log('🔊 Attempting to restart listening after sorry message');
+            startNormalInterviewListening();
+        }, 800);
+    }
+};
     
     if (speakSequenceButton && speakSequenceActive) {
         // 🎯 GO DIRECTLY TO "SPEAK NOW" - BUT DON'T START LISTENING YET
@@ -3828,9 +3837,18 @@ function handleSpeechRecognitionError(error) {
                           //  console.log('🔊 Sorry message finished - going to SPEAK NOW');
 
                           utterance.onend = function() {
-                           console.log('🔊 Sorry message finished - Handler #1 (line 979)');
-                            console.log('🔍 speakSequenceActive:', speakSequenceActive);
-                            console.log('🔍 Button exists:', !!speakSequenceButton);
+    console.log('🔊 Sorry message finished - checking cleanup timer...');
+    console.log('🔍 Cleanup timer exists:', !!window.speakSequenceTimeout);
+    console.log('🔍 speakSequenceActive:', speakSequenceActive);
+    
+    // 🎯 THEN RESTART LISTENING AFTER SORRY MESSAGE
+    if (speakSequenceActive) {
+        setTimeout(() => {
+            console.log('🔊 Attempting to restart listening after sorry message');
+            startNormalInterviewListening();
+        }, 800);
+    }
+};
                             
                             if (speakSequenceButton && speakSequenceActive) {
                                 // 🎯 GO DIRECTLY TO "SPEAK NOW"
