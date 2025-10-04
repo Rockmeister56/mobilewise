@@ -3,18 +3,27 @@
 // Smart Button + Lead Capture + EmailJS + Banner System
 // ===================================================
 
+// Find where "✅ Sending new message:" is logged and ADD:
+console.log('✅ Sending new message: ' + message);
+// 🎯 ADD BANNER CLEANUP HERE
+if (typeof speakSequenceActive !== 'undefined' && speakSequenceActive) {
+    console.log('🎯 Closing Speak Now banner - message sent');
+    cleanupSpeakSequence();
+}
+
 // 💣 ADD THIS GLOBAL NUKE FUNCTION AT THE TOP OF YOUR FILE
 function nukeAllListening() {
     console.log('💣 GLOBAL NUKE: Killing all speech recognition');
     
-    // Kill recognition
+    // Kill recognition - BUT KEEP THE ONEND HANDLER!
     if (typeof recognition !== 'undefined') {
         try {
             recognition.onresult = null;
             recognition.onerror = null; 
-            recognition.onend = null;
+            // 🎯 KEEP onend handler! Don't set to null!
+            // recognition.onend = null;  // 🚫 REMOVE THIS LINE
             recognition.stop();
-            console.log('💣 Recognition nuked');
+            console.log('💣 Recognition nuked (but onend handler preserved)');
         } catch (e) {
             console.log('💣 Recognition already dead');
         }
