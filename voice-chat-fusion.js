@@ -3749,7 +3749,7 @@ function handleSpeechRecognitionError(error) {
     }
 
     // 💣 CALL GLOBAL NUKE FUNCTION
-    nukeAllListening();
+   // nukeAllListening();
     
     // Wait a moment to ensure everything is dead
     setTimeout(() => {
