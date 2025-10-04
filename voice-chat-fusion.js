@@ -1005,24 +1005,23 @@ function speakResponseOriginal(message) {
         // 🎯 CRITICAL: WAIT 1-2 SECONDS BEFORE STARTING LISTENING
         // This gives time for the "Speak Now" visual to appear AND ensures
         // any residual "sorry" audio is completely finished
-        setTimeout(() => {
-            if (speakSequenceActive) {
-                console.log('🔄 NOW starting listening (safe delay completed)');
-                window.lastRecognitionResult = null;
-                
-                if (isContactInterview) {
-                    startContactInterviewListening();
-                } else {
-                    if (typeof startMobileListening === 'function') {
-                        startMobileListening();
-                    } else {
-                        startNormalInterviewListening();
-                    }
-                }
-            }
-        }, 1500); // 1.5 second delay to ensure clean restart
-    }
-};
+      // 🚫 COMMENT OUT THIS CONFLICTING AUTO-RESTART
+// setTimeout(() => {
+//     if (speakSequenceActive) {
+//         console.log('🔄 NOW starting listening (safe delay completed)');
+//         window.lastRecognitionResult = null;
+//         
+//         if (isContactInterview) {
+//             startContactInterviewListening();
+//         } else {
+//             if (typeof startMobileListening === 'function') {
+//                 startMobileListening();
+//             } else {
+//                 startNormalInterviewListening();
+//             }
+//         }
+//     }
+// }, 1500); // 🚫 THIS IS CONFLICTING WITH OUR SORRY HANDLER
        
             
 utterance.onerror = function(event) {
