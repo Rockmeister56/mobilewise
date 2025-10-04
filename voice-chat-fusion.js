@@ -351,6 +351,12 @@ function getApologyResponse() {
         "I didn't get that. Could you repeat it?",
         "Let me try listening again. Please speak your answer now."
     ];
+
+        // 🎯 RESET THE CLEANUP TIMER WHEN SORRY MESSAGE STARTS
+    if (window.lastSequenceStart) {
+        console.log('⏰ Resetting cleanup timer for sorry message');
+        window.lastSequenceStart = Date.now();
+    }
     
     lastMessageWasApology = true;
     setTimeout(() => { lastMessageWasApology = false; }, 5000);
