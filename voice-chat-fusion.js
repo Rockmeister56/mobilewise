@@ -8,7 +8,7 @@
     console.log('💣 GLOBAL NUKE: Killing all speech recognition');
     
     // Kill recognition
-    if (typeof recognition !== 'undefined') {
+    if (typeof recognition !== 'undefined' && recognition) {
         try {
             recognition.onresult = null;
             recognition.onerror = null; 
