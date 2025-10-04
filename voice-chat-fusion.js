@@ -4085,7 +4085,7 @@ setTimeout(() => {
                 console.log('📱 MOBILE FALLBACK: No speech detected - triggering sorry message');
                 handleSpeechRecognitionError('no-speech');
             }
-        }, 4000); // Mobile gets slightly longer timeout
+        }, 8000); // Mobile gets slightly longer timeout
     }
     
     if (isContactInterview) {
