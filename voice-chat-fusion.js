@@ -1005,23 +1005,22 @@ function speakResponseOriginal(message) {
         // 🎯 CRITICAL: WAIT 1-2 SECONDS BEFORE STARTING LISTENING
         // This gives time for the "Speak Now" visual to appear AND ensures
         // any residual "sorry" audio is completely finished
-        // 🚫 COMMENT OUT THIS CONFLICTING AUTO-RESTART
-// setTimeout(() => {
-//     if (speakSequenceActive) {
-//         console.log('🔄 NOW starting listening (safe delay completed)');
-//         window.lastRecognitionResult = null;
-//         
-//         if (isContactInterview) {
-//             startContactInterviewListening();
-//         } else {
-//             if (typeof startMobileListening === 'function') {
-//                 startMobileListening();
-//             } else {
-//                 startNormalInterviewListening();
-//             }
-//         }
-//     }
-// }, 1500); // 🚫 THIS IS CONFLICTING WITH OUR SORRY HANDLER
+        setTimeout(() => {
+            if (speakSequenceActive) {
+                console.log('🔄 NOW starting listening (safe delay completed)');
+                window.lastRecognitionResult = null;
+                
+                if (isContactInterview) {
+                    startContactInterviewListening();
+                } else {
+                    if (typeof startMobileListening === 'function') {
+                        startMobileListening();
+                    } else {
+                        startNormalInterviewListening();
+                    }
+                }
+            }
+        }, 1500); // 1.5 second delay to ensure clean restart
     }
 };
        
@@ -4066,18 +4065,11 @@ setTimeout(() => {
             handleSpeechRecognitionEnd();
         };
         
-       recognition.onresult = function(event) {
-    // 🎯 CANCEL FALLBACK TIMER WHEN SPEECH DETECTED
-    if (window.mobileFallbackTimer) {
-        console.log('⏰ Canceling mobile fallback timer - speech detected!');
-        clearTimeout(window.mobileFallbackTimer);
-        window.mobileFallbackTimer = null;
-    }
-    
-    handleSpeechRecognitionResult(event);
-    // Let the original result handler continue
-    if (typeof originalOnResult === 'function') {
-        originalOnResult(event);
+        recognition.onresult = function(event) {
+            handleSpeechRecognitionResult(event);
+            // Let the original result handler continue
+            if (typeof originalOnResult === 'function') {
+                originalOnResult(event);
             }
         };
     }
@@ -4087,12 +4079,12 @@ setTimeout(() => {
         console.log('📱 MOBILE: Setting up enhanced speech recognition handlers');
         
         // Enhanced mobile fallback timer
-           window.mobileFallbackTimer = setTimeout(() => {
+        const mobileFallbackTimer = setTimeout(() => {
             if (speakSequenceActive && !window.lastRecognitionResult) {
                 console.log('📱 MOBILE FALLBACK: No speech detected - triggering sorry message');
                 handleSpeechRecognitionError('no-speech');
             }
-        }, 3000); // Mobile gets slightly longer timeout
+        }, 4000); // Mobile gets slightly longer timeout
     }
     
     if (isContactInterview) {
