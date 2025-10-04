@@ -4026,6 +4026,20 @@ function handleSpeechRecognitionEnd() {
 function handleSpeechRecognitionResult(event) {
     console.log('✅ Speech recognition result received');
     window.lastRecognitionResult = Date.now();
+
+        // 🎯 CLOSE SPEAK NOW BANNER WHEN SPEECH SUCCESSFULLY CAPTURED
+    if (speakSequenceActive) {
+        console.log('✅ Speech successful - closing Speak Now banner');
+        
+        // Cancel the cleanup timer
+        if (speakSequenceCleanupTimer) {
+            clearTimeout(speakSequenceCleanupTimer);
+            speakSequenceCleanupTimer = null;
+        }
+        
+        // Close the banner immediately
+        cleanupSpeakSequence();
+    }
     
     // Process the result normally (existing logic continues)
     // This flag prevents the "no-speech" error from triggering
