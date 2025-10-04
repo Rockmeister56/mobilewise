@@ -3,14 +3,6 @@
 // Smart Button + Lead Capture + EmailJS + Banner System
 // ===================================================
 
-// Find where "✅ Sending new message:" is logged and ADD:
-console.log('✅ Sending new message: ' + message);
-// 🎯 ADD BANNER CLEANUP HERE
-if (typeof speakSequenceActive !== 'undefined' && speakSequenceActive) {
-    console.log('🎯 Closing Speak Now banner - message sent');
-    cleanupSpeakSequence();
-}
-
 // 💣 ADD THIS GLOBAL NUKE FUNCTION AT THE TOP OF YOUR FILE
 function nukeAllListening() {
     console.log('💣 GLOBAL NUKE: Killing all speech recognition');
@@ -525,23 +517,39 @@ if (isDefinitelyMobile) {
     const userInput = document.getElementById('userInput');
     
     if (userInput && userInput.value.trim().length > 0) {
-        // User said something - process the message
-        const currentMessage = userInput.value.trim();
-        const now = Date.now();
-        const timeSinceLastMessage = now - (window.lastMessageTime || 0);
+    // User said something - process the message
+    const currentMessage = userInput.value.trim();
+    const now = Date.now();
+    const timeSinceLastMessage = now - (window.lastMessageTime || 0);
+    
+    if (!window.lastProcessedMessage || 
+        window.lastProcessedMessage !== currentMessage || 
+        timeSinceLastMessage > 3000) {
         
-        if (!window.lastProcessedMessage || 
-            window.lastProcessedMessage !== currentMessage || 
-            timeSinceLastMessage > 3000) {
+        console.log('✅ Sending new message:', currentMessage);
+        
+        // 🎯 ADD BANNER CLEANUP HERE - RIGHT AFTER MESSAGE IS SENT
+        if (typeof speakSequenceActive !== 'undefined' && speakSequenceActive) {
+            console.log('🎯 Closing Speak Now banner - message sent');
             
-            console.log('✅ Sending new message:', currentMessage);
-            window.lastProcessedMessage = currentMessage;
-            window.lastMessageTime = now;
-            sendMessage();
-        } else {
-            console.log('🚫 Prevented duplicate message (within 3 seconds):', currentMessage);
-            userInput.value = '';
+            // Cancel cleanup timer
+            if (speakSequenceCleanupTimer) {
+                clearTimeout(speakSequenceCleanupTimer);
+                speakSequenceCleanupTimer = null;
+            }
+            
+            // Close banner immediately
+            cleanupSpeakSequence();
         }
+        
+        window.lastProcessedMessage = currentMessage;
+        window.lastMessageTime = now;
+        sendMessage();
+    } else {
+        console.log('🚫 Prevented duplicate message (within 3 seconds):', currentMessage);
+        userInput.value = '';
+    }
+
     } else {
         // No speech detected - restart with hybrid system
         if (isAudioMode && !isSpeaking && !lastMessageWasApology) {
