@@ -4025,9 +4025,6 @@ function handleSpeechRecognitionEnd() {
 // 🎯 ENHANCED RESULT HANDLER
 function handleSpeechRecognitionResult(event) {
     console.log('✅ Speech recognition result received');
-     console.log('🔍 DEBUG: handleSpeechRecognitionResult CALLED at:', Date.now());
-    console.log('🔍 DEBUG: speakSequenceActive:', speakSequenceActive);
-    console.log('🔍 DEBUG: Event results:', event.results);
     window.lastRecognitionResult = Date.now();
 
         // 🎯 CLOSE SPEAK NOW BANNER WHEN SPEECH SUCCESSFULLY CAPTURED
@@ -4069,6 +4066,9 @@ setTimeout(() => {
         };
         
         recognition.onresult = function(event) {
+            console.log('🔍 DEBUG: recognition.onresult CALLED at:', Date.now());
+    console.log('🔍 DEBUG: Event results length:', event.results.length);
+    console.log('🔍 DEBUG: Final transcript:', event.results[0][0].transcript);
             handleSpeechRecognitionResult(event);
             // Let the original result handler continue
             if (typeof originalOnResult === 'function') {
