@@ -15,15 +15,14 @@ if (typeof speakSequenceActive !== 'undefined' && speakSequenceActive) {
 function nukeAllListening() {
     console.log('💣 GLOBAL NUKE: Killing all speech recognition');
     
-    // Kill recognition - BUT KEEP THE ONEND HANDLER!
+    // Kill recognition
     if (typeof recognition !== 'undefined') {
         try {
             recognition.onresult = null;
             recognition.onerror = null; 
-            // 🎯 KEEP onend handler! Don't set to null!
-            // recognition.onend = null;  // 🚫 REMOVE THIS LINE
+           // recognition.onend = null;
             recognition.stop();
-            console.log('💣 Recognition nuked (but onend handler preserved)');
+            console.log('💣 Recognition nuked');
         } catch (e) {
             console.log('💣 Recognition already dead');
         }
