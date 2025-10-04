@@ -3999,14 +3999,14 @@ function handleSpeechRecognitionResult(event) {
     // This flag prevents the "no-speech" error from triggering
 }
     
-    // ✅ START LISTENING
-    setTimeout(() => {
-        console.log('🎤 Starting listening during RED stage...');
-        
-        // Clear any previous result flag
-        window.lastRecognitionResult = null;
-        
-          // Set up enhanced error handling for the recognition session
+    // ✅ START LISTENING - MOVED to start AFTER "Speak Now!" visual
+setTimeout(() => {
+    console.log('🎤 Starting listening AFTER Speak Now visual...');
+    
+    // Clear any previous result flag
+    window.lastRecognitionResult = null;
+    
+    // Set up enhanced error handling for the recognition session
     if (typeof recognition !== 'undefined') {
         // 💣 ADD PRE-EMPTIVE NUKE HERE:
         recognition.onerror = function(event) {
@@ -4014,44 +4014,44 @@ function handleSpeechRecognitionResult(event) {
             nukeAllListening(); // NUKE FIRST!
             handleSpeechRecognitionError(event.error);
         };
-            
-            recognition.onend = function() {
-                handleSpeechRecognitionEnd();
-            };
-            
-            recognition.onresult = function(event) {
-                handleSpeechRecognitionResult(event);
-                // Let the original result handler continue
-                if (typeof originalOnResult === 'function') {
-                    originalOnResult(event);
-                }
-            };
-        }
         
-        // 🎯 CRITICAL MOBILE DETECTION - ADDED BACK!
-        if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
-            console.log('📱 MOBILE: Setting up enhanced speech recognition handlers');
-            
-            // Enhanced mobile fallback timer
-            const mobileFallbackTimer = setTimeout(() => {
-                if (speakSequenceActive && !window.lastRecognitionResult) {
-                    console.log('📱 MOBILE FALLBACK: No speech detected - triggering sorry message');
-                    handleSpeechRecognitionError('no-speech');
-                }
-            }, 4000); // Mobile gets slightly longer timeout
-        }
+        recognition.onend = function() {
+            handleSpeechRecognitionEnd();
+        };
         
-        if (isContactInterview) {
-            startContactInterviewListening();
-        } else {
-            // Use mobile-optimized version if available
-            if (typeof startMobileListening === 'function') {
-                startMobileListening();
-            } else {
-                startNormalInterviewListening();
+        recognition.onresult = function(event) {
+            handleSpeechRecognitionResult(event);
+            // Let the original result handler continue
+            if (typeof originalOnResult === 'function') {
+                originalOnResult(event);
             }
+        };
+    }
+    
+    // 🎯 CRITICAL MOBILE DETECTION - ADDED BACK!
+    if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
+        console.log('📱 MOBILE: Setting up enhanced speech recognition handlers');
+        
+        // Enhanced mobile fallback timer
+        const mobileFallbackTimer = setTimeout(() => {
+            if (speakSequenceActive && !window.lastRecognitionResult) {
+                console.log('📱 MOBILE FALLBACK: No speech detected - triggering sorry message');
+                handleSpeechRecognitionError('no-speech');
+            }
+        }, 4000); // Mobile gets slightly longer timeout
+    }
+    
+    if (isContactInterview) {
+        startContactInterviewListening();
+    } else {
+        // Use mobile-optimized version if available
+        if (typeof startMobileListening === 'function') {
+            startMobileListening();
+        } else {
+            startNormalInterviewListening();
         }
-    }, 800);
+    }
+}, 1700); // Changed from 800ms to 1700ms to start AFTER "Speak Now!"
     
     // ✅ ENHANCED AI SPEAKING DETECTION WITH BETTER TIMING
     let speechWatcher = setInterval(() => {
