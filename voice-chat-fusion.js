@@ -1005,7 +1005,7 @@ function speakResponseOriginal(message) {
         // 🎯 CRITICAL: WAIT 1-2 SECONDS BEFORE STARTING LISTENING
         // This gives time for the "Speak Now" visual to appear AND ensures
         // any residual "sorry" audio is completely finished
-      // 🚫 COMMENT OUT THIS CONFLICTING AUTO-RESTART
+        // 🚫 COMMENT OUT THIS CONFLICTING AUTO-RESTART
 // setTimeout(() => {
 //     if (speakSequenceActive) {
 //         console.log('🔄 NOW starting listening (safe delay completed)');
@@ -1022,6 +1022,8 @@ function speakResponseOriginal(message) {
 //         }
 //     }
 // }, 1500); // 🚫 THIS IS CONFLICTING WITH OUR SORRY HANDLER
+    }
+};
        
             
 utterance.onerror = function(event) {
