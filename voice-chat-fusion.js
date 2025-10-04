@@ -584,6 +584,9 @@ function stopListening() {
 // 🔄 FORCE START LISTENING (BYPASSES GATE-KEEPER)
 // ===================================================
 function forceStartListening() {
+    console.log('🎤 TEST 8: forceStartListening() CALLED at:', Date.now());
+    console.log('🎤 TEST 9: isSpeaking:', isSpeaking);
+    console.log('🎤 TEST 10: recognition exists:', !!recognition);
     console.log('🔄 FORCE starting speech recognition (mobile reset)');
     
     if (!checkSpeechSupport()) return;
@@ -3838,31 +3841,32 @@ function handleSpeechRecognitionError(error) {
                           //  console.log('🔊 Sorry message finished - going to SPEAK NOW');
 
                          utterance.onend = function() {
-    console.log('🔊 Sorry message finished - FORCING listening restart');
+    console.log('🔊 TEST 1: Sorry message finished at:', Date.now());
+    console.log('🔊 TEST 2: speakSequenceActive:', speakSequenceActive);
+    console.log('🔊 TEST 3: speakSequenceCleanupTimer exists:', !!speakSequenceCleanupTimer);
     
     // 🎯 CANCEL ANY EXISTING CLEANUP TIMER
     if (speakSequenceCleanupTimer) {
-        console.log('⏰ Canceling old cleanup timer');
+        console.log('⏰ TEST 4: Canceling old cleanup timer');
         clearTimeout(speakSequenceCleanupTimer);
         speakSequenceCleanupTimer = null;
     }
     
     // 🎯 FORCE RESTART - NO CONDITIONS!
     setTimeout(() => {
-        console.log('🔊 FORCE RESTARTING listening after sorry message');
+        console.log('🔊 TEST 5: Inside restart timeout at:', Date.now());
+        console.log('🔊 TEST 6: Calling forceStartListening()');
         
-        // 🎯 RESTART CLEANUP TIMER (fresh 8 seconds)
+        // 🎯 RESTART CLEANUP TIMER
         speakSequenceCleanupTimer = setTimeout(() => {
-            console.log('⏰ Extended listening time reached - cleaning up');
-            if (speechWatcher) clearInterval(speechWatcher);
-            if (progressInterval) clearInterval(progressInterval);
+            console.log('⏰ TEST 7: Cleanup timer fired at:', Date.now());
             cleanupSpeakSequence();
         }, 8000);
         
-        // 🎯 CRITICAL: USE THE CORRECT FUNCTION!
-        console.log('🎤 CALLING: forceStartListening()');
+        // 🎯 CRITICAL: RESTART LISTENING
         forceStartListening();
     }, 800);
+
                             
                             if (speakSequenceButton && speakSequenceActive) {
                                 // 🎯 GO DIRECTLY TO "SPEAK NOW"
