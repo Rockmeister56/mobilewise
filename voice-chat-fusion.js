@@ -976,8 +976,13 @@ function speakResponseOriginal(message) {
                 }
             };
             
-           utterance.onend = function() {
-    console.log('🔊 Sorry message finished - going to SPEAK NOW');
+         //  utterance.onend = function() {
+       // console.log('🔊 Sorry message finished - going to SPEAK NOW');
+
+       utterance.onend = function() {
+    console.log('🔊 Sorry message finished - Handler #1 (line 979)');
+    console.log('🔍 speakSequenceActive:', speakSequenceActive);
+    console.log('🔍 Button exists:', !!speakSequenceButton);
     
     if (speakSequenceButton && speakSequenceActive) {
         // 🎯 GO DIRECTLY TO "SPEAK NOW" - BUT DON'T START LISTENING YET
@@ -3819,8 +3824,13 @@ function handleSpeechRecognitionError(error) {
                         ) || speechSynthesis.getVoices()[0];
                         
                         // 🎯 CRITICAL: ADD LISTENER TO RESTART AFTER SPEECH FINISHES
-                        utterance.onend = function() {
-                            console.log('🔊 Sorry message finished - going to SPEAK NOW');
+                         // utterance.onend = function() {
+                          //  console.log('🔊 Sorry message finished - going to SPEAK NOW');
+
+                          utterance.onend = function() {
+                           console.log('🔊 Sorry message finished - Handler #1 (line 979)');
+                            console.log('🔍 speakSequenceActive:', speakSequenceActive);
+                            console.log('🔍 Button exists:', !!speakSequenceButton);
                             
                             if (speakSequenceButton && speakSequenceActive) {
                                 // 🎯 GO DIRECTLY TO "SPEAK NOW"
