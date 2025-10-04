@@ -3881,8 +3881,6 @@ function handleSpeechRecognitionError(error) {
         console.log('🎤 CALLING: startNormalInterviewListening()');
         startNormalInterviewListening();
     }, 800);
-};
-
 
                             
                             if (speakSequenceButton && speakSequenceActive) {
