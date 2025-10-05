@@ -500,7 +500,7 @@ if (isDefinitelyMobile) {
             }
         }, 8000);
         
-        // 🎯 MANUALLY TRIGGER THE SORRY MESSAGE FLOW
+        // 🎯 MANUALLY TRIGGER THE COMPLETE SORRY MESSAGE FLOW WITH VISUALS
         console.log('📱 MOBILE FALLBACK: No speech detected - triggering sorry message');
         console.log('🚨💣 NUCLEAR: Speech recognition error detected - KILLING ALL LISTENING');
         console.log('🚨 Now handling error after nuclear cleanup: no-speech');
@@ -508,11 +508,34 @@ if (isDefinitelyMobile) {
         // Set the protection flag
         window.playingSorryMessage = true;
         
+        // 🎯 UPDATE VISUAL TO SHOW SORRY MESSAGE
+        const speakSequenceButton = document.querySelector('.quick-btn') || 
+                                   document.getElementById('speakSequenceButton');
+        
+        if (speakSequenceButton && speakSequenceActive) {
+            console.log('🎯 Updating visual to show sorry message');
+            
+            // Show sorry message in the banner
+            speakSequenceButton.innerHTML = `
+                <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+                    <div style="margin-bottom: 6px; color: #dc2626;">
+                        <span class="red-dot-blink">🔴</span> I'm sorry, I didn't catch that
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #dc2626, #b91c1c);"></div>
+                    </div>
+                </div>
+            `;
+            speakSequenceButton.style.background = 'rgba(220, 38, 38, 0.4) !important';
+            speakSequenceButton.style.borderColor = 'rgba(220, 38, 38, 0.8) !important';
+            speakSequenceButton.className = 'quick-btn red-button-glow';
+        }
+        
         // 🎯 USE HARDCODED SORRY MESSAGE
         const sorryMessage = "I'm sorry, I didn't catch that";
         console.log('💬 Using sorry message:', sorryMessage);
         
-        // 🎯 USE SIMPLE DESKTOP SPEECH SYNTHESIS (no dependencies)
+        // 🎯 USE SIMPLE DESKTOP SPEECH SYNTHESIS
         console.log('🔊 Playing sorry message via simple speech synthesis');
         
         if (!window.speechSynthesis) {
@@ -533,11 +556,31 @@ if (isDefinitelyMobile) {
         
         utterance.onend = function() {
             console.log('🔊 Sorry message finished speaking');
+            
+            // 🎯 UPDATE VISUAL BACK TO "SPEAK NOW" AFTER SORRY MESSAGE
+            if (speakSequenceButton && speakSequenceActive) {
+                console.log('✅ Visual changed to "Speak Now" - waiting before starting listening');
+                
+                speakSequenceButton.innerHTML = `
+                    <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+                        <div style="margin-bottom: 6px;">
+                            <span class="green-dot-blink">🟢</span> Speak Now!
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #4caf50, #2e7d32);"></div>
+                        </div>
+                    </div>
+                `;
+                speakSequenceButton.style.background = 'rgba(34, 197, 94, 0.4) !important';
+                speakSequenceButton.style.borderColor = 'rgba(34, 197, 94, 0.8) !important';
+                speakSequenceButton.className = 'quick-btn green-button-glow';
+            }
+            
             // After sorry message, restart listening
             setTimeout(() => {
                 console.log('🔄 Restarting listening after sorry message');
                 showHybridReadySequence();
-            }, 1000);
+            }, 1500);
         };
         
         utterance.onerror = function(event) {
