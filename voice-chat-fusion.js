@@ -3779,7 +3779,7 @@ function handleSpeechRecognitionError(error) {
     console.log('🚨💣 NUCLEAR: Speech recognition error detected - KILLING ALL LISTENING');
         
         // Use your proper speech function instead of direct synthesis
-       const isRealMobile = isMobileDevice();
+      const isRealMobile = isMobileDevice();
 if (!isRealMobile) {
     console.log('🖥️ DESKTOP: Using original working sorry system');
     
@@ -3807,7 +3807,7 @@ if (!isRealMobile) {
         
         speakResponseOriginal(sorryMessage);
         
-        // 🎯 DESKTOP RESTART LOGIC SHOULD BE RIGHT HERE ▼
+        // 🎯 DESKTOP RESTART LOGIC - REMOVE THE EARLY RETURN!
         setTimeout(() => {
             console.log('🔊 DESKTOP: Force restarting listening after sorry message');
             
@@ -3823,9 +3823,7 @@ if (!isRealMobile) {
             
             // 🎯 CRITICAL: RESTART LISTENING
             forceStartListening();
-        }, 2000); // Wait for sorry message to finish
-        
-        return;
+        }, 2000);
     }
 }
 
