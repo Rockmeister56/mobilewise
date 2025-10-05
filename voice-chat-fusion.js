@@ -3791,21 +3791,21 @@ function handleSpeechRecognitionError(error) {
       const isRealMobile = isMobileDevice();
 if (!isRealMobile) {
     console.log('🖥️ DESKTOP: Using original working sorry system');
-    console.log('🔍 DEBUG: Entering desktop error handler');
+    
+    // 🚨 NUCLEAR DEBUG - IF YOU SEE THIS, CHANGES ARE LOADING
+    console.log('🚨 NUCLEAR DEBUG: Desktop error handler with restart logic - ' + Date.now());
     
     // Use your proper speech function instead of direct synthesis
     if (error === 'no-speech' && speakSequenceButton && speakSequenceActive) {
-        console.log('🔍 DEBUG: Desktop sorry message condition met');
+        console.log('🚨 NUCLEAR DEBUG: Entering desktop sorry message block');
+        
         const sorryMessage = getNextSorryMessage();
-        console.log('🔍 DEBUG: Sorry message:', sorryMessage);
         
         // 🎯 CRITICAL: SET SORRY MESSAGE FLAG
         window.playingSorryMessage = true;
-        console.log('🔍 DEBUG: Set playingSorryMessage = true');
         
         // 🎯 ADD BUBBLE FOR DESKTOP
         addAIMessage(sorryMessage);
-        console.log('🔍 DEBUG: Added AI message bubble');
         
         // 🎯 UPDATE BANNER FOR DESKTOP
         speakSequenceButton.innerHTML = `
@@ -3818,36 +3818,29 @@ if (!isRealMobile) {
                 </div>
             </div>
         `;
-        console.log('🔍 DEBUG: Updated banner with sorry message');
         
         speakResponseOriginal(sorryMessage);
-        console.log('🔍 DEBUG: Called speakResponseOriginal');
         
         // 🎯 DESKTOP RESTART LOGIC
         setTimeout(() => {
-            console.log('🔍 DEBUG: Desktop restart timeout fired');
-            console.log('🔊 DESKTOP: Force restarting listening after sorry message');
+            console.log('🚨 NUCLEAR DEBUG: Desktop restart timeout fired');
             
             // 🎯 CRITICAL: RESET SORRY MESSAGE FLAG
             window.playingSorryMessage = false;
-            console.log('🔍 DEBUG: Set playingSorryMessage = false');
             
             // 🎯 RESTART CLEANUP TIMER
             speakSequenceCleanupTimer = setTimeout(() => {
-                console.log('⏰ DESKTOP: Cleanup timer fired');
                 cleanupSpeakSequence();
             }, 8000);
             
             // 🎯 CRITICAL: RESTART LISTENING
-            console.log('🔍 DEBUG: Calling forceStartListening()');
             forceStartListening();
         }, 2000);
         
-        console.log('🔍 DEBUG: Desktop error handler completed');
+        console.log('🚨 NUCLEAR DEBUG: Desktop error handler completed');
         return;
     }
 }
-
     // 💣 CALL GLOBAL NUKE FUNCTION
    // nukeAllListening();
     
