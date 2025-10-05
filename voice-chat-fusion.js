@@ -479,7 +479,7 @@ if (isDefinitelyMobile) {
      recognition.onend = function() {
     console.log('🔚 Recognition ended');
     
-    // 🦊 EDGE COMPATIBILITY FIX: Handle no-speech detection differently for Edge
+    // 🦊 EDGE COMPATIBILITY FIX
     const userInput = document.getElementById('userInput');
     const hasSpeech = userInput && userInput.value.trim().length > 0;
     const isEdge = /Edg\/\d+/.test(navigator.userAgent) && !/Mobile/.test(navigator.userAgent);
@@ -487,19 +487,29 @@ if (isDefinitelyMobile) {
     if (!hasSpeech && isEdge) {
         console.log('🦊 EDGE FIX: No speech detected in onend - creating error event');
         
-        // Create a fake error event that matches what the browser would send
+        // Create a fake error event
         const errorEvent = {
             error: 'no-speech',
             message: 'No speech was detected',
             type: 'error'
         };
         
-        // Trigger the recognition's error handler directly
+        // DEBUG: Check what happens in the nuclear flow
+        console.log('🔍 EDGE DEBUG - Before triggering error:');
+        console.log('- playingSorryMessage:', window.playingSorryMessage);
+        console.log('- speakSequenceActive:', speakSequenceActive);
+        
+        // Trigger the recognition's error handler
         if (recognition.onerror) {
             console.log('🚨 Triggering recognition.onerror with no-speech');
             recognition.onerror(errorEvent);
-        } else {
-            console.log('❌ No recognition.onerror handler found');
+            
+            // Add a small delay to see if sorry message triggers
+            setTimeout(() => {
+                console.log('🔍 EDGE DEBUG - After error (500ms):');
+                console.log('- playingSorryMessage:', window.playingSorryMessage);
+                console.log('- sorry message triggered?');
+            }, 500);
         }
         return;
     }
