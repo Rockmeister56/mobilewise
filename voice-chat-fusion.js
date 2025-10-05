@@ -485,35 +485,46 @@ if (isDefinitelyMobile) {
     const isEdge = /Edg\/\d+/.test(navigator.userAgent) && !/Mobile/.test(navigator.userAgent);
     
     if (!hasSpeech && isEdge) {
-        console.log('🦊 EDGE FIX: No speech detected in onend - extending cleanup timer');
+        console.log('🦊 EDGE FIX: No speech detected in onend - MANUALLY triggering sorry message');
         
-        // EXTEND THE CLEANUP TIMER to give sorry message time to play
+        // EXTEND THE CLEANUP TIMER
         if (speakSequenceCleanupTimer) {
             clearTimeout(speakSequenceCleanupTimer);
             console.log('⏰ Extended cleanup timer for Edge sorry message');
         }
         
-        // Set a longer timer for Edge
         speakSequenceCleanupTimer = setTimeout(() => {
             if (speakSequenceActive) {
                 console.log('⏰ Edge extended cleanup timer fired');
                 cleanupSpeakSequence();
             }
-        }, 8000); // 8 seconds instead of the normal timeout
+        }, 8000);
         
-        // Now trigger the error
-        const errorEvent = {
-            error: 'no-speech',
-            message: 'No speech was detected', 
-            type: 'error'
-        };
+        // 🎯 MANUALLY TRIGGER THE SORRY MESSAGE FLOW
+        console.log('📱 MOBILE FALLBACK: No speech detected - triggering sorry message');
+        console.log('🚨💣 NUCLEAR: Speech recognition error detected - KILLING ALL LISTENING');
+        console.log('🚨 Now handling error after nuclear cleanup: no-speech');
         
-        if (recognition.onerror) {
-            console.log('🚨 Triggering recognition.onerror with no-speech');
-            recognition.onerror(errorEvent);
+        // Set the protection flag
+        window.playingSorryMessage = true;
+        
+        // Get and play the sorry message directly
+        const sorryMessage = getNextSorryMessage ? getNextSorryMessage() : "I'm sorry, I didn't catch that";
+        console.log('💬 Using sorry message:', sorryMessage);
+        
+        // Play the sorry message audio directly
+        if (typeof playSorryMessage === 'function') {
+            console.log('🔊 Playing sorry message audio:', sorryMessage);
+            playSorryMessage(sorryMessage);
+        } else {
+            // Fallback - use the main speech system
+            console.log('🔊 Using fallback speech for sorry message');
+            speakResponseOriginal(sorryMessage);
         }
+        
         return;
     }
+    
     
     // DON'T clear the slot here - let the hybrid system manage it
     // (This was causing premature clearing)
