@@ -508,13 +508,43 @@ if (isDefinitelyMobile) {
         // Set the protection flag
         window.playingSorryMessage = true;
         
-        // 🎯 USE HARDCODED SORRY MESSAGE (no function dependencies)
+        // 🎯 USE HARDCODED SORRY MESSAGE
         const sorryMessage = "I'm sorry, I didn't catch that";
         console.log('💬 Using sorry message:', sorryMessage);
         
-        // 🎯 USE THE MAIN SPEECH FUNCTION THAT WE KNOW EXISTS
-        console.log('🔊 Playing sorry message via speakResponseOriginal');
-        speakResponseOriginal(sorryMessage);
+        // 🎯 USE SIMPLE DESKTOP SPEECH SYNTHESIS (no dependencies)
+        console.log('🔊 Playing sorry message via simple speech synthesis');
+        
+        if (!window.speechSynthesis) {
+            console.log('❌ Speech synthesis not supported');
+            return;
+        }
+
+        window.speechSynthesis.cancel();
+        
+        const utterance = new SpeechSynthesisUtterance(sorryMessage);
+        utterance.rate = 1.0;
+        utterance.pitch = 1.0;
+        utterance.volume = 0.9;
+        
+        utterance.onstart = function() {
+            console.log('🔊 Sorry message started speaking');
+        };
+        
+        utterance.onend = function() {
+            console.log('🔊 Sorry message finished speaking');
+            // After sorry message, restart listening
+            setTimeout(() => {
+                console.log('🔄 Restarting listening after sorry message');
+                showHybridReadySequence();
+            }, 1000);
+        };
+        
+        utterance.onerror = function(event) {
+            console.log('❌ Sorry message speech error:', event.error);
+        };
+        
+        window.speechSynthesis.speak(utterance);
         
         return;
     }
