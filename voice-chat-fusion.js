@@ -3777,21 +3777,30 @@ if (existingPrompt) {
   // 🎯 ENHANCED SPEECH RECOGNITION ERROR HANDLER WITH MULTIPLE SORRY MESSAGES
 function handleSpeechRecognitionError(error) {
     console.log('🚨💣 NUCLEAR: Speech recognition error detected - KILLING ALL LISTENING');
+    console.log('🔍 DEBUG: Error type:', error);
+    console.log('🔍 DEBUG: isMobileDevice():', isMobileDevice());
+
+    console.log('🚨💣 NUCLEAR: Speech recognition error detected - KILLING ALL LISTENING');
         
         // Use your proper speech function instead of direct synthesis
       const isRealMobile = isMobileDevice();
 if (!isRealMobile) {
     console.log('🖥️ DESKTOP: Using original working sorry system');
+    console.log('🔍 DEBUG: Entering desktop error handler');
     
     // Use your proper speech function instead of direct synthesis
     if (error === 'no-speech' && speakSequenceButton && speakSequenceActive) {
+        console.log('🔍 DEBUG: Desktop sorry message condition met');
         const sorryMessage = getNextSorryMessage();
+        console.log('🔍 DEBUG: Sorry message:', sorryMessage);
         
         // 🎯 CRITICAL: SET SORRY MESSAGE FLAG
         window.playingSorryMessage = true;
+        console.log('🔍 DEBUG: Set playingSorryMessage = true');
         
         // 🎯 ADD BUBBLE FOR DESKTOP
         addAIMessage(sorryMessage);
+        console.log('🔍 DEBUG: Added AI message bubble');
         
         // 🎯 UPDATE BANNER FOR DESKTOP
         speakSequenceButton.innerHTML = `
@@ -3804,16 +3813,19 @@ if (!isRealMobile) {
                 </div>
             </div>
         `;
+        console.log('🔍 DEBUG: Updated banner with sorry message');
         
         speakResponseOriginal(sorryMessage);
+        console.log('🔍 DEBUG: Called speakResponseOriginal');
         
-        // 🎯 DESKTOP RESTART LOGIC - REMOVE THE EARLY RETURN!
+        // 🎯 DESKTOP RESTART LOGIC
         setTimeout(() => {
+            console.log('🔍 DEBUG: Desktop restart timeout fired');
             console.log('🔊 DESKTOP: Force restarting listening after sorry message');
             
             // 🎯 CRITICAL: RESET SORRY MESSAGE FLAG
             window.playingSorryMessage = false;
-            console.log('🔓 DESKTOP: Sorry message flag reset');
+            console.log('🔍 DEBUG: Set playingSorryMessage = false');
             
             // 🎯 RESTART CLEANUP TIMER
             speakSequenceCleanupTimer = setTimeout(() => {
@@ -3822,8 +3834,12 @@ if (!isRealMobile) {
             }, 8000);
             
             // 🎯 CRITICAL: RESTART LISTENING
+            console.log('🔍 DEBUG: Calling forceStartListening()');
             forceStartListening();
         }, 2000);
+        
+        console.log('🔍 DEBUG: Desktop error handler completed');
+        return;
     }
 }
 
