@@ -205,13 +205,10 @@ async function speakWithElevenLabs(message) {
     }
 }
 
-// 🚨 NUCLEAR MOBILE DETECTION
-const isDefinitelyMobile = window.innerWidth <= 768 || window.innerHeight <= 1024;
-
-if (isDefinitelyMobile) {
+// 🚨 NUCLEAR MOBILE DETECTION - USE THE PROPER FUNCTION!
+if (isMobileDevice()) {
     console.log('📱📱📱 NUCLEAR MOBILE DETECTED: Using visual feedback system');
-
-    }
+}
 
 // ===================================================
 // 🎤 MICROPHONE PERMISSION SYSTEM
@@ -414,15 +411,13 @@ function getApologyResponse() {
             isTouch: ('ontouchstart' in window || navigator.maxTouchPoints > 0)
         });
 
-         // 🚨 NUCLEAR MOBILE DETECTION - REPLACE THE OLD CHECK
-const isDefinitelyMobile = window.innerWidth <= 768 || window.innerHeight <= 1024;
-
-if (isDefinitelyMobile) {
+         // 🚨 NUCLEAR MOBILE DETECTION - USE PROPER FUNCTION
+if (isMobileDevice()) {
     console.log('📱📱📱 NUCLEAR MOBILE DETECTED: Using visual feedback system');
 
-            if (window.noSpeechTimeout) {
-                clearTimeout(window.noSpeechTimeout);
-            }
+    if (window.noSpeechTimeout) {
+        clearTimeout(window.noSpeechTimeout);
+    }
 
             if (transcriptText) {
                 transcriptText.textContent = 'I didn\'t hear anything...';
@@ -4134,18 +4129,19 @@ setTimeout(() => {
         };
     }
     
-    // 🎯 CRITICAL MOBILE DETECTION - ADDED BACK!
-    if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
-        console.log('📱 MOBILE: Setting up enhanced speech recognition handlers');
-        
-        // Enhanced mobile fallback timer
-        const mobileFallbackTimer = setTimeout(() => {
-            if (speakSequenceActive && !window.lastRecognitionResult) {
-                console.log('📱 MOBILE FALLBACK: No speech detected - triggering sorry message');
-                handleSpeechRecognitionError('no-speech');
-            }
-        }, 4000); // Mobile gets slightly longer timeout
-    }
+
+    // 🎯 CRITICAL MOBILE DETECTION - USE THE PROPER FUNCTION!
+if (isMobileDevice()) {
+    console.log('📱 MOBILE: Setting up enhanced speech recognition handlers');
+    
+    // Enhanced mobile fallback timer
+    const mobileFallbackTimer = setTimeout(() => {
+        if (speakSequenceActive && !window.lastRecognitionResult) {
+            console.log('📱 MOBILE FALLBACK: No speech detected - triggering sorry message');
+            handleSpeechRecognitionError('no-speech');
+        }
+    }, 4000); // Mobile gets slightly longer timeout
+}
     
     if (isContactInterview) {
         startContactInterviewListening();
