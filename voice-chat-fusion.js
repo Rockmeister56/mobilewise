@@ -3502,11 +3502,17 @@ function playMobileErrorBeep() {
 
 // ✅ MAIN FUNCTION WITH ALL FIXES
 function showHybridReadySequence() {
-    // ✅ CALL MOBILE STABILITY FIRST
+     // ✅ CALL MOBILE STABILITY FIRST
 
     // 🛑 CRITICAL: PREVENT MULTIPLE SIMULTANEOUS SESSIONS
     if (window.speakSequenceBlocked) {
         console.log('🔇 HYBRID BLOCKED: Another session already running');
+        return;
+    }
+    
+    // 🎯 NEW: BLOCK DURING SORRY MESSAGES
+    if (window.playingSorryMessage) {
+        console.log('🔇 HYBRID BLOCKED: Sorry message in progress - waiting for completion');
         return;
     }
     window.speakSequenceBlocked = true;
@@ -3528,7 +3534,7 @@ function showHybridReadySequence() {
             console.log('🔇 Recognition already stopped or stopping failed');
         }
     }
-    
+
     applyMobileStability();
     setupMobileTouchEvents();
     
@@ -3772,17 +3778,36 @@ if (existingPrompt) {
 function handleSpeechRecognitionError(error) {
     console.log('🚨💣 NUCLEAR: Speech recognition error detected - KILLING ALL LISTENING');
 
-    // 🎯 DESKTOP: Use original working code
-    const isRealMobile = isMobileDevice();
-    if (!isRealMobile) {
-        console.log('🖥️ DESKTOP: Using original working sorry system');
+    // 🎯 UNIVERSAL: Use same flow for both mobile and desktop
+    if (error === 'no-speech' && speakSequenceButton && speakSequenceActive) {
+        const sorryMessage = getNextSorryMessage();
         
-        // Use your proper speech function instead of direct synthesis
-        if (error === 'no-speech' && speakSequenceButton && speakSequenceActive) {
-            const sorryMessage = getNextSorryMessage();
-            speakResponseOriginal(sorryMessage); // ← USE PROPER FUNCTION!
-            return;
+        // 🎯 ADD CHAT BUBBLE FOR BOTH PLATFORMS
+        addAIMessage(sorryMessage);
+        
+        // 🎯 USE ELEVENLABS FOR BOTH PLATFORMS
+        console.log('🎤 Master Speech: Attempting ElevenLabs for sorry message...');
+        
+        // Update button to show processing state
+        speakSequenceButton.innerHTML = `
+            <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+                <div style="margin-bottom: 6px; color: #dc2626;">
+                    <span class="error-feedback-blink">🔊</span> Playing sorry message...
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #dc2626, #b91c1c);"></div>
+                </div>
+            </div>
+        `;
+        
+        // Use ElevenLabs or main speech function
+        if (typeof speakWithElevenLabs === 'function') {
+            speakWithElevenLabs(sorryMessage);
+        } else {
+            speakResponseOriginal(sorryMessage);
         }
+        
+        return; // Stop here for both platforms
     }
 
     // 💣 CALL GLOBAL NUKE FUNCTION
