@@ -484,14 +484,25 @@ if (isDefinitelyMobile) {
     const hasSpeech = userInput && userInput.value.trim().length > 0;
     const isEdge = /Edg\/\d+/.test(navigator.userAgent) && !/Mobile/.test(navigator.userAgent);
     
- if (!hasSpeech && isEdge) {
-    console.log('🦊 EDGE FIX: No speech detected in onend - triggering nuclear flow');
-    console.log('🚨💣 NUCLEAR: Speech recognition error detected - KILLING ALL LISTENING');
-    nukeAllListening(); // Call this directly
-    console.log('🚨 Now handling error after nuclear cleanup: no-speech');
-    // This should trigger the sorry message system
-    return;
-}
+    if (!hasSpeech && isEdge) {
+        console.log('🦊 EDGE FIX: No speech detected in onend - creating error event');
+        
+        // Create a fake error event that matches what the browser would send
+        const errorEvent = {
+            error: 'no-speech',
+            message: 'No speech was detected',
+            type: 'error'
+        };
+        
+        // Trigger the recognition's error handler directly
+        if (recognition.onerror) {
+            console.log('🚨 Triggering recognition.onerror with no-speech');
+            recognition.onerror(errorEvent);
+        } else {
+            console.log('❌ No recognition.onerror handler found');
+        }
+        return;
+    }
     
     // DON'T clear the slot here - let the hybrid system manage it
     // (This was causing premature clearing)
