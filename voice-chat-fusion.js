@@ -508,23 +508,18 @@ if (isDefinitelyMobile) {
         // Set the protection flag
         window.playingSorryMessage = true;
         
-        // Get and play the sorry message directly
-        const sorryMessage = getNextSorryMessage ? getNextSorryMessage() : "I'm sorry, I didn't catch that";
+        // 🎯 USE HARDCODED SORRY MESSAGE (no function dependencies)
+        const sorryMessage = "I'm sorry, I didn't catch that";
         console.log('💬 Using sorry message:', sorryMessage);
         
-        // Play the sorry message audio directly
-        if (typeof playSorryMessage === 'function') {
-            console.log('🔊 Playing sorry message audio:', sorryMessage);
-            playSorryMessage(sorryMessage);
-        } else {
-            // Fallback - use the main speech system
-            console.log('🔊 Using fallback speech for sorry message');
-            speakResponseOriginal(sorryMessage);
-        }
+        // 🎯 USE THE MAIN SPEECH FUNCTION THAT WE KNOW EXISTS
+        console.log('🔊 Playing sorry message via speakResponseOriginal');
+        speakResponseOriginal(sorryMessage);
         
         return;
     }
     
+    // ... rest of your existing code
     
     // DON'T clear the slot here - let the hybrid system manage it
     // (This was causing premature clearing)
