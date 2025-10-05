@@ -3968,11 +3968,6 @@ if (!isRealMobile) {
                                 }, 1500); // 1.5 second delay to ensure clean restart
                             }
                         };
-                        
-                        speechSynthesis.speak(utterance);
-                        console.log('🔊 Playing sorry message audio:', sorryMessage);
-                    }, 100);
-                }
                 
                 // Mobile error beep for additional feedback
                 if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
