@@ -3772,35 +3772,7 @@ function handleSpeechRecognitionError(error) {
         // Use your proper speech function instead of direct synthesis
         if (error === 'no-speech' && speakSequenceButton && speakSequenceActive) {
             const sorryMessage = getNextSorryMessage();
-            speakResponseOriginal(sorryMessage);
-            return;
-        }
-    }
-
-    // 🎯 MOBILE: Enhanced mobile error handling
-    else {
-        console.log('📱 MOBILE: Using enhanced mobile sorry system');
-        
-        if (error === 'no-speech' && speakSequenceButton && speakSequenceActive) {
-            const sorryMessage = getNextSorryMessage();
-            
-            // Use proper speech function with mobile settings
-            speakResponseOriginal(sorryMessage);
-            
-            // Mobile-specific visual feedback
-            speakSequenceButton.innerHTML = `
-                <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
-                    <div style="margin-bottom: 6px; color: #dc2626;">
-                        <span class="error-feedback-blink">🔊</span> ${sorryMessage}
-                    </div>
-                    <div class="progress-bar-container">
-                        <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #dc2626, #b91c1c);"></div>
-                    </div>
-                </div>
-            `;
-            speakSequenceButton.style.background = 'rgba(220, 38, 38, 0.4) !important';
-            speakSequenceButton.style.borderColor = 'rgba(220, 38, 38, 0.8) !important';
-            
+            speakResponseOriginal(sorryMessage); // ← USE PROPER FUNCTION!
             return;
         }
     }
@@ -3860,7 +3832,7 @@ function handleSpeechRecognitionError(error) {
                     speechSynthesis.cancel();
                     
                     setTimeout(() => {
-                        const utterance = new speakResponseOriginal(sorryMessage);
+                        const utterance = new SpeechSynthesisUtterance(sorryMessage);
                         utterance.volume = 0.7;
                         utterance.rate = 1.1;
                         utterance.pitch = 1;
