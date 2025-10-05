@@ -476,68 +476,72 @@ if (isDefinitelyMobile) {
     }
 };
 
-      recognition.onend = function() {
+     recognition.onend = function() {
     console.log('🔚 Recognition ended');
+    
+    // 🦊 EDGE COMPATIBILITY FIX: Handle no-speech detection differently for Edge
+    const userInput = document.getElementById('userInput');
+    const hasSpeech = userInput && userInput.value.trim().length > 0;
+    const isEdge = /Edg\/\d+/.test(navigator.userAgent) && !/Mobile/.test(navigator.userAgent);
+    
+    if (!hasSpeech && isEdge) {
+        console.log('🦊 EDGE FIX: No speech detected in onend - triggering error handling');
+        handleSpeechError('no-speech');
+        return; // Prevent the hybrid restart loop
+    }
     
     // DON'T clear the slot here - let the hybrid system manage it
     // (This was causing premature clearing)
     
-    const userInput = document.getElementById('userInput');
-    
-    if (userInput && userInput.value.trim().length > 0) {
-    // User said something - process the message
-    const currentMessage = userInput.value.trim();
-    const now = Date.now();
-    const timeSinceLastMessage = now - (window.lastMessageTime || 0);
-    
-    if (!window.lastProcessedMessage || 
-        window.lastProcessedMessage !== currentMessage || 
-        timeSinceLastMessage > 3000) {
+    if (hasSpeech) {
+        // User said something - process the message
+        const currentMessage = userInput.value.trim();
+        const now = Date.now();
+        const timeSinceLastMessage = now - (window.lastMessageTime || 0);
         
-      console.log('✅ Sending new message:', currentMessage);
+        if (!window.lastProcessedMessage || 
+            window.lastProcessedMessage !== currentMessage || 
+            timeSinceLastMessage > 3000) {
+            
+            console.log('✅ Sending new message:', currentMessage);
 
-// 🎯 ADD BANNER CLEANUP HERE - RIGHT AFTER MESSAGE IS SENT
-if (typeof speakSequenceActive !== 'undefined' && speakSequenceActive) {
-    console.log('🎯 Closing Speak Now banner - message sent');
-    
-    // 🎯 RESET SORRY MESSAGE PROTECTION
-    window.playingSorryMessage = false;
-    
-    // Cancel cleanup timer
-    if (speakSequenceCleanupTimer) {
-        clearTimeout(speakSequenceCleanupTimer);
-        speakSequenceCleanupTimer = null;
-    }
-    
-    // Close banner immediately
-    cleanupSpeakSequence();
-}
+            // 🎯 ADD BANNER CLEANUP HERE - RIGHT AFTER MESSAGE IS SENT
+            if (typeof speakSequenceActive !== 'undefined' && speakSequenceActive) {
+                console.log('🎯 Closing Speak Now banner - message sent');
+                
+                // 🎯 RESET SORRY MESSAGE PROTECTION
+                window.playingSorryMessage = false;
+                
+                // Cancel cleanup timer
+                if (speakSequenceCleanupTimer) {
+                    clearTimeout(speakSequenceCleanupTimer);
+                    speakSequenceCleanupTimer = null;
+                }
+                
+                // Close banner immediately
+                cleanupSpeakSequence();
+            }
+            
+            // Process the user message (your existing code here)
+            window.lastMessageTime = now;
+            window.lastProcessedMessage = currentMessage;
+            sendMessage(currentMessage);
+        }
+    } else {
+        // No speech detected - hybrid restart for non-Edge browsers
+        console.log('🔄 No speech detected via onend - restarting with hybrid system');
         
-        window.lastProcessedMessage = currentMessage;
-        window.lastMessageTime = now;
-        sendMessage();
-    } else {
-        console.log('🚫 Prevented duplicate message (within 3 seconds):', currentMessage);
-        userInput.value = '';
-    }
-
-    } else {
-        // No speech detected - restart with hybrid system
-        if (isAudioMode && !isSpeaking && !lastMessageWasApology) {
-            console.log('🔄 No speech detected via onend - restarting with hybrid system');
-            
-            // Clear listening state and restart properly
-            isListening = false;
-            
-            // Use hybrid system for restart (not direct startListening)
+        // Your existing hybrid restart logic
+        if (!window.playingSorryMessage && !isSpeaking) {
             setTimeout(() => {
-                if (!isSpeaking && isAudioMode) {
-                    showHybridReadySequence();
+                if (speakSequenceActive && !window.playingSorryMessage) {
+                    console.log('🔄 Hybrid restart: calling forceStartListening()');
+                    forceStartListening();
                 }
             }, 1000);
         }
     }
-};
+}; // ← DON'T FORGET THIS CLOSING BRACKET!
         
         // 🎯 MOBILE TIMING DELAY
         const delay = isMobile ? 800 : 0; // Only delay on mobile
