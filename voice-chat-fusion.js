@@ -312,6 +312,16 @@ function initializeSpeechRecognition() {
     return true;
 }
 
+// 🎯 ADD DEBUG HERE - ROOT CAUSE ANALYSIS
+console.log('🔍 ROOT CAUSE DEBUG:', {
+    userAgent: navigator.userAgent,
+    isMobileDevice: isMobileDevice(), // Your current function
+    hasTouch: 'ontouchstart' in window,
+    screenWidth: window.innerWidth,
+    isEdge: /Edg\/\d+/.test(navigator.userAgent),
+    isMobileInUA: /Mobile/.test(navigator.userAgent)
+});
+
 function getApologyResponse() {
     const sorryMessages = [
         "I'm sorry, I didn't catch that. Can you repeat your answer?",
@@ -479,120 +489,17 @@ if (isDefinitelyMobile) {
      recognition.onend = function() {
     console.log('🔚 Recognition ended');
     
-    // 🦊 EDGE COMPATIBILITY FIX
+    // 🗑️ DELETE THIS ENTIRE EDGE BLOCK
     const userInput = document.getElementById('userInput');
     const hasSpeech = userInput && userInput.value.trim().length > 0;
     const isEdge = /Edg\/\d+/.test(navigator.userAgent) && !/Mobile/.test(navigator.userAgent);
     
     if (!hasSpeech && isEdge) {
+        // 🗑️ DELETE ALL THIS EDGE-SPECIFIC CODE
         console.log('🦊 EDGE FIX: No speech detected in onend - MANUALLY triggering sorry message');
-        
-        // EXTEND THE CLEANUP TIMER
-        if (speakSequenceCleanupTimer) {
-            clearTimeout(speakSequenceCleanupTimer);
-            console.log('⏰ Extended cleanup timer for Edge sorry message');
-        }
-        
-        speakSequenceCleanupTimer = setTimeout(() => {
-            if (speakSequenceActive) {
-                console.log('⏰ Edge extended cleanup timer fired');
-                cleanupSpeakSequence();
-            }
-        }, 8000);
-        
-        // 🎯 MANUALLY TRIGGER THE COMPLETE SORRY MESSAGE FLOW WITH VISUALS
-        console.log('📱 MOBILE FALLBACK: No speech detected - triggering sorry message');
-        console.log('🚨💣 NUCLEAR: Speech recognition error detected - KILLING ALL LISTENING');
-        console.log('🚨 Now handling error after nuclear cleanup: no-speech');
-        
-        // Set the protection flag
-        window.playingSorryMessage = true;
-        
-        // 🎯 UPDATE VISUAL TO SHOW SORRY MESSAGE
-        const speakSequenceButton = document.querySelector('.quick-btn') || 
-                                   document.getElementById('speakSequenceButton');
-        
-        if (speakSequenceButton && speakSequenceActive) {
-            console.log('🎯 Updating visual to show sorry message');
-            
-            // Show sorry message in the banner
-            speakSequenceButton.innerHTML = `
-                <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
-                    <div style="margin-bottom: 6px; color: #dc2626;">
-                        <span class="red-dot-blink">🔴</span> I'm sorry, I didn't catch that
-                    </div>
-                    <div class="progress-bar-container">
-                        <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #dc2626, #b91c1c);"></div>
-                    </div>
-                </div>
-            `;
-            speakSequenceButton.style.background = 'rgba(220, 38, 38, 0.4) !important';
-            speakSequenceButton.style.borderColor = 'rgba(220, 38, 38, 0.8) !important';
-            speakSequenceButton.className = 'quick-btn red-button-glow';
-        }
-        
-        // 🎯 USE HARDCODED SORRY MESSAGE
-        const sorryMessage = "I'm sorry, I didn't catch that";
-        console.log('💬 Using sorry message:', sorryMessage);
-        
-        // 🎯 USE SIMPLE DESKTOP SPEECH SYNTHESIS
-        console.log('🔊 Playing sorry message via simple speech synthesis');
-        
-        if (!window.speechSynthesis) {
-            console.log('❌ Speech synthesis not supported');
-            return;
-        }
-
-        window.speechSynthesis.cancel();
-        
-        const utterance = new SpeechSynthesisUtterance(sorryMessage);
-        utterance.rate = 1.0;
-        utterance.pitch = 1.0;
-        utterance.volume = 0.9;
-        
-        utterance.onstart = function() {
-            console.log('🔊 Sorry message started speaking');
-        };
-        
-        utterance.onend = function() {
-            console.log('🔊 Sorry message finished speaking');
-            
-            // 🎯 UPDATE VISUAL BACK TO "SPEAK NOW" AFTER SORRY MESSAGE
-            if (speakSequenceButton && speakSequenceActive) {
-                console.log('✅ Visual changed to "Speak Now" - waiting before starting listening');
-                
-                speakSequenceButton.innerHTML = `
-                    <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
-                        <div style="margin-bottom: 6px;">
-                            <span class="green-dot-blink">🟢</span> Speak Now!
-                        </div>
-                        <div class="progress-bar-container">
-                            <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #4caf50, #2e7d32);"></div>
-                        </div>
-                    </div>
-                `;
-                speakSequenceButton.style.background = 'rgba(34, 197, 94, 0.4) !important';
-                speakSequenceButton.style.borderColor = 'rgba(34, 197, 94, 0.8) !important';
-                speakSequenceButton.className = 'quick-btn green-button-glow';
-            }
-            
-            // After sorry message, restart listening
-            setTimeout(() => {
-                console.log('🔄 Restarting listening after sorry message');
-                showHybridReadySequence();
-            }, 1500);
-        };
-        
-        utterance.onerror = function(event) {
-            console.log('❌ Sorry message speech error:', event.error);
-        };
-        
-        window.speechSynthesis.speak(utterance);
-        
+        // ... all the manual sorry message code
         return;
     }
-    
-    // ... rest of your existing code
     
     // DON'T clear the slot here - let the hybrid system manage it
     // (This was causing premature clearing)
