@@ -3774,7 +3774,7 @@ if (existingPrompt) {
         }
     }, 100);
     
-   // 🎯 ENHANCED SPEECH RECOGNITION ERROR HANDLER WITH MULTIPLE SORRY MESSAGES
+  // 🎯 ENHANCED SPEECH RECOGNITION ERROR HANDLER WITH MULTIPLE SORRY MESSAGES
 function handleSpeechRecognitionError(error) {
     console.log('🚨💣 NUCLEAR: Speech recognition error detected - KILLING ALL LISTENING');
 
@@ -3786,7 +3786,38 @@ function handleSpeechRecognitionError(error) {
         // Use your proper speech function instead of direct synthesis
         if (error === 'no-speech' && speakSequenceButton && speakSequenceActive) {
             const sorryMessage = getNextSorryMessage();
-            speakResponseOriginal(sorryMessage); // ← USE PROPER FUNCTION!
+            
+            // 🎯 ADD BUBBLE FOR DESKTOP
+            addAIMessage(sorryMessage);
+            
+            // 🎯 UPDATE BANNER FOR DESKTOP
+            speakSequenceButton.innerHTML = `
+                <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+                    <div style="margin-bottom: 6px; color: #dc2626;">
+                        <span class="error-feedback-blink">🔊</span> ${sorryMessage}
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #dc2626, #b91c1c);"></div>
+                    </div>
+                </div>
+            `;
+            
+            speakResponseOriginal(sorryMessage);
+            
+            // 🎯 CRITICAL: ADD DESKTOP RESTART LOGIC (SAME AS MOBILE)
+            setTimeout(() => {
+                console.log('🔊 DESKTOP: Force restarting listening after sorry message');
+                
+                // 🎯 RESTART CLEANUP TIMER
+                speakSequenceCleanupTimer = setTimeout(() => {
+                    console.log('⏰ DESKTOP: Cleanup timer fired');
+                    cleanupSpeakSequence();
+                }, 8000);
+                
+                // 🎯 CRITICAL: RESTART LISTENING
+                forceStartListening();
+            }, 2000); // Wait for sorry message to finish
+            
             return;
         }
     }
