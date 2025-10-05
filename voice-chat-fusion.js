@@ -3504,12 +3504,20 @@ function playMobileErrorBeep() {
 function showHybridReadySequence() {
     // ✅ CALL MOBILE STABILITY FIRST
 
-        // 🛑 CRITICAL: PREVENT MULTIPLE SIMULTANEOUS SESSIONS
+    // 🛑 CRITICAL: PREVENT MULTIPLE SIMULTANEOUS SESSIONS
     if (window.speakSequenceBlocked) {
         console.log('🔇 HYBRID BLOCKED: Another session already running');
         return;
     }
     window.speakSequenceBlocked = true;
+    
+    // 🎯 SAFETY: Auto-reset block after 10 seconds (in case cleanup fails)
+    setTimeout(() => {
+        if (window.speakSequenceBlocked) {
+            console.log('🕐 Safety timeout: Resetting hybrid block');
+            window.speakSequenceBlocked = false;
+        }
+    }, 10000);
     
     // 🛑 CRITICAL: STOP ANY EXISTING LISTENING FIRST
     if (typeof recognition !== 'undefined' && recognition) {
@@ -3520,7 +3528,7 @@ function showHybridReadySequence() {
             console.log('🔇 Recognition already stopped or stopping failed');
         }
     }
-
+    
     applyMobileStability();
     setupMobileTouchEvents();
     
@@ -4306,10 +4314,14 @@ function startContactInterviewListening() {
 
 // Enhanced cleanup function
 function cleanupSpeakSequence() {
-    // 🎯 DON'T CLEANUP DURING SORRY MESSAGES
+    // 🎯 DON'T CLEANUP DURING SORRY MESSAGES, BUT STILL RESET BLOCKING
     if (window.playingSorryMessage) {
         console.log('🛡️ Blocking cleanup - sorry message in progress');
-        return; // Exit without cleaning up
+        
+        // 🎯 CRITICAL: STILL RESET THE BLOCKING FLAG EVEN DURING SORRY MESSAGES
+        window.speakSequenceBlocked = false;
+        console.log('🔓 Hybrid blocking reset (during sorry message)');
+        return; // Exit without full cleanup
     }
     
     // 🛑 CRITICAL: RE-ENABLE FUTURE SESSIONS
@@ -4317,7 +4329,6 @@ function cleanupSpeakSequence() {
     speakSequenceActive = false;
     
     console.log('🧹 Cleaning up speak sequence');
-    // 🚫 REMOVE THIS DUPLICATE LINE: speakSequenceActive = false;
     
     if (speakSequenceCleanupTimer) {
         clearTimeout(speakSequenceCleanupTimer);
