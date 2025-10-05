@@ -485,13 +485,11 @@ if (isDefinitelyMobile) {
     const isEdge = /Edg\/\d+/.test(navigator.userAgent) && !/Mobile/.test(navigator.userAgent);
     
     if (!hasSpeech && isEdge) {
-    console.log('🦊 EDGE FIX: No speech detected in onend - triggering hybrid system');
-    
-    // Use the same flow that works for Chrome - trigger the hybrid ready sequence
-    // This will show the "I'm sorry, I didn't catch that" message
-    showHybridReadySequence();
-    return;
-}
+        console.log('🦊 EDGE FIX: No speech detected in onend - triggering sorry message');
+        console.log('📱 MOBILE FALLBACK: No speech detected - triggering sorry message');
+        handleSpeechRecognitionError('no-speech');
+        return;
+    }
     
     // DON'T clear the slot here - let the hybrid system manage it
     // (This was causing premature clearing)
