@@ -471,25 +471,15 @@ if (isMobileDevice()) {
     }
 };
 
-     recognition.onend = function() {
+    recognition.onend = function() {
     console.log('🔚 Recognition ended');
-    
-    // 🗑️ DELETE THIS ENTIRE EDGE BLOCK
-    const userInput = document.getElementById('userInput');
-    const hasSpeech = userInput && userInput.value.trim().length > 0;
-    const isEdge = /Edg\/\d+/.test(navigator.userAgent) && !/Mobile/.test(navigator.userAgent);
-    
-    if (!hasSpeech && isEdge) {
-        // 🗑️ DELETE ALL THIS EDGE-SPECIFIC CODE
-        console.log('🦊 EDGE FIX: No speech detected in onend - MANUALLY triggering sorry message');
-        // ... all the manual sorry message code
-        return;
-    }
     
     // DON'T clear the slot here - let the hybrid system manage it
     // (This was causing premature clearing)
     
-    if (hasSpeech) {
+    const userInput = document.getElementById('userInput');
+    
+    if (userInput && userInput.value.trim().length > 0) {
         // User said something - process the message
         const currentMessage = userInput.value.trim();
         const now = Date.now();
@@ -524,7 +514,7 @@ if (isMobileDevice()) {
             sendMessage(currentMessage);
         }
     } else {
-        // No speech detected - hybrid restart for non-Edge browsers
+        // No speech detected - hybrid restart
         console.log('🔄 No speech detected via onend - restarting with hybrid system');
         
         // Your existing hybrid restart logic
@@ -2514,36 +2504,43 @@ function askLeadQuestion() {
 }
 
 function speakMessage(message) {
-    if (window.speechSynthesis) {
-        window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(message);
-        utterance.rate = 0.9;
-        utterance.pitch = 1.1;
-        
-        utterance.onstart = function() {
-            isSpeaking = true; // Add this for proper state management
-            console.log('🔊 AI started speaking - hiding Speak Now');
-            // Hide the green banner while AI speaks
-            const liveTranscript = document.getElementById('liveTranscript');
-            if (liveTranscript) {
-                liveTranscript.style.display = 'none';
-            }
-        };
-
-        utterance.onend = function() {
-            isSpeaking = false; // Add this for proper state management
-            console.log('🔊 AI finished speaking for lead capture');
-            
-            // ✅ THE FIX: Show hybrid sequence for lead capture questions
-            if (isInLeadCapture) {
-                setTimeout(() => {
-                    showHybridReadySequence(); // This shows "Get Ready to Speak" → "Listening"
-                }, 800);
-            }
-        };
-        
-        window.speechSynthesis.speak(utterance);
+    if (!window.speechSynthesis) {
+        console.log('❌ Speech synthesis not supported');
+        return;
     }
+
+    window.speechSynthesis.cancel();
+    
+    const utterance = new SpeechSynthesisUtterance(message);
+    
+    // Use proper mobile detection
+    utterance.rate = isMobileDevice() ? 0.9 : 1.0;
+    utterance.pitch = 1.0;
+    utterance.volume = isMobileDevice() ? 0.95 : 0.9;
+    
+    utterance.onstart = function() {
+        isSpeaking = true; // Add this for proper state management
+        console.log('🔊 AI started speaking - hiding Speak Now');
+        // Hide the green banner while AI speaks
+        const liveTranscript = document.getElementById('liveTranscript');
+        if (liveTranscript) {
+            liveTranscript.style.display = 'none';
+        }
+    };
+
+    utterance.onend = function() {
+        isSpeaking = false; // Add this for proper state management
+        console.log('🔊 AI finished speaking for lead capture');
+        
+        // ✅ THE FIX: Show hybrid sequence for lead capture questions
+        if (isInLeadCapture) {
+            setTimeout(() => {
+                showHybridReadySequence(); // This shows "Get Ready to Speak" → "Listening"
+            }, 800);
+        }
+    };
+    
+    window.speechSynthesis.speak(utterance);
 }
 
 
@@ -3774,29 +3771,44 @@ if (existingPrompt) {
 function handleSpeechRecognitionError(error) {
     console.log('🚨💣 NUCLEAR: Speech recognition error detected - KILLING ALL LISTENING');
 
-     // 🎯 DESKTOP: Use original working code
-    const isRealMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+    // 🎯 DESKTOP: Use original working code
+    const isRealMobile = isMobileDevice();
     if (!isRealMobile) {
         console.log('🖥️ DESKTOP: Using original working sorry system');
         
-        // Your original desktop code that was working
+        // Use your proper speech function instead of direct synthesis
+        if (error === 'no-speech' && speakSequenceButton && speakSequenceActive) {
+            const sorryMessage = getNextSorryMessage();
+            speakResponseOriginal(sorryMessage);
+            return;
+        }
+    }
+
+    // 🎯 MOBILE: Enhanced mobile error handling
+    else {
+        console.log('📱 MOBILE: Using enhanced mobile sorry system');
+        
         if (error === 'no-speech' && speakSequenceButton && speakSequenceActive) {
             const sorryMessage = getNextSorryMessage();
             
-            if (typeof speechSynthesis !== 'undefined') {
-                speechSynthesis.cancel();
-                const utterance = new SpeechSynthesisUtterance(sorryMessage);
-                utterance.volume = 0.7;
-                utterance.onend = function() {
-                    setTimeout(() => {
-                        if (speakSequenceActive) {
-                            startNormalInterviewListening();
-                        }
-                    }, 800);
-                };
-                speechSynthesis.speak(utterance);
-            }
-            return; // Stop here for desktop
+            // Use proper speech function with mobile settings
+            speakResponseOriginal(sorryMessage);
+            
+            // Mobile-specific visual feedback
+            speakSequenceButton.innerHTML = `
+                <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+                    <div style="margin-bottom: 6px; color: #dc2626;">
+                        <span class="error-feedback-blink">🔊</span> ${sorryMessage}
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #dc2626, #b91c1c);"></div>
+                    </div>
+                </div>
+            `;
+            speakSequenceButton.style.background = 'rgba(220, 38, 38, 0.4) !important';
+            speakSequenceButton.style.borderColor = 'rgba(220, 38, 38, 0.8) !important';
+            
+            return;
         }
     }
 
@@ -3855,7 +3867,7 @@ function handleSpeechRecognitionError(error) {
                     speechSynthesis.cancel();
                     
                     setTimeout(() => {
-                        const utterance = new SpeechSynthesisUtterance(sorryMessage);
+                        const utterance = new speakResponseOriginal(sorryMessage);
                         utterance.volume = 0.7;
                         utterance.rate = 1.1;
                         utterance.pitch = 1;
