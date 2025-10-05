@@ -485,31 +485,32 @@ if (isDefinitelyMobile) {
     const isEdge = /Edg\/\d+/.test(navigator.userAgent) && !/Mobile/.test(navigator.userAgent);
     
     if (!hasSpeech && isEdge) {
-        console.log('🦊 EDGE FIX: No speech detected in onend - creating error event');
+        console.log('🦊 EDGE FIX: No speech detected in onend - extending cleanup timer');
         
-        // Create a fake error event
+        // EXTEND THE CLEANUP TIMER to give sorry message time to play
+        if (speakSequenceCleanupTimer) {
+            clearTimeout(speakSequenceCleanupTimer);
+            console.log('⏰ Extended cleanup timer for Edge sorry message');
+        }
+        
+        // Set a longer timer for Edge
+        speakSequenceCleanupTimer = setTimeout(() => {
+            if (speakSequenceActive) {
+                console.log('⏰ Edge extended cleanup timer fired');
+                cleanupSpeakSequence();
+            }
+        }, 8000); // 8 seconds instead of the normal timeout
+        
+        // Now trigger the error
         const errorEvent = {
             error: 'no-speech',
-            message: 'No speech was detected',
+            message: 'No speech was detected', 
             type: 'error'
         };
         
-        // DEBUG: Check what happens in the nuclear flow
-        console.log('🔍 EDGE DEBUG - Before triggering error:');
-        console.log('- playingSorryMessage:', window.playingSorryMessage);
-        console.log('- speakSequenceActive:', speakSequenceActive);
-        
-        // Trigger the recognition's error handler
         if (recognition.onerror) {
             console.log('🚨 Triggering recognition.onerror with no-speech');
             recognition.onerror(errorEvent);
-            
-            // Add a small delay to see if sorry message triggers
-            setTimeout(() => {
-                console.log('🔍 EDGE DEBUG - After error (500ms):');
-                console.log('- playingSorryMessage:', window.playingSorryMessage);
-                console.log('- sorry message triggered?');
-            }, 500);
         }
         return;
     }
