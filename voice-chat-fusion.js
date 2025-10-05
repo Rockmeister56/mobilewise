@@ -3777,50 +3777,57 @@ if (existingPrompt) {
   // 🎯 ENHANCED SPEECH RECOGNITION ERROR HANDLER WITH MULTIPLE SORRY MESSAGES
 function handleSpeechRecognitionError(error) {
     console.log('🚨💣 NUCLEAR: Speech recognition error detected - KILLING ALL LISTENING');
-
-    // 🎯 DESKTOP: Use original working code
-    const isRealMobile = isMobileDevice();
-    if (!isRealMobile) {
-        console.log('🖥️ DESKTOP: Using original working sorry system');
         
         // Use your proper speech function instead of direct synthesis
-        if (error === 'no-speech' && speakSequenceButton && speakSequenceActive) {
-            const sorryMessage = getNextSorryMessage();
-            
-            // 🎯 ADD BUBBLE FOR DESKTOP
-            addAIMessage(sorryMessage);
-            
-            // 🎯 UPDATE BANNER FOR DESKTOP
-            speakSequenceButton.innerHTML = `
-                <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
-                    <div style="margin-bottom: 6px; color: #dc2626;">
-                        <span class="error-feedback-blink">🔊</span> ${sorryMessage}
-                    </div>
-                    <div class="progress-bar-container">
-                        <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #dc2626, #b91c1c);"></div>
-                    </div>
+       const isRealMobile = isMobileDevice();
+if (!isRealMobile) {
+    console.log('🖥️ DESKTOP: Using original working sorry system');
+    
+    // Use your proper speech function instead of direct synthesis
+    if (error === 'no-speech' && speakSequenceButton && speakSequenceActive) {
+        const sorryMessage = getNextSorryMessage();
+        
+        // 🎯 CRITICAL: SET SORRY MESSAGE FLAG
+        window.playingSorryMessage = true;
+        
+        // 🎯 ADD BUBBLE FOR DESKTOP
+        addAIMessage(sorryMessage);
+        
+        // 🎯 UPDATE BANNER FOR DESKTOP
+        speakSequenceButton.innerHTML = `
+            <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+                <div style="margin-bottom: 6px; color: #dc2626;">
+                    <span class="error-feedback-blink">🔊</span> ${sorryMessage}
                 </div>
-            `;
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #dc2626, #b91c1c);"></div>
+                </div>
+            </div>
+        `;
+        
+        speakResponseOriginal(sorryMessage);
+        
+        // 🎯 DESKTOP RESTART LOGIC SHOULD BE RIGHT HERE ▼
+        setTimeout(() => {
+            console.log('🔊 DESKTOP: Force restarting listening after sorry message');
             
-            speakResponseOriginal(sorryMessage);
+            // 🎯 CRITICAL: RESET SORRY MESSAGE FLAG
+            window.playingSorryMessage = false;
+            console.log('🔓 DESKTOP: Sorry message flag reset');
             
-            // 🎯 CRITICAL: ADD DESKTOP RESTART LOGIC (SAME AS MOBILE)
-            setTimeout(() => {
-                console.log('🔊 DESKTOP: Force restarting listening after sorry message');
-                
-                // 🎯 RESTART CLEANUP TIMER
-                speakSequenceCleanupTimer = setTimeout(() => {
-                    console.log('⏰ DESKTOP: Cleanup timer fired');
-                    cleanupSpeakSequence();
-                }, 8000);
-                
-                // 🎯 CRITICAL: RESTART LISTENING
-                forceStartListening();
-            }, 2000); // Wait for sorry message to finish
+            // 🎯 RESTART CLEANUP TIMER
+            speakSequenceCleanupTimer = setTimeout(() => {
+                console.log('⏰ DESKTOP: Cleanup timer fired');
+                cleanupSpeakSequence();
+            }, 8000);
             
-            return;
-        }
+            // 🎯 CRITICAL: RESTART LISTENING
+            forceStartListening();
+        }, 2000); // Wait for sorry message to finish
+        
+        return;
     }
+}
 
     // 💣 CALL GLOBAL NUKE FUNCTION
    // nukeAllListening();
