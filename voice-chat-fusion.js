@@ -3516,8 +3516,6 @@ function showHybridReadySequence() {
         return;
     }
     window.speakSequenceBlocked = true;
-
-    }
     
     // 🎯 SAFETY: Auto-reset block after 10 seconds (in case cleanup fails)
     setTimeout(() => {
@@ -3526,6 +3524,8 @@ function showHybridReadySequence() {
             window.speakSequenceBlocked = false;
         }
     }, 10000);
+
+     }
     
     // 🛑 CRITICAL: STOP ANY EXISTING LISTENING FIRST
     if (typeof recognition !== 'undefined' && recognition) {
