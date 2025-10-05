@@ -3,6 +3,10 @@
 // Smart Button + Lead Capture + EmailJS + Banner System
 // ===================================================
 
+// 🚨 NUCLEAR DEBUG - IF YOU SEE THIS, FILE IS LOADING
+console.log('🚨 NUCLEAR DEBUG: File loaded successfully - ' + Date.now());
+console.log('🚨 If you see this, the file is loading but our changes are missing');
+
 // Add this at the VERY TOP of your JavaScript file (like line 1)
 if (typeof window.leadData === 'undefined' || !window.leadData) {
     window.leadData = { 
@@ -3776,6 +3780,7 @@ if (existingPrompt) {
     
   // 🎯 ENHANCED SPEECH RECOGNITION ERROR HANDLER WITH MULTIPLE SORRY MESSAGES
 function handleSpeechRecognitionError(error) {
+    console.log('🎯 TEST: If you see this, changes are deploying - ' + Date.now());
     console.log('🚨💣 NUCLEAR: Speech recognition error detected - KILLING ALL LISTENING');
     console.log('🔍 DEBUG: Error type:', error);
     console.log('🔍 DEBUG: isMobileDevice():', isMobileDevice());
