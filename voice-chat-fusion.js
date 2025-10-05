@@ -3896,39 +3896,39 @@ if (!isRealMobile) {
                     speechSynthesis.cancel();
                     
                     setTimeout(() => {
-                        const utterance = new SpeechSynthesisUtterance(sorryMessage);
-                        utterance.volume = 0.7;
-                        utterance.rate = 1.1;
-                        utterance.pitch = 1;
-                        
-                        // Better mobile compatibility
-                        utterance.voice = speechSynthesis.getVoices().find(voice => 
-                            voice.name.includes('Google') || voice.default
-                        ) || speechSynthesis.getVoices()[0];
-                        
-                        // 🎯 CRITICAL: ADD LISTENER TO RESTART AFTER SPEECH FINISHES
-                         // utterance.onend = function() {
-                          //  console.log('🔊 Sorry message finished - going to SPEAK NOW');
-
-                         utterance.onend = function() {
-    console.log('🔊 TEST 1: Sorry message finished at:', Date.now());
-    console.log('🔊 TEST 2: speakSequenceActive:', speakSequenceActive);
-    console.log('🔊 TEST 3: speakSequenceCleanupTimer exists:', !!speakSequenceCleanupTimer);
+    const utterance = new SpeechSynthesisUtterance(sorryMessage);
+    utterance.volume = 0.7;
+    utterance.rate = 1.1;
+    utterance.pitch = 1;
     
-    // 🎯 FORCE RESTART - NO CONDITIONS!
-    setTimeout(() => {
-        console.log('🔊 TEST 5: Inside restart timeout at:', Date.now());
-        console.log('🔊 TEST 6: Calling forceStartListening()');
+    // Better mobile compatibility
+    utterance.voice = speechSynthesis.getVoices().find(voice => 
+        voice.name.includes('Google') || voice.default
+    ) || speechSynthesis.getVoices()[0];
+    
+    utterance.onend = function() {
+        console.log('🔊 TEST 1: Sorry message finished at:', Date.now());
+        console.log('🔊 TEST 2: speakSequenceActive:', speakSequenceActive);
+        console.log('🔊 TEST 3: speakSequenceCleanupTimer exists:', !!speakSequenceCleanupTimer);
         
-        // 🎯 RESTART CLEANUP TIMER
-        speakSequenceCleanupTimer = setTimeout(() => {
-            console.log('⏰ TEST 7: Cleanup timer fired at:', Date.now());
-            cleanupSpeakSequence();
-        }, 8000);
-        
-        // 🎯 CRITICAL: RESTART LISTENING
-        forceStartListening();
-    }, 800);
+        // 🎯 FORCE RESTART - NO CONDITIONS!
+        setTimeout(() => {
+            console.log('🔊 TEST 5: Inside restart timeout at:', Date.now());
+            console.log('🔊 TEST 6: Calling forceStartListening()');
+            
+            // 🎯 RESTART CLEANUP TIMER
+            speakSequenceCleanupTimer = setTimeout(() => {
+                console.log('⏰ TEST 7: Cleanup timer fired at:', Date.now());
+                cleanupSpeakSequence();
+            }, 8000);
+            
+            // 🎯 CRITICAL: RESTART LISTENING
+            forceStartListening();
+        }, 800);
+    }; // ← JUST add this semicolon to close utterance.onend
+    
+    speechSynthesis.speak(utterance); // ← Add this line to actually play the speech
+}, 500);
 
                             
                             if (speakSequenceButton && speakSequenceActive) {
