@@ -1633,165 +1633,38 @@ window.removeLeadCaptureBanner = function() {
 
 console.log('🎖️ Complete Universal Banner Engine loaded - 9 banner types ready (Clean Container Edition)!');
 
-// ===================================================
-// 🏆 AUTO-DEPLOY BRANDING BANNER ON PAGE LOAD
-// ===================================================
-document.addEventListener('DOMContentLoaded', function() {
-    // Wait a moment for page to fully load, then deploy branding
-    setTimeout(() => {
-        console.log('🏆 Auto-deploying Mobile-Wise AI branding banner...');
-        showUniversalBanner('branding');
-    }, 500); // Half second delay to ensure everything is loaded
-});
-
-// BACKUP: If DOMContentLoaded already fired
-if (document.readyState === 'complete' || document.readyState === 'interactive') {
-    setTimeout(() => {
-        console.log('🏆 Backup branding banner deployment...');
-        showUniversalBanner('branding');
-    }, 100);
-}
-
-// ===================================================================
-// 🎯 UNIVERSAL MASTER BANNER TRIGGER SYSTEM - ALL INDUSTRIES
-// ===================================================================
-
-// Universal trigger configuration (easily customizable per industry)
-const bannerTriggers = {
-    // CONSULTATION/SERVICE TRIGGERS
-    consultation_offer: {
-        bannerType: 'smartButton',
-        content: {
-            selling: '📞 FREE Practice Valuation - Connect with Bruce Now',
-            buying: '🏢 View Available Practices - Connect with Bruce', 
-            valuation: '📈 Get Your FREE Practice Valuation - Talk to Bruce',
-            default: '📅 FREE Consultation Available'
-        },
-        delay: 500,
-        duration: 0,
-        conditions: ['consultation_ready']
-    },
+function testNewBannerSystem() {
+    console.log('🧪 Testing new Mobile-Wise Banner System...');
     
-    // EMAIL CONFIRMATION
-    email_sent: {
-        bannerType: 'emailSent',
-        content: '✅ Information Sent! We\'ll contact you within 24 hours',
-        delay: 0,
-        duration: 4000,
-        conditions: ['email_success']
-    },
-    
-    // FREE OFFER (Book, Guide, Calculator, etc.)
-    free_offer: {
-        bannerType: 'freeBook',
-        content: '📚 FREE Book: "7 Secrets to Selling Your Practice"',
-        delay: 2000,
-        duration: 0,
-        conditions: ['consultation_declined']
-    },
-    
-    // THANK YOU / MORE QUESTIONS
-    more_questions: {
-        bannerType: 'moreQuestions', 
-        content: '🙏 Thank you for visiting! Have a wonderful day!',
-        delay: 1000,
-        duration: 0,
-        conditions: ['conversation_ended']
-    },
-    
-    // LEAD MAGNET
-    lead_magnet: {
-        bannerType: 'leadMagnet',
-        content: '🎁 Your Free Gift is Ready!',
-        delay: 3000,
-        duration: 0,
-        conditions: ['has_lead_magnet']
-    },
-    
-    // CONSULTATION CONFIRMED
-    consultation_confirmed: {
-        bannerType: 'consultationConfirmed',
-        content: '🎉 Consultation Confirmed!',
-        delay: 0,
-        duration: 5000,
-        conditions: ['booking_success']
-    },
-
-     pre_valuation_scheduling: {
-        bannerType: 'preValuationScheduling',
-        delay: 0,
-        duration: 0,  // <-- 0 = PERSISTENT (stays until manually changed)
-        conditions: ['valuation_interview_active']
-    },
-    
-    meeting_request_sent: {
-        bannerType: 'meetingRequestSent', 
-        delay: 0,
-        duration: 3000,  // <-- Brief 3-second display
-        conditions: ['booking_success']
-    },
-    
-    free_book_offer: {
-        bannerType: 'freeBookOffer',
-        delay: 0,
-        duration: 0,  // <-- PERSISTENT until user interacts
-        conditions: ['lead_captured']
+    // Test 1: Check if system loaded
+    if (window.MobileWiseBannerAPI) {
+        console.log('✅ New banner system loaded successfully!');
+        console.log('📊 Client Config:', window.MobileWiseBannerAPI.getClientConfig());
+    } else {
+        console.log('❌ New banner system not loaded');
+        return;
     }
-};
-
-// ===================================================
-// 🔇 SPEECH PAUSE HELPER
-// ===================================================
-function pauseSpeechForBannerInteraction() {
-    console.log('🔇 Speech paused for banner interaction');
-    // Add any speech pausing logic here if needed
-}
-
-// ===================================================
-// 🎖️ UNIVERSAL MASTER BANNER TRIGGER SYSTEM
-// ===================================================
-window.triggerBanner = function(bannerType, options = {}) {
-    console.log(`🎖️ Triggering banner: ${bannerType}`);
     
-    const bannerMap = {
-        'smart_button': 'smartButton',
-        'consultation_offer': 'smartButton',  // ← ADD THIS LINE!
-        'email_sent': 'emailSent', 
-        'free_book': 'freeBook',
-        'consultation_confirmed': 'consultationConfirmed',
-        'thank_you': 'thankYou',
-        'lead_capture': 'leadCapture'
-    };
+    // Test 2: Show a test banner (won't interfere with your old system)
+    setTimeout(() => {
+        console.log('🎯 Testing branding banner...');
+        window.MobileWiseBannerAPI.showBanner('branding');
+    }, 2000);
     
-    const actualBannerType = bannerMap[bannerType] || bannerType;
-    showUniversalBanner(actualBannerType, null, options);
-};
-
-// Condition checker (COMPLETE with all your logic)
-function checkTriggerConditions(conditions, data) {
-    return conditions.every(condition => {
-        if (condition === 'email_success') return data.emailSuccess === true;
-        if (condition === 'has_lead_magnet') return getActiveLeadMagnet() !== null;
-        if (condition === 'booking_success') return data.bookingSuccess === true;
-        if (condition === 'consultation_ready') return true; // Always allow consultation offers
-        if (condition === 'consultation_declined') return true; // Always allow fallback offers
-        if (condition === 'conversation_ended') return true; // Always allow thank you
-        if (condition.startsWith('conversation_state:')) {
-            const state = condition.split(':')[1];
-            return conversationState === state;
-        }
-        return true;
-    });
+    // Test 3: Test speech coordination
+    setTimeout(() => {
+        console.log('🔇 Testing speech coordination...');
+        window.MobileWiseBannerAPI.setSpeechInProgress(true);
+        
+        setTimeout(() => {
+            window.MobileWiseBannerAPI.setSpeechInProgress(false);
+            console.log('🔊 Speech coordination test complete');
+        }, 3000);
+    }, 5000);
 }
 
-// ===================================================
-// 🔇 SPEECH PAUSE HELPER
-// ===================================================
-function pauseSpeechForBannerInteraction() {
-    console.log('🔇 Speech paused for banner interaction');
-}
-
-console.log('🎖️ Universal Master Banner Trigger System loaded - Ready for any industry!');
+// Call this function to test (uncomment when ready):
+// testNewBannerSystem();
 
 // ===================================================
 // 🎯 BANNER SYSTEM 2.0 - WITH LEAD MAGNET INTEGRATION
@@ -1895,8 +1768,10 @@ function updateSmartButton(shouldShow, buttonText, action) {
             action: action
         });
     }
-    // ✅ REMOVE THE ELSE BLOCK ENTIRELY!
-    // Let your Universal Banner 2.0 system handle all removal/restoration
+    MasterBannerTriggerManager.trigger('button_interaction', { 
+    buttonType,
+    action: 'start_lead_capture' 
+});
 }
 
 // ===================================================
@@ -2191,6 +2066,19 @@ if (window.emailFollowUpHandler && window.emailFollowUpHandler(userInput)) {
 // Then use: setAIResponse(responseText); instead of currentAIResponse = responseText;
 
 return responseText;
+
+}
+
+function testBannerTrigger(userMessage) {
+    // Your existing code runs normally...
+    
+    // NEW: Test the trigger system alongside your old system
+    if (window.MobileWiseBannerAPI && userMessage.toLowerCase().includes('test new banner')) {
+        console.log('🧪 Testing new trigger system...');
+        window.MobileWiseBannerAPI.triggerFromMessage(userMessage);
+    }
+    
+    // Your old banner logic continues to work normally...
 }
 
 // ===================================================
