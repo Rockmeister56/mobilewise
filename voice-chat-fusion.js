@@ -487,7 +487,7 @@ if (isDefinitelyMobile) {
     if (!hasSpeech && isEdge) {
         console.log('🦊 EDGE FIX: No speech detected in onend - triggering sorry message');
         console.log('📱 MOBILE FALLBACK: No speech detected - triggering sorry message');
-        handleSpeechRecognitionError('no-speech');
+        handleSpeechRecognitionError('no-speech'); // ← SINGULAR!
         return;
     }
     
