@@ -3407,8 +3407,6 @@ let speakSequenceActive = false;
 let speakSequenceButton = null;
 let speakSequenceCleanupTimer = null;
 
-
-
 // ✅ MOBILE STABILITY FUNCTIONS - ADD THESE
 function applyMobileStability() {
     console.log('📱 Applying mobile stability enhancements...');
@@ -3465,7 +3463,7 @@ function setupMobileTouchEvents() {
             e.preventDefault();
         }
     }, { passive: false });
-}
+} // <-- THIS CLOSING BRACKET WAS MISSING!
 
 function playMobileErrorBeep() {
     try {
@@ -3503,6 +3501,8 @@ function playMobileErrorBeep() {
 // ✅ MAIN FUNCTION WITH ALL FIXES
 function showHybridReadySequence() {
      // ✅ CALL MOBILE STABILITY FIRST
+
+     }
 
     // 🛑 CRITICAL: PREVENT MULTIPLE SIMULTANEOUS SESSIONS
     if (window.speakSequenceBlocked) {
@@ -3967,7 +3967,7 @@ function handleSpeechRecognitionError(error) {
             }
         }
     }, 100); // Short delay to ensure nuke completed
-}
+} // ← THIS CLOSES THE handleSpeechRecognitionError FUNCTION
 
 
 // 🎯 DETECT CONTACT INTERVIEW MODE
