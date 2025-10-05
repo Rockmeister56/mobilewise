@@ -312,16 +312,6 @@ function initializeSpeechRecognition() {
     return true;
 }
 
-// 🎯 ADD DEBUG HERE - ROOT CAUSE ANALYSIS
-console.log('🔍 ROOT CAUSE DEBUG:', {
-    userAgent: navigator.userAgent,
-    isMobileDevice: isMobileDevice(), // Your current function
-    hasTouch: 'ontouchstart' in window,
-    screenWidth: window.innerWidth,
-    isEdge: /Edg\/\d+/.test(navigator.userAgent),
-    isMobileInUA: /Mobile/.test(navigator.userAgent)
-});
-
 function getApologyResponse() {
     const sorryMessages = [
         "I'm sorry, I didn't catch that. Can you repeat your answer?",
@@ -989,6 +979,39 @@ function handleConsultationClick(type) {
     // Call the existing working function:
     handleSmartButtonClick(type);
 }
+
+// 🎯 ADD THIS MISSING FUNCTION - ROOT CAUSE FIX
+function isMobileDevice() {
+    const userAgent = navigator.userAgent;
+    
+    // 🦊 CRITICAL: Edge desktop should return FALSE
+    const isEdgeDesktop = /Edg\/\d+/.test(userAgent) && !/Mobile/.test(userAgent);
+    const isChromeDesktop = /Chrome\/\d+/.test(userAgent) && !/Mobile/.test(userAgent);
+    const isFirefoxDesktop = /Firefox\/\d+/.test(userAgent) && !/Mobile/.test(userAgent);
+    
+    // 🎯 DESKTOP BROWSERS - DEFINITELY NOT MOBILE
+    if (isEdgeDesktop || isChromeDesktop || isFirefoxDesktop) {
+        return false;
+    }
+    
+    // 🎯 TRUE MOBILE DETECTION
+    const isMobileUserAgent = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile/i.test(userAgent);
+    const isTablet = /iPad|Tablet|KFAPWI|Silk/i.test(userAgent);
+    const hasTouch = 'ontouchstart' in window;
+    const isSmallScreen = window.innerWidth < 768;
+    
+    return isMobileUserAgent || isTablet || (hasTouch && isSmallScreen);
+}
+
+// 🎯 KEEP THE DEBUG TO VERIFY IT'S WORKING
+console.log('🔍 ROOT CAUSE DEBUG - isMobileDevice FIXED:', {
+    userAgent: navigator.userAgent,
+    isMobileDevice: isMobileDevice(),
+    hasTouch: 'ontouchstart' in window,
+    screenWidth: window.innerWidth,
+    isEdge: /Edg\/\d+/.test(navigator.userAgent),
+    isMobileInUA: /Mobile/.test(navigator.userAgent)
+});
 
 // ===================================================
 // 🔊 VOICE SYNTHESIS SYSTEM
