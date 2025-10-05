@@ -3496,14 +3496,14 @@ function playMobileErrorBeep() {
             console.log('📱 Fallback beep also failed');
         }
     }
-}
+} 
 
 // ✅ MAIN FUNCTION WITH ALL FIXES
 function showHybridReadySequence() {
-     // ✅ CALL MOBILE STABILITY FIRST
-
-     }
-
+    // ✅ CALL MOBILE STABILITY FIRST
+    applyMobileStability();
+    setupMobileTouchEvents();
+    
     // 🛑 CRITICAL: PREVENT MULTIPLE SIMULTANEOUS SESSIONS
     if (window.speakSequenceBlocked) {
         console.log('🔇 HYBRID BLOCKED: Another session already running');
@@ -3516,6 +3516,8 @@ function showHybridReadySequence() {
         return;
     }
     window.speakSequenceBlocked = true;
+
+    }
     
     // 🎯 SAFETY: Auto-reset block after 10 seconds (in case cleanup fails)
     setTimeout(() => {
@@ -3534,9 +3536,6 @@ function showHybridReadySequence() {
             console.log('🔇 Recognition already stopped or stopping failed');
         }
     }
-
-    applyMobileStability();
-    setupMobileTouchEvents();
     
     // ✅ BASIC BLOCKING CHECKS
     if (typeof BannerOrchestrator !== 'undefined' && 
