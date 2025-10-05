@@ -832,76 +832,42 @@ function processUserResponse(userText) {
         }
     }
     
-  // 🆕 CHECK IF LEAD CAPTURE SHOULD HANDLE THIS FIRST
-if (processLeadResponse(userText)) {
-    setTimeout(() => {
-        window.lastProcessedMessage = null;
-    }, 2000);
-    return;
-}
-
-// 🎯 NEW: Direct consultation trigger - NO AI fluff!
-if (shouldTriggerLeadCapture(userText)) {
-    console.log('🎯 BYPASSING AI - Direct to lead capture!');
-    setTimeout(() => {
-        startCompleteLeadCapture();
-    }, 300);
-    return; // Exit early!
-}
-
-// Default AI response handler
-setTimeout(() => {
-    const responseText = getAIResponse(userText);
-
-    console.log('🎯 USER SAID:', userText);
-    console.log('🎯 AI RESPONSE:', responseText);
-    
-    addAIMessage(responseText);
-    setAIResponse(responseText);
-    speakWithElevenLabs(responseText);
-    
-    function setAIResponse(response) {
-        currentAIResponse = response;
-        
-        // Track when we mention clicking
-        if (response && (response.includes('click') || response.includes('button above'))) {
-            window.lastClickMentionTime = Date.now();
-            console.log('⏰ Click mention detected - setting blocking window');
-        }
+    // 🆕 CHECK IF LEAD CAPTURE SHOULD HANDLE THIS FIRST
+    if (processLeadResponse(userText)) {
+        setTimeout(() => {
+            window.lastProcessedMessage = null;
+        }, 2000);
+        return;
     }
     
-    updateSmartButton(shouldShowSmartButton, smartButtonText, smartButtonAction);
-    
+    // Default AI response handler
     setTimeout(() => {
-        window.lastProcessedMessage = null;
-    }, 3000);
-}, 800);
+        const responseText = getAIResponse(userText);
+
+        console.log('🎯 USER SAID:', userText);
+        console.log('🎯 AI RESPONSE:', responseText);
+        
+        addAIMessage(responseText);
+        setAIResponse(responseText);
+        speakWithElevenLabs(responseText);
+       function setAIResponse(response) {
+    currentAIResponse = response;
+    
+    // Track when we mention clicking
+    if (response && (response.includes('click') || response.includes('button above'))) {
+        window.lastClickMentionTime = Date.now();
+        console.log('⏰ Click mention detected - setting blocking window');
+    }
 }
 
-function shouldTriggerLeadCapture(userInput) {
-    const input = userInput.toLowerCase().trim();
-    
-    // Get recent AI messages to check context
-    const recentAI = conversationHistory
-        .slice(-3)
-        .filter(msg => msg.role === 'assistant')
-        .map(msg => msg.content.toLowerCase())
-        .join(' ');
-    
-    // Check if recent AI mentioned consultation/scheduling
-    const aiOfferedConsultation = recentAI.includes('consultation') || 
-                                recentAI.includes('schedule') ||
-                                recentAI.includes('contact you') ||
-                                recentAI.includes('would you like');
-    
-    // User's affirmative responses
-    const yesResponses = [
-        'yes', 'yeah', 'yep', 'sure', 'ok', 'okay', 'absolutely', 
-        'definitely', 'of course', 'let\'s do it', 'sounds good',
-        'i would', 'i\'d like that', 'that sounds great', 'let\'s go'
-    ];
-    
-    return yesResponses.includes(input) && aiOfferedConsultation;
+// Then use: setAIResponse(responseText); instead of currentAIResponse = responseText;
+        
+        updateSmartButton(shouldShowSmartButton, smartButtonText, smartButtonAction);
+        
+        setTimeout(() => {
+            window.lastProcessedMessage = null;
+        }, 3000);
+    }, 800);
 }
 
 // =================================================== 
@@ -1961,11 +1927,6 @@ if (conversationState === 'initial') {
         conversationState = 'buying_budget_question';
         shouldShowSmartButton = false;
         
-        // 🎯 NEW: Trigger free book banner for buying interest
-        setTimeout(() => {
-            showUniversalBanner('freeBookWithConsultation');
-        }, 2000);
-        
     } else if (userText.includes('sell') || userText.includes('selling')) {
         responseText = firstName ? 
              `Wow ${firstName}! That's a huge decision - you've probably poured your heart and soul into building something special there. Tell me, how many clients are you currently serving?` :
@@ -1973,22 +1934,12 @@ if (conversationState === 'initial') {
         conversationState = 'selling_size_question';
         shouldShowSmartButton = false;
         
-        // 🎯 NEW: Trigger free book banner for selling interest
-        setTimeout(() => {
-            showUniversalBanner('freeBookWithConsultation');
-        }, 2000);
-        
     } else if (userText.includes('value') || userText.includes('worth') || userText.includes('valuation') || userText.includes('evaluate')) {
         responseText = firstName ?
             `${firstName}, I'd be happy to help with a practice valuation! You know, most practice owners are shocked when they find out what their practice is actually worth in today's market. To give you the most accurate assessment, what's your practice's approximate annual revenue?` :
             "I'd be happy to help with a practice valuation! Most owners are surprised at what their practice is worth. What's your practice's approximate annual revenue?";
         conversationState = 'valuation_revenue_question';
         shouldShowSmartButton = false;
-        
-        // 🎯 NEW: Trigger free book banner for valuation interest
-        setTimeout(() => {
-            showUniversalBanner('freeBookWithConsultation');
-        }, 2000);
         
     } else {
         responseText = firstName ?
@@ -2034,19 +1985,22 @@ if (conversationState === 'initial') {
         "Thank you for sharing that! Based on what you've told me, Bruce can definitely help you maximize your practice value. The market is incredibly strong right now. Would you like a FREE consultation with Bruce?";
     conversationState = 'asking_selling_consultation';
     
-    // 🎯 NEW: Trigger free book banner when offering consultation
-    setTimeout(() => {
-        showUniversalBanner('freeBookWithConsultation');
-    }, 1500);
-    
 } else if (conversationState === 'asking_selling_consultation') {
     if (userText.includes('yes') || userText.includes('sure') || userText.includes('okay') || userText.includes('definitely') || userText.includes('absolutely')) {
-        // 🎯 BYPASS AI RESPONSE - GO STRAIGHT TO LEAD CAPTURE
-        console.log('🎯 CONSULTATION YES - Starting lead capture immediately!');
+        // 🎯 NEW STREAMLINED FLOW: Skip button, go straight to interview
+        responseText = firstName ?
+            `Perfect ${firstName}! Let me get your information so Bruce can contact you directly. This will just take a moment...` :
+            "Perfect! Let me get your information so Bruce can contact you directly. This will just take a moment...";
+        
+        // 🎯 NEW: Show persistent Pre-Valuation Scheduling banner
+        triggerBanner('pre_valuation_scheduling', { valuation_interview_active: true });
+        
+        // 🎯 NEW: Go straight to lead capture interview
         setTimeout(() => {
-            startCompleteLeadCapture();
-        }, 300);
-        return ""; // Return empty to skip AI response
+            initializeLeadCapture('selling');
+        }, 1500);
+        
+        conversationState = 'lead_capture_active';
         
     } else if (userText.includes('no') || userText.includes('not now') || userText.includes('maybe later')) {
         responseText = firstName ?
@@ -2054,10 +2008,8 @@ if (conversationState === 'initial') {
             "No problem! It's a big decision. The offer stands whenever you're ready. Anything else about selling you'd like to know?";
         conversationState = 'initial';
         
-        // 🎯 NEW: Trigger smart button when consultation declined
-        setTimeout(() => {
-            showUniversalBanner('smartButton');
-        }, 1500);
+        // 🎯 TRIGGER: Free offer banner when consultation declined
+        triggerBanner('free_offer');
         
     } else {
         responseText = firstName ?
@@ -2086,19 +2038,22 @@ if (conversationState === 'initial') {
         "Excellent! Bruce has exclusive off-market opportunities you can't find anywhere else. Based on your criteria, he has practices that would be perfect. Want to see them?";
     conversationState = 'asking_buying_consultation';
     
-    // 🎯 NEW: Trigger free book banner when offering to show practices
-    setTimeout(() => {
-        showUniversalBanner('freeBookWithConsultation');
-    }, 1500);
-    
 } else if (conversationState === 'asking_buying_consultation') {
     if (userText.includes('yes') || userText.includes('sure') || userText.includes('okay') || userText.includes('definitely') || userText.includes('absolutely')) {
-        // 🎯 BYPASS AI RESPONSE - GO STRAIGHT TO LEAD CAPTURE
-        console.log('🎯 BUYING CONSULTATION YES - Starting lead capture immediately!');
+        // 🎯 NEW STREAMLINED FLOW: Skip button, go straight to interview
+        responseText = firstName ?
+            `Outstanding ${firstName}! Let me get your information so Bruce can reach out with practices that match your criteria perfectly. This will just take a moment...` :
+            "Outstanding! Let me get your information so Bruce can reach out with matching practices. This will just take a moment...";
+        
+        // 🎯 NEW: Show persistent Pre-Valuation Scheduling banner
+        triggerBanner('pre_valuation_scheduling', { valuation_interview_active: true });
+        
+        // 🎯 NEW: Go straight to lead capture interview
         setTimeout(() => {
-            startCompleteLeadCapture();
-        }, 300);
-        return ""; // Return empty to skip AI response
+            initializeLeadCapture('buying');
+        }, 1500);
+        
+        conversationState = 'lead_capture_active';
         
     } else if (userText.includes('no') || userText.includes('not now') || userText.includes('maybe later')) {
         responseText = firstName ?
@@ -2106,10 +2061,8 @@ if (conversationState === 'initial') {
             "That's fine! When ready, let me know. These opportunities move quickly. Anything else about buying I can help with?";
         conversationState = 'initial';
         
-        // 🎯 NEW: Trigger smart button when consultation declined
-        setTimeout(() => {
-            showUniversalBanner('smartButton');
-        }, 1500);
+        // 🎯 TRIGGER: Free offer banner when consultation declined
+        triggerBanner('free_offer');
         
     } else {
         responseText = firstName ?
@@ -2135,19 +2088,22 @@ if (conversationState === 'initial') {
         `Perfect! ${years} years - well-established! Bruce can provide a comprehensive FREE valuation. You might be surprised at the value. Want to schedule it?`;
     conversationState = 'asking_valuation_consultation';
     
-    // 🎯 NEW: Trigger free book banner when offering valuation
-    setTimeout(() => {
-        showUniversalBanner('freeBookWithConsultation');
-    }, 1500);
-    
 } else if (conversationState === 'asking_valuation_consultation') {
     if (userText.includes('yes') || userText.includes('sure') || userText.includes('okay') || userText.includes('definitely') || userText.includes('absolutely')) {
-        // 🎯 BYPASS AI RESPONSE - GO STRAIGHT TO LEAD CAPTURE
-        console.log('🎯 VALUATION CONSULTATION YES - Starting lead capture immediately!');
+        // 🎯 NEW STREAMLINED FLOW: Skip button, go straight to interview
+        responseText = firstName ?
+            `Wonderful ${firstName}! Let me get your information so Bruce can provide your FREE practice valuation. This will just take a moment...` :
+            "Wonderful! Let me get your information so Bruce can provide your FREE valuation. This will just take a moment...";
+        
+        // 🎯 NEW: Show persistent Pre-Valuation Scheduling banner
+        triggerBanner('pre_valuation_scheduling', { valuation_interview_active: true });
+        
+        // 🎯 NEW: Go straight to lead capture interview
         setTimeout(() => {
-            startCompleteLeadCapture();
-        }, 300);
-        return ""; // Return empty to skip AI response
+            initializeLeadCapture('valuation');
+        }, 1500);
+        
+        conversationState = 'lead_capture_active';
         
     } else if (userText.includes('no') || userText.includes('not now') || userText.includes('maybe later')) {
         responseText = firstName ?
@@ -2155,10 +2111,8 @@ if (conversationState === 'initial') {
             "No worries! The offer stands whenever you're ready. Anything else about valuations I can explain?";
         conversationState = 'initial';
         
-        // 🎯 NEW: Trigger smart button when consultation declined
-        setTimeout(() => {
-            showUniversalBanner('smartButton');
-        }, 1500);
+        // 🎯 TRIGGER: Free offer banner when consultation declined
+        triggerBanner('free_offer');
         
     } else {
         responseText = firstName ?
@@ -2181,10 +2135,8 @@ if (conversationState === 'initial') {
             "Thank you so much for visiting! Have a wonderful day! 🌟";
         conversationState = 'ended';
         
-        // 🎯 NEW: Trigger thank you banner when conversation ends
-        setTimeout(() => {
-            showUniversalBanner('thankYou');
-        }, 1000);
+        // 🎯 TRIGGER: Thank you banner when conversation ends
+        triggerBanner('more_questions');
         
     } else {
         conversationState = 'initial';
@@ -2232,55 +2184,13 @@ if (window.emailFollowUpHandler && window.emailFollowUpHandler(userInput)) {
     // Track when we mention clicking
     if (response && (response.includes('click') || response.includes('button above'))) {
         window.lastClickMentionTime = Date.now();
-        console.log('⏰ Clock mention detected - setting blocking window');
+        console.log('⏰ Click mention detected - setting blocking window');
     }
 }
 
 // Then use: setAIResponse(responseText); instead of currentAIResponse = responseText;
 
 return responseText;
-}
-
-// 🎯 ADD THIS FUNCTION AT THE END OF YOUR FILE:
-function shouldTriggerLeadCapture(userInput) {
-    const input = userInput.toLowerCase().trim();
-    
-    // User's affirmative responses
-    const yesResponses = [
-        'yes', 'yeah', 'yep', 'sure', 'ok', 'okay', 'absolutely', 
-        'definitely', 'of course', 'let\'s do it', 'sounds good',
-        'i would', 'i\'d like that', 'that sounds great', 'let\'s go'
-    ];
-    
-    // Check if we're in a consultation asking state
-    const consultationStates = [
-        'asking_selling_consultation',
-        'asking_buying_consultation', 
-        'asking_valuation_consultation'
-    ];
-    
-    return yesResponses.includes(input) && consultationStates.includes(conversationState);
-}
-
-// 🎯 ADD THIS FUNCTION AT THE END OF YOUR FILE:
-function shouldTriggerLeadCapture(userInput) {
-    const input = userInput.toLowerCase().trim();
-    
-    // User's affirmative responses
-    const yesResponses = [
-        'yes', 'yeah', 'yep', 'sure', 'ok', 'okay', 'absolutely', 
-        'definitely', 'of course', 'let\'s do it', 'sounds good',
-        'i would', 'i\'d like that', 'that sounds great', 'let\'s go'
-    ];
-    
-    // Check if we're in a consultation asking state
-    const consultationStates = [
-        'asking_selling_consultation',
-        'asking_buying_consultation', 
-        'asking_valuation_consultation'
-    ];
-    
-    return yesResponses.includes(input) && consultationStates.includes(conversationState);
 }
 
 // ===================================================
