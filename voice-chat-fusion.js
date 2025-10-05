@@ -2504,43 +2504,36 @@ function askLeadQuestion() {
 }
 
 function speakMessage(message) {
-    if (!window.speechSynthesis) {
-        console.log('❌ Speech synthesis not supported');
-        return;
-    }
-
-    window.speechSynthesis.cancel();
-    
-    const utterance = new SpeechSynthesisUtterance(message);
-    
-    // Use proper mobile detection
-    utterance.rate = isMobileDevice() ? 0.9 : 1.0;
-    utterance.pitch = 1.0;
-    utterance.volume = isMobileDevice() ? 0.95 : 0.9;
-    
-    utterance.onstart = function() {
-        isSpeaking = true; // Add this for proper state management
-        console.log('🔊 AI started speaking - hiding Speak Now');
-        // Hide the green banner while AI speaks
-        const liveTranscript = document.getElementById('liveTranscript');
-        if (liveTranscript) {
-            liveTranscript.style.display = 'none';
-        }
-    };
-
-    utterance.onend = function() {
-        isSpeaking = false; // Add this for proper state management
-        console.log('🔊 AI finished speaking for lead capture');
+    if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(message);
+        utterance.rate = 0.9;
+        utterance.pitch = 1.1;
         
-        // ✅ THE FIX: Show hybrid sequence for lead capture questions
-        if (isInLeadCapture) {
-            setTimeout(() => {
-                showHybridReadySequence(); // This shows "Get Ready to Speak" → "Listening"
-            }, 800);
-        }
-    };
-    
-    window.speechSynthesis.speak(utterance);
+        utterance.onstart = function() {
+            isSpeaking = true; // Add this for proper state management
+            console.log('🔊 AI started speaking - hiding Speak Now');
+            // Hide the green banner while AI speaks
+            const liveTranscript = document.getElementById('liveTranscript');
+            if (liveTranscript) {
+                liveTranscript.style.display = 'none';
+            }
+        };
+
+        utterance.onend = function() {
+            isSpeaking = false; // Add this for proper state management
+            console.log('🔊 AI finished speaking for lead capture');
+            
+            // ✅ THE FIX: Show hybrid sequence for lead capture questions
+            if (isInLeadCapture) {
+                setTimeout(() => {
+                    showHybridReadySequence(); // This shows "Get Ready to Speak" → "Listening"
+                }, 800);
+            }
+        };
+        
+        window.speechSynthesis.speak(utterance);
+    }
 }
 
 
