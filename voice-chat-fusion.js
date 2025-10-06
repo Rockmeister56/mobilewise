@@ -4340,14 +4340,21 @@ function startContactInterviewListening() {
 
 // Enhanced cleanup function
 function cleanupSpeakSequence() {
-    // 🎯 DON'T CLEANUP DURING SORRY MESSAGES, BUT STILL RESET BLOCKING
+    // 🎯 ALLOW CLEANUP DURING SORRY MESSAGES, BUT BE SMART ABOUT IT
     if (window.playingSorryMessage) {
-        console.log('🛡️ Blocking cleanup - sorry message in progress');
+        console.log('🛡️ Sorry message in progress - doing minimal cleanup');
         
-        // 🎯 CRITICAL: STILL RESET THE BLOCKING FLAG EVEN DURING SORRY MESSAGES
+        // 🎯 STILL CLEAN UP TIMERS AND FLAGS, BUT KEEP THE VISUAL
         window.speakSequenceBlocked = false;
+        speakSequenceActive = false;
+        
+        if (speakSequenceCleanupTimer) {
+            clearTimeout(speakSequenceCleanupTimer);
+            speakSequenceCleanupTimer = null;
+        }
+        
         console.log('🔓 Hybrid blocking reset (during sorry message)');
-        return; // Exit without full cleanup
+        return; // Exit but timers/flags are cleaned up
     }
     
     // 🛑 CRITICAL: RE-ENABLE FUTURE SESSIONS
