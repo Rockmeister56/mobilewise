@@ -407,8 +407,7 @@ function getApologyResponse() {
             }
         };
 
-        // Keep your existing onerror and onend handlers exactly as they are
-    recognition.onerror = function(event) {
+      recognition.onerror = function(event) {
     console.log('🔊 Speech error:', event.error);
 
      // 🎯 ADD TIMER CANCELLATION HERE
@@ -427,13 +426,17 @@ function getApologyResponse() {
             isTouch: ('ontouchstart' in window || navigator.maxTouchPoints > 0)
         });
 
-         // 🚨 NUCLEAR MOBILE DETECTION - USE PROPER FUNCTION
-if (isMobileDevice()) {
-    console.log('📱📱📱 NUCLEAR MOBILE DETECTED: Using visual feedback system');
+         // 🚨 BETTER MOBILE DETECTION - USE MULTIPLE CHECKS
+        const isActuallyMobile = isMobileDevice() || 
+                                window.innerWidth <= 768 || 
+                                /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
 
-    if (window.noSpeechTimeout) {
-        clearTimeout(window.noSpeechTimeout);
-    }
+        if (isActuallyMobile) {
+            console.log('📱📱📱 RELIABLE MOBILE DETECTED: Using visual feedback system');
+
+            if (window.noSpeechTimeout) {
+                clearTimeout(window.noSpeechTimeout);
+            }
 
             if (transcriptText) {
                 transcriptText.textContent = 'I didn\'t hear anything...';
