@@ -3794,10 +3794,8 @@ function handleSpeechRecognitionError(error) {
         // 🚨 NUCLEAR DEBUG - IF YOU SEE THIS, CHANGES ARE LOADING
         console.log('🚨 NUCLEAR DEBUG: Desktop error handler with restart logic - ' + Date.now());
         
-        // Use your proper speech function instead of direct synthesis
+        // Your original desktop code that was working
         if (error === 'no-speech' && speakSequenceButton && speakSequenceActive) {
-            console.log('🚨 NUCLEAR DEBUG: Entering desktop sorry message block');
-            
             const sorryMessage = getNextSorryMessage();
             
             // 🎯 CRITICAL: SET SORRY MESSAGE FLAG
@@ -4045,10 +4043,14 @@ function resetToGreenState() {
                 window.lastRecognitionResult = null;
                 
                 if (isContactInterview) {
-    startContactInterviewListening();
-} else {
-    // 🎯 USE FORCE START FOR SECOND "SPEAK NOW" - THIS WORKS!
-    forceStartListening();
+                    startContactInterviewListening();
+                } else {
+                    // Use mobile-optimized version if available
+                    if (typeof startMobileListening === 'function') {
+                        startMobileListening();
+                    } else {
+                        startNormalInterviewListening();
+                    }
                 }
             }
         }, 500);
