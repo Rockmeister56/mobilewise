@@ -405,6 +405,13 @@ function getApologyResponse() {
     recognition.onerror = function(event) {
     console.log('🔊 Speech error:', event.error);
 
+     // 🎯 ADD TIMER CANCELLATION HERE
+    if (speakSequenceCleanupTimer) {
+        clearTimeout(speakSequenceCleanupTimer);
+        speakSequenceCleanupTimer = null;
+        console.log('🕐 CANCELLED cleanup timer in OLD system');
+    }
+
     if (event.error === 'no-speech') {
         const transcriptText = document.getElementById('transcriptText');
 
@@ -4126,13 +4133,13 @@ setTimeout(() => {
     window.lastRecognitionResult = null;
     
     // Set up enhanced error handling for the recognition session
-    if (typeof recognition !== 'undefined') {
-        // 💣 ADD PRE-EMPTIVE NUKE HERE:
-        recognition.onerror = function(event) {
-            console.log('🚨💣 PRE-EMPTIVE NUKE: Speech error detected');
-            nukeAllListening(); // NUKE FIRST!
-            handleSpeechRecognitionError(event.error);
-        };
+if (typeof recognition !== 'undefined') {
+    // 💣 ADD PRE-EMPTIVE NUKE HERE:
+    // recognition.onerror = function(event) {
+    //     console.log('🚨💣 PRE-EMPTIVE NUKE: Speech error detected');
+    //     nukeAllListening(); // NUKE FIRST!
+    //     handleSpeechRecognitionError(event.error);
+    // };
         
         recognition.onend = function() {
         console.log('🔚 Recognition ended');
