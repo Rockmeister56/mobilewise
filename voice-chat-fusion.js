@@ -4457,7 +4457,6 @@ function cleanupSpeakSequence() {
         }
         
         console.log('🔓 Hybrid blocking reset (during sorry message)');
-        return; // Exit but timers/flags are cleaned up
     }
     
     // 🛑 CRITICAL: RE-ENABLE FUTURE SESSIONS
