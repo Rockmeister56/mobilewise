@@ -3940,9 +3940,9 @@ setTimeout(() => {
         
         // 🎯 USE THE CORRECT LISTENING FUNCTION
         if (isContactInterview) {
-            startContactInterviewListening();
-        } else {
             startNormalInterviewListening();
+        } else {
+            startMobileListening();
         }
     }
 }, 2000);
