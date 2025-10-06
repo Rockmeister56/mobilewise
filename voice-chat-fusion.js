@@ -3777,13 +3777,8 @@ function handleSpeechRecognitionError(error) {
     console.log('🚨💣 NUCLEAR: Speech recognition error detected - KILLING ALL LISTENING');
     console.log('🔍 DEBUG: Error type:', error);
     console.log('🔍 DEBUG: isMobileDevice():', isMobileDevice());
-     console.log('🚨💣 NUCLEAR: Speech recognition error detected - KILLING ALL LISTENING');
 
-     if (speakSequenceCleanupTimer) {
-        clearTimeout(speakSequenceCleanupTimer);
-        speakSequenceCleanupTimer = null;
-        console.log('🕐 CANCELLED cleanup timer to prevent killing sorry message');
-    }
+    console.log('🚨💣 NUCLEAR: Speech recognition error detected - KILLING ALL LISTENING');
         
     // Use your proper speech function instead of direct synthesis
     const isRealMobile = isMobileDevice();
@@ -4371,7 +4366,7 @@ function cleanupSpeakSequence() {
         }
         
         console.log('🔓 Hybrid blocking reset (during sorry message)');
-        // 🚨 RETURN REMOVED - visual cleanup will now happen
+        return; // Exit but timers/flags are cleaned up
     }
     
     // 🛑 CRITICAL: RE-ENABLE FUTURE SESSIONS
