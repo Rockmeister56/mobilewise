@@ -3903,6 +3903,37 @@ function handleSpeechRecognitionError(error) {
                         </div>
                     </div>
                 `;
+// 🎯 DEBUG BOMB - FIND WHAT'S BLOCKING LISTENING
+console.log('💣 DEBUG BOMB - Checking listening blockers:');
+console.log('💣 1. speakSequenceActive:', speakSequenceActive);
+console.log('💣 2. speakSequenceBlocked:', window.speakSequenceBlocked);
+console.log('💣 3. playingSorryMessage:', window.playingSorryMessage);
+console.log('💣 4. isSpeaking:', typeof isSpeaking !== 'undefined' ? isSpeaking : 'undefined');
+console.log('💣 5. recognition:', typeof recognition !== 'undefined' ? 'EXISTS' : 'UNDEFINED');
+console.log('💣 6. cleanupTimer:', !!speakSequenceCleanupTimer);
+
+// 🎯 CHECK ALL POTENTIAL BLOCKING CONDITIONS
+if (window.speakSequenceBlocked) {
+    console.log('🚨 BLOCKER: speakSequenceBlocked is TRUE');
+}
+if (typeof isSpeaking !== 'undefined' && isSpeaking) {
+    console.log('🚨 BLOCKER: AI is speaking');
+}
+if (!speakSequenceActive) {
+    console.log('🚨 BLOCKER: speakSequenceActive is FALSE');
+}
+
+// 🎯 NOW TRY TO START LISTENING
+console.log('💣 ATTEMPTING to start listening...');
+setTimeout(() => {
+    if (speakSequenceActive) {
+        console.log('💣 CALLING startNormalInterviewListening()');
+        startNormalInterviewListening();
+    } else {
+        console.log('💣 BLOCKED: speakSequenceActive became false');
+    }
+}, 800);
+
                 speakSequenceButton.style.background = 'rgba(255, 107, 107, 0.4) !important';
                 speakSequenceButton.style.borderColor = 'rgba(255, 107, 107, 0.8) !important';
                 speakSequenceButton.className = 'quick-btn error-feedback-blink sorry-message-pulse';
