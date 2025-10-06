@@ -213,7 +213,8 @@ const isActuallyMobile = isMobileDevice() ||
                         window.innerWidth <= 768 || 
                         /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
 
-if (isActuallyMobile || event.error === 'no-speech') {
+// 🚨 FIX: Check if event exists before accessing event.error
+if (isActuallyMobile || (event && event.error === 'no-speech')) {
     console.log('📱 MOBILE DETECTED: Using visual feedback system');
     // ... run mobile sorry message with timer cancellation
 }
