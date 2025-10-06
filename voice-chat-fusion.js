@@ -3,6 +3,10 @@
 // Smart Button + Lead Capture + EmailJS + Banner System
 // ===================================================
 
+// 🚨 NUCLEAR DEBUG - IF YOU SEE THIS, FILE IS LOADING
+console.log('🚨 NUCLEAR DEBUG: File loaded successfully - ' + Date.now());
+console.log('🚨 If you see this, the file is loading but our changes are missing');
+
 // Add this at the VERY TOP of your JavaScript file (like line 1)
 if (typeof window.leadData === 'undefined' || !window.leadData) {
     window.leadData = { 
@@ -3892,39 +3896,40 @@ if (!isRealMobile) {
                     speechSynthesis.cancel();
                     
                     setTimeout(() => {
-    const utterance = new SpeechSynthesisUtterance(sorryMessage);
-    utterance.volume = 0.7;
-    utterance.rate = 1.1;
-    utterance.pitch = 1;
+                        const utterance = new SpeechSynthesisUtterance(sorryMessage);
+                        utterance.volume = 0.7;
+                        utterance.rate = 1.1;
+                        utterance.pitch = 1;
+                        
+                        // Better mobile compatibility
+                        utterance.voice = speechSynthesis.getVoices().find(voice => 
+                            voice.name.includes('Google') || voice.default
+                        ) || speechSynthesis.getVoices()[0];
+                        
+                        // 🎯 CRITICAL: ADD LISTENER TO RESTART AFTER SPEECH FINISHES
+                         // utterance.onend = function() {
+                          //  console.log('🔊 Sorry message finished - going to SPEAK NOW');
+
+                         utterance.onend = function() {
+    console.log('🔊 TEST 1: Sorry message finished at:', Date.now());
+    console.log('🔊 TEST 2: speakSequenceActive:', speakSequenceActive);
+    console.log('🔊 TEST 3: speakSequenceCleanupTimer exists:', !!speakSequenceCleanupTimer);
     
-    // Better mobile compatibility
-    utterance.voice = speechSynthesis.getVoices().find(voice => 
-        voice.name.includes('Google') || voice.default
-    ) || speechSynthesis.getVoices()[0];
-    
-    utterance.onend = function() {
-        console.log('🔊 TEST 1: Sorry message finished at:', Date.now());
-        console.log('🔊 TEST 2: speakSequenceActive:', speakSequenceActive);
-        console.log('🔊 TEST 3: speakSequenceCleanupTimer exists:', !!speakSequenceCleanupTimer);
+    // 🎯 FORCE RESTART - NO CONDITIONS!
+    setTimeout(() => {
+        console.log('🔊 TEST 5: Inside restart timeout at:', Date.now());
+        console.log('🔊 TEST 6: Calling forceStartListening()');
         
-        // 🎯 FORCE RESTART - NO CONDITIONS!
-        setTimeout(() => {
-            console.log('🔊 TEST 5: Inside restart timeout at:', Date.now());
-            console.log('🔊 TEST 6: Calling forceStartListening()');
-            
-            // 🎯 RESTART CLEANUP TIMER
-            speakSequenceCleanupTimer = setTimeout(() => {
-                console.log('⏰ TEST 7: Cleanup timer fired at:', Date.now());
-                cleanupSpeakSequence();
-            }, 8000);
-            
-            // 🎯 CRITICAL: RESTART LISTENING
-            forceStartListening();
-        }, 800);
-    }; // ← JUST add this semicolon to close utterance.onend
-    
-    speechSynthesis.speak(utterance); // ← Add this line to actually play the speech
-}, 500);
+        // 🎯 RESTART CLEANUP TIMER
+        speakSequenceCleanupTimer = setTimeout(() => {
+            console.log('⏰ TEST 7: Cleanup timer fired at:', Date.now());
+            cleanupSpeakSequence();
+        }, 8000);
+        
+        // 🎯 CRITICAL: RESTART LISTENING
+        forceStartListening();
+    }, 800); // Close the setTimeout
+});
 
                             
                             if (speakSequenceButton && speakSequenceActive) {
@@ -3964,6 +3969,11 @@ if (!isRealMobile) {
                                 }, 1500); // 1.5 second delay to ensure clean restart
                             }
                         };
+                        
+                        speechSynthesis.speak(utterance);
+                        console.log('🔊 Playing sorry message audio:', sorryMessage);
+                    }, 100);
+                }
                 
                 // Mobile error beep for additional feedback
                 if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
