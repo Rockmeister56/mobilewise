@@ -3536,8 +3536,7 @@ function showHybridReadySequence() {
     }
     
     // ✅ BASIC BLOCKING CHECKS
-    if (typeof BannerOrchestrator !== 'undefined' && 
-        BannerOrchestrator.currentBanner === 'smartButton') {
+    if (typeof BannerOrchestrator !== 'undefined' && BannerOrchestrator.currentBanner === 'smartButton') {
         console.log('🔇 HYBRID BLOCKED: Smart Button active');
         return;
     }
@@ -3568,7 +3567,6 @@ function showHybridReadySequence() {
     console.log('🎬 Starting speak sequence...');
     
     // 🎯 MULTIPLE "SORRY" MESSAGE VARIATIONS
-    // Initialize error message counter if it doesn't exist
     if (typeof window.errorMessageIndex === 'undefined') {
         window.errorMessageIndex = 0;
     }
@@ -3585,35 +3583,28 @@ function showHybridReadySequence() {
         "Sorry, please speak again"
     ];
     
-    // Function to get next sorry message (rotates through array)
     function getNextSorryMessage() {
         const message = sorryMessages[window.errorMessageIndex];
         window.errorMessageIndex = (window.errorMessageIndex + 1) % sorryMessages.length;
         return message;
     }
 
-    // 🎯 MARK THAT SORRY MESSAGE IS STARTING (PROTECT FROM CLEANUP)
     window.playingSorryMessage = true;
-
-    // ✅ CONTACT INTERVIEW DETECTION
     const isContactInterview = checkContactInterviewMode();
     console.log('📧 Contact interview mode:', isContactInterview);
 
-    // ✅ FIND CONTAINER
     const quickButtonsContainer = document.querySelector('.quick-questions') || 
                                   document.querySelector('.quick-buttons') || 
                                   document.getElementById('quickButtonsContainer');
 
     if (!quickButtonsContainer) {
         console.log('❌ Quick buttons container not found');
-        // 🎯 CLEANUP PROTECTION: Only set false if not in sorry message
         if (!window.playingSorryMessage) {
             speakSequenceActive = false;
         }
         return;
     }
 
-    // ✅ HIDE EXISTING BUTTONS
     const existingButtons = quickButtonsContainer.querySelectorAll('.quick-btn');
     existingButtons.forEach(btn => btn.style.display = 'none');
 
@@ -3622,13 +3613,10 @@ function showHybridReadySequence() {
         existingSpeakBtn.remove();
     }
 
-    // Remove any existing click prompts
     const existingPrompt = document.getElementById('click-button-prompt');
     if (existingPrompt) {
         existingPrompt.remove();
     }
-    
-    // ... (continue with the rest of your hybrid sequence logic here) ...
 }
     
     // ✅ ADD STYLES ONCE
