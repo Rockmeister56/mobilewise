@@ -3788,46 +3788,61 @@ function handleSpeechRecognitionError(error) {
 if (!isRealMobile) {
     console.log('🖥️ DESKTOP: Using original working sorry system');
     
+    // 🚨 NUCLEAR DEBUG - IF YOU SEE THIS, CHANGES ARE LOADING
+    console.log('🚨 NUCLEAR DEBUG: Desktop error handler with restart logic - ' + Date.now());
+    
     // Use your proper speech function instead of direct synthesis
     if (error === 'no-speech' && speakSequenceButton && speakSequenceActive) {
         console.log('🚨 NUCLEAR DEBUG: Entering desktop sorry message block');
         
         const sorryMessage = getNextSorryMessage();
+        
+        // 🎯 CRITICAL: SET SORRY MESSAGE FLAG
         window.playingSorryMessage = true;
+        
+        // 🎯 ADD BUBBLE FOR DESKTOP
         addAIMessage(sorryMessage);
         
-        // Update banner
-        speakSequenceButton.innerHTML = `...`;
+        // 🎯 UPDATE BANNER FOR DESKTOP
+        speakSequenceButton.innerHTML = `
+            <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+                <div style="margin-bottom: 6px; color: #dc2626;">
+                    <span class="error-feedback-blink">🔊</span> ${sorryMessage}
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #dc2626, #b91c1c);"></div>
+                </div>
+            </div>
+        `;
         
         speakResponseOriginal(sorryMessage);
         
         // 🎯 DESKTOP RESTART LOGIC
         setTimeout(() => {
             console.log('🚨 NUCLEAR DEBUG: Desktop restart timeout fired');
+            
+            // 🎯 CRITICAL: RESET SORRY MESSAGE FLAG
             window.playingSorryMessage = false;
             
+            // 🎯 RESTART CLEANUP TIMER
             speakSequenceCleanupTimer = setTimeout(() => {
                 cleanupSpeakSequence();
             }, 8000);
             
+            // 🎯 CRITICAL: RESTART LISTENING
             forceStartListening();
         }, 2000);
         
         console.log('🚨 NUCLEAR DEBUG: Desktop error handler completed');
-        return true; // ← This should stop nuclear flow
+        return true;
     }
 }
-
-// 🎯 CRITICAL: STOP NUCLEAR FLOW IF DESKTOP HANDLED IT
-if (!isRealMobile && error === 'no-speech') {
-    console.log('🔇 NUCLEAR BLOCKED: Desktop handler already processed this error');
-    return; // ← ADD THIS LINE!
-}
-
-// 💣 NUCLEAR CODE FOR MOBILE ONLY BELOW THIS LINE
-// nukeAllListening();
-setTimeout(() => {
-    console.log('🚨 Now handling error after nuclear cleanup:', error);
+    // 💣 CALL GLOBAL NUKE FUNCTION
+   // nukeAllListening();
+    
+    // Wait a moment to ensure everything is dead
+    setTimeout(() => {
+        console.log('🚨 Now handling error after nuclear cleanup:', error);
         
         // 💣 NUKE ALL LISTENING IMMEDIATELY (redundant but safe)
         if (typeof recognition !== 'undefined') {
