@@ -208,15 +208,12 @@ async function speakWithElevenLabs(message) {
     }
 }
 
-// 🚨 BETTER MOBILE DETECTION - USE MULTIPLE CHECKS
-const isActuallyMobile = isMobileDevice() || 
-                        window.innerWidth <= 768 || 
-                        /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+// 🚨 NUCLEAR MOBILE DETECTION - SCREEN SIZE ONLY
+const isDefinitelyMobile = window.innerWidth <= 768 || window.innerHeight <= 1024;
 
 // 🚨 FIX: Check if event exists before accessing event.error
-if (isActuallyMobile || (event && event.error === 'no-speech')) {
-    console.log('📱 MOBILE DETECTED: Using visual feedback system');
-    // ... run mobile sorry message with timer cancellation
+if (isDefinitelyMobile || (event && event.error === 'no-speech')) {
+    console.log('📱 NUCLEAR MOBILE DETECTED: Using visual feedback system');
 }
 
 // ===================================================
@@ -426,13 +423,17 @@ function getApologyResponse() {
             isTouch: ('ontouchstart' in window || navigator.maxTouchPoints > 0)
         });
 
-         // 🚨 BETTER MOBILE DETECTION - USE MULTIPLE CHECKS
-        const isActuallyMobile = isMobileDevice() || 
-                                window.innerWidth <= 768 || 
-                                /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+         // 🚨 NUCLEAR MOBILE DETECTION - SCREEN SIZE ONLY
+const isDefinitelyMobile = window.innerWidth <= 768 || window.innerHeight <= 1024;
 
-        if (isActuallyMobile) {
-            console.log('📱📱📱 RELIABLE MOBILE DETECTED: Using visual feedback system');
+console.log('🔍 NUCLEAR MOBILE DEBUG:', {
+    windowWidth: window.innerWidth,
+    windowHeight: window.innerHeight,
+    isDefinitelyMobile: isDefinitelyMobile
+});
+
+if (isDefinitelyMobile) {
+    console.log('📱📱📱 NUCLEAR MOBILE DETECTED: Using visual feedback system');
 
             if (window.noSpeechTimeout) {
                 clearTimeout(window.noSpeechTimeout);
@@ -4457,6 +4458,7 @@ function cleanupSpeakSequence() {
         }
         
         console.log('🔓 Hybrid blocking reset (during sorry message)');
+        return; // Exit but timers/flags are cleaned up
     }
     
     // 🛑 CRITICAL: RE-ENABLE FUTURE SESSIONS
