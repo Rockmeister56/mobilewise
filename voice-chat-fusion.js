@@ -3,9 +3,8 @@
 // Smart Button + Lead Capture + EmailJS + Banner System
 // ===================================================
 
-// 🚨 NUCLEAR DEBUG - IF YOU SEE THIS, FILE IS LOADING
-console.log('🚨 NUCLEAR DEBUG: File loaded successfully - ' + Date.now());
-console.log('🚨 If you see this, the file is loading but our changes are missing');
+// 🎯 NUCLEAR DEBUG - IS ERROR HANDLER HOOKED UP?
+console.log('💣💣💣 NUCLEAR: Is handleSpeechRecognitionError function defined?', typeof handleSpeechRecognitionError);
 
 // Add this at the VERY TOP of your JavaScript file (like line 1)
 if (typeof window.leadData === 'undefined' || !window.leadData) {
@@ -3773,15 +3772,17 @@ if (existingPrompt) {
     
   // 🎯 ENHANCED SPEECH RECOGNITION ERROR HANDLER WITH MULTIPLE SORRY MESSAGES
 function handleSpeechRecognitionError(error) {
-
-    // 🎯 CANCEL CLEANUP TIMER IMMEDIATELY - PREVENT IT FROM KILLING SORRY MESSAGE
+    console.log('💣💣💣 handleSpeechRecognitionError CALLED with error:', error);
+    
+    // 🎯 CANCEL CLEANUP TIMER IMMEDIATELY
     if (speakSequenceCleanupTimer) {
         clearTimeout(speakSequenceCleanupTimer);
         speakSequenceCleanupTimer = null;
-        console.log('💣 SUCCESS: Cleanup timer CANCELLED at error start');
+        console.log('💣💣💣 SUCCESS: Cleanup timer CANCELLED');
+    } else {
+        console.log('💣💣💣 NO timer to cancel');
     }
-}
-        
+       
     // Use your proper speech function instead of direct synthesis
     const isRealMobile = isMobileDevice();
     if (!isRealMobile) {
