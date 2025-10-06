@@ -4036,14 +4036,16 @@ function resetToGreenState() {
             if (speakSequenceActive) {
                 window.lastRecognitionResult = null;
                 
-                if (isContactInterview) {
-                    startContactInterviewListening();
-                } else {
-                    // Use mobile-optimized version if available
-                    if (typeof startMobileListening === 'function') {
-                        startMobileListening();
-                    } else {
-                        startNormalInterviewListening();
+               if (isContactInterview) {
+    startContactInterviewListening();
+} else {
+    // Use the actual working listening functions
+    if (typeof startListening === 'function') {
+        startListening();
+    } else if (typeof forceStartListening === 'function') {
+        forceStartListening();
+    } else {
+        console.log('❌ No listening function available');
                     }
                 }
             }
@@ -4155,15 +4157,18 @@ if (isMobileDevice()) {
 }
     
     if (isContactInterview) {
-        startContactInterviewListening();
+    startContactInterviewListening();
+} else {
+    // Use the actual working listening functions
+    if (typeof startListening === 'function') {
+        startListening();
+    } else if (typeof forceStartListening === 'function') {
+        forceStartListening();
     } else {
-        // Use mobile-optimized version if available
-        if (typeof startMobileListening === 'function') {
-            startMobileListening();
-        } else {
-            startNormalInterviewListening();
+        console.log('❌ No listening function available');
         }
     }
+    
 }, 1200); // Changed from 800ms to 1700ms to start AFTER "Speak Now!"
     
     // ✅ ENHANCED AI SPEAKING DETECTION WITH BETTER TIMING
