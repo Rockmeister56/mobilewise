@@ -3940,7 +3940,7 @@ setTimeout(() => {
         
         // 🎯 USE THE CORRECT LISTENING FUNCTION
         if (isContactInterview) {
-            startNormalInterviewListening();
+            forceStartListening();
         } else {
             startMobileListening();
         }
