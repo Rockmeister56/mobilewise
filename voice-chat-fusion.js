@@ -3514,13 +3514,6 @@ function showHybridReadySequence() {
         return;
     }
     
-    // 🎯 NEW: BLOCK DURING SORRY MESSAGES
-    if (window.playingSorryMessage) {
-        console.log('🔇 HYBRID BLOCKED: Sorry message in progress - waiting for completion');
-        return;
-    }
-    window.speakSequenceBlocked = true;
-    
     // 🎯 SAFETY: Auto-reset block after 10 seconds (in case cleanup fails)
     setTimeout(() => {
         if (window.speakSequenceBlocked) {
