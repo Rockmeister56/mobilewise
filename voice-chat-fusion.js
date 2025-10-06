@@ -3938,11 +3938,15 @@ setTimeout(() => {
         
         console.log('📱 MOBILE: Restarting listening with ON-beep');
         
-        // 🎯 USE THE CORRECT LISTENING FUNCTION
-        if (speakSequenceActive) {
-            startNormalInterviewListening();
-        } else {
+        // 🎯 USE THE CORRECT LISTENING FUNCTION - FIXED VERSION
+        if (typeof startListening === 'function') {
+            startListening();
+        } else if (typeof forceStartListening === 'function') {
+            forceStartListening();
+        } else if (typeof startMobileListening === 'function') {
             startMobileListening();
+        } else {
+            console.log('❌ No listening function found');
         }
     }
 }, 2000);
