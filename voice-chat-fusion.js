@@ -3524,8 +3524,6 @@ function showHybridReadySequence() {
             window.speakSequenceBlocked = false;
         }
     }, 10000);
-
-     }
     
     // 🛑 CRITICAL: STOP ANY EXISTING LISTENING FIRST
     if (typeof recognition !== 'undefined' && recognition) {
@@ -3587,47 +3585,50 @@ function showHybridReadySequence() {
         "Sorry, please speak again"
     ];
     
-   // Function to get next sorry message (rotates through array)
-function getNextSorryMessage() {
-    const message = sorryMessages[window.errorMessageIndex];
-    window.errorMessageIndex = (window.errorMessageIndex + 1) % sorryMessages.length;
-    return message;
-}
-
-// 🎯 MARK THAT SORRY MESSAGE IS STARTING (PROTECT FROM CLEANUP)
-window.playingSorryMessage = true;
-
-// ✅ CONTACT INTERVIEW DETECTION
-const isContactInterview = checkContactInterviewMode();
-console.log('📧 Contact interview mode:', isContactInterview);
-
-// ✅ FIND CONTAINER
-const quickButtonsContainer = document.querySelector('.quick-questions') || 
-                              document.querySelector('.quick-buttons') || 
-                              document.getElementById('quickButtonsContainer');
-
-if (!quickButtonsContainer) {
-    console.log('❌ Quick buttons container not found');
-    // 🎯 CLEANUP PROTECTION: Only set false if not in sorry message
-    if (!window.playingSorryMessage) {
-        speakSequenceActive = false;
+    // Function to get next sorry message (rotates through array)
+    function getNextSorryMessage() {
+        const message = sorryMessages[window.errorMessageIndex];
+        window.errorMessageIndex = (window.errorMessageIndex + 1) % sorryMessages.length;
+        return message;
     }
-    return;
-}
 
-// ✅ HIDE EXISTING BUTTONS
-const existingButtons = quickButtonsContainer.querySelectorAll('.quick-btn');
-existingButtons.forEach(btn => btn.style.display = 'none');
+    // 🎯 MARK THAT SORRY MESSAGE IS STARTING (PROTECT FROM CLEANUP)
+    window.playingSorryMessage = true;
 
-const existingSpeakBtn = document.getElementById('speak-sequence-button');
-if (existingSpeakBtn) {
-    existingSpeakBtn.remove();
-}
+    // ✅ CONTACT INTERVIEW DETECTION
+    const isContactInterview = checkContactInterviewMode();
+    console.log('📧 Contact interview mode:', isContactInterview);
 
-// Remove any existing click prompts
-const existingPrompt = document.getElementById('click-button-prompt');
-if (existingPrompt) {
-    existingPrompt.remove();
+    // ✅ FIND CONTAINER
+    const quickButtonsContainer = document.querySelector('.quick-questions') || 
+                                  document.querySelector('.quick-buttons') || 
+                                  document.getElementById('quickButtonsContainer');
+
+    if (!quickButtonsContainer) {
+        console.log('❌ Quick buttons container not found');
+        // 🎯 CLEANUP PROTECTION: Only set false if not in sorry message
+        if (!window.playingSorryMessage) {
+            speakSequenceActive = false;
+        }
+        return;
+    }
+
+    // ✅ HIDE EXISTING BUTTONS
+    const existingButtons = quickButtonsContainer.querySelectorAll('.quick-btn');
+    existingButtons.forEach(btn => btn.style.display = 'none');
+
+    const existingSpeakBtn = document.getElementById('speak-sequence-button');
+    if (existingSpeakBtn) {
+        existingSpeakBtn.remove();
+    }
+
+    // Remove any existing click prompts
+    const existingPrompt = document.getElementById('click-button-prompt');
+    if (existingPrompt) {
+        existingPrompt.remove();
+    }
+    
+    // ... (continue with the rest of your hybrid sequence logic here) ...
 }
     
     // ✅ ADD STYLES ONCE
