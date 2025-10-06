@@ -4037,15 +4037,13 @@ function resetToGreenState() {
                 window.lastRecognitionResult = null;
                 
                if (isContactInterview) {
-    startContactInterviewListening();
-} else {
-    // Use the actual working listening functions
-    if (typeof startListening === 'function') {
-        startListening();
-    } else if (typeof forceStartListening === 'function') {
-        forceStartListening();
+         startContactInterviewListening();
+        } else {
+    // Use mobile-optimized version if available
+        if (typeof startMobileListening === 'function') {
+        startMobileListening();
     } else {
-        console.log('❌ No listening function available');
+        startNormalInterviewListening();  // ← KEEP THIS FOR FIRST BUTTON
                     }
                 }
             }
@@ -4156,7 +4154,7 @@ if (isMobileDevice()) {
     }, 4000); // Mobile gets slightly longer timeout
 }
     
-    if (isContactInterview) {
+   if (isContactInterview) {
     startContactInterviewListening();
 } else {
     // Use the actual working listening functions
