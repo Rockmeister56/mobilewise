@@ -3792,6 +3792,12 @@ function handleSpeechRecognitionError(error) {
 if (!isRealMobile) {
     console.log('🖥️ DESKTOP: Using original working sorry system');
     
+    // 🆕 HIDE SPEAK NOW BANNER DURING APOLOGY
+    if (speakSequenceButton) {
+        speakSequenceButton.style.display = 'none';
+        console.log('🎯 DESKTOP: Hid Speak Now banner during apology');
+    }
+    
     // 🚨 NUCLEAR DEBUG - IF YOU SEE THIS, CHANGES ARE LOADING
     console.log('🚨 NUCLEAR DEBUG: Desktop error handler with restart logic - ' + Date.now());
     
@@ -3824,6 +3830,12 @@ if (!isRealMobile) {
         // 🎯 DESKTOP RESTART LOGIC
         setTimeout(() => {
             console.log('🚨 NUCLEAR DEBUG: Desktop restart timeout fired');
+            
+            // 🆕 SHOW SPEAK NOW BANNER AGAIN
+            if (speakSequenceButton) {
+                speakSequenceButton.style.display = 'block';
+                console.log('🎯 DESKTOP: Showed Speak Now banner again');
+            }
             
             // 🎯 CRITICAL: RESET SORRY MESSAGE FLAG
             window.playingSorryMessage = false;
@@ -3890,89 +3902,38 @@ if (!isRealMobile) {
                 speakSequenceButton.style.borderColor = 'rgba(255, 107, 107, 0.8) !important';
                 speakSequenceButton.className = 'quick-btn error-feedback-blink sorry-message-pulse';
                 
-                // Enhanced voice feedback with varied messages (better mobile compatibility)
-                if (typeof speechSynthesis !== 'undefined') {
-                    // Clear any existing speech
-                    speechSynthesis.cancel();
-                    
-                    setTimeout(() => {
-                        const utterance = new SpeechSynthesisUtterance(sorryMessage);
-                        utterance.volume = 0.7;
-                        utterance.rate = 1.1;
-                        utterance.pitch = 1;
-                        
-                        // Better mobile compatibility
-                        utterance.voice = speechSynthesis.getVoices().find(voice => 
-                            voice.name.includes('Google') || voice.default
-                        ) || speechSynthesis.getVoices()[0];
-                        
-                        // 🎯 CRITICAL: ADD LISTENER TO RESTART AFTER SPEECH FINISHES
-                         // utterance.onend = function() {
-                          //  console.log('🔊 Sorry message finished - going to SPEAK NOW');
+                // 🆕 MOBILE: Use chat bubble + ElevenLabs instead of TTS
+                console.log('📱 MOBILE: Using chat bubble with ElevenLabs voice');
 
-                         utterance.onend = function() {
-    console.log('🔊 TEST 1: Sorry message finished at:', Date.now());
-    console.log('🔊 TEST 2: speakSequenceActive:', speakSequenceActive);
-    console.log('🔊 TEST 3: speakSequenceCleanupTimer exists:', !!speakSequenceCleanupTimer);
-    
-    // 🎯 FORCE RESTART - NO CONDITIONS!
-    setTimeout(() => {
-        console.log('🔊 TEST 5: Inside restart timeout at:', Date.now());
-        console.log('🔊 TEST 6: Calling forceStartListening()');
-        
-        // 🎯 RESTART CLEANUP TIMER
-        speakSequenceCleanupTimer = setTimeout(() => {
-            console.log('⏰ TEST 7: Cleanup timer fired at:', Date.now());
-            cleanupSpeakSequence();
-        }, 8000);
-        
-        // 🎯 CRITICAL: RESTART LISTENING
-        forceStartListening();
-    }, 800);
+                // Add chat bubble for mobile
+                addAIMessage(sorryMessage);
 
-                            
-                            if (speakSequenceButton && speakSequenceActive) {
-                                // 🎯 GO DIRECTLY TO "SPEAK NOW"
-                                speakSequenceButton.innerHTML = `
-                                    <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
-                                        <div style="margin-bottom: 6px;">
-                                            <span class="green-dot-blink">🟢</span> Speak Now!
-                                        </div>
-                                        <div class="progress-bar-container">
-                                            <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #4caf50, #2e7d32);"></div>
-                                        </div>
-                                    </div>
-                                `;
-                                speakSequenceButton.style.background = 'rgba(34, 197, 94, 0.4) !important';
-                                speakSequenceButton.style.borderColor = 'rgba(34, 197, 94, 0.8) !important';
-                                speakSequenceButton.className = 'quick-btn green-button-glow';
-                                
-                                console.log('✅ Visual changed to "Speak Now" - waiting before starting listening');
-                                
-                                // 🎯 CRITICAL: WAIT 1.5 SECONDS BEFORE STARTING LISTENING
-                                setTimeout(() => {
-                                    if (speakSequenceActive) {
-                                        console.log('🔄 NOW starting listening (safe delay completed)');
-                                        window.lastRecognitionResult = null;
-                                        
-                                        if (isContactInterview) {
-                                            startContactInterviewListening();
-                                        } else {
-                                            if (typeof startMobileListening === 'function') {
-                                                startMobileListening();
-                                            } else {
-                                                startNormalInterviewListening();
-                                            }
-                                        }
-                                    }
-                                }, 1500); // 1.5 second delay to ensure clean restart
-                            }
-                        };
+                // Use ElevenLabs voice instead of TTS
+                speakResponseOriginal(sorryMessage);
+
+                // 🆕 SIMPLIFIED RESTART LOGIC FOR MOBILE
+                setTimeout(() => {
+                    console.log('📱 MOBILE: Restarting listening after apology');
+                    if (speakSequenceButton && speakSequenceActive) {
+                        // Reset to "Speak Now" state
+                        speakSequenceButton.innerHTML = `
+                            <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+                                <div style="margin-bottom: 6px;">
+                                    <span class="green-dot-blink">🟢</span> Speak Now!
+                                </div>
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #4caf50, #2e7d32);"></div>
+                                </div>
+                            </div>
+                        `;
+                        speakSequenceButton.style.background = 'rgba(34, 197, 94, 0.4) !important';
+                        speakSequenceButton.style.borderColor = 'rgba(34, 197, 94, 0.8) !important';
+                        speakSequenceButton.className = 'quick-btn green-button-glow';
                         
-                        speechSynthesis.speak(utterance);
-                        console.log('🔊 Playing sorry message audio:', sorryMessage);
-                    }, 100);
-                }
+                        // Restart listening
+                        forceStartListening();
+                    }
+                }, 2000);
                 
                 // Mobile error beep for additional feedback
                 if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
