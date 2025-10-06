@@ -3939,8 +3939,8 @@ setTimeout(() => {
         console.log('📱 MOBILE: Restarting listening with ON-beep');
         
         // 🎯 USE THE CORRECT LISTENING FUNCTION
-        if (isContactInterview) {
-            forceStartListening();
+        if (speakSequenceActive) {
+            startNormalInterviewListening();
         } else {
             startMobileListening();
         }
