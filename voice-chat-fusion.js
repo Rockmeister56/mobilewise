@@ -3928,8 +3928,7 @@ if (!isRealMobile) {
         
         // 🎯 CRITICAL: RESTART LISTENING
         forceStartListening();
-    }, 800); // Close the setTimeout
-});
+    }, 800);
 
                             
                             if (speakSequenceButton && speakSequenceActive) {
