@@ -208,9 +208,14 @@ async function speakWithElevenLabs(message) {
     }
 }
 
-// 🚨 NUCLEAR MOBILE DETECTION - USE THE PROPER FUNCTION!
-if (isMobileDevice()) {
-    console.log('📱📱📱 NUCLEAR MOBILE DETECTED: Using visual feedback system');
+// 🚨 BETTER MOBILE DETECTION - USE MULTIPLE CHECKS
+const isActuallyMobile = isMobileDevice() || 
+                        window.innerWidth <= 768 || 
+                        /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+
+if (isActuallyMobile || event.error === 'no-speech') {
+    console.log('📱 MOBILE DETECTED: Using visual feedback system');
+    // ... run mobile sorry message with timer cancellation
 }
 
 // ===================================================
