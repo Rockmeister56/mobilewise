@@ -3773,12 +3773,14 @@ if (existingPrompt) {
     
   // 🎯 ENHANCED SPEECH RECOGNITION ERROR HANDLER WITH MULTIPLE SORRY MESSAGES
 function handleSpeechRecognitionError(error) {
-    console.log('🎯 TEST: If you see this, changes are deploying - ' + Date.now());
-    console.log('🚨💣 NUCLEAR: Speech recognition error detected - KILLING ALL LISTENING');
-    console.log('🔍 DEBUG: Error type:', error);
-    console.log('🔍 DEBUG: isMobileDevice():', isMobileDevice());
 
-    console.log('🚨💣 NUCLEAR: Speech recognition error detected - KILLING ALL LISTENING');
+    // 🎯 CANCEL CLEANUP TIMER IMMEDIATELY - PREVENT IT FROM KILLING SORRY MESSAGE
+    if (speakSequenceCleanupTimer) {
+        clearTimeout(speakSequenceCleanupTimer);
+        speakSequenceCleanupTimer = null;
+        console.log('💣 SUCCESS: Cleanup timer CANCELLED at error start');
+    }
+}
         
     // Use your proper speech function instead of direct synthesis
     const isRealMobile = isMobileDevice();
