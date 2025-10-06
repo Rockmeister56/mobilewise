@@ -4366,7 +4366,7 @@ function cleanupSpeakSequence() {
         }
         
         console.log('🔓 Hybrid blocking reset (during sorry message)');
-        return; // Exit but timers/flags are cleaned up
+        // 🚨 RETURN REMOVED - visual cleanup will now happen
     }
     
     // 🛑 CRITICAL: RE-ENABLE FUTURE SESSIONS
