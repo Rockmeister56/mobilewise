@@ -3936,6 +3936,23 @@ setTimeout(() => {
         speakSequenceButton.className = 'quick-btn green-button-glow';
         
         console.log('📱 MOBILE: Restarting listening with ON-beep');
+
+        // 🎯 DEBUG: Check listening status before restart
+console.log('🔊 DEBUG BEFORE RESTART:');
+console.log('🔊 - speakSequenceActive:', speakSequenceActive);
+console.log('🔊 - speakSequenceBlocked:', window.speakSequenceBlocked);
+console.log('🔊 - playingSorryMessage:', window.playingSorryMessage);
+console.log('🔊 - cleanupTimer exists:', !!speakSequenceCleanupTimer);
+
+// 🎯 NOW try to restart listening
+setTimeout(() => {
+    if (speakSequenceActive) {
+        console.log('🔊 CALLING startNormalInterviewListening()');
+        startNormalInterviewListening();
+    } else {
+        console.log('🔊 BLOCKED: speakSequenceActive is false');
+    }
+}, 800);
         
         // 🎯 USE THE CORRECT LISTENING FUNCTION - FIXED VERSION
         if (typeof startListening === 'function') {
