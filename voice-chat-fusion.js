@@ -3907,6 +3907,59 @@ function handleSpeechRecognitionError(error) {
                         </div>
                     </div>
                 `;
+
+                if (error === 'no-speech') {
+    console.log('📱 Mobile: Using visual feedback system with varied messages');
+    
+    // Get next sorry message variation
+    const sorryMessage = getNextSorryMessage();
+    console.log('💬 Using sorry message:', sorryMessage);
+    
+    // Visual feedback with varied "I didn't hear you" messages + PROGRESS BAR
+    speakSequenceButton.innerHTML = `
+        <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+            <div style="margin-bottom: 6px;">
+                <span class="error-feedback-blink">🔊</span> ${sorryMessage}
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #ff6b6b, #ee5a24);"></div>
+            </div>
+        </div>
+    `;
+
+       // 🎯 ADD THE AUDIO PLAYBACK WITH TIMER CANCELLATION RIGHT HERE!
+    if (typeof speechSynthesis !== 'undefined') {
+        speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(sorryMessage);
+        utterance.volume = 0.7;
+        
+        utterance.onend = function() {
+            if (speakSequenceCleanupTimer) {
+                clearTimeout(speakSequenceCleanupTimer);
+                speakSequenceCleanupTimer = null;
+                console.log('🕐 FINALLY CANCELLED cleanup timer!');
+            }
+            
+            setTimeout(() => {
+                if (speakSequenceActive) {
+                    startNormalInterviewListening();
+                }
+            }, 800);
+        };
+        
+        speechSynthesis.speak(utterance);
+    }
+
+    speakSequenceButton.style.background = 'rgba(255, 107, 107, 0.4) !important';
+    speakSequenceButton.style.borderColor = 'rgba(255, 107, 107, 0.8) !important';
+    speakSequenceButton.className = 'quick-btn error-feedback-blink sorry-message-pulse';
+
+    // Mobile error beep for additional feedback
+    if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
+        playMobileErrorBeep();
+    }
+}
+
                 speakSequenceButton.style.background = 'rgba(255, 107, 107, 0.4) !important';
                 speakSequenceButton.style.borderColor = 'rgba(255, 107, 107, 0.8) !important';
                 speakSequenceButton.className = 'quick-btn error-feedback-blink sorry-message-pulse';
@@ -4060,6 +4113,7 @@ function resetToGreenState() {
                 </div>
             </div>
         `;
+
         speakSequenceButton.style.background = 'rgba(34, 197, 94, 0.4) !important';
         speakSequenceButton.style.borderColor = 'rgba(34, 197, 94, 0.8) !important';
         speakSequenceButton.className = 'quick-btn green-button-glow';
