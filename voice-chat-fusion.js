@@ -4045,14 +4045,10 @@ function resetToGreenState() {
                 window.lastRecognitionResult = null;
                 
                 if (isContactInterview) {
-                    startContactInterviewListening();
-                } else {
-                    // Use mobile-optimized version if available
-                    if (typeof startMobileListening === 'function') {
-                        startMobileListening();
-                    } else {
-                        startNormalInterviewListening();
-                    }
+    startContactInterviewListening();
+} else {
+    // 🎯 USE FORCE START FOR SECOND "SPEAK NOW" - THIS WORKS!
+    forceStartListening();
                 }
             }
         }, 500);
