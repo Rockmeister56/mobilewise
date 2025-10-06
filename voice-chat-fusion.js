@@ -3881,12 +3881,6 @@ function handleSpeechRecognitionError(error) {
         if (speakSequenceButton && speakSequenceActive) {
             if (error === 'no-speech') {
                 console.log('📱 Mobile: Using visual feedback system with varied messages');
-
-                 if (speakSequenceCleanupTimer) {
-        clearTimeout(speakSequenceCleanupTimer);
-        console.log('📱 MOBILE: Cancelled first session cleanup timer');
-    }
-    window.speakSequenceBlocked = false;
                 
                 // Get next sorry message variation
                 const sorryMessage = getNextSorryMessage();
