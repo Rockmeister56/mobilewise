@@ -3834,7 +3834,7 @@ if (!isRealMobile) {
         }, 2000);
         
         console.log('🚨 NUCLEAR DEBUG: Desktop error handler completed');
-        return true;
+        return;
     }
 }
     // 💣 CALL GLOBAL NUKE FUNCTION
