@@ -3496,14 +3496,14 @@ function playMobileErrorBeep() {
             console.log('📱 Fallback beep also failed');
         }
     }
-} 
+}
 
 // ✅ MAIN FUNCTION WITH ALL FIXES
 function showHybridReadySequence() {
-    // ✅ CALL MOBILE STABILITY FIRST
-    applyMobileStability();
-    setupMobileTouchEvents();
-    
+     // ✅ CALL MOBILE STABILITY FIRST
+
+     }
+
     // 🛑 CRITICAL: PREVENT MULTIPLE SIMULTANEOUS SESSIONS
     if (window.speakSequenceBlocked) {
         console.log('🔇 HYBRID BLOCKED: Another session already running');
@@ -3534,9 +3534,13 @@ function showHybridReadySequence() {
             console.log('🔇 Recognition already stopped or stopping failed');
         }
     }
+
+    applyMobileStability();
+    setupMobileTouchEvents();
     
     // ✅ BASIC BLOCKING CHECKS
-    if (typeof BannerOrchestrator !== 'undefined' && BannerOrchestrator.currentBanner === 'smartButton') {
+    if (typeof BannerOrchestrator !== 'undefined' && 
+        BannerOrchestrator.currentBanner === 'smartButton') {
         console.log('🔇 HYBRID BLOCKED: Smart Button active');
         return;
     }
@@ -3567,6 +3571,7 @@ function showHybridReadySequence() {
     console.log('🎬 Starting speak sequence...');
     
     // 🎯 MULTIPLE "SORRY" MESSAGE VARIATIONS
+    // Initialize error message counter if it doesn't exist
     if (typeof window.errorMessageIndex === 'undefined') {
         window.errorMessageIndex = 0;
     }
@@ -3583,40 +3588,47 @@ function showHybridReadySequence() {
         "Sorry, please speak again"
     ];
     
-    function getNextSorryMessage() {
-        const message = sorryMessages[window.errorMessageIndex];
-        window.errorMessageIndex = (window.errorMessageIndex + 1) % sorryMessages.length;
-        return message;
+   // Function to get next sorry message (rotates through array)
+function getNextSorryMessage() {
+    const message = sorryMessages[window.errorMessageIndex];
+    window.errorMessageIndex = (window.errorMessageIndex + 1) % sorryMessages.length;
+    return message;
+}
+
+// 🎯 MARK THAT SORRY MESSAGE IS STARTING (PROTECT FROM CLEANUP)
+window.playingSorryMessage = true;
+
+// ✅ CONTACT INTERVIEW DETECTION
+const isContactInterview = checkContactInterviewMode();
+console.log('📧 Contact interview mode:', isContactInterview);
+
+// ✅ FIND CONTAINER
+const quickButtonsContainer = document.querySelector('.quick-questions') || 
+                              document.querySelector('.quick-buttons') || 
+                              document.getElementById('quickButtonsContainer');
+
+if (!quickButtonsContainer) {
+    console.log('❌ Quick buttons container not found');
+    // 🎯 CLEANUP PROTECTION: Only set false if not in sorry message
+    if (!window.playingSorryMessage) {
+        speakSequenceActive = false;
     }
+    return;
+}
 
-    window.playingSorryMessage = true;
-    const isContactInterview = checkContactInterviewMode();
-    console.log('📧 Contact interview mode:', isContactInterview);
+// ✅ HIDE EXISTING BUTTONS
+const existingButtons = quickButtonsContainer.querySelectorAll('.quick-btn');
+existingButtons.forEach(btn => btn.style.display = 'none');
 
-    const quickButtonsContainer = document.querySelector('.quick-questions') || 
-                                  document.querySelector('.quick-buttons') || 
-                                  document.getElementById('quickButtonsContainer');
+const existingSpeakBtn = document.getElementById('speak-sequence-button');
+if (existingSpeakBtn) {
+    existingSpeakBtn.remove();
+}
 
-    if (!quickButtonsContainer) {
-        console.log('❌ Quick buttons container not found');
-        if (!window.playingSorryMessage) {
-            speakSequenceActive = false;
-        }
-        return;
-    }
-
-    const existingButtons = quickButtonsContainer.querySelectorAll('.quick-btn');
-    existingButtons.forEach(btn => btn.style.display = 'none');
-
-    const existingSpeakBtn = document.getElementById('speak-sequence-button');
-    if (existingSpeakBtn) {
-        existingSpeakBtn.remove();
-    }
-
-    const existingPrompt = document.getElementById('click-button-prompt');
-    if (existingPrompt) {
-        existingPrompt.remove();
-    }
+// Remove any existing click prompts
+const existingPrompt = document.getElementById('click-button-prompt');
+if (existingPrompt) {
+    existingPrompt.remove();
 }
     
     // ✅ ADD STYLES ONCE
