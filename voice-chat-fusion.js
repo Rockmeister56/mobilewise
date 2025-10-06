@@ -3902,38 +3902,50 @@ if (!isRealMobile) {
                 speakSequenceButton.style.borderColor = 'rgba(255, 107, 107, 0.8) !important';
                 speakSequenceButton.className = 'quick-btn error-feedback-blink sorry-message-pulse';
                 
-                // 🆕 MOBILE: Use chat bubble + ElevenLabs instead of TTS
-                console.log('📱 MOBILE: Using chat bubble with ElevenLabs voice');
+       // 🆕 MOBILE: Use chat bubble + ElevenLabs with clean button handling
+console.log('📱 MOBILE: Using chat bubble with ElevenLabs - hiding button during apology');
 
-                // Add chat bubble for mobile
-                addAIMessage(sorryMessage);
+// 🎯 HIDE SPEAK NOW BUTTON DURING APOLOGY
+if (speakSequenceButton) {
+    speakSequenceButton.style.display = 'none';
+}
 
-                // Use ElevenLabs voice instead of TTS
-                speakResponseOriginal(sorryMessage);
+// Add chat bubble for mobile
+addAIMessage(sorryMessage);
 
-                // 🆕 SIMPLIFIED RESTART LOGIC FOR MOBILE
-                setTimeout(() => {
-                    console.log('📱 MOBILE: Restarting listening after apology');
-                    if (speakSequenceButton && speakSequenceActive) {
-                        // Reset to "Speak Now" state
-                        speakSequenceButton.innerHTML = `
-                            <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
-                                <div style="margin-bottom: 6px;">
-                                    <span class="green-dot-blink">🟢</span> Speak Now!
-                                </div>
-                                <div class="progress-bar-container">
-                                    <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #4caf50, #2e7d32);"></div>
-                                </div>
-                            </div>
-                        `;
-                        speakSequenceButton.style.background = 'rgba(34, 197, 94, 0.4) !important';
-                        speakSequenceButton.style.borderColor = 'rgba(34, 197, 94, 0.8) !important';
-                        speakSequenceButton.className = 'quick-btn green-button-glow';
-                        
-                        // Restart listening
-                        forceStartListening();
-                    }
-                }, 2000);
+// Use ElevenLabs voice instead of TTS
+speakResponseOriginal(sorryMessage);
+
+// 🆕 SIMPLIFIED RESTART LOGIC FOR MOBILE
+setTimeout(() => {
+    console.log('📱 MOBILE: Restarting listening after apology');
+    if (speakSequenceButton && speakSequenceActive) {
+        // 🎯 SHOW BUTTON AGAIN WITH CLEAN "SPEAK NOW"
+        speakSequenceButton.style.display = 'block';
+        speakSequenceButton.innerHTML = `
+            <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+                <div style="margin-bottom: 6px;">
+                    <span class="green-dot-blink">🟢</span> Speak Now!
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #4caf50, #2e7d32);"></div>
+                </div>
+            </div>
+        `;
+        speakSequenceButton.style.background = 'rgba(34, 197, 94, 0.4) !important';
+        speakSequenceButton.style.borderColor = 'rgba(34, 197, 94, 0.8) !important';
+        speakSequenceButton.className = 'quick-btn green-button-glow';
+        
+        console.log('📱 MOBILE: Restarting listening with ON-beep');
+        
+        // 🎯 USE THE CORRECT LISTENING FUNCTION
+        if (isContactInterview) {
+            startContactInterviewListening();
+        } else {
+            startNormalInterviewListening();
+        }
+    }
+}, 2000);
                 
                 // Mobile error beep for additional feedback
                 if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
