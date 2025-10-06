@@ -532,6 +532,13 @@ if (isMobileDevice()) {
     } else {
         // No speech detected - hybrid restart
         console.log('🔄 No speech detected via onend - restarting with hybrid system');
+
+        // 🎯 ADD TIMER CANCELLATION RIGHT HERE!
+    if (speakSequenceCleanupTimer) {
+        clearTimeout(speakSequenceCleanupTimer);
+        speakSequenceCleanupTimer = null;
+        console.log('🕐 CANCELLED cleanup timer - preventing session kill');
+    }
         
         // Your existing hybrid restart logic
         if (!window.playingSorryMessage && !isSpeaking) {
