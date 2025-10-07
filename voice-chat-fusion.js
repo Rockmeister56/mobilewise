@@ -3735,8 +3735,13 @@ function getNextSorryMessage() {
     return message;
 }
 
-// 🎯 MARK THAT SORRY MESSAGE IS STARTING (PROTECT FROM CLEANUP)
-window.playingSorryMessage = true;
+// 🎯 MARK THAT SORRY MESSAGE IS STARTING (PROTECT FROM CLEANUP) - FIXED VERSION
+if (!window.playingSorryMessage) {
+    window.playingSorryMessage = true;
+    console.log('🔒 Setting playingSorryMessage protection (first time)');
+} else {
+    console.log('🔄 playingSorryMessage already set - keeping existing protection');
+}
 
 // ✅ CONTACT INTERVIEW DETECTION
 const isContactInterview = checkContactInterviewMode();
