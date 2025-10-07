@@ -4459,14 +4459,14 @@ function cleanupSpeakSequence() {
 
         console.log('🔓 Hybrid blocking reset (during sorry message)');
 
-        // 🚨 CALL THE SAME FUNCTION THAT WORKS FOR THE FIRST BANNER
-        setTimeout(() => {
-            console.log('🔄 RESTARTING LISTENING AFTER SORRY MESSAGE');
-            startNormalInterviewListening();
-        }, 500);
+      //  window.playingSorryMessage = false;
 
-        return;
-    }
+        // 🚨 IMMEDIATE DIAGNOSTIC TEST
+     // console.log('🔍🔍🔍 POST-SORRY MESSAGE BLOCKING CHECK:');
+
+return; // ←←← Now the diagnostic runs BEFORE this return
+
+}
     
     // 🛑 CRITICAL: RE-ENABLE FUTURE SESSIONS
     window.speakSequenceBlocked = false;
