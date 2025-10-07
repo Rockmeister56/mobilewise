@@ -498,7 +498,7 @@ function getApologyResponse() {
     }
 };
 
-    recognition.onend = function() {
+  recognition.onend = function() {
     console.log('🔚 Recognition ended');
     
     // DON'T clear the slot here - let the hybrid system manage it
@@ -544,12 +544,18 @@ function getApologyResponse() {
         // No speech detected - hybrid restart
         console.log('🔄 No speech detected via onend - restarting with hybrid system');
 
+        // 🔓 CLEAR THE BLOCKING FLAG AFTER NO SPEECH - ADD THIS:
+        setTimeout(() => {
+            window.playingSorryMessage = false;
+            console.log('🔓 Cleared playingSorryMessage after no-speech timeout');
+        }, 3000);
+
         // 🎯 ADD TIMER CANCELLATION RIGHT HERE!
-    if (speakSequenceCleanupTimer) {
-        clearTimeout(speakSequenceCleanupTimer);
-        speakSequenceCleanupTimer = null;
-        console.log('🕐 CANCELLED cleanup timer - preventing session kill');
-    }
+        if (speakSequenceCleanupTimer) {
+            clearTimeout(speakSequenceCleanupTimer);
+            speakSequenceCleanupTimer = null;
+            console.log('🕐 CANCELLED cleanup timer - preventing session kill');
+        }
         
         // Your existing hybrid restart logic
         if (!window.playingSorryMessage && !isSpeaking) {
