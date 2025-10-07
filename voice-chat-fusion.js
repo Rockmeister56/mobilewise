@@ -4458,6 +4458,16 @@ function cleanupSpeakSequence() {
         }
 
         console.log('🔓 Hybrid blocking reset (during sorry message)');
+
+        // 🚨 CALL THE EXACT SAME FUNCTION THAT CREATES THE FIRST BANNER
+setTimeout(() => {
+    console.log('🔄 CALLING showHybridReadySequence() FOR SECOND BANNER');
+    if (typeof showHybridReadySequence === 'function') {
+        showHybridReadySequence();
+    } else {
+        console.log('❌ showHybridReadySequence not found');
+    }
+}, 500);
         return;
     }
     
