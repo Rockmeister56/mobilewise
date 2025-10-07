@@ -3875,45 +3875,35 @@ if (existingPrompt) {
         }
     }, 100);
     
-  // 🎯 ENHANCED SPEECH RECOGNITION ERROR HANDLER WITH MULTIPLE SORRY MESSAGES
-// 🎯 ENHANCED SPEECH RECOGNITION ERROR HANDLER WITH MULTIPLE SORRY MESSAGES
 function handleSpeechRecognitionError(error) {
-    console.log('🚨💣 NUCLEAR: Speech recognition error detected - KILLING ALL LISTENING');
-
-    // 🎯 DESKTOP: Use original working code
+    console.log('🖥️ DESKTOP ERROR HANDLER CALLED:', error);
+    
     const isRealMobile = isMobileDevice();
     if (!isRealMobile) {
-        console.log('🖥️ DESKTOP: Using original working sorry system');
+        console.log('🖥️ DESKTOP: Using desktop sorry system');
         
-        // Use your proper speech function instead of direct synthesis
-        if (error === 'no-speech' && speakSequenceButton && speakSequenceActive) {
+        if (error === 'no-speech' && speakSequenceActive) {  // ← REMOVED speakSequenceButton check
             const sorryMessage = getNextSorryMessage();
             
-            // 🎯 NEW: SET SORRY MESSAGE FLAG
             window.playingSorryMessage = true;
             console.log('🔊 DESKTOP: Starting sorry message');
             
-            speakResponseOriginal(sorryMessage); // ← USE PROPER FUNCTION!
+            addAIMessage(sorryMessage);  // ← ADD to chat
+            speakResponseOriginal(sorryMessage);
             
-            // 🎯 NEW: CLEAR THE FLAG AFTER SPEECH + RESTART LISTENING
             setTimeout(() => {
-                console.log('🔊 DESKTOP: Sorry message finished - clearing flag');
+                console.log('🔊 DESKTOP: Sorry message finished - restarting');
                 window.playingSorryMessage = false;
                 
-                // 🎯 RESTART LISTENING AFTER SORRY MESSAGE
                 if (speakSequenceActive && !isSpeaking) {
-                    console.log('🔄 DESKTOP: Restarting listening after sorry message');
-                    setTimeout(() => {
-                        forceStartListening();
-                    }, 800); // Give speech time to finish
+                    forceStartListening();
                 }
-            }, 3000); // Estimate speech time
+            }, 3000);
             
             return;
         }
     }
-
-    
+} 
     // Wait a moment to ensure everything is dead
     setTimeout(() => {
         console.log('🚨 Now handling error after nuclear cleanup:', error);
