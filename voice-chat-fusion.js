@@ -3697,7 +3697,7 @@ function showHybridReadySequence() {
     ];
 
     // 🎯 MARK THAT SORRY MESSAGE IS STARTING (PROTECT FROM CLEANUP)
-    // window.playingSorryMessage = true;
+    window.playingSorryMessage = true;
 
     // ✅ CONTACT INTERVIEW DETECTION
     const isContactInterview = checkContactInterviewMode();
