@@ -401,7 +401,7 @@ function getApologyResponse() {
             }
         };
 
-     = function(event) {
+    recognition.onerror = function(event) {
     console.log('🔊 Speech error:', event.error);
 
     // 🎯 ADD TIMER CANCELLATION HERE
