@@ -3875,6 +3875,7 @@ if (existingPrompt) {
         }
     }, 100);
     
+// 🎯 ENHANCED SPEECH RECOGNITION ERROR HANDLER WITH MULTIPLE SORRY MESSAGES
 function handleSpeechRecognitionError(error) {
     console.log('🖥️ DESKTOP ERROR HANDLER CALLED:', error);
     
@@ -3898,12 +3899,13 @@ function handleSpeechRecognitionError(error) {
                 if (speakSequenceActive && !isSpeaking) {
                     forceStartListening();
                 }
-            }, 3000);
+            }, 3000); // Estimate speech time
             
             return;
         }
     }
-} 
+
+    
     // Wait a moment to ensure everything is dead
     setTimeout(() => {
         console.log('🚨 Now handling error after nuclear cleanup:', error);
