@@ -3,6 +3,8 @@
 // Smart Button + Lead Capture + EmailJS + Banner System
 // ===================================================
 
+// 🎯 NUCLEAR DEBUG - IS ERROR HANDLER HOOKED UP?
+console.log('💣💣💣 NUCLEAR: Is handleSpeechRecognitionError function defined?', typeof handleSpeechRecognitionError);
 
 // Add this at the VERY TOP of your JavaScript file (like line 1)
 if (typeof window.leadData === 'undefined' || !window.leadData) {
@@ -402,48 +404,84 @@ function getApologyResponse() {
             }
         };
 
-    recognition.onerror = function(event) {
+      recognition.onerror = function(event) {
     console.log('🔊 Speech error:', event.error);
 
-    // 🎯 CANCEL CLEANUP TIMER IMMEDIATELY
+     // 🎯 ADD TIMER CANCELLATION HERE
     if (speakSequenceCleanupTimer) {
         clearTimeout(speakSequenceCleanupTimer);
         speakSequenceCleanupTimer = null;
-        console.log('🕐 CANCELLED cleanup timer in error handler');
+        console.log('🕐 CANCELLED cleanup timer in OLD system');
     }
 
-    // 🎯 CALL YOUR NEW DESKTOP ERROR HANDLER FIRST
-    if (typeof handleSpeechRecognitionError === 'function') {
-        console.log('🎯 CALLING handleSpeechRecognitionError for:', event.error);
-        handleSpeechRecognitionError(event.error);
-        return; // Exit here - let your handler manage everything
-    } else {
-        console.log('❌ handleSpeechRecognitionError function not found - using fallback');
-    }
-
-    // 🎯 FALLBACK SYSTEM (only if handleSpeechRecognitionError doesn't exist)
     if (event.error === 'no-speech') {
-        console.log('🖥️ FALLBACK: Using old desktop system');
-        
-        lastMessageWasApology = true;
-        const apologyResponse = getApologyResponse();
-        
-        stopListening();
-        
-        setTimeout(() => {
-            addAIMessage(apologyResponse);
-            speakResponse(apologyResponse);
-            
-            if (restartTimeout) clearTimeout(restartTimeout);
-            
-            restartTimeout = setTimeout(() => {
-                if (isAudioMode && !isListening && !isSpeaking) {
-                    startListening();
-                }
-                lastMessageWasApology = false;
-            }, 3000);
-        }, 500);
-        
+        const transcriptText = document.getElementById('transcriptText');
+
+        console.log('🔍 MOBILE DEBUG:', {
+            userAgent: navigator.userAgent,
+            isMobile: /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent),
+            isTouch: ('ontouchstart' in window || navigator.maxTouchPoints > 0)
+        });
+
+         // 🚨 NUCLEAR MOBILE DETECTION - SCREEN SIZE ONLY
+const isDefinitelyMobile = window.innerWidth <= 768 || window.innerHeight <= 1024;
+
+console.log('🔍 NUCLEAR MOBILE DEBUG:', {
+    windowWidth: window.innerWidth,
+    windowHeight: window.innerHeight,
+    isDefinitelyMobile: isDefinitelyMobile
+});
+
+if (isDefinitelyMobile) {
+    console.log('📱📱📱 NUCLEAR MOBILE DETECTED: Using visual feedback system');
+
+            if (window.noSpeechTimeout) {
+                clearTimeout(window.noSpeechTimeout);
+            }
+
+            if (transcriptText) {
+                transcriptText.textContent = 'I didn\'t hear anything...';
+                transcriptText.style.color = '#ff6b6b';
+
+                window.noSpeechTimeout = setTimeout(() => {
+                    if (transcriptText) {
+                        transcriptText.textContent = 'Please speak now';
+                        transcriptText.style.color = '#ffffff';
+                    }
+
+                    if (isAudioMode && !isSpeaking) {
+                        console.log('🔄 Mobile: Restarting via hybrid system');
+                        isListening = false;
+
+                        setTimeout(() => {
+                            showHybridReadySequence();
+                        }, 800);
+                    }
+                }, 1500);
+            }
+
+        } else {
+            console.log('🖥️ Desktop: Using voice apology system');
+
+            lastMessageWasApology = true;
+            const apologyResponse = getApologyResponse();
+
+            stopListening();
+
+            setTimeout(() => {
+                addAIMessage(apologyResponse);
+                speakResponse(apologyResponse);
+
+                if (restartTimeout) clearTimeout(restartTimeout);
+
+                restartTimeout = setTimeout(() => {
+                    if (isAudioMode && !isListening && !isSpeaking) {
+                        startListening();
+                    }
+                    lastMessageWasApology = false;
+                }, 3000);
+            }, 500);
+        }
     } else if (event.error === 'audio-capture') {
         console.log('🎤 No microphone detected');
         addAIMessage("I can't detect your microphone. Please check your audio settings.");
