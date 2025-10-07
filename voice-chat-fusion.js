@@ -3807,77 +3807,103 @@ function handleSpeechRecognitionError(error) {
         console.log('💣💣💣 NO timer to cancel');
     }
        
-    // Use your proper speech function instead of direct synthesis
-    const isRealMobile = isMobileDevice();
-    if (!isRealMobile) {
-        console.log('🖥️ DESKTOP: Using original working sorry system');
+   // Use your proper speech function instead of direct synthesis
+const isRealMobile = window.innerWidth <= 768 || window.innerHeight <= 1024;
+
+if (!isRealMobile) {
+    console.log('🖥️ DESKTOP: Using original working sorry system');
+    
+    // 🚨 NUCLEAR DEBUG - IF YOU SEE THIS, CHANGES ARE LOADING
+    console.log('🚨 NUCLEAR DEBUG: Desktop error handler with restart logic - ' + Date.now());
+    
+    // Your original desktop code that was working
+    if (error === 'no-speech' && speakSequenceButton && speakSequenceActive) {
+        const sorryMessage = getNextSorryMessage();
         
-        // 🆕 HIDE SPEAK NOW BANNER DURING APOLOGY
-        if (speakSequenceButton) {
-            speakSequenceButton.style.display = 'none';
-            console.log('🎯 DESKTOP: Hid Speak Now banner during apology');
-        }
+        // 🎯 CRITICAL: SET SORRY MESSAGE FLAG
+        window.playingSorryMessage = true;
         
-        // 🚨 NUCLEAR DEBUG - IF YOU SEE THIS, CHANGES ARE LOADING
-        console.log('🚨 NUCLEAR DEBUG: Desktop error handler with restart logic - ' + Date.now());
+        // 🎯 ADD BUBBLE FOR DESKTOP
+        addAIMessage(sorryMessage);
         
-        // Your original desktop code that was working
-        if (error === 'no-speech' && speakSequenceButton && speakSequenceActive) {
-            const sorryMessage = getNextSorryMessage();
-            
-            // 🎯 CRITICAL: SET SORRY MESSAGE FLAG
-            window.playingSorryMessage = true;
-            
-            // 🎯 ADD BUBBLE FOR DESKTOP
-            addAIMessage(sorryMessage);
-            
-            // 🎯 UPDATE BANNER FOR DESKTOP
-            speakSequenceButton.innerHTML = `
-                <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
-                    <div style="margin-bottom: 6px; color: #dc2626;">
-                        <span class="error-feedback-blink">🔊</span> ${sorryMessage}
-                    </div>
-                    <div class="progress-bar-container">
-                        <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #dc2626, #b91c1c);"></div>
-                    </div>
+        // 🎯 UPDATE BANNER FOR DESKTOP
+        speakSequenceButton.innerHTML = `
+            <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+                <div style="margin-bottom: 6px; color: #dc2626;">
+                    <span class="error-feedback-blink">🔊</span> ${sorryMessage}
                 </div>
-            `;
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #dc2626, #b91c1c);"></div>
+                </div>
+            </div>
+        `;
+        
+        speakResponseOriginal(sorryMessage);
+        
+        // 🎯 DESKTOP RESTART LOGIC
+        setTimeout(() => {
+            console.log('🚨 NUCLEAR DEBUG: Desktop restart timeout fired');
             
-            speakResponseOriginal(sorryMessage);
+            // 🆕 SHOW SPEAK NOW BANNER AGAIN
+            if (speakSequenceButton) {
+                speakSequenceButton.style.display = 'block';
+                console.log('🎯 DESKTOP: Showed Speak Now banner again');
+            }
             
-            // 🎯 DESKTOP RESTART LOGIC
-            setTimeout(() => {
-                console.log('🚨 NUCLEAR DEBUG: Desktop restart timeout fired');
-                
-                // 🆕 SHOW SPEAK NOW BANNER AGAIN
-                if (speakSequenceButton) {
-                    speakSequenceButton.style.display = 'block';
-                    console.log('🎯 DESKTOP: Showed Speak Now banner again');
-                }
-                
-                // 🎯 CRITICAL: RESET SORRY MESSAGE FLAG
-                window.playingSorryMessage = false;
-                
-                // 🎯 CANCEL FIRST SESSION'S CLEANUP TIMER AND CREATE NEW ONE FOR SECOND SESSION
-                if (speakSequenceCleanupTimer) {
-                    clearTimeout(speakSequenceCleanupTimer);
-                    console.log('🕐 Cancelled first session cleanup timer');
-                }
-                
-                // 🎯 RESTART CLEANUP TIMER FOR SECOND SESSION
-                speakSequenceCleanupTimer = setTimeout(() => {
-                    console.log('⏰ Second Speak Now session - cleaning up');
-                    cleanupSpeakSequence();
-                }, 8000);
-                
-                // 🎯 CRITICAL: RESTART LISTENING
-                forceStartListening();
-            }, 2000);
+            // 🎯 CRITICAL: RESET SORRY MESSAGE FLAG
+            window.playingSorryMessage = false;
             
-            console.log('🚨 NUCLEAR DEBUG: Desktop error handler completed');
-            return;
-        }
+            // 🎯 CANCEL FIRST SESSION'S CLEANUP TIMER AND CREATE NEW ONE FOR SECOND SESSION
+            if (speakSequenceCleanupTimer) {
+                clearTimeout(speakSequenceCleanupTimer);
+                console.log('🕐 Cancelled first session cleanup timer');
+            }
+            
+            // 🎯 RESTART CLEANUP TIMER FOR SECOND SESSION
+            speakSequenceCleanupTimer = setTimeout(() => {
+                console.log('⏰ Second Speak Now session - cleaning up');
+                cleanupSpeakSequence();
+            }, 8000);
+            
+            // 🎯 CRITICAL: RESTART LISTENING
+            forceStartListening();
+        }, 2000);
+        
+        console.log('🚨 NUCLEAR DEBUG: Desktop error handler completed');
+        return;
     }
+} else {
+    console.log('📱 MOBILE: Using visual feedback system');
+    
+    // 🎯 HIDE SPEAK NOW BANNER DURING APOLOGY
+    if (speakSequenceButton) {
+        speakSequenceButton.style.display = 'none';
+        console.log('🎯 MOBILE: Hid Speak Now banner during apology');
+    }
+    
+    // 🎯 MOBILE APOLOGY CODE
+    const sorryMessage = getNextSorryMessage();
+    
+    // Add chat bubble for mobile
+    addAIMessage(sorryMessage);
+    
+    // Use ElevenLabs voice instead of TTS
+    speakResponseOriginal(sorryMessage);
+    
+    // 🎯 MOBILE RESTART LOGIC
+    setTimeout(() => {
+        console.log('📱 MOBILE: Restarting listening after apology');
+        
+        // 🎯 SHOW BANNER AGAIN AND RESTART LISTENING
+        if (speakSequenceButton && speakSequenceActive) {
+            speakSequenceButton.style.display = 'block';
+            console.log('🎯 MOBILE: Showed Speak Now banner again');
+            forceStartListening();
+        }
+    }, 2000);
+    
+    return;
+}
     
     // 💣 CALL GLOBAL NUKE FUNCTION
    // nukeAllListening();
@@ -4458,16 +4484,6 @@ function cleanupSpeakSequence() {
         }
 
         console.log('🔓 Hybrid blocking reset (during sorry message)');
-
-        // 🚨 CALL THE EXACT SAME FUNCTION THAT CREATES THE FIRST BANNER
-setTimeout(() => {
-    console.log('🔄 CALLING showHybridReadySequence() FOR SECOND BANNER');
-    if (typeof showHybridReadySequence === 'function') {
-        showHybridReadySequence();
-    } else {
-        console.log('❌ showHybridReadySequence not found');
-    }
-}, 500);
         return;
     }
     
