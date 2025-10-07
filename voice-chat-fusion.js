@@ -4458,6 +4458,13 @@ function cleanupSpeakSequence() {
         }
 
         console.log('🔓 Hybrid blocking reset (during sorry message)');
+
+        // 🚨 CALL THE SAME FUNCTION THAT WORKS FOR THE FIRST BANNER
+        setTimeout(() => {
+            console.log('🔄 RESTARTING LISTENING AFTER SORRY MESSAGE');
+            startNormalInterviewListening();
+        }, 500);
+
         return;
     }
     
