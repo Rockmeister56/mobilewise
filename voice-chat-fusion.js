@@ -4456,12 +4456,10 @@ function cleanupSpeakSequence() {
             clearTimeout(speakSequenceCleanupTimer);
             speakSequenceCleanupTimer = null;
         }
-        
-        console.log('🔓 Hybrid blocking reset (during sorry message)');
-        return; // Exit but timers/flags are cleaned up
-    }
 
-    // 🚨 DIAGNOSTIC TEST - WHAT'S BLOCKING RESTART?
+        console.log('🔓 Hybrid blocking reset (during sorry message)');
+
+// 🚨 DIAGNOSTIC TEST - WHAT'S BLOCKING RESTART?
 console.log('🔍🔍🔍 POST-SORRY MESSAGE BLOCKING CHECK:');
 console.log('🔍 speakSequenceActive:', typeof speakSequenceActive !== 'undefined' ? speakSequenceActive : 'UNDEFINED');
 console.log('🔍 speakSequenceBlocked:', typeof speakSequenceBlocked !== 'undefined' ? speakSequenceBlocked : 'UNDEFINED');
@@ -4490,6 +4488,11 @@ setTimeout(() => {
         console.log('❌ NO LISTENING FUNCTIONS AVAILABLE!');
     }
 }, 500);
+
+return; // ←←← Now the diagnostic runs BEFORE this return
+
+    }
+    
     
     // 🛑 CRITICAL: RE-ENABLE FUTURE SESSIONS
     window.speakSequenceBlocked = false;
