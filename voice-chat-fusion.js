@@ -3996,7 +3996,7 @@ function handleSpeechRecognitionError(error) {
         if (error === 'no-speech' && speakSequenceActive) {
             const sorryMessage = getNextSorryMessage();
             
-            window.playingSorryMessage = true;
+            // window.playingSorryMessage = true;
             console.log('🔊 DESKTOP: Starting sorry message');
             
             addAIMessage(sorryMessage);
