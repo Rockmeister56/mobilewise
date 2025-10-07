@@ -3795,92 +3795,43 @@ if (existingPrompt) {
     }, 100);
     
   // 🎯 ENHANCED SPEECH RECOGNITION ERROR HANDLER WITH MULTIPLE SORRY MESSAGES
+// 🎯 ENHANCED SPEECH RECOGNITION ERROR HANDLER WITH MULTIPLE SORRY MESSAGES
 function handleSpeechRecognitionError(error) {
-    console.log('💣💣💣 handleSpeechRecognitionError CALLED with error:', error);
-    
-    // 🎯 CANCEL CLEANUP TIMER IMMEDIATELY
-    if (speakSequenceCleanupTimer) {
-        clearTimeout(speakSequenceCleanupTimer);
-        speakSequenceCleanupTimer = null;
-        console.log('💣💣💣 SUCCESS: Cleanup timer CANCELLED');
-    } else {
-        console.log('💣💣💣 NO timer to cancel');
-    }
-       
-    // Use your proper speech function instead of direct synthesis
+    console.log('🚨💣 NUCLEAR: Speech recognition error detected - KILLING ALL LISTENING');
+
+    // 🎯 DESKTOP: Use original working code
     const isRealMobile = isMobileDevice();
     if (!isRealMobile) {
         console.log('🖥️ DESKTOP: Using original working sorry system');
         
-        // 🆕 HIDE SPEAK NOW BANNER DURING APOLOGY
-        if (speakSequenceButton) {
-            speakSequenceButton.style.display = 'none';
-            console.log('🎯 DESKTOP: Hid Speak Now banner during apology');
-        }
-        
-        // 🚨 NUCLEAR DEBUG - IF YOU SEE THIS, CHANGES ARE LOADING
-        console.log('🚨 NUCLEAR DEBUG: Desktop error handler with restart logic - ' + Date.now());
-        
-        // Your original desktop code that was working
+        // Use your proper speech function instead of direct synthesis
         if (error === 'no-speech' && speakSequenceButton && speakSequenceActive) {
             const sorryMessage = getNextSorryMessage();
             
-            // 🎯 CRITICAL: SET SORRY MESSAGE FLAG
+            // 🎯 NEW: SET SORRY MESSAGE FLAG
             window.playingSorryMessage = true;
+            console.log('🔊 DESKTOP: Starting sorry message');
             
-            // 🎯 ADD BUBBLE FOR DESKTOP
-            addAIMessage(sorryMessage);
+            speakResponseOriginal(sorryMessage); // ← USE PROPER FUNCTION!
             
-            // 🎯 UPDATE BANNER FOR DESKTOP
-            speakSequenceButton.innerHTML = `
-                <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
-                    <div style="margin-bottom: 6px; color: #dc2626;">
-                        <span class="error-feedback-blink">🔊</span> ${sorryMessage}
-                    </div>
-                    <div class="progress-bar-container">
-                        <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #dc2626, #b91c1c);"></div>
-                    </div>
-                </div>
-            `;
-            
-            speakResponseOriginal(sorryMessage);
-            
-            // 🎯 DESKTOP RESTART LOGIC
+            // 🎯 NEW: CLEAR THE FLAG AFTER SPEECH + RESTART LISTENING
             setTimeout(() => {
-                console.log('🚨 NUCLEAR DEBUG: Desktop restart timeout fired');
-                
-                // 🆕 SHOW SPEAK NOW BANNER AGAIN
-                if (speakSequenceButton) {
-                    speakSequenceButton.style.display = 'block';
-                    console.log('🎯 DESKTOP: Showed Speak Now banner again');
-                }
-                
-                // 🎯 CRITICAL: RESET SORRY MESSAGE FLAG
+                console.log('🔊 DESKTOP: Sorry message finished - clearing flag');
                 window.playingSorryMessage = false;
                 
-                // 🎯 CANCEL FIRST SESSION'S CLEANUP TIMER AND CREATE NEW ONE FOR SECOND SESSION
-                if (speakSequenceCleanupTimer) {
-                    clearTimeout(speakSequenceCleanupTimer);
-                    console.log('🕐 Cancelled first session cleanup timer');
+                // 🎯 RESTART LISTENING AFTER SORRY MESSAGE
+                if (speakSequenceActive && !isSpeaking) {
+                    console.log('🔄 DESKTOP: Restarting listening after sorry message');
+                    setTimeout(() => {
+                        forceStartListening();
+                    }, 800); // Give speech time to finish
                 }
-                
-                // 🎯 RESTART CLEANUP TIMER FOR SECOND SESSION
-                speakSequenceCleanupTimer = setTimeout(() => {
-                    console.log('⏰ Second Speak Now session - cleaning up');
-                    cleanupSpeakSequence();
-                }, 8000);
-                
-                // 🎯 CRITICAL: RESTART LISTENING
-                forceStartListening();
-            }, 2000);
+            }, 3000); // Estimate speech time
             
-            console.log('🚨 NUCLEAR DEBUG: Desktop error handler completed');
             return;
         }
     }
-    
-    // 💣 CALL GLOBAL NUKE FUNCTION
-   // nukeAllListening();
+
     
     // Wait a moment to ensure everything is dead
     setTimeout(() => {
