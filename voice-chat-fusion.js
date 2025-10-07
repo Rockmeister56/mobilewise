@@ -3717,7 +3717,7 @@ function showHybridReadySequence() {
         "Sorry, please speak again"
     ];
     
-   // Function to get next sorry message (rotates through array)
+ // Function to get next sorry message (rotates through array)
 function getNextSorryMessage() {
     const message = sorryMessages[window.errorMessageIndex];
     window.errorMessageIndex = (window.errorMessageIndex + 1) % sorryMessages.length;
@@ -3726,6 +3726,12 @@ function getNextSorryMessage() {
 
 // 🎯 MARK THAT SORRY MESSAGE IS STARTING (PROTECT FROM CLEANUP)
 window.playingSorryMessage = true;
+
+// 🔓 AUTO-RESET AFTER REASONABLE TIME
+setTimeout(() => {
+    window.playingSorryMessage = false;
+    console.log('🔓 Auto-cleared playingSorryMessage flag after timeout');
+}, 5000); // Reset after 5 seconds
 
 // ✅ CONTACT INTERVIEW DETECTION
 const isContactInterview = checkContactInterviewMode();
