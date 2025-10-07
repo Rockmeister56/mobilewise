@@ -4459,13 +4459,34 @@ function cleanupSpeakSequence() {
 
         console.log('🔓 Hybrid blocking reset (during sorry message)');
 
-      //  window.playingSorryMessage = false;
+        // 🚨 SIMPLE RESTART - JUST START LISTENING AGAIN
+        setTimeout(() => {
+            console.log('🔊 SIMPLE RESTART: Starting listening for second banner');
+            startListening();
+        }, 1000);
 
-        // 🚨 IMMEDIATE DIAGNOSTIC TEST
-     // console.log('🔍🔍🔍 POST-SORRY MESSAGE BLOCKING CHECK:');
-
-return; // ←←← Now the diagnostic runs BEFORE this return
-
+        return;
+    }
+    
+    // 🛑 CRITICAL: RE-ENABLE FUTURE SESSIONS
+    window.speakSequenceBlocked = false;
+    speakSequenceActive = false;
+    
+    console.log('🧹 Cleaning up speak sequence');
+    
+    if (speakSequenceButton) {
+        speakSequenceButton.remove();
+        speakSequenceButton = null;
+    }
+    
+    // Restore original buttons
+    const quickButtonsContainer = document.querySelector('.quick-questions') || 
+                                  document.querySelector('.quick-buttons') || 
+                                  document.getElementById('quickButtonsContainer');
+    if (quickButtonsContainer) {
+        const buttons = quickButtonsContainer.querySelectorAll('.quick-btn');
+        buttons.forEach(btn => btn.style.display = '');
+    }
 }
     
     // 🛑 CRITICAL: RE-ENABLE FUTURE SESSIONS
