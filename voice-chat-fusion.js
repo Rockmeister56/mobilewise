@@ -4002,45 +4002,51 @@ setTimeout(() => {
             };
             
             // 🎯 RECONNECT END HANDLER - ALSO IMPORTANT
-            recognition.onend = function() {
-                console.log('🔚 RECONNECTED: Recognition ended');
+          recognition.onend = function() {
+    console.log('🔚 Recognition ended');
+    
+    const userInput = document.getElementById('userInput');
+    
+    if (userInput && userInput.value.trim().length > 0) {
+        const currentMessage = userInput.value.trim();
+        const now = Date.now();
+        const timeSinceLastMessage = now - (window.lastMessageTime || 0);
+        
+        if (!window.lastProcessedMessage || 
+            window.lastProcessedMessage !== currentMessage || 
+            timeSinceLastMessage > 3000) {
+            
+            console.log('✅ Sending new message:', currentMessage);
+
+            if (typeof speakSequenceActive !== 'undefined' && speakSequenceActive) {
+                console.log('🎯 Closing Speak Now banner - message sent');
+                window.playingSorryMessage = false;
                 
-                const userInput = document.getElementById('userInput');
-                
-                if (userInput && userInput.value.trim().length > 0) {
-                    // User said something - process the message
-                    const currentMessage = userInput.value.trim();
-                    const now = Date.now();
-                    const timeSinceLastMessage = now - (window.lastMessageTime || 0);
-                    
-                    if (!window.lastProcessedMessage || 
-                        window.lastProcessedMessage !== currentMessage || 
-                        timeSinceLastMessage > 3000) {
-                        
-                        console.log('✅ RECONNECTED: Sending new message:', currentMessage);
-                        
-                        // Close banner and process message
-                        if (typeof speakSequenceActive !== 'undefined' && speakSequenceActive) {
-                            console.log('🎯 RECONNECTED: Closing Speak Now banner - message sent');
-                            window.playingSorryMessage = false;
-                            
-                            if (speakSequenceCleanupTimer) {
-                                clearTimeout(speakSequenceCleanupTimer);
-                                speakSequenceCleanupTimer = null;
-                            }
-                            
-                            cleanupSpeakSequence();
-                        }
-                        
-                        window.lastMessageTime = now;
-                        window.lastProcessedMessage = currentMessage;
-                        sendMessage(currentMessage);
-                    }
-                } else {
-                    // No speech detected - let error handler manage restart
-                    console.log('🔄 RECONNECTED: No speech detected - error handler will manage restart');
+                if (speakSequenceCleanupTimer) {
+                    clearTimeout(speakSequenceCleanupTimer);
+                    speakSequenceCleanupTimer = null;
                 }
-            };
+                
+                cleanupSpeakSequence();
+            }
+            
+            window.lastProcessedMessage = currentMessage;
+            window.lastMessageTime = now;
+            sendMessage();
+        }
+    } else {
+        if (isAudioMode && !isSpeaking && !lastMessageWasApology) {
+            console.log('🔄 No speech detected via onend - restarting with hybrid system');
+            isListening = false;
+            
+            setTimeout(() => {
+                if (!isSpeaking && isAudioMode) {
+                    showHybridReadySequence();
+                }
+            }, 1000);
+        }
+    }
+};
             
             console.log('✅ RECONNECTED: All essential handlers restored');
         }
