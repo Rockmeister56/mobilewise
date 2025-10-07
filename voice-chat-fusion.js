@@ -3,9 +3,6 @@
 // Smart Button + Lead Capture + EmailJS + Banner System
 // ===================================================
 
-// 🎯 NUCLEAR DEBUG - IS ERROR HANDLER HOOKED UP?
-console.log('💣💣💣 NUCLEAR: Is handleSpeechRecognitionError function defined?', typeof handleSpeechRecognitionError);
-
 // Add this at the VERY TOP of your JavaScript file (like line 1)
 if (typeof window.leadData === 'undefined' || !window.leadData) {
     window.leadData = { 
@@ -404,16 +401,26 @@ function getApologyResponse() {
             }
         };
 
-      recognition.onerror = function(event) {
+    recognition.onerror = function(event) {
     console.log('🔊 Speech error:', event.error);
 
-     // 🎯 ADD TIMER CANCELLATION HERE
+    // 🎯 ADD TIMER CANCELLATION HERE
     if (speakSequenceCleanupTimer) {
         clearTimeout(speakSequenceCleanupTimer);
         speakSequenceCleanupTimer = null;
-        console.log('🕐 CANCELLED cleanup timer in OLD system');
+        console.log('🕐 CANCELLED cleanup timer in error handler');
     }
 
+    // 🎯 CALL YOUR NEW DESKTOP ERROR HANDLER FIRST
+    if (typeof handleSpeechRecognitionError === 'function') {
+        console.log('🎯 CALLING handleSpeechRecognitionError for:', event.error);
+        handleSpeechRecognitionError(event.error);
+        return; // Exit here - let your handler manage everything
+    } else {
+        console.log('❌ handleSpeechRecognitionError function not found - using fallback');
+    }
+
+    // 🎯 FALLBACK SYSTEM (only if handleSpeechRecognitionError doesn't exist)
     if (event.error === 'no-speech') {
         const transcriptText = document.getElementById('transcriptText');
 
@@ -423,17 +430,17 @@ function getApologyResponse() {
             isTouch: ('ontouchstart' in window || navigator.maxTouchPoints > 0)
         });
 
-         // 🚨 NUCLEAR MOBILE DETECTION - SCREEN SIZE ONLY
-const isDefinitelyMobile = window.innerWidth <= 768 || window.innerHeight <= 1024;
+        // 🚨 NUCLEAR MOBILE DETECTION - SCREEN SIZE ONLY
+        const isDefinitelyMobile = window.innerWidth <= 768 || window.innerHeight <= 1024;
 
-console.log('🔍 NUCLEAR MOBILE DEBUG:', {
-    windowWidth: window.innerWidth,
-    windowHeight: window.innerHeight,
-    isDefinitelyMobile: isDefinitelyMobile
-});
+        console.log('🔍 NUCLEAR MOBILE DEBUG:', {
+            windowWidth: window.innerWidth,
+            windowHeight: window.innerHeight,
+            isDefinitelyMobile: isDefinitelyMobile
+        });
 
-if (isDefinitelyMobile) {
-    console.log('📱📱📱 NUCLEAR MOBILE DETECTED: Using visual feedback system');
+        if (isDefinitelyMobile) {
+            console.log('📱📱📱 NUCLEAR MOBILE DETECTED: Using visual feedback system');
 
             if (window.noSpeechTimeout) {
                 clearTimeout(window.noSpeechTimeout);
@@ -461,7 +468,7 @@ if (isDefinitelyMobile) {
             }
 
         } else {
-            console.log('🖥️ Desktop: Using voice apology system');
+            console.log('🖥️ FALLBACK: Using old desktop system');
 
             lastMessageWasApology = true;
             const apologyResponse = getApologyResponse();
