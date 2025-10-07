@@ -3808,13 +3808,9 @@ function handleSpeechRecognitionError(error) {
     }
        
     // Use your proper speech function instead of direct synthesis
-   const isRealMobile = window.innerWidth <= 768 || window.innerHeight <= 1024;
-
-if (!isRealMobile) {
-    console.log('🖥️ DESKTOP: Using original working sorry system');
-    // ... desktop code
-} else {
-    console.log('📱 MOBILE: Using visual feedback system');
+    const isRealMobile = isMobileDevice();
+    if (!isRealMobile) {
+        console.log('🖥️ DESKTOP: Using original working sorry system');
         
         // 🆕 HIDE SPEAK NOW BANNER DURING APOLOGY
         if (speakSequenceButton) {
