@@ -4459,6 +4459,8 @@ function cleanupSpeakSequence() {
 
         console.log('🔓 Hybrid blocking reset (during sorry message)');
 
+        window.playingSorryMessage = false;
+
 // 🚨 DIAGNOSTIC TEST - WHAT'S BLOCKING RESTART?
 console.log('🔍🔍🔍 POST-SORRY MESSAGE BLOCKING CHECK:');
 console.log('🔍 speakSequenceActive:', typeof speakSequenceActive !== 'undefined' ? speakSequenceActive : 'UNDEFINED');
