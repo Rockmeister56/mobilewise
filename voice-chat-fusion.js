@@ -401,7 +401,7 @@ function getApologyResponse() {
             }
         };
 
-    recognition.onerror = function(event) {
+     = function(event) {
     console.log('🔊 Speech error:', event.error);
 
     // 🎯 ADD TIMER CANCELLATION HERE
@@ -422,7 +422,7 @@ function getApologyResponse() {
 
     // 🎯 FALLBACK SYSTEM (only if handleSpeechRecognitionError doesn't exist)
     if (event.error === 'no-speech') {
-        const transcriptText = document.getElementById('transcriptText');
+        const transcriptText = document.getElementById('transcriptText');recognition.onerror
 
         console.log('🔍 MOBILE DEBUG:', {
             userAgent: navigator.userAgent,
@@ -649,30 +649,35 @@ function forceStartListening() {
     
     // 🎯 CHECK WHAT'S BLOCKING THE RESTART
     const userInput = document.getElementById('userInput');
-    if (userInput && userInput.value.trim().length > 0) {
-        console.log('🔍 DIAGNOSTIC: User said something:', userInput.value);
-        window.loopCounter = 0; // Reset on success
-    } else {
-        console.log('🛑 DIAGNOSTIC: No speech detected - this is where we need to restart');
-        
-        // 🎯 DIAGNOSTIC: Check all blocking conditions
-        console.log('🔍 DIAGNOSTIC BLOCKING CHECK:');
-        console.log('  - playingSorryMessage:', window.playingSorryMessage);
-        console.log('  - isSpeaking:', isSpeaking);
-        console.log('  - speakSequenceActive:', speakSequenceActive);
-        console.log('  - conversationState:', conversationState);
-        
-        // 🎯 FORCE RESTART ATTEMPT - ONLY CHANGE IS LONGER TIMEOUT
-        setTimeout(() => {
-            console.log('🔄 DIAGNOSTIC: Attempting force restart...');
-            if (!window.playingSorryMessage && !isSpeaking && speakSequenceActive) {
-                console.log('✅ DIAGNOSTIC: Conditions good - calling forceStartListening again');
-                forceStartListening();
-            } else {
-                console.log('❌ DIAGNOSTIC: Conditions bad - restart blocked');
-                console.log('   - playingSorryMessage blocking:', window.playingSorryMessage);
-                console.log('   - isSpeaking blocking:', isSpeaking);
-                console.log('   - speakSequenceActive blocking:', !speakSequenceActive);
+if (userInput && userInput.value.trim().length > 0) {
+    console.log('🔍 DIAGNOSTIC: User said something:', userInput.value);
+    window.loopCounter = 0; // Reset on success
+    
+    // 🔓 CLEAR THE BLOCKING FLAG WHEN USER SPEAKS - ADD THIS LINE:
+    window.playingSorryMessage = false;
+    console.log('🔓 Cleared playingSorryMessage - user spoke successfully');
+    
+} else {
+    console.log('🛑 DIAGNOSTIC: No speech detected - this is where we need to restart');
+    
+    // 🎯 DIAGNOSTIC: Check all blocking conditions
+    console.log('🔍 DIAGNOSTIC BLOCKING CHECK:');
+    console.log('  - playingSorryMessage:', window.playingSorryMessage);
+    console.log('  - isSpeaking:', isSpeaking);
+    console.log('  - speakSequenceActive:', speakSequenceActive);
+    console.log('  - conversationState:', conversationState);
+    
+    // 🎯 FORCE RESTART ATTEMPT - ONLY CHANGE IS LONGER TIMEOUT
+    setTimeout(() => {
+        console.log('🔄 DIAGNOSTIC: Attempting force restart...');
+        if (!window.playingSorryMessage && !isSpeaking && speakSequenceActive) {
+            console.log('✅ DIAGNOSTIC: Conditions good - calling forceStartListening again');
+            forceStartListening();
+        } else {
+            console.log('❌ DIAGNOSTIC: Conditions bad - restart blocked');
+            console.log('   - playingSorryMessage blocking:', window.playingSorryMessage);
+            console.log('   - isSpeaking blocking:', isSpeaking);
+            console.log('   - speakSequenceActive blocking:', !speakSequenceActive);
             }
         }, 2000); // ← CHANGED FROM 1000 to 2000 to slow the loop
     }
