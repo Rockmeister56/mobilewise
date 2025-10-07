@@ -630,10 +630,28 @@ function forceStartListening() {
     console.log('🔍 DIAGNOSTIC: speakSequenceActive:', speakSequenceActive);
     console.log('🔍 DIAGNOSTIC: playingSorryMessage:', window.playingSorryMessage);
     
+    // 🚨 EMERGENCY LOOP BREAKER - ADD THIS SECTION
+    if (window.EMERGENCY_STOP) {
+        console.log('🚨 EMERGENCY STOP - breaking loop');
+        return;
+    }
+    
+    // Loop counter protection
+    window.loopCounter = (window.loopCounter || 0) + 1;
+    console.log('🔄 Loop counter:', window.loopCounter);
+    
+    if (window.loopCounter > 5) {
+        console.log('🛑 Too many restarts - breaking loop');
+        window.loopCounter = 0;
+        return;
+    }
+    // END LOOP BREAKER SECTION
+    
     // 🎯 CHECK WHAT'S BLOCKING THE RESTART
     const userInput = document.getElementById('userInput');
     if (userInput && userInput.value.trim().length > 0) {
         console.log('🔍 DIAGNOSTIC: User said something:', userInput.value);
+        window.loopCounter = 0; // Reset on success
     } else {
         console.log('🛑 DIAGNOSTIC: No speech detected - this is where we need to restart');
         
@@ -644,18 +662,19 @@ function forceStartListening() {
         console.log('  - speakSequenceActive:', speakSequenceActive);
         console.log('  - conversationState:', conversationState);
         
-        // 🎯 FIXED RESTART LOGIC - REMOVE playingSorryMessage BLOCK
+        // 🎯 FORCE RESTART ATTEMPT - ONLY CHANGE IS LONGER TIMEOUT
         setTimeout(() => {
             console.log('🔄 DIAGNOSTIC: Attempting force restart...');
-            if (!isSpeaking && speakSequenceActive) {  // ← REMOVED playingSorryMessage check!
+            if (!window.playingSorryMessage && !isSpeaking && speakSequenceActive) {
                 console.log('✅ DIAGNOSTIC: Conditions good - calling forceStartListening again');
                 forceStartListening();
             } else {
                 console.log('❌ DIAGNOSTIC: Conditions bad - restart blocked');
+                console.log('   - playingSorryMessage blocking:', window.playingSorryMessage);
                 console.log('   - isSpeaking blocking:', isSpeaking);
                 console.log('   - speakSequenceActive blocking:', !speakSequenceActive);
             }
-        }, 1000);
+        }, 2000); // ← CHANGED FROM 1000 to 2000 to slow the loop
     }
 };
         
