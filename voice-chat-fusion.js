@@ -624,38 +624,40 @@ function forceStartListening() {
             console.log('🔍 DIAGNOSTIC: Error details:', event);
         };
         
-        recognition.onend = function() {
-            console.log('🛑 DIAGNOSTIC: Recognition ENDED - checking why...');
-            console.log('🔍 DIAGNOSTIC: isSpeaking:', isSpeaking);
-            console.log('🔍 DIAGNOSTIC: speakSequenceActive:', speakSequenceActive);
-            console.log('🔍 DIAGNOSTIC: playingSorryMessage:', window.playingSorryMessage);
-            
-            // 🎯 CHECK WHAT'S BLOCKING THE RESTART
-            const userInput = document.getElementById('userInput');
-            if (userInput && userInput.value.trim().length > 0) {
-                console.log('🔍 DIAGNOSTIC: User said something:', userInput.value);
+       recognition.onend = function() {
+    console.log('🛑 DIAGNOSTIC: Recognition ENDED - checking why...');
+    console.log('🔍 DIAGNOSTIC: isSpeaking:', isSpeaking);
+    console.log('🔍 DIAGNOSTIC: speakSequenceActive:', speakSequenceActive);
+    console.log('🔍 DIAGNOSTIC: playingSorryMessage:', window.playingSorryMessage);
+    
+    // 🎯 CHECK WHAT'S BLOCKING THE RESTART
+    const userInput = document.getElementById('userInput');
+    if (userInput && userInput.value.trim().length > 0) {
+        console.log('🔍 DIAGNOSTIC: User said something:', userInput.value);
+    } else {
+        console.log('🛑 DIAGNOSTIC: No speech detected - this is where we need to restart');
+        
+        // 🎯 DIAGNOSTIC: Check all blocking conditions
+        console.log('🔍 DIAGNOSTIC BLOCKING CHECK:');
+        console.log('  - playingSorryMessage:', window.playingSorryMessage);
+        console.log('  - isSpeaking:', isSpeaking);
+        console.log('  - speakSequenceActive:', speakSequenceActive);
+        console.log('  - conversationState:', conversationState);
+        
+        // 🎯 FIXED RESTART LOGIC - REMOVE playingSorryMessage BLOCK
+        setTimeout(() => {
+            console.log('🔄 DIAGNOSTIC: Attempting force restart...');
+            if (!isSpeaking && speakSequenceActive) {  // ← REMOVED playingSorryMessage check!
+                console.log('✅ DIAGNOSTIC: Conditions good - calling forceStartListening again');
+                forceStartListening();
             } else {
-                console.log('🛑 DIAGNOSTIC: No speech detected - this is where we need to restart');
-                
-                // 🎯 DIAGNOSTIC: Check all blocking conditions
-                console.log('🔍 DIAGNOSTIC BLOCKING CHECK:');
-                console.log('  - playingSorryMessage:', window.playingSorryMessage);
-                console.log('  - isSpeaking:', isSpeaking);
-                console.log('  - speakSequenceActive:', speakSequenceActive);
-                console.log('  - conversationState:', conversationState);
-                
-                // 🎯 FORCE RESTART ATTEMPT
-                setTimeout(() => {
-                    console.log('🔄 DIAGNOSTIC: Attempting force restart...');
-                    if (!window.playingSorryMessage && !isSpeaking && speakSequenceActive) {
-                        console.log('✅ DIAGNOSTIC: Conditions good - calling forceStartListening again');
-                        forceStartListening();
-                    } else {
-                        console.log('❌ DIAGNOSTIC: Conditions bad - restart blocked');
-                    }
-                }, 1000);
+                console.log('❌ DIAGNOSTIC: Conditions bad - restart blocked');
+                console.log('   - isSpeaking blocking:', isSpeaking);
+                console.log('   - speakSequenceActive blocking:', !speakSequenceActive);
             }
-        };
+        }, 1000);
+    }
+};
         
         console.log('🎤 Force starting speech recognition...');
         recognition.start();
