@@ -625,67 +625,76 @@ function forceStartListening() {
         };
         
         recognition.onerror = function(event) {
-            console.log('❌ DIAGNOSTIC: Recognition ERROR immediately:', event.error);
-            console.log('🔍 DIAGNOSTIC: Error type:', typeof event.error);
-            console.log('🔍 DIAGNOSTIC: Error details:', event);
-        };
-        
-       recognition.onend = function() {
-    console.log('🛑 DIAGNOSTIC: Recognition ENDED - checking why...');
-    console.log('🔍 DIAGNOSTIC: isSpeaking:', isSpeaking);
-    console.log('🔍 DIAGNOSTIC: speakSequenceActive:', speakSequenceActive);
-    console.log('🔍 DIAGNOSTIC: playingSorryMessage:', window.playingSorryMessage);
-    
-    // 🚨 EMERGENCY LOOP BREAKER - ADD THIS SECTION
-    if (window.EMERGENCY_STOP) {
-        console.log('🚨 EMERGENCY STOP - breaking loop');
-        return;
-    }
-    
-    // Loop counter protection
-    window.loopCounter = (window.loopCounter || 0) + 1;
-    console.log('🔄 Loop counter:', window.loopCounter);
-    
-    if (window.loopCounter > 5) {
-        console.log('🛑 Too many restarts - breaking loop');
-        window.loopCounter = 0;
-        return;
-    }
-    // END LOOP BREAKER SECTION
-    
-    // 🎯 CHECK WHAT'S BLOCKING THE RESTART
-    const userInput = document.getElementById('userInput');
-if (userInput && userInput.value.trim().length > 0) {
-    console.log('🔍 DIAGNOSTIC: User said something:', userInput.value);
-    window.loopCounter = 0; // Reset on success
-    
-    // 🔓 CLEAR THE BLOCKING FLAG WHEN USER SPEAKS - ADD THIS LINE:
-    window.playingSorryMessage = false;
-    console.log('🔓 Cleared playingSorryMessage - user spoke successfully');
-    
-} else {
-    console.log('🛑 DIAGNOSTIC: No speech detected - this is where we need to restart');
-    
-    // 🎯 DIAGNOSTIC: Check all blocking conditions
-    console.log('🔍 DIAGNOSTIC BLOCKING CHECK:');
-    console.log('  - playingSorryMessage:', window.playingSorryMessage);
-    console.log('  - isSpeaking:', isSpeaking);
-    console.log('  - speakSequenceActive:', speakSequenceActive);
-    console.log('  - conversationState:', conversationState);
-    
-    // 🎯 FORCE RESTART ATTEMPT - ONLY CHANGE IS LONGER TIMEOUT
-    setTimeout(() => {
-        console.log('🔄 DIAGNOSTIC: Attempting force restart...');
-        if (!window.playingSorryMessage && !isSpeaking && speakSequenceActive) {
-            console.log('✅ DIAGNOSTIC: Conditions good - calling forceStartListening again');
-            forceStartListening();
-        } else {
-            console.log('❌ DIAGNOSTIC: Conditions bad - restart blocked');
-            console.log('   - playingSorryMessage blocking:', window.playingSorryMessage);
-            console.log('   - isSpeaking blocking:', isSpeaking);
-            console.log('   - speakSequenceActive blocking:', !speakSequenceActive);
+    console.log('🔊 Speech error:', event.error);
+
+    if (event.error === 'no-speech') {
+        const transcriptText = document.getElementById('transcriptText');
+
+        console.log('🔍 MOBILE DEBUG:', {
+            userAgent: navigator.userAgent,
+            isMobile: /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent),
+            isTouch: ('ontouchstart' in window || navigator.maxTouchPoints > 0)
+        });
+
+        // 🚨 NUCLEAR MOBILE DETECTION - REPLACE THE OLD CHECK
+        const isDefinitelyMobile = window.innerWidth <= 768 || window.innerHeight <= 1024;
+
+        if (isDefinitelyMobile) {
+            console.log('📱📱📱 NUCLEAR MOBILE DETECTED: Using visual feedback system');
+
+            if (window.noSpeechTimeout) {
+                clearTimeout(window.noSpeechTimeout);
             }
-        }, 2000); // ← CHANGED FROM 1000 to 2000 to slow the loop
+
+            if (transcriptText) {
+                transcriptText.textContent = 'I didn\'t hear anything...';
+                transcriptText.style.color = '#ff6b6b';
+
+                window.noSpeechTimeout = setTimeout(() => {
+                    if (transcriptText) {
+                        transcriptText.textContent = 'Please speak now';
+                        transcriptText.style.color = '#ffffff';
+                    }
+
+                    if (isAudioMode && !isSpeaking) {
+                        console.log('🔄 Mobile: Restarting via hybrid system');
+                        isListening = false;
+
+                        setTimeout(() => {
+                            showHybridReadySequence();
+                        }, 800);
+                    }
+                }, 1500);
+            }
+
+        } else {
+            console.log('🖥️ Desktop: Using voice apology system');
+
+            lastMessageWasApology = true;
+            const apologyResponse = getApologyResponse();
+
+            stopListening();
+
+            setTimeout(() => {
+                addAIMessage(apologyResponse);
+                speakResponse(apologyResponse);
+
+                if (restartTimeout) clearTimeout(restartTimeout);
+
+                restartTimeout = setTimeout(() => {
+                    if (isAudioMode && !isListening && !isSpeaking) {
+                        startListening();
+                    }
+                    lastMessageWasApology = false;
+                }, 3000);
+            }, 500);
+        }
+    } else if (event.error === 'audio-capture') {
+        console.log('🎤 No microphone detected');
+        addAIMessage("I can't detect your microphone. Please check your audio settings.");
+    } else if (event.error === 'not-allowed') {
+        console.log('🔒 Permission denied');
+        addAIMessage("Microphone permission was denied. Please allow microphone access to continue.");
     }
 };
         
