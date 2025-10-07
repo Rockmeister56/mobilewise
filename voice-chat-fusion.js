@@ -4033,6 +4033,29 @@ setTimeout(() => {
         console.log('🔊 BLOCKED: speakSequenceActive is false');
     }
 }, 800);
+
+// 🎯 NOW try to restart listening
+setTimeout(() => {
+    // 🚨 DIAGNOSTIC TEST - WHAT'S BLOCKING?
+    console.log('🔍🔍🔍 SORRY MESSAGE COMPLETE - BLOCKING CHECK:');
+    console.log('🔍 speakSequenceActive:', speakSequenceActive);
+    console.log('🔍 speakSequenceBlocked:', window.speakSequenceBlocked);
+    console.log('🔍 playingSorryMessage:', window.playingSorryMessage);
+    console.log('🔍 isSpeaking:', typeof isSpeaking !== 'undefined' ? isSpeaking : 'UNDEFINED');
+    console.log('🔍 hybridBlocking:', typeof hybridBlocking !== 'undefined' ? hybridBlocking : 'UNDEFINED');
+    
+    // 🚨 FORCE RESTART REGARDLESS OF BLOCKS
+    console.log('🔍 ATTEMPTING FORCED RESTART...');
+    if (typeof startNormalInterviewListening === 'function') {
+        console.log('🔍 CALLING startNormalInterviewListening()');
+        startNormalInterviewListening();
+    } else if (typeof forceStartListening === 'function') {
+        console.log('🔍 CALLING forceStartListening()');
+        forceStartListening();
+    } else {
+        console.log('❌ NO LISTENING FUNCTIONS AVAILABLE!');
+    }
+}, 800);
         
         // 🎯 USE THE CORRECT LISTENING FUNCTION - FIXED VERSION
         if (typeof startListening === 'function') {
