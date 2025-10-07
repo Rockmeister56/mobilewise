@@ -4463,39 +4463,9 @@ function cleanupSpeakSequence() {
         // 🚨 IMMEDIATE DIAGNOSTIC TEST
 console.log('🔍🔍🔍 POST-SORRY MESSAGE BLOCKING CHECK:');
 
-// 🚨 DIAGNOSTIC TEST - WHAT'S BLOCKING RESTART?
-console.log('🔍🔍🔍 POST-SORRY MESSAGE BLOCKING CHECK:');
-console.log('🔍 speakSequenceActive:', typeof speakSequenceActive !== 'undefined' ? speakSequenceActive : 'UNDEFINED');
-console.log('🔍 speakSequenceBlocked:', typeof speakSequenceBlocked !== 'undefined' ? speakSequenceBlocked : 'UNDEFINED');
-console.log('🔍 playingSorryMessage:', typeof playingSorryMessage !== 'undefined' ? playingSorryMessage : 'UNDEFINED');
-console.log('🔍 isSpeaking:', typeof isSpeaking !== 'undefined' ? isSpeaking : 'UNDEFINED');
-console.log('🔍 hybridBlocking:', typeof hybridBlocking !== 'undefined' ? hybridBlocking : 'UNDEFINED');
+return; // ←←← Now the diagnostic runs BEFORE this return
 
-// 🚨 TEST ALL AVAILABLE LISTENING FUNCTIONS
-console.log('🔍 FUNCTION CHECK - startNormalInterviewListening:', typeof startNormalInterviewListening);
-console.log('🔍 FUNCTION CHECK - forceStartListening:', typeof forceStartListening);
-console.log('🔍 FUNCTION CHECK - startListening:', typeof startListening);
-
-// 🚨 ATTEMPT FORCED RESTART
-setTimeout(() => {
-    console.log('🔍 ATTEMPTING FORCED RESTART...');
-    if (typeof startNormalInterviewListening === 'function') {
-        console.log('🔍 CALLING startNormalInterviewListening()');
-        startNormalInterviewListening();
-    } else if (typeof forceStartListening === 'function') {
-        console.log('🔍 CALLING forceStartListening()');
-        forceStartListening();
-    } else if (typeof startListening === 'function') {
-        console.log('🔍 CALLING startListening()');
-        startListening();
-    } else {
-        console.log('❌ NO LISTENING FUNCTIONS AVAILABLE!');
-    }
-}, 500);
-
-// return; // ←←← Now the diagnostic runs BEFORE this return
-
-    }
+}
     
     
     // 🛑 CRITICAL: RE-ENABLE FUTURE SESSIONS
