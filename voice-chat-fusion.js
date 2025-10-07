@@ -404,84 +404,48 @@ function getApologyResponse() {
             }
         };
 
-      recognition.onerror = function(event) {
+    recognition.onerror = function(event) {
     console.log('🔊 Speech error:', event.error);
 
-     // 🎯 ADD TIMER CANCELLATION HERE
+    // 🎯 CANCEL CLEANUP TIMER IMMEDIATELY
     if (speakSequenceCleanupTimer) {
         clearTimeout(speakSequenceCleanupTimer);
         speakSequenceCleanupTimer = null;
-        console.log('🕐 CANCELLED cleanup timer in OLD system');
+        console.log('🕐 CANCELLED cleanup timer in error handler');
     }
 
+    // 🎯 CALL YOUR NEW DESKTOP ERROR HANDLER FIRST
+    if (typeof handleSpeechRecognitionError === 'function') {
+        console.log('🎯 CALLING handleSpeechRecognitionError for:', event.error);
+        handleSpeechRecognitionError(event.error);
+        return; // Exit here - let your handler manage everything
+    } else {
+        console.log('❌ handleSpeechRecognitionError function not found - using fallback');
+    }
+
+    // 🎯 FALLBACK SYSTEM (only if handleSpeechRecognitionError doesn't exist)
     if (event.error === 'no-speech') {
-        const transcriptText = document.getElementById('transcriptText');
-
-        console.log('🔍 MOBILE DEBUG:', {
-            userAgent: navigator.userAgent,
-            isMobile: /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent),
-            isTouch: ('ontouchstart' in window || navigator.maxTouchPoints > 0)
-        });
-
-         // 🚨 NUCLEAR MOBILE DETECTION - SCREEN SIZE ONLY
-const isDefinitelyMobile = window.innerWidth <= 768 || window.innerHeight <= 1024;
-
-console.log('🔍 NUCLEAR MOBILE DEBUG:', {
-    windowWidth: window.innerWidth,
-    windowHeight: window.innerHeight,
-    isDefinitelyMobile: isDefinitelyMobile
-});
-
-if (isDefinitelyMobile) {
-    console.log('📱📱📱 NUCLEAR MOBILE DETECTED: Using visual feedback system');
-
-            if (window.noSpeechTimeout) {
-                clearTimeout(window.noSpeechTimeout);
-            }
-
-            if (transcriptText) {
-                transcriptText.textContent = 'I didn\'t hear anything...';
-                transcriptText.style.color = '#ff6b6b';
-
-                window.noSpeechTimeout = setTimeout(() => {
-                    if (transcriptText) {
-                        transcriptText.textContent = 'Please speak now';
-                        transcriptText.style.color = '#ffffff';
-                    }
-
-                    if (isAudioMode && !isSpeaking) {
-                        console.log('🔄 Mobile: Restarting via hybrid system');
-                        isListening = false;
-
-                        setTimeout(() => {
-                            showHybridReadySequence();
-                        }, 800);
-                    }
-                }, 1500);
-            }
-
-        } else {
-            console.log('🖥️ Desktop: Using voice apology system');
-
-            lastMessageWasApology = true;
-            const apologyResponse = getApologyResponse();
-
-            stopListening();
-
-            setTimeout(() => {
-                addAIMessage(apologyResponse);
-                speakResponse(apologyResponse);
-
-                if (restartTimeout) clearTimeout(restartTimeout);
-
-                restartTimeout = setTimeout(() => {
-                    if (isAudioMode && !isListening && !isSpeaking) {
-                        startListening();
-                    }
-                    lastMessageWasApology = false;
-                }, 3000);
-            }, 500);
-        }
+        console.log('🖥️ FALLBACK: Using old desktop system');
+        
+        lastMessageWasApology = true;
+        const apologyResponse = getApologyResponse();
+        
+        stopListening();
+        
+        setTimeout(() => {
+            addAIMessage(apologyResponse);
+            speakResponse(apologyResponse);
+            
+            if (restartTimeout) clearTimeout(restartTimeout);
+            
+            restartTimeout = setTimeout(() => {
+                if (isAudioMode && !isListening && !isSpeaking) {
+                    startListening();
+                }
+                lastMessageWasApology = false;
+            }, 3000);
+        }, 500);
+        
     } else if (event.error === 'audio-capture') {
         console.log('🎤 No microphone detected');
         addAIMessage("I can't detect your microphone. Please check your audio settings.");
@@ -3907,21 +3871,91 @@ function handleSpeechRecognitionError(error) {
 
     
     // Wait a moment to ensure everything is dead
-    setTimeout(() => {
-        console.log('🚨 Now handling error after nuclear cleanup:', error);
-        
-        // 💣 NUKE ALL LISTENING IMMEDIATELY (redundant but safe)
-        if (typeof recognition !== 'undefined') {
-            try {
-                recognition.onresult = null; // Disable result handler FIRST
-                recognition.onerror = null;   // Disable error handler  
-                recognition.onend = null;     // Disable end handler
-                recognition.stop();           // Stop recognition
-                console.log('💣 NUKED: Recognition stopped and handlers disabled');
-            } catch (e) {
-                console.log('💣 NUKED: Recognition nuked successfully');
-            }
+setTimeout(() => {
+    console.log('🚨 Now handling error after nuclear cleanup:', error);
+    
+    // 💣 NUKE ALL LISTENING IMMEDIATELY (but preserve error handler)
+    if (typeof recognition !== 'undefined') {
+        try {
+            recognition.onresult = null; // Disable result handler FIRST
+            // recognition.onerror = null;   // ❌ COMMENTED OUT - DON'T KILL ERROR HANDLER!
+            recognition.onend = null;     // Disable end handler
+            recognition.stop();           // Stop recognition
+            console.log('💣 NUKED: Recognition stopped (but error handler preserved)');
+        } catch (e) {
+            console.log('💣 NUKED: Recognition nuked successfully');
         }
+    }
+    
+    // 🎯 RECONNECT ESSENTIAL HANDLERS AFTER CLEANUP
+    setTimeout(() => {
+        if (recognition) {
+            console.log('🔧 RECONNECTING: Essential speech handlers');
+            
+            // 🎯 RECONNECT ERROR HANDLER - THIS IS CRITICAL!
+            recognition.onerror = function(event) {
+                console.log('🔊 RECONNECTED: Speech error detected:', event.error);
+                
+                // Cancel any cleanup timers
+                if (speakSequenceCleanupTimer) {
+                    clearTimeout(speakSequenceCleanupTimer);
+                    speakSequenceCleanupTimer = null;
+                    console.log('🕐 CANCELLED cleanup timer in reconnected handler');
+                }
+                
+                // Call your desktop error handler
+                if (typeof handleSpeechRecognitionError === 'function') {
+                    console.log('🎯 CALLING handleSpeechRecognitionError via reconnected handler');
+                    handleSpeechRecognitionError(event.error);
+                } else {
+                    console.log('❌ handleSpeechRecognitionError function not found!');
+                }
+            };
+            
+            // 🎯 RECONNECT END HANDLER - ALSO IMPORTANT
+            recognition.onend = function() {
+                console.log('🔚 RECONNECTED: Recognition ended');
+                
+                const userInput = document.getElementById('userInput');
+                
+                if (userInput && userInput.value.trim().length > 0) {
+                    // User said something - process the message
+                    const currentMessage = userInput.value.trim();
+                    const now = Date.now();
+                    const timeSinceLastMessage = now - (window.lastMessageTime || 0);
+                    
+                    if (!window.lastProcessedMessage || 
+                        window.lastProcessedMessage !== currentMessage || 
+                        timeSinceLastMessage > 3000) {
+                        
+                        console.log('✅ RECONNECTED: Sending new message:', currentMessage);
+                        
+                        // Close banner and process message
+                        if (typeof speakSequenceActive !== 'undefined' && speakSequenceActive) {
+                            console.log('🎯 RECONNECTED: Closing Speak Now banner - message sent');
+                            window.playingSorryMessage = false;
+                            
+                            if (speakSequenceCleanupTimer) {
+                                clearTimeout(speakSequenceCleanupTimer);
+                                speakSequenceCleanupTimer = null;
+                            }
+                            
+                            cleanupSpeakSequence();
+                        }
+                        
+                        window.lastMessageTime = now;
+                        window.lastProcessedMessage = currentMessage;
+                        sendMessage(currentMessage);
+                    }
+                } else {
+                    // No speech detected - let error handler manage restart
+                    console.log('🔄 RECONNECTED: No speech detected - error handler will manage restart');
+                }
+            };
+            
+            console.log('✅ RECONNECTED: All essential handlers restored');
+        }
+    }, 100); // Short delay to ensure cleanup is complete
         
         // 🛑 CRITICAL FIX: Check if AI is currently speaking before showing error
         if (typeof isSpeaking !== 'undefined' && isSpeaking) {
