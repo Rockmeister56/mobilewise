@@ -585,8 +585,10 @@ function stopListening() {
 }
 
 // ===================================================
-// 🔄 FORCE START LISTENING (BYPASSES GATE-KEEPER)
+// 🔍 SPEECH RECOGNITION DIAGNOSTIC TEST
 // ===================================================
+
+// 🎯 ADD THIS TO YOUR forceStartListening() FUNCTION - REPLACE THE EXISTING ONE:
 function forceStartListening() {
     console.log('🎤 TEST 8: forceStartListening() CALLED at:', Date.now());
     console.log('🎤 TEST 9: isSpeaking:', isSpeaking);
@@ -601,18 +603,97 @@ function forceStartListening() {
             initializeSpeechRecognition();
         }
         
+        // 🎯 DIAGNOSTIC: Check recognition state BEFORE starting
+        console.log('🔍 DIAGNOSTIC: Recognition state before start:', recognition.state || 'undefined');
+        
+        // 🎯 DIAGNOSTIC: Add detailed event logging
+        recognition.onstart = function() {
+            console.log('✅ DIAGNOSTIC: Recognition STARTED successfully');
+        };
+        
+        recognition.onerror = function(event) {
+            console.log('❌ DIAGNOSTIC: Recognition ERROR immediately:', event.error);
+            console.log('🔍 DIAGNOSTIC: Error type:', typeof event.error);
+            console.log('🔍 DIAGNOSTIC: Error details:', event);
+        };
+        
+        recognition.onend = function() {
+            console.log('🛑 DIAGNOSTIC: Recognition ENDED - checking why...');
+            console.log('🔍 DIAGNOSTIC: isSpeaking:', isSpeaking);
+            console.log('🔍 DIAGNOSTIC: speakSequenceActive:', speakSequenceActive);
+            console.log('🔍 DIAGNOSTIC: playingSorryMessage:', window.playingSorryMessage);
+            
+            // 🎯 CHECK WHAT'S BLOCKING THE RESTART
+            const userInput = document.getElementById('userInput');
+            if (userInput && userInput.value.trim().length > 0) {
+                console.log('🔍 DIAGNOSTIC: User said something:', userInput.value);
+            } else {
+                console.log('🛑 DIAGNOSTIC: No speech detected - this is where we need to restart');
+                
+                // 🎯 DIAGNOSTIC: Check all blocking conditions
+                console.log('🔍 DIAGNOSTIC BLOCKING CHECK:');
+                console.log('  - playingSorryMessage:', window.playingSorryMessage);
+                console.log('  - isSpeaking:', isSpeaking);
+                console.log('  - speakSequenceActive:', speakSequenceActive);
+                console.log('  - conversationState:', conversationState);
+                
+                // 🎯 FORCE RESTART ATTEMPT
+                setTimeout(() => {
+                    console.log('🔄 DIAGNOSTIC: Attempting force restart...');
+                    if (!window.playingSorryMessage && !isSpeaking && speakSequenceActive) {
+                        console.log('✅ DIAGNOSTIC: Conditions good - calling forceStartListening again');
+                        forceStartListening();
+                    } else {
+                        console.log('❌ DIAGNOSTIC: Conditions bad - restart blocked');
+                    }
+                }, 1000);
+            }
+        };
+        
         console.log('🎤 Force starting speech recognition...');
         recognition.start();
         isListening = true;
         
-       showSpeakNow();
+        // 🎯 DIAGNOSTIC: Check state AFTER starting
+        setTimeout(() => {
+            console.log('🔍 DIAGNOSTIC: Recognition state after start:', recognition.state || 'undefined');
+        }, 100);
+        
+        showSpeakNow();
         
         console.log('✅ Force speech recognition started successfully');
         
     } catch (error) {
-        console.error('❌ Error force starting speech recognition:', error);
+        console.error('❌ DIAGNOSTIC: Error in forceStartListening:', error);
+        console.log('🔍 DIAGNOSTIC: Error name:', error.name);
+        console.log('🔍 DIAGNOSTIC: Error message:', error.message);
     }
 }
+
+// 🎯 ADD THIS HELPER FUNCTION TO CHECK WHAT'S BLOCKING:
+function diagnoseBlocing() {
+    console.log('🔍 BLOCKING DIAGNOSIS:');
+    console.log('  🎤 isSpeaking:', isSpeaking);
+    console.log('  🔊 playingSorryMessage:', window.playingSorryMessage);
+    console.log('  🎬 speakSequenceActive:', speakSequenceActive);
+    console.log('  🔄 recognition state:', recognition ? recognition.state : 'no recognition');
+    console.log('  💭 conversationState:', conversationState);
+    console.log('  ⏰ lastSequenceStart:', window.lastSequenceStart);
+    console.log('  🎯 current time:', Date.now());
+    
+    // Check for any timers
+    console.log('  ⏰ speakSequenceCleanupTimer:', !!speakSequenceCleanupTimer);
+    console.log('  ⏰ restartTimeout:', !!restartTimeout);
+    
+    // Check DOM elements
+    const speakNowButton = document.querySelector('[data-speak-now]') || document.getElementById('speakSequenceButton');
+    console.log('  🎯 Speak Now button exists:', !!speakNowButton);
+    console.log('  🎯 Speak Now button visible:', speakNowButton ? speakNowButton.style.display !== 'none' : false);
+}
+
+// 🎯 CALL THIS FUNCTION WHEN SECOND SPEAK NOW APPEARS:
+// Add this line right after the second "Speak Now" banner shows:
+// diagnoseBlocing();
 
 // ===================================================
 // 📧 EMAIL FORMATTING FUNCTION - FIXED
