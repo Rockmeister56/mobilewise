@@ -3651,18 +3651,6 @@ function showHybridReadySequence() {
     if (typeof window.errorMessageIndex === 'undefined') {
         window.errorMessageIndex = 0;
     }
-    
-    const sorryMessages = [
-        "I'm sorry, I didn't catch that",
-        "Sorry, I missed that - please try again", 
-        "I didn't hear you clearly",
-        "Could you repeat that for me?",
-        "Sorry, can you say that again?",
-        "I'm having trouble hearing you",
-        "Let me try listening again",
-        "I didn't quite get that",
-        "Sorry, please speak again"
-    ];
 
     // 🎯 MARK THAT SORRY MESSAGE IS STARTING (PROTECT FROM CLEANUP)
     window.playingSorryMessage = true;
