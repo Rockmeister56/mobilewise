@@ -4458,15 +4458,8 @@ function cleanupSpeakSequence() {
         }
 
         console.log('🔓 Hybrid blocking reset (during sorry message)');
-
-      //  window.playingSorryMessage = false;
-
-        // 🚨 IMMEDIATE DIAGNOSTIC TEST
-     // console.log('🔍🔍🔍 POST-SORRY MESSAGE BLOCKING CHECK:');
-
-return; // ←←← Now the diagnostic runs BEFORE this return
-
-}
+        return;
+    }
     
     // 🛑 CRITICAL: RE-ENABLE FUTURE SESSIONS
     window.speakSequenceBlocked = false;
