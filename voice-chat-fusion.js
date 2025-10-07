@@ -3,9 +3,6 @@
 // Smart Button + Lead Capture + EmailJS + Banner System
 // ===================================================
 
-// 🎯 NUCLEAR DEBUG - IS ERROR HANDLER HOOKED UP?
-console.log('💣💣💣 NUCLEAR: Is handleSpeechRecognitionError function defined?', typeof handleSpeechRecognitionError);
-
 // Add this at the VERY TOP of your JavaScript file (like line 1)
 if (typeof window.leadData === 'undefined' || !window.leadData) {
     window.leadData = { 
