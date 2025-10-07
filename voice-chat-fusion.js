@@ -4489,7 +4489,7 @@ setTimeout(() => {
     }
 }, 500);
 
-return; // ←←← Now the diagnostic runs BEFORE this return
+// return; // ←←← Now the diagnostic runs BEFORE this return
 
     }
     
