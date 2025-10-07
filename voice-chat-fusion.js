@@ -3570,23 +3570,10 @@ function playMobileErrorBeep() {
     }
 }
 
-// 🎯 GLOBAL SORRY MESSAGES ARRAY - ADD THIS OUTSIDE ANY FUNCTION
-const sorryMessages = [
-    "I'm sorry, I didn't catch that",
-    "Sorry, I missed that - please try again", 
-    "I didn't hear you clearly",
-    "Could you repeat that for me?",
-    "Sorry, can you say that again?",
-    "I'm having trouble hearing you",
-    "Let me try listening again",
-    "I didn't quite get that",
-    "Sorry, please speak again"
-];
-
-
 // ✅ MAIN FUNCTION WITH ALL FIXES
 function showHybridReadySequence() {
-    // ✅ CALL MOBILE STABILITY FIRST
+     // ✅ CALL MOBILE STABILITY FIRST
+
     // 🛑 CRITICAL: PREVENT MULTIPLE SIMULTANEOUS SESSIONS
     if (window.speakSequenceBlocked) {
         console.log('🔇 HYBRID BLOCKED: Another session already running');
@@ -3663,225 +3650,699 @@ function showHybridReadySequence() {
         "I didn't quite get that",
         "Sorry, please speak again"
     ];
+    
+   // Function to get next sorry message (rotates through array)
+function getNextSorryMessage() {
+    const message = sorryMessages[window.errorMessageIndex];
+    window.errorMessageIndex = (window.errorMessageIndex + 1) % sorryMessages.length;
+    return message;
+}
 
-    // 🎯 MARK THAT SORRY MESSAGE IS STARTING (PROTECT FROM CLEANUP)
-    window.playingSorryMessage = true;
+// 🎯 MARK THAT SORRY MESSAGE IS STARTING (PROTECT FROM CLEANUP)
+window.playingSorryMessage = true;
 
-    // ✅ CONTACT INTERVIEW DETECTION
-    const isContactInterview = checkContactInterviewMode();
-    console.log('📧 Contact interview mode:', isContactInterview);
+// ✅ CONTACT INTERVIEW DETECTION
+const isContactInterview = checkContactInterviewMode();
+console.log('📧 Contact interview mode:', isContactInterview);
 
-    // ✅ FIND CONTAINER
-    const quickButtonsContainer = document.querySelector('.quick-questions') || 
-                                  document.querySelector('.quick-buttons') || 
-                                  document.getElementById('quickButtonsContainer');
+// ✅ FIND CONTAINER
+const quickButtonsContainer = document.querySelector('.quick-questions') || 
+                              document.querySelector('.quick-buttons') || 
+                              document.getElementById('quickButtonsContainer');
 
-    if (!quickButtonsContainer) {
-        console.log('❌ Quick buttons container not found');
-        // 🎯 CLEANUP PROTECTION: Only set false if not in sorry message
-        if (!window.playingSorryMessage) {
-            speakSequenceActive = false;
-        }
-        return;
+if (!quickButtonsContainer) {
+    console.log('❌ Quick buttons container not found');
+    // 🎯 CLEANUP PROTECTION: Only set false if not in sorry message
+    if (!window.playingSorryMessage) {
+        speakSequenceActive = false;
     }
+    return;
+}
 
-    // ✅ HIDE EXISTING BUTTONS
-    const existingButtons = quickButtonsContainer.querySelectorAll('.quick-btn');
-    existingButtons.forEach(btn => btn.style.display = 'none');
+// ✅ HIDE EXISTING BUTTONS
+const existingButtons = quickButtonsContainer.querySelectorAll('.quick-btn');
+existingButtons.forEach(btn => btn.style.display = 'none');
 
-    const existingSpeakBtn = document.getElementById('speak-sequence-button');
-    if (existingSpeakBtn) {
-        existingSpeakBtn.remove();
+const existingSpeakBtn = document.getElementById('speak-sequence-button');
+if (existingSpeakBtn) {
+    existingSpeakBtn.remove();
+}
+
+// Remove any existing click prompts
+const existingPrompt = document.getElementById('click-button-prompt');
+if (existingPrompt) {
+    existingPrompt.remove();
+}
+    
+    // ✅ ADD STYLES ONCE
+    if (!document.getElementById('speak-sequence-styles')) {
+        const style = document.createElement('style');
+        style.id = 'speak-sequence-styles';
+        style.textContent = `
+            .red-dot-blink {
+                animation: redDotBlink 0.8s infinite;
+            }
+            @keyframes redDotBlink {
+                0%, 100% { opacity: 1; }
+                50% { opacity: 0.2; }
+            }
+            
+            .green-dot-blink {
+                animation: greenDotBlink 0.8s infinite;
+            }
+            @keyframes greenDotBlink {
+                0%, 100% { opacity: 1; }
+                50% { opacity: 0.2; }
+            }
+            
+            .green-button-glow {
+                animation: greenGlow 1.5s infinite !important;
+            }
+            @keyframes greenGlow {
+                0%, 100% { 
+                    background: rgba(34, 197, 94, 0.4) !important;
+                    border-color: rgba(34, 197, 94, 0.8) !important;
+                    box-shadow: 0 0 8px rgba(34, 197, 94, 0.6) !important;
+                }
+                50% { 
+                    background: rgba(34, 197, 94, 0.6) !important;
+                    border-color: rgba(34, 197, 94, 1) !important;
+                    box-shadow: 0 0 20px rgba(34, 197, 94, 0.9) !important;
+                }
+            }
+            
+            .progress-bar-container {
+                width: 90%;
+                height: 2px;
+                background: rgba(255,255,255,0.2);
+                border-radius: 1px;
+                margin: 6px auto 0;
+                overflow: hidden;
+            }
+            
+            .progress-bar {
+                width: 0%;
+                height: 100%;
+                background: linear-gradient(90deg, #4fc3f7, #1976d2);
+                border-radius: 1px;
+                transition: width 0.15s ease;
+            }
+            
+            @keyframes pulseBlue {
+                0%, 100% { 
+                    background: rgba(79, 195, 247, 0.4) !important;
+                    border-color: rgba(79, 195, 247, 0.8) !important;
+                    box-shadow: 0 0 8px rgba(79, 195, 247, 0.6) !important;
+                }
+                50% { 
+                    background: rgba(79, 195, 247, 0.6) !important;
+                    border-color: rgba(79, 195, 247, 1) !important;
+                    box-shadow: 0 0 20px rgba(79, 195, 247, 0.9) !important;
+                }
+            }
+            
+            .error-feedback-blink {
+                animation: errorFeedback 0.6s infinite;
+            }
+            @keyframes errorFeedback {
+                0%, 100% { opacity: 1; }
+                50% { opacity: 0.4; }
+            }
+
+            .sorry-message-pulse {
+                animation: sorryPulse 2s ease-in-out;
+            }
+            @keyframes sorryPulse {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.02); }
+                100% { transform: scale(1); }
+            }
+        `;
+        document.head.appendChild(style);
     }
-
-    // Remove any existing click prompts
-    const existingPrompt = document.getElementById('click-button-prompt');
-    if (existingPrompt) {
-        existingPrompt.remove();
-    }
-        
-        // ✅ ADD STYLES ONCE
-        if (!document.getElementById('speak-sequence-styles')) {
-            const style = document.createElement('style');
-            style.id = 'speak-sequence-styles';
-            style.textContent = `
-                .red-dot-blink {
-                    animation: redDotBlink 0.8s infinite;
-                }
-                @keyframes redDotBlink {
-                    0%, 100% { opacity: 1; }
-                    50% { opacity: 0.2; }
-                }
-                
-                .green-dot-blink {
-                    animation: greenDotBlink 0.8s infinite;
-                }
-                @keyframes greenDotBlink {
-                    0%, 100% { opacity: 1; }
-                    50% { opacity: 0.2; }
-                }
-                
-                .green-button-glow {
-                    animation: greenGlow 1.5s infinite !important;
-                }
-                @keyframes greenGlow {
-                    0%, 100% { 
-                        background: rgba(34, 197, 94, 0.4) !important;
-                        border-color: rgba(34, 197, 94, 0.8) !important;
-                        box-shadow: 0 0 8px rgba(34, 197, 94, 0.6) !important;
-                    }
-                    50% { 
-                        background: rgba(34, 197, 94, 0.6) !important;
-                        border-color: rgba(34, 197, 94, 1) !important;
-                        box-shadow: 0 0 20px rgba(34, 197, 94, 0.9) !important;
-                    }
-                }
-                
-                .progress-bar-container {
-                    width: 90%;
-                    height: 2px;
-                    background: rgba(255,255,255,0.2);
-                    border-radius: 1px;
-                    margin: 6px auto 0;
-                    overflow: hidden;
-                }
-                
-                .progress-bar {
-                    width: 0%;
-                    height: 100%;
-                    background: linear-gradient(90deg, #4fc3f7, #1976d2);
-                    border-radius: 1px;
-                    transition: width 0.15s ease;
-                }
-                
-                @keyframes pulseBlue {
-                    0%, 100% { 
-                        background: rgba(79, 195, 247, 0.4) !important;
-                        border-color: rgba(79, 195, 247, 0.8) !important;
-                        box-shadow: 0 0 8px rgba(79, 195, 247, 0.6) !important;
-                    }
-                    50% { 
-                        background: rgba(79, 195, 247, 0.6) !important;
-                        border-color: rgba(79, 195, 247, 1) !important;
-                        box-shadow: 0 0 20px rgba(79, 195, 247, 0.9) !important;
-                    }
-                }
-                
-                .error-feedback-blink {
-                    animation: errorFeedback 0.6s infinite;
-                }
-                @keyframes errorFeedback {
-                    0%, 100% { opacity: 1; }
-                    50% { opacity: 0.4; }
-                }
-
-                .sorry-message-pulse {
-                    animation: sorryPulse 2s ease-in-out;
-                }
-                @keyframes sorryPulse {
-                    0% { transform: scale(1); }
-                    50% { transform: scale(1.02); }
-                    100% { transform: scale(1); }
-                }
-            `;
-            document.head.appendChild(style);
-        }
-        
-        // ✅ CREATE BUTTON WITH PROGRESS BAR
-        speakSequenceButton = document.createElement('button');
-        speakSequenceButton.id = 'speak-sequence-button';
-        speakSequenceButton.className = 'quick-btn';
-        
-        speakSequenceButton.innerHTML = `
-            <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
-                <div style="margin-bottom: 6px;">
-                    <span class="red-dot-blink">🔴</span> Get Ready to Speak
-                </div>
-                <div class="progress-bar-container">
-                    <div id="readyProgressBar" class="progress-bar"></div>
-                </div>
+    
+    // ✅ CREATE BUTTON WITH PROGRESS BAR
+    speakSequenceButton = document.createElement('button');
+    speakSequenceButton.id = 'speak-sequence-button';
+    speakSequenceButton.className = 'quick-btn';
+    
+    speakSequenceButton.innerHTML = `
+        <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+            <div style="margin-bottom: 6px;">
+                <span class="red-dot-blink">🔴</span> Get Ready to Speak
             </div>
+            <div class="progress-bar-container">
+                <div id="readyProgressBar" class="progress-bar"></div>
+            </div>
+        </div>
+    `;
+    
+    speakSequenceButton.style.cssText = `
+        width: 100% !important;
+        background: rgba(255, 68, 68, 0.4) !important;
+        color: #ffffff !important;
+        border: 2px solid rgba(255, 68, 68, 0.8) !important;
+        padding: 15px !important;
+        min-height: 45px !important;
+        font-weight: bold !important;
+        font-size: 18px !important;
+        border-radius: 20px !important;
+    `;
+    
+    // ✅ ENHANCED MOBILE STABILITY
+    if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
+        speakSequenceButton.style.cssText += `
+            position: relative !important;
+            z-index: 1000 !important;
+            min-height: 50px !important;
+            padding: 18px !important;
         `;
-        
-        speakSequenceButton.style.cssText = `
-            width: 100% !important;
-            background: rgba(255, 68, 68, 0.4) !important;
-            color: #ffffff !important;
-            border: 2px solid rgba(255, 68, 68, 0.8) !important;
-            padding: 15px !important;
-            min-height: 45px !important;
-            font-weight: bold !important;
-            font-size: 18px !important;
-            border-radius: 20px !important;
-        `;
-        
-        // ✅ ENHANCED MOBILE STABILITY
-        if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
-            speakSequenceButton.style.cssText += `
-                position: relative !important;
-                z-index: 1000 !important;
-                min-height: 50px !important;
-                padding: 18px !important;
-            `;
-            console.log('📱 Full mobile enhancements applied');
+        console.log('📱 Full mobile enhancements applied');
+    }
+    
+    // ✅ ADD TO DOM
+    quickButtonsContainer.appendChild(speakSequenceButton);
+    console.log('🔴 Red stage active IMMEDIATELY');
+    
+    // ✅ PROGRESS BAR ANIMATION
+    let progress = 0;
+    const progressInterval = setInterval(() => {
+        progress += 6.67;
+        const progressBar = document.getElementById('readyProgressBar');
+        if (progressBar) {
+            progressBar.style.width = progress + '%';
         }
+        if (progress >= 100) {
+            clearInterval(progressInterval);
+        }
+    }, 100);
+    
+// 🎯 ENHANCED SPEECH RECOGNITION ERROR HANDLER WITH MULTIPLE SORRY MESSAGES
+function handleSpeechRecognitionError(error) {
+    console.log('🖥️ DESKTOP ERROR HANDLER CALLED:', error);
+    
+    const isRealMobile = isMobileDevice();
+    if (!isRealMobile) {
+        console.log('🖥️ DESKTOP: Using desktop sorry system');
         
-        // ✅ ADD TO DOM
-        quickButtonsContainer.appendChild(speakSequenceButton);
-        console.log('🔴 Red stage active IMMEDIATELY');
-        
-        // ✅ PROGRESS BAR ANIMATION
-        let progress = 0;
-        const progressInterval = setInterval(() => {
-            progress += 6.67;
-            const progressBar = document.getElementById('readyProgressBar');
-            if (progressBar) {
-                progressBar.style.width = progress + '%';
-            }
-            if (progress >= 100) {
-                clearInterval(progressInterval);
-            }
-        }, 100);
+        if (error === 'no-speech' && speakSequenceActive) {  // ← REMOVED speakSequenceButton check
+            const sorryMessage = getNextSorryMessage();
+            
+            window.playingSorryMessage = true;
+            console.log('🔊 DESKTOP: Starting sorry message');
+            
+            addAIMessage(sorryMessage);  // ← ADD to chat
+            speakResponseOriginal(sorryMessage);
+            
+            setTimeout(() => {
+                console.log('🔊 DESKTOP: Sorry message finished - restarting');
+                window.playingSorryMessage = false;
+                
+                if (speakSequenceActive && !isSpeaking) {
+                    forceStartListening();
+                }
+            }, 3000); // Estimate speech time
+            
+            return;
+        }
+    }
 
-    // Continue with existing logic...
+    
+    // Wait a moment to ensure everything is dead
+setTimeout(() => {
+    console.log('🚨 Now handling error after nuclear cleanup:', error);
+    
+    // 💣 NUKE ALL LISTENING IMMEDIATELY (but preserve error handler)
+    if (typeof recognition !== 'undefined') {
+        try {
+            recognition.onresult = null; // Disable result handler FIRST
+            // recognition.onerror = null;   // ❌ COMMENTED OUT - DON'T KILL ERROR HANDLER!
+            recognition.onend = null;     // Disable end handler
+            recognition.stop();           // Stop recognition
+            console.log('💣 NUKED: Recognition stopped (but error handler preserved)');
+        } catch (e) {
+            console.log('💣 NUKED: Recognition nuked successfully');
+        }
+    }
+    
+    // 🎯 RECONNECT ESSENTIAL HANDLERS AFTER CLEANUP
     setTimeout(() => {
-        console.log('🎤 Starting listening AFTER Speak Now visual...');
-        // Clear any previous result flag
-        window.lastRecognitionResult = null;
-        
-        // Set up enhanced error handling
-        if (typeof recognition !== 'undefined') {
-            recognition.onend = function() {
-                console.log('🔚 Recognition ended');
-                if (speakSequenceActive) {
-                    console.log('✅ Recognition ended with active session - closing Speak Now banner');
-                    if (speakSequenceCleanupTimer) {
-                        clearTimeout(speakSequenceCleanupTimer);
-                        speakSequenceCleanupTimer = null;
-                    }
-                    cleanupSpeakSequence();
+        if (recognition) {
+            console.log('🔧 RECONNECTING: Essential speech handlers');
+            
+            // 🎯 RECONNECT ERROR HANDLER - THIS IS CRITICAL!
+            recognition.onerror = function(event) {
+                console.log('🔊 RECONNECTED: Speech error detected:', event.error);
+                
+                // Cancel any cleanup timers
+                if (speakSequenceCleanupTimer) {
+                    clearTimeout(speakSequenceCleanupTimer);
+                    speakSequenceCleanupTimer = null;
+                    console.log('🕐 CANCELLED cleanup timer in reconnected handler');
+                }
+                
+                // Call your desktop error handler
+                if (typeof handleSpeechRecognitionError === 'function') {
+                    console.log('🎯 CALLING handleSpeechRecognitionError via reconnected handler');
+                    handleSpeechRecognitionError(event.error);
+                } else {
+                    console.log('❌ handleSpeechRecognitionError function not found!');
                 }
             };
             
-            recognition.onresult = function(event) {
-                console.log('🔍 DEBUG: recognition.onresult CALLED at:', Date.now());
-                handleSpeechRecognitionResult(event);
+            // 🎯 RECONNECT END HANDLER - ALSO IMPORTANT
+            recognition.onend = function() {
+                console.log('🔚 RECONNECTED: Recognition ended');
+                
+                const userInput = document.getElementById('userInput');
+                
+                if (userInput && userInput.value.trim().length > 0) {
+                    // User said something - process the message
+                    const currentMessage = userInput.value.trim();
+                    const now = Date.now();
+                    const timeSinceLastMessage = now - (window.lastMessageTime || 0);
+                    
+                    if (!window.lastProcessedMessage || 
+                        window.lastProcessedMessage !== currentMessage || 
+                        timeSinceLastMessage > 3000) {
+                        
+                        console.log('✅ RECONNECTED: Sending new message:', currentMessage);
+                        
+                        // Close banner and process message
+                        if (typeof speakSequenceActive !== 'undefined' && speakSequenceActive) {
+                            console.log('🎯 RECONNECTED: Closing Speak Now banner - message sent');
+                            window.playingSorryMessage = false;
+                            
+                            if (speakSequenceCleanupTimer) {
+                                clearTimeout(speakSequenceCleanupTimer);
+                                speakSequenceCleanupTimer = null;
+                            }
+                            
+                            cleanupSpeakSequence();
+                        }
+                        
+                        window.lastMessageTime = now;
+                        window.lastProcessedMessage = currentMessage;
+                        sendMessage(currentMessage);
+                    }
+                } else {
+                    // No speech detected - let error handler manage restart
+                    console.log('🔄 RECONNECTED: No speech detected - error handler will manage restart');
+                }
             };
+            
+            console.log('✅ RECONNECTED: All essential handlers restored');
+        }
+    }, 100); // Short delay to ensure cleanup is complete
+        
+        // 🛑 CRITICAL FIX: Check if AI is currently speaking before showing error
+        if (typeof isSpeaking !== 'undefined' && isSpeaking) {
+            console.log('🔇 AI is currently speaking - blocking error message to prevent overlap');
+            return;
         }
         
-        if (isContactInterview) {
-            startContactInterviewListening();
+        if (speakSequenceButton && speakSequenceActive) {
+            if (error === 'no-speech') {
+                console.log('📱 Mobile: Using visual feedback system with varied messages');
+                
+                // Get next sorry message variation
+                const sorryMessage = getNextSorryMessage();
+                console.log('💬 Using sorry message:', sorryMessage);
+                
+                // Visual feedback with varied "I didn't hear you" messages + PROGRESS BAR
+                speakSequenceButton.innerHTML = `
+                    <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+                        <div style="margin-bottom: 6px;">
+                            <span class="error-feedback-blink">🔊</span> ${sorryMessage}
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #ff6b6b, #ee5a24);"></div>
+                        </div>
+                    </div>
+                `;
+
+                if (error === 'no-speech') {
+    console.log('📱 Mobile: Using visual feedback system with varied messages');
+    
+    // Get next sorry message variation
+    const sorryMessage = getNextSorryMessage();
+    console.log('💬 Using sorry message:', sorryMessage);
+    
+    // Visual feedback with varied "I didn't hear you" messages + PROGRESS BAR
+    speakSequenceButton.innerHTML = `
+        <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+            <div style="margin-bottom: 6px;">
+                <span class="error-feedback-blink">🔊</span> ${sorryMessage}
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #ff6b6b, #ee5a24);"></div>
+            </div>
+        </div>
+    `;
+
+       // 🎯 ADD THE AUDIO PLAYBACK WITH TIMER CANCELLATION RIGHT HERE!
+    if (typeof speechSynthesis !== 'undefined') {
+        speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(sorryMessage);
+        utterance.volume = 0.7;
+        
+        utterance.onend = function() {
+            if (speakSequenceCleanupTimer) {
+                clearTimeout(speakSequenceCleanupTimer);
+                speakSequenceCleanupTimer = null;
+                console.log('🕐 FINALLY CANCELLED cleanup timer!');
+            }
+            
+            setTimeout(() => {
+                if (speakSequenceActive) {
+                    startNormalInterviewListening();
+                }
+            }, 800);
+        };
+        
+        speechSynthesis.speak(utterance);
+    }
+
+    speakSequenceButton.style.background = 'rgba(255, 107, 107, 0.4) !important';
+    speakSequenceButton.style.borderColor = 'rgba(255, 107, 107, 0.8) !important';
+    speakSequenceButton.className = 'quick-btn error-feedback-blink sorry-message-pulse';
+
+    // Mobile error beep for additional feedback
+    if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
+        playMobileErrorBeep();
+    }
+}
+
+                speakSequenceButton.style.background = 'rgba(255, 107, 107, 0.4) !important';
+                speakSequenceButton.style.borderColor = 'rgba(255, 107, 107, 0.8) !important';
+                speakSequenceButton.className = 'quick-btn error-feedback-blink sorry-message-pulse';
+                
+       // 🆕 MOBILE: Use chat bubble + ElevenLabs with clean button handling
+console.log('📱 MOBILE: Using chat bubble with ElevenLabs - hiding button during apology');
+
+// 🎯 HIDE SPEAK NOW BUTTON DURING APOLOGY
+if (speakSequenceButton) {
+    speakSequenceButton.style.display = 'none';
+}
+
+// Add chat bubble for mobile
+addAIMessage(sorryMessage);
+
+// Use ElevenLabs voice instead of TTS
+speakResponseOriginal(sorryMessage);
+
+// 🆕 SIMPLIFIED RESTART LOGIC FOR MOBILE
+setTimeout(() => {
+    console.log('📱 MOBILE: Restarting listening after apology');
+    if (speakSequenceButton && speakSequenceActive) {
+        // 🎯 SHOW BUTTON AGAIN WITH CLEAN "SPEAK NOW"
+        speakSequenceButton.style.display = 'block';
+        speakSequenceButton.innerHTML = `
+            <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+                <div style="margin-bottom: 6px;">
+                    <span class="green-dot-blink">🟢</span> Speak Now!
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #4caf50, #2e7d32);"></div>
+                </div>
+            </div>
+        `;
+        speakSequenceButton.style.background = 'rgba(34, 197, 94, 0.4) !important';
+        speakSequenceButton.style.borderColor = 'rgba(34, 197, 94, 0.8) !important';
+        speakSequenceButton.className = 'quick-btn green-button-glow';
+        
+        console.log('📱 MOBILE: Restarting listening with ON-beep');
+
+        // 🎯 DEBUG: Check listening status before restart
+console.log('🔊 DEBUG BEFORE RESTART:');
+console.log('🔊 - speakSequenceActive:', speakSequenceActive);
+console.log('🔊 - speakSequenceBlocked:', window.speakSequenceBlocked);
+console.log('🔊 - playingSorryMessage:', window.playingSorryMessage);
+console.log('🔊 - cleanupTimer exists:', !!speakSequenceCleanupTimer);
+
+// 🎯 NOW try to restart listening
+setTimeout(() => {
+    if (speakSequenceActive) {
+        console.log('🔊 CALLING startNormalInterviewListening()');
+        startNormalInterviewListening();
+    } else {
+        console.log('🔊 BLOCKED: speakSequenceActive is false');
+    }
+}, 800);
+        
+        // 🎯 USE THE CORRECT LISTENING FUNCTION - FIXED VERSION
+        if (typeof startListening === 'function') {
+            startListening();
+        } else if (typeof forceStartListening === 'function') {
+            forceStartListening();
+        } else if (typeof startMobileListening === 'function') {
+            startMobileListening();
         } else {
-            if (typeof startMobileListening === 'function') {
-                startMobileListening();
+            console.log('❌ No listening function found');
+        }
+    }
+}, 2000);
+                
+                // Mobile error beep for additional feedback
+                if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
+                    playMobileErrorBeep();
+                }
+                
+            } else if (error === 'network') {
+                // Network error handling with progress bar
+                speakSequenceButton.innerHTML = `
+                    <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+                        <div style="margin-bottom: 6px;">
+                            <span class="error-feedback-blink">📶</span> Connection issue - Try again
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #ffc107, #ff8f00);"></div>
+                        </div>
+                    </div>
+                `;
+                speakSequenceButton.style.background = 'rgba(255, 193, 7, 0.4) !important';
+                speakSequenceButton.style.borderColor = 'rgba(255, 193, 7, 0.8) !important';
+                speakSequenceButton.className = 'quick-btn error-feedback-blink';
+                
+                setTimeout(() => resetToGreenState(), 2500);
+                
+            } else if (error === 'not-allowed') {
+                // Microphone permission error with progress bar
+                speakSequenceButton.innerHTML = `
+                    <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+                        <div style="margin-bottom: 6px;">
+                            <span class="error-feedback-blink">🎤</span> Microphone access needed
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #dc267f, #b91c5c);"></div>
+                        </div>
+                    </div>
+                `;
+                speakSequenceButton.style.background = 'rgba(220, 38, 127, 0.4) !important';
+                speakSequenceButton.style.borderColor = 'rgba(220, 38, 127, 0.8) !important';
+                speakSequenceButton.className = 'quick-btn error-feedback-blink';
+                
+                setTimeout(() => resetToGreenState(), 3000);
+                
             } else {
-                startNormalInterviewListening();
+                // Generic error handling with progress bar
+                speakSequenceButton.innerHTML = `
+                    <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+                        <div style="margin-bottom: 6px;">
+                            <span class="error-feedback-blink">⚠️</span> Please try again
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #ffc107, #ff8f00);"></div>
+                        </div>
+                    </div>
+                `;
+                speakSequenceButton.style.background = 'rgba(255, 193, 7, 0.4) !important';
+                speakSequenceButton.style.borderColor = 'rgba(255, 193, 7, 0.8) !important';
+                speakSequenceButton.className = 'quick-btn error-feedback-blink';
+                
+                setTimeout(() => resetToGreenState(), 2000);
             }
         }
-    }, 1200);
+    }, 100); // Short delay to ensure nuke completed
+}
+
+// Helper function to reset to green listening state with progress bar
+function resetToGreenState() {
+    // 🛑 CRITICAL FIX: Check if AI is speaking before resetting
+    if (typeof isSpeaking !== 'undefined' && isSpeaking) {
+        console.log('🔇 AI is speaking - delaying reset to green state');
+        setTimeout(resetToGreenState, 500);
+        return;
+    }
+    
+    if (speakSequenceButton && speakSequenceActive) {
+        speakSequenceButton.innerHTML = `
+            <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+                <div style="margin-bottom: 6px;">
+                    <span class="green-dot-blink">🟢</span> Speak Now!
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #4caf50, #2e7d32);"></div>
+                </div>
+            </div>
+        `;
+
+        speakSequenceButton.style.background = 'rgba(34, 197, 94, 0.4) !important';
+        speakSequenceButton.style.borderColor = 'rgba(34, 197, 94, 0.8) !important';
+        speakSequenceButton.className = 'quick-btn green-button-glow';
+        
+        // Restart listening
+        setTimeout(() => {
+            if (speakSequenceActive) {
+                window.lastRecognitionResult = null;
+                
+                if (isContactInterview) {
+                    startContactInterviewListening();
+                } else {
+                    // Use mobile-optimized version if available
+                    if (typeof startMobileListening === 'function') {
+                        startMobileListening();
+                    } else {
+                        startNormalInterviewListening();
+                    }
+                }
+            }
+        }, 500);
+    }
+}
+
+// 🎯 ENHANCED SPEECH RECOGNITION RESTART HANDLER
+function handleSpeechRecognitionEnd() {
+    console.log('🔚 Recognition ended');
+    
+    // 🛑 CRITICAL FIX: Check if AI is speaking before handling end
+    if (typeof isSpeaking !== 'undefined' && isSpeaking) {
+        console.log('🔇 AI is speaking - delaying speech recognition end handling');
+        setTimeout(handleSpeechRecognitionEnd, 500);
+        return;
+    }
+    
+    // Check if we got a result or if it was an error
+    if (!window.lastRecognitionResult && speakSequenceActive) {
+        console.log('🔄 No speech detected via onend - restarting with hybrid system');
+        handleSpeechRecognitionError('no-speech');
+    }
+}
+
+// 🎯 ENHANCED RESULT HANDLER
+function handleSpeechRecognitionResult(event) {
+    console.log('✅ Speech recognition result received');
+    window.lastRecognitionResult = Date.now();
+
+        // 🎯 CLOSE SPEAK NOW BANNER WHEN SPEECH SUCCESSFULLY CAPTURED
+    if (speakSequenceActive) {
+        console.log('✅ Speech successful - closing Speak Now banner');
+        
+        // Cancel the cleanup timer
+        if (speakSequenceCleanupTimer) {
+            clearTimeout(speakSequenceCleanupTimer);
+            speakSequenceCleanupTimer = null;
+        }
+        
+        // Close the banner immediately
+        cleanupSpeakSequence();
+    }
+    
+    // Process the result normally (existing logic continues)
+    // This flag prevents the "no-speech" error from triggering
+}
+    
+    // ✅ START LISTENING - MOVED to start AFTER "Speak Now!" visual
+setTimeout(() => {
+    console.log('🎤 Starting listening AFTER Speak Now visual...');
+    
+    // Clear any previous result flag
+    window.lastRecognitionResult = null;
+    
+    // Set up enhanced error handling for the recognition session
+if (typeof recognition !== 'undefined') {
+    // 💣 ADD PRE-EMPTIVE NUKE HERE:
+    // recognition.onerror = function(event) {
+    //     console.log('🚨💣 PRE-EMPTIVE NUKE: Speech error detected');
+    //     nukeAllListening(); // NUKE FIRST!
+    //     handleSpeechRecognitionError(event.error);
+    // };
+        
+        recognition.onend = function() {
+        console.log('🔚 Recognition ended');
+    
+    // 🎯 ADD BANNER CLEANUP HERE - CLOSE WHEN SPEECH SUCCESSFULLY ENDS
+    if (speakSequenceActive) {
+        console.log('✅ Recognition ended with active session - closing Speak Now banner');
+        
+        // Cancel cleanup timer
+        if (speakSequenceCleanupTimer) {
+            clearTimeout(speakSequenceCleanupTimer);
+            speakSequenceCleanupTimer = null;
+        }
+        
+        // Close banner immediately
+        cleanupSpeakSequence();
+    }
+
+            handleSpeechRecognitionEnd();
+        };
+        
+        recognition.onresult = function(event) {
+            console.log('🔍 DEBUG: recognition.onresult CALLED at:', Date.now());
+    console.log('🔍 DEBUG: Event results length:', event.results.length);
+    console.log('🔍 DEBUG: Final transcript:', event.results[0][0].transcript);
+            handleSpeechRecognitionResult(event);
+            // Let the original result handler continue
+            if (typeof originalOnResult === 'function') {
+                originalOnResult(event);
+            }
+        };
+    }
+    
+
+    // 🎯 CRITICAL MOBILE DETECTION - USE THE PROPER FUNCTION!
+if (isMobileDevice()) {
+    console.log('📱 MOBILE: Setting up enhanced speech recognition handlers');
+    
+    // Enhanced mobile fallback timer
+    const mobileFallbackTimer = setTimeout(() => {
+        if (speakSequenceActive && !window.lastRecognitionResult) {
+            console.log('📱 MOBILE FALLBACK: No speech detected - triggering sorry message');
+            handleSpeechRecognitionError('no-speech');
+        }
+    }, 4000); // Mobile gets slightly longer timeout
+}
+    
+    if (isContactInterview) {
+        startContactInterviewListening();
+    } else {
+        // Use mobile-optimized version if available
+        if (typeof startMobileListening === 'function') {
+            startMobileListening();
+        } else {
+            startNormalInterviewListening();
+        }
+    }
+}, 1200); // Changed from 800ms to 1700ms to start AFTER "Speak Now!"
+    
+    // ✅ ENHANCED AI SPEAKING DETECTION WITH BETTER TIMING
+    let speechWatcher = setInterval(() => {
+        if (typeof isSpeaking !== 'undefined' && isSpeaking && speakSequenceActive) {
+            console.log('🔊 AI started speaking - auto-cleaning up speak sequence');
+            clearInterval(speechWatcher);
+            if (progressInterval) clearInterval(progressInterval);
+            
+            // 🛑 CRITICAL FIX: Add a small delay to ensure AI speech is fully captured
+            setTimeout(() => {
+                cleanupSpeakSequence();
+            }, 2000);
+        }
+    }, 100);
     
     // ✅ GREEN TRANSITION
     const greenTransition = setTimeout(() => {
+        // 🛑 CRITICAL FIX: Check if AI is speaking before transitioning to green
         if (typeof isSpeaking !== 'undefined' && isSpeaking) {
             console.log('🔇 AI is speaking - delaying green transition');
             setTimeout(() => {
@@ -3936,6 +4397,7 @@ function showHybridReadySequence() {
     // ✅ CLEANUP TIMER
     speakSequenceCleanupTimer = setTimeout(() => {
         console.log('⏰ Extended listening time reached - cleaning up');
+        if (speechWatcher) clearInterval(speechWatcher);
         if (progressInterval) clearInterval(progressInterval);
         cleanupSpeakSequence();
     }, 8000);
@@ -3955,140 +4417,6 @@ function checkContactInterviewMode() {
     ];
     
     return indicators.some(indicator => indicator === true);
-}
-
-// 🎯 Function to get next sorry message (rotates through array)
-function getNextSorryMessage() {
-    // 🛡️ DUAL-PATH: Check global first, then look inside showHybridReadySequence
-    let messages;
-    
-    if (typeof sorryMessages !== 'undefined') {
-        // Global array exists (desktop path)
-        messages = sorryMessages;
-    } else {
-        // Fallback array for mobile
-        messages = [
-            "I'm sorry, I didn't catch that",
-            "Sorry, I missed that - please try again", 
-            "I didn't hear you clearly",
-            "Could you repeat that for me?",
-            "Sorry, can you say that again?"
-        ];
-    }
-    
-    if (typeof window.errorMessageIndex === 'undefined') {
-        window.errorMessageIndex = 0;
-    }
-    
-    const message = messages[window.errorMessageIndex];
-    window.errorMessageIndex = (window.errorMessageIndex + 1) % messages.length;
-    return message;
-}
-
-// 🎯 ENHANCED SPEECH RECOGNITION ERROR HANDLER WITH MULTIPLE SORRY MESSAGES
-function handleSpeechRecognitionError(error) {
-    console.log('🖥️ DESKTOP ERROR HANDLER CALLED:', error);
-    
-    const isRealMobile = isMobileDevice();
-    if (!isRealMobile) {
-        console.log('🖥️ DESKTOP: Using desktop sorry system');
-        
-        if (error === 'no-speech' && speakSequenceActive) {
-            const sorryMessage = getNextSorryMessage();
-            
-            // window.playingSorryMessage = true;
-            console.log('🔊 DESKTOP: Starting sorry message');
-            
-            addAIMessage(sorryMessage);
-            speakResponseOriginal(sorryMessage);
-            
-            setTimeout(() => {
-                console.log('🔊 DESKTOP: Sorry message finished - restarting');
-                window.playingSorryMessage = false;
-                
-                if (speakSequenceActive && !isSpeaking) {
-                    forceStartListening();
-                }
-            }, 3000);
-            
-            return;
-        }
-    }
-}
-
-// Helper function to reset to green listening state with progress bar
-function resetToGreenState() {
-    if (typeof isSpeaking !== 'undefined' && isSpeaking) {
-        console.log('🔇 AI is speaking - delaying reset to green state');
-        setTimeout(resetToGreenState, 500);
-        return;
-    }
-    
-    if (speakSequenceButton && speakSequenceActive) {
-        speakSequenceButton.innerHTML = `
-            <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
-                <div style="margin-bottom: 6px;">
-                    <span class="green-dot-blink">🟢</span> Speak Now!
-                </div>
-                <div class="progress-bar-container">
-                    <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #4caf50, #2e7d32);"></div>
-                </div>
-            </div>
-        `;
-
-        speakSequenceButton.style.background = 'rgba(34, 197, 94, 0.4) !important';
-        speakSequenceButton.style.borderColor = 'rgba(34, 197, 94, 0.8) !important';
-        speakSequenceButton.className = 'quick-btn green-button-glow';
-        
-        setTimeout(() => {
-            if (speakSequenceActive) {
-                window.lastRecognitionResult = null;
-                
-                if (isContactInterview) {
-                    startContactInterviewListening();
-                } else {
-                    if (typeof startMobileListening === 'function') {
-                        startMobileListening();
-                    } else {
-                        startNormalInterviewListening();
-                    }
-                }
-            }
-        }, 500);
-    }
-}
-
-// 🎯 ENHANCED SPEECH RECOGNITION RESTART HANDLER
-function handleSpeechRecognitionEnd() {
-    console.log('🔚 Recognition ended');
-    
-    if (typeof isSpeaking !== 'undefined' && isSpeaking) {
-        console.log('🔇 AI is speaking - delaying speech recognition end handling');
-        setTimeout(handleSpeechRecognitionEnd, 500);
-        return;
-    }
-    
-    if (!window.lastRecognitionResult && speakSequenceActive) {
-        console.log('🔄 No speech detected via onend - restarting with hybrid system');
-        handleSpeechRecognitionError('no-speech');
-    }
-}
-
-// 🎯 ENHANCED RESULT HANDLER
-function handleSpeechRecognitionResult(event) {
-    console.log('✅ Speech recognition result received');
-    window.lastRecognitionResult = Date.now();
-
-    if (speakSequenceActive) {
-        console.log('✅ Speech successful - closing Speak Now banner');
-        
-        if (speakSequenceCleanupTimer) {
-            clearTimeout(speakSequenceCleanupTimer);
-            speakSequenceCleanupTimer = null;
-        }
-        
-        cleanupSpeakSequence();
-    }
 }
 
 // 🎯 NORMAL INTERVIEW LISTENING 
