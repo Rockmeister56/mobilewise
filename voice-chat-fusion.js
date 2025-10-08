@@ -1392,7 +1392,7 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
         // 1. BRANDING HEADER (🚀 UPDATED LAYOUT)
         branding: {
     content: `
-        <div class="banner-glow-container" style="width: 760px; max-width: 760px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: white; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);">
+        <div class="banner-glow-container" style="width: 772px; max-width: 772px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: white; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);">
             
             <!-- CENTER: NCI Logo -->
             <div style="display: flex; align-items: center; justify-content: center;">
@@ -1410,7 +1410,7 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
         
         @keyframes redPulseGlow {
             0%, 100% { 
-                box-shadow: 0 10px 10px rgba(0,0,7,0.0), 0 0 10px rgba(0, 128, 255, 1);
+                box-shadow: 0 10px 10px rgba(0,0,9,0.0), 0 0 10px rgba(0, 128, 255, 1);
             }
             50% { 
                 box-shadow: 0 20px 10px rgba(0,0,9,0.0), 0 0 25px rgba(0, 0, 255, 1);
@@ -1419,7 +1419,7 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
         </style>
     `,
     background: 'rgba(255, 255, 255, 0.15)',
-    containerWidth: 775,
+    containerWidth: 785,
     customHeight: 90,
 },
         
