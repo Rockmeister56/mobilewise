@@ -4530,15 +4530,13 @@ if (isMobileDevice()) {
     }, 8000);
 }
 
-// 🎯 SIMPLE POST-SORRY FUNCTION (no extra complexity)
+// 🎯 UPDATED showPostSorryListening - NO RESTART FUNCTIONS
 function showPostSorryListening() {
     console.log('🔄 Starting POST-SORRY direct listening');
     
-    // ✅ Basic checks only
     if (conversationState === 'ended') return;
     speakSequenceActive = true;
     
-    // ✅ Find container  
     const quickButtonsContainer = document.querySelector('.quick-questions') || 
                                   document.querySelector('.quick-buttons') || 
                                   document.getElementById('quickButtonsContainer');
@@ -4548,11 +4546,9 @@ function showPostSorryListening() {
         return;
     }
     
-    // ✅ Clean up existing button
     const existingSpeakBtn = document.getElementById('speak-sequence-button');
     if (existingSpeakBtn) existingSpeakBtn.remove();
     
-    // ✅ Create DIRECT "Speak Now" button
     speakSequenceButton = document.createElement('button');
     speakSequenceButton.id = 'speak-sequence-button';
     speakSequenceButton.className = 'quick-btn green-button-glow';
@@ -4582,9 +4578,18 @@ function showPostSorryListening() {
     
     quickButtonsContainer.appendChild(speakSequenceButton);
     
-    // ✅ Start listening immediately
+    // 🎯 DIRECT RECOGNITION START - NO HELPER FUNCTIONS!
     setTimeout(() => {
-        startNormalInterviewListening();
+        console.log('🎤 POST-SORRY: Starting DIRECT recognition (no helper functions)');
+        
+        if (typeof recognition !== 'undefined' && recognition) {
+            try {
+                recognition.start();
+                console.log('✅ POST-SORRY: Direct recognition started');
+            } catch (e) {
+                console.log('❌ POST-SORRY: Recognition start failed:', e);
+            }
+        }
     }, 500);
 }
 
