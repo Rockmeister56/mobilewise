@@ -339,6 +339,27 @@ function showPostSorryListening() {
     console.log('✅ POST-SORRY: Function completed - no cleanup timer set');
 }
 
+// ADD THIS - Initialize buffered video when page loads
+function initializeAvatarVideo() {
+    const avatarVideo = document.createElement('video');
+    avatarVideo.id = 'avatarVideoBuffer';
+    avatarVideo.src = 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759940889574.mp4';
+    avatarVideo.preload = 'auto';
+    avatarVideo.muted = true;
+    avatarVideo.style.display = 'none';
+    avatarVideo.load();
+    
+    document.body.appendChild(avatarVideo);
+    
+    avatarVideo.addEventListener('canplaythrough', () => {
+        console.log('🎬 Avatar video buffered and ready!');
+        window.avatarVideoReady = true;
+    });
+}
+
+// Call this when page loads
+window.addEventListener('DOMContentLoaded', initializeAvatarVideo);
+
 // ===================================================
 // 🎤 MICROPHONE PERMISSION SYSTEM
 // ===================================================
@@ -3784,6 +3805,29 @@ function playMobileErrorBeep() {
     }
 }
 
+// ADD THIS FIRST - Initialize buffered video when page loads
+function initializeAvatarVideo() {
+    const avatarVideo = document.createElement('video');
+    avatarVideo.id = 'avatarVideoBuffer';
+    avatarVideo.src = 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759940889574.mp4';
+    avatarVideo.preload = 'auto'; // Force full video preload
+    avatarVideo.muted = true; // Required for autoplay policies
+    avatarVideo.style.display = 'none'; // Hidden but loaded
+    avatarVideo.load(); // Start loading immediately
+    
+    document.body.appendChild(avatarVideo);
+    
+    // Wait for video to be ready
+    avatarVideo.addEventListener('canplaythrough', () => {
+        console.log('🎬 Avatar video buffered and ready!');
+        window.avatarVideoReady = true;
+    });
+}
+
+// Call this when page loads
+window.addEventListener('DOMContentLoaded', initializeAvatarVideo);
+
+// YOUR COMPLETE FUNCTION WITH BUFFERING OPTIMIZATION
 function showAvatarSorryMessage() {
     console.log('🎬 Showing full-screen avatar (no transparency)');
     
@@ -3802,21 +3846,56 @@ function showAvatarSorryMessage() {
         align-items: center;
     `;
     
-    avatarOverlay.innerHTML = `
-        <video id="avatarVideo" autoplay style="
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        ">
-            <source src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759940889574.mp4" type="video/mp4">
-        </video>
-    `;
+    // Check if we have a buffered video ready
+    const bufferedVideo = document.getElementById('avatarVideoBuffer');
     
-    document.body.appendChild(avatarOverlay);
+    if (bufferedVideo && window.avatarVideoReady) {
+        console.log('🎬 Using buffered video for instant playback');
+        
+        // Use buffered video source for instant playback
+        avatarOverlay.innerHTML = `
+            <video id="avatarVideo" autoplay muted style="
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            ">
+                <source src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759940889574.mp4" type="video/mp4">
+            </video>
+        `;
+        
+        document.body.appendChild(avatarOverlay);
+        
+        const video = document.getElementById('avatarVideo');
+        
+        // Copy the buffered video's current time and ready state for instant play
+        video.preload = 'auto';
+        video.load();
+        
+        // Force immediate play since we know it's buffered
+        video.addEventListener('loadeddata', () => {
+            video.play().catch(e => console.log('Video play issue:', e));
+        });
+        
+    } else {
+        console.log('🎬 Buffered video not ready, using original method');
+        
+        // Fallback to your original method
+        avatarOverlay.innerHTML = `
+            <video id="avatarVideo" autoplay style="
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            ">
+                <source src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759940889574.mp4" type="video/mp4">
+            </video>
+        `;
+        
+        document.body.appendChild(avatarOverlay);
+    }
     
     const video = document.getElementById('avatarVideo');
     
-    // When video finishes
+    // When video finishes - ALL YOUR ORIGINAL LOGIC PRESERVED
     video.onended = function() {
         console.log('🎬 Avatar video finished - removing and restarting listening');
         
@@ -3836,7 +3915,7 @@ function showAvatarSorryMessage() {
         }, 500);
     };
     
-    // Fallback cleanup after 10 seconds
+    // Fallback cleanup after 10 seconds - ALL YOUR ORIGINAL LOGIC PRESERVED
     setTimeout(() => {
         if (avatarOverlay.parentNode) {
             avatarOverlay.remove();
