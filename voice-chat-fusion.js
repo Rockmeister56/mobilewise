@@ -213,6 +213,73 @@ if (isDefinitelyMobile || (event && event.error === 'no-speech')) {
     console.log('📱 NUCLEAR MOBILE DETECTED: Using visual feedback system');
 }
 
+// 🎯 SIMPLE POST-SORRY FUNCTION (no extra complexity)
+function showPostSorryListening() {
+    console.log('🎯🎯🎯 POST-SORRY FUNCTION ACTUALLY CALLED! 🎯🎯🎯');
+    console.log('🔄 Starting POST-SORRY direct listening');
+    
+    // ✅ Basic checks only
+    if (conversationState === 'ended') return;
+    speakSequenceActive = true;
+    
+    // ✅ Find container  
+    const quickButtonsContainer = document.querySelector('.quick-questions') || 
+                                  document.querySelector('.quick-buttons') || 
+                                  document.getElementById('quickButtonsContainer');
+    
+    if (!quickButtonsContainer) {
+        speakSequenceActive = false;
+        return;
+    }
+    
+    // ✅ Clean up existing button
+    const existingSpeakBtn = document.getElementById('speak-sequence-button');
+    if (existingSpeakBtn) existingSpeakBtn.remove();
+    
+    // ✅ Create DIRECT "Speak Now" button
+    speakSequenceButton = document.createElement('button');
+    speakSequenceButton.id = 'speak-sequence-button';
+    speakSequenceButton.className = 'quick-btn green-button-glow';
+    
+    speakSequenceButton.innerHTML = `
+        <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+            <div style="margin-bottom: 6px;">
+                <span class="green-dot-blink">🟢</span> Speak Now!
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #4caf50, #2e7d32);"></div>
+            </div>
+        </div>
+    `;
+    
+    speakSequenceButton.style.cssText = `
+        width: 100% !important;
+        background: rgba(34, 197, 94, 0.4) !important;
+        color: #ffffff !important;
+        border: 2px solid rgba(34, 197, 94, 0.8) !important;
+        padding: 15px !important;
+        min-height: 45px !important;
+        font-weight: bold !important;
+        font-size: 18px !important;
+        border-radius: 20px !important;
+    `;
+    
+    quickButtonsContainer.appendChild(speakSequenceButton);
+    
+    // ✅ Start listening immediately
+    setTimeout(() => {
+        console.log('🎤 POST-SORRY: Starting DIRECT recognition');
+        if (typeof recognition !== 'undefined' && recognition) {
+            try {
+                recognition.start();
+                console.log('✅ POST-SORRY: Direct recognition started');
+            } catch (e) {
+                console.log('❌ POST-SORRY: Recognition start failed:', e);
+            }
+        }
+    }, 500);
+}
+
 // ===================================================
 // 🎤 MICROPHONE PERMISSION SYSTEM
 // ===================================================
@@ -4528,71 +4595,6 @@ if (isMobileDevice()) {
         if (progressInterval) clearInterval(progressInterval);
         cleanupSpeakSequence();
     }, 8000);
-}
-
-// 🎯 UPDATED showPostSorryListening - NO RESTART FUNCTIONS
-function showPostSorryListening() {
-     console.log('🎯🎯🎯 POST-SORRY FUNCTION ACTUALLY CALLED! 🎯🎯🎯'); // ← ADD THIS LINE
-    console.log('🔄 Starting POST-SORRY direct listening');
-    console.log('🔄 Starting POST-SORRY direct listening');
-    
-    if (conversationState === 'ended') return;
-    speakSequenceActive = true;
-    
-    const quickButtonsContainer = document.querySelector('.quick-questions') || 
-                                  document.querySelector('.quick-buttons') || 
-                                  document.getElementById('quickButtonsContainer');
-    
-    if (!quickButtonsContainer) {
-        speakSequenceActive = false;
-        return;
-    }
-    
-    const existingSpeakBtn = document.getElementById('speak-sequence-button');
-    if (existingSpeakBtn) existingSpeakBtn.remove();
-    
-    speakSequenceButton = document.createElement('button');
-    speakSequenceButton.id = 'speak-sequence-button';
-    speakSequenceButton.className = 'quick-btn green-button-glow';
-    
-    speakSequenceButton.innerHTML = `
-        <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
-            <div style="margin-bottom: 6px;">
-                <span class="green-dot-blink">🟢</span> Speak Now!
-            </div>
-            <div class="progress-bar-container">
-                <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #4caf50, #2e7d32);"></div>
-            </div>
-        </div>
-    `;
-    
-    speakSequenceButton.style.cssText = `
-        width: 100% !important;
-        background: rgba(34, 197, 94, 0.4) !important;
-        color: #ffffff !important;
-        border: 2px solid rgba(34, 197, 94, 0.8) !important;
-        padding: 15px !important;
-        min-height: 45px !important;
-        font-weight: bold !important;
-        font-size: 18px !important;
-        border-radius: 20px !important;
-    `;
-    
-    quickButtonsContainer.appendChild(speakSequenceButton);
-    
-    // 🎯 DIRECT RECOGNITION START - NO HELPER FUNCTIONS!
-    setTimeout(() => {
-        console.log('🎤 POST-SORRY: Starting DIRECT recognition (no helper functions)');
-        
-        if (typeof recognition !== 'undefined' && recognition) {
-            try {
-                recognition.start();
-                console.log('✅ POST-SORRY: Direct recognition started');
-            } catch (e) {
-                console.log('❌ POST-SORRY: Recognition start failed:', e);
-            }
-        }
-    }, 500);
 }
 
 // 🎯 DETECT CONTACT INTERVIEW MODE
