@@ -3786,7 +3786,7 @@ function playMobileErrorBeep() {
 }
 
 function showTryAgainOverlay() {
-    // Animation styles for microphone
+    // Add CSS animation for pulsing microphone
     if (!document.getElementById('mic-animation-styles')) {
         const style = document.createElement('style');
         style.id = 'mic-animation-styles';
@@ -3838,10 +3838,23 @@ function showTryAgainOverlay() {
     
     document.body.appendChild(overlay);
     
-    // Auto-remove after 3 seconds
+    // 🎯 CRITICAL: Restart listening when overlay disappears
     setTimeout(() => {
         if (overlay.parentNode) {
             overlay.remove();
+            console.log('🔄 Overlay removed - restarting listening');
+            
+            // Force restart listening
+            setTimeout(() => {
+                if (typeof recognition !== 'undefined' && recognition) {
+                    try {
+                        recognition.start();
+                        console.log('✅ Listening restarted after overlay');
+                    } catch (e) {
+                        console.log('❌ Failed to restart listening:', e);
+                    }
+                }
+            }, 300);
         }
     }, 3000);
 }
