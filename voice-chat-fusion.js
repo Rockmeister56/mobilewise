@@ -1410,10 +1410,10 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
         
         @keyframes redPulseGlow {
             0%, 100% { 
-                box-shadow: 0 10px 10px rgba(0,0,7,0.0), 0 0 10px rgba(0, 255, 0, 1);
+                box-shadow: 0 10px 10px rgba(0,0,7,0.0), 0 0 10px rgba(0, 128, 255, 1);
             }
             50% { 
-                box-shadow: 0 20px 10px rgba(0,0,9,0.0), 0 0 25px rgba(0, 217, 255, 1);
+                box-shadow: 0 20px 10px rgba(0,0,9,0.0), 0 0 25px rgba(0, 0, 255, 1);
             }
         }
         </style>
