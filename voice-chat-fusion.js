@@ -1397,7 +1397,7 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
             <!-- CENTER: NCI Logo -->
             <div style="display: flex; align-items: center; justify-content: center;">
                 <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1759148392591_nci.PNG" 
-                     style="width: 208px; height: auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                     style="width: 400px; height: auto; border-radius: 8px; box-shadow: 0 0px 8px rgba(255, 255, 255, 1);">
             </div>
         </div>
     `,
