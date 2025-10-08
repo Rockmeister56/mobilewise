@@ -1452,7 +1452,7 @@ avatar: {
             <div style="display: flex; align-items: center;">
                <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1759957583014_AI-banner.png" 
                      class="avatar-shape-glow"
-                     style="width: 75px; height: 70px; border-radius: 0px; margin-right: 15px;">
+                     style="width: 75px; height: 75px; border-radius: 0px; margin-right: 15px; margin-top: 12px;"
                 
                 <!-- Text Info -->
                 <div style="color: white; text-align: left;">
