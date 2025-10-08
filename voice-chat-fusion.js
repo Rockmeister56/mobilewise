@@ -4040,7 +4040,7 @@ setTimeout(() => {
         try {
             recognition.onresult = null; // Disable result handler FIRST
             // recognition.onerror = null;   // ❌ COMMENTED OUT - DON'T KILL ERROR HANDLER!
-            recognition.onend = null;     // Disable end handler
+           // recognition.onend = null;     // Disable end handler
             recognition.stop();           // Stop recognition
             console.log('💣 NUKED: Recognition stopped (but error handler preserved)');
         } catch (e) {
