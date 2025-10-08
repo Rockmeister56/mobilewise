@@ -1473,7 +1473,7 @@ avatar: {
     background: rgba(255, 255, 255, 0.1);
     border-radius: 12px;
     z-index: -1;
-    animation: glowLayerPulse 6s ease-in-out infinite;
+    animation: glowLayerPulse 8s ease-in-out infinite;
         }
     .banner-glow-container::after {
     content: '';
@@ -1509,10 +1509,10 @@ avatar: {
         
         @keyframes avatarGlowPulse {
             0%, 100% { 
-                filter: drop-shadow(0 0 8px rgba(15, 197, 217, 0.81));
+                filter: drop-shadow(0 0 6px rgba(15, 197, 217, 0.81));
             }
             35% { 
-                filter: drop-shadow(0 0 12px rgba(255, 0, 238, 1));
+                filter: drop-shadow(0 0 10px rgba(255, 0, 238, 1));
             }
         }
         
