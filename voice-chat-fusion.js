@@ -3808,38 +3808,75 @@ function playMobileErrorBeep() {
 }
 
 function showAvatarSorryMessage() {
-    console.log('🎬 Showing full-screen avatar (no transparency)');
+    console.log('🎬 Showing device-appropriate avatar video');
     
-    // Create full-screen avatar overlay
+    const isMobile = window.innerWidth <= 768;
+    
+    // Device-specific video URLs
+    const mobileVideoUrl = "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759940889574.mp4"; // Your original mobile video
+    const desktopVideoUrl = "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759966365834.mp4"; // New desktop video (833x433)
+    
+    const videoUrl = isMobile ? mobileVideoUrl : desktopVideoUrl;
+    
+    // Create overlay with device-specific styling
     const avatarOverlay = document.createElement('div');
-    avatarOverlay.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: #000;
-        z-index: 9999;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    `;
     
-    avatarOverlay.innerHTML = `
-        <video id="avatarVideo" autoplay style="
+    if (isMobile) {
+        // MOBILE: Full screen portrait experience
+        avatarOverlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            object-fit: cover;
-        ">
-            <source src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759940889574.mp4" type="video/mp4">
-        </video>
-    `;
+            background: #000;
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        `;
+        
+        avatarOverlay.innerHTML = `
+            <video id="avatarVideo" autoplay muted style="
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            ">
+                <source src="${videoUrl}" type="video/mp4">
+            </video>
+        `;
+    } else {
+        // DESKTOP: Chat area with proper 833x433 dimensions
+        avatarOverlay.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 833px;
+            height: 433px;
+            background: #000;
+            z-index: 9999;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        `;
+        
+        avatarOverlay.innerHTML = `
+            <video id="avatarVideo" autoplay muted style="
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            ">
+                <source src="${videoUrl}" type="video/mp4">
+            </video>
+        `;
+    }
     
     document.body.appendChild(avatarOverlay);
     
     const video = document.getElementById('avatarVideo');
     
-    // When video finishes
+    // When video finishes - ALL YOUR ORIGINAL LOGIC PRESERVED
     video.onended = function() {
         console.log('🎬 Avatar video finished - removing and restarting listening');
         
@@ -3859,7 +3896,7 @@ function showAvatarSorryMessage() {
         }, 500);
     };
     
-    // Fallback cleanup after 10 seconds
+    // Fallback cleanup after 10 seconds - ALL YOUR ORIGINAL LOGIC PRESERVED
     setTimeout(() => {
         if (avatarOverlay.parentNode) {
             avatarOverlay.remove();
