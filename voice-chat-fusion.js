@@ -218,11 +218,24 @@ function showPostSorryListening() {
     console.log('🎯🎯🎯 POST-SORRY FUNCTION ACTUALLY CALLED! 🎯🎯🎯');
     console.log('🔄 Starting POST-SORRY direct listening');
     
-    // 🎯 CRITICAL: Cancel ANY existing cleanup timers FIRST!
+    // 🎯 NUCLEAR: Clear ALL possible cleanup timers
     if (speakSequenceCleanupTimer) {
         clearTimeout(speakSequenceCleanupTimer);
         speakSequenceCleanupTimer = null;
-        console.log('🕐 POST-SORRY: Cancelled existing cleanup timer');
+        console.log('🕐 POST-SORRY: Cancelled speakSequenceCleanupTimer');
+    }
+    
+    // 🎯 NUCLEAR: Clear any other possible timers that might be running
+    if (window.hybridCleanupTimer) {
+        clearTimeout(window.hybridCleanupTimer);
+        window.hybridCleanupTimer = null;
+        console.log('🕐 POST-SORRY: Cancelled hybridCleanupTimer');
+    }
+    
+    if (window.sequenceTimer) {
+        clearTimeout(window.sequenceTimer);
+        window.sequenceTimer = null;
+        console.log('🕐 POST-SORRY: Cancelled sequenceTimer');
     }
     
     // ✅ Basic checks only
