@@ -4615,13 +4615,13 @@ if (isMobileDevice()) {
         console.log('✅ Visual changed to green - listening was already started');
     }
     
-    // ✅ CLEANUP TIMER
-    speakSequenceCleanupTimer = setTimeout(() => {
-        console.log('⏰ Extended listening time reached - cleaning up');
-        if (speechWatcher) clearInterval(speechWatcher);
-        if (progressInterval) clearInterval(progressInterval);
-        cleanupSpeakSequence();
-    }, 8000);
+ // ❌ COMMENTED OUT - This timer was killing post-sorry restarts!
+// speakSequenceCleanupTimer = setTimeout(() => {
+//     console.log('⏰ Extended listening time reached - cleaning up');
+//     if (speechWatcher) clearInterval(speechWatcher);
+//     if (progressInterval) clearInterval(progressInterval);
+//     cleanupSpeakSequence();
+// }, 8000);
 }
 
 // 🎯 DETECT CONTACT INTERVIEW MODE
