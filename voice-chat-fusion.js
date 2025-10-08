@@ -622,17 +622,18 @@ function getApologyResponse() {
         }
         
         // ✅ NEW CODE: Direct to working state
-        if (!window.playingSorryMessage && !isSpeaking) {
-            setTimeout(() => {
-                if (speakSequenceActive && !window.playingSorryMessage) {
-                    console.log('🎯 DEBUG: About to call showPostSorryListening()');
-                    console.log('🎯 DEBUG: showPostSorryListening exists?', typeof showPostSorryListening);
-                    
-                    showPostSorryListening();
-                    
-                    console.log('🎯 DEBUG: showPostSorryListening() call completed');
-                }
-            }, 1000);
+        if (!isSpeaking) {
+    setTimeout(() => {
+        if (speakSequenceActive) { // Removed playingSorryMessage check
+            console.log('🎯 DEBUG: About to call showPostSorryListening()');
+            console.log('🎯 DEBUG: showPostSorryListening exists?', typeof showPostSorryListening);
+            
+            showPostSorryListening();
+            
+            console.log('🎯 DEBUG: showPostSorryListening() call completed');
+        }
+    }, 1000);
+    
         } else {
             console.log('🚫 DEBUG: BLOCKED from calling showPostSorryListening');
             console.log('🚫 DEBUG: playingSorryMessage =', window.playingSorryMessage);
