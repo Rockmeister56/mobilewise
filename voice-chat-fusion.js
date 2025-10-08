@@ -633,7 +633,7 @@ function getApologyResponse() {
             console.log('🎯 DEBUG: showPostSorryListening() call completed');
         }
     }, 1000);
-    
+
         } else {
             console.log('🚫 DEBUG: BLOCKED from calling showPostSorryListening');
             console.log('🚫 DEBUG: playingSorryMessage =', window.playingSorryMessage);
@@ -4076,45 +4076,33 @@ setTimeout(() => {
             
             // 🎯 RECONNECT END HANDLER - ALSO IMPORTANT
           recognition.onend = function() {
+    console.log('🎯🎯🎯 WHICH ONEND IS RUNNING? 🎯🎯🎯');
     console.log('🔚 Recognition ended');
+    console.log('🔍 DEBUG: playingSorryMessage =', window.playingSorryMessage);
+    console.log('🔍 DEBUG: isSpeaking =', isSpeaking);
+    console.log('🔍 DEBUG: speakSequenceActive =', speakSequenceActive);
+    
+    // 🎯 CRITICAL: Cancel cleanup timer FIRST!
+    if (speakSequenceCleanupTimer) {
+        clearTimeout(speakSequenceCleanupTimer);
+        speakSequenceCleanupTimer = null;
+        console.log('🕐 ONEND: Cancelled cleanup timer to allow restart');
+    }
     
     const userInput = document.getElementById('userInput');
     
     if (userInput && userInput.value.trim().length > 0) {
-        const currentMessage = userInput.value.trim();
-        const now = Date.now();
-        const timeSinceLastMessage = now - (window.lastMessageTime || 0);
-        
-        if (!window.lastProcessedMessage || 
-            window.lastProcessedMessage !== currentMessage || 
-            timeSinceLastMessage > 3000) {
-            
-            console.log('✅ Sending new message:', currentMessage);
-
-            if (typeof speakSequenceActive !== 'undefined' && speakSequenceActive) {
-                console.log('🎯 Closing Speak Now banner - message sent');
-                window.playingSorryMessage = false;
-                
-                if (speakSequenceCleanupTimer) {
-                    clearTimeout(speakSequenceCleanupTimer);
-                    speakSequenceCleanupTimer = null;
-                }
-                
-                cleanupSpeakSequence();
-            }
-            
-            window.lastProcessedMessage = currentMessage;
-            window.lastMessageTime = now;
-            sendMessage();
-        }
+        // ... your message processing code ...
     } else {
-        if (isAudioMode && !isSpeaking && !lastMessageWasApology) {
-            console.log('🔄 No speech detected via onend - restarting with hybrid system');
-            isListening = false;
-            
+        console.log('🔄 No speech detected via onend - SHOULD call showPostSorryListening');
+
+        // ... rest of your restart logic ...
+        
+        if (!isSpeaking) {
             setTimeout(() => {
-                if (!isSpeaking && isAudioMode) {
-                    showHybridReadySequence();
+                if (speakSequenceActive) {
+                    console.log('🎯 DEBUG: About to call showPostSorryListening()');
+                    showPostSorryListening();
                 }
             }, 1000);
         }
