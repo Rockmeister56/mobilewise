@@ -668,8 +668,8 @@ function getApologyResponse() {
             sendMessage(currentMessage);
         }
     } else {
-        // No speech detected - hybrid restart
-        console.log('🔄 No speech detected via onend - SHOULD call showPostSorryListening');
+        // No speech detected - show simple overlay instead of complex restart
+        console.log('🔄 No speech detected via onend - showing try again overlay');
 
         // 🔓 CLEAR THE BLOCKING FLAG AFTER NO SPEECH
         setTimeout(() => {
@@ -684,23 +684,16 @@ function getApologyResponse() {
             console.log('🕐 CANCELLED cleanup timer - preventing session kill');
         }
         
-        // ✅ NEW CODE: Direct to working state
+        // ✅ NEW SIMPLE APPROACH: Just show overlay, keep microphone active
         if (!isSpeaking) {
-    setTimeout(() => {
-        if (speakSequenceActive) { // Removed playingSorryMessage check
-            console.log('🎯 DEBUG: About to call showPostSorryListening()');
-            console.log('🎯 DEBUG: showPostSorryListening exists?', typeof showPostSorryListening);
-            
-            showPostSorryListening();
-            
-            console.log('🎯 DEBUG: showPostSorryListening() call completed');
-        }
-    }, 1000);
+            setTimeout(() => {
+                console.log('🎯 DEBUG: About to show try again overlay');
+                showTryAgainOverlay(); // ← SIMPLE OVERLAY INSTEAD OF COMPLEX RESTART
+                console.log('🎯 DEBUG: Try again overlay shown');
+            }, 2000); // 2 second delay before showing overlay
 
         } else {
-            console.log('🚫 DEBUG: BLOCKED from calling showPostSorryListening');
-            console.log('🚫 DEBUG: playingSorryMessage =', window.playingSorryMessage);
-            console.log('🚫 DEBUG: isSpeaking =', isSpeaking);
+            console.log('🚫 DEBUG: BLOCKED - AI is speaking');
         }
     }
 };
@@ -3790,6 +3783,67 @@ function playMobileErrorBeep() {
             console.log('📱 Fallback beep also failed');
         }
     }
+}
+
+function showTryAgainOverlay() {
+    // Animation styles for microphone
+    if (!document.getElementById('mic-animation-styles')) {
+        const style = document.createElement('style');
+        style.id = 'mic-animation-styles';
+        style.textContent = `
+            @keyframes micPulse {
+                0%, 100% { transform: scale(1); }
+                50% { transform: scale(1.15); }
+            }
+            @keyframes slideDown {
+                0% { opacity: 0; transform: translate(-50%, -20px); }
+                100% { opacity: 1; transform: translate(-50%, 0); }
+            }
+            .mic-pulse { animation: micPulse 1.5s infinite ease-in-out; }
+        `;
+        document.head.appendChild(style);
+    }
+
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+        position: fixed;
+        top: 30%;
+        left: 50%;
+        transform: translate(-50%, 0);
+        background: rgba(0, 122, 255, 0.3);
+        backdrop-filter: blur(10px);
+        color: white;
+        padding: 25px 35px;
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 32px rgba(0, 122, 255, 0.2);
+        z-index: 9999;
+        font-size: 18px;
+        font-weight: 600;
+        text-align: center;
+        animation: slideDown 0.4s ease-out;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    `;
+    
+    overlay.innerHTML = `
+        <div class="mic-pulse" style="font-size: 28px; margin-bottom: 12px;">🎤</div>
+        <div style="font-size: 19px; margin-bottom: 6px;">
+            I didn't catch that
+        </div>
+        <div style="font-size: 16px; opacity: 0.95;">
+            Please speak again
+        </div>
+    `;
+    
+    document.body.appendChild(overlay);
+    
+    // Auto-remove after 3 seconds
+    setTimeout(() => {
+        if (overlay.parentNode) {
+            overlay.remove();
+        }
+    }, 3000);
 }
 
 // ✅ MAIN FUNCTION WITH ALL FIXES
