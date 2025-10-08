@@ -566,6 +566,8 @@ function getApologyResponse() {
 };
 
   recognition.onend = function() {
+     console.log('🎯🎯🎯 WHICH ONEND IS RUNNING? 🎯🎯🎯'); // ← ADD THIS LINE
+    console.log('🔚 Recognition ended');
     console.log('🔚 Recognition ended');
     
     // DON'T clear the slot here - let the hybrid system manage it
