@@ -4522,17 +4522,14 @@ if (typeof recognition !== 'undefined') {
     }
     
 
-    // 🎯 CRITICAL MOBILE DETECTION - USE THE PROPER FUNCTION!
-if (isMobileDevice()) {
-    console.log('📱 MOBILE: Setting up enhanced speech recognition handlers');
-    
-   // ❌ COMMENT OUT THIS ENTIRE SECTION:
+// ❌ COMMENT OUT THIS ENTIRE SECTION:
 // const mobileFallbackTimer = setTimeout(() => {
 //     if (speakSequenceActive && !window.lastRecognitionResult) {
 //         console.log('📱 MOBILE FALLBACK: No speech detected - triggering sorry message');
 //         handleSpeechRecognitionError('no-speech');
 //     }
 // }, 4000);
+// }
     
     if (isContactInterview) {
         startContactInterviewListening();
