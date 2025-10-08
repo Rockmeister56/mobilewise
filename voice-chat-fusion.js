@@ -213,27 +213,46 @@ if (isDefinitelyMobile || (event && event.error === 'no-speech')) {
     console.log('📱 NUCLEAR MOBILE DETECTED: Using visual feedback system');
 }
 
-// 🎯 SIMPLE POST-SORRY FUNCTION (no extra complexity)
-// 🎯 ADD THIS FUNCTION ANYWHERE IN YOUR CODE
+// 🎯 COMPLETE REVISED showPostSorryListening() FUNCTION
 function showPostSorryListening() {
     console.log('🎯🎯🎯 POST-SORRY FUNCTION ACTUALLY CALLED! 🎯🎯🎯');
     console.log('🔄 Starting POST-SORRY direct listening');
     
-    if (conversationState === 'ended') return;
-    speakSequenceActive = true;
+    // 🎯 CRITICAL: Cancel ANY existing cleanup timers FIRST!
+    if (speakSequenceCleanupTimer) {
+        clearTimeout(speakSequenceCleanupTimer);
+        speakSequenceCleanupTimer = null;
+        console.log('🕐 POST-SORRY: Cancelled existing cleanup timer');
+    }
     
+    // ✅ Basic checks only
+    if (conversationState === 'ended') {
+        console.log('🚫 POST-SORRY: Conversation ended - blocking');
+        return;
+    }
+    
+    speakSequenceActive = true;
+    console.log('✅ POST-SORRY: Set speakSequenceActive = true');
+    
+    // ✅ Find container  
     const quickButtonsContainer = document.querySelector('.quick-questions') || 
                                   document.querySelector('.quick-buttons') || 
                                   document.getElementById('quickButtonsContainer');
     
     if (!quickButtonsContainer) {
+        console.log('❌ POST-SORRY: Quick buttons container not found');
         speakSequenceActive = false;
         return;
     }
     
+    // ✅ Clean up existing button
     const existingSpeakBtn = document.getElementById('speak-sequence-button');
-    if (existingSpeakBtn) existingSpeakBtn.remove();
+    if (existingSpeakBtn) {
+        existingSpeakBtn.remove();
+        console.log('🧹 POST-SORRY: Removed existing speak button');
+    }
     
+    // ✅ Create DIRECT "Speak Now" button
     speakSequenceButton = document.createElement('button');
     speakSequenceButton.id = 'speak-sequence-button';
     speakSequenceButton.className = 'quick-btn green-button-glow';
@@ -261,19 +280,50 @@ function showPostSorryListening() {
         border-radius: 20px !important;
     `;
     
-    quickButtonsContainer.appendChild(speakSequenceButton);
+    // ✅ Enhanced mobile stability (if needed)
+    if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
+        speakSequenceButton.style.cssText += `
+            position: relative !important;
+            z-index: 1000 !important;
+            min-height: 50px !important;
+            padding: 18px !important;
+        `;
+        console.log('📱 POST-SORRY: Mobile enhancements applied');
+    }
     
+    quickButtonsContainer.appendChild(speakSequenceButton);
+    console.log('✅ POST-SORRY: Direct "Speak Now" button created and added to DOM');
+    
+    // ✅ Start listening immediately (no delays, no preparation)
     setTimeout(() => {
         console.log('🎤 POST-SORRY: Starting DIRECT recognition');
+        
+        // Clear any previous result flag
+        window.lastRecognitionResult = null;
+        
         if (typeof recognition !== 'undefined' && recognition) {
             try {
                 recognition.start();
-                console.log('✅ POST-SORRY: Direct recognition started');
+                console.log('✅ POST-SORRY: Direct recognition started successfully');
             } catch (e) {
                 console.log('❌ POST-SORRY: Recognition start failed:', e);
+                // Fallback: try again after a short delay
+                setTimeout(() => {
+                    try {
+                        recognition.start();
+                        console.log('✅ POST-SORRY: Fallback recognition started');
+                    } catch (e2) {
+                        console.log('❌ POST-SORRY: Fallback also failed:', e2);
+                    }
+                }, 300);
             }
+        } else {
+            console.log('❌ POST-SORRY: Recognition object not found');
         }
     }, 500);
+    
+    // 🚫 NO CLEANUP TIMER - Let it run until user speaks or session naturally ends!
+    console.log('✅ POST-SORRY: Function completed - no cleanup timer set');
 }
 
 // ===================================================
