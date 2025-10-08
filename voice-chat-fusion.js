@@ -564,6 +564,36 @@ function getApologyResponse() {
                     console.log('🔄 POST-SORRY restart: calling showPostSorryListening()');
                     showPostSorryListening(); // ← NEW clean function instead of forceStartListening()
                 }
+                // 🔍 DEBUG: Add this to your recognition.onend function
+recognition.onend = function() {
+    console.log('🔚 Recognition ended');
+    console.log('🔍 DEBUG: playingSorryMessage =', window.playingSorryMessage);
+    console.log('🔍 DEBUG: isSpeaking =', isSpeaking);
+    console.log('🔍 DEBUG: speakSequenceActive =', speakSequenceActive);
+    
+    const userInput = document.getElementById('userInput');
+    
+    if (userInput && userInput.value.trim().length > 0) {
+        // ... your existing message processing code ...
+    } else {
+        console.log('🔄 No speech detected via onend - SHOULD call showPostSorryListening');
+
+        // ... your existing timeout clearing code ...
+        
+        if (!window.playingSorryMessage && !isSpeaking) {
+            setTimeout(() => {
+                if (speakSequenceActive && !window.playingSorryMessage) {
+                    console.log('🎯 DEBUG: CALLING showPostSorryListening() NOW!');
+                    showPostSorryListening(); // ← This should be called!
+                }
+            }, 1000);
+        } else {
+            console.log('🚫 DEBUG: BLOCKED from calling showPostSorryListening');
+            console.log('🚫 DEBUG: playingSorryMessage =', window.playingSorryMessage);
+            console.log('🚫 DEBUG: isSpeaking =', isSpeaking);
+        }
+    }
+};
             }, 1000);
         }
     }
