@@ -688,9 +688,9 @@ function getApologyResponse() {
         if (!isSpeaking) {
             setTimeout(() => {
                 console.log('🎯 DEBUG: About to show try again overlay');
-                showTryAgainOverlay(); // ← SIMPLE OVERLAY INSTEAD OF COMPLEX RESTART
+                showAvatarSorryMessage(); // ← SIMPLE OVERLAY INSTEAD OF COMPLEX RESTART
                 console.log('🎯 DEBUG: Try again overlay shown');
-            }, 2000); // 2 second delay before showing overlay
+            }, 1000); // 2 second delay before showing overlay
 
         } else {
             console.log('🚫 DEBUG: BLOCKED - AI is speaking');
