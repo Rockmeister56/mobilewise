@@ -1451,7 +1451,7 @@ avatar: {
             <!-- LEFT: Avatar Image -->
             <div style="display: flex; align-items: center;">
                <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1759957583014_AI-banner.png" 
-                     class="avatar-glow-only"
+                     class="avatar-shape-glow"
                      style="width: 60px; height: 70px; border-radius: 0px; margin-right: 15px;">
                 
                 <!-- Text Info -->
@@ -1467,19 +1467,27 @@ avatar: {
         </div>
         
         <style>
-        /* REMOVED: Banner pulsing - no animation on container */
+        /* No animation on banner container */
         .banner-glow-container {
             position: relative;
-            /* NO ANIMATION - static banner */
         }
         
-        /* ✨ AVATAR GLOW ONLY - No pulsating, just steady glow */
-        .avatar-glow-only {
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
-            /* NO transform or scale - stays in one place */
+        /* ✨ AVATAR SHAPE GLOW - Follows the actual avatar outline, not a box! */
+        .avatar-shape-glow {
+            filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.8));
+            animation: avatarGlowPulse 2.5s ease-in-out infinite;
         }
         
-        /* ✨ FREE TEXT GLOW - kept this since it's nice */
+        @keyframes avatarGlowPulse {
+            0%, 100% { 
+                filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
+            }
+            50% { 
+                filter: drop-shadow(0 0 16px rgba(255, 255, 255, 1));
+            }
+        }
+        
+        /* ✨ FREE TEXT GLOW */
         .free-glow {
             text-shadow: 0 0 8px rgba(255,255,255,0.8);
             animation: freeTextGlow 2.5s ease-in-out infinite;
