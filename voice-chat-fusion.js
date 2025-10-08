@@ -4219,7 +4219,7 @@ setTimeout(() => {
             setTimeout(() => {
                 if (speakSequenceActive) {
                     console.log('🎯 DEBUG: About to call showPostSorryListening()');
-                    showPostSorryListening();
+                    showAvatarSorryMessage();
                 }
             }, 1000);
         }
