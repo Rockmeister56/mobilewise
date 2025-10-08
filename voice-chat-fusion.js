@@ -3808,7 +3808,7 @@ function playMobileErrorBeep() {
 }
 
 function showAvatarSorryMessage() {
-    console.log('🎬 Showing device-appropriate avatar video');
+    console.log('🎬 Showing device-appropriate avatar video WITH AUDIO');
     
     const isMobile = window.innerWidth <= 768;
     
@@ -3837,7 +3837,7 @@ function showAvatarSorryMessage() {
         `;
         
         avatarOverlay.innerHTML = `
-            <video id="avatarVideo" autoplay muted style="
+            <video id="avatarVideo" autoplay style="
                 width: 100%;
                 height: 100%;
                 object-fit: cover;
@@ -3862,7 +3862,7 @@ function showAvatarSorryMessage() {
         `;
         
         avatarOverlay.innerHTML = `
-            <video id="avatarVideo" autoplay muted style="
+            <video id="avatarVideo" autoplay style="
                 width: 100%;
                 height: 100%;
                 object-fit: cover;
