@@ -1448,13 +1448,13 @@ avatar: {
    content: `
         <div class="banner-glow-container" style="width: 742px; max-width: 742px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #0f5ef0ff, #000000ff); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
             
-            <!-- LEFT: Book Image -->
+            <!-- LEFT: Avatar Image -->
             <div style="display: flex; align-items: center;">
                <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1759957583014_AI-banner.png" 
-                     class="book-white-glow"
+                     class="avatar-glow-only"
                      style="width: 60px; height: 70px; border-radius: 0px; margin-right: 15px;">
                 
-                <!-- Book Info -->
+                <!-- Text Info -->
                 <div style="color: white; text-align: left;">
                     <div style="font-size: 18px; font-weight: bold; margin-bottom: 3px;">
                         📚 <span class="free-glow">FREE</span> Consultation
@@ -1467,38 +1467,19 @@ avatar: {
         </div>
         
         <style>
-        /* Blue PULSING GLOW AROUND BANNER */
+        /* REMOVED: Banner pulsing - no animation on container */
         .banner-glow-container {
             position: relative;
-            animation: redPulseGlow 2s ease-in-out infinite;
+            /* NO ANIMATION - static banner */
         }
         
-        @keyframes redPulseGlow {
-            0%, 100% { 
-                box-shadow: 0 10px 10px rgba(0,0,7,0.0), 0 0 10px rgba(0, 255, 0, 1);
-            }
-            50% { 
-                box-shadow: 0 20px 10px rgba(0,0,9,0.0), 0 0 25px rgba(0, 217, 255, 1);
-            }
+        /* ✨ AVATAR GLOW ONLY - No pulsating, just steady glow */
+        .avatar-glow-only {
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+            /* NO transform or scale - stays in one place */
         }
         
-        /* 📚 WHITE GLOW BEHIND BOOK */
-        .book-white-glow {
-            animation: bookWhiteGlow 3s ease-in-out infinite;
-        }
-        
-        @keyframes bookWhiteGlow {
-            0%, 100% { 
-                box-shadow: 0 0 0px rgba(255,255,255,0.5);
-                transform: scale(1.2);
-            }
-            50% { 
-                box-shadow: 0 0 0px rgba(255,255,255,0.9);
-                transform: scale(1.03);
-            }
-        }
-        
-        /* ✨ FREE TEXT GLOW */
+        /* ✨ FREE TEXT GLOW - kept this since it's nice */
         .free-glow {
             text-shadow: 0 0 8px rgba(255,255,255,0.8);
             animation: freeTextGlow 2.5s ease-in-out infinite;
