@@ -1473,7 +1473,7 @@ avatar: {
     background: rgba(255, 255, 255, 0.1);
     border-radius: 12px;
     z-index: -1;
-    animation: glowLayerPulse 2s ease-in-out infinite;
+    animation: glowLayerPulse 6s ease-in-out infinite;
         }
     .banner-glow-container::after {
     content: '';
