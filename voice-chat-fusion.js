@@ -3785,78 +3785,65 @@ function playMobileErrorBeep() {
     }
 }
 
-function showTryAgainOverlay() {
-    // Add CSS animation for pulsing microphone
-    if (!document.getElementById('mic-animation-styles')) {
-        const style = document.createElement('style');
-        style.id = 'mic-animation-styles';
-        style.textContent = `
-            @keyframes micPulse {
-                0%, 100% { transform: scale(1); }
-                50% { transform: scale(1.15); }
-            }
-            @keyframes slideDown {
-                0% { opacity: 0; transform: translate(-50%, -20px); }
-                100% { opacity: 1; transform: translate(-50%, 0); }
-            }
-            .mic-pulse { animation: micPulse 1.5s infinite ease-in-out; }
-        `;
-        document.head.appendChild(style);
-    }
-
-    const overlay = document.createElement('div');
-    overlay.style.cssText = `
+function showAvatarSorryMessage() {
+    console.log('🎬 Showing full-screen avatar (no transparency)');
+    
+    // Create full-screen avatar overlay
+    const avatarOverlay = document.createElement('div');
+    avatarOverlay.style.cssText = `
         position: fixed;
-        top: 30%;
-        left: 50%;
-        transform: translate(-50%, 0);
-        background: rgba(0, 122, 255, 0.3);
-        backdrop-filter: blur(10px);
-        color: white;
-        padding: 25px 35px;
-        border-radius: 20px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        box-shadow: 0 8px 32px rgba(0, 122, 255, 0.2);
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #000;
         z-index: 9999;
-        font-size: 18px;
-        font-weight: 600;
-        text-align: center;
-        animation: slideDown 0.4s ease-out;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui;
-        text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        display: flex;
+        justify-content: center;
+        align-items: center;
     `;
     
-    overlay.innerHTML = `
-        <div class="mic-pulse" style="font-size: 28px; margin-bottom: 12px;">🎤</div>
-        <div style="font-size: 19px; margin-bottom: 6px;">
-            I didn't catch that
-        </div>
-        <div style="font-size: 16px; opacity: 0.95;">
-            Please speak again
-        </div>
+    avatarOverlay.innerHTML = `
+        <video id="avatarVideo" autoplay style="
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        ">
+            <source src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759940889574.mp4" type="video/mp4">
+        </video>
     `;
     
-    document.body.appendChild(overlay);
+    document.body.appendChild(avatarOverlay);
     
-    // 🎯 CRITICAL: Restart listening when overlay disappears
-    setTimeout(() => {
-        if (overlay.parentNode) {
-            overlay.remove();
-            console.log('🔄 Overlay removed - restarting listening');
-            
-            // Force restart listening
-            setTimeout(() => {
-                if (typeof recognition !== 'undefined' && recognition) {
-                    try {
-                        recognition.start();
-                        console.log('✅ Listening restarted after overlay');
-                    } catch (e) {
-                        console.log('❌ Failed to restart listening:', e);
-                    }
+    const video = document.getElementById('avatarVideo');
+    
+    // When video finishes
+    video.onended = function() {
+        console.log('🎬 Avatar video finished - removing and restarting listening');
+        
+        // Remove avatar overlay
+        avatarOverlay.remove();
+        
+        // Restart listening after short delay
+        setTimeout(() => {
+            if (typeof recognition !== 'undefined' && recognition) {
+                try {
+                    recognition.start();
+                    console.log('✅ Listening restarted after avatar');
+                } catch (e) {
+                    console.log('❌ Failed to restart listening:', e);
                 }
-            }, 300);
+            }
+        }, 500);
+    };
+    
+    // Fallback cleanup after 10 seconds
+    setTimeout(() => {
+        if (avatarOverlay.parentNode) {
+            avatarOverlay.remove();
+            setTimeout(() => recognition.start(), 500);
         }
-    }, 3000);
+    }, 10000);
 }
 
 // ✅ MAIN FUNCTION WITH ALL FIXES
