@@ -4547,19 +4547,25 @@ if (isMobileDevice()) {
     }
 }, 1200); // Changed from 800ms to 1700ms to start AFTER "Speak Now!"
     
-    // ✅ ENHANCED AI SPEAKING DETECTION WITH BETTER TIMING
-    let speechWatcher = setInterval(() => {
-        if (typeof isSpeaking !== 'undefined' && isSpeaking && speakSequenceActive) {
-            console.log('🔊 AI started speaking - auto-cleaning up speak sequence');
-            clearInterval(speechWatcher);
-            if (progressInterval) clearInterval(progressInterval);
-            
-            // 🛑 CRITICAL FIX: Add a small delay to ensure AI speech is fully captured
-            setTimeout(() => {
-                cleanupSpeakSequence();
-            }, 2000);
+    // ✅ ENHANCED AI SPEAKING DETECTION WITH SORRY MESSAGE PROTECTION
+let speechWatcher = setInterval(() => {
+    if (typeof isSpeaking !== 'undefined' && isSpeaking && speakSequenceActive) {
+        // 🛡️ CRITICAL: Don't cleanup during sorry messages!
+        if (window.playingSorryMessage) {
+            console.log('🔇 AI speaking but sorry message in progress - NOT cleaning up');
+            return; // Don't cleanup during sorry messages!
         }
-    }, 100);
+        
+        console.log('🔊 AI started speaking - auto-cleaning up speak sequence');
+        clearInterval(speechWatcher);
+        if (progressInterval) clearInterval(progressInterval);
+        
+        // 🛑 CRITICAL FIX: Add a small delay to ensure AI speech is fully captured
+        setTimeout(() => {
+            cleanupSpeakSequence();
+        }, 2000);
+    }
+}, 100);
     
     // ✅ GREEN TRANSITION
     const greenTransition = setTimeout(() => {
