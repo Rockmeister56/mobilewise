@@ -562,12 +562,11 @@ function getApologyResponse() {
 };
 
   recognition.onend = function() {
-     console.log('🎯🎯🎯 WHICH ONEND IS RUNNING? 🎯🎯🎯'); // ← ADD THIS LINE
+    console.log('🎯🎯🎯 WHICH ONEND IS RUNNING? 🎯🎯🎯');
     console.log('🔚 Recognition ended');
-    console.log('🔚 Recognition ended');
-    
-    // DON'T clear the slot here - let the hybrid system manage it
-    // (This was causing premature clearing)
+    console.log('🔍 DEBUG: playingSorryMessage =', window.playingSorryMessage);
+    console.log('🔍 DEBUG: isSpeaking =', isSpeaking);
+    console.log('🔍 DEBUG: speakSequenceActive =', speakSequenceActive);
     
     const userInput = document.getElementById('userInput');
     
@@ -600,16 +599,16 @@ function getApologyResponse() {
                 cleanupSpeakSequence();
             }
             
-            // Process the user message (your existing code here)
+            // Process the user message
             window.lastMessageTime = now;
             window.lastProcessedMessage = currentMessage;
             sendMessage(currentMessage);
         }
     } else {
         // No speech detected - hybrid restart
-        console.log('🔄 No speech detected via onend - using POST-SORRY restart');
+        console.log('🔄 No speech detected via onend - SHOULD call showPostSorryListening');
 
-        // 🔓 CLEAR THE BLOCKING FLAG AFTER NO SPEECH - ADD THIS:
+        // 🔓 CLEAR THE BLOCKING FLAG AFTER NO SPEECH
         setTimeout(() => {
             window.playingSorryMessage = false;
             console.log('🔓 Cleared playingSorryMessage after no-speech timeout');
@@ -622,44 +621,22 @@ function getApologyResponse() {
             console.log('🕐 CANCELLED cleanup timer - preventing session kill');
         }
         
-        // ✅ NEW CODE: Direct to working state (bypass complex sequence)
+        // ✅ NEW CODE: Direct to working state
         if (!window.playingSorryMessage && !isSpeaking) {
             setTimeout(() => {
                 if (speakSequenceActive && !window.playingSorryMessage) {
-                    console.log('🔄 POST-SORRY restart: calling showPostSorryListening()');
-                    showPostSorryListening(); // ← NEW clean function instead of forceStartListening()
-                }
-                // 🔍 DEBUG: Add this to your recognition.onend function
-recognition.onend = function() {
-    console.log('🔚 Recognition ended');
-    console.log('🔍 DEBUG: playingSorryMessage =', window.playingSorryMessage);
-    console.log('🔍 DEBUG: isSpeaking =', isSpeaking);
-    console.log('🔍 DEBUG: speakSequenceActive =', speakSequenceActive);
-    
-    const userInput = document.getElementById('userInput');
-    
-    if (userInput && userInput.value.trim().length > 0) {
-        // ... your existing message processing code ...
-    } else {
-        console.log('🔄 No speech detected via onend - SHOULD call showPostSorryListening');
-
-        // ... your existing timeout clearing code ...
-        
-        if (!window.playingSorryMessage && !isSpeaking) {
-            setTimeout(() => {
-                if (speakSequenceActive && !window.playingSorryMessage) {
-                    console.log('🎯 DEBUG: CALLING showPostSorryListening() NOW!');
-                    showPostSorryListening(); // ← This should be called!
+                    console.log('🎯 DEBUG: About to call showPostSorryListening()');
+                    console.log('🎯 DEBUG: showPostSorryListening exists?', typeof showPostSorryListening);
+                    
+                    showPostSorryListening();
+                    
+                    console.log('🎯 DEBUG: showPostSorryListening() call completed');
                 }
             }, 1000);
         } else {
             console.log('🚫 DEBUG: BLOCKED from calling showPostSorryListening');
             console.log('🚫 DEBUG: playingSorryMessage =', window.playingSorryMessage);
             console.log('🚫 DEBUG: isSpeaking =', isSpeaking);
-        }
-    }
-};
-            }, 1000);
         }
     }
 };
