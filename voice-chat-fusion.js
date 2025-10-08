@@ -1452,15 +1452,7 @@ avatar: {
             <div style="display: flex; align-items: center;">
                <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1759960502123_AI-banner2.png" 
                      class="avatar-shape-glow"
-                     style="width: 80px; height: 80px; border-radius: 0px; margin-right: 15px; margin-top: 11px;"
-                
-                <!-- Text Info -->
-                <div style="color: white; text-align: left;">
-                    <div style="font-size: 18px; font-weight: bold; margin-bottom: 3px;">
-                        📚 <span class="free-glow">FREE</span> Consultation
-                    </div>
-                    <div style="font-size: 13px; color: #00ffb3ff; opacity: 0.95;">
-                        "7 Secrets to Selling Your Practice" Book Included
+                     style="width: 400px; height: 80px; border-radius: 0px; margin-right: 15px; margin-top: 11px;"
                     </div>
                 </div>
             </div>
