@@ -1446,7 +1446,7 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
 // 2. SMART BUTTON (Free Consultation)
 avatar: {
    content: `
-        <div class="banner-glow-container" style="width: 790px; max-width: 790px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #000d28ff, #000000ff); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+        <div class="banner-glow-container" style="width: 780px; max-width: 780px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #000d28ff, #000000ff); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
             
             <!-- LEFT: Avatar Image -->
             <div style="display: flex; align-items: center;">
@@ -1529,7 +1529,7 @@ avatar: {
         </style>
     `,
     background: 'rgba(255, 255, 255, 0.15)',
-    containerWidth: 830,
+    containerWidth: 810,
     customHeight: 90,
     duration: 0
 },
