@@ -3807,7 +3807,7 @@ function playMobileErrorBeep() {
     }
 }
 
-function showAvatarSorryMessage(duration = 5000) { // Default 5 seconds, but adjustable
+function showAvatarSorryMessage(duration = 7000) { // Default 5 seconds, but adjustable
     console.log(`🎬 Showing avatar for ${duration}ms`);
     
     const isMobile = window.innerWidth <= 768;
