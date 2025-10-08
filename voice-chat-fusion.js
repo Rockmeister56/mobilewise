@@ -1392,30 +1392,18 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
         // 1. BRANDING HEADER (🚀 UPDATED LAYOUT)
         branding: {
     content: `
-        <div style="display: flex; align-items: center; height: 100%; padding: 0 20px;">
-            <!-- LEFT: Mobile-Wise AI Logo -->
-            <div style="position: absolute; left: 30px; top: 17;">
-                <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758507868460_logo.png" 
-                     style="width: 65px; height: 65px;">
-            </div>
+        <div style="width: 742px; max-width: 742px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
             
-            <!-- COMPANY NAME: Controllable positioning -->
-            <div style="position: absolute; left: 85px; top: 45px;">
-                <div style="color: white; font-size: 14px; font-weight: bold; letter-spacing: 1.5px;">
-                    Mobile-Wise AI
-                </div>
-            </div>
-            
-            <!-- RIGHT: SLOGAN -->
-            <div style="position: absolute; right: 40px; top: 5px;">
-                <div style="color: #87CEEB; font-size: 14px; font-weight: 600; text-transform: uppercase;">
-                   &check; SMART  <br> &check; HELPFUL <br> &check; AI VOICE CHAT
-                </div>
+            <!-- CENTER: NCI Logo -->
+            <div style="display: flex; align-items: center; justify-content: center;">
+                <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1759148392591_nci.PNG" 
+                     style="width: 208px; height: auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
             </div>
         </div>
     `,
-    background: 'transparent',
-    duration: 0
+    background: 'rgba(255, 255, 255, 0.15)',
+    containerWidth: 762,
+    customHeight: 90,
 },
         
         // 3. EMAIL SENT CONFIRMATION
