@@ -1450,7 +1450,7 @@ avatar: {
             
             <!-- LEFT: Book Image -->
             <div style="display: flex; align-items: center;">
-                <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758088515492_nci-book.png" 
+               <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1759957583014_AI-banner.png" 
                      class="book-white-glow"
                      style="width: 60px; height: 70px; border-radius: 0px; margin-right: 15px;">
                 
