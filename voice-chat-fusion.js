@@ -4532,6 +4532,8 @@ if (isMobileDevice()) {
 
 // 🎯 UPDATED showPostSorryListening - NO RESTART FUNCTIONS
 function showPostSorryListening() {
+     console.log('🎯🎯🎯 POST-SORRY FUNCTION ACTUALLY CALLED! 🎯🎯🎯'); // ← ADD THIS LINE
+    console.log('🔄 Starting POST-SORRY direct listening');
     console.log('🔄 Starting POST-SORRY direct listening');
     
     if (conversationState === 'ended') return;
