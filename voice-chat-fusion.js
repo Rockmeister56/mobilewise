@@ -690,7 +690,7 @@ function getApologyResponse() {
                 console.log('🎯 DEBUG: About to show try again overlay');
                 showAvatarSorryMessage(); // ← SIMPLE OVERLAY INSTEAD OF COMPLEX RESTART
                 console.log('🎯 DEBUG: Try again overlay shown');
-            }, 1000); // 2 second delay before showing overlay
+            }, 2000); // 2 second delay before showing overlay
 
         } else {
             console.log('🚫 DEBUG: BLOCKED - AI is speaking');
@@ -2353,7 +2353,7 @@ if (conversationState === 'initial') {
         console.log('🎯 CONSULTATION YES - Starting lead capture immediately!');
         setTimeout(() => {
             startCompleteLeadCapture();
-        }, 300);
+        }, 100);
         return ""; // Return empty to skip AI response
         
     } else if (userText.includes('no') || userText.includes('not now') || userText.includes('maybe later')) {
@@ -2405,7 +2405,7 @@ if (conversationState === 'initial') {
         console.log('🎯 BUYING CONSULTATION YES - Starting lead capture immediately!');
         setTimeout(() => {
             startCompleteLeadCapture();
-        }, 300);
+        }, 100);
         return ""; // Return empty to skip AI response
         
     } else if (userText.includes('no') || userText.includes('not now') || userText.includes('maybe later')) {
@@ -2454,7 +2454,7 @@ if (conversationState === 'initial') {
         console.log('🎯 VALUATION CONSULTATION YES - Starting lead capture immediately!');
         setTimeout(() => {
             startCompleteLeadCapture();
-        }, 300);
+        }, 100);
         return ""; // Return empty to skip AI response
         
     } else if (userText.includes('no') || userText.includes('not now') || userText.includes('maybe later')) {
@@ -2475,10 +2475,9 @@ if (conversationState === 'initial') {
     }
     
 } else if (conversationState === 'lead_capture_active') {
-    // 🎯 NEW: Handle responses during lead capture interview
-    responseText = firstName ?
-        `Thanks ${firstName}! I'm still collecting your information for Bruce. Please continue with the interview questions.` :
-        "Thanks! Please continue with the interview questions so Bruce can contact you.";
+    // 🎯 OPTIMIZED: Handle responses during lead capture interview
+    // Return empty to avoid any AI interference during lead capture
+    return "";
 
 } else if (conversationState === 'asking_if_more_help') {
     if (userText.includes('no') || userText.includes('nothing') || userText.includes('done') || 
@@ -4221,7 +4220,7 @@ setTimeout(() => {
                     console.log('🎯 DEBUG: About to call showPostSorryListening()');
                     showAvatarSorryMessage();
                 }
-            }, 1200);
+            }, 2000);
         }
     }
 };
