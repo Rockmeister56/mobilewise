@@ -1392,7 +1392,7 @@ window.showUniversalBanner = function(bannerType, customContent = null, options 
         // 1. BRANDING HEADER (🚀 UPDATED LAYOUT)
         branding: {
     content: `
-        <div class="banner-glow-container" style="width: 772px; max-width: 772px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: white; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);">
+        <div class="banner-glow-container" style="width: 772px; max-width: 772px; margin: 0 auto; height: 77px; display: flex; justify-content: center; align-items: center; padding: 0 10px; border-radius: 10px; background: white; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);">
             
             <!-- CENTER: NCI Logo -->
             <div style="display: flex; align-items: center; justify-content: center;">
