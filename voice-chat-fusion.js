@@ -3807,65 +3807,47 @@ function playMobileErrorBeep() {
     }
 }
 
-function showAvatarSorryMessage() {
-    console.log('🎬 Showing device-appropriate avatar video WITH AUDIO');
+function showAvatarSorryMessage(duration = 5000) { // Default 5 seconds, but adjustable
+    console.log(`🎬 Showing avatar for ${duration}ms`);
     
     const isMobile = window.innerWidth <= 768;
     
     // Device-specific video URLs
-    const mobileVideoUrl = "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759940889574.mp4"; // Your original mobile video
-    const desktopVideoUrl = "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759966365834.mp4"; // New desktop video (833x433)
+    const mobileVideoUrl = "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759940889574.mp4";
+    const desktopVideoUrl = "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759966365834.mp4";
     
     const videoUrl = isMobile ? mobileVideoUrl : desktopVideoUrl;
     
-    // Create overlay with device-specific styling
     const avatarOverlay = document.createElement('div');
     
     if (isMobile) {
-        // MOBILE: Full screen portrait experience
         avatarOverlay.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #000;
-            z-index: 9999;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: #000; z-index: 9999;
+            display: flex; justify-content: center; align-items: center;
         `;
         
         avatarOverlay.innerHTML = `
-            <video id="avatarVideo" autoplay style="
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
+            <video id="avatarVideo" autoplay loop style="
+                width: 100%; height: 100%; object-fit: cover;
             ">
                 <source src="${videoUrl}" type="video/mp4">
             </video>
         `;
     } else {
-        // DESKTOP: Chat area with proper 833x433 dimensions
         avatarOverlay.style.cssText = `
-            position: fixed;
-            top: 50%;
-            left: 50%;
+            position: fixed; top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            width: 833px;
-            height: 433px;
-            background: #000;
-            z-index: 9999;
-            border-radius: 12px;
-            overflow: hidden;
+            width: 833px; height: 433px;
+            background: #000; z-index: 9999;
+            border-radius: 12px; overflow: hidden;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         `;
         
         avatarOverlay.innerHTML = `
-            <video id="avatarVideo" autoplay style="
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
+            <video id="avatarVideo" autoplay loop style="
+                width: 100%; height: 100%; object-fit: cover;
             ">
                 <source src="${videoUrl}" type="video/mp4">
             </video>
@@ -3875,30 +3857,56 @@ function showAvatarSorryMessage() {
     document.body.appendChild(avatarOverlay);
     
     const video = document.getElementById('avatarVideo');
+    let avatarRemoved = false;
     
-    // When video finishes - ALL YOUR ORIGINAL LOGIC PRESERVED
-    video.onended = function() {
-        console.log('🎬 Avatar video finished - removing and restarting listening');
-        
-        // Remove avatar overlay
-        avatarOverlay.remove();
-        
-        // Restart listening after short delay
-        setTimeout(() => {
-            if (typeof recognition !== 'undefined' && recognition) {
-                try {
-                    recognition.start();
-                    console.log('✅ Listening restarted after avatar');
-                } catch (e) {
-                    console.log('❌ Failed to restart listening:', e);
+    // MANUAL DURATION CONTROL - This gives users time to start speaking
+    const durationTimer = setTimeout(() => {
+        if (!avatarRemoved && avatarOverlay.parentNode) {
+            console.log(`🎬 Avatar duration (${duration}ms) reached - removing and restarting`);
+            avatarRemoved = true;
+            avatarOverlay.remove();
+            
+            // Restart listening after removal
+            setTimeout(() => {
+                if (typeof recognition !== 'undefined' && recognition) {
+                    try {
+                        recognition.start();
+                        console.log('✅ Listening restarted after avatar duration');
+                    } catch (e) {
+                        console.log('❌ Failed to restart listening:', e);
+                    }
                 }
-            }
-        }, 500);
+            }, 500);
+        }
+    }, duration);
+    
+    // Also handle if video ends naturally (backup)
+    video.onended = function() {
+        if (!avatarRemoved) {
+            console.log('🎬 Avatar video ended naturally');
+            avatarRemoved = true;
+            clearTimeout(durationTimer);
+            avatarOverlay.remove();
+            
+            setTimeout(() => {
+                if (typeof recognition !== 'undefined' && recognition) {
+                    try {
+                        recognition.start();
+                        console.log('✅ Listening restarted after video end');
+                    } catch (e) {
+                        console.log('❌ Failed to restart listening:', e);
+                    }
+                }
+            }, 500);
+        }
     };
     
-    // Fallback cleanup after 10 seconds - ALL YOUR ORIGINAL LOGIC PRESERVED
+    // Ultimate fallback after 10 seconds
     setTimeout(() => {
-        if (avatarOverlay.parentNode) {
+        if (!avatarRemoved && avatarOverlay.parentNode) {
+            console.log('🎬 Avatar fallback cleanup after 10 seconds');
+            avatarRemoved = true;
+            clearTimeout(durationTimer);
             avatarOverlay.remove();
             setTimeout(() => recognition.start(), 500);
         }
