@@ -1452,7 +1452,7 @@ avatar: {
             <div style="display: flex; align-items: center;">
                <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1759957583014_AI-banner.png" 
                      class="avatar-shape-glow"
-                     style="width: 60px; height: 70px; border-radius: 0px; margin-right: 15px;">
+                     style="width: 75px; height: 70px; border-radius: 0px; margin-right: 15px;">
                 
                 <!-- Text Info -->
                 <div style="color: white; text-align: left;">
@@ -1471,10 +1471,47 @@ avatar: {
         .banner-glow-container {
             position: relative;
         }
+             .banner-glow-container::before {
+    content: '';
+    position: absolute;
+    width: calc(100% + 50px);  /* <-- CHANGE 50px to make wider/narrower */
+    height: calc(100% + 20px);
+    top: -10px;
+    left: -25px;               /* <-- Keep this half of the width addition */
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    z-index: -1;
+    animation: glowLayerPulse 2s ease-in-out infinite;
+        }
+    .banner-glow-container::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.4),
+        transparent
+    );
+    animation: highlighterSweep 7s ease-in-out infinite;  /* <-- 7s total cycle */
+    z-index: 1;
+    border-radius: 8px;
+}
+
+@keyframes highlighterSweep {
+    0%, 85% { left: -100%; opacity: 0; }     
+    86% { left: -100%; opacity: 1; }         
+    97% { left: 100%; opacity: 1; }          /* <-- Changed from 94% to 97% */
+    98% { left: 100%; opacity: 0; }          /* <-- Adjust this too */
+    100% { left: -100%; opacity: 0; }        
+}
         
         /* ✨ AVATAR SHAPE GLOW - Follows the actual avatar outline, not a box! */
         .avatar-shape-glow {
-            filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.8));
+            filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.8));
             animation: avatarGlowPulse 2.5s ease-in-out infinite;
         }
         
@@ -1482,8 +1519,8 @@ avatar: {
             0%, 100% { 
                 filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
             }
-            50% { 
-                filter: drop-shadow(0 0 16px rgba(255, 255, 255, 1));
+            35% { 
+                filter: drop-shadow(0 0 12px rgba(255, 255, 255, 1));
             }
         }
         
