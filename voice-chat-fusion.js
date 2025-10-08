@@ -1503,16 +1503,16 @@ avatar: {
         
         /* ✨ AVATAR SHAPE GLOW - Follows the actual avatar outline, not a box! */
         .avatar-shape-glow {
-            filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.8));
+            filter: drop-shadow(0 0 2px rgba(0, 140, 255, 0.8));
             animation: avatarGlowPulse 2.5s ease-in-out infinite;
         }
         
         @keyframes avatarGlowPulse {
             0%, 100% { 
-                filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
+                filter: drop-shadow(0 0 8px rgba(15, 197, 217, 0.81));
             }
             35% { 
-                filter: drop-shadow(0 0 12px rgba(255, 255, 255, 1));
+                filter: drop-shadow(0 0 12px rgba(255, 0, 238, 1));
             }
         }
         
