@@ -1512,7 +1512,7 @@ avatar: {
                 filter: drop-shadow(0 0 6px rgba(15, 197, 217, 0.81));
             }
             35% { 
-                filter: drop-shadow(0 0 10px rgba(255, 0, 238, 1));
+                filter: drop-shadow(0 0 10px rgba(0, 0, 0, 1));
             }
         }
         
