@@ -690,7 +690,7 @@ function getApologyResponse() {
                 console.log('🎯 DEBUG: About to show try again overlay');
                 showAvatarSorryMessage(); // ← SIMPLE OVERLAY INSTEAD OF COMPLEX RESTART
                 console.log('🎯 DEBUG: Try again overlay shown');
-            }, 2000); // 2 second delay before showing overlay
+            }, 1500); // 2 second delay before showing overlay
 
         } else {
             console.log('🚫 DEBUG: BLOCKED - AI is speaking');
@@ -4221,7 +4221,7 @@ setTimeout(() => {
                     console.log('🎯 DEBUG: About to call showPostSorryListening()');
                     showAvatarSorryMessage();
                 }
-            }, 1000);
+            }, 1500);
         }
     }
 };
