@@ -4526,14 +4526,13 @@ if (typeof recognition !== 'undefined') {
 if (isMobileDevice()) {
     console.log('📱 MOBILE: Setting up enhanced speech recognition handlers');
     
-    // Enhanced mobile fallback timer
-    const mobileFallbackTimer = setTimeout(() => {
-        if (speakSequenceActive && !window.lastRecognitionResult) {
-            console.log('📱 MOBILE FALLBACK: No speech detected - triggering sorry message');
-            handleSpeechRecognitionError('no-speech');
-        }
-    }, 4000); // Mobile gets slightly longer timeout
-}
+   // ❌ COMMENT OUT THIS ENTIRE SECTION:
+// const mobileFallbackTimer = setTimeout(() => {
+//     if (speakSequenceActive && !window.lastRecognitionResult) {
+//         console.log('📱 MOBILE FALLBACK: No speech detected - triggering sorry message');
+//         handleSpeechRecognitionError('no-speech');
+//     }
+// }, 4000);
     
     if (isContactInterview) {
         startContactInterviewListening();
@@ -4547,25 +4546,17 @@ if (isMobileDevice()) {
     }
 }, 1200); // Changed from 800ms to 1700ms to start AFTER "Speak Now!"
     
-    // ✅ ENHANCED AI SPEAKING DETECTION WITH SORRY MESSAGE PROTECTION
-let speechWatcher = setInterval(() => {
-    if (typeof isSpeaking !== 'undefined' && isSpeaking && speakSequenceActive) {
-        // 🛡️ CRITICAL: Don't cleanup during sorry messages!
-        if (window.playingSorryMessage) {
-            console.log('🔇 AI speaking but sorry message in progress - NOT cleaning up');
-            return; // Don't cleanup during sorry messages!
-        }
-        
-        console.log('🔊 AI started speaking - auto-cleaning up speak sequence');
-        clearInterval(speechWatcher);
-        if (progressInterval) clearInterval(progressInterval);
-        
-        // 🛑 CRITICAL FIX: Add a small delay to ensure AI speech is fully captured
-        setTimeout(() => {
-            cleanupSpeakSequence();
-        }, 2000);
-    }
-}, 100);
+   // ❌ COMMENT OUT - This is killing sessions:
+// let speechWatcher = setInterval(() => {
+//     if (typeof isSpeaking !== 'undefined' && isSpeaking && speakSequenceActive) {
+//         console.log('🔊 AI started speaking - auto-cleaning up speak sequence');
+//         clearInterval(speechWatcher);
+//         if (progressInterval) clearInterval(progressInterval);
+//         setTimeout(() => {
+//             cleanupSpeakSequence();
+//         }, 2000);
+//     }
+// }, 100);
     
     // ✅ GREEN TRANSITION
     const greenTransition = setTimeout(() => {
