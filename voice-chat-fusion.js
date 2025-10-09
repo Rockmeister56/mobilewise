@@ -381,31 +381,49 @@ function showMicActivatedStatus() {
 }
 
 // ===================================================
-// 🎵 INTRO JINGLE PLAYER
+// 🎵 UNIFIED MOBILE-WISE AI AUDIO SYSTEM
 // ===================================================
-function playIntroJingle() {
-    const introAudio = new Audio('https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/audio-intros/ai_intro_1757573121859.mp3');
+
+const MOBILE_WISE_SOUNDS = {
+    // AI Introduction jingle (existing)
+    aiIntro: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/audio-intros/ai_intro_1757573121859.mp3',
     
-    introAudio.volume = 0.7;
-    introAudio.preload = 'auto';
+    // Desktop beep sounds (new)
+    getReadyAndSpeakNow: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/audio-intros/ai_intro_1760038807240.mp3',
+    listeningStops: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/audio-intros/ai_intro_1760038921880.mp3'
+};
+
+// Generic audio player with consistent settings
+function playMobileWiseSound(soundKey, volume = 0.7, fadeOutAfter = null) {
+    console.log(`🔊 Playing Mobile-Wise ${soundKey} sound...`);
     
-    introAudio.play().catch(error => {
-        console.log('Intro jingle failed to play:', error);
+    const audio = new Audio(MOBILE_WISE_SOUNDS[soundKey]);
+    audio.volume = volume;
+    audio.preload = 'auto';
+    
+    audio.play().catch(error => {
+        console.log(`${soundKey} sound failed to play:`, error);
     });
     
-    setTimeout(() => {
-        if (!introAudio.ended) {
-            let fadeOutInterval = setInterval(() => {
-                if (introAudio.volume > 0.1) {
-                    introAudio.volume -= 0.1;
-                } else {
-                    introAudio.pause();
-                    clearInterval(fadeOutInterval);
-                }
-            }, 100);
-        }
-    }, 3000);
+    // Optional fade out (used for intro jingle)
+    if (fadeOutAfter) {
+        setTimeout(() => {
+            if (!audio.ended) {
+                let fadeOutInterval = setInterval(() => {
+                    if (audio.volume > 0.1) {
+                        audio.volume -= 0.1;
+                    } else {
+                        audio.pause();
+                        clearInterval(fadeOutInterval);
+                    }
+                }, 100);
+            }
+        }, fadeOutAfter);
+    }
+    
+    console.log(`🔊 Mobile-Wise ${soundKey} sound played successfully`);
 }
+
 
 // ===================================================
 // 🎤 SPEECH RECOGNITION SYSTEM
