@@ -408,11 +408,22 @@ function playIntroJingle() {
 }
 
 // ===================================================
-// 🔊 DESKTOP BEEP SOUNDS (JUST ADD THESE TWO)
+// 🔊 DESKTOP BEEP WITH COOLDOWN PROTECTION
 // ===================================================
 
-// Desktop Get Ready + Speak Now beep
+let lastBeepTime = 0;
+const BEEP_COOLDOWN = 3000; // 3 seconds between beeps
+
+// Desktop Get Ready + Speak Now beep (with cooldown)
 function playGetReadyAndSpeakNowSound() {
+    const now = Date.now();
+    
+    // Check if enough time has passed since last beep
+    if (now - lastBeepTime < BEEP_COOLDOWN) {
+        console.log('🔊 Beep skipped - too soon after previous beep');
+        return;
+    }
+    
     const getReadyAudio = new Audio('https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/audio-intros/ai_intro_1760038807240.mp3');
     getReadyAudio.volume = 0.6;
     getReadyAudio.preload = 'auto';
@@ -420,9 +431,13 @@ function playGetReadyAndSpeakNowSound() {
     getReadyAudio.play().catch(error => {
         console.log('Get Ready + Speak Now sound failed to play:', error);
     });
+    
+    // Update last beep time
+    lastBeepTime = now;
+    console.log('🔊 Get Ready + Speak Now sound played with cooldown protection');
 }
 
-// Desktop Listening Stops beep
+// Desktop Listening Stops beep (no cooldown needed - only plays once at end)
 function playListeningStopsSound() {
     const stopsAudio = new Audio('https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/audio-intros/ai_intro_1760038921880.mp3');
     stopsAudio.volume = 0.5;
@@ -431,6 +446,8 @@ function playListeningStopsSound() {
     stopsAudio.play().catch(error => {
         console.log('Listening Stops sound failed to play:', error);
     });
+    
+    console.log('🔊 Listening Stops sound played');
 }
 
 // ===================================================
