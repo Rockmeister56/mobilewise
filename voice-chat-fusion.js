@@ -280,11 +280,6 @@ function showPostSorryListening() {
             </div>
         </div>
     `;
-
-    if (window.innerWidth > 768) { 
-    playListeningBeep(); 
-    console.log('🔊 Speak Now sound played');
-}
     
     speakSequenceButton.style.cssText = `
         width: 100% !important;
@@ -315,11 +310,6 @@ function showPostSorryListening() {
     // ✅ Start listening immediately (no delays, no preparation)
     setTimeout(() => {
         console.log('🎤 POST-SORRY: Starting DIRECT recognition');
-
-        if (window.innerWidth > 768) { 
-    playAudioOffBeep(); 
-    console.log('🔊 Speak End sound played');
-}
         
         // Clear any previous result flag
         window.lastRecognitionResult = null;
@@ -1190,36 +1180,16 @@ function shouldTriggerLeadCapture(userInput) {
 }
 
 // =================================================== 
-// 🔊 MOBILE-WISE AI COMPLETE BEEP SYSTEM - FINAL VERSION
+// 🔊 MOBILE-WISE AI CUSTOM BEEP SYSTEM - UPDATED
 // =================================================== 
 
 function playGetReadyBeep() {
-    // Original soft "get ready" tone (keep for compatibility)
+    // Soft "get ready" tone (keep original)
     createBeep(440, 0.2, 0.3);
 }
 
-function playGetReadyToSpeakSound() {
-    // 🎵 DRAMATIC RISING SWEEP - Captain's choice for "Get Ready to Speak" button
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
-    
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-    
-    oscillator.frequency.setValueAtTime(200, audioContext.currentTime);           // Start lower
-    oscillator.frequency.exponentialRampToValueAtTime(600, audioContext.currentTime + 1.5); // Slower rise (1.5 seconds)
-    
-    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);                  // Start softer
-    gainNode.gain.linearRampToValueAtTime(0.6, audioContext.currentTime + 0.8);   // Build up volume
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1.5);
-    
-    oscillator.start();
-    oscillator.stop(audioContext.currentTime + 1.5);
-}
-
 function playListeningBeep() {
-    // 🎵 HARMONIC CHIME - Captain's choice for "ready to listen" (Speak Now)
+    // 🎵 HARMONIC CHIME - Captain's choice for "ready to listen"
     createBeep(523, 0.3, 0.4);      // C note
     setTimeout(() => createBeep(659, 0.3, 0.4), 100);  // E note  
     setTimeout(() => createBeep(784, 0.4, 0.4), 200);  // G note - beautiful harmony!
@@ -4161,11 +4131,6 @@ if (existingPrompt) {
             </div>
         </div>
     `;
-
-    if (window.innerWidth > 768) { 
-    playGetReadyToSpeakSound(); 
-    console.log('🔊 Get Ready to Speak sound played');
-}
     
     speakSequenceButton.style.cssText = `
         width: 100% !important;
@@ -4735,11 +4700,6 @@ if (typeof recognition !== 'undefined') {
                 </div>
             </div>
         `;
-
-        if (window.innerWidth > 768) { 
-    playListeningBeep(); 
-    console.log('🔊 Speak Now sound played');
-}
         
         speakSequenceButton.style.cssText = `
             width: 100% !important;
