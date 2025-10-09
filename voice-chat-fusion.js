@@ -3808,7 +3808,7 @@ function playMobileErrorBeep() {
 }
 
 function showAvatarSorryMessage(duration = 6000) { // 6 seconds - adjust this number to control timing
-    console.log(`🎬 Showing avatar for ${duration}ms - NO recognition interference`);
+    console.log(`🎬 Showing avatar for ${duration}ms - WILL restart recognition when done`);
     
     const isMobile = window.innerWidth <= 768;
     
@@ -3856,16 +3856,25 @@ function showAvatarSorryMessage(duration = 6000) { // 6 seconds - adjust this nu
     
     document.body.appendChild(avatarOverlay);
     
-    // 🎯 SINGLE CONTROL - ONLY SHOWS/HIDES AVATAR - NO RECOGNITION INTERFERENCE
+    // 🎯 SINGLE CONTROL - Shows avatar AND restarts recognition (ESSENTIAL!)
     setTimeout(() => {
-        console.log(`🎬 Avatar duration (${duration}ms) complete - removing avatar only`);
+        console.log(`🎬 Avatar duration (${duration}ms) complete - removing and restarting recognition`);
         
         if (avatarOverlay.parentNode) {
             avatarOverlay.remove();
-            console.log('🎬 Avatar removed - letting recognition.onend handle restart logic');
         }
         
-        // 🎯 REMOVED: All recognition restart logic - your recognition.onend handles everything!
+        // 🔄 ESSENTIAL: Restart recognition after avatar (recognition.onend has already finished!)
+        setTimeout(() => {
+            if (typeof recognition !== 'undefined' && recognition) {
+                try {
+                    recognition.start();
+                    console.log('✅ Recognition restarted after avatar - listening again!');
+                } catch (e) {
+                    console.log('❌ Failed to restart recognition:', e);
+                }
+            }
+        }, 500);
         
     }, duration);
 }
