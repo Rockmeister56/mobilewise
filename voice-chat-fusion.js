@@ -1180,25 +1180,17 @@ function shouldTriggerLeadCapture(userInput) {
 }
 
 // =================================================== 
-// 🔊 MOBILE-WISE AI CUSTOM BEEP SYSTEM - UPDATED
+// 🔊 MOBILE-WISE AI CUSTOM BEEP SYSTEM
 // =================================================== 
-
 function playGetReadyBeep() {
-    // Soft "get ready" tone (keep original)
-    createBeep(440, 0.2, 0.3);
+    // Soft "get ready" tone
+    createBeep(440, 0.2, 0.3); // A note, 0.2 seconds, medium volume
 }
 
 function playListeningBeep() {
-    // 🎵 HARMONIC CHIME - Captain's choice for "ready to listen"
-    createBeep(523, 0.3, 0.4);      // C note
-    setTimeout(() => createBeep(659, 0.3, 0.4), 100);  // E note  
-    setTimeout(() => createBeep(784, 0.4, 0.4), 200);  // G note - beautiful harmony!
-}
-
-function playAudioOffBeep() {
-    // 🔇 DIGITAL OFF SOUND - Captain's choice for "stopped listening"
-    createBeep(300, 0.15, 0.6);     // Higher tone
-    setTimeout(() => createBeep(150, 0.25, 0.5), 120); // Descending to lower tone
+    // Professional "ready to listen" double-beep
+    createBeep(660, 0.15, 0.4);
+    setTimeout(() => createBeep(880, 0.15, 0.4), 200);
 }
 
 function createBeep(frequency, duration, volume) {
