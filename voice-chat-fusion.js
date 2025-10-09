@@ -3807,8 +3807,8 @@ function playMobileErrorBeep() {
     }
 }
 
-function showAvatarSorryMessage(duration = 7000) { // Default 5 seconds, but adjustable
-    console.log(`🎬 Showing avatar for ${duration}ms`);
+function showAvatarSorryMessage(duration = 6000) { // 6 seconds - adjust this number to control timing
+    console.log(`🎬 Showing avatar for ${duration}ms - NO recognition interference`);
     
     const isMobile = window.innerWidth <= 768;
     
@@ -3829,7 +3829,7 @@ function showAvatarSorryMessage(duration = 7000) { // Default 5 seconds, but adj
         `;
         
         avatarOverlay.innerHTML = `
-            <video id="avatarVideo" autoplay loop style="
+            <video id="avatarVideo" autoplay style="
                 width: 100%; height: 100%; object-fit: cover;
             ">
                 <source src="${videoUrl}" type="video/mp4">
@@ -3846,7 +3846,7 @@ function showAvatarSorryMessage(duration = 7000) { // Default 5 seconds, but adj
         `;
         
         avatarOverlay.innerHTML = `
-            <video id="avatarVideo" autoplay loop style="
+            <video id="avatarVideo" autoplay style="
                 width: 100%; height: 100%; object-fit: cover;
             ">
                 <source src="${videoUrl}" type="video/mp4">
@@ -3856,61 +3856,18 @@ function showAvatarSorryMessage(duration = 7000) { // Default 5 seconds, but adj
     
     document.body.appendChild(avatarOverlay);
     
-    const video = document.getElementById('avatarVideo');
-    let avatarRemoved = false;
-    
-    // MANUAL DURATION CONTROL - This gives users time to start speaking
-    const durationTimer = setTimeout(() => {
-        if (!avatarRemoved && avatarOverlay.parentNode) {
-            console.log(`🎬 Avatar duration (${duration}ms) reached - removing and restarting`);
-            avatarRemoved = true;
-            avatarOverlay.remove();
-            
-            // Restart listening after removal
-            setTimeout(() => {
-                if (typeof recognition !== 'undefined' && recognition) {
-                    try {
-                        recognition.start();
-                        console.log('✅ Listening restarted after avatar duration');
-                    } catch (e) {
-                        console.log('❌ Failed to restart listening:', e);
-                    }
-                }
-            }, 500);
-        }
-    }, duration);
-    
-    // Also handle if video ends naturally (backup)
-    video.onended = function() {
-        if (!avatarRemoved) {
-            console.log('🎬 Avatar video ended naturally');
-            avatarRemoved = true;
-            clearTimeout(durationTimer);
-            avatarOverlay.remove();
-            
-            setTimeout(() => {
-                if (typeof recognition !== 'undefined' && recognition) {
-                    try {
-                        recognition.start();
-                        console.log('✅ Listening restarted after video end');
-                    } catch (e) {
-                        console.log('❌ Failed to restart listening:', e);
-                    }
-                }
-            }, 500);
-        }
-    };
-    
-    // Ultimate fallback after 10 seconds
+    // 🎯 SINGLE CONTROL - ONLY SHOWS/HIDES AVATAR - NO RECOGNITION INTERFERENCE
     setTimeout(() => {
-        if (!avatarRemoved && avatarOverlay.parentNode) {
-            console.log('🎬 Avatar fallback cleanup after 10 seconds');
-            avatarRemoved = true;
-            clearTimeout(durationTimer);
+        console.log(`🎬 Avatar duration (${duration}ms) complete - removing avatar only`);
+        
+        if (avatarOverlay.parentNode) {
             avatarOverlay.remove();
-            setTimeout(() => recognition.start(), 500);
+            console.log('🎬 Avatar removed - letting recognition.onend handle restart logic');
         }
-    }, 10000);
+        
+        // 🎯 REMOVED: All recognition restart logic - your recognition.onend handles everything!
+        
+    }, duration);
 }
 
 // ✅ MAIN FUNCTION WITH ALL FIXES
@@ -4288,7 +4245,7 @@ setTimeout(() => {
                     console.log('🎯 DEBUG: About to call showPostSorryListening()');
                     showAvatarSorryMessage();
                 }
-            }, 2000);
+            }, 3000);
         }
     }
 };
