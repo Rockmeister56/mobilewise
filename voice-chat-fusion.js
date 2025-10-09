@@ -2360,19 +2360,6 @@ if (conversationState === 'initial') {
     conversationState = 'selling_motivation_question';
     
 } else if (conversationState === 'selling_motivation_question') {
-    
-    // 🎯 NEW: Check for objections FIRST - before normal response
-    if (typeof handleObjection === 'function' && handleObjection(userText)) {
-        // Objection detected! Testimonial will play automatically
-        responseText = firstName ?
-            `Great question, ${firstName}! You know what? Let me show you what one of our recent clients had to say about that...` :
-            "Great question! Let me show you what one of our recent clients had to say about that...";
-        
-        // Stay in same conversation state - continue normally after testimonial
-        return responseText;
-    }
-    
-    // 🎯 ORIGINAL RESPONSE (only runs if no objection detected)
     responseText = firstName ?
         `Thank you for sharing that with me ${firstName}! You know what? Based on everything you've told me - your client base, revenue, and your goals - Bruce can definitely help you get top dollar for your practice. The market is absolutely on fire right now for practices like yours. Honestly, ${firstName}, this could be perfect timing for you. Would you like to schedule a FREE consultation with Bruce to discuss your selling strategy?` :
         "Thank you for sharing that! Based on what you've told me, Bruce can definitely help you maximize your practice value. The market is incredibly strong right now. Would you like a FREE consultation with Bruce?";
@@ -3820,76 +3807,65 @@ function playMobileErrorBeep() {
     }
 }
 
-function showAvatarSorryMessage(duration = 6000) { // 6 seconds - adjust this number to control timing
-    console.log(`🎬 Showing avatar for ${duration}ms - WILL restart recognition when done`);
+function showAvatarSorryMessage() {
+    console.log('🎬 Showing full-screen avatar (no transparency)');
     
-    const isMobile = window.innerWidth <= 768;
-    
-    // Device-specific video URLs
-    const mobileVideoUrl = "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759940889574.mp4";
-    const desktopVideoUrl = "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759966365834.mp4";
-    
-    const videoUrl = isMobile ? mobileVideoUrl : desktopVideoUrl;
-    
+    // Create full-screen avatar overlay
     const avatarOverlay = document.createElement('div');
+    avatarOverlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #000;
+        z-index: 9999;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    `;
     
-    if (isMobile) {
-        avatarOverlay.style.cssText = `
-            position: fixed; top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: #000; z-index: 9999;
-            display: flex; justify-content: center; align-items: center;
-        `;
-        
-        avatarOverlay.innerHTML = `
-            <video id="avatarVideo" autoplay style="
-                width: 100%; height: 100%; object-fit: cover;
-            ">
-                <source src="${videoUrl}" type="video/mp4">
-            </video>
-        `;
-    } else {
-        avatarOverlay.style.cssText = `
-            position: fixed; top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 833px; height: 433px;
-            background: #000; z-index: 9999;
-            border-radius: 12px; overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        `;
-        
-        avatarOverlay.innerHTML = `
-            <video id="avatarVideo" autoplay style="
-                width: 100%; height: 100%; object-fit: cover;
-            ">
-                <source src="${videoUrl}" type="video/mp4">
-            </video>
-        `;
-    }
+    avatarOverlay.innerHTML = `
+        <video id="avatarVideo" autoplay style="
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        ">
+            <source src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759940889574.mp4" type="video/mp4">
+        </video>
+    `;
     
     document.body.appendChild(avatarOverlay);
     
-    // 🎯 SINGLE CONTROL - Shows avatar AND restarts recognition (ESSENTIAL!)
-    setTimeout(() => {
-        console.log(`🎬 Avatar duration (${duration}ms) complete - removing and restarting recognition`);
+    const video = document.getElementById('avatarVideo');
+    
+    // When video finishes
+    video.onended = function() {
+        console.log('🎬 Avatar video finished - removing and restarting listening');
         
-        if (avatarOverlay.parentNode) {
-            avatarOverlay.remove();
-        }
+        // Remove avatar overlay
+        avatarOverlay.remove();
         
-        // 🔄 ESSENTIAL: Restart recognition after avatar (recognition.onend has already finished!)
+        // Restart listening after short delay
         setTimeout(() => {
             if (typeof recognition !== 'undefined' && recognition) {
                 try {
                     recognition.start();
-                    console.log('✅ Recognition restarted after avatar - listening again!');
+                    console.log('✅ Listening restarted after avatar');
                 } catch (e) {
-                    console.log('❌ Failed to restart recognition:', e);
+                    console.log('❌ Failed to restart listening:', e);
                 }
             }
         }, 500);
-        
-    }, duration);
+    };
+    
+    // Fallback cleanup after 10 seconds
+    setTimeout(() => {
+        if (avatarOverlay.parentNode) {
+            avatarOverlay.remove();
+            setTimeout(() => recognition.start(), 500);
+        }
+    }, 10000);
 }
 
 // ✅ MAIN FUNCTION WITH ALL FIXES
