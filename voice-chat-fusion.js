@@ -4701,7 +4701,7 @@ if (typeof recognition !== 'undefined') {
                 if (speakSequenceButton && speakSequenceActive) {
                     performGreenTransition();
                 }
-            }, 1000);
+            }, 1500);
             return;
         }
         
