@@ -381,7 +381,7 @@ function showMicActivatedStatus() {
 }
 
 // ===================================================
-// 🎵 INTRO JINGLE PLAYER
+// 🎵 INTRO JINGLE PLAYER (YOUR EXISTING CODE - KEEP AS-IS)
 // ===================================================
 function playIntroJingle() {
     const introAudio = new Audio('https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/audio-intros/ai_intro_1757573121859.mp3');
@@ -405,6 +405,32 @@ function playIntroJingle() {
             }, 100);
         }
     }, 3000);
+}
+
+// ===================================================
+// 🔊 DESKTOP BEEP SOUNDS (JUST ADD THESE TWO)
+// ===================================================
+
+// Desktop Get Ready + Speak Now beep
+function playGetReadyAndSpeakNowSound() {
+    const getReadyAudio = new Audio('https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/audio-intros/ai_intro_1760038807240.mp3');
+    getReadyAudio.volume = 0.6;
+    getReadyAudio.preload = 'auto';
+    
+    getReadyAudio.play().catch(error => {
+        console.log('Get Ready + Speak Now sound failed to play:', error);
+    });
+}
+
+// Desktop Listening Stops beep
+function playListeningStopsSound() {
+    const stopsAudio = new Audio('https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/audio-intros/ai_intro_1760038921880.mp3');
+    stopsAudio.volume = 0.5;
+    stopsAudio.preload = 'auto';
+    
+    stopsAudio.play().catch(error => {
+        console.log('Listening Stops sound failed to play:', error);
+    });
 }
 
 // ===================================================
