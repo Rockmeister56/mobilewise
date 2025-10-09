@@ -2360,6 +2360,19 @@ if (conversationState === 'initial') {
     conversationState = 'selling_motivation_question';
     
 } else if (conversationState === 'selling_motivation_question') {
+    
+    // 🎯 NEW: Check for objections FIRST - before normal response
+    if (typeof handleObjection === 'function' && handleObjection(userText)) {
+        // Objection detected! Testimonial will play automatically
+        responseText = firstName ?
+            `Great question, ${firstName}! You know what? Let me show you what one of our recent clients had to say about that...` :
+            "Great question! Let me show you what one of our recent clients had to say about that...";
+        
+        // Stay in same conversation state - continue normally after testimonial
+        return responseText;
+    }
+    
+    // 🎯 ORIGINAL RESPONSE (only runs if no objection detected)
     responseText = firstName ?
         `Thank you for sharing that with me ${firstName}! You know what? Based on everything you've told me - your client base, revenue, and your goals - Bruce can definitely help you get top dollar for your practice. The market is absolutely on fire right now for practices like yours. Honestly, ${firstName}, this could be perfect timing for you. Would you like to schedule a FREE consultation with Bruce to discuss your selling strategy?` :
         "Thank you for sharing that! Based on what you've told me, Bruce can definitely help you maximize your practice value. The market is incredibly strong right now. Would you like a FREE consultation with Bruce?";
@@ -4866,3 +4879,250 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }, 1000);
 });
+
+// 🎬 MOBILE-WISE AI VIDEO BUFFER SYSTEM - WITH BRUCE'S TESTIMONIALS
+// Updated with Captain's testimonial videos
+
+class VideoBufferSystem {
+    constructor() {
+        this.bufferedVideos = new Map();
+        this.isInitialized = false;
+        this.videoConfigs = {
+            // Sorry message videos
+            sorryMobile: {
+                url: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759940889574.mp4",
+                type: "mobile"
+            },
+            sorryDesktop: {
+                url: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759966365834.mp4", 
+                type: "desktop"
+            },
+            
+            // 🎯 BRUCE'S TESTIMONIAL VIDEOS - READY FOR ACTION!
+            testimonialSkeptical: {
+                url: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982717330.mp4",
+                type: "both",
+                description: "Skeptical, Then Exceeded Expectations"
+            },
+            testimonialSpeed: {
+                url: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982877040.mp4",
+                type: "both", 
+                description: "Surprised by the Speed of the Sale"
+            }
+        };
+    }
+
+    // Initialize buffering system when page loads
+    async initialize() {
+        console.log('🎬 Initializing Mobile-Wise Video Buffer System with Bruce\'s testimonials...');
+        
+        for (const [videoId, config] of Object.entries(this.videoConfigs)) {
+            await this.bufferVideo(videoId, config);
+        }
+        
+        this.isInitialized = true;
+        console.log('🎬 ✅ All videos buffered including Bruce\'s testimonials - ready for instant playback!');
+    }
+
+    // Buffer individual video with FULL AUDIO
+    async bufferVideo(videoId, config) {
+        return new Promise((resolve) => {
+            const video = document.createElement('video');
+            video.src = config.url;
+            video.preload = 'auto'; // Full buffering
+            video.style.display = 'none';
+            video.crossOrigin = 'anonymous'; // Handle CORS if needed
+            
+            // 🔊 CRITICAL: NO MUTED ATTRIBUTE - KEEPS AUDIO!
+            
+            // Wait for video to be fully buffered
+            video.addEventListener('canplaythrough', () => {
+                console.log(`🎬 ✅ Video "${videoId}" (${config.description || 'No description'}) buffered and ready`);
+                this.bufferedVideos.set(videoId, {
+                    element: video,
+                    config: config,
+                    ready: true
+                });
+                resolve();
+            });
+
+            video.addEventListener('error', (e) => {
+                console.error(`🎬 ❌ Failed to buffer video "${videoId}":`, e);
+                resolve(); // Continue with other videos
+            });
+
+            document.body.appendChild(video);
+            video.load(); // Start buffering
+        });
+    }
+
+    // Check if video is ready for instant playback
+    isVideoReady(videoId) {
+        const buffered = this.bufferedVideos.get(videoId);
+        return buffered && buffered.ready;
+    }
+
+    // Play video instantly (no delays, no black screens)
+    playVideo(videoId, duration = 12000) { // Default 12 seconds for testimonials
+        const isMobile = window.innerWidth <= 768;
+        
+        // Determine which video to use
+        let targetVideoId = videoId;
+        if (videoId === 'sorry') {
+            targetVideoId = isMobile ? 'sorryMobile' : 'sorryDesktop';
+        }
+
+        const buffered = this.bufferedVideos.get(targetVideoId);
+        
+        if (!buffered || !buffered.ready) {
+            console.log(`🎬 ⚠️ Video "${targetVideoId}" not ready, falling back to standard method`);
+            this.fallbackPlayVideo(targetVideoId, duration);
+            return;
+        }
+
+        console.log(`🎬 Playing buffered video "${targetVideoId}" (${buffered.config.description || 'No description'}) instantly`);
+        
+        // Create display overlay
+        const overlay = this.createVideoOverlay(buffered.element.src, isMobile, duration, targetVideoId);
+        document.body.appendChild(overlay);
+        
+        // Get the display video element
+        const displayVideo = overlay.querySelector('video');
+        
+        // Copy buffered video's readiness to display video
+        displayVideo.currentTime = 0;
+        
+        // Play instantly (should have no delay since it's buffered)
+        displayVideo.play().then(() => {
+            console.log(`🎬 ✅ Video "${targetVideoId}" playing instantly with audio`);
+        }).catch(e => {
+            console.error('Video play error:', e);
+        });
+    }
+
+    // Create video overlay (mobile vs desktop responsive)
+    createVideoOverlay(videoUrl, isMobile, duration, videoId) {
+        const overlay = document.createElement('div');
+        
+        if (isMobile) {
+            overlay.style.cssText = `
+                position: fixed; top: 0; left: 0;
+                width: 100%; height: 100%;
+                background: #000; z-index: 9999;
+                display: flex; justify-content: center; align-items: center;
+            `;
+            
+            overlay.innerHTML = `
+                <video autoplay style="width: 100%; height: 100%; object-fit: cover;">
+                    <source src="${videoUrl}" type="video/mp4">
+                </video>
+            `;
+        } else {
+            overlay.style.cssText = `
+                position: fixed; top: 50%; left: 50%;
+                transform: translate(-50%, -50%);
+                width: 833px; height: 433px;
+                background: #000; z-index: 9999;
+                border-radius: 12px; overflow: hidden;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            `;
+            
+            overlay.innerHTML = `
+                <video autoplay style="width: 100%; height: 100%; object-fit: cover;">
+                    <source src="${videoUrl}" type="video/mp4">
+                </video>
+            `;
+        }
+
+        // Auto-remove after duration
+        setTimeout(() => {
+            if (overlay.parentNode) {
+                overlay.remove();
+                console.log(`🎬 Video "${videoId}" removed after ${duration}ms`);
+                
+                // Restart recognition for sorry videos only
+                if (videoId && videoId.includes('sorry')) {
+                    setTimeout(() => {
+                        if (typeof recognition !== 'undefined' && recognition) {
+                            try {
+                                recognition.start();
+                                console.log('✅ Recognition restarted after sorry video');
+                            } catch (e) {
+                                console.log('❌ Failed to restart recognition:', e);
+                            }
+                        }
+                    }, 500);
+                }
+                // For testimonials, just continue the conversation (no recognition restart needed)
+            }
+        }, duration);
+
+        return overlay;
+    }
+
+    // Fallback for unbuffered videos
+    fallbackPlayVideo(videoId, duration) {
+        console.log(`🎬 Using fallback method for video "${videoId}"`);
+        // Use your existing showAvatarSorryMessage function as fallback
+        if (typeof showAvatarSorryMessage === 'function') {
+            showAvatarSorryMessage(duration);
+        }
+    }
+}
+
+// 🎯 GLOBAL INSTANCE
+window.videoBuffer = new VideoBufferSystem();
+
+// 🚀 INITIALIZE WHEN PAGE LOADS
+window.addEventListener('DOMContentLoaded', () => {
+    window.videoBuffer.initialize();
+});
+
+// 🎬 EASY-TO-USE FUNCTIONS
+function showBufferedSorryMessage(duration = 6000) {
+    window.videoBuffer.playVideo('sorry', duration);
+}
+
+// 🎯 BRUCE'S TESTIMONIAL FUNCTIONS
+function showSkepticalTestimonial(duration = 12000) {
+    console.log('🎬 Playing "Skeptical, Then Exceeded Expectations" testimonial');
+    window.videoBuffer.playVideo('testimonialSkeptical', duration);
+}
+
+function showSpeedTestimonial(duration = 12000) {
+    console.log('🎬 Playing "Surprised by the Speed" testimonial');
+    window.videoBuffer.playVideo('testimonialSpeed', duration);
+}
+
+// 🎯 OBJECTION HANDLER - Detects objections and plays appropriate testimonial
+function handleObjection(userText) {
+    const text = userText.toLowerCase();
+    
+    // Credibility/Experience objections → Skeptical testimonial
+    if (text.includes('experience') || text.includes('credibility') || text.includes('trust') || 
+        text.includes('legitimate') || text.includes('proven') || text.includes('track record') ||
+        text.includes('skeptical') || text.includes('doubt')) {
+        
+        console.log('🎯 Credibility objection detected - showing skeptical testimonial');
+        showSkepticalTestimonial(12000);
+        return true;
+    }
+    
+    // Timeline/Speed objections → Speed testimonial  
+    if (text.includes('how long') || text.includes('timeline') || text.includes('time') ||
+        text.includes('quick') || text.includes('fast') || text.includes('speed') ||
+        text.includes('when')) {
+        
+        console.log('🎯 Timeline objection detected - showing speed testimonial');
+        showSpeedTestimonial(12000);
+        return true;
+    }
+    
+    return false; // No objection detected
+}
+
+// Example usage:
+// showBufferedSorryMessage(6000);  // Sorry message
+// showSkepticalTestimonial(12000);  // Credibility testimonial
+// showSpeedTestimonial(12000);     // Speed testimonial
+// handleObjection("What experience do you have?"); // Auto-detects and plays appropriate testimonial
