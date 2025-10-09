@@ -4149,6 +4149,8 @@ if (existingPrompt) {
             </div>
         </div>
     `;
+
+    playGetReadyAndSpeakNowSound()
     
     speakSequenceButton.style.cssText = `
         width: 100% !important;
@@ -4436,6 +4438,8 @@ setTimeout(() => {
         console.log('🔊 BLOCKED: speakSequenceActive is false');
     }
 }, 800);
+
+playListeningStopsSound()
         
         // 🎯 USE THE CORRECT LISTENING FUNCTION - FIXED VERSION
         if (typeof startListening === 'function') {
@@ -4537,6 +4541,8 @@ function resetToGreenState() {
         speakSequenceButton.style.background = 'rgba(34, 197, 94, 0.4) !important';
         speakSequenceButton.style.borderColor = 'rgba(34, 197, 94, 0.8) !important';
         speakSequenceButton.className = 'quick-btn green-button-glow';
+
+        playListeningStopsSound()
         
         // Restart listening
         setTimeout(() => {
