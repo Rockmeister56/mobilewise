@@ -2891,7 +2891,7 @@ function speakMessage(message) {
             if (isInLeadCapture) {
                 setTimeout(() => {
                     showHybridReadySequence(); // This shows "Get Ready to Speak" → "Listening"
-                }, 800);
+                }, 1500);
             }
         };
         
@@ -4690,7 +4690,7 @@ if (typeof recognition !== 'undefined') {
             startNormalInterviewListening();
         }
     }
-}, 1700); // Changed from 800ms to 1700ms to start AFTER "Speak Now!"
+}, 1500); // Changed from 800ms to 1700ms to start AFTER "Speak Now!"
     
     // ✅ GREEN TRANSITION
     const greenTransition = setTimeout(() => {
