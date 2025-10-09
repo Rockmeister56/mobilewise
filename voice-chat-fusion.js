@@ -4110,13 +4110,13 @@ if (existingPrompt) {
                 overflow: hidden;
             }
             
-            .progress-bar {
-                width: 0%;
-                height: 100%;
-                background: linear-gradient(90deg, #4fc3f7, #1976d2);
-                border-radius: 1px;
-                transition: width 0.15s ease;
-            }
+           .progress-bar {
+         width: 0%;
+         height: 100%;
+         background: linear-gradient(90deg, #4fc3f7, #1976d2);
+         border-radius: 1px;
+         transition: width 4s ease; /* ← Changed from 0.15s to 4s */
+             }
             
             @keyframes pulseBlue {
                 0%, 100% { 
