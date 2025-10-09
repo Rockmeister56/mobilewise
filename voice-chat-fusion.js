@@ -4690,19 +4690,7 @@ if (typeof recognition !== 'undefined') {
             startNormalInterviewListening();
         }
     }
-}, 1200); // Changed from 800ms to 1700ms to start AFTER "Speak Now!"
-    
-   // ❌ COMMENT OUT - This is killing sessions:
-// let speechWatcher = setInterval(() => {
-//     if (typeof isSpeaking !== 'undefined' && isSpeaking && speakSequenceActive) {
-//         console.log('🔊 AI started speaking - auto-cleaning up speak sequence');
-//         clearInterval(speechWatcher);
-//         if (progressInterval) clearInterval(progressInterval);
-//         setTimeout(() => {
-//             cleanupSpeakSequence();
-//         }, 2000);
-//     }
-// }, 100);
+}, 1700); // Changed from 800ms to 1700ms to start AFTER "Speak Now!"
     
     // ✅ GREEN TRANSITION
     const greenTransition = setTimeout(() => {
