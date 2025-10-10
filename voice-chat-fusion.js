@@ -742,7 +742,7 @@ function getApologyResponse() {
 };
         
         // 🎯 MOBILE TIMING DELAY
-        const delay = isMobile ? 800 : 0; // Only delay on mobile
+        const delay = isMobile ? 100 : 0; // Only delay on mobile
         
         if (delay > 0) {
             console.log(`⏱️ Adding ${delay}ms mobile delay`);
