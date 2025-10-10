@@ -733,7 +733,7 @@ function getApologyResponse() {
                 console.log('🎯 DEBUG: About to show try again overlay');
                 showAvatarSorryMessage(); // ← SIMPLE OVERLAY INSTEAD OF COMPLEX RESTART
                 console.log('🎯 DEBUG: Try again overlay shown');
-            }, 4000); // 2 second delay before showing overlay
+            }, 7000); // 2 second delay before showing overlay
 
         } else {
             console.log('🚫 DEBUG: BLOCKED - AI is speaking');
@@ -3207,7 +3207,7 @@ function sendLeadEmail(data) {
                         if (!isSpeaking && isAudioMode) {
                             startListening();
                         }
-                    }, 4000); // Slightly longer to account for longer message
+                    }, 7000); // Slightly longer to account for longer message
                 }, 1000);
                 
             }, function(error) {
@@ -4139,7 +4139,7 @@ if (!window.disableDirectTimeout) {
             showAvatarSorryMessage();
         }
         
-    }, 4000);
+    }, 7000);
 } else {
     console.log('🚫 DIRECT: Timeout disabled - banner will stay until speech detected');
 }
