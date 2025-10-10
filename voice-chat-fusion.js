@@ -4097,18 +4097,13 @@ function showDirectSpeakNow() {
     
     // Start listening immediately - no delay!
     setTimeout(() => {
-        console.log('🎤 DIRECT: Starting listening after Speak Now banner');
-        window.lastRecognitionResult = null;
-        
-        if (isContactInterview) {
-            startContactInterviewListening();
-        } else {
-            if (typeof startMobileListening === 'function') {
-                startMobileListening();
-            } else {
-                startNormalInterviewListening();
-            }
-        }
+    console.log('🎤 DIRECT: Starting listening after Speak Now banner');
+    window.lastRecognitionResult = null;
+    
+    // USE THE SAME FUNCTION THAT WORKS FOR NORMAL QUESTIONS!
+    forceStartListening();
+    
+}, 200);
         
         // 🔥 FIXED: Check disableDirectTimeout flag before setting timeout
 if (!window.disableDirectTimeout) {
@@ -4139,7 +4134,7 @@ if (!window.disableDirectTimeout) {
         
     }, 4000);
 } else {
-    console.log('🚫 DIRECT: 4-second timeout disabled - listening indefinitely');
+    console.log('🚫 DIRECT: Timeout disabled - banner will stay until speech detected');
 }
         
     }, 200);
