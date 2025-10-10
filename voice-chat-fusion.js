@@ -4201,13 +4201,14 @@ function showHybridReadySequence() {
         console.log('🔓 BULLETPROOF: All locks released');
     }
     
-    // FIXED BULLETPROOF TIMER
-    let bulletproofTimer = setTimeout(() => {
-        if (window.speakSequenceBlocked || speakSequenceActive) {
-            console.log('🕐 BULLETPROOF: Safety timeout - force cleanup after 15 seconds');
-            bulletproofCleanup();
-        }
-    }, 15000);
+   // TEMPORARILY DISABLED BULLETPROOF TIMER FOR DEBUGGING
+console.log('🛡️ BULLETPROOF: Timer temporarily disabled for debugging');
+let bulletproofTimer = null; // Disabled
+
+// Still keep the clear function
+window.clearBulletproofTimer = function() {
+    console.log('🧹 BULLETPROOF: Timer clear called (timer disabled)');
+};
 
     // Store timer reference for cleanup
     window.currentBulletproofTimer = bulletproofTimer;
