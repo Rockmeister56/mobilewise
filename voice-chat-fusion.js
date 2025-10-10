@@ -4439,9 +4439,8 @@ window.clearBulletproofTimer = function() {
         }
     }, 100);
     
-    if (window.innerWidth > 768) {
-        playGetReadyAndSpeakNowSound();
-    }
+   // Play sound on ALL devices, not just desktop
+playGetReadyAndSpeakNowSound();
     
     // ===== TRANSITION TO SPEAK NOW (after 3 seconds) =====
     setTimeout(() => {
