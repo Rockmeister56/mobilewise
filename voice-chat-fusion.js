@@ -4106,13 +4106,11 @@ if (typeof startMobileListening === 'function') {
     startNormalInterviewListening();
 }
 
-// Only call backup if first attempt didn't work
-if (window.recognition && window.recognition.state !== 'listening') {
+// Then call forceStartListening as backup (THE KEY!)
+setTimeout(() => {
     console.log('🔄 DIRECT backup: calling forceStartListening()');
     forceStartListening();
-} else {
-    console.log('✅ DIRECT: Recognition already active - no backup needed');
-}
+}, 100); // Same delay as normal questions
         
         // 🔥 FIXED: Check disableDirectTimeout flag before setting timeout
 if (!window.disableDirectTimeout) {
@@ -4141,7 +4139,7 @@ if (!window.disableDirectTimeout) {
             showAvatarSorryMessage();
         }
         
-    }, 6000);
+    }, 7000);
 } else {
     console.log('🚫 DIRECT: Timeout disabled - banner will stay until speech detected');
 }
