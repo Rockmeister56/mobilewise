@@ -4095,15 +4095,22 @@ function showDirectSpeakNow() {
     quickButtonsContainer.appendChild(speakSequenceButton);
     console.log('🟢 DIRECT Speak Now state active - starting listening immediately');
     
-    // Start listening immediately - no delay!
-    setTimeout(() => {
-    console.log('🎤 DIRECT: Starting listening after Speak Now banner');
-    window.lastRecognitionResult = null;
-    
-    // USE THE SAME FUNCTION THAT WORKS FOR NORMAL QUESTIONS!
+    // Use the SAME pattern as normal questions
+console.log('🎤 DIRECT: Starting listening after Speak Now banner');
+window.lastRecognitionResult = null;
+
+// Call startListening first (like normal questions)
+if (typeof startMobileListening === 'function') {
+    startMobileListening();
+} else {
+    startNormalInterviewListening();
+}
+
+// Then call forceStartListening as backup (THE KEY!)
+setTimeout(() => {
+    console.log('🔄 DIRECT backup: calling forceStartListening()');
     forceStartListening();
-    
-}, 200);
+}, 800); // Same delay as normal questions
         
         // 🔥 FIXED: Check disableDirectTimeout flag before setting timeout
 if (!window.disableDirectTimeout) {
