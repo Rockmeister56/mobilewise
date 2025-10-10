@@ -4568,7 +4568,7 @@ playGetReadyAndSpeakNowSound();
                 }
             }
             
-        }, 4000);
+        }, 7000);
         
     }, 3000);
     
