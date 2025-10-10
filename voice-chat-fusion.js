@@ -4482,7 +4482,7 @@ window.clearBulletproofTimer = function() {
                     startNormalInterviewListening();
                 }
             }
-        }, 100);
+        }, 200);
         
         // ===== LISTENING TIMEOUT WITH NUCLEAR SHUTDOWN =====
         setTimeout(() => {
