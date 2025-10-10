@@ -4106,11 +4106,13 @@ if (typeof startMobileListening === 'function') {
     startNormalInterviewListening();
 }
 
-// Then call forceStartListening as backup (THE KEY!)
-setTimeout(() => {
+// Only call backup if first attempt didn't work
+if (window.recognition && window.recognition.state !== 'listening') {
     console.log('🔄 DIRECT backup: calling forceStartListening()');
     forceStartListening();
-}, 100); // Same delay as normal questions
+} else {
+    console.log('✅ DIRECT: Recognition already active - no backup needed');
+}
         
         // 🔥 FIXED: Check disableDirectTimeout flag before setting timeout
 if (!window.disableDirectTimeout) {
