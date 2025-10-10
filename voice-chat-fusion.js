@@ -4110,7 +4110,7 @@ function showDirectSpeakNow() {
             }
         }
         
-        // Set up timeout for this listening session - ONLY if not disabled
+        // 🔥 FIXED: Check disableDirectTimeout flag before setting timeout
 if (!window.disableDirectTimeout) {
     setTimeout(() => {
         if (!speakSequenceActive) return;
@@ -4139,7 +4139,7 @@ if (!window.disableDirectTimeout) {
         
     }, 4000);
 } else {
-    console.log('🚫 DIRECT: Timeout disabled - banner will stay until speech detected');
+    console.log('🚫 DIRECT: 4-second timeout disabled - listening indefinitely');
 }
         
     }, 200);
