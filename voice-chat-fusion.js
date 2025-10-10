@@ -4137,7 +4137,6 @@ if (!window.disableDirectTimeout) {
     console.log('🚫 DIRECT: Timeout disabled - banner will stay until speech detected');
 }
         
-    }, 200);
     
     // Success handler for direct speak now
     window.handleSpeechSuccess = function(transcript) {
