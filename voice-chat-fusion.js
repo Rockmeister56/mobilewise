@@ -4095,24 +4095,14 @@ function showDirectSpeakNow() {
     quickButtonsContainer.appendChild(speakSequenceButton);
     console.log('🟢 DIRECT Speak Now state active - starting listening immediately');
     
-    // Use the SAME pattern as normal questions
-console.log('🎤 DIRECT: Starting listening after Speak Now banner');
+   // DIRECT APPROACH - Streamlined but complete
+console.log('🎤 DIRECT: Starting listening IMMEDIATELY after Speak Now banner');
 window.lastRecognitionResult = null;
 
-// Call startListening first (like normal questions)
-if (typeof startMobileListening === 'function') {
-    startMobileListening();
-} else {
-    startNormalInterviewListening();
-}
+// Use forceStartListening directly - no delays, no conflicts
+forceStartListening();
 
-// Then call forceStartListening as backup (THE KEY!)
-setTimeout(() => {
-    console.log('🔄 DIRECT backup: calling forceStartListening()');
-    forceStartListening();
-}, 100); // Same delay as normal questions
-        
-        // 🔥 FIXED: Check disableDirectTimeout flag before setting timeout
+// 🔥 FIXED: Check disableDirectTimeout flag before setting timeout
 if (!window.disableDirectTimeout) {
     setTimeout(() => {
         if (!speakSequenceActive) return;
@@ -4143,28 +4133,27 @@ if (!window.disableDirectTimeout) {
 } else {
     console.log('🚫 DIRECT: Timeout disabled - banner will stay until speech detected');
 }
-        
+
+// Success handler for direct speak now
+window.handleSpeechSuccess = function(transcript) {
+    console.log('✅ DIRECT: Speech detected:', transcript);
     
-    // Success handler for direct speak now
-    window.handleSpeechSuccess = function(transcript) {
-        console.log('✅ DIRECT: Speech detected:', transcript);
-        
-        window.clearBulletproofTimer();
-        
-        if (speakSequenceButton) {
-            speakSequenceButton.remove();
+    window.clearBulletproofTimer();
+    
+    if (speakSequenceButton) {
+        speakSequenceButton.remove();
+    }
+    
+    existingButtons.forEach(btn => {
+        if (btn.id !== 'speak-sequence-button') {
+            btn.style.display = 'block';
         }
-        
-        existingButtons.forEach(btn => {
-            if (btn.id !== 'speak-sequence-button') {
-                btn.style.display = 'block';
-            }
-        });
-        
-        directCleanup();
-        
-        console.log('🧹 DIRECT: Speech sequence completed successfully');
-    };
+    });
+    
+    directCleanup();
+    
+    console.log('🧹 DIRECT: Speech sequence completed successfully');
+};
 }
 
 console.log('🎯 DIRECT Speak Now function loaded - No Get Ready phase!');
