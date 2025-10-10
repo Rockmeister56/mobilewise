@@ -3864,7 +3864,7 @@ function playMobileErrorBeep() {
 }
 
 function showAvatarSorryMessage(duration = 6000) {
-    console.log(`🎬 Showing avatar for ${duration}ms - WILL restart recognition when done`);
+    console.log(`🎬 Showing avatar for ${duration}ms - WILL go DIRECT to Speak Now when done`);
     
     const isMobile = window.innerWidth <= 768;
     
@@ -3912,28 +3912,33 @@ function showAvatarSorryMessage(duration = 6000) {
     
     document.body.appendChild(avatarOverlay);
     
-    // 🎯 SINGLE CONTROL - Shows avatar AND restarts FULL sequence
+    // 🎯 DIRECT TO SPEAK NOW - Skip "Get Ready" phase completely
     setTimeout(() => {
-        console.log(`🎬 Avatar duration (${duration}ms) complete - removing and restarting full sequence`);
+        console.log(`🎬 Avatar duration (${duration}ms) complete - removing and going DIRECT to Speak Now`);
         
         if (avatarOverlay.parentNode) {
             avatarOverlay.remove();
         }
         
-        // 🔄 ESSENTIAL: Complete state reset before restarting
+        // 🚀 DIRECT SPEAK NOW - No "Get Ready" phase
         setTimeout(() => {
-            console.log('🎯 COMPLETE STATE RESET before showHybridReadySequence()');
+            console.log('🎯 DIRECT to Speak Now - skipping Get Ready phase');
             
-            // Reset all bulletproof flags
+            // Reset all flags
             if (typeof speakSequenceActive !== 'undefined') speakSequenceActive = false;
             if (typeof playingSorryMessage !== 'undefined') playingSorryMessage = false;
-            
-            // Clear any existing timeouts
             if (typeof bulletproofTimeout !== 'undefined') clearTimeout(bulletproofTimeout);
             
-            console.log('🎯 Calling showHybridReadySequence() after complete reset');
-            showHybridReadySequence(); // This will show "Speak Now" banner + start recognition
-        }, 750); // Slightly longer delay to ensure complete cleanup
+            // Deploy Speak Now banner directly
+            deployBanner('speakNow');
+            
+            // Start listening immediately
+            setTimeout(() => {
+                console.log('🎤 Starting recognition after direct Speak Now banner');
+                startListening();
+            }, 300);
+            
+        }, 500);
         
     }, duration);
 }
