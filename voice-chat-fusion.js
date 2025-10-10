@@ -3938,50 +3938,52 @@ function showAvatarSorryMessage(duration = 6000) { // 6 seconds - adjust this nu
 function showHybridReadySequence() {
     console.log('🎯 Starting Mobile-Wise AI speak sequence...');
     
-    // ===== SAFETY CHECKS (keep your existing logic) =====
+    // ===== CAPTAIN'S ORIGINAL WORKING LOGIC - KEEP EXACTLY =====
     if (window.speakSequenceBlocked) {
-        console.log('🔇 BLOCKED: Another session already running');
+        console.log('🔇 HYBRID BLOCKED: Another session already running');
         return;
     }
     
-    // Safety timeout
     setTimeout(() => {
         if (window.speakSequenceBlocked) {
-            console.log('🕐 Safety timeout: Resetting block');
+            console.log('🕐 Safety timeout: Resetting hybrid block');
             window.speakSequenceBlocked = false;
         }
     }, 10000);
     
-    // Stop existing recognition
     if (typeof recognition !== 'undefined' && recognition) {
         try {
             recognition.stop();
             console.log('🔇 Stopped any existing recognition session');
         } catch (e) {
-            console.log('🔇 Recognition cleanup completed');
+            console.log('🔇 Recognition already stopped or stopping failed');
         }
     }
+
+    // ===== CAPTAIN'S MOBILE STABILITY - CRITICAL! =====
+    applyMobileStability();
+    setupMobileTouchEvents();
     
-    // ===== BLOCKING CHECKS (keep your existing logic) =====
+    // ===== BLOCKING CHECKS =====
     if (typeof BannerOrchestrator !== 'undefined' && 
         BannerOrchestrator.currentBanner === 'smartButton') {
-        console.log('🔇 BLOCKED: Smart Button active');
+        console.log('🔇 HYBRID BLOCKED: Smart Button active');
         return;
     }
     
     if (document.getElementById('thankYouSplash')) {
-        console.log('🔇 BLOCKED: Thank you splash screen active');
+        console.log('🔇 HYBRID BLOCKED: Thank you splash screen active');
         return;
     }
     
     if (conversationState === 'ended' || conversationState === 'splash_screen_active') {
-        console.log('🔇 BLOCKED: Conversation ended');
+        console.log('🔇 HYBRID BLOCKED: Conversation ended');
         return;
     }
-    
+
     // ===== SEQUENCE MANAGEMENT =====
     if (speakSequenceActive) {
-        console.log('🔄 Speak sequence already active - checking restart');
+        console.log('🔄 Speak sequence already active - checking if restart needed');
         if (Date.now() - window.lastSequenceStart < 15000) {
             console.log('🔄 Allowing restart - sequence may have timed out');
         } else {
@@ -3996,31 +3998,43 @@ function showHybridReadySequence() {
     // ===== PROTECTION FLAGS =====
     if (!window.playingSorryMessage) {
         window.playingSorryMessage = true;
-        console.log('🔒 Setting playingSorryMessage protection');
+        console.log('🔒 Setting playingSorryMessage protection (first time)');
+    } else {
+        console.log('🔄 playingSorryMessage already set - keeping existing protection');
     }
-    
+
+    // ===== CAPTAIN'S CONTACT INTERVIEW DETECTION =====
+    const isContactInterview = checkContactInterviewMode();
+    console.log('📧 Contact interview mode:', isContactInterview);
+
     // ===== FIND CONTAINER =====
-    const container = document.querySelector('.quick-questions') || 
-                     document.querySelector('.quick-buttons') || 
-                     document.getElementById('quickButtonsContainer');
-    
-    if (!container) {
-        console.log('❌ Container not found');
-        speakSequenceActive = false;
+    const quickButtonsContainer = document.querySelector('.quick-questions') || 
+                                  document.querySelector('.quick-buttons') || 
+                                  document.getElementById('quickButtonsContainer');
+
+    if (!quickButtonsContainer) {
+        console.log('❌ Quick buttons container not found');
+        if (!window.playingSorryMessage) {
+            speakSequenceActive = false;
+        }
         return;
     }
-    
+
     // ===== HIDE EXISTING BUTTONS =====
-    const existingButtons = container.querySelectorAll('.quick-btn');
+    const existingButtons = quickButtonsContainer.querySelectorAll('.quick-btn');
     existingButtons.forEach(btn => btn.style.display = 'none');
-    
-    // Remove any existing speak button
+
     const existingSpeakBtn = document.getElementById('speak-sequence-button');
     if (existingSpeakBtn) {
         existingSpeakBtn.remove();
     }
+
+    const existingPrompt = document.getElementById('click-button-prompt');
+    if (existingPrompt) {
+        existingPrompt.remove();
+    }
     
-    // ===== ADD STYLES =====
+    // ===== ADD NEW BEAUTIFUL STYLES =====
     if (!document.getElementById('mobile-wise-speak-styles')) {
         const style = document.createElement('style');
         style.id = 'mobile-wise-speak-styles';
@@ -4136,13 +4150,13 @@ function showHybridReadySequence() {
         document.head.appendChild(style);
     }
     
-    // ===== CREATE BANNER =====
-    const speakBanner = document.createElement('button');
-    speakBanner.id = 'speak-sequence-button';
-    speakBanner.className = 'quick-btn mobile-wise-banner get-ready-state';
+    // ===== CREATE GET READY BANNER =====
+    speakSequenceButton = document.createElement('button');
+    speakSequenceButton.id = 'speak-sequence-button';
+    speakSequenceButton.className = 'quick-btn mobile-wise-banner get-ready-state';
     
     // GET READY STATE HTML
-    speakBanner.innerHTML = `
+    speakSequenceButton.innerHTML = `
         <div class="get-ready-fill" id="getReadyFill"></div>
         <div class="get-ready-content">
             <div class="get-ready-spinner"></div>
@@ -4150,7 +4164,18 @@ function showHybridReadySequence() {
         </div>
     `;
     
-    container.appendChild(speakBanner);
+    // ===== ENHANCED MOBILE STABILITY (Captain's original) =====
+    if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
+        speakSequenceButton.style.cssText += `
+            position: relative !important;
+            z-index: 1000 !important;
+            min-height: 50px !important;
+            padding: 18px !important;
+        `;
+        console.log('📱 Full mobile enhancements applied');
+    }
+    
+    quickButtonsContainer.appendChild(speakSequenceButton);
     console.log('🔵 Get Ready state active - starting 3-second sequence');
     
     // Start progress animation
@@ -4161,20 +4186,20 @@ function showHybridReadySequence() {
         }
     }, 100);
     
-    // Play desktop audio (your existing function)
+    // Play desktop audio
     if (window.innerWidth > 768) {
         playGetReadyAndSpeakNowSound();
     }
     
     // ===== TRANSITION TO SPEAK NOW (after 3 seconds) =====
     setTimeout(() => {
-        if (!speakBanner || !speakSequenceActive) return;
+        if (!speakSequenceButton || !speakSequenceActive) return;
         
         console.log('🟢 Transitioning to Speak Now state');
         
         // Change to SPEAK NOW STATE
-        speakBanner.className = 'quick-btn mobile-wise-banner speak-now-state';
-        speakBanner.innerHTML = `
+        speakSequenceButton.className = 'quick-btn mobile-wise-banner speak-now-state';
+        speakSequenceButton.innerHTML = `
             <div class="sound-waves">
                 <div class="wave-bar"></div>
                 <div class="wave-bar"></div>
@@ -4188,16 +4213,25 @@ function showHybridReadySequence() {
         
         console.log('🎤 Starting speech recognition...');
         
-        // Start speech recognition (use your existing function)
+        // ===== CAPTAIN'S EXACT WORKING LISTENING LOGIC =====
         setTimeout(() => {
-            if (typeof startListening === 'function') {
-                startListening();
-            } else if (typeof forceStartListening === 'function') {
-                forceStartListening();
+            console.log('🎤 Starting listening AFTER Speak Now visual...');
+            
+            // Clear any previous result flag
+            window.lastRecognitionResult = null;
+            
+            // ===== USE CAPTAIN'S EXACT LISTENING LOGIC =====
+            if (isContactInterview) {
+                startContactInterviewListening();
             } else {
-                console.log('❌ No speech recognition function found');
+                // Use mobile-optimized version if available
+                if (typeof startMobileListening === 'function') {
+                    startMobileListening();
+                } else {
+                    startNormalInterviewListening();
+                }
             }
-        }, 200);
+        }, 200); // Captain's delay
         
         // ===== LISTENING TIMEOUT (4 seconds) =====
         setTimeout(() => {
@@ -4206,8 +4240,8 @@ function showHybridReadySequence() {
             console.log('⏰ 4-second listening window ended - no speech detected');
             
             // Clean up banner
-            if (speakBanner) {
-                speakBanner.remove();
+            if (speakSequenceButton) {
+                speakSequenceButton.remove();
             }
             
             // Restore existing buttons
@@ -4219,7 +4253,7 @@ function showHybridReadySequence() {
             
             speakSequenceActive = false;
             
-            // Trigger your existing avatar "sorry" system
+            // Trigger Captain's existing avatar "sorry" system
             console.log('🎬 Triggering avatar sorry message...');
             if (typeof showAvatarSorryMessage === 'function') {
                 showAvatarSorryMessage();
@@ -4236,8 +4270,8 @@ function showHybridReadySequence() {
     window.handleSpeechSuccess = function(transcript) {
         console.log('✅ Speech detected:', transcript);
         
-        if (speakBanner) {
-            speakBanner.remove();
+        if (speakSequenceButton) {
+            speakSequenceButton.remove();
         }
         
         // Restore buttons
@@ -4259,7 +4293,7 @@ function showHybridReadySequence() {
     };
 }
 
-console.log('🎯 Mobile-Wise AI Final Speak Sequence loaded - Ready for action!');
+console.log('🎯 Mobile-Wise AI Speak Sequence with FIXED Listening loaded!');
 
 // 🎯 DETECT CONTACT INTERVIEW MODE
 function checkContactInterviewMode() {
