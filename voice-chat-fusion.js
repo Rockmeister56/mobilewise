@@ -3863,8 +3863,8 @@ function playMobileErrorBeep() {
     }
 }
 
-function showAvatarSorryMessage(duration = 6000) {
-    console.log(`🎬 Showing avatar for ${duration}ms - WILL go DIRECT to Speak Now when done`);
+function showAvatarSorryMessage(duration = 6000) { // 6 seconds - adjust this number to control timing
+    console.log(`🎬 Showing avatar for ${duration}ms - WILL restart recognition when done`);
     
     const isMobile = window.innerWidth <= 768;
     
@@ -3912,32 +3912,18 @@ function showAvatarSorryMessage(duration = 6000) {
     
     document.body.appendChild(avatarOverlay);
     
-    // 🎯 DIRECT TO SPEAK NOW - Skip "Get Ready" phase completely
+    // 🎯 SINGLE CONTROL - Shows avatar AND lets banner reappear naturally
     setTimeout(() => {
-        console.log(`🎬 Avatar duration (${duration}ms) complete - removing and going DIRECT to Speak Now`);
+        console.log(`🎬 Avatar duration (${duration}ms) complete - removing and letting banner reappear`);
         
         if (avatarOverlay.parentNode) {
             avatarOverlay.remove();
         }
         
-        // 🚀 DIRECT SPEAK NOW - No "Get Ready" phase
+        // 🔄 MINIMAL FIX: Just let the existing banner and recognition resume
         setTimeout(() => {
-            console.log('🎯 DIRECT to Speak Now - skipping Get Ready phase');
-            
-            // Reset all flags
-            if (typeof speakSequenceActive !== 'undefined') speakSequenceActive = false;
-            if (typeof playingSorryMessage !== 'undefined') playingSorryMessage = false;
-            if (typeof bulletproofTimeout !== 'undefined') clearTimeout(bulletproofTimeout);
-            
-            // Deploy Speak Now banner directly
-            deployBanner('speakNow');
-            
-            // Start listening immediately
-            setTimeout(() => {
-                console.log('🎤 Starting recognition after direct Speak Now banner');
-                startListening();
-            }, 300);
-            
+            console.log('✅ Avatar removed - existing Speak Now banner should reappear automatically!');
+            // Do nothing - banner and recognition are already active, just hidden behind avatar
         }, 500);
         
     }, duration);
