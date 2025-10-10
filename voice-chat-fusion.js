@@ -4110,33 +4110,37 @@ function showDirectSpeakNow() {
             }
         }
         
-        // Set up timeout for this listening session
-        setTimeout(() => {
-            if (!speakSequenceActive) return;
-            
-            console.log('⏰ DIRECT: 4-second listening window ended - no speech detected');
-            
-            // Clean up and trigger avatar again
-            window.clearBulletproofTimer();
-            
-            if (speakSequenceButton) {
-                speakSequenceButton.remove();
+        // Set up timeout for this listening session - ONLY if not disabled
+if (!window.disableDirectTimeout) {
+    setTimeout(() => {
+        if (!speakSequenceActive) return;
+        
+        console.log('⏰ DIRECT: 4-second listening window ended - no speech detected');
+        
+        // Clean up and trigger avatar again
+        window.clearBulletproofTimer();
+        
+        if (speakSequenceButton) {
+            speakSequenceButton.remove();
+        }
+        
+        existingButtons.forEach(btn => {
+            if (btn.id !== 'speak-sequence-button') {
+                btn.style.display = 'block';
             }
-            
-            existingButtons.forEach(btn => {
-                if (btn.id !== 'speak-sequence-button') {
-                    btn.style.display = 'block';
-                }
-            });
-            
-            directCleanup();
-            
-            console.log('🎬 DIRECT: Triggering avatar after timeout');
-            if (typeof showAvatarSorryMessage === 'function') {
-                showAvatarSorryMessage();
-            }
-            
-        }, 4000);
+        });
+        
+        directCleanup();
+        
+        console.log('🎬 DIRECT: Triggering avatar after timeout');
+        if (typeof showAvatarSorryMessage === 'function') {
+            showAvatarSorryMessage();
+        }
+        
+    }, 4000);
+} else {
+    console.log('🚫 DIRECT: Timeout disabled - banner will stay until speech detected');
+}
         
     }, 200);
     
