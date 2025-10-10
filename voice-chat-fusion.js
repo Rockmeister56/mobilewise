@@ -3912,7 +3912,7 @@ function showAvatarSorryMessage(duration = 6000) {
     
     document.body.appendChild(avatarOverlay);
     
-    // 🎯 SINGLE CONTROL - Shows avatar AND restarts FULL sequence (ESSENTIAL!)
+    // 🎯 SINGLE CONTROL - Shows avatar AND restarts FULL sequence
     setTimeout(() => {
         console.log(`🎬 Avatar duration (${duration}ms) complete - removing and restarting full sequence`);
         
@@ -3920,11 +3920,20 @@ function showAvatarSorryMessage(duration = 6000) {
             avatarOverlay.remove();
         }
         
-        // 🔄 ESSENTIAL: Restart FULL sequence (not just raw recognition!)
+        // 🔄 ESSENTIAL: Complete state reset before restarting
         setTimeout(() => {
-            console.log('🎯 Calling showHybridReadySequence() after avatar');
+            console.log('🎯 COMPLETE STATE RESET before showHybridReadySequence()');
+            
+            // Reset all bulletproof flags
+            if (typeof speakSequenceActive !== 'undefined') speakSequenceActive = false;
+            if (typeof playingSorryMessage !== 'undefined') playingSorryMessage = false;
+            
+            // Clear any existing timeouts
+            if (typeof bulletproofTimeout !== 'undefined') clearTimeout(bulletproofTimeout);
+            
+            console.log('🎯 Calling showHybridReadySequence() after complete reset');
             showHybridReadySequence(); // This will show "Speak Now" banner + start recognition
-        }, 500);
+        }, 750); // Slightly longer delay to ensure complete cleanup
         
     }, duration);
 }
