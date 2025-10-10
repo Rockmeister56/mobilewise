@@ -3920,11 +3920,11 @@ function showAvatarSorryMessage(duration = 6000) { // 6 seconds - adjust this nu
             avatarOverlay.remove();
         }
         
-        // 🔄 MINIMAL FIX: Just let the existing banner and recognition resume
         setTimeout(() => {
-            console.log('✅ Avatar removed - existing Speak Now banner should reappear automatically!');
-            // Do nothing - banner and recognition are already active, just hidden behind avatar
-        }, 500);
+    console.log('✅ Avatar removed - restarting Speak Now sequence');
+    // The banner was removed by nuclear shutdown - need to restart the sequence
+    showHybridReadySequence();
+}, 500);
         
     }, duration);
 }
