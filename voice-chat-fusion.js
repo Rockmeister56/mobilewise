@@ -3956,15 +3956,35 @@ function showHybridReadySequence() {
         window.speakSequenceBlocked = false;
         speakSequenceActive = false;
         window.playingSorryMessage = false;
+        
+        // CLEAR THE TIMER TOO
+        if (window.currentBulletproofTimer) {
+            clearTimeout(window.currentBulletproofTimer);
+            window.currentBulletproofTimer = null;
+        }
+        
         console.log('🔓 BULLETPROOF: All locks released');
     }
     
-    setTimeout(() => {
+    // FIXED BULLETPROOF TIMER
+    let bulletproofTimer = setTimeout(() => {
         if (window.speakSequenceBlocked || speakSequenceActive) {
-            console.log('🕐 BULLETPROOF: Safety timeout - force cleanup');
+            console.log('🕐 BULLETPROOF: Safety timeout - force cleanup after 15 seconds');
             bulletproofCleanup();
         }
     }, 15000);
+
+    // Store timer reference for cleanup
+    window.currentBulletproofTimer = bulletproofTimer;
+
+    // Clear timer function for successful completions
+    window.clearBulletproofTimer = function() {
+        if (window.currentBulletproofTimer) {
+            clearTimeout(window.currentBulletproofTimer);
+            window.currentBulletproofTimer = null;
+            console.log('🧹 BULLETPROOF: Timer cleared - normal completion');
+        }
+    };
     
     if (typeof recognition !== 'undefined' && recognition) {
         try {
@@ -4184,7 +4204,7 @@ function showHybridReadySequence() {
     
     // ===== TRANSITION TO SPEAK NOW (after 3 seconds) =====
     setTimeout(() => {
-        if (!speakSequenceButton || !speakSequenceActive || window.speakSequenceBlocked === false) {
+        if (!speakSequenceButton || !speakSequenceActive || !window.speakSequenceBlocked) {
             console.log('🛑 BULLETPROOF: Sequence interrupted - aborting transition');
             return;
         }
@@ -4257,6 +4277,9 @@ function showHybridReadySequence() {
                 setTimeout(() => {
                     console.log('💣 NUCLEAR: Cleanup complete - safe to play avatar');
                     
+                    // CLEAR THE BULLETPROOF TIMER - SEQUENCE ENDING NORMALLY
+                    window.clearBulletproofTimer();
+                    
                     // Clean up banner
                     if (speakSequenceButton) {
                         speakSequenceButton.remove();
@@ -4283,6 +4306,8 @@ function showHybridReadySequence() {
                 }, 100); // Brief delay for complete cleanup
             } else {
                 // No recognition to clean up
+                window.clearBulletproofTimer();
+                
                 if (speakSequenceButton) {
                     speakSequenceButton.remove();
                 }
@@ -4310,6 +4335,9 @@ function showHybridReadySequence() {
     // ===== SUCCESS HANDLER =====
     window.handleSpeechSuccess = function(transcript) {
         console.log('✅ Speech detected:', transcript);
+        
+        // CLEAR THE BULLETPROOF TIMER - SUCCESS!
+        window.clearBulletproofTimer();
         
         if (speakSequenceButton) {
             speakSequenceButton.remove();
