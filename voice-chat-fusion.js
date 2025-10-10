@@ -1162,7 +1162,7 @@ if (processLeadResponse(userText)) {
 if (shouldTriggerLeadCapture(userText)) {
     console.log('🎯 BYPASSING AI - Direct to lead capture!');
     setTimeout(() => {
-        startCompleteLeadCapture();
+        initializeLeadCapture();
     }, 300);
     return; // Exit early!
 }
@@ -4568,7 +4568,7 @@ playGetReadyAndSpeakNowSound();
                 }
             }
             
-        }, 7000);
+        }, 4000);
         
     }, 3000);
     
