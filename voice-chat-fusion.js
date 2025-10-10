@@ -4110,7 +4110,7 @@ if (typeof startMobileListening === 'function') {
 setTimeout(() => {
     console.log('🔄 DIRECT backup: calling forceStartListening()');
     forceStartListening();
-}, 800); // Same delay as normal questions
+}, 100); // Same delay as normal questions
         
         // 🔥 FIXED: Check disableDirectTimeout flag before setting timeout
 if (!window.disableDirectTimeout) {
