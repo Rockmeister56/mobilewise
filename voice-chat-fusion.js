@@ -733,7 +733,7 @@ function getApologyResponse() {
                 console.log('🎯 DEBUG: About to show try again overlay');
                 showAvatarSorryMessage(); // ← SIMPLE OVERLAY INSTEAD OF COMPLEX RESTART
                 console.log('🎯 DEBUG: Try again overlay shown');
-            }, 100); // 2 second delay before showing overlay
+            }, 7000); // 2 second delay before showing overlay
 
         } else {
             console.log('🚫 DEBUG: BLOCKED - AI is speaking');
@@ -858,7 +858,7 @@ function forceStartListening() {
                         startListening();
                     }
                     lastMessageWasApology = false;
-                }, 4000);
+                }, 3000);
             }, 500);
         }
     } else if (event.error === 'audio-capture') {
@@ -998,7 +998,7 @@ async function activateMicrophone() {
     const greeting = "Hi there! I'm here to help with CPA firm transactions - buying, selling, and practice valuations. Before we dive in, may I get your first name?";
     addAIMessage(greeting);
     speakResponse(greeting);
-}, 100);
+}, 1400);
         }
 
     } catch (error) {
@@ -1133,7 +1133,7 @@ function processUserResponse(userText) {
             setTimeout(() => {
                 startListening();
                 window.lastProcessedMessage = null;
-            }, 100);
+            }, 1000);
             return;
             
         } else {
@@ -1379,7 +1379,7 @@ function speakResponseOriginal(message) {
         // Wait a moment then start listening
         setTimeout(() => {
             showHybridReadySequence();
-        }, 200); // Short delay after speech ends
+        }, 800); // Short delay after speech ends
     };
     
     utterance.onerror = function(event) {
@@ -2842,7 +2842,7 @@ function initializeLeadCapture(buttonType = 'valuation') {
     // ✅ REMOVED the extra message - go straight to the question
     setTimeout(() => {
         askLeadQuestion(); // This will say "Perfect. Let's start with your full name, please."
-    }, 200); // Shorter delay since no intro message
+    }, 500); // Shorter delay since no intro message
 }
 
 function askLeadQuestion() {
@@ -2891,7 +2891,7 @@ function speakMessage(message) {
             if (isInLeadCapture) {
                 setTimeout(() => {
                     showHybridReadySequence(); // This shows "Get Ready to Speak" → "Listening"
-                }, 200);
+                }, 1300);
             }
         };
         
@@ -3207,7 +3207,7 @@ function sendLeadEmail(data) {
                         if (!isSpeaking && isAudioMode) {
                             startListening();
                         }
-                    }, 100); // Slightly longer to account for longer message
+                    }, 7000); // Slightly longer to account for longer message
                 }, 1000);
                 
             }, function(error) {
