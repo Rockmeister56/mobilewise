@@ -4763,6 +4763,46 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 1000);
 });
 
+// ===== BROWSER AUDIO OPTIMIZATION SYSTEM =====
+function initializeAudioOptimizations() {
+    console.log('🎵 Initializing browser audio optimizations...');
+    
+    try {
+        // Create Web Audio API context for faster audio processing
+        if (!window.audioContext) {
+            window.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            console.log('✅ Web Audio API context created - reduced audio delays');
+        }
+        
+        // Resume audio context if suspended (Chrome requirement)
+        if (window.audioContext.state === 'suspended') {
+            // Add user interaction listener to unlock audio
+            document.addEventListener('click', function unlockAudio() {
+                window.audioContext.resume().then(() => {
+                    console.log('🔊 Audio context resumed via user interaction');
+                });
+                document.removeEventListener('click', unlockAudio);
+            }, { once: true });
+        }
+        
+        // Force preload any existing audio elements
+        const audioElements = document.querySelectorAll('audio');
+        audioElements.forEach((audio, i) => {
+            audio.preload = 'auto';
+            audio.load();
+            console.log(`🎵 Preloaded audio element ${i}`);
+        });
+        
+        console.log('✅ Browser audio optimizations initialized');
+        
+    } catch (error) {
+        console.log('⚠️ Audio optimization partially failed:', error.message);
+    }
+}
+
+// Initialize audio optimizations when page loads
+initializeAudioOptimizations();
+
 // 🎬 MOBILE-WISE AI VIDEO BUFFER SYSTEM - WITH BRUCE'S TESTIMONIALS
 // Updated with Captain's testimonial videos
 
