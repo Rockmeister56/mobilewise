@@ -3863,7 +3863,7 @@ function playMobileErrorBeep() {
     }
 }
 
-function showAvatarSorryMessage(duration = 6000) { // 6 seconds - adjust this number to control timing
+function showAvatarSorryMessage(duration = 6000) {
     console.log(`🎬 Showing avatar for ${duration}ms - WILL restart recognition when done`);
     
     const isMobile = window.innerWidth <= 768;
@@ -3912,24 +3912,18 @@ function showAvatarSorryMessage(duration = 6000) { // 6 seconds - adjust this nu
     
     document.body.appendChild(avatarOverlay);
     
-    // 🎯 SINGLE CONTROL - Shows avatar AND restarts recognition (ESSENTIAL!)
+    // 🎯 SINGLE CONTROL - Shows avatar AND restarts FULL sequence (ESSENTIAL!)
     setTimeout(() => {
-        console.log(`🎬 Avatar duration (${duration}ms) complete - removing and restarting recognition`);
+        console.log(`🎬 Avatar duration (${duration}ms) complete - removing and restarting full sequence`);
         
         if (avatarOverlay.parentNode) {
             avatarOverlay.remove();
         }
         
-        // 🔄 ESSENTIAL: Restart recognition after avatar (recognition.onend has already finished!)
+        // 🔄 ESSENTIAL: Restart FULL sequence (not just raw recognition!)
         setTimeout(() => {
-            if (typeof recognition !== 'undefined' && recognition) {
-                try {
-                    recognition.start();
-                    console.log('✅ Recognition restarted after avatar - listening again!');
-                } catch (e) {
-                    console.log('❌ Failed to restart recognition:', e);
-                }
-            }
+            console.log('🎯 Calling showHybridReadySequence() after avatar');
+            showHybridReadySequence(); // This will show "Speak Now" banner + start recognition
         }, 500);
         
     }, duration);
