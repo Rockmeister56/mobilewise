@@ -1643,7 +1643,7 @@ window.emailJSFix = function() {
     if (typeof emailjs !== 'undefined') {
         // Initialize EmailJS with public key (you need to get this from dashboard)
         try {
-            emailjs.init("YOUR_PUBLIC_KEY_HERE"); // ← CAPTAIN: Replace with your public key
+            emailjs.init("7-9oxa3UC3uKxtqGM"); // ← CAPTAIN: Replace with your public key
             console.log("✅ EmailJS initialized successfully");
         } catch (error) {
             console.error("❌ EmailJS initialization failed:", error);
