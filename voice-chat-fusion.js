@@ -1192,10 +1192,11 @@ console.log('🔍 ROOT CAUSE DEBUG - isMobileDevice FIXED:', {
 });
 
 // =====================================================
-// 🎤 CONSOLIDATED MOBILE-WISE VOICE SYSTEM - FINAL
+// 🎤 CONSOLIDATED MOBILE-WISE VOICE SYSTEM - FINAL (NO SMART BUTTON BLOCK)
 // Master Controller for All Voice Operations
 // Replaces: speakResponse, speakResponseOriginal, speakWithElevenLabs, speakText
 // ✅ INCLUDES: Permanent ElevenLabs Banner Logic Integration
+// ✅ REMOVED: Smart Button blocking (was preventing banners)
 // =====================================================
 
 // ===========================================
@@ -1553,14 +1554,14 @@ class MobileWiseVoiceSystem {
     
     // ============================================================
     // 🎯 SPEECH COMPLETION HANDLER - WITH ELEVENLABS BANNER LOGIC
-    // Consolidates all complex logic + ElevenLabs banner triggering
+    // ✅ SMART BUTTON BLOCKING REMOVED FOR BANNER FUNCTIONALITY
     // ============================================================
     handleSpeechComplete() {
         voiceSystem.isSpeaking = false;
         window.isSpeaking = false; // Backward compatibility
         
         if (VOICE_CONFIG.debug) {
-            console.log("🔍 PERMANENT HANDLER: Speech completed - checking ElevenLabs banner logic");
+            console.log("🔍 PERMANENT HANDLER: Speech completed - checking ElevenLabs banner logic (NO SMART BUTTON BLOCK)");
         }
         
         // ============================================================
@@ -1573,10 +1574,11 @@ class MobileWiseVoiceSystem {
         const thankYouSplashVisible = document.querySelector('.thank-you-splash:not([style*="display: none"])');
         
         if (VOICE_CONFIG.debug) {
-            console.log(`🐛 DEBUG: ElevenLabs blocking conditions check:
+            console.log(`🐛 DEBUG: ElevenLabs blocking conditions check (SMART BUTTON BYPASSED):
                 - Time since click mention: ${timeSinceClickMention}ms (block if < 3000ms)
                 - Conversation state: ${conversationState} (block if 'speaking')
-                - Thank you splash visible: ${!!thankYouSplashVisible}`);
+                - Thank you splash visible: ${!!thankYouSplashVisible}
+                - Smart Button Check: PERMANENTLY BYPASSED ✅`);
         }
         
         // Apply exact ElevenLabs blocking logic
@@ -1595,30 +1597,20 @@ class MobileWiseVoiceSystem {
             return;
         }
         
-        // ============================================================
-        // ADDITIONAL BLOCKING CONDITIONS (FROM YOUR ORIGINAL SYSTEM)
-        // ============================================================
-        
-        // Block if conversation ended
+        // Block if conversation ended (keep this check)
         if (conversationState === 'ended' || conversationState === 'splash_screen_active') {
             console.log('🚫 BLOCKED: Conversation ended');
             return;
         }
         
-        // Block if smart button detected
-        if (document.querySelector('#smartButton') || 
-            document.querySelector('.smart-button') ||
-            document.querySelector('[data-smart-button]') ||
-            document.getElementById('consultationButton')) {
-            console.log('🚫 BLOCKED: Smart Button detected');
-            return;
-        }
+        // *** SMART BUTTON CHECK PERMANENTLY REMOVED ***
+        // This was preventing banner triggers in your system
         
         // ============================================================
         // NO BLOCKS - TRIGGER BANNER (EXACT ELEVENLABS BEHAVIOR)
         // ============================================================
         if (VOICE_CONFIG.debug) {
-            console.log('🐛 DEBUG: No blocking conditions - calling showHybridReadySequence() (ElevenLabs logic)');
+            console.log('🐛 DEBUG: No blocking conditions - calling showHybridReadySequence() (Smart Button permanently bypassed)');
         }
         
         setTimeout(() => {
@@ -1626,7 +1618,7 @@ class MobileWiseVoiceSystem {
                 try {
                     showHybridReadySequence();
                     if (VOICE_CONFIG.debug) {
-                        console.log("✅ SUCCESS: Banner sequence triggered successfully (ElevenLabs logic)");
+                        console.log("✅ SUCCESS: Banner sequence triggered successfully (Smart Button permanently bypassed)");
                     }
                 } catch (error) {
                     console.error('❌ ERROR: Failed to trigger banner sequence:', error);
@@ -1664,6 +1656,7 @@ class MobileWiseVoiceSystem {
         console.log(`  ElevenLabs: ${VOICE_CONFIG.elevenlabs.enabled ? 'Enabled' : 'Disabled'}`);
         console.log(`  Total Voices: ${this.voices.length}`);
         console.log(`  ElevenLabs Banner Logic: ✅ INTEGRATED`);
+        console.log(`  Smart Button Blocking: ❌ REMOVED (for banner functionality)`);
     }
 }
 
@@ -1718,10 +1711,11 @@ window.getVoiceStatus = function() {
 // AUTO-INITIALIZATION
 // ===========================================
 if (VOICE_CONFIG.debug) {
-    console.log("✅ Consolidated Mobile-Wise Voice System loaded! (WITH ELEVENLABS BANNER LOGIC)");
+    console.log("✅ Consolidated Mobile-Wise Voice System loaded! (SMART BUTTON BLOCKING REMOVED)");
     console.log("🎯 Commands: switchToBritish(), switchToElevenLabs(), getVoiceStatus(), stopAllSpeech()");
     console.log(`🎤 Current provider: ${VOICE_CONFIG.provider}`);
     console.log("🚀 ElevenLabs Banner Logic: PERMANENTLY INTEGRATED");
+    console.log("🎯 Smart Button Blocking: PERMANENTLY REMOVED");
 }
 
 // Auto-show status after initialization
