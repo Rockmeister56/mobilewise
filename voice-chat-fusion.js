@@ -729,9 +729,9 @@ function forceStartListening() {
 
                         setTimeout(() => {
                             showHybridReadySequence();
-                        }, 800);
+                        }, 500);
                     }
-                }, 1500);
+                },  500);
             }
 
         } else {
