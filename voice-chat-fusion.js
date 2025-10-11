@@ -2748,6 +2748,131 @@ if (conversationState === 'initial') {
         showUniversalBanner('freeBookWithConsultation');
     }, 1500);
     
+} else if (conversationState === 'initial') {
+    // 🎯 FIRST NAME CAPTURE - Always ask for name first unless they jump straight to business
+    if (!leadData.firstName && !userText.includes('buy') && !userText.includes('sell') && !userText.includes('value') && !userText.includes('purchase') && !userText.includes('acquire')) {
+        responseText = "Hi there! I'm here to help with CPA firm transactions - buying, selling, and practice valuations. Before we dive in, what's your first name?";
+        conversationState = 'getting_first_name';
+        return responseText;
+    }
+    
+    if (userText.includes('buy') || userText.includes('purchase') || userText.includes('buying') || userText.includes('acquire')) {
+        responseText = firstName ? 
+            `Excellent, ${firstName}! Bruce has some fantastic opportunities available right now - some exclusive off-market deals that would blow you away. Tell me, what's your budget range for acquiring a practice?` :
+            "Excellent! Bruce has some fantastic opportunities available - some exclusive off-market deals that would blow you away. What's your budget range for acquiring a practice?";
+        conversationState = 'buying_budget_question';
+        shouldShowSmartButton = false;
+        
+        // 🎯 NEW: Trigger free book banner for buying interest
+        setTimeout(() => {
+            showUniversalBanner('freeBookWithConsultation');
+        }, 2000);
+        
+    } else if (userText.includes('sell') || userText.includes('selling')) {
+        responseText = firstName ? 
+             `Wow ${firstName}! That's a huge decision - you've probably poured your heart and soul into building something special there. Tell me, how many clients are you currently serving?` :
+            "I'd love to help you with selling your practice! That's a big decision - you've probably built something really special. How many clients are you currently serving?";
+        conversationState = 'selling_size_question';
+        shouldShowSmartButton = false;
+        
+        // 🎯 NEW: Trigger free book banner for selling interest
+        setTimeout(() => {
+            showUniversalBanner('freeBookWithConsultation');
+        }, 2000);
+        
+    } else if (userText.includes('value') || userText.includes('worth') || userText.includes('valuation') || userText.includes('evaluate')) {
+        responseText = firstName ?
+            `${firstName}, I'd be happy to help with a practice valuation! You know, most practice owners are shocked when they find out what their practice is actually worth in today's market. To give you the most accurate assessment, what's your practice's approximate annual revenue?` :
+            "I'd be happy to help with a practice valuation! Most owners are surprised at what their practice is worth. What's your practice's approximate annual revenue?";
+        conversationState = 'valuation_revenue_question';
+        shouldShowSmartButton = false;
+        
+        // 🎯 NEW: Trigger free book banner for valuation interest
+        setTimeout(() => {
+            showUniversalBanner('freeBookWithConsultation');
+        }, 2000);
+        
+    } else {
+        responseText = firstName ?
+            `${firstName}, I'm here to help with CPA firm transactions - buying, selling, and practice valuations. Bruce has been doing this for years and has some incredible opportunities right now. What brings you here today?` :
+            "Hi there! I'm here to help with CPA firm transactions - buying, selling, and practice valuations. Bruce has been doing this for years and has some incredible opportunities right now. What brings you here today?";
+    }
+
+} else if (conversationState === 'getting_first_name') {
+    // 🎯 EXTRACT AND STORE FIRST NAME
+    const words = userInput.trim().split(' ');
+    const extractedName = words[0].replace(/[^a-zA-Z]/g, ''); // Remove any punctuation
+    if (extractedName.length > 0) {
+       window.leadData.firstName = extractedName.charAt(0).toUpperCase() + extractedName.slice(1).toLowerCase();
+        firstName = window.leadData.firstName;
+        
+        responseText = `Great to meet you ${firstName}! Now, what brings you here today - are you looking to buy a practice, sell your practice, or get a practice valuation?`;
+        conversationState = 'initial';
+    } else {
+        responseText = "I didn't catch your name. Could you tell me your first name?";
+    }
+    
+} else if (conversationState === 'selling_size_question') {
+    const clientCount = userText.match(/(\d+(?:,\d+)*(?:\.\d+)?)/);
+    const number = clientCount ? clientCount[0] : 'that many';
+    
+    // 🎯 CONSULTATIVE VERSION - More empathetic
+    responseText = firstName ?
+        `Wow, ${firstName}! ${number} clients - that represents years of relationship building and trust. You've clearly built something substantial there. I can imagine you want to make sure they're taken care of in any transition, right? With that kind of established client base, what's your approximate annual revenue range?` :
+        `Incredible! ${number} clients - that's years of relationship building. You've built something substantial. With that established base, what's your approximate annual revenue range?`;
+    conversationState = 'selling_revenue_question';
+    
+} else if (conversationState === 'selling_revenue_question') {
+    const revenueMatch = userText.match(/(\d+(?:,\d+)*(?:\.\d+)?)/);
+    const revenue = revenueMatch ? revenueMatch[0] : 'that kind of revenue';
+    
+    // 🎯 CONSULTATIVE VERSION - Address concerns proactively before asking motivation
+    responseText = firstName ?
+        `${firstName}, ${revenue} in revenue with your client base - you've clearly built something substantial and valuable. Now, I'm curious about what's driving this decision. Is this something you're excited about - like retirement or new opportunities - or is there something about the current situation that's been concerning you? Understanding what matters most to you helps Bruce create the right approach.` :
+        `Excellent! ${revenue} with your client base - that's substantial. What's driving this decision? Something exciting like retirement, or concerns about the current situation? This helps Bruce create the right approach.`;
+    conversationState = 'selling_motivation_question';
+    
+} else if (conversationState === 'selling_motivation_question') {
+    
+    // 🎯 CONSULTATIVE TESTIMONIAL SYSTEM - Check for concerns FIRST
+    const concernType = detectConsultativeResponse(userText);
+    
+    if (concernType) {
+        // Concern detected! Address it with testimonial
+        let testimonialMessage = firstName ? 
+            `${firstName}, that's exactly the kind of thing many of our clients initially worry about. You know what? Let me show you what one of Bruce's recent clients had to say about that exact concern...` :
+            "That's exactly what many clients worry about. Let me show you what one of Bruce's recent clients said about that exact concern...";
+        
+        // 🎯 SHOW APPROPRIATE TESTIMONIAL
+        setTimeout(() => {
+            if (concernType === 'value') {
+                showTestimonialVideo('skeptical', 12000); // Addresses getting full value
+                console.log('🎯 Showing VALUE testimonial - client got more than expected');
+            } else if (concernType === 'speed') {
+                showTestimonialVideo('speed', 12000); // Addresses timeline concerns
+                console.log('🎯 Showing SPEED testimonial - surprised by quick process');
+            } else if (concernType === 'credibility') {
+                showTestimonialVideo('skeptical', 12000); // Addresses trust/credibility
+                console.log('🎯 Showing CREDIBILITY testimonial - skeptical then exceeded expectations');
+            }
+        }, 2000);
+        
+        // Continue in same conversation state after testimonial
+        return testimonialMessage;
+    }
+    
+    // 🎯 NO CONCERN DETECTED - Original response but more consultative
+    responseText = firstName ?
+        `Thank you for sharing that with me, ${firstName}! You know, based on everything you've told me - your client base, revenue, and your motivation - Bruce can definitely help you navigate this transition successfully. The market is really strong right now for established practices like yours. Honestly, ${firstName}, this could be perfect timing. Would you like to schedule a FREE consultation with Bruce to discuss your selling strategy?` :
+        "Thank you for sharing that! Based on what you've told me, Bruce can help you navigate this successfully. The market is strong for established practices. Would you like a FREE consultation with Bruce?";
+    
+    conversationState = 'asking_selling_consultation';
+    
+    // 🎯 NEW: Trigger free book banner when offering consultation
+    setTimeout(() => {
+        showUniversalBanner('freeBookWithConsultation');
+    }, 1500);
+    
 } else if (conversationState === 'asking_selling_consultation') {
     if (userText.includes('yes') || userText.includes('sure') || userText.includes('okay') || userText.includes('definitely') || userText.includes('absolutely')) {
         // 🎯 BYPASS AI RESPONSE - GO STRAIGHT TO LEAD CAPTURE
@@ -2934,7 +3059,7 @@ if (window.emailFollowUpHandler && window.emailFollowUpHandler(userInput)) {
 }
 
 // ✅ SAVE RESPONSE TEXT TO lastAIResponse BEFORE RETURNING
-  function setAIResponse(response) {
+function setAIResponse(response) {
     currentAIResponse = response;
     
     // Track when we mention clicking
@@ -2948,6 +3073,42 @@ if (window.emailFollowUpHandler && window.emailFollowUpHandler(userInput)) {
 
 return responseText;
 }
+
+// ===== OPTIONAL: TEST FUNCTIONS FOR CAPTAIN =====
+// Add these at the end of your file for testing
+
+function testValueConcern() {
+    console.log('🧪 Testing: "I\'m worried about getting what it\'s worth"');
+    const result = detectConsultativeResponse("I'm worried about getting what it's worth");
+    console.log('Result:', result);
+    if (result === 'value') {
+        showTestimonialVideo('skeptical', 8000);
+    }
+}
+
+function testSpeedConcern() {
+    console.log('🧪 Testing: "How long does this process take?"');
+    const result = detectConsultativeResponse("How long does this process take?");
+    console.log('Result:', result);
+    if (result === 'speed') {
+        showTestimonialVideo('speed', 8000);
+    }
+}
+
+function testCredibilityConcern() {
+    console.log('🧪 Testing: "What\'s your experience with this?"');
+    const result = detectConsultativeResponse("What's your experience with this?");
+    console.log('Result:', result);
+    if (result === 'credibility') {
+        showTestimonialVideo('skeptical', 8000);
+    }
+}
+
+console.log('🎯 Consultative Testimonial System loaded and ready!');
+console.log('📊 Two testimonials: "skeptical" (value/credibility) and "speed" (timeline)');
+console.log('💡 Test with: testValueConcern(), testSpeedConcern(), testCredibilityConcern()');
+
+// ===== INTEGRATION COMPLETE! =====
 
 // 🎯 ADD THIS FUNCTION AT THE END OF YOUR FILE:
 function shouldTriggerLeadCapture(userInput) {
@@ -4183,6 +4344,139 @@ function playMobileErrorBeep() {
             console.log('📱 Fallback beep also failed');
         }
     }
+}
+
+function showTestimonialVideo(testimonialType, duration = 12000) {
+    console.log(`🎬 Playing ${testimonialType} testimonial for ${duration}ms`);
+    
+    // 🚫 PREVENT DOUBLE CALLS - BULLETPROOF (same as your original)
+    if (window.avatarCurrentlyPlaying) {
+        console.log('🚫 Avatar already playing - skipping duplicate testimonial call');
+        return;
+    }
+    
+    window.avatarCurrentlyPlaying = true;
+    
+    const isMobile = window.innerWidth <= 768;
+    
+    // 🎯 BRUCE'S TESTIMONIAL VIDEO URLS (from your browser optimization file)
+    const testimonialVideos = {
+        skeptical: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982717330.mp4", // Skeptical, Then Exceeded Expectations
+        speed: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982877040.mp4"      // Surprised by the Speed of the Sale
+    };
+    
+    const videoUrl = testimonialVideos[testimonialType] || testimonialVideos.skeptical;
+    
+    const avatarOverlay = document.createElement('div');
+    
+    // EXACT SAME STYLING AS YOUR ORIGINAL AVATAR FUNCTION
+    if (isMobile) {
+        avatarOverlay.style.cssText = `
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: #000; z-index: 9999;
+            display: flex; justify-content: center; align-items: center;
+        `;
+        
+        avatarOverlay.innerHTML = `
+            <video id="testimonialVideo" autoplay playsinline webkit-playsinline="true" style="
+                width: 100%; height: 100%; object-fit: cover;
+            ">
+                <source src="${videoUrl}" type="video/mp4">
+            </video>
+        `;
+    } else {
+        avatarOverlay.style.cssText = `
+            position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 833px; height: 433px;
+            background: #000; z-index: 9999;
+            border-radius: 12px; overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        `;
+        
+        avatarOverlay.innerHTML = `
+            <video id="testimonialVideo" autoplay style="
+                width: 100%; height: 100%; object-fit: cover;
+            ">
+                <source src="${videoUrl}" type="video/mp4">
+            </video>
+        `;
+    }
+    
+    document.body.appendChild(avatarOverlay);
+
+    // 🎯 CONSULTATIVE CONCERN DETECTION SYSTEM
+function detectConsultativeResponse(userText) {
+    const text = userText.toLowerCase().trim();
+    
+    // 🎯 VALUE/WORTH CONCERNS
+    const valueConcerns = [
+        'concern', 'worried', 'afraid', 'nervous', 'anxious',
+        'worth', 'value', 'fair price', 'market value', 'low ball',
+        'undervalue', 'undersell', 'getting what', 'full value',
+        'what it\'s worth', 'fair deal', 'ripped off', 'enough money'
+    ];
+    
+    // 🎯 SPEED/TIMELINE CONCERNS  
+    const speedConcerns = [
+        'how long', 'timeline', 'time', 'quick', 'fast', 'speed',
+        'when', 'soon', 'quickly', 'process time', 'sell fast',
+        'too fast', 'rushed', 'patient', 'wait', 'takes forever'
+    ];
+    
+    // 🎯 CREDIBILITY/TRUST CONCERNS
+    const credibilityConcerns = [
+        'experience', 'credibility', 'trust', 'legitimate', 'proven',
+        'track record', 'skeptical', 'doubt', 'reliable', 'reputation',
+        'references', 'testimonials', 'reviews', 'who are you', 'can you really'
+    ];
+    
+    // Check for value concerns → Show "skeptical then exceeded" testimonial
+    for (let concern of valueConcerns) {
+        if (text.includes(concern)) {
+            console.log(`🎯 VALUE CONCERN detected: "${concern}" - will show value testimonial`);
+            return 'value';
+        }
+    }
+    
+    // Check for speed concerns → Show "speed of sale" testimonial
+    for (let concern of speedConcerns) {
+        if (text.includes(concern)) {
+            console.log(`🎯 SPEED CONCERN detected: "${concern}" - will show speed testimonial`);
+            return 'speed';
+        }
+    }
+    
+    // Check for credibility concerns → Show "skeptical then exceeded" testimonial
+    for (let concern of credibilityConcerns) {
+        if (text.includes(concern)) {
+            console.log(`🎯 CREDIBILITY CONCERN detected: "${concern}" - will show credibility testimonial`);
+            return 'credibility';
+        }
+    }
+    
+    return null; // No concern detected
+}
+    
+    // 🎯 CLEANUP - CONTINUES CONVERSATION (KEY DIFFERENCE FROM SORRY MESSAGE)
+    function cleanup() {
+        console.log(`🎬 Testimonial ${testimonialType} complete - continuing conversation`);
+        
+        if (avatarOverlay.parentNode) {
+            avatarOverlay.remove();
+        }
+        
+        window.avatarCurrentlyPlaying = false;
+        
+        // 🎯 NO "Speak Now" - let conversation continue naturally
+        setTimeout(() => {
+            console.log('✅ Testimonial removed - conversation continues naturally');
+            // Conversation flows naturally without interruption
+        }, 1000);
+    }
+    
+    setTimeout(cleanup, duration);
 }
 
 function showAvatarSorryMessage(duration = 6000) {
