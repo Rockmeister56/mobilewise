@@ -550,7 +550,7 @@ function getApologyResponse() {
                         startListening();
                     }
                     lastMessageWasApology = false;
-                }, 3000);
+                }, 500);
             }, 500);
         }
     } else if (event.error === 'audio-capture') {
