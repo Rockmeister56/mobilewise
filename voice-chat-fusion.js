@@ -3868,7 +3868,7 @@ function showAvatarSorryMessage(duration = 6000) { // 6 seconds - adjust this nu
     
     const isMobile = window.innerWidth <= 768;
     
-    // Device-specific video URLs
+    // Device-specific video URLs (PRESERVED FROM ORIGINAL)
     const mobileVideoUrl = "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759940889574.mp4";
     const desktopVideoUrl = "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759966365834.mp4";
     
@@ -3876,6 +3876,7 @@ function showAvatarSorryMessage(duration = 6000) { // 6 seconds - adjust this nu
     
     const avatarOverlay = document.createElement('div');
     
+    // ORIGINAL STYLING PRESERVED - Mobile vs Desktop
     if (isMobile) {
         avatarOverlay.style.cssText = `
             position: fixed; top: 0; left: 0;
@@ -3885,7 +3886,7 @@ function showAvatarSorryMessage(duration = 6000) { // 6 seconds - adjust this nu
         `;
         
         avatarOverlay.innerHTML = `
-            <video id="avatarVideo" autoplay style="
+            <video id="avatarVideo" autoplay playsinline webkit-playsinline="true" style="
                 width: 100%; height: 100%; object-fit: cover;
             ">
                 <source src="${videoUrl}" type="video/mp4">
@@ -3912,24 +3913,63 @@ function showAvatarSorryMessage(duration = 6000) { // 6 seconds - adjust this nu
     
     document.body.appendChild(avatarOverlay);
     
-    // 🎯 SINGLE CONTROL - Shows avatar AND lets banner reappear naturally
-    setTimeout(() => {
+    // 🎯 MOBILE FAILSAFE ADDITION - Add polling backup for mobile browsers
+    const videoElement = document.getElementById('avatarVideo');
+    let cleanupExecuted = false;
+    let pollingInterval;
+    
+    function executeOriginalCleanup() {
+        if (cleanupExecuted) return; // Prevent double execution
+        cleanupExecuted = true;
+        
         console.log(`🎬 Avatar duration (${duration}ms) complete - removing and letting banner reappear`);
         
+        // Clear mobile failsafe polling if active
+        if (pollingInterval) {
+            clearInterval(pollingInterval);
+        }
+        
+        // ORIGINAL CLEANUP LOGIC PRESERVED
         if (avatarOverlay.parentNode) {
             avatarOverlay.remove();
         }
         
+        // ORIGINAL DELAY AND FUNCTION CALL PRESERVED
         setTimeout(() => {
-    console.log('✅ Avatar removed - going DIRECT to Speak Now');
-    showDirectSpeakNow(); // ← RIGHT - goes straight to Speak Now
-}, 500);
+            console.log('✅ Avatar removed - going DIRECT to Speak Now');
+            showDirectSpeakNow(); // ← RIGHT - goes straight to Speak Now
+        }, 500);
+    }
+    
+    // MOBILE FAILSAFE: Add polling method as backup for mobile browsers
+    if (isMobile) {
+        videoElement.addEventListener('loadedmetadata', () => {
+            console.log(`📱 Mobile failsafe: Video duration = ${videoElement.duration}s`);
+            
+            // Mobile failsafe polling - only runs if main timeout fails
+            pollingInterval = setInterval(() => {
+                if (videoElement.currentTime >= videoElement.duration - 0.1) {
+                    console.log("📱 Mobile failsafe: Video completion detected via polling");
+                    executeOriginalCleanup();
+                }
+            }, 100); // Check every 100ms
+        });
         
+        // Mobile video error handling
+        videoElement.addEventListener('error', (e) => {
+            console.error("📱 Mobile video error:", e);
+            executeOriginalCleanup();
+        });
+    }
+    
+    // 🎯 ORIGINAL SINGLE CONTROL PRESERVED - Primary cleanup method
+    setTimeout(() => {
+        executeOriginalCleanup();
     }, duration);
 }
 
-function showDirectSpeakNow() {
-    console.log('🎯 DIRECT Speak Now - skipping Get Ready phase completely');
+// Ensure global availability
+window.showAvatarSorryMessage = showAvatarSorryMessage;
     
     // Quick safety check
     if (window.speakSequenceBlocked) {
