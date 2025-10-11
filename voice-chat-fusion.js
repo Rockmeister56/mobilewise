@@ -100,111 +100,6 @@ class SpeechEngineManager {
 const speechEngine = new SpeechEngineManager();
 console.log('🚀 Speech Engine Manager initialized');
 
-// ===========================================
-// ELEVENLABS CONFIGURATION
-// ===========================================
-const ELEVENLABS_API_KEY = 'sk_9e7fa2741be74e8cc4af95744fe078712c1e8201cdcada93';
-const VOICE_ID = 'zGjIP4SZlMnY9m93k97r';
-
-// ===========================================
-// ELEVENLABS SPEECH SYNTHESIS
-// ===========================================
-async function speakWithElevenLabs(message) {
-    try {
-        console.log('🎤 ElevenLabs: Starting speech synthesis...');
-        isSpeaking = true;
-        
-        // Start API call immediately (don't await yet)
-        const audioPromise = fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}`, {
-            method: 'POST',
-            headers: {
-                'Accept': 'audio/mpeg',
-                'Content-Type': 'application/json',
-                'xi-api-key': ELEVENLABS_API_KEY
-            },
-            body: JSON.stringify({
-                text: message,
-                model_id: 'eleven_turbo_v2',  // ← FASTER MODEL
-                voice_settings: {
-                    stability: 0.5,
-                    similarity_boost: 0.5,
-                    style: 0.0,  // ← SPEED OPTIMIZATION
-                    use_speaker_boost: true
-                }
-            })
-        });
-
-        // Show loading indicator while waiting
-        console.log('🔄 ElevenLabs: Processing audio...');
-        
-        const response = await audioPromise;
-        
-        if (!response.ok) {
-            throw new Error(`ElevenLabs API error: ${response.status}`);
-        }
-
-        const audioBlob = await response.blob();
-        const audioUrl = URL.createObjectURL(audioBlob);
-        
-        // Preload audio
-        const audio = new Audio();
-        audio.preload = 'auto';  // ← PRELOAD OPTIMIZATION
-        
-        // Set up event handlers BEFORE setting src
-        audio.oncanplaythrough = function() {
-            console.log('🎤 ElevenLabs: Audio ready - starting playback');
-            audio.play();
-        };
-        
-        // YOUR EXISTING BLOCKING LOGIC HERE:
-        audio.onended = function() {
-            console.log('🔍 WHICH HANDLER IS RUNNING: Smart Button Blocking Handler');
-            isSpeaking = false;
-            console.log('🔊 AI finished speaking (mobile)');
-            
-            // 🚫 BLOCK if we recently mentioned clicking
-            const clickMentionTime = window.lastClickMentionTime || 0;
-            const timeSinceClickMention = Date.now() - clickMentionTime;
-            
-            if (timeSinceClickMention < 10000) {
-                console.log('🔇 SPEAK NOW BLOCKED: Recent click mention - waiting for user action');
-                return;
-            }
-            
-            // 🚫 DON'T TRIGGER "Speak Now" if Thank You Splash Screen exists
-            if (document.getElementById('thankYouSplash')) {
-                console.log('🔇 SPEAK NOW BLOCKED: Thank you splash screen active - no speech restart');
-                return;
-            }
-            
-            // 🚫 DON'T TRIGGER "Speak Now" if conversation is specifically ended
-            if (conversationState === 'ended' || conversationState === 'splash_screen_active') {
-                console.log('🔇 SPEAK NOW BLOCKED: Conversation ended - no speech restart');
-                return;
-            }
-            
-            console.log('🐛 DEBUG: No blocking conditions - calling showHybridReadySequence()');
-            showHybridReadySequence();
-            
-            // Clean up
-            URL.revokeObjectURL(audioUrl);
-        };
-        
-        audio.onerror = function(error) {
-            console.error('🚫 ElevenLabs: Audio playback error:', error);
-            isSpeaking = false;
-        };
-        
-        // Set source (triggers loading)
-        audio.src = audioUrl;
-        
-    } catch (error) {
-        console.error('🚫 ElevenLabs: Speech synthesis error:', error);
-        isSpeaking = false;
-        speakResponseOriginal(message);
-    }
-}
-
 // 🚨 NUCLEAR MOBILE DETECTION - SCREEN SIZE ONLY
 const isDefinitelyMobile = window.innerWidth <= 768 || window.innerHeight <= 1024;
 
@@ -770,7 +665,7 @@ function stopListening() {
 }
 
 // ===================================================
-// 🔍 SPEECH RECOGNITION DIAGNOSTIC TEST
+// 🔍 FORCE START LISTENING
 // ===================================================
 
 // 🎯 ADD THIS TO YOUR forceStartListening() FUNCTION - REPLACE THE EXISTING ONE:
@@ -1222,36 +1117,6 @@ function shouldTriggerLeadCapture(userInput) {
     return yesResponses.includes(input) && aiOfferedConsultation;
 }
 
-// =================================================== 
-// 🔊 MOBILE-WISE AI CUSTOM BEEP SYSTEM
-// =================================================== 
-function playGetReadyBeep() {
-    // Soft "get ready" tone
-    createBeep(440, 0.2, 0.3); // A note, 0.2 seconds, medium volume
-}
-
-function playListeningBeep() {
-    // Professional "ready to listen" double-beep
-    createBeep(660, 0.15, 0.4);
-    setTimeout(() => createBeep(880, 0.15, 0.4), 200);
-}
-
-function createBeep(frequency, duration, volume) {
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
-    
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-    
-    oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
-    gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
-    
-    oscillator.start();
-    oscillator.stop(audioContext.currentTime + duration);
-}
-
 // ===================================================
 // 🔥 PRE-WARM ENGINE (SILENT - NO BEEP)
 // ===================================================
@@ -1326,103 +1191,459 @@ console.log('🔍 ROOT CAUSE DEBUG - isMobileDevice FIXED:', {
     isMobileInUA: /Mobile/.test(navigator.userAgent)
 });
 
-// ===================================================
-// 🔊 VOICE SYNTHESIS SYSTEM
-// ===================================================
-function speakResponseOriginal(message) {
-    if (!window.speechSynthesis) {
-        console.log('❌ Speech synthesis not supported');
-        return;
-    }
+// =====================================================
+// 🎤 CONSOLIDATED MOBILE-WISE VOICE SYSTEM
+// Master Controller for All Voice Operations
+// Replaces: speakResponse, speakResponseOriginal, speakWithElevenLabs, speakText
+// =====================================================
 
-    window.speechSynthesis.cancel();
+// ===========================================
+// VOICE SYSTEM CONFIGURATION
+// ===========================================
+const VOICE_CONFIG = {
+    // MAIN CONTROL - Change this to switch voice systems
+    provider: 'british',  // 'british' | 'elevenlabs' | 'browser'
     
-    const utterance = new SpeechSynthesisUtterance(message);
+    // ELEVENLABS CONFIG (when enabled)
+    elevenlabs: {
+        enabled: false,  // ← SET TO TRUE when you have credits
+        apiKey: 'sk_9e7fa2741be74e8cc4af95744fe078712c1e8201cdcada93',
+        voiceId: 'zGjIP4SZlMnY9m93k97r',
+        model: 'eleven_turbo_v2'
+    },
     
-    // Consistent settings for both mobile and desktop
-    utterance.rate = isMobileDevice() ? 0.9 : 1.0;
-    utterance.pitch = 1.0;
-    utterance.volume = isMobileDevice() ? 0.95 : 0.9;
+    // BRITISH VOICE CONFIG
+    british: {
+        enabled: true,   // ← FREE, always available
+        priority: ['Microsoft Hazel - English (Great Britain)', 'Kate', 'Serena', 'Google UK English Female']
+    },
     
-    utterance.onstart = function() {
-        isSpeaking = true;
-        console.log('🔊 AI started speaking' + (isMobileDevice() ? ' (mobile)' : ''));
+    // FALLBACK BROWSER CONFIG
+    browser: {
+        enabled: true,   // ← Basic fallback
+        rate: 0.9,
+        pitch: 1.0,
+        volume: 0.8
+    },
+    
+    // DEBUG & CONTROL
+    debug: true,
+    autoFallback: true  // Automatically fallback if primary fails
+};
+
+// ===========================================
+// GLOBAL VOICE STATE
+// ===========================================
+let voiceSystem = {
+    isSpeaking: false,
+    currentProvider: null,
+    selectedBritishVoice: null,
+    isInitialized: false
+};
+
+// ===========================================
+// CONSOLIDATED VOICE SYSTEM CLASS
+// ===========================================
+class MobileWiseVoiceSystem {
+    constructor() {
+        this.synthesis = window.speechSynthesis;
+        this.voices = [];
         
-        // Visual feedback that AI is speaking
-        if (isMobileDevice()) {
-            const micButton = document.getElementById('micButton');
-            const liveTranscript = document.getElementById('liveTranscript');
-            if (micButton) micButton.classList.remove('listening');
-            if (liveTranscript) liveTranscript.style.display = 'none';
+        if (VOICE_CONFIG.debug) {
+            console.log("🎤 Mobile-Wise Consolidated Voice System initializing...");
         }
-    };
-    
-    utterance.onend = function() {
-        isSpeaking = false;
-        console.log('🔊 AI finished speaking' + (isMobileDevice() ? ' (mobile)' : ''));
         
-        // ✅ CONSISTENT: Use the same logic for both mobile and desktop
+        this.initializeSystem();
+    }
+    
+    // Initialize all voice systems
+    async initializeSystem() {
+        // Initialize browser voices first
+        await this.initializeBrowserVoices();
+        
+        // Select best British voice if enabled
+        if (VOICE_CONFIG.british.enabled) {
+            this.selectBritishVoice();
+        }
+        
+        voiceSystem.isInitialized = true;
+        voiceSystem.currentProvider = VOICE_CONFIG.provider;
+        
+        if (VOICE_CONFIG.debug) {
+            console.log(`✅ Voice system ready - Provider: ${VOICE_CONFIG.provider}`);
+            this.logSystemStatus();
+        }
+    }
+    
+    // Initialize browser voices with proper loading
+    initializeBrowserVoices() {
+        return new Promise((resolve) => {
+            const loadVoices = () => {
+                this.voices = this.synthesis.getVoices();
+                if (this.voices.length > 0) {
+                    resolve();
+                } else {
+                    setTimeout(loadVoices, 100);
+                }
+            };
+            
+            this.synthesis.addEventListener('voiceschanged', loadVoices);
+            loadVoices();
+        });
+    }
+    
+    // Select best British voice
+    selectBritishVoice() {
+        for (const voiceName of VOICE_CONFIG.british.priority) {
+            const voice = this.voices.find(v => 
+                (v.name.includes(voiceName) || v.name === voiceName) &&
+                (v.lang.includes('gb') || v.lang.includes('uk'))
+            );
+            
+            if (voice) {
+                voiceSystem.selectedBritishVoice = voice;
+                if (VOICE_CONFIG.debug) {
+                    console.log(`🇬🇧 Selected British voice: ${voice.name}`);
+                }
+                return;
+            }
+        }
+        
+        // Fallback to any quality female voice
+        const fallbackVoice = this.voices.find(v => 
+            v.name.toLowerCase().includes('zira') || 
+            v.name.toLowerCase().includes('female')
+        );
+        
+        if (fallbackVoice) {
+            voiceSystem.selectedBritishVoice = fallbackVoice;
+            if (VOICE_CONFIG.debug) {
+                console.log(`🔄 Fallback voice selected: ${fallbackVoice.name}`);
+            }
+        }
+    }
+    
+    // ===========================================
+    // MASTER SPEAK FUNCTION - Replaces ALL others
+    // ===========================================
+    async speak(text, options = {}) {
+        if (!text || text.trim() === '') {
+            console.warn("⚠️ Empty text provided to voice system");
+            return;
+        }
+        
+        // Set speaking state
+        voiceSystem.isSpeaking = true;
+        window.isSpeaking = true; // For backward compatibility
+        
+        if (VOICE_CONFIG.debug) {
+            console.log(`🎤 Speaking with ${VOICE_CONFIG.provider}: "${text.substring(0, 50)}..."`);
+        }
+        
+        try {
+            // Route to correct voice provider
+            switch (VOICE_CONFIG.provider) {
+                case 'elevenlabs':
+                    if (VOICE_CONFIG.elevenlabs.enabled) {
+                        await this.speakWithElevenLabs(text);
+                    } else {
+                        console.warn("⚠️ ElevenLabs disabled, falling back to British");
+                        await this.speakWithBritish(text);
+                    }
+                    break;
+                    
+                case 'british':
+                    await this.speakWithBritish(text);
+                    break;
+                    
+                case 'browser':
+                default:
+                    await this.speakWithBrowser(text);
+                    break;
+            }
+            
+        } catch (error) {
+            console.error(`❌ ${VOICE_CONFIG.provider} voice failed:`, error);
+            
+            // Auto-fallback if enabled
+            if (VOICE_CONFIG.autoFallback && VOICE_CONFIG.provider !== 'browser') {
+                console.log("🔄 Auto-fallback to browser voice");
+                await this.speakWithBrowser(text);
+            }
+        }
+    }
+    
+    // ===========================================
+    // ELEVENLABS VOICE PROVIDER
+    // ===========================================
+    async speakWithElevenLabs(text) {
+        if (!VOICE_CONFIG.elevenlabs.enabled) {
+            throw new Error("ElevenLabs not enabled");
+        }
+        
+        const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE_CONFIG.elevenlabs.voiceId}`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'audio/mpeg',
+                'Content-Type': 'application/json',
+                'xi-api-key': VOICE_CONFIG.elevenlabs.apiKey
+            },
+            body: JSON.stringify({
+                text: text,
+                model_id: VOICE_CONFIG.elevenlabs.model,
+                voice_settings: {
+                    stability: 0.5,
+                    similarity_boost: 0.5,
+                    style: 0.0,
+                    use_speaker_boost: true
+                }
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`ElevenLabs API error: ${response.status}`);
+        }
+        
+        const audioBlob = await response.blob();
+        const audioUrl = URL.createObjectURL(audioBlob);
+        
+        return new Promise((resolve, reject) => {
+            const audio = new Audio();
+            audio.preload = 'auto';
+            
+            audio.oncanplaythrough = () => {
+                audio.play();
+            };
+            
+            audio.onended = () => {
+                this.handleSpeechComplete();
+                URL.revokeObjectURL(audioUrl);
+                resolve();
+            };
+            
+            audio.onerror = (error) => {
+                console.error('🚫 ElevenLabs audio error:', error);
+                reject(error);
+            };
+            
+            audio.src = audioUrl;
+        });
+    }
+    
+    // ===========================================
+    // BRITISH VOICE PROVIDER
+    // ===========================================
+    async speakWithBritish(text) {
+        if (!voiceSystem.selectedBritishVoice) {
+            throw new Error("No British voice available");
+        }
+        
+        this.synthesis.cancel();
+        
+        return new Promise((resolve, reject) => {
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.voice = voiceSystem.selectedBritishVoice;
+            
+            // Optimized settings for British voice
+            utterance.rate = 0.85;
+            utterance.pitch = 1.05;
+            utterance.volume = 0.85;
+            
+            utterance.onend = () => {
+                this.handleSpeechComplete();
+                resolve();
+            };
+            
+            utterance.onerror = (error) => {
+                console.error('🚫 British voice error:', error);
+                reject(error);
+            };
+            
+            this.synthesis.speak(utterance);
+            
+            // Mobile wake-up fix
+            setTimeout(() => {
+                if (this.synthesis.paused) this.synthesis.resume();
+            }, 100);
+        });
+    }
+    
+    // ===========================================
+    // BROWSER VOICE PROVIDER (FALLBACK)
+    // ===========================================
+    async speakWithBrowser(text) {
+        this.synthesis.cancel();
+        
+        return new Promise((resolve, reject) => {
+            const utterance = new SpeechSynthesisUtterance(text);
+            
+            // Use best available voice or default
+            if (this.voices.length > 0) {
+                const englishVoice = this.voices.find(v => v.lang.startsWith('en'));
+                if (englishVoice) utterance.voice = englishVoice;
+            }
+            
+            utterance.rate = VOICE_CONFIG.browser.rate;
+            utterance.pitch = VOICE_CONFIG.browser.pitch;
+            utterance.volume = VOICE_CONFIG.browser.volume;
+            
+            utterance.onend = () => {
+                this.handleSpeechComplete();
+                resolve();
+            };
+            
+            utterance.onerror = (error) => {
+                console.error('🚫 Browser voice error:', error);
+                reject(error);
+            };
+            
+            this.synthesis.speak(utterance);
+        });
+    }
+    
+    // ===========================================
+    // SPEECH COMPLETION HANDLER
+    // Consolidates all the complex logic from your existing handlers
+    // ===========================================
+    handleSpeechComplete() {
+        voiceSystem.isSpeaking = false;
+        window.isSpeaking = false; // Backward compatibility
+        
+        if (VOICE_CONFIG.debug) {
+            console.log("✅ Speech completed - checking for next actions");
+        }
+        
+        // 🚫 BLOCKING CONDITIONS (from your existing logic)
+        
+        // Block if recent click mention
+        const clickMentionTime = window.lastClickMentionTime || 0;
+        const timeSinceClickMention = Date.now() - clickMentionTime;
+        if (timeSinceClickMention < 10000) {
+            console.log('🔇 BLOCKED: Recent click mention - waiting for user action');
+            return;
+        }
+        
+        // Block if thank you splash screen
+        if (document.getElementById('thankYouSplash')) {
+            console.log('🔇 BLOCKED: Thank you splash screen active');
+            return;
+        }
+        
+        // Block if conversation ended
+        if (window.conversationState === 'ended' || window.conversationState === 'splash_screen_active') {
+            console.log('🔇 BLOCKED: Conversation ended');
+            return;
+        }
+        
+        // Block if smart button detected
         if (document.querySelector('#smartButton') || 
             document.querySelector('.smart-button') ||
             document.querySelector('[data-smart-button]') ||
             document.getElementById('consultationButton')) {
-            console.log('🔇 SIMPLE HANDLER: Smart Button detected - blocking speech');
+            console.log('🔇 BLOCKED: Smart Button detected');
             return;
         }
         
-        // Check conversation state
-        if (conversationState === 'ended' || conversationState === 'splash_screen_active') {
-            console.log('🔇 SIMPLE HANDLER: Conversation ended - blocking speech');
-            return;
-        }
-        
-        // Wait a moment then start listening
+        // ✅ TRIGGER NEXT ACTION
         setTimeout(() => {
-            showHybridReadySequence();
-        }, 800); // Short delay after speech ends
-    };
+            if (typeof showHybridReadySequence === 'function') {
+                if (VOICE_CONFIG.debug) {
+                    console.log("🎯 Triggering Get Ready sequence");
+                }
+                showHybridReadySequence();
+            } else if (typeof showPostSorryListening === 'function') {
+                if (VOICE_CONFIG.debug) {
+                    console.log("🎯 Triggering Post-Sorry listening");
+                }
+                showPostSorryListening();
+            } else {
+                console.warn("⚠️ No next action function available");
+            }
+        }, 250); // Optimal delay for mobile
+    }
     
-    utterance.onerror = function(event) {
-        console.log('❌ Speech error:', event.error);
-        isSpeaking = false;
-    };
+    // Stop all speech
+    stop() {
+        this.synthesis.cancel();
+        voiceSystem.isSpeaking = false;
+        window.isSpeaking = false;
+        if (VOICE_CONFIG.debug) {
+            console.log("🛑 All speech stopped");
+        }
+    }
     
-    window.speechSynthesis.speak(utterance);
-    currentAudio = utterance;
-}
-
-// ===========================================
-// MASTER SPEECH CONTROLLER
-// ===========================================
-async function speakResponse(text) {
-    console.log('🎤 Master Speech: Attempting ElevenLabs first...');
-    
-    try {
-        // Try ElevenLabs first
-        await speakWithElevenLabs(text);
-    } catch (error) {
-        console.log('🔄 ElevenLabs failed, switching to browser TTS...');
-        // Fallback to your original browser TTS
-        speakResponseOriginal(text);
+    // Log current system status
+    logSystemStatus() {
+        console.log("🎤 Voice System Status:");
+        console.log(`  Provider: ${VOICE_CONFIG.provider}`);
+        console.log(`  British Voice: ${voiceSystem.selectedBritishVoice?.name || 'None'}`);
+        console.log(`  ElevenLabs: ${VOICE_CONFIG.elevenlabs.enabled ? 'Enabled' : 'Disabled'}`);
+        console.log(`  Total Voices: ${this.voices.length}`);
     }
 }
 
-// Toggle function for easy switching
-function toggleSpeechEngine() {
-    window.useElevenLabs = !window.useElevenLabs;
-    console.log(`🔄 Speech engine: ${window.useElevenLabs ? 'ElevenLabs' : 'Browser TTS'}`);
+// ===========================================
+// INITIALIZE SYSTEM
+// ===========================================
+window.mobileWiseVoice = new MobileWiseVoiceSystem();
+
+// ===========================================
+// CONSOLIDATED API - Replaces ALL existing voice functions
+// ===========================================
+
+// MAIN FUNCTION - Use this everywhere
+window.speakText = async function(text) {
+    return window.mobileWiseVoice.speak(text);
+};
+
+// BACKWARD COMPATIBILITY - Replace your existing functions
+window.speakResponse = window.speakText;
+window.speakResponseOriginal = window.speakText;
+window.speakWithElevenLabs = window.speakText;
+
+// CONTROL FUNCTIONS
+window.switchToElevenLabs = function() {
+    VOICE_CONFIG.provider = 'elevenlabs';
+    VOICE_CONFIG.elevenlabs.enabled = true;
+    console.log("✅ Switched to ElevenLabs Premium");
+    window.speakText("I'm now using premium ElevenLabs voices.");
+};
+
+window.switchToBritish = function() {
+    VOICE_CONFIG.provider = 'british';
+    console.log("✅ Switched to British Female Voice");
+    window.speakText("Good day! I'm now using the British female voice system.");
+};
+
+window.switchToBrowser = function() {
+    VOICE_CONFIG.provider = 'browser';
+    console.log("✅ Switched to Browser Voice");
+    window.speakText("I'm now using the standard browser voice system.");
+};
+
+window.stopAllSpeech = function() {
+    window.mobileWiseVoice.stop();
+};
+
+window.getVoiceStatus = function() {
+    window.mobileWiseVoice.logSystemStatus();
+};
+
+// ===========================================
+// AUTO-INITIALIZATION
+// ===========================================
+if (VOICE_CONFIG.debug) {
+    console.log("✅ Consolidated Mobile-Wise Voice System loaded!");
+    console.log("🎯 Commands: switchToBritish(), switchToElevenLabs(), getVoiceStatus(), stopAllSpeech()");
+    console.log(`🎤 Current provider: ${VOICE_CONFIG.provider}`);
 }
 
-// Manual override functions
-function forceElevenLabs(text) {
-    setAIResponse(text);
-    speakWithElevenLabs(text);
-}
-
-function forceBrowserTTS(text) {
-    setAIResponse(text);
-    speakResponseOriginal(text);
-}
+// Auto-show status after initialization
+setTimeout(() => {
+    if (VOICE_CONFIG.debug && voiceSystem.isInitialized) {
+        window.getVoiceStatus();
+    }
+}, 3000);
 
 // ===================================================================
 // 🎯 MOBILE-WISE AI UNIVERSAL BANNER ENGINE - CLEAN CONTAINER EDITION
@@ -5092,3 +5313,346 @@ function handleObjection(userText) {
 // showSkepticalTestimonial(12000);  // Credibility testimonial
 // showSpeedTestimonial(12000);     // Speed testimonial
 // handleObjection("What experience do you have?"); // Auto-detects and plays appropriate testimonial
+
+// =====================================================
+// 🧪 MOBILE-WISE VOICE SYSTEM TESTER
+// Complete Console Testing Suite for Voice Consolidation
+// =====================================================
+
+class VoiceSystemTester {
+    constructor() {
+        this.testResults = [];
+        this.isTestingActive = false;
+        
+        console.log("🧪 Mobile-Wise Voice System Tester loaded!");
+        console.log("📋 Available tests: runAllTests(), testBritish(), testElevenLabs(), testSwitching()");
+    }
+    
+    // ===========================================
+    // MASTER TEST SUITE - Run everything
+    // ===========================================
+    async runAllTests() {
+        console.log("\n🚀 === MOBILE-WISE VOICE SYSTEM FULL TEST === 🚀");
+        this.testResults = [];
+        this.isTestingActive = true;
+        
+        try {
+            // Test 1: System Initialization
+            await this.testSystemInitialization();
+            await this.wait(1000);
+            
+            // Test 2: British Voice System
+            await this.testBritishVoice();
+            await this.wait(2000);
+            
+            // Test 3: Voice Switching
+            await this.testVoiceSwitching();
+            await this.wait(2000);
+            
+            // Test 4: Backward Compatibility
+            await this.testBackwardCompatibility();
+            await this.wait(2000);
+            
+            // Test 5: Error Handling
+            await this.testErrorHandling();
+            await this.wait(1000);
+            
+            // Test 6: State Management
+            await this.testStateManagement();
+            
+            // Final Results
+            this.showTestResults();
+            
+        } catch (error) {
+            console.error("🚫 Test suite error:", error);
+        }
+        
+        this.isTestingActive = false;
+        console.log("\n✅ === TEST SUITE COMPLETE === ✅");
+    }
+    
+    // ===========================================
+    // INDIVIDUAL TEST FUNCTIONS
+    // ===========================================
+    
+    async testSystemInitialization() {
+        console.log("\n🔧 Testing System Initialization...");
+        
+        // Check if consolidated system exists
+        const systemExists = typeof window.mobileWiseVoice !== 'undefined';
+        this.logTest("Consolidated system loaded", systemExists);
+        
+        // Check voice system initialization
+        const isInitialized = window.mobileWiseVoice?.voices?.length > 0;
+        this.logTest("Voice system initialized", isInitialized);
+        
+        // Check configuration
+        const configExists = typeof VOICE_CONFIG !== 'undefined';
+        this.logTest("Voice configuration loaded", configExists);
+        
+        // Check backward compatibility functions
+        const speakTextExists = typeof window.speakText === 'function';
+        this.logTest("speakText function available", speakTextExists);
+        
+        const oldFunctionsWork = typeof window.speakResponse === 'function' && 
+                               typeof window.speakResponseOriginal === 'function';
+        this.logTest("Backward compatibility functions", oldFunctionsWork);
+    }
+    
+    async testBritishVoice() {
+        console.log("\n🇬🇧 Testing British Voice System...");
+        
+        // Switch to British
+        if (typeof switchToBritish === 'function') {
+            switchToBritish();
+            this.logTest("Switch to British function", true);
+        } else {
+            this.logTest("Switch to British function", false);
+            return;
+        }
+        
+        // Check British voice selection
+        const britishVoiceSelected = window.mobileWiseVoice?.selectedBritishVoice !== null;
+        this.logTest("British voice selected", britishVoiceSelected);
+        
+        if (britishVoiceSelected) {
+            const voiceName = window.mobileWiseVoice.selectedBritishVoice.name;
+            console.log(`  📢 Selected voice: ${voiceName}`);
+        }
+        
+        // Test British voice speech
+        console.log("  🎤 Testing British voice speech...");
+        try {
+            await window.speakText("Hello Captain! This is a test of the British voice system for Mobile-Wise AI.");
+            this.logTest("British voice speech test", true);
+        } catch (error) {
+            console.error("  ❌ British voice test failed:", error);
+            this.logTest("British voice speech test", false);
+        }
+    }
+    
+    async testVoiceSwitching() {
+        console.log("\n🔄 Testing Voice Switching...");
+        
+        // Test switching functions exist
+        const switchFunctions = [
+            'switchToBritish',
+            'switchToElevenLabs', 
+            'switchToBrowser'
+        ];
+        
+        switchFunctions.forEach(func => {
+            const exists = typeof window[func] === 'function';
+            this.logTest(`${func} function`, exists);
+        });
+        
+        // Test actual switching
+        try {
+            switchToBrowser();
+            const isBrowser = VOICE_CONFIG.provider === 'browser';
+            this.logTest("Switch to browser voice", isBrowser);
+            
+            switchToBritish();
+            const isBritish = VOICE_CONFIG.provider === 'british';
+            this.logTest("Switch back to British", isBritish);
+            
+        } catch (error) {
+            console.error("  ❌ Voice switching error:", error);
+            this.logTest("Voice switching functionality", false);
+        }
+    }
+    
+    async testBackwardCompatibility() {
+        console.log("\n⚡ Testing Backward Compatibility...");
+        
+        // Test old function names still work
+        const oldFunctions = [
+            'speakResponse',
+            'speakResponseOriginal'
+        ];
+        
+        oldFunctions.forEach(func => {
+            const exists = typeof window[func] === 'function';
+            const pointsToSpeakText = window[func] === window.speakText;
+            this.logTest(`${func} compatibility`, exists && pointsToSpeakText);
+        });
+        
+        // Test isSpeaking variable compatibility
+        const speakingVarExists = 'isSpeaking' in window;
+        this.logTest("isSpeaking variable compatibility", speakingVarExists);
+    }
+    
+    async testErrorHandling() {
+        console.log("\n🛡️ Testing Error Handling...");
+        
+        // Test empty text handling
+        try {
+            await window.speakText("");
+            this.logTest("Empty text handling", true);
+        } catch (error) {
+            this.logTest("Empty text handling", false);
+        }
+        
+        // Test null text handling
+        try {
+            await window.speakText(null);
+            this.logTest("Null text handling", true);
+        } catch (error) {
+            this.logTest("Null text handling", false);
+        }
+        
+        // Test stop functionality
+        try {
+            window.stopAllSpeech();
+            this.logTest("Stop all speech function", true);
+        } catch (error) {
+            this.logTest("Stop all speech function", false);
+        }
+    }
+    
+    async testStateManagement() {
+        console.log("\n📊 Testing State Management...");
+        
+        // Check voice system state
+        const stateExists = typeof voiceSystem !== 'undefined';
+        this.logTest("Voice system state object", stateExists);
+        
+        if (stateExists) {
+            const hasRequiredProps = 'isSpeaking' in voiceSystem && 
+                                   'currentProvider' in voiceSystem &&
+                                   'isInitialized' in voiceSystem;
+            this.logTest("State object properties", hasRequiredProps);
+        }
+        
+        // Test status functions
+        const statusFunctionExists = typeof getVoiceStatus === 'function';
+        this.logTest("getVoiceStatus function", statusFunctionExists);
+        
+        if (statusFunctionExists) {
+            try {
+                getVoiceStatus();
+                this.logTest("Voice status display", true);
+            } catch (error) {
+                this.logTest("Voice status display", false);
+            }
+        }
+    }
+    
+    // ===========================================
+    // QUICK INDIVIDUAL TESTS
+    // ===========================================
+    
+    testBritish() {
+        console.log("\n🇬🇧 Quick British Voice Test");
+        switchToBritish();
+        window.speakText("Quick test of the British voice system, Captain!");
+        getVoiceStatus();
+    }
+    
+    testElevenLabs() {
+        console.log("\n🎙️ ElevenLabs Test (will fallback if disabled)");
+        try {
+            switchToElevenLabs();
+            window.speakText("Testing ElevenLabs premium voice system.");
+        } catch (error) {
+            console.log("⚠️ ElevenLabs disabled, testing fallback...");
+            window.speakText("ElevenLabs disabled, using fallback voice.");
+        }
+        getVoiceStatus();
+    }
+    
+    testSwitching() {
+        console.log("\n🔄 Voice Switching Test");
+        
+        const testSequence = async () => {
+            console.log("  → Testing Browser voice...");
+            switchToBrowser();
+            await window.speakText("Browser voice test.");
+            await this.wait(3000);
+            
+            console.log("  → Testing British voice...");
+            switchToBritish();
+            await window.speakText("British voice test.");
+            await this.wait(3000);
+            
+            console.log("✅ Switching test complete!");
+        };
+        
+        testSequence();
+    }
+    
+    // ===========================================
+    // UTILITY FUNCTIONS
+    // ===========================================
+    
+    logTest(testName, passed) {
+        const status = passed ? "✅ PASS" : "❌ FAIL";
+        const result = { testName, passed, timestamp: new Date().toISOString() };
+        this.testResults.push(result);
+        console.log(`  ${status}: ${testName}`);
+    }
+    
+    showTestResults() {
+        console.log("\n📊 === TEST RESULTS SUMMARY === 📊");
+        
+        const totalTests = this.testResults.length;
+        const passedTests = this.testResults.filter(r => r.passed).length;
+        const failedTests = totalTests - passedTests;
+        
+        console.log(`Total Tests: ${totalTests}`);
+        console.log(`✅ Passed: ${passedTests}`);
+        console.log(`❌ Failed: ${failedTests}`);
+        console.log(`Success Rate: ${Math.round((passedTests/totalTests) * 100)}%`);
+        
+        if (failedTests > 0) {
+            console.log("\n❌ Failed Tests:");
+            this.testResults.filter(r => !r.passed).forEach(test => {
+                console.log(`  - ${test.testName}`);
+            });
+        }
+    }
+    
+    wait(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+    
+    // Emergency stop for testing
+    stopTesting() {
+        this.isTestingActive = false;
+        window.stopAllSpeech();
+        console.log("🛑 Testing stopped");
+    }
+}
+
+// ===========================================
+// INITIALIZE TESTER
+// ===========================================
+window.voiceTester = new VoiceSystemTester();
+
+// ===========================================
+// QUICK CONSOLE COMMANDS
+// ===========================================
+
+// Full test suite
+window.runAllTests = () => window.voiceTester.runAllTests();
+
+// Individual tests
+window.testBritish = () => window.voiceTester.testBritish();
+window.testElevenLabs = () => window.voiceTester.testElevenLabs();
+window.testSwitching = () => window.voiceTester.testSwitching();
+
+// Emergency stop
+window.stopTesting = () => window.voiceTester.stopTesting();
+
+// ===========================================
+// WELCOME MESSAGE
+// ===========================================
+console.log("\n🧪 === VOICE SYSTEM TESTER READY === 🧪");
+console.log("📋 Quick Commands:");
+console.log("  runAllTests()    - Complete test suite");
+console.log("  testBritish()    - Test British voice");
+console.log("  testElevenLabs() - Test ElevenLabs (will fallback)");
+console.log("  testSwitching()  - Test voice switching");
+console.log("  stopTesting()    - Emergency stop");
+console.log("  getVoiceStatus() - Show current status");
+console.log("\n🎯 Start with: runAllTests()");
