@@ -1627,7 +1627,7 @@ class MobileWiseVoiceSystem {
             } else {
                 console.warn("⚠️ WARNING: No banner trigger functions available (showHybridReadySequence, showPostSorryListening)");
             }
-        }, 250); // Optimal delay for mobile
+        }, 500); // Optimal delay for mobile
     }
     
     // Stop all speech
@@ -4185,8 +4185,16 @@ function playMobileErrorBeep() {
     }
 }
 
-function showAvatarSorryMessage(duration = 6000) { // 6 seconds - adjust this number to control timing
+function showAvatarSorryMessage(duration = 6000) {
     console.log(`🎬 Showing avatar for ${duration}ms - WILL restart recognition when done`);
+    
+    // 🚫 PREVENT DOUBLE CALLS - BULLETPROOF
+    if (window.avatarCurrentlyPlaying) {
+        console.log('🚫 Avatar already playing - skipping duplicate call');
+        return;
+    }
+    
+    window.avatarCurrentlyPlaying = true;
     
     const isMobile = window.innerWidth <= 768;
     
@@ -4235,64 +4243,33 @@ function showAvatarSorryMessage(duration = 6000) { // 6 seconds - adjust this nu
     
     document.body.appendChild(avatarOverlay);
     
-    // 🎯 MOBILE FAILSAFE ADDITION - Add polling backup for mobile browsers
-    const videoElement = document.getElementById('avatarVideo');
-    let cleanupExecuted = false;
-    let pollingInterval;
-    
-    function executeOriginalCleanup() {
-        if (cleanupExecuted) return; // Prevent double execution
-        cleanupExecuted = true;
-        
+    // 🎯 ONE SIMPLE CLEANUP FUNCTION - NO COMPLEXITY
+    function cleanup() {
         console.log(`🎬 Avatar duration (${duration}ms) complete - removing and letting banner reappear`);
         
-        // Clear mobile failsafe polling if active
-        if (pollingInterval) {
-            clearInterval(pollingInterval);
-        }
-        
-        // ORIGINAL CLEANUP LOGIC PRESERVED
+        // Remove the overlay
         if (avatarOverlay.parentNode) {
             avatarOverlay.remove();
         }
         
-        // ORIGINAL DELAY AND FUNCTION CALL PRESERVED
+        // Reset the flag IMMEDIATELY to allow future calls
+        window.avatarCurrentlyPlaying = false;
+        
+        // Go back to Speak Now after brief delay
         setTimeout(() => {
             console.log('✅ Avatar removed - going DIRECT to Speak Now');
-            showDirectSpeakNow(); // ← RIGHT - goes straight to Speak Now
-        }, 500);
+            showDirectSpeakNow();
+        }, 1000);
     }
     
-    // MOBILE FAILSAFE: Add polling method as backup for mobile browsers
-    if (isMobile) {
-        videoElement.addEventListener('loadedmetadata', () => {
-            console.log(`📱 Mobile failsafe: Video duration = ${videoElement.duration}s`);
-            
-            // Mobile failsafe polling - only runs if main timeout fails
-            pollingInterval = setInterval(() => {
-                if (videoElement.currentTime >= videoElement.duration - 0.1) {
-                    console.log("📱 Mobile failsafe: Video completion detected via polling");
-                    executeOriginalCleanup();
-                }
-            }, 100); // Check every 100ms
-        });
-        
-        // Mobile video error handling
-        videoElement.addEventListener('error', (e) => {
-            console.error("📱 Mobile video error:", e);
-            executeOriginalCleanup();
-        });
-    }
-    
-    // 🎯 ORIGINAL SINGLE CONTROL PRESERVED - Primary cleanup method
-    setTimeout(() => {
-        executeOriginalCleanup();
-    }, duration);
+    // 🎯 ONE TIMER ONLY - SIMPLE AND CLEAN
+    setTimeout(cleanup, duration);
 }
 
 // Ensure global availability
 window.showAvatarSorryMessage = showAvatarSorryMessage;
 
+// Keep your existing showDirectSpeakNow function exactly as is
 function showDirectSpeakNow() {
     console.log('🎯 DIRECT Speak Now - skipping Get Ready phase completely');
     
@@ -4333,6 +4310,7 @@ function showDirectSpeakNow() {
             console.log('🧹 DIRECT: Timer cleared');
         }
     };
+}
 
     const isContactInterview = checkContactInterviewMode();
     console.log('📧 DIRECT Contact interview mode:', isContactInterview);
