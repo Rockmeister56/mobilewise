@@ -4310,7 +4310,6 @@ function showDirectSpeakNow() {
             console.log('🧹 DIRECT: Timer cleared');
         }
     };
-}
 
     const isContactInterview = checkContactInterviewMode();
     console.log('📧 DIRECT Contact interview mode:', isContactInterview);
