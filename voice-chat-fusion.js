@@ -3,6 +3,217 @@
 // Smart Button + Lead Capture + EmailJS + Banner System
 // ===================================================
 
+// =====================================================
+// 📱 MOBILE VOICE DETECTIVE
+// Diagnoses voice conflicts and overrides on real mobile devices
+// =====================================================
+
+// ADD THIS TO THE TOP OF YOUR JS FILE FOR MOBILE DEBUGGING
+
+class MobileVoiceDetective {
+    constructor() {
+        this.originalFunctions = {};
+        this.callLog = [];
+        
+        console.log("🕵️ Mobile Voice Detective activated!");
+        this.interceptVoiceFunctions();
+        this.createMobileDebugDisplay();
+    }
+    
+    // Intercept all voice-related functions to see what's being called
+    interceptVoiceFunctions() {
+        const functionsToWatch = [
+            'speakText',
+            'speakResponse', 
+            'speakResponseOriginal',
+            'speakWithElevenLabs'
+        ];
+        
+        functionsToWatch.forEach(funcName => {
+            if (window[funcName]) {
+                this.originalFunctions[funcName] = window[funcName];
+                
+                window[funcName] = (...args) => {
+                    this.logFunctionCall(funcName, args);
+                    return this.originalFunctions[funcName](...args);
+                };
+                
+                console.log(`🕵️ Intercepting: ${funcName}`);
+            }
+        });
+    }
+    
+    logFunctionCall(functionName, args) {
+        const logEntry = {
+            function: functionName,
+            args: args,
+            timestamp: new Date().toISOString(),
+            voice: voiceSystem.selectedBritishVoice?.name || 'Unknown'
+        };
+        
+        this.callLog.push(logEntry);
+        console.log(`🎤 VOICE CALL: ${functionName}("${args[0]?.substring(0, 30)}...") using ${logEntry.voice}`);
+        
+        // Update mobile display
+        this.updateMobileDisplay(logEntry);
+    }
+    
+    // Create visible debug display for mobile (since console is hard to access)
+    createMobileDebugDisplay() {
+        const debugPanel = document.createElement('div');
+        debugPanel.id = 'mobileVoiceDebug';
+        debugPanel.style.cssText = `
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 10px;
+            border-radius: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            z-index: 99999;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+        `;
+        
+        debugPanel.innerHTML = `
+            <div style="font-weight: bold; margin-bottom: 10px;">
+                📱 Mobile Voice Debug Panel
+                <button onclick="this.parentElement.parentElement.style.display='none'" 
+                        style="float: right; background: red; color: white; border: none; padding: 2px 6px; border-radius: 3px;">×</button>
+            </div>
+            <div id="mobileDebugContent"></div>
+        `;
+        
+        document.body.appendChild(debugPanel);
+        
+        // Show debug panel on mobile
+        if (window.innerWidth <= 768) {
+            debugPanel.style.display = 'block';
+        }
+    }
+    
+    updateMobileDisplay(logEntry) {
+        const content = document.getElementById('mobileDebugContent');
+        if (content) {
+            const entry = document.createElement('div');
+            entry.style.cssText = 'margin: 5px 0; padding: 5px; background: rgba(255,255,255,0.1); border-radius: 5px;';
+            entry.innerHTML = `
+                <strong>${logEntry.function}</strong><br>
+                Voice: ${logEntry.voice}<br>
+                Text: "${logEntry.args[0]?.substring(0, 50)}..."<br>
+                Time: ${new Date(logEntry.timestamp).toLocaleTimeString()}
+            `;
+            content.insertBefore(entry, content.firstChild);
+            
+            // Keep only last 5 entries
+            while (content.children.length > 5) {
+                content.removeChild(content.lastChild);
+            }
+        }
+    }
+    
+    // Show current voice system status
+    showVoiceStatus() {
+        const status = {
+            currentProvider: VOICE_CONFIG?.provider || 'Unknown',
+            selectedVoice: voiceSystem.selectedBritishVoice?.name || 'None',
+            selectedLang: voiceSystem.selectedBritishVoice?.lang || 'Unknown',
+            totalVoices: window.mobileWiseVoice?.voices?.length || 0,
+            userAgent: navigator.userAgent,
+            screenWidth: window.innerWidth,
+            isMobile: window.innerWidth <= 768
+        };
+        
+        console.log("📱 MOBILE VOICE STATUS:", status);
+        
+        // Show on screen for mobile
+        alert(`📱 Voice Status:
+Provider: ${status.currentProvider}
+Voice: ${status.selectedVoice}
+Language: ${status.selectedLang}
+Total Voices: ${status.totalVoices}
+Screen: ${status.screenWidth}px
+Mobile: ${status.isMobile}`);
+        
+        return status;
+    }
+    
+    // Test what voice is actually being used
+    testActualVoice() {
+        console.log("🧪 Testing actual voice usage...");
+        
+        // Clear log
+        this.callLog = [];
+        
+        // Test speech
+        window.speakText("Mobile voice detective test - what voice am I really using?");
+        
+        // Show results after a delay
+        setTimeout(() => {
+            console.log("🕵️ Voice call log:", this.callLog);
+            
+            if (this.callLog.length > 0) {
+                const lastCall = this.callLog[this.callLog.length - 1];
+                alert(`🕵️ Last voice call:
+Function: ${lastCall.function}
+Voice: ${lastCall.voice}
+Check if you hear British or American accent!`);
+            }
+        }, 1000);
+    }
+    
+    // Force British voice and test
+    forceBritishAndTest() {
+        console.log("🔧 Forcing British voice selection...");
+        
+        // Force selection
+        if (window.mobileWiseVoice?.voices) {
+            const britishVoice = window.mobileWiseVoice.voices.find(v => 
+                v.name === 'Google UK English Female' || v.lang === 'en-GB'
+            );
+            
+            if (britishVoice) {
+                voiceSystem.selectedBritishVoice = britishVoice;
+                window.mobileWiseVoice.selectedBritishVoice = britishVoice;
+                
+                console.log("✅ Forced British voice:", britishVoice.name);
+                
+                // Test immediately
+                this.testActualVoice();
+            } else {
+                console.error("❌ No British voice found!");
+                alert("❌ No British voice found on this device");
+            }
+        }
+    }
+}
+
+// Initialize detective
+window.mobileVoiceDetective = new MobileVoiceDetective();
+
+// Quick access functions
+window.showMobileVoiceStatus = () => window.mobileVoiceDetective.showVoiceStatus();
+window.testMobileVoice = () => window.mobileVoiceDetective.testActualVoice();
+window.forceMobileBritish = () => window.mobileVoiceDetective.forceBritishAndTest();
+
+// Auto-show debug panel on mobile
+if (window.innerWidth <= 768) {
+    console.log("📱 Mobile detected - debug panel active");
+    
+    // Auto-test after page loads
+    setTimeout(() => {
+        console.log("🔍 Auto-testing mobile voice...");
+        window.testMobileVoice();
+    }, 3000);
+}
+
+console.log("🕵️ Mobile Voice Detective ready!");
+console.log("📱 Commands: showMobileVoiceStatus(), testMobileVoice(), forceMobileBritish()");
+
 // Add this at the VERY TOP of your JavaScript file (like line 1)
 if (typeof window.leadData === 'undefined' || !window.leadData) {
     window.leadData = { 
