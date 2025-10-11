@@ -417,14 +417,13 @@ function getApologyResponse() {
     if (isSpeaking) return;
     
     try {
-        // 🎯 MOBILE-SPECIFIC PRE-WARMING
-        const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
-        
-        if (isMobile && !speechEngine.isReady()) {
-            console.log('📱 Mobile detected - pre-warming engine...');
-            await speechEngine.initializeEngine();
-        }
-        
+/*
+const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+if (isMobile && !speechEngine.isReady()) {
+    console.log('📱 Mobile detected - pre-warming engine...');
+    await speechEngine.initializeEngine();
+}
+*/ 
         if (!recognition) {
             if (isMobile && speechEngine.isReady()) {
                 recognition = speechEngine.getEngine();
@@ -1118,7 +1117,7 @@ function shouldTriggerLeadCapture(userInput) {
 }
 
 // ===================================================
-// 🔥 PRE-WARM ENGINE (SILENT - NO BEEP)
+// 🔥 PRE-WARM ENGINE (FIXED FOR MOBILE)
 // ===================================================
 function preWarmSpeechEngine() {
     console.log('🔥 Pre-warming speech engine...');
@@ -1130,6 +1129,9 @@ function preWarmSpeechEngine() {
     // Mobile-specific optimizations
     if (isMobileDevice()) {
         try {
+            // Store original listening state
+            const originalListeningState = isListening;
+            
             // 🚫 CRITICAL: Turn off browser beep by removing event handlers
             recognition.onsoundstart = null;
             recognition.onaudiostart = null;
@@ -1139,10 +1141,11 @@ function preWarmSpeechEngine() {
             
             // Stop immediately - just warming the engine
             setTimeout(() => {
-                if (recognition && isListening) {
+                if (recognition) {
                     recognition.stop();
-                    isListening = false;
-                    console.log('✅ Speech engine pre-warmed');
+                    // RESTORE original state instead of forcing false
+                    isListening = originalListeningState;
+                    console.log('✅ Speech engine pre-warmed (state preserved)');
                 }
             }, 100);
         } catch (error) {
@@ -1150,6 +1153,39 @@ function preWarmSpeechEngine() {
         }
     }
 }
+
+// 🎯 MOBILE DETECTION FUNCTION - COMPLETE
+function isMobileDevice() {
+    const userAgent = navigator.userAgent;
+    
+    // 🦊 CRITICAL: Edge desktop should return FALSE
+    const isEdgeDesktop = /Edg\/\d+/.test(userAgent) && !/Mobile/.test(userAgent);
+    const isChromeDesktop = /Chrome\/\d+/.test(userAgent) && !/Mobile/.test(userAgent);
+    const isFirefoxDesktop = /Firefox\/\d+/.test(userAgent) && !/Mobile/.test(userAgent);
+    
+    // 🎯 DESKTOP BROWSERS - DEFINITELY NOT MOBILE
+    if (isEdgeDesktop || isChromeDesktop || isFirefoxDesktop) {
+        return false;
+    }
+    
+    // 🎯 TRUE MOBILE DETECTION
+    const isMobileUserAgent = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile/i.test(userAgent);
+    const isTablet = /iPad|Tablet|KFAPWI|Silk/i.test(userAgent);
+    const hasTouch = 'ontouchstart' in window;
+    const isSmallScreen = window.innerWidth < 768;
+    
+    return isMobileUserAgent || isTablet || (hasTouch && isSmallScreen);
+}
+
+// 🎯 DEBUG LOG TO VERIFY IT'S WORKING
+console.log('🔍 ROOT CAUSE DEBUG - isMobileDevice FIXED:', {
+    userAgent: navigator.userAgent,
+    isMobileDevice: isMobileDevice(),
+    hasTouch: 'ontouchstart' in window,
+    screenWidth: window.innerWidth,
+    isEdge: /Edg\/\d+/.test(navigator.userAgent),  
+    isMobileInUA: /Mobile/.test(navigator.userAgent)
+});
 
 // This is what your banner calls:
 function handleConsultationClick(type) {
