@@ -228,7 +228,7 @@ function showPostSorryListening() {
         } else {
             console.log('❌ POST-SORRY: Recognition object not found');
         }
-    }, 500);
+    }, 100);
     
     // 🚫 NO CLEANUP TIMER - Let it run until user speaks or session naturally ends!
     console.log('✅ POST-SORRY: Function completed - no cleanup timer set');
