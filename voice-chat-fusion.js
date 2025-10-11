@@ -1191,14 +1191,6 @@ console.log('🔍 ROOT CAUSE DEBUG - isMobileDevice FIXED:', {
     isMobileInUA: /Mobile/.test(navigator.userAgent)
 });
 
-// =====================================================
-// 🎤 CONSOLIDATED MOBILE-WISE VOICE SYSTEM - FINAL (NO SMART BUTTON BLOCK)
-// Master Controller for All Voice Operations
-// Replaces: speakResponse, speakResponseOriginal, speakWithElevenLabs, speakText
-// ✅ INCLUDES: Permanent ElevenLabs Banner Logic Integration
-// ✅ REMOVED: Smart Button blocking (was preventing banners)
-// =====================================================
-
 // ===========================================
 // VOICE SYSTEM CONFIGURATION
 // ===========================================
@@ -3537,8 +3529,8 @@ function sendLeadEmail(data) {
                         if (!isSpeaking && isAudioMode) {
                             startListening();
                         }
-                    }, 7000); // Slightly longer to account for longer message
-                }, 1000);
+                    }, 500); // Slightly longer to account for longer message
+                }, 500);
                 
             }, function(error) {
                 console.error('❌ EMAIL FAILED:', error);
