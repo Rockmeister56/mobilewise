@@ -5416,7 +5416,7 @@ class VoiceSystemTester {
         this.logTest("British voice selected", britishVoiceSelected);
         
         if (britishVoiceSelected) {
-            const voiceName = window.mobileWiseVoice.selectedBritishVoice.name;
+            const voiceName = window.mobileWiseVoice.selectedBritishVoice?.name || 'Fallback Voice';
             console.log(`  📢 Selected voice: ${voiceName}`);
         }
         
