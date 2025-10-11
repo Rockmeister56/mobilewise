@@ -3530,7 +3530,7 @@ function sendLeadEmail(data) {
                             startListening();
                         }
                     }, 500); // Slightly longer to account for longer message
-                }, 500);
+                }, 100);
                 
             }, function(error) {
                 console.error('❌ EMAIL FAILED:', error);
@@ -3547,7 +3547,7 @@ function sendLeadEmail(data) {
                     if (!isSpeaking && isAudioMode) {
                         startListening();
                     }
-                }, 3000);
+                }, 500);
             });
     } else {
         console.error('❌ EmailJS not available');
