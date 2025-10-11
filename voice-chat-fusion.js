@@ -417,13 +417,14 @@ function getApologyResponse() {
     if (isSpeaking) return;
     
     try {
-/*
-const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
-if (isMobile && !speechEngine.isReady()) {
-    console.log('📱 Mobile detected - pre-warming engine...');
-    await speechEngine.initializeEngine();
-}
-*/ 
+        // 🎯 MOBILE-SPECIFIC PRE-WARMING
+        const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+        
+        if (isMobile && !speechEngine.isReady()) {
+            console.log('📱 Mobile detected - pre-warming engine...');
+            await speechEngine.initializeEngine();
+        }
+        
         if (!recognition) {
             if (isMobile && speechEngine.isReady()) {
                 recognition = speechEngine.getEngine();
