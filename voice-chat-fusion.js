@@ -1294,34 +1294,83 @@ class MobileWiseVoiceSystem {
     
     // Select best British voice
     selectBritishVoice() {
-        for (const voiceName of VOICE_CONFIG.british.priority) {
-            const voice = this.voices.find(v => 
-                (v.name.includes(voiceName) || v.name === voiceName) &&
-                (v.lang.includes('gb') || v.lang.includes('uk'))
-            );
-            
-            if (voice) {
-                voiceSystem.selectedBritishVoice = voice;
-                if (VOICE_CONFIG.debug) {
-                    console.log(`🇬🇧 Selected British voice: ${voice.name}`);
-                }
-                return;
-            }
-        }
+    console.log("🇬🇧 Enhanced British voice search...");
+    
+    // UPDATED PRIORITY - Google UK voices first!
+    const britishVoicePriority = [
+        // MOBILE/DESKTOP GOOGLE BRITISH VOICES (highest priority)
+        'Google UK English Female',        // ← Your mobile has this!
+        'Google UK English Male',          // ← Your mobile has this!
         
-        // Fallback to any quality female voice
-        const fallbackVoice = this.voices.find(v => 
-            v.name.toLowerCase().includes('zira') || 
-            v.name.toLowerCase().includes('female')
-        );
+        // DESKTOP MICROSOFT BRITISH VOICES
+        'Microsoft Hazel - English (Great Britain)',
+        'Microsoft Susan - English (Great Britain)',
         
-        if (fallbackVoice) {
-            voiceSystem.selectedBritishVoice = fallbackVoice;
-            if (VOICE_CONFIG.debug) {
-                console.log(`🔄 Fallback voice selected: ${fallbackVoice.name}`);
-            }
+        // MACOS BRITISH VOICES
+        'Daniel', 'Kate', 'Serena', 'Oliver',
+        
+        // OTHER BRITISH PATTERNS
+        'British English Female', 'British English Male',
+        'English (United Kingdom)', 'English (UK)'
+    ];
+    
+    // STEP 1: Look for exact name matches first
+    for (const voiceName of britishVoicePriority) {
+        const voice = this.voices.find(v => v.name === voiceName);
+        if (voice) {
+            voiceSystem.selectedBritishVoice = voice;
+            console.log(`🇬🇧 EXACT MATCH: ${voice.name} (${voice.lang})`);
+            return;
         }
     }
+    
+    // STEP 2: Look for partial name matches with GB language
+    for (const voiceName of britishVoicePriority) {
+        const voice = this.voices.find(v => 
+            v.name.includes(voiceName) && 
+            (v.lang.includes('gb') || v.lang.includes('uk') || v.lang === 'en-GB')
+        );
+        if (voice) {
+            voiceSystem.selectedBritishVoice = voice;
+            console.log(`🇬🇧 PARTIAL MATCH: ${voice.name} (${voice.lang})`);
+            return;
+        }
+    }
+    
+    // STEP 3: Any voice with GB/UK language code
+    const gbVoice = this.voices.find(v => 
+        v.lang === 'en-GB' || v.lang.includes('gb') || v.lang.includes('uk')
+    );
+    
+    if (gbVoice) {
+        voiceSystem.selectedBritishVoice = gbVoice;
+        console.log(`🇬🇧 LANGUAGE MATCH: ${gbVoice.name} (${gbVoice.lang})`);
+        return;
+    }
+    
+    // STEP 4: Premium American female voices (fallback)
+    const premiumFemaleVoices = [
+        'Microsoft Zira - English (United States)',
+        'Google US English',
+        'Samantha', 'Victoria'
+    ];
+    
+    for (const voiceName of premiumFemaleVoices) {
+        const voice = this.voices.find(v => v.name.includes(voiceName));
+        if (voice) {
+            voiceSystem.selectedBritishVoice = voice;
+            console.log(`🔄 PREMIUM FALLBACK: ${voice.name} (${voice.lang})`);
+            return;
+        }
+    }
+    
+    // STEP 5: Any English voice
+    const anyEnglish = this.voices.find(v => v.lang.startsWith('en'));
+    if (anyEnglish) {
+        voiceSystem.selectedBritishVoice = anyEnglish;
+        console.log(`⚠️ FALLBACK: ${anyEnglish.name} (${anyEnglish.lang})`);
+    }
+}
     
     // ===========================================
     // MASTER SPEAK FUNCTION - Replaces ALL others
