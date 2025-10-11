@@ -3970,6 +3970,9 @@ function showAvatarSorryMessage(duration = 6000) { // 6 seconds - adjust this nu
 
 // Ensure global availability
 window.showAvatarSorryMessage = showAvatarSorryMessage;
+
+function showDirectSpeakNow() {
+    console.log('🎯 DIRECT Speak Now - skipping Get Ready phase completely');
     
     // Quick safety check
     if (window.speakSequenceBlocked) {
