@@ -4833,7 +4833,7 @@ window.clearBulletproofTimer = function() {
                 width: 0%;
                 height: 100%;
                 background: linear-gradient(90deg, rgba(79, 195, 247, 0.6), rgba(25, 118, 210, 0.8));
-                transition: width 3s ease;
+                transition: width 1.5s ease; // SYNC with new timing
                 z-index: 1;
             }
             
@@ -4937,7 +4937,7 @@ window.clearBulletproofTimer = function() {
     }
     
     quickButtonsContainer.appendChild(speakSequenceButton);
-    console.log('🔵 Get Ready state active - starting 3-second sequence');
+    console.log('🔵 Get Ready state active - starting 1.5-second sequence');
     
     setTimeout(() => {
         const fillElement = document.getElementById('getReadyFill');
