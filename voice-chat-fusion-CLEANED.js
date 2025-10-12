@@ -72,7 +72,10 @@ class SpeechEngineManager {
         }
         
         if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-            console.log('❌ Speech not supported');
+            console.log('❌ Speech recognition not supported in this browser');
+            if (typeof addAIMessage === 'function') {
+                addAIMessage("Your browser doesn't support speech recognition. Please use Chrome or Edge.");
+            }
             return false;
         }
         
@@ -82,6 +85,11 @@ class SpeechEngineManager {
         this.recognition.continuous = false;
         this.recognition.interimResults = true;
         this.recognition.lang = 'en-US';
+        
+        // 🚫 CRITICAL: DISABLE BROWSER BEEP
+        this.recognition.onsoundstart = null;
+        this.recognition.onaudiostart = null;
+        this.recognition.onstart = null;
         
         console.log('🎯 Speech engine created successfully');
         return true;
@@ -228,7 +236,7 @@ function showPostSorryListening() {
         } else {
             console.log('❌ POST-SORRY: Recognition object not found');
         }
-    }, 100);
+    }, 25); // INSTANT: 25ms instead of 100ms
     
     // 🚫 NO CLEANUP TIMER - Let it run until user speaks or session naturally ends!
     console.log('✅ POST-SORRY: Function completed - no cleanup timer set');
@@ -346,8 +354,9 @@ function playListeningStopsSound() {
 }
 
 // ===================================================
-// 🎤 SPEECH RECOGNITION SYSTEM
+// 🎤 SPEECH RECOGNITION SYSTEM - DISABLED (Using SpeechEngineManager)
 // ===================================================
+/*
 function checkSpeechSupport() {
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
         console.log('❌ Speech recognition not supported in this browser');
@@ -357,7 +366,7 @@ function checkSpeechSupport() {
     return true;
 }
 
-function initializeSpeechRecognition() {
+function initializeSpeechRecognization() {
     if (!checkSpeechSupport()) return false;
 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -375,6 +384,7 @@ function initializeSpeechRecognition() {
     console.log('✅ Speech recognition initialized');
     return true;
 }
+*/
 
 function getApologyResponse() {
     const sorryMessages = [
@@ -413,25 +423,22 @@ function getApologyResponse() {
     }
     
     console.log('🎯 startListening() called');
-    if (!checkSpeechSupport()) return;
     if (isSpeaking) return;
     
     try {
-        // 🎯 MOBILE-SPECIFIC PRE-WARMING
-        const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
-        
-        if (isMobile && !speechEngine.isReady()) {
-            console.log('📱 Mobile detected - pre-warming engine...');
-            await speechEngine.initializeEngine();
+        // 🎯 ALWAYS USE SPEECH ENGINE MANAGER (mobile + desktop)
+        if (!speechEngine.isReady()) {
+            console.log('🎯 Initializing speech engine...');
+            const initialized = await speechEngine.initializeEngine();
+            if (!initialized) {
+                console.log('❌ Speech engine initialization failed');
+                return;
+            }
         }
         
         if (!recognition) {
-            if (isMobile && speechEngine.isReady()) {
-                recognition = speechEngine.getEngine();
-                console.log('📱 Using pre-warmed mobile engine');
-            } else {
-                initializeSpeechRecognition();
-            }
+            recognition = speechEngine.getEngine();
+            console.log('✅ Using Speech Engine Manager');
         }
 
         // Keep ALL your existing event handlers - they're perfect
@@ -636,12 +643,10 @@ function getApologyResponse() {
     }
 };
         
-        // 🎯 MOBILE TIMING DELAY
-        const delay = isMobile ? 100 : 0; // Only delay on mobile
+        // 🎯 MOBILE TIMING DELAY - REMOVED FOR FASTER RESPONSE
+        const delay = 0; // No delays - instant response
         
-        if (delay > 0) {
-            console.log(`⏱️ Adding ${delay}ms mobile delay`);
-        }
+        console.log('⚡ Instant response mode - no delays');
 
     } catch (error) {
         console.error('❌ Error starting speech recognition:', error);
@@ -669,18 +674,23 @@ function stopListening() {
 // ===================================================
 
 // 🎯 ADD THIS TO YOUR forceStartListening() FUNCTION - REPLACE THE EXISTING ONE:
-function forceStartListening() {
+async function forceStartListening() {
     console.log('🎤 TEST 8: forceStartListening() CALLED at:', Date.now());
     console.log('🎤 TEST 9: isSpeaking:', isSpeaking);
     console.log('🎤 TEST 10: recognition exists:', !!recognition);
     console.log('🔄 FORCE starting speech recognition (mobile reset)');
     
-    if (!checkSpeechSupport()) return;
     if (isSpeaking) return;
     
     try {
+        // 🎯 USE SPEECH ENGINE MANAGER ONLY
+        if (!speechEngine.isReady()) {
+            const initialized = await speechEngine.initializeEngine();
+            if (!initialized) return;
+        }
+        
         if (!recognition) {
-            initializeSpeechRecognition();
+            recognition = speechEngine.getEngine();
         }
         
         // 🎯 DIAGNOSTIC: Check recognition state BEFORE starting
@@ -873,7 +883,9 @@ async function activateMicrophone() {
                 micButton.classList.add('listening');
             }
             
-            initializeSpeechRecognition();
+            // Initialize speech engine
+            await speechEngine.initializeEngine();
+            recognition = speechEngine.getEngine();
 
             document.getElementById('quickButtonsContainer').style.display = 'block';
 
@@ -1710,12 +1722,7 @@ if (VOICE_CONFIG.debug) {
     console.log("🎯 Smart Button Blocking: PERMANENTLY REMOVED");
 }
 
-// Auto-show status after initialization
-setTimeout(() => {
-    if (VOICE_CONFIG.debug && voiceSystem.isInitialized) {
-        window.getVoiceStatus();
-    }
-}, 3000);
+
 
 // ===========================================
 // 📧 EMAIL CONFIGURATION FIX
@@ -4933,7 +4940,7 @@ window.clearBulletproofTimer = function() {
    // Play sound on ALL devices, not just desktop
 playGetReadyAndSpeakNowSound();
     
-    // ===== TRANSITION TO SPEAK NOW (after 3 seconds) =====
+    // ===== TRANSITION TO SPEAK NOW (FASTER - 1.5 seconds) =====
     setTimeout(() => {
         if (!speakSequenceButton || !speakSequenceActive || !window.speakSequenceBlocked) {
             console.log('🛑 BULLETPROOF: Sequence interrupted - aborting transition');
@@ -4972,7 +4979,7 @@ playGetReadyAndSpeakNowSound();
                     startNormalInterviewListening();
                 }
             }
-        }, 200);
+        }, 50); // INSTANT: 50ms instead of 200ms
         
         // ===== LISTENING TIMEOUT WITH NUCLEAR SHUTDOWN =====
         setTimeout(() => {
@@ -5061,7 +5068,7 @@ playGetReadyAndSpeakNowSound();
             
         }, 7000);
         
-    }, 3000);
+    }, 1500); // FASTER: 1.5 seconds instead of 3
     
     // ===== SUCCESS HANDLER =====
     window.handleSpeechSuccess = function(transcript) {
