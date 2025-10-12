@@ -42,6 +42,7 @@ let lastMessageWasApology = false;
 let isInLeadCapture = false;
 let speechDetected = false;
 let currentAIResponse = '';
+let conversationHistory = []; // Track conversation for lead capture logic
 window.leadData = window.leadData || {
     firstName: '',
     step: 0,
@@ -937,6 +938,10 @@ function addUserMessage(message) {
     messageElement.textContent = message;
     
     chatMessages.appendChild(messageElement);
+    
+    // Track in conversation history
+    conversationHistory.push({ role: 'user', content: message });
+    
     scrollChatToBottom();
 }
 
@@ -949,6 +954,10 @@ function addAIMessage(message) {
     messageElement.textContent = message;
     
     chatMessages.appendChild(messageElement);
+    
+    // Track in conversation history
+    conversationHistory.push({ role: 'assistant', content: message });
+    
     scrollChatToBottom();
 }
 
