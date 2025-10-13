@@ -1,0 +1,104 @@
+{
+  "industry_name": "CPA Practice Sales",
+  "company_name": "New Clients Inc",
+  "greeting": "Hi! I'm your AI Voice Assistant. How can I help you with buying, selling, or valuing accounting practices today?",
+  "services": [
+    "Practice Sales",
+    "Practice Acquisitions", 
+    "Practice Valuations",
+    "Succession Planning"
+  ],
+  
+  "questions": {
+    "how long does it take to sell a practice": {
+      "answer": "Our average time to sell is less than 6 months, typically closer to 2-3 months. We have at least 10 qualified buyers for every practice. Would you like to hear from one of our sellers about their quick sale experience?",
+      "keywords": ["sell", "time", "how long", "duration"],
+      "testimonial_trigger": true,
+      "testimonial_type": "selling_speed",
+      "category": "selling"
+    },
+    
+    "how long does it take to buy a practice": {
+      "answer": "Our average time is less than 6 months, and more like 2 months. Would you like to hear from one of our clients about their experience?",
+      "keywords": ["buy", "purchase", "time", "how long"],
+      "testimonial_trigger": true,
+      "testimonial_type": "buying_speed",
+      "category": "buying"
+    },
+    
+    "what is my practice worth": {
+      "answer": "Most practices sell between 100 to 150% of gross annual billing. The exact multiple depends on your profit margins, client mix, and location. Higher profit margins get higher multiples. Would you like to hear how we helped a seller get top dollar for their practice?",
+      "keywords": ["worth", "value", "price", "valuation"],
+      "testimonial_trigger": true,
+      "testimonial_type": "selling_value",
+      "category": "valuation"
+    },
+    
+    "how much does it cost to buy a practice": {
+      "answer": "Most practices sell between 100 to 150% of gross annual billing, with most occurring in the 125% range. The exact price depends on profitability, client mix, and location. Would you like to hear how one of our clients found the perfect practice in their budget?",
+      "keywords": ["cost", "price", "buy", "purchase"],
+      "testimonial_trigger": true,
+      "testimonial_type": "buying_value",
+      "category": "buying"
+    },
+    
+    "what financing is available": {
+      "answer": "We have a financing source that can finance up to 90% of the purchase price. You typically need good credit, reasonable net worth, and cash flow to support debt service. Would you like to hear from a client who successfully used our financing?",
+      "keywords": ["financing", "loan", "money", "funding"],
+      "testimonial_trigger": true,
+      "testimonial_type": "financing_success",
+      "category": "buying"
+    },
+    
+    "are there guarantees": {
+      "answer": "Yes! Most sales include a one-year guarantee. If collected fees don't equal the amount you purchased, you get a refund based on the exact same multiple. Would you like to hear from a client about how this guarantee gave them confidence?",
+      "keywords": ["guarantee", "protection", "refund", "assurance"],
+      "testimonial_trigger": true,
+      "testimonial_type": "guarantee_confidence",
+      "category": "buying"
+    },
+    
+    "what do you do": {
+      "answer": "We specialize in buying and selling accounting practices, plus practice valuations. We've been helping CPAs for years with confidential, professional transactions.",
+      "keywords": ["what", "do", "services", "help"],
+      "testimonial_trigger": false,
+      "category": "general"
+    }
+  },
+  
+  "testimonials": {
+    "selling_speed": {
+      "video_url": "/testimonials/selling-speed.mp4",
+      "intro": "Listen to Sarah describe how fast we sold her practice:",
+      "fallback_text": "One of our sellers, Sarah, was amazed when we sold her practice in just 6 weeks with multiple offers above asking price."
+    },
+    "buying_speed": {
+      "video_url": "/testimonials/buying-speed.mp4", 
+      "intro": "Here's what John had to say about how quickly we found him the perfect practice:",
+      "fallback_text": "John was thrilled when we found him three qualified practices to choose from within 30 days of starting his search."
+    },
+    "selling_value": {
+      "video_url": "/testimonials/selling-value.mp4",
+      "intro": "Listen to how we got Lisa top dollar for her practice:",
+      "fallback_text": "Lisa was surprised when we got her 140% of gross billing - 15% more than she expected."
+    }
+  },
+  
+  "closing_questions": [
+    "Would you like to schedule a free consultation to discuss your specific situation?",
+    "Is there anything else about buying or selling practices I can help you with?",
+    "Would you like me to have Bruce call you to discuss your options personally?",
+    "Do you have any other questions about our services?"
+  ],
+  
+  "fallback_response": "I don't have a specific answer for that question, but Bruce would be happy to help you personally. What's the best number to reach you at?",
+  
+  "lead_capture_triggers": [
+    "consultation",
+    "call me",
+    "speak to someone", 
+    "more information",
+    "contact",
+    "schedule"
+  ]
+}
