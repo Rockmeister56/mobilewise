@@ -1084,8 +1084,8 @@ if (shouldTriggerLeadCapture(userText)) {
 }
 
 // Default AI response handler
-setTimeout(async () => {
-    const responseText = await getAIResponse(userText);
+setTimeout(() => {
+    const responseText = getAIResponse(userText);
 
     console.log('🎯 USER SAID:', userText);
     console.log('🎯 AI RESPONSE:', responseText);
@@ -2713,6 +2713,9 @@ async function getAIResponse(userInput) {
         return fallbackResponse;
     }
 }
+
+
+
 // ===================================================
 // 🎤 HYBRID SPEAK NOW SYSTEM - MOBILE-WISE AI
 // ===================================================
