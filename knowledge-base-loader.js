@@ -1,236 +1,264 @@
 // ===================================================
-// 🧠 KNOWLEDGE BASE LOADER - PRIORITY SYSTEM
+// 🧠 MOBILE-WISE AI KNOWLEDGE BASE LOADER V2.0
+// Empire-Ready: Industry + Client Architecture
 // ===================================================
+
 class KnowledgeBaseLoader {
     constructor() {
         this.industryKB = null;
         this.clientKB = null;
-        this.currentIndustry = null;
-        this.currentClient = null;
-        console.log('🧠 Knowledge Base Loader initialized');
-    }
-
-    // Load both industry and client knowledge bases
-    async loadKnowledgeBases(industry, client) {
-        console.log(`📥 Loading knowledge bases: ${industry} + ${client}`);
+        this.currentIndustry = 'cpa-practice-sales';
+        this.currentClient = 'new-clients-inc';
+        this.isLoaded = false;
         
+        console.log('🧠 Mobile-Wise Knowledge Base System V2.0 initialized');
+    }
+    
+    // ===================================================
+    // 📥 LOAD BOTH KNOWLEDGE BASES
+    // ===================================================
+    async loadKnowledgeBases(industryName = null, clientName = null) {
         try {
-            // Load industry knowledge base
+            const industry = industryName || this.currentIndustry;
+            const client = clientName || this.currentClient;
+            
+            console.log(`📥 Loading Industry KB: ${industry}`);
+            console.log(`📥 Loading Client KB: ${client}`);
+            
+            // Load industry KB (generic)
             const industryResponse = await fetch(`/knowledge-bases/${industry}.json`);
-            if (industryResponse.ok) {
-                this.industryKB = await industryResponse.json();
-                console.log(`✅ Industry KB loaded: ${industry}`);
-            } else {
-                console.warn(`⚠️ Industry KB not found: ${industry}`);
+            if (!industryResponse.ok) {
+                throw new Error(`Industry KB not found: ${industry}`);
             }
-
-            // Load client-specific knowledge base
+            this.industryKB = await industryResponse.json();
+            console.log(`✅ Industry KB loaded: ${this.industryKB.questions?.length || 0} questions`);
+            
+            // Load client KB (specific)
             const clientResponse = await fetch(`/client-specific/${client}.json`);
-            if (clientResponse.ok) {
-                this.clientKB = await clientResponse.json();
-                console.log(`✅ Client KB loaded: ${client}`);
-            } else {
-                console.warn(`⚠️ Client KB not found: ${client}`);
+            if (!clientResponse.ok) {
+                throw new Error(`Client KB not found: ${client}`);
             }
-
-            this.currentIndustry = industry;
-            this.currentClient = client;
-
-            return {
-                industryLoaded: !!this.industryKB,
-                clientLoaded: !!this.clientKB
-            };
-
+            this.clientKB = await clientResponse.json();
+            console.log(`✅ Client KB loaded: ${this.clientKB.client_specific_questions?.length || 0} client questions`);
+            
+            this.isLoaded = true;
+            console.log('🚀 Knowledge Base System V2.0 ready!');
+            
+            return true;
+            
         } catch (error) {
-            console.error('❌ Error loading knowledge bases:', error);
-            return {
-                industryLoaded: false,
-                clientLoaded: false,
-                error: error.message
-            };
+            console.error('❌ Failed to load knowledge bases:', error);
+            this.isLoaded = false;
+            return false;
         }
     }
-
-    // Get response with priority system
+    
+    // ===================================================
+    // 🎯 GET RESPONSE WITH PRIORITY SYSTEM
+    // ===================================================
     async getResponse(userInput, conversationState = 'initial') {
-        console.log('🧠 Processing:', userInput);
-
-        // Handle first name collection
-        if (conversationState === 'getting_first_name') {
-            return this.handleNameCollection(userInput);
+        if (!this.isLoaded) {
+            console.warn('⚠️ Knowledge bases not loaded yet, loading now...');
+            await this.loadKnowledgeBases();
         }
-
-        // Initial greeting
-        if (conversationState === 'initial') {
-            return {
-                response: this.clientKB?.defaultGreeting || "Hi! What's your first name?",
-                newState: 'getting_first_name',
-                triggerBanner: null
-            };
-        }
-
-        const input = userInput.toLowerCase();
-
-        // PRIORITY 1: Check CLIENT-SPECIFIC knowledge first
-        if (this.clientKB && this.clientKB.questions) {
-            const clientMatch = this.findBestMatch(input, this.clientKB.questions);
-            if (clientMatch && clientMatch.score > 2) {
-                console.log('✅ CLIENT-SPECIFIC match found:', clientMatch.question.id);
-                return this.formatResponse(clientMatch.question, 'client');
+        
+        const input = userInput.toLowerCase().trim();
+        console.log('🔍 Searching for:', input);
+        
+        // ===================================================
+        // PRIORITY 1: CLIENT-SPECIFIC QUESTIONS (HIGHEST)
+        // ===================================================
+        if (this.clientKB && this.clientKB.client_specific_questions) {
+            const clientMatch = this.findBestMatch(input, this.clientKB.client_specific_questions);
+            if (clientMatch) {
+                console.log('✅ CLIENT-SPECIFIC match found:', clientMatch.id);
+                return this.buildResponse(clientMatch, 'client-specific');
             }
         }
-
-        // PRIORITY 2: Check INDUSTRY knowledge
+        
+        // ===================================================
+        // PRIORITY 2: INDUSTRY QUESTIONS (MEDIUM)
+        // ===================================================
         if (this.industryKB && this.industryKB.questions) {
             const industryMatch = this.findBestMatch(input, this.industryKB.questions);
-            if (industryMatch && industryMatch.score > 2) {
-                console.log('✅ INDUSTRY match found:', industryMatch.question.id);
-                return this.formatResponse(industryMatch.question, 'industry');
+            if (industryMatch) {
+                console.log('✅ INDUSTRY match found:', industryMatch.id);
+                return this.buildResponse(industryMatch, 'industry');
             }
         }
-
-        // PRIORITY 3: Fallback
-        console.log('⚠️ No match found - using fallback');
-        return this.getFallbackResponse();
+        
+        // ===================================================
+        // PRIORITY 3: FALLBACK (LOWEST)
+        // ===================================================
+        console.log('⚠️ No specific match - using fallback');
+        return this.buildFallbackResponse();
     }
-
-    // Find best matching question
+    
+    // ===================================================
+    // 🔍 FIND BEST MATCHING QUESTION
+    // ===================================================
     findBestMatch(input, questions) {
         let bestMatch = null;
         let highestScore = 0;
-
+        
         for (const question of questions) {
             let score = 0;
-
-            // Check patterns (highest weight)
-            if (question.patterns) {
-                for (const pattern of question.patterns) {
-                    if (input.includes(pattern.toLowerCase())) {
+            
+            // Check triggers (exact phrases)
+            if (question.triggers) {
+                for (const trigger of question.triggers) {
+                    if (input.includes(trigger.toLowerCase())) {
+                        score += 10;
+                    }
+                }
+            }
+            
+            // Check keywords (individual words)
+            if (question.keywords) {
+                for (const keyword of question.keywords) {
+                    if (input.includes(keyword.toLowerCase())) {
                         score += 3;
                     }
                 }
             }
-
-            // Check keywords (medium weight)
-            if (question.keywords) {
-                for (const keyword of question.keywords) {
-                    if (input.includes(keyword.toLowerCase())) {
-                        score += 1;
-                    }
-                }
-            }
-
+            
             // Priority boost for client-specific
             if (question.priority === 'high') {
-                score += 1;
+                score += 5;
             }
-
+            
             if (score > highestScore) {
                 highestScore = score;
                 bestMatch = question;
             }
         }
-
-        return bestMatch ? { question: bestMatch, score: highestScore } : null;
-    }
-
-    // Format response with personalization
-    formatResponse(question, source) {
-        let response = question.response;
-
-        // Personalize with first name if available
-        const firstName = window.leadData?.firstName || '';
-        if (firstName) {
-            // Add name to response naturally
-            response = response.replace(/^(Excellent|Perfect|Great|That's fantastic)!/, `$1 ${firstName}!`);
-        }
-
-        return {
-            response: response,
-            newState: 'conversational',
-            followUp: question.followUp || null,
-            triggerBanner: question.triggerBanner || null,
-            triggerTestimonial: question.triggerTestimonial || null,
-            source: source,
-            questionId: question.id
-        };
-    }
-
-    // Handle name collection
-    handleNameCollection(userInput) {
-        const words = userInput.trim().split(' ');
-        const extractedName = words[0].replace(/[^a-zA-Z]/g, '');
         
-        if (extractedName.length > 0) {
-            const firstName = extractedName.charAt(0).toUpperCase() + extractedName.slice(1).toLowerCase();
-            
-            // Store in window.leadData
-            if (!window.leadData) {
-                window.leadData = {};
-            }
-            window.leadData.firstName = firstName;
-
-            return {
-                response: `Great to meet you ${firstName}! How can I help you today - are you looking to buy a practice, sell your practice, or get a practice valuation?`,
-                newState: 'conversational',
-                triggerBanner: null
-            };
-        } else {
-            return {
-                response: "I didn't catch your name. What should I call you?",
-                newState: 'getting_first_name',
-                triggerBanner: null
-            };
+        // Require minimum score
+        if (highestScore >= 3) {
+            console.log(`🎯 Match score: ${highestScore} for question: ${bestMatch.id}`);
+            return bestMatch;
         }
+        
+        return null;
     }
-
-    // Fallback response
-    getFallbackResponse() {
-        const firstName = window.leadData?.firstName || '';
-        const response = firstName 
-            ? `${firstName}, that's a great question! Let me connect you with our expert who can provide detailed information about that. Would you like to schedule a FREE consultation?`
-            : "That's a great question! Let me connect you with our expert who can provide detailed information. Would you like to schedule a consultation?";
-
+    
+    // ===================================================
+    // 🏗️ BUILD RESPONSE OBJECT
+    // ===================================================
+    buildResponse(question, source) {
+        const response = {
+            response: question.response,
+            source: source,
+            questionId: question.id,
+            category: question.category || 'general'
+        };
+        
+        // ===================================================
+        // BANNER TRIGGER LOGIC (Client-specific mapping)
+        // ===================================================
+        if (source === 'client-specific' && question.triggerBanner) {
+            // Client already specified exact banner
+            response.triggerBanner = question.triggerBanner;
+            console.log(`🎨 Client banner: ${question.triggerBanner}`);
+            
+        } else if (source === 'industry' && question.triggerAction) {
+            // Industry specified action, map to client banner
+            const clientBanner = this.clientKB?.banner_triggers?.[question.triggerAction];
+            if (clientBanner) {
+                response.triggerBanner = clientBanner;
+                console.log(`🎨 Industry action "${question.triggerAction}" → Client banner "${clientBanner}"`);
+            }
+        }
+        
+        // ===================================================
+        // TESTIMONIAL TRIGGER LOGIC
+        // ===================================================
+        if (question.triggerTestimonial) {
+            // Direct testimonial specified
+            response.triggerTestimonial = question.triggerTestimonial;
+            console.log(`🎙️ Testimonial: ${question.triggerTestimonial}`);
+            
+        } else if (question.testimonial_trigger && question.category) {
+            // Map category to testimonial
+            const testimonialKey = `${question.category}_${question.testimonial_type || 'general'}`;
+            const testimonialMapping = this.clientKB?.testimonial_triggers?.[testimonialKey];
+            if (testimonialMapping) {
+                response.triggerTestimonial = testimonialMapping;
+                console.log(`🎙️ Category "${testimonialKey}" → Testimonial "${testimonialMapping}"`);
+            }
+        }
+        
+        // State changes
+        if (question.newState) {
+            response.newState = question.newState;
+        }
+        
+        return response;
+    }
+    
+    // ===================================================
+    // 🛡️ FALLBACK RESPONSE
+    // ===================================================
+    buildFallbackResponse() {
+        const clientName = this.clientKB?.company_info?.owner || 'our specialist';
+        const phone = this.clientKB?.company_info?.phone || '';
+        
         return {
-            response: response,
-            newState: 'conversational',
-            triggerBanner: 'consultation',
-            source: 'fallback'
+            response: this.clientKB?.fallback_response || 
+                     `That's a great question! ${clientName} would be happy to help you personally. Would you like to schedule a consultation?`,
+            source: 'fallback',
+            questionId: 'fallback',
+            triggerBanner: 'avatar',
+            category: 'general'
         };
     }
-
-    // Get system status
-    getStatus() {
-        return {
-            industryLoaded: !!this.industryKB,
-            clientLoaded: !!this.clientKB,
-            currentIndustry: this.currentIndustry,
-            currentClient: this.currentClient,
-            industryQuestions: this.industryKB?.questions?.length || 0,
-            clientQuestions: this.clientKB?.questions?.length || 0
-        };
+    
+    // ===================================================
+    // 🔄 SWITCH INDUSTRY/CLIENT (FOR CLONING)
+    // ===================================================
+    async switchIndustry(industryName) {
+        console.log(`🔄 Switching to industry: ${industryName}`);
+        this.currentIndustry = industryName;
+        return await this.loadKnowledgeBases(industryName, this.currentClient);
+    }
+    
+    async switchClient(clientName) {
+        console.log(`🔄 Switching to client: ${clientName}`);
+        this.currentClient = clientName;
+        return await this.loadKnowledgeBases(this.currentIndustry, clientName);
+    }
+    
+    // ===================================================
+    // 📊 GET CLIENT INFO (FOR DYNAMIC RESPONSES)
+    // ===================================================
+    getClientInfo() {
+        return this.clientKB?.company_info || {};
+    }
+    
+    getClientCredentials() {
+        return this.clientKB?.credentials || {};
+    }
+    
+    getClosingTemplate(type = 'general_help', topic = 'your question') {
+        const template = this.clientKB?.closing_templates?.[type] || 
+                        "Is there anything else I can help you with?";
+        return template.replace('{topic}', topic);
     }
 }
 
-// Initialize global loader
+// ===================================================
+// 🚀 AUTO-INITIALIZE ON PAGE LOAD
+// ===================================================
 window.knowledgeBaseLoader = new KnowledgeBaseLoader();
 
-// Auto-load knowledge bases on page load
-document.addEventListener('DOMContentLoaded', async function() {
-    console.log('🚀 Auto-loading knowledge bases...');
-    
-    // Load New Clients Inc + CPA Practice Sales
-    const result = await window.knowledgeBaseLoader.loadKnowledgeBases(
-        'cpa-practice-sales',
-        'new-clients-inc'
-    );
-    
-    if (result.industryLoaded && result.clientLoaded) {
-        console.log('✅ Knowledge Base System ready!');
-        console.log('📊 Status:', window.knowledgeBaseLoader.getStatus());
-    } else {
-        console.warn('⚠️ Some knowledge bases failed to load:', result);
-    }
-});
+// Auto-load on page ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', async () => {
+        await window.knowledgeBaseLoader.loadKnowledgeBases();
+    });
+} else {
+    window.knowledgeBaseLoader.loadKnowledgeBases();
+}
 
-console.log('🧠 Knowledge Base Loader System loaded!');
+console.log('🧠 Mobile-Wise Knowledge Base Loader V2.0 System loaded!');
+console.log('🎯 Commands: switchIndustry(name), switchClient(name), getClientInfo()');

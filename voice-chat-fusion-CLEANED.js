@@ -1084,8 +1084,8 @@ if (shouldTriggerLeadCapture(userText)) {
 }
 
 // Default AI response handler
-setTimeout(() => {
-    const responseText = getAIResponse(userText);
+setTimeout(async () => {
+    const responseText = await getAIResponse(userText);
 
     console.log('🎯 USER SAID:', userText);
     console.log('🎯 AI RESPONSE:', responseText);
@@ -2671,21 +2671,21 @@ async function getAIResponse(userInput) {
         
         // Trigger banners if specified
         if (result.triggerBanner) {
-            setTimeout(() => {
+            setTimeout(async () => {
                 if (result.triggerBanner === 'freeBookWithConsultation') {
                     showUniversalBanner('freeBookWithConsultation');
                 } else if (result.triggerBanner === 'consultation') {
                     showUniversalBanner('avatar');
                 }
-            }, 2000);
+            }, 800);
         }
         
         // Trigger testimonials if specified
         if (result.triggerTestimonial && typeof showTestimonialVideo === 'function') {
-            setTimeout(() => {
+            setTimeout(async () => {
                 showTestimonialVideo(result.triggerTestimonial, 12000);
                 console.log(`🎙️ Showing ${result.triggerTestimonial} testimonial`);
-            }, 2000);
+            }, 800);
         }
         
         console.log('✅ Knowledge Base Response:', {
@@ -2706,7 +2706,7 @@ async function getAIResponse(userInput) {
             "That's a great question! Let me connect you with our team. Would you like to schedule a consultation?";
         
         // Show consultation banner as fallback
-        setTimeout(() => {
+        setTimeout(async () => {
             showUniversalBanner('avatar');
         }, 2000);
         
