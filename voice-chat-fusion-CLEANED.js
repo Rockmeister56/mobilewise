@@ -4221,7 +4221,7 @@ if (!window.disableDirectTimeout) {
     setTimeout(() => {
         if (!speakSequenceActive) return;
         
-        console.log('⏰ DIRECT: 4-second listening window ended - no speech detected');
+        console.log('⏰ DIRECT: 12-second listening window ended - no speech detected');
         
         // Clean up and trigger avatar again
         window.clearBulletproofTimer();
@@ -4243,7 +4243,7 @@ if (!window.disableDirectTimeout) {
             showAvatarSorryMessage();
         }
         
-    }, 7000);
+    }, 12000);
 } else {
     console.log('🚫 DIRECT: Timeout disabled - banner will stay until speech detected');
 }
@@ -4591,7 +4591,7 @@ playGetReadyAndSpeakNowSound();
         setTimeout(() => {
             if (!speakSequenceActive) return;
             
-            console.log('⏰ 4-second listening window ended - no speech detected');
+            console.log('⏰ 12-second listening window ended - no speech detected');
             
             // ===== 💣 NUCLEAR SHUTDOWN BEFORE AVATAR =====
             console.log('💣 NUCLEAR SHUTDOWN: Completely stopping all speech recognition before avatar');
@@ -4672,7 +4672,7 @@ playGetReadyAndSpeakNowSound();
                 }
             }
             
-        }, 7000);
+        }, 12000);
         
     }, 3000); // PROPER TIMING: 3 seconds for voice setup
     

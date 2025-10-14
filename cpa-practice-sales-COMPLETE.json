@@ -2,11 +2,11 @@
   "industry_name": "CPA Practice Sales & Acquisitions",
   "industry_type": "accounting_practice_brokerage",
   "version": "2.0",
-  "client_name": "New Clients, Inc. / Bruce Waymack",
+  "client_name": "New Clients, Inc. / Bruce Clark",
   
   "greeting": {
-    "initial": "Hi there! I'm here to help with CPA firm transactions - buying, selling, and practice valuations. Before we dive in, what's your first name?",
-    "with_name": "Great to meet you {firstName}! What brings you here today - looking to buy, sell, or get a valuation?"
+    "initial": "Hi there! I'm Boatimia your personal AI Voice assistant, may I get your first name please?",
+    "with_name": "Great to meet you {firstName}! What brings you here today - looking to buy, sell, or get a practice valuation?"
   },
   
   "conversation_states": {
@@ -16,7 +16,7 @@
       "triggers": {
         "name_request": {
           "keywords": [],
-          "response": "Hi there! I'm here to help with CPA firm transactions - buying, selling, and practice valuations. Before we dive in, what's your first name?",
+          "response": "Before we dive in, what's your first name?",
           "next_state": "getting_first_name",
           "condition": "!leadData.firstName && no business keywords"
         },
