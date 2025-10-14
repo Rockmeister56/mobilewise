@@ -890,23 +890,35 @@ async function activateMicrophone() {
 
             document.getElementById('quickButtonsContainer').style.display = 'block';
 
-           setTimeout(() => {
-    // Initialize conversation system - BULLETPROOF VERSION
-    if (typeof conversationState === 'undefined') {
-        window.conversationState = 'getting_first_name';
-    } else {
-        conversationState = 'getting_first_name';
-    }
-    
-    // Initialize leadData if it doesn't exist
-    if (typeof leadData === 'undefined' || !leadData) {
-        window.leadData = { firstName: '' };
-    }
-    
-    const greeting = "Hi there! I'm here to help with CPA firm transactions - buying, selling, and practice valuations. Before we dive in, may I get your first name?";
-    addAIMessage(greeting);
-    speakResponse(greeting);
-}, 1400);
+            setTimeout(() => {
+                // Initialize conversation system - BULLETPROOF VERSION
+                if (typeof conversationState === 'undefined') {
+                    window.conversationState = 'initial';
+                } else {
+                    conversationState = 'initial';
+                }
+                
+                // Initialize leadData if it doesn't exist
+                if (typeof leadData === 'undefined' || !leadData) {
+                    window.leadData = { firstName: '' };
+                }
+                
+                // 🎯 KB-POWERED GREETING - Use KB system if loaded
+                let greeting;
+                
+                // Check if KB system is loaded and has greeting
+                if (window.conversationKB && window.conversationKB.kb && window.conversationKB.kb.greeting) {
+                    greeting = window.conversationKB.kb.greeting.initial;
+                    console.log('✅ Using KB greeting:', greeting);
+                } else {
+                    // Fallback to simple greeting if KB not loaded yet
+                    greeting = "Hi there! I'm Boatimia, your personal AI Voice assistant. May I get your first name please?";
+                    console.log('⚠️ KB not loaded yet - using fallback greeting');
+                }
+                
+                addAIMessage(greeting);
+                speakResponse(greeting);
+            }, 1400);
         }
 
     } catch (error) {
