@@ -893,9 +893,9 @@ async function activateMicrophone() {
            setTimeout(() => {
     // Initialize conversation system - BULLETPROOF VERSION
     if (typeof conversationState === 'undefined') {
-        window.conversationState = 'getting_first_name';
+        window.conversationState = 'initial';
     } else {
-        conversationState = 'getting_first_name';
+        conversationState = 'initial';
     }
     
     // Initialize leadData if it doesn't exist
@@ -903,6 +903,21 @@ async function activateMicrophone() {
         window.leadData = { firstName: '' };
     }
     
+    // 🎯 KB-POWERED GREETING - Use KB system if loaded
+    let greeting;
+    
+    // Check if KB system is loaded and has greeting
+    if (window.conversationKB && window.conversationKB.kb && window.conversationKB.kb.greeting) {
+        greeting = window.conversationKB.kb.greeting.initial;
+        console.log('✅ Using KB greeting:', greeting);
+    } else {
+        // Fallback to simple greeting if KB not loaded yet
+        greeting = "Hi there! I'm Boatimia, your personal AI Voice assistant. May I get your first name please?";
+        console.log('⚠️ KB not loaded yet - using fallback greeting');
+    }
+    
+    addAIMessage(greeting);
+    speakResponse(greeting);
 }, 1400);
         }
 
@@ -5009,20 +5024,22 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Getting first name
-    else if (conversationState === 'getting_first_name') {
-        // Extract first name from input
-        const nameMatch = userText.match(/(?:i'm|i am|my name is|call me|this is)\s+([a-z]+)|^([a-z]+)$/i);
-        if (nameMatch) {
-            firstName = nameMatch[1] || nameMatch[2];
-            leadData.firstName = firstName.charAt(0).toUpperCase() + firstName.slice(1);
-            responseText = `Nice to meet you, ${leadData.firstName}! Are you looking to buy, sell, or get a valuation for a CPA practice?`;
-            conversationState = 'initial';
-        } else {
-            leadData.firstName = userInput.split(' ')[0].charAt(0).toUpperCase() + userInput.split(' ')[0].slice(1);
-            responseText = `Thanks, ${leadData.firstName}! Are you looking to buy, sell, or get a valuation?`;
-            conversationState = 'initial';
+    // 🎯 FALLBACK: Only run if KB didn't provide a response
+    if (!responseText || responseText === '') {
+        if (conversationState === 'getting_first_name') {
+            const nameMatch = userText.match(/(?:i'm|i am|my name is|call me|this is)\s+([a-z]+)|^([a-z]+)$/i);
+            if (nameMatch) {
+                firstName = nameMatch[1] || nameMatch[2];
+                leadData.firstName = firstName.charAt(0).toUpperCase() + firstName.slice(1);
+                responseText = `Nice to meet you, ${leadData.firstName}! Are you looking to buy, sell, or get a valuation for a CPA practice?`;
+                conversationState = 'initial';
+            } else {
+                leadData.firstName = userInput.split(' ')[0].charAt(0).toUpperCase() + userInput.split(' ')[0].slice(1);
+                responseText = `Thanks, ${leadData.firstName}! Are you looking to buy, sell, or get a valuation?`;
+                conversationState = 'initial';
+            }
         }
+
     }
 
     return responseText;
