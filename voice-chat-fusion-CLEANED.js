@@ -4894,14 +4894,14 @@ document.addEventListener('DOMContentLoaded', function() {
         if (kbResponse) {
             responseText = kbResponse.response;
             
-            // Handle state transitions
-            if (kbResponse.nextState) {
-                conversationState = kbResponse.nextState;
-            }
-            
             // Handle data extraction
             if (kbResponse.extractedData) {
                 Object.assign(leadData, kbResponse.extractedData);
+            }
+
+            // Handle state transitions
+            if (kbResponse.newState) {
+                conversationState = kbResponse.newState;
             }
             
             // 🎯 ACTION HANDLING - Route KB actions to banners
