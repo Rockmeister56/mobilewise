@@ -226,7 +226,6 @@ if (typeof window.conversationState === 'undefined') {
     console.log('✅ Speech recognition initialized');
     return true;
 }
-*/
 
 function getApologyResponse() {
     const sorryMessages = [
