@@ -893,9 +893,9 @@ async function activateMicrophone() {
            setTimeout(() => {
     // Initialize conversation system - BULLETPROOF VERSION
     if (typeof conversationState === 'undefined') {
-        window.conversationState = 'initial';
+        window.conversationState = 'getting_first_name';
     } else {
-        conversationState = 'initial';
+        conversationState = 'getting_first_name';
     }
     
     // Initialize leadData if it doesn't exist
@@ -903,19 +903,7 @@ async function activateMicrophone() {
         window.leadData = { firstName: '' };
     }
     
-    // 🎯 KB-POWERED GREETING - Use KB system if loaded
-    let greeting;
-    
-    // Check if KB system is loaded and has greeting
-    if (window.conversationKB && window.conversationKB.kb && window.conversationKB.kb.greeting) {
-        greeting = window.conversationKB.kb.greeting.initial;
-        console.log('✅ Using KB greeting:', greeting);
-    } else {
-        // Fallback to simple greeting if KB not loaded yet
-        greeting = "Hi there! I'm Boatimia, your personal AI Voice assistant. May I get your first name please?";
-        console.log('⚠️ KB not loaded yet - using fallback greeting');
-    }
-    
+    const greeting = "Hi there! I'm here to help with CPA firm transactions - buying, selling, and practice valuations. Before we dive in, may I get your first name?";
     addAIMessage(greeting);
     speakResponse(greeting);
 }, 1400);
@@ -1096,8 +1084,8 @@ if (shouldTriggerLeadCapture(userText)) {
 }
 
 // Default AI response handler
-setTimeout(async () => {
-    const responseText = await getAIResponse(userText);
+setTimeout(() => {
+    const responseText = getAIResponse(userText);
 
     console.log('🎯 USER SAID:', userText);
     console.log('🎯 AI RESPONSE:', responseText);
@@ -2660,6 +2648,432 @@ function updateSmartButton(shouldShow, buttonText, action) {
 // ===================================================
 // 🧠 AI RESPONSE SYSTEM
 // ===================================================
+async function getAIResponse(userInput) {
+    // ✅ STOP PROCESSING IF CONVERSATION IS ENDED
+    if (conversationState === 'ended') {
+        return "Thank you for visiting! Have a great day.";
+    }
+    
+    const userText = userInput.toLowerCase();
+    let responseText = '';
+    let firstName = leadData.firstName || ''; // Store first name from lead capture
+
+if (conversationState === 'initial') {
+    // 🎯 FIRST NAME CAPTURE - Always ask for name first unless they jump straight to business
+    if (!leadData.firstName && !userText.includes('buy') && !userText.includes('sell') && !userText.includes('value') && !userText.includes('purchase') && !userText.includes('acquire')) {
+        responseText = "Hi there! I'm here to help with CPA firm transactions - buying, selling, and practice valuations. Before we dive in, what's your first name?";
+        conversationState = 'getting_first_name';
+        return responseText;
+    }
+    
+    if (userText.includes('buy') || userText.includes('purchase') || userText.includes('buying') || userText.includes('acquire')) {
+        responseText = firstName ? 
+            `Excellent, ${firstName}! Bruce has some fantastic opportunities available right now - some exclusive off-market deals that would blow you away. Tell me, what's your budget range for acquiring a practice?` :
+            "Excellent! Bruce has some fantastic opportunities available - some exclusive off-market deals that would blow you away. What's your budget range for acquiring a practice?";
+        conversationState = 'buying_budget_question';
+        shouldShowSmartButton = false;
+        
+        // 🎯 NEW: Trigger free book banner for buying interest
+        setTimeout(() => {
+            showUniversalBanner('freeBookWithConsultation');
+        }, 2000);
+        
+    } else if (userText.includes('sell') || userText.includes('selling')) {
+        responseText = firstName ? 
+             `Wow ${firstName}! That's a huge decision - you've probably poured your heart and soul into building something special there. Tell me, how many clients are you currently serving?` :
+            "I'd love to help you with selling your practice! That's a big decision - you've probably built something really special. How many clients are you currently serving?";
+        conversationState = 'selling_size_question';
+        shouldShowSmartButton = false;
+        
+        // 🎯 NEW: Trigger free book banner for selling interest
+        setTimeout(() => {
+            showUniversalBanner('freeBookWithConsultation');
+        }, 2000);
+        
+    } else if (userText.includes('value') || userText.includes('worth') || userText.includes('valuation') || userText.includes('evaluate')) {
+        responseText = firstName ?
+            `${firstName}, I'd be happy to help with a practice valuation! You know, most practice owners are shocked when they find out what their practice is actually worth in today's market. To give you the most accurate assessment, what's your practice's approximate annual revenue?` :
+            "I'd be happy to help with a practice valuation! Most owners are surprised at what their practice is worth. What's your practice's approximate annual revenue?";
+        conversationState = 'valuation_revenue_question';
+        shouldShowSmartButton = false;
+        
+        // 🎯 NEW: Trigger free book banner for valuation interest
+        setTimeout(() => {
+            showUniversalBanner('freeBookWithConsultation');
+        }, 2000);
+        
+    } else {
+        responseText = firstName ?
+            `${firstName}, I'm here to help with CPA firm transactions - buying, selling, and practice valuations. Bruce has been doing this for years and has some incredible opportunities right now. What brings you here today?` :
+            "Hi there! I'm here to help with CPA firm transactions - buying, selling, and practice valuations. Bruce has been doing this for years and has some incredible opportunities right now. What brings you here today?";
+    }
+
+} else if (conversationState === 'getting_first_name') {
+    // 🎯 EXTRACT AND STORE FIRST NAME
+    const words = userInput.trim().split(' ');
+    const extractedName = words[0].replace(/[^a-zA-Z]/g, ''); // Remove any punctuation
+    if (extractedName.length > 0) {
+       window.leadData.firstName = extractedName.charAt(0).toUpperCase() + extractedName.slice(1).toLowerCase();
+        firstName = window.leadData.firstName;
+        
+        responseText = `Great to meet you ${firstName}! Now, what brings you here today - are you looking to buy a practice, sell your practice, or get a practice valuation?`;
+        conversationState = 'initial';
+    } else {
+        responseText = "I didn't catch your name. Could you tell me your first name?";
+    }
+    
+} else if (conversationState === 'selling_size_question') {
+    const clientCount = userText.match(/(\d+(?:,\d+)*(?:\.\d+)?)/);
+    const number = clientCount ? clientCount[0] : 'that many';
+    
+    responseText = firstName ?
+        `Incredible ${firstName}! ${number} clients - that's fantastic! You've clearly built something substantial there. I bet Bruce would be really excited to hear about your practice. With that kind of client base, you're probably generating some solid revenue too. What's your approximate annual revenue range?` :
+        `Wow! ${number} clients - that's impressive! You've built something substantial. With that client base, what's your approximate annual revenue range?`;
+    conversationState = 'selling_revenue_question';
+    
+} else if (conversationState === 'selling_revenue_question') {
+    const revenueMatch = userText.match(/(\d+(?:,\d+)*(?:\.\d+)?)/);
+    const revenue = revenueMatch ? revenueMatch[0] : 'that kind of revenue';
+    
+    responseText = firstName ?
+        `That's excellent ${firstName}! ${revenue} in revenue - you've definitely built a valuable practice there. Bruce is going to love working with you on this. Now, I'm curious - what's driving your decision to sell? Is it retirement, new opportunities, or maybe you're just ready for the next chapter? Understanding your motivation helps Bruce create the perfect exit strategy for you.` :
+        `Excellent! ${revenue} in revenue - that's a solid practice! What's driving your decision to sell? Retirement, new opportunities, or something else? This helps Bruce tailor the perfect approach.`;
+    conversationState = 'selling_motivation_question';
+    
+} else if (conversationState === 'selling_motivation_question') {
+    
+    // 🎯 NEW: Check for objections FIRST - before normal response
+    if (typeof handleObjection === 'function' && handleObjection(userText)) {
+        // Objection detected! Testimonial will play automatically
+        responseText = firstName ?
+            `Great question, ${firstName}! You know what? Let me show you what one of our recent clients had to say about that...` :
+            "Great question! Let me show you what one of our recent clients had to say about that...";
+        
+        // Stay in same conversation state - continue normally after testimonial
+        return responseText;
+    }
+    
+    // 🎯 ORIGINAL RESPONSE (only runs if no objection detected)
+    responseText = firstName ?
+        `Thank you for sharing that with me ${firstName}! You know what? Based on everything you've told me - your client base, revenue, and your goals - Bruce can definitely help you get top dollar for your practice. The market is absolutely on fire right now for practices like yours. Honestly, ${firstName}, this could be perfect timing for you. Would you like to schedule a FREE consultation with Bruce to discuss your selling strategy?` :
+        "Thank you for sharing that! Based on what you've told me, Bruce can definitely help you maximize your practice value. The market is incredibly strong right now. Would you like a FREE consultation with Bruce?";
+    conversationState = 'asking_selling_consultation';
+    
+    // 🎯 NEW: Trigger free book banner when offering consultation
+    setTimeout(() => {
+        showUniversalBanner('freeBookWithConsultation');
+    }, 1500);
+    
+} else if (conversationState === 'initial') {
+    // 🎯 FIRST NAME CAPTURE - Keep this short
+    if (!leadData.firstName && !userText.includes('buy') && !userText.includes('sell') && !userText.includes('value') && !userText.includes('purchase') && !userText.includes('acquire')) {
+        responseText = "Hi! I help with CPA firm transactions. What's your first name?";
+        conversationState = 'getting_first_name';
+        return responseText;
+    }
+    
+    if (userText.includes('buy') || userText.includes('purchase') || userText.includes('buying') || userText.includes('acquire')) {
+        responseText = firstName ? 
+            `Great ${firstName}! Bruce has exclusive opportunities right now. What's your budget range?` :
+            "Great! Bruce has exclusive opportunities. What's your budget range?";
+        conversationState = 'buying_budget_question';
+        shouldShowSmartButton = false;
+        
+        setTimeout(() => {
+            showUniversalBanner('freeBookWithConsultation');
+        }, 2000);
+        
+    } else if (userText.includes('sell') || userText.includes('selling')) {
+        // 🎯 NEW SHORT FLOW - Straight to concerns!
+        responseText = firstName ? 
+            `That's fantastic, ${firstName}! It's a great time to sell. Do you have any concerns or reservations I can help address?` :
+            "That's fantastic! It's a great time to sell. Do you have any concerns I can help address?";
+        conversationState = 'selling_concerns_check';
+        shouldShowSmartButton = false;
+        
+        setTimeout(() => {
+            showUniversalBanner('freeBookWithConsultation');
+        }, 2000);
+        
+    } else if (userText.includes('value') || userText.includes('worth') || userText.includes('valuation') || userText.includes('evaluate')) {
+        responseText = firstName ?
+            `Perfect ${firstName}! Bruce can provide a FREE valuation. Most owners are surprised by the value. Interested?` :
+            "Perfect! Bruce can provide a FREE valuation. Most owners are surprised. Interested?";
+        conversationState = 'asking_valuation_consultation';
+        shouldShowSmartButton = false;
+        
+        setTimeout(() => {
+            showUniversalBanner('freeBookWithConsultation');
+        }, 2000);
+        
+    } else {
+        responseText = firstName ?
+            `Hi ${firstName}! I help with buying, selling, and valuing CPA practices. What brings you here?` :
+            "Hi! I help with buying, selling, and valuing CPA practices. What brings you here?";
+    }
+
+} else if (conversationState === 'getting_first_name') {
+    const words = userInput.trim().split(' ');
+    const extractedName = words[0].replace(/[^a-zA-Z]/g, '');
+    if (extractedName.length > 0) {
+       window.leadData.firstName = extractedName.charAt(0).toUpperCase() + extractedName.slice(1).toLowerCase();
+        firstName = window.leadData.firstName;
+        
+        responseText = `Great to meet you ${firstName}! Are you looking to buy, sell, or value a practice?`;
+        conversationState = 'initial';
+    } else {
+        responseText = "I didn't catch your name. What should I call you?";
+    }
+    
+} else if (conversationState === 'selling_concerns_check') {
+    // 🎯 THE MAGIC HAPPENS HERE - Check for concerns IMMEDIATELY
+    const concernType = detectConsultativeResponse(userText);
+    
+    if (concernType) {
+        // Concern detected! Show testimonial
+        let testimonialMessage = firstName ? 
+            `I totally understand that concern, ${firstName}. Let me show you what one of Bruce's recent clients said about that exact situation...` :
+            "I totally understand that concern. Let me show you what one of Bruce's recent clients said about that...";
+        
+        setTimeout(() => {
+            if (concernType === 'value') {
+                showTestimonialVideo('skeptical', 12000);
+                console.log('🎯 Showing VALUE testimonial');
+            } else if (concernType === 'speed') {
+                showTestimonialVideo('speed', 12000);
+                console.log('🎯 Showing SPEED testimonial');
+            } else if (concernType === 'credibility') {
+                showTestimonialVideo('skeptical', 12000);
+                console.log('🎯 Showing CREDIBILITY testimonial');
+            }
+        }, 2000);
+        
+        // After testimonial, go straight to close
+        setTimeout(() => {
+            conversationState = 'post_testimonial_close';
+        }, 14000);
+        
+        return testimonialMessage;
+        
+    } else if (userText.includes('no') || userText.includes('none') || userText.includes('not really')) {
+        // No concerns - straight to close
+        responseText = firstName ?
+            `Perfect ${firstName}! Bruce has great strategies right now. Ready for a FREE consultation?` :
+            "Perfect! Bruce has great strategies. Ready for a FREE consultation?";
+        conversationState = 'asking_selling_consultation';
+        
+        setTimeout(() => {
+            showUniversalBanner('freeBookWithConsultation');
+        }, 1500);
+        
+    } else {
+        // Didn't catch it - try again with prompting
+        responseText = firstName ?
+            `${firstName}, most sellers worry about getting fair value or timeline. Sound familiar?` :
+            "Most sellers worry about fair value or timeline. Sound familiar?";
+    }
+    
+} else if (conversationState === 'post_testimonial_close') {
+    // 🎯 STRAIGHT TO CLOSE AFTER TESTIMONIAL
+    responseText = firstName ?
+        `${firstName}, Bruce would love to help you overcome that concern. Ready for a FREE consultation?` :
+        "Bruce would love to help overcome that. Ready for a FREE consultation?";
+    conversationState = 'asking_selling_consultation';
+    
+    setTimeout(() => {
+        showUniversalBanner('freeBookWithConsultation');
+    }, 1500);
+    
+} else if (conversationState === 'asking_selling_consultation') {
+    if (userText.includes('yes') || userText.includes('sure') || userText.includes('okay') || userText.includes('definitely') || userText.includes('absolutely')) {
+        console.log('🎯 CONSULTATION YES - Starting lead capture immediately!');
+        setTimeout(() => {
+            startCompleteLeadCapture();
+        }, 100);
+        return "";
+        
+    } else if (userText.includes('no') || userText.includes('not now') || userText.includes('maybe later')) {
+        responseText = firstName ?
+            `No problem ${firstName}! The offer stands whenever you're ready. Anything else I can help with?` :
+            "No problem! The offer stands whenever ready. Anything else?";
+        conversationState = 'initial';
+        
+        setTimeout(() => {
+            showUniversalBanner('smartButton');
+        }, 1500);
+        
+    } else {
+        responseText = firstName ?
+            `${firstName}, would you like Bruce to call you for a free consultation? Yes or no?` :
+            "Would you like Bruce to call for a free consultation? Yes or no?";
+    }
+    
+} else if (conversationState === 'buying_budget_question') {
+    const budgetMatch = userText.match(/(\d+(?:,\d+)*(?:\.\d+)?)/);
+    const budget = budgetMatch ? budgetMatch[0] : 'that range';
+    
+    responseText = firstName ?
+        `Great ${firstName}! ${budget} opens up nice opportunities. CPA practice or general accounting?` :
+        `Great! ${budget} opens opportunities. CPA or general accounting?`;
+    conversationState = 'buying_type_question';
+    
+} else if (conversationState === 'buying_type_question') {
+    responseText = firstName ?
+        `Perfect ${firstName}! How soon are you looking to buy? Bruce has deals moving fast.` :
+        "Perfect! How soon? Bruce has deals moving fast.";
+    conversationState = 'buying_timeline_question';
+    
+} else if (conversationState === 'buying_timeline_question') {
+    responseText = firstName ?
+        `Excellent ${firstName}! Bruce has exclusive off-market opportunities. Want to see what matches your criteria?` :
+        "Excellent! Bruce has exclusive opportunities. Want to see what matches?";
+    conversationState = 'asking_buying_consultation';
+    
+    setTimeout(() => {
+        showUniversalBanner('freeBookWithConsultation');
+    }, 1500);
+    
+} else if (conversationState === 'asking_buying_consultation') {
+    if (userText.includes('yes') || userText.includes('sure') || userText.includes('okay') || userText.includes('definitely') || userText.includes('absolutely')) {
+        console.log('🎯 BUYING CONSULTATION YES - Starting lead capture immediately!');
+        setTimeout(() => {
+            startCompleteLeadCapture();
+        }, 100);
+        return "";
+        
+    } else if (userText.includes('no') || userText.includes('not now') || userText.includes('maybe later')) {
+        responseText = firstName ?
+            `That's fine ${firstName}! When ready, let me know. Anything else about buying?` :
+            "That's fine! When ready, let me know. Anything else?";
+        conversationState = 'initial';
+        
+        setTimeout(() => {
+            showUniversalBanner('smartButton');
+        }, 1500);
+        
+    } else {
+        responseText = firstName ?
+            `${firstName}, want to see Bruce's available practices? Yes or no?` :
+            "Want to see available practices? Yes or no?";
+    }
+    
+} else if (conversationState === 'asking_valuation_consultation') {
+    if (userText.includes('yes') || userText.includes('sure') || userText.includes('okay') || userText.includes('definitely') || userText.includes('absolutely')) {
+        console.log('🎯 VALUATION CONSULTATION YES - Starting lead capture immediately!');
+        setTimeout(() => {
+            startCompleteLeadCapture();
+        }, 100);
+        return "";
+        
+    } else if (userText.includes('no') || userText.includes('not now') || userText.includes('maybe later')) {
+        responseText = firstName ?
+            `No worries ${firstName}! The offer stands whenever ready. Anything else?` :
+            "No worries! Offer stands whenever ready. Anything else?";
+        conversationState = 'initial';
+        
+        setTimeout(() => {
+            showUniversalBanner('smartButton');
+        }, 1500);
+        
+    } else {
+        responseText = firstName ?
+            `${firstName}, want Bruce to provide a FREE valuation? Yes or no?` :
+            "Want a FREE valuation? Yes or no?";
+    }
+    
+} else if (conversationState === 'lead_capture_active') {
+    return "";
+
+} else if (conversationState === 'asking_if_more_help') {
+    if (userText.includes('no') || userText.includes('nothing') || userText.includes('done') || 
+        userText.includes('that\'s all') || userText.includes('nope') || userText.includes('thanks')) {
+        
+        responseText = firstName ?
+            `Thank you ${firstName}! Have a wonderful day! 🌟` :
+            "Thank you! Have a wonderful day! 🌟";
+        conversationState = 'ended';
+        
+        setTimeout(() => {
+            showUniversalBanner('thankYou');
+        }, 1000);
+        
+    } else {
+        conversationState = 'initial';
+        responseText = firstName ?
+            `Absolutely ${firstName}! What else about buying, selling, or valuing practices?` :
+            "Absolutely! What else about buying, selling, or valuing?";
+    }
+    
+} else if (conversationState === 'asking_anything_else') {
+    if (userText.includes('yes') || userText.includes('sure') || userText.includes('help')) {
+        responseText = firstName ?
+            `I'm here to help ${firstName}! What else about your practice?` :
+            "I'm here to help! What else?";
+        conversationState = 'initial';
+    } else {
+        conversationState = 'asking_if_more_help';
+        responseText = firstName ?
+            `Perfect ${firstName}! Anything else I can help with?` :
+            "Perfect! Anything else?";
+    }
+    
+} else {
+    // 🎯 CAPTAIN'S FIX: Try KB for general questions
+    if (window.knowledgeBaseController && window.knowledgeBaseController.isLoaded) {
+        const kbResponse = await window.knowledgeBaseController.getResponse(userText, conversationState);
+        if (kbResponse && kbResponse !== 'fallback') {
+            responseText = firstName ? `${firstName}, ${kbResponse}` : kbResponse;
+            console.log('✅ KB provided answer for general question');
+        } else {
+            // KB fallback - use original logic
+            if (conversationState !== 'ended') {
+                responseText = firstName ?
+                    `Thanks ${firstName}! Anything else about buying, selling, or valuing practices?` :
+                    "Thanks! Anything else about buying, selling, or valuing?";
+                conversationState = 'initial';
+                shouldShowSmartButton = false;
+            } else {
+                responseText = firstName ?
+                    `Thank you ${firstName}! Have a great day.` :
+                    "Thank you! Have a great day.";
+            }
+        }
+    } else {
+        // KB not ready - use original logic
+        if (conversationState !== 'ended') {
+            responseText = firstName ?
+                `Thanks ${firstName}! Anything else about buying, selling, or valuing practices?` :
+                "Thanks! Anything else about buying, selling, or valuing?";
+            conversationState = 'initial';
+            shouldShowSmartButton = false;
+        } else {
+            responseText = firstName ?
+                `Thank you ${firstName}! Have a great day.` :
+                "Thank you! Have a great day.";
+        }
+    }
+}
+
+// 🎯 EMAIL FOLLOW-UP HANDLER CHECK
+if (window.emailFollowUpHandler && window.emailFollowUpHandler(userInput)) {
+    return;
+}
+
+// ✅ SAVE RESPONSE TEXT TO lastAIResponse BEFORE RETURNING
+function setAIResponse(response) {
+    currentAIResponse = response;
+    
+    if (response && (response.includes('click') || response.includes('button above'))) {
+        window.lastClickMentionTime = Date.now();
+        console.log('⏰ Clock mention detected - setting blocking window');
+    }
+}
+
+return responseText;
+}
+
+
+
 // ===================================================
 // 🎤 HYBRID SPEAK NOW SYSTEM - MOBILE-WISE AI
 // ===================================================
@@ -4233,7 +4647,7 @@ if (!window.disableDirectTimeout) {
     setTimeout(() => {
         if (!speakSequenceActive) return;
         
-        console.log('⏰ DIRECT: 12-second listening window ended - no speech detected');
+        console.log('⏰ DIRECT: 4-second listening window ended - no speech detected');
         
         // Clean up and trigger avatar again
         window.clearBulletproofTimer();
@@ -4255,7 +4669,7 @@ if (!window.disableDirectTimeout) {
             showAvatarSorryMessage();
         }
         
-    }, 12000);
+    }, 7000);
 } else {
     console.log('🚫 DIRECT: Timeout disabled - banner will stay until speech detected');
 }
@@ -4603,7 +5017,7 @@ playGetReadyAndSpeakNowSound();
         setTimeout(() => {
             if (!speakSequenceActive) return;
             
-            console.log('⏰ 12-second listening window ended - no speech detected');
+            console.log('⏰ 4-second listening window ended - no speech detected');
             
             // ===== 💣 NUCLEAR SHUTDOWN BEFORE AVATAR =====
             console.log('💣 NUCLEAR SHUTDOWN: Completely stopping all speech recognition before avatar');
@@ -4684,9 +5098,9 @@ playGetReadyAndSpeakNowSound();
                 }
             }
             
-        }, 12000);
+        }, 7000);
         
-    }, 3000); // PROPER TIMING: 3 seconds for voice setup
+    }, 100); // INSTANT FIX: Start listening immediately (was 3000ms causing name capture delay)
     
     // ===== SUCCESS HANDLER =====
     window.handleSpeechSuccess = function(transcript) {
@@ -4877,170 +5291,4 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     }, 1000);
-});async function getAIResponse(userInput) {
-    // ✅ STOP PROCESSING IF CONVERSATION IS ENDED
-    if (conversationState === 'ended') {
-        return "Thank you for visiting! Have a great day.";
-    }
-    
-    const userText = userInput.toLowerCase();
-    let responseText = '';
-    let firstName = leadData.firstName || '';
-
-    // 🎯 KB-POWERED CONVERSATION SYSTEM
-    try {
-        const kbResponse = await conversationKB.getResponse(userText, conversationState, leadData);
-        
-        if (kbResponse) {
-            responseText = kbResponse.response;
-            
-            // Handle data extraction
-            if (kbResponse.extractedData) {
-                Object.assign(leadData, kbResponse.extractedData);
-            }
-
-            // Handle state transitions
-            if (kbResponse.newState) {
-                conversationState = kbResponse.newState;
-            }
-            
-            // 🎯 ACTION HANDLING - Route KB actions to banners
-            if (kbResponse.action) {
-                const action = kbResponse.action;
-                
-                // Handle testimonial actions
-                if (action.type === 'show_testimonial') {
-                    if (action.testimonialId === 'skeptical') {
-                        showUniversalBanner('testimonial', {
-                            videoUrl: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982717330.mp4',
-                            caption: 'Skeptical, Then Exceeded Expectations',
-                            ctaText: 'See How We Can Help You',
-                            ctaAction: () => {
-                                showUniversalBanner('consultationForm');
-                            }
-                        });
-                    } else if (action.testimonialId === 'speed') {
-                        showUniversalBanner('testimonial', {
-                            videoUrl: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982877040.mp4',
-                            caption: 'Surprised by the Speed of the Sale',
-                            ctaText: 'Get Your Fast Sale',
-                            ctaAction: () => {
-                                showUniversalBanner('consultationForm');
-                            }
-                        });
-                    }
-                }
-                
-                // Handle banner actions
-                else if (action.type === 'show_banner') {
-                    switch(action.bannerId) {
-                        case 'branding':
-                            showUniversalBanner('branding');
-                            break;
-                        case 'emailSent':
-                            showUniversalBanner('emailSent');
-                            break;
-                        case 'emailConfirmationSent':
-                            showUniversalBanner('emailConfirmationSent');
-                            break;
-                        case 'leadMagnet':
-                            showUniversalBanner('leadMagnet');
-                            break;
-                        case 'clickToCall':
-                            showUniversalBanner('clickToCall');
-                            break;
-                        case 'consultationConfirmed':
-                            showUniversalBanner('consultationConfirmed');
-                            break;
-                        case 'contactInformation':
-                            showUniversalBanner('contactInformation');
-                            break;
-                        case 'consultationForm':
-                            showUniversalBanner('consultationForm');
-                            break;
-                        case 'consultation':
-                            showUniversalBanner('consultation');
-                            break;
-                        case 'valuationForm':
-                            showUniversalBanner('valuationForm');
-                            break;
-                        case 'valuationSuccess':
-                            showUniversalBanner('valuationSuccess');
-                            break;
-                        case 'scheduleCall':
-                            showUniversalBanner('scheduleCall');
-                            break;
-                        case 'thankYou':
-                            showUniversalBanner('thankYou');
-                            break;
-                        case 'errorMessage':
-                            showUniversalBanner('errorMessage', action.params);
-                            break;
-                        case 'pricing':
-                            showUniversalBanner('pricing');
-                            break;
-                        case 'process':
-                            showUniversalBanner('process');
-                            break;
-                        default:
-                            console.warn('Unknown banner type:', action.bannerId);
-                    }
-                }
-            }
-            
-            return responseText;
-        }
-    } catch (error) {
-        console.error('KB System Error:', error);
-        // Fallback to basic response
-        responseText = "I'm here to help with CPA firm transactions. Could you tell me more about what you're looking for?";
-    }
-
-    // 🎯 FALLBACK: Basic conversation handling if KB doesn't match
-    if (conversationState === 'initial') {
-        // First name capture
-        if (!leadData.firstName && !userText.includes('buy') && !userText.includes('sell')) {
-            responseText = "Hi there! I'm here to help with CPA firm transactions. What's your first name?";
-            conversationState = 'getting_first_name';
-            return responseText;
-        }
-        
-        // Basic routing
-        if (userText.includes('buy') || userText.includes('purchase') || userText.includes('buying')) {
-            responseText = firstName ? 
-                `Great to meet you, ${firstName}! Let's explore CPA practices available for purchase. What's your budget range?` :
-                "Great! Let's explore CPA practices for sale. What's your budget range?";
-            conversationState = 'buying_budget_question';
-        } else if (userText.includes('sell') || userText.includes('selling')) {
-            responseText = firstName ?
-                `Thanks ${firstName}! I can help you sell your CPA practice. How many clients do you currently serve?` :
-                "I can help you sell your CPA practice. How many clients do you currently serve?";
-            conversationState = 'selling_size_question';
-        } else if (userText.includes('value') || userText.includes('valuation') || userText.includes('worth')) {
-            responseText = firstName ?
-                `${firstName}, I can provide a professional valuation. How many clients does your practice serve?` :
-                "I can provide a professional valuation. How many clients does your practice serve?";
-            conversationState = 'valuation_size_question';
-        }
-    }
-    
-    // 🎯 FALLBACK: Only run if KB didn't provide a response
-    if (!responseText || responseText === '') {
-        if (conversationState === 'getting_first_name') {
-            const nameMatch = userText.match(/(?:i'm|i am|my name is|call me|this is)\s+([a-z]+)|^([a-z]+)$/i);
-            if (nameMatch) {
-                firstName = nameMatch[1] || nameMatch[2];
-                leadData.firstName = firstName.charAt(0).toUpperCase() + firstName.slice(1);
-                responseText = `Nice to meet you, ${leadData.firstName}! Are you looking to buy, sell, or get a valuation for a CPA practice?`;
-                conversationState = 'initial';
-            } else {
-                leadData.firstName = userInput.split(' ')[0].charAt(0).toUpperCase() + userInput.split(' ')[0].slice(1);
-                responseText = `Thanks, ${leadData.firstName}! Are you looking to buy, sell, or get a valuation?`;
-                conversationState = 'initial';
-            }
-        }
-
-    }
-
-    return responseText;
-}
+});
