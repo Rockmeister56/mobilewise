@@ -1084,8 +1084,8 @@ if (shouldTriggerLeadCapture(userText)) {
 }
 
 // Default AI response handler
-setTimeout(() => {
-    const responseText = getAIResponse(userText);
+setTimeout(async () => {
+    const responseText = await getAIResponse(userText);
 
     console.log('🎯 USER SAID:', userText);
     console.log('🎯 AI RESPONSE:', responseText);
