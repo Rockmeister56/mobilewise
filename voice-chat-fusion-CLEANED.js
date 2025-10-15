@@ -4902,7 +4902,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 🎯 KB-POWERED CONVERSATION SYSTEM
     try {
-        const kbResponse = await window.conversationEngine.getResponse(userText, leadData.firstName || '');
+        const kbResponse = window.conversationEngine.getResponse(userText, leadData.firstName || '');
         
         if (kbResponse) {
             responseText = kbResponse.response;
