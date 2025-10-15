@@ -1,20 +1,4 @@
 // ===================================================
-// 🎯 MOBILE-WISE AI VOICE CHAT - KB FULLY WORKING
-// ===================================================
-// FIX HISTORY:
-// v1: Removed hardcoded name prompts (lines ~5001, ~5024)
-// v2: Fixed KB reference names (THIS VERSION)
-//     - Changed: conversationKB → window.knowledgeBaseLoader
-//     - Changed: conversationKB.kb → knowledgeBaseLoader.knowledgeBase
-//     - Fixed: getResponse() call parameters
-// 
-// 🎯 RESULT: KB Loader now properly connected and responding
-// 
-// Date: October 15, 2025 - 01:52 UTC
-// Captain: Mobile-Wise AI Empire
-// ===================================================
-
-// ===================================================
 // 🎯 MOBILE-WISE AI VOICE CHAT - KB INTEGRATED VERSION
 // ===================================================
 // CHANGES FROM PREVIOUS VERSION:
@@ -936,8 +920,8 @@ async function activateMicrophone() {
     let greeting;
     
     // Check if KB system is loaded and has greeting
-    if (window.knowledgeBaseLoader && window.knowledgeBaseLoader.knowledgeBase && window.knowledgeBaseLoader.knowledgeBase.greeting) {
-        greeting = window.knowledgeBaseLoader.knowledgeBase.greeting.initial;
+    if (window.conversationKB && window.conversationKB.kb && window.conversationKB.kb.greeting) {
+        greeting = window.conversationKB.kb.greeting.initial;
         console.log('✅ Using KB greeting:', greeting);
     } else {
         // Fallback to simple greeting if KB not loaded yet
@@ -1126,7 +1110,7 @@ if (shouldTriggerLeadCapture(userText)) {
 
 // Default AI response handler
 setTimeout(async () => {
-    const responseText = await getAIResponse(userText);
+    const responseText = getAIResponse(userText);
 
     console.log('🎯 USER SAID:', userText);
     console.log('🎯 AI RESPONSE:', responseText);
@@ -4906,7 +4890,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     }, 1000);
-});async function getAIResponse(userInput) {
+});function getAIResponse(userInput) {
     // ✅ STOP PROCESSING IF CONVERSATION IS ENDED
     if (conversationState === 'ended') {
         return "Thank you for visiting! Have a great day.";
@@ -4918,7 +4902,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 🎯 KB-POWERED CONVERSATION SYSTEM
     try {
-        const kbResponse = await window.knowledgeBaseLoader.getResponse(userText, conversationState);
+        const kbResponse = await conversationKB.getResponse(userText, conversationState, leadData);
         
         if (kbResponse) {
             responseText = kbResponse.response;
