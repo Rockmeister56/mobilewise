@@ -920,13 +920,19 @@ async function activateMicrophone() {
     let greeting;
     
     // Check if KB system is loaded and has greeting
-    if (window.knowledgeBaseData && window.knowledgeBaseData.greeting) {
-        greeting = window.knowledgeBaseData.greeting.initial;
+    if (window.conversationKB && window.conversationKB.kb && window.conversationKB.kb.greeting) {
+        greeting = window.conversationKB.kb.greeting.initial;
         console.log('✅ Using KB greeting:', greeting);
     } else {
         // Fallback to simple greeting if KB not loaded yet
         greeting = "Hi there! I'm Boatimia, your personal AI Voice assistant. May I get your first name please?";
         console.log('⚠️ KB not loaded yet - using fallback greeting');
+    }
+    
+    // 🎯 CRITICAL: SYNC STATE - We just asked for name, so set engine to expect name response
+    if (window.conversationEngine) {
+        window.conversationEngine.currentState = 'getting_first_name';
+        console.log('🎯 Synced ConversationEngine state to: getting_first_name');
     }
     
     addAIMessage(greeting);
@@ -4890,7 +4896,9 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     }, 1000);
-});function getAIResponse(userInput) {
+});
+
+function getAIResponse(userInput) {
     // ✅ STOP PROCESSING IF CONVERSATION IS ENDED
     if (conversationState === 'ended') {
         return "Thank you for visiting! Have a great day.";
@@ -4900,24 +4908,56 @@ document.addEventListener('DOMContentLoaded', function() {
     let responseText = '';
     let firstName = leadData.firstName || '';
 
-    // 🎯 KB-POWERED CONVERSATION SYSTEM
+    // 🚀 ZERO-LATENCY CONVERSATION ENGINE
     try {
-        const kbResponse = window.conversationEngine.getResponse(userText, leadData.firstName || '');
+        const kbResponse = window.conversationEngine.getResponse(userInput, firstName);
         
         if (kbResponse) {
             responseText = kbResponse.response;
             
-            // Handle state transitions
-            if (kbResponse.nextState) {
-                conversationState = kbResponse.nextState;
+            // 🎯 Sync state with conversation engine
+            if (kbResponse.newState) {
+                conversationState = kbResponse.newState;
+                // Keep engine in sync
+                window.conversationEngine.currentState = kbResponse.newState;
+                console.log('🔄 State synced to:', kbResponse.newState);
             }
             
             // Handle data extraction
             if (kbResponse.extractedData) {
                 Object.assign(leadData, kbResponse.extractedData);
+                console.log('💾 Extracted data:', kbResponse.extractedData);
             }
             
-            // 🎯 ACTION HANDLING - Route KB actions to banners
+            // 🎯 BANNER HANDLING - Trigger banners from KB responses
+            if (kbResponse.triggerBanner) {
+                const bannerId = kbResponse.triggerBanner;
+                console.log('🎯 Triggering banner:', bannerId);
+                
+                // Map banner IDs to showUniversalBanner calls
+                switch(bannerId) {
+                    case 'branding':
+                        showUniversalBanner('branding');
+                        break;
+                    case 'consultation':
+                    case 'consultationForm':
+                        showUniversalBanner('consultationForm');
+                        break;
+                    case 'valuation':
+                    case 'valuationForm':
+                        showUniversalBanner('valuationForm');
+                        break;
+                    case 'contactInformation':
+                        showUniversalBanner('contactInformation');
+                        break;
+                    default:
+                        if (typeof showUniversalBanner === 'function') {
+                            showUniversalBanner(bannerId);
+                        }
+                }
+            }
+            
+            // Legacy action handling (if still present in some responses)
             if (kbResponse.action) {
                 const action = kbResponse.action;
                 
