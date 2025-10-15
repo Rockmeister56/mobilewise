@@ -3493,10 +3493,15 @@ function playMobileErrorBeep() {
     }
 }
 
+// ===================================================================
+// TESTIMONIAL VIDEO PLAYER - CLEAN & LEAN (Matches Avatar Pattern)
+// ===================================================================
+// Paste this RIGHT AFTER showAvatarSorryMessage() function
+
 function showTestimonialVideo(testimonialType, duration = 12000) {
     console.log(`🎬 Playing ${testimonialType} testimonial for ${duration}ms`);
     
-    // 🚫 PREVENT DOUBLE CALLS - BULLETPROOF (same as your original)
+    // 🚫 PREVENT DOUBLE CALLS - BULLETPROOF (identical to Avatar)
     if (window.avatarCurrentlyPlaying) {
         console.log('🚫 Avatar already playing - skipping duplicate testimonial call');
         return;
@@ -3506,17 +3511,17 @@ function showTestimonialVideo(testimonialType, duration = 12000) {
     
     const isMobile = window.innerWidth <= 768;
     
-    // 🎯 BRUCE'S TESTIMONIAL VIDEO URLS (from your browser optimization file)
+    // 🎯 TESTIMONIAL VIDEO URLS
     const testimonialVideos = {
-        skeptical: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982717330.mp4", // Skeptical, Then Exceeded Expectations
-        speed: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982877040.mp4"      // Surprised by the Speed of the Sale
+        skeptical: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982717330.mp4",
+        speed: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982877040.mp4"
     };
     
     const videoUrl = testimonialVideos[testimonialType] || testimonialVideos.skeptical;
     
     const avatarOverlay = document.createElement('div');
     
-    // EXACT SAME STYLING AS YOUR ORIGINAL AVATAR FUNCTION
+    // EXACT SAME STYLING AS AVATAR FUNCTION - Mobile vs Desktop
     if (isMobile) {
         avatarOverlay.style.cssText = `
             position: fixed; top: 0; left: 0;
@@ -3533,6 +3538,7 @@ function showTestimonialVideo(testimonialType, duration = 12000) {
             </video>
         `;
     } else {
+        // 🎯 DESKTOP: Black background with centered video (no separate desktop video needed)
         avatarOverlay.style.cssText = `
             position: fixed; top: 50%; left: 50%;
             transform: translate(-50%, -50%);
@@ -3552,81 +3558,35 @@ function showTestimonialVideo(testimonialType, duration = 12000) {
     }
     
     document.body.appendChild(avatarOverlay);
-
-    // 🎯 CONSULTATIVE CONCERN DETECTION SYSTEM
-function detectConsultativeResponse(userText) {
-    const text = userText.toLowerCase().trim();
     
-    // 🎯 VALUE/WORTH CONCERNS
-    const valueConcerns = [
-        'concern', 'worried', 'afraid', 'nervous', 'anxious',
-        'worth', 'value', 'fair price', 'market value', 'low ball',
-        'undervalue', 'undersell', 'getting what', 'full value',
-        'what it\'s worth', 'fair deal', 'ripped off', 'enough money'
-    ];
-    
-    // 🎯 SPEED/TIMELINE CONCERNS  
-    const speedConcerns = [
-        'how long', 'timeline', 'time', 'quick', 'fast', 'speed',
-        'when', 'soon', 'quickly', 'process time', 'sell fast',
-        'too fast', 'rushed', 'patient', 'wait', 'takes forever'
-    ];
-    
-    // 🎯 CREDIBILITY/TRUST CONCERNS
-    const credibilityConcerns = [
-        'experience', 'credibility', 'trust', 'legitimate', 'proven',
-        'track record', 'skeptical', 'doubt', 'reliable', 'reputation',
-        'references', 'testimonials', 'reviews', 'who are you', 'can you really'
-    ];
-    
-    // Check for value concerns → Show "skeptical then exceeded" testimonial
-    for (let concern of valueConcerns) {
-        if (text.includes(concern)) {
-            console.log(`🎯 VALUE CONCERN detected: "${concern}" - will show value testimonial`);
-            return 'value';
-        }
-    }
-    
-    // Check for speed concerns → Show "speed of sale" testimonial
-    for (let concern of speedConcerns) {
-        if (text.includes(concern)) {
-            console.log(`🎯 SPEED CONCERN detected: "${concern}" - will show speed testimonial`);
-            return 'speed';
-        }
-    }
-    
-    // Check for credibility concerns → Show "skeptical then exceeded" testimonial
-    for (let concern of credibilityConcerns) {
-        if (text.includes(concern)) {
-            console.log(`🎯 CREDIBILITY CONCERN detected: "${concern}" - will show credibility testimonial`);
-            return 'credibility';
-        }
-    }
-    
-    return null; // No concern detected
-}
-    
-    // 🎯 CLEANUP - CONTINUES CONVERSATION (KEY DIFFERENCE FROM SORRY MESSAGE)
+    // 🎯 ONE SIMPLE CLEANUP FUNCTION - IDENTICAL TO AVATAR (NO COMPLEXITY)
     function cleanup() {
-        console.log(`🎬 Testimonial ${testimonialType} complete - continuing conversation`);
+        console.log(`🎬 Testimonial ${testimonialType} duration (${duration}ms) complete - removing`);
         
+        // Remove the overlay
         if (avatarOverlay.parentNode) {
             avatarOverlay.remove();
         }
         
+        // Reset the flag IMMEDIATELY to allow future calls
         window.avatarCurrentlyPlaying = false;
         
-        // 🎯 NO "Speak Now" - let conversation continue naturally
+        // Clear testimonial blocking flag
+        window.testimonialBlocking = false;
+        
+        // Go back to Speak Now after brief delay (same as Avatar)
         setTimeout(() => {
-            console.log('✅ Testimonial removed - conversation continues naturally');
-            window.testimonialBlocking = false;  // ✅ CLEAR blocking flag
-            console.log("✅ UNBLOCKED: \"Speak Now\" banner can now show for next response");
-            // Conversation flows naturally without interruption
+            console.log('✅ Testimonial removed - going DIRECT to Speak Now');
+            showDirectSpeakNow();
         }, 1000);
     }
     
+    // 🎯 ONE TIMER ONLY - SIMPLE AND CLEAN (identical to Avatar)
     setTimeout(cleanup, duration);
 }
+
+// Ensure global availability
+window.showTestimonialVideo = showTestimonialVideo;
 
 function showAvatarSorryMessage(duration = 6000) {
     console.log(`🎬 Showing avatar for ${duration}ms - WILL restart recognition when done`);
