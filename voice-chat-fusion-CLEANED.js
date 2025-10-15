@@ -920,8 +920,8 @@ async function activateMicrophone() {
     let greeting;
     
     // Check if KB system is loaded and has greeting
-    if (window.conversationKB && window.conversationKB.kb && window.conversationKB.kb.greeting) {
-        greeting = window.conversationKB.kb.greeting.initial;
+    if (window.knowledgeBaseData && window.knowledgeBaseData.greeting) {
+        greeting = window.knowledgeBaseData.greeting.initial;
         console.log('✅ Using KB greeting:', greeting);
     } else {
         // Fallback to simple greeting if KB not loaded yet
@@ -4902,7 +4902,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 🎯 KB-POWERED CONVERSATION SYSTEM
     try {
-        const kbResponse = await conversationKB.getResponse(userText, conversationState, leadData);
+        const kbResponse = await window.conversationEngine.getResponse(userText, leadData.firstName || '');
         
         if (kbResponse) {
             responseText = kbResponse.response;
