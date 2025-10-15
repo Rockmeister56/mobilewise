@@ -1,17 +1,4 @@
 // ===================================================
-// 🎯 MOBILE-WISE AI VOICE CHAT - KB INTEGRATED VERSION
-// ===================================================
-// CHANGES FROM PREVIOUS VERSION:
-// ✅ REMOVED: Hardcoded first name prompt in 'initial' state (line ~5001)
-// ✅ REMOVED: Hardcoded 'getting_first_name' response block (line ~5024)
-// 🎯 RESULT: All name capture now handled by KB Loader
-//           Uses greeting.with_name from CPA JSON with {firstName} substitution
-// 
-// Date: October 15, 2025
-// Captain: Mobile-Wise AI Empire
-// ===================================================
-
-// ===================================================
 // 🎯 MOBILE-WISE AI VOICE CHAT - COMPLETE INTEGRATION
 // Smart Button + Lead Capture + EmailJS + Banner System
 // ===================================================
@@ -99,104 +86,14 @@ class SpeechEngineManager {
         this.recognition.continuous = false;
         this.recognition.interimResults = true;
         this.recognition.lang = 'en-US';
-        this.recognition.maxAlternatives = 1;
         
-        // ✅ PROPER: Set up audio detection handlers
-        this.recognition.onsoundstart = () => {
-            console.log('🎤 🎤 🎤 SOUND DETECTED by recognition engine!');
-            speechDetected = true;
-        };
-        this.recognition.onaudiostart = () => {
-            console.log('🎤 🎤 🎤 AUDIO INPUT STARTED!');
-        };
-        this.recognition.onspeechstart = () => {
-            console.log('🗣️ 🗣️ 🗣️ SPEECH DETECTED!');
-            speechDetected = true;
-        };
-        this.recognition.onspeechend = () => {
-            console.log('🗣️ Speech ended');
-        };
-        
-        // 🎯 SET UP CORE HANDLERS ONCE - Don't overwrite these!
-        this.setupCoreHandlers();
+        // 🚫 CRITICAL: DISABLE BROWSER BEEP
+        this.recognition.onsoundstart = null;
+        this.recognition.onaudiostart = null;
+        this.recognition.onstart = null;
         
         console.log('🎯 Speech engine created successfully');
         return true;
-    }
-    
-    setupCoreHandlers() {
-        console.log('🎯 Setting up CORE recognition handlers (ONE TIME ONLY)');
-        
-        // 🎯 ONRESULT - This is the most important handler!
-        this.recognition.onresult = function(event) {
-            console.log('🎯 🎯 🎯 ONRESULT FIRED! Got transcript!');
-            let transcript = Array.from(event.results)
-                .map(result => result[0])
-                .map(result => result.transcript)
-                .join('');
-
-            transcript = transcript.replace(/\.+$/, '');
-            console.log('🎤 Transcript:', transcript);
-            
-            const transcriptText = document.getElementById('transcriptText');
-            const userInput = document.getElementById('userInput');
-            
-            if (transcriptText) {
-                transcriptText.textContent = 'Speak Now';
-            }
-            
-            if (userInput) {
-                userInput.value = transcript;
-                console.log('✅ Transcript saved to userInput:', transcript);
-            }
-            
-            // Auto-send in lead capture mode
-            if (isInLeadCapture) {
-                clearTimeout(window.leadCaptureTimeout);
-                window.leadCaptureTimeout = setTimeout(() => {
-                    if (transcript.trim().length > 1 && userInput.value === transcript) {
-                        console.log('🎯 Lead capture auto-send:', transcript);
-                        sendMessage();
-                    }
-                }, 1500);
-            }
-        };
-        
-        // 🎯 ONERROR - Handle speech recognition errors
-        this.recognition.onerror = function(event) {
-            console.log('🔊 Speech error from CORE handler:', event.error);
-            
-            if (event.error === 'no-speech') {
-                console.log('⚠️ No speech detected - will be handled by onend');
-                // Don't do anything here - let onend handle it
-                return;
-            }
-            
-            if (event.error === 'audio-capture') {
-                console.log('🎤 No microphone detected');
-                if (typeof addAIMessage === 'function') {
-                    addAIMessage("I can't detect your microphone. Please check your audio settings.");
-                }
-            }
-            
-            if (event.error === 'not-allowed') {
-                console.log('🔒 Permission denied');
-                if (typeof addAIMessage === 'function') {
-                    addAIMessage("Microphone permission was denied. Please allow microphone access to continue.");
-                }
-            }
-            
-            if (event.error === 'aborted') {
-                console.log('🛑 Recognition aborted - normal for quick restarts');
-            }
-        };
-        
-        // 🎯 ONSTART - Log when recognition starts
-        this.recognition.onstart = function() {
-            console.log('✅ Recognition STARTED (from CORE handler)');
-        };
-        
-        console.log('✅ CORE HANDLERS installed in SpeechEngineManager');
     }
     
     getEngine() {
@@ -215,7 +112,8 @@ console.log('🚀 Speech Engine Manager initialized');
 // 🚨 NUCLEAR MOBILE DETECTION - SCREEN SIZE ONLY
 const isDefinitelyMobile = window.innerWidth <= 768 || window.innerHeight <= 1024;
 
-if (isDefinitelyMobile) {
+// 🚨 FIX: Check if event exists before accessing event.error
+if (isDefinitelyMobile || (event && event.error === 'no-speech')) {
     console.log('📱 NUCLEAR MOBILE DETECTED: Using visual feedback system');
 }
 
@@ -541,11 +439,39 @@ function getApologyResponse() {
         
         if (!recognition) {
             recognition = speechEngine.getEngine();
-            console.log('✅ Using Speech Engine Manager (handlers already set)');
+            console.log('✅ Using Speech Engine Manager');
         }
 
-        // 🚫 DON'T re-assign onresult - it's already set in SpeechEngineManager!
-        // The core handlers (onresult, onsoundstart, etc.) are set ONCE during engine initialization
+        // Keep ALL your existing event handlers - they're perfect
+        recognition.onresult = function(event) {
+            let transcript = Array.from(event.results)
+                .map(result => result[0])
+                .map(result => result.transcript)
+                .join('');
+
+            transcript = transcript.replace(/\.+$/, '');
+            
+            const transcriptText = document.getElementById('transcriptText');
+            const userInput = document.getElementById('userInput');
+            
+            if (transcriptText) {
+                transcriptText.textContent = 'Speak Now';
+            }
+            
+            if (userInput) {
+                userInput.value = transcript;
+            }
+            
+            if (isInLeadCapture) {
+                clearTimeout(window.leadCaptureTimeout);
+                window.leadCaptureTimeout = setTimeout(() => {
+                    if (transcript.trim().length > 1 && userInput.value === transcript) {
+                        console.log('🎯 Lead capture auto-send:', transcript);
+                        sendMessage();
+                    }
+                }, 1500);
+            }
+        };
 
     recognition.onerror = function(event) {
     console.log('🔊 Speech error:', event.error);
@@ -568,7 +494,7 @@ function getApologyResponse() {
 
     // 🎯 FALLBACK SYSTEM (only if handleSpeechRecognitionError doesn't exist)
     if (event.error === 'no-speech') {
-        const transcriptText = document.getElementById('transcriptText');
+        const transcriptText = document.getElementById('transcriptText');recognition.onerror
 
         console.log('🔍 MOBILE DEBUG:', {
             userAgent: navigator.userAgent,
@@ -688,15 +614,8 @@ function getApologyResponse() {
             sendMessage(currentMessage);
         }
     } else {
-        // No transcript captured - check if speech was detected
-        if (speechDetected) {
-            console.log('⚠️ Speech detected but no transcript captured - unclear speech');
-            console.log('🎯 speechDetected flag was:', speechDetected);
-            // Reset flag for next attempt
-            speechDetected = false;
-        } else {
-            console.log('🔄 No speech detected at all via onend - showing try again overlay');
-        }
+        // No speech detected - show simple overlay instead of complex restart
+        console.log('🔄 No speech detected via onend - showing try again overlay');
 
         // 🔓 CLEAR THE BLOCKING FLAG AFTER NO SPEECH
         setTimeout(() => {
@@ -778,9 +697,84 @@ async function forceStartListening() {
         // 🎯 DIAGNOSTIC: Check recognition state BEFORE starting
         console.log('🔍 DIAGNOSTIC: Recognition state before start:', recognition.state || 'undefined');
         
-        // 🚫 DON'T OVERWRITE HANDLERS! They're already set in SpeechEngineManager
-        // The handlers (onresult, onerror, onstart) are configured during initialization
-        console.log('✅ Using existing handlers from SpeechEngineManager (not overwriting)');
+        // 🎯 DIAGNOSTIC: Add detailed event logging
+        recognition.onstart = function() {
+            console.log('✅ DIAGNOSTIC: Recognition STARTED successfully');
+        };
+        
+        recognition.onerror = function(event) {
+    console.log('🔊 Speech error:', event.error);
+
+    if (event.error === 'no-speech') {
+        const transcriptText = document.getElementById('transcriptText');
+
+        console.log('🔍 MOBILE DEBUG:', {
+            userAgent: navigator.userAgent,
+            isMobile: /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent),
+            isTouch: ('ontouchstart' in window || navigator.maxTouchPoints > 0)
+        });
+
+        // 🚨 NUCLEAR MOBILE DETECTION - REPLACE THE OLD CHECK
+        const isDefinitelyMobile = window.innerWidth <= 768 || window.innerHeight <= 1024;
+
+        if (isDefinitelyMobile) {
+            console.log('📱📱📱 NUCLEAR MOBILE DETECTED: Using visual feedback system');
+
+            if (window.noSpeechTimeout) {
+                clearTimeout(window.noSpeechTimeout);
+            }
+
+            if (transcriptText) {
+                transcriptText.textContent = 'I didn\'t hear anything...';
+                transcriptText.style.color = '#ff6b6b';
+
+                window.noSpeechTimeout = setTimeout(() => {
+                    if (transcriptText) {
+                        transcriptText.textContent = 'Please speak now';
+                        transcriptText.style.color = '#ffffff';
+                    }
+
+                    if (isAudioMode && !isSpeaking) {
+                        console.log('🔄 Mobile: Restarting via hybrid system');
+                        isListening = false;
+
+                        setTimeout(() => {
+                            showHybridReadySequence();
+                        }, 500);
+                    }
+                },  1000);
+            }
+
+        } else {
+            console.log('🖥️ Desktop: Using voice apology system');
+
+            lastMessageWasApology = true;
+            const apologyResponse = getApologyResponse();
+
+            stopListening();
+
+            setTimeout(() => {
+                addAIMessage(apologyResponse);
+                speakResponse(apologyResponse);
+
+                if (restartTimeout) clearTimeout(restartTimeout);
+
+                restartTimeout = setTimeout(() => {
+                    if (isAudioMode && !isListening && !isSpeaking) {
+                        startListening();
+                    }
+                    lastMessageWasApology = false;
+                }, 500);
+            }, 500);
+        }
+    } else if (event.error === 'audio-capture') {
+        console.log('🎤 No microphone detected');
+        addAIMessage("I can't detect your microphone. Please check your audio settings.");
+    } else if (event.error === 'not-allowed') {
+        console.log('🔒 Permission denied');
+        addAIMessage("Microphone permission was denied. Please allow microphone access to continue.");
+    }
+};
         
         console.log('🎤 Force starting speech recognition...');
         recognition.start();
@@ -899,9 +893,9 @@ async function activateMicrophone() {
            setTimeout(() => {
     // Initialize conversation system - BULLETPROOF VERSION
     if (typeof conversationState === 'undefined') {
-        window.conversationState = 'initial';
+        window.conversationState = 'getting_first_name';
     } else {
-        conversationState = 'initial';
+        conversationState = 'getting_first_name';
     }
     
     // Initialize leadData if it doesn't exist
@@ -909,25 +903,7 @@ async function activateMicrophone() {
         window.leadData = { firstName: '' };
     }
     
-    // 🎯 KB-POWERED GREETING - Use KB system if loaded
-    let greeting;
-    
-    // Check if KB system is loaded and has greeting
-    if (window.conversationKB && window.conversationKB.kb && window.conversationKB.kb.greeting) {
-        greeting = window.conversationKB.kb.greeting.initial;
-        console.log('✅ Using KB greeting:', greeting);
-    } else {
-        // Fallback to simple greeting if KB not loaded yet
-        greeting = "Hi there! I'm Boatimia, your personal AI Voice assistant. May I get your first name please?";
-        console.log('⚠️ KB not loaded yet - using fallback greeting');
-    }
-    
-    // 🎯 CRITICAL: SYNC STATE - We just asked for name, so set engine to expect name response
-    if (window.conversationEngine) {
-        window.conversationEngine.currentState = 'getting_first_name';
-        console.log('🎯 Synced ConversationEngine state to: getting_first_name');
-    }
-    
+    const greeting = "Hi there! I'm here to help with CPA firm transactions - buying, selling, and practice valuations. Before we dive in, may I get your first name?";
     addAIMessage(greeting);
     speakResponse(greeting);
 }, 1400);
@@ -1109,7 +1085,7 @@ if (shouldTriggerLeadCapture(userText)) {
 
 // Default AI response handler
 setTimeout(async () => {
-    const responseText = getAIResponse(userText);
+    const responseText = await getAIResponse(userText);
 
     console.log('🎯 USER SAID:', userText);
     console.log('🎯 AI RESPONSE:', responseText);
@@ -1625,6 +1601,12 @@ class MobileWiseVoiceSystem {
         }
         
         if (conversationState === 'speaking') {
+        // 🚫 BLOCK if testimonial is about to play or currently playing
+        if (window.testimonialBlocking) {
+            console.log("🚫 BLOCKED: Testimonial is playing - skipping \"Speak Now\" banner");
+            return;
+        }
+
             console.log('🚫 BLOCKED: System still in speaking state (ElevenLabs logic)');
             return;
         }
@@ -1940,7 +1922,7 @@ avatar: {
 },
 
 // 3. EMAIL SENT CONFIRMATION (Already standardized - keeping as reference)
-emailConfirmationSent: {
+emailSent: {
     content: `
         <div style="width: ${742}px; max-width: ${742}px; margin: 0 auto; background: rgba(32, 178, 170, 0.8); border-radius: 6px; height: 58px; display: flex; align-items: center; justify-content: center;">
             <div style="text-align: center; color: white;">
@@ -1959,8 +1941,8 @@ emailConfirmationSent: {
     duration: 4000
 },
 
-// 4. FREE INCENTIVE OFFER 1
-clicktoCall: {
+// 4. FREE BOOK OFFER 1
+freeBookSimple: {
     content: `
         <div style="width: ${742}px; max-width: ${742}px; margin: 0 auto; height: 58px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; border-radius: 6px; background: linear-gradient(135deg, #FF6B6B, #4ECDC4);">
             <div style="color: white;">
@@ -2132,7 +2114,7 @@ consultationConfirmed: {
     duration: 5000
 },
 
-// 6. CLICK-TO-CALL 
+// 6. CLICK-TO-CALL BANNER
 clickToCall: {
     content: `
         <div style="width: ${742}px; max-width: ${742}px; margin: 0 auto; height: 58px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; border-radius: 6px; background: linear-gradient(135deg, #0044ffff, #0a0b50ff);">
@@ -2160,8 +2142,8 @@ clickToCall: {
     duration: 0
 },
 
-// 7. CONTACT INFORMATION
- contactInformation: {
+// 7. MORE QUESTIONS BANNER
+moreQuestions: {
     content: `
         <div style="width: ${742}px; max-width: ${742}px; margin: 0 auto; height: 58px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-radius: 6px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
             <div style="color: white;">
@@ -2672,6 +2654,76 @@ function updateSmartButton(shouldShow, buttonText, action) {
 // ===================================================
 // 🧠 AI RESPONSE SYSTEM
 // ===================================================
+// ===================================================
+// 🧠 KNOWLEDGE BASE POWERED getAIResponse FUNCTION
+// ===================================================
+
+async function getAIResponse(userInput) {
+    // ✅ STOP PROCESSING IF CONVERSATION IS ENDED
+    if (conversationState === 'ended') {
+        return "Thank you for visiting! Have a great day.";
+    }
+    
+    console.log('🧠 Processing with Knowledge Base:', userInput);
+    
+    try {
+        // Use knowledge base loader to get response
+        const result = await window.knowledgeBaseLoader.getResponse(userInput, conversationState);
+        
+        // Update conversation state
+        if (result.newState) {
+            conversationState = result.newState;
+        }
+        
+        // Trigger banners if specified
+        if (result.triggerBanner) {
+            setTimeout(async () => {
+                if (result.triggerBanner === 'freeBookWithConsultation') {
+                    showUniversalBanner('freeBookWithConsultation');
+                } else if (result.triggerBanner === 'consultation') {
+                    showUniversalBanner('avatar');
+                }
+            }, 800);
+        }
+        
+        // Trigger testimonials if specified
+        if (result.triggerTestimonial && typeof showTestimonialVideo === 'function') {
+            window.testimonialBlocking = true;  // 🚫 BLOCK "Speak Now" banner while testimonial plays
+            console.log("🚫 BLOCKING: Testimonial will show - preventing \"Speak Now\" banner");
+            setTimeout(async () => {
+                showTestimonialVideo(result.triggerTestimonial, 12000);
+                console.log(`🎙️ Showing ${result.triggerTestimonial} testimonial`);
+            }, 800);
+        }
+        
+        console.log('✅ Knowledge Base Response:', {
+            source: result.source,
+            questionId: result.questionId,
+            hasFollowUp: !!result.followUp
+        });
+        
+        return result.response;
+        
+    } catch (error) {
+        console.error('❌ Knowledge Base Error:', error);
+        
+        // Fallback to simple response
+        const firstName = window.leadData?.firstName || '';
+        const fallbackResponse = firstName ? 
+            `${firstName}, that's a great question! Let me connect you with our team who can provide detailed information. Would you like to schedule a FREE consultation?` :
+            "That's a great question! Let me connect you with our team. Would you like to schedule a consultation?";
+        
+        // Show consultation banner as fallback
+        setTimeout(async () => {
+            showUniversalBanner('avatar');
+        }, 2000);
+        
+        return fallbackResponse;
+    }
+}
+
+
+
 // ===================================================
 // 🎤 HYBRID SPEAK NOW SYSTEM - MOBILE-WISE AI
 // ===================================================
@@ -3963,6 +4015,8 @@ function detectConsultativeResponse(userText) {
         
         // 🎯 NO "Speak Now" - let conversation continue naturally
         setTimeout(() => {
+            window.testimonialBlocking = false;  // ✅ CLEAR blocking flag
+            console.log('✅ UNBLOCKED: "Speak Now" banner can now show for next response');
             console.log('✅ Testimonial removed - conversation continues naturally');
             // Conversation flows naturally without interruption
         }, 1000);
@@ -4245,7 +4299,7 @@ if (!window.disableDirectTimeout) {
     setTimeout(() => {
         if (!speakSequenceActive) return;
         
-        console.log('⏰ DIRECT: 12-second listening window ended - no speech detected');
+        console.log('⏰ DIRECT: 4-second listening window ended - no speech detected');
         
         // Clean up and trigger avatar again
         window.clearBulletproofTimer();
@@ -4267,7 +4321,7 @@ if (!window.disableDirectTimeout) {
             showAvatarSorryMessage();
         }
         
-    }, 12000);
+    }, 7000);
 } else {
     console.log('🚫 DIRECT: Timeout disabled - banner will stay until speech detected');
 }
@@ -4696,7 +4750,7 @@ playGetReadyAndSpeakNowSound();
                 }
             }
             
-        }, 12000);
+        }, 15000);
         
     }, 3000); // PROPER TIMING: 3 seconds for voice setup
     
@@ -4773,7 +4827,7 @@ function startNormalInterviewListening() {
                 console.error('❌ Normal forceStartListening() error:', error);
             }
         }
-    }, 150);
+    }, 300);
 }
 
 // 🎯 CONTACT INTERVIEW LISTENING 
@@ -4890,186 +4944,3 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }, 1000);
 });
-
-function getAIResponse(userInput) {
-    // ✅ STOP PROCESSING IF CONVERSATION IS ENDED
-    if (conversationState === 'ended') {
-        return "Thank you for visiting! Have a great day.";
-    }
-    
-    const userText = userInput.toLowerCase();
-    let responseText = '';
-    let firstName = leadData.firstName || '';
-
-    // 🚀 ZERO-LATENCY CONVERSATION ENGINE
-    try {
-        const kbResponse = window.conversationEngine.getResponse(userInput, firstName);
-        
-        if (kbResponse) {
-            responseText = kbResponse.response;
-            
-            // 🎯 Sync state with conversation engine
-            if (kbResponse.newState) {
-                conversationState = kbResponse.newState;
-                // Keep engine in sync
-                window.conversationEngine.currentState = kbResponse.newState;
-                console.log('🔄 State synced to:', kbResponse.newState);
-            }
-            
-            // Handle data extraction
-            if (kbResponse.extractedData) {
-                Object.assign(leadData, kbResponse.extractedData);
-                console.log('💾 Extracted data:', kbResponse.extractedData);
-            }
-            
-            // 🎯 BANNER HANDLING - Trigger banners from KB responses
-            if (kbResponse.triggerBanner) {
-                const bannerId = kbResponse.triggerBanner;
-                console.log('🎯 Triggering banner:', bannerId);
-                
-                // Map banner IDs to showUniversalBanner calls
-                switch(bannerId) {
-                    case 'branding':
-                        showUniversalBanner('branding');
-                        break;
-                    case 'consultation':
-                    case 'consultationForm':
-                        showUniversalBanner('consultationForm');
-                        break;
-                    case 'valuation':
-                    case 'valuationForm':
-                        showUniversalBanner('valuationForm');
-                        break;
-                    case 'contactInformation':
-                        showUniversalBanner('contactInformation');
-                        break;
-                    default:
-                        if (typeof showUniversalBanner === 'function') {
-                            showUniversalBanner(bannerId);
-                        }
-                }
-            }
-            
-            // Legacy action handling (if still present in some responses)
-            if (kbResponse.action) {
-                const action = kbResponse.action;
-                
-                // Handle testimonial actions
-                if (action.type === 'show_testimonial') {
-                    if (action.testimonialId === 'skeptical') {
-                        showUniversalBanner('testimonial', {
-                            videoUrl: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982717330.mp4',
-                            caption: 'Skeptical, Then Exceeded Expectations',
-                            ctaText: 'See How We Can Help You',
-                            ctaAction: () => {
-                                showUniversalBanner('consultationForm');
-                            }
-                        });
-                    } else if (action.testimonialId === 'speed') {
-                        showUniversalBanner('testimonial', {
-                            videoUrl: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982877040.mp4',
-                            caption: 'Surprised by the Speed of the Sale',
-                            ctaText: 'Get Your Fast Sale',
-                            ctaAction: () => {
-                                showUniversalBanner('consultationForm');
-                            }
-                        });
-                    }
-                }
-                
-                // Handle banner actions
-                else if (action.type === 'show_banner') {
-                    switch(action.bannerId) {
-                        case 'branding':
-                            showUniversalBanner('branding');
-                            break;
-                        case 'emailSent':
-                            showUniversalBanner('emailSent');
-                            break;
-                        case 'emailConfirmationSent':
-                            showUniversalBanner('emailConfirmationSent');
-                            break;
-                        case 'leadMagnet':
-                            showUniversalBanner('leadMagnet');
-                            break;
-                        case 'clickToCall':
-                            showUniversalBanner('clickToCall');
-                            break;
-                        case 'consultationConfirmed':
-                            showUniversalBanner('consultationConfirmed');
-                            break;
-                        case 'contactInformation':
-                            showUniversalBanner('contactInformation');
-                            break;
-                        case 'consultationForm':
-                            showUniversalBanner('consultationForm');
-                            break;
-                        case 'consultation':
-                            showUniversalBanner('consultation');
-                            break;
-                        case 'valuationForm':
-                            showUniversalBanner('valuationForm');
-                            break;
-                        case 'valuationSuccess':
-                            showUniversalBanner('valuationSuccess');
-                            break;
-                        case 'scheduleCall':
-                            showUniversalBanner('scheduleCall');
-                            break;
-                        case 'thankYou':
-                            showUniversalBanner('thankYou');
-                            break;
-                        case 'errorMessage':
-                            showUniversalBanner('errorMessage', action.params);
-                            break;
-                        case 'pricing':
-                            showUniversalBanner('pricing');
-                            break;
-                        case 'process':
-                            showUniversalBanner('process');
-                            break;
-                        default:
-                            console.warn('Unknown banner type:', action.bannerId);
-                    }
-                }
-            }
-            
-            return responseText;
-        }
-    } catch (error) {
-        console.error('KB System Error:', error);
-        // Fallback to basic response
-        responseText = "I'm here to help with CPA firm transactions. Could you tell me more about what you're looking for?";
-    }
-
-    // 🎯 FALLBACK: Basic conversation handling if KB doesn't match
-    if (conversationState === 'initial') {
-        // 🎯 REMOVED: Hardcoded first name prompt - now handled by KB Loader
-        
-        // Basic routing
-        if (userText.includes('buy') || userText.includes('purchase') || userText.includes('buying')) {
-            responseText = firstName ? 
-                `Great to meet you, ${firstName}! Let's explore CPA practices available for purchase. What's your budget range?` :
-                "Great! Let's explore CPA practices for sale. What's your budget range?";
-            conversationState = 'buying_budget_question';
-        } else if (userText.includes('sell') || userText.includes('selling')) {
-            responseText = firstName ?
-                `Thanks ${firstName}! I can help you sell your CPA practice. How many clients do you currently serve?` :
-                "I can help you sell your CPA practice. How many clients do you currently serve?";
-            conversationState = 'selling_size_question';
-        } else if (userText.includes('value') || userText.includes('valuation') || userText.includes('worth')) {
-            responseText = firstName ?
-                `${firstName}, I can provide a professional valuation. How many clients does your practice serve?` :
-                "I can provide a professional valuation. How many clients does your practice serve?";
-            conversationState = 'valuation_size_question';
-        }
-    }
-    
-    // 🎯 FALLBACK: Only run if KB didn't provide a response
-    if (!responseText || responseText === '') {
-        // 🎯 REMOVED: Hardcoded 'getting_first_name' handler - now handled by KB Loader
-
-    }
-
-    return responseText;
-}
