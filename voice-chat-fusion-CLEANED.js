@@ -1116,7 +1116,7 @@ setTimeout(async () => {
     
     addAIMessage(responseText);
     setAIResponse(responseText);
-    speakWithElevenLabs(responseText);
+    speak(aiMessage);
     
     function setAIResponse(response) {
         currentAIResponse = response;
