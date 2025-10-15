@@ -1,4 +1,20 @@
 // ===================================================
+// 🎯 MOBILE-WISE AI VOICE CHAT - KB FULLY WORKING
+// ===================================================
+// FIX HISTORY:
+// v1: Removed hardcoded name prompts (lines ~5001, ~5024)
+// v2: Fixed KB reference names (THIS VERSION)
+//     - Changed: conversationKB → window.knowledgeBaseLoader
+//     - Changed: conversationKB.kb → knowledgeBaseLoader.knowledgeBase
+//     - Fixed: getResponse() call parameters
+// 
+// 🎯 RESULT: KB Loader now properly connected and responding
+// 
+// Date: October 15, 2025 - 01:52 UTC
+// Captain: Mobile-Wise AI Empire
+// ===================================================
+
+// ===================================================
 // 🎯 MOBILE-WISE AI VOICE CHAT - KB INTEGRATED VERSION
 // ===================================================
 // CHANGES FROM PREVIOUS VERSION:
@@ -920,8 +936,8 @@ async function activateMicrophone() {
     let greeting;
     
     // Check if KB system is loaded and has greeting
-    if (window.conversationKB && window.conversationKB.kb && window.conversationKB.kb.greeting) {
-        greeting = window.conversationKB.kb.greeting.initial;
+    if (window.knowledgeBaseLoader && window.knowledgeBaseLoader.knowledgeBase && window.knowledgeBaseLoader.knowledgeBase.greeting) {
+        greeting = window.knowledgeBaseLoader.knowledgeBase.greeting.initial;
         console.log('✅ Using KB greeting:', greeting);
     } else {
         // Fallback to simple greeting if KB not loaded yet
@@ -4902,7 +4918,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 🎯 KB-POWERED CONVERSATION SYSTEM
     try {
-        const kbResponse = await conversationKB.getResponse(userText, conversationState, leadData);
+        const kbResponse = await window.knowledgeBaseLoader.getResponse(userText, conversationState);
         
         if (kbResponse) {
             responseText = kbResponse.response;
