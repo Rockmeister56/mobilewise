@@ -162,6 +162,40 @@ class SpeechEngineManager {
             }
         };
         
+        // 🎯 ONERROR - Handle speech recognition errors
+        this.recognition.onerror = function(event) {
+            console.log('🔊 Speech error from CORE handler:', event.error);
+            
+            if (event.error === 'no-speech') {
+                console.log('⚠️ No speech detected - will be handled by onend');
+                // Don't do anything here - let onend handle it
+                return;
+            }
+            
+            if (event.error === 'audio-capture') {
+                console.log('🎤 No microphone detected');
+                if (typeof addAIMessage === 'function') {
+                    addAIMessage("I can't detect your microphone. Please check your audio settings.");
+                }
+            }
+            
+            if (event.error === 'not-allowed') {
+                console.log('🔒 Permission denied');
+                if (typeof addAIMessage === 'function') {
+                    addAIMessage("Microphone permission was denied. Please allow microphone access to continue.");
+                }
+            }
+            
+            if (event.error === 'aborted') {
+                console.log('🛑 Recognition aborted - normal for quick restarts');
+            }
+        };
+        
+        // 🎯 ONSTART - Log when recognition starts
+        this.recognition.onstart = function() {
+            console.log('✅ Recognition STARTED (from CORE handler)');
+        };
+        
         console.log('✅ CORE HANDLERS installed in SpeechEngineManager');
     }
     
@@ -654,8 +688,15 @@ function getApologyResponse() {
             sendMessage(currentMessage);
         }
     } else {
-        // No speech detected - show simple overlay instead of complex restart
-        console.log('🔄 No speech detected via onend - showing try again overlay');
+        // No transcript captured - check if speech was detected
+        if (speechDetected) {
+            console.log('⚠️ Speech detected but no transcript captured - unclear speech');
+            console.log('🎯 speechDetected flag was:', speechDetected);
+            // Reset flag for next attempt
+            speechDetected = false;
+        } else {
+            console.log('🔄 No speech detected at all via onend - showing try again overlay');
+        }
 
         // 🔓 CLEAR THE BLOCKING FLAG AFTER NO SPEECH
         setTimeout(() => {
@@ -737,87 +778,9 @@ async function forceStartListening() {
         // 🎯 DIAGNOSTIC: Check recognition state BEFORE starting
         console.log('🔍 DIAGNOSTIC: Recognition state before start:', recognition.state || 'undefined');
         
-        // 🎯 DIAGNOSTIC: Add detailed event logging
-        recognition.onstart = function() {
-            console.log('✅ DIAGNOSTIC: Recognition STARTED successfully');
-        };
-        
-        recognition.onerror = function(event) {
-    console.log('🔊 Speech error:', event.error);
-
-    if (event.error === 'no-speech') {
-        const transcriptText = document.getElementById('transcriptText');
-
-        console.log('🔍 MOBILE DEBUG:', {
-            userAgent: navigator.userAgent,
-            isMobile: /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent),
-            isTouch: ('ontouchstart' in window || navigator.maxTouchPoints > 0)
-        });
-
-        // 🚨 NUCLEAR MOBILE DETECTION - REPLACE THE OLD CHECK
-        const isDefinitelyMobile = window.innerWidth <= 768 || window.innerHeight <= 1024;
-
-        if (isDefinitelyMobile) {
-            console.log('📱📱📱 NUCLEAR MOBILE DETECTED: Using visual feedback system');
-
-            if (window.noSpeechTimeout) {
-                clearTimeout(window.noSpeechTimeout);
-            }
-
-            if (transcriptText) {
-                transcriptText.textContent = 'I didn\'t hear anything...';
-                transcriptText.style.color = '#ff6b6b';
-
-                window.noSpeechTimeout = setTimeout(() => {
-                    if (transcriptText) {
-                        transcriptText.textContent = 'Please speak now';
-                        transcriptText.style.color = '#ffffff';
-                    }
-
-                    if (isAudioMode && !isSpeaking) {
-                        console.log('🔄 Mobile: Restarting via hybrid system');
-                        isListening = false;
-
-                        setTimeout(() => {
-                            showHybridReadySequence();
-                        }, 500);
-                    }
-                },  1000);
-            }
-
-        } else {
-            console.log('🖥️ Desktop: Using voice apology system');
-
-            lastMessageWasApology = true;
-            const apologyResponse = getApologyResponse();
-
-            stopListening();
-
-            setTimeout(() => {
-                addAIMessage(apologyResponse);
-                speakResponse(apologyResponse);
-
-                if (restartTimeout) clearTimeout(restartTimeout);
-
-                restartTimeout = setTimeout(() => {
-                    if (isAudioMode && !isListening && !isSpeaking) {
-                        startListening();
-                    }
-                    lastMessageWasApology = false;
-                }, 500);
-            }, 500);
-        }
-    } else if (event.error === 'audio-capture') {
-        console.log('🎤 No microphone detected');
-        addAIMessage("I can't detect your microphone. Please check your audio settings.");
-    } else if (event.error === 'not-allowed') {
-        console.log('🔒 Permission denied');
-        addAIMessage("Microphone permission was denied. Please allow microphone access to continue.");
-    }
-    
-    // Call original error handler if it exists
-    if (originalOnError) originalOnError(event);
-};
+        // 🚫 DON'T OVERWRITE HANDLERS! They're already set in SpeechEngineManager
+        // The handlers (onresult, onerror, onstart) are configured during initialization
+        console.log('✅ Using existing handlers from SpeechEngineManager (not overwriting)');
         
         console.log('🎤 Force starting speech recognition...');
         recognition.start();
