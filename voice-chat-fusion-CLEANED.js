@@ -99,14 +99,70 @@ class SpeechEngineManager {
         this.recognition.continuous = false;
         this.recognition.interimResults = true;
         this.recognition.lang = 'en-US';
+        this.recognition.maxAlternatives = 1;
         
-        // 🚫 CRITICAL: DISABLE BROWSER BEEP
-        this.recognition.onsoundstart = null;
-        this.recognition.onaudiostart = null;
-        this.recognition.onstart = null;
+        // ✅ PROPER: Set up audio detection handlers
+        this.recognition.onsoundstart = () => {
+            console.log('🎤 🎤 🎤 SOUND DETECTED by recognition engine!');
+            speechDetected = true;
+        };
+        this.recognition.onaudiostart = () => {
+            console.log('🎤 🎤 🎤 AUDIO INPUT STARTED!');
+        };
+        this.recognition.onspeechstart = () => {
+            console.log('🗣️ 🗣️ 🗣️ SPEECH DETECTED!');
+            speechDetected = true;
+        };
+        this.recognition.onspeechend = () => {
+            console.log('🗣️ Speech ended');
+        };
+        
+        // 🎯 SET UP CORE HANDLERS ONCE - Don't overwrite these!
+        this.setupCoreHandlers();
         
         console.log('🎯 Speech engine created successfully');
         return true;
+    }
+    
+    setupCoreHandlers() {
+        console.log('🎯 Setting up CORE recognition handlers (ONE TIME ONLY)');
+        
+        // 🎯 ONRESULT - This is the most important handler!
+        this.recognition.onresult = function(event) {
+            console.log('🎯 🎯 🎯 ONRESULT FIRED! Got transcript!');
+            let transcript = Array.from(event.results)
+                .map(result => result[0])
+                .map(result => result.transcript)
+                .join('');
+
+            transcript = transcript.replace(/\.+$/, '');
+            console.log('🎤 Transcript:', transcript);
+            
+            const transcriptText = document.getElementById('transcriptText');
+            const userInput = document.getElementById('userInput');
+            
+            if (transcriptText) {
+                transcriptText.textContent = 'Speak Now';
+            }
+            
+            if (userInput) {
+                userInput.value = transcript;
+                console.log('✅ Transcript saved to userInput:', transcript);
+            }
+            
+            // Auto-send in lead capture mode
+            if (isInLeadCapture) {
+                clearTimeout(window.leadCaptureTimeout);
+                window.leadCaptureTimeout = setTimeout(() => {
+                    if (transcript.trim().length > 1 && userInput.value === transcript) {
+                        console.log('🎯 Lead capture auto-send:', transcript);
+                        sendMessage();
+                    }
+                }, 1500);
+            }
+        };
+        
+        console.log('✅ CORE HANDLERS installed in SpeechEngineManager');
     }
     
     getEngine() {
@@ -125,8 +181,7 @@ console.log('🚀 Speech Engine Manager initialized');
 // 🚨 NUCLEAR MOBILE DETECTION - SCREEN SIZE ONLY
 const isDefinitelyMobile = window.innerWidth <= 768 || window.innerHeight <= 1024;
 
-// 🚨 FIX: Check if event exists before accessing event.error
-if (isDefinitelyMobile || (event && event.error === 'no-speech')) {
+if (isDefinitelyMobile) {
     console.log('📱 NUCLEAR MOBILE DETECTED: Using visual feedback system');
 }
 
@@ -452,39 +507,11 @@ function getApologyResponse() {
         
         if (!recognition) {
             recognition = speechEngine.getEngine();
-            console.log('✅ Using Speech Engine Manager');
+            console.log('✅ Using Speech Engine Manager (handlers already set)');
         }
 
-        // Keep ALL your existing event handlers - they're perfect
-        recognition.onresult = function(event) {
-            let transcript = Array.from(event.results)
-                .map(result => result[0])
-                .map(result => result.transcript)
-                .join('');
-
-            transcript = transcript.replace(/\.+$/, '');
-            
-            const transcriptText = document.getElementById('transcriptText');
-            const userInput = document.getElementById('userInput');
-            
-            if (transcriptText) {
-                transcriptText.textContent = 'Speak Now';
-            }
-            
-            if (userInput) {
-                userInput.value = transcript;
-            }
-            
-            if (isInLeadCapture) {
-                clearTimeout(window.leadCaptureTimeout);
-                window.leadCaptureTimeout = setTimeout(() => {
-                    if (transcript.trim().length > 1 && userInput.value === transcript) {
-                        console.log('🎯 Lead capture auto-send:', transcript);
-                        sendMessage();
-                    }
-                }, 1500);
-            }
-        };
+        // 🚫 DON'T re-assign onresult - it's already set in SpeechEngineManager!
+        // The core handlers (onresult, onsoundstart, etc.) are set ONCE during engine initialization
 
     recognition.onerror = function(event) {
     console.log('🔊 Speech error:', event.error);
@@ -507,7 +534,7 @@ function getApologyResponse() {
 
     // 🎯 FALLBACK SYSTEM (only if handleSpeechRecognitionError doesn't exist)
     if (event.error === 'no-speech') {
-        const transcriptText = document.getElementById('transcriptText');recognition.onerror
+        const transcriptText = document.getElementById('transcriptText');
 
         console.log('🔍 MOBILE DEBUG:', {
             userAgent: navigator.userAgent,
@@ -787,6 +814,9 @@ async function forceStartListening() {
         console.log('🔒 Permission denied');
         addAIMessage("Microphone permission was denied. Please allow microphone access to continue.");
     }
+    
+    // Call original error handler if it exists
+    if (originalOnError) originalOnError(event);
 };
         
         console.log('🎤 Force starting speech recognition...');
