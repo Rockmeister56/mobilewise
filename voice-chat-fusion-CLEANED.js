@@ -1445,9 +1445,12 @@ class MobileWiseVoiceSystem {
             console.log('✅ Triggering banner');
         }
         
-        if (typeof triggerSpeakNowBanner === 'function') {
-            triggerSpeakNowBanner();
-        }
+       // Trigger the speak sequence directly
+if (typeof showHybridReadySequence === 'function') {
+    setTimeout(() => {
+        showHybridReadySequence();
+    }, 500);
+}
     }
     
     // STOP FUNCTION
