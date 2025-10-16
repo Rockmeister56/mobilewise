@@ -4310,11 +4310,11 @@ function showHybridReadySequence() {
 window.showTestimonialVideo = showTestimonialVideo;
 
     
-    // ===== BULLETPROOF BLOCKING =====
-    if (window.speakSequenceBlocked) {
-        console.log('🔇 BULLETPROOF BLOCK: Another session already running - HARD STOP');
-        return;
-    }
+ // // ===== BULLETPROOF BLOCKING =====
+// if (window.speakSequenceBlocked) {
+//     console.log('🔇 BULLETPROOF BLOCK: Another session already running - HARD STOP');
+//     return;
+// }
     
     window.speakSequenceBlocked = true;
     console.log('🛡️ BULLETPROOF: Block activated immediately');
