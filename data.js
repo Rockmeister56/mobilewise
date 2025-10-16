@@ -13,8 +13,8 @@ window.knowledgeBaseData = {
   "version": "2.0",
   "client_name": "New Clients, Inc. / Bruce Clark",
   "greeting": {
-    "initial": "Hi there! I'm Boatimia your personal AI Voice assistant, may I get your first name please?",
-    "with_name": "Great to meet you {firstName}! What brings you here today - looking to buy, sell, or get a practice valuation?"
+    "initial": "Hi there! I'm Boateamia your personal AI Voice assistant, may I get your first name please?",
+    "with_name": "Great to meet you {firstName}! What brings you to New Clients Inc today?"
   },
   "conversation_states": {
     "initial": {

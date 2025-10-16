@@ -4985,25 +4985,29 @@ function getAIResponse(userInput) {
             }
             
             // ============================================================
-            // 🎬 TESTIMONIAL HANDLING - WITH URLs
-            // ============================================================
-            if (kbResponse.triggerTestimonial) {
-                window.testimonialBlocking = true;
-                console.log("🚫 BLOCKING: Testimonial will show - preventing \"Speak Now\" banner");
-                const testimonialId = kbResponse.triggerTestimonial;
-                console.log('🎬 Triggering testimonial video:', testimonialId);
-                
-                // ✅ Call video function with URLs
-                if (testimonialId === 'speed') {
-                    showTestimonialVideo('speed', 12000, 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982877040.mp4');
-                } else if (testimonialId === 'skeptical') {
-                    showTestimonialVideo('skeptical', 12000, 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982717330.mp4');
-                } else {
-                    console.warn('⚠️ Unknown testimonial ID:', testimonialId);
-                }
-                
-                return responseText;
-            }
+// 🎬 TESTIMONIAL HANDLING - KB-DRIVEN (No Hardcoded URLs)
+// ============================================================
+if (kbResponse.triggerTestimonial) {
+    window.testimonialBlocking = true;
+    console.log("🚫 BLOCKING: Testimonial will show - preventing \"Speak Now\" banner");
+    const testimonialId = kbResponse.triggerTestimonial;
+    console.log('🎬 Triggering testimonial video:', testimonialId);
+    
+    // ✅ Pull testimonial data from Knowledge Base
+    const testimonialData = window.knowledgeBaseData.testimonials[testimonialId];
+    
+    if (testimonialData) {
+        showTestimonialVideo(
+            testimonialData.id,
+            testimonialData.duration,
+            testimonialData.video_url
+        );
+    } else {
+        console.warn('⚠️ Unknown testimonial ID:', testimonialId);
+    }
+    
+    return responseText;
+}
             
             // 🎯 BANNER HANDLING
             if (kbResponse.triggerBanner) {
