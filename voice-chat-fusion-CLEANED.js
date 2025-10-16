@@ -1254,7 +1254,10 @@ const VOICE_CONFIG = {
     // BRITISH VOICE CONFIG
     british: {
         enabled: true,   // ← FREE, always available
-        priority: ['Microsoft Hazel - English (Great Britain)', 'Kate', 'Serena', 'Google UK English Female']
+        priority: ['Microsoft Hazel - English (Great Britain)', 'Kate', 'Serena', 'Google UK English Female'],
+        rate: 1.1,       // ← SPEED CONTROL (1.0 = normal, 1.1 = 10% faster, 1.2 = 20% faster)
+        pitch: 1.0,      // ← PITCH CONTROL
+        volume: 0.9      // ← VOLUME CONTROL
     },
     
     // FALLBACK BROWSER CONFIG
@@ -4989,16 +4992,16 @@ function getAIResponse(userInput) {
                 const testimonialId = kbResponse.triggerTestimonial;
                 console.log('🎬 Triggering testimonial video:', testimonialId);
                 
-                // Map testimonial IDs to video URLs
-                if (testimonialId === 'speed') {
-                    showUniversalBanner('testimonial', {
-                        videoUrl: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982877040.mp4',
-                        caption: 'Surprised by the Speed of the Sale',
-                        ctaText: 'Get Your Fast Sale',
-                        ctaAction: () => {
-                            showUniversalBanner('consultationForm');
-                        }
-                    });
+               // Map testimonial IDs to video URLs
+if (testimonialId === 'speed') {
+    showUniversalBanner('testimonial', {
+        videoUrl: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982877040.mp4',
+        caption: 'Surprised by the Speed of the Sale',
+        ctaText: 'Get Your Fast Sale',
+        ctaAction: () => {
+            showUniversalBanner('consultationForm');
+        }
+    });
                 } else if (testimonialId === 'skeptical') {
                     showUniversalBanner('testimonial', {
                         videoUrl: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982717330.mp4',
