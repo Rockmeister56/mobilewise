@@ -2214,7 +2214,7 @@ testimonialOffer: {
             <!-- Message Text -->
             <div style="color: white; text-align: center; margin-bottom: 10px;">
                 <div style="font-size: 16px; font-weight: 600; line-height: 1.3;" id="testimonialOfferMessage">
-                    We have clients who felt the same way. Would you like to hear their experience?
+                    Want to hear what our valued clients experienced?
                 </div>
             </div>
             
