@@ -1521,7 +1521,7 @@ class MobileWiseVoiceSystem {
         });
     }
     
-    // ===========================================
+   // ===========================================
     // BRITISH VOICE PROVIDER
     // ===========================================
     async speakWithBritish(text) {
@@ -1536,7 +1536,7 @@ class MobileWiseVoiceSystem {
             utterance.voice = voiceSystem.selectedBritishVoice;
             
             // Optimized settings for British voice
-            utterance.rate = 0.85;
+            utterance.rate = 1.1;      // ← CHANGED from 0.85 to 1.1 (30% faster!)
             utterance.pitch = 1.05;
             utterance.volume = 0.85;
             
