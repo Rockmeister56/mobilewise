@@ -1,4 +1,24 @@
 // ===================================================
+// 🚀 MOBILE-WISE AI VOICE CHAT - FIXED VERSION
+// ===================================================
+// FIXES APPLIED (October 16, 2025):
+// ✅ FIX #1: Line 1119 - Changed speak(aiMessage) to window.speakResponse(responseText)
+// ✅ FIX #2: Added window.speak = window.speakText alias for compatibility
+// ✅ FIX #3: Voice selection - Chrome keeps Google US English, Edge gets British voices
+// ✅ FIX #4: Added showTestimonialVideo() function (line ~3960)
+// ✅ FIX #5: Testimonial blocking mechanism integrated
+//
+// VOICE BEHAVIOR:
+// - Chrome: Google US English (Female, Energetic) - Captain's favorite!
+// - Edge: Microsoft Hazel/Susan (British Female, Natural) - NOT robotic Zira!
+// - Rate: 1.0x (Normal speed), Pitch: 1.1 (Energetic)
+//
+// TESTIMONIAL VIDEOS:
+// - Speed: https://.../video_avatar_1759982877040.mp4
+// - Skeptical: https://.../video_avatar_1759982717330.mp4
+// ===================================================
+
+// ===================================================
 // 🎯 MOBILE-WISE AI VOICE CHAT - KB INTEGRATED VERSION
 // ===================================================
 // CHANGES FROM PREVIOUS VERSION:
@@ -1116,7 +1136,7 @@ setTimeout(async () => {
     
     addAIMessage(responseText);
     setAIResponse(responseText);
-    speak(aiMessage);
+    window.speakResponse(responseText);
     
     function setAIResponse(response) {
         currentAIResponse = response;
@@ -1275,16 +1295,47 @@ class MobileWiseVoiceSystem {
         });
     }
     
-    // Simple voice selection - GOOGLE US ENGLISH
+    // Simple voice selection - Chrome US English, Edge British
     selectBestVoice() {
-        // 🎯 PRIORITY: Google US English - Captain's approved voice!
-        const voicePriority = [
-            'Google US English',              // ← Captain's choice - PERFECT!
-            'Microsoft Zira - English (United States)',
-            'Microsoft David - English (United States)',
-            'Google UK English Female',
-            'Google UK English Male'
-        ];
+        // 🎯 DETECT BROWSER
+        const isEdge = /Edg/.test(navigator.userAgent);
+        const isChrome = /Chrome/.test(navigator.userAgent) && !isEdge;
+        
+        if (VOICE_CONFIG.debug) {
+            console.log(`🌐 Browser: ${isEdge ? 'Edge' : isChrome ? 'Chrome' : 'Other'}`);
+        }
+        
+        let voicePriority;
+        
+        // 🎯 CHROME: Google US English (Captain's favorite!)
+        if (isChrome) {
+            voicePriority = [
+                'Google US English',              // ← Captain's choice - PERFECT!
+                'Microsoft Zira - English (United States)',
+                'Microsoft David - English (United States)'
+            ];
+        }
+        // 🎯 EDGE: British voices (faster, less robotic than Zira)
+        else if (isEdge) {
+            voicePriority = [
+                'Microsoft Hazel Desktop - English (Great Britain)',  // Best Edge British voice
+                'Microsoft Susan Desktop - English (Great Britain)',  // Backup British
+                'Microsoft Hazel - English (Great Britain)',          // Mobile fallback
+                'Microsoft Susan - English (Great Britain)',          // Mobile fallback
+                'Google UK English Female',                           // If Google voices installed
+                'Microsoft Zira Desktop - English (United States)',   // Last resort
+                'Microsoft Zira - English (United States)'
+            ];
+        }
+        // 🎯 OTHER BROWSERS: Try both
+        else {
+            voicePriority = [
+                'Google US English',
+                'Google UK English Female',
+                'Microsoft Zira - English (United States)',
+                'Microsoft David - English (United States)'
+            ];
+        }
         
         for (const voiceName of voicePriority) {
             const voice = this.voices.find(v => v.name === voiceName);
@@ -1292,7 +1343,13 @@ class MobileWiseVoiceSystem {
                 this.selectedVoice = voice;
                 if (VOICE_CONFIG.debug) {
                     console.log(`🎤 Selected voice: ${voice.name} (${voice.lang})`);
-                    console.log(`✅ Using Google US English - Energetic & Professional!`);
+                    if (voice.name.includes('Google US English')) {
+                        console.log(`✅ Chrome: Using Google US English - Energetic & Professional!`);
+                    } else if (voice.name.includes('Hazel') || voice.name.includes('Susan')) {
+                        console.log(`✅ Edge: Using ${voice.name.split(' - ')[0]} - Natural British voice!`);
+                    } else {
+                        console.log(`✅ Using: ${voice.name}`);
+                    }
                 }
                 return;
             }
@@ -1300,6 +1357,9 @@ class MobileWiseVoiceSystem {
         
         // Fallback
         this.selectedVoice = this.voices.find(v => v.lang.startsWith('en')) || this.voices[0];
+        if (VOICE_CONFIG.debug && this.selectedVoice) {
+            console.log(`⚠️ Using fallback voice: ${this.selectedVoice.name}`);
+        }
     }
     
     // MAIN SPEAK FUNCTION
@@ -1404,6 +1464,9 @@ window.speakText = (text) => window.mobileWiseVoice.speak(text);
 window.stopAllSpeech = () => window.mobileWiseVoice.stop();
 window.speakResponse = window.speakText;
 window.speakResponseOriginal = window.speakText;
+// 🔥 SAFETY ALIAS: Add window.speak to prevent errors
+window.speak = window.speakText;
+console.log('✅ window.speak() alias created for compatibility');
 
 if (VOICE_CONFIG.debug) {
     console.log('✅ Lean Voice System loaded!');
@@ -3916,6 +3979,100 @@ console.log('🎯 DIRECT Speak Now function loaded - No Get Ready phase!');
 
 function showHybridReadySequence() {
     console.log('🎯 Starting Mobile-Wise AI speak sequence...');
+
+// ===================================================================
+// TESTIMONIAL VIDEO PLAYER - CLEAN & LEAN (Matches Avatar Pattern)
+// ===================================================================
+function showTestimonialVideo(testimonialType, duration = 12000) {
+    console.log(`🎬 Playing ${testimonialType} testimonial for ${duration}ms`);
+    
+    // 🚫 PREVENT DOUBLE CALLS - BULLETPROOF (identical to Avatar)
+    if (window.avatarCurrentlyPlaying) {
+        console.log('🚫 Avatar already playing - skipping duplicate testimonial call');
+        return;
+    }
+    
+    window.avatarCurrentlyPlaying = true;
+    
+    const isMobile = window.innerWidth <= 768;
+    
+    // 🎯 TESTIMONIAL VIDEO URLS
+    const testimonialVideos = {
+        skeptical: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982717330.mp4",
+        speed: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982877040.mp4"
+    };
+    
+    const videoUrl = testimonialVideos[testimonialType] || testimonialVideos.skeptical;
+    
+    const avatarOverlay = document.createElement('div');
+    
+    // EXACT SAME STYLING AS AVATAR FUNCTION - Mobile vs Desktop
+    if (isMobile) {
+        avatarOverlay.style.cssText = `
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: #000; z-index: 9999;
+            display: flex; justify-content: center; align-items: center;
+        `;
+        
+        avatarOverlay.innerHTML = `
+            <video id="testimonialVideo" autoplay playsinline webkit-playsinline="true" style="
+                width: 100%; height: 100%; object-fit: cover;
+            ">
+                <source src="${videoUrl}" type="video/mp4">
+            </video>
+        `;
+    } else {
+        // 🎯 DESKTOP: Black background with centered video
+        avatarOverlay.style.cssText = `
+            position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 833px; height: 433px;
+            background: #000; z-index: 9999;
+            border-radius: 12px; overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        `;
+        
+        avatarOverlay.innerHTML = `
+            <video id="testimonialVideo" autoplay style="
+                width: 100%; height: 100%; object-fit: cover;
+            ">
+                <source src="${videoUrl}" type="video/mp4">
+            </video>
+        `;
+    }
+    
+    document.body.appendChild(avatarOverlay);
+    
+    // 🎯 ONE SIMPLE CLEANUP FUNCTION - IDENTICAL TO AVATAR (NO COMPLEXITY)
+    function cleanup() {
+        console.log(`🎬 Testimonial ${testimonialType} duration (${duration}ms) complete - removing`);
+        
+        // Remove the overlay
+        if (avatarOverlay.parentNode) {
+            avatarOverlay.remove();
+        }
+        
+        // Reset the flag IMMEDIATELY to allow future calls
+        window.avatarCurrentlyPlaying = false;
+        
+        // Clear testimonial blocking flag
+        window.testimonialBlocking = false;
+        
+        // Go back to Speak Now after brief delay (same as Avatar)
+        setTimeout(() => {
+            console.log('✅ Testimonial removed - going DIRECT to Speak Now');
+            showDirectSpeakNow();
+        }, 1000);
+    }
+    
+    // 🎯 ONE TIMER ONLY - SIMPLE AND CLEAN (identical to Avatar)
+    setTimeout(cleanup, duration);
+}
+
+// Ensure global availability
+window.showTestimonialVideo = showTestimonialVideo;
+
     
     // ===== BULLETPROOF BLOCKING =====
     if (window.speakSequenceBlocked) {
