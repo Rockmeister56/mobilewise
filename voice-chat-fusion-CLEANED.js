@@ -2209,25 +2209,25 @@ clickToCall: {
 // 10. TESTIMONIAL OFFER (NEW - User Consent Required)
 testimonialOffer: {
     content: `
-        <div class="banner-glow-container" style="width: 760px; max-width: 760px; margin: 0 auto; height: 100px; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 15px 30px; border-radius: 8px; background: linear-gradient(135deg, #667eea, #764ba2); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+        <div class="banner-glow-container" style="width: 760px; max-width: 760px; margin: 0 auto; height: 90px; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 12px 30px; border-radius: 8px; background: linear-gradient(135deg, #0891b2, #06b6d4, #14b8a6); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
             
             <!-- Message Text -->
-            <div style="color: white; text-align: center; margin-bottom: 12px;">
-                <div style="font-size: 17px; font-weight: 600; line-height: 1.4;" id="testimonialOfferMessage">
+            <div style="color: white; text-align: center; margin-bottom: 10px;">
+                <div style="font-size: 16px; font-weight: 600; line-height: 1.3;" id="testimonialOfferMessage">
                     We have clients who felt the same way. Would you like to hear their experience?
                 </div>
             </div>
             
             <!-- YES/NO Buttons -->
-            <div style="display: flex; gap: 12px; justify-content: center; width: 100%;">
+            <div style="display: flex; gap: 10px; justify-content: center; width: 100%;">
                 <button id="testimonialYesBtn" style="
                     flex: 0 0 auto;
-                    padding: 10px 32px;
+                    padding: 8px 24px;
                     background: white;
-                    color: #667eea;
+                    color: #0891b2;
                     border: none;
-                    border-radius: 8px;
-                    font-size: 15px;
+                    border-radius: 6px;
+                    font-size: 14px;
                     font-weight: 700;
                     cursor: pointer;
                     transition: all 0.2s ease;
@@ -2240,12 +2240,12 @@ testimonialOffer: {
                 
                 <button id="testimonialNoBtn" style="
                     flex: 0 0 auto;
-                    padding: 10px 32px;
+                    padding: 8px 24px;
                     background: rgba(255,255,255,0.2);
                     color: white;
                     border: 2px solid white;
-                    border-radius: 8px;
-                    font-size: 15px;
+                    border-radius: 6px;
+                    font-size: 14px;
                     font-weight: 700;
                     cursor: pointer;
                     transition: all 0.2s ease;
@@ -2273,10 +2273,10 @@ testimonialOffer: {
         
         @keyframes glowLayerPulse {
             0%, 100% { 
-                box-shadow: 0 0 15px rgba(102, 126, 234, 0.6);
+                box-shadow: 0 0 15px rgba(8, 145, 178, 0.6);
             }
             50% { 
-                box-shadow: 0 0 30px rgba(118, 75, 162, 0.8);
+                box-shadow: 0 0 30px rgba(20, 184, 166, 0.8);
             }
         }
         
@@ -2287,10 +2287,10 @@ testimonialOffer: {
         
         @keyframes testimonialPulseGlow {
             0%, 100% { 
-                box-shadow: 0 10px 10px rgba(0,0,0,0.2), 0 0 15px rgba(102, 126, 234, 0.8);
+                box-shadow: 0 10px 10px rgba(0,0,0,0.2), 0 0 15px rgba(8, 145, 178, 0.8);
             }
             50% { 
-                box-shadow: 0 20px 15px rgba(0,0,0,0.3), 0 0 30px rgba(118, 75, 162, 1);
+                box-shadow: 0 20px 15px rgba(0,0,0,0.3), 0 0 30px rgba(20, 184, 166, 1);
             }
         }
         
@@ -2303,8 +2303,8 @@ testimonialOffer: {
     `,
     background: 'rgba(255, 255, 255, 0.15)',
     containerWidth: 770,
-    customHeight: 110,
-    duration: 0  // Stays visible until user clicks YES or NO
+    customHeight: 100,
+    duration: 0
 },
 
 // 8. LEAD MAGNET BANNER
