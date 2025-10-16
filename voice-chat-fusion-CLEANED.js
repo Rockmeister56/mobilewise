@@ -1,6 +1,12 @@
 // ===================================================
 // 🚀 MOBILE-WISE AI VOICE CHAT - FIXED VERSION
 // ===================================================
+console.log('%c🚀 MOBILE-WISE AI LOADED 🚀', 'font-size: 20px; color: #00ff00; font-weight: bold; background: #000; padding: 10px;');
+console.log('%c🔥 VERSION: CAPTAIN-FIX-v2.1-ALPHA', 'font-size: 16px; color: #ffff00; font-weight: bold;');
+console.log('%c⏰ TIMESTAMP: October 16, 2025 - 12:10 AM UTC', 'font-size: 14px; color: #00ffff;');
+console.log('%c✅ STATUS: All 5 fixes applied', 'font-size: 14px; color: #00ff00;');
+console.log('%c============================================================', 'color: #00ff00;');
+
 // FIXES APPLIED (October 16, 2025):
 // ✅ FIX #1: Line 1119 - Changed speak(aiMessage) to window.speakResponse(responseText)
 // ✅ FIX #2: Added window.speak = window.speakText alias for compatibility
