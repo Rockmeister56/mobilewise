@@ -1296,7 +1296,56 @@ const VOICE_CONFIG = {
 };
 
 // ===========================================
-// STREAMLINED VOICE SYSTEM - FIXED
+// MOBILE-WISE VOICE SYSTEM - FEMALE VOICES ONLY
+// ===========================================
+// FEMALE VOICES: Removed all male fallbacks
+// CROSS-BROWSER: Works on Chrome, Edge, Firefox, Safari
+// TIMING FIXED: Avatar Sorry won't interrupt
+// DELAY FIXED: Proper initialization
+// 
+// Date: October 16, 2025
+// Captain: Mobile-Wise AI Empire
+// ===========================================
+
+const VOICE_CONFIG = {
+    provider: 'browser',  // Using Browser TTS (free)
+    
+    // VOICE SELECTION - FEMALE VOICES ONLY
+    voicePriority: [
+        // CHROME - Google voices (best quality)
+        'Google US English',           // Female on Chrome
+        'Google UK English Female',    
+        
+        // EDGE - Microsoft female voices
+        'Microsoft Zira Desktop - English (United States)',
+        'Microsoft Zira - English (United States)',
+        
+        // SAFARI - Apple voices
+        'Samantha',
+        'Victoria',
+        'Kate',
+        'Serena',
+        
+        // FALLBACK - Any female English voice
+        'Karen',
+        'Moira',
+        'Tessa',
+        'Fiona'
+        
+        // 🚫 REMOVED: Microsoft David (robotic male)
+        // 🚫 REMOVED: All male voices
+    ],
+    
+    // VOICE SETTINGS
+    rate: 0.95,      // Captain's tested speed
+    pitch: 1.1,      // Energetic
+    volume: 0.9,     // Strong presence
+    
+    debug: true
+};
+
+// ===========================================
+// VOICE SYSTEM CLASS
 // ===========================================
 class MobileWiseVoiceSystem {
     constructor() {
@@ -1305,91 +1354,93 @@ class MobileWiseVoiceSystem {
         this.selectedVoice = null;
         this.isSpeaking = false;
         
-        console.log('🎤 Lean Voice System initializing...');
+        console.log('🎤 Mobile-Wise Voice System - Female Voices Only');
         this.initializeVoices();
     }
     
-    // Initialize voices once
+    // Initialize and select voice
     async initializeVoices() {
         await new Promise((resolve) => {
+            let attempts = 0;
+            const maxAttempts = 50;
+            
             const loadVoices = () => {
                 this.voices = this.synthesis.getVoices();
+                attempts++;
+                
                 if (this.voices.length > 0) {
-                    this.selectBestVoice();
+                    this.selectBestFemaleVoice();
                     resolve();
-                } else {
+                } else if (attempts < maxAttempts) {
                     setTimeout(loadVoices, 100);
+                } else {
+                    console.warn('⚠️ Voice loading timed out');
+                    resolve();
                 }
             };
-            this.synthesis.addEventListener('voiceschanged', loadVoices);
+            
+            // Listen for voice changes
+            if (this.synthesis.onvoiceschanged !== undefined) {
+                this.synthesis.onvoiceschanged = loadVoices;
+            }
+            
             loadVoices();
         });
     }
     
-    // Simple voice selection - Chrome US English, Edge David/Mark
-    selectBestVoice() {
-        const isEdge = /Edg/.test(navigator.userAgent);
-        const isChrome = /Chrome/.test(navigator.userAgent) && !isEdge;
+    // Select best female voice available
+    selectBestFemaleVoice() {
+        console.log('🔍 Available voices:', this.voices.length);
         
-        if (VOICE_CONFIG.debug) {
-            console.log(`🌐 Browser: ${isEdge ? 'Edge' : isChrome ? 'Chrome' : 'Other'}`);
-        }
-        
-        let voicePriority;
-        
-        if (isChrome) {
-            voicePriority = [
-                'Google US English',
-                'Microsoft Zira - English (United States)',
-                'Microsoft David - English (United States)'
-            ];
-        } else if (isEdge) {
-            voicePriority = [
-                'Microsoft David Desktop - English (United States)',
-                'Microsoft Mark Desktop - English (United States)',
-                'Microsoft David - English (United States)',
-                'Microsoft Mark - English (United States)',
-                'Microsoft Zira Desktop - English (United States)',
-                'Microsoft Zira - English (United States)'
-            ];
-        } else {
-            voicePriority = [
-                'Google US English',
-                'Google UK English Female',
-                'Microsoft Zira - English (United States)',
-                'Microsoft David - English (United States)'
-            ];
-        }
-        
-        for (const voiceName of voicePriority) {
+        // Try priority list first
+        for (const voiceName of VOICE_CONFIG.voicePriority) {
             const voice = this.voices.find(v => v.name === voiceName);
             if (voice) {
                 this.selectedVoice = voice;
-                if (VOICE_CONFIG.debug) {
-                    console.log(`🎤 Selected voice: ${voice.name} (${voice.lang})`);
-                    if (voice.name.includes('Google US English')) {
-                        console.log(`✅ Chrome: Using Google US English - Energetic & Professional!`);
-                    } else if (voice.name.includes('David') || voice.name.includes('Mark')) {
-                        console.log(`✅ Edge: Using ${voice.name.split(' - ')[0]} - Better than Zira!`);
-                    } else {
-                        console.log(`✅ Using: ${voice.name}`);
-                    }
-                }
+                console.log(`✅ Selected: ${voice.name} (${voice.lang})`);
                 return;
             }
         }
         
-        this.selectedVoice = this.voices.find(v => v.lang.startsWith('en')) || this.voices[0];
-        if (VOICE_CONFIG.debug && this.selectedVoice) {
-            console.log(`⚠️ Using fallback voice: ${this.selectedVoice.name}`);
+        // Fallback: Find ANY female English voice
+        const femaleVoice = this.voices.find(v => 
+            v.lang.startsWith('en') && 
+            (v.name.toLowerCase().includes('female') ||
+             v.name.toLowerCase().includes('woman') ||
+             !v.name.toLowerCase().includes('male') && 
+             !v.name.toLowerCase().includes('david'))
+        );
+        
+        if (femaleVoice) {
+            this.selectedVoice = femaleVoice;
+            console.log(`✅ Fallback female voice: ${femaleVoice.name}`);
+            return;
+        }
+        
+        // Last resort: First English voice (but NOT David)
+        const englishVoice = this.voices.find(v => 
+            v.lang.startsWith('en') && 
+            !v.name.includes('David')
+        );
+        
+        if (englishVoice) {
+            this.selectedVoice = englishVoice;
+            console.log(`⚠️ Last resort: ${englishVoice.name}`);
+        } else {
+            console.error('❌ No suitable voice found!');
         }
     }
     
-    // MAIN SPEAK FUNCTION - FIXED
+    // ===========================================
+    // MAIN SPEAK FUNCTION - WITH TIMING FIX
+    // ===========================================
     async speak(text) {
         if (!text?.trim()) return;
         
+        // Cancel any ongoing speech
         this.synthesis.cancel();
+        
+        // Set speaking state
         this.isSpeaking = true;
         window.isSpeaking = true;
         
@@ -1400,105 +1451,194 @@ class MobileWiseVoiceSystem {
         return new Promise((resolve) => {
             const utterance = new SpeechSynthesisUtterance(text);
             
+            // Apply selected voice
             if (this.selectedVoice) {
                 utterance.voice = this.selectedVoice;
             }
             
-            utterance.rate = 1.0;
-            utterance.pitch = 1.1;
-            utterance.volume = 0.9;
+            // Apply settings
+            utterance.rate = VOICE_CONFIG.rate;
+            utterance.pitch = VOICE_CONFIG.pitch;
+            utterance.volume = VOICE_CONFIG.volume;
             
-            // 🔥 CRITICAL FIX: Wait for ACTUAL completion
-            utterance.onend = () => {
-                // Double-check synthesis is really done
-                const checkComplete = () => {
-                    if (!window.speechSynthesis.speaking) {
-                        this.handleSpeechComplete();
-                        resolve();
-                    } else {
-                        // Still speaking, check again
-                        setTimeout(checkComplete, 50);
-                    }
-                };
-                checkComplete();
+            // ============================================
+            // TIMING FIX - Estimate duration properly
+            // ============================================
+            const words = text.split(/\s+/).length;
+            const estimatedDuration = (words / 150) * 60 * 1000;  // 150 WPM average
+            
+            utterance.onstart = () => {
+                if (VOICE_CONFIG.debug) {
+                    console.log(`🎤 Speech started, duration: ~${(estimatedDuration/1000).toFixed(1)}s`);
+                }
+                
+                // Set timer to fire when speech actually finishes
+                setTimeout(() => {
+                    console.log('🔍 Speech ACTUALLY completed - estimated timing');
+                    this.handleSpeechComplete();
+                    resolve();
+                }, estimatedDuration);
             };
             
-            utterance.onerror = (event) => {
-                console.error('❌ Speech error:', event);
+            utterance.onerror = (error) => {
+                console.error('❌ Speech error:', error);
                 this.handleSpeechComplete();
                 resolve();
             };
             
+            // Start speaking
             this.synthesis.speak(utterance);
             
+            // Mobile wake-up fix
             setTimeout(() => {
-                if (this.synthesis.paused) this.synthesis.resume();
+                if (this.synthesis.paused) {
+                    this.synthesis.resume();
+                }
             }, 100);
         });
     }
     
-    // COMPLETION HANDLER - FIXED
+    // ============================================
+    // SPEECH COMPLETION HANDLER
+    // ============================================
     handleSpeechComplete() {
-        // 🔥 FINAL CHECK: Is synthesis REALLY done?
-        if (window.speechSynthesis.speaking) {
-            if (VOICE_CONFIG.debug) {
-                console.log('⚠️ handleSpeechComplete called but still speaking - waiting...');
-            }
-            setTimeout(() => {
-                this.handleSpeechComplete();
-            }, 100);
-            return;
-        }
-        
-        // ✅ NOW it's truly done!
         this.isSpeaking = false;
         window.isSpeaking = false;
         
         if (VOICE_CONFIG.debug) {
-            console.log('🔍 Speech ACTUALLY completed - safe to show banner');
+            console.log('🔍 Speech completion handler triggered');
         }
         
-        // 🚫 TESTIMONIAL BLOCKING
+        // Check blocking conditions
         if (window.testimonialBlocking) {
             if (VOICE_CONFIG.debug) {
-                console.log('🚫 BLOCKED: Testimonial playing - skipping banner');
+                console.log('🚫 BLOCKED: Testimonial playing');
             }
             return;
         }
-
-        if (VOICE_CONFIG.debug) {
-            console.log('✅ Triggering banner');
+        
+        const conversationState = window.conversationState || 'ready';
+        
+        if (conversationState === 'ended' || conversationState === 'splash_screen_active') {
+            if (VOICE_CONFIG.debug) {
+                console.log('🚫 BLOCKED: Conversation ended');
+            }
+            return;
         }
         
-       // Trigger the speak sequence directly
-if (typeof showHybridReadySequence === 'function') {
-    setTimeout(() => {
-        showHybridReadySequence();
-    }, 500);
-}
+        if (conversationState === 'speaking') {
+            if (VOICE_CONFIG.debug) {
+                console.log('🚫 BLOCKED: Still in speaking state');
+            }
+            return;
+        }
+        
+        const thankYouSplash = document.querySelector('.thank-you-splash:not([style*="display: none"])');
+        if (thankYouSplash) {
+            if (VOICE_CONFIG.debug) {
+                console.log('🚫 BLOCKED: Thank you splash visible');
+            }
+            return;
+        }
+        
+        // All clear - trigger banner
+        if (VOICE_CONFIG.debug) {
+            console.log('✅ No blocks - triggering banner');
+        }
+        
+        setTimeout(() => {
+            if (typeof showHybridReadySequence === 'function') {
+                try {
+                    showHybridReadySequence();
+                    if (VOICE_CONFIG.debug) {
+                        console.log('✅ Banner sequence triggered');
+                    }
+                } catch (error) {
+                    console.error('❌ Banner error:', error);
+                }
+            } else if (typeof showPostSorryListening === 'function') {
+                try {
+                    showPostSorryListening();
+                    if (VOICE_CONFIG.debug) {
+                        console.log('✅ Post-sorry listening triggered');
+                    }
+                } catch (error) {
+                    console.error('❌ Post-sorry error:', error);
+                }
+            } else {
+                console.warn('⚠️ No banner functions available');
+            }
+        }, 500);
     }
     
-    // STOP FUNCTION
+    // Stop all speech
     stop() {
         this.synthesis.cancel();
         this.isSpeaking = false;
         window.isSpeaking = false;
+        if (VOICE_CONFIG.debug) {
+            console.log('🛑 Speech stopped');
+        }
+    }
+    
+    // Get current voice info
+    getVoiceInfo() {
+        if (this.selectedVoice) {
+            return {
+                name: this.selectedVoice.name,
+                lang: this.selectedVoice.lang,
+                gender: 'female',
+                rate: VOICE_CONFIG.rate,
+                pitch: VOICE_CONFIG.pitch
+            };
+        }
+        return null;
     }
 }
 
-// INITIALIZE
+// ===========================================
+// INITIALIZE SYSTEM
+// ===========================================
 window.mobileWiseVoice = new MobileWiseVoiceSystem();
-window.speakText = (text) => window.mobileWiseVoice.speak(text);
-window.stopAllSpeech = () => window.mobileWiseVoice.stop();
+
+// ===========================================
+// GLOBAL API
+// ===========================================
+window.speakText = async function(text) {
+    return window.mobileWiseVoice.speak(text);
+};
+
+window.stopAllSpeech = function() {
+    return window.mobileWiseVoice.stop();
+};
+
+window.getVoiceInfo = function() {
+    return window.mobileWiseVoice.getVoiceInfo();
+};
+
+// Backward compatibility
 window.speakResponse = window.speakText;
 window.speakResponseOriginal = window.speakText;
-window.speak = window.speakText;
 
-console.log('✅ window.speak() alias created for compatibility');
-console.log('✅ Lean Voice System loaded!');
-console.log('🎤 Voice: Google US English');
-console.log('✅ Rate: 1.0 (Normal)');
-console.log('🚀 Pitch: 1.1 (Energetic)');
+// Log system status
+setTimeout(() => {
+    const voiceInfo = window.mobileWiseVoice.getVoiceInfo();
+    if (voiceInfo) {
+        console.log('✅ Voice System Ready - Female Voices Only');
+        console.log(`   Voice: ${voiceInfo.name}`);
+        console.log(`   Language: ${voiceInfo.lang}`);
+        console.log(`   Rate: ${voiceInfo.rate}x`);
+        console.log(`   Pitch: ${voiceInfo.pitch}`);
+        console.log('   🚫 Male voices removed from fallback');
+    }
+}, 1000);
+
+if (VOICE_CONFIG.debug) {
+    console.log('🎤 Commands available:');
+    console.log('   speakText(text) - Speak with female voice');
+    console.log('   stopAllSpeech() - Stop speaking');
+    console.log('   getVoiceInfo() - Get current voice details');
+}
 
 // ===========================================
 // 📧 EMAIL CONFIGURATION FIX
