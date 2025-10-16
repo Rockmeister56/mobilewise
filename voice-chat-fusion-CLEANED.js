@@ -2206,6 +2206,107 @@ clickToCall: {
     duration: 0
 },
 
+// 10. TESTIMONIAL OFFER (NEW - User Consent Required)
+testimonialOffer: {
+    content: `
+        <div class="banner-glow-container" style="width: 760px; max-width: 760px; margin: 0 auto; height: 100px; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 15px 30px; border-radius: 8px; background: linear-gradient(135deg, #667eea, #764ba2); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+            
+            <!-- Message Text -->
+            <div style="color: white; text-align: center; margin-bottom: 12px;">
+                <div style="font-size: 17px; font-weight: 600; line-height: 1.4;" id="testimonialOfferMessage">
+                    We have clients who felt the same way. Would you like to hear their experience?
+                </div>
+            </div>
+            
+            <!-- YES/NO Buttons -->
+            <div style="display: flex; gap: 12px; justify-content: center; width: 100%;">
+                <button id="testimonialYesBtn" style="
+                    flex: 0 0 auto;
+                    padding: 10px 32px;
+                    background: white;
+                    color: #667eea;
+                    border: none;
+                    border-radius: 8px;
+                    font-size: 15px;
+                    font-weight: 700;
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+                    pointer-events: auto;
+                " onmouseover="this.style.transform='scale(1.05)'; this.style.background='#f0f0f0';" 
+                   onmouseout="this.style.transform='scale(1)'; this.style.background='white';">
+                    ✅ YES, SHOW ME
+                </button>
+                
+                <button id="testimonialNoBtn" style="
+                    flex: 0 0 auto;
+                    padding: 10px 32px;
+                    background: rgba(255,255,255,0.2);
+                    color: white;
+                    border: 2px solid white;
+                    border-radius: 8px;
+                    font-size: 15px;
+                    font-weight: 700;
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                    pointer-events: auto;
+                " onmouseover="this.style.transform='scale(1.05)'; this.style.background='rgba(255,255,255,0.3)';" 
+                   onmouseout="this.style.transform='scale(1)'; this.style.background='rgba(255,255,255,0.2)';">
+                    ❌ NO, CONTINUE
+                </button>
+            </div>
+        </div>
+        
+        <style>
+        .banner-glow-container::before {
+            content: '';
+            position: absolute;
+            width: calc(100% + 50px);
+            height: calc(100% + 20px);
+            top: -10px;
+            left: -25px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            z-index: -1;
+            animation: glowLayerPulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes glowLayerPulse {
+            0%, 100% { 
+                box-shadow: 0 0 15px rgba(102, 126, 234, 0.6);
+            }
+            50% { 
+                box-shadow: 0 0 30px rgba(118, 75, 162, 0.8);
+            }
+        }
+        
+        .banner-glow-container {
+            position: relative;
+            animation: testimonialPulseGlow 2s ease-in-out infinite;
+        }
+        
+        @keyframes testimonialPulseGlow {
+            0%, 100% { 
+                box-shadow: 0 10px 10px rgba(0,0,0,0.2), 0 0 15px rgba(102, 126, 234, 0.8);
+            }
+            50% { 
+                box-shadow: 0 20px 15px rgba(0,0,0,0.3), 0 0 30px rgba(118, 75, 162, 1);
+            }
+        }
+        
+        /* CRITICAL: Make buttons clickable */
+        #testimonialYesBtn, #testimonialNoBtn {
+            pointer-events: auto !important;
+            z-index: 10000 !important;
+        }
+        </style>
+    `,
+    background: 'rgba(255, 255, 255, 0.15)',
+    containerWidth: 770,
+    customHeight: 110,
+    duration: 0  // Stays visible until user clicks YES or NO
+},
+
 // 8. LEAD MAGNET BANNER
 leadMagnet: {
     content: `
