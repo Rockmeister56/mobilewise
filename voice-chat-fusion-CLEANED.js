@@ -603,14 +603,21 @@ function getApologyResponse() {
                     }
 
                     if (isAudioMode && !isSpeaking) {
-                        console.log('🔄 Mobile: Restarting via hybrid system');
-                        isListening = false;
+            // ✅ ONLY restart if we're past 8 seconds of "Speak Now"
+            // This prevents early interruption but still helps stuck states
+            if (speakSequenceActive && Date.now() - window.speakNowStartTime > 8000) {
+                console.log('🔄 Mobile: Restarting via hybrid system (after 8+ seconds)');
+                isListening = false;
 
-                        setTimeout(() => {
-                            showHybridReadySequence();
-                        }, 800);
-                    }
-                }, 1500);
+                setTimeout(() => {
+                    showHybridReadySequence();
+                }, 800);
+            } else {
+                console.log('⚠️ Too early to restart - keeping current sequence active');
+            }
+        }
+        
+    }, 1500);
             }
 
         } else {
