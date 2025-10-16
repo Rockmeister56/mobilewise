@@ -4308,13 +4308,6 @@ function showHybridReadySequence() {
 
 // Ensure global availability
 window.showTestimonialVideo = showTestimonialVideo;
-
-    
- // // ===== BULLETPROOF BLOCKING =====
-// if (window.speakSequenceBlocked) {
-//     console.log('🔇 BULLETPROOF BLOCK: Another session already running - HARD STOP');
-//     return;
-// }
     
     window.speakSequenceBlocked = true;
     console.log('🛡️ BULLETPROOF: Block activated immediately');
@@ -4735,7 +4728,6 @@ playGetReadyAndSpeakNowSound();
         
         console.log('🧹 Speech sequence completed successfully');
     };
-}
 
 console.log('🎯 NUCLEAR SHUTDOWN Mobile-Wise AI Speak Sequence loaded - Avatar-proof!');
 
