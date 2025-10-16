@@ -4974,7 +4974,6 @@ function getAIResponse(userInput) {
             // 🎯 Sync state with conversation engine
             if (kbResponse.newState) {
                 conversationState = kbResponse.newState;
-                // Keep engine in sync
                 window.conversationEngine.currentState = kbResponse.newState;
                 console.log('🔄 State synced to:', kbResponse.newState);
             }
@@ -4985,43 +4984,32 @@ function getAIResponse(userInput) {
                 console.log('💾 Extracted data:', kbResponse.extractedData);
             }
             
-            // 🎯 TESTIMONIAL HANDLING - Trigger testimonial videos from objections/questions
+            // ============================================================
+            // 🎬 TESTIMONIAL HANDLING - WITH URLs
+            // ============================================================
             if (kbResponse.triggerTestimonial) {
-                window.testimonialBlocking = true;  // 🚫 BLOCK "Speak Now" banner while testimonial plays
+                window.testimonialBlocking = true;
                 console.log("🚫 BLOCKING: Testimonial will show - preventing \"Speak Now\" banner");
                 const testimonialId = kbResponse.triggerTestimonial;
                 console.log('🎬 Triggering testimonial video:', testimonialId);
                 
-               // Map testimonial IDs to video URLs
-if (testimonialId === 'speed') {
-    showUniversalBanner('testimonial', {
-        videoUrl: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982877040.mp4',
-        caption: 'Surprised by the Speed of the Sale',
-        ctaText: 'Get Your Fast Sale',
-        ctaAction: () => {
-            showUniversalBanner('consultationForm');
-        }
-    });
+                // ✅ Call video function with URLs
+                if (testimonialId === 'speed') {
+                    showTestimonialVideo('speed', 12000, 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982877040.mp4');
                 } else if (testimonialId === 'skeptical') {
-                    showUniversalBanner('testimonial', {
-                        videoUrl: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982717330.mp4',
-                        caption: 'Skeptical, Then Exceeded Expectations',
-                        ctaText: 'See How We Can Help You',
-                        ctaAction: () => {
-                            showUniversalBanner('consultationForm');
-                        }
-                    });
+                    showTestimonialVideo('skeptical', 12000, 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982717330.mp4');
                 } else {
                     console.warn('⚠️ Unknown testimonial ID:', testimonialId);
                 }
+                
+                return responseText;
             }
             
-            // 🎯 BANNER HANDLING - Trigger banners from KB responses
+            // 🎯 BANNER HANDLING
             if (kbResponse.triggerBanner) {
                 const bannerId = kbResponse.triggerBanner;
                 console.log('🎯 Triggering banner:', bannerId);
                 
-                // Map banner IDs to showUniversalBanner calls
                 switch(bannerId) {
                     case 'branding':
                         showUniversalBanner('branding');
@@ -5044,31 +5032,23 @@ if (testimonialId === 'speed') {
                 }
             }
             
-            // Legacy action handling (if still present in some responses)
+            // ============================================================
+            // 🎬 LEGACY ACTION HANDLING - WITH URLs
+            // ============================================================
             if (kbResponse.action) {
                 const action = kbResponse.action;
                 
-                // Handle testimonial actions
                 if (action.type === 'show_testimonial') {
+                    window.testimonialBlocking = true;
+                    console.log("🚫 BLOCKING: Testimonial will show (legacy action)");
+                    
                     if (action.testimonialId === 'skeptical') {
-                        showUniversalBanner('testimonial', {
-                            videoUrl: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982717330.mp4',
-                            caption: 'Skeptical, Then Exceeded Expectations',
-                            ctaText: 'See How We Can Help You',
-                            ctaAction: () => {
-                                showUniversalBanner('consultationForm');
-                            }
-                        });
+                        showTestimonialVideo('skeptical', 12000, 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982717330.mp4');
                     } else if (action.testimonialId === 'speed') {
-                        showUniversalBanner('testimonial', {
-                            videoUrl: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982877040.mp4',
-                            caption: 'Surprised by the Speed of the Sale',
-                            ctaText: 'Get Your Fast Sale',
-                            ctaAction: () => {
-                                showUniversalBanner('consultationForm');
-                            }
-                        });
+                        showTestimonialVideo('speed', 12000, 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982877040.mp4');
                     }
+                    
+                    return responseText;
                 }
                 
                 // Handle banner actions
@@ -5128,42 +5108,16 @@ if (testimonialId === 'speed') {
                 }
             }
             
+            // ✅ Return the response from conversation engine
             return responseText;
         }
-    } catch (error) {
-        console.error('KB System Error:', error);
-        // Fallback to basic response
-        responseText = "I'm here to help with CPA firm transactions. Could you tell me more about what you're looking for?";
-    }
-
-    // 🎯 FALLBACK: Basic conversation handling if KB doesn't match
-    if (conversationState === 'initial') {
-        // 🎯 REMOVED: Hardcoded first name prompt - now handled by KB Loader
         
-        // Basic routing
-        if (userText.includes('buy') || userText.includes('purchase') || userText.includes('buying')) {
-            responseText = firstName ? 
-                `Great to meet you, ${firstName}! Let's explore CPA practices available for purchase. What's your budget range?` :
-                "Great! Let's explore CPA practices for sale. What's your budget range?";
-            conversationState = 'buying_budget_question';
-        } else if (userText.includes('sell') || userText.includes('selling')) {
-            responseText = firstName ?
-                `Thanks ${firstName}! I can help you sell your CPA practice. How many clients do you currently serve?` :
-                "I can help you sell your CPA practice. How many clients do you currently serve?";
-            conversationState = 'selling_size_question';
-        } else if (userText.includes('value') || userText.includes('valuation') || userText.includes('worth')) {
-            responseText = firstName ?
-                `${firstName}, I can provide a professional valuation. How many clients does your practice serve?` :
-                "I can provide a professional valuation. How many clients does your practice serve?";
-            conversationState = 'valuation_size_question';
-        }
+        // 🚨 Fallback if conversation engine fails
+        console.warn('⚠️ Conversation engine returned no response');
+        return "I didn't quite catch that. Could you rephrase?";
+        
+    } catch (error) {
+        console.error('❌ Error in getAIResponse:', error);
+        return "I'm having a technical issue. Let me try again - could you repeat that?";
     }
-    
-    // 🎯 FALLBACK: Only run if KB didn't provide a response
-    if (!responseText || responseText === '') {
-        // 🎯 REMOVED: Hardcoded 'getting_first_name' handler - now handled by KB Loader
-
-    }
-
-    return responseText;
 }
