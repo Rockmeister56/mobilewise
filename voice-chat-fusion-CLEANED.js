@@ -4375,6 +4375,68 @@ function showTestimonialVideo(testimonialType, duration = 12000) {
 // Ensure global availability
 window.showTestimonialVideo = showTestimonialVideo;
 
+// ===================================================================
+// 🎯 TESTIMONIAL OFFER SYSTEM - Integrated with Universal Banner
+// ===================================================================
+
+let pendingTestimonialType = null;
+
+window.showTestimonialOffer = function(testimonialType, customMessage) {
+    console.log(`💬 Offering ${testimonialType} testimonial via universal banner`);
+    
+    // Store which testimonial we're offering
+    pendingTestimonialType = testimonialType;
+    
+    // Trigger the banner using your existing system
+    window.showUniversalBanner('testimonialOffer');
+    
+    // Update the message text if provided
+    if (customMessage) {
+        setTimeout(() => {
+            const messageEl = document.getElementById('testimonialOfferMessage');
+            if (messageEl) {
+                messageEl.textContent = customMessage;
+            }
+        }, 100);
+    }
+    
+    // Wire up button handlers
+    setTimeout(() => {
+        const yesBtn = document.getElementById('testimonialYesBtn');
+        const noBtn = document.getElementById('testimonialNoBtn');
+        
+        if (yesBtn) {
+            yesBtn.onclick = function(e) {
+                e.stopPropagation();
+                console.log(`✅ User clicked YES - playing ${pendingTestimonialType} testimonial`);
+                
+                // Remove banner
+                window.removeAllBanners(false); // false = don't restore branding yet
+                
+                // Play testimonial
+                if (pendingTestimonialType) {
+                    showTestimonialVideo(pendingTestimonialType);
+                    pendingTestimonialType = null;
+                }
+            };
+        }
+        
+        if (noBtn) {
+            noBtn.onclick = function(e) {
+                e.stopPropagation();
+                console.log('❌ User clicked NO - continuing conversation');
+                
+                // Remove banner and restore branding
+                window.removeAllBanners(true); // true = restore branding
+                
+                pendingTestimonialType = null;
+            };
+        }
+    }, 200);
+};
+
+console.log('✅ Testimonial offer system loaded - integrated with Universal Banner Engine');
+
     
     // ===== BULLETPROOF BLOCKING =====
     if (window.speakSequenceBlocked) {
