@@ -1263,39 +1263,6 @@ console.log('🔍 ROOT CAUSE DEBUG - isMobileDevice FIXED:', {
 });
 
 // ===========================================
-// 🇬🇧 BRITISH VOICE SYSTEM - CAPTAIN'S CHOICE
-// ===========================================
-const VOICE_CONFIG = {
-    provider: 'british',
-    
-    british: {
-        enabled: true,
-        priority: [
-            // MOBILE-FIRST VOICES
-            'Google UK English Female',        // ← Your lively mobile voice!
-            'Google UK English Male',
-            'Microsoft Hazel - English (Great Britain)',
-            
-            // DESKTOP FALLBACKS
-            'Samantha',           // Apple - usually lively
-            'Victoria',           // Google - good energy
-            'Microsoft Zira',     // Windows - clear female
-            'Kate',               // Apple UK
-            'Serena'              // Apple
-        ]
-    },
-    
-    // FASTER SETTINGS
-    browser: {
-        rate: 0.95,      // Faster than 0.85
-        pitch: 1.1,      // More energetic
-        volume: 0.9
-    },
-    
-    debug: true
-};
-
-// ===========================================
 // MOBILE-WISE VOICE SYSTEM - FEMALE VOICES ONLY
 // ===========================================
 // FEMALE VOICES: Removed all male fallbacks
