@@ -1271,7 +1271,7 @@ const VOICE_CONFIG = {
 };
 
 // ===========================================
-// STREAMLINED VOICE SYSTEM - FINAL
+// STREAMLINED VOICE SYSTEM - FIXED
 // ===========================================
 class MobileWiseVoiceSystem {
     constructor() {
@@ -1301,9 +1301,8 @@ class MobileWiseVoiceSystem {
         });
     }
     
-    // Simple voice selection - Chrome US English, Edge British
+    // Simple voice selection - Chrome US English, Edge David/Mark
     selectBestVoice() {
-        // 🎯 DETECT BROWSER
         const isEdge = /Edg/.test(navigator.userAgent);
         const isChrome = /Chrome/.test(navigator.userAgent) && !isEdge;
         
@@ -1313,27 +1312,22 @@ class MobileWiseVoiceSystem {
         
         let voicePriority;
         
-        // 🎯 CHROME: Google US English (Captain's favorite!)
         if (isChrome) {
             voicePriority = [
-                'Google US English',              // ← Captain's choice - PERFECT!
+                'Google US English',
                 'Microsoft Zira - English (United States)',
                 'Microsoft David - English (United States)'
             ];
-        }
-        // 🎯 EDGE: British voices (faster, less robotic than Zira)
-       else if (isEdge) {
-    voicePriority = [
-        'Microsoft David Desktop - English (United States)',  // Better than Zira!
-        'Microsoft Mark Desktop - English (United States)',   // Also good
-        'Microsoft David - English (United States)',          // Mobile fallback
-        'Microsoft Mark - English (United States)',           // Mobile fallback
-        'Microsoft Zira Desktop - English (United States)',   // Last resort
-        'Microsoft Zira - English (United States)'
-    ];
-}
-        // 🎯 OTHER BROWSERS: Try both
-        else {
+        } else if (isEdge) {
+            voicePriority = [
+                'Microsoft David Desktop - English (United States)',
+                'Microsoft Mark Desktop - English (United States)',
+                'Microsoft David - English (United States)',
+                'Microsoft Mark - English (United States)',
+                'Microsoft Zira Desktop - English (United States)',
+                'Microsoft Zira - English (United States)'
+            ];
+        } else {
             voicePriority = [
                 'Google US English',
                 'Google UK English Female',
@@ -1350,8 +1344,8 @@ class MobileWiseVoiceSystem {
                     console.log(`🎤 Selected voice: ${voice.name} (${voice.lang})`);
                     if (voice.name.includes('Google US English')) {
                         console.log(`✅ Chrome: Using Google US English - Energetic & Professional!`);
-                    } else if (voice.name.includes('Hazel') || voice.name.includes('Susan')) {
-                        console.log(`✅ Edge: Using ${voice.name.split(' - ')[0]} - Natural British voice!`);
+                    } else if (voice.name.includes('David') || voice.name.includes('Mark')) {
+                        console.log(`✅ Edge: Using ${voice.name.split(' - ')[0]} - Better than Zira!`);
                     } else {
                         console.log(`✅ Using: ${voice.name}`);
                     }
@@ -1360,14 +1354,13 @@ class MobileWiseVoiceSystem {
             }
         }
         
-        // Fallback
         this.selectedVoice = this.voices.find(v => v.lang.startsWith('en')) || this.voices[0];
         if (VOICE_CONFIG.debug && this.selectedVoice) {
             console.log(`⚠️ Using fallback voice: ${this.selectedVoice.name}`);
         }
     }
     
-    // MAIN SPEAK FUNCTION
+    // MAIN SPEAK FUNCTION - FIXED
     async speak(text) {
         if (!text?.trim()) return;
         
@@ -1386,12 +1379,27 @@ class MobileWiseVoiceSystem {
                 utterance.voice = this.selectedVoice;
             }
             
-            // 🎯 CAPTAIN'S APPROVED SETTINGS
-            utterance.rate = 1.0;     // Normal speed
-            utterance.pitch = 1.1;    // Energetic
-            utterance.volume = 0.9;   // Strong
+            utterance.rate = 1.0;
+            utterance.pitch = 1.1;
+            utterance.volume = 0.9;
             
-            utterance.onend = utterance.onerror = () => {
+            // 🔥 CRITICAL FIX: Wait for ACTUAL completion
+            utterance.onend = () => {
+                // Double-check synthesis is really done
+                const checkComplete = () => {
+                    if (!window.speechSynthesis.speaking) {
+                        this.handleSpeechComplete();
+                        resolve();
+                    } else {
+                        // Still speaking, check again
+                        setTimeout(checkComplete, 50);
+                    }
+                };
+                checkComplete();
+            };
+            
+            utterance.onerror = (event) => {
+                console.error('❌ Speech error:', event);
                 this.handleSpeechComplete();
                 resolve();
             };
@@ -1404,76 +1412,49 @@ class MobileWiseVoiceSystem {
         });
     }
     
-    // COMPLETION HANDLER WITH TESTIMONIAL BLOCKING
-handleSpeechComplete() {
-    this.isSpeaking = false;
-    window.isSpeaking = false;
-    
-    if (VOICE_CONFIG.debug) {
-        console.log('🔍 Speech completed - checking for blocks');
-    }
-    
-    // 🚫 CHECK IF AI IS STILL SPEAKING (FIX #2)
-    if (window.isSpeaking) {
-        if (VOICE_CONFIG.debug) {
-            console.log('🚫 BLOCKED: AI is still speaking - skipping banner');
+    // COMPLETION HANDLER - FIXED
+    handleSpeechComplete() {
+        // 🔥 FINAL CHECK: Is synthesis REALLY done?
+        if (window.speechSynthesis.speaking) {
+            if (VOICE_CONFIG.debug) {
+                console.log('⚠️ handleSpeechComplete called but still speaking - waiting...');
+            }
+            setTimeout(() => {
+                this.handleSpeechComplete();
+            }, 100);
+            return;
         }
-        return;
-    }
-    
-    // 🚫 TESTIMONIAL BLOCKING
-    if (window.testimonialBlocking) {
+        
+        // ✅ NOW it's truly done!
+        this.isSpeaking = false;
+        window.isSpeaking = false;
+        
         if (VOICE_CONFIG.debug) {
-            console.log('🚫 BLOCKED: Testimonial playing - skipping banner');
+            console.log('🔍 Speech ACTUALLY completed - safe to show banner');
         }
-        return;
-    }
+        
+        // 🚫 TESTIMONIAL BLOCKING
+        if (window.testimonialBlocking) {
+            if (VOICE_CONFIG.debug) {
+                console.log('🚫 BLOCKED: Testimonial playing - skipping banner');
+            }
+            return;
+        }
 
-    if (VOICE_CONFIG.debug) {
-        console.log('✅ Triggering banner');
-    }
-    
-    // Continue with your existing banner trigger code...
-        
-        const conversationState = window.conversationState || 'ready';
-        const thankYouSplashVisible = document.querySelector('.thank-you-splash:not([style*="display: none"])');
-        
-        if (conversationState === 'speaking') {
-            if (VOICE_CONFIG.debug) console.log('🚫 BLOCKED: Still speaking');
-            return;
-        }
-        
-        if (conversationState === 'ended' || conversationState === 'splash_screen_active') {
-            if (VOICE_CONFIG.debug) console.log('🚫 BLOCKED: Ended');
-            return;
-        }
-        
-        if (thankYouSplashVisible) {
-            if (VOICE_CONFIG.debug) console.log('🚫 BLOCKED: Splash visible');
-            return;
-        }
-        
         if (VOICE_CONFIG.debug) {
             console.log('✅ Triggering banner');
         }
         
-        setTimeout(() => {
-            if (typeof showHybridReadySequence === 'function') {
-                try {
-                    showHybridReadySequence();
-                    if (VOICE_CONFIG.debug) console.log('✅ Banner triggered');
-                } catch (error) {
-                    console.error('❌ Banner error:', error);
-                }
-            }
-        }, 500);
+        if (typeof triggerSpeakNowBanner === 'function') {
+            triggerSpeakNowBanner();
+        }
     }
     
+    // STOP FUNCTION
     stop() {
         this.synthesis.cancel();
         this.isSpeaking = false;
         window.isSpeaking = false;
-        if (VOICE_CONFIG.debug) console.log('🛑 Stopped');
     }
 }
 
@@ -1483,16 +1464,13 @@ window.speakText = (text) => window.mobileWiseVoice.speak(text);
 window.stopAllSpeech = () => window.mobileWiseVoice.stop();
 window.speakResponse = window.speakText;
 window.speakResponseOriginal = window.speakText;
-// 🔥 SAFETY ALIAS: Add window.speak to prevent errors
 window.speak = window.speakText;
-console.log('✅ window.speak() alias created for compatibility');
 
-if (VOICE_CONFIG.debug) {
-    console.log('✅ Lean Voice System loaded!');
-    console.log('🎤 Voice: Google US English');
-    console.log('✅ Rate: 1.0 (Normal)');
-    console.log('🚀 Pitch: 1.1 (Energetic)');
-}
+console.log('✅ window.speak() alias created for compatibility');
+console.log('✅ Lean Voice System loaded!');
+console.log('🎤 Voice: Google US English');
+console.log('✅ Rate: 1.0 (Normal)');
+console.log('🚀 Pitch: 1.1 (Energetic)');
 
 // ===========================================
 // 📧 EMAIL CONFIGURATION FIX
