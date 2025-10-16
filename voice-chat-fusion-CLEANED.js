@@ -3852,6 +3852,101 @@ function playMobileErrorBeep() {
     }
 }
 
+// ===================================================================
+// TESTIMONIAL VIDEO PLAYER - CLEAN & LEAN (Matches Avatar Pattern)
+// ===================================================================
+// Paste this RIGHT AFTER showAvatarSorryMessage() function
+
+function showTestimonialVideo(testimonialType, duration = 12000) {
+    console.log(`🎬 Playing ${testimonialType} testimonial for ${duration}ms`);
+    
+    // 🚫 PREVENT DOUBLE CALLS - BULLETPROOF (identical to Avatar)
+    if (window.avatarCurrentlyPlaying) {
+        console.log('🚫 Avatar already playing - skipping duplicate testimonial call');
+        return;
+    }
+    
+    window.avatarCurrentlyPlaying = true;
+    
+    const isMobile = window.innerWidth <= 768;
+    
+    // 🎯 TESTIMONIAL VIDEO URLS
+    const testimonialVideos = {
+        skeptical: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982717330.mp4",
+        speed: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982877040.mp4"
+    };
+    
+    const videoUrl = testimonialVideos[testimonialType] || testimonialVideos.skeptical;
+    
+    const avatarOverlay = document.createElement('div');
+    
+    // EXACT SAME STYLING AS AVATAR FUNCTION - Mobile vs Desktop
+    if (isMobile) {
+        avatarOverlay.style.cssText = `
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: #000; z-index: 9999;
+            display: flex; justify-content: center; align-items: center;
+        `;
+        
+        avatarOverlay.innerHTML = `
+            <video id="testimonialVideo" autoplay playsinline webkit-playsinline="true" style="
+                width: 100%; height: 100%; object-fit: cover;
+            ">
+                <source src="${videoUrl}" type="video/mp4">
+            </video>
+        `;
+    } else {
+        // 🎯 DESKTOP: Black background with centered video (no separate desktop video needed)
+        avatarOverlay.style.cssText = `
+            position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 833px; height: 433px;
+            background: #000; z-index: 9999;
+            border-radius: 12px; overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        `;
+        
+        avatarOverlay.innerHTML = `
+            <video id="testimonialVideo" autoplay style="
+                width: 100%; height: 100%; object-fit: cover;
+            ">
+                <source src="${videoUrl}" type="video/mp4">
+            </video>
+        `;
+    }
+    
+    document.body.appendChild(avatarOverlay);
+    
+    // 🎯 ONE SIMPLE CLEANUP FUNCTION - IDENTICAL TO AVATAR (NO COMPLEXITY)
+    function cleanup() {
+        console.log(`🎬 Testimonial ${testimonialType} duration (${duration}ms) complete - removing`);
+        
+        // Remove the overlay
+        if (avatarOverlay.parentNode) {
+            avatarOverlay.remove();
+        }
+        
+        // Reset the flag IMMEDIATELY to allow future calls
+        window.avatarCurrentlyPlaying = false;
+        
+        // Clear testimonial blocking flag
+        window.testimonialBlocking = false;
+        
+        // Go back to Speak Now after brief delay (same as Avatar)
+        setTimeout(() => {
+            console.log('✅ Testimonial removed - going DIRECT to Speak Now');
+            showDirectSpeakNow();
+        }, 1000);
+    }
+    
+    // 🎯 ONE TIMER ONLY - SIMPLE AND CLEAN (identical to Avatar)
+    setTimeout(cleanup, duration);
+}
+
+// Ensure global availability
+window.showTestimonialVideo = showTestimonialVideo;
+
 function showAvatarSorryMessage(duration = 6000) {
     console.log(`🎬 Showing avatar for ${duration}ms - WILL restart recognition when done`);
     
@@ -3935,104 +4030,6 @@ function showAvatarSorryMessage(duration = 6000) {
 
 // Ensure global availability
 window.showAvatarSorryMessage = showAvatarSorryMessage;
-
-// ===================================================================
-// 🎬 TESTIMONIAL VIDEO PLAYER - KB-DRIVEN & RESPONSIVE
-// ===================================================================
-function showTestimonialVideo(type, duration, url) {
-    console.log(`🎬 Playing ${type} testimonial for ${duration}ms`);
-    console.log(`📍 Video URL from KB: ${url}`);
-    
-    // 🚫 PREVENT DOUBLE CALLS - BULLETPROOF
-    if (window.avatarCurrentlyPlaying) {
-        console.log('🚫 Avatar already playing - skipping duplicate testimonial call');
-        return;
-    }
-    
-    window.avatarCurrentlyPlaying = true;
-    
-    const isMobile = window.innerWidth <= 768;
-    
-    const avatarOverlay = document.createElement('div');
-    
-    // EXACT SAME STYLING AS AVATAR FUNCTION - Mobile vs Desktop
-    if (isMobile) {
-        avatarOverlay.style.cssText = `
-            position: fixed; top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: #000; z-index: 9999;
-            display: flex; justify-content: center; align-items: center;
-        `;
-        
-        avatarOverlay.innerHTML = `
-            <video id="testimonialVideo" autoplay playsinline webkit-playsinline="true" style="
-                width: 100%; height: 100%; object-fit: cover;
-            ">
-                <source src="${url}" type="video/mp4">
-            </video>
-        `;
-    } else {
-        // 🎯 DESKTOP: 500px height, responsive width, black transparent background
-        avatarOverlay.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(5px);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-        `;
-        
-        avatarOverlay.innerHTML = `
-            <video id="testimonialVideo" autoplay style="
-                width: auto;
-                height: 500px;
-                max-width: 90vw;
-                object-fit: contain;
-                border-radius: 8px;
-                box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-            ">
-                <source src="${url}" type="video/mp4">
-            </video>
-        `;
-    }
-    
-    document.body.appendChild(avatarOverlay);
-    
-    // 🎯 ONE SIMPLE CLEANUP FUNCTION - IDENTICAL TO AVATAR (NO COMPLEXITY)
-    function cleanup() {
-        console.log(`🎬 Testimonial ${type} duration (${duration}ms) complete - removing`);
-        
-        // Remove the overlay
-        if (avatarOverlay.parentNode) {
-            avatarOverlay.remove();
-        }
-        
-        // Reset the flag IMMEDIATELY to allow future calls
-        window.avatarCurrentlyPlaying = false;
-        
-        // Clear testimonial blocking flag
-        window.testimonialBlocking = false;
-        
-        // Go back to Speak Now after brief delay (same as Avatar)
-        setTimeout(() => {
-            console.log('✅ Testimonial removed - going DIRECT to Speak Now');
-            if (typeof showDirectSpeakNow === 'function') {
-                showDirectSpeakNow();
-            }
-        }, 1000);
-    }
-    
-    // 🎯 ONE TIMER ONLY - SIMPLE AND CLEAN (identical to Avatar)
-    setTimeout(cleanup, duration);
-}
-
-// Ensure global availability
-window.showTestimonialVideo = showTestimonialVideo;
 
 // Keep your existing showDirectSpeakNow function exactly as is
 function showDirectSpeakNow() {
@@ -4308,6 +4305,13 @@ function showHybridReadySequence() {
 
 // Ensure global availability
 window.showTestimonialVideo = showTestimonialVideo;
+
+    
+    // ===== BULLETPROOF BLOCKING =====
+    if (window.speakSequenceBlocked) {
+        console.log('🔇 BULLETPROOF BLOCK: Another session already running - HARD STOP');
+        return;
+    }
     
     window.speakSequenceBlocked = true;
     console.log('🛡️ BULLETPROOF: Block activated immediately');
@@ -4728,6 +4732,7 @@ playGetReadyAndSpeakNowSound();
         
         console.log('🧹 Speech sequence completed successfully');
     };
+}
 
 console.log('🎯 NUCLEAR SHUTDOWN Mobile-Wise AI Speak Sequence loaded - Avatar-proof!');
 
