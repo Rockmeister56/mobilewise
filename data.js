@@ -5,6 +5,7 @@
 // NO async loading, NO fetch delays - INSTANT ACCESS
 // Date: October 15, 2025
 // Captain: Mobile-Wise AI Empire
+// UPDATED: Testimonials now use CONSENT-BASED OFFERS instead of auto-play
 // ===================================================
 
 window.knowledgeBaseData = {
@@ -222,14 +223,14 @@ window.knowledgeBaseData = {
       "yes_response": "Absolutely! What else about buying, selling, or valuing practices?",
       "yes_response_with_name": "Absolutely {firstName}! What else would you like to know?",
       "yes_next_state": "initial",
-      "no_response": "Thank you so much for visiting! Have a wonderful day! \ud83c\udf1f",
-      "no_response_with_name": "Thank you {firstName}! It's been great talking with you. Have a wonderful day! \ud83c\udf1f",
+      "no_response": "Thank you so much for visiting! Have a wonderful day! 🌟",
+      "no_response_with_name": "Thank you {firstName}! It's been great talking with you. Have a wonderful day! 🌟",
       "no_next_state": "ended",
       "no_trigger_banner": "thankYou"
     }
   },
   "objection_handling": {
-    "description": "Detect objections and trigger testimonials",
+    "description": "Detect objections and OFFER testimonials (user consent required)",
     "objections": [
       {
         "type": "timeline_concern",
@@ -242,9 +243,9 @@ window.knowledgeBaseData = {
           "fast",
           "quick"
         ],
-        "testimonial": "speed",
-        "response": "Great question! Let me show you what a recent client said about the speed of their sale...",
-        "response_with_name": "Great question {firstName}! Let me show you what happened with a recent client..."
+        "testimonialOffer": "speed",
+        "response": "Great question! We've worked with clients who had the same timeline concerns. Would you like to hear what one of them experienced?",
+        "response_with_name": "Great question {firstName}! We've had clients with the same concern. Want to hear their experience?"
       },
       {
         "type": "trust_concern",
@@ -257,9 +258,9 @@ window.knowledgeBaseData = {
           "certain",
           "proof"
         ],
-        "testimonial": "skeptical",
-        "response": "I understand! Let me show you what a client who was skeptical said after working with Bruce...",
-        "response_with_name": "{firstName}, I understand! Let me show you what a skeptical client said after working with Bruce..."
+        "testimonialOffer": "skeptical",
+        "response": "I completely understand! We've had clients who felt the same way initially. Would you like to hear what they said after working with Bruce?",
+        "response_with_name": "{firstName}, I understand! Want to hear what a skeptical client said after working with us?"
       },
       {
         "type": "value_concern",
@@ -271,9 +272,9 @@ window.knowledgeBaseData = {
           "market",
           "competitive"
         ],
-        "testimonial": "skeptical",
-        "response": "That's important! Let me show you what a client said about the value they got...",
-        "response_with_name": "{firstName}, that's important! Let me show you what a client said about their value..."
+        "testimonialOffer": "skeptical",
+        "response": "That's important! We have clients who were concerned about value too. Would you like to hear their experience?",
+        "response_with_name": "{firstName}, that's important! Want to hear what other clients said about the value they received?"
       }
     ]
   },
@@ -324,7 +325,7 @@ window.knowledgeBaseData = {
       "response": "Most practices sell within 2-6 months. Strong financials and good client retention? Even faster. Want to discuss your situation?",
       "category": "selling",
       "triggerAction": "request_selling_consultation",
-      "triggerTestimonial": "speed"
+      "testimonialOffer": "speed"
     },
     {
       "id": "buying_timeline",
@@ -425,7 +426,7 @@ window.knowledgeBaseData = {
       "response": "Most sales include client retention guarantees - typically one year. If collected fees don't meet agreement, you may get refund/adjustment. Want details?",
       "category": "buying",
       "triggerAction": "request_guarantee_details",
-      "triggerTestimonial": "skeptical"
+      "testimonialOffer": "skeptical"
     },
     {
       "id": "seller_fees",
