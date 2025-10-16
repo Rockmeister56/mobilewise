@@ -2260,7 +2260,7 @@ testimonialOffer: {
         </div>
         
         <style>
-        .banner-glow-container::before {
+    .banner-glow-container::before {
     content: '';
     position: absolute;
     width: calc(100% + 50px);  /* <-- CHANGE 50px to make wider/narrower */
@@ -2270,7 +2270,7 @@ testimonialOffer: {
     background: rgba(255, 255, 255, 0.1);
     border-radius: 12px;
     z-index: -1;
-    animation: glowLayerPulse 8s ease-in-out infinite;
+    animation: glowLayerPulse 2s ease-in-out infinite;
         }
     .banner-glow-container::after {
     content: '';
@@ -2285,19 +2285,11 @@ testimonialOffer: {
         rgba(255, 255, 255, 0.4),
         transparent
     );
-        .banner-glow-container::before {
-            content: '';
-            position: absolute;
-            width: calc(100% + 50px);
-            height: calc(100% + 20px);
-            top: -10px;
-            left: -25px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            z-index: -1;
-            animation: glowLayerPulse 2s ease-in-out infinite;
-        }
-        
+    animation: highlighterSweep 7s ease-in-out infinite;  /* <-- 7s total cycle */
+    z-index: 1;
+    border-radius: 8px;
+}
+
         @keyframes glowLayerPulse {
             0%, 100% { 
                 box-shadow: 0 0 15px rgba(8, 145, 178, 0.6);
