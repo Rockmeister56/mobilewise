@@ -1322,17 +1322,16 @@ class MobileWiseVoiceSystem {
             ];
         }
         // 🎯 EDGE: British voices (faster, less robotic than Zira)
-        else if (isEdge) {
-            voicePriority = [
-                'Microsoft Hazel Desktop - English (Great Britain)',  // Best Edge British voice
-                'Microsoft Susan Desktop - English (Great Britain)',  // Backup British
-                'Microsoft Hazel - English (Great Britain)',          // Mobile fallback
-                'Microsoft Susan - English (Great Britain)',          // Mobile fallback
-                'Google UK English Female',                           // If Google voices installed
-                'Microsoft Zira Desktop - English (United States)',   // Last resort
-                'Microsoft Zira - English (United States)'
-            ];
-        }
+       else if (isEdge) {
+    voicePriority = [
+        'Microsoft David Desktop - English (United States)',  // Better than Zira!
+        'Microsoft Mark Desktop - English (United States)',   // Also good
+        'Microsoft David - English (United States)',          // Mobile fallback
+        'Microsoft Mark - English (United States)',           // Mobile fallback
+        'Microsoft Zira Desktop - English (United States)',   // Last resort
+        'Microsoft Zira - English (United States)'
+    ];
+}
         // 🎯 OTHER BROWSERS: Try both
         else {
             voicePriority = [
@@ -1406,21 +1405,35 @@ class MobileWiseVoiceSystem {
     }
     
     // COMPLETION HANDLER WITH TESTIMONIAL BLOCKING
-    handleSpeechComplete() {
-        this.isSpeaking = false;
-        window.isSpeaking = false;
-        
+handleSpeechComplete() {
+    this.isSpeaking = false;
+    window.isSpeaking = false;
+    
+    if (VOICE_CONFIG.debug) {
+        console.log('🔍 Speech completed - checking for blocks');
+    }
+    
+    // 🚫 CHECK IF AI IS STILL SPEAKING (FIX #2)
+    if (window.isSpeaking) {
         if (VOICE_CONFIG.debug) {
-            console.log('🔍 Speech completed - checking for blocks');
+            console.log('🚫 BLOCKED: AI is still speaking - skipping banner');
         }
-        
-        // 🚫 TESTIMONIAL BLOCKING
-        if (window.testimonialBlocking) {
-            if (VOICE_CONFIG.debug) {
-                console.log('🚫 BLOCKED: Testimonial playing - skipping banner');
-            }
-            return;
+        return;
+    }
+    
+    // 🚫 TESTIMONIAL BLOCKING
+    if (window.testimonialBlocking) {
+        if (VOICE_CONFIG.debug) {
+            console.log('🚫 BLOCKED: Testimonial playing - skipping banner');
         }
+        return;
+    }
+
+    if (VOICE_CONFIG.debug) {
+        console.log('✅ Triggering banner');
+    }
+    
+    // Continue with your existing banner trigger code...
         
         const conversationState = window.conversationState || 'ready';
         const thankYouSplashVisible = document.querySelector('.thank-you-splash:not([style*="display: none"])');
