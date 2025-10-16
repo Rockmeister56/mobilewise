@@ -4984,24 +4984,26 @@ function getAIResponse(userInput) {
                 console.log('💾 Extracted data:', kbResponse.extractedData);
             }
             
-            // ============================================================
-// 🎬 TESTIMONIAL HANDLING - KB-DRIVEN (No Hardcoded URLs)
+// ============================================================
+// 🎬 TESTIMONIAL HANDLING - KB-DRIVEN + QUEUED (No Hardcoded URLs)
 // ============================================================
 if (kbResponse.triggerTestimonial) {
     window.testimonialBlocking = true;
     console.log("🚫 BLOCKING: Testimonial will show - preventing \"Speak Now\" banner");
     const testimonialId = kbResponse.triggerTestimonial;
-    console.log('🎬 Triggering testimonial video:', testimonialId);
+    console.log('🎬 QUEUED testimonial video:', testimonialId, '(will play after AI finishes speaking)');
     
     // ✅ Pull testimonial data from Knowledge Base
     const testimonialData = window.knowledgeBaseData.testimonials[testimonialId];
     
     if (testimonialData) {
-        showTestimonialVideo(
-            testimonialData.id,
-            testimonialData.duration,
-            testimonialData.video_url
-        );
+        // ✅ QUEUE the testimonial - don't play it yet!
+        window.pendingTestimonial = {
+            id: testimonialData.id,
+            duration: testimonialData.duration,
+            url: testimonialData.video_url
+        };
+        console.log('✅ Testimonial queued:', testimonialData.id);
     } else {
         console.warn('⚠️ Unknown testimonial ID:', testimonialId);
     }
@@ -5037,7 +5039,7 @@ if (kbResponse.triggerTestimonial) {
             }
             
             // ============================================================
-            // 🎬 LEGACY ACTION HANDLING - WITH URLs
+            // 🎬 AVATAR INTERACTION - WITH URLs
             // ============================================================
             if (kbResponse.action) {
                 const action = kbResponse.action;
