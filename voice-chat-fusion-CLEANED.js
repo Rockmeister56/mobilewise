@@ -5105,6 +5105,29 @@ function getAIResponse(userInput) {
         
         if (kbResponse) {
             responseText = kbResponse.response;
+
+                // ===== 🎯 TESTIMONIAL OFFER DETECTION =====
+            if (kbResponse.testimonialOffer) {
+                console.log("🎯 Testimonial offer detected:", kbResponse.type);
+                
+                // Show the testimonial offer banner
+                window.showTestimonialOffer(
+                    kbResponse.type,              // e.g., "timeline_concern"
+                    kbResponse.testimonialOffer   // The offer message from Data JSON
+                );
+                
+                // Speak the initial objection response
+                const userName = firstName || '';
+                const response = userName && kbResponse.response_with_name
+                    ? kbResponse.response_with_name.replace('{name}', userName)
+                    : kbResponse.response;
+                
+                if (response && window.speak) {
+                    window.speak(response);
+                }
+                
+                return response; // Exit early - banner will handle next steps
+            }
             
             // 🎯 Sync state with conversation engine
             if (kbResponse.newState) {
