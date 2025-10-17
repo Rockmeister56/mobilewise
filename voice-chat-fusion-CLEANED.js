@@ -2222,7 +2222,7 @@ testimonialOffer: {
 <div style="display: flex; gap: 10px; justify-content: center; width: 100%; align-items: center;">
     
     <!-- YES Button Wrapper -->
-    <div style="position: relative; left: -25px; top: -10px;">
+    <div style="position: relative; left: -40px; top: -10px;">
         <button id="testimonialYesBtn" style="
             flex: 0 0 auto;
             padding: 5px 20px;
@@ -2271,7 +2271,7 @@ testimonialOffer: {
     content: '';
     position: absolute;
     width: calc(100% + 50px);  /* <-- CHANGE 50px to make wider/narrower */
-    height: calc(100% + 17px);
+    height: calc(100% + 14px);
     top: -10px;
     left: -25px;               /* <-- Keep this half of the width addition */
     background: rgba(255, 255, 255, 0.1);
