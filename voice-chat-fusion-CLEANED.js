@@ -4370,7 +4370,7 @@ if (isMobile) {
     videoContainer.style.cssText = `
         position: relative;
         width: 260px;
-        height: 525px;
+        height: 400px;
         display: flex;
         flex-direction: column;
         align-items: center;
