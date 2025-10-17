@@ -2242,7 +2242,7 @@ testimonialOffer: {
     </button>
     
     <button id="testimonialNoBtn" style="
-        margin-right: 50px;
+        margin-right: 90px;
         top: 30px;
         flex: 0 0 auto;
         padding: 6px 24px;
