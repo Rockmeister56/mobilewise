@@ -2209,7 +2209,7 @@ clickToCall: {
 // 10. TESTIMONIAL OFFER (NEW - User Consent Required)
 testimonialOffer: {
     content: `
-        <div class="banner-glow-container" style="width: 760px; max-width: 760px; margin: 0 auto; height: 90px; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 12px 30px; border-radius: 8px; background: linear-gradient(135deg, #0f19d8ff, #0688d4ff, #0cb7deff); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+        <div class="banner-glow-container" style="width: 760px; max-width: 760px; margin: 0 auto; height: 80px; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 12px 30px; border-radius: 8px; background: linear-gradient(135deg, #0f19d8ff, #0688d4ff, #0cb7deff); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
             
            <!-- LEFT: 5-Star Badge -->
             <div style="display: flex; align-items: center; margin-right: 20px; position: relative; top: 15px;">
@@ -2270,7 +2270,6 @@ testimonialOffer: {
     .banner-glow-container::before {
     content: '';
     position: absolute;
-    <div style="padding: 10px 20px;">
     width: calc(100% + 50px);  /* <-- CHANGE 50px to make wider/narrower */
     height: calc(100% + 14px);
     top: -10px;
