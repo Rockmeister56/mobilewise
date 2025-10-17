@@ -12,7 +12,7 @@
 // ===================================================
 
 // ===================================================================
-// 🎯 TESTIMONIAL SYSTEM - RESPONSIVE WITH EXIT BUTTON
+// 🎯 TESTIMONIAL SYSTEM - PORTRAIT VIDEO (19.5:9 MOBILE RATIO)
 // ===================================================================
 window.showTestimonialVideo = function(testimonialType, duration = 12000) {
     console.log(`🎬 Playing ${testimonialType} testimonial for ${duration}ms`);
@@ -51,20 +51,28 @@ window.showTestimonialVideo = function(testimonialType, duration = 12000) {
         align-items: center;
     `;
     
-    // 🎯 CREATE VIDEO CONTAINER
+    // 🎯 CREATE VIDEO CONTAINER - PORTRAIT ORIENTATION (19.5:9)
     const videoContainer = document.createElement('div');
-    videoContainer.style.cssText = isMobile ? `
-        position: relative;
-        width: 100%;
-        height: 100%;
-    ` : `
-        position: relative;
-        width: 720px;
-        height: 405px;
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: 0 20px 60px rgba(0,0,0,0.8);
-    `;
+    
+    if (isMobile) {
+        // Mobile: Full screen
+        videoContainer.style.cssText = `
+            position: relative;
+            width: 100%;
+            height: 100%;
+        `;
+    } else {
+        // Desktop: PORTRAIT video (tall, not wide) - 19.5:9 ratio
+        // Using 390px wide × 844px tall (iPhone-like portrait dimensions)
+        videoContainer.style.cssText = `
+            position: relative;
+            width: 390px;
+            height: 844px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+        `;
+    }
     
     // 🎯 CREATE VIDEO ELEMENT
     const video = document.createElement('video');
@@ -156,7 +164,7 @@ window.showTestimonialVideo = function(testimonialType, duration = 12000) {
     overlay.appendChild(videoContainer);
     document.body.appendChild(overlay);
     
-    console.log(`📺 Testimonial video deployed - ${isMobile ? 'Mobile' : 'Desktop'} mode`);
+    console.log(`📺 Testimonial video deployed - ${isMobile ? 'Mobile' : 'Portrait Desktop'} mode`);
 };
 
 window.showTestimonialOffer = function(testimonialType, customMessage) {
@@ -201,7 +209,7 @@ window.showTestimonialOffer = function(testimonialType, customMessage) {
     ]);
 };
 
-console.log("✅ Testimonial system loaded - Responsive with EXIT button");
+console.log("✅ Testimonial system loaded - PORTRAIT mode (19.5:9 ratio)");
 // ===================================================================
 
 // ===================================================
