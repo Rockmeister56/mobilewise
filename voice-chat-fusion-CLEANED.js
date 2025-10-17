@@ -2220,9 +2220,22 @@ testimonialOffer: {
             
             <!-- YES/NO Buttons -->
 <div style="display: flex; gap: 10px; justify-content: center; width: 100%;">
+        <!-- ADD WRAPPER HERE -->
+    <div style="position: relative; left: -25px; top: -15px;">
+        <button id="testimonialYesBtn" style="...your existing button code...">
+            ✅ YES, SHOW ME
+        </button>
+    </div>
+    
+    <!-- ADD WRAPPER HERE -->
+    <div style="position: relative; right: -25px; top: -15px;">
+        <button id="testimonialNoBtn" style="...your existing button code...">
+            ❌ NO, CONTINUE
+        </button>
+    </div>
+    
+</div>
     <button id="testimonialYesBtn" style="
-        margin-right: 100px;
-        top: 30px;
         flex: 0 0 auto;
         padding: 5px 20px;
         background: rgba(255, 255, 255, 0.25);
@@ -2242,8 +2255,6 @@ testimonialOffer: {
     </button>
     
     <button id="testimonialNoBtn" style="
-        margin-right: 90px;
-        top: 30px;
         flex: 0 0 auto;
         padding: 6px 24px;
         background: rgba(255, 255, 255, 0.15);
