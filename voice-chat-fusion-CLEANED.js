@@ -11,6 +11,91 @@
 // Captain: Mobile-Wise AI Empire
 // ===================================================
 
+// ===================================================================
+// 🎯 TESTIMONIAL SYSTEM - LOADED FIRST TO AVOID SYNTAX BLOCKING
+// ===================================================================
+window.showTestimonialVideo = function(testimonialType, duration = 12000) {
+    console.log(`🎬 Playing ${testimonialType} testimonial for ${duration}ms`);
+    
+    if (window.avatarCurrentlyPlaying) {
+        console.log('🚫 Avatar already playing - skipping duplicate testimonial call');
+        return;
+    }
+    
+    window.avatarCurrentlyPlaying = true;
+    
+    const testimonialVideos = {
+        skeptical: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982717330.mp4",
+        speed: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982877040.mp4"
+    };
+    
+    const videoUrl = testimonialVideos[testimonialType] || testimonialVideos.skeptical;
+    const isMobile = window.innerWidth <= 768;
+    
+    const avatarOverlay = document.createElement('div');
+    
+    if (isMobile) {
+        avatarOverlay.style.cssText = `position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; display: flex; justify-content: center; align-items: center;`;
+        avatarOverlay.innerHTML = `<video autoplay playsinline webkit-playsinline="true" style="width: 100%; height: 100%; object-fit: cover;"><source src="${videoUrl}" type="video/mp4"></video>`;
+    } else {
+        avatarOverlay.style.cssText = `position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 833px; height: 433px; background: #000; z-index: 9999; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5);`;
+        avatarOverlay.innerHTML = `<video autoplay style="width: 100%; height: 100%; object-fit: cover;"><source src="${videoUrl}" type="video/mp4"></video>`;
+    }
+    
+    document.body.appendChild(avatarOverlay);
+    
+    setTimeout(() => {
+        if (avatarOverlay.parentNode) avatarOverlay.remove();
+        window.avatarCurrentlyPlaying = false;
+        setTimeout(() => window.showDirectSpeakNow?.(), 1000);
+    }, duration);
+};
+
+window.showTestimonialOffer = function(testimonialType, customMessage) {
+    console.log("🎯 Testimonial Offer Called:", testimonialType, customMessage);
+    
+    const objectionData = window.knowledgeBaseData?.objection_handling?.objections?.find(obj => obj.type === testimonialType);
+    
+    if (!objectionData) {
+        console.error("❌ Objection type not found:", testimonialType);
+        return;
+    }
+    
+    const userName = sessionStorage.getItem('userName') || window.leadData?.firstName || '';
+    const offerMessage = customMessage || objectionData.testimonialOffer;
+    
+    window.showUniversalBanner(offerMessage, [
+        {
+            text: 'YES',
+            action: () => {
+                console.log("✅ YES clicked - playing testimonial:", testimonialType);
+                window.showTestimonialVideo(testimonialType);
+            },
+            primary: true
+        },
+        {
+            text: 'NO',
+            action: () => {
+                console.log("✅ NO clicked - showing bridge message");
+                const noMessage = userName && objectionData.no_response_with_name ? objectionData.no_response_with_name.replace('{name}', userName).replace('{firstName}', userName) : objectionData.no_response;
+                console.log("🗣️ Bridge message:", noMessage);
+                if (window.speak && noMessage) window.speak(noMessage);
+                if (objectionData.no_action === 'show_consultation_banner') {
+                    console.log("📞 Showing consultation banner in 500ms...");
+                    setTimeout(() => {
+                        if (window.showConsultationBanner) window.showConsultationBanner();
+                        else console.log("⚠️ showConsultationBanner not found");
+                    }, 500);
+                }
+            },
+            primary: false
+        }
+    ]);
+};
+
+console.log("✅ Testimonial system loaded at TOP of file - bypassing syntax issues");
+// ===================================================================
+
 // ===================================================
 // 🎯 MOBILE-WISE AI VOICE CHAT - COMPLETE INTEGRATION
 // Smart Button + Lead Capture + EmailJS + Banner System
