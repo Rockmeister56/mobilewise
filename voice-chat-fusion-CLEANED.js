@@ -4446,7 +4446,7 @@ window.showTestimonialOffer = function(testimonialType, customMessage) {
                 console.log(`✅ User clicked YES - playing ${pendingTestimonialType} testimonial`);
                 
                 // Remove banner
-                window.removeAllBanners(false); // false = don't restore branding yet
+                window.removeAllBanners(false);
                 
                 // Play testimonial
                 if (pendingTestimonialType) {
@@ -4465,7 +4465,7 @@ window.showTestimonialOffer = function(testimonialType, customMessage) {
                 // Remove banner
                 window.removeAllBanners(false);
                 
-                // 🎯 GET NO RESPONSE FROM DATA JSON (No hardcoded text!)
+                // 🎯 GET NO RESPONSE FROM DATA JSON
                 const noMessage = currentObjection 
                     ? (leadData.firstName 
                         ? currentObjection.no_response_with_name.replace('{firstName}', leadData.firstName)
@@ -4480,12 +4480,12 @@ window.showTestimonialOffer = function(testimonialType, customMessage) {
                 addAIMessage(noMessage);
                 speakResponse(noMessage);
                 
-                // 🎯 CHECK IF WE SHOULD SHOW CONSULTATION BANNER (from Data JSON)
+                // 🎯 CHECK IF WE SHOULD SHOW CONSULTATION BANNER
                 if (currentObjection?.no_action === 'show_consultation_banner') {
-                    console.log('🎯 Triggering consultation banner as specified in Data JSON');
+                    console.log('🎯 Triggering consultation banner');
                     setTimeout(() => {
                         window.showUniversalBanner('freeBookWithConsultation');
-                    }, 2000); // Wait for AI to finish speaking
+                    }, 2000);
                 }
                 
                 pendingTestimonialType = null;
@@ -5123,7 +5123,32 @@ function getAIResponse(userInput) {
             // 🎬 TESTIMONIAL HANDLING - KB-DRIVEN + QUEUED (No Hardcoded URLs)
             // ============================================================
             if (kbResponse.triggerTestimonial) {
-                  window.testimonialBlocking = true;
+                window.testimonialBlocking = true;
+                console.log("🚫 BLOCKING: Testimonial will show - preventing \"Speak Now\" banner");
+                const testimonialId = kbResponse.triggerTestimonial;
+                console.log('🎬 QUEUED testimonial video:', testimonialId, '(will play after AI finishes speaking)');
+                
+                // ✅ Pull testimonial data from Knowledge Base
+                const testimonialData = window.knowledgeBaseData.testimonials[testimonialId];
+                
+                if (testimonialData) {
+                    // ✅ QUEUE the testimonial - don't play it yet!
+                    window.pendingTestimonial = {
+                        id: testimonialData.id,
+                        duration: testimonialData.duration,
+                        url: testimonialData.video_url
+                    };
+                    console.log('✅ Testimonial queued:', testimonialData.id);
+                } else {
+                    console.warn('⚠️ Unknown testimonial ID:', testimonialId);
+                }
+                
+                return responseText;
+            }
+
+            // 🎯 NEW: CHECK FOR TESTIMONIAL OFFER (from objection_handling in Data JSON)
+if (kbResponse.testimonialOffer) {
+    window.testimonialBlocking = true;
     console.log("🎯 Objection detected - showing testimonial offer banner");
     
     const testimonialId = kbResponse.testimonialOffer;
