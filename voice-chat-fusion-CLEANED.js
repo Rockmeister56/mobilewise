@@ -66,11 +66,12 @@ window.showTestimonialVideo = function(testimonialType, duration = 12000) {
         // Using 390px wide × 844px tall (iPhone-like portrait dimensions)
         videoContainer.style.cssText = `
             position: relative;
-            width: 250px;
-            height: 550px;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+    width: 260px;
+    height: 525px;
+    margin-top: -50px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.8);
         `;
     }
     
