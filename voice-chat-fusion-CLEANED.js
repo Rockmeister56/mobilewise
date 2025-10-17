@@ -37,18 +37,18 @@ window.showTestimonialVideo = function(testimonialType, duration = 12000) {
     
     // 🎯 CREATE FULL-SCREEN OVERLAY WITH SEMI-TRANSPARENT BLACK BACKGROUND
     const overlay = document.createElement('div');
-    overlay.id = 'testimonial-overlay';
-    overlay.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(56, 53, 74, 0.72);
-        z-index: 9999;
-        display: flex;
-        justify-content: center;
-        align-items: center;
+overlay.id = 'testimonial-overlay';
+overlay.style.cssText = `
+    position: fixed;
+    top: 80px;        // ← ADD TOP OFFSET (adjust this value)
+    left: 0;
+    width: 100%;
+    height: calc(100% - 80px);  // ← SUBTRACT TOP OFFSET FROM HEIGHT
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     `;
     
     // 🎯 CREATE VIDEO CONTAINER - PORTRAIT ORIENTATION (19.5:9)
