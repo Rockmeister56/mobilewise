@@ -4347,9 +4347,7 @@ function showTestimonialVideo(testimonialType, duration = 12000) {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: rgba(0, 0, 0, 0.40);
     display: flex;
     justify-content: center;
     align-items: center;
