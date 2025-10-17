@@ -66,8 +66,8 @@ window.showTestimonialVideo = function(testimonialType, duration = 12000) {
         // Using 390px wide × 844px tall (iPhone-like portrait dimensions)
         videoContainer.style.cssText = `
             position: relative;
-            width: 390px;
-            height: 844px;
+            width: 200px;
+            height: 550px;
             border-radius: 12px;
             overflow: hidden;
             box-shadow: 0 20px 60px rgba(0,0,0,0.8);
