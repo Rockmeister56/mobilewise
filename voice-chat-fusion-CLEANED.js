@@ -2215,64 +2215,81 @@ testimonialOffer: {
             <div style="display: flex; align-items: center; margin-right: 20px;">
                 <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1760673126772_5stars.png" 
                      class="stars-glow"
-                     style="width: 80px; height: auto;">
+                     style="width: 90px; height: auto;">
             </div>
             
-            <!-- RIGHT: YES/NO Buttons -->
-            <div style="display: flex; gap: 10px; align-items: center;">
-                <button id="testimonialYesBtn" style="
-                    flex: 0 0 auto;
-                    padding: 6px 24px;
-                    background: rgba(255, 255, 255, 0.25);
-                    color: white;
-                    border: 2px solid rgba(255, 255, 255, 0.6);
-                    border-radius: 30px;
-                    font-size: 14px;
-                    font-weight: 700;
-                    cursor: pointer;
-                    transition: all 0.2s ease;
-                    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-                    pointer-events: auto;
-                    backdrop-filter: blur(5px);
-                " onmouseover="this.style.background='rgba(255, 255, 255, 0.4)'; this.style.transform='scale(1.05)';" 
-                   onmouseout="this.style.background='rgba(255, 255, 255, 0.25)'; this.style.transform='scale(1)';">
-                    ✅ YES, SHOW ME
-                </button>
-                
-                <button id="testimonialNoBtn" style="
-                    flex: 0 0 auto;
-                    padding: 6px 24px;
-                    background: rgba(255, 255, 255, 0.15);
-                    color: white;
-                    border: 2px solid rgba(255, 255, 255, 0.5);
-                    border-radius: 30px;
-                    font-size: 14px;
-                    font-weight: 700;
-                    cursor: pointer;
-                    transition: all 0.2s ease;
-                    pointer-events: auto;
-                    backdrop-filter: blur(5px);
-                " onmouseover="this.style.background='rgba(255, 255, 255, 0.3)'; this.style.transform='scale(1.05)';" 
-                   onmouseout="this.style.background='rgba(255, 255, 255, 0.15)'; this.style.transform='scale(1)';">
-                    ❌ NO, CONTINUE
-                </button>
+            <!-- YES/NO Buttons -->
+<div style="display: flex; gap: 10px; justify-content: center; width: 100%;">
+    <button id="testimonialYesBtn" style="
+        flex: 0 0 auto;
+        padding: 6px 24px;
+        background: rgba(255, 255, 255, 0.25);
+        color: white;
+        border: 2px solid rgba(255, 255, 255, 0.6);
+        border-radius: 30px;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        pointer-events: auto;
+        backdrop-filter: blur(5px);
+    " onmouseover="this.style.background='rgba(255, 255, 255, 0.4)'; this.style.transform='scale(1.05)';" 
+       onmouseout="this.style.background='rgba(255, 255, 255, 0.25)'; this.style.transform='scale(1)';">
+        ✅ YES, SHOW ME
+    </button>
+    
+    <button id="testimonialNoBtn" style="
+        flex: 0 0 auto;
+        padding: 6px 24px;
+        background: rgba(255, 255, 255, 0.15);
+        color: white;
+        border: 2px solid rgba(255, 255, 255, 0.5);
+        border-radius: 30px;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        pointer-events: auto;
+        backdrop-filter: blur(5px);
+    " onmouseover="this.style.background='rgba(255, 255, 255, 0.3)'; this.style.transform='scale(1.05)';" 
+       onmouseout="this.style.background='rgba(255, 255, 255, 0.15)'; this.style.transform='scale(1)';">
+        ❌ NO, CONTINUE
+    </button>
             </div>
         </div>
         
         <style>
-        .banner-glow-container::before {
-            content: '';
-            position: absolute;
-            width: calc(100% + 50px);
-            height: calc(100% + 20px);
-            top: -10px;
-            left: -25px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            z-index: -1;
-            animation: glowLayerPulse 2s ease-in-out infinite;
+    .banner-glow-container::before {
+    content: '';
+    position: absolute;
+    width: calc(100% + 50px);  /* <-- CHANGE 50px to make wider/narrower */
+    height: calc(100% + 20px);
+    top: -10px;
+    left: -25px;               /* <-- Keep this half of the width addition */
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    z-index: -1;
+    animation: glowLayerPulse 2s ease-in-out infinite;
         }
-        
+    .banner-glow-container::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.4),
+        transparent
+    );
+    animation: highlighterSweep 7s ease-in-out infinite;  /* <-- 7s total cycle */
+    z-index: 1;
+    border-radius: 8px;
+}
+
         @keyframes glowLayerPulse {
             0%, 100% { 
                 box-shadow: 0 0 15px rgba(8, 145, 178, 0.6);
@@ -2296,27 +2313,44 @@ testimonialOffer: {
             }
         }
         
-        /* ⭐ STARS SUBTLE GLOW */
-        .stars-glow {
-            filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.6));
-            animation: starsGlowPulse 2.5s ease-in-out infinite;
-        }
-        
-        @keyframes starsGlowPulse {
-            0%, 100% { 
-                filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.6));
-            }
-            50% { 
-                filter: drop-shadow(0 0 12px rgba(255, 215, 0, 0.9));
-            }
-        }
-        
         /* CRITICAL: Make buttons clickable */
         #testimonialYesBtn, #testimonialNoBtn {
             pointer-events: auto !important;
             z-index: 10000 !important;
         }
         </style>
+    `,
+    background: 'rgba(255, 255, 255, 0.15)',
+    containerWidth: 770,
+    customHeight: 100,
+    duration: 0
+},
+
+// 8. LEAD MAGNET BANNER
+leadMagnet: {
+    content: `
+        <div style="width: ${742}px; max-width: ${742}px; margin: 0 auto; height: 58px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; border-radius: 6px; background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+            <div style="color: white;">
+                <div style="font-size: 16px; font-weight: bold;">
+                    🎁 Your Free Gift is Ready!
+                </div>
+                <div style="font-size: 12px; color: #fff; opacity: 0.9;">
+                    Download your exclusive guide now
+                </div>
+            </div>
+            <button onclick="window.open(getActiveLeadMagnet().downloadLink, '_blank')" style="
+                background: white;
+                color: #28a745;
+                border: none;
+                padding: 8px 20px;
+                border-radius: 20px;
+                cursor: pointer;
+                font-weight: bold;
+                font-size: 14px;
+            ">
+                📥 Download Now
+            </button>
+        </div>
     `,
     background: 'rgba(255, 255, 255, 0.15)',
     containerWidth: 752, // 🚀 WHITE LAYER WIDTH CONTROL
