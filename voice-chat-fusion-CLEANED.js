@@ -4313,13 +4313,11 @@ console.log('🎯 DIRECT Speak Now function loaded - No Get Ready phase!');
 function showTestimonialVideo(testimonialType, duration = 12000) {
     console.log(`🎬 Playing ${testimonialType} testimonial for ${duration}ms`);
     
-    // 🚫 PREVENT DOUBLE CALLS
     if (window.avatarCurrentlyPlaying) {
-        console.log('🚫 Avatar already playing - skipping duplicate testimonial call');
+        console.log('🚫 Avatar already playing');
         return;
     }
     
-    // 🔒 LOCK OUT OTHER SYSTEMS
     window.avatarCurrentlyPlaying = true;
     window.speakSequenceActive = true;
     
@@ -4331,140 +4329,129 @@ function showTestimonialVideo(testimonialType, duration = 12000) {
     const videoUrl = testimonialVideos[testimonialType] || testimonialVideos.skeptical;
     const isMobile = window.innerWidth <= 768;
     
-    // 🎯 FULL-SCREEN OVERLAY - TRANSPARENT BLACK BACKGROUND
+    // USE FULL VIEWPORT HEIGHT (882px), NOT CONTAINER HEIGHT (542px)
+    const viewportHeight = window.innerHeight; // 882px
+    const videoHeight = 525;
+    
+    // Center in FULL viewport
+    const topPosition = (viewportHeight - videoHeight) / 2; // (882 - 525) / 2 = 178.5px from top
+    
+    console.log(`📐 Full viewport: ${viewportHeight}px, video ${videoHeight}px, centering at ${topPosition}px from top`);
+    
+    // OVERLAY
     const overlay = document.createElement('div');
     overlay.id = 'testimonial-overlay';
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.70);
+        z-index: 999999;
+        pointer-events: auto;
+    `;
     
-    // Use setAttribute with !important for nuclear override
-    overlay.setAttribute('style', `
-        position: fixed !important;
-        top: 0 !important;
-        left: 0 !important;
-        right: 0 !important;
-        bottom: 0 !important;
-        width: 100vw !important;
-        height: 100vh !important;
-        background: rgba(0, 0, 0, 0.70) !important;
-        z-index: 99999 !important;
-        display: flex !important;
-        flex-direction: column !important;
-        justify-content: center !important;
-        align-items: center !important;
-        padding: 0 !important;
-        margin: 0 !important;
-    `);
-    
-    // 🎯 VIDEO CONTAINER - PORTRAIT ORIENTATION
+    // VIDEO CONTAINER - Absolute positioning at calculated center
     const videoContainer = document.createElement('div');
     
     if (isMobile) {
-        videoContainer.setAttribute('style', `
-            position: relative !important;
-            width: 100% !important;
-            height: 100% !important;
-        `);
+        videoContainer.style.cssText = `
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        `;
     } else {
-        // DESKTOP: Portrait video (260x525)
-        videoContainer.setAttribute('style', `
-            position: relative !important;
-            width: 260px !important;
-            height: 525px !important;
-            border-radius: 12px !important;
-            overflow: hidden !important;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8) !important;
-            margin: 0 auto !important;
-        `);
+        const viewportWidth = window.innerWidth;
+        const videoWidth = 260;
+        const leftPosition = (viewportWidth - videoWidth) / 2;
+        
+        videoContainer.style.cssText = `
+            position: absolute;
+            top: ${topPosition}px;
+            left: ${leftPosition}px;
+            width: 260px;
+            height: 525px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+        `;
     }
     
-    // 🎯 VIDEO ELEMENT
+    // VIDEO
     const video = document.createElement('video');
     video.autoplay = true;
     video.playsInline = true;
-    video.setAttribute('style', `
-        width: 100% !important;
-        height: 100% !important;
-        object-fit: cover !important;
-        background: #000 !important;
-        display: block !important;
-    `);
+    video.style.cssText = `
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        background: #000;
+        display: block;
+    `;
     video.innerHTML = `<source src="${videoUrl}" type="video/mp4">`;
     
-    // 🎯 EXIT BUTTON
+    // EXIT BUTTON
     const exitButton = document.createElement('button');
     exitButton.textContent = 'EXIT VIDEO';
-    exitButton.setAttribute('style', `
-        position: absolute !important;
-        top: 16px !important;
-        right: 16px !important;
-        background: rgba(255, 255, 255, 0.95) !important;
-        color: #000 !important;
-        border: none !important;
-        padding: 10px 20px !important;
-        border-radius: 6px !important;
-        font-weight: bold !important;
-        font-size: 14px !important;
-        cursor: pointer !important;
-        z-index: 100000 !important;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
-        transition: all 0.2s ease !important;
-    `);
+    exitButton.style.cssText = `
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        background: rgba(255, 255, 255, 0.95);
+        color: #000;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        font-weight: bold;
+        font-size: 14px;
+        cursor: pointer;
+        z-index: 1000000;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        transition: all 0.2s ease;
+    `;
     
     exitButton.onmouseover = () => {
-        exitButton.style.cssText += 'background: #ff4444 !important; color: #fff !important; transform: scale(1.05) !important;';
+        exitButton.style.background = '#ff4444';
+        exitButton.style.color = '#fff';
     };
     
     exitButton.onmouseout = () => {
-        exitButton.style.cssText = exitButton.getAttribute('style');
+        exitButton.style.background = 'rgba(255, 255, 255, 0.95)';
+        exitButton.style.color = '#000';
     };
     
-    // 🎯 CLEANUP FUNCTION
     function cleanup() {
         console.log(`✅ Exiting testimonial ${testimonialType}`);
-        
-        // Stop video
         video.pause();
         video.src = '';
-        
-        // Remove overlay
-        if (overlay.parentNode) {
-            overlay.remove();
-        }
-        
-        // 🔓 UNLOCK SYSTEMS
+        if (overlay.parentNode) overlay.remove();
         window.avatarCurrentlyPlaying = false;
         window.speakSequenceActive = false;
         window.testimonialBlocking = false;
-        
-        // Clear timer
-        if (window.testimonialAutoCloseTimer) {
-            clearTimeout(window.testimonialAutoCloseTimer);
-        }
-        
-        // Go back to Speak Now
+        if (window.testimonialAutoCloseTimer) clearTimeout(window.testimonialAutoCloseTimer);
         setTimeout(() => {
-            console.log('✅ Testimonial removed - going DIRECT to Speak Now');
-            if (window.showDirectSpeakNow) {
-                showDirectSpeakNow();
-            }
+            if (window.showDirectSpeakNow) showDirectSpeakNow();
         }, 500);
     }
     
-    // 🎯 WIRE UP EXIT BUTTON
     exitButton.onclick = cleanup;
-    
-    // 🎯 AUTO-CLOSE AFTER DURATION
     window.testimonialAutoCloseTimer = setTimeout(cleanup, duration);
     
-    // 🎯 ASSEMBLE ELEMENTS
     videoContainer.appendChild(video);
     videoContainer.appendChild(exitButton);
     overlay.appendChild(videoContainer);
+    
+    // CRITICAL: Append to BODY, not container
     document.body.appendChild(overlay);
     
-    console.log(`📺 Testimonial deployed - ${isMobile ? 'Mobile' : 'Desktop Portrait'} mode`);
+    console.log(`📺 Video positioned at ${topPosition}px from viewport top (should be ~178px for centering)`);
 }
 
-// Ensure global availability
 window.showTestimonialVideo = showTestimonialVideo;
 
 // ===================================================================
