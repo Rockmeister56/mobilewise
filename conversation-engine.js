@@ -296,7 +296,7 @@ class ConversationEngine {
         return objectionStates.includes(this.currentState);
     }
     
-    checkObjection(userText, firstName) {
+        checkObjection(userText, firstName) {
         const objections = this.knowledgeBase.objection_handling?.objections || [];
         
         for (const objection of objections) {
