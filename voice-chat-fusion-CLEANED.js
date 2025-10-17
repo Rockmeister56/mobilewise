@@ -12,18 +12,16 @@
 // ===================================================
 
 // ===================================================================
-// 🎯 TESTIMONIAL SYSTEM - PORTRAIT VIDEO (19.5:9 MOBILE RATIO)
+// 🎯 TESTIMONIAL SYSTEM - PROPERLY CENTERED PORTRAIT VIDEO
 // ===================================================================
 window.showTestimonialVideo = function(testimonialType, duration = 12000) {
     console.log(`🎬 Playing ${testimonialType} testimonial for ${duration}ms`);
     
-    // 🚫 PREVENT DOUBLE CALLS
     if (window.avatarCurrentlyPlaying) {
         console.log('🚫 Avatar already playing - skipping duplicate testimonial call');
         return;
     }
     
-    // 🔒 LOCK OUT OTHER SYSTEMS
     window.avatarCurrentlyPlaying = true;
     window.speakSequenceActive = true;
     
@@ -35,50 +33,48 @@ window.showTestimonialVideo = function(testimonialType, duration = 12000) {
     const videoUrl = testimonialVideos[testimonialType] || testimonialVideos.skeptical;
     const isMobile = window.innerWidth <= 768;
     
-    // 🎯 CREATE FULL-SCREEN OVERLAY WITH SEMI-TRANSPARENT BLACK BACKGROUND
+    // 🎯 FULL-SCREEN OVERLAY - TRANSPARENT BLACK BACKGROUND
     const overlay = document.createElement('div');
-overlay.id = 'testimonial-overlay';
-overlay.style.cssText = `
-    position: fixed;
-    top: 40px;        // ← ADD TOP OFFSET (adjust this value)
-    left: 0;
-    width: 100%;
-    height: calc(100% - 80px);  // ← SUBTRACT TOP OFFSET FROM HEIGHT
-    background: rgba(0, 0, 0, 0.85);
-    z-index: 9999;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    overlay.id = 'testimonial-overlay';
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.85);
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
     `;
     
-    // 🎯 CREATE VIDEO CONTAINER - PORTRAIT ORIENTATION (19.5:9)
+    // 🎯 VIDEO CONTAINER - PORTRAIT ORIENTATION
     const videoContainer = document.createElement('div');
     
     if (isMobile) {
-        // Mobile: Full screen
         videoContainer.style.cssText = `
             position: relative;
             width: 100%;
             height: 100%;
         `;
     } else {
-        // Desktop: PORTRAIT video (tall, not wide) - 19.5:9 ratio
-        // Using 390px wide × 844px tall (iPhone-like portrait dimensions)
+        // DESKTOP: Portrait video, perfectly centered
         videoContainer.style.cssText = `
             position: relative;
-     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 260px;
-    height: 525px;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+            width: 260px;
+            height: 525px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+            margin: 0 auto;
         `;
     }
     
-    // 🎯 CREATE VIDEO ELEMENT
+    // 🎯 VIDEO ELEMENT
     const video = document.createElement('video');
     video.autoplay = true;
     video.playsInline = true;
@@ -87,10 +83,11 @@ overlay.style.cssText = `
         height: 100%;
         object-fit: cover;
         background: #000;
+        display: block;
     `;
     video.innerHTML = `<source src="${videoUrl}" type="video/mp4">`;
     
-    // 🎯 CREATE EXIT BUTTON
+    // 🎯 EXIT BUTTON
     const exitButton = document.createElement('button');
     exitButton.textContent = 'EXIT VIDEO';
     exitButton.style.cssText = `
@@ -105,77 +102,56 @@ overlay.style.cssText = `
         font-weight: bold;
         font-size: 14px;
         cursor: pointer;
-        z-index: 10000;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        z-index: 10001;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         transition: all 0.2s ease;
     `;
     
-    // 🎯 EXIT BUTTON HOVER EFFECT
     exitButton.onmouseover = () => {
         exitButton.style.background = '#ff4444';
         exitButton.style.color = '#fff';
         exitButton.style.transform = 'scale(1.05)';
     };
+    
     exitButton.onmouseout = () => {
         exitButton.style.background = 'rgba(255, 255, 255, 0.95)';
         exitButton.style.color = '#000';
         exitButton.style.transform = 'scale(1)';
     };
     
-    // 🎯 CLEANUP FUNCTION
     function exitVideo() {
         console.log(`✅ Exiting testimonial ${testimonialType}`);
-        
-        // Stop video
         video.pause();
         video.src = '';
-        
-        // Remove overlay
-        if (overlay.parentNode) {
-            overlay.remove();
-        }
-        
-        // 🔓 UNLOCK SYSTEMS
+        if (overlay.parentNode) overlay.remove();
         window.avatarCurrentlyPlaying = false;
         window.speakSequenceActive = false;
-        
-        // Clear auto-close timer
-        if (window.testimonialAutoCloseTimer) {
-            clearTimeout(window.testimonialAutoCloseTimer);
-        }
-        
-        // Show Speak Now after brief delay
+        if (window.testimonialAutoCloseTimer) clearTimeout(window.testimonialAutoCloseTimer);
         setTimeout(() => {
             console.log('🎯 Testimonial closed - showing Speak Now');
-            if (window.showDirectSpeakNow) {
-                window.showDirectSpeakNow();
-            }
+            if (window.showDirectSpeakNow) window.showDirectSpeakNow();
         }, 500);
     }
     
-    // 🎯 WIRE UP EXIT BUTTON
     exitButton.onclick = exitVideo;
     
-    // 🎯 AUTO-CLOSE AFTER DURATION
     window.testimonialAutoCloseTimer = setTimeout(() => {
         console.log(`⏰ Auto-closing testimonial after ${duration}ms`);
         exitVideo();
     }, duration);
     
-    // 🎯 ASSEMBLE THE ELEMENTS
     videoContainer.appendChild(video);
     videoContainer.appendChild(exitButton);
     overlay.appendChild(videoContainer);
     document.body.appendChild(overlay);
     
-    console.log(`📺 Testimonial video deployed - ${isMobile ? 'Mobile' : 'Portrait Desktop'} mode`);
+    console.log(`📺 Testimonial deployed - ${isMobile ? 'Mobile' : 'Desktop Portrait'} mode`);
 };
 
 window.showTestimonialOffer = function(testimonialType, customMessage) {
     console.log("🎯 Testimonial Offer Called:", testimonialType, customMessage);
     
     const objectionData = window.knowledgeBaseData?.objection_handling?.objections?.find(obj => obj.type === testimonialType);
-    
     if (!objectionData) {
         console.error("❌ Objection type not found:", testimonialType);
         return;
@@ -197,7 +173,9 @@ window.showTestimonialOffer = function(testimonialType, customMessage) {
             text: 'NO',
             action: () => {
                 console.log("✅ NO clicked - showing bridge message");
-                const noMessage = userName && objectionData.no_response_with_name ? objectionData.no_response_with_name.replace('{name}', userName).replace('{firstName}', userName) : objectionData.no_response;
+                const noMessage = userName && objectionData.no_response_with_name 
+                    ? objectionData.no_response_with_name.replace('{name}', userName).replace('{firstName}', userName) 
+                    : objectionData.no_response;
                 console.log("🗣️ Bridge message:", noMessage);
                 if (window.speak && noMessage) window.speak(noMessage);
                 if (objectionData.no_action === 'show_consultation_banner') {
@@ -213,7 +191,7 @@ window.showTestimonialOffer = function(testimonialType, customMessage) {
     ]);
 };
 
-console.log("✅ Testimonial system loaded - PORTRAIT mode (19.5:9 ratio)");
+console.log("✅ Testimonial system loaded - FIXED centering with transparency");
 // ===================================================================
 
 // ===================================================
