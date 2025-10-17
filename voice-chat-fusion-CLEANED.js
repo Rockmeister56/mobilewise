@@ -4339,9 +4339,9 @@ function showTestimonialVideo(testimonialType, duration = 12000) {
     console.log(`📐 Full viewport: ${viewportHeight}px, video ${videoHeight}px, centering at ${topPosition}px from top`);
     
     // OVERLAY
-    const overlay = document.createElement('div');
-    overlay.id = 'testimonial-overlay';
-    overlay.style.cssText = `
+const overlay = document.createElement('div');
+overlay.id = 'testimonial-overlay';
+overlay.style.cssText = `
     position: fixed;
     top: 0;
     left: 0;
@@ -4352,35 +4352,32 @@ function showTestimonialVideo(testimonialType, duration = 12000) {
     justify-content: center;
     align-items: center;
     z-index: 999999;
+`;
+
+// VIDEO CONTAINER - Absolute positioning at calculated center
+const videoContainer = document.createElement('div');
+
+if (isMobile) {
+    videoContainer.style.cssText = `
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
     `;
-    
-    // VIDEO CONTAINER - Absolute positioning at calculated center
-    const videoContainer = document.createElement('div');
-    
-    if (isMobile) {
-        videoContainer.style.cssText = `
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        `;
-    } else {
-        const viewportWidth = window.innerWidth;
-        const videoWidth = 260;
-        const leftPosition = (viewportWidth - videoWidth) / 2;
-        
-        videoContainer.style.cssText = `
-            position: absolute;
-            top: ${topPosition}px;
-            left: ${leftPosition}px;
-            width: 260px;
-            height: 525px;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
-        `;
-    }
+} else {
+    // DESKTOP: Push video down 50px from center
+    videoContainer.style.cssText = `
+        position: relative;
+        width: 260px;
+        height: 525px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin-top: 50px;
+    `;
+}
     
     // VIDEO
     const video = document.createElement('video');
