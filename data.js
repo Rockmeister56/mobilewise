@@ -3,15 +3,16 @@
 // ===================================================
 // This file contains all conversation data as a JavaScript object
 // NO async loading, NO fetch delays - INSTANT ACCESS
-// Date: October 15, 2025
+// Date: October 17, 2025
 // Captain: Mobile-Wise AI Empire
 // UPDATED: Testimonials now use CONSENT-BASED OFFERS instead of auto-play
+// UPDATED: Added NO response handling for testimonial offers
 // ===================================================
 
 window.knowledgeBaseData = {
   "industry_name": "CPA Practice Sales & Acquisitions",
   "industry_type": "accounting_practice_brokerage",
-  "version": "2.0",
+  "version": "2.1",
   "client_name": "New Clients, Inc. / Bruce Clark",
   "greeting": {
     "initial": "Hi there! I'm Boateamia your personal AI Voice assistant, may I get your first name please?",
@@ -245,7 +246,10 @@ window.knowledgeBaseData = {
         ],
         "testimonialOffer": "speed",
         "response": "Great question! We've worked with clients who had the same timeline concerns. Would you like to hear what one of them experienced?",
-        "response_with_name": "Great question {firstName}! We've had clients with the same concern. Want to hear their experience?"
+        "response_with_name": "Great question {firstName}! We've had clients with the same concern. Want to hear their experience?",
+        "no_response": "No problem! I'm sure Bruce can give you the information you need. And if you want more information on selling or buying a practice, I can send you a free book: '7 Secrets to Selling Your Practice.'",
+        "no_response_with_name": "No problem {firstName}! I'm sure Bruce can give you the information you need. And if you want more information on selling or buying a practice, I can send you a free book: '7 Secrets to Selling Your Practice.'",
+        "no_action": "show_consultation_banner"
       },
       {
         "type": "trust_concern",
@@ -260,7 +264,10 @@ window.knowledgeBaseData = {
         ],
         "testimonialOffer": "skeptical",
         "response": "I completely understand! We've had clients who felt the same way initially. Would you like to hear what they said after working with Bruce?",
-        "response_with_name": "{firstName}, I understand! Want to hear what a skeptical client said after working with us?"
+        "response_with_name": "{firstName}, I understand! Want to hear what a skeptical client said after working with us?",
+        "no_response": "No problem! I'm sure Bruce can give you the information you need. And if you want more information on selling or buying a practice, I can send you a free book: '7 Secrets to Selling Your Practice.'",
+        "no_response_with_name": "No problem {firstName}! I'm sure Bruce can give you the information you need. And if you want more information on selling or buying a practice, I can send you a free book: '7 Secrets to Selling Your Practice.'",
+        "no_action": "show_consultation_banner"
       },
       {
         "type": "value_concern",
@@ -274,7 +281,10 @@ window.knowledgeBaseData = {
         ],
         "testimonialOffer": "skeptical",
         "response": "That's important! We have clients who were concerned about value too. Would you like to hear their experience?",
-        "response_with_name": "{firstName}, that's important! Want to hear what other clients said about the value they received?"
+        "response_with_name": "{firstName}, that's important! Want to hear what other clients said about the value they received?",
+        "no_response": "No problem! I'm sure Bruce can give you the information you need. And if you want more information on selling or buying a practice, I can send you a free book: '7 Secrets to Selling Your Practice.'",
+        "no_response_with_name": "No problem {firstName}! I'm sure Bruce can give you the information you need. And if you want more information on selling or buying a practice, I can send you a free book: '7 Secrets to Selling Your Practice.'",
+        "no_action": "show_consultation_banner"
       }
     ]
   },
