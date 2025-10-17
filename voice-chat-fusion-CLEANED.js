@@ -2215,7 +2215,7 @@ testimonialOffer: {
             <div style="display: flex; align-items: center; margin-right: 20px;">
                 <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1760673126772_5stars.png" 
                      class="stars-glow"
-                     style="width: 140px; height: auto;">
+                     style="width: 80px; height: auto;">
             </div>
             
             <!-- RIGHT: YES/NO Buttons -->
