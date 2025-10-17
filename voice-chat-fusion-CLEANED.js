@@ -44,7 +44,7 @@ window.showTestimonialVideo = function(testimonialType, duration = 12000) {
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0, 0, 0, 0.60);
+        background: rgba(56, 53, 74, 0.72);
         z-index: 9999;
         display: flex;
         justify-content: center;
@@ -68,7 +68,7 @@ window.showTestimonialVideo = function(testimonialType, duration = 12000) {
             position: relative;
     width: 260px;
     height: 525px;
-    margin-top: -90px;
+    margin-top: -120px;
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 20px 60px rgba(0,0,0,0.8);
