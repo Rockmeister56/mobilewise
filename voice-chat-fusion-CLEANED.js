@@ -2222,7 +2222,7 @@ testimonialOffer: {
 <div style="display: flex; gap: 10px; justify-content: center; width: 100%; align-items: center;">
     
     <!-- YES Button Wrapper -->
-    <div style="position: relative; left: -50px; top: -5px;">
+    <div style="position: relative; left: -60px; top: -30px;">
         <button id="testimonialYesBtn" style="
             flex: 0 0 auto;
             padding: 5px 20px;
@@ -2244,7 +2244,7 @@ testimonialOffer: {
     </div>
     
     <!-- NO Button Wrapper -->
-    <div style="position: relative; right: -50px; top: -5px;">
+    <div style="position: relative; right: -60px; top: -30px;">
         <button id="testimonialNoBtn" style="
             flex: 0 0 auto;
             padding: 6px 24px;
