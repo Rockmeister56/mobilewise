@@ -68,7 +68,7 @@ window.showTestimonialVideo = function(testimonialType, duration = 12000) {
             position: relative;
     width: 260px;
     height: 525px;
-    margin-top: -50px;
+    margin-top: -90px;
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 20px 60px rgba(0,0,0,0.8);
