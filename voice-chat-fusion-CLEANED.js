@@ -2219,60 +2219,52 @@ testimonialOffer: {
             </div>
             
             <!-- YES/NO Buttons -->
-<div style="display: flex; gap: 10px; justify-content: center; width: 100%;">
-        <!-- ADD WRAPPER HERE -->
-    <div style="position: relative; left: -25px; top: -15px;">
-        <button id="testimonialYesBtn" style="...your existing button code...">
+<div style="display: flex; gap: 10px; justify-content: center; width: 100%; align-items: center;">
+    
+    <!-- YES Button Wrapper -->
+    <div style="position: relative; left: -25px; top: -10px;">
+        <button id="testimonialYesBtn" style="
+            flex: 0 0 auto;
+            padding: 5px 20px;
+            background: rgba(255, 255, 255, 0.25);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            pointer-events: auto;
+            backdrop-filter: blur(5px);
+        " onmouseover="this.style.background='rgba(255, 255, 255, 0.4)'; this.style.transform='scale(1.05)';" 
+           onmouseout="this.style.background='rgba(255, 255, 255, 0.25)'; this.style.transform='scale(1)';">
             ✅ YES, SHOW ME
         </button>
     </div>
     
-    <!-- ADD WRAPPER HERE -->
-    <div style="position: relative; right: -25px; top: -15px;">
-        <button id="testimonialNoBtn" style="...your existing button code...">
+    <!-- NO Button Wrapper -->
+    <div style="position: relative; right: -25px; top: -10px;">
+        <button id="testimonialNoBtn" style="
+            flex: 0 0 auto;
+            padding: 6px 24px;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            pointer-events: auto;
+            backdrop-filter: blur(5px);
+        " onmouseover="this.style.background='rgba(255, 255, 255, 0.3)'; this.style.transform='scale(1.05)';" 
+           onmouseout="this.style.background='rgba(255, 255, 255, 0.15)'; this.style.transform='scale(1)';">
             ❌ NO, CONTINUE
         </button>
     </div>
     
 </div>
-    <button id="testimonialYesBtn" style="
-        flex: 0 0 auto;
-        padding: 5px 20px;
-        background: rgba(255, 255, 255, 0.25);
-        color: white;
-        border: 2px solid rgba(255, 255, 255, 0.6);
-        border-radius: 30px;
-        font-size: 14px;
-        font-weight: 700;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-        pointer-events: auto;
-        backdrop-filter: blur(5px);
-    " onmouseover="this.style.background='rgba(255, 255, 255, 0.4)'; this.style.transform='scale(1.05)';" 
-       onmouseout="this.style.background='rgba(255, 255, 255, 0.25)'; this.style.transform='scale(1)';">
-        ✅ YES, SHOW ME
-    </button>
-    
-    <button id="testimonialNoBtn" style="
-        flex: 0 0 auto;
-        padding: 6px 24px;
-        background: rgba(255, 255, 255, 0.15);
-        color: white;
-        border: 2px solid rgba(255, 255, 255, 0.5);
-        border-radius: 30px;
-        font-size: 14px;
-        font-weight: 700;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        pointer-events: auto;
-        backdrop-filter: blur(5px);
-    " onmouseover="this.style.background='rgba(255, 255, 255, 0.3)'; this.style.transform='scale(1.05)';" 
-       onmouseout="this.style.background='rgba(255, 255, 255, 0.15)'; this.style.transform='scale(1)';">
-        ❌ NO, CONTINUE
-    </button>
-            </div>
-        </div>
         
         <style>
     .banner-glow-container::before {
