@@ -2270,12 +2270,14 @@ testimonialOffer: {
     .banner-glow-container::before {
     content: '';
     position: absolute;
+    <div style="padding: 10px 20px;">
     width: calc(100% + 50px);  /* <-- CHANGE 50px to make wider/narrower */
     height: calc(100% + 14px);
     top: -10px;
     left: -25px;               /* <-- Keep this half of the width addition */
     background: rgba(255, 255, 255, 0.1);
     border-radius: 12px;
+
     z-index: -1;
     animation: glowLayerPulse 2s ease-in-out infinite;
         }
