@@ -4306,8 +4306,6 @@ if (!window.disableDirectTimeout) {
 
 console.log('🎯 DIRECT Speak Now function loaded - No Get Ready phase!');
 
-function showHybridReadySequence() {
-    console.log('🎯 Starting Mobile-Wise AI speak sequence...');
 
 // ===================================================================
 // TESTIMONIAL VIDEO PLAYER - CLEAN & LEAN (Matches Avatar Pattern)
@@ -4497,6 +4495,9 @@ window.showTestimonialOffer = function(testimonialType, customMessage) {
 
 console.log('✅ Testimonial offer system loaded - reads from Data JSON');
 
+
+function showHybridReadySequence() {
+    console.log('🎯 Starting Mobile-Wise AI speak sequence...');
     
     // ===== BULLETPROOF BLOCKING =====
     if (window.speakSequenceBlocked) {
