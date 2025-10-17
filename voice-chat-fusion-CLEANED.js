@@ -4342,16 +4342,18 @@ function showTestimonialVideo(testimonialType, duration = 12000) {
     const overlay = document.createElement('div');
     overlay.id = 'testimonial-overlay';
     overlay.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        width: 100vw;
-        height: 100vh;
-        background: rgba(0, 0, 0, 0.70);
-        z-index: 999999;
-        pointer-events: auto;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999999;
     `;
     
     // VIDEO CONTAINER - Absolute positioning at calculated center
@@ -4440,7 +4442,17 @@ function showTestimonialVideo(testimonialType, duration = 12000) {
     }
     
     exitButton.onclick = cleanup;
-    window.testimonialAutoCloseTimer = setTimeout(cleanup, duration);
+    // Let video play to its natural end
+video.onended = () => {
+    console.log(`✅ Video finished naturally - auto-closing`);
+    cleanup();
+};
+
+// Safety timeout (only if video fails to load/play)
+window.testimonialAutoCloseTimer = setTimeout(() => {
+    console.log(`⚠️ Safety timeout triggered after 60 seconds`);
+    cleanup();
+}, 60000); // 60 seconds safety net
     
     videoContainer.appendChild(video);
     videoContainer.appendChild(exitButton);
