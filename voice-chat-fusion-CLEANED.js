@@ -11,189 +11,6 @@
 // Captain: Mobile-Wise AI Empire
 // ===================================================
 
-// ===================================================================
-// 🎯 TESTIMONIAL SYSTEM - PROPERLY CENTERED PORTRAIT VIDEO
-// ===================================================================
-window.showTestimonialVideo = function(testimonialType, duration = 12000) {
-    console.log(`🎬 Playing ${testimonialType} testimonial for ${duration}ms`);
-    
-    if (window.avatarCurrentlyPlaying) {
-        console.log('🚫 Avatar already playing - skipping duplicate testimonial call');
-        return;
-    }
-    
-    window.avatarCurrentlyPlaying = true;
-    window.speakSequenceActive = true;
-    
-    const testimonialVideos = {
-        skeptical: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982717330.mp4",
-        speed: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982877040.mp4"
-    };
-    
-    const videoUrl = testimonialVideos[testimonialType] || testimonialVideos.skeptical;
-    const isMobile = window.innerWidth <= 768;
-    
-    // 🎯 FULL-SCREEN OVERLAY - TRANSPARENT BLACK BACKGROUND
-    const overlay = document.createElement('div');
-    overlay.id = 'testimonial-overlay';
-    overlay.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        width: 100vw;
-        height: 100vh;
-        background: rgba(0, 0, 0, 0.85);
-        z-index: 9999;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-    `;
-    
-    // 🎯 VIDEO CONTAINER - PORTRAIT ORIENTATION
-    const videoContainer = document.createElement('div');
-    
-    if (isMobile) {
-        videoContainer.style.cssText = `
-            position: relative;
-            width: 100%;
-            height: 100%;
-        `;
-    } else {
-        // DESKTOP: Portrait video, perfectly centered
-        videoContainer.style.cssText = `
-            position: relative;
-            width: 260px;
-            height: 525px;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
-            margin: 0 auto;
-        `;
-    }
-    
-    // 🎯 VIDEO ELEMENT
-    const video = document.createElement('video');
-    video.autoplay = true;
-    video.playsInline = true;
-    video.style.cssText = `
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        background: #000;
-        display: block;
-    `;
-    video.innerHTML = `<source src="${videoUrl}" type="video/mp4">`;
-    
-    // 🎯 EXIT BUTTON
-    const exitButton = document.createElement('button');
-    exitButton.textContent = 'EXIT VIDEO';
-    exitButton.style.cssText = `
-        position: absolute;
-        top: 16px;
-        right: 16px;
-        background: rgba(255, 255, 255, 0.95);
-        color: #000;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 6px;
-        font-weight: bold;
-        font-size: 14px;
-        cursor: pointer;
-        z-index: 10001;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        transition: all 0.2s ease;
-    `;
-    
-    exitButton.onmouseover = () => {
-        exitButton.style.background = '#ff4444';
-        exitButton.style.color = '#fff';
-        exitButton.style.transform = 'scale(1.05)';
-    };
-    
-    exitButton.onmouseout = () => {
-        exitButton.style.background = 'rgba(255, 255, 255, 0.95)';
-        exitButton.style.color = '#000';
-        exitButton.style.transform = 'scale(1)';
-    };
-    
-    function exitVideo() {
-        console.log(`✅ Exiting testimonial ${testimonialType}`);
-        video.pause();
-        video.src = '';
-        if (overlay.parentNode) overlay.remove();
-        window.avatarCurrentlyPlaying = false;
-        window.speakSequenceActive = false;
-        if (window.testimonialAutoCloseTimer) clearTimeout(window.testimonialAutoCloseTimer);
-        setTimeout(() => {
-            console.log('🎯 Testimonial closed - showing Speak Now');
-            if (window.showDirectSpeakNow) window.showDirectSpeakNow();
-        }, 500);
-    }
-    
-    exitButton.onclick = exitVideo;
-    
-    window.testimonialAutoCloseTimer = setTimeout(() => {
-        console.log(`⏰ Auto-closing testimonial after ${duration}ms`);
-        exitVideo();
-    }, duration);
-    
-    videoContainer.appendChild(video);
-    videoContainer.appendChild(exitButton);
-    overlay.appendChild(videoContainer);
-    document.body.appendChild(overlay);
-    
-    console.log(`📺 Testimonial deployed - ${isMobile ? 'Mobile' : 'Desktop Portrait'} mode`);
-};
-
-window.showTestimonialOffer = function(testimonialType, customMessage) {
-    console.log("🎯 Testimonial Offer Called:", testimonialType, customMessage);
-    
-    const objectionData = window.knowledgeBaseData?.objection_handling?.objections?.find(obj => obj.type === testimonialType);
-    if (!objectionData) {
-        console.error("❌ Objection type not found:", testimonialType);
-        return;
-    }
-    
-    const userName = sessionStorage.getItem('userName') || window.leadData?.firstName || '';
-    const offerMessage = customMessage || objectionData.testimonialOffer;
-    
-    window.showUniversalBanner(offerMessage, [
-        {
-            text: 'YES',
-            action: () => {
-                console.log("✅ YES clicked - playing testimonial:", testimonialType);
-                window.showTestimonialVideo(testimonialType);
-            },
-            primary: true
-        },
-        {
-            text: 'NO',
-            action: () => {
-                console.log("✅ NO clicked - showing bridge message");
-                const noMessage = userName && objectionData.no_response_with_name 
-                    ? objectionData.no_response_with_name.replace('{name}', userName).replace('{firstName}', userName) 
-                    : objectionData.no_response;
-                console.log("🗣️ Bridge message:", noMessage);
-                if (window.speak && noMessage) window.speak(noMessage);
-                if (objectionData.no_action === 'show_consultation_banner') {
-                    console.log("📞 Showing consultation banner in 500ms...");
-                    setTimeout(() => {
-                        if (window.showConsultationBanner) window.showConsultationBanner();
-                        else console.log("⚠️ showConsultationBanner not found");
-                    }, 500);
-                }
-            },
-            primary: false
-        }
-    ]);
-};
-
-console.log("✅ Testimonial system loaded - FIXED centering with transparency");
-// ===================================================================
-
 // ===================================================
 // 🎯 MOBILE-WISE AI VOICE CHAT - COMPLETE INTEGRATION
 // Smart Button + Lead Capture + EmailJS + Banner System
@@ -4491,93 +4308,160 @@ console.log('🎯 DIRECT Speak Now function loaded - No Get Ready phase!');
 
 
 // ===================================================================
-// TESTIMONIAL VIDEO PLAYER - CLEAN & LEAN (Matches Avatar Pattern)
+// TESTIMONIAL VIDEO PLAYER - PORTRAIT WITH EXIT BUTTON
 // ===================================================================
 function showTestimonialVideo(testimonialType, duration = 12000) {
     console.log(`🎬 Playing ${testimonialType} testimonial for ${duration}ms`);
     
-    // 🚫 PREVENT DOUBLE CALLS - BULLETPROOF (identical to Avatar)
+    // 🚫 PREVENT DOUBLE CALLS
     if (window.avatarCurrentlyPlaying) {
         console.log('🚫 Avatar already playing - skipping duplicate testimonial call');
         return;
     }
     
+    // 🔒 LOCK OUT OTHER SYSTEMS
     window.avatarCurrentlyPlaying = true;
+    window.speakSequenceActive = true;
     
-    const isMobile = window.innerWidth <= 768;
-    
-    // 🎯 TESTIMONIAL VIDEO URLS
     const testimonialVideos = {
         skeptical: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982717330.mp4",
         speed: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982877040.mp4"
     };
     
     const videoUrl = testimonialVideos[testimonialType] || testimonialVideos.skeptical;
+    const isMobile = window.innerWidth <= 768;
     
-    const avatarOverlay = document.createElement('div');
+    // 🎯 FULL-SCREEN OVERLAY - TRANSPARENT BLACK BACKGROUND
+    const overlay = document.createElement('div');
+    overlay.id = 'testimonial-overlay';
     
-    // EXACT SAME STYLING AS AVATAR FUNCTION - Mobile vs Desktop
+    // Use setAttribute with !important for nuclear override
+    overlay.setAttribute('style', `
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        background: rgba(0, 0, 0, 0.70) !important;
+        z-index: 99999 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    `);
+    
+    // 🎯 VIDEO CONTAINER - PORTRAIT ORIENTATION
+    const videoContainer = document.createElement('div');
+    
     if (isMobile) {
-        avatarOverlay.style.cssText = `
-            position: fixed; top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: #000; z-index: 9999;
-            display: flex; justify-content: center; align-items: center;
-        `;
-        
-        avatarOverlay.innerHTML = `
-            <video id="testimonialVideo" autoplay playsinline webkit-playsinline="true" style="
-                width: 100%; height: 100%; object-fit: cover;
-            ">
-                <source src="${videoUrl}" type="video/mp4">
-            </video>
-        `;
+        videoContainer.setAttribute('style', `
+            position: relative !important;
+            width: 100% !important;
+            height: 100% !important;
+        `);
     } else {
-        // 🎯 DESKTOP: Black background with centered video
-        avatarOverlay.style.cssText = `
-            position: fixed; top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 833px; height: 433px;
-            background: #000; z-index: 9999;
-            border-radius: 12px; overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        `;
-        
-        avatarOverlay.innerHTML = `
-            <video id="testimonialVideo" autoplay style="
-                width: 100%; height: 100%; object-fit: cover;
-            ">
-                <source src="${videoUrl}" type="video/mp4">
-            </video>
-        `;
+        // DESKTOP: Portrait video (260x525)
+        videoContainer.setAttribute('style', `
+            position: relative !important;
+            width: 260px !important;
+            height: 525px !important;
+            border-radius: 12px !important;
+            overflow: hidden !important;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8) !important;
+            margin: 0 auto !important;
+        `);
     }
     
-    document.body.appendChild(avatarOverlay);
+    // 🎯 VIDEO ELEMENT
+    const video = document.createElement('video');
+    video.autoplay = true;
+    video.playsInline = true;
+    video.setAttribute('style', `
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;
+        background: #000 !important;
+        display: block !important;
+    `);
+    video.innerHTML = `<source src="${videoUrl}" type="video/mp4">`;
     
-    // 🎯 ONE SIMPLE CLEANUP FUNCTION - IDENTICAL TO AVATAR (NO COMPLEXITY)
+    // 🎯 EXIT BUTTON
+    const exitButton = document.createElement('button');
+    exitButton.textContent = 'EXIT VIDEO';
+    exitButton.setAttribute('style', `
+        position: absolute !important;
+        top: 16px !important;
+        right: 16px !important;
+        background: rgba(255, 255, 255, 0.95) !important;
+        color: #000 !important;
+        border: none !important;
+        padding: 10px 20px !important;
+        border-radius: 6px !important;
+        font-weight: bold !important;
+        font-size: 14px !important;
+        cursor: pointer !important;
+        z-index: 100000 !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+        transition: all 0.2s ease !important;
+    `);
+    
+    exitButton.onmouseover = () => {
+        exitButton.style.cssText += 'background: #ff4444 !important; color: #fff !important; transform: scale(1.05) !important;';
+    };
+    
+    exitButton.onmouseout = () => {
+        exitButton.style.cssText = exitButton.getAttribute('style');
+    };
+    
+    // 🎯 CLEANUP FUNCTION
     function cleanup() {
-        console.log(`🎬 Testimonial ${testimonialType} duration (${duration}ms) complete - removing`);
+        console.log(`✅ Exiting testimonial ${testimonialType}`);
         
-        // Remove the overlay
-        if (avatarOverlay.parentNode) {
-            avatarOverlay.remove();
+        // Stop video
+        video.pause();
+        video.src = '';
+        
+        // Remove overlay
+        if (overlay.parentNode) {
+            overlay.remove();
         }
         
-        // Reset the flag IMMEDIATELY to allow future calls
+        // 🔓 UNLOCK SYSTEMS
         window.avatarCurrentlyPlaying = false;
-        
-        // Clear testimonial blocking flag
+        window.speakSequenceActive = false;
         window.testimonialBlocking = false;
         
-        // Go back to Speak Now after brief delay (same as Avatar)
+        // Clear timer
+        if (window.testimonialAutoCloseTimer) {
+            clearTimeout(window.testimonialAutoCloseTimer);
+        }
+        
+        // Go back to Speak Now
         setTimeout(() => {
             console.log('✅ Testimonial removed - going DIRECT to Speak Now');
-            showDirectSpeakNow();
-        }, 1000);
+            if (window.showDirectSpeakNow) {
+                showDirectSpeakNow();
+            }
+        }, 500);
     }
     
-    // 🎯 ONE TIMER ONLY - SIMPLE AND CLEAN (identical to Avatar)
-    setTimeout(cleanup, duration);
+    // 🎯 WIRE UP EXIT BUTTON
+    exitButton.onclick = cleanup;
+    
+    // 🎯 AUTO-CLOSE AFTER DURATION
+    window.testimonialAutoCloseTimer = setTimeout(cleanup, duration);
+    
+    // 🎯 ASSEMBLE ELEMENTS
+    videoContainer.appendChild(video);
+    videoContainer.appendChild(exitButton);
+    overlay.appendChild(videoContainer);
+    document.body.appendChild(overlay);
+    
+    console.log(`📺 Testimonial deployed - ${isMobile ? 'Mobile' : 'Desktop Portrait'} mode`);
 }
 
 // Ensure global availability
