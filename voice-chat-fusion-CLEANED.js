@@ -40,7 +40,7 @@ window.showTestimonialVideo = function(testimonialType, duration = 12000) {
 overlay.id = 'testimonial-overlay';
 overlay.style.cssText = `
     position: fixed;
-    top: 80px;        // ← ADD TOP OFFSET (adjust this value)
+    top: 40px;        // ← ADD TOP OFFSET (adjust this value)
     left: 0;
     width: 100%;
     height: calc(100% - 80px);  // ← SUBTRACT TOP OFFSET FROM HEIGHT
