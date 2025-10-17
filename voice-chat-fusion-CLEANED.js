@@ -2221,6 +2221,7 @@ testimonialOffer: {
             <!-- YES/NO Buttons -->
 <div style="display: flex; gap: 10px; justify-content: center; width: 100%;">
     <button id="testimonialYesBtn" style="
+        margin-right: 25px;
         flex: 0 0 auto;
         padding: 5px 20px;
         background: rgba(255, 255, 255, 0.25);
@@ -2240,6 +2241,7 @@ testimonialOffer: {
     </button>
     
     <button id="testimonialNoBtn" style="
+        margin-right: 25px;
         flex: 0 0 auto;
         padding: 6px 24px;
         background: rgba(255, 255, 255, 0.15);
