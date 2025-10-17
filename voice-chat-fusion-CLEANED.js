@@ -2222,7 +2222,7 @@ testimonialOffer: {
 <div style="display: flex; gap: 10px; justify-content: center; width: 100%;">
     <button id="testimonialYesBtn" style="
         flex: 0 0 auto;
-        padding: 6px 24px;
+        padding: 5px 20px;
         background: rgba(255, 255, 255, 0.25);
         color: white;
         border: 2px solid rgba(255, 255, 255, 0.6);
@@ -2264,7 +2264,7 @@ testimonialOffer: {
     content: '';
     position: absolute;
     width: calc(100% + 50px);  /* <-- CHANGE 50px to make wider/narrower */
-    height: calc(100% + 20px);
+    height: calc(100% + 17px);
     top: -10px;
     left: -25px;               /* <-- Keep this half of the width addition */
     background: rgba(255, 255, 255, 0.1);
