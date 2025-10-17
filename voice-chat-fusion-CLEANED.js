@@ -2215,7 +2215,7 @@ testimonialOffer: {
             <div style="display: flex; align-items: center; margin-right: 20px; position: relative; top: 15px;">
                 <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1760673126772_5stars.png" 
                      class="stars-glow"
-                     style="width: 120px; height: auto;">
+                     style="width: 125px; height: auto;">
             </div>
             
             <!-- YES/NO Buttons -->
@@ -2244,7 +2244,7 @@ testimonialOffer: {
     </div>
     
     <!-- NO Button Wrapper -->
-    <div style="position: relative; right: -60px; top: -30px;">
+    <div style="position: relative; right: -50px; top: -30px;">
         <button id="testimonialNoBtn" style="
             flex: 0 0 auto;
             padding: 6px 24px;
