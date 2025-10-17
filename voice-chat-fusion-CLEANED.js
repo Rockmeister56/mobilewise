@@ -2212,10 +2212,10 @@ testimonialOffer: {
         <div class="banner-glow-container" style="width: 760px; max-width: 760px; margin: 0 auto; height: 90px; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 12px 30px; border-radius: 8px; background: linear-gradient(135deg, #0f19d8ff, #0688d4ff, #0cb7deff); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
             
            <!-- LEFT: 5-Star Badge -->
-            <div style="display: flex; align-items: center; margin-right: 20px;">
+            <div style="display: flex; align-items: center; margin-right: 20px; position: relative; top: 15px;">
                 <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1760673126772_5stars.png" 
                      class="stars-glow"
-                     style="width: 130px; height: auto;">
+                     style="width: 120px; height: auto;">
             </div>
             
             <!-- YES/NO Buttons -->
