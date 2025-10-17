@@ -305,14 +305,18 @@ class ConversationEngine {
                     this.replacePlaceholders(objection.response_with_name, firstName) :
                     objection.response;
                 
-                console.log(`🎬 Objection detected: ${objection.type} → ${objection.testimonial}`);
+                console.log(`🎬 Objection detected: ${objection.type} → ${objection.testimonialOffer}`);
                 
                 return {
                     response: response,
-                    triggerTestimonial: objection.testimonial,
+                    response_with_name: objection.response_with_name,
+                    testimonialOffer: objection.testimonialOffer,
+                    no_response: objection.no_response,
+                    no_response_with_name: objection.no_response_with_name,
+                    no_action: objection.no_action,
+                    type: objection.type,
                     newState: null,
-                    source: 'objection_handler',
-                    objectionType: objection.type
+                    source: 'objection_handler'
                 };
             }
         }
