@@ -43,7 +43,7 @@ let isListening = false;
 let isSpeaking = false;
 let isAudioMode = false;
 let kbProcessing = false; // 🚦 Flag to prevent sorry message during KB processing
-let showingBanner = false; // 🚦 Flag to prevent sorry during Speak Now banner delay
+let showingBanner = false; // 🚦 Prevents sorry during Speak Now banner delay (mobile timing fix)
 let currentAudio = null;
 let persistentMicStream = null;
 let micPermissionGranted = false;
@@ -156,8 +156,6 @@ class SpeechEngineManager {
             if (isInLeadCapture) {
                 clearTimeout(window.leadCaptureTimeout);
                 window.leadCaptureTimeout = setTimeout(() => {
-                    showingBanner = false; // 🚦 Clear flag - banner shown, listening starting
-                    console.log('🚦 Banner delay complete - allowing "sorry" messages again');
                     if (transcript.trim().length > 1 && userInput.value === transcript) {
                         console.log('🎯 Lead capture auto-send:', transcript);
                         sendMessage();
@@ -177,12 +175,12 @@ class SpeechEngineManager {
             console.log('🛡️ KB processing - ignoring no-speech error (not really silent, just processing)');
             return; // Exit early - KB is working on the response
         }
-        
-        // 🚦 BLOCK "SORRY" IF SHOWING BANNER (Mobile timing fix)
-        if (showingBanner) {
-            console.log('🛡️ Showing banner - ignoring no-speech error (banner delay in progress)');
-            return; // Exit early - banner is about to show
-        }
+            
+            // 🚦 BLOCK "SORRY" IF SHOWING BANNER
+            if (showingBanner) {
+                console.log('🛡️ Banner delay - ignoring no-speech');
+                return; // Exit - banner is showing
+            }
                 console.log('⚠️ No speech detected - will be handled by onend');
                 // Don't do anything here - let onend handle it
                 return;
@@ -331,8 +329,6 @@ function showPostSorryListening() {
     
     // ✅ Start listening immediately (no delays, no preparation)
     setTimeout(() => {
-                    showingBanner = false; // 🚦 Clear flag - banner shown, listening starting
-                    console.log('🚦 Banner delay complete - allowing "sorry" messages again');
         console.log('🎤 POST-SORRY: Starting DIRECT recognition');
         
         // Clear any previous result flag
@@ -346,8 +342,6 @@ function showPostSorryListening() {
                 console.log('❌ POST-SORRY: Recognition start failed:', e);
                 // Fallback: try again after a short delay
                 setTimeout(() => {
-                    showingBanner = false; // 🚦 Clear flag - banner shown, listening starting
-                    console.log('🚦 Banner delay complete - allowing "sorry" messages again');
                     try {
                         recognition.start();
                         console.log('✅ POST-SORRY: Fallback recognition started');
@@ -401,8 +395,6 @@ function showMicActivatedStatus() {
     if (micStatus) {
         micStatus.style.display = 'block';
         setTimeout(() => {
-                    showingBanner = false; // 🚦 Clear flag - banner shown, listening starting
-                    console.log('🚦 Banner delay complete - allowing "sorry" messages again');
             micStatus.style.display = 'none';
         }, 3000);
     }
@@ -422,8 +414,6 @@ function playIntroJingle() {
     });
     
     setTimeout(() => {
-                    showingBanner = false; // 🚦 Clear flag - banner shown, listening starting
-                    console.log('🚦 Banner delay complete - allowing "sorry" messages again');
         if (!introAudio.ended) {
             let fadeOutInterval = setInterval(() => {
                 if (introAudio.volume > 0.1) {
@@ -529,8 +519,6 @@ function getApologyResponse() {
     
     lastMessageWasApology = true;
     setTimeout(() => { lastMessageWasApology = false; }, 5000);
-                    showingBanner = false; // 🚦 Clear flag - banner shown, listening starting
-                    console.log('🚦 Banner delay complete - allowing "sorry" messages again');
     
     return sorryMessages[Math.floor(Math.random() * sorryMessages.length)];
 }
@@ -599,12 +587,13 @@ function getApologyResponse() {
         if (kbProcessing) {
             console.log('🛡️ KB processing - ignoring no-speech error (not really silent, just processing)');
             return; // Exit early - KB is working on the response
-        
-        // 🚦 BLOCK "SORRY" IF SHOWING BANNER (Mobile timing fix)
-        if (showingBanner) {
-            console.log('🛡️ Showing banner - ignoring no-speech error (banner delay in progress)');
-            return; // Exit early - banner is about to show
         }
+            
+            // 🚦 BLOCK "SORRY" IF SHOWING BANNER
+            if (showingBanner) {
+                console.log('🛡️ Banner delay - ignoring no-speech');
+                return; // Exit - banner is showing
+            }
         const transcriptText = document.getElementById('transcriptText');
 
         console.log('🔍 MOBILE DEBUG:', {
@@ -634,8 +623,6 @@ function getApologyResponse() {
                 transcriptText.style.color = '#ff6b6b';
 
                 window.noSpeechTimeout = setTimeout(() => {
-                    showingBanner = false; // 🚦 Clear flag - banner shown, listening starting
-                    console.log('🚦 Banner delay complete - allowing "sorry" messages again');
                     if (transcriptText) {
                         transcriptText.textContent = 'Please speak now';
                         transcriptText.style.color = '#ffffff';
@@ -649,8 +636,6 @@ function getApologyResponse() {
                 isListening = false;
 
                 setTimeout(() => {
-                    showingBanner = false; // 🚦 Clear flag - banner shown, listening starting
-                    console.log('🚦 Banner delay complete - allowing "sorry" messages again');
                     showHybridReadySequence();
                 }, 800);
             } else {
@@ -670,16 +655,12 @@ function getApologyResponse() {
             stopListening();
 
             setTimeout(() => {
-                    showingBanner = false; // 🚦 Clear flag - banner shown, listening starting
-                    console.log('🚦 Banner delay complete - allowing "sorry" messages again');
                 addAIMessage(apologyResponse);
                 speakResponse(apologyResponse);
 
                 if (restartTimeout) clearTimeout(restartTimeout);
 
                 restartTimeout = setTimeout(() => {
-                    showingBanner = false; // 🚦 Clear flag - banner shown, listening starting
-                    console.log('🚦 Banner delay complete - allowing "sorry" messages again');
                     if (isAudioMode && !isListening && !isSpeaking) {
                         startListening();
                     }
@@ -752,8 +733,6 @@ function getApologyResponse() {
 
         // 🔓 CLEAR THE BLOCKING FLAG AFTER NO SPEECH
         setTimeout(() => {
-                    showingBanner = false; // 🚦 Clear flag - banner shown, listening starting
-                    console.log('🚦 Banner delay complete - allowing "sorry" messages again');
             window.playingSorryMessage = false;
             console.log('🔓 Cleared playingSorryMessage after no-speech timeout');
         }, 3000);
@@ -768,8 +747,6 @@ function getApologyResponse() {
         // ✅ NEW SIMPLE APPROACH: Just show overlay, keep microphone active
         if (!isSpeaking) {
             setTimeout(() => {
-                    showingBanner = false; // 🚦 Clear flag - banner shown, listening starting
-                    console.log('🚦 Banner delay complete - allowing "sorry" messages again');
                 console.log('🎯 DEBUG: About to show try again overlay');
                 showAvatarSorryMessage(); // ← SIMPLE OVERLAY INSTEAD OF COMPLEX RESTART
                 console.log('🎯 DEBUG: Try again overlay shown');
@@ -844,8 +821,6 @@ async function forceStartListening() {
         
         // 🎯 DIAGNOSTIC: Check state AFTER starting
         setTimeout(() => {
-                    showingBanner = false; // 🚦 Clear flag - banner shown, listening starting
-                    console.log('🚦 Banner delay complete - allowing "sorry" messages again');
             console.log('🔍 DIAGNOSTIC: Recognition state after start:', recognition.state || 'undefined');
         }, 100);
         
@@ -955,8 +930,6 @@ async function activateMicrophone() {
             document.getElementById('quickButtonsContainer').style.display = 'block';
 
            setTimeout(() => {
-                    showingBanner = false; // 🚦 Clear flag - banner shown, listening starting
-                    console.log('🚦 Banner delay complete - allowing "sorry" messages again');
     // Initialize conversation system - BULLETPROOF VERSION
     if (typeof conversationState === 'undefined') {
         window.conversationState = 'initial';
@@ -1089,8 +1062,6 @@ function processUserResponse(userText) {
             
             
             setTimeout(() => {
-                    showingBanner = false; // 🚦 Clear flag - banner shown, listening starting
-                    console.log('🚦 Banner delay complete - allowing "sorry" messages again');
     // Continue conversation instead of ending abruptly
     addAIMessage("Is there anything else I can help you with today?", 'ai');
     conversationState = 'asking_if_more_help';
@@ -1105,8 +1076,6 @@ function processUserResponse(userText) {
         addAIMessage("Is there anything else I can help you with today?");
         speakResponse("Is there anything else I can help you with today?");
         setTimeout(() => {
-                    showingBanner = false; // 🚦 Clear flag - banner shown, listening starting
-                    console.log('🚦 Banner delay complete - allowing "sorry" messages again');
             startListening();
             window.lastProcessedMessage = null;
         }, 800);
@@ -1123,8 +1092,6 @@ function processUserResponse(userText) {
             
             // Clear duplicate prevention
             setTimeout(() => {
-                    showingBanner = false; // 🚦 Clear flag - banner shown, listening starting
-                    console.log('🚦 Banner delay complete - allowing "sorry" messages again');
                 window.lastProcessedMessage = null;
             }, 2000);
             return;
@@ -1137,8 +1104,6 @@ function processUserResponse(userText) {
             conversationState = 'final_question';
             
             setTimeout(() => {
-                    showingBanner = false; // 🚦 Clear flag - banner shown, listening starting
-                    console.log('🚦 Banner delay complete - allowing "sorry" messages again');
                 startListening();
                 window.lastProcessedMessage = null;
             }, 1000);
@@ -1151,8 +1116,6 @@ function processUserResponse(userText) {
             speakResponse(clarifyMessage);
             
             setTimeout(() => {
-                    showingBanner = false; // 🚦 Clear flag - banner shown, listening starting
-                    console.log('🚦 Banner delay complete - allowing "sorry" messages again');
                 startListening();
                 window.lastProcessedMessage = null;
             }, 1000);
@@ -1163,8 +1126,6 @@ function processUserResponse(userText) {
   // 🆕 CHECK IF LEAD CAPTURE SHOULD HANDLE THIS FIRST
 if (processLeadResponse(userText)) {
     setTimeout(() => {
-                    showingBanner = false; // 🚦 Clear flag - banner shown, listening starting
-                    console.log('🚦 Banner delay complete - allowing "sorry" messages again');
         window.lastProcessedMessage = null;
     }, 2000);
     return;
@@ -1174,8 +1135,6 @@ if (processLeadResponse(userText)) {
 if (shouldTriggerLeadCapture(userText)) {
     console.log('🎯 BYPASSING AI - Direct to lead capture!');
     setTimeout(() => {
-                    showingBanner = false; // 🚦 Clear flag - banner shown, listening starting
-                    console.log('🚦 Banner delay complete - allowing "sorry" messages again');
         initializeLeadCapture();
     }, 300);
     return; // Exit early!
@@ -1205,8 +1164,6 @@ setTimeout(async () => {
     updateSmartButton(shouldShowSmartButton, smartButtonText, smartButtonAction);
     
     setTimeout(() => {
-                    showingBanner = false; // 🚦 Clear flag - banner shown, listening starting
-                    console.log('🚦 Banner delay complete - allowing "sorry" messages again');
         window.lastProcessedMessage = null;
     }, 3000);
 }, 800);
@@ -1260,8 +1217,6 @@ function preWarmSpeechEngine() {
             
             // Stop immediately - just warming the engine
             setTimeout(() => {
-                    showingBanner = false; // 🚦 Clear flag - banner shown, listening starting
-                    console.log('🚦 Banner delay complete - allowing "sorry" messages again');
                 if (recognition && isListening) {
                     recognition.stop();
                     isListening = false;
@@ -1632,8 +1587,6 @@ class MobileWiseVoiceSystem {
             
             // Mobile wake-up fix
             setTimeout(() => {
-                    showingBanner = false; // 🚦 Clear flag - banner shown, listening starting
-                    console.log('🚦 Banner delay complete - allowing "sorry" messages again');
                 if (this.synthesis.paused) this.synthesis.resume();
             }, 100);
         });
@@ -3059,8 +3012,6 @@ function initializeLeadCapture(buttonType = 'valuation') {
     
     // ✅ REMOVED the extra message - go straight to the question
     setTimeout(() => {
-                    showingBanner = false; // 🚦 Clear flag - banner shown, listening starting
-                    console.log('🚦 Banner delay complete - allowing "sorry" messages again');
         askLeadQuestion(); // This will say "Perfect. Let's start with your full name, please."
     }, 500); // Shorter delay since no intro message
 }
@@ -3108,14 +3059,12 @@ function speakMessage(message) {
             console.log('🔊 AI finished speaking for lead capture');
             
             
-            // 🚦 MOBILE FIX: Set flag to prevent "sorry" during banner delay
+            // 🚦 MOBILE BANNER FIX: Block sorry during banner delay
             showingBanner = true;
-            console.log('🚦 Banner delay starting - blocking "sorry" messages');
             // ✅ THE FIX: Show hybrid sequence for lead capture questions
             if (isInLeadCapture) {
                 setTimeout(() => {
-                    showingBanner = false; // 🚦 Clear flag - banner shown, listening starting
-                    console.log('🚦 Banner delay complete - allowing "sorry" messages again');
+                    showingBanner = false; // 🚦 Clear flag
                     showHybridReadySequence(); // This shows "Get Ready to Speak" → "Listening"
                 }, 1300);
             }
@@ -3250,15 +3199,11 @@ function confirmAnswer(isCorrect) {
         if (leadData.step < leadData.questions.length) {
             // More questions to ask
             setTimeout(() => {
-                    showingBanner = false; // 🚦 Clear flag - banner shown, listening starting
-                    console.log('🚦 Banner delay complete - allowing "sorry" messages again');
                 askSimpleLeadQuestion();
             }, 800);
         } else {
             // ✅ FINAL STEP - SHOW BRUCE BANNER IMMEDIATELY!
             setTimeout(() => {
-                    showingBanner = false; // 🚦 Clear flag - banner shown, listening starting
-                    console.log('🚦 Banner delay complete - allowing "sorry" messages again');
                 console.log('🎯 Final confirmation completed - showing Bruce banner!');
                 
                 // Remove the lead capture banner
@@ -3272,8 +3217,6 @@ function confirmAnswer(isCorrect) {
                 
                 // Send email silently in background
                 setTimeout(() => {
-                    showingBanner = false; // 🚦 Clear flag - banner shown, listening starting
-                    console.log('🚦 Banner delay complete - allowing "sorry" messages again');
                     sendLeadEmail(leadData);
                 }, 1000);
                 
@@ -3310,8 +3253,6 @@ function confirmAnswer(isCorrect) {
     
     // ✅ KEEP the restart with slightly longer timeout for cleanup
     setTimeout(() => {
-                    showingBanner = false; // 🚦 Clear flag - banner shown, listening starting
-                    console.log('🚦 Banner delay complete - allowing "sorry" messages again');
         showHybridReadySequence(); // Restart the full red -> green sequence
     }, 100); // Back to 100ms to allow force stop to complete
 }
@@ -3352,8 +3293,6 @@ function moveToNextQuestion() {
     if (leadData.step < leadData.questions.length) {
         addAIMessage("Perfect!");
         setTimeout(() => {
-                    showingBanner = false; // 🚦 Clear flag - banner shown, listening starting
-                    console.log('🚦 Banner delay complete - allowing "sorry" messages again');
             askLeadQuestion();
         }, 1000);
     } else {
@@ -3400,8 +3339,6 @@ function sendLeadEmail(data) {
                 
                 // ✅ ENHANCED CONVERSATION FLOW
                 setTimeout(() => {
-                    showingBanner = false; // 🚦 Clear flag - banner shown, listening starting
-                    console.log('🚦 Banner delay complete - allowing "sorry" messages again');
                     // Remove the "LEAD CAPTURED" banner
                     const leadBanner = document.getElementById('leadCaptureBanner');
                     if (leadBanner) leadBanner.remove();
@@ -3426,8 +3363,6 @@ function sendLeadEmail(data) {
                     
                     // 🆕 IMPROVED: Better timing for user response
                     setTimeout(() => {
-                    showingBanner = false; // 🚦 Clear flag - banner shown, listening starting
-                    console.log('🚦 Banner delay complete - allowing "sorry" messages again');
                         if (!isSpeaking && isAudioMode) {
                             startListening();
                         }
@@ -3446,8 +3381,6 @@ function sendLeadEmail(data) {
                 conversationState = 'email_fallback';
                 
                 setTimeout(() => {
-                    showingBanner = false; // 🚦 Clear flag - banner shown, listening starting
-                    console.log('🚦 Banner delay complete - allowing "sorry" messages again');
                     if (!isSpeaking && isAudioMode) {
                         startListening();
                     }
@@ -3460,8 +3393,6 @@ function sendLeadEmail(data) {
         
         // Still transition to email permission question as backup
         setTimeout(() => {
-                    showingBanner = false; // 🚦 Clear flag - banner shown, listening starting
-                    console.log('🚦 Banner delay complete - allowing "sorry" messages again');
             conversationState = 'asking_for_email_permission';
         }, 2000);
     }
@@ -3561,8 +3492,6 @@ function sendFollowUpEmail() {
                         
                         // ✅ SHOW SPLASH SCREEN AFTER BRIEF DELAY
                         setTimeout(() => {
-                    showingBanner = false; // 🚦 Clear flag - banner shown, listening starting
-                    console.log('🚦 Banner delay complete - allowing "sorry" messages again');
                             showThankYouSplashScreen();
                         }, 500);
                         
@@ -3688,8 +3617,6 @@ function showThankYouSplashScreen() {
     
     // ✅ PLAY OUTRO AUDIO
     setTimeout(() => {
-                    showingBanner = false; // 🚦 Clear flag - banner shown, listening starting
-                    console.log('🚦 Banner delay complete - allowing "sorry" messages again');
         const audio = new Audio('https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/audio-intros/ai_intro_1758148837523.mp3');
         audio.volume = 0.8;
         audio.play().catch(e => console.log('Audio play failed:', e));
@@ -3697,8 +3624,6 @@ function showThankYouSplashScreen() {
     
     // ✅ AUTO-DISMISS AFTER 20 SECONDS (instead of 8)
     setTimeout(() => {
-                    showingBanner = false; // 🚦 Clear flag - banner shown, listening starting
-                    console.log('🚦 Banner delay complete - allowing "sorry" messages again');
         if (document.getElementById('thankYouSplash')) {
             exitApplication();
         }
@@ -3715,8 +3640,6 @@ function exitApplication() {
     if (splash) {
         splash.style.animation = 'fadeInSplash 0.5s ease-out reverse';
         setTimeout(() => {
-                    showingBanner = false; // 🚦 Clear flag - banner shown, listening starting
-                    console.log('🚦 Banner delay complete - allowing "sorry" messages again');
             splash.remove();
             // Close the window/tab or redirect back to original site
             if (window.opener) {
@@ -3810,8 +3733,6 @@ function _createLegacyThankYouBanner() {
 
 function forceScrollToBottom() {
     setTimeout(() => {
-                    showingBanner = false; // 🚦 Clear flag - banner shown, listening starting
-                    console.log('🚦 Banner delay complete - allowing "sorry" messages again');
         // Multiple scroll attempts for stubborn mobile
         const scrollTargets = [
             document.getElementById('chatContainer'),
@@ -3844,8 +3765,6 @@ function endConversation() {
     speakResponse(goodbye);
     
     setTimeout(() => {
-                    showingBanner = false; // 🚦 Clear flag - banner shown, listening starting
-                    console.log('🚦 Banner delay complete - allowing "sorry" messages again');
         replaceBannerWithThankYou();
         conversationState = 'ended';
         stopListening();
@@ -4163,8 +4082,6 @@ function showAvatarSorryMessage(duration = 6000) {
         
         // Go back to Speak Now after brief delay
         setTimeout(() => {
-                    showingBanner = false; // 🚦 Clear flag - banner shown, listening starting
-                    console.log('🚦 Banner delay complete - allowing "sorry" messages again');
             console.log('✅ Avatar removed - going DIRECT to Speak Now');
             showDirectSpeakNow();
         }, 1000);
@@ -4206,8 +4123,6 @@ function showDirectSpeakNow() {
     
     // Set up timer for this sequence
     let directTimer = setTimeout(() => {
-                    showingBanner = false; // 🚦 Clear flag - banner shown, listening starting
-                    console.log('🚦 Banner delay complete - allowing "sorry" messages again');
         console.log('🕐 DIRECT: Safety timeout after 15 seconds');
         directCleanup();
     }, 15000);
@@ -4360,8 +4275,6 @@ if (typeof startMobileListening === 'function') {
 
 // Then call forceStartListening as backup (THE KEY!)
 setTimeout(() => {
-                    showingBanner = false; // 🚦 Clear flag - banner shown, listening starting
-                    console.log('🚦 Banner delay complete - allowing "sorry" messages again');
     console.log('🔄 DIRECT backup: calling forceStartListening()');
     forceStartListening();
 }, 100); // Same delay as normal questions
@@ -4369,8 +4282,6 @@ setTimeout(() => {
         // 🔥 FIXED: Check disableDirectTimeout flag before setting timeout
 if (!window.disableDirectTimeout) {
     setTimeout(() => {
-                    showingBanner = false; // 🚦 Clear flag - banner shown, listening starting
-                    console.log('🚦 Banner delay complete - allowing "sorry" messages again');
         if (!speakSequenceActive) return;
         
         console.log('⏰ DIRECT: 12-second listening window ended - no speech detected');
@@ -4551,8 +4462,6 @@ if (isMobile) {
         window.testimonialBlocking = false;
         if (window.testimonialAutoCloseTimer) clearTimeout(window.testimonialAutoCloseTimer);
         setTimeout(() => {
-                    showingBanner = false; // 🚦 Clear flag - banner shown, listening starting
-                    console.log('🚦 Banner delay complete - allowing "sorry" messages again');
             if (window.showDirectSpeakNow) showDirectSpeakNow();
         }, 500);
     }
@@ -4566,8 +4475,6 @@ video.onended = () => {
 
 // Safety timeout (only if video fails to load/play)
 window.testimonialAutoCloseTimer = setTimeout(() => {
-                    showingBanner = false; // 🚦 Clear flag - banner shown, listening starting
-                    console.log('🚦 Banner delay complete - allowing "sorry" messages again');
     console.log(`⚠️ Safety timeout triggered after 60 seconds`);
     cleanup();
 }, 60000); // 60 seconds safety net
@@ -4610,8 +4517,6 @@ window.showTestimonialOffer = function(testimonialType, customMessage) {
     // Update the message text if provided
     if (customMessage) {
         setTimeout(() => {
-                    showingBanner = false; // 🚦 Clear flag - banner shown, listening starting
-                    console.log('🚦 Banner delay complete - allowing "sorry" messages again');
             const messageEl = document.getElementById('testimonialOfferMessage');
             if (messageEl) {
                 messageEl.textContent = customMessage;
@@ -4621,8 +4526,6 @@ window.showTestimonialOffer = function(testimonialType, customMessage) {
     
     // Wire up button handlers
     setTimeout(() => {
-                    showingBanner = false; // 🚦 Clear flag - banner shown, listening starting
-                    console.log('🚦 Banner delay complete - allowing "sorry" messages again');
         const yesBtn = document.getElementById('testimonialYesBtn');
         const noBtn = document.getElementById('testimonialNoBtn');
         
@@ -4670,8 +4573,6 @@ window.showTestimonialOffer = function(testimonialType, customMessage) {
                 if (currentObjection?.no_action === 'show_consultation_banner') {
                     console.log('🎯 Triggering consultation banner');
                     setTimeout(() => {
-                    showingBanner = false; // 🚦 Clear flag - banner shown, listening starting
-                    console.log('🚦 Banner delay complete - allowing "sorry" messages again');
                         window.showUniversalBanner('freeBookWithConsultation');
                     }, 2000);
                 }
