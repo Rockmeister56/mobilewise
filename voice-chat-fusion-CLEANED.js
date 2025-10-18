@@ -1,4 +1,17 @@
 // ===================================================
+// 🎯 MOBILE-WISE AI VOICE CHAT - KB INTEGRATED VERSION
+// ===================================================
+// CHANGES FROM PREVIOUS VERSION:
+// ✅ REMOVED: Hardcoded first name prompt in 'initial' state (line ~5001)
+// ✅ REMOVED: Hardcoded 'getting_first_name' response block (line ~5024)
+// 🎯 RESULT: All name capture now handled by KB Loader
+//           Uses greeting.with_name from CPA JSON with {firstName} substitution
+// 
+// Date: October 15, 2025
+// Captain: Mobile-Wise AI Empire
+// ===================================================
+
+// ===================================================
 // 🎯 MOBILE-WISE AI VOICE CHAT - COMPLETE INTEGRATION
 // Smart Button + Lead Capture + EmailJS + Banner System
 // ===================================================
@@ -42,6 +55,7 @@ let lastMessageWasApology = false;
 let isInLeadCapture = false;
 let speechDetected = false;
 let currentAIResponse = '';
+let conversationHistory = []; // Track conversation for lead capture logic
 window.leadData = window.leadData || {
     firstName: '',
     step: 0,
@@ -53,12 +67,6 @@ window.leadData = window.leadData || {
     inquiryType: ''
 };
 let leadData = window.leadData;
-
-// ===================================================
-// 🎯 TESTIMONIAL SYSTEM GLOBALS (for future use)
-// ===================================================
-let pendingTestimonialType = null;
-let currentObjection = null;
 
 // ===================================================
 // 🎯 SPEECH RECOGNITION PRE-WARMING SYSTEM  
@@ -78,7 +86,10 @@ class SpeechEngineManager {
         }
         
         if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-            console.log('❌ Speech not supported');
+            console.log('❌ Speech recognition not supported in this browser');
+            if (typeof addAIMessage === 'function') {
+                addAIMessage("Your browser doesn't support speech recognition. Please use Chrome or Edge.");
+            }
             return false;
         }
         
@@ -88,9 +99,104 @@ class SpeechEngineManager {
         this.recognition.continuous = false;
         this.recognition.interimResults = true;
         this.recognition.lang = 'en-US';
+        this.recognition.maxAlternatives = 1;
+        
+        // ✅ PROPER: Set up audio detection handlers
+        this.recognition.onsoundstart = () => {
+            console.log('🎤 🎤 🎤 SOUND DETECTED by recognition engine!');
+            speechDetected = true;
+        };
+        this.recognition.onaudiostart = () => {
+            console.log('🎤 🎤 🎤 AUDIO INPUT STARTED!');
+        };
+        this.recognition.onspeechstart = () => {
+            console.log('🗣️ 🗣️ 🗣️ SPEECH DETECTED!');
+            speechDetected = true;
+        };
+        this.recognition.onspeechend = () => {
+            console.log('🗣️ Speech ended');
+        };
+        
+        // 🎯 SET UP CORE HANDLERS ONCE - Don't overwrite these!
+        this.setupCoreHandlers();
         
         console.log('🎯 Speech engine created successfully');
         return true;
+    }
+    
+    setupCoreHandlers() {
+        console.log('🎯 Setting up CORE recognition handlers (ONE TIME ONLY)');
+        
+        // 🎯 ONRESULT - This is the most important handler!
+        this.recognition.onresult = function(event) {
+            console.log('🎯 🎯 🎯 ONRESULT FIRED! Got transcript!');
+            let transcript = Array.from(event.results)
+                .map(result => result[0])
+                .map(result => result.transcript)
+                .join('');
+
+            transcript = transcript.replace(/\.+$/, '');
+            console.log('🎤 Transcript:', transcript);
+            
+            const transcriptText = document.getElementById('transcriptText');
+            const userInput = document.getElementById('userInput');
+            
+            if (transcriptText) {
+                transcriptText.textContent = 'Speak Now';
+            }
+            
+            if (userInput) {
+                userInput.value = transcript;
+                console.log('✅ Transcript saved to userInput:', transcript);
+            }
+            
+            // Auto-send in lead capture mode
+            if (isInLeadCapture) {
+                clearTimeout(window.leadCaptureTimeout);
+                window.leadCaptureTimeout = setTimeout(() => {
+                    if (transcript.trim().length > 1 && userInput.value === transcript) {
+                        console.log('🎯 Lead capture auto-send:', transcript);
+                        sendMessage();
+                    }
+                }, 1500);
+            }
+        };
+        
+        // 🎯 ONERROR - Handle speech recognition errors
+        this.recognition.onerror = function(event) {
+            console.log('🔊 Speech error from CORE handler:', event.error);
+            
+            if (event.error === 'no-speech') {
+                console.log('⚠️ No speech detected - will be handled by onend');
+                // Don't do anything here - let onend handle it
+                return;
+            }
+            
+            if (event.error === 'audio-capture') {
+                console.log('🎤 No microphone detected');
+                if (typeof addAIMessage === 'function') {
+                    addAIMessage("I can't detect your microphone. Please check your audio settings.");
+                }
+            }
+            
+            if (event.error === 'not-allowed') {
+                console.log('🔒 Permission denied');
+                if (typeof addAIMessage === 'function') {
+                    addAIMessage("Microphone permission was denied. Please allow microphone access to continue.");
+                }
+            }
+            
+            if (event.error === 'aborted') {
+                console.log('🛑 Recognition aborted - normal for quick restarts');
+            }
+        };
+        
+        // 🎯 ONSTART - Log when recognition starts
+        this.recognition.onstart = function() {
+            console.log('✅ Recognition STARTED (from CORE handler)');
+        };
+        
+        console.log('✅ CORE HANDLERS installed in SpeechEngineManager');
     }
     
     getEngine() {
@@ -109,8 +215,7 @@ console.log('🚀 Speech Engine Manager initialized');
 // 🚨 NUCLEAR MOBILE DETECTION - SCREEN SIZE ONLY
 const isDefinitelyMobile = window.innerWidth <= 768 || window.innerHeight <= 1024;
 
-// 🚨 FIX: Check if event exists before accessing event.error
-if (isDefinitelyMobile || (event && event.error === 'no-speech')) {
+if (isDefinitelyMobile) {
     console.log('📱 NUCLEAR MOBILE DETECTED: Using visual feedback system');
 }
 
@@ -234,7 +339,7 @@ function showPostSorryListening() {
         } else {
             console.log('❌ POST-SORRY: Recognition object not found');
         }
-    }, 100);
+    }, 25); // INSTANT: 25ms instead of 100ms
     
     // 🚫 NO CLEANUP TIMER - Let it run until user speaks or session naturally ends!
     console.log('✅ POST-SORRY: Function completed - no cleanup timer set');
@@ -352,8 +457,9 @@ function playListeningStopsSound() {
 }
 
 // ===================================================
-// 🎤 SPEECH RECOGNITION SYSTEM
+// 🎤 SPEECH RECOGNITION SYSTEM - DISABLED (Using SpeechEngineManager)
 // ===================================================
+/*
 function checkSpeechSupport() {
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
         console.log('❌ Speech recognition not supported in this browser');
@@ -363,7 +469,7 @@ function checkSpeechSupport() {
     return true;
 }
 
-function initializeSpeechRecognition() {
+function initializeSpeechRecognization() {
     if (!checkSpeechSupport()) return false;
 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -381,6 +487,7 @@ function initializeSpeechRecognition() {
     console.log('✅ Speech recognition initialized');
     return true;
 }
+*/
 
 function getApologyResponse() {
     const sorryMessages = [
@@ -419,57 +526,26 @@ function getApologyResponse() {
     }
     
     console.log('🎯 startListening() called');
-    if (!checkSpeechSupport()) return;
     if (isSpeaking) return;
     
     try {
-        // 🎯 MOBILE-SPECIFIC PRE-WARMING
-        const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
-        
-        if (isMobile && !speechEngine.isReady()) {
-            console.log('📱 Mobile detected - pre-warming engine...');
-            await speechEngine.initializeEngine();
+        // 🎯 ALWAYS USE SPEECH ENGINE MANAGER (mobile + desktop)
+        if (!speechEngine.isReady()) {
+            console.log('🎯 Initializing speech engine...');
+            const initialized = await speechEngine.initializeEngine();
+            if (!initialized) {
+                console.log('❌ Speech engine initialization failed');
+                return;
+            }
         }
         
         if (!recognition) {
-            if (isMobile && speechEngine.isReady()) {
-                recognition = speechEngine.getEngine();
-                console.log('📱 Using pre-warmed mobile engine');
-            } else {
-                initializeSpeechRecognition();
-            }
+            recognition = speechEngine.getEngine();
+            console.log('✅ Using Speech Engine Manager (handlers already set)');
         }
 
-        // Keep ALL your existing event handlers - they're perfect
-        recognition.onresult = function(event) {
-            let transcript = Array.from(event.results)
-                .map(result => result[0])
-                .map(result => result.transcript)
-                .join('');
-
-            transcript = transcript.replace(/\.+$/, '');
-            
-            const transcriptText = document.getElementById('transcriptText');
-            const userInput = document.getElementById('userInput');
-            
-            if (transcriptText) {
-                transcriptText.textContent = 'Speak Now';
-            }
-            
-            if (userInput) {
-                userInput.value = transcript;
-            }
-            
-            if (isInLeadCapture) {
-                clearTimeout(window.leadCaptureTimeout);
-                window.leadCaptureTimeout = setTimeout(() => {
-                    if (transcript.trim().length > 1 && userInput.value === transcript) {
-                        console.log('🎯 Lead capture auto-send:', transcript);
-                        sendMessage();
-                    }
-                }, 1500);
-            }
-        };
+        // 🚫 DON'T re-assign onresult - it's already set in SpeechEngineManager!
+        // The core handlers (onresult, onsoundstart, etc.) are set ONCE during engine initialization
 
     recognition.onerror = function(event) {
     console.log('🔊 Speech error:', event.error);
@@ -492,7 +568,7 @@ function getApologyResponse() {
 
     // 🎯 FALLBACK SYSTEM (only if handleSpeechRecognitionError doesn't exist)
     if (event.error === 'no-speech') {
-        const transcriptText = document.getElementById('transcriptText');recognition.onerror
+        const transcriptText = document.getElementById('transcriptText');
 
         console.log('🔍 MOBILE DEBUG:', {
             userAgent: navigator.userAgent,
@@ -612,8 +688,15 @@ function getApologyResponse() {
             sendMessage(currentMessage);
         }
     } else {
-        // No speech detected - show simple overlay instead of complex restart
-        console.log('🔄 No speech detected via onend - showing try again overlay');
+        // No transcript captured - check if speech was detected
+        if (speechDetected) {
+            console.log('⚠️ Speech detected but no transcript captured - unclear speech');
+            console.log('🎯 speechDetected flag was:', speechDetected);
+            // Reset flag for next attempt
+            speechDetected = false;
+        } else {
+            console.log('🔄 No speech detected at all via onend - showing try again overlay');
+        }
 
         // 🔓 CLEAR THE BLOCKING FLAG AFTER NO SPEECH
         setTimeout(() => {
@@ -642,12 +725,10 @@ function getApologyResponse() {
     }
 };
         
-        // 🎯 MOBILE TIMING DELAY
-        const delay = isMobile ? 100 : 0; // Only delay on mobile
+        // 🎯 MOBILE TIMING DELAY - REMOVED FOR FASTER RESPONSE
+        const delay = 0; // No delays - instant response
         
-        if (delay > 0) {
-            console.log(`⏱️ Adding ${delay}ms mobile delay`);
-        }
+        console.log('⚡ Instant response mode - no delays');
 
     } catch (error) {
         console.error('❌ Error starting speech recognition:', error);
@@ -675,101 +756,31 @@ function stopListening() {
 // ===================================================
 
 // 🎯 ADD THIS TO YOUR forceStartListening() FUNCTION - REPLACE THE EXISTING ONE:
-function forceStartListening() {
+async function forceStartListening() {
     console.log('🎤 TEST 8: forceStartListening() CALLED at:', Date.now());
     console.log('🎤 TEST 9: isSpeaking:', isSpeaking);
     console.log('🎤 TEST 10: recognition exists:', !!recognition);
     console.log('🔄 FORCE starting speech recognition (mobile reset)');
     
-    if (!checkSpeechSupport()) return;
     if (isSpeaking) return;
     
     try {
+        // 🎯 USE SPEECH ENGINE MANAGER ONLY
+        if (!speechEngine.isReady()) {
+            const initialized = await speechEngine.initializeEngine();
+            if (!initialized) return;
+        }
+        
         if (!recognition) {
-            initializeSpeechRecognition();
+            recognition = speechEngine.getEngine();
         }
         
         // 🎯 DIAGNOSTIC: Check recognition state BEFORE starting
         console.log('🔍 DIAGNOSTIC: Recognition state before start:', recognition.state || 'undefined');
         
-        // 🎯 DIAGNOSTIC: Add detailed event logging
-        recognition.onstart = function() {
-            console.log('✅ DIAGNOSTIC: Recognition STARTED successfully');
-        };
-        
-        recognition.onerror = function(event) {
-    console.log('🔊 Speech error:', event.error);
-
-    if (event.error === 'no-speech') {
-        const transcriptText = document.getElementById('transcriptText');
-
-        console.log('🔍 MOBILE DEBUG:', {
-            userAgent: navigator.userAgent,
-            isMobile: /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent),
-            isTouch: ('ontouchstart' in window || navigator.maxTouchPoints > 0)
-        });
-
-        // 🚨 NUCLEAR MOBILE DETECTION - REPLACE THE OLD CHECK
-        const isDefinitelyMobile = window.innerWidth <= 768 || window.innerHeight <= 1024;
-
-        if (isDefinitelyMobile) {
-            console.log('📱📱📱 NUCLEAR MOBILE DETECTED: Using visual feedback system');
-
-            if (window.noSpeechTimeout) {
-                clearTimeout(window.noSpeechTimeout);
-            }
-
-            if (transcriptText) {
-                transcriptText.textContent = 'I didn\'t hear anything...';
-                transcriptText.style.color = '#ff6b6b';
-
-                window.noSpeechTimeout = setTimeout(() => {
-                    if (transcriptText) {
-                        transcriptText.textContent = 'Please speak now';
-                        transcriptText.style.color = '#ffffff';
-                    }
-
-                    if (isAudioMode && !isSpeaking) {
-                        console.log('🔄 Mobile: Restarting via hybrid system');
-                        isListening = false;
-
-                        setTimeout(() => {
-                            showHybridReadySequence();
-                        }, 500);
-                    }
-                },  1000);
-            }
-
-        } else {
-            console.log('🖥️ Desktop: Using voice apology system');
-
-            lastMessageWasApology = true;
-            const apologyResponse = getApologyResponse();
-
-            stopListening();
-
-            setTimeout(() => {
-                addAIMessage(apologyResponse);
-                speakResponse(apologyResponse);
-
-                if (restartTimeout) clearTimeout(restartTimeout);
-
-                restartTimeout = setTimeout(() => {
-                    if (isAudioMode && !isListening && !isSpeaking) {
-                        startListening();
-                    }
-                    lastMessageWasApology = false;
-                }, 500);
-            }, 500);
-        }
-    } else if (event.error === 'audio-capture') {
-        console.log('🎤 No microphone detected');
-        addAIMessage("I can't detect your microphone. Please check your audio settings.");
-    } else if (event.error === 'not-allowed') {
-        console.log('🔒 Permission denied');
-        addAIMessage("Microphone permission was denied. Please allow microphone access to continue.");
-    }
-};
+        // 🚫 DON'T OVERWRITE HANDLERS! They're already set in SpeechEngineManager
+        // The handlers (onresult, onerror, onstart) are configured during initialization
+        console.log('✅ Using existing handlers from SpeechEngineManager (not overwriting)');
         
         console.log('🎤 Force starting speech recognition...');
         recognition.start();
@@ -879,16 +890,18 @@ async function activateMicrophone() {
                 micButton.classList.add('listening');
             }
             
-            initializeSpeechRecognition();
+            // Initialize speech engine
+            await speechEngine.initializeEngine();
+            recognition = speechEngine.getEngine();
 
             document.getElementById('quickButtonsContainer').style.display = 'block';
 
            setTimeout(() => {
     // Initialize conversation system - BULLETPROOF VERSION
     if (typeof conversationState === 'undefined') {
-        window.conversationState = 'getting_first_name';
+        window.conversationState = 'initial';
     } else {
-        conversationState = 'getting_first_name';
+        conversationState = 'initial';
     }
     
     // Initialize leadData if it doesn't exist
@@ -896,7 +909,25 @@ async function activateMicrophone() {
         window.leadData = { firstName: '' };
     }
     
-    const greeting = "Hi there! I'm here to help with CPA firm transactions - buying, selling, and practice valuations. Before we dive in, may I get your first name?";
+    // 🎯 KB-POWERED GREETING - Use KB system if loaded
+    let greeting;
+    
+    // Check if KB system is loaded and has greeting
+    if (window.conversationKB && window.conversationKB.kb && window.conversationKB.kb.greeting) {
+        greeting = window.conversationKB.kb.greeting.initial;
+        console.log('✅ Using KB greeting:', greeting);
+    } else {
+        // Fallback to simple greeting if KB not loaded yet
+        greeting = "Hi there! I'm Boatimia, your personal AI Voice assistant. May I get your first name please?";
+        console.log('⚠️ KB not loaded yet - using fallback greeting');
+    }
+    
+    // 🎯 CRITICAL: SYNC STATE - We just asked for name, so set engine to expect name response
+    if (window.conversationEngine) {
+        window.conversationEngine.currentState = 'getting_first_name';
+        console.log('🎯 Synced ConversationEngine state to: getting_first_name');
+    }
+    
     addAIMessage(greeting);
     speakResponse(greeting);
 }, 1400);
@@ -931,6 +962,10 @@ function addUserMessage(message) {
     messageElement.textContent = message;
     
     chatMessages.appendChild(messageElement);
+    
+    // Track in conversation history
+    conversationHistory.push({ role: 'user', content: message });
+    
     scrollChatToBottom();
 }
 
@@ -943,6 +978,10 @@ function addAIMessage(message) {
     messageElement.textContent = message;
     
     chatMessages.appendChild(messageElement);
+    
+    // Track in conversation history
+    conversationHistory.push({ role: 'assistant', content: message });
+    
     scrollChatToBottom();
 }
 
@@ -1069,7 +1108,7 @@ if (shouldTriggerLeadCapture(userText)) {
 }
 
 // Default AI response handler
-setTimeout(() => {
+setTimeout(async () => {
     const responseText = getAIResponse(userText);
 
     console.log('🎯 USER SAID:', userText);
@@ -1585,6 +1624,12 @@ class MobileWiseVoiceSystem {
             return;
         }
         
+        // 🚫 BLOCK if testimonial is about to play or currently playing
+        if (window.testimonialBlocking) {
+            console.log("🚫 BLOCKED: Testimonial is playing - skipping \"Speak Now\" banner");
+            return;
+        }
+        
         if (conversationState === 'speaking') {
             console.log('🚫 BLOCKED: System still in speaking state (ElevenLabs logic)');
             return;
@@ -1716,12 +1761,7 @@ if (VOICE_CONFIG.debug) {
     console.log("🎯 Smart Button Blocking: PERMANENTLY REMOVED");
 }
 
-// Auto-show status after initialization
-setTimeout(() => {
-    if (VOICE_CONFIG.debug && voiceSystem.isInitialized) {
-        window.getVoiceStatus();
-    }
-}, 3000);
+
 
 // ===========================================
 // 📧 EMAIL CONFIGURATION FIX
@@ -1906,7 +1946,7 @@ avatar: {
 },
 
 // 3. EMAIL SENT CONFIRMATION (Already standardized - keeping as reference)
-emailSent: {
+emailConfirmationSent: {
     content: `
         <div style="width: ${742}px; max-width: ${742}px; margin: 0 auto; background: rgba(32, 178, 170, 0.8); border-radius: 6px; height: 58px; display: flex; align-items: center; justify-content: center;">
             <div style="text-align: center; color: white;">
@@ -1925,8 +1965,8 @@ emailSent: {
     duration: 4000
 },
 
-// 4. FREE BOOK OFFER 1
-freeBookSimple: {
+// 4. FREE INCENTIVE OFFER 1
+clicktoCall: {
     content: `
         <div style="width: ${742}px; max-width: ${742}px; margin: 0 auto; height: 58px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; border-radius: 6px; background: linear-gradient(135deg, #FF6B6B, #4ECDC4);">
             <div style="color: white;">
@@ -2098,7 +2138,7 @@ consultationConfirmed: {
     duration: 5000
 },
 
-// 6. CLICK-TO-CALL BANNER
+// 6. CLICK-TO-CALL 
 clickToCall: {
     content: `
         <div style="width: ${742}px; max-width: ${742}px; margin: 0 auto; height: 58px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; border-radius: 6px; background: linear-gradient(135deg, #0044ffff, #0a0b50ff);">
@@ -2126,8 +2166,8 @@ clickToCall: {
     duration: 0
 },
 
-// 7. MORE QUESTIONS BANNER
-moreQuestions: {
+// 7. CONTACT INFORMATION
+ contactInformation: {
     content: `
         <div style="width: ${742}px; max-width: ${742}px; margin: 0 auto; height: 58px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-radius: 6px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
             <div style="color: white;">
@@ -2638,449 +2678,6 @@ function updateSmartButton(shouldShow, buttonText, action) {
 // ===================================================
 // 🧠 AI RESPONSE SYSTEM
 // ===================================================
-function getAIResponse(userInput) {
-    // ✅ STOP PROCESSING IF CONVERSATION IS ENDED
-    if (conversationState === 'ended') {
-        return "Thank you for visiting! Have a great day.";
-    }
-    
-    const userText = userInput.toLowerCase();
-    let responseText = '';
-    let firstName = leadData.firstName || ''; // Store first name from lead capture
-
-if (conversationState === 'initial') {
-    // 🎯 FIRST NAME CAPTURE - Always ask for name first unless they jump straight to business
-    if (!leadData.firstName && !userText.includes('buy') && !userText.includes('sell') && !userText.includes('value') && !userText.includes('purchase') && !userText.includes('acquire')) {
-        responseText = "Hi there! I'm here to help with CPA firm transactions - buying, selling, and practice valuations. Before we dive in, what's your first name?";
-        conversationState = 'getting_first_name';
-        return responseText;
-    }
-    
-    if (userText.includes('buy') || userText.includes('purchase') || userText.includes('buying') || userText.includes('acquire')) {
-        responseText = firstName ? 
-            `Excellent, ${firstName}! Bruce has some fantastic opportunities available right now - some exclusive off-market deals that would blow you away. Tell me, what's your budget range for acquiring a practice?` :
-            "Excellent! Bruce has some fantastic opportunities available - some exclusive off-market deals that would blow you away. What's your budget range for acquiring a practice?";
-        conversationState = 'buying_budget_question';
-        shouldShowSmartButton = false;
-        
-        // 🎯 NEW: Trigger free book banner for buying interest
-        setTimeout(() => {
-            showUniversalBanner('freeBookWithConsultation');
-        }, 2000);
-        
-    } else if (userText.includes('sell') || userText.includes('selling')) {
-        responseText = firstName ? 
-             `Wow ${firstName}! That's a huge decision - you've probably poured your heart and soul into building something special there. Tell me, how many clients are you currently serving?` :
-            "I'd love to help you with selling your practice! That's a big decision - you've probably built something really special. How many clients are you currently serving?";
-        conversationState = 'selling_size_question';
-        shouldShowSmartButton = false;
-        
-        // 🎯 NEW: Trigger free book banner for selling interest
-        setTimeout(() => {
-            showUniversalBanner('freeBookWithConsultation');
-        }, 2000);
-        
-    } else if (userText.includes('value') || userText.includes('worth') || userText.includes('valuation') || userText.includes('evaluate')) {
-        responseText = firstName ?
-            `${firstName}, I'd be happy to help with a practice valuation! You know, most practice owners are shocked when they find out what their practice is actually worth in today's market. To give you the most accurate assessment, what's your practice's approximate annual revenue?` :
-            "I'd be happy to help with a practice valuation! Most owners are surprised at what their practice is worth. What's your practice's approximate annual revenue?";
-        conversationState = 'valuation_revenue_question';
-        shouldShowSmartButton = false;
-        
-        // 🎯 NEW: Trigger free book banner for valuation interest
-        setTimeout(() => {
-            showUniversalBanner('freeBookWithConsultation');
-        }, 2000);
-        
-    } else {
-        responseText = firstName ?
-            `${firstName}, I'm here to help with CPA firm transactions - buying, selling, and practice valuations. Bruce has been doing this for years and has some incredible opportunities right now. What brings you here today?` :
-            "Hi there! I'm here to help with CPA firm transactions - buying, selling, and practice valuations. Bruce has been doing this for years and has some incredible opportunities right now. What brings you here today?";
-    }
-
-} else if (conversationState === 'getting_first_name') {
-    // 🎯 EXTRACT AND STORE FIRST NAME
-    const words = userInput.trim().split(' ');
-    const extractedName = words[0].replace(/[^a-zA-Z]/g, ''); // Remove any punctuation
-    if (extractedName.length > 0) {
-       window.leadData.firstName = extractedName.charAt(0).toUpperCase() + extractedName.slice(1).toLowerCase();
-        firstName = window.leadData.firstName;
-        
-        responseText = `Great to meet you ${firstName}! Now, what brings you here today - are you looking to buy a practice, sell your practice, or get a practice valuation?`;
-        conversationState = 'initial';
-    } else {
-        responseText = "I didn't catch your name. Could you tell me your first name?";
-    }
-    
-} else if (conversationState === 'selling_size_question') {
-    const clientCount = userText.match(/(\d+(?:,\d+)*(?:\.\d+)?)/);
-    const number = clientCount ? clientCount[0] : 'that many';
-    
-    responseText = firstName ?
-        `Incredible ${firstName}! ${number} clients - that's fantastic! You've clearly built something substantial there. I bet Bruce would be really excited to hear about your practice. With that kind of client base, you're probably generating some solid revenue too. What's your approximate annual revenue range?` :
-        `Wow! ${number} clients - that's impressive! You've built something substantial. With that client base, what's your approximate annual revenue range?`;
-    conversationState = 'selling_revenue_question';
-    
-} else if (conversationState === 'selling_revenue_question') {
-    const revenueMatch = userText.match(/(\d+(?:,\d+)*(?:\.\d+)?)/);
-    const revenue = revenueMatch ? revenueMatch[0] : 'that kind of revenue';
-    
-    responseText = firstName ?
-        `That's excellent ${firstName}! ${revenue} in revenue - you've definitely built a valuable practice there. Bruce is going to love working with you on this. Now, I'm curious - what's driving your decision to sell? Is it retirement, new opportunities, or maybe you're just ready for the next chapter? Understanding your motivation helps Bruce create the perfect exit strategy for you.` :
-        `Excellent! ${revenue} in revenue - that's a solid practice! What's driving your decision to sell? Retirement, new opportunities, or something else? This helps Bruce tailor the perfect approach.`;
-    conversationState = 'selling_motivation_question';
-    
-} else if (conversationState === 'selling_motivation_question') {
-    
-    // 🎯 NEW: Check for objections FIRST - before normal response
-    if (typeof handleObjection === 'function' && handleObjection(userText)) {
-        // Objection detected! Testimonial will play automatically
-        responseText = firstName ?
-            `Great question, ${firstName}! You know what? Let me show you what one of our recent clients had to say about that...` :
-            "Great question! Let me show you what one of our recent clients had to say about that...";
-        
-        // Stay in same conversation state - continue normally after testimonial
-        return responseText;
-    }
-    
-    // 🎯 ORIGINAL RESPONSE (only runs if no objection detected)
-    responseText = firstName ?
-        `Thank you for sharing that with me ${firstName}! You know what? Based on everything you've told me - your client base, revenue, and your goals - Bruce can definitely help you get top dollar for your practice. The market is absolutely on fire right now for practices like yours. Honestly, ${firstName}, this could be perfect timing for you. Would you like to schedule a FREE consultation with Bruce to discuss your selling strategy?` :
-        "Thank you for sharing that! Based on what you've told me, Bruce can definitely help you maximize your practice value. The market is incredibly strong right now. Would you like a FREE consultation with Bruce?";
-    conversationState = 'asking_selling_consultation';
-    
-    // 🎯 NEW: Trigger free book banner when offering consultation
-    setTimeout(() => {
-        showUniversalBanner('freeBookWithConsultation');
-    }, 1500);
-    
-} else if (conversationState === 'initial') {
-    // 🎯 FIRST NAME CAPTURE - Keep this short
-    if (!leadData.firstName && !userText.includes('buy') && !userText.includes('sell') && !userText.includes('value') && !userText.includes('purchase') && !userText.includes('acquire')) {
-        responseText = "Hi! I help with CPA firm transactions. What's your first name?";
-        conversationState = 'getting_first_name';
-        return responseText;
-    }
-    
-    if (userText.includes('buy') || userText.includes('purchase') || userText.includes('buying') || userText.includes('acquire')) {
-        responseText = firstName ? 
-            `Great ${firstName}! Bruce has exclusive opportunities right now. What's your budget range?` :
-            "Great! Bruce has exclusive opportunities. What's your budget range?";
-        conversationState = 'buying_budget_question';
-        shouldShowSmartButton = false;
-        
-        setTimeout(() => {
-            showUniversalBanner('freeBookWithConsultation');
-        }, 2000);
-        
-    } else if (userText.includes('sell') || userText.includes('selling')) {
-        // 🎯 NEW SHORT FLOW - Straight to concerns!
-        responseText = firstName ? 
-            `That's fantastic, ${firstName}! It's a great time to sell. Do you have any concerns or reservations I can help address?` :
-            "That's fantastic! It's a great time to sell. Do you have any concerns I can help address?";
-        conversationState = 'selling_concerns_check';
-        shouldShowSmartButton = false;
-        
-        setTimeout(() => {
-            showUniversalBanner('freeBookWithConsultation');
-        }, 2000);
-        
-    } else if (userText.includes('value') || userText.includes('worth') || userText.includes('valuation') || userText.includes('evaluate')) {
-        responseText = firstName ?
-            `Perfect ${firstName}! Bruce can provide a FREE valuation. Most owners are surprised by the value. Interested?` :
-            "Perfect! Bruce can provide a FREE valuation. Most owners are surprised. Interested?";
-        conversationState = 'asking_valuation_consultation';
-        shouldShowSmartButton = false;
-        
-        setTimeout(() => {
-            showUniversalBanner('freeBookWithConsultation');
-        }, 2000);
-        
-    } else {
-        responseText = firstName ?
-            `Hi ${firstName}! I help with buying, selling, and valuing CPA practices. What brings you here?` :
-            "Hi! I help with buying, selling, and valuing CPA practices. What brings you here?";
-    }
-
-} else if (conversationState === 'getting_first_name') {
-    const words = userInput.trim().split(' ');
-    const extractedName = words[0].replace(/[^a-zA-Z]/g, '');
-    if (extractedName.length > 0) {
-       window.leadData.firstName = extractedName.charAt(0).toUpperCase() + extractedName.slice(1).toLowerCase();
-        firstName = window.leadData.firstName;
-        
-        responseText = `Great to meet you ${firstName}! Are you looking to buy, sell, or value a practice?`;
-        conversationState = 'initial';
-    } else {
-        responseText = "I didn't catch your name. What should I call you?";
-    }
-    
-} else if (conversationState === 'selling_concerns_check') {
-    // 🎯 THE MAGIC HAPPENS HERE - Check for concerns IMMEDIATELY
-    const concernType = detectConsultativeResponse(userText);
-    
-    if (concernType) {
-        // Concern detected! Show testimonial
-        let testimonialMessage = firstName ? 
-            `I totally understand that concern, ${firstName}. Let me show you what one of Bruce's recent clients said about that exact situation...` :
-            "I totally understand that concern. Let me show you what one of Bruce's recent clients said about that...";
-        
-        setTimeout(() => {
-            if (concernType === 'value') {
-                showTestimonialVideo('skeptical', 12000);
-                console.log('🎯 Showing VALUE testimonial');
-            } else if (concernType === 'speed') {
-                showTestimonialVideo('speed', 12000);
-                console.log('🎯 Showing SPEED testimonial');
-            } else if (concernType === 'credibility') {
-                showTestimonialVideo('skeptical', 12000);
-                console.log('🎯 Showing CREDIBILITY testimonial');
-            }
-        }, 2000);
-        
-        // After testimonial, go straight to close
-        setTimeout(() => {
-            conversationState = 'post_testimonial_close';
-        }, 14000);
-        
-        return testimonialMessage;
-        
-    } else if (userText.includes('no') || userText.includes('none') || userText.includes('not really')) {
-        // No concerns - straight to close
-        responseText = firstName ?
-            `Perfect ${firstName}! Bruce has great strategies right now. Ready for a FREE consultation?` :
-            "Perfect! Bruce has great strategies. Ready for a FREE consultation?";
-        conversationState = 'asking_selling_consultation';
-        
-        setTimeout(() => {
-            showUniversalBanner('freeBookWithConsultation');
-        }, 1500);
-        
-    } else {
-        // Didn't catch it - try again with prompting
-        responseText = firstName ?
-            `${firstName}, most sellers worry about getting fair value or timeline. Sound familiar?` :
-            "Most sellers worry about fair value or timeline. Sound familiar?";
-    }
-    
-} else if (conversationState === 'post_testimonial_close') {
-    // 🎯 STRAIGHT TO CLOSE AFTER TESTIMONIAL
-    responseText = firstName ?
-        `${firstName}, Bruce would love to help you overcome that concern. Ready for a FREE consultation?` :
-        "Bruce would love to help overcome that. Ready for a FREE consultation?";
-    conversationState = 'asking_selling_consultation';
-    
-    setTimeout(() => {
-        showUniversalBanner('freeBookWithConsultation');
-    }, 1500);
-    
-} else if (conversationState === 'asking_selling_consultation') {
-    if (userText.includes('yes') || userText.includes('sure') || userText.includes('okay') || userText.includes('definitely') || userText.includes('absolutely')) {
-        console.log('🎯 CONSULTATION YES - Starting lead capture immediately!');
-        setTimeout(() => {
-            startCompleteLeadCapture();
-        }, 100);
-        return "";
-        
-    } else if (userText.includes('no') || userText.includes('not now') || userText.includes('maybe later')) {
-        responseText = firstName ?
-            `No problem ${firstName}! The offer stands whenever you're ready. Anything else I can help with?` :
-            "No problem! The offer stands whenever ready. Anything else?";
-        conversationState = 'initial';
-        
-        setTimeout(() => {
-            showUniversalBanner('smartButton');
-        }, 1500);
-        
-    } else {
-        responseText = firstName ?
-            `${firstName}, would you like Bruce to call you for a free consultation? Yes or no?` :
-            "Would you like Bruce to call for a free consultation? Yes or no?";
-    }
-    
-} else if (conversationState === 'buying_budget_question') {
-    const budgetMatch = userText.match(/(\d+(?:,\d+)*(?:\.\d+)?)/);
-    const budget = budgetMatch ? budgetMatch[0] : 'that range';
-    
-    responseText = firstName ?
-        `Great ${firstName}! ${budget} opens up nice opportunities. CPA practice or general accounting?` :
-        `Great! ${budget} opens opportunities. CPA or general accounting?`;
-    conversationState = 'buying_type_question';
-    
-} else if (conversationState === 'buying_type_question') {
-    responseText = firstName ?
-        `Perfect ${firstName}! How soon are you looking to buy? Bruce has deals moving fast.` :
-        "Perfect! How soon? Bruce has deals moving fast.";
-    conversationState = 'buying_timeline_question';
-    
-} else if (conversationState === 'buying_timeline_question') {
-    responseText = firstName ?
-        `Excellent ${firstName}! Bruce has exclusive off-market opportunities. Want to see what matches your criteria?` :
-        "Excellent! Bruce has exclusive opportunities. Want to see what matches?";
-    conversationState = 'asking_buying_consultation';
-    
-    setTimeout(() => {
-        showUniversalBanner('freeBookWithConsultation');
-    }, 1500);
-    
-} else if (conversationState === 'asking_buying_consultation') {
-    if (userText.includes('yes') || userText.includes('sure') || userText.includes('okay') || userText.includes('definitely') || userText.includes('absolutely')) {
-        console.log('🎯 BUYING CONSULTATION YES - Starting lead capture immediately!');
-        setTimeout(() => {
-            startCompleteLeadCapture();
-        }, 100);
-        return "";
-        
-    } else if (userText.includes('no') || userText.includes('not now') || userText.includes('maybe later')) {
-        responseText = firstName ?
-            `That's fine ${firstName}! When ready, let me know. Anything else about buying?` :
-            "That's fine! When ready, let me know. Anything else?";
-        conversationState = 'initial';
-        
-        setTimeout(() => {
-            showUniversalBanner('smartButton');
-        }, 1500);
-        
-    } else {
-        responseText = firstName ?
-            `${firstName}, want to see Bruce's available practices? Yes or no?` :
-            "Want to see available practices? Yes or no?";
-    }
-    
-} else if (conversationState === 'asking_valuation_consultation') {
-    if (userText.includes('yes') || userText.includes('sure') || userText.includes('okay') || userText.includes('definitely') || userText.includes('absolutely')) {
-        console.log('🎯 VALUATION CONSULTATION YES - Starting lead capture immediately!');
-        setTimeout(() => {
-            startCompleteLeadCapture();
-        }, 100);
-        return "";
-        
-    } else if (userText.includes('no') || userText.includes('not now') || userText.includes('maybe later')) {
-        responseText = firstName ?
-            `No worries ${firstName}! The offer stands whenever ready. Anything else?` :
-            "No worries! Offer stands whenever ready. Anything else?";
-        conversationState = 'initial';
-        
-        setTimeout(() => {
-            showUniversalBanner('smartButton');
-        }, 1500);
-        
-    } else {
-        responseText = firstName ?
-            `${firstName}, want Bruce to provide a FREE valuation? Yes or no?` :
-            "Want a FREE valuation? Yes or no?";
-    }
-    
-} else if (conversationState === 'lead_capture_active') {
-    return "";
-
-} else if (conversationState === 'asking_if_more_help') {
-    if (userText.includes('no') || userText.includes('nothing') || userText.includes('done') || 
-        userText.includes('that\'s all') || userText.includes('nope') || userText.includes('thanks')) {
-        
-        responseText = firstName ?
-            `Thank you ${firstName}! Have a wonderful day! 🌟` :
-            "Thank you! Have a wonderful day! 🌟";
-        conversationState = 'ended';
-        
-        setTimeout(() => {
-            showUniversalBanner('thankYou');
-        }, 1000);
-        
-    } else {
-        conversationState = 'initial';
-        responseText = firstName ?
-            `Absolutely ${firstName}! What else about buying, selling, or valuing practices?` :
-            "Absolutely! What else about buying, selling, or valuing?";
-    }
-    
-} else if (conversationState === 'asking_anything_else') {
-    if (userText.includes('yes') || userText.includes('sure') || userText.includes('help')) {
-        responseText = firstName ?
-            `I'm here to help ${firstName}! What else about your practice?` :
-            "I'm here to help! What else?";
-        conversationState = 'initial';
-    } else {
-        conversationState = 'asking_if_more_help';
-        responseText = firstName ?
-            `Perfect ${firstName}! Anything else I can help with?` :
-            "Perfect! Anything else?";
-    }
-    
-} else {
-    if (conversationState !== 'ended') {
-        responseText = firstName ?
-            `Thanks ${firstName}! Anything else about buying, selling, or valuing practices?` :
-            "Thanks! Anything else about buying, selling, or valuing?";
-        conversationState = 'initial';
-        shouldShowSmartButton = false;
-    } else {
-        responseText = firstName ?
-            `Thank you ${firstName}! Have a great day.` :
-            "Thank you! Have a great day.";
-    }
-}
-
-// 🎯 EMAIL FOLLOW-UP HANDLER CHECK
-if (window.emailFollowUpHandler && window.emailFollowUpHandler(userInput)) {
-    return;
-}
-
-// ✅ SAVE RESPONSE TEXT TO lastAIResponse BEFORE RETURNING
-function setAIResponse(response) {
-    currentAIResponse = response;
-    
-    if (response && (response.includes('click') || response.includes('button above'))) {
-        window.lastClickMentionTime = Date.now();
-        console.log('⏰ Clock mention detected - setting blocking window');
-    }
-}
-
-return responseText;
-}
-
-// 🎯 ADD THIS FUNCTION AT THE END OF YOUR FILE:
-function shouldTriggerLeadCapture(userInput) {
-    const input = userInput.toLowerCase().trim();
-    
-    // User's affirmative responses
-    const yesResponses = [
-        'yes', 'yeah', 'yep', 'sure', 'ok', 'okay', 'absolutely', 
-        'definitely', 'of course', 'let\'s do it', 'sounds good',
-        'i would', 'i\'d like that', 'that sounds great', 'let\'s go'
-    ];
-    
-    // Check if we're in a consultation asking state
-    const consultationStates = [
-        'asking_selling_consultation',
-        'asking_buying_consultation', 
-        'asking_valuation_consultation'
-    ];
-    
-    return yesResponses.includes(input) && consultationStates.includes(conversationState);
-}
-
-// 🎯 ADD THIS FUNCTION AT THE END OF YOUR FILE:
-function shouldTriggerLeadCapture(userInput) {
-    const input = userInput.toLowerCase().trim();
-    
-    // User's affirmative responses
-    const yesResponses = [
-        'yes', 'yeah', 'yep', 'sure', 'ok', 'okay', 'absolutely', 
-        'definitely', 'of course', 'let\'s do it', 'sounds good',
-        'i would', 'i\'d like that', 'that sounds great', 'let\'s go'
-    ];
-    
-    // Check if we're in a consultation asking state
-    const consultationStates = [
-        'asking_selling_consultation',
-        'asking_buying_consultation', 
-        'asking_valuation_consultation'
-    ];
-    
-    return yesResponses.includes(input) && consultationStates.includes(conversationState);
-}
-
 // ===================================================
 // 🎤 HYBRID SPEAK NOW SYSTEM - MOBILE-WISE AI
 // ===================================================
@@ -3313,22 +2910,6 @@ function speakMessage(message) {
 
 
 
-// ===================================================
-// 📧 EMAIL FORMATTING FUNCTION
-// ===================================================
-function formatEmailFromSpeech(speechText) {
-    let formattedEmail = speechText.toLowerCase().trim();
-    
-    // Replace common speech patterns with email format
-    formattedEmail = formattedEmail
-        .replace(/\s*at\s+/g, '@')           // "at" becomes @
-        .replace(/\s*dot\s+/g, '.')          // "dot" becomes .
-        .replace(/\s+/g, '')                 // Remove all spaces
-        .replace(/,/g, '');                  // Remove commas
-    
-    console.log('📧 Email conversion:', speechText, '→', formattedEmail);
-    return formattedEmail;
-}
 
 // ===================================================
 // 🔄 FIXED PROCESS LEAD RESPONSE WITH EMAIL FORMATTING
@@ -4137,18 +3718,6 @@ function sendTextMessage() {
     }
 }
 
-// NEW FUNCTION: Switch to text mode
-function switchToTextMode() {
-    isAudioMode = false;
-    stopListening();
-    
-    const micButton = document.getElementById('micButton');
-    if (micButton) {
-        micButton.classList.remove('listening');
-    }
-    
-    addAIMessage("Switched to text mode. You can type your questions below.");
-}
 
 // 🚨 NEW FUNCTION: Exit to main website
 function exitToMainSite() {
@@ -4335,6 +3904,58 @@ function showTestimonialVideo(testimonialType, duration = 12000) {
     
     document.body.appendChild(avatarOverlay);
 
+    // 🎯 CONSULTATIVE CONCERN DETECTION SYSTEM
+function detectConsultativeResponse(userText) {
+    const text = userText.toLowerCase().trim();
+    
+    // 🎯 VALUE/WORTH CONCERNS
+    const valueConcerns = [
+        'concern', 'worried', 'afraid', 'nervous', 'anxious',
+        'worth', 'value', 'fair price', 'market value', 'low ball',
+        'undervalue', 'undersell', 'getting what', 'full value',
+        'what it\'s worth', 'fair deal', 'ripped off', 'enough money'
+    ];
+    
+    // 🎯 SPEED/TIMELINE CONCERNS  
+    const speedConcerns = [
+        'how long', 'timeline', 'time', 'quick', 'fast', 'speed',
+        'when', 'soon', 'quickly', 'process time', 'sell fast',
+        'too fast', 'rushed', 'patient', 'wait', 'takes forever'
+    ];
+    
+    // 🎯 CREDIBILITY/TRUST CONCERNS
+    const credibilityConcerns = [
+        'experience', 'credibility', 'trust', 'legitimate', 'proven',
+        'track record', 'skeptical', 'doubt', 'reliable', 'reputation',
+        'references', 'testimonials', 'reviews', 'who are you', 'can you really'
+    ];
+    
+    // Check for value concerns → Show "skeptical then exceeded" testimonial
+    for (let concern of valueConcerns) {
+        if (text.includes(concern)) {
+            console.log(`🎯 VALUE CONCERN detected: "${concern}" - will show value testimonial`);
+            return 'value';
+        }
+    }
+    
+    // Check for speed concerns → Show "speed of sale" testimonial
+    for (let concern of speedConcerns) {
+        if (text.includes(concern)) {
+            console.log(`🎯 SPEED CONCERN detected: "${concern}" - will show speed testimonial`);
+            return 'speed';
+        }
+    }
+    
+    // Check for credibility concerns → Show "skeptical then exceeded" testimonial
+    for (let concern of credibilityConcerns) {
+        if (text.includes(concern)) {
+            console.log(`🎯 CREDIBILITY CONCERN detected: "${concern}" - will show credibility testimonial`);
+            return 'credibility';
+        }
+    }
+    
+    return null; // No concern detected
+}
     
     // 🎯 CLEANUP - CONTINUES CONVERSATION (KEY DIFFERENCE FROM SORRY MESSAGE)
     function cleanup() {
@@ -4349,6 +3970,8 @@ function showTestimonialVideo(testimonialType, duration = 12000) {
         // 🎯 NO "Speak Now" - let conversation continue naturally
         setTimeout(() => {
             console.log('✅ Testimonial removed - conversation continues naturally');
+            window.testimonialBlocking = false;  // ✅ CLEAR blocking flag
+            console.log("✅ UNBLOCKED: \"Speak Now\" banner can now show for next response");
             // Conversation flows naturally without interruption
         }, 1000);
     }
@@ -4630,7 +4253,7 @@ if (!window.disableDirectTimeout) {
     setTimeout(() => {
         if (!speakSequenceActive) return;
         
-        console.log('⏰ DIRECT: 4-second listening window ended - no speech detected');
+        console.log('⏰ DIRECT: 12-second listening window ended - no speech detected');
         
         // Clean up and trigger avatar again
         window.clearBulletproofTimer();
@@ -4652,7 +4275,7 @@ if (!window.disableDirectTimeout) {
             showAvatarSorryMessage();
         }
         
-    }, 7000);
+    }, 12000);
 } else {
     console.log('🚫 DIRECT: Timeout disabled - banner will stay until speech detected');
 }
@@ -4839,7 +4462,7 @@ window.clearBulletproofTimer = function() {
                 width: 0%;
                 height: 100%;
                 background: linear-gradient(90deg, rgba(79, 195, 247, 0.6), rgba(25, 118, 210, 0.8));
-                transition: width 3s ease;
+                transition: width 3s ease; // PROPER TIMING: 3 seconds
                 z-index: 1;
             }
             
@@ -4955,7 +4578,7 @@ window.clearBulletproofTimer = function() {
    // Play sound on ALL devices, not just desktop
 playGetReadyAndSpeakNowSound();
     
-    // ===== TRANSITION TO SPEAK NOW (after 3 seconds) =====
+    // ===== TRANSITION TO SPEAK NOW (FASTER - 1.5 seconds) =====
     setTimeout(() => {
         if (!speakSequenceButton || !speakSequenceActive || !window.speakSequenceBlocked) {
             console.log('🛑 BULLETPROOF: Sequence interrupted - aborting transition');
@@ -4994,13 +4617,13 @@ playGetReadyAndSpeakNowSound();
                     startNormalInterviewListening();
                 }
             }
-        }, 200);
+        }, 50); // INSTANT: 50ms instead of 200ms
         
         // ===== LISTENING TIMEOUT WITH NUCLEAR SHUTDOWN =====
         setTimeout(() => {
             if (!speakSequenceActive) return;
             
-            console.log('⏰ 4-second listening window ended - no speech detected');
+            console.log('⏰ 12-second listening window ended - no speech detected');
             
             // ===== 💣 NUCLEAR SHUTDOWN BEFORE AVATAR =====
             console.log('💣 NUCLEAR SHUTDOWN: Completely stopping all speech recognition before avatar');
@@ -5081,9 +4704,9 @@ playGetReadyAndSpeakNowSound();
                 }
             }
             
-        }, 7000);
+        }, 12000);
         
-    }, 3000);
+    }, 3000); // PROPER TIMING: 3 seconds for voice setup
     
     // ===== SUCCESS HANDLER =====
     window.handleSpeechSuccess = function(transcript) {
@@ -5275,244 +4898,1212 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }, 1000);
 });
-// ===================================================
-// 🎯 TESTIMONIAL SYSTEM FUNCTIONS
-// ===================================================
-// These functions are ready to use when KB objection detection is added
-// For now, they can be manually triggered for testing
 
+// ===================================================
+// 🎯 INTEGRATED getAIResponse - Uses Hardcoded Engine
+// ===================================================
+function getAIResponse(userInput) {
+    console.log(`🎯 getAIResponse called with: "${userInput}"`);
+    
+    // Use hardcoded conversation engine
+    if (window.hardcodedConversationEngine) {
+        const response = window.hardcodedConversationEngine.getResponse(
+            userInput,
+            leadData.firstName || ''
+        );
+        
+        console.log(`✅ Response generated:`, response);
+        
+        // Update conversation state
+        if (response.newState) {
+            conversationState = response.newState;
+        }
+        
+        // Handle extracted data
+        if (response.extractedData) {
+            Object.assign(leadData, response.extractedData);
+        }
+        
+        // Handle testimonial offer
+        if (response.triggerTestimonialOffer) {
+            console.log(`🎬 Triggering testimonial offer: ${response.triggerTestimonialOffer}`);
+            
+            // Speak the AI response first
+            if (response.response) {
+                speakText(response.response);
+            }
+            
+            // After AI finishes speaking, show testimonial offer
+            setTimeout(() => {
+                if (typeof window.showTestimonialOffer === 'function') {
+                    window.showTestimonialOffer(
+                        response.triggerTestimonialOffer,
+                        response.response
+                    );
+                }
+            }, calculateSpeechDuration(response.response) + 500);
+            
+            return response.response;
+        }
+        
+        // Handle banner triggers
+        if (response.triggerBanner) {
+            console.log(`🎪 Triggering banner: ${response.triggerBanner}`);
+            setTimeout(() => {
+                if (typeof window.triggerBanner === 'function') {
+                    window.triggerBanner(response.triggerBanner);
+                }
+            }, calculateSpeechDuration(response.response) + 500);
+        }
+        
+        // Handle action triggers (lead capture)
+        if (response.action === 'start_lead_capture') {
+            console.log(`📋 Starting lead capture`);
+            
+            // Check if email already captured from URL
+            const capturedEmail = typeof window.getCapturedEmail === 'function' ? 
+                                 window.getCapturedEmail() : null;
+            
+            if (capturedEmail) {
+                // Email already available - send book immediately
+                console.log(`📧 Using pre-captured email: ${capturedEmail}`);
+                
+                const thankYouMsg = leadData.firstName ?
+                    `Perfect ${leadData.firstName}! I'm sending our exclusive guide to ${capturedEmail} right now. You should see it within a minute. Bruce will also follow up personally within 24 hours!` :
+                    `Perfect! I'm sending our exclusive guide to ${capturedEmail} right now. Bruce will follow up personally within 24 hours!`;
+                
+                speakText(thankYouMsg);
+                
+                // Send book confirmation
+                if (typeof window.sendBookConfirmation === 'function') {
+                    window.sendBookConfirmation(leadData.firstName || 'there', capturedEmail);
+                }
+                
+                return thankYouMsg;
+            } else {
+                // Need to capture email via lead form
+                setTimeout(() => {
+                    if (typeof startLeadCapture === 'function') {
+                        startLeadCapture();
+                    }
+                }, calculateSpeechDuration(response.response) + 500);
+            }
+        }
+        
+        return response.response || "I'm here to help! What would you like to know?";
+    }
+    
+    // Fallback if engine not loaded
+    console.error('❌ Hardcoded conversation engine not found!');
+    return "I'm here to help with CPA practice transactions. What brings you here today?";
+}
+
+// Helper: Calculate speech duration for timing
+function calculateSpeechDuration(text) {
+    if (!text) return 0;
+    const words = text.split(' ').length;
+    const wordsPerMinute = 150;
+    const durationMs = (words / wordsPerMinute) * 60 * 1000;
+    return Math.max(durationMs, 1000); // Minimum 1 second
+}
+
+// ===================================================
+// 🎯 HARDCODED CONVERSATION ENGINE - ZERO LATENCY
+// ===================================================
+// CPA Practice Sales & Acquisitions (New Clients, Inc.)
+// Date: October 18, 2025
+// Target: <10ms response time
+// ===================================================
+
+class HardcodedConversationEngine {
+    constructor() {
+        this.currentState = 'initial';
+        this.leadData = {
+            firstName: '',
+            intent: '',
+            clientCount: '',
+            revenue: '',
+            budget: '',
+            years: '',
+            motivation: ''
+        };
+        console.log('🚀 Hardcoded Conversation Engine - READY!');
+    }
+    
+    // ===================================================
+    // 🎯 MAIN RESPONSE HANDLER
+    // ===================================================
+    getResponse(userInput, firstName = '') {
+        const startTime = performance.now();
+        const input = userInput.toLowerCase().trim();
+        
+        console.log(`⚡ Processing: "${userInput}" | State: ${this.currentState}`);
+        
+        // Update firstName if provided
+        if (firstName) {
+            this.leadData.firstName = firstName;
+        }
+        
+        // 1️⃣ Check for objections FIRST (highest priority)
+        const objection = this.checkObjection(input);
+        if (objection) {
+            const elapsed = performance.now() - startTime;
+            console.log(`✅ Objection detected in ${elapsed.toFixed(2)}ms`);
+            return objection;
+        }
+        
+        // 2️⃣ Handle current state
+        const stateResponse = this.handleState(input, userInput);
+        if (stateResponse) {
+            const elapsed = performance.now() - startTime;
+            console.log(`✅ Response in ${elapsed.toFixed(2)}ms`);
+            return stateResponse;
+        }
+        
+        // 3️⃣ Fallback
+        const fallback = this.getFallback();
+        const elapsed = performance.now() - startTime;
+        console.log(`✅ Fallback in ${elapsed.toFixed(2)}ms`);
+        return fallback;
+    }
+    
+    // ===================================================
+    // 🚨 OBJECTION DETECTION - Returns testimonial offer
+    // ===================================================
+    checkObjection(input) {
+        const firstName = this.leadData.firstName;
+        
+        // TIMELINE CONCERN
+        if (input.includes('how long') || input.includes('timeline') || 
+            input.includes('duration') || input.includes('fast') || 
+            input.includes('quick') || input.includes('time')) {
+            return {
+                response: firstName ? 
+                    `Great question ${firstName}! We've had clients with the same timeline concerns. Would you like to hear what one of them experienced?` :
+                    "Great question! We've worked with clients who had the same timeline concerns. Would you like to hear what one of them experienced?",
+                newState: this.currentState,
+                triggerTestimonialOffer: 'speed',
+                source: 'objection_timeline'
+            };
+        }
+        
+        // TRUST/GUARANTEE CONCERN
+        if (input.includes('guarantee') || input.includes('sure') || 
+            input.includes('trust') || input.includes('promise') || 
+            input.includes('really') || input.includes('certain') || 
+            input.includes('proof')) {
+            return {
+                response: firstName ?
+                    `${firstName}, I completely understand! We've had clients who felt the same way initially. Would you like to hear what they said after working with Bruce?` :
+                    "I completely understand! We've had clients who felt the same way initially. Would you like to hear what they said after working with Bruce?",
+                newState: this.currentState,
+                triggerTestimonialOffer: 'skeptical',
+                source: 'objection_trust'
+            };
+        }
+        
+        // VALUE CONCERN
+        if (input.includes('worth') || input.includes('value') || 
+            input.includes('price') || input.includes('fair') || 
+            input.includes('market') || input.includes('competitive')) {
+            return {
+                response: firstName ?
+                    `${firstName}, that's important! We have clients who were concerned about value too. Would you like to hear their experience?` :
+                    "That's important! We have clients who were concerned about value too. Would you like to hear their experience?",
+                newState: this.currentState,
+                triggerTestimonialOffer: 'skeptical',
+                source: 'objection_value'
+            };
+        }
+        
+        return null;
+    }
+    
+    // ===================================================
+    // 🎯 STATE HANDLERS
+    // ===================================================
+    handleState(input, originalInput) {
+        const firstName = this.leadData.firstName;
+        
+        // ========== STATE: INITIAL ==========
+        if (this.currentState === 'initial') {
+            // Check if we need name first
+            if (!firstName) {
+                const hasBusinessIntent = input.includes('buy') || input.includes('sell') || 
+                                         input.includes('value') || input.includes('worth') ||
+                                         input.includes('purchase') || input.includes('acquire');
+                
+                if (!hasBusinessIntent) {
+                    this.currentState = 'getting_first_name';
+                    return {
+                        response: "Before we dive in, what's your first name?",
+                        newState: 'getting_first_name',
+                        source: 'initial_name_request'
+                    };
+                }
+            }
+            
+            // Check for BUY intent
+            if (input.includes('buy') || input.includes('buying') || 
+                input.includes('purchase') || input.includes('acquire')) {
+                this.leadData.intent = 'buying';
+                this.currentState = 'buying_budget_question';
+                return {
+                    response: firstName ?
+                        `Excellent ${firstName}! Bruce has exclusive off-market deals available. What's your budget range?` :
+                        "Excellent! Bruce has exclusive off-market opportunities available. What's your budget range?",
+                    newState: 'buying_budget_question',
+                    triggerBanner: 'freeBookWithConsultation',
+                    source: 'initial_buy_intent'
+                };
+            }
+            
+            // Check for SELL intent
+            if (input.includes('sell') || input.includes('selling')) {
+                this.leadData.intent = 'selling';
+                this.currentState = 'selling_size_question';
+                return {
+                    response: firstName ?
+                        `Wow ${firstName}! That's a huge decision. How many clients are you serving?` :
+                        "Great! Selling is a big decision. How many clients are you currently serving?",
+                    newState: 'selling_size_question',
+                    triggerBanner: 'freeBookWithConsultation',
+                    source: 'initial_sell_intent'
+                };
+            }
+            
+            // Check for VALUATION intent
+            if (input.includes('value') || input.includes('worth') || 
+                input.includes('valuation') || input.includes('evaluate')) {
+                this.leadData.intent = 'valuation';
+                this.currentState = 'valuation_revenue_question';
+                return {
+                    response: firstName ?
+                        `${firstName}, I'd be happy to help! Most owners are shocked at their practice's actual value. What's your approximate annual revenue?` :
+                        "Happy to help with a valuation! Most owners are surprised at their practice's value. What's your approximate annual revenue?",
+                    newState: 'valuation_revenue_question',
+                    triggerBanner: 'freeBookWithConsultation',
+                    source: 'initial_value_intent'
+                };
+            }
+            
+            // No clear intent - prompt
+            return {
+                response: firstName ?
+                    `${firstName}, I'm here to help with CPA firm transactions - buying, selling, and practice valuations. What brings you here today?` :
+                    "Hi there! I'm here to help with CPA firm transactions - buying, selling, and practice valuations. What brings you here today?",
+                newState: 'initial',
+                source: 'initial_prompt'
+            };
+        }
+        
+        // ========== STATE: GETTING_FIRST_NAME ==========
+        if (this.currentState === 'getting_first_name') {
+            const name = this.extractFirstName(originalInput);
+            if (name) {
+                this.leadData.firstName = name;
+                this.currentState = 'initial';
+                return {
+                    response: `Great to meet you ${name}! Now, what brings you here - buy, sell, or valuation?`,
+                    newState: 'initial',
+                    extractedData: { firstName: name },
+                    source: 'name_captured'
+                };
+            } else {
+                return {
+                    response: "I didn't catch your name. Could you tell me your first name?",
+                    newState: 'getting_first_name',
+                    source: 'name_retry'
+                };
+            }
+        }
+        
+        // ========== SELLING PATH ==========
+        
+        if (this.currentState === 'selling_size_question') {
+            const clientCount = this.extractNumber(originalInput);
+            this.leadData.clientCount = clientCount;
+            this.currentState = 'selling_revenue_question';
+            return {
+                response: firstName ?
+                    `Incredible! ${clientCount} clients - that's fantastic! With that client base, what's your approximate annual revenue?` :
+                    `Wow! ${clientCount} clients - impressive! What's your annual revenue range?`,
+                newState: 'selling_revenue_question',
+                extractedData: { clientCount },
+                source: 'selling_size'
+            };
+        }
+        
+        if (this.currentState === 'selling_revenue_question') {
+            const revenue = this.extractRevenue(originalInput);
+            this.leadData.revenue = revenue;
+            this.currentState = 'selling_motivation_question';
+            return {
+                response: firstName ?
+                    `Excellent! ${revenue} in revenue - you've built something valuable. What's driving your decision to sell? Retirement, new opportunities, or something else?` :
+                    `Excellent! ${revenue} - solid practice! What's driving your decision to sell?`,
+                newState: 'selling_motivation_question',
+                extractedData: { revenue },
+                source: 'selling_revenue'
+            };
+        }
+        
+        if (this.currentState === 'selling_motivation_question') {
+            this.leadData.motivation = originalInput;
+            this.currentState = 'asking_selling_consultation';
+            return {
+                response: firstName ?
+                    `Thanks ${firstName}! Based on everything you've told me, Bruce can get you top dollar. Market's on fire. Ready for a FREE consultation?` :
+                    "Thank you for sharing! Based on your client base and revenue, Bruce can help you get top dollar. The market is strong right now. Would you like a FREE consultation with Bruce?",
+                newState: 'asking_selling_consultation',
+                triggerBanner: 'freeBookWithConsultation',
+                source: 'selling_motivation'
+            };
+        }
+        
+        if (this.currentState === 'asking_selling_consultation') {
+            // Check for YES
+            if (input.includes('yes') || input.includes('sure') || input.includes('okay') || 
+                input.includes('definitely') || input.includes('absolutely')) {
+                return {
+                    response: "",
+                    newState: this.currentState,
+                    action: 'start_lead_capture',
+                    source: 'consultation_yes'
+                };
+            }
+            
+            // Check for NO
+            if (input.includes('no') || input.includes('not now') || input.includes('maybe later')) {
+                this.currentState = 'initial';
+                return {
+                    response: firstName ?
+                        `No problem ${firstName}! Offer stands. Anything else about selling?` :
+                        "No problem! The offer stands whenever you're ready. Anything else about selling?",
+                    newState: 'initial',
+                    triggerBanner: 'smartButton',
+                    source: 'consultation_no'
+                };
+            }
+            
+            // Unclear - clarify
+            return {
+                response: firstName ?
+                    `${firstName}, want Bruce to call you for free consultation? Yes or no?` :
+                    "Just to clarify - would you like Bruce to call you for a free consultation? Yes or no?",
+                newState: this.currentState,
+                source: 'consultation_clarify'
+            };
+        }
+        
+        // ========== BUYING PATH ==========
+        
+        if (this.currentState === 'buying_budget_question') {
+            const budget = this.extractBudget(originalInput);
+            this.leadData.budget = budget;
+            this.currentState = 'buying_type_question';
+            return {
+                response: firstName ?
+                    `Great ${firstName}! ${budget} - nice opportunities in that range. CPA practice specifically, or general accounting?` :
+                    `Great! ${budget} opens up excellent opportunities. Looking specifically for CPA practice, or would accounting work too?`,
+                newState: 'buying_type_question',
+                extractedData: { budget },
+                source: 'buying_budget'
+            };
+        }
+        
+        if (this.currentState === 'buying_type_question') {
+            this.currentState = 'buying_timeline_question';
+            return {
+                response: firstName ?
+                    `Perfect ${firstName}! More options to work with. How soon for purchase?` :
+                    "Perfect! That gives us more options. How soon are you looking to complete a purchase?",
+                newState: 'buying_timeline_question',
+                source: 'buying_type'
+            };
+        }
+        
+        if (this.currentState === 'buying_timeline_question') {
+            this.currentState = 'asking_buying_consultation';
+            return {
+                response: firstName ?
+                    `Excellent ${firstName}! Bruce has exclusive off-market deals - not advertised anywhere. Perfect matches for your criteria. Want to see?` :
+                    "Excellent! Bruce has exclusive off-market opportunities you can't find online. Based on your criteria, he has perfect matches. Want to see them?",
+                newState: 'asking_buying_consultation',
+                triggerBanner: 'freeBookWithConsultation',
+                source: 'buying_timeline'
+            };
+        }
+        
+        if (this.currentState === 'asking_buying_consultation') {
+            // Check for YES
+            if (input.includes('yes') || input.includes('sure') || input.includes('okay') || 
+                input.includes('definitely') || input.includes('absolutely')) {
+                return {
+                    response: "",
+                    newState: this.currentState,
+                    action: 'start_lead_capture',
+                    source: 'consultation_yes'
+                };
+            }
+            
+            // Check for NO
+            if (input.includes('no') || input.includes('not now') || input.includes('maybe later')) {
+                this.currentState = 'initial';
+                return {
+                    response: firstName ?
+                        `Fine ${firstName}! Just let me know when ready. Opportunities don't last long. Anything else?` :
+                        "That's fine! When ready, let me know. These opportunities move fast. Anything else about buying?",
+                    newState: 'initial',
+                    triggerBanner: 'smartButton',
+                    source: 'consultation_no'
+                };
+            }
+            
+            // Unclear - clarify
+            return {
+                response: firstName ?
+                    `${firstName}, want Bruce to show you available practices? Yes or no?` :
+                    "Would you like Bruce to show you available practices? Yes or no?",
+                newState: this.currentState,
+                source: 'consultation_clarify'
+            };
+        }
+        
+        // ========== VALUATION PATH ==========
+        
+        if (this.currentState === 'valuation_revenue_question') {
+            const revenue = this.extractRevenue(originalInput);
+            this.leadData.revenue = revenue;
+            this.currentState = 'valuation_years_question';
+            return {
+                response: firstName ?
+                    `Thanks ${firstName}! ${revenue} - solid! How many years in practice? Longevity impacts value.` :
+                    `Thank you! ${revenue} - solid! How many years have you been in practice? Longevity really impacts valuation.`,
+                newState: 'valuation_years_question',
+                extractedData: { revenue },
+                source: 'valuation_revenue'
+            };
+        }
+        
+        if (this.currentState === 'valuation_years_question') {
+            const years = this.extractYears(originalInput);
+            this.leadData.years = years;
+            this.currentState = 'asking_valuation_consultation';
+            return {
+                response: firstName ?
+                    `Perfect ${firstName}! ${years} years - incredibly well-established! Bruce can provide FREE valuation. Might surprise you. Ready to schedule?` :
+                    `Perfect! ${years} years - well-established! Bruce can provide a comprehensive FREE valuation. You might be surprised at the value. Want to schedule it?`,
+                newState: 'asking_valuation_consultation',
+                triggerBanner: 'freeBookWithConsultation',
+                extractedData: { years },
+                source: 'valuation_years'
+            };
+        }
+        
+        if (this.currentState === 'asking_valuation_consultation') {
+            // Check for YES
+            if (input.includes('yes') || input.includes('sure') || input.includes('okay') || 
+                input.includes('definitely') || input.includes('absolutely')) {
+                return {
+                    response: "",
+                    newState: this.currentState,
+                    action: 'start_lead_capture',
+                    source: 'consultation_yes'
+                };
+            }
+            
+            // Check for NO
+            if (input.includes('no') || input.includes('not now') || input.includes('maybe later')) {
+                this.currentState = 'initial';
+                return {
+                    response: firstName ?
+                        `No worries ${firstName}! Offer stands. Anything else about valuations?` :
+                        "No worries! Offer stands whenever you're ready. Anything else about valuations?",
+                    newState: 'initial',
+                    triggerBanner: 'smartButton',
+                    source: 'consultation_no'
+                };
+            }
+            
+            // Unclear - clarify
+            return {
+                response: firstName ?
+                    `${firstName}, want Bruce to provide free valuation? Yes or no?` :
+                    "Would you like Bruce to provide a free valuation? Yes or no?",
+                newState: this.currentState,
+                source: 'consultation_clarify'
+            };
+        }
+        
+        return null;
+    }
+    
+    // ===================================================
+    // 🔧 EXTRACTION HELPERS
+    // ===================================================
+    extractFirstName(input) {
+        const words = input.trim().split(' ');
+        const name = words[0].replace(/[^a-zA-Z]/g, '');
+        
+        if (name.length > 1 && name.length < 20) {
+            return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+        }
+        return null;
+    }
+    
+    extractNumber(input) {
+        const match = input.match(/(\d+(?:,\d+)*)/);
+        return match ? match[0] : 'that many';
+    }
+    
+    extractRevenue(input) {
+        const match = input.match(/(\d+(?:,\d+)*(?:\.\d+)?)/);
+        if (match) {
+            const num = parseInt(match[0].replace(/,/g, ''));
+            if (num >= 1000000) {
+                return `$${(num / 1000000).toFixed(1)}M`;
+            } else if (num >= 1000) {
+                return `$${(num / 1000).toFixed(0)}K`;
+            } else {
+                return `$${match[0]}`;
+            }
+        }
+        return 'that kind of revenue';
+    }
+    
+    extractBudget(input) {
+        const match = input.match(/(\d+(?:,\d+)*(?:\.\d+)?)/);
+        if (match) {
+            const num = parseInt(match[0].replace(/,/g, ''));
+            if (num >= 1000000) {
+                return `$${(num / 1000000).toFixed(1)}M`;
+            } else if (num >= 1000) {
+                return `$${(num / 1000).toFixed(0)}K`;
+            } else {
+                return `$${match[0]}`;
+            }
+        }
+        return 'that range';
+    }
+    
+    extractYears(input) {
+        const match = input.match(/(\d+)/);
+        return match ? match[0] : 'that many';
+    }
+    
+    getFallback() {
+        const firstName = this.leadData.firstName;
+        return {
+            response: firstName ?
+                `${firstName}, that's a great question! Let me connect you with our team. Ready for a consultation?` :
+                "That's a great question! A specialist can provide detailed information. Would you like to schedule a consultation?",
+            newState: this.currentState,
+            source: 'fallback'
+        };
+    }
+    
+    // ===================================================
+    // 🎯 STATE MANAGEMENT
+    // ===================================================
+    setState(newState) {
+        console.log(`🔄 State: ${this.currentState} → ${newState}`);
+        this.currentState = newState;
+    }
+    
+    getState() {
+        return this.currentState;
+    }
+    
+    resetState() {
+        this.currentState = 'initial';
+        this.leadData = {
+            firstName: '',
+            intent: '',
+            clientCount: '',
+            revenue: '',
+            budget: '',
+            years: '',
+            motivation: ''
+        };
+        console.log('🔄 State reset');
+    }
+}
+
+// Initialize
+window.hardcodedConversationEngine = new HardcodedConversationEngine();
+console.log('✅ Hardcoded Conversation Engine - LOADED!');
+
+// ===================================================
+// 🎬 TESTIMONIAL SYSTEM - Consent-Based Offers
+// ===================================================
+// Integrates with Universal Banner System
+// Date: October 18, 2025
+// ===================================================
+
+// Testimonial video URLs
+const TESTIMONIAL_VIDEOS = {
+    'skeptical': {
+        id: 'skeptical',
+        title: 'Skeptical, Then Exceeded Expectations',
+        url: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982717330.mp4',
+        duration: 12000,
+        contexts: ['trust', 'value', 'credibility', 'guarantee']
+    },
+    'speed': {
+        id: 'speed',
+        title: 'Surprised by the Speed of the Sale',
+        url: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982877040.mp4',
+        duration: 12000,
+        contexts: ['timeline', 'how long', 'fast', 'quick']
+    }
+};
+
+let pendingTestimonialType = null;
+let testimonialVideoActive = false;
+
+// ===================================================
+// 🎯 SHOW TESTIMONIAL OFFER (Using Universal Banner)
+// ===================================================
 window.showTestimonialOffer = function(testimonialType, customMessage) {
-    console.log(`💬 Offering ${testimonialType} testimonial via universal banner`);
+    console.log(`💬 Offering ${testimonialType} testimonial`);
     
     // Store which testimonial we're offering
     pendingTestimonialType = testimonialType;
     
-    // Find the objection that matches this testimonial (from Data JSON)
-    if (window.knowledgeBaseData?.objection_handling) {
-        currentObjection = window.knowledgeBaseData.objection_handling.objections
-            .find(o => o.testimonialOffer === testimonialType);
-        console.log('📋 Objection found:', currentObjection?.type);
-    }
-    
-    // Trigger the banner using your existing system
-    window.showUniversalBanner('testimonialOffer');
-    
-    // Update the message text if provided
-    if (customMessage) {
-        setTimeout(() => {
-            const messageEl = document.getElementById('testimonialOfferMessage');
-            if (messageEl) {
-                messageEl.textContent = customMessage;
-            }
-        }, 100);
-    }
-    
-    // Wire up button handlers
-    setTimeout(() => {
-        const yesBtn = document.getElementById('testimonialYesBtn');
-        const noBtn = document.getElementById('testimonialNoBtn');
+    // Check if universal banner system exists
+    if (typeof window.showUniversalBanner === 'function') {
+        // Use existing banner system
+        window.showUniversalBanner('testimonialOffer');
         
-        if (yesBtn) {
-            yesBtn.onclick = function(e) {
-                e.stopPropagation();
-                console.log(`✅ User clicked YES - playing ${pendingTestimonialType} testimonial`);
-                
-                // Remove banner
-                window.removeAllBanners(false);
-                
-                // Play testimonial
-                if (pendingTestimonialType) {
+        // Update message if provided
+        if (customMessage) {
+            setTimeout(() => {
+                const messageEl = document.getElementById('testimonialOfferMessage');
+                if (messageEl) {
+                    messageEl.textContent = customMessage;
+                }
+            }, 100);
+        }
+        
+        // Wire up buttons
+        setTimeout(() => {
+            const yesBtn = document.getElementById('testimonialYesBtn');
+            const noBtn = document.getElementById('testimonialNoBtn');
+            
+            if (yesBtn) {
+                yesBtn.onclick = function(e) {
+                    e.stopPropagation();
+                    console.log(`✅ User clicked YES - playing ${pendingTestimonialType}`);
+                    window.removeAllBanners(false);
                     showTestimonialVideo(pendingTestimonialType);
                     pendingTestimonialType = null;
-                    currentObjection = null;
-                }
-            };
-        }
-        
-        if (noBtn) {
-            noBtn.onclick = function(e) {
-                e.stopPropagation();
-                console.log('❌ User clicked NO - going to consultation close');
-                
-                // Remove banner
-                window.removeAllBanners(false);
-                
-                // 🎯 GET NO RESPONSE FROM DATA JSON
-                const noMessage = currentObjection 
-                    ? (leadData.firstName 
-                        ? currentObjection.no_response_with_name.replace('{firstName}', leadData.firstName)
-                        : currentObjection.no_response)
-                    : (leadData.firstName
-                        ? `No problem ${leadData.firstName}! I'm sure Bruce can give you the information you need.`
-                        : `No problem! I'm sure Bruce can give you the information you need.`);
-                
-                console.log('💬 AI saying (from Data JSON):', noMessage);
-                
-                // AI speaks bridge message
-                addAIMessage(noMessage);
-                speakResponse(noMessage);
-                
-                // 🎯 CHECK IF WE SHOULD SHOW CONSULTATION BANNER
-                if (currentObjection?.no_action === 'show_consultation_banner') {
-                    console.log('🎯 Triggering consultation banner');
-                    setTimeout(() => {
-                        window.showUniversalBanner('freeBookWithConsultation');
-                    }, 2000);
-                }
-                
-                pendingTestimonialType = null;
-                currentObjection = null;
-            };
-        }
-    }, 200);
+                };
+            }
+            
+            if (noBtn) {
+                noBtn.onclick = function(e) {
+                    e.stopPropagation();
+                    console.log('❌ User clicked NO - continuing');
+                    window.removeAllBanners(true);
+                    pendingTestimonialType = null;
+                };
+            }
+        }, 200);
+    } else {
+        // Fallback: Show simple banner
+        showSimpleTestimonialBanner(testimonialType, customMessage);
+    }
 };
 
-
-function showTestimonialVideo(testimonialType, duration = 12000) {
-    console.log(`🎬 Playing ${testimonialType} testimonial for ${duration}ms`);
-    
-    if (window.avatarCurrentlyPlaying) {
-        console.log('🚫 Avatar already playing');
+// ===================================================
+// 🎬 SHOW TESTIMONIAL VIDEO
+// ===================================================
+function showTestimonialVideo(testimonialType) {
+    if (testimonialVideoActive) {
+        console.log('⚠️ Video already playing');
         return;
     }
     
-    window.avatarCurrentlyPlaying = true;
-    window.speakSequenceActive = true;
+    const video = TESTIMONIAL_VIDEOS[testimonialType];
+    if (!video) {
+        console.error(`❌ Testimonial ${testimonialType} not found`);
+        return;
+    }
     
-    const testimonialVideos = {
-        skeptical: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982717330.mp4",
-        speed: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982877040.mp4"
-    };
+    console.log(`🎬 Playing testimonial: ${video.title}`);
+    testimonialVideoActive = true;
     
-    const videoUrl = testimonialVideos[testimonialType] || testimonialVideos.skeptical;
-    const isMobile = window.innerWidth <= 768;
-    
-    // USE FULL VIEWPORT HEIGHT (882px), NOT CONTAINER HEIGHT (542px)
-    const viewportHeight = window.innerHeight; // 882px
-    const videoHeight = 525;
-    
-    // Center in FULL viewport
-    const topPosition = (viewportHeight - videoHeight) / 2; // (882 - 525) / 2 = 178.5px from top
-    
-    console.log(`📐 Full viewport: ${viewportHeight}px, video ${videoHeight}px, centering at ${topPosition}px from top`);
-    
-    // OVERLAY
-const overlay = document.createElement('div');
-overlay.id = 'testimonial-overlay';
-overlay.style.cssText = `
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.40);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 999999;
-`;
-
-// VIDEO CONTAINER - Absolute positioning at calculated center
-const videoContainer = document.createElement('div');
-
-if (isMobile) {
-    videoContainer.style.cssText = `
-        position: absolute;
+    // Create overlay
+    const overlay = document.createElement('div');
+    overlay.id = 'testimonialVideoOverlay';
+    overlay.style.cssText = `
+        position: fixed;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-    `;
-} else {
-    // DESKTOP: Push video down 50px from center
-    videoContainer.style.cssText = `
-        position: relative;
-        width: 260px;
-        height: 400px;
+        background: rgba(0, 0, 0, 0.9);
+        z-index: 999999;
         display: flex;
-        flex-direction: column;
-        align-items: center;
         justify-content: center;
-        margin-top: 18px;
-    `;
-}
-    
-    // VIDEO
-    const video = document.createElement('video');
-    video.autoplay = true;
-    video.playsInline = true;
-    video.style.cssText = `
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        background: #000;
-        display: block;
-    `;
-    video.innerHTML = `<source src="${videoUrl}" type="video/mp4">`;
-    
-    // EXIT BUTTON
-    const exitButton = document.createElement('button');
-    exitButton.textContent = 'EXIT VIDEO';
-    exitButton.style.cssText = `
-        position: absolute;
-        top: 16px;
-        right: 16px;
-        background: rgba(255, 255, 255, 0.95);
-        color: #000;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 6px;
-        font-weight: bold;
-        font-size: 14px;
-        cursor: pointer;
-        z-index: 1000000;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        transition: all 0.2s ease;
+        align-items: center;
+        animation: fadeIn 0.3s ease;
     `;
     
-    exitButton.onmouseover = () => {
-        exitButton.style.background = '#ff4444';
-        exitButton.style.color = '#fff';
-    };
+    overlay.innerHTML = `
+        <div style="
+            position: relative;
+            width: 90%;
+            max-width: 640px;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        ">
+            <button id="closeTestimonialBtn" style="
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                width: 40px;
+                height: 40px;
+                background: rgba(255,255,255,0.9);
+                border: none;
+                border-radius: 50%;
+                font-size: 24px;
+                font-weight: bold;
+                cursor: pointer;
+                z-index: 10;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.2s;
+            ">×</button>
+            
+            <video id="testimonialVideo" 
+                   controls 
+                   autoplay 
+                   playsinline
+                   style="width: 100%; display: block;">
+                <source src="${video.url}" type="video/mp4">
+            </video>
+            
+            <div style="
+                padding: 15px 20px;
+                background: linear-gradient(135deg, #667eea, #764ba2);
+                color: white;
+                text-align: center;
+            ">
+                <div style="font-size: 16px; font-weight: 600;">
+                    ${video.title}
+                </div>
+            </div>
+        </div>
+    `;
     
-    exitButton.onmouseout = () => {
-        exitButton.style.background = 'rgba(255, 255, 255, 0.95)';
-        exitButton.style.color = '#000';
-    };
-    
-    function cleanup() {
-        console.log(`✅ Exiting testimonial ${testimonialType}`);
-        video.pause();
-        video.src = '';
-        if (overlay.parentNode) overlay.remove();
-        window.avatarCurrentlyPlaying = false;
-        window.speakSequenceActive = false;
-        window.testimonialBlocking = false;
-        if (window.testimonialAutoCloseTimer) clearTimeout(window.testimonialAutoCloseTimer);
-        setTimeout(() => {
-            if (window.showDirectSpeakNow) showDirectSpeakNow();
-        }, 500);
-    }
-    
-    exitButton.onclick = cleanup;
-    // Let video play to its natural end
-video.onended = () => {
-    console.log(`✅ Video finished naturally - auto-closing`);
-    cleanup();
-};
-
-// Safety timeout (only if video fails to load/play)
-window.testimonialAutoCloseTimer = setTimeout(() => {
-    console.log(`⚠️ Safety timeout triggered after 60 seconds`);
-    cleanup();
-}, 60000); // 60 seconds safety net
-    
-    videoContainer.appendChild(video);
-    videoContainer.appendChild(exitButton);
-    overlay.appendChild(videoContainer);
-    
-    // CRITICAL: Append to BODY, not container
     document.body.appendChild(overlay);
     
-    console.log(`📺 Video positioned at ${topPosition}px from viewport top (should be ~178px for centering)`);
+    // Close button handler
+    const closeBtn = document.getElementById('closeTestimonialBtn');
+    const videoEl = document.getElementById('testimonialVideo');
+    
+    closeBtn.addEventListener('click', () => {
+        closeTestimonialVideo();
+    });
+    
+    // Close when video ends
+    videoEl.addEventListener('ended', () => {
+        setTimeout(() => {
+            closeTestimonialVideo();
+        }, 1000);
+    });
+    
+    // Close on overlay click (outside video)
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+            closeTestimonialVideo();
+        }
+    });
 }
+
+function closeTestimonialVideo() {
+    const overlay = document.getElementById('testimonialVideoOverlay');
+    if (overlay) {
+        overlay.style.animation = 'fadeOut 0.3s ease';
+        setTimeout(() => {
+            overlay.remove();
+            testimonialVideoActive = false;
+            console.log('✅ Testimonial video closed');
+        }, 300);
+    }
+}
+
+// ===================================================
+// 🎯 FALLBACK: Simple Banner (if Universal Banner not available)
+// ===================================================
+function showSimpleTestimonialBanner(testimonialType, message) {
+    const banner = document.createElement('div');
+    banner.id = 'simpleTestimonialBanner';
+    banner.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 90%;
+        max-width: 500px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        z-index: 999998;
+        text-align: center;
+        animation: slideUp 0.3s ease;
+    `;
+    
+    banner.innerHTML = `
+        <div style="font-size: 18px; font-weight: 600; margin-bottom: 20px; line-height: 1.4;">
+            ${message || 'Would you like to see a quick testimonial?'}
+        </div>
+        
+        <div style="display: flex; gap: 15px; justify-content: center;">
+            <button id="simpleBannerYes" style="
+                flex: 1;
+                padding: 15px 30px;
+                background: white;
+                color: #667eea;
+                border: none;
+                border-radius: 8px;
+                font-size: 16px;
+                font-weight: bold;
+                cursor: pointer;
+                transition: all 0.2s;
+            ">✅ YES, SHOW ME</button>
+            
+            <button id="simpleBannerNo" style="
+                flex: 1;
+                padding: 15px 30px;
+                background: rgba(255,255,255,0.2);
+                color: white;
+                border: 2px solid white;
+                border-radius: 8px;
+                font-size: 16px;
+                font-weight: bold;
+                cursor: pointer;
+                transition: all 0.2s;
+            ">❌ NO, CONTINUE</button>
+        </div>
+    `;
+    
+    document.body.appendChild(banner);
+    
+    // Wire up buttons
+    document.getElementById('simpleBannerYes').addEventListener('click', () => {
+        banner.remove();
+        showTestimonialVideo(testimonialType);
+    });
+    
+    document.getElementById('simpleBannerNo').addEventListener('click', () => {
+        banner.remove();
+    });
+}
+
+// ===================================================
+// 🎨 ANIMATIONS
+// ===================================================
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    @keyframes fadeOut {
+        from { opacity: 1; }
+        to { opacity: 0; }
+    }
+    
+    @keyframes slideUp {
+        from { 
+            opacity: 0;
+            transform: translate(-50%, -40%);
+        }
+        to { 
+            opacity: 1;
+            transform: translate(-50%, -50%);
+        }
+    }
+`;
+document.head.appendChild(style);
+
+console.log('✅ Testimonial System - LOADED!');
+console.log('📹 Available testimonials:', Object.keys(TESTIMONIAL_VIDEOS));
+
+// ===================================================
+// 📧 EMAIL INTEGRATION - Dynamic Email Handling
+// ===================================================
+// Reads email from URL parameter (from audit tool)
+// Sends book confirmation in real-time during demo
+// Date: October 18, 2025
+// ===================================================
+
+// Email configuration
+const EMAIL_CONFIG = {
+    apiEndpoint: 'YOUR_EMAIL_API_ENDPOINT', // Replace with actual endpoint
+    fromEmail: 'ai@freemobileaudit.biz',
+    fromName: 'Mobile-Wize AI Assistant',
+    bookPdfUrl: 'https://your-cdn.com/cpa-practice-guide.pdf',
+    notificationEmail: 'your-notifications@gmail.com' // Where lead notifications go
+};
+
+// Extract email from URL parameter
+let capturedEmail = null;
+
+// ===================================================
+// 🎯 INITIALIZE EMAIL FROM URL
+// ===================================================
+function initializeEmailFromURL() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const emailParam = urlParams.get('email');
+    
+    if (emailParam && isValidEmail(emailParam)) {
+        capturedEmail = emailParam;
+        console.log(`✅ Email captured from URL: ${capturedEmail}`);
+        return true;
+    } else {
+        console.log('ℹ️ No email in URL parameter');
+        return false;
+    }
+}
+
+// ===================================================
+// 📧 SEND BOOK CONFIRMATION EMAIL
+// ===================================================
+window.sendBookConfirmation = function(userName, userEmail = null) {
+    // Use email from URL parameter if not provided
+    const email = userEmail || capturedEmail;
+    
+    if (!email) {
+        console.error('❌ No email available to send book');
+        return false;
+    }
+    
+    if (!isValidEmail(email)) {
+        console.error('❌ Invalid email format:', email);
+        return false;
+    }
+    
+    console.log(`📧 Sending book confirmation to ${email}`);
+    
+    // Show UI notification immediately
+    showEmailSentNotification(email);
+    
+    // Prepare email data
+    const emailData = {
+        to: email,
+        subject: `Here's Your Free CPA Practice Guide, ${userName}!`,
+        template: 'book-confirmation',
+        data: {
+            name: userName,
+            email: email,
+            bookUrl: EMAIL_CONFIG.bookPdfUrl,
+            bookTitle: 'CPA Practice Buyer\'s Guide',
+            companyName: 'New Clients, Inc.',
+            contactName: 'Bruce Clark',
+            contactPhone: '1-888-639-2543'
+        }
+    };
+    
+    // Send email via API
+    if (EMAIL_CONFIG.apiEndpoint !== 'YOUR_EMAIL_API_ENDPOINT') {
+        sendEmailViaAPI(emailData);
+    } else {
+        console.log('⚠️ Email API not configured - simulation mode');
+        console.log('📧 Would send:', emailData);
+        simulateEmailSend(emailData);
+    }
+    
+    // Send notification to you
+    sendLeadNotification(userName, email, 'book_requested');
+    
+    return true;
+};
+
+// ===================================================
+// 🔧 EMAIL VALIDATION
+// ===================================================
+function isValidEmail(email) {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+}
+
+// ===================================================
+// 📤 SEND EMAIL VIA API
+// ===================================================
+function sendEmailViaAPI(emailData) {
+    fetch(EMAIL_CONFIG.apiEndpoint, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(emailData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('✅ Email sent successfully:', data);
+    })
+    .catch(error => {
+        console.error('❌ Email send failed:', error);
+    });
+}
+
+// ===================================================
+// 🎭 SIMULATE EMAIL SEND (Development Mode)
+// ===================================================
+function simulateEmailSend(emailData) {
+    console.log('═══════════════════════════════════════');
+    console.log('📧 EMAIL SIMULATION');
+    console.log('═══════════════════════════════════════');
+    console.log('TO:', emailData.to);
+    console.log('SUBJECT:', emailData.subject);
+    console.log('───────────────────────────────────────');
+    console.log('Hi ' + emailData.data.name + ',');
+    console.log('');
+    console.log('Great talking with you! As promised, here\'s');
+    console.log('your FREE ' + emailData.data.bookTitle + '.');
+    console.log('');
+    console.log('[DOWNLOAD GUIDE] ' + emailData.data.bookUrl);
+    console.log('');
+    console.log('💡 IMAGINE THIS:');
+    console.log('');
+    console.log('This is the EXACT experience YOUR customers');
+    console.log('would get with Mobile-Wize AI:');
+    console.log('');
+    console.log('✓ Instant engagement (no forms)');
+    console.log('✓ Personalized conversation');
+    console.log('✓ Automatic follow-up (this email)');
+    console.log('✓ Lead captured automatically');
+    console.log('');
+    console.log('Want this for YOUR business?');
+    console.log('[SCHEDULE YOUR DEMO]');
+    console.log('');
+    console.log('───────────────────────────────────────');
+    console.log(emailData.data.companyName);
+    console.log(emailData.data.contactName + ' | ' + emailData.data.contactPhone);
+    console.log('═══════════════════════════════════════');
+}
+
+// ===================================================
+// 📧 SEND LEAD NOTIFICATION (To You)
+// ===================================================
+function sendLeadNotification(userName, userEmail, action) {
+    const notificationData = {
+        to: EMAIL_CONFIG.notificationEmail,
+        subject: `📘 DEMO ACTIVE: ${userName} requested book`,
+        template: 'lead-notification',
+        data: {
+            name: userName,
+            email: userEmail,
+            action: action,
+            timestamp: new Date().toISOString(),
+            demoUrl: window.location.href
+        }
+    };
+    
+    console.log('📧 Sending lead notification:', notificationData);
+    
+    if (EMAIL_CONFIG.apiEndpoint !== 'YOUR_EMAIL_API_ENDPOINT') {
+        sendEmailViaAPI(notificationData);
+    } else {
+        console.log('⚠️ Lead notification simulation:', notificationData);
+    }
+}
+
+// ===================================================
+// 🎨 SHOW EMAIL SENT NOTIFICATION (UI)
+// ===================================================
+function showEmailSentNotification(email) {
+    // Remove existing notification if any
+    const existing = document.getElementById('emailSentNotification');
+    if (existing) existing.remove();
+    
+    const notification = document.createElement('div');
+    notification.id = 'emailSentNotification';
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        padding: 20px 30px;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        z-index: 999999;
+        animation: slideInRight 0.5s ease, fadeOut 0.5s ease 4.5s;
+        max-width: 350px;
+    `;
+    
+    notification.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <div style="font-size: 32px;">📧</div>
+            <div>
+                <div style="font-size: 16px; font-weight: bold; margin-bottom: 5px;">
+                    Book Sent!
+                </div>
+                <div style="font-size: 13px; opacity: 0.9;">
+                    Check ${email}
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.remove();
+        }
+    }, 5000);
+}
+
+// ===================================================
+// 🎨 ANIMATIONS
+// ===================================================
+const emailStyle = document.createElement('style');
+emailStyle.textContent = `
+    @keyframes slideInRight {
+        from {
+            transform: translateX(400px);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+`;
+document.head.appendChild(emailStyle);
+
+// ===================================================
+// 🚀 INITIALIZE ON LOAD
+// ===================================================
+window.addEventListener('DOMContentLoaded', () => {
+    const hasEmail = initializeEmailFromURL();
+    if (hasEmail) {
+        console.log('✅ Demo ready with pre-captured email');
+    }
+});
+
+// Export for access
+window.getCapturedEmail = () => capturedEmail;
+window.setCapturedEmail = (email) => {
+    if (isValidEmail(email)) {
+        capturedEmail = email;
+        console.log(`✅ Email set: ${email}`);
+        return true;
+    }
+    return false;
+};
+
+console.log('✅ Email Integration System - LOADED!');
