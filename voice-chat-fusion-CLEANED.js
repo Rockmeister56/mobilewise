@@ -4370,12 +4370,12 @@ if (isMobile) {
     videoContainer.style.cssText = `
         position: relative;
         width: 260px;
-        height: 400px;
+        height: 410px;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        margin-top: 20px;
+        margin-top: 30px;
     `;
 }
     
