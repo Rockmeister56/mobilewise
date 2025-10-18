@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice AI Demo - New Clients, Inc.</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .demo-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 1200px;
+            width: 100%;
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 16px;
+            opacity: 0.95;
+        }
+        
+        .voice-chat-area {
+            padding: 40px;
+            min-height: 500px;
+        }
+        
+        .instructions {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+        }
+        
+        .instructions h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        
+        .instructions ul {
+            list-style: none;
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin: 8px 0;
+            color: #555;
+        }
+        
+        .instructions li:before {
+            content: "✓ ";
+            color: #667eea;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        
+        #voiceChatContainer {
+            /* Voice chat will inject its own styles */
+        }
+        
+        .footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #10b981;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 22px;
+            }
+            
+            .header p {
+                font-size: 14px;
+            }
+            
+            .voice-chat-area {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🎙️ Mobile-Wize AI Voice Assistant</h1>
+            <p>CPA Practice Sales & Acquisitions Demo</p>
+            <p style="font-size: 13px; margin-top: 10px; opacity: 0.85;">
+                <span class="status-indicator"></span>
+                Live Demo • New Clients, Inc. / Bruce Clark
+            </p>
+        </div>
+        
+        <!-- Main Voice Chat Area -->
+        <div class="voice-chat-area">
+            <!-- Instructions -->
+            <div class="instructions">
+                <h3>🚀 How to Use This Demo</h3>
+                <ul>
+                    <li>Click "Allow" when prompted for microphone access</li>
+                    <li>Speak naturally - the AI will respond with voice</li>
+                    <li>Try: "I want to sell my practice" or "I want to buy"</li>
+                    <li>Ask questions like "How long does this take?"</li>
+                    <li>Experience testimonials and automated email follow-up</li>
+                </ul>
+            </div>
+            
+            <!-- Voice Chat Container (populated by script) -->
+            <div id="voiceChatContainer">
+                <!-- Voice chat UI will be injected here -->
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <p>Built by Mobile-Wize AI • Demo Version</p>
+            <p style="margin-top: 5px; font-size: 12px;">
+                <strong>Note:</strong> This is a demonstration. Email sending is simulated (check console).
+            </p>
+        </div>
+    </div>
+    
+    <!-- Load the voice chat demo script -->
+    <script src="voice-chat-fusion-DEMO-READY.js"></script>
+    
+    <script>
+        // Additional demo setup if needed
+        console.log('═══════════════════════════════════════');
+        console.log('🚀 VOICE AI DEMO - LOADED');
+        console.log('═══════════════════════════════════════');
+        console.log('Client: New Clients, Inc. / Bruce Clark');
+        console.log('Industry: CPA Practice Sales');
+        console.log('Email Mode:', window.getCapturedEmail() ? 'Pre-Captured' : 'Will Capture');
+        console.log('═══════════════════════════════════════');
+    </script>
+</body>
+</html>
