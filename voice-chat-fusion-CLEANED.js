@@ -4375,7 +4375,7 @@ if (isMobile) {
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        margin-top: 23px;
+        margin-top: 18px;
     `;
 }
     
