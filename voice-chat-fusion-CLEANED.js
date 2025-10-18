@@ -1,14 +1,31 @@
 // ===================================================
-// 🎯 MOBILE-WISE AI VOICE CHAT - KB INTEGRATED VERSION
+// 🚀 MOBILE-WISE AI VOICE CHAT - KB-TEST VERSION
 // ===================================================
-// CHANGES FROM PREVIOUS VERSION:
-// ✅ REMOVED: Hardcoded first name prompt in 'initial' state (line ~5001)
-// ✅ REMOVED: Hardcoded 'getting_first_name' response block (line ~5024)
-// 🎯 RESULT: All name capture now handled by KB Loader
-//           Uses greeting.with_name from CPA JSON with {firstName} substitution
+// 🎯 PURPOSE: Test KB-powered conversation engine with testimonial system
 // 
-// Date: October 15, 2025
-// Captain: Mobile-Wise AI Empire
+// 🔧 ARCHITECTURE:
+//    - Audio System: 100% from WORKING file (proven mobile audio)
+//    - Conversation Brain: KB-powered getAIResponse() 
+//    - Knowledge Base: window.conversationEngine + window.knowledgeBaseData
+//    - Testimonial System: showTestimonialOffer() + showTestimonialVideo()
+//
+// ⚠️  TESTING STATUS: NEEDS MOBILE VERIFICATION
+//    ✅ Audio initialization preserved
+//    ✅ startListening() timing preserved
+//    ✅ KB safety checks added
+//    ⚠️  Mobile name capture - NEEDS TESTING
+//    ⚠️  Objection detection - NEEDS TESTING
+//    ⚠️  Testimonial system - NEEDS TESTING
+//
+// 📋 REQUIRED FILES (must load before this file):
+//    1. data json new.txt → window.knowledgeBaseData
+//    2. CONVERSATION ENGINE.txt → window.conversationEngine
+//
+// 🔄 ROLLBACK PLAN:
+//    If broken: Revert to voice-chat-fusion.js (working backup)
+//
+// Date: October 18, 2025
+// Captain: Mobile-Wise AI Empire | Rocketman: AI Development
 // ===================================================
 
 // ===================================================
@@ -55,7 +72,6 @@ let lastMessageWasApology = false;
 let isInLeadCapture = false;
 let speechDetected = false;
 let currentAIResponse = '';
-let conversationHistory = []; // Track conversation for lead capture logic
 window.leadData = window.leadData || {
     firstName: '',
     step: 0,
@@ -86,10 +102,7 @@ class SpeechEngineManager {
         }
         
         if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-            console.log('❌ Speech recognition not supported in this browser');
-            if (typeof addAIMessage === 'function') {
-                addAIMessage("Your browser doesn't support speech recognition. Please use Chrome or Edge.");
-            }
+            console.log('❌ Speech not supported');
             return false;
         }
         
@@ -99,104 +112,9 @@ class SpeechEngineManager {
         this.recognition.continuous = false;
         this.recognition.interimResults = true;
         this.recognition.lang = 'en-US';
-        this.recognition.maxAlternatives = 1;
-        
-        // ✅ PROPER: Set up audio detection handlers
-        this.recognition.onsoundstart = () => {
-            console.log('🎤 🎤 🎤 SOUND DETECTED by recognition engine!');
-            speechDetected = true;
-        };
-        this.recognition.onaudiostart = () => {
-            console.log('🎤 🎤 🎤 AUDIO INPUT STARTED!');
-        };
-        this.recognition.onspeechstart = () => {
-            console.log('🗣️ 🗣️ 🗣️ SPEECH DETECTED!');
-            speechDetected = true;
-        };
-        this.recognition.onspeechend = () => {
-            console.log('🗣️ Speech ended');
-        };
-        
-        // 🎯 SET UP CORE HANDLERS ONCE - Don't overwrite these!
-        this.setupCoreHandlers();
         
         console.log('🎯 Speech engine created successfully');
         return true;
-    }
-    
-    setupCoreHandlers() {
-        console.log('🎯 Setting up CORE recognition handlers (ONE TIME ONLY)');
-        
-        // 🎯 ONRESULT - This is the most important handler!
-        this.recognition.onresult = function(event) {
-            console.log('🎯 🎯 🎯 ONRESULT FIRED! Got transcript!');
-            let transcript = Array.from(event.results)
-                .map(result => result[0])
-                .map(result => result.transcript)
-                .join('');
-
-            transcript = transcript.replace(/\.+$/, '');
-            console.log('🎤 Transcript:', transcript);
-            
-            const transcriptText = document.getElementById('transcriptText');
-            const userInput = document.getElementById('userInput');
-            
-            if (transcriptText) {
-                transcriptText.textContent = 'Speak Now';
-            }
-            
-            if (userInput) {
-                userInput.value = transcript;
-                console.log('✅ Transcript saved to userInput:', transcript);
-            }
-            
-            // Auto-send in lead capture mode
-            if (isInLeadCapture) {
-                clearTimeout(window.leadCaptureTimeout);
-                window.leadCaptureTimeout = setTimeout(() => {
-                    if (transcript.trim().length > 1 && userInput.value === transcript) {
-                        console.log('🎯 Lead capture auto-send:', transcript);
-                        sendMessage();
-                    }
-                }, 1500);
-            }
-        };
-        
-        // 🎯 ONERROR - Handle speech recognition errors
-        this.recognition.onerror = function(event) {
-            console.log('🔊 Speech error from CORE handler:', event.error);
-            
-            if (event.error === 'no-speech') {
-                console.log('⚠️ No speech detected - will be handled by onend');
-                // Don't do anything here - let onend handle it
-                return;
-            }
-            
-            if (event.error === 'audio-capture') {
-                console.log('🎤 No microphone detected');
-                if (typeof addAIMessage === 'function') {
-                    addAIMessage("I can't detect your microphone. Please check your audio settings.");
-                }
-            }
-            
-            if (event.error === 'not-allowed') {
-                console.log('🔒 Permission denied');
-                if (typeof addAIMessage === 'function') {
-                    addAIMessage("Microphone permission was denied. Please allow microphone access to continue.");
-                }
-            }
-            
-            if (event.error === 'aborted') {
-                console.log('🛑 Recognition aborted - normal for quick restarts');
-            }
-        };
-        
-        // 🎯 ONSTART - Log when recognition starts
-        this.recognition.onstart = function() {
-            console.log('✅ Recognition STARTED (from CORE handler)');
-        };
-        
-        console.log('✅ CORE HANDLERS installed in SpeechEngineManager');
     }
     
     getEngine() {
@@ -215,7 +133,8 @@ console.log('🚀 Speech Engine Manager initialized');
 // 🚨 NUCLEAR MOBILE DETECTION - SCREEN SIZE ONLY
 const isDefinitelyMobile = window.innerWidth <= 768 || window.innerHeight <= 1024;
 
-if (isDefinitelyMobile) {
+// 🚨 FIX: Check if event exists before accessing event.error
+if (isDefinitelyMobile || (event && event.error === 'no-speech')) {
     console.log('📱 NUCLEAR MOBILE DETECTED: Using visual feedback system');
 }
 
@@ -339,7 +258,7 @@ function showPostSorryListening() {
         } else {
             console.log('❌ POST-SORRY: Recognition object not found');
         }
-    }, 25); // INSTANT: 25ms instead of 100ms
+    }, 100);
     
     // 🚫 NO CLEANUP TIMER - Let it run until user speaks or session naturally ends!
     console.log('✅ POST-SORRY: Function completed - no cleanup timer set');
@@ -457,9 +376,8 @@ function playListeningStopsSound() {
 }
 
 // ===================================================
-// 🎤 SPEECH RECOGNITION SYSTEM - DISABLED (Using SpeechEngineManager)
+// 🎤 SPEECH RECOGNITION SYSTEM
 // ===================================================
-/*
 function checkSpeechSupport() {
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
         console.log('❌ Speech recognition not supported in this browser');
@@ -469,7 +387,7 @@ function checkSpeechSupport() {
     return true;
 }
 
-function initializeSpeechRecognization() {
+function initializeSpeechRecognition() {
     if (!checkSpeechSupport()) return false;
 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -487,7 +405,6 @@ function initializeSpeechRecognization() {
     console.log('✅ Speech recognition initialized');
     return true;
 }
-*/
 
 function getApologyResponse() {
     const sorryMessages = [
@@ -526,26 +443,57 @@ function getApologyResponse() {
     }
     
     console.log('🎯 startListening() called');
+    if (!checkSpeechSupport()) return;
     if (isSpeaking) return;
     
     try {
-        // 🎯 ALWAYS USE SPEECH ENGINE MANAGER (mobile + desktop)
-        if (!speechEngine.isReady()) {
-            console.log('🎯 Initializing speech engine...');
-            const initialized = await speechEngine.initializeEngine();
-            if (!initialized) {
-                console.log('❌ Speech engine initialization failed');
-                return;
-            }
+        // 🎯 MOBILE-SPECIFIC PRE-WARMING
+        const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+        
+        if (isMobile && !speechEngine.isReady()) {
+            console.log('📱 Mobile detected - pre-warming engine...');
+            await speechEngine.initializeEngine();
         }
         
         if (!recognition) {
-            recognition = speechEngine.getEngine();
-            console.log('✅ Using Speech Engine Manager (handlers already set)');
+            if (isMobile && speechEngine.isReady()) {
+                recognition = speechEngine.getEngine();
+                console.log('📱 Using pre-warmed mobile engine');
+            } else {
+                initializeSpeechRecognition();
+            }
         }
 
-        // 🚫 DON'T re-assign onresult - it's already set in SpeechEngineManager!
-        // The core handlers (onresult, onsoundstart, etc.) are set ONCE during engine initialization
+        // Keep ALL your existing event handlers - they're perfect
+        recognition.onresult = function(event) {
+            let transcript = Array.from(event.results)
+                .map(result => result[0])
+                .map(result => result.transcript)
+                .join('');
+
+            transcript = transcript.replace(/\.+$/, '');
+            
+            const transcriptText = document.getElementById('transcriptText');
+            const userInput = document.getElementById('userInput');
+            
+            if (transcriptText) {
+                transcriptText.textContent = 'Speak Now';
+            }
+            
+            if (userInput) {
+                userInput.value = transcript;
+            }
+            
+            if (isInLeadCapture) {
+                clearTimeout(window.leadCaptureTimeout);
+                window.leadCaptureTimeout = setTimeout(() => {
+                    if (transcript.trim().length > 1 && userInput.value === transcript) {
+                        console.log('🎯 Lead capture auto-send:', transcript);
+                        sendMessage();
+                    }
+                }, 1500);
+            }
+        };
 
     recognition.onerror = function(event) {
     console.log('🔊 Speech error:', event.error);
@@ -568,7 +516,7 @@ function getApologyResponse() {
 
     // 🎯 FALLBACK SYSTEM (only if handleSpeechRecognitionError doesn't exist)
     if (event.error === 'no-speech') {
-        const transcriptText = document.getElementById('transcriptText');
+        const transcriptText = document.getElementById('transcriptText');recognition.onerror
 
         console.log('🔍 MOBILE DEBUG:', {
             userAgent: navigator.userAgent,
@@ -603,21 +551,14 @@ function getApologyResponse() {
                     }
 
                     if (isAudioMode && !isSpeaking) {
-            // ✅ ONLY restart if we're past 8 seconds of "Speak Now"
-            // This prevents early interruption but still helps stuck states
-            if (speakSequenceActive && Date.now() - window.speakNowStartTime > 8000) {
-                console.log('🔄 Mobile: Restarting via hybrid system (after 8+ seconds)');
-                isListening = false;
+                        console.log('🔄 Mobile: Restarting via hybrid system');
+                        isListening = false;
 
-                setTimeout(() => {
-                    showHybridReadySequence();
-                }, 800);
-            } else {
-                console.log('⚠️ Too early to restart - keeping current sequence active');
-            }
-        }
-        
-    }, 1500);
+                        setTimeout(() => {
+                            showHybridReadySequence();
+                        }, 800);
+                    }
+                }, 1500);
             }
 
         } else {
@@ -695,15 +636,8 @@ function getApologyResponse() {
             sendMessage(currentMessage);
         }
     } else {
-        // No transcript captured - check if speech was detected
-        if (speechDetected) {
-            console.log('⚠️ Speech detected but no transcript captured - unclear speech');
-            console.log('🎯 speechDetected flag was:', speechDetected);
-            // Reset flag for next attempt
-            speechDetected = false;
-        } else {
-            console.log('🔄 No speech detected at all via onend - showing try again overlay');
-        }
+        // No speech detected - show simple overlay instead of complex restart
+        console.log('🔄 No speech detected via onend - showing try again overlay');
 
         // 🔓 CLEAR THE BLOCKING FLAG AFTER NO SPEECH
         setTimeout(() => {
@@ -732,10 +666,12 @@ function getApologyResponse() {
     }
 };
         
-        // 🎯 MOBILE TIMING DELAY - REMOVED FOR FASTER RESPONSE
-        const delay = 0; // No delays - instant response
+        // 🎯 MOBILE TIMING DELAY
+        const delay = isMobile ? 100 : 0; // Only delay on mobile
         
-        console.log('⚡ Instant response mode - no delays');
+        if (delay > 0) {
+            console.log(`⏱️ Adding ${delay}ms mobile delay`);
+        }
 
     } catch (error) {
         console.error('❌ Error starting speech recognition:', error);
@@ -763,31 +699,101 @@ function stopListening() {
 // ===================================================
 
 // 🎯 ADD THIS TO YOUR forceStartListening() FUNCTION - REPLACE THE EXISTING ONE:
-async function forceStartListening() {
+function forceStartListening() {
     console.log('🎤 TEST 8: forceStartListening() CALLED at:', Date.now());
     console.log('🎤 TEST 9: isSpeaking:', isSpeaking);
     console.log('🎤 TEST 10: recognition exists:', !!recognition);
     console.log('🔄 FORCE starting speech recognition (mobile reset)');
     
+    if (!checkSpeechSupport()) return;
     if (isSpeaking) return;
     
     try {
-        // 🎯 USE SPEECH ENGINE MANAGER ONLY
-        if (!speechEngine.isReady()) {
-            const initialized = await speechEngine.initializeEngine();
-            if (!initialized) return;
-        }
-        
         if (!recognition) {
-            recognition = speechEngine.getEngine();
+            initializeSpeechRecognition();
         }
         
         // 🎯 DIAGNOSTIC: Check recognition state BEFORE starting
         console.log('🔍 DIAGNOSTIC: Recognition state before start:', recognition.state || 'undefined');
         
-        // 🚫 DON'T OVERWRITE HANDLERS! They're already set in SpeechEngineManager
-        // The handlers (onresult, onerror, onstart) are configured during initialization
-        console.log('✅ Using existing handlers from SpeechEngineManager (not overwriting)');
+        // 🎯 DIAGNOSTIC: Add detailed event logging
+        recognition.onstart = function() {
+            console.log('✅ DIAGNOSTIC: Recognition STARTED successfully');
+        };
+        
+        recognition.onerror = function(event) {
+    console.log('🔊 Speech error:', event.error);
+
+    if (event.error === 'no-speech') {
+        const transcriptText = document.getElementById('transcriptText');
+
+        console.log('🔍 MOBILE DEBUG:', {
+            userAgent: navigator.userAgent,
+            isMobile: /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent),
+            isTouch: ('ontouchstart' in window || navigator.maxTouchPoints > 0)
+        });
+
+        // 🚨 NUCLEAR MOBILE DETECTION - REPLACE THE OLD CHECK
+        const isDefinitelyMobile = window.innerWidth <= 768 || window.innerHeight <= 1024;
+
+        if (isDefinitelyMobile) {
+            console.log('📱📱📱 NUCLEAR MOBILE DETECTED: Using visual feedback system');
+
+            if (window.noSpeechTimeout) {
+                clearTimeout(window.noSpeechTimeout);
+            }
+
+            if (transcriptText) {
+                transcriptText.textContent = 'I didn\'t hear anything...';
+                transcriptText.style.color = '#ff6b6b';
+
+                window.noSpeechTimeout = setTimeout(() => {
+                    if (transcriptText) {
+                        transcriptText.textContent = 'Please speak now';
+                        transcriptText.style.color = '#ffffff';
+                    }
+
+                    if (isAudioMode && !isSpeaking) {
+                        console.log('🔄 Mobile: Restarting via hybrid system');
+                        isListening = false;
+
+                        setTimeout(() => {
+                            showHybridReadySequence();
+                        }, 500);
+                    }
+                },  1000);
+            }
+
+        } else {
+            console.log('🖥️ Desktop: Using voice apology system');
+
+            lastMessageWasApology = true;
+            const apologyResponse = getApologyResponse();
+
+            stopListening();
+
+            setTimeout(() => {
+                addAIMessage(apologyResponse);
+                speakResponse(apologyResponse);
+
+                if (restartTimeout) clearTimeout(restartTimeout);
+
+                restartTimeout = setTimeout(() => {
+                    if (isAudioMode && !isListening && !isSpeaking) {
+                        startListening();
+                    }
+                    lastMessageWasApology = false;
+                }, 500);
+            }, 500);
+        }
+    } else if (event.error === 'audio-capture') {
+        console.log('🎤 No microphone detected');
+        addAIMessage("I can't detect your microphone. Please check your audio settings.");
+    } else if (event.error === 'not-allowed') {
+        console.log('🔒 Permission denied');
+        addAIMessage("Microphone permission was denied. Please allow microphone access to continue.");
+    }
+};
         
         console.log('🎤 Force starting speech recognition...');
         recognition.start();
@@ -897,18 +903,16 @@ async function activateMicrophone() {
                 micButton.classList.add('listening');
             }
             
-            // Initialize speech engine
-            await speechEngine.initializeEngine();
-            recognition = speechEngine.getEngine();
+            initializeSpeechRecognition();
 
             document.getElementById('quickButtonsContainer').style.display = 'block';
 
            setTimeout(() => {
     // Initialize conversation system - BULLETPROOF VERSION
     if (typeof conversationState === 'undefined') {
-        window.conversationState = 'initial';
+        window.conversationState = 'getting_first_name';
     } else {
-        conversationState = 'initial';
+        conversationState = 'getting_first_name';
     }
     
     // Initialize leadData if it doesn't exist
@@ -916,25 +920,7 @@ async function activateMicrophone() {
         window.leadData = { firstName: '' };
     }
     
-    // 🎯 KB-POWERED GREETING - Use KB system if loaded
-    let greeting;
-    
-    // Check if KB system is loaded and has greeting
-    if (window.conversationKB && window.conversationKB.kb && window.conversationKB.kb.greeting) {
-        greeting = window.conversationKB.kb.greeting.initial;
-        console.log('✅ Using KB greeting:', greeting);
-    } else {
-        // Fallback to simple greeting if KB not loaded yet
-        greeting = "Hi there! I'm Boatimia, your personal AI Voice assistant. May I get your first name please?";
-        console.log('⚠️ KB not loaded yet - using fallback greeting');
-    }
-    
-    // 🎯 CRITICAL: SYNC STATE - We just asked for name, so set engine to expect name response
-    if (window.conversationEngine) {
-        window.conversationEngine.currentState = 'getting_first_name';
-        console.log('🎯 Synced ConversationEngine state to: getting_first_name');
-    }
-    
+    const greeting = "Hi there! I'm here to help with CPA firm transactions - buying, selling, and practice valuations. Before we dive in, may I get your first name?";
     addAIMessage(greeting);
     speakResponse(greeting);
 }, 1400);
@@ -969,10 +955,6 @@ function addUserMessage(message) {
     messageElement.textContent = message;
     
     chatMessages.appendChild(messageElement);
-    
-    // Track in conversation history
-    conversationHistory.push({ role: 'user', content: message });
-    
     scrollChatToBottom();
 }
 
@@ -985,10 +967,6 @@ function addAIMessage(message) {
     messageElement.textContent = message;
     
     chatMessages.appendChild(messageElement);
-    
-    // Track in conversation history
-    conversationHistory.push({ role: 'assistant', content: message });
-    
     scrollChatToBottom();
 }
 
@@ -1115,7 +1093,7 @@ if (shouldTriggerLeadCapture(userText)) {
 }
 
 // Default AI response handler
-setTimeout(async () => {
+setTimeout(() => {
     const responseText = getAIResponse(userText);
 
     console.log('🎯 USER SAID:', userText);
@@ -1261,10 +1239,7 @@ const VOICE_CONFIG = {
     // BRITISH VOICE CONFIG
     british: {
         enabled: true,   // ← FREE, always available
-        priority: ['Microsoft Hazel - English (Great Britain)', 'Kate', 'Serena', 'Google UK English Female'],
-        rate: 1.1,       // ← SPEED CONTROL (1.0 = normal, 1.1 = 10% faster, 1.2 = 20% faster)
-        pitch: 1.0,      // ← PITCH CONTROL
-        volume: 0.9      // ← VOLUME CONTROL
+        priority: ['Microsoft Hazel - English (Great Britain)', 'Kate', 'Serena', 'Google UK English Female']
     },
     
     // FALLBACK BROWSER CONFIG
@@ -1528,7 +1503,7 @@ class MobileWiseVoiceSystem {
         });
     }
     
-   // ===========================================
+    // ===========================================
     // BRITISH VOICE PROVIDER
     // ===========================================
     async speakWithBritish(text) {
@@ -1543,7 +1518,7 @@ class MobileWiseVoiceSystem {
             utterance.voice = voiceSystem.selectedBritishVoice;
             
             // Optimized settings for British voice
-            utterance.rate = 0.95;      // ← CHANGED from 0.85 to 1.1 (30% faster!)
+            utterance.rate = 0.85;
             utterance.pitch = 1.05;
             utterance.volume = 0.85;
             
@@ -1631,12 +1606,6 @@ class MobileWiseVoiceSystem {
         // Apply exact ElevenLabs blocking logic
         if (timeSinceClickMention < 3000) {
             console.log('🚫 BLOCKED: Recent click mention detected (ElevenLabs logic)');
-            return;
-        }
-        
-        // 🚫 BLOCK if testimonial is about to play or currently playing
-        if (window.testimonialBlocking) {
-            console.log("🚫 BLOCKED: Testimonial is playing - skipping \"Speak Now\" banner");
             return;
         }
         
@@ -1770,6 +1739,13 @@ if (VOICE_CONFIG.debug) {
     console.log("🚀 ElevenLabs Banner Logic: PERMANENTLY INTEGRATED");
     console.log("🎯 Smart Button Blocking: PERMANENTLY REMOVED");
 }
+
+// Auto-show status after initialization
+setTimeout(() => {
+    if (VOICE_CONFIG.debug && voiceSystem.isInitialized) {
+        window.getVoiceStatus();
+    }
+}, 3000);
 
 // ===========================================
 // 📧 EMAIL CONFIGURATION FIX
@@ -1954,7 +1930,7 @@ avatar: {
 },
 
 // 3. EMAIL SENT CONFIRMATION (Already standardized - keeping as reference)
-emailConfirmationSent: {
+emailSent: {
     content: `
         <div style="width: ${742}px; max-width: ${742}px; margin: 0 auto; background: rgba(32, 178, 170, 0.8); border-radius: 6px; height: 58px; display: flex; align-items: center; justify-content: center;">
             <div style="text-align: center; color: white;">
@@ -1973,8 +1949,8 @@ emailConfirmationSent: {
     duration: 4000
 },
 
-// 4. FREE INCENTIVE OFFER 1
-clicktoCall: {
+// 4. FREE BOOK OFFER 1
+freeBookSimple: {
     content: `
         <div style="width: ${742}px; max-width: ${742}px; margin: 0 auto; height: 58px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; border-radius: 6px; background: linear-gradient(135deg, #FF6B6B, #4ECDC4);">
             <div style="color: white;">
@@ -2146,7 +2122,7 @@ consultationConfirmed: {
     duration: 5000
 },
 
-// 6. CLICK-TO-CALL 
+// 6. CLICK-TO-CALL BANNER
 clickToCall: {
     content: `
         <div style="width: ${742}px; max-width: ${742}px; margin: 0 auto; height: 58px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; border-radius: 6px; background: linear-gradient(135deg, #0044ffff, #0a0b50ff);">
@@ -2174,8 +2150,8 @@ clickToCall: {
     duration: 0
 },
 
-// 7. CONTACT INFORMATION
- contactInformation: {
+// 7. MORE QUESTIONS BANNER
+moreQuestions: {
     content: `
         <div style="width: ${742}px; max-width: ${742}px; margin: 0 auto; height: 58px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-radius: 6px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
             <div style="color: white;">
@@ -2203,134 +2179,6 @@ clickToCall: {
     background: 'rgba(255, 255, 255, 0.15)',
     containerWidth: 752, // 🚀 WHITE LAYER WIDTH CONTROL
     customHeight: 65, // 🚀 WHITE LAYER HEIGHT CONTROL
-    duration: 0
-},
-
-// 10. TESTIMONIAL OFFER (NEW - User Consent Required)
-testimonialOffer: {
-    content: `
-        <div class="banner-glow-container" style="width: 760px; max-width: 760px; margin: 0 auto; height: 80px; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 12px 30px; border-radius: 8px; background: linear-gradient(135deg, #0f19d8ff, #0688d4ff, #0cb7deff); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
-            
-           <!-- LEFT: 5-Star Badge -->
-            <div style="display: flex; align-items: center; margin-right: 20px; position: relative; top: 15px;">
-                <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1760673126772_5stars.png" 
-                     class="stars-glow"
-                     style="width: 125px; height: auto;">
-            </div>
-            
-            <!-- YES/NO Buttons -->
-<div style="display: flex; gap: 10px; justify-content: center; width: 100%; align-items: center;">
-    
-    <!-- YES Button Wrapper -->
-    <div style="position: relative; left: -60px; top: -30px;">
-        <button id="testimonialYesBtn" style="
-            flex: 0 0 auto;
-            padding: 5px 20px;
-            background: rgba(255, 255, 255, 0.25);
-            color: white;
-            border: 2px solid rgba(255, 255, 255, 0.6);
-            border-radius: 30px;
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-            pointer-events: auto;
-            backdrop-filter: blur(5px);
-        " onmouseover="this.style.background='rgba(255, 255, 255, 0.4)'; this.style.transform='scale(1.05)';" 
-           onmouseout="this.style.background='rgba(255, 255, 255, 0.25)'; this.style.transform='scale(1)';">
-            ✅ YES, SHOW ME
-        </button>
-    </div>
-    
-    <!-- NO Button Wrapper -->
-    <div style="position: relative; right: -50px; top: -30px;">
-        <button id="testimonialNoBtn" style="
-            flex: 0 0 auto;
-            padding: 6px 24px;
-            background: rgba(255, 255, 255, 0.15);
-            color: white;
-            border: 2px solid rgba(255, 255, 255, 0.5);
-            border-radius: 30px;
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            pointer-events: auto;
-            backdrop-filter: blur(5px);
-        " onmouseover="this.style.background='rgba(255, 255, 255, 0.3)'; this.style.transform='scale(1.05)';" 
-           onmouseout="this.style.background='rgba(255, 255, 255, 0.15)'; this.style.transform='scale(1)';">
-            ❌ NO, CONTINUE
-        </button>
-    </div>
-    
-</div>
-        
-        <style>
-    .banner-glow-container::before {
-    content: '';
-    position: absolute;
-    width: calc(100% + 50px);  /* <-- CHANGE 50px to make wider/narrower */
-    height: calc(100% + 14px);
-    top: -10px;
-    left: -25px;               /* <-- Keep this half of the width addition */
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-
-    z-index: -1;
-    animation: glowLayerPulse 2s ease-in-out infinite;
-        }
-    .banner-glow-container::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-        90deg,
-        transparent,
-        rgba(255, 255, 255, 0.4),
-        transparent
-    );
-    animation: highlighterSweep 7s ease-in-out infinite;  /* <-- 7s total cycle */
-    z-index: 1;
-    border-radius: 8px;
-}
-
-        @keyframes glowLayerPulse {
-            0%, 100% { 
-                box-shadow: 0 0 15px rgba(8, 145, 178, 0.6);
-            }
-            50% { 
-                box-shadow: 0 0 30px rgba(20, 184, 166, 0.8);
-            }
-        }
-        
-        .banner-glow-container {
-            position: relative;
-            animation: testimonialPulseGlow 2s ease-in-out infinite;
-        }
-        
-        @keyframes testimonialPulseGlow {
-            0%, 100% { 
-                box-shadow: 0 10px 10px rgba(0,0,0,0.2), 0 0 15px rgba(8, 145, 178, 0.8);
-            }
-            50% { 
-                box-shadow: 0 20px 15px rgba(0,0,0,0.3), 0 0 30px rgba(20, 184, 166, 1);
-            }
-        }
-        
-        /* CRITICAL: Make buttons clickable */
-        #testimonialYesBtn, #testimonialNoBtn {
-            pointer-events: auto !important;
-            z-index: 10000 !important;
-        }
-        </style>
-    `,
-    background: 'rgba(255, 255, 255, 0.15)',
-    containerWidth: 770,
-    customHeight: 100,
     duration: 0
 },
 
@@ -2814,6 +2662,292 @@ function updateSmartButton(shouldShow, buttonText, action) {
 // ===================================================
 // 🧠 AI RESPONSE SYSTEM
 // ===================================================
+
+// ===================================================
+// 🎯 TESTIMONIAL SYSTEM GLOBALS
+// ===================================================
+let pendingTestimonialType = null;
+let currentObjection = null;
+
+// ===================================================
+// 🎯 KB-POWERED getAIResponse() - CONVERSATION BRAIN
+// ===================================================
+function getAIResponse(userInput) {
+    // ✅ STOP PROCESSING IF CONVERSATION IS ENDED
+    if (conversationState === 'ended') {
+        return "Thank you for visiting! Have a great day.";
+    }
+    
+    const userText = userInput.toLowerCase();
+    let responseText = '';
+    let firstName = leadData.firstName || '';
+    
+    // 🔒 KB SAFETY CHECK - Verify Knowledge Base is loaded
+    if (!window.conversationEngine || typeof window.conversationEngine.getResponse !== 'function') {
+        console.error('❌ KB ERROR: conversationEngine not loaded!');
+        return "I'm having trouble accessing my knowledge base. Please reload the page or contact support.";
+    }
+    
+    if (!window.knowledgeBaseData) {
+        console.error('❌ KB ERROR: knowledgeBaseData not loaded!');
+        return "My knowledge base isn't available. Please reload the page.";
+    }
+
+    // 🚀 ZERO-LATENCY CONVERSATION ENGINE
+    try {
+        const kbResponse = window.conversationEngine.getResponse(userInput, firstName);
+        
+        if (kbResponse) {
+            responseText = kbResponse.response;
+
+                // ===== 🎯 TESTIMONIAL OFFER DETECTION =====
+            if (kbResponse.testimonialOffer) {
+                console.log("🎯 Testimonial offer detected:", kbResponse.type);
+                
+                // Show the testimonial offer banner
+                window.showTestimonialOffer(
+                    kbResponse.type,              // e.g., "timeline_concern"
+                    kbResponse.testimonialOffer   // The offer message from Data JSON
+                );
+                
+                // Speak the initial objection response
+                const userName = firstName || '';
+                const response = userName && kbResponse.response_with_name
+                    ? kbResponse.response_with_name.replace('{name}', userName)
+                    : kbResponse.response;
+                
+                if (response && window.speak) {
+                    window.speak(response);
+                }
+                
+                return response; // Exit early - banner will handle next steps
+            }
+            
+            // 🎯 Sync state with conversation engine
+            if (kbResponse.newState) {
+                conversationState = kbResponse.newState;
+                window.conversationEngine.currentState = kbResponse.newState;
+                console.log('🔄 State synced to:', kbResponse.newState);
+            }
+            
+            // Handle data extraction
+            if (kbResponse.extractedData) {
+                Object.assign(leadData, kbResponse.extractedData);
+                console.log('💾 Extracted data:', kbResponse.extractedData);
+            }
+            
+            // ============================================================
+            // 🎬 TESTIMONIAL HANDLING - KB-DRIVEN + QUEUED (No Hardcoded URLs)
+            // ============================================================
+            if (kbResponse.triggerTestimonial) {
+                window.testimonialBlocking = true;
+                console.log("🚫 BLOCKING: Testimonial will show - preventing \"Speak Now\" banner");
+                const testimonialId = kbResponse.triggerTestimonial;
+                console.log('🎬 QUEUED testimonial video:', testimonialId, '(will play after AI finishes speaking)');
+                
+                // ✅ Pull testimonial data from Knowledge Base
+                const testimonialData = window.knowledgeBaseData.testimonials[testimonialId];
+                
+                if (testimonialData) {
+                    // ✅ QUEUE the testimonial - don't play it yet!
+                    window.pendingTestimonial = {
+                        id: testimonialData.id,
+                        duration: testimonialData.duration,
+                        url: testimonialData.video_url
+                    };
+                    console.log('✅ Testimonial queued:', testimonialData.id);
+                } else {
+                    console.warn('⚠️ Unknown testimonial ID:', testimonialId);
+                }
+                
+                return responseText;
+            }
+
+            // 🎯 NEW: CHECK FOR TESTIMONIAL OFFER (from objection_handling in Data JSON)
+if (kbResponse.testimonialOffer) {
+    window.testimonialBlocking = true;
+    console.log("🎯 Objection detected - showing testimonial offer banner");
+    
+    const testimonialId = kbResponse.testimonialOffer;
+    const testimonialData = window.knowledgeBaseData.testimonials[testimonialId];
+    
+    if (testimonialData) {
+        // Queue the testimonial
+        window.pendingTestimonial = {
+            id: testimonialData.id,
+            duration: testimonialData.duration,
+            url: testimonialData.video_url
+        };
+        console.log('✅ Testimonial queued:', testimonialData.id);
+        
+        // Show the offer banner immediately (as AI starts speaking)
+        setTimeout(() => {
+            window.showTestimonialOffer(testimonialId, responseText);
+        }, 800); // Banner appears as AI speaks
+    }
+    
+    return responseText;
+}
+            
+            // 🎯 BANNER HANDLING
+            if (kbResponse.triggerBanner) {
+                const bannerId = kbResponse.triggerBanner;
+                console.log('🎯 Triggering banner:', bannerId);
+                
+                switch(bannerId) {
+                    case 'branding':
+                        showUniversalBanner('branding');
+                        break;
+                    case 'consultation':
+                    case 'consultationForm':
+                        showUniversalBanner('consultationForm');
+                        break;
+                    case 'valuation':
+                    case 'valuationForm':
+                        showUniversalBanner('valuationForm');
+                        break;
+                    case 'contactInformation':
+                        showUniversalBanner('contactInformation');
+                        break;
+                    default:
+                        if (typeof showUniversalBanner === 'function') {
+                            showUniversalBanner(bannerId);
+                        }
+                }
+            }
+            
+            // ============================================================
+            // 🎬 ACTION HANDLING - BANNER ACTIONS ONLY
+            // ============================================================
+            if (kbResponse.action) {
+                const action = kbResponse.action;
+                
+                // Handle banner actions (testimonial action removed)
+                if (action.type === 'show_banner') {
+                    switch(action.bannerId) {
+                        case 'branding':
+                            showUniversalBanner('branding');
+                            break;
+                        case 'emailSent':
+                            showUniversalBanner('emailSent');
+                            break;
+                        case 'emailConfirmationSent':
+                            showUniversalBanner('emailConfirmationSent');
+                            break;
+                        case 'leadMagnet':
+                            showUniversalBanner('leadMagnet');
+                            break;
+                        case 'clickToCall':
+                            showUniversalBanner('clickToCall');
+                            break;
+                        case 'consultationConfirmed':
+                            showUniversalBanner('consultationConfirmed');
+                            break;
+                        case 'contactInformation':
+                            showUniversalBanner('contactInformation');
+                            break;
+                        case 'consultationForm':
+                            showUniversalBanner('consultationForm');
+                            break;
+                        case 'consultation':
+                            showUniversalBanner('consultation');
+                            break;
+                        case 'valuationForm':
+                            showUniversalBanner('valuationForm');
+                            break;
+                        case 'valuationSuccess':
+                            showUniversalBanner('valuationSuccess');
+                            break;
+                        case 'scheduleCall':
+                            showUniversalBanner('scheduleCall');
+                            break;
+                        case 'thankYou':
+                            showUniversalBanner('thankYou');
+                            break;
+                        case 'errorMessage':
+                            showUniversalBanner('errorMessage', action.params);
+                            break;
+                        case 'pricing':
+                            showUniversalBanner('pricing');
+                            break;
+                        case 'process':
+                            showUniversalBanner('process');
+                            break;
+                        default:
+                            console.warn('Unknown banner type:', action.bannerId);
+                    }
+                }
+            }
+            
+            // ✅ Return the response from conversation engine
+            return responseText;
+        }
+        
+        // 🚨 Fallback if conversation engine fails
+        console.warn('⚠️ Conversation engine returned no response');
+        return "I didn't quite catch that. Could you rephrase?";
+        
+    } catch (error) {
+        console.error('❌ Error in getAIResponse:', error);
+        return "I'm having a technical issue. Let me try again - could you repeat that?";
+    }
+}
+
+
+// ✅ SAVE RESPONSE TEXT TO lastAIResponse BEFORE RETURNING
+function setAIResponse(response) {
+    currentAIResponse = response;
+    
+    if (response && (response.includes('click') || response.includes('button above'))) {
+        window.lastClickMentionTime = Date.now();
+        console.log('⏰ Clock mention detected - setting blocking window');
+    }
+}
+
+return responseText;
+
+// 🎯 ADD THIS FUNCTION AT THE END OF YOUR FILE:
+function shouldTriggerLeadCapture(userInput) {
+    const input = userInput.toLowerCase().trim();
+    
+    // User's affirmative responses
+    const yesResponses = [
+        'yes', 'yeah', 'yep', 'sure', 'ok', 'okay', 'absolutely', 
+        'definitely', 'of course', 'let\'s do it', 'sounds good',
+        'i would', 'i\'d like that', 'that sounds great', 'let\'s go'
+    ];
+    
+    // Check if we're in a consultation asking state
+    const consultationStates = [
+        'asking_selling_consultation',
+        'asking_buying_consultation', 
+        'asking_valuation_consultation'
+    ];
+    
+    return yesResponses.includes(input) && consultationStates.includes(conversationState);
+}
+
+// 🎯 ADD THIS FUNCTION AT THE END OF YOUR FILE:
+function shouldTriggerLeadCapture(userInput) {
+    const input = userInput.toLowerCase().trim();
+    
+    // User's affirmative responses
+    const yesResponses = [
+        'yes', 'yeah', 'yep', 'sure', 'ok', 'okay', 'absolutely', 
+        'definitely', 'of course', 'let\'s do it', 'sounds good',
+        'i would', 'i\'d like that', 'that sounds great', 'let\'s go'
+    ];
+    
+    // Check if we're in a consultation asking state
+    const consultationStates = [
+        'asking_selling_consultation',
+        'asking_buying_consultation', 
+        'asking_valuation_consultation'
+    ];
+    
+    return yesResponses.includes(input) && consultationStates.includes(conversationState);
+}
+
 // ===================================================
 // 🎤 HYBRID SPEAK NOW SYSTEM - MOBILE-WISE AI
 // ===================================================
@@ -3046,6 +3180,22 @@ function speakMessage(message) {
 
 
 
+// ===================================================
+// 📧 EMAIL FORMATTING FUNCTION
+// ===================================================
+function formatEmailFromSpeech(speechText) {
+    let formattedEmail = speechText.toLowerCase().trim();
+    
+    // Replace common speech patterns with email format
+    formattedEmail = formattedEmail
+        .replace(/\s*at\s+/g, '@')           // "at" becomes @
+        .replace(/\s*dot\s+/g, '.')          // "dot" becomes .
+        .replace(/\s+/g, '')                 // Remove all spaces
+        .replace(/,/g, '');                  // Remove commas
+    
+    console.log('📧 Email conversion:', speechText, '→', formattedEmail);
+    return formattedEmail;
+}
 
 // ===================================================
 // 🔄 FIXED PROCESS LEAD RESPONSE WITH EMAIL FORMATTING
@@ -3854,6 +4004,18 @@ function sendTextMessage() {
     }
 }
 
+// NEW FUNCTION: Switch to text mode
+function switchToTextMode() {
+    isAudioMode = false;
+    stopListening();
+    
+    const micButton = document.getElementById('micButton');
+    if (micButton) {
+        micButton.classList.remove('listening');
+    }
+    
+    addAIMessage("Switched to text mode. You can type your questions below.");
+}
 
 // 🚨 NEW FUNCTION: Exit to main website
 function exitToMainSite() {
@@ -3978,6 +4140,87 @@ function playMobileErrorBeep() {
             console.log('📱 Fallback beep also failed');
         }
     }
+}
+
+function showTestimonialVideo(testimonialType, duration = 12000) {
+    console.log(`🎬 Playing ${testimonialType} testimonial for ${duration}ms`);
+    
+    // 🚫 PREVENT DOUBLE CALLS - BULLETPROOF (same as your original)
+    if (window.avatarCurrentlyPlaying) {
+        console.log('🚫 Avatar already playing - skipping duplicate testimonial call');
+        return;
+    }
+    
+    window.avatarCurrentlyPlaying = true;
+    
+    const isMobile = window.innerWidth <= 768;
+    
+    // 🎯 BRUCE'S TESTIMONIAL VIDEO URLS (from your browser optimization file)
+    const testimonialVideos = {
+        skeptical: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982717330.mp4", // Skeptical, Then Exceeded Expectations
+        speed: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982877040.mp4"      // Surprised by the Speed of the Sale
+    };
+    
+    const videoUrl = testimonialVideos[testimonialType] || testimonialVideos.skeptical;
+    
+    const avatarOverlay = document.createElement('div');
+    
+    // EXACT SAME STYLING AS YOUR ORIGINAL AVATAR FUNCTION
+    if (isMobile) {
+        avatarOverlay.style.cssText = `
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: #000; z-index: 9999;
+            display: flex; justify-content: center; align-items: center;
+        `;
+        
+        avatarOverlay.innerHTML = `
+            <video id="testimonialVideo" autoplay playsinline webkit-playsinline="true" style="
+                width: 100%; height: 100%; object-fit: cover;
+            ">
+                <source src="${videoUrl}" type="video/mp4">
+            </video>
+        `;
+    } else {
+        avatarOverlay.style.cssText = `
+            position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 833px; height: 433px;
+            background: #000; z-index: 9999;
+            border-radius: 12px; overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        `;
+        
+        avatarOverlay.innerHTML = `
+            <video id="testimonialVideo" autoplay style="
+                width: 100%; height: 100%; object-fit: cover;
+            ">
+                <source src="${videoUrl}" type="video/mp4">
+            </video>
+        `;
+    }
+    
+    document.body.appendChild(avatarOverlay);
+
+    
+    // 🎯 CLEANUP - CONTINUES CONVERSATION (KEY DIFFERENCE FROM SORRY MESSAGE)
+    function cleanup() {
+        console.log(`🎬 Testimonial ${testimonialType} complete - continuing conversation`);
+        
+        if (avatarOverlay.parentNode) {
+            avatarOverlay.remove();
+        }
+        
+        window.avatarCurrentlyPlaying = false;
+        
+        // 🎯 NO "Speak Now" - let conversation continue naturally
+        setTimeout(() => {
+            console.log('✅ Testimonial removed - conversation continues naturally');
+            // Conversation flows naturally without interruption
+        }, 1000);
+    }
+    
+    setTimeout(cleanup, duration);
 }
 
 function showAvatarSorryMessage(duration = 6000) {
@@ -4254,7 +4497,7 @@ if (!window.disableDirectTimeout) {
     setTimeout(() => {
         if (!speakSequenceActive) return;
         
-        console.log('⏰ DIRECT: 12-second listening window ended - no speech detected');
+        console.log('⏰ DIRECT: 4-second listening window ended - no speech detected');
         
         // Clean up and trigger avatar again
         window.clearBulletproofTimer();
@@ -4276,7 +4519,7 @@ if (!window.disableDirectTimeout) {
             showAvatarSorryMessage();
         }
         
-    }, 12000);
+    }, 7000);
 } else {
     console.log('🚫 DIRECT: Timeout disabled - banner will stay until speech detected');
 }
@@ -4305,257 +4548,6 @@ if (!window.disableDirectTimeout) {
 }
 
 console.log('🎯 DIRECT Speak Now function loaded - No Get Ready phase!');
-
-
-// ===================================================================
-// TESTIMONIAL VIDEO PLAYER - PORTRAIT WITH EXIT BUTTON
-// ===================================================================
-function showTestimonialVideo(testimonialType, duration = 12000) {
-    console.log(`🎬 Playing ${testimonialType} testimonial for ${duration}ms`);
-    
-    if (window.avatarCurrentlyPlaying) {
-        console.log('🚫 Avatar already playing');
-        return;
-    }
-    
-    window.avatarCurrentlyPlaying = true;
-    window.speakSequenceActive = true;
-    
-    const testimonialVideos = {
-        skeptical: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982717330.mp4",
-        speed: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982877040.mp4"
-    };
-    
-    const videoUrl = testimonialVideos[testimonialType] || testimonialVideos.skeptical;
-    const isMobile = window.innerWidth <= 768;
-    
-    // USE FULL VIEWPORT HEIGHT (882px), NOT CONTAINER HEIGHT (542px)
-    const viewportHeight = window.innerHeight; // 882px
-    const videoHeight = 525;
-    
-    // Center in FULL viewport
-    const topPosition = (viewportHeight - videoHeight) / 2; // (882 - 525) / 2 = 178.5px from top
-    
-    console.log(`📐 Full viewport: ${viewportHeight}px, video ${videoHeight}px, centering at ${topPosition}px from top`);
-    
-    // OVERLAY
-const overlay = document.createElement('div');
-overlay.id = 'testimonial-overlay';
-overlay.style.cssText = `
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.40);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 999999;
-`;
-
-// VIDEO CONTAINER - Absolute positioning at calculated center
-const videoContainer = document.createElement('div');
-
-if (isMobile) {
-    videoContainer.style.cssText = `
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-    `;
-} else {
-    // DESKTOP: Push video down 50px from center
-    videoContainer.style.cssText = `
-        position: relative;
-        width: 260px;
-        height: 400px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        margin-top: 18px;
-    `;
-}
-    
-    // VIDEO
-    const video = document.createElement('video');
-    video.autoplay = true;
-    video.playsInline = true;
-    video.style.cssText = `
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        background: #000;
-        display: block;
-    `;
-    video.innerHTML = `<source src="${videoUrl}" type="video/mp4">`;
-    
-    // EXIT BUTTON
-    const exitButton = document.createElement('button');
-    exitButton.textContent = 'EXIT VIDEO';
-    exitButton.style.cssText = `
-        position: absolute;
-        top: 16px;
-        right: 16px;
-        background: rgba(255, 255, 255, 0.95);
-        color: #000;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 6px;
-        font-weight: bold;
-        font-size: 14px;
-        cursor: pointer;
-        z-index: 1000000;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        transition: all 0.2s ease;
-    `;
-    
-    exitButton.onmouseover = () => {
-        exitButton.style.background = '#ff4444';
-        exitButton.style.color = '#fff';
-    };
-    
-    exitButton.onmouseout = () => {
-        exitButton.style.background = 'rgba(255, 255, 255, 0.95)';
-        exitButton.style.color = '#000';
-    };
-    
-    function cleanup() {
-        console.log(`✅ Exiting testimonial ${testimonialType}`);
-        video.pause();
-        video.src = '';
-        if (overlay.parentNode) overlay.remove();
-        window.avatarCurrentlyPlaying = false;
-        window.speakSequenceActive = false;
-        window.testimonialBlocking = false;
-        if (window.testimonialAutoCloseTimer) clearTimeout(window.testimonialAutoCloseTimer);
-        setTimeout(() => {
-            if (window.showDirectSpeakNow) showDirectSpeakNow();
-        }, 500);
-    }
-    
-    exitButton.onclick = cleanup;
-    // Let video play to its natural end
-video.onended = () => {
-    console.log(`✅ Video finished naturally - auto-closing`);
-    cleanup();
-};
-
-// Safety timeout (only if video fails to load/play)
-window.testimonialAutoCloseTimer = setTimeout(() => {
-    console.log(`⚠️ Safety timeout triggered after 60 seconds`);
-    cleanup();
-}, 60000); // 60 seconds safety net
-    
-    videoContainer.appendChild(video);
-    videoContainer.appendChild(exitButton);
-    overlay.appendChild(videoContainer);
-    
-    // CRITICAL: Append to BODY, not container
-    document.body.appendChild(overlay);
-    
-    console.log(`📺 Video positioned at ${topPosition}px from viewport top (should be ~178px for centering)`);
-}
-
-window.showTestimonialVideo = showTestimonialVideo;
-
-// ===================================================================
-// 🎯 TESTIMONIAL OFFER SYSTEM - Integrated with Universal Banner
-// ===================================================================
-
-let pendingTestimonialType = null;
-let currentObjection = null; // Store the objection that triggered the offer
-
-window.showTestimonialOffer = function(testimonialType, customMessage) {
-    console.log(`💬 Offering ${testimonialType} testimonial via universal banner`);
-    
-    // Store which testimonial we're offering
-    pendingTestimonialType = testimonialType;
-    
-    // Find the objection that matches this testimonial (from Data JSON)
-    if (window.knowledgeBaseData?.objection_handling) {
-        currentObjection = window.knowledgeBaseData.objection_handling.objections
-            .find(o => o.testimonialOffer === testimonialType);
-        console.log('📋 Objection found:', currentObjection?.type);
-    }
-    
-    // Trigger the banner using your existing system
-    window.showUniversalBanner('testimonialOffer');
-    
-    // Update the message text if provided
-    if (customMessage) {
-        setTimeout(() => {
-            const messageEl = document.getElementById('testimonialOfferMessage');
-            if (messageEl) {
-                messageEl.textContent = customMessage;
-            }
-        }, 100);
-    }
-    
-    // Wire up button handlers
-    setTimeout(() => {
-        const yesBtn = document.getElementById('testimonialYesBtn');
-        const noBtn = document.getElementById('testimonialNoBtn');
-        
-        if (yesBtn) {
-            yesBtn.onclick = function(e) {
-                e.stopPropagation();
-                console.log(`✅ User clicked YES - playing ${pendingTestimonialType} testimonial`);
-                
-                // Remove banner
-                window.removeAllBanners(false);
-                
-                // Play testimonial
-                if (pendingTestimonialType) {
-                    showTestimonialVideo(pendingTestimonialType);
-                    pendingTestimonialType = null;
-                    currentObjection = null;
-                }
-            };
-        }
-        
-        if (noBtn) {
-            noBtn.onclick = function(e) {
-                e.stopPropagation();
-                console.log('❌ User clicked NO - going to consultation close');
-                
-                // Remove banner
-                window.removeAllBanners(false);
-                
-                // 🎯 GET NO RESPONSE FROM DATA JSON
-                const noMessage = currentObjection 
-                    ? (leadData.firstName 
-                        ? currentObjection.no_response_with_name.replace('{firstName}', leadData.firstName)
-                        : currentObjection.no_response)
-                    : (leadData.firstName
-                        ? `No problem ${leadData.firstName}! I'm sure Bruce can give you the information you need.`
-                        : `No problem! I'm sure Bruce can give you the information you need.`);
-                
-                console.log('💬 AI saying (from Data JSON):', noMessage);
-                
-                // AI speaks bridge message
-                addAIMessage(noMessage);
-                speakResponse(noMessage);
-                
-                // 🎯 CHECK IF WE SHOULD SHOW CONSULTATION BANNER
-                if (currentObjection?.no_action === 'show_consultation_banner') {
-                    console.log('🎯 Triggering consultation banner');
-                    setTimeout(() => {
-                        window.showUniversalBanner('freeBookWithConsultation');
-                    }, 2000);
-                }
-                
-                pendingTestimonialType = null;
-                currentObjection = null;
-            };
-        }
-    }, 200);
-};
-
-console.log('✅ Testimonial offer system loaded - reads from Data JSON');
-
 
 function showHybridReadySequence() {
     console.log('🎯 Starting Mobile-Wise AI speak sequence...');
@@ -4714,7 +4706,7 @@ window.clearBulletproofTimer = function() {
                 width: 0%;
                 height: 100%;
                 background: linear-gradient(90deg, rgba(79, 195, 247, 0.6), rgba(25, 118, 210, 0.8));
-                transition: width 3s ease; // PROPER TIMING: 3 seconds
+                transition: width 3s ease;
                 z-index: 1;
             }
             
@@ -4830,7 +4822,7 @@ window.clearBulletproofTimer = function() {
    // Play sound on ALL devices, not just desktop
 playGetReadyAndSpeakNowSound();
     
-    // ===== TRANSITION TO SPEAK NOW (FASTER - 1.5 seconds) =====
+    // ===== TRANSITION TO SPEAK NOW (after 3 seconds) =====
     setTimeout(() => {
         if (!speakSequenceButton || !speakSequenceActive || !window.speakSequenceBlocked) {
             console.log('🛑 BULLETPROOF: Sequence interrupted - aborting transition');
@@ -4869,13 +4861,13 @@ playGetReadyAndSpeakNowSound();
                     startNormalInterviewListening();
                 }
             }
-        }, 50); // INSTANT: 50ms instead of 200ms
+        }, 200);
         
         // ===== LISTENING TIMEOUT WITH NUCLEAR SHUTDOWN =====
         setTimeout(() => {
             if (!speakSequenceActive) return;
             
-            console.log('⏰ 12-second listening window ended - no speech detected');
+            console.log('⏰ 4-second listening window ended - no speech detected');
             
             // ===== 💣 NUCLEAR SHUTDOWN BEFORE AVATAR =====
             console.log('💣 NUCLEAR SHUTDOWN: Completely stopping all speech recognition before avatar');
@@ -4956,9 +4948,9 @@ playGetReadyAndSpeakNowSound();
                 }
             }
             
-        }, 12000);
+        }, 7000);
         
-    }, 3000); // PROPER TIMING: 3 seconds for voice setup
+    }, 3000);
     
     // ===== SUCCESS HANDLER =====
     window.handleSpeechSuccess = function(transcript) {
@@ -5101,6 +5093,246 @@ function cleanupSpeakSequence() {
 
         console.log('🔓 Hybrid blocking reset (during sorry message)');
 
+// ===================================================
+// 🎯 TESTIMONIAL SYSTEM FUNCTIONS
+// ===================================================
+window.showTestimonialOffer = function(testimonialType, customMessage) {
+    console.log(`💬 Offering ${testimonialType} testimonial via universal banner`);
+    
+    // Store which testimonial we're offering
+    pendingTestimonialType = testimonialType;
+    
+    // Find the objection that matches this testimonial (from Data JSON)
+    if (window.knowledgeBaseData?.objection_handling) {
+        currentObjection = window.knowledgeBaseData.objection_handling.objections
+            .find(o => o.testimonialOffer === testimonialType);
+        console.log('📋 Objection found:', currentObjection?.type);
+    }
+    
+    // Trigger the banner using your existing system
+    window.showUniversalBanner('testimonialOffer');
+    
+    // Update the message text if provided
+    if (customMessage) {
+        setTimeout(() => {
+            const messageEl = document.getElementById('testimonialOfferMessage');
+            if (messageEl) {
+                messageEl.textContent = customMessage;
+            }
+        }, 100);
+    }
+    
+    // Wire up button handlers
+    setTimeout(() => {
+        const yesBtn = document.getElementById('testimonialYesBtn');
+        const noBtn = document.getElementById('testimonialNoBtn');
+        
+        if (yesBtn) {
+            yesBtn.onclick = function(e) {
+                e.stopPropagation();
+                console.log(`✅ User clicked YES - playing ${pendingTestimonialType} testimonial`);
+                
+                // Remove banner
+                window.removeAllBanners(false);
+                
+                // Play testimonial
+                if (pendingTestimonialType) {
+                    showTestimonialVideo(pendingTestimonialType);
+                    pendingTestimonialType = null;
+                    currentObjection = null;
+                }
+            };
+        }
+        
+        if (noBtn) {
+            noBtn.onclick = function(e) {
+                e.stopPropagation();
+                console.log('❌ User clicked NO - going to consultation close');
+                
+                // Remove banner
+                window.removeAllBanners(false);
+                
+                // 🎯 GET NO RESPONSE FROM DATA JSON
+                const noMessage = currentObjection 
+                    ? (leadData.firstName 
+                        ? currentObjection.no_response_with_name.replace('{firstName}', leadData.firstName)
+                        : currentObjection.no_response)
+                    : (leadData.firstName
+                        ? `No problem ${leadData.firstName}! I'm sure Bruce can give you the information you need.`
+                        : `No problem! I'm sure Bruce can give you the information you need.`);
+                
+                console.log('💬 AI saying (from Data JSON):', noMessage);
+                
+                // AI speaks bridge message
+                addAIMessage(noMessage);
+                speakResponse(noMessage);
+                
+                // 🎯 CHECK IF WE SHOULD SHOW CONSULTATION BANNER
+                if (currentObjection?.no_action === 'show_consultation_banner') {
+                    console.log('🎯 Triggering consultation banner');
+                    setTimeout(() => {
+                        window.showUniversalBanner('freeBookWithConsultation');
+                    }, 2000);
+                }
+                
+                pendingTestimonialType = null;
+                currentObjection = null;
+            };
+        }
+    }, 200);
+};
+
+
+function showTestimonialVideo(testimonialType, duration = 12000) {
+    console.log(`🎬 Playing ${testimonialType} testimonial for ${duration}ms`);
+    
+    if (window.avatarCurrentlyPlaying) {
+        console.log('🚫 Avatar already playing');
+        return;
+    }
+    
+    window.avatarCurrentlyPlaying = true;
+    window.speakSequenceActive = true;
+    
+    const testimonialVideos = {
+        skeptical: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982717330.mp4",
+        speed: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982877040.mp4"
+    };
+    
+    const videoUrl = testimonialVideos[testimonialType] || testimonialVideos.skeptical;
+    const isMobile = window.innerWidth <= 768;
+    
+    // USE FULL VIEWPORT HEIGHT (882px), NOT CONTAINER HEIGHT (542px)
+    const viewportHeight = window.innerHeight; // 882px
+    const videoHeight = 525;
+    
+    // Center in FULL viewport
+    const topPosition = (viewportHeight - videoHeight) / 2; // (882 - 525) / 2 = 178.5px from top
+    
+    console.log(`📐 Full viewport: ${viewportHeight}px, video ${videoHeight}px, centering at ${topPosition}px from top`);
+    
+    // OVERLAY
+const overlay = document.createElement('div');
+overlay.id = 'testimonial-overlay';
+overlay.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.40);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999999;
+`;
+
+// VIDEO CONTAINER - Absolute positioning at calculated center
+const videoContainer = document.createElement('div');
+
+if (isMobile) {
+    videoContainer.style.cssText = `
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    `;
+} else {
+    // DESKTOP: Push video down 50px from center
+    videoContainer.style.cssText = `
+        position: relative;
+        width: 260px;
+        height: 400px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin-top: 18px;
+    `;
+}
+    
+    // VIDEO
+    const video = document.createElement('video');
+    video.autoplay = true;
+    video.playsInline = true;
+    video.style.cssText = `
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        background: #000;
+        display: block;
+    `;
+    video.innerHTML = `<source src="${videoUrl}" type="video/mp4">`;
+    
+    // EXIT BUTTON
+    const exitButton = document.createElement('button');
+    exitButton.textContent = 'EXIT VIDEO';
+    exitButton.style.cssText = `
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        background: rgba(255, 255, 255, 0.95);
+        color: #000;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        font-weight: bold;
+        font-size: 14px;
+        cursor: pointer;
+        z-index: 1000000;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        transition: all 0.2s ease;
+    `;
+    
+    exitButton.onmouseover = () => {
+        exitButton.style.background = '#ff4444';
+        exitButton.style.color = '#fff';
+    };
+    
+    exitButton.onmouseout = () => {
+        exitButton.style.background = 'rgba(255, 255, 255, 0.95)';
+        exitButton.style.color = '#000';
+    };
+    
+    function cleanup() {
+        console.log(`✅ Exiting testimonial ${testimonialType}`);
+        video.pause();
+        video.src = '';
+        if (overlay.parentNode) overlay.remove();
+        window.avatarCurrentlyPlaying = false;
+        window.speakSequenceActive = false;
+        window.testimonialBlocking = false;
+        if (window.testimonialAutoCloseTimer) clearTimeout(window.testimonialAutoCloseTimer);
+        setTimeout(() => {
+            if (window.showDirectSpeakNow) showDirectSpeakNow();
+        }, 500);
+    }
+    
+    exitButton.onclick = cleanup;
+    // Let video play to its natural end
+video.onended = () => {
+    console.log(`✅ Video finished naturally - auto-closing`);
+    cleanup();
+};
+
+// Safety timeout (only if video fails to load/play)
+window.testimonialAutoCloseTimer = setTimeout(() => {
+    console.log(`⚠️ Safety timeout triggered after 60 seconds`);
+    cleanup();
+}, 60000); // 60 seconds safety net
+    
+    videoContainer.appendChild(video);
+    videoContainer.appendChild(exitButton);
+    overlay.appendChild(videoContainer);
+    
+    // CRITICAL: Append to BODY, not container
+    document.body.appendChild(overlay);
+    
+    console.log(`📺 Video positioned at ${topPosition}px from viewport top (should be ~178px for centering)`);
+}
+
+
       //  window.playingSorryMessage = false;
 
         // 🚨 IMMEDIATE DIAGNOSTIC TEST
@@ -5150,213 +5382,3 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }, 1000);
 });
-
-function getAIResponse(userInput) {
-    // ✅ STOP PROCESSING IF CONVERSATION IS ENDED
-    if (conversationState === 'ended') {
-        return "Thank you for visiting! Have a great day.";
-    }
-    
-    const userText = userInput.toLowerCase();
-    let responseText = '';
-    let firstName = leadData.firstName || '';
-
-    // 🚀 ZERO-LATENCY CONVERSATION ENGINE
-    try {
-        const kbResponse = window.conversationEngine.getResponse(userInput, firstName);
-        
-        if (kbResponse) {
-            responseText = kbResponse.response;
-
-                // ===== 🎯 TESTIMONIAL OFFER DETECTION =====
-            if (kbResponse.testimonialOffer) {
-                console.log("🎯 Testimonial offer detected:", kbResponse.type);
-                
-                // Show the testimonial offer banner
-                window.showTestimonialOffer(
-                    kbResponse.type,              // e.g., "timeline_concern"
-                    kbResponse.testimonialOffer   // The offer message from Data JSON
-                );
-                
-                // Speak the initial objection response
-                const userName = firstName || '';
-                const response = userName && kbResponse.response_with_name
-                    ? kbResponse.response_with_name.replace('{name}', userName)
-                    : kbResponse.response;
-                
-                if (response && window.speak) {
-                    window.speak(response);
-                }
-                
-                return response; // Exit early - banner will handle next steps
-            }
-            
-            // 🎯 Sync state with conversation engine
-            if (kbResponse.newState) {
-                conversationState = kbResponse.newState;
-                window.conversationEngine.currentState = kbResponse.newState;
-                console.log('🔄 State synced to:', kbResponse.newState);
-            }
-            
-            // Handle data extraction
-            if (kbResponse.extractedData) {
-                Object.assign(leadData, kbResponse.extractedData);
-                console.log('💾 Extracted data:', kbResponse.extractedData);
-            }
-            
-            // ============================================================
-            // 🎬 TESTIMONIAL HANDLING - KB-DRIVEN + QUEUED (No Hardcoded URLs)
-            // ============================================================
-            if (kbResponse.triggerTestimonial) {
-                window.testimonialBlocking = true;
-                console.log("🚫 BLOCKING: Testimonial will show - preventing \"Speak Now\" banner");
-                const testimonialId = kbResponse.triggerTestimonial;
-                console.log('🎬 QUEUED testimonial video:', testimonialId, '(will play after AI finishes speaking)');
-                
-                // ✅ Pull testimonial data from Knowledge Base
-                const testimonialData = window.knowledgeBaseData.testimonials[testimonialId];
-                
-                if (testimonialData) {
-                    // ✅ QUEUE the testimonial - don't play it yet!
-                    window.pendingTestimonial = {
-                        id: testimonialData.id,
-                        duration: testimonialData.duration,
-                        url: testimonialData.video_url
-                    };
-                    console.log('✅ Testimonial queued:', testimonialData.id);
-                } else {
-                    console.warn('⚠️ Unknown testimonial ID:', testimonialId);
-                }
-                
-                return responseText;
-            }
-
-            // 🎯 NEW: CHECK FOR TESTIMONIAL OFFER (from objection_handling in Data JSON)
-if (kbResponse.testimonialOffer) {
-    window.testimonialBlocking = true;
-    console.log("🎯 Objection detected - showing testimonial offer banner");
-    
-    const testimonialId = kbResponse.testimonialOffer;
-    const testimonialData = window.knowledgeBaseData.testimonials[testimonialId];
-    
-    if (testimonialData) {
-        // Queue the testimonial
-        window.pendingTestimonial = {
-            id: testimonialData.id,
-            duration: testimonialData.duration,
-            url: testimonialData.video_url
-        };
-        console.log('✅ Testimonial queued:', testimonialData.id);
-        
-        // Show the offer banner immediately (as AI starts speaking)
-        setTimeout(() => {
-            window.showTestimonialOffer(testimonialId, responseText);
-        }, 800); // Banner appears as AI speaks
-    }
-    
-    return responseText;
-}
-            
-            // 🎯 BANNER HANDLING
-            if (kbResponse.triggerBanner) {
-                const bannerId = kbResponse.triggerBanner;
-                console.log('🎯 Triggering banner:', bannerId);
-                
-                switch(bannerId) {
-                    case 'branding':
-                        showUniversalBanner('branding');
-                        break;
-                    case 'consultation':
-                    case 'consultationForm':
-                        showUniversalBanner('consultationForm');
-                        break;
-                    case 'valuation':
-                    case 'valuationForm':
-                        showUniversalBanner('valuationForm');
-                        break;
-                    case 'contactInformation':
-                        showUniversalBanner('contactInformation');
-                        break;
-                    default:
-                        if (typeof showUniversalBanner === 'function') {
-                            showUniversalBanner(bannerId);
-                        }
-                }
-            }
-            
-            // ============================================================
-            // 🎬 ACTION HANDLING - BANNER ACTIONS ONLY
-            // ============================================================
-            if (kbResponse.action) {
-                const action = kbResponse.action;
-                
-                // Handle banner actions (testimonial action removed)
-                if (action.type === 'show_banner') {
-                    switch(action.bannerId) {
-                        case 'branding':
-                            showUniversalBanner('branding');
-                            break;
-                        case 'emailSent':
-                            showUniversalBanner('emailSent');
-                            break;
-                        case 'emailConfirmationSent':
-                            showUniversalBanner('emailConfirmationSent');
-                            break;
-                        case 'leadMagnet':
-                            showUniversalBanner('leadMagnet');
-                            break;
-                        case 'clickToCall':
-                            showUniversalBanner('clickToCall');
-                            break;
-                        case 'consultationConfirmed':
-                            showUniversalBanner('consultationConfirmed');
-                            break;
-                        case 'contactInformation':
-                            showUniversalBanner('contactInformation');
-                            break;
-                        case 'consultationForm':
-                            showUniversalBanner('consultationForm');
-                            break;
-                        case 'consultation':
-                            showUniversalBanner('consultation');
-                            break;
-                        case 'valuationForm':
-                            showUniversalBanner('valuationForm');
-                            break;
-                        case 'valuationSuccess':
-                            showUniversalBanner('valuationSuccess');
-                            break;
-                        case 'scheduleCall':
-                            showUniversalBanner('scheduleCall');
-                            break;
-                        case 'thankYou':
-                            showUniversalBanner('thankYou');
-                            break;
-                        case 'errorMessage':
-                            showUniversalBanner('errorMessage', action.params);
-                            break;
-                        case 'pricing':
-                            showUniversalBanner('pricing');
-                            break;
-                        case 'process':
-                            showUniversalBanner('process');
-                            break;
-                        default:
-                            console.warn('Unknown banner type:', action.bannerId);
-                    }
-                }
-            }
-            
-            // ✅ Return the response from conversation engine
-            return responseText;
-        }
-        
-        // 🚨 Fallback if conversation engine fails
-        console.warn('⚠️ Conversation engine returned no response');
-        return "I didn't quite catch that. Could you rephrase?";
-        
-    } catch (error) {
-        console.error('❌ Error in getAIResponse:', error);
-        return "I'm having a technical issue. Let me try again - could you repeat that?";
-    }
-}
