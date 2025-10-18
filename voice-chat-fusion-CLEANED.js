@@ -42,6 +42,7 @@ let recognition = null;
 let isListening = false;
 let isSpeaking = false;
 let isAudioMode = false;
+let kbProcessing = false; // 🚦 Flag to prevent sorry message during KB processing
 let currentAudio = null;
 let persistentMicStream = null;
 let micPermissionGranted = false;
@@ -167,6 +168,12 @@ class SpeechEngineManager {
             console.log('🔊 Speech error from CORE handler:', event.error);
             
             if (event.error === 'no-speech') {
+        
+        // 🚦 BLOCK "SORRY" MESSAGE IF KB IS PROCESSING
+        if (kbProcessing) {
+            console.log('🛡️ KB processing - ignoring no-speech error (not really silent, just processing)');
+            return; // Exit early - KB is working on the response
+        }
                 console.log('⚠️ No speech detected - will be handled by onend');
                 // Don't do anything here - let onend handle it
                 return;
@@ -568,6 +575,12 @@ function getApologyResponse() {
 
     // 🎯 FALLBACK SYSTEM (only if handleSpeechRecognitionError doesn't exist)
     if (event.error === 'no-speech') {
+        
+        // 🚦 BLOCK "SORRY" MESSAGE IF KB IS PROCESSING
+        if (kbProcessing) {
+            console.log('🛡️ KB processing - ignoring no-speech error (not really silent, just processing)');
+            return; // Exit early - KB is working on the response
+        }
         const transcriptText = document.getElementById('transcriptText');
 
         console.log('🔍 MOBILE DEBUG:', {
@@ -5161,6 +5174,8 @@ function getAIResponse(userInput) {
     let responseText = '';
     let firstName = leadData.firstName || '';
 
+    
+    kbProcessing = true; // 🚦 Set flag - prevents "sorry" during KB processing
     // 🚀 ZERO-LATENCY CONVERSATION ENGINE
     try {
         const kbResponse = window.conversationEngine.getResponse(userInput, firstName);
@@ -5358,5 +5373,7 @@ if (kbResponse.testimonialOffer) {
     } catch (error) {
         console.error('❌ Error in getAIResponse:', error);
         return "I'm having a technical issue. Let me try again - could you repeat that?";
+    } finally {
+        kbProcessing = false; // 🚦 Clear flag - allow sorry messages again
     }
 }
