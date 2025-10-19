@@ -1443,7 +1443,7 @@ async function activateMicrophone() {
         window.leadData = { firstName: '' };
     }
     
-    const greeting = "Hi there! I'm here to help with CPA firm transactions - buying, selling, and practice valuations. Before we dive in, may I get your first name?";
+    const greeting = window.knowledgeBaseData ? window.knowledgeBaseData.greeting.initial : "Hi there! I'm Boateamia your personal AI Voice assistant, may I get your first name please?";
     addAIMessage(greeting);
     speakResponse(greeting);
 }, 1400);
@@ -1624,7 +1624,7 @@ setTimeout(() => {
     
     addAIMessage(responseText);
     setAIResponse(responseText);
-    speakWithElevenLabs(responseText);
+    speakResponse(responseText);
     
     function setAIResponse(response) {
         currentAIResponse = response;
@@ -3198,18 +3198,29 @@ function getAIResponse(userInput) {
     
     // Handle getting first name
     if (conversationState === 'getting_first_name') {
+        console.log('🎯 Getting first name - input:', userInput);
         const nameMatch = userInput.match(/^[A-Z][a-z]+$/i) || 
                          userInput.match(/(?:my name is |i'm |i am )([A-Z][a-z]+)/i);
         
+        console.log('🎯 Name match result:', nameMatch);
+        
         if (nameMatch) {
             const extractedName = nameMatch[1] || nameMatch[0];
+            console.log('🎯 Extracted name:', extractedName);
+            
             if (window.leadData) {
                 window.leadData.firstName = extractedName;
+                console.log('🎯 Saved firstName to leadData:', window.leadData.firstName);
             }
-            conversationState = 'initial';
             
-            return kb.greeting.with_name.replace('{firstName}', extractedName);
+            conversationState = 'initial';
+            console.log('🎯 Changed state to: initial');
+            
+            const response = kb.greeting.with_name.replace('{firstName}', extractedName);
+            console.log('🎯 Returning greeting:', response);
+            return response;
         } else {
+            console.log('🎯 Name not recognized, asking again');
             return kb.conversation_states.getting_first_name.response_retry;
         }
     }
