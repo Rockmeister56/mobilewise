@@ -2652,8 +2652,8 @@ if (conversationState === 'initial') {
     
     if (userText.includes('buy') || userText.includes('purchase') || userText.includes('buying') || userText.includes('acquire')) {
         responseText = firstName ? 
-            `Excellent, ${firstName}! Bruce has exclusive off-market deals available. What's your budget range?` :
-            "Excellent! Bruce has exclusive off-market opportunities available. What's your budget range for acquiring a practice?";
+            `Excellent, ${firstName}! Bruce has some fantastic opportunities available right now - some exclusive off-market deals that would blow you away. Tell me, what's your budget range for acquiring a practice?` :
+            "Excellent! Bruce has some fantastic opportunities available - some exclusive off-market deals that would blow you away. What's your budget range for acquiring a practice?";
         conversationState = 'buying_budget_question';
         shouldShowSmartButton = false;
         
@@ -4329,6 +4329,58 @@ function showTestimonialVideo(testimonialType, duration = 12000) {
     
     document.body.appendChild(avatarOverlay);
 
+    // 🎯 CONSULTATIVE CONCERN DETECTION SYSTEM
+function detectConsultativeResponse(userText) {
+    const text = userText.toLowerCase().trim();
+    
+    // 🎯 VALUE/WORTH CONCERNS
+    const valueConcerns = [
+        'concern', 'worried', 'afraid', 'nervous', 'anxious',
+        'worth', 'value', 'fair price', 'market value', 'low ball',
+        'undervalue', 'undersell', 'getting what', 'full value',
+        'what it\'s worth', 'fair deal', 'ripped off', 'enough money'
+    ];
+    
+    // 🎯 SPEED/TIMELINE CONCERNS  
+    const speedConcerns = [
+        'how long', 'timeline', 'time', 'quick', 'fast', 'speed',
+        'when', 'soon', 'quickly', 'process time', 'sell fast',
+        'too fast', 'rushed', 'patient', 'wait', 'takes forever'
+    ];
+    
+    // 🎯 CREDIBILITY/TRUST CONCERNS
+    const credibilityConcerns = [
+        'experience', 'credibility', 'trust', 'legitimate', 'proven',
+        'track record', 'skeptical', 'doubt', 'reliable', 'reputation',
+        'references', 'testimonials', 'reviews', 'who are you', 'can you really'
+    ];
+    
+    // Check for value concerns → Show "skeptical then exceeded" testimonial
+    for (let concern of valueConcerns) {
+        if (text.includes(concern)) {
+            console.log(`🎯 VALUE CONCERN detected: "${concern}" - will show value testimonial`);
+            return 'value';
+        }
+    }
+    
+    // Check for speed concerns → Show "speed of sale" testimonial
+    for (let concern of speedConcerns) {
+        if (text.includes(concern)) {
+            console.log(`🎯 SPEED CONCERN detected: "${concern}" - will show speed testimonial`);
+            return 'speed';
+        }
+    }
+    
+    // Check for credibility concerns → Show "skeptical then exceeded" testimonial
+    for (let concern of credibilityConcerns) {
+        if (text.includes(concern)) {
+            console.log(`🎯 CREDIBILITY CONCERN detected: "${concern}" - will show credibility testimonial`);
+            return 'credibility';
+        }
+    }
+    
+    return null; // No concern detected
+}
     
     // 🎯 CLEANUP - CONTINUES CONVERSATION (KEY DIFFERENCE FROM SORRY MESSAGE)
     function cleanup() {
