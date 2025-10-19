@@ -885,14 +885,19 @@ async function activateMicrophone() {
         conversationState = 'getting_first_name';
     }
     
-    // Initialize leadData if it doesn't exist
+      // Initialize leadData if it doesn't exist
     if (typeof leadData === 'undefined' || !leadData) {
         window.leadData = { firstName: '' };
     }
     
     const greeting = "Hi there! I'm Boateamia your personal AI Voice assistant, may I get your first name please?";
     addAIMessage(greeting);
-    speakResponse(greeting);
+    
+    // Add delay before speaking to ensure audio system is ready
+    setTimeout(() => {
+        speakResponse(greeting);
+    }, 800); // 800ms delay ensures everything is initialized
+    
 }, 1400);
         }
 
@@ -5025,121 +5030,31 @@ playGetReadyAndSpeakNowSound();
         
         console.log('🎤 Starting speech recognition...');
 
-        // ⏰ SAFETY TIMEOUT: Auto-close banner after 6 seconds if no speech
+                // ⏰ SAFETY TIMEOUT: Auto-close banner after 10 seconds if no speech
         speakSequenceCleanupTimer = setTimeout(() => {
-    if (speakSequenceActive) {
-        console.log('⏰ TIMEOUT: No speech detected after 6s - auto-closing banner');
-        cleanupSpeakSequence();
-    }
-}, 6000); // 6 seconds (browser timeout is ~4s, this is safety buffer)
+            if (speakSequenceActive) {
+                console.log('⏰ TIMEOUT: No speech detected after 10s - auto-closing banner');
+                cleanupSpeakSequence();
+            }
+        }, 10000); // 10 seconds total
         
         console.log('🎤 Starting listening AFTER Speak Now visual...');
         
+        // Start listening after brief delay
         setTimeout(() => {
             if (!speakSequenceActive) return;
             
-            console.log('🎤 Starting listening AFTER Speak Now visual...');
             window.lastRecognitionResult = null;
             
-            if (isContactInterview) {
-                startContactInterviewListening();
+            // Just call startListening() - single, simple call
+            if (typeof startListening === 'function') {
+                startListening();
             } else {
-                if (typeof startMobileListening === 'function') {
-                    startMobileListening();
-                } else {
-                    startNormalInterviewListening();
-                }
+                console.error('❌ startListening function not found');
             }
-        }, 200);
+        }, 500); // 500ms delay to ensure everything is ready
         
-        // ===== LISTENING TIMEOUT WITH NUCLEAR SHUTDOWN =====
-        setTimeout(() => {
-            if (!speakSequenceActive) return;
-            
-            console.log('⏰ 4-second listening window ended - no speech detected');
-            
-            // ===== 💣 NUCLEAR SHUTDOWN BEFORE AVATAR =====
-            console.log('💣 NUCLEAR SHUTDOWN: Completely stopping all speech recognition before avatar');
-            
-            if (typeof recognition !== 'undefined' && recognition) {
-                try {
-                    // NUKE ALL HANDLERS FIRST
-                    recognition.onresult = null;
-                    recognition.onerror = null;
-                    recognition.onend = null;
-                    recognition.onstart = null;
-                    
-                    // STOP RECOGNITION
-                    recognition.stop();
-                    
-                    // ABORT IF POSSIBLE
-                    if (typeof recognition.abort === 'function') {
-                        recognition.abort();
-                    }
-                    
-                    console.log('💣 NUCLEAR: All recognition handlers nuked and stopped');
-                } catch (e) {
-                    console.log('💣 NUCLEAR: Recognition nuked with errors (expected)');
-                }
-                
-                // WAIT A MOMENT FOR CLEANUP
-                setTimeout(() => {
-                    console.log('💣 NUCLEAR: Cleanup complete - safe to play avatar');
-                    
-                    // CLEAR THE BULLETPROOF TIMER - SEQUENCE ENDING NORMALLY
-                    window.clearBulletproofTimer();
-                    
-                    // Clean up banner
-                    if (speakSequenceButton) {
-                        speakSequenceButton.remove();
-                    }
-                    
-                    // Restore existing buttons
-                    existingButtons.forEach(btn => {
-                        if (btn.id !== 'speak-sequence-button') {
-                            btn.style.display = 'block';
-                        }
-                    });
-                    
-                    // BULLETPROOF CLEANUP before avatar
-                    bulletproofCleanup();
-                    
-                    // NOW SAFE TO TRIGGER AVATAR
-                    console.log('🎬 Triggering avatar sorry message (after nuclear shutdown)...');
-                    if (typeof showAvatarSorryMessage === 'function') {
-                        showAvatarSorryMessage();
-                    } else {
-                        console.log('❌ showAvatarSorryMessage function not found');
-                    }
-                    
-                }, 100); // Brief delay for complete cleanup
-            } else {
-                // No recognition to clean up
-                window.clearBulletproofTimer();
-                
-                if (speakSequenceButton) {
-                    speakSequenceButton.remove();
-                }
-                
-                existingButtons.forEach(btn => {
-                    if (btn.id !== 'speak-sequence-button') {
-                        btn.style.display = 'block';
-                    }
-                });
-                
-                bulletproofCleanup();
-                
-                console.log('🎬 Triggering avatar sorry message (no recognition to clean)...');
-                if (typeof showAvatarSorryMessage === 'function') {
-                    showAvatarSorryMessage();
-                } else {
-                    console.log('❌ showAvatarSorryMessage function not found');
-                }
-            }
-            
-        }, 7000);
-        
-    }, 3000);
+    }, 3000); // End of 3-second "Get Ready" phase
     
     // ===== SUCCESS HANDLER =====
     window.handleSpeechSuccess = function(transcript) {
