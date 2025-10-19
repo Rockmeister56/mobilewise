@@ -1,5 +1,5 @@
 // ===================================================
-// 🎯 MOBILE-WISE AI VOICE CHAT - COMPLETE INTEGRATION
+// 🎯 MOBILE-WISE AI VOICE CHAT - COMPLETE INTEGRATIO
 // Smart Button + Lead Capture + EmailJS + Banner System
 // ===================================================
 
@@ -885,7 +885,7 @@ async function activateMicrophone() {
         conversationState = 'getting_first_name';
     }
     
-      // Initialize leadData if it doesn't exist
+        // Initialize leadData if it doesn't exist
     if (typeof leadData === 'undefined' || !leadData) {
         window.leadData = { firstName: '' };
     }
@@ -2657,8 +2657,8 @@ if (conversationState === 'initial') {
     
     if (userText.includes('buy') || userText.includes('purchase') || userText.includes('buying') || userText.includes('acquire')) {
         responseText = firstName ? 
-            `Excellent, ${firstName}! Bruce has some fantastic opportunities available right now - some exclusive off-market deals that would blow you away. Tell me, what's your budget range for acquiring a practice?` :
-            "Excellent! Bruce has some fantastic opportunities available - some exclusive off-market deals that would blow you away. What's your budget range for acquiring a practice?";
+             `Excellent, ${firstName}! Bruce has exclusive off-market deals available. What's your budget range?` :
+            "Excellent! Bruce has exclusive off-market opportunities available. What's your budget range for acquiring a practice?";
         conversationState = 'buying_budget_question';
         shouldShowSmartButton = false;
         
@@ -4334,59 +4334,7 @@ function showTestimonialVideo(testimonialType, duration = 12000) {
     
     document.body.appendChild(avatarOverlay);
 
-    // 🎯 CONSULTATIVE CONCERN DETECTION SYSTEM
-function detectConsultativeResponse(userText) {
-    const text = userText.toLowerCase().trim();
-    
-    // 🎯 VALUE/WORTH CONCERNS
-    const valueConcerns = [
-        'concern', 'worried', 'afraid', 'nervous', 'anxious',
-        'worth', 'value', 'fair price', 'market value', 'low ball',
-        'undervalue', 'undersell', 'getting what', 'full value',
-        'what it\'s worth', 'fair deal', 'ripped off', 'enough money'
-    ];
-    
-    // 🎯 SPEED/TIMELINE CONCERNS  
-    const speedConcerns = [
-        'how long', 'timeline', 'time', 'quick', 'fast', 'speed',
-        'when', 'soon', 'quickly', 'process time', 'sell fast',
-        'too fast', 'rushed', 'patient', 'wait', 'takes forever'
-    ];
-    
-    // 🎯 CREDIBILITY/TRUST CONCERNS
-    const credibilityConcerns = [
-        'experience', 'credibility', 'trust', 'legitimate', 'proven',
-        'track record', 'skeptical', 'doubt', 'reliable', 'reputation',
-        'references', 'testimonials', 'reviews', 'who are you', 'can you really'
-    ];
-    
-    // Check for value concerns → Show "skeptical then exceeded" testimonial
-    for (let concern of valueConcerns) {
-        if (text.includes(concern)) {
-            console.log(`🎯 VALUE CONCERN detected: "${concern}" - will show value testimonial`);
-            return 'value';
-        }
-    }
-    
-    // Check for speed concerns → Show "speed of sale" testimonial
-    for (let concern of speedConcerns) {
-        if (text.includes(concern)) {
-            console.log(`🎯 SPEED CONCERN detected: "${concern}" - will show speed testimonial`);
-            return 'speed';
-        }
-    }
-    
-    // Check for credibility concerns → Show "skeptical then exceeded" testimonial
-    for (let concern of credibilityConcerns) {
-        if (text.includes(concern)) {
-            console.log(`🎯 CREDIBILITY CONCERN detected: "${concern}" - will show credibility testimonial`);
-            return 'credibility';
-        }
-    }
-    
-    return null; // No concern detected
-}
-    
+   
     // 🎯 CLEANUP - CONTINUES CONVERSATION (KEY DIFFERENCE FROM SORRY MESSAGE)
     function cleanup() {
         console.log(`🎬 Testimonial ${testimonialType} complete - continuing conversation`);
@@ -5029,38 +4977,112 @@ playGetReadyAndSpeakNowSound();
         `;
         
         console.log('🎤 Starting speech recognition...');
-
-                // ⏰ SAFETY TIMEOUT: Auto-close banner after 10 seconds if no speech
-               speakSequenceCleanupTimer = setTimeout(() => {
-            if (speakSequenceActive) {
-                console.log('⏰ TIMEOUT: No speech detected after 10s - auto-closing banner');
-                cleanupSpeakSequence();
-            }
-        }, 10000); // 10 seconds total
         
-        console.log('🎤 Starting listening AFTER Speak Now visual...');
-        
-        // Play beep on mobile devices
-        if (window.innerWidth <= 768) {
-            console.log('📱 Mobile detected - playing start beep');
-            playGetReadyAndSpeakNowSound();
-        }
-        
-        // Start listening after brief delay
         setTimeout(() => {
             if (!speakSequenceActive) return;
             
+            console.log('🎤 Starting listening AFTER Speak Now visual...');
             window.lastRecognitionResult = null;
             
-            // Just call startListening() - single, simple call
-            if (typeof startListening === 'function') {
-                startListening();
+            if (isContactInterview) {
+                startContactInterviewListening();
             } else {
-                console.error('❌ startListening function not found');
+                if (typeof startMobileListening === 'function') {
+                    startMobileListening();
+                } else {
+                    startNormalInterviewListening();
+                }
             }
-        }, 500); // 500ms delay to ensure everything is ready
+        }, 200);
         
-    }, 3000); // End of 3-second "Get Ready" phase
+        // ===== LISTENING TIMEOUT WITH NUCLEAR SHUTDOWN =====
+        setTimeout(() => {
+            if (!speakSequenceActive) return;
+            
+            console.log('⏰ 4-second listening window ended - no speech detected');
+            
+            // ===== 💣 NUCLEAR SHUTDOWN BEFORE AVATAR =====
+            console.log('💣 NUCLEAR SHUTDOWN: Completely stopping all speech recognition before avatar');
+            
+            if (typeof recognition !== 'undefined' && recognition) {
+                try {
+                    // NUKE ALL HANDLERS FIRST
+                    recognition.onresult = null;
+                    recognition.onerror = null;
+                    recognition.onend = null;
+                    recognition.onstart = null;
+                    
+                    // STOP RECOGNITION
+                    recognition.stop();
+                    
+                    // ABORT IF POSSIBLE
+                    if (typeof recognition.abort === 'function') {
+                        recognition.abort();
+                    }
+                    
+                    console.log('💣 NUCLEAR: All recognition handlers nuked and stopped');
+                } catch (e) {
+                    console.log('💣 NUCLEAR: Recognition nuked with errors (expected)');
+                }
+                
+                // WAIT A MOMENT FOR CLEANUP
+                setTimeout(() => {
+                    console.log('💣 NUCLEAR: Cleanup complete - safe to play avatar');
+                    
+                    // CLEAR THE BULLETPROOF TIMER - SEQUENCE ENDING NORMALLY
+                    window.clearBulletproofTimer();
+                    
+                    // Clean up banner
+                    if (speakSequenceButton) {
+                        speakSequenceButton.remove();
+                    }
+                    
+                    // Restore existing buttons
+                    existingButtons.forEach(btn => {
+                        if (btn.id !== 'speak-sequence-button') {
+                            btn.style.display = 'block';
+                        }
+                    });
+                    
+                    // BULLETPROOF CLEANUP before avatar
+                    bulletproofCleanup();
+                    
+                    // NOW SAFE TO TRIGGER AVATAR
+                    console.log('🎬 Triggering avatar sorry message (after nuclear shutdown)...');
+                    if (typeof showAvatarSorryMessage === 'function') {
+                        showAvatarSorryMessage();
+                    } else {
+                        console.log('❌ showAvatarSorryMessage function not found');
+                    }
+                    
+                }, 100); // Brief delay for complete cleanup
+            } else {
+                // No recognition to clean up
+                window.clearBulletproofTimer();
+                
+                if (speakSequenceButton) {
+                    speakSequenceButton.remove();
+                }
+                
+                existingButtons.forEach(btn => {
+                    if (btn.id !== 'speak-sequence-button') {
+                        btn.style.display = 'block';
+                    }
+                });
+                
+                bulletproofCleanup();
+                
+                console.log('🎬 Triggering avatar sorry message (no recognition to clean)...');
+                if (typeof showAvatarSorryMessage === 'function') {
+                    showAvatarSorryMessage();
+                } else {
+                    console.log('❌ showAvatarSorryMessage function not found');
+                }
+            }
+            
+        }, 7000);
+        
+    }, 3000);
     
     // ===== SUCCESS HANDLER =====
     window.handleSpeechSuccess = function(transcript) {
@@ -5251,4 +5273,105 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     }, 1000);
-});
+});ate.no_trigger_banner) {
+                triggerBanner(state.no_trigger_banner);
+            }
+            
+            return response;
+        }
+        
+        // Unclear - clarify
+        return leadData.firstName && state.clarify_response_with_name
+            ? state.clarify_response_with_name.replace('{firstName}', leadData.firstName)
+            : state.clarify_response;
+    }
+    
+    // ===================================================
+    // 🎯 GENERAL QUESTIONS MATCHING
+    // ===================================================
+    if (kb.general_questions) {
+        for (const question of kb.general_questions) {
+            const hasKeyword = question.keywords.some(keyword => 
+                input.includes(keyword.toLowerCase())
+            );
+            
+            if (hasKeyword) {
+                console.log('✅ General question matched:', question.id);
+                
+                // Trigger testimonial offer if specified
+                if (question.testimonialOffer) {
+                    pendingTestimonialType = question.testimonialOffer;
+                    setTimeout(() => {
+                        showTestimonialOffer(question.testimonialOffer);
+                    }, 500);
+                }
+                
+                return question.response;
+            }
+        }
+    }
+    
+    // ===================================================
+    // 🎯 FALLBACK RESPONSE
+    // ===================================================
+    return leadData.firstName
+        ? kb.fallback_responses.no_match_with_name.replace('{firstName}', leadData.firstName)
+        : kb.fallback_responses.no_match;
+}
+
+// ===================================================
+// 🎯 HELPER FUNCTIONS FOR DATA EXTRACTION
+// ===================================================
+
+function extractRevenue(input) {
+    const input_lower = input.toLowerCase();
+    
+    // Look for patterns like "500k", "1 million", "$250,000"
+    if (input_lower.includes('million')) {
+        const match = input.match(/(\d+(?:\.\d+)?)\s*million/i);
+        if (match) return `$${match[1]}M`;
+    }
+    
+    if (input_lower.includes('k')) {
+        const match = input.match(/(\d+)\s*k/i);
+        if (match) return `$${match[1]}K`;
+    }
+    
+    const dollarMatch = input.match(/\$\s*(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)/);
+    if (dollarMatch) return `$${dollarMatch[1]}`;
+    
+    const numberMatch = input.match(/\b(\d{4,})\b/);
+    if (numberMatch) {
+        const num = parseInt(numberMatch[1]);
+        if (num >= 1000000) return `$${(num / 1000000).toFixed(1)}M`;
+        if (num >= 1000) return `$${(num / 1000)}K`;
+        return `$${num}`;
+    }
+    
+    return 'that amount';
+}
+
+function extractBudget(input) {
+    return extractRevenue(input); // Same logic as revenue
+}
+
+function extractYears(input) {
+    const match = input.match(/\b(\d+)\b/);
+    return match ? match[1] : 'several';
+}
+
+function triggerBanner(bannerType) {
+    console.log('🎯 Banner triggered:', bannerType);
+    // Your existing banner triggering code will handle this
+    if (bannerType === 'freeBookWithConsultation') {
+        shouldShowSmartButton = true;
+        smartButtonText = 'Get Your Free Book & Consultation';
+        smartButtonAction = 'bookConsultation';
+    } else if (bannerType === 'smartButton') {
+        shouldShowSmartButton = true;
+        smartButtonAction = 'default';
+    } else if (bannerType === 'thankYou') {
+        shouldShowSmartButton = false;
+    }
+}
+
