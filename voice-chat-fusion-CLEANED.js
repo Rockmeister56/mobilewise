@@ -5024,6 +5024,16 @@ playGetReadyAndSpeakNowSound();
         `;
         
         console.log('🎤 Starting speech recognition...');
+
+        // ⏰ SAFETY TIMEOUT: Auto-close banner after 6 seconds if no speech
+        speakSequenceCleanupTimer = setTimeout(() => {
+    if (speakSequenceActive) {
+        console.log('⏰ TIMEOUT: No speech detected after 6s - auto-closing banner');
+        cleanupSpeakSequence();
+    }
+}, 6000); // 6 seconds (browser timeout is ~4s, this is safety buffer)
+        
+        console.log('🎤 Starting listening AFTER Speak Now visual...');
         
         setTimeout(() => {
             if (!speakSequenceActive) return;
