@@ -5031,7 +5031,7 @@ playGetReadyAndSpeakNowSound();
         console.log('🎤 Starting speech recognition...');
 
                 // ⏰ SAFETY TIMEOUT: Auto-close banner after 10 seconds if no speech
-        speakSequenceCleanupTimer = setTimeout(() => {
+               speakSequenceCleanupTimer = setTimeout(() => {
             if (speakSequenceActive) {
                 console.log('⏰ TIMEOUT: No speech detected after 10s - auto-closing banner');
                 cleanupSpeakSequence();
@@ -5039,6 +5039,12 @@ playGetReadyAndSpeakNowSound();
         }, 10000); // 10 seconds total
         
         console.log('🎤 Starting listening AFTER Speak Now visual...');
+        
+        // Play beep on mobile devices
+        if (window.innerWidth <= 768) {
+            console.log('📱 Mobile detected - playing start beep');
+            playGetReadyAndSpeakNowSound();
+        }
         
         // Start listening after brief delay
         setTimeout(() => {
