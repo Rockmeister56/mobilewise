@@ -100,6 +100,23 @@ class SpeechEngineManager {
 const speechEngine = new SpeechEngineManager();
 console.log('🚀 Speech Engine Manager initialized');
 
+function quickMobileAudioFix() {
+    if (/Mobi|Android/i.test(navigator.userAgent)) {
+        const originalPlay = HTMLAudioElement.prototype.play;
+        HTMLAudioElement.prototype.play = function() {
+            if (isListening) {
+                console.log('🔇 Mobile: Blocked audio during speech session');
+                return Promise.reject(new DOMException('Audio blocked during speech'));
+            }
+            return originalPlay.call(this);
+        };
+        console.log('✅ Mobile audio gate installed');
+    }
+}
+
+// Call it immediately - runs once when file loads
+quickMobileAudioFix();
+
 // 🚨 NUCLEAR MOBILE DETECTION - SCREEN SIZE ONLY
 const isDefinitelyMobile = window.innerWidth <= 768 || window.innerHeight <= 1024;
 
@@ -367,12 +384,16 @@ function initializeSpeechRecognition() {
     recognition.interimResults = true;
     recognition.lang = 'en-US';
 
-     // 🚫 CRITICAL: DISABLE BROWSER BEEP
+    // 🚫 CRITICAL: DISABLE BROWSER BEEP
     recognition.onsoundstart = null;
     recognition.onaudiostart = null;
     recognition.onstart = null;
 
     console.log('✅ Speech recognition initialized');
+    
+    // ✅ CALL BEFORE RETURN
+    suppressBrowserBeeps();
+    
     return true;
 }
 
@@ -395,11 +416,23 @@ function getApologyResponse() {
     
     return sorryMessages[Math.floor(Math.random() * sorryMessages.length)];
 }
+
+function suppressBrowserBeeps() {
+    if (!recognition) return;
+    
+    recognition.onsoundstart = function() { /* SILENCE */ };
+    recognition.onaudiostart = function() { /* SILENCE */ };
+    recognition.onspeechstart = function() { /* SILENCE */ };
+}
     
   // ===================================================
 // 🎤 START LISTENING new function
 // ===================================================
     async function startListening() {
+      if (recognition && recognition.onerror) {
+        console.log('Event handlers already set - skipping duplicate setup');
+        return;
+    }
      // ✅ PREVENT MULTIPLE STARTS
     if (recognition && recognition.state === 'started') {
         console.log('🚫 Recognition already running - skipping start');
@@ -665,10 +698,9 @@ function stopListening() {
 }
 
 // ===================================================
-// 🔍 FORCE START LISTENING
+// 🔍 FORCE START LISTENING - FIXED (DUPLICATE HANDLER REMOVED)
 // ===================================================
 
-// 🎯 ADD THIS TO YOUR forceStartListening() FUNCTION - REPLACE THE EXISTING ONE:
 function forceStartListening() {
     console.log('🎤 TEST 8: forceStartListening() CALLED at:', Date.now());
     console.log('🎤 TEST 9: isSpeaking:', isSpeaking);
@@ -691,79 +723,7 @@ function forceStartListening() {
             console.log('✅ DIAGNOSTIC: Recognition STARTED successfully');
         };
         
-        recognition.onerror = function(event) {
-    console.log('🔊 Speech error:', event.error);
-
-    if (event.error === 'no-speech') {
-        const transcriptText = document.getElementById('transcriptText');
-
-        console.log('🔍 MOBILE DEBUG:', {
-            userAgent: navigator.userAgent,
-            isMobile: /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent),
-            isTouch: ('ontouchstart' in window || navigator.maxTouchPoints > 0)
-        });
-
-        // 🚨 NUCLEAR MOBILE DETECTION - REPLACE THE OLD CHECK
-        const isDefinitelyMobile = window.innerWidth <= 768 || window.innerHeight <= 1024;
-
-        if (isDefinitelyMobile) {
-            console.log('📱📱📱 NUCLEAR MOBILE DETECTED: Using visual feedback system');
-
-            if (window.noSpeechTimeout) {
-                clearTimeout(window.noSpeechTimeout);
-            }
-
-            if (transcriptText) {
-                transcriptText.textContent = 'I didn\'t hear anything...';
-                transcriptText.style.color = '#ff6b6b';
-
-                window.noSpeechTimeout = setTimeout(() => {
-                    if (transcriptText) {
-                        transcriptText.textContent = 'Please speak now';
-                        transcriptText.style.color = '#ffffff';
-                    }
-
-                    if (isAudioMode && !isSpeaking) {
-                        console.log('🔄 Mobile: Restarting via hybrid system');
-                        isListening = false;
-
-                        setTimeout(() => {
-                            showHybridReadySequence();
-                        }, 500);
-                    }
-                },  1000);
-            }
-
-        } else {
-            console.log('🖥️ Desktop: Using voice apology system');
-
-            lastMessageWasApology = true;
-            const apologyResponse = getApologyResponse();
-
-            stopListening();
-
-            setTimeout(() => {
-                addAIMessage(apologyResponse);
-                speakResponse(apologyResponse);
-
-                if (restartTimeout) clearTimeout(restartTimeout);
-
-                restartTimeout = setTimeout(() => {
-                    if (isAudioMode && !isListening && !isSpeaking) {
-                        startListening();
-                    }
-                    lastMessageWasApology = false;
-                }, 500);
-            }, 500);
-        }
-    } else if (event.error === 'audio-capture') {
-        console.log('🎤 No microphone detected');
-        addAIMessage("I can't detect your microphone. Please check your audio settings.");
-    } else if (event.error === 'not-allowed') {
-        console.log('🔒 Permission denied');
-        addAIMessage("Microphone permission was denied. Please allow microphone access to continue.");
-    }
-};
+        // ✅ DUPLICATE recognition.onerror REMOVED - Using the one from startListening()
         
         console.log('🎤 Force starting speech recognition...');
         recognition.start();
