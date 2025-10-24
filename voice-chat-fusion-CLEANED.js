@@ -1714,581 +1714,521 @@ setTimeout(() => {
 // ===================================================================
 // 🎯 MOBILE-WISE AI UNIVERSAL BANNER ENGINE - CLEAN CONTAINER EDITION
 // ===================================================================
-window.showUniversalBanner = function(bannerType, customContent = null, options = {}) {
-    console.log(`🎯 Deploying Universal Banner: ${bannerType}`);
+/**
+ * ===================================================================
+ * 🎯 MOBILE-WISE AI UNIVERSAL BANNER ENGINE v4 - CAPTAIN'S FINAL EDITION
+ * ===================================================================
+ * 
+ * ALL 9 BANNERS WITH FULL TEMPLATE EFFECTS:
+ * - Glow layer pulsing (::before)
+ * - Highlighter sweep (::after)
+ * - Icon glow animations
+ * - 3-color gradients (left/middle/right)
+ * - All 5 animation keyframes
+ * 
+ * DROP-IN REPLACEMENT - Uses same function name: window.showUniversalBanner()
+ * 
+ * Created: 2025-10-24
+ */
+
+(function() {
+    'use strict';
+
+    console.log('🚀 Loading Universal Banner Engine v4 - CAPTAIN\'S FINAL EDITION...');
+
+    // ===================================================================
+    // 🎨 BANNER CONFIGURATION - ALL 9 BANNERS
+    // ===================================================================
     
-    // COMPLETE BANNER LIBRARY - All 9 Banner Types
-    const bannerLibrary = {
-        // 1. BRANDING HEADER (🚀 UPDATED LAYOUT)
-        branding: {
-    content: `
-        <div class="banner-glow-container" style="width: 782px; max-width: 782px; margin: 0 auto; height: 77px; display: flex; justify-content: center; align-items: center; padding: 0 10px; border-radius: 10px; background: white; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);">
-            
-            <!-- CENTER: NCI Logo -->
-            <div style="display: flex; align-items: center; justify-content: center;">
-                <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1759148392591_nci.PNG" 
-                     style="width: 280px; height: auto; border-radius: 8px; box-shadow: 0 0px 8px rgba(255, 255, 255, 1);">
-            </div>
-        </div>
+    const BANNER_CONFIG = {
         
-        <style>
-        /* Blue PULSING GLOW AROUND BANNER */
-        .banner-glow-container {
-            position: relative;
-            animation: redPulseGlow 2s ease-in-out infinite;
-        }
-        
-        @keyframes redPulseGlow {
-            0%, 100% { 
-                box-shadow: 0 10px 10px rgba(0,0,9,0.0), 0 0 10px rgba(0, 128, 255, 1);
-            }
-            50% { 
-                box-shadow: 0 20px 10px rgba(0,0,9,0.0), 0 0 25px rgba(0, 0, 255, 1);
-            }
-        }
-        </style>
-    `,
-    background: 'rgba(255, 255, 255, 0.15)',
-    containerWidth: 795,
-    customHeight: 90,
-},
-        
-        // 3. EMAIL SENT CONFIRMATION
-        emailSent: {
-    content: `
-        <div style="width: ${742}px; max-width: ${742}px; margin: 0 auto; background: rgba(32, 178, 170, 0.8); border-radius: 6px; height: 58px; display: flex; align-items: center; justify-content: center;">
-            <div style="text-align: center; color: white;">
-                <div style="font-size: 14px; font-weight: bold;">
-                    ✅ <strong>Confirmation Email Sent!</strong>
-                </div>
-                <div style="font-size: 11px; opacity: 0.9; margin-top: 3px;">
-                    Please check your email for the book link
-                </div>
-            </div>
-        </div>
-    `,
-    background: 'rgba(255, 255, 255, 0.2)', // 🎯 WHITE LAYER
-    containerWidth: 752, // 🚀 WHITE LAYER WIDTH CONTROL
-    customHeight: 65, // 🚀 WHITE LAYER HEIGHT CONTROL
-    duration: 4000
-},
-  
-// 2. SMART BUTTON (Free Consultation)
-avatar: {
-   content: `
-        <div class="banner-glow-container" style="width: 785px; max-width: 785px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #000c24ff, #011030ff); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
-            
-            <!-- LEFT: Avatar Image -->
-            <div style="display: flex; align-items: center;">
-               <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1759960502123_AI-banner2.png" 
-                     class="avatar-shape-glow"
-                     style="width: 275px; height: 80px; border-radius: 0px; margin-right: 15px; margin-top: 12px;"
+        // 1. GENUINE CLIENT REVIEWS (Testimonials)
+        testimonialSelector: {
+            content: `
+                <div class="banner-glow-container" style="width: 760px; max-width: 760px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #1e40af 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                    
+                    <div style="display: flex; align-items: center;">
+                        <!-- 5-STAR ICON -->
+                        <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761252676241_5starpng.png" 
+                             class="book-white-glow"
+                             style="width: 70px; height: 70px; border-radius: 0px; margin-right: 15px;">
+                        
+                        <!-- REVIEWS ICON -->
+                        <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761252832996_reviews.png" 
+                             class="book-white-glow"
+                             style="width: 70px; height: 70px; border-radius: 0px; margin-right: 20px;">
+                        
+                        <!-- TEXT -->
+                        <div style="color: white; text-align: left;">
+                            <div style="font-size: 18px; font-weight: bold; margin-bottom: 3px;">
+                                GENUINE client reviews
+                            </div>
+                            <div style="font-size: 13px; color: #dbeafe; opacity: 0.95;">
+                                Click buttons bellow to view video reviews
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
-        
-        <style>
-        /* No animation on banner container */
-        .banner-glow-container {
-            position: relative;
-        }
-             .banner-glow-container::before {
-    content: '';
-    position: absolute;
-    width: calc(100% + 50px);  /* <-- CHANGE 50px to make wider/narrower */
-    height: calc(100% + 20px);
-    top: -10px;
-    left: -25px;               /* <-- Keep this half of the width addition */
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    z-index: -1;
-    animation: glowLayerPulse 8s ease-in-out infinite;
-        }
-    .banner-glow-container::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-        90deg,
-        transparent,
-        rgba(255, 255, 255, 0.4),
-        transparent
-    );
-    animation: highlighterSweep 7s ease-in-out infinite;  /* <-- 7s total cycle */
-    z-index: 1;
-    border-radius: 8px;
-}
-
-@keyframes highlighterSweep {
-    0%, 85% { left: -100%; opacity: 0; }     
-    86% { left: -100%; opacity: 1; }         
-    97% { left: 100%; opacity: 1; }          /* <-- Changed from 94% to 97% */
-    98% { left: 100%; opacity: 0; }          /* <-- Adjust this too */
-    100% { left: -100%; opacity: 0; }        
-}
-        
-        /* ✨ AVATAR SHAPE GLOW - Follows the actual avatar outline, not a box! */
-        .avatar-shape-glow {
-            filter: drop-shadow(0 0 2px rgba(0, 140, 255, 0.8));
-            animation: avatarGlowPulse 2.5s ease-in-out infinite;
-        }
-        
-        @keyframes avatarGlowPulse {
-            0%, 100% { 
-                filter: drop-shadow(0 0 6px rgba(15, 197, 217, 0.81));
-            }
-            35% { 
-                filter: drop-shadow(0 0 10px rgba(0, 0, 0, 1));
-            }
-        }
-        
-        /* ✨ FREE TEXT GLOW */
-        .free-glow {
-            text-shadow: 0 0 8px rgba(255,255,255,0.8);
-            animation: freeTextGlow 2.5s ease-in-out infinite;
-        }
-        
-        @keyframes freeTextGlow {
-            0%, 100% { text-shadow: 0 0 8px rgba(255,255,255,0.8); }
-            50% { text-shadow: 0 0 12px rgba(255,255,255,1); }
-        }
-        </style>
-    `,
-    background: 'rgba(255, 255, 255, 0.15)',
-    containerWidth: 795,
-    customHeight: 90,
-    duration: 0
-},
-
-// 3. EMAIL SENT CONFIRMATION (Already standardized - keeping as reference)
-emailSent: {
-    content: `
-        <div style="width: ${742}px; max-width: ${742}px; margin: 0 auto; background: rgba(32, 178, 170, 0.8); border-radius: 6px; height: 58px; display: flex; align-items: center; justify-content: center;">
-            <div style="text-align: center; color: white;">
-                <div style="font-size: 14px; font-weight: bold;">
-                    ✅ <strong>Confirmation Email Sent!</strong>
-                </div>
-                <div style="font-size: 11px; opacity: 0.9; margin-top: 3px;">
-                    Please check your email for the book link
-                </div>
-            </div>
-        </div>
-    `,
-    background: 'rgba(255, 255, 255, 0.2)', // 🎯 WHITE LAYER
-    containerWidth: 752, // 🚀 WHITE LAYER WIDTH CONTROL
-    customHeight: 65, // 🚀 WHITE LAYER HEIGHT CONTROL
-    duration: 4000
-},
-
-// 4. FREE BOOK OFFER 1
-freeBookSimple: {
-    content: `
-        <div style="width: ${742}px; max-width: ${742}px; margin: 0 auto; height: 58px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; border-radius: 6px; background: linear-gradient(135deg, #FF6B6B, #4ECDC4);">
-            <div style="color: white;">
-                <div style="font-size: 16px; font-weight: bold; margin-bottom: 2px;">
-                    📚 FREE Book for You!
-                </div>
-                <div style="font-size: 12px; color: #fff; opacity: 0.9;">
-                    "7 Secrets to Selling Your Practice"
-                </div>
-            </div>
-            <button onclick="requestFreeBook()" style="
-                background: rgba(255, 255, 255, 0.2);
-                color: white;
-                border: 1px solid rgba(255, 255, 255, 0.3);
-                padding: 8px 20px;
-                border-radius: 20px;
-                cursor: pointer;
-                font-weight: bold;
-                font-size: 14px;
-            ">
-                Get Free Book
-            </button>
-        </div>
-    `,
-    background: 'rgba(255, 255, 255, 0.15)',
-    containerWidth: 752, // 🚀 WHITE LAYER WIDTH CONTROL
-    customHeight: 65, // 🚀 WHITE LAYER HEIGHT CONTROL
-    duration: 0
-},
-
-// 5. FREE BOOK OFFER 2
-freeBookWithConsultation: {
-    content: `
-        <div class="banner-glow-container" style="width: 760px; max-width: 760px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #0f5ef0ff, #000000ff); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
-            
-            <!-- LEFT: Book Image -->
-            <div style="display: flex; align-items: center;">
-                <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758088515492_nci-book.png" 
-                     class="book-white-glow"
-                     style="width: 60px; height: 70px; border-radius: 0px; margin-right: 15px;">
-                
-                <!-- Book Info -->
-                <div style="color: white; text-align: left;">
-                    <div style="font-size: 18px; font-weight: bold; margin-bottom: 3px;">
-                        📚 <span class="free-glow">FREE</span> Consultation & Book
-                    </div>
-                    <div style="font-size: 13px; color: #00ffb3ff; opacity: 0.95;">
-                        "7 Secrets to Selling Your Practice" FREE!
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <style>
-        .banner-glow-container::before {
-    content: '';
-    position: absolute;
-    width: calc(100% + 50px);  /* <-- CHANGE 50px to make wider/narrower */
-    height: calc(100% + 20px);
-    top: -10px;
-    left: -25px;               /* <-- Keep this half of the width addition */
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    z-index: -1;
-    animation: glowLayerPulse 2s ease-in-out infinite;
-        }
-    .banner-glow-container::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-        90deg,
-        transparent,
-        rgba(255, 255, 255, 0.4),
-        transparent
-    );
-    animation: highlighterSweep 7s ease-in-out infinite;  /* <-- 7s total cycle */
-    z-index: 1;
-    border-radius: 8px;
-}
-
-@keyframes highlighterSweep {
-    0%, 85% { left: -100%; opacity: 0; }     
-    86% { left: -100%; opacity: 1; }         
-    97% { left: 100%; opacity: 1; }          /* <-- Changed from 94% to 97% */
-    98% { left: 100%; opacity: 0; }          /* <-- Adjust this too */
-    100% { left: -100%; opacity: 0; }        
-}
-        
-        @keyframes glowLayerPulse {
-            0%, 100% { 
-                box-shadow: 0 0 15px rgba(0, 255, 0, 0.6);
-            }
-            50% { 
-                box-shadow: 0 0 30px rgba(0, 217, 255, 0.8);
-            }
-        }
-        
-        /* Blue PULSING GLOW AROUND BANNER */
-        .banner-glow-container {
-            position: relative;
-            animation: redPulseGlow 2s ease-in-out infinite;
-        }
-        
-        @keyframes redPulseGlow {
-            0%, 100% { 
-                box-shadow: 0 10px 10px rgba(0,0,7,0.0), 0 0 10px rgba(0, 255, 0, 1);
-            }
-            50% { 
-                box-shadow: 0 20px 10px rgba(0,0,9,0.0), 0 0 25px rgba(0, 217, 255, 1);
-            }
-        }
-        
-        /* 📚 WHITE GLOW BEHIND BOOK */
-        .book-white-glow {
-            animation: bookWhiteGlow 3s ease-in-out infinite;
-        }
-        
-        @keyframes bookWhiteGlow {
-            0%, 100% { 
-                box-shadow: 0 0 0px rgba(255,255,255,0.5);
-                transform: scale(1.2);
-            }
-            50% { 
-                box-shadow: 0 0 0px rgba(255,255,255,0.9);
-                transform: scale(1.03);
-            }
-        }
-        
-        /* ✨ FREE TEXT GLOW */
-        .free-glow {
-            text-shadow: 0 0 8px rgba(255,255,255,0.8);
-            animation: freeTextGlow 2.5s ease-in-out infinite;
-        }
-        
-        @keyframes freeTextGlow {
-            0%, 100% { text-shadow: 0 0 8px rgba(255,255,255,0.8); }
-            50% { text-shadow: 0 0 12px rgba(255,255,255,1); }
-        }
-        </style>
-    `,
-    background: 'rgba(255, 255, 255, 0.15)',
-    containerWidth: 770,
-    customHeight: 90,
-    duration: 0
-},
-
-
-// 5. CONSULTATION CONFIRMED
-consultationConfirmed: {
-    content: `
-        <div style="width: ${742}px; max-width: ${742}px; margin: 0 auto; height: 58px; display: flex; align-items: center; justify-content: center; border-radius: 6px; background: rgba(33, 150, 243, 0.8);">
-            <div style="text-align: center; color: white;">
-                <div style="font-size: 16px; font-weight: bold;">
-                    🎉 Consultation Confirmed!
-                </div>
-                <div style="font-size: 12px; opacity: 0.9; margin-top: 2px;">
-                    Bruce will reach out within 24 hours for your FREE practice valuation
-                </div>
-            </div>
-        </div>
-    `,
-    background: 'rgba(255, 255, 255, 0.2)',
-    containerWidth: 752, // 🚀 WHITE LAYER WIDTH CONTROL
-    customHeight: 65, // 🚀 WHITE LAYER HEIGHT CONTROL
-    duration: 5000
-},
-
-// 6. CLICK-TO-CALL BANNER
-clickToCall: {
-    content: `
-        <div style="width: ${742}px; max-width: ${742}px; margin: 0 auto; height: 58px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; border-radius: 6px; background: linear-gradient(135deg, #0044ffff, #0a0b50ff);">
-            <div style="color: white; font-weight: 600; font-size: 16px;">
-                📞 Talk to Bruce Now
-            </div>
-            <button onclick="callBruce()" style="
-                background: rgba(255, 255, 255, 0.2);
-                color: white;
-                border: 1px solid rgba(255, 255, 255, 0.3);
-                padding: 8px 20px;
-                border-radius: 20px;
-                cursor: pointer;
-                font-weight: bold;
-                font-size: 14px;
-                animation: pulse-attention 2s infinite;
-            ">
-                📞 Call Now
-            </button>
-        </div>
-    `,
-    background: 'rgba(255, 255, 255, 0.15)',
-    containerWidth: 752, // 🚀 WHITE LAYER WIDTH CONTROL
-    customHeight: 65, // 🚀 WHITE LAYER HEIGHT CONTROL
-    duration: 0
-},
-
-// 7. MORE QUESTIONS BANNER
-moreQuestions: {
-    content: `
-        <div style="width: ${742}px; max-width: ${742}px; margin: 0 auto; height: 58px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-radius: 6px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-            <div style="color: white;">
-                <div style="font-size: 16px; font-weight: bold;">
-                    ❓ Still Have Questions?
-                </div>
-                <div style="font-size: 12px; color: #fff; opacity: 0.9;">
-                    I'm here to help with anything else!
-                </div>
-            </div>
-            <button onclick="restartConversation()" style="
-                background: white;
-                color: #667eea;
-                border: none;
-                padding: 8px 20px;
-                border-radius: 20px;
-                cursor: pointer;
-                font-weight: bold;
-                font-size: 14px;
-            ">
-                Ask Another Question
-            </button>
-        </div>
-    `,
-    background: 'rgba(255, 255, 255, 0.15)',
-    containerWidth: 752, // 🚀 WHITE LAYER WIDTH CONTROL
-    customHeight: 65, // 🚀 WHITE LAYER HEIGHT CONTROL
-    duration: 0
-},
-
-// 8. LEAD MAGNET BANNER
-leadMagnet: {
-    content: `
-        <div style="width: ${742}px; max-width: ${742}px; margin: 0 auto; height: 58px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; border-radius: 6px; background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
-            <div style="color: white;">
-                <div style="font-size: 16px; font-weight: bold;">
-                    🎁 Your Free Gift is Ready!
-                </div>
-                <div style="font-size: 12px; color: #fff; opacity: 0.9;">
-                    Download your exclusive guide now
-                </div>
-            </div>
-            <button onclick="window.open(getActiveLeadMagnet().downloadLink, '_blank')" style="
-                background: white;
-                color: #28a745;
-                border: none;
-                padding: 8px 20px;
-                border-radius: 20px;
-                cursor: pointer;
-                font-weight: bold;
-                font-size: 14px;
-            ">
-                📥 Download Now
-            </button>
-        </div>
-    `,
-    background: 'rgba(255, 255, 255, 0.15)',
-    containerWidth: 752, // 🚀 WHITE LAYER WIDTH CONTROL
-    customHeight: 65, // 🚀 WHITE LAYER HEIGHT CONTROL
-    duration: 0
-}, // 🚨 THIS COMMA WAS MISSING!
-
-// 9. LEAD CAPTURE ACTIVE
-leadCapture: {
-    content: `
-        <div style="width: ${742}px; max-width: ${742}px; margin: 0 auto; height: 58px; display: flex; align-items: center; justify-content: center; border-radius: 6px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-            <div style="text-align: center; color: white;">
-                <div style="font-size: 16px; font-weight: bold;">
-                    📋 YOUR CONTACT INFO
-                </div>
-                <div style="font-size: 12px; opacity: 0.9; margin-top: 2px;">
-                    Please provide your details for the consultation
-                </div>
-            </div>
-        </div>
             `,
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
             duration: 0
+        },
+
+        // 2. CLICK TO CALL
+        clickToCall: {
+            content: `
+                <div class="banner-glow-container" style="width: 760px; max-width: 760px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #1e3a8a 0%, #7c3aed 50%, #3b82f6 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                    
+                    <div style="display: flex; align-items: center;">
+                        <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761252700290_click%20to%20call.png" 
+                             class="book-white-glow"
+                             style="width: 70px; height: 70px; border-radius: 0px; margin-right: 20px;">
+                        
+                        <div style="color: white; text-align: left;">
+                            <div style="font-size: 18px; font-weight: bold; margin-bottom: 3px;">
+                                CLICK to call
+                            </div>
+                            <div style="font-size: 13px; color: #e0e7ff; opacity: 0.95;">
+                                Click icon to connect
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `,
+            duration: 0
+        },
+
+        // 3. EMAIL ON ITS WAY
+        emailSent: {
+            content: `
+                <div class="banner-glow-container" style="width: 760px; max-width: 760px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #0f5ef0 0%, #1e40af 50%, #0369a1 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                    
+                    <div style="display: flex; align-items: center;">
+                        <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761252751340_email-sent.png" 
+                             class="book-white-glow"
+                             style="width: 70px; height: 70px; border-radius: 0px; margin-right: 20px;">
+                        
+                        <div style="color: white; text-align: left;">
+                            <div style="font-size: 18px; font-weight: bold; margin-bottom: 3px;">
+                                EMAIL on its way!
+                            </div>
+                            <div style="font-size: 13px; color: #dbeafe; opacity: 0.95;">
+                                Please check your inbox or spam folder
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `,
+            duration: 5000
+        },
+
+        // 4. FREE INCENTIVE
+        freeIncentive: {
+            content: `
+                <div class="banner-glow-container" style="width: 760px; max-width: 760px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #7c3aed 0%, #a855f7 50%, #9333ea 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                    
+                    <div style="display: flex; align-items: center;">
+                        <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761252768829_FREE.png" 
+                             class="book-white-glow"
+                             style="width: 70px; height: 70px; border-radius: 0px; margin-right: 20px;">
+                        
+                        <div style="color: white; text-align: left;">
+                            <div style="font-size: 18px; font-weight: bold; margin-bottom: 3px;">
+                                FREE incentive
+                            </div>
+                            <div style="font-size: 13px; color: #f3e8ff; opacity: 0.95;">
+                                Description of free offer
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `,
+            duration: 0
+        },
+
+        // 5. YOUR FREE BOOK HERE
+        freeBook: {
+            content: `
+                <div class="banner-glow-container" style="width: 760px; max-width: 760px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #0f5ef0 0%, #000000 50%, #7c3aed 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                    
+                    <div style="display: flex; align-items: center;">
+                        <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761252793411_free-ebook.png" 
+                             class="book-white-glow"
+                             style="width: 60px; height: 70px; border-radius: 0px; margin-right: 20px;">
+                        
+                        <div style="color: white; text-align: left;">
+                            <div style="font-size: 18px; font-weight: bold; margin-bottom: 3px;">
+                                YOUR-FREE-BOOK here
+                            </div>
+                            <div style="font-size: 13px; color: #dbeafe; opacity: 0.95;">
+                                Your limited offer goes here for free eBook
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `,
+            duration: 0
+        },
+
+        // 6. URGENT REQUEST
+        urgent: {
+            content: `
+                <div class="banner-glow-container urgent-pulse" style="width: 760px; max-width: 760px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #dc2626 0%, #ef4444 50%, #991b1b 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                    
+                    <div style="display: flex; align-items: center;">
+                        <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761252888111_urgent.png" 
+                             class="book-white-glow"
+                             style="width: 70px; height: 70px; border-radius: 0px; margin-right: 20px;">
+                        
+                        <div style="color: white; text-align: left;">
+                            <div style="font-size: 18px; font-weight: bold; margin-bottom: 3px;">
+                                URGENT request
+                            </div>
+                            <div style="font-size: 13px; color: #fecaca; opacity: 0.95;">
+                                Your message will be sent as URGENT!
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `,
+            duration: 0
+        },
+
+        // 7. SCHEDULE APPOINTMENT
+        setAppointment: {
+            content: `
+                <div class="banner-glow-container" style="width: 760px; max-width: 760px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #15803d 0%, #22c55e 50%, #059669 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                    
+                    <div style="display: flex; align-items: center;">
+                        <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761252849202_schedule-appointment.png" 
+                             class="book-white-glow"
+                             style="width: 70px; height: 70px; border-radius: 0px; margin-right: 20px;">
+                        
+                        <div style="color: white; text-align: left;">
+                            <div style="font-size: 18px; font-weight: bold; margin-bottom: 3px;">
+                                SCHEDULE appointment
+                            </div>
+                            <div style="font-size: 13px; color: #dcfce7; opacity: 0.95;">
+                                What is the best time & date for you?
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `,
+            duration: 0
+        },
+
+        // 8. GET PRE-QUALIFIED
+        preQualifier: {
+            content: `
+                <div class="banner-glow-container" style="width: 760px; max-width: 760px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #7c3aed 0%, #9333ea 50%, #6b21a8 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                    
+                    <div style="display: flex; align-items: center;">
+                        <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761252817152_pre-qualified.png" 
+                             class="book-white-glow"
+                             style="width: 70px; height: 70px; border-radius: 0px; margin-right: 20px;">
+                        
+                        <div style="color: white; text-align: left;">
+                            <div style="font-size: 18px; font-weight: bold; margin-bottom: 3px;">
+                                GET- pre-qualified
+                            </div>
+                            <div style="font-size: 13px; color: #f3e8ff; opacity: 0.95;">
+                                No forms! Just answer a few simple questions
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `,
+            duration: 0
+        },
+
+        // 9. MEETING CONFIRMED
+        consultationConfirmed: {
+            content: `
+                <div class="banner-glow-container" style="width: 760px; max-width: 760px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #059669 0%, #10b981 50%, #047857 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                    
+                    <div style="display: flex; align-items: center;">
+                        <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761252724766_CONFIRMEDpng.png" 
+                             class="book-white-glow"
+                             style="width: 70px; height: 70px; border-radius: 0px; margin-right: 20px;">
+                        
+                        <div style="color: white; text-align: left;">
+                            <div style="font-size: 18px; font-weight: bold; margin-bottom: 3px;">
+                                MEETING confirmed
+                            </div>
+                            <div style="font-size: 13px; color: #d1fae5; opacity: 0.95;">
+                                Your meeting request has been sent
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `,
+            duration: 5000
         }
     };
+
+    // ===================================================================
+    // 🎨 ADD ALL ANIMATION CSS STYLES
+    // ===================================================================
     
-     // 🎯 REMOVE EXISTING BANNERS AND CONTAINERS
-    const existingBanner = document.getElementById('universalBanner');
-    if (existingBanner) existingBanner.remove();
-    
-    const existingContainer = document.getElementById('bannerHeaderContainer');
-    if (existingContainer) existingContainer.remove();
-    
-    // Get banner config
-    const bannerConfig = bannerLibrary[bannerType];
-    if (!bannerConfig && !customContent) {
-        console.error(`❌ Banner type "${bannerType}" not found in library`);
-        return null;
-    }
-    
-    // 🚀 CREATE HEADER CONTAINER (INSIDE MAIN CONTAINER - CLEAN!)
-    const headerContainer = document.createElement('div');
-    headerContainer.id = 'bannerHeaderContainer';
-    const bannerHeight = bannerConfig?.customHeight || 85;
-    const bannerWidth = bannerConfig?.customWidth || 830; // 🚀 NEW WIDTH CONTROL
-    headerContainer.style.cssText = `
-        position: absolute !important;
-        top: 10px !important;
-        left: 50% !important;
-        transform: translateX(-50%) !important;
-        width: 100% !important;
-        height: ${bannerHeight}px !important;
-        max-width: ${bannerWidth}px !important;
-        z-index: 9999 !important;
-        overflow: hidden !important;
-        box-sizing: border-box !important;
-        pointer-events: none !important;
-        margin: 0 !important;
-    `;
-    
-    // 🚀 CREATE BANNER WITHIN CONTAINER
-    const banner = document.createElement('div');
-    banner.id = 'universalBanner';
-    banner.className = `universal-banner ${bannerType}-banner`;
-    banner.innerHTML = customContent || bannerConfig.content;
-    
-    // 🚀 DUAL-LAYER CONTROL (PROPERLY INTEGRATED!)
-    if (bannerConfig?.containerWidth) {
-        headerContainer.style.maxWidth = `${bannerConfig.containerWidth}px`;
-        banner.style.width = `${bannerConfig.containerWidth}px`;
-        banner.style.maxWidth = `${bannerConfig.containerWidth}px`;
-        banner.style.margin = '0 auto';
-    }
-    
-    // 🎯 BANNER STYLING (FITS WITHIN CONTAINER)
-    if (bannerType === 'branding') {
-        banner.style.cssText = `
-            position: absolute !important;
-            top: 0 !important;
-            left: 0 !important;
-            width: 100% !important;
-            height: 100% !important;
-            background: transparent !important;
-            border: none !important;
-            backdrop-filter: none !important;
-            border-radius: 0 !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            box-sizing: border-box !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            color: white;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            box-shadow: none !important;
+    function addBannerStyles() {
+        if (document.getElementById('universal-banner-styles-final')) return;
+
+        const styleSheet = document.createElement('style');
+        styleSheet.id = 'universal-banner-styles-final';
+        styleSheet.textContent = `
+            /* ========================================
+               GLOW LAYER - Behind Banner (::before)
+               ======================================== */
+            .banner-glow-container::before {
+                content: '';
+                position: absolute;
+                width: calc(100% + 50px);
+                height: calc(100% + 20px);
+                top: -10px;
+                left: -25px;
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 12px;
+                z-index: -1;
+                animation: glowLayerPulse 2s ease-in-out infinite;
+            }
+            
+            @keyframes glowLayerPulse {
+                0%, 100% { 
+                    box-shadow: 0 0 15px rgba(0, 255, 0, 0.6);
+                }
+                50% { 
+                    box-shadow: 0 0 30px rgba(0, 217, 255, 0.8);
+                }
+            }
+
+            /* ========================================
+               HIGHLIGHTER SWEEP - On Top (::after)
+               ======================================== */
+            .banner-glow-container::after {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(
+                    90deg,
+                    transparent,
+                    rgba(255, 255, 255, 0.4),
+                    transparent
+                );
+                animation: highlighterSweep 7s ease-in-out infinite;
+                z-index: 1;
+                border-radius: 8px;
+            }
+
+            @keyframes highlighterSweep {
+                0%, 85% { left: -100%; opacity: 0; }     
+                86% { left: -100%; opacity: 1; }         
+                97% { left: 100%; opacity: 1; }
+                98% { left: 100%; opacity: 0; }
+                100% { left: -100%; opacity: 0; }
+            }
+
+            /* ========================================
+               PULSING GLOW - Around Banner
+               ======================================== */
+            .banner-glow-container {
+                position: relative;
+                animation: redPulseGlow 2s ease-in-out infinite;
+            }
+
+            @keyframes redPulseGlow {
+                0%, 100% { 
+                    box-shadow: 0 10px 10px rgba(0,0,7,0.0), 0 0 10px rgba(0, 255, 0, 1);
+                }
+                50% { 
+                    box-shadow: 0 20px 10px rgba(0,0,9,0.0), 0 0 25px rgba(0, 217, 255, 1);
+                }
+            }
+
+            /* ========================================
+               ICON/IMAGE GLOW ANIMATION
+               ======================================== */
+            .book-white-glow {
+                animation: bookWhiteGlow 3s ease-in-out infinite;
+            }
+
+            @keyframes bookWhiteGlow {
+                0%, 100% { 
+                    box-shadow: 0 0 0px rgba(255,255,255,0.5);
+                    transform: scale(1.2);
+                }
+                50% { 
+                    box-shadow: 0 0 0px rgba(255,255,255,0.9);
+                    transform: scale(1.03);
+                }
+            }
+
+            /* ========================================
+               FREE TEXT GLOW (Optional)
+               ======================================== */
+            .free-glow {
+                text-shadow: 0 0 8px rgba(255,255,255,0.8);
+                animation: freeTextGlow 2.5s ease-in-out infinite;
+            }
+
+            @keyframes freeTextGlow {
+                0%, 100% { text-shadow: 0 0 8px rgba(255,255,255,0.8); }
+                50% { text-shadow: 0 0 12px rgba(255,255,255,1); }
+            }
+
+            /* ========================================
+               URGENT PULSE - Special for Urgent Banner
+               ======================================== */
+            .urgent-pulse {
+                animation: urgentPulse 1.5s ease-in-out infinite !important;
+            }
+
+            @keyframes urgentPulse {
+                0%, 100% {
+                    box-shadow: 0 0 15px rgba(220, 38, 38, 0.6);
+                    transform: scale(1);
+                }
+                50% {
+                    box-shadow: 0 0 30px rgba(220, 38, 38, 1);
+                    transform: scale(1.02);
+                }
+            }
+
+            /* ========================================
+               MOBILE RESPONSIVE
+               ======================================== */
+            @media (max-width: 850px) {
+                .banner-glow-container {
+                    width: 100% !important;
+                    max-width: 100% !important;
+                    transform: scale(0.9);
+                    padding: 0 10px !important;
+                }
+
+                .banner-glow-container img {
+                    max-width: 50px !important;
+                    max-height: 50px !important;
+                    margin-right: 10px !important;
+                }
+
+                .banner-glow-container div[style*="font-size: 18px"] {
+                    font-size: 14px !important;
+                }
+
+                .banner-glow-container div[style*="font-size: 13px"] {
+                    font-size: 11px !important;
+                }
+            }
         `;
-    } else {
-        banner.style.cssText = `
-            position: absolute !important;
-            top: 0 !important;
-            left: 0 !important;
-            width: 100% !important;
-            height: 100% !important;
-            background: ${bannerConfig?.background || 'rgba(255, 255, 255, 0.1)'};
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
-            margin: 0 !important;
-            padding: 0 !important;
-            box-sizing: border-box !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            color: white;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+
+        document.head.appendChild(styleSheet);
+        console.log('✅ Banner animation styles loaded');
+    }
+
+    // ===================================================================
+    // 🎯 MAIN FUNCTION - window.showUniversalBanner()
+    // ===================================================================
+    
+    window.showUniversalBanner = function(bannerType, options = {}) {
+        console.log(`🎯 Deploying Banner: ${bannerType}`);
+
+        // Get banner config
+        const config = BANNER_CONFIG[bannerType];
+        if (!config) {
+            console.warn(`❌ Unknown banner type: ${bannerType}`);
+            return null;
+        }
+
+        // Remove existing banner
+        hideBanner();
+
+        // Create banner container
+        const bannerContainer = document.createElement('div');
+        bannerContainer.id = 'universal-banner';
+        bannerContainer.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 10000;
+            transform: translateY(-100%);
+            transition: transform 0.3s ease-in-out;
         `;
-    }
-    
-    // 🎯 MOBILE RESPONSIVE ADJUSTMENT
-    if (window.innerWidth <= 850) {
-        headerContainer.style.width = 'calc(100vw - 20px)';
-        headerContainer.style.maxWidth = '830px';
-        headerContainer.style.height = '70px';
-    }
-    
-    // 🚀 DEPLOY INSIDE MAIN CONTAINER (THE KEY CHANGE!)
-    const mainContainer = document.querySelector('.container') || 
-                          document.querySelector('#main-container') || 
-                          document.querySelector('#container') || 
-                          document.querySelector('#app') ||
-                          document.body;
-    
-    headerContainer.appendChild(banner);
-    mainContainer.insertBefore(headerContainer, mainContainer.firstChild);
-    
-    // 🚀 AUTO-REMOVE WITH BRANDING RESTORE (FIXED!)
-    const duration = options.duration || bannerConfig?.duration;
-    if (duration && duration > 0) {
+
+        // Set banner content
+        bannerContainer.innerHTML = config.content;
+
+        // Add to body
+        document.body.appendChild(bannerContainer);
+
+        // Trigger show animation
         setTimeout(() => {
-            removeAllBanners(); // ← CHANGED: Now uses the auto-restore system!
-        }, duration);
-    }
+            bannerContainer.style.transform = 'translateY(0)';
+
+            // Notify listeners about banner change
+            if (typeof window.onBannerChange === 'function') {
+                window.onBannerChange(bannerType);
+            }
+
+            // Auto-hide after duration (if specified)
+            const duration = options.duration || config.duration;
+            if (duration > 0) {
+                setTimeout(() => {
+                    hideBanner();
+                }, duration);
+            }
+        }, 100);
+
+        console.log(`✅ Banner "${bannerType}" deployed`);
+        return bannerContainer;
+    };
+
+    // ===================================================================
+    // 🗑️ HIDE BANNER FUNCTION
+    // ===================================================================
     
-    console.log(`✅ Container-based banner "${bannerType}" deployed (Clean positioning)`);
-    return banner;
-};
+    function hideBanner() {
+        const existingBanner = document.getElementById('universal-banner');
+        if (existingBanner) {
+            existingBanner.style.transform = 'translateY(-100%)';
+            setTimeout(() => {
+                existingBanner.remove();
+            }, 300);
+        }
+    }
+
+    window.hideBanner = hideBanner;
+
+    // ===================================================================
+    // 🚀 INITIALIZE ON LOAD
+    // ===================================================================
+    
+    function initialize() {
+        addBannerStyles();
+        console.log('✅ Universal Banner Engine v4 - CAPTAIN\'S FINAL EDITION loaded');
+        console.log('📊 9 Banners available:');
+        console.log('   - testimonialSelector (Genuine client reviews)');
+        console.log('   - clickToCall');
+        console.log('   - emailSent');
+        console.log('   - freeIncentive');
+        console.log('   - freeBook');
+        console.log('   - urgent');
+        console.log('   - setAppointment');
+        console.log('   - preQualifier');
+        console.log('   - consultationConfirmed');
+    }
+
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initialize);
+    } else {
+        initialize();
+    }
+
+})();
+
 
 // 🚀 AUTO-RESTORE BRANDING SYSTEM
 window.restoreBrandingBanner = function() {
