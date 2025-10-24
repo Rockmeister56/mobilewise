@@ -2204,7 +2204,7 @@ setTimeout(() => {
     bannerContainer.style.cssText = `
     position: absolute;
     top: 10px;
-    left: 50%;
+    left: 20%;
     transform: translateX(-50%);
     width: 95%;
     max-width: 800px;
