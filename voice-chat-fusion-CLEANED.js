@@ -1709,48 +1709,6 @@ setTimeout(() => {
     window.emailJSFix();
 }, 1000);
 
-// ===================================================================
-// 🎯 MOBILE-WISE AI UNIVERSAL BANNER ENGINE - CLEAN CONTAINER EDITION
-// ===================================================================
-/**
- * ===================================================================
- * 🎯 MOBILE-WISE AI UNIVERSAL BANNER ENGINE v4 - CAPTAIN'S FINAL EDITION
- * ===================================================================
- * 
- * ALL 9 BANNERS WITH FULL TEMPLATE EFFECTS:
- * - Glow layer pulsing (::before)
- * - Highlighter sweep (::after)
- * - Icon glow animations
- * - 3-color gradients (left/middle/right)
- * - All 5 animation keyframes
- * 
- * DROP-IN REPLACEMENT - Uses same function name: window.showUniversalBanner()
- * 
- * Created: 2025-10-24
- */
-
-(function() {
-    'use strict';
-
-// 🏆 AUTO-DEPLOY BRANDING BANNER ON PAGE LOAD
-// ===================================================
-document.addEventListener('DOMContentLoaded', function() {
-    // Wait a moment for page to fully load, then deploy branding
-    setTimeout(() => {
-        console.log('🏆 Auto-deploying Mobile-Wise AI branding banner...');
-        showUniversalBanner('branding');
-    }, 500); // Half second delay to ensure everything is loaded
-});
-
-// BACKUP: If DOMContentLoaded already fired
-if (document.readyState === 'complete' || document.readyState === 'interactive') {
-    setTimeout(() => {
-        console.log('🏆 Backup branding banner deployment...');
-        showUniversalBanner('branding');
-    }, 100);
-}
-
-// ===================================================================
 // 🎯 UNIVERSAL MASTER BANNER TRIGGER SYSTEM - ALL INDUSTRIES
 // ===================================================================
 
