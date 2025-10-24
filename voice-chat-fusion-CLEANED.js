@@ -2204,7 +2204,7 @@ setTimeout(() => {
     bannerContainer.style.cssText = `
     position: absolute;
     top: 10px;
-    left: -10%;
+    left: 5%;
     transform: translateX(-50%);
     width: 95%;
     max-width: 800px;
@@ -3856,7 +3856,7 @@ function showThankYouSplashScreen() {
     style.textContent = `
         @keyframes fadeInSplash { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
         @keyframes slideInContent { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes slideInButton { from { opacity: 0; transform: translateX(-50%) translateY(20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+        @keyframes slideInButton { from { opacity: 0; transform: translateX(-50%) translateY(20px); } to { opacity: 1; transform: translateX(-50%); } }
     `;
     document.head.appendChild(style);
     document.body.appendChild(splashOverlay);
