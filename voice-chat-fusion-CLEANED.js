@@ -734,8 +734,6 @@ function forceStartListening() {
             console.log('🔍 DIAGNOSTIC: Recognition state after start:', recognition.state || 'undefined');
         }, 100);
         
-        showSpeakNow();
-        
         console.log('✅ Force speech recognition started successfully');
         
     } catch (error) {
