@@ -1,435 +1,421 @@
 /**
  * ===================================================================
- * 🎯 MOBILE-WISE AI UNIVERSAL BANNER ENGINE v4 - CAPTAIN'S FINAL EDITION
+ * 🎯 MOBILE-WISE AI UNIVERSAL BANNER ENGINE v4 - CAPTAIN'S TEMPLATES
  * ===================================================================
  * 
- * FIXED VERSION - 2025-10-24
+ * CORRECTLY BUILT WITH CAPTAIN'S ORIGINAL TEMPLATES
  * 
  * FIXES APPLIED:
+ * - Using Captain's exact banner templates (NCI branding, etc.)
  * - Selective CSS animations (highlighter only on CTA banners)
  * - Contained highlighter (no full-screen sweep)
  * - Proper mobile sizing
  * - Branding banner protection in hideBanner()
  * - Error boundaries for missing functions
- * 
- * ALL 9 BANNERS WITH SELECTIVE EFFECTS:
- * - Branding: Minimal (no highlighter)
- * - CTAs: Full effects (highlighter + glows)
- * - Confirmations: Minimal (no highlighter)
- * - Testimonials: Glow only (no highlighter)
- * 
- * DROP-IN REPLACEMENT - Uses same function name: window.showUniversalBanner()
+ * - RequestAnimationFrame for reliable fade-in
  * 
  * Created: 2025-10-24
+ * Fixed: 2025-10-24 (with correct templates)
  */
 
 (function() {
     'use strict';
 
-    console.log('🚀 Loading Universal Banner Engine v4 - CAPTAIN\'S FINAL EDITION (FIXED)...');
+    console.log('🚀 Loading Universal Banner Engine v4 - CAPTAIN\'S TEMPLATES EDITION...');
 
     // ===================================================================
-    // 🎨 BANNER CONFIGURATION - ALL 9 BANNERS
+    // 🎨 BANNER CONFIGURATION - CAPTAIN'S ORIGINAL TEMPLATES
     // ===================================================================
     
     const BANNER_CONFIG = {
-        
-        // ===== BRANDING BANNER (Minimal - No Highlighter) =====
-        branding: {
-            content: `
-                <div class="banner-minimal" style="width: 760px; max-width: 95%; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #1e3a8a, #3b82f6); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
-                    <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_c6cafaa3-7088-4eb5-ba42-f4e8c7e9d8de_1729789913945_new-clients-inc-ai-logo.png" 
-                         style="height: 60px; margin-right: 15px;">
-                    <div style="color: white; font-size: 24px; font-weight: bold;">
-                        Mobile-Wise AI
-                    </div>
+    
+    // 1. BRANDING HEADER (NCI Logo - White background with blue glow)
+    branding: {
+        content: `
+            <div class="banner-glow-container branding-banner" style="width: 782px; max-width: 782px; margin: 0 auto; height: 77px; display: flex; justify-content: center; align-items: center; padding: 0 10px; border-radius: 10px; background: white; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);">
+                <!-- CENTER: NCI Logo -->
+                <div style="display: flex; align-items: center; justify-content: center;">
+                    <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1759148392591_nci.PNG" 
+                         style="width: 280px; height: auto; border-radius: 8px; box-shadow: 0 0px 8px rgba(255, 255, 255, 1);">
                 </div>
-            `,
-            background: 'rgba(30, 58, 138, 0.15)',
-            containerWidth: 795,
-            customHeight: 90,
-            duration: 0,
-            cssClass: 'branding-banner'
-        },
-        
-        // ===== AVATAR BANNER (Glow Only - No Highlighter) =====
-        avatar: {
-            content: `
-                <div class="banner-testimonial" style="width: 760px; max-width: 95%; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #059669, #10b981); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
-                    <div style="width: 60px; height: 60px; border-radius: 50%; background: white; margin-right: 15px; display: flex; align-items: center; justify-content: center; font-size: 32px;">
-                        🤖
-                    </div>
+            </div>
+        `,
+        duration: 0,
+        colorLeft: '#0080ff',
+        colorCenter: '#0080ff',
+        colorRight: '#0080ff'
+    },
+    
+    // 2. EMAIL SENT CONFIRMATION
+    emailSent: {
+        content: `
+            <div class="banner-glow-container" style="width: 760px; max-width: 760px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #1e40af 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                <div style="display: flex; align-items: center;">
+                    <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761253356118_email.png" 
+                         class="book-white-glow"
+                         style="width: 70px; height: 70px; border-radius: 0px; margin-right: 20px;">
                     <div style="color: white; text-align: left;">
-                        <div style="font-size: 20px; font-weight: bold;">Boateamia</div>
-                        <div style="font-size: 14px; opacity: 0.9;">Your AI Assistant</div>
+                        <div style="font-size: 20px; font-weight: bold; margin-bottom: 5px;">
+                            EMAIL on its way!
+                        </div>
+                        <div style="font-size: 14px; opacity: 0.95;">
+                            Please check your inbox or spam folder
+                        </div>
                     </div>
                 </div>
-            `,
-            background: 'rgba(5, 150, 105, 0.15)',
-            containerWidth: 795,
-            customHeight: 90,
-            duration: 0
-        },
-        
-        // ===== EMAIL SENT CONFIRMATION (Minimal - No Highlighter) =====
-        emailSent: {
-            content: `
-                <div class="banner-minimal" style="width: 740px; max-width: 95%; margin: 0 auto; height: 55px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #0d9488, #14b8a6); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
-                    <span style="font-size: 24px; margin-right: 10px;">✅</span>
-                    <div style="color: white; font-size: 18px; font-weight: bold;">
-                        Email Sent Successfully!
+            </div>
+        `,
+        duration: 4000,
+        colorLeft: '#1e40af',
+        colorCenter: '#3b82f6',
+        colorRight: '#1e40af'
+    },
+    
+    // 3. GENUINE CLIENT REVIEWS (Testimonials)
+    testimonialSelector: {
+        content: `
+            <div class="banner-glow-container banner-testimonial" style="width: 760px; max-width: 760px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #1e40af 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                <div style="display: flex; align-items: center;">
+                    <!-- 5-STAR ICON -->
+                    <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761252676241_5starpng.png" 
+                         class="book-white-glow"
+                         style="width: 70px; height: 70px; border-radius: 0px; margin-right: 15px;">
+                    
+                    <!-- REVIEWS ICON -->
+                    <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761252832996_reviews.png" 
+                         class="book-white-glow"
+                         style="width: 70px; height: 70px; border-radius: 0px; margin-right: 20px;">
+                    
+                    <!-- TEXT -->
+                    <div style="color: white; text-align: left;">
+                        <div style="font-size: 20px; font-weight: bold; margin-bottom: 5px;">
+                            GENUINE client reviews
+                        </div>
+                        <div style="font-size: 14px; opacity: 0.95;">
+                            Click buttons below to view video reviews
+                        </div>
                     </div>
                 </div>
-            `,
-            background: 'rgba(13, 148, 136, 0.15)',
-            containerWidth: 752,
-            customHeight: 65,
-            duration: 4000
-        },
-        
-        // ===== FREE BOOK SIMPLE CTA (Full Effects with Highlighter) =====
-        freeBookSimple: {
-            content: `
-                <div class="banner-cta-full" style="width: 760px; max-width: 95%; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #dc2626, #0d9488); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+            </div>
+        `,
+        duration: 0,
+        colorLeft: '#1e3a8a',
+        colorCenter: '#3b82f6',
+        colorRight: '#1e40af'
+    },
+    
+    // 4. CLICK TO CALL (CTA with highlighter)
+    clickToCall: {
+        content: `
+            <div class="banner-glow-container banner-cta-full" style="width: 760px; max-width: 760px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #6b21a8 0%, #7c3aed 50%, #6b21a8 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                <div style="display: flex; align-items: center;">
+                    <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761252700290_click%20to%20call.png" 
+                         class="book-white-glow"
+                         style="width: 70px; height: 70px; border-radius: 0px; margin-right: 20px;">
+                    <div style="color: white; text-align: left;">
+                        <div style="font-size: 20px; font-weight: bold; margin-bottom: 5px;">
+                            CLICK to call
+                        </div>
+                        <div style="font-size: 14px; opacity: 0.95;">
+                            Click icon to connect
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `,
+        duration: 0,
+        colorLeft: '#6b21a8',
+        colorCenter: '#7c3aed',
+        colorRight: '#6b21a8'
+    },
+    
+    // 5. FREE INCENTIVE (CTA with highlighter)
+    freeIncentive: {
+        content: `
+            <div class="banner-glow-container banner-cta-full" style="width: 760px; max-width: 760px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #6b21a8 0%, #7c3aed 50%, #6b21a8 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                <div style="display: flex; align-items: center;">
+                    <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761253527395_free.png" 
+                         class="book-white-glow"
+                         style="width: 70px; height: 70px; border-radius: 0px; margin-right: 20px;">
+                    <div style="color: white; text-align: left;">
+                        <div style="font-size: 20px; font-weight: bold; margin-bottom: 5px;">
+                            <span class="free-glow">FREE</span> incentive
+                        </div>
+                        <div style="font-size: 14px; opacity: 0.95;">
+                            Description of free offer
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `,
+        duration: 0,
+        colorLeft: '#6b21a8',
+        colorCenter: '#7c3aed',
+        colorRight: '#6b21a8'
+    },
+    
+    // 6. YOUR FREE BOOK HERE (CTA with highlighter)
+    freeBook: {
+        content: `
+            <div class="banner-glow-container banner-cta-full" style="width: 760px; max-width: 760px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #0f5ef0ff 0%, #000000ff 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                <div style="display: flex; align-items: center;">
                     <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758088515492_nci-book.png" 
                          class="book-white-glow"
-                         style="width: 60px; height: 70px; border-radius: 0px; margin-right: 15px;">
+                         style="width: 60px; height: 70px; border-radius: 0px; margin-right: 20px;">
                     <div style="color: white; text-align: left;">
-                        <div style="font-size: 18px; font-weight: bold; margin-bottom: 3px;">
-                            📚 <span class="free-glow">FREE</span> Book Offer
+                        <div style="font-size: 20px; font-weight: bold; margin-bottom: 5px;">
+                            📚 <span class="free-glow">FREE</span> Consultation & Book
                         </div>
-                        <div style="font-size: 13px; color: #00ffb3ff; opacity: 0.95;">
-                            "7 Secrets to Selling Your Practice"
-                        </div>
-                    </div>
-                </div>
-            `,
-            background: 'rgba(220, 38, 38, 0.15)',
-            containerWidth: 752,
-            customHeight: 65,
-            duration: 0
-        },
-        
-        // ===== FREE BOOK WITH CONSULTATION CTA (Full Effects with Highlighter) =====
-        freeBookWithConsultation: {
-            content: `
-                <div class="banner-cta-full" style="width: 760px; max-width: 95%; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #0f5ef0ff, #000000ff); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
-                    <div style="display: flex; align-items: center;">
-                        <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758088515492_nci-book.png" 
-                             class="book-white-glow"
-                             style="width: 60px; height: 70px; border-radius: 0px; margin-right: 15px;">
-                        <div style="color: white; text-align: left;">
-                            <div style="font-size: 18px; font-weight: bold; margin-bottom: 3px;">
-                                📚 <span class="free-glow">FREE</span> Consultation & Book
-                            </div>
-                            <div style="font-size: 13px; color: #00ffb3ff; opacity: 0.95;">
-                                "7 Secrets to Selling Your Practice" FREE!
-                            </div>
+                        <div style="font-size: 14px; color: #00ffb3ff; opacity: 0.95;">
+                            "7 Secrets to Selling Your Practice" FREE!
                         </div>
                     </div>
                 </div>
-            `,
-            background: 'rgba(15, 94, 240, 0.15)',
-            containerWidth: 770,
-            customHeight: 90,
-            duration: 0
-        },
-        
-        // ===== CONSULTATION CONFIRMED (Minimal - No Highlighter) =====
-        consultationConfirmed: {
-            content: `
-                <div class="banner-minimal" style="width: 740px; max-width: 95%; margin: 0 auto; height: 55px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #2563eb, #3b82f6); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
-                    <span style="font-size: 24px; margin-right: 10px;">🎉</span>
-                    <div style="color: white; font-size: 18px; font-weight: bold;">
-                        Consultation Booked Successfully!
-                    </div>
-                </div>
-            `,
-            background: 'rgba(37, 99, 235, 0.15)',
-            containerWidth: 752,
-            customHeight: 65,
-            duration: 5000
-        },
-        
-        // ===== CLICK TO CALL CTA (Full Effects with Highlighter) =====
-        clickToCall: {
-            content: `
-                <div class="banner-cta-full" style="width: 760px; max-width: 95%; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #1e40af, #1e3a8a); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
-                    <span style="font-size: 32px; margin-right: 15px;">📞</span>
-                    <div style="color: white; text-align: left;">
-                        <div style="font-size: 18px; font-weight: bold; margin-bottom: 3px;">
-                            Talk to Bruce Now
-                        </div>
-                        <div style="font-size: 13px; opacity: 0.9;">
-                            Click to schedule your free consultation
-                        </div>
-                    </div>
-                </div>
-            `,
-            background: 'rgba(30, 64, 175, 0.15)',
-            containerWidth: 752,
-            customHeight: 65,
-            duration: 0
-        },
-        
-        // ===== MORE QUESTIONS CTA (Full Effects with Highlighter) =====
-        moreQuestions: {
-            content: `
-                <div class="banner-cta-full" style="width: 760px; max-width: 95%; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #7c3aed, #6d28d9); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
-                    <span style="font-size: 32px; margin-right: 15px;">💬</span>
-                    <div style="color: white; text-align: left;">
-                        <div style="font-size: 18px; font-weight: bold; margin-bottom: 3px;">
-                            Have More Questions?
-                        </div>
-                        <div style="font-size: 13px; opacity: 0.9;">
-                            I'm here to help - just ask!
-                        </div>
-                    </div>
-                </div>
-            `,
-            background: 'rgba(124, 58, 237, 0.15)',
-            containerWidth: 752,
-            customHeight: 65,
-            duration: 0
-        },
-        
-        // ===== PRE-QUALIFIER CTA (Full Effects with Highlighter) =====
-        preQualifier: {
-            content: `
-                <div class="banner-cta-full" style="width: 760px; max-width: 95%; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #059669, #10b981); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
-                    <span style="font-size: 32px; margin-right: 15px;">📋</span>
-                    <div style="color: white; text-align: left;">
-                        <div style="font-size: 18px; font-weight: bold; margin-bottom: 3px;">
-                            Let's Get Started
-                        </div>
-                        <div style="font-size: 13px; opacity: 0.9;">
-                            Tell me about your practice
-                        </div>
-                    </div>
-                </div>
-            `,
-            background: 'rgba(5, 150, 105, 0.15)',
-            containerWidth: 752,
-            customHeight: 65,
-            duration: 0
-        },
-        
-        // ===== SET APPOINTMENT CTA (Full Effects with Highlighter) =====
-        setAppointment: {
-            content: `
-                <div class="banner-cta-full" style="width: 760px; max-width: 95%; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #059669, #10b981); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
-                    <span style="font-size: 32px; margin-right: 15px;">📅</span>
-                    <div style="color: white; text-align: left;">
-                        <div style="font-size: 18px; font-weight: bold; margin-bottom: 3px;">
-                            Schedule Your Consultation
-                        </div>
-                        <div style="font-size: 13px; opacity: 0.9;">
-                            Pick a time that works for you
-                        </div>
-                    </div>
-                </div>
-            `,
-            background: 'rgba(5, 150, 105, 0.15)',
-            containerWidth: 752,
-            customHeight: 65,
-            duration: 0
-        },
-        
-        // ===== REQUEST CALLBACK CTA (Full Effects with Highlighter) =====
-        requestCallback: {
-            content: `
-                <div class="banner-cta-full" style="width: 760px; max-width: 95%; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #7c3aed, #6d28d9); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
-                    <span style="font-size: 32px; margin-right: 15px;">☎️</span>
-                    <div style="color: white; text-align: left;">
-                        <div style="font-size: 18px; font-weight: bold; margin-bottom: 3px;">
-                            Request a Callback
-                        </div>
-                        <div style="font-size: 13px; opacity: 0.9;">
-                            We'll reach out within 24 hours
-                        </div>
-                    </div>
-                </div>
-            `,
-            background: 'rgba(124, 58, 237, 0.15)',
-            duration: 0
-        },
-        
-        // ===== TESTIMONIAL SELECTOR (Glow Only - No Highlighter) =====
-        testimonialSelector: {
-            content: `
-                <div class="banner-testimonial" style="width: 760px; max-width: 95%; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #a855f7, #9333ea); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
-                    <span style="font-size: 32px; margin-right: 15px;">⭐</span>
-                    <div style="color: white; text-align: left;">
-                        <div style="font-size: 18px; font-weight: bold; margin-bottom: 3px;">
-                            Client Success Stories
-                        </div>
-                        <div style="font-size: 13px; opacity: 0.9;">
-                            See what our clients are saying
-                        </div>
-                    </div>
-                </div>
-            `,
-            background: 'rgba(168, 85, 247, 0.15)',
-            duration: 0
-        }
-    };
-
-    // ===================================================================
-    // 🎨 CSS ANIMATIONS - SELECTIVE EFFECTS
-    // ===================================================================
+            </div>
+        `,
+        duration: 0,
+        colorLeft: '#0f5ef0ff',
+        colorCenter: '#000000ff',
+        colorRight: '#0f5ef0ff'
+    },
     
-    const BANNER_STYLES = `
-        <style>
-        /* ===== SHARED BASE STYLES ===== */
-        .banner-minimal,
-        .banner-cta-full,
-        .banner-testimonial {
-            position: relative;
-            overflow: hidden;
-        }
-        
-        /* ===== MINIMAL BANNER (Branding, Confirmations) ===== */
-        .banner-minimal {
-            animation: minimalGlow 3s ease-in-out infinite;
-        }
-        
-        @keyframes minimalGlow {
-            0%, 100% { 
-                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            }
-            50% { 
-                box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-            }
-        }
-        
-        /* ===== CTA BANNER (Full Effects Including Highlighter) ===== */
-        .banner-cta-full {
-            animation: ctaPulseGlow 2s ease-in-out infinite;
-        }
-        
-        /* Glow Layer (::before) */
-        .banner-cta-full::before {
-            content: '';
-            position: absolute;
-            width: calc(100% + 50px);
-            height: calc(100% + 20px);
-            top: -10px;
-            left: -25px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            z-index: -1;
-            animation: glowLayerPulse 2s ease-in-out infinite;
-            pointer-events: none;
-        }
-        
-        /* Highlighter Sweep (::after) - ONLY ON CTA BANNERS */
-        .banner-cta-full::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(
-                90deg,
-                transparent,
-                rgba(255, 255, 255, 0.4),
-                transparent
-            );
-            animation: highlighterSweep 7s ease-in-out infinite;
-            z-index: 1;
-            border-radius: 8px;
-            pointer-events: none;
-        }
-        
-        @keyframes highlighterSweep {
-            0%, 85% { left: -100%; opacity: 0; }     
-            86% { left: -100%; opacity: 1; }         
-            97% { left: 100%; opacity: 1; }
-            98% { left: 100%; opacity: 0; }
-            100% { left: -100%; opacity: 0; }        
-        }
-        
-        @keyframes glowLayerPulse {
-            0%, 100% { 
-                box-shadow: 0 0 15px rgba(0, 255, 0, 0.6);
-            }
-            50% { 
-                box-shadow: 0 0 30px rgba(0, 217, 255, 0.8);
-            }
-        }
-        
-        @keyframes ctaPulseGlow {
-            0%, 100% { 
-                box-shadow: 0 10px 10px rgba(0,0,7,0.0), 0 0 10px rgba(0, 255, 0, 1);
-            }
-            50% { 
-                box-shadow: 0 20px 10px rgba(0,0,9,0.0), 0 0 25px rgba(0, 217, 255, 1);
-            }
-        }
-        
-        /* Book Glow Effect */
-        .book-white-glow {
-            animation: bookWhiteGlow 3s ease-in-out infinite;
-        }
-        
-        @keyframes bookWhiteGlow {
-            0%, 100% { 
-                box-shadow: 0 0 0px rgba(255,255,255,0.5);
-                transform: scale(1.2);
-            }
-            50% { 
-                box-shadow: 0 0 0px rgba(255,255,255,0.9);
-                transform: scale(1.03);
-            }
-        }
-        
-        /* FREE Text Glow */
-        .free-glow {
-            text-shadow: 0 0 8px rgba(255,255,255,0.8);
-            animation: freeTextGlow 2.5s ease-in-out infinite;
-        }
-        
-        @keyframes freeTextGlow {
-            0%, 100% { text-shadow: 0 0 8px rgba(255,255,255,0.8); }
-            50% { text-shadow: 0 0 12px rgba(255,255,255,1); }
-        }
-        
-        /* ===== TESTIMONIAL BANNER (Glow Only, No Highlighter) ===== */
-        .banner-testimonial {
-            animation: testimonialGlow 2s ease-in-out infinite;
-        }
-        
-        @keyframes testimonialGlow {
-            0%, 100% { 
-                box-shadow: 0 0 10px rgba(168, 85, 247, 0.6);
-            }
-            50% { 
-                box-shadow: 0 0 20px rgba(168, 85, 247, 0.8);
-            }
-        }
-        
-        /* ===== MOBILE RESPONSIVENESS ===== */
-        @media (max-width: 850px) {
-            .banner-minimal,
-            .banner-cta-full,
-            .banner-testimonial {
-                width: 95vw !important;
-                max-width: 95vw !important;
-                font-size: 0.9rem !important;
-                padding: 15px 10px !important;
-                height: auto !important;
-                min-height: 70px !important;
-            }
-            
-            .banner-minimal img,
-            .banner-cta-full img,
-            .banner-testimonial img {
-                width: 50px !important;
-                height: auto !important;
-            }
-        }
-        </style>
+    // 7. URGENT REQUEST (CTA with highlighter)
+    urgent: {
+        content: `
+            <div class="banner-glow-container banner-cta-full" style="width: 760px; max-width: 760px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #991b1b 0%, #dc2626 50%, #991b1b 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                <div style="display: flex; align-items: center;">
+                    <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761254023327_urgent.png" 
+                         class="book-white-glow"
+                         style="width: 70px; height: 70px; border-radius: 0px; margin-right: 20px;">
+                    <div style="color: white; text-align: left;">
+                        <div style="font-size: 20px; font-weight: bold; margin-bottom: 5px;">
+                            🔴 <span class="free-glow">URGENT</span> request
+                        </div>
+                        <div style="font-size: 14px; color: #00ffb3ff; opacity: 0.95;">
+                            Your message will be sent as URGENT!
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `,
+        duration: 0,
+        colorLeft: '#991b1b',
+        colorCenter: '#dc2626',
+        colorRight: '#991b1b'
+    },
+    
+    // 8. SCHEDULE APPOINTMENT (CTA with highlighter)
+    setAppointment: {
+        content: `
+            <div class="banner-glow-container banner-cta-full" style="width: 760px; max-width: 760px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #065f46 0%, #059669 50%, #065f46 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                <div style="display: flex; align-items: center;">
+                    <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761253794926_calendar.png" 
+                         class="book-white-glow"
+                         style="width: 70px; height: 70px; border-radius: 0px; margin-right: 20px;">
+                    <div style="color: white; text-align: left;">
+                        <div style="font-size: 20px; font-weight: bold; margin-bottom: 5px;">
+                            📅 SCHEDULE appointment
+                        </div>
+                        <div style="font-size: 14px; opacity: 0.95;">
+                            What is the best time & date for you?
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `,
+        duration: 0,
+        colorLeft: '#065f46',
+        colorCenter: '#059669',
+        colorRight: '#065f46'
+    },
+    
+    // 9. GET PRE-QUALIFIED (CTA with highlighter)
+    preQualifier: {
+        content: `
+            <div class="banner-glow-container banner-cta-full" style="width: 760px; max-width: 760px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #6b21a8 0%, #7c3aed 50%, #6b21a8 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                <div style="display: flex; align-items: center;">
+                    <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761253934863_prequalify.png" 
+                         class="book-white-glow"
+                         style="width: 70px; height: 70px; border-radius: 0px; margin-right: 20px;">
+                    <div style="color: white; text-align: left;">
+                        <div style="font-size: 20px; font-weight: bold; margin-bottom: 5px;">
+                            GET- pre-qualified
+                        </div>
+                        <div style="font-size: 14px; opacity: 0.95;">
+                            No forms! Just answer a few simple questions
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `,
+        duration: 0,
+        colorLeft: '#6b21a8',
+        colorCenter: '#7c3aed',
+        colorRight: '#6b21a8'
+    },
+    
+    // 10. MEETING CONFIRMED
+    consultationConfirmed: {
+        content: `
+            <div class="banner-glow-container" style="width: 760px; max-width: 760px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #0c4a6e 0%, #0284c7 50%, #0c4a6e 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                <div style="display: flex; align-items: center;">
+                    <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761254101125_meeting.png" 
+                         class="book-white-glow"
+                         style="width: 70px; height: 70px; border-radius: 0px; margin-right: 20px;">
+                    <div style="color: white; text-align: left;">
+                        <div style="font-size: 20px; font-weight: bold; margin-bottom: 5px;">
+                            🎉 MEETING confirmed
+                        </div>
+                        <div style="font-size: 14px; opacity: 0.95;">
+                            Your meeting request has been sent
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `,
+        duration: 5000,
+        colorLeft: '#0c4a6e',
+        colorCenter: '#0284c7',
+        colorRight: '#0c4a6e'
+    }
+};
+
+// ===================================================================
+// 🎨 CSS STYLES - 2-LAYER SYSTEM WITH GLOW LAYER
+// ===================================================================
+
+const BANNER_STYLES = `
+<style>
+/* ===== GLOW LAYER (::before pseudo-element) ===== */
+.banner-glow-container {
+    position: relative;
+}
+
+.banner-glow-container::before {
+    content: '';
+    position: absolute;
+    width: calc(100% + 50px);
+    height: calc(100% + 20px);
+    top: -10px;
+    left: -25px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    z-index: -1;
+    animation: glowLayerPulse 2s ease-in-out infinite;
+}
+
+@keyframes glowLayerPulse {
+    0%, 100% { 
+        box-shadow: 0 0 15px rgba(0, 255, 0, 0.6);
+    }
+    50% { 
+        box-shadow: 0 0 30px rgba(0, 217, 255, 0.8);
+    }
+}
+
+/* ===== BRANDING BANNER SPECIAL GLOW (Blue) ===== */
+.branding-banner::before {
+    animation: brandingGlowPulse 2s ease-in-out infinite;
+}
+
+@keyframes brandingGlowPulse {
+    0%, 100% { 
+        box-shadow: 0 0 15px rgba(0, 128, 255, 0.6);
+    }
+    50% { 
+        box-shadow: 0 0 30px rgba(0, 128, 255, 1);
+    }
+}
+
+/* ===== CTA BANNERS - HIGHLIGHTER SWEEP (::after) ===== */
+.banner-cta-full::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.4),
+        transparent
+    );
+    animation: highlighterSweep 7s ease-in-out infinite;
+    z-index: 1;
+    border-radius: 8px;
+    pointer-events: none;
+}
+
+@keyframes highlighterSweep {
+    0%, 85% { left: -100%; opacity: 0; }     
+    86% { left: -100%; opacity: 1; }         
+    97% { left: 100%; opacity: 1; }
+    98% { left: 100%; opacity: 0; }
+    100% { left: -100%; opacity: 0; }        
+}
+
+/* ===== TESTIMONIAL BANNER - NO HIGHLIGHTER ===== */
+.banner-testimonial::after {
+    display: none;
+}
+
+/* ===== ICON GLOW EFFECT ===== */
+.book-white-glow {
+    animation: bookWhiteGlow 3s ease-in-out infinite;
+}
+
+@keyframes bookWhiteGlow {
+    0%, 100% { 
+        box-shadow: 0 0 0px rgba(255,255,255,0.5);
+        transform: scale(1.2);
+    }
+    50% { 
+        box-shadow: 0 0 0px rgba(255,255,255,0.9);
+        transform: scale(1.03);
+    }
+}
+
+/* ===== FREE TEXT GLOW ===== */
+.free-glow {
+    text-shadow: 0 0 8px rgba(255,255,255,0.8);
+    animation: freeTextGlow 2.5s ease-in-out infinite;
+}
+
+@keyframes freeTextGlow {
+    0%, 100% { text-shadow: 0 0 8px rgba(255,255,255,0.8); }
+    50% { text-shadow: 0 0 12px rgba(255,255,255,1); }
+}
+
+/* ===== MOBILE RESPONSIVENESS ===== */
+@media (max-width: 850px) {
+    .banner-glow-container {
+        width: 95vw !important;
+        max-width: 95vw !important;
+        height: auto !important;
+        min-height: 70px !important;
+        padding: 15px 10px !important;
+    }
+    
+    .banner-glow-container::before {
+        width: calc(100% + 30px);
+        left: -15px;
+    }
+    
+    .banner-glow-container img {
+        width: 50px !important;
+        height: auto !important;
+    }
+    
+    .banner-glow-container div[style*="font-size: 20px"] {
+        font-size: 16px !important;
+    }
+    
+    .banner-glow-container div[style*="font-size: 14px"] {
+        font-size: 12px !important;
+    }
+}
+</style>
     `;
 
     // ===================================================================
@@ -595,10 +581,13 @@
         
         mainContainer.insertBefore(headerContainer, mainContainer.firstChild);
         
-        // Fade in
-        setTimeout(() => {
-            headerContainer.style.opacity = '1';
-        }, 50);
+        // Fade in using requestAnimationFrame for reliability
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                headerContainer.style.opacity = '1';
+                console.log('🎨 Banner faded in to opacity: 1');
+            });
+        });
         
         // Auto-hide if duration specified
         if (config.duration && config.duration > 0) {
@@ -623,28 +612,43 @@
     };
 
     // ===================================================================
-    // 🎨 INJECT GLOBAL BANNER ANIMATION STYLES
-    // ===================================================================
-    
-    console.log('✅ Banner animation styles loaded');
-
-    // ===================================================================
     // ✅ SYSTEM READY
     // ===================================================================
     
-    console.log('✅ Universal Banner Engine v4 - CAPTAIN\'S FINAL EDITION (FIXED) loaded');
+    console.log('✅ Universal Banner Engine v4 - CAPTAIN\'S TEMPLATES EDITION loaded');
     console.log('📊 Available banners:', Object.keys(BANNER_CONFIG).length);
-    console.log('   - Branding (minimal)');
-    console.log('   - Avatar (testimonial glow)');
-    console.log('   - Email Sent (minimal)');
-    console.log('   - Free Book Simple (CTA full)');
-    console.log('   - Free Book With Consultation (CTA full)');
+    console.log('   - Branding (NCI logo - minimal glow)');
+    console.log('   - Email Sent (confirmation)');
+    console.log('   - Testimonial Selector (genuine reviews)');
+    console.log('   - Click To Call (CTA with highlighter)');
+    console.log('   - Free Book With Consultation (CTA with highlighter)');
+    console.log('   - Urgent (CTA with highlighter)');
+    console.log('   - Set Appointment (CTA with highlighter)');
+    console.log('   - Pre-Qualifier (CTA with highlighter)');
     console.log('   - Consultation Confirmed (minimal)');
-    console.log('   - Click To Call (CTA full)');
-    console.log('   - More Questions (CTA full)');
-    console.log('   - Pre-Qualifier (CTA full)');
-    console.log('   - Set Appointment (CTA full)');
-    console.log('   - Request Callback (CTA full)');
-    console.log('   - Testimonial Selector (testimonial glow)');
 
 })();
+
+// ===================================================================
+// 🏆 AUTO-DEPLOY BRANDING BANNER ON PAGE LOAD
+// ===================================================================
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(() => {
+        console.log('🏆 Auto-deploying NCI branding banner...');
+        if (typeof window.showUniversalBanner === 'function') {
+            window.showUniversalBanner('branding');
+        } else {
+            console.error('❌ showUniversalBanner not available for auto-deploy');
+        }
+    }, 500);
+});
+
+// BACKUP: If DOMContentLoaded already fired
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    setTimeout(() => {
+        console.log('🏆 Backup NCI branding banner deployment...');
+        if (typeof window.showUniversalBanner === 'function') {
+            window.showUniversalBanner('branding');
+        }
+    }, 100);
+}

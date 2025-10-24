@@ -1709,91 +1709,116 @@ setTimeout(() => {
     window.emailJSFix();
 }, 1000);
 
-// 🎯 UNIVERSAL MASTER BANNER TRIGGER SYSTEM - ALL INDUSTRIES
+// ===================================================================
+// 🎯 BANNER TRIGGER SYSTEM - MATCHES CAPTAIN'S 11 TEMPLATES
+// ===================================================================
+// 
+// TRIGGER NAMES -> TEMPLATE IDENTIFIERS (exact match)
 // ===================================================================
 
-// Universal trigger configuration (easily customizable per industry)
 const bannerTriggers = {
-    // CONSULTATION/SERVICE TRIGGERS
-    consultation_offer: {
-        bannerType: 'smartButton',
-        content: {
-            selling: '📞 FREE Practice Valuation - Connect with Bruce Now',
-            buying: '🏢 View Available Practices - Connect with Bruce', 
-            valuation: '📈 Get Your FREE Practice Valuation - Talk to Bruce',
-            default: '📅 FREE Consultation Available'
-        },
+    
+    // AUTO-DEPLOY ON PAGE LOAD
+    page_load: {
+        bannerType: 'branding',
         delay: 500,
-        duration: 0,
-        conditions: ['consultation_ready']
+        duration: 0,  // Persistent
+        conditions: ['page_ready']
     },
     
     // EMAIL CONFIRMATION
     email_sent: {
         bannerType: 'emailSent',
-        content: '✅ Information Sent! We\'ll contact you within 24 hours',
         delay: 0,
-        duration: 4000,
+        duration: 4000,  // Auto-hide after 4 seconds
         conditions: ['email_success']
     },
     
-    // FREE OFFER (Book, Guide, Calculator, etc.)
-    free_offer: {
-        bannerType: 'freeBook',
-        content: '📚 FREE Book: "7 Secrets to Selling Your Practice"',
-        delay: 2000,
-        duration: 0,
-        conditions: ['consultation_declined']
+    // TESTIMONIAL REVIEWS
+    show_testimonials: {
+        bannerType: 'testimonialSelector',
+        delay: 500,
+        duration: 0,  // Persistent
+        conditions: ['testimonial_ready']
     },
     
-    // THANK YOU / MORE QUESTIONS
-    more_questions: {
-        bannerType: 'moreQuestions', 
-        content: '🙏 Thank you for visiting! Have a wonderful day!',
-        delay: 1000,
-        duration: 0,
-        conditions: ['conversation_ended']
-    },
-    
-    // LEAD MAGNET
-    lead_magnet: {
-        bannerType: 'leadMagnet',
-        content: '🎁 Your Free Gift is Ready!',
-        delay: 3000,
-        duration: 0,
-        conditions: ['has_lead_magnet']
-    },
-    
-    // CONSULTATION CONFIRMED
-    consultation_confirmed: {
-        bannerType: 'consultationConfirmed',
-        content: '🎉 Consultation Confirmed!',
+    // CLICK TO CALL
+    click_to_call: {
+        bannerType: 'clickToCall',
         delay: 0,
-        duration: 5000,
-        conditions: ['booking_success']
-    },
-
-     pre_valuation_scheduling: {
-        bannerType: 'preValuationScheduling',
-        delay: 0,
-        duration: 0,  // <-- 0 = PERSISTENT (stays until manually changed)
-        conditions: ['valuation_interview_active']
+        duration: 0,  // Persistent
+        conditions: ['call_ready']
     },
     
-    meeting_request_sent: {
-        bannerType: 'meetingRequestSent', 
+    // FREE INCENTIVE OFFER
+    free_incentive_offer: {
+        bannerType: 'freeIncentive',
         delay: 0,
-        duration: 3000,  // <-- Brief 3-second display
-        conditions: ['booking_success']
+        duration: 0,  // Persistent
+        conditions: ['incentive_ready']
     },
     
+    // FREE BOOK OFFER
     free_book_offer: {
-        bannerType: 'freeBookOffer',
+        bannerType: 'freeBook',
         delay: 0,
-        duration: 0,  // <-- PERSISTENT until user interacts
-        conditions: ['lead_captured']
+        duration: 0,  // Persistent
+        conditions: ['book_ready']
+    },
+    
+    // URGENT REQUEST
+    urgent_message: {
+        bannerType: 'urgent',
+        delay: 0,
+        duration: 0,  // Persistent
+        conditions: ['urgent_ready']
+    },
+    
+    // SCHEDULE APPOINTMENT
+    schedule_appointment: {
+        bannerType: 'setAppointment',
+        delay: 0,
+        duration: 0,  // Persistent
+        conditions: ['scheduling_ready']
+    },
+    
+    // PRE-QUALIFICATION
+    pre_qualify: {
+        bannerType: 'preQualifier',
+        delay: 0,
+        duration: 0,  // Persistent
+        conditions: ['prequalify_ready']
+    },
+    
+    // MEETING CONFIRMED
+    meeting_confirmed: {
+        bannerType: 'consultationConfirmed',
+        delay: 0,
+        duration: 5000,  // Auto-hide after 5 seconds
+        conditions: ['booking_success']
     }
 };
+
+// ===================================================================
+// TRIGGER FUNCTION - Call from your voice chat system
+// ===================================================================
+
+function triggerBanner(triggerName) {
+    const trigger = bannerTriggers[triggerName];
+    
+    if (!trigger) {
+        console.warn(`Unknown trigger: ${triggerName}`);
+        return;
+    }
+    
+    setTimeout(() => {
+        if (typeof window.showUniversalBanner === 'function') {
+            window.showUniversalBanner(trigger.bannerType);
+        } else {
+            console.error('Banner engine not loaded');
+        }
+    }, trigger.delay);
+}
 
 // ===================================================
 // 🔇 SPEECH PAUSE HELPER
