@@ -129,20 +129,20 @@
         colorRight: '#6b21a8'
     },
     
-    // 5. FREE INCENTIVE (CTA with highlighter)
-    freeIncentive: {
+    // 5. Specializing in
+    expertise: {
         content: `
             <div class="banner-glow-container banner-cta-full" style="width: 760px; max-width: 760px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #6b21a8 0%, #7c3aed 50%, #6b21a8 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
                 <div style="display: flex; align-items: center;">
-                    <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761253527395_free.png" 
+                    <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761335872173_expertise.png" 
                          class="book-white-glow"
                          style="width: 70px; height: 70px; border-radius: 0px; margin-right: 20px;">
                     <div style="color: white; text-align: left;">
                         <div style="font-size: 20px; font-weight: bold; margin-bottom: 5px;">
-                            <span class="free-glow">FREE</span> incentive
+                            <span class="free-glow">OUR EXPERTISE</span> practice buying and selling
                         </div>
                         <div style="font-size: 14px; opacity: 0.95;">
-                            Description of free offer
+                            We've got you covered with experience
                         </div>
                     </div>
                 </div>
@@ -154,8 +154,8 @@
         colorRight: '#6b21a8'
     },
     
-    // 6. YOUR FREE BOOK HERE (CTA with highlighter)
-    freeBook: {
+    // 6.FREE INCENTIVE (CTA with highlighter)
+    freeIncentive: {
         content: `
             <div class="banner-glow-container banner-cta-full" style="width: 760px; max-width: 760px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #0f5ef0ff 0%, #000000ff 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
                 <div style="display: flex; align-items: center;">

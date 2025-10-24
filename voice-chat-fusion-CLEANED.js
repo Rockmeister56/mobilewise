@@ -1719,11 +1719,11 @@ setTimeout(() => {
 const bannerTriggers = {
     
     // AUTO-DEPLOY ON PAGE LOAD
-    page_load: {
-        bannerType: 'branding',
-        delay: 500,
-        duration: 0,  // Persistent
-        conditions: ['page_ready']
+    branding: {
+    bannerType: 'branding',
+    delay: 500,
+    duration: 0,
+    conditions: ['page_ready']
     },
     
     // EMAIL CONFIRMATION
@@ -1758,12 +1758,12 @@ const bannerTriggers = {
         conditions: ['incentive_ready']
     },
     
-    // FREE BOOK OFFER
-    free_book_offer: {
-        bannerType: 'freeBook',
+    // Specializing In
+     expertise: {
+        bannerType: 'expertise',
         delay: 0,
         duration: 0,  // Persistent
-        conditions: ['book_ready']
+        conditions: ['expertise_ready']
     },
     
     // URGENT REQUEST
@@ -2010,7 +2010,7 @@ if (conversationState === 'initial') {
         
         // 🎯 NEW: Trigger free book banner for buying interest
         setTimeout(() => {
-            showUniversalBanner('freeBookWithConsultation');
+            triggerBanner('expertise');
         }, 2000);
         
     } else if (userText.includes('sell') || userText.includes('selling')) {
@@ -2022,7 +2022,7 @@ if (conversationState === 'initial') {
         
         // 🎯 NEW: Trigger free book banner for selling interest
         setTimeout(() => {
-            showUniversalBanner('freeBookWithConsultation');
+            triggerBanner('expertise');
         }, 2000);
         
     } else if (userText.includes('value') || userText.includes('worth') || userText.includes('valuation') || userText.includes('evaluate')) {
@@ -2034,7 +2034,7 @@ if (conversationState === 'initial') {
         
         // 🎯 NEW: Trigger free book banner for valuation interest
         setTimeout(() => {
-            showUniversalBanner('freeBookWithConsultation');
+            triggerBanner('expertise');
         }, 2000);
         
     } else {
@@ -2096,7 +2096,7 @@ if (conversationState === 'initial') {
     
     // 🎯 NEW: Trigger free book banner when offering consultation
     setTimeout(() => {
-        showUniversalBanner('freeBookWithConsultation');
+        triggerBanner('free_incentive_offer');
     }, 1500);
     
 } else if (conversationState === 'initial') {
@@ -2115,7 +2115,7 @@ if (conversationState === 'initial') {
         shouldShowSmartButton = false;
         
         setTimeout(() => {
-            showUniversalBanner('freeBookWithConsultation');
+            triggerBanner('free_incentive_offer');
         }, 2000);
         
     } else if (userText.includes('sell') || userText.includes('selling')) {
@@ -2127,7 +2127,7 @@ if (conversationState === 'initial') {
         shouldShowSmartButton = false;
         
         setTimeout(() => {
-            showUniversalBanner('freeBookWithConsultation');
+            triggerBanner('free_incentive_offer');
         }, 2000);
         
     } else if (userText.includes('value') || userText.includes('worth') || userText.includes('valuation') || userText.includes('evaluate')) {
@@ -2138,7 +2138,7 @@ if (conversationState === 'initial') {
         shouldShowSmartButton = false;
         
         setTimeout(() => {
-            showUniversalBanner('freeBookWithConsultation');
+            triggerBanner('free_incentive_offer');
         }, 2000);
         
     } else {
@@ -2198,7 +2198,7 @@ if (conversationState === 'initial') {
         conversationState = 'asking_selling_consultation';
         
         setTimeout(() => {
-            showUniversalBanner('freeBookWithConsultation');
+            triggerBanner('free_incentive_offer');
         }, 1500);
         
     } else {
@@ -2216,7 +2216,7 @@ if (conversationState === 'initial') {
     conversationState = 'asking_selling_consultation';
     
     setTimeout(() => {
-        showUniversalBanner('freeBookWithConsultation');
+        triggerBanner('free_incentive_offer');
     }, 1500);
     
 } else if (conversationState === 'asking_selling_consultation') {
@@ -2234,7 +2234,7 @@ if (conversationState === 'initial') {
         conversationState = 'initial';
         
         setTimeout(() => {
-            showUniversalBanner('smartButton');
+            triggerBanner('branding');
         }, 1500);
         
     } else {
@@ -2265,7 +2265,7 @@ if (conversationState === 'initial') {
     conversationState = 'asking_buying_consultation';
     
     setTimeout(() => {
-        showUniversalBanner('freeBookWithConsultation');
+        triggerBanner('free_incentive_offer');
     }, 1500);
     
 } else if (conversationState === 'asking_buying_consultation') {
@@ -2283,7 +2283,7 @@ if (conversationState === 'initial') {
         conversationState = 'initial';
         
         setTimeout(() => {
-            showUniversalBanner('smartButton');
+            triggerBanner('branding');
         }, 1500);
         
     } else {
@@ -2307,7 +2307,7 @@ if (conversationState === 'initial') {
         conversationState = 'initial';
         
         setTimeout(() => {
-            showUniversalBanner('smartButton');
+            triggerBanner('branding');
         }, 1500);
         
     } else {
@@ -3247,35 +3247,6 @@ function exitApplication() {
             }
         }, 500);
     }
-}
-
-// ===================================================
-// 🎯 CONSULTATION CONFIRMED BANNER - CLEAN VERSION
-// ===================================================
-function showConsultationConfirmedBanner() {
-    console.log('🎯 Showing Consultation Confirmed Banner - Clean Version');
-    
-    // 🚀 DIRECT TRIGGER - NO BRIDGE NEEDED
-    triggerBanner('consultation_confirmed', {
-        type: 'dualSection',
-        sections: {
-            left: {
-                title: '🎯 Free Consultation Confirmed!',
-                subtitle: 'Your information has been submitted'
-            },
-            right: {
-                title: `📚 FREE Book for ${leadData.name}!`,
-                subtitle: '"7 Secrets to Selling Your Practice"',
-                image: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758088515492_nci-book.png'
-            }
-        },
-        cleanup: ['bruceBookBanner', 'emailConfirmationBanner', 'leadCapture'],
-        hideSmartButton: true,
-        transition: 'smooth',
-        callback: (result) => {
-            console.log('🎯 Consultation confirmed banner deployed:', result);
-        }
-    });
 }
 
 // ===================================================
