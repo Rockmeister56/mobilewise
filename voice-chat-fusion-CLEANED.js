@@ -2202,16 +2202,15 @@ setTimeout(() => {
     const bannerContainer = document.createElement('div');
     bannerContainer.id = 'universal-banner';
     bannerContainer.style.cssText = `
-        position: fixed;
-    top: 10px;                           ← NEW - 10px from top
-    left: 50%;                           ← NEW - centered
-    transform: translateX(-50%);         ← NEW - perfect center
-    width: 95%;                          ← NEW - slightly narrower
-    max-width: 800px;                    ← NEW - max width
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%) translateY(0);
+    width: 95%;
+    max-width: 800px;
     z-index: 10000;
-        transform: translateY(-100%);
-        transition: transform 0.3s ease-in-out;
-    `;
+    transition: transform 0.3s ease-in-out;
+`;
 
     // Set banner content
     bannerContainer.innerHTML = config.content;
