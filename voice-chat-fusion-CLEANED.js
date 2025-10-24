@@ -1742,7 +1742,61 @@ setTimeout(() => {
     
     const BANNER_CONFIG = {
         
-        // 1. GENUINE CLIENT REVIEWS (Testimonials)
+        // 1. BRANDING HEADER (🚀 UPDATED LAYOUT)
+        branding: {
+    content: `
+        <div class="banner-glow-container" style="width: 782px; max-width: 782px; margin: 0 auto; height: 77px; display: flex; justify-content: center; align-items: center; padding: 0 10px; border-radius: 10px; background: white; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);">
+            
+            <!-- CENTER: NCI Logo -->
+            <div style="display: flex; align-items: center; justify-content: center;">
+                <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1759148392591_nci.PNG" 
+                     style="width: 280px; height: auto; border-radius: 8px; box-shadow: 0 0px 8px rgba(255, 255, 255, 1);">
+            </div>
+        </div>
+        
+        <style>
+        /* Blue PULSING GLOW AROUND BANNER */
+        .banner-glow-container {
+            position: relative;
+            animation: redPulseGlow 2s ease-in-out infinite;
+        }
+        
+        @keyframes redPulseGlow {
+            0%, 100% { 
+                box-shadow: 0 10px 10px rgba(0,0,9,0.0), 0 0 10px rgba(0, 128, 255, 1);
+            }
+            50% { 
+                box-shadow: 0 20px 10px rgba(0,0,9,0.0), 0 0 25px rgba(0, 0, 255, 1);
+            }
+        }
+        </style>
+    `,
+    background: 'rgba(255, 255, 255, 0.15)',
+    containerWidth: 795,
+    customHeight: 90,
+},
+        
+        // 2. EMAIL SENT CONFIRMATION
+        emailSent: {
+    content: `
+        <div style="width: ${742}px; max-width: ${742}px; margin: 0 auto; background: rgba(32, 178, 170, 0.8); border-radius: 6px; height: 58px; display: flex; align-items: center; justify-content: center;">
+            <div style="text-align: center; color: white;">
+                <div style="font-size: 14px; font-weight: bold;">
+                    ✅ <strong>Confirmation Email Sent!</strong>
+                </div>
+                <div style="font-size: 11px; opacity: 0.9; margin-top: 3px;">
+                    Please check your email for the book link
+                </div>
+            </div>
+        </div>
+    `,
+    background: 'rgba(255, 255, 255, 0.2)', // 🎯 WHITE LAYER
+    containerWidth: 752, // 🚀 WHITE LAYER WIDTH CONTROL
+    customHeight: 65, // 🚀 WHITE LAYER HEIGHT CONTROL
+    duration: 4000
+},
+        
+        // 3. GENUINE CLIENT REVIEWS (Testimonials)
         testimonialSelector: {
             content: `
                 <div class="banner-glow-container" style="width: 760px; max-width: 760px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #1e40af 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
@@ -1773,7 +1827,7 @@ setTimeout(() => {
             duration: 0
         },
 
-        // 2. CLICK TO CALL
+        // 4. CLICK TO CALL
         clickToCall: {
             content: `
                 <div class="banner-glow-container" style="width: 760px; max-width: 760px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #1e3a8a 0%, #7c3aed 50%, #3b82f6 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
@@ -1797,7 +1851,7 @@ setTimeout(() => {
             duration: 0
         },
 
-        // 3. EMAIL ON ITS WAY
+        // 5. EMAIL ON ITS WAY
         emailSent: {
             content: `
                 <div class="banner-glow-container" style="width: 760px; max-width: 760px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #0f5ef0 0%, #1e40af 50%, #0369a1 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
@@ -1821,7 +1875,7 @@ setTimeout(() => {
             duration: 5000
         },
 
-        // 4. FREE INCENTIVE
+        // 6. FREE INCENTIVE
         freeIncentive: {
             content: `
                 <div class="banner-glow-container" style="width: 760px; max-width: 760px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #7c3aed 0%, #a855f7 50%, #9333ea 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
@@ -1845,7 +1899,7 @@ setTimeout(() => {
             duration: 0
         },
 
-        // 5. YOUR FREE BOOK HERE
+        // 7. YOUR FREE BOOK HERE
         freeBook: {
             content: `
                 <div class="banner-glow-container" style="width: 760px; max-width: 760px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #0f5ef0 0%, #000000 50%, #7c3aed 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
@@ -1869,7 +1923,7 @@ setTimeout(() => {
             duration: 0
         },
 
-        // 6. URGENT REQUEST
+        // 8. URGENT REQUEST
         urgent: {
             content: `
                 <div class="banner-glow-container urgent-pulse" style="width: 760px; max-width: 760px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #dc2626 0%, #ef4444 50%, #991b1b 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
@@ -1893,7 +1947,7 @@ setTimeout(() => {
             duration: 0
         },
 
-        // 7. SCHEDULE APPOINTMENT
+        // 9. SCHEDULE APPOINTMENT
         setAppointment: {
             content: `
                 <div class="banner-glow-container" style="width: 760px; max-width: 760px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #15803d 0%, #22c55e 50%, #059669 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
@@ -1917,7 +1971,7 @@ setTimeout(() => {
             duration: 0
         },
 
-        // 8. GET PRE-QUALIFIED
+        // 10. GET PRE-QUALIFIED
         preQualifier: {
             content: `
                 <div class="banner-glow-container" style="width: 760px; max-width: 760px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #7c3aed 0%, #9333ea 50%, #6b21a8 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
@@ -1941,7 +1995,7 @@ setTimeout(() => {
             duration: 0
         },
 
-        // 9. MEETING CONFIRMED
+        // 11. MEETING CONFIRMED
         consultationConfirmed: {
             content: `
                 <div class="banner-glow-container" style="width: 760px; max-width: 760px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #059669 0%, #10b981 50%, #047857 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
