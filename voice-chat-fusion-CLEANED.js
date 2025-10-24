@@ -5126,9 +5126,9 @@ playGetReadyAndSpeakNowSound();
                 }
             }
             
-        }, 7000);
+        }, 6000);
         
-    }, 1000);
+    }, 2500);
     
     // ===== SUCCESS HANDLER =====
     window.handleSpeechSuccess = function(transcript) {
