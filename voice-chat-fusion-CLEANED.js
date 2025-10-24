@@ -2202,29 +2202,30 @@ setTimeout(() => {
     const bannerContainer = document.createElement('div');
     bannerContainer.id = 'universal-banner';
     bannerContainer.style.cssText = `
-    position: absolute;
-    top: 10px;
-    left: 5%;
-    transform: translateX(-50%);
-    width: 95%;
-    max-width: 800px;
-    z-index: 10000;
-    transition: transform 0.3s ease-in-out;
-`;
+        position: absolute;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 95%;
+        max-width: 800px;
+        z-index: 10000;
+        opacity: 0;
+        transition: opacity 0.3s ease-in-out;
+    `;
 
     // Set banner content
     bannerContainer.innerHTML = config.content;
 
-    // Add to body
+    // Add to container
     const mainContainer = document.querySelector('.container') || 
-                      document.querySelector('#voice-chat-container') || 
-                      document.querySelector('.voice-chat-wrapper') ||
-                      document.body;
-mainContainer.insertBefore(bannerContainer, mainContainer.firstChild);
+                          document.querySelector('#voice-chat-container') || 
+                          document.querySelector('.voice-chat-wrapper') ||
+                          document.body;
+    mainContainer.insertBefore(bannerContainer, mainContainer.firstChild);
 
-    // Trigger show animation
+    // Trigger show animation (fade in, no slide)
     setTimeout(() => {
-        bannerContainer.style.transform = 'translateY(0)';
+        bannerContainer.style.opacity = '1';
 
         // 🔗 Notify all registered listeners about banner change
         if (window._bannerChangeCallbacks && window._bannerChangeCallbacks.length > 0) {
@@ -2250,6 +2251,7 @@ mainContainer.insertBefore(bannerContainer, mainContainer.firstChild);
     console.log(`✅ Banner "${bannerType}" deployed`);
     return bannerContainer;
 };
+
 
     // ===================================================================
     // 🗑️ HIDE BANNER FUNCTION
@@ -3856,7 +3858,7 @@ function showThankYouSplashScreen() {
     style.textContent = `
         @keyframes fadeInSplash { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
         @keyframes slideInContent { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes slideInButton { from { opacity: 0; transform: translateX(-50%) translateY(20px); } to { opacity: 1; transform: translateX(-50%); } }
+        @keyframes slideInButton { from { opacity: 0; transform: translateX(-50%) translateY(20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
     `;
     document.head.appendChild(style);
     document.body.appendChild(splashOverlay);
