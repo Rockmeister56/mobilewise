@@ -2202,10 +2202,10 @@ setTimeout(() => {
     const bannerContainer = document.createElement('div');
     bannerContainer.id = 'universal-banner';
     bannerContainer.style.cssText = `
-    position: fixed;
-    top: 80px;
+    position: absolute;
+    top: 10px;
     left: 50%;
-    transform: translateX(-50%) translateY(0);
+    transform: translateX(-50%);
     width: 95%;
     max-width: 800px;
     z-index: 10000;
@@ -2216,7 +2216,11 @@ setTimeout(() => {
     bannerContainer.innerHTML = config.content;
 
     // Add to body
-    document.body.appendChild(bannerContainer);
+    const mainContainer = document.querySelector('.container') || 
+                      document.querySelector('#voice-chat-container') || 
+                      document.querySelector('.voice-chat-wrapper') ||
+                      document.body;
+mainContainer.insertBefore(bannerContainer, mainContainer.firstChild);
 
     // Trigger show animation
     setTimeout(() => {
