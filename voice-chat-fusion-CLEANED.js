@@ -1866,6 +1866,35 @@ function checkTriggerConditions(conditions, data) {
 }
 
 // ===================================================
+// 🎯 CONSULTATION CONFIRMED BANNER - CLEAN VERSION
+// ===================================================
+function showConsultationConfirmedBanner() {
+    console.log('🎯 Showing Consultation Confirmed Banner - Clean Version');
+    
+    // 🚀 DIRECT TRIGGER - NO BRIDGE NEEDED
+    triggerBanner('consultation_confirmed', {
+        type: 'dualSection',
+        sections: {
+            left: {
+                title: '🎯 Free Consultation Confirmed!',
+                subtitle: 'Your information has been submitted'
+            },
+            right: {
+                title: `📚 FREE Book for ${leadData.name}!`,
+                subtitle: '"7 Secrets to Selling Your Practice"',
+                image: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758088515492_nci-book.png'
+            }
+        },
+        cleanup: ['bruceBookBanner', 'emailConfirmationBanner', 'leadCapture'],
+        hideSmartButton: true,
+        transition: 'smooth',
+        callback: (result) => {
+            console.log('🎯 Consultation confirmed banner deployed:', result);
+        }
+    });
+}
+
+// ===================================================
 // 🔇 SPEECH PAUSE HELPER
 // ===================================================
 function pauseSpeechForBannerInteraction() {
