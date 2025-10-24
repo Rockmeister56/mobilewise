@@ -2203,10 +2203,12 @@ setTimeout(() => {
     bannerContainer.id = 'universal-banner';
     bannerContainer.style.cssText = `
         position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        z-index: 10000;
+    top: 10px;                           ← NEW - 10px from top
+    left: 50%;                           ← NEW - centered
+    transform: translateX(-50%);         ← NEW - perfect center
+    width: 95%;                          ← NEW - slightly narrower
+    max-width: 800px;                    ← NEW - max width
+    z-index: 10000;
         transform: translateY(-100%);
         transition: transform 0.3s ease-in-out;
     `;
@@ -2251,16 +2253,23 @@ setTimeout(() => {
     // ===================================================================
     
     function hideBanner() {
-        const existingBanner = document.getElementById('universal-banner');
-        if (existingBanner) {
-            existingBanner.style.transform = 'translateY(-100%)';
-            setTimeout(() => {
-                existingBanner.remove();
-            }, 300);
-        }
+    const existingBanner = document.querySelector('.universal-banner');
+    
+    // 🛡️ PROTECTION: Don't remove branding banner
+    if (existingBanner && existingBanner.classList.contains('branding-banner')) {
+        console.log('🛡️ Branding banner protected - not hiding');
+        return; // Exit without removing
     }
-
-    window.hideBanner = hideBanner;
+    
+    if (existingBanner) {
+        existingBanner.style.transform = 'translateY(-100%)';
+        setTimeout(() => {
+            if (existingBanner.parentNode) {
+                existingBanner.remove();
+            }
+        }, 300);
+    }
+}
 
     // ===================================================================
 // 🚀 INITIALIZE ON LOAD
@@ -2312,12 +2321,21 @@ window.restoreBrandingBanner = function() {
     }
 };
 
-// 🚀 ENHANCED REMOVE WITH AUTO-RESTORE
 window.removeAllBanners = function(restoreBranding = true) {
-    const existingContainer = document.getElementById('bannerHeaderContainer');
-    if (existingContainer) {
-        existingContainer.remove();
-        console.log('🗑️ Header banner container removed');
+    const existingBanner = document.getElementById('universal-banner');
+    
+    if (existingBanner) {
+        // Check if it's the branding banner - DON'T remove it
+        const isBrandingBanner = existingBanner.innerHTML.includes('Mobile-Wise AI') || 
+                                existingBanner.innerHTML.includes('branding');
+        
+        if (isBrandingBanner) {
+            console.log('🛡️ Protecting branding banner - keeping it visible');
+            return; // Don't remove branding banner
+        }
+        
+        existingBanner.remove();
+        console.log('🗑️ Banner removed');
         
         if (restoreBranding) {
             setTimeout(() => {
@@ -2325,12 +2343,12 @@ window.removeAllBanners = function(restoreBranding = true) {
             }, 300);
         }
     }
-    
-    const existingBanner = document.getElementById('universalBanner');
-    if (existingBanner) {
-        existingBanner.remove();
-        console.log('🗑️ Universal banner removed');
-    }
+};
+
+// ✅ KEEP: Backward compatibility wrapper
+window.removeLeadCaptureBanner = function() {
+    removeAllBanners();
+    console.log('🎯 Lead capture banner removal (Universal system)');
 };
 
 // ✅ KEEP: Backward compatibility wrapper
