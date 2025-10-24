@@ -20,7 +20,7 @@
                 { id: 'q2', text: 'Selling Options', action: 'askQuickQuestion', param: 'I want to sell my practice' },
                 { id: 'q3', text: 'Buying Options', action: 'askQuickQuestion', param: 'I want to buy a practice' }
             ],
-            gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' // Blue
+            gradient: 'linear-gradient(135deg, #667eea 0%, #0e27b5ff 100%)' // Blue
         },
         'cta': {
             buttons: [

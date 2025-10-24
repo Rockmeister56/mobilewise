@@ -2186,58 +2186,65 @@ setTimeout(() => {
     // ===================================================================
     
     window.showUniversalBanner = function(bannerType, options = {}) {
-        console.log(`🎯 Deploying Banner: ${bannerType}`);
+    console.log(`🎯 Deploying Banner: ${bannerType}`);
 
-        // Get banner config
-        const config = BANNER_CONFIG[bannerType];
-        if (!config) {
-            console.warn(`❌ Unknown banner type: ${bannerType}`);
-            return null;
+    // Get banner config
+    const config = BANNER_CONFIG[bannerType];
+    if (!config) {
+        console.warn(`❌ Unknown banner type: ${bannerType}`);
+        return null;
+    }
+
+    // Remove existing banner
+    hideBanner();
+
+    // Create banner container
+    const bannerContainer = document.createElement('div');
+    bannerContainer.id = 'universal-banner';
+    bannerContainer.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 10000;
+        transform: translateY(-100%);
+        transition: transform 0.3s ease-in-out;
+    `;
+
+    // Set banner content
+    bannerContainer.innerHTML = config.content;
+
+    // Add to body
+    document.body.appendChild(bannerContainer);
+
+    // Trigger show animation
+    setTimeout(() => {
+        bannerContainer.style.transform = 'translateY(0)';
+
+        // 🔗 Notify all registered listeners about banner change
+        if (window._bannerChangeCallbacks && window._bannerChangeCallbacks.length > 0) {
+            console.log(`🔔 Notifying ${window._bannerChangeCallbacks.length} listener(s) about banner: ${bannerType}`);
+            window._bannerChangeCallbacks.forEach(callback => {
+                try {
+                    callback(bannerType);
+                } catch (error) {
+                    console.error('Error in banner callback:', error);
+                }
+            });
         }
 
-        // Remove existing banner
-        hideBanner();
+        // Auto-hide after duration (if specified)
+        const duration = options.duration || config.duration;
+        if (duration > 0) {
+            setTimeout(() => {
+                hideBanner();
+            }, duration);
+        }
+    }, 100);
 
-        // Create banner container
-        const bannerContainer = document.createElement('div');
-        bannerContainer.id = 'universal-banner';
-        bannerContainer.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 10000;
-            transform: translateY(-100%);
-            transition: transform 0.3s ease-in-out;
-        `;
-
-        // Set banner content
-        bannerContainer.innerHTML = config.content;
-
-        // Add to body
-        document.body.appendChild(bannerContainer);
-
-        // Trigger show animation
-        setTimeout(() => {
-            bannerContainer.style.transform = 'translateY(0)';
-
-            // Notify listeners about banner change
-            if (typeof window.onBannerChange === 'function') {
-                window.onBannerChange(bannerType);
-            }
-
-            // Auto-hide after duration (if specified)
-            const duration = options.duration || config.duration;
-            if (duration > 0) {
-                setTimeout(() => {
-                    hideBanner();
-                }, duration);
-            }
-        }, 100);
-
-        console.log(`✅ Banner "${bannerType}" deployed`);
-        return bannerContainer;
-    };
+    console.log(`✅ Banner "${bannerType}" deployed`);
+    return bannerContainer;
+};
 
     // ===================================================================
     // 🗑️ HIDE BANNER FUNCTION
@@ -2256,30 +2263,42 @@ setTimeout(() => {
     window.hideBanner = hideBanner;
 
     // ===================================================================
-    // 🚀 INITIALIZE ON LOAD
-    // ===================================================================
-    
-    function initialize() {
-        addBannerStyles();
-        console.log('✅ Universal Banner Engine v4 - CAPTAIN\'S FINAL EDITION loaded');
-        console.log('📊 9 Banners available:');
-        console.log('   - testimonialSelector (Genuine client reviews)');
-        console.log('   - clickToCall');
-        console.log('   - emailSent');
-        console.log('   - freeIncentive');
-        console.log('   - freeBook');
-        console.log('   - urgent');
-        console.log('   - setAppointment');
-        console.log('   - preQualifier');
-        console.log('   - consultationConfirmed');
-    }
+// 🚀 INITIALIZE ON LOAD
+// ===================================================================
 
-    // Initialize when DOM is ready
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initialize);
-    } else {
-        initialize();
-    }
+function initialize() {
+    addBannerStyles();
+    console.log('✅ Universal Banner Engine v4 - CAPTAIN\'S FINAL EDITION loaded');
+    console.log('📊 9 Banners available:');
+    console.log('   - testimonialSelector (Genuine client reviews)');
+    console.log('   - clickToCall');
+    console.log('   - emailSent');
+    console.log('   - freeIncentive');
+    console.log('   - freeBook');
+    console.log('   - urgent');
+    console.log('   - setAppointment');
+    console.log('   - preQualifier');
+    console.log('   - consultationConfirmed');
+    
+    // 🔗 Export onBannerChange hook for button integration
+    let bannerChangeCallbacks = [];
+    window.onBannerChange = function(callback) {
+        if (typeof callback === 'function') {
+            bannerChangeCallbacks.push(callback);
+            console.log('✅ Banner change listener registered');
+        }
+    };
+    
+    // Store callbacks globally so showUniversalBanner can notify them
+    window._bannerChangeCallbacks = bannerChangeCallbacks;
+}
+
+// Initialize when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initialize);
+} else {
+    initialize();
+}
 
 })();
 
