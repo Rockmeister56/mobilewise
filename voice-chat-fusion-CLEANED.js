@@ -2497,6 +2497,7 @@ function handleTestimonialComplete() {
     conversationState = 'post_testimonial_consultation_offer';
 }
 
+// ✅ FIXED FUNCTION: Ask quick question (from buttons)
 function askQuickQuestion(questionText) {
     console.log('🎯 Quick button clicked:', questionText);
     
@@ -2595,6 +2596,7 @@ function askQuickQuestion(questionText) {
         }, 1500);
     }
 }
+
 
 // 🎯 ADD THIS FUNCTION AT THE END OF YOUR FILE:
 function shouldTriggerLeadCapture(userInput) {
@@ -3708,51 +3710,6 @@ function contactBruce() {
     const contactMessage = "I'd like to speak directly with Bruce about my practice.";
     addUserMessage(contactMessage);
     addAIMessage("I'll connect you with Bruce right away! He'll be in touch within 24 hours. Is there anything specific you'd like me to tell him?");
-}
-
-// NEW FUNCTION: Ask quick question (from buttons)
-function askQuickQuestion(question) {
-    addUserMessage(question);
-    processUserResponse(question);
-}
-
-// Global flag to prevent multiple instances
-let speakSequenceActive = false;
-let speakSequenceButton = null;
-let speakSequenceCleanupTimer = null;
-
-
-
-// ✅ MOBILE STABILITY FUNCTIONS - ADD THESE
-function applyMobileStability() {
-    console.log('📱 Applying mobile stability enhancements...');
-    
-    // Prevent unwanted zoom on focus
-    const viewport = document.querySelector('meta[name="viewport"]');
-    if (viewport && /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
-        viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
-    }
-    
-    // Enhanced touch event prevention for mobile
-    document.addEventListener('touchstart', function(e) {
-        if (e.touches.length > 1) {
-            e.preventDefault();
-        }
-    }, { passive: false });
-    
-    // Prevent double-tap zoom
-    let lastTouchEnd = 0;
-    document.addEventListener('touchend', function(e) {
-        const now = Date.now();
-        if (now - lastTouchEnd <= 300) {
-            e.preventDefault();
-        }
-        lastTouchEnd = now;
-    }, { passive: false });
-    
-    // Force layout stability
-    document.body.style.webkitTransform = 'translateZ(0)';
-    document.body.style.transform = 'translateZ(0)';
 }
 
 function setupMobileTouchEvents() {
