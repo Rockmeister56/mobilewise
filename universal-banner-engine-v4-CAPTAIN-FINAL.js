@@ -91,7 +91,8 @@
         
         <!-- TEXT -->
         <div style="color: white; text-align: left;">
-            <div style="font-size: 20px; font-weight: bold; margin-bottom: 5px;">
+            <div style="font-size: 20px; font-weight: bold; margin-bottom: 5px; margin-right: 80px;">
+        ">
                 GENUINE client reviews
             </div>
             <div style="font-size: 14px; opacity: 0.95;">
