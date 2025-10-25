@@ -74,25 +74,28 @@
     // 3. GENUINE CLIENT REVIEWS (Testimonials)
     testimonialSelector: {
         content: `
-            <div class="banner-glow-container banner-testimonial" style="width: 760px; max-width: 760px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #1e40af 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
-                <div style="display: flex; align-items: center;">
-                    <!-- 5-STAR ICON -->
-                    <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761252676241_5starpng.png" 
-                         class="book-white-glow"
-                         style="width: 70px; height: 70px; border-radius: 0px; margin-right: 15px;">
-                    
-                    <!-- REVIEWS ICON -->
-                    <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761252832996_reviews.png" 
-                         class="book-white-glow"
-                         style="width: 70px; height: 70px; border-radius: 0px; margin-right: 20px;">
-                    
-                    <!-- TEXT -->
-                    <div style="color: white; text-align: left;">
-                        <div style="font-size: 20px; font-weight: bold; margin-bottom: 5px;">
-                            GENUINE client reviews
-                        </div>
-                        <div style="font-size: 14px; opacity: 0.95;">
-                            Click buttons below to view video reviews
+            <div class="banner-glow-container banner-testimonial" style="width: 760px; max-width: 760px; margin: 0 auto; height: 80px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #1e40af 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+    
+    <!-- LEFT: 5-STAR ICON (Stationary, no glow) -->
+    <div style="flex-shrink: 0;">
+        <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761252676241_5starpng.png" 
+             style="width: 70px; height: 70px; border-radius: 0px;">
+    </div>
+    
+    <!-- CENTER/RIGHT: Reviews icon + Text -->
+    <div style="display: flex; align-items: center; flex-grow: 1; justify-content: center;">
+        <!-- REVIEWS ICON (keeps glow) -->
+        <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761252832996_reviews.png" 
+             class="book-white-glow"
+             style="width: 70px; height: 70px; border-radius: 0px; margin-right: 20px;">
+        
+        <!-- TEXT -->
+        <div style="color: white; text-align: left;">
+            <div style="font-size: 20px; font-weight: bold; margin-bottom: 5px;">
+                GENUINE client reviews
+            </div>
+            <div style="font-size: 14px; opacity: 0.95;">
+                Click buttons below to view video reviews
                         </div>
                     </div>
                 </div>
