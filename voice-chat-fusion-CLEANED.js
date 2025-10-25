@@ -2637,8 +2637,9 @@ function speakMessage(message) {
     if (window.speechSynthesis) {
         window.speechSynthesis.cancel();
         const utterance = new SpeechSynthesisUtterance(message);
-        utterance.rate = 0.9;
-        utterance.pitch = 1.1;
+          utterance.rate = 1.3;    // ✅ Increased from 0.85 (15% faster)
+          utterance.pitch = 1.10;  // Kept same
+          utterance.volume = 0.85; // Kept same
         
         utterance.onstart = function() {
             isSpeaking = true; // Add this for proper state management
