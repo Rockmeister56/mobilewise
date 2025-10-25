@@ -1451,9 +1451,9 @@ class MobileWiseVoiceSystem {
             utterance.voice = voiceSystem.selectedBritishVoice;
             
             // Optimized settings for British voice
-            utterance.rate = 0.85;
-            utterance.pitch = 1.05;
-            utterance.volume = 0.85;
+          utterance.rate = 1.0;    // ✅ Increased from 0.85 (15% faster)
+          utterance.pitch = 1.10;  // Kept same
+          utterance.volume = 0.85; // Kept same
             
             utterance.onend = () => {
                 this.handleSpeechComplete();
