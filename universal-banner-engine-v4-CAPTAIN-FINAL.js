@@ -513,99 +513,111 @@ const BANNER_STYLES = `
      * Main banner display function
      */
     window.showUniversalBanner = function(bannerType, options = {}) {
-        console.log(`🎯 Deploying Banner: ${bannerType}`);
-        
-        // Validate banner type
-        if (!BANNER_CONFIG[bannerType]) {
-            console.error(`❌ Unknown banner type: ${bannerType}`);
-            return null;
-        }
-        
-        const config = BANNER_CONFIG[bannerType];
-        
-        // Hide existing banner (with protection)
-        hideBanner();
-        
-        // Create outer container
-        const headerContainer = document.createElement('div');
-        headerContainer.id = 'bannerHeaderContainer';
-        headerContainer.style.cssText = `
-            position: absolute;
-            top: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 95%;
-            max-width: 800px;
-            z-index: 10000;
-            opacity: 0;
-            transition: opacity 0.3s ease-in-out;
-        `;
-        
-        // Create inner banner
-        const banner = document.createElement('div');
-        banner.id = 'universal-banner';
-        banner.className = 'universal-banner';
-        if (config.cssClass) {
-            banner.classList.add(config.cssClass);
-        }
-        
-        banner.style.cssText = `
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: ${config.background};
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-        `;
-        
-        // Inject content and styles
-        banner.innerHTML = BANNER_STYLES + config.content;
-        headerContainer.appendChild(banner);
-        
-        // Find container and attach
-        const mainContainer = document.querySelector('.container') || 
-                             document.querySelector('#voice-chat-container') || 
-                             document.querySelector('.voice-chat-wrapper') || 
-                             document.body;
-        
-        if (!mainContainer) {
-            console.error('❌ No container found to attach banner');
-            return null;
-        }
-        
-        mainContainer.insertBefore(headerContainer, mainContainer.firstChild);
-        
-        // Fade in using requestAnimationFrame for reliability
+    console.log(`🎯 Deploying Banner: ${bannerType}`);
+    
+    // Validate banner type
+    if (!BANNER_CONFIG[bannerType]) {
+        console.error(`❌ Unknown banner type: ${bannerType}`);
+        return null;
+    }
+    
+    const config = BANNER_CONFIG[bannerType];
+    
+    // Hide existing banner (with protection)
+    hideBanner();
+    
+    // Create outer container
+    const headerContainer = document.createElement('div');
+    headerContainer.id = 'bannerHeaderContainer';
+    headerContainer.style.cssText = `
+        position: absolute;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 95%;
+        max-width: 800px;
+        z-index: 10000;
+        opacity: 0;
+        transition: opacity 0.3s ease-in-out;
+    `;
+    
+    // Create inner banner
+    const banner = document.createElement('div');
+    banner.id = 'universal-banner';
+    banner.className = 'universal-banner';
+    if (config.cssClass) {
+        banner.classList.add(config.cssClass);
+    }
+    
+    banner.style.cssText = `
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: ${config.background};
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,0.2);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    `;
+    
+    // Inject content and styles
+    banner.innerHTML = BANNER_STYLES + config.content;
+    headerContainer.appendChild(banner);
+    
+    // Find container and attach
+    const mainContainer = document.querySelector('.container') || 
+                         document.querySelector('#voice-chat-container') || 
+                         document.querySelector('.voice-chat-wrapper') || 
+                         document.body;
+    
+    if (!mainContainer) {
+        console.error('❌ No container found to attach banner');
+        return null;
+    }
+    
+    mainContainer.insertBefore(headerContainer, mainContainer.firstChild);
+    
+    // Fade in using requestAnimationFrame for reliability
+    requestAnimationFrame(() => {
         requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-                headerContainer.style.opacity = '1';
-                console.log('🎨 Banner faded in to opacity: 1');
-            });
+            headerContainer.style.opacity = '1';
+            console.log('🎨 Banner faded in to opacity: 1');
         });
-        
-        // Auto-hide if duration specified
-        if (config.duration && config.duration > 0) {
-            setTimeout(() => {
-                hideBanner();
-            }, config.duration);
-        }
-        
-        console.log(`✅ Banner "${bannerType}" deployed`);
-        
-        // Notify listeners
-        notifyBannerChange(bannerType);
-        
-        return headerContainer;
-    };
+    });
+    
+    // Auto-hide if duration specified
+    if (config.duration && config.duration > 0) {
+        setTimeout(() => {
+            hideBanner();
+        }, config.duration);
+    }
+    
+    console.log(`✅ Banner "${bannerType}" deployed`);
+    
+    // Notify listeners
+    notifyBannerChange(bannerType);
+    
+    // ✅ NEW: Notify all registered callbacks for button switching
+    if (window._bannerChangeCallbacks && window._bannerChangeCallbacks.length > 0) {
+        console.log(`🔔 Notifying ${window._bannerChangeCallbacks.length} listener(s) about banner: ${bannerType}`);
+        window._bannerChangeCallbacks.forEach(callback => {
+            try {
+                callback(bannerType);
+            } catch (error) {
+                console.error('❌ Banner callback error:', error);
+            }
+        });
+    }
+    
+    return headerContainer;
+};
 
     // ===================================================================
     // ✅ SYSTEM READY
@@ -647,4 +659,10 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
             window.showUniversalBanner('branding');
         }
     }, 100);
+}
+
+// Notify callbacks
+if (window._bannerChangeCallbacks && window._bannerChangeCallbacks.length > 0) {
+    console.log(`🔔 Notifying ${window._bannerChangeCallbacks.length} listener(s): ${bannerType}`);
+    window._bannerChangeCallbacks.forEach(callback => callback(bannerType));
 }
