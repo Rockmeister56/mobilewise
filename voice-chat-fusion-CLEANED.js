@@ -4700,6 +4700,14 @@ playGetReadyAndSpeakNowSound();
                     // BULLETPROOF CLEANUP before avatar
                     bulletproofCleanup();
                     
+                    // ===== 🛡️ LEAD CAPTURE PROTECTION: NO AVATAR INTERRUPTION =====
+                    if (isInLeadCapture) {
+                        console.log('🛡️ LEAD CAPTURE ACTIVE: Skipping avatar, restarting Speak Now sequence');
+                        // Just restart the speak sequence without avatar interruption
+                        showHybridReadySequence();
+                        return;
+                    }
+                    
                     // NOW SAFE TO TRIGGER AVATAR
                     console.log('🎬 Triggering avatar sorry message (after nuclear shutdown)...');
                     if (typeof showAvatarSorryMessage === 'function') {
@@ -4725,6 +4733,14 @@ playGetReadyAndSpeakNowSound();
                 
                 bulletproofCleanup();
                 
+                // ===== 🛡️ LEAD CAPTURE PROTECTION: NO AVATAR INTERRUPTION =====
+                if (isInLeadCapture) {
+                    console.log('🛡️ LEAD CAPTURE ACTIVE: Skipping avatar, restarting Speak Now sequence');
+                    // Just restart the speak sequence without avatar interruption
+                    showHybridReadySequence();
+                    return;
+                }
+                
                 console.log('🎬 Triggering avatar sorry message (no recognition to clean)...');
                 if (typeof showAvatarSorryMessage === 'function') {
                     showAvatarSorryMessage();
@@ -4735,7 +4751,7 @@ playGetReadyAndSpeakNowSound();
             
         }, 7000);
         
-    }, 2500);
+    }, 2800);
     
     // ===== SUCCESS HANDLER =====
     window.handleSpeechSuccess = function(transcript) {
