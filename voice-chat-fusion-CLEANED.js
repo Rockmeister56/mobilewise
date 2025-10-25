@@ -1996,14 +1996,16 @@ function updateSmartButton(shouldShow, buttonText, action) {
 
 // 🎯 COMPLETE AI RESPONSE SYSTEM - MOBILE-WISE AI FORMVISER
 // Captain's Architecture - Banner & Button Integration
+// UPDATED: Expertise banner on specialty topics, concern detection fixed
 
 function getAIResponse(userInput) {
     const userText = userInput.toLowerCase().trim();
     const firstName = window.leadData.firstName || '';
     let responseText = '';
     
-    // 🎯 CONCERN DETECTION - Check at every state (except name capture and lead capture)
-    if (conversationState !== 'getting_first_name' && 
+    // 🎯 CONCERN DETECTION - Skip in INITIAL state to avoid intent conflicts
+    if (conversationState !== 'initial' &&
+        conversationState !== 'getting_first_name' && 
         conversationState !== 'lead_capture_active' &&
         conversationState !== 'ended') {
         
@@ -2023,7 +2025,7 @@ function getAIResponse(userInput) {
             }, 1500);
             
             conversationState = 'testimonial_permission_asked';
-            window.pendingTestimonialType = concernType; // Remember which testimonial to show
+            window.pendingTestimonialType = concernType;
             
             return responseText;
         }
@@ -2039,6 +2041,8 @@ function getAIResponse(userInput) {
             !userText.includes('buy') && 
             !userText.includes('sell') && 
             !userText.includes('value') && 
+            !userText.includes('worth') &&
+            !userText.includes('valuation') &&
             !userText.includes('purchase') && 
             !userText.includes('acquire')) {
             
@@ -2049,15 +2053,16 @@ function getAIResponse(userInput) {
         
         // SELLING INTENT
         if (userText.includes('sell') || userText.includes('selling')) {
-            responseText = firstName ? 
-                `Fantastic! You want to sell your practice, ${firstName}. Can I get your name first, please?` :
-                "Fantastic! You want to sell your practice. Can I get your name first, please?";
+            // 🎨 BANNER: Show expertise
+            setTimeout(() => {
+                showUniversalBanner('expertise');
+            }, 1000);
             
             if (!firstName) {
+                responseText = "Fantastic! You want to sell your practice. Can I get your name first, please?";
                 window.pendingIntent = 'selling';
                 conversationState = 'getting_first_name';
             } else {
-                // Has name - go straight to selling conversation
                 responseText = `Wow ${firstName}! That's a huge decision. How many clients are you serving?`;
                 conversationState = 'selling_size_question';
             }
@@ -2067,15 +2072,16 @@ function getAIResponse(userInput) {
         
         // BUYING INTENT
         if (userText.includes('buy') || userText.includes('purchase') || userText.includes('buying') || userText.includes('acquire')) {
-            responseText = firstName ? 
-                `Fantastic! You want to buy a practice, ${firstName}. Let me help with that!` :
-                "Fantastic! You want to buy a practice. Can I get your name first, please?";
+            // 🎨 BANNER: Show expertise
+            setTimeout(() => {
+                showUniversalBanner('expertise');
+            }, 1000);
             
             if (!firstName) {
+                responseText = "Fantastic! You want to buy a practice. Can I get your name first, please?";
                 window.pendingIntent = 'buying';
                 conversationState = 'getting_first_name';
             } else {
-                // Has name - go straight to buying conversation
                 responseText = `Excellent, ${firstName}! Bruce has some fantastic opportunities available right now. Tell me, what's your budget range for acquiring a practice?`;
                 conversationState = 'buying_budget_question';
             }
@@ -2085,15 +2091,16 @@ function getAIResponse(userInput) {
         
         // VALUATION INTENT
         if (userText.includes('value') || userText.includes('worth') || userText.includes('valuation') || userText.includes('evaluate')) {
-            responseText = firstName ?
-                `Fantastic! You want to know what your practice is worth, ${firstName}!` :
-                "Fantastic! You want to know what your practice is worth. Can I get your name first, please?";
+            // 🎨 BANNER: Show expertise
+            setTimeout(() => {
+                showUniversalBanner('expertise');
+            }, 1000);
             
             if (!firstName) {
+                responseText = "Fantastic! You want to know what your practice is worth. Can I get your name first, please?";
                 window.pendingIntent = 'valuation';
                 conversationState = 'getting_first_name';
             } else {
-                // Has name - go straight to valuation conversation
                 responseText = `${firstName}, I'd be happy to help! Most owners are shocked at their practice's actual value. What's your approximate annual revenue?`;
                 conversationState = 'valuation_revenue_question';
             }
@@ -2123,7 +2130,7 @@ function getAIResponse(userInput) {
             // Check if they clicked a button before giving name
             if (window.pendingIntent) {
                 const intent = window.pendingIntent;
-                window.pendingIntent = null; // Clear it
+                window.pendingIntent = null;
                 
                 if (intent === 'selling') {
                     responseText = `Thanks ${firstName}! Now, how many clients are you serving?`;
@@ -2136,7 +2143,6 @@ function getAIResponse(userInput) {
                     conversationState = 'valuation_revenue_question';
                 }
             } else {
-                // Normal greeting - no pending intent
                 responseText = `Great to meet you ${firstName}! What brings you to New Clients Inc today?`;
                 conversationState = 'initial';
             }
@@ -2151,15 +2157,10 @@ function getAIResponse(userInput) {
     // STATE: TESTIMONIAL PERMISSION ASKED
     // ═══════════════════════════════════════════════════════════
     if (conversationState === 'testimonial_permission_asked') {
-        // User clicked a review button or said yes
-        // (Actual video trigger happens from button click in action-button-system)
-        // This state just acknowledges and waits for video to play
-        
         if (userText.includes('yes') || userText.includes('sure') || userText.includes('okay')) {
             responseText = "Great! Let me show you...";
             
-            // Video will be triggered by button click
-            // After video ends, handleTestimonialComplete() will be called
+            // Video will be triggered by button click in action-button-system
             conversationState = 'showing_testimonial';
         } else if (userText.includes('no') || userText.includes('not')) {
             responseText = firstName ?
@@ -2225,7 +2226,7 @@ function getAIResponse(userInput) {
             console.log('🎯 CONSULTATION YES - Starting lead capture');
             
             setTimeout(() => {
-                startCompleteLeadCapture(); // Your existing function
+                startCompleteLeadCapture();
             }, 100);
             
             conversationState = 'lead_capture_active';
@@ -2416,7 +2417,6 @@ function getAIResponse(userInput) {
     // STATE: LEAD CAPTURE ACTIVE
     // ═══════════════════════════════════════════════════════════
     if (conversationState === 'lead_capture_active') {
-        // Let your existing lead capture system handle this
         return "";
     }
     
