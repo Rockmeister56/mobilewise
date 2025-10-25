@@ -1831,22 +1831,24 @@ function pauseSpeechForBannerInteraction() {
 // ===================================================
 // 🎖️ UNIVERSAL MASTER BANNER TRIGGER SYSTEM
 // ===================================================
-window.triggerBanner = function(bannerType, options = {}) {
-    console.log(`🎖️ Triggering banner: ${bannerType}`);
+function triggerBanner(triggerName) {
+    console.log('🎖️ Triggering banner:', triggerName);
     
-    const bannerMap = {
-        'smart_button': 'smartButton',
-        'consultation_offer': 'smartButton',  // ← ADD THIS LINE!
-        'email_sent': 'emailSent', 
-        'free_book': 'freeBook',
-        'consultation_confirmed': 'consultationConfirmed',
-        'thank_you': 'thankYou',
-        'lead_capture': 'leadCapture'
-    };
+    const trigger = bannerTriggers[triggerName];
     
-    const actualBannerType = bannerMap[bannerType] || bannerType;
-    showUniversalBanner(actualBannerType, null, options);
-};
+    if (!trigger) {
+        console.warn(`❌ Unknown trigger: ${triggerName}`);
+        return;
+    }
+    
+    setTimeout(() => {
+        if (typeof window.showUniversalBanner === 'function') {
+            window.showUniversalBanner(trigger.bannerType);  // ✅ Use bannerType
+        } else {
+            console.error('❌ Banner engine not loaded');
+        }
+    }, trigger.delay);
+}
 
 // Condition checker (COMPLETE with all your logic)
 function checkTriggerConditions(conditions, data) {
