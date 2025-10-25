@@ -79,7 +79,7 @@
     <!-- LEFT: 5-STAR ICON (Stationary, no glow) -->
     <div style="flex-shrink: 0;">
         <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761252676241_5starpng.png" 
-             style="width: 70px; height: 70px; border-radius: 0px;">
+             style="width: 130px; height: 95px; border-radius: 0px;">
     </div>
     
     <!-- CENTER/RIGHT: Reviews icon + Text -->
