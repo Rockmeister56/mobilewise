@@ -2127,22 +2127,54 @@ function getAIResponse(userInput) {
             window.leadData.firstName = extractedName.charAt(0).toUpperCase() + extractedName.slice(1).toLowerCase();
             const firstName = window.leadData.firstName;
             
-            // Check if they clicked a button before giving name
+            // 🎯 CHECK FOR PENDING INTENT FROM QUICK BUTTON CLICK
             if (window.pendingIntent) {
-                const intent = window.pendingIntent;
-                window.pendingIntent = null;
+                console.log(`🔄 Resuming pending intent: ${window.pendingIntent} for ${firstName}`);
                 
-                if (intent === 'selling') {
-                    responseText = `Thanks ${firstName}! Now, how many clients are you serving?`;
-                    conversationState = 'selling_size_question';
-                } else if (intent === 'buying') {
-                    responseText = `Thanks ${firstName}! Now, what's your budget range for acquiring a practice?`;
-                    conversationState = 'buying_budget_question';
-                } else if (intent === 'valuation') {
-                    responseText = `Thanks ${firstName}! Now, what's your practice's approximate annual revenue?`;
-                    conversationState = 'valuation_revenue_question';
+                const intent = window.pendingIntent;
+                
+                // Use the stored response from askQuickQuestion()
+                if (window.pendingIntentResponse) {
+                    // Set the conversation state
+                    conversationState = window.pendingIntentState;
+                    
+                    // Use the pre-built response and inject the name
+                    responseText = window.pendingIntentResponse
+                        .replace(/Perfect!/g, `Perfect ${firstName}!`)
+                        .replace(/That's fantastic!/g, `That's fantastic, ${firstName}!`)
+                        .replace(/Great!/g, `Great ${firstName}!`);
+                    
+                    // Clear all pending intent data
+                    window.pendingIntent = null;
+                    window.pendingIntentState = null;
+                    window.pendingIntentResponse = null;
+                    
+                    // Trigger free incentive banner after consultation offer
+                    setTimeout(() => {
+                        if (typeof showUniversalBanner === 'function') {
+                            showUniversalBanner('freeIncentive');
+                        }
+                    }, 2000);
+                    
+                    console.log(`✅ Resumed ${intent} flow for ${firstName}`);
+                    
+                } else {
+                    // Fallback to old logic if pendingIntentResponse not set
+                    window.pendingIntent = null;
+                    
+                    if (intent === 'selling') {
+                        responseText = `Thanks ${firstName}! Now, how many clients are you serving?`;
+                        conversationState = 'selling_size_question';
+                    } else if (intent === 'buying') {
+                        responseText = `Thanks ${firstName}! Now, what's your budget range for acquiring a practice?`;
+                        conversationState = 'buying_budget_question';
+                    } else if (intent === 'valuation') {
+                        responseText = `Thanks ${firstName}! Now, what's your practice's approximate annual revenue?`;
+                        conversationState = 'valuation_revenue_question';
+                    }
                 }
             } else {
+                // Normal flow - no button was clicked, they just gave name
                 responseText = `Great to meet you ${firstName}! What brings you to New Clients Inc today?`;
                 conversationState = 'initial';
             }
@@ -2443,6 +2475,7 @@ function getAIResponse(userInput) {
     return responseText;
 }
 
+
 function handleTestimonialComplete() {
     console.log('🎯 Testimonial finished - triggering comeback');
     
@@ -2465,42 +2498,101 @@ function handleTestimonialComplete() {
 }
 
 function askQuickQuestion(questionText) {
-    // Stop all speech
+    console.log('🎯 Quick button clicked:', questionText);
+    
+    // 1️⃣ STOP ALL SPEECH IMMEDIATELY
     if (typeof stopAllSpeech === 'function') {
         stopAllSpeech();
     }
-    
-    // Detect intent from button text
-    let buttonIntent = null;
-    let acknowledgment = null;
-    
-    if (questionText.toLowerCase().includes('selling')) {
-        buttonIntent = 'selling';
-        acknowledgment = "Fantastic! You want to sell your practice.";
-    } else if (questionText.toLowerCase().includes('buying')) {
-        buttonIntent = 'buying';
-        acknowledgment = "Fantastic! You want to buy a practice.";
-    } else if (questionText.toLowerCase().includes('valuation')) {
-        buttonIntent = 'valuation';
-        acknowledgment = "Fantastic! You want to know what your practice is worth.";
+    if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
     }
     
-    const firstName = window.leadData.firstName || '';
+    // 2️⃣ DETECT WHICH BUTTON WAS CLICKED
+    let buttonIntent = null;
+    let acknowledgment = null;
+    let targetState = null;
+    let scriptResponse = null;
+    
+    const buttonText = questionText.toLowerCase();
+    
+    if (buttonText.includes('valuation') || buttonText.includes('worth')) {
+        // PRACTICE VALUATION BUTTON
+        buttonIntent = 'valuation';
+        acknowledgment = "Fantastic! You want to know what your practice is worth.";
+        targetState = 'asking_valuation_consultation';
+        
+        scriptResponse = window.leadData && window.leadData.firstName ?
+            `Perfect ${window.leadData.firstName}! Bruce can provide a FREE valuation. Most owners are surprised by the value. Interested?` :
+            "Perfect! Bruce can provide a FREE valuation. Most owners are surprised. Interested?";
+            
+    } else if (buttonText.includes('selling')) {
+        // SELLING OPTIONS BUTTON
+        buttonIntent = 'selling';
+        acknowledgment = "Fantastic! You want to sell your practice.";
+        targetState = 'selling_size_question';
+        
+        scriptResponse = window.leadData && window.leadData.firstName ?
+            `Wow ${window.leadData.firstName}! That's a huge decision. How many clients are you serving?` :
+            "Wow! That's a huge decision. How many clients are you serving?";
+            
+    } else if (buttonText.includes('buying')) {
+        // BUYING OPTIONS BUTTON
+        buttonIntent = 'buying';
+        acknowledgment = "Fantastic! You want to buy a practice.";
+        targetState = 'buying_budget_question';
+        
+        scriptResponse = window.leadData && window.leadData.firstName ?
+            `Excellent, ${window.leadData.firstName}! Bruce has some fantastic opportunities available right now. Tell me, what's your budget range for acquiring a practice?` :
+            "Excellent! Bruce has some fantastic opportunities available. What's your budget range for acquiring a practice?";
+    }
+    
+    // 3️⃣ CHECK IF WE HAVE THEIR NAME
+    const firstName = window.leadData ? window.leadData.firstName : null;
     
     if (firstName) {
-        // Has name - jump straight to script for this intent
-        processUserResponse(questionText);
+        // ✅ HAS NAME - Jump directly to the conversation flow
+        console.log(`✅ Name exists (${firstName}) - jumping to ${targetState}`);
+        
+        conversationState = targetState;
+        
+        // Speak the response
+        setTimeout(() => {
+            speakText(scriptResponse);
+        }, 100);
+        
+        // Trigger expertise banner
+        setTimeout(() => {
+            if (typeof showUniversalBanner === 'function') {
+                showUniversalBanner('expertise');
+            }
+        }, 1500);
+        
     } else {
-        // No name - acknowledge and ask for it
+        // ❌ NO NAME YET - Acknowledge intent + Ask for name
+        console.log(`❌ No name yet - storing pendingIntent: ${buttonIntent}`);
+        
+        // Store the pending intent so we can resume after name capture
         window.pendingIntent = buttonIntent;
+        window.pendingIntentState = targetState;
+        window.pendingIntentResponse = scriptResponse;
+        
+        // Set state to capture name
         conversationState = 'getting_first_name';
         
-        const aiResponse = acknowledgment + " Can I get your name first, please?";
+        // Speak acknowledgment + name request
+        const fullResponse = acknowledgment + " Can I get your name first, please?";
         
-        // Speak it
         setTimeout(() => {
-            speakText(aiResponse);
+            speakText(fullResponse);
         }, 100);
+        
+        // Show expertise banner immediately
+        setTimeout(() => {
+            if (typeof showUniversalBanner === 'function') {
+                showUniversalBanner('expertise');
+            }
+        }, 1500);
     }
 }
 
