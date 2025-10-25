@@ -2927,17 +2927,25 @@ function askLeadQuestion() {
 }
 
 function speakMessage(message) {
+    console.log('🎤 Lead capture speaking:', message);
+    
+    // Try to use main speakText (has British voice)
+    if (typeof window.speakText === 'function') {
+        window.speakText(message);
+        return; // ✅ DONE - Let main system handle everything
+    }
+    
+    // ❌ FALLBACK: Your exact current code (unchanged)
     if (window.speechSynthesis) {
         window.speechSynthesis.cancel();
         const utterance = new SpeechSynthesisUtterance(message);
-        utterance.rate = 1.13;    // ✅ Increased from 0.85 (15% faster)
-        utterance.pitch = 1.05;  // Kept same
-        utterance.volume = 0.85; // Kept same
+        utterance.rate = 1.13;
+        utterance.pitch = 1.05;
+        utterance.volume = 0.85;
         
         utterance.onstart = function() {
-            isSpeaking = true; // Add this for proper state management
+            isSpeaking = true;
             console.log('🔊 AI started speaking - hiding Speak Now');
-            // Hide the green banner while AI speaks
             const liveTranscript = document.getElementById('liveTranscript');
             if (liveTranscript) {
                 liveTranscript.style.display = 'none';
@@ -2945,13 +2953,14 @@ function speakMessage(message) {
         };
 
         utterance.onend = function() {
-            isSpeaking = false; // Add this for proper state management
+            isSpeaking = false;
             console.log('🔊 AI finished speaking for lead capture');
             
-            // ✅ THE FIX: Show hybrid sequence for lead capture questions
             if (isInLeadCapture) {
                 setTimeout(() => {
-                    showHybridReadySequence(); // This shows "Get Ready to Speak" → "Listening"
+                    if (typeof showHybridReadySequence === 'function') {
+                        showHybridReadySequence();
+                    }
                 }, 1300);
             }
         };
