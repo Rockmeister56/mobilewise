@@ -72,6 +72,61 @@ if (typeof conversationState === 'undefined') {
     var conversationState = 'initial';
 }
 
+// ═══════════════════════════════════════════════════════════
+// MOBILE STABILITY FUNCTIONS
+// ═══════════════════════════════════════════════════════════
+
+function applyMobileStability() {
+    console.log('📱 Applying mobile stability enhancements...');
+    
+    // Prevent unwanted zoom on focus
+    const viewport = document.querySelector('meta[name="viewport"]');
+    if (viewport && /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
+        viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
+    }
+    
+    // Enhanced touch event prevention for mobile
+    document.addEventListener('touchstart', function(e) {
+        if (e.touches.length > 1) {
+            e.preventDefault();
+        }
+    }, { passive: false });
+    
+    // Prevent double-tap zoom
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', function(e) {
+        const now = Date.now();
+        if (now - lastTouchEnd <= 300) {
+            e.preventDefault();
+        }
+        lastTouchEnd = now;
+    }, { passive: false });
+    
+    // Force layout stability
+    document.body.style.webkitTransform = 'translateZ(0)';
+    document.body.style.transform = 'translateZ(0)';
+}
+
+function setupMobileTouchEvents() {
+    console.log('📱 Setting up mobile touch events...');
+    
+    // Prevent pull-to-refresh
+    let touchStartY = 0;
+    document.addEventListener('touchstart', function(e) {
+        touchStartY = e.touches[0].clientY;
+    }, { passive: false });
+    
+    document.addEventListener('touchmove', function(e) {
+        const touchY = e.touches[0].clientY;
+        const touchYDelta = touchY - touchStartY;
+        
+        // Prevent pull-to-refresh if scrolled to top
+        if (touchYDelta > 0 && window.scrollY === 0) {
+            e.preventDefault();
+        }
+    }, { passive: false });
+}
+
 // ===================================================
 // 🎯 SPEECH RECOGNITION PRE-WARMING SYSTEM  
 // ===================================================
