@@ -82,24 +82,24 @@
              style="width: 130px; height: 95px; border-radius: 0px; margin-right: -10px;">
     </div>
     
-    <!-- CENTER/RIGHT: Reviews icon + Text -->
-    <div style="display: flex; align-items: center; flex-grow: 1; justify-content: center;">
+    <!-- CENTER/RIGHT: Reviews icon + Text (SHIFTED LEFT) -->
+    <div style="display: flex; align-items: center; flex-grow: 1; justify-content: center; margin-left: -80px;">
         <!-- REVIEWS ICON (keeps glow) -->
         <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761252832996_reviews.png" 
              class="book-white-glow"
-             style="width: 70px; height: 70px; border-radius: 0px; margin-right: 80px;">
+             style="width: 70px; height: 70px; border-radius: 0px; margin-right: 20px;">
         
         <!-- TEXT -->
-        <div style="color: white; text-align: left; margin-left: -30px;">
-    <div style="font-size: 20px; font-weight: bold; margin-bottom: 5px;">
-        GENUINE client reviews
-    </div>
-    <div style="font-size: 14px; opacity: 0.95;">
-        Click buttons below to view video reviews
-                        </div>
-                    </div>
-                </div>
+        <div style="color: white; text-align: left;">
+            <div style="font-size: 20px; font-weight: bold; margin-bottom: 5px;">
+                GENUINE client reviews
             </div>
+            <div style="font-size: 14px; opacity: 0.95;">
+                Click buttons below to view video reviews
+            </div>
+        </div>
+    </div>
+</div>
         `,
         duration: 0,
         colorLeft: '#1e3a8a',
