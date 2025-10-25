@@ -603,13 +603,6 @@ const BANNER_STYLES = `
         
         return headerContainer;
     };
-    
-    /**
-     * Trigger banner (alias for showUniversalBanner)
-     */
-    window.triggerBanner = function(bannerType, options) {
-        return window.showUniversalBanner(bannerType, options);
-    };
 
     // ===================================================================
     // ✅ SYSTEM READY
