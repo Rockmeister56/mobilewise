@@ -1,552 +1,5 @@
 // ===================================================
 // 🎯 MOBILE-WISE AI VOICE CHAT - COMPLETE INTEGRATION
-// Smart Button + Lead Capture + EmailJS + Banner System + TESTIMONIALS
-// NEW CONVERSATION: CPA Practice Sales (Boateamia)
-// ===================================================
-
-// ===================================================
-// 🎯 KNOWLEDGE BASE DATA - NEW CPA CONVERSATION
-// ===================================================
-// ===================================================
-// 🎯 KNOWLEDGE BASE DATA - PRE-LOADED FOR ZERO LATENCY
-// ===================================================
-// This file contains all conversation data as a JavaScript object
-// NO async loading, NO fetch delays - INSTANT ACCESS
-// Date: October 15, 2025
-// Captain: Mobile-Wise AI Empire
-// UPDATED: Testimonials now use CONSENT-BASED OFFERS instead of auto-play
-// ===================================================
-
-window.knowledgeBaseData = {
-  "industry_name": "CPA Practice Sales & Acquisitions",
-  "industry_type": "accounting_practice_brokerage",
-  "version": "2.0",
-  "client_name": "New Clients, Inc. / Bruce Clark",
-  "greeting": {
-    "initial": "Hi there! I'm Boateamia your personal AI Voice assistant, may I get your first name please?",
-    "with_name": "Great to meet you {firstName}! What brings you to New Clients Inc today?"
-  },
-  "conversation_states": {
-    "initial": {
-      "state_id": "initial",
-      "description": "First interaction - capture name or detect intent",
-      "triggers": {
-        "name_request": {
-          "keywords": [],
-          "response": "Before we dive in, what's your first name?",
-          "next_state": "getting_first_name",
-          "condition": "!leadData.firstName && no business keywords"
-        },
-        "buy_intent": {
-          "keywords": [
-            "buy",
-            "buying",
-            "purchase",
-            "acquire"
-          ],
-          "response": "Excellent! Bruce has exclusive off-market opportunities available. What's your budget range?",
-          "response_with_name": "Excellent, {firstName}! Bruce has exclusive off-market deals available. What's your budget range?",
-          "next_state": "buying_budget_question",
-          "trigger_banner": "freeBookWithConsultation"
-        },
-        "sell_intent": {
-          "keywords": [
-            "sell",
-            "selling"
-          ],
-          "response": "Great! Selling is a big decision. How many clients are you currently serving?",
-          "response_with_name": "Wow {firstName}! That's a huge decision. How many clients are you serving?",
-          "next_state": "selling_size_question",
-          "trigger_banner": "freeBookWithConsultation"
-        },
-        "value_intent": {
-          "keywords": [
-            "value",
-            "worth",
-            "valuation",
-            "evaluate"
-          ],
-          "response": "Happy to help with a valuation! Most owners are surprised at their practice's value. What's your approximate annual revenue?",
-          "response_with_name": "{firstName}, I'd be happy to help! Most owners are shocked at their practice's actual value. What's your approximate annual revenue?",
-          "next_state": "valuation_revenue_question",
-          "trigger_banner": "freeBookWithConsultation"
-        }
-      }
-    },
-    "getting_first_name": {
-      "state_id": "getting_first_name",
-      "description": "Capture and store user's first name",
-      "response_success": "Great to meet you {firstName}! Now, what brings you here - buy, sell, or valuation?",
-      "response_retry": "I didn't catch your name. Could you tell me your first name?",
-      "next_state": "initial",
-      "action": "extract_first_name"
-    },
-    "selling_size_question": {
-      "state_id": "selling_size_question",
-      "description": "Ask about client count",
-      "response": "Incredible! {number} clients - that's fantastic! With that client base, what's your approximate annual revenue?",
-      "response_no_name": "Wow! {number} clients - impressive! What's your annual revenue range?",
-      "next_state": "selling_revenue_question",
-      "action": "extract_number"
-    },
-    "selling_revenue_question": {
-      "state_id": "selling_revenue_question",
-      "description": "Ask about revenue",
-      "response": "Excellent! {revenue} in revenue - you've built something valuable. What's driving your decision to sell? Retirement, new opportunities, or something else?",
-      "response_no_name": "Excellent! {revenue} - solid practice! What's driving your decision to sell?",
-      "next_state": "selling_motivation_question",
-      "action": "extract_revenue"
-    },
-    "selling_motivation_question": {
-      "state_id": "selling_motivation_question",
-      "description": "Understand motivation and check for objections",
-      "objection_check": true,
-      "objection_response": "Great question, {firstName}! Let me show you what one of our recent clients said about that...",
-      "objection_response_no_name": "Great question! Let me show you what a recent client said...",
-      "objection_testimonial": "skeptical",
-      "response": "Thank you for sharing! Based on your client base and revenue, Bruce can help you get top dollar. The market is strong right now. Would you like a FREE consultation with Bruce?",
-      "response_with_name": "Thanks {firstName}! Based on everything you've told me, Bruce can get you top dollar. Market's on fire. Ready for a FREE consultation?",
-      "next_state": "asking_selling_consultation",
-      "trigger_banner": "freeBookWithConsultation"
-    },
-    "asking_selling_consultation": {
-      "state_id": "asking_selling_consultation",
-      "description": "Close for consultation",
-      "yes_triggers": [
-        "yes",
-        "sure",
-        "okay",
-        "definitely",
-        "absolutely"
-      ],
-      "no_triggers": [
-        "no",
-        "not now",
-        "maybe later"
-      ],
-      "yes_action": "start_lead_capture",
-      "no_response": "No problem! The offer stands whenever you're ready. Anything else about selling?",
-      "no_response_with_name": "No problem {firstName}! Offer stands. Anything else about selling?",
-      "no_next_state": "initial",
-      "no_trigger_banner": "smartButton",
-      "clarify_response": "Just to clarify - would you like Bruce to call you for a free consultation? Yes or no?",
-      "clarify_response_with_name": "{firstName}, want Bruce to call you for free consultation? Yes or no?"
-    },
-    "buying_budget_question": {
-      "state_id": "buying_budget_question",
-      "description": "Ask about budget range",
-      "response": "Great! {budget} opens up excellent opportunities. Looking specifically for CPA practice, or would accounting work too?",
-      "response_with_name": "Great {firstName}! {budget} - nice opportunities in that range. CPA practice specifically, or general accounting?",
-      "next_state": "buying_type_question",
-      "action": "extract_budget"
-    },
-    "buying_type_question": {
-      "state_id": "buying_type_question",
-      "description": "Ask about practice type preference",
-      "response": "Perfect! That gives us more options. How soon are you looking to complete a purchase?",
-      "response_with_name": "Perfect {firstName}! More options to work with. How soon for purchase?",
-      "next_state": "buying_timeline_question"
-    },
-    "buying_timeline_question": {
-      "state_id": "buying_timeline_question",
-      "description": "Ask about timeline",
-      "response": "Excellent! Bruce has exclusive off-market opportunities you can't find online. Based on your criteria, he has perfect matches. Want to see them?",
-      "response_with_name": "Excellent {firstName}! Bruce has exclusive off-market deals - not advertised anywhere. Perfect matches for your criteria. Want to see?",
-      "next_state": "asking_buying_consultation",
-      "trigger_banner": "freeBookWithConsultation"
-    },
-    "asking_buying_consultation": {
-      "state_id": "asking_buying_consultation",
-      "description": "Close for showing practices",
-      "yes_triggers": [
-        "yes",
-        "sure",
-        "okay",
-        "definitely",
-        "absolutely"
-      ],
-      "no_triggers": [
-        "no",
-        "not now",
-        "maybe later"
-      ],
-      "yes_action": "start_lead_capture",
-      "no_response": "That's fine! When ready, let me know. These opportunities move fast. Anything else about buying?",
-      "no_response_with_name": "Fine {firstName}! Just let me know when ready. Opportunities don't last long. Anything else?",
-      "no_next_state": "initial",
-      "no_trigger_banner": "smartButton",
-      "clarify_response": "Would you like Bruce to show you available practices? Yes or no?",
-      "clarify_response_with_name": "{firstName}, want Bruce to show you available practices? Yes or no?"
-    },
-    "valuation_revenue_question": {
-      "state_id": "valuation_revenue_question",
-      "description": "Ask about revenue for valuation",
-      "response": "Thank you! {revenue} - solid! How many years have you been in practice? Longevity really impacts valuation.",
-      "response_with_name": "Thanks {firstName}! {revenue} - solid! How many years in practice? Longevity impacts value.",
-      "next_state": "valuation_years_question",
-      "action": "extract_revenue"
-    },
-    "valuation_years_question": {
-      "state_id": "valuation_years_question",
-      "description": "Ask about years in practice",
-      "response": "Perfect! {years} years - well-established! Bruce can provide a comprehensive FREE valuation. You might be surprised at the value. Want to schedule it?",
-      "response_with_name": "Perfect {firstName}! {years} years - incredibly well-established! Bruce can provide FREE valuation. Might surprise you. Ready to schedule?",
-      "next_state": "asking_valuation_consultation",
-      "trigger_banner": "freeBookWithConsultation",
-      "action": "extract_years"
-    },
-    "asking_valuation_consultation": {
-      "state_id": "asking_valuation_consultation",
-      "description": "Close for valuation consultation",
-      "yes_triggers": [
-        "yes",
-        "sure",
-        "okay",
-        "definitely",
-        "absolutely"
-      ],
-      "no_triggers": [
-        "no",
-        "not now",
-        "maybe later"
-      ],
-      "yes_action": "start_lead_capture",
-      "no_response": "No worries! Offer stands whenever you're ready. Anything else about valuations?",
-      "no_response_with_name": "No worries {firstName}! Offer stands. Anything else about valuations?",
-      "no_next_state": "initial",
-      "no_trigger_banner": "smartButton",
-      "clarify_response": "Would you like Bruce to provide a free valuation? Yes or no?",
-      "clarify_response_with_name": "{firstName}, want Bruce to provide free valuation? Yes or no?"
-    },
-    "asking_if_more_help": {
-      "state_id": "asking_if_more_help",
-      "description": "Check if user needs more help before ending",
-      "no_triggers": [
-        "no",
-        "nothing",
-        "done",
-        "that's all",
-        "nope",
-        "thanks"
-      ],
-      "yes_response": "Absolutely! What else about buying, selling, or valuing practices?",
-      "yes_response_with_name": "Absolutely {firstName}! What else would you like to know?",
-      "yes_next_state": "initial",
-      "no_response": "Thank you so much for visiting! Have a wonderful day! 🌟",
-      "no_response_with_name": "Thank you {firstName}! It's been great talking with you. Have a wonderful day! 🌟",
-      "no_next_state": "ended",
-      "no_trigger_banner": "thankYou"
-    }
-  },
-  "objection_handling": {
-    "description": "Detect objections and OFFER testimonials (user consent required)",
-    "objections": [
-      {
-        "type": "timeline_concern",
-        "keywords": [
-          "how long",
-          "time",
-          "timeline",
-          "duration",
-          "when",
-          "fast",
-          "quick"
-        ],
-        "testimonialOffer": "speed",
-        "response": "Great question! We've worked with clients who had the same timeline concerns. Would you like to hear what one of them experienced?",
-        "response_with_name": "Great question {firstName}! We've had clients with the same concern. Want to hear their experience?"
-      },
-      {
-        "type": "trust_concern",
-        "keywords": [
-          "guarantee",
-          "sure",
-          "trust",
-          "promise",
-          "really",
-          "certain",
-          "proof"
-        ],
-        "testimonialOffer": "skeptical",
-        "response": "I completely understand! We've had clients who felt the same way initially. Would you like to hear what they said after working with Bruce?",
-        "response_with_name": "{firstName}, I understand! Want to hear what a skeptical client said after working with us?"
-      },
-      {
-        "type": "value_concern",
-        "keywords": [
-          "worth",
-          "value",
-          "price",
-          "fair",
-          "market",
-          "competitive"
-        ],
-        "testimonialOffer": "skeptical",
-        "response": "That's important! We have clients who were concerned about value too. Would you like to hear their experience?",
-        "response_with_name": "{firstName}, that's important! Want to hear what other clients said about the value they received?"
-      }
-    ]
-  },
-  "testimonials": {
-    "skeptical": {
-      "id": "skeptical",
-      "title": "Skeptical, Then Exceeded Expectations",
-      "video_url": "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982717330.mp4",
-      "duration": 12000,
-      "trigger_contexts": [
-        "trust",
-        "value",
-        "credibility",
-        "guarantee"
-      ]
-    },
-    "speed": {
-      "id": "speed",
-      "title": "Surprised by the Speed of the Sale",
-      "video_url": "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982877040.mp4",
-      "duration": 12000,
-      "trigger_contexts": [
-        "timeline",
-        "how long",
-        "fast",
-        "quick"
-      ]
-    }
-  },
-  "general_questions": [
-    {
-      "id": "selling_timeline",
-      "triggers": [
-        "how long to sell",
-        "time to sell",
-        "sell timeline",
-        "selling duration",
-        "how fast can I sell"
-      ],
-      "keywords": [
-        "sell",
-        "time",
-        "how long",
-        "duration",
-        "timeline",
-        "fast"
-      ],
-      "response": "Most practices sell within 2-6 months. Strong financials and good client retention? Even faster. Want to discuss your situation?",
-      "category": "selling",
-      "triggerAction": "request_selling_consultation",
-      "testimonialOffer": "speed"
-    },
-    {
-      "id": "buying_timeline",
-      "triggers": [
-        "how long to buy",
-        "time to buy",
-        "buying timeline",
-        "purchase duration"
-      ],
-      "keywords": [
-        "buy",
-        "purchase",
-        "time",
-        "how long",
-        "acquire"
-      ],
-      "response": "Most buyers find and close within 2-6 months. Pre-approved financing speeds things up. Want to hear about available practices?",
-      "category": "buying",
-      "triggerAction": "request_buying_consultation"
-    },
-    {
-      "id": "practice_valuation",
-      "triggers": [
-        "what is my practice worth",
-        "practice value",
-        "how much is it worth",
-        "valuation",
-        "appraisal"
-      ],
-      "keywords": [
-        "worth",
-        "value",
-        "price",
-        "valuation",
-        "appraisal",
-        "how much"
-      ],
-      "response": "Most CPA practices sell for 100-150% of annual billing. Multiple depends on profit margins, client retention, and growth. Want a professional valuation?",
-      "category": "valuation",
-      "triggerAction": "request_valuation"
-    },
-    {
-      "id": "practice_pricing",
-      "triggers": [
-        "how much does a practice cost",
-        "practice price",
-        "cost to buy"
-      ],
-      "keywords": [
-        "cost",
-        "price",
-        "buy",
-        "purchase",
-        "how much",
-        "afford"
-      ],
-      "response": "Typically 100-150% of annual billing, around 125% average. Example: $500K billing = ~$625K price. What's your budget range?",
-      "category": "buying",
-      "triggerAction": "request_buying_consultation"
-    },
-    {
-      "id": "financing_options",
-      "triggers": [
-        "financing",
-        "loan",
-        "funding",
-        "can I finance",
-        "money"
-      ],
-      "keywords": [
-        "financing",
-        "loan",
-        "money",
-        "funding",
-        "bank",
-        "finance"
-      ],
-      "response": "Financing available for qualified buyers - typically 70-90% of purchase price. Good credit and cash flow needed. Some sellers offer financing. Want details?",
-      "category": "buying",
-      "triggerAction": "request_financing_consultation"
-    },
-    {
-      "id": "sale_guarantees",
-      "triggers": [
-        "guarantee",
-        "protection",
-        "refund",
-        "what if clients leave"
-      ],
-      "keywords": [
-        "guarantee",
-        "protection",
-        "refund",
-        "assurance",
-        "risk",
-        "clients leave"
-      ],
-      "response": "Most sales include client retention guarantees - typically one year. If collected fees don't meet agreement, you may get refund/adjustment. Want details?",
-      "category": "buying",
-      "triggerAction": "request_guarantee_details",
-      "testimonialOffer": "skeptical"
-    },
-    {
-      "id": "seller_fees",
-      "triggers": [
-        "what do you charge",
-        "commission",
-        "fees",
-        "cost to sell"
-      ],
-      "keywords": [
-        "charge",
-        "commission",
-        "fee",
-        "cost",
-        "price",
-        "how much"
-      ],
-      "response": "Commission structures vary by transaction size - typically 10-15%. Some flat fees for smaller practices. Want to discuss your specific practice?",
-      "category": "selling",
-      "triggerAction": "request_fee_consultation"
-    },
-    {
-      "id": "confidentiality",
-      "triggers": [
-        "confidential",
-        "secret",
-        "discreet",
-        "privacy",
-        "who will know"
-      ],
-      "keywords": [
-        "confidential",
-        "secret",
-        "discreet",
-        "privacy",
-        "anonymous"
-      ],
-      "response": "Confidentiality is critical. We use NDAs, anonymous listings, controlled disclosure. Clients/staff don't know until you're ready. Want to discuss our process?",
-      "category": "general",
-      "triggerAction": "request_confidentiality_consultation"
-    },
-    {
-      "id": "what_services",
-      "triggers": [
-        "what do you do",
-        "services",
-        "how can you help",
-        "what help"
-      ],
-      "keywords": [
-        "what",
-        "do",
-        "services",
-        "help",
-        "offer"
-      ],
-      "response": "We handle: practice sales, buyer matching, valuations, succession planning, transaction support. Marketing, screening, negotiations, closing - all covered. How can we help?",
-      "category": "general",
-      "triggerAction": "request_services_consultation"
-    },
-    {
-      "id": "due_diligence",
-      "triggers": [
-        "due diligence",
-        "what documents",
-        "paperwork",
-        "information needed"
-      ],
-      "keywords": [
-        "due diligence",
-        "documents",
-        "paperwork",
-        "information",
-        "need",
-        "required"
-      ],
-      "response": "Typical due diligence: 3 years tax returns, financials, client lists with revenue, fee structures, staff info. We help prepare everything. Want to know what you'll need?",
-      "category": "general",
-      "triggerAction": "request_due_diligence_help"
-    }
-  ],
-  "fallback_responses": {
-    "no_match": "That's a great question! A specialist can provide detailed information. Would you like to schedule a consultation?",
-    "no_match_with_name": "{firstName}, that's a great question! Let me connect you with our team. Ready for a consultation?",
-    "conversation_ended": "Thank you for visiting! Have a great day.",
-    "conversation_ended_with_name": "Thank you {firstName}! Have a great day."
-  },
-  "lead_capture_triggers": [
-    "consultation",
-    "call me",
-    "speak to someone",
-    "more information",
-    "contact",
-    "schedule",
-    "interested",
-    "yes"
-  ]
-};
-
-console.log('✅ Knowledge Base Data loaded - Zero latency mode!');
-console.log('📊 KB Stats:', {
-    conversationStates: Object.keys(window.knowledgeBaseData.conversation_states).length,
-    generalQuestions: window.knowledgeBaseData.general_questions.length,
-    testimonials: Object.keys(window.knowledgeBaseData.testimonials).length
-});
-
-// ===================================================
-// 🔄 REST OF VOICE CHAT SYSTEM (keeping all upgrades)
-// ===================================================
-// ===================================================
-// 🎯 MOBILE-WISE AI VOICE CHAT - COMPLETE INTEGRATION
 // Smart Button + Lead Capture + EmailJS + Banner System
 // ===================================================
 
@@ -602,12 +55,6 @@ window.leadData = window.leadData || {
 let leadData = window.leadData;
 
 // ===================================================
-// 🎯 TESTIMONIAL SYSTEM GLOBALS (for future use)
-// ===================================================
-let pendingTestimonialType = null;
-let currentObjection = null;
-
-// ===================================================
 // 🎯 SPEECH RECOGNITION PRE-WARMING SYSTEM  
 // ===================================================
 class SpeechEngineManager {
@@ -652,6 +99,23 @@ class SpeechEngineManager {
 // Create global engine manager
 const speechEngine = new SpeechEngineManager();
 console.log('🚀 Speech Engine Manager initialized');
+
+function quickMobileAudioFix() {
+    if (/Mobi|Android/i.test(navigator.userAgent)) {
+        const originalPlay = HTMLAudioElement.prototype.play;
+        HTMLAudioElement.prototype.play = function() {
+            if (isListening) {
+                console.log('🔇 Mobile: Blocked audio during speech session');
+                return Promise.reject(new DOMException('Audio blocked during speech'));
+            }
+            return originalPlay.call(this);
+        };
+        console.log('✅ Mobile audio gate installed');
+    }
+}
+
+// Call it immediately - runs once when file loads
+quickMobileAudioFix();
 
 // 🚨 NUCLEAR MOBILE DETECTION - SCREEN SIZE ONLY
 const isDefinitelyMobile = window.innerWidth <= 768 || window.innerHeight <= 1024;
@@ -920,12 +384,16 @@ function initializeSpeechRecognition() {
     recognition.interimResults = true;
     recognition.lang = 'en-US';
 
-     // 🚫 CRITICAL: DISABLE BROWSER BEEP
+    // 🚫 CRITICAL: DISABLE BROWSER BEEP
     recognition.onsoundstart = null;
     recognition.onaudiostart = null;
     recognition.onstart = null;
 
     console.log('✅ Speech recognition initialized');
+    
+    // ✅ CALL BEFORE RETURN
+    suppressBrowserBeeps();
+    
     return true;
 }
 
@@ -948,11 +416,23 @@ function getApologyResponse() {
     
     return sorryMessages[Math.floor(Math.random() * sorryMessages.length)];
 }
+
+function suppressBrowserBeeps() {
+    if (!recognition) return;
+    
+    recognition.onsoundstart = function() { /* SILENCE */ };
+    recognition.onaudiostart = function() { /* SILENCE */ };
+    recognition.onspeechstart = function() { /* SILENCE */ };
+}
     
   // ===================================================
 // 🎤 START LISTENING new function
 // ===================================================
     async function startListening() {
+      if (recognition && recognition.onerror) {
+        console.log('Event handlers already set - skipping duplicate setup');
+        return;
+    }
      // ✅ PREVENT MULTIPLE STARTS
     if (recognition && recognition.state === 'started') {
         console.log('🚫 Recognition already running - skipping start');
@@ -1218,10 +698,9 @@ function stopListening() {
 }
 
 // ===================================================
-// 🔍 FORCE START LISTENING
+// 🔍 FORCE START LISTENING - FIXED (DUPLICATE HANDLER REMOVED)
 // ===================================================
 
-// 🎯 ADD THIS TO YOUR forceStartListening() FUNCTION - REPLACE THE EXISTING ONE:
 function forceStartListening() {
     console.log('🎤 TEST 8: forceStartListening() CALLED at:', Date.now());
     console.log('🎤 TEST 9: isSpeaking:', isSpeaking);
@@ -1244,79 +723,7 @@ function forceStartListening() {
             console.log('✅ DIAGNOSTIC: Recognition STARTED successfully');
         };
         
-        recognition.onerror = function(event) {
-    console.log('🔊 Speech error:', event.error);
-
-    if (event.error === 'no-speech') {
-        const transcriptText = document.getElementById('transcriptText');
-
-        console.log('🔍 MOBILE DEBUG:', {
-            userAgent: navigator.userAgent,
-            isMobile: /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent),
-            isTouch: ('ontouchstart' in window || navigator.maxTouchPoints > 0)
-        });
-
-        // 🚨 NUCLEAR MOBILE DETECTION - REPLACE THE OLD CHECK
-        const isDefinitelyMobile = window.innerWidth <= 768 || window.innerHeight <= 1024;
-
-        if (isDefinitelyMobile) {
-            console.log('📱📱📱 NUCLEAR MOBILE DETECTED: Using visual feedback system');
-
-            if (window.noSpeechTimeout) {
-                clearTimeout(window.noSpeechTimeout);
-            }
-
-            if (transcriptText) {
-                transcriptText.textContent = 'I didn\'t hear anything...';
-                transcriptText.style.color = '#ff6b6b';
-
-                window.noSpeechTimeout = setTimeout(() => {
-                    if (transcriptText) {
-                        transcriptText.textContent = 'Please speak now';
-                        transcriptText.style.color = '#ffffff';
-                    }
-
-                    if (isAudioMode && !isSpeaking) {
-                        console.log('🔄 Mobile: Restarting via hybrid system');
-                        isListening = false;
-
-                        setTimeout(() => {
-                            showHybridReadySequence();
-                        }, 500);
-                    }
-                },  1000);
-            }
-
-        } else {
-            console.log('🖥️ Desktop: Using voice apology system');
-
-            lastMessageWasApology = true;
-            const apologyResponse = getApologyResponse();
-
-            stopListening();
-
-            setTimeout(() => {
-                addAIMessage(apologyResponse);
-                speakResponse(apologyResponse);
-
-                if (restartTimeout) clearTimeout(restartTimeout);
-
-                restartTimeout = setTimeout(() => {
-                    if (isAudioMode && !isListening && !isSpeaking) {
-                        startListening();
-                    }
-                    lastMessageWasApology = false;
-                }, 500);
-            }, 500);
-        }
-    } else if (event.error === 'audio-capture') {
-        console.log('🎤 No microphone detected');
-        addAIMessage("I can't detect your microphone. Please check your audio settings.");
-    } else if (event.error === 'not-allowed') {
-        console.log('🔒 Permission denied');
-        addAIMessage("Microphone permission was denied. Please allow microphone access to continue.");
-    }
-};
+        // ✅ DUPLICATE recognition.onerror REMOVED - Using the one from startListening()
         
         console.log('🎤 Force starting speech recognition...');
         recognition.start();
@@ -1326,8 +733,6 @@ function forceStartListening() {
         setTimeout(() => {
             console.log('🔍 DIAGNOSTIC: Recognition state after start:', recognition.state || 'undefined');
         }, 100);
-        
-        showSpeakNow();
         
         console.log('✅ Force speech recognition started successfully');
         
@@ -1438,14 +843,19 @@ async function activateMicrophone() {
         conversationState = 'getting_first_name';
     }
     
-    // Initialize leadData if it doesn't exist
+        // Initialize leadData if it doesn't exist
     if (typeof leadData === 'undefined' || !leadData) {
         window.leadData = { firstName: '' };
     }
     
-    const greeting = window.knowledgeBaseData ? window.knowledgeBaseData.greeting.initial : "Hi there! I'm Boateamia your personal AI Voice assistant, may I get your first name please?";
+    const greeting = "Hi there! I'm Boateamia your personal AI Voice assistant, may I get your first name please?";
     addAIMessage(greeting);
-    speakResponse(greeting);
+    
+    // Add delay before speaking to ensure audio system is ready
+    setTimeout(() => {
+        speakResponse(greeting);
+    }, 800); // 800ms delay ensures everything is initialized
+    
 }, 1400);
         }
 
@@ -1607,6 +1017,13 @@ if (processLeadResponse(userText)) {
 }
 
 // 🎯 NEW: Direct consultation trigger - NO AI fluff!
+if (shouldTriggerLeadCapture(userText)) {
+    console.log('🎯 BYPASSING AI - Direct to lead capture!');
+    setTimeout(() => {
+        initializeLeadCapture();
+    }, 300);
+    return; // Exit early!
+}
 
 // Default AI response handler
 setTimeout(() => {
@@ -1617,7 +1034,7 @@ setTimeout(() => {
     
     addAIMessage(responseText);
     setAIResponse(responseText);
-    speakResponse(responseText);
+    speakWithElevenLabs(responseText);
     
     function setAIResponse(response) {
         currentAIResponse = response;
@@ -1637,6 +1054,33 @@ setTimeout(() => {
 }, 800);
 }
 
+function shouldTriggerLeadCapture(userInput) {
+    const input = userInput.toLowerCase().trim();
+    
+    // Get recent AI messages to check context
+    const recentAI = conversationHistory
+        .slice(-3)
+        .filter(msg => msg.role === 'assistant')
+        .map(msg => msg.content.toLowerCase())
+        .join(' ');
+    
+    // Check if recent AI mentioned consultation/scheduling
+    const aiOfferedConsultation = recentAI.includes('consultation') || 
+                                recentAI.includes('schedule') ||
+                                recentAI.includes('contact you') ||
+                                recentAI.includes('would you like');
+    
+    // User's affirmative responses
+    const yesResponses = [
+        'yes', 'yeah', 'yep', 'sure', 'ok', 'okay', 'absolutely', 
+        'definitely', 'of course', 'let\'s do it', 'sounds good',
+        'i would', 'i\'d like that', 'that sounds great', 'let\'s go'
+    ];
+    
+    return yesResponses.includes(input) && aiOfferedConsultation;
+}
+
+// ===================================================
 // 🔥 PRE-WARM ENGINE (SILENT - NO BEEP)
 // ===================================================
 function preWarmSpeechEngine() {
@@ -2007,9 +1451,9 @@ class MobileWiseVoiceSystem {
             utterance.voice = voiceSystem.selectedBritishVoice;
             
             // Optimized settings for British voice
-            utterance.rate = 0.85;
-            utterance.pitch = 1.05;
-            utterance.volume = 0.85;
+            utterance.rate = 1.0;    // ✅ Increased from 0.85 (15% faster)
+            utterance.pitch = 1.05;  // Kept same
+            utterance.volume = 0.85; // Kept same
             
             utterance.onend = () => {
                 this.handleSpeechComplete();
@@ -2266,750 +1710,117 @@ setTimeout(() => {
 }, 1000);
 
 // ===================================================================
-// 🎯 MOBILE-WISE AI UNIVERSAL BANNER ENGINE - CLEAN CONTAINER EDITION
+// 🎯 BANNER TRIGGER SYSTEM - MATCHES CAPTAIN'S 11 TEMPLATES
 // ===================================================================
-// 🎯 BANNER CHANGE CALLBACK SYSTEM - For button integration
-window._bannerChangeCallbacks = window._bannerChangeCallbacks || [];
-
-window.onBannerChange = function(callback) {
-    if (typeof callback === 'function') {
-        window._bannerChangeCallbacks.push(callback);
-        console.log('✅ Banner change listener registered');
-    }
-};
-
-window.showUniversalBanner = function(bannerType, customContent = null, options = {}) {
-    console.log(`🎯 Deploying Universal Banner: ${bannerType}`);
-    
-    // COMPLETE BANNER LIBRARY - All 9 Banner Types
-    const bannerLibrary = {
-        // 1. BRANDING HEADER (🚀 UPDATED LAYOUT)
-        branding: {
-    content: `
-        <div class="banner-glow-container" style="width: 782px; max-width: 782px; margin: 0 auto; height: 77px; display: flex; justify-content: center; align-items: center; padding: 0 10px; border-radius: 10px; background: white; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);">
-            
-            <!-- CENTER: NCI Logo -->
-            <div style="display: flex; align-items: center; justify-content: center;">
-                <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1759148392591_nci.PNG" 
-                     style="width: 280px; height: auto; border-radius: 8px; box-shadow: 0 0px 8px rgba(255, 255, 255, 1);">
-            </div>
-        </div>
-        
-        <style>
-        /* Blue PULSING GLOW AROUND BANNER */
-        .banner-glow-container {
-            position: relative;
-            animation: redPulseGlow 2s ease-in-out infinite;
-        }
-        
-        @keyframes redPulseGlow {
-            0%, 100% { 
-                box-shadow: 0 10px 10px rgba(0,0,9,0.0), 0 0 10px rgba(0, 128, 255, 1);
-            }
-            50% { 
-                box-shadow: 0 20px 10px rgba(0,0,9,0.0), 0 0 25px rgba(0, 0, 255, 1);
-            }
-        }
-        </style>
-    `,
-    background: 'rgba(255, 255, 255, 0.15)',
-    containerWidth: 795,
-    customHeight: 90,
-},
-        
-        // 3. EMAIL SENT CONFIRMATION
-        emailSent: {
-    content: `
-        <div style="width: ${742}px; max-width: ${742}px; margin: 0 auto; background: rgba(32, 178, 170, 0.8); border-radius: 6px; height: 58px; display: flex; align-items: center; justify-content: center;">
-            <div style="text-align: center; color: white;">
-                <div style="font-size: 14px; font-weight: bold;">
-                    ✅ <strong>Confirmation Email Sent!</strong>
-                </div>
-                <div style="font-size: 11px; opacity: 0.9; margin-top: 3px;">
-                    Please check your email for the book link
-                </div>
-            </div>
-        </div>
-    `,
-    background: 'rgba(255, 255, 255, 0.2)', // 🎯 WHITE LAYER
-    containerWidth: 752, // 🚀 WHITE LAYER WIDTH CONTROL
-    customHeight: 65, // 🚀 WHITE LAYER HEIGHT CONTROL
-    duration: 4000
-},
-  
-// 2. SMART BUTTON (Free Consultation)
-avatar: {
-   content: `
-        <div class="banner-glow-container" style="width: 785px; max-width: 785px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #000c24ff, #011030ff); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
-            
-            <!-- LEFT: Avatar Image -->
-            <div style="display: flex; align-items: center;">
-               <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1759960502123_AI-banner2.png" 
-                     class="avatar-shape-glow"
-                     style="width: 275px; height: 80px; border-radius: 0px; margin-right: 15px; margin-top: 12px;"
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <style>
-        /* No animation on banner container */
-        .banner-glow-container {
-            position: relative;
-        }
-             .banner-glow-container::before {
-    content: '';
-    position: absolute;
-    width: calc(100% + 50px);  /* <-- CHANGE 50px to make wider/narrower */
-    height: calc(100% + 20px);
-    top: -10px;
-    left: -25px;               /* <-- Keep this half of the width addition */
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    z-index: -1;
-    animation: glowLayerPulse 8s ease-in-out infinite;
-        }
-    .banner-glow-container::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-        90deg,
-        transparent,
-        rgba(255, 255, 255, 0.4),
-        transparent
-    );
-    animation: highlighterSweep 7s ease-in-out infinite;  /* <-- 7s total cycle */
-    z-index: 1;
-    border-radius: 8px;
-}
-
-@keyframes highlighterSweep {
-    0%, 85% { left: -100%; opacity: 0; }     
-    86% { left: -100%; opacity: 1; }         
-    97% { left: 100%; opacity: 1; }          /* <-- Changed from 94% to 97% */
-    98% { left: 100%; opacity: 0; }          /* <-- Adjust this too */
-    100% { left: -100%; opacity: 0; }        
-}
-        
-        /* ✨ AVATAR SHAPE GLOW - Follows the actual avatar outline, not a box! */
-        .avatar-shape-glow {
-            filter: drop-shadow(0 0 2px rgba(0, 140, 255, 0.8));
-            animation: avatarGlowPulse 2.5s ease-in-out infinite;
-        }
-        
-        @keyframes avatarGlowPulse {
-            0%, 100% { 
-                filter: drop-shadow(0 0 6px rgba(15, 197, 217, 0.81));
-            }
-            35% { 
-                filter: drop-shadow(0 0 10px rgba(0, 0, 0, 1));
-            }
-        }
-        
-        /* ✨ FREE TEXT GLOW */
-        .free-glow {
-            text-shadow: 0 0 8px rgba(255,255,255,0.8);
-            animation: freeTextGlow 2.5s ease-in-out infinite;
-        }
-        
-        @keyframes freeTextGlow {
-            0%, 100% { text-shadow: 0 0 8px rgba(255,255,255,0.8); }
-            50% { text-shadow: 0 0 12px rgba(255,255,255,1); }
-        }
-        </style>
-    `,
-    background: 'rgba(255, 255, 255, 0.15)',
-    containerWidth: 795,
-    customHeight: 90,
-    duration: 0
-},
-
-// 3. EMAIL SENT CONFIRMATION (Already standardized - keeping as reference)
-emailSent: {
-    content: `
-        <div style="width: ${742}px; max-width: ${742}px; margin: 0 auto; background: rgba(32, 178, 170, 0.8); border-radius: 6px; height: 58px; display: flex; align-items: center; justify-content: center;">
-            <div style="text-align: center; color: white;">
-                <div style="font-size: 14px; font-weight: bold;">
-                    ✅ <strong>Confirmation Email Sent!</strong>
-                </div>
-                <div style="font-size: 11px; opacity: 0.9; margin-top: 3px;">
-                    Please check your email for the book link
-                </div>
-            </div>
-        </div>
-    `,
-    background: 'rgba(255, 255, 255, 0.2)', // 🎯 WHITE LAYER
-    containerWidth: 752, // 🚀 WHITE LAYER WIDTH CONTROL
-    customHeight: 65, // 🚀 WHITE LAYER HEIGHT CONTROL
-    duration: 4000
-},
-
-// 4. FREE BOOK OFFER 1
-freeBookSimple: {
-    content: `
-        <div style="width: ${742}px; max-width: ${742}px; margin: 0 auto; height: 58px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; border-radius: 6px; background: linear-gradient(135deg, #FF6B6B, #4ECDC4);">
-            <div style="color: white;">
-                <div style="font-size: 16px; font-weight: bold; margin-bottom: 2px;">
-                    📚 FREE Book for You!
-                </div>
-                <div style="font-size: 12px; color: #fff; opacity: 0.9;">
-                    "7 Secrets to Selling Your Practice"
-                </div>
-            </div>
-            <button onclick="requestFreeBook()" style="
-                background: rgba(255, 255, 255, 0.2);
-                color: white;
-                border: 1px solid rgba(255, 255, 255, 0.3);
-                padding: 8px 20px;
-                border-radius: 20px;
-                cursor: pointer;
-                font-weight: bold;
-                font-size: 14px;
-            ">
-                Get Free Book
-            </button>
-        </div>
-    `,
-    background: 'rgba(255, 255, 255, 0.15)',
-    containerWidth: 752, // 🚀 WHITE LAYER WIDTH CONTROL
-    customHeight: 65, // 🚀 WHITE LAYER HEIGHT CONTROL
-    duration: 0
-},
-
-// 5. FREE BOOK OFFER 2
-freeBookWithConsultation: {
-    content: `
-        <div class="banner-glow-container" style="width: 760px; max-width: 760px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #0f5ef0ff, #000000ff); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
-            
-            <!-- LEFT: Book Image -->
-            <div style="display: flex; align-items: center;">
-                <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758088515492_nci-book.png" 
-                     class="book-white-glow"
-                     style="width: 60px; height: 70px; border-radius: 0px; margin-right: 15px;">
-                
-                <!-- Book Info -->
-                <div style="color: white; text-align: left;">
-                    <div style="font-size: 18px; font-weight: bold; margin-bottom: 3px;">
-                        📚 <span class="free-glow">FREE</span> Consultation & Book
-                    </div>
-                    <div style="font-size: 13px; color: #00ffb3ff; opacity: 0.95;">
-                        "7 Secrets to Selling Your Practice" FREE!
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <style>
-        .banner-glow-container::before {
-    content: '';
-    position: absolute;
-    width: calc(100% + 50px);  /* <-- CHANGE 50px to make wider/narrower */
-    height: calc(100% + 20px);
-    top: -10px;
-    left: -25px;               /* <-- Keep this half of the width addition */
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    z-index: -1;
-    animation: glowLayerPulse 2s ease-in-out infinite;
-        }
-    .banner-glow-container::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-        90deg,
-        transparent,
-        rgba(255, 255, 255, 0.4),
-        transparent
-    );
-    animation: highlighterSweep 7s ease-in-out infinite;  /* <-- 7s total cycle */
-    z-index: 1;
-    border-radius: 8px;
-}
-
-@keyframes highlighterSweep {
-    0%, 85% { left: -100%; opacity: 0; }     
-    86% { left: -100%; opacity: 1; }         
-    97% { left: 100%; opacity: 1; }          /* <-- Changed from 94% to 97% */
-    98% { left: 100%; opacity: 0; }          /* <-- Adjust this too */
-    100% { left: -100%; opacity: 0; }        
-}
-        
-        @keyframes glowLayerPulse {
-            0%, 100% { 
-                box-shadow: 0 0 15px rgba(0, 255, 0, 0.6);
-            }
-            50% { 
-                box-shadow: 0 0 30px rgba(0, 217, 255, 0.8);
-            }
-        }
-        
-        /* Blue PULSING GLOW AROUND BANNER */
-        .banner-glow-container {
-            position: relative;
-            animation: redPulseGlow 2s ease-in-out infinite;
-        }
-        
-        @keyframes redPulseGlow {
-            0%, 100% { 
-                box-shadow: 0 10px 10px rgba(0,0,7,0.0), 0 0 10px rgba(0, 255, 0, 1);
-            }
-            50% { 
-                box-shadow: 0 20px 10px rgba(0,0,9,0.0), 0 0 25px rgba(0, 217, 255, 1);
-            }
-        }
-        
-        /* 📚 WHITE GLOW BEHIND BOOK */
-        .book-white-glow {
-            animation: bookWhiteGlow 3s ease-in-out infinite;
-        }
-        
-        @keyframes bookWhiteGlow {
-            0%, 100% { 
-                box-shadow: 0 0 0px rgba(255,255,255,0.5);
-                transform: scale(1.2);
-            }
-            50% { 
-                box-shadow: 0 0 0px rgba(255,255,255,0.9);
-                transform: scale(1.03);
-            }
-        }
-        
-        /* ✨ FREE TEXT GLOW */
-        .free-glow {
-            text-shadow: 0 0 8px rgba(255,255,255,0.8);
-            animation: freeTextGlow 2.5s ease-in-out infinite;
-        }
-        
-        @keyframes freeTextGlow {
-            0%, 100% { text-shadow: 0 0 8px rgba(255,255,255,0.8); }
-            50% { text-shadow: 0 0 12px rgba(255,255,255,1); }
-        }
-        </style>
-    `,
-    background: 'rgba(255, 255, 255, 0.15)',
-    containerWidth: 770,
-    customHeight: 90,
-    duration: 0
-},
-
-
-// 5. CONSULTATION CONFIRMED
-consultationConfirmed: {
-    content: `
-        <div style="width: ${742}px; max-width: ${742}px; margin: 0 auto; height: 58px; display: flex; align-items: center; justify-content: center; border-radius: 6px; background: rgba(33, 150, 243, 0.8);">
-            <div style="text-align: center; color: white;">
-                <div style="font-size: 16px; font-weight: bold;">
-                    🎉 Consultation Confirmed!
-                </div>
-                <div style="font-size: 12px; opacity: 0.9; margin-top: 2px;">
-                    Bruce will reach out within 24 hours for your FREE practice valuation
-                </div>
-            </div>
-        </div>
-    `,
-    background: 'rgba(255, 255, 255, 0.2)',
-    containerWidth: 752, // 🚀 WHITE LAYER WIDTH CONTROL
-    customHeight: 65, // 🚀 WHITE LAYER HEIGHT CONTROL
-    duration: 5000
-},
-
-// 6. CLICK-TO-CALL BANNER
-clickToCall: {
-    content: `
-        <div style="width: ${742}px; max-width: ${742}px; margin: 0 auto; height: 58px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; border-radius: 6px; background: linear-gradient(135deg, #0044ffff, #0a0b50ff);">
-            <div style="color: white; font-weight: 600; font-size: 16px;">
-                📞 Talk to Bruce Now
-            </div>
-            <button onclick="callBruce()" style="
-                background: rgba(255, 255, 255, 0.2);
-                color: white;
-                border: 1px solid rgba(255, 255, 255, 0.3);
-                padding: 8px 20px;
-                border-radius: 20px;
-                cursor: pointer;
-                font-weight: bold;
-                font-size: 14px;
-                animation: pulse-attention 2s infinite;
-            ">
-                📞 Call Now
-            </button>
-        </div>
-    `,
-    background: 'rgba(255, 255, 255, 0.15)',
-    containerWidth: 752, // 🚀 WHITE LAYER WIDTH CONTROL
-    customHeight: 65, // 🚀 WHITE LAYER HEIGHT CONTROL
-    duration: 0
-},
-
-// 7. MORE QUESTIONS BANNER
-moreQuestions: {
-    content: `
-        <div style="width: ${742}px; max-width: ${742}px; margin: 0 auto; height: 58px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-radius: 6px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-            <div style="color: white;">
-                <div style="font-size: 16px; font-weight: bold;">
-                    ❓ Still Have Questions?
-                </div>
-                <div style="font-size: 12px; color: #fff; opacity: 0.9;">
-                    I'm here to help with anything else!
-                </div>
-            </div>
-            <button onclick="restartConversation()" style="
-                background: white;
-                color: #667eea;
-                border: none;
-                padding: 8px 20px;
-                border-radius: 20px;
-                cursor: pointer;
-                font-weight: bold;
-                font-size: 14px;
-            ">
-                Ask Another Question
-            </button>
-        </div>
-    `,
-    background: 'rgba(255, 255, 255, 0.15)',
-    containerWidth: 752, // 🚀 WHITE LAYER WIDTH CONTROL
-    customHeight: 65, // 🚀 WHITE LAYER HEIGHT CONTROL
-    duration: 0
-},
-
-// 8. LEAD MAGNET BANNER
-leadMagnet: {
-    content: `
-        <div style="width: ${742}px; max-width: ${742}px; margin: 0 auto; height: 58px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; border-radius: 6px; background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
-            <div style="color: white;">
-                <div style="font-size: 16px; font-weight: bold;">
-                    🎁 Your Free Gift is Ready!
-                </div>
-                <div style="font-size: 12px; color: #fff; opacity: 0.9;">
-                    Download your exclusive guide now
-                </div>
-            </div>
-            <button onclick="window.open(getActiveLeadMagnet().downloadLink, '_blank')" style="
-                background: white;
-                color: #28a745;
-                border: none;
-                padding: 8px 20px;
-                border-radius: 20px;
-                cursor: pointer;
-                font-weight: bold;
-                font-size: 14px;
-            ">
-                📥 Download Now
-            </button>
-        </div>
-    `,
-    background: 'rgba(255, 255, 255, 0.15)',
-    containerWidth: 752, // 🚀 WHITE LAYER WIDTH CONTROL
-    customHeight: 65, // 🚀 WHITE LAYER HEIGHT CONTROL
-    duration: 0
-}, // 🚨 THIS COMMA WAS MISSING!
-
-// 9. LEAD CAPTURE ACTIVE
-leadCapture: {
-    content: `
-        <div style="width: ${742}px; max-width: ${742}px; margin: 0 auto; height: 58px; display: flex; align-items: center; justify-content: center; border-radius: 6px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-            <div style="text-align: center; color: white;">
-                <div style="font-size: 16px; font-weight: bold;">
-                    📋 YOUR CONTACT INFO
-                </div>
-                <div style="font-size: 12px; opacity: 0.9; margin-top: 2px;">
-                    Please provide your details for the consultation
-                </div>
-            </div>
-        </div>
-            `,
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            duration: 0
-        }
-    };
-    
-     // 🎯 REMOVE EXISTING BANNERS AND CONTAINERS
-    const existingBanner = document.getElementById('universalBanner');
-    if (existingBanner) existingBanner.remove();
-    
-    const existingContainer = document.getElementById('bannerHeaderContainer');
-    if (existingContainer) existingContainer.remove();
-    
-    // Get banner config
-    const bannerConfig = bannerLibrary[bannerType];
-    if (!bannerConfig && !customContent) {
-        console.error(`❌ Banner type "${bannerType}" not found in library`);
-        return null;
-    }
-    
-    // 🚀 CREATE HEADER CONTAINER (INSIDE MAIN CONTAINER - CLEAN!)
-    const headerContainer = document.createElement('div');
-    headerContainer.id = 'bannerHeaderContainer';
-    const bannerHeight = bannerConfig?.customHeight || 85;
-    const bannerWidth = bannerConfig?.customWidth || 830; // 🚀 NEW WIDTH CONTROL
-    headerContainer.style.cssText = `
-        position: absolute !important;
-        top: 10px !important;
-        left: 50% !important;
-        transform: translateX(-50%) !important;
-        width: 100% !important;
-        height: ${bannerHeight}px !important;
-        max-width: ${bannerWidth}px !important;
-        z-index: 9999 !important;
-        overflow: hidden !important;
-        box-sizing: border-box !important;
-        pointer-events: none !important;
-        margin: 0 !important;
-    `;
-    
-    // 🚀 CREATE BANNER WITHIN CONTAINER
-    const banner = document.createElement('div');
-    banner.id = 'universalBanner';
-    banner.className = `universal-banner ${bannerType}-banner`;
-    banner.innerHTML = customContent || bannerConfig.content;
-    
-    // 🚀 DUAL-LAYER CONTROL (PROPERLY INTEGRATED!)
-    if (bannerConfig?.containerWidth) {
-        headerContainer.style.maxWidth = `${bannerConfig.containerWidth}px`;
-        banner.style.width = `${bannerConfig.containerWidth}px`;
-        banner.style.maxWidth = `${bannerConfig.containerWidth}px`;
-        banner.style.margin = '0 auto';
-    }
-    
-    // 🎯 BANNER STYLING (FITS WITHIN CONTAINER)
-    if (bannerType === 'branding') {
-        banner.style.cssText = `
-            position: absolute !important;
-            top: 0 !important;
-            left: 0 !important;
-            width: 100% !important;
-            height: 100% !important;
-            background: transparent !important;
-            border: none !important;
-            backdrop-filter: none !important;
-            border-radius: 0 !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            box-sizing: border-box !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            color: white;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            box-shadow: none !important;
-        `;
-    } else {
-        banner.style.cssText = `
-            position: absolute !important;
-            top: 0 !important;
-            left: 0 !important;
-            width: 100% !important;
-            height: 100% !important;
-            background: ${bannerConfig?.background || 'rgba(255, 255, 255, 0.1)'};
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
-            margin: 0 !important;
-            padding: 0 !important;
-            box-sizing: border-box !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            color: white;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-        `;
-    }
-    
-    // 🎯 MOBILE RESPONSIVE ADJUSTMENT
-    if (window.innerWidth <= 850) {
-        headerContainer.style.width = 'calc(100vw - 20px)';
-        headerContainer.style.maxWidth = '830px';
-        headerContainer.style.height = '70px';
-    }
-    
-    // 🚀 DEPLOY INSIDE MAIN CONTAINER (THE KEY CHANGE!)
-    const mainContainer = document.querySelector('.container') || 
-                          document.querySelector('#main-container') || 
-                          document.querySelector('#container') || 
-                          document.querySelector('#app') ||
-                          document.body;
-    
-    headerContainer.appendChild(banner);
-    mainContainer.insertBefore(headerContainer, mainContainer.firstChild);
-    
-    // 🚀 AUTO-REMOVE WITH BRANDING RESTORE (FIXED!)
-    const duration = options.duration || bannerConfig?.duration;
-    if (duration && duration > 0) {
-        setTimeout(() => {
-            removeAllBanners(); // ← CHANGED: Now uses the auto-restore system!
-        }, duration);
-    }
-    
-    console.log(`✅ Container-based banner "${bannerType}" deployed (Clean positioning)`);
-    
-    // 🔔 NOTIFY ALL BANNER CHANGE LISTENERS (for button integration)
-    if (window._bannerChangeCallbacks && window._bannerChangeCallbacks.length > 0) {
-        console.log(`🔔 Notifying ${window._bannerChangeCallbacks.length} listener(s) about banner: ${bannerType}`);
-        window._bannerChangeCallbacks.forEach(callback => {
-            try {
-                callback(bannerType);
-            } catch (error) {
-                console.error('Banner callback error:', error);
-            }
-        });
-    }
-    
-    return banner;
-};
-
-// 🚀 AUTO-RESTORE BRANDING SYSTEM
-window.restoreBrandingBanner = function() {
-    const existingContainer = document.getElementById('bannerHeaderContainer');
-    if (!existingContainer) {
-        console.log('🔄 Restoring default branding banner...');
-        window.showUniversalBanner('branding');
-    }
-};
-
-// 🚀 ENHANCED REMOVE WITH AUTO-RESTORE
-window.removeAllBanners = function(restoreBranding = true) {
-    const existingContainer = document.getElementById('bannerHeaderContainer');
-    if (existingContainer) {
-        existingContainer.remove();
-        console.log('🗑️ Header banner container removed');
-        
-        if (restoreBranding) {
-            setTimeout(() => {
-                window.restoreBrandingBanner();
-            }, 300);
-        }
-    }
-    
-    const existingBanner = document.getElementById('universalBanner');
-    if (existingBanner) {
-        existingBanner.remove();
-        console.log('🗑️ Universal banner removed');
-    }
-};
-
-// ✅ KEEP: Backward compatibility wrapper
-window.removeLeadCaptureBanner = function() {
-    removeAllBanners();
-    console.log('🎯 Lead capture banner removal (Universal system)');
-};
-
-console.log('🎖️ Complete Universal Banner Engine loaded - 9 banner types ready (Clean Container Edition)!');
-
-// ===================================================
-// 🏆 AUTO-DEPLOY BRANDING BANNER ON PAGE LOAD
-// ===================================================
-document.addEventListener('DOMContentLoaded', function() {
-    // Wait a moment for page to fully load, then deploy branding
-    setTimeout(() => {
-        console.log('🏆 Auto-deploying Mobile-Wise AI branding banner...');
-        showUniversalBanner('branding');
-    }, 500); // Half second delay to ensure everything is loaded
-});
-
-// BACKUP: If DOMContentLoaded already fired
-if (document.readyState === 'complete' || document.readyState === 'interactive') {
-    setTimeout(() => {
-        console.log('🏆 Backup branding banner deployment...');
-        showUniversalBanner('branding');
-    }, 100);
-}
-
-// ===================================================================
-// 🎯 UNIVERSAL MASTER BANNER TRIGGER SYSTEM - ALL INDUSTRIES
+// 
+// TRIGGER NAMES -> TEMPLATE IDENTIFIERS (exact match)
 // ===================================================================
 
-// Universal trigger configuration (easily customizable per industry)
 const bannerTriggers = {
-    // CONSULTATION/SERVICE TRIGGERS
-    consultation_offer: {
-        bannerType: 'smartButton',
-        content: {
-            selling: '📞 FREE Practice Valuation - Connect with Bruce Now',
-            buying: '🏢 View Available Practices - Connect with Bruce', 
-            valuation: '📈 Get Your FREE Practice Valuation - Talk to Bruce',
-            default: '📅 FREE Consultation Available'
-        },
+    
+    // BRANDING BANNER
+    branding: {
+        bannerType: 'branding',
         delay: 500,
-        duration: 0,
-        conditions: ['consultation_ready']
+        duration: 0,  // Persistent
+        conditions: ['page_ready']
     },
     
     // EMAIL CONFIRMATION
     email_sent: {
         bannerType: 'emailSent',
-        content: '✅ Information Sent! We\'ll contact you within 24 hours',
         delay: 0,
-        duration: 4000,
+        duration: 4000,  // Auto-hide after 4 seconds
         conditions: ['email_success']
     },
     
-    // FREE OFFER (Book, Guide, Calculator, etc.)
-    free_offer: {
-        bannerType: 'freeBook',
-        content: '📚 FREE Book: "7 Secrets to Selling Your Practice"',
-        delay: 2000,
-        duration: 0,
-        conditions: ['consultation_declined']
+    // TESTIMONIAL REVIEWS
+    show_testimonials: {
+        bannerType: 'testimonialSelector',
+        delay: 500,
+        duration: 0,  // Persistent
+        conditions: ['testimonial_ready']
     },
     
-    // THANK YOU / MORE QUESTIONS
-    more_questions: {
-        bannerType: 'moreQuestions', 
-        content: '🙏 Thank you for visiting! Have a wonderful day!',
-        delay: 1000,
-        duration: 0,
-        conditions: ['conversation_ended']
+    // CLICK TO CALL
+    click_to_call: {
+        bannerType: 'clickToCall',
+        delay: 0,
+        duration: 0,  // Persistent
+        conditions: ['call_ready']
     },
     
-    // LEAD MAGNET
-    lead_magnet: {
-        bannerType: 'leadMagnet',
-        content: '🎁 Your Free Gift is Ready!',
-        delay: 3000,
-        duration: 0,
-        conditions: ['has_lead_magnet']
+    // FREE INCENTIVE OFFER
+    expertise: {
+        bannerType: 'expertise',
+        delay: 0,
+        duration: 0,  // Persistent
+        conditions: ['expertise_ready']
     },
     
-    // CONSULTATION CONFIRMED
-    consultation_confirmed: {
+    // FREE INCENTIVE
+    freeIncentive: {
+        bannerType: 'freeIncentive',
+        delay: 0,
+        duration: 0,  // Persistent
+        conditions: ['incentive_ready']
+    },
+    
+    // URGENT REQUEST
+    urgent_message: {
+        bannerType: 'urgent',
+        delay: 0,
+        duration: 0,  // Persistent
+        conditions: ['urgent_ready']
+    },
+    
+    // SCHEDULE APPOINTMENT
+    schedule_appointment: {
+        bannerType: 'setAppointment',
+        delay: 0,
+        duration: 0,  // Persistent
+        conditions: ['scheduling_ready']
+    },
+    
+    // PRE-QUALIFICATION
+    pre_qualify: {
+        bannerType: 'preQualifier',
+        delay: 0,
+        duration: 0,  // Persistent
+        conditions: ['prequalify_ready']
+    },
+    
+    // MEETING CONFIRMED
+    meeting_confirmed: {
         bannerType: 'consultationConfirmed',
-        content: '🎉 Consultation Confirmed!',
         delay: 0,
-        duration: 5000,
+        duration: 5000,  // Auto-hide after 5 seconds
         conditions: ['booking_success']
-    },
-
-     pre_valuation_scheduling: {
-        bannerType: 'preValuationScheduling',
-        delay: 0,
-        duration: 0,  // <-- 0 = PERSISTENT (stays until manually changed)
-        conditions: ['valuation_interview_active']
-    },
-    
-    meeting_request_sent: {
-        bannerType: 'meetingRequestSent', 
-        delay: 0,
-        duration: 3000,  // <-- Brief 3-second display
-        conditions: ['booking_success']
-    },
-    
-    free_book_offer: {
-        bannerType: 'freeBookOffer',
-        delay: 0,
-        duration: 0,  // <-- PERSISTENT until user interacts
-        conditions: ['lead_captured']
     }
 };
+
+// ===================================================================
+// TRIGGER FUNCTION - Call from your voice chat system
+// ===================================================================
+
+function triggerBanner(triggerName) {
+    console.log('🎖️ Triggering banner:', triggerName);
+    
+    const trigger = bannerTriggers[triggerName];
+    
+    if (!trigger) {
+        console.warn(`❌ Unknown trigger: ${triggerName}`);
+        return;
+    }
+    
+    setTimeout(() => {
+        if (typeof window.showUniversalBanner === 'function') {
+            window.showUniversalBanner(trigger.bannerType);  // ✅ Use bannerType
+        } else {
+            console.error('❌ Banner engine not loaded');
+        }
+    }, trigger.delay);
+}
 
 // ===================================================
 // 🔇 SPEECH PAUSE HELPER
@@ -3174,57 +1985,6 @@ function updateSmartButton(shouldShow, buttonText, action) {
 // ===================================================
 // 🧠 AI RESPONSE SYSTEM
 // ===================================================
-
-// ===================================================
-// 🤖 NEW AI RESPONSE SYSTEM - POWERED BY KB DATA
-// ===================================================
-// ===================================================
-// 🧠 AI RESPONSE SYSTEM
-// ===================================================
-
-// 🎯 CONCERN DETECTION SYSTEM - Triggers testimonials for objections
-function detectConsultativeResponse(userText) {
-    const lowerText = userText.toLowerCase();
-    
-    const concernKeywords = {
-        value: ['concern', 'worried', 'worth', 'undervalue', 'fair price', 'pay', 'cost', 'expensive', 'value', 'money', 'price', 'paying', 'costs'],
-        speed: ['how long', 'timeline', 'quick', 'fast', 'wait', 'time', 'soon', 'quickly', 'delay', 'speed', 'taking too long'],
-        credibility: ['experience', 'trust', 'skeptical', 'track record', 'reviews', 'testimonial', 'proof', 'reliable', 'credentials', 'qualified', 'reputation']
-    };
-    
-    for (const [type, keywords] of Object.entries(concernKeywords)) {
-        if (keywords.some(keyword => lowerText.includes(keyword))) {
-            console.log(`🎯 CONCERN DETECTED: ${type} - "${userText}"`);
-            return type;
-        }
-    }
-    return null;
-}
-
-// 🎯 TESTIMONIAL COMPLETION HANDLER
-function handleTestimonialComplete() {
-    console.log('🎯 Testimonial finished - triggering comeback');
-    
-    const firstName = leadData.firstName || '';
-    const comebackText = firstName ?
-        `${firstName}, if we could get results like this for you, would you be interested in a FREE consultation with Bruce?` :
-        "If we could get results like this for you, would you be interested in a FREE consultation?";
-    
-    // Speak the comeback
-    speakText(comebackText);
-    
-    // Show free consultation banner
-    setTimeout(() => {
-        triggerBanner('freeIncentive');
-    }, 2000);
-    
-    // Change state to consultation offer
-    conversationState = 'post_testimonial_consultation_offer';
-}
-
-// Make it globally accessible
-window.handleTestimonialComplete = handleTestimonialComplete;
-
 function getAIResponse(userInput) {
     // ✅ STOP PROCESSING IF CONVERSATION IS ENDED
     if (conversationState === 'ended') {
@@ -3238,7 +1998,7 @@ function getAIResponse(userInput) {
 if (conversationState === 'initial') {
     // 🎯 FIRST NAME CAPTURE - Always ask for name first unless they jump straight to business
     if (!leadData.firstName && !userText.includes('buy') && !userText.includes('sell') && !userText.includes('value') && !userText.includes('purchase') && !userText.includes('acquire')) {
-        responseText = "Hi there! I'm here to help with CPA firm transactions - buying, selling, and practice valuations. Before we dive in, what's your first name?";
+        responseText = "Hi there! I'm Boateamia your personal AI Voice assistant, may I get your first name please?";
         conversationState = 'getting_first_name';
         return responseText;
     }
@@ -3257,8 +2017,8 @@ if (conversationState === 'initial') {
         
     } else if (userText.includes('sell') || userText.includes('selling')) {
         responseText = firstName ? 
-             `Wow ${firstName}! That's a huge decision - you've probably poured your heart and soul into building something special there. Tell me, how many clients are you currently serving?` :
-            "I'd love to help you with selling your practice! That's a big decision - you've probably built something really special. How many clients are you currently serving?";
+             `Wow ${firstName}! That's a huge decision. How many clients are you serving?` :
+            "Great! Selling is a big decision. How many clients are you currently serving?";
         conversationState = 'selling_size_question';
         shouldShowSmartButton = false;
         
@@ -3269,8 +2029,8 @@ if (conversationState === 'initial') {
         
     } else if (userText.includes('value') || userText.includes('worth') || userText.includes('valuation') || userText.includes('evaluate')) {
         responseText = firstName ?
-            `${firstName}, I'd be happy to help with a practice valuation! You know, most practice owners are shocked when they find out what their practice is actually worth in today's market. To give you the most accurate assessment, what's your practice's approximate annual revenue?` :
-            "I'd be happy to help with a practice valuation! Most owners are surprised at what their practice is worth. What's your practice's approximate annual revenue?";
+            `${firstName}, I'd be happy to help! Most owners are shocked at their practice's actual value. What's your approximate annual revenue?` :
+            "Happy to help with a valuation! Most owners are surprised at their practice's value. What's your practice's approximate annual revenue?";
         conversationState = 'valuation_revenue_question';
         shouldShowSmartButton = false;
         
@@ -3293,7 +2053,7 @@ if (conversationState === 'initial') {
        window.leadData.firstName = extractedName.charAt(0).toUpperCase() + extractedName.slice(1).toLowerCase();
         firstName = window.leadData.firstName;
         
-        responseText = `Great to meet you ${firstName}! Now, what brings you here today - are you looking to buy a practice, sell your practice, or get a practice valuation?`;
+        responseText = `Great to meet you ${firstName}! What brings you to New Clients Inc today?`;
         conversationState = 'initial';
     } else {
         responseText = "I didn't catch your name. Could you tell me your first name?";
@@ -3304,8 +2064,8 @@ if (conversationState === 'initial') {
     const number = clientCount ? clientCount[0] : 'that many';
     
     responseText = firstName ?
-        `Incredible ${firstName}! ${number} clients - that's fantastic! You've clearly built something substantial there. I bet Bruce would be really excited to hear about your practice. With that kind of client base, you're probably generating some solid revenue too. What's your approximate annual revenue range?` :
-        `Wow! ${number} clients - that's impressive! You've built something substantial. With that client base, what's your approximate annual revenue range?`;
+        `Incredible! ${number} clients - that's fantastic! With that client base, What's your approximate annual revenue range?` :
+        `Wow! ${number} clients - impressive! what's your approximate annual revenue range?`;
     conversationState = 'selling_revenue_question';
     
 } else if (conversationState === 'selling_revenue_question') {
@@ -3313,8 +2073,8 @@ if (conversationState === 'initial') {
     const revenue = revenueMatch ? revenueMatch[0] : 'that kind of revenue';
     
     responseText = firstName ?
-        `That's excellent ${firstName}! ${revenue} in revenue - you've definitely built a valuable practice there. Bruce is going to love working with you on this. Now, I'm curious - what's driving your decision to sell? Is it retirement, new opportunities, or maybe you're just ready for the next chapter? Understanding your motivation helps Bruce create the perfect exit strategy for you.` :
-        `Excellent! ${revenue} in revenue - that's a solid practice! What's driving your decision to sell? Retirement, new opportunities, or something else? This helps Bruce tailor the perfect approach.`;
+        `Excellent! ${revenue} in revenue - you've built something valuable. What's driving your decision to sell? Retirement, new opportunities, or something else?` :
+        `Excellent! ${revenue} - solid practice! What's driving your decision to sell?`;
     conversationState = 'selling_motivation_question';
     
 } else if (conversationState === 'selling_motivation_question') {
@@ -3332,8 +2092,8 @@ if (conversationState === 'initial') {
     
     // 🎯 ORIGINAL RESPONSE (only runs if no objection detected)
     responseText = firstName ?
-        `Thank you for sharing that with me ${firstName}! You know what? Based on everything you've told me - your client base, revenue, and your goals - Bruce can definitely help you get top dollar for your practice. The market is absolutely on fire right now for practices like yours. Honestly, ${firstName}, this could be perfect timing for you. Would you like to schedule a FREE consultation with Bruce to discuss your selling strategy?` :
-        "Thank you for sharing that! Based on what you've told me, Bruce can definitely help you maximize your practice value. The market is incredibly strong right now. Would you like a FREE consultation with Bruce?";
+        `Thanks ${firstName}! Based on everything you've told me, Bruce can get you top dollar. Market's on fire. Ready for a FREE consultation?` :
+        "Thank you for sharing! Based on your client base and revenue, Bruce can help you get top dollar. The market is strong right now. Would you like a FREE consultation with Bruce?";
     conversationState = 'asking_selling_consultation';
     
     // 🎯 NEW: Trigger free book banner when offering consultation
@@ -3403,20 +2163,34 @@ if (conversationState === 'initial') {
     }
     
 } else if (conversationState === 'selling_concerns_check') {
-    // 🎯 CONCERN DETECTION - Ask if they want to see testimonial
+    // 🎯 THE MAGIC HAPPENS HERE - Check for concerns IMMEDIATELY
     const concernType = detectConsultativeResponse(userText);
     
     if (concernType) {
-        // Store concern type for later
-        window.currentConcernType = concernType;
+        // Concern detected! Show testimonial
+        let testimonialMessage = firstName ? 
+            `I totally understand that concern, ${firstName}. Let me show you what one of Bruce's recent clients said about that exact situation...` :
+            "I totally understand that concern. Let me show you what one of Bruce's recent clients said about that...";
         
-        // Ask if they want to see testimonial
-        responseText = firstName ? 
-            `I totally understand that concern, ${firstName}. You know what? One of our customers had the same issue. Would you like to hear what they had to say about how Bruce helped them?` :
-            "I totally understand that concern. One of our customers had the same issue. Would you like to hear what they had to say?";
+        setTimeout(() => {
+            if (concernType === 'value') {
+                showTestimonialVideo('skeptical', 12000);
+                console.log('🎯 Showing VALUE testimonial');
+            } else if (concernType === 'speed') {
+                showTestimonialVideo('speed', 12000);
+                console.log('🎯 Showing SPEED testimonial');
+            } else if (concernType === 'credibility') {
+                showTestimonialVideo('skeptical', 12000);
+                console.log('🎯 Showing CREDIBILITY testimonial');
+            }
+        }, 2000);
         
-        conversationState = 'asking_testimonial_permission';
-        return responseText;
+        // After testimonial, go straight to close
+        setTimeout(() => {
+            conversationState = 'post_testimonial_close';
+        }, 14000);
+        
+        return testimonialMessage;
         
     } else if (userText.includes('no') || userText.includes('none') || userText.includes('not really')) {
         // No concerns - straight to close
@@ -3426,7 +2200,7 @@ if (conversationState === 'initial') {
         conversationState = 'asking_selling_consultation';
         
         setTimeout(() => {
-            triggerBanner('freeIncentive');
+            showUniversalBanner('freeBookWithConsultation');
         }, 1500);
         
     } else {
@@ -3436,69 +2210,16 @@ if (conversationState === 'initial') {
             "Most sellers worry about fair value or timeline. Sound familiar?";
     }
     
-} else if (conversationState === 'asking_testimonial_permission') {
-    if (userText.includes('yes') || userText.includes('sure') || userText.includes('okay') || userText.includes('yeah') || userText.includes('show')) {
-        // YES - Show testimonials!
-        responseText = "Great! Go ahead and click one of the buttons below to hear their experience.";
-        
-        // Trigger testimonial banner (auto-triggers reviews buttons with blink)
-        setTimeout(() => {
-            triggerBanner('testimonialSelector');
-        }, 1000);
-        
-        // Set state to wait for testimonial completion
-        conversationState = 'waiting_for_testimonial';
-        
-    } else if (userText.includes('no') || userText.includes('not') || userText.includes('skip')) {
-        // NO - Continue to close
-        responseText = firstName ?
-            `No problem, ${firstName}! Let me help you with that concern directly. Bruce has strategies to address exactly what you're worried about. Ready for a FREE consultation where he can walk you through it?` :
-            "No problem! Bruce has strategies to address that concern. Ready for a FREE consultation?";
-        
-        conversationState = 'asking_selling_consultation';
-        
-        setTimeout(() => {
-            triggerBanner('freeIncentive');
-        }, 1500);
-    } else {
-        // Unclear response - ask again
-        responseText = "Would you like to see what other clients experienced? Just say yes or no.";
-    }
-    
-} else if (conversationState === 'waiting_for_testimonial') {
-    // User is interacting with testimonial buttons
-    // AI stays quiet during testimonial playback
-    // This state will be changed by testimonial completion handler
-    return "";
-    
 } else if (conversationState === 'post_testimonial_close') {
-    // 🎯 POST-TESTIMONIAL CONSULTATION OFFER
+    // 🎯 STRAIGHT TO CLOSE AFTER TESTIMONIAL
     responseText = firstName ?
-        `${firstName}, if we could get results like this for you, would you be interested in a FREE consultation with Bruce?` :
-        "If we could get results like this for you, would you be interested in a FREE consultation?";
-    conversationState = 'post_testimonial_consultation_offer';
+        `${firstName}, Bruce would love to help you overcome that concern. Ready for a FREE consultation?` :
+        "Bruce would love to help overcome that. Ready for a FREE consultation?";
+    conversationState = 'asking_selling_consultation';
     
     setTimeout(() => {
-        triggerBanner('freeIncentive');
+        showUniversalBanner('freeBookWithConsultation');
     }, 1500);
-    
-} else if (conversationState === 'post_testimonial_consultation_offer') {
-    if (userText.includes('yes') || userText.includes('sure') || userText.includes('okay') || userText.includes('interested')) {
-        console.log('🎯 POST-TESTIMONIAL YES - Starting lead capture!');
-        setTimeout(() => {
-            startCompleteLeadCapture();
-        }, 100);
-        return "";
-        
-    } else if (userText.includes('no') || userText.includes('not now')) {
-        responseText = firstName ?
-            `No problem ${firstName}! The offer stands whenever you're ready. Is there anything else I can help clarify about selling your practice?` :
-            "No problem! The offer stands. Anything else I can help clarify?";
-        conversationState = 'initial';
-        
-    } else {
-        responseText = "Would you like Bruce to reach out for a free consultation? Yes or no?";
-    }
     
 } else if (conversationState === 'asking_selling_consultation') {
     if (userText.includes('yes') || userText.includes('sure') || userText.includes('okay') || userText.includes('definitely') || userText.includes('absolutely')) {
@@ -3685,6 +2406,32 @@ function shouldTriggerLeadCapture(userInput) {
     
     return yesResponses.includes(input) && consultationStates.includes(conversationState);
 }
+
+// 🎯 ADD THIS FUNCTION AT THE END OF YOUR FILE:
+function shouldTriggerLeadCapture(userInput) {
+    const input = userInput.toLowerCase().trim();
+    
+    // User's affirmative responses
+    const yesResponses = [
+        'yes', 'yeah', 'yep', 'sure', 'ok', 'okay', 'absolutely', 
+        'definitely', 'of course', 'let\'s do it', 'sounds good',
+        'i would', 'i\'d like that', 'that sounds great', 'let\'s go'
+    ];
+    
+    // Check if we're in a consultation asking state
+    const consultationStates = [
+        'asking_selling_consultation',
+        'asking_buying_consultation', 
+        'asking_valuation_consultation'
+    ];
+    
+    return yesResponses.includes(input) && consultationStates.includes(conversationState);
+}
+
+// ===================================================
+// 🎤 HYBRID SPEAK NOW SYSTEM - MOBILE-WISE AI
+// ===================================================
+
 function showSpeakNow() {
     // Use new hybrid system instead of old button
     showHybridReadySequence();
@@ -3882,8 +2629,9 @@ function speakMessage(message) {
     if (window.speechSynthesis) {
         window.speechSynthesis.cancel();
         const utterance = new SpeechSynthesisUtterance(message);
-        utterance.rate = 0.9;
-        utterance.pitch = 1.1;
+        utterance.rate = 1.13;    // ✅ Increased from 0.85 (15% faster)
+        utterance.pitch = 1.05;  // Kept same
+        utterance.volume = 0.85; // Kept same
         
         utterance.onstart = function() {
             isSpeaking = true; // Add this for proper state management
@@ -4510,27 +3258,8 @@ function exitApplication() {
 function showConsultationConfirmedBanner() {
     console.log('🎯 Showing Consultation Confirmed Banner - Clean Version');
     
-    // 🚀 DIRECT TRIGGER - NO BRIDGE NEEDED
-    triggerBanner('consultation_confirmed', {
-        type: 'dualSection',
-        sections: {
-            left: {
-                title: '🎯 Free Consultation Confirmed!',
-                subtitle: 'Your information has been submitted'
-            },
-            right: {
-                title: `📚 FREE Book for ${leadData.name}!`,
-                subtitle: '"7 Secrets to Selling Your Practice"',
-                image: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758088515492_nci-book.png'
-            }
-        },
-        cleanup: ['bruceBookBanner', 'emailConfirmationBanner', 'leadCapture'],
-        hideSmartButton: true,
-        transition: 'smooth',
-        callback: (result) => {
-            console.log('🎯 Consultation confirmed banner deployed:', result);
-        }
-    });
+    // ✅ SIMPLE TRIGGER - MATCHES NEW SYSTEM
+    triggerBanner('consultationConfirmed');
 }
 
 // ===================================================
@@ -4935,6 +3664,58 @@ function showTestimonialVideo(testimonialType, duration = 12000) {
     
     document.body.appendChild(avatarOverlay);
 
+    // 🎯 CONSULTATIVE CONCERN DETECTION SYSTEM
+function detectConsultativeResponse(userText) {
+    const text = userText.toLowerCase().trim();
+    
+    // 🎯 VALUE/WORTH CONCERNS
+    const valueConcerns = [
+        'concern', 'worried', 'afraid', 'nervous', 'anxious',
+        'worth', 'value', 'fair price', 'market value', 'low ball',
+        'undervalue', 'undersell', 'getting what', 'full value',
+        'what it\'s worth', 'fair deal', 'ripped off', 'enough money'
+    ];
+    
+    // 🎯 SPEED/TIMELINE CONCERNS  
+    const speedConcerns = [
+        'how long', 'timeline', 'time', 'quick', 'fast', 'speed',
+        'when', 'soon', 'quickly', 'process time', 'sell fast',
+        'too fast', 'rushed', 'patient', 'wait', 'takes forever'
+    ];
+    
+    // 🎯 CREDIBILITY/TRUST CONCERNS
+    const credibilityConcerns = [
+        'experience', 'credibility', 'trust', 'legitimate', 'proven',
+        'track record', 'skeptical', 'doubt', 'reliable', 'reputation',
+        'references', 'testimonials', 'reviews', 'who are you', 'can you really'
+    ];
+    
+    // Check for value concerns → Show "skeptical then exceeded" testimonial
+    for (let concern of valueConcerns) {
+        if (text.includes(concern)) {
+            console.log(`🎯 VALUE CONCERN detected: "${concern}" - will show value testimonial`);
+            return 'value';
+        }
+    }
+    
+    // Check for speed concerns → Show "speed of sale" testimonial
+    for (let concern of speedConcerns) {
+        if (text.includes(concern)) {
+            console.log(`🎯 SPEED CONCERN detected: "${concern}" - will show speed testimonial`);
+            return 'speed';
+        }
+    }
+    
+    // Check for credibility concerns → Show "skeptical then exceeded" testimonial
+    for (let concern of credibilityConcerns) {
+        if (text.includes(concern)) {
+            console.log(`🎯 CREDIBILITY CONCERN detected: "${concern}" - will show credibility testimonial`);
+            return 'credibility';
+        }
+    }
+    
+    return null; // No concern detected
+}
     
     // 🎯 CLEANUP - CONTINUES CONVERSATION (KEY DIFFERENCE FROM SORRY MESSAGE)
     function cleanup() {
@@ -5683,7 +4464,7 @@ playGetReadyAndSpeakNowSound();
             
         }, 7000);
         
-    }, 3000);
+    }, 2500);
     
     // ===== SUCCESS HANDLER =====
     window.handleSpeechSuccess = function(transcript) {
@@ -5875,252 +4656,3 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }, 1000);
 });
-// ===================================================
-// 🎯 TESTIMONIAL SYSTEM FUNCTIONS
-// ===================================================
-// These functions are ready to use when KB objection detection is added
-// For now, they can be manually triggered for testing
-
-window.showTestimonialOffer = function(testimonialType, customMessage) {
-    console.log(`💬 Offering ${testimonialType} testimonial via universal banner`);
-    
-    // Store which testimonial we're offering
-    pendingTestimonialType = testimonialType;
-    
-    // Find the objection that matches this testimonial (from Data JSON)
-    if (window.knowledgeBaseData?.objection_handling) {
-        currentObjection = window.knowledgeBaseData.objection_handling.objections
-            .find(o => o.testimonialOffer === testimonialType);
-        console.log('📋 Objection found:', currentObjection?.type);
-    }
-    
-    // Trigger the banner using your existing system
-    window.showUniversalBanner('testimonialOffer');
-    
-    // Update the message text if provided
-    if (customMessage) {
-        setTimeout(() => {
-            const messageEl = document.getElementById('testimonialOfferMessage');
-            if (messageEl) {
-                messageEl.textContent = customMessage;
-            }
-        }, 100);
-    }
-    
-    // Wire up button handlers
-    setTimeout(() => {
-        const yesBtn = document.getElementById('testimonialYesBtn');
-        const noBtn = document.getElementById('testimonialNoBtn');
-        
-        if (yesBtn) {
-            yesBtn.onclick = function(e) {
-                e.stopPropagation();
-                console.log(`✅ User clicked YES - playing ${pendingTestimonialType} testimonial`);
-                
-                // Remove banner
-                window.removeAllBanners(false);
-                
-                // Play testimonial
-                if (pendingTestimonialType) {
-                    showTestimonialVideo(pendingTestimonialType);
-                    pendingTestimonialType = null;
-                    currentObjection = null;
-                }
-            };
-        }
-        
-        if (noBtn) {
-            noBtn.onclick = function(e) {
-                e.stopPropagation();
-                console.log('❌ User clicked NO - going to consultation close');
-                
-                // Remove banner
-                window.removeAllBanners(false);
-                
-                // 🎯 GET NO RESPONSE FROM DATA JSON
-                const noMessage = currentObjection 
-                    ? (leadData.firstName 
-                        ? currentObjection.no_response_with_name.replace('{firstName}', leadData.firstName)
-                        : currentObjection.no_response)
-                    : (leadData.firstName
-                        ? `No problem ${leadData.firstName}! I'm sure Bruce can give you the information you need.`
-                        : `No problem! I'm sure Bruce can give you the information you need.`);
-                
-                console.log('💬 AI saying (from Data JSON):', noMessage);
-                
-                // AI speaks bridge message
-                addAIMessage(noMessage);
-                speakResponse(noMessage);
-                
-                // 🎯 CHECK IF WE SHOULD SHOW CONSULTATION BANNER
-                if (currentObjection?.no_action === 'show_consultation_banner') {
-                    console.log('🎯 Triggering consultation banner');
-                    setTimeout(() => {
-                        window.showUniversalBanner('freeBookWithConsultation');
-                    }, 2000);
-                }
-                
-                pendingTestimonialType = null;
-                currentObjection = null;
-            };
-        }
-    }, 200);
-};
-
-
-function showTestimonialVideo(testimonialType, duration = 12000) {
-    console.log(`🎬 Playing ${testimonialType} testimonial for ${duration}ms`);
-    
-    if (window.avatarCurrentlyPlaying) {
-        console.log('🚫 Avatar already playing');
-        return;
-    }
-    
-    window.avatarCurrentlyPlaying = true;
-    window.speakSequenceActive = true;
-    
-    const testimonialVideos = {
-        skeptical: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982717330.mp4",
-        speed: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982877040.mp4"
-    };
-    
-    const videoUrl = testimonialVideos[testimonialType] || testimonialVideos.skeptical;
-    const isMobile = window.innerWidth <= 768;
-    
-    // USE FULL VIEWPORT HEIGHT (882px), NOT CONTAINER HEIGHT (542px)
-    const viewportHeight = window.innerHeight; // 882px
-    const videoHeight = 525;
-    
-    // Center in FULL viewport
-    const topPosition = (viewportHeight - videoHeight) / 2; // (882 - 525) / 2 = 178.5px from top
-    
-    console.log(`📐 Full viewport: ${viewportHeight}px, video ${videoHeight}px, centering at ${topPosition}px from top`);
-    
-    // OVERLAY
-const overlay = document.createElement('div');
-overlay.id = 'testimonial-overlay';
-overlay.style.cssText = `
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.40);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 999999;
-`;
-
-// VIDEO CONTAINER - Absolute positioning at calculated center
-const videoContainer = document.createElement('div');
-
-if (isMobile) {
-    videoContainer.style.cssText = `
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-    `;
-} else {
-    // DESKTOP: Push video down 50px from center
-    videoContainer.style.cssText = `
-        position: relative;
-        width: 260px;
-        height: 400px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        margin-top: 18px;
-    `;
-}
-    
-    // VIDEO
-    const video = document.createElement('video');
-    video.autoplay = true;
-    video.playsInline = true;
-    video.style.cssText = `
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        background: #000;
-        display: block;
-    `;
-    video.innerHTML = `<source src="${videoUrl}" type="video/mp4">`;
-    
-    // EXIT BUTTON
-    const exitButton = document.createElement('button');
-    exitButton.textContent = 'EXIT VIDEO';
-    exitButton.style.cssText = `
-        position: absolute;
-        top: 16px;
-        right: 16px;
-        background: rgba(255, 255, 255, 0.95);
-        color: #000;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 6px;
-        font-weight: bold;
-        font-size: 14px;
-        cursor: pointer;
-        z-index: 1000000;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        transition: all 0.2s ease;
-    `;
-    
-    exitButton.onmouseover = () => {
-        exitButton.style.background = '#ff4444';
-        exitButton.style.color = '#fff';
-    };
-    
-    exitButton.onmouseout = () => {
-        exitButton.style.background = 'rgba(255, 255, 255, 0.95)';
-        exitButton.style.color = '#000';
-    };
-    
-    function cleanup() {
-        console.log(`✅ Exiting testimonial ${testimonialType}`);
-        video.pause();
-        video.src = '';
-        if (overlay.parentNode) overlay.remove();
-        window.avatarCurrentlyPlaying = false;
-        window.speakSequenceActive = false;
-        window.testimonialBlocking = false;
-        if (window.testimonialAutoCloseTimer) clearTimeout(window.testimonialAutoCloseTimer);
-        
-        // 🎯 TRIGGER POST-TESTIMONIAL COMEBACK
-        if (typeof window.handleTestimonialComplete === 'function') {
-            setTimeout(() => {
-                window.handleTestimonialComplete();
-            }, 500);
-        }
-        
-        setTimeout(() => {
-            if (window.showDirectSpeakNow) showDirectSpeakNow();
-        }, 500);
-    }
-    
-    exitButton.onclick = cleanup;
-    // Let video play to its natural end
-video.onended = () => {
-    console.log(`✅ Video finished naturally - auto-closing`);
-    cleanup();
-};
-
-// Safety timeout (only if video fails to load/play)
-window.testimonialAutoCloseTimer = setTimeout(() => {
-    console.log(`⚠️ Safety timeout triggered after 60 seconds`);
-    cleanup();
-}, 60000); // 60 seconds safety net
-    
-    videoContainer.appendChild(video);
-    videoContainer.appendChild(exitButton);
-    overlay.appendChild(videoContainer);
-    
-    // CRITICAL: Append to BODY, not container
-    document.body.appendChild(overlay);
-    
-    console.log(`📺 Video positioned at ${topPosition}px from viewport top (should be ~178px for centering)`);
-}
