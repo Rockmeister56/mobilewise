@@ -32,7 +32,6 @@ let isAudioMode = false;
 let currentAudio = null;
 let persistentMicStream = null;
 let micPermissionGranted = false;
-let conversationState = 'initial';
 let userResponseCount = 0;
 let shouldShowSmartButton = false;
 let smartButtonText = 'AI Smart Button';
@@ -53,6 +52,25 @@ window.leadData = window.leadData || {
     inquiryType: ''
 };
 let leadData = window.leadData;
+
+// Global flag to prevent multiple instances
+let speakSequenceActive = false;
+let speakSequenceButton = null;
+let speakSequenceCleanupTimer = null;
+
+// Lead data storage
+if (!window.leadData) {
+    window.leadData = {
+        firstName: '',
+        email: '',
+        phone: ''
+    };
+}
+
+// Conversation state
+if (typeof conversationState === 'undefined') {
+    var conversationState = 'initial';
+}
 
 // ===================================================
 // 🎯 SPEECH RECOGNITION PRE-WARMING SYSTEM  
@@ -2501,6 +2519,11 @@ function handleTestimonialComplete() {
 function askQuickQuestion(questionText) {
     console.log('🎯 Quick button clicked:', questionText);
     
+    // 🎨 ADD USER MESSAGE TO CHAT (this was missing!)
+    if (typeof addUserMessage === 'function') {
+        addUserMessage(questionText);
+    }
+    
     // 1️⃣ STOP ALL SPEECH IMMEDIATELY
     if (typeof stopAllSpeech === 'function') {
         stopAllSpeech();
@@ -2557,6 +2580,11 @@ function askQuickQuestion(questionText) {
         
         conversationState = targetState;
         
+        // 🎨 ADD AI MESSAGE TO CHAT
+        if (typeof addAIMessage === 'function') {
+            addAIMessage(scriptResponse);
+        }
+        
         // Speak the response
         setTimeout(() => {
             speakText(scriptResponse);
@@ -2581,9 +2609,15 @@ function askQuickQuestion(questionText) {
         // Set state to capture name
         conversationState = 'getting_first_name';
         
-        // Speak acknowledgment + name request
+        // Build full response
         const fullResponse = acknowledgment + " Can I get your name first, please?";
         
+        // 🎨 ADD AI MESSAGE TO CHAT
+        if (typeof addAIMessage === 'function') {
+            addAIMessage(fullResponse);
+        }
+        
+        // Speak acknowledgment + name request
         setTimeout(() => {
             speakText(fullResponse);
         }, 100);
