@@ -90,13 +90,12 @@
              style="width: 70px; height: 70px; border-radius: 0px; margin-right: 80px;">
         
         <!-- TEXT -->
-        <div style="color: white; text-align: left;">
-            <div style="font-size: 20px; font-weight: bold; margin-bottom: 5px; margin-right: 10px;">
-        "
-            GENUINE client reviews
-            </div>
-            <div style="font-size: 14px; opacity: 0.95;">
-                Click buttons below to view video reviews
+        <div style="color: white; text-align: left; margin-left: -30px;">
+    <div style="font-size: 20px; font-weight: bold; margin-bottom: 5px;">
+        GENUINE client reviews
+    </div>
+    <div style="font-size: 14px; opacity: 0.95;">
+        Click buttons below to view video reviews
                         </div>
                     </div>
                 </div>
