@@ -4022,31 +4022,6 @@ function showTestimonialVideo(testimonialType, duration = 12000) {
         }
     }
     
-
-    // 🎯 CLEANUP - CONTINUES CONVERSATION (KEY DIFFERENCE FROM SORRY MESSAGE)
-function cleanup() {
-    console.log(`🎬 Testimonial ${testimonialType} complete - continuing conversation`);
-    
-    if (avatarOverlay.parentNode) {
-        avatarOverlay.remove();
-    }
-    
-    window.avatarCurrentlyPlaying = false;
-    
-    // ✅ NEW: Trigger testimonial completion callback
-    if (typeof handleTestimonialComplete === 'function') {
-        console.log('🎯 Calling handleTestimonialComplete callback');
-        handleTestimonialComplete();
-    }
-    
-    // 🎯 NO "Speak Now" - let conversation continue naturally
-    setTimeout(() => {
-        console.log('✅ Testimonial removed - conversation continues naturally');
-        // Conversation flows naturally without interruption
-    }, 1000);
-}
-    
-    setTimeout(cleanup, duration);
 }
 
 function showAvatarSorryMessage(duration = 6000) {
