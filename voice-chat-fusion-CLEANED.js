@@ -2247,7 +2247,7 @@ function getAIResponse(userInput) {
                     // Trigger free incentive banner after consultation offer
                     setTimeout(() => {
                         if (typeof showUniversalBanner === 'function') {
-                            triggerBanner('appointment');
+                            triggerBanner('setAppointment');
                         }
                     }, 2000);
                     
@@ -2342,7 +2342,7 @@ function getAIResponse(userInput) {
         // 🎨 BANNER: Show free incentive (consultation offer)
         // 🔘 BUTTONS: Switch to CTA mode (green)
         setTimeout(() => {
-            triggerBanner('appointment');
+            triggerBanner('setAppointment');
         }, 1500);
         
         return responseText;
@@ -2415,7 +2415,7 @@ function getAIResponse(userInput) {
         // 🎨 BANNER: Show free incentive
         // 🔘 BUTTONS: Switch to CTA mode (green)
         setTimeout(() => {
-            triggerBanner('appointment');
+            triggerBanner('setAppointment');
         }, 1500);
         
         return responseText;
@@ -2468,7 +2468,7 @@ function getAIResponse(userInput) {
         // 🎨 BANNER: Show free incentive
         // 🔘 BUTTONS: Switch to CTA mode (green)
         setTimeout(() => {
-            triggerBanner('appointment');
+            triggerBanner('setAppointment');
         }, 1500);
         
         return responseText;
@@ -2585,7 +2585,7 @@ function handleTestimonialComplete() {
     // 🎨 BANNER: Show free incentive
     // 🔘 BUTTONS: Switch to CTA mode (green)
     setTimeout(() => {
-        triggerBanner('appointment');
+        triggerBanner('setAppointment');
     }, 2000);
     
     // Change state
