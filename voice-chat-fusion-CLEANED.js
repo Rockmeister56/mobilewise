@@ -3928,100 +3928,95 @@ function showTestimonialVideo(testimonialType, duration = 12000) {
             </video>
         `;
     }
- }
     
     document.body.appendChild(avatarOverlay);
 
-   function getAIResponse(userInput) {
+    function getAIResponse(userInput) {
     const userText = userInput.toLowerCase().trim();
     const firstName = window.leadData.firstName || '';
     let responseText = '';
+
+     }
     
     // ===================================================
     // 🎯 CONSULTATIVE CONCERN DETECTION SYSTEM
     // ===================================================
-    function detectConsultativeResponse(userText) {
-        const text = userText.toLowerCase().trim();
-        
-        // 🎯 VALUE/WORTH CONCERNS
-        const valueConcerns = [
-            'concern', 'worried', 'afraid', 'nervous', 'anxious',
-            'worth', 'value', 'fair price', 'market value', 'low ball',
-            'undervalue', 'undersell', 'getting what', 'full value',
-            'what it\'s worth', 'fair deal', 'ripped off', 'enough money'
-        ];
-        
-        // 🎯 SPEED/TIMELINE CONCERNS  
-        const speedConcerns = [
-            'how long', 'timeline', 'time', 'quick', 'fast', 'speed',
-            'when', 'soon', 'quickly', 'process time', 'sell fast',
-            'too fast', 'rushed', 'patient', 'wait', 'takes forever'
-        ];
-        
-        // 🎯 CREDIBILITY/TRUST CONCERNS
-        const credibilityConcerns = [
-            'experience', 'credibility', 'trust', 'legitimate', 'proven',
-            'track record', 'skeptical', 'doubt', 'reliable', 'reputation',
-            'references', 'testimonials', 'reviews', 'who are you', 'can you really'
-        ];
-        
-        // Check for value concerns → Show "skeptical then exceeded" testimonial
-        for (let concern of valueConcerns) {
-            if (text.includes(concern)) {
-                console.log(`🎯 VALUE CONCERN detected: "${concern}" - will show value testimonial`);
-                return 'value';
-            }
-        }
-        
-        // Check for speed concerns → Show "speed of sale" testimonial
-        for (let concern of speedConcerns) {
-            if (text.includes(concern)) {
-                console.log(`🎯 SPEED CONCERN detected: "${concern}" - will show speed testimonial`);
-                return 'speed';
-            }
-        }
-        
-        // Check for credibility concerns → Show "skeptical then exceeded" testimonial
-        for (let concern of credibilityConcerns) {
-            if (text.includes(concern)) {
-                console.log(`🎯 CREDIBILITY CONCERN detected: "${concern}" - will show credibility testimonial`);
-                return 'credibility';
-            }
-        }
-        
-        return null; // No concern detected
-    }
+function detectConsultativeResponse(userText) {
+    const text = userText.toLowerCase().trim();
     
-    // 🎯 CONCERN DETECTION - Skip in INITIAL state to avoid intent conflicts
-    if (conversationState !== 'initial' &&
-        conversationState !== 'getting_first_name' && 
-        conversationState !== 'lead_capture_active' &&
-        conversationState !== 'asking_if_more_help' &&
-        conversationState !== 'asking_for_email_permission' &&
-        conversationState !== 'ended') {
-        
-        const concernType = detectConsultativeResponse(userText);
-        
-        if (concernType) {
-            console.log(`🚨 CONCERN DETECTED: ${concernType}`);
-            
-            responseText = firstName ? 
-                `I completely understand that concern, ${firstName}. Would you like to hear what others have experienced?` :
-                "I completely understand that concern. Would you like to hear what others have experienced?";
-            
-            // 🎨 BANNER: Show testimonial selector
-            // 🔘 BUTTONS: Switch to REVIEWS mode (purple)
-            setTimeout(() => {
-                showUniversalBanner('testimonialSelector');
-            }, 1500);
-            
-            conversationState = 'testimonial_permission_asked';
-            window.pendingTestimonialType = concernType;
-            
-            return responseText;
+    // 🎯 VALUE/WORTH CONCERNS
+    const valueConcerns = [
+        'concern', 'worried', 'afraid', 'nervous', 'anxious',
+        'worth', 'value', 'fair price', 'market value', 'low ball',
+        'undervalue', 'undersell', 'getting what', 'full value',
+        'what it\'s worth', 'fair deal', 'ripped off', 'enough money'
+    ];
+    
+    // 🎯 SPEED/TIMELINE CONCERNS  
+    const speedConcerns = [
+        'how long', 'timeline', 'time', 'quick', 'fast', 'speed',
+        'when', 'soon', 'quickly', 'process time', 'sell fast',
+        'too fast', 'rushed', 'patient', 'wait', 'takes forever'
+    ];
+    
+    // 🎯 CREDIBILITY/TRUST CONCERNS
+    const credibilityConcerns = [
+        'experience', 'credibility', 'trust', 'legitimate', 'proven',
+        'track record', 'skeptical', 'doubt', 'reliable', 'reputation',
+        'references', 'testimonials', 'reviews', 'who are you', 'can you really'
+    ];
+    
+    // Check for value concerns → Show "skeptical then exceeded" testimonial
+    for (let concern of valueConcerns) {
+        if (text.includes(concern)) {
+            console.log(`🎯 VALUE CONCERN detected: "${concern}" - will show value testimonial`);
+            return 'value';
         }
     }
     
+    // Check for speed concerns → Show "speed of sale" testimonial
+    for (let concern of speedConcerns) {
+        if (text.includes(concern)) {
+            console.log(`🎯 SPEED CONCERN detected: "${concern}" - will show speed testimonial`);
+            return 'speed';
+        }
+    }
+    
+    // Check for credibility concerns → Show "skeptical then exceeded" testimonial
+    for (let concern of credibilityConcerns) {
+        if (text.includes(concern)) {
+            console.log(`🎯 CREDIBILITY CONCERN detected: "${concern}" - will show credibility testimonial`);
+            return 'credibility';
+        }
+    }
+    
+    return null; // No concern detected
+}
+
+    // 🎯 CLEANUP - CONTINUES CONVERSATION (KEY DIFFERENCE FROM SORRY MESSAGE)
+function cleanup() {
+    console.log(`🎬 Testimonial ${testimonialType} complete - continuing conversation`);
+    
+    if (avatarOverlay.parentNode) {
+        avatarOverlay.remove();
+    }
+    
+    window.avatarCurrentlyPlaying = false;
+    
+    // ✅ NEW: Trigger testimonial completion callback
+    if (typeof handleTestimonialComplete === 'function') {
+        console.log('🎯 Calling handleTestimonialComplete callback');
+        handleTestimonialComplete();
+    }
+    
+    // 🎯 NO "Speak Now" - let conversation continue naturally
+    setTimeout(() => {
+        console.log('✅ Testimonial removed - conversation continues naturally');
+        // Conversation flows naturally without interruption
+    }, 1000);
+}
+    
+    setTimeout(cleanup, duration);
 }
 
 function showAvatarSorryMessage(duration = 6000) {
