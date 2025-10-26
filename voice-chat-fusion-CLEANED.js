@@ -1547,10 +1547,16 @@ class MobileWiseVoiceSystem {
                 resolve();
             };
             
-            utterance.onerror = (error) => {
-                console.error('🚫 British voice error:', error);
-                reject(error);
-            };
+           utterance.onerror = (error) => {
+    // Suppress "interrupted" errors - they're expected when user clicks buttons
+    if (error.error === 'interrupted') {
+        console.log('🔇 Speech interrupted (user action)');
+        resolve(); // Resolve instead of reject for clean interruption
+        return;
+    }
+    console.error('🚫 British voice error:', error);
+    reject(error);
+};
             
             this.synthesis.speak(utterance);
             
