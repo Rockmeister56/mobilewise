@@ -2080,6 +2080,8 @@ function getAIResponse(userInput) {
     if (conversationState !== 'initial' &&
         conversationState !== 'getting_first_name' && 
         conversationState !== 'lead_capture_active' &&
+        conversationState !== 'asking_if_more_help' &&
+        conversationState !== 'asking_for_email_permission' &&
         conversationState !== 'ended') {
         
         const concernType = detectConsultativeResponse(userText);
