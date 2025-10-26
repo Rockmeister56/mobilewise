@@ -1008,6 +1008,20 @@ function processUserResponse(userText) {
     userResponseCount++;
     
     stopListening();
+
+        // 🎯 CHECK FOR QUICK LEAD CAPTURE (Request-a-Call / URGENT)
+    if (isInLeadCapture && window.quickLeadData) {
+        console.log('📋 Quick lead capture active - routing to quick processor');
+        processQuickLeadResponse(userText);
+        return;
+    }
+    
+    // 🎯 CHECK FOR FULL LEAD CAPTURE (Book Meeting)
+    if (isInLeadCapture && window.leadData) {
+        console.log('📋 Full lead capture active - routing to lead processor');
+        processLeadResponse(userText);
+        return;
+    }
     
     // ✅ CHECK FINAL QUESTION STATE FIRST (BEFORE LEAD CAPTURE!)
     if (conversationState === 'final_question') {
@@ -2227,7 +2241,7 @@ function getAIResponse(userInput) {
                     // Trigger free incentive banner after consultation offer
                     setTimeout(() => {
                         if (typeof showUniversalBanner === 'function') {
-                            showUniversalBanner('freeIncentive');
+                            triggerBanner('appointment');
                         }
                     }, 2000);
                     
@@ -2322,7 +2336,7 @@ function getAIResponse(userInput) {
         // 🎨 BANNER: Show free incentive (consultation offer)
         // 🔘 BUTTONS: Switch to CTA mode (green)
         setTimeout(() => {
-            showUniversalBanner('freeIncentive');
+            triggerBanner('appointment');
         }, 1500);
         
         return responseText;
@@ -2395,7 +2409,7 @@ function getAIResponse(userInput) {
         // 🎨 BANNER: Show free incentive
         // 🔘 BUTTONS: Switch to CTA mode (green)
         setTimeout(() => {
-            showUniversalBanner('freeIncentive');
+            triggerBanner('appointment');
         }, 1500);
         
         return responseText;
@@ -2448,7 +2462,7 @@ function getAIResponse(userInput) {
         // 🎨 BANNER: Show free incentive
         // 🔘 BUTTONS: Switch to CTA mode (green)
         setTimeout(() => {
-            showUniversalBanner('freeIncentive');
+            triggerBanner('appointment');
         }, 1500);
         
         return responseText;
@@ -2565,7 +2579,7 @@ function handleTestimonialComplete() {
     // 🎨 BANNER: Show free incentive
     // 🔘 BUTTONS: Switch to CTA mode (green)
     setTimeout(() => {
-        showUniversalBanner('freeIncentive');
+        triggerBanner('appointment');
     }, 2000);
     
     // Change state
@@ -2688,6 +2702,34 @@ function askQuickQuestion(questionText) {
     }
 }
 
+function handleCTAButtonClick(action) {
+    console.log(`🎯 CTA button clicked: ${action}`);
+    
+    stopAllSpeech();
+    
+    if (action === 'requestCall' || action === 'urgent') {
+        // Quick capture (3 questions)
+        setTimeout(() => {
+            initializeQuickLeadCapture(action);
+        }, 500);
+        
+    } else if (action === 'bookMeeting') {
+        // Full capture (4 questions) - existing function
+        setTimeout(() => {
+            initializeLeadCapture();
+        }, 500);
+        
+    } else if (action === 'preQualify') {
+        // Future feature - for now treat as book meeting
+        speakText("Pre-qualification coming soon! Let's book a meeting instead.");
+        setTimeout(() => {
+            initializeLeadCapture();
+        }, 2000);
+    }
+}
+
+// Make globally accessible
+window.handleCTAButtonClick = handleCTAButtonClick;
 
 // 🎯 ADD THIS FUNCTION AT THE END OF YOUR FILE:
 function shouldTriggerLeadCapture(userInput) {
@@ -2971,7 +3013,129 @@ function speakMessage(message) {
     }
 }
 
+// ===================================================
+// 🚀 QUICK LEAD CAPTURE (3 Questions)
+// ===================================================
+function initializeQuickLeadCapture(captureType = 'requestCall') {
+    console.log(`🚀 Starting quick lead capture: ${captureType}`);
+    
+    isInLeadCapture = true;
+    
+    // Initialize quick lead data
+    window.quickLeadData = {
+        firstName: window.leadData.firstName || '',
+        phone: '',
+        reason: '',
+        captureType: captureType, // 'requestCall' or 'urgent'
+        step: 0,
+        questions: [
+            "What's your name?",
+            "What's the best phone number to reach you?",
+            `What's the reason for ${captureType === 'urgent' ? 'this urgent request' : 'the callback'}?`
+        ]
+    };
+    
+    // Start asking questions
+    askQuickLeadQuestion();
+}
 
+function askQuickLeadQuestion() {
+    const data = window.quickLeadData;
+    
+    if (data.step < data.questions.length) {
+        const question = data.questions[data.step];
+        console.log(`🎯 Quick question for step: ${data.step}`);
+        console.log(`🎯 Question: ${question}`);
+        
+        speakMessage(question);
+    } else {
+        // All questions answered - send email immediately
+        sendQuickLeadEmail();
+    }
+}
+
+function processQuickLeadResponse(userInput) {
+    const data = window.quickLeadData;
+    
+    console.log(`🎯 Processing quick lead response: ${userInput}`);
+    
+    if (data.step === 0) {
+        // Name
+        const words = userInput.trim().split(' ');
+        const extractedName = words[0].replace(/[^a-zA-Z]/g, '');
+        data.firstName = extractedName.charAt(0).toUpperCase() + extractedName.slice(1).toLowerCase();
+        window.leadData.firstName = data.firstName;
+        
+        console.log(`✅ Quick captured name: ${data.firstName}`);
+        data.step++;
+        askQuickLeadQuestion();
+        
+    } else if (data.step === 1) {
+        // Phone
+        data.phone = userInput.trim();
+        console.log(`✅ Quick captured phone: ${data.phone}`);
+        data.step++;
+        askQuickLeadQuestion();
+        
+    } else if (data.step === 2) {
+        // Reason
+        data.reason = userInput.trim();
+        console.log(`✅ Quick captured reason: ${data.reason}`);
+        data.step++;
+        askQuickLeadQuestion(); // This will trigger email send
+    }
+}
+
+function sendQuickLeadEmail() {
+    const data = window.quickLeadData;
+    const now = new Date();
+    const timestamp = now.toLocaleString();
+    
+    const subjectLine = data.captureType === 'urgent' 
+        ? `URGENT REQUEST - ${data.firstName}`
+        : `CALL NOW - ${data.firstName}`;
+    
+    console.log('📧 Sending quick lead email...');
+    
+    const emailParams = {
+        to_email: 'bruce@newclientsinc.com',
+        from_name: data.firstName,
+        subject: subjectLine,
+        message: `
+NEW QUICK LEAD REQUEST
+
+Name: ${data.firstName}
+Phone: ${data.phone}
+Reason: ${data.reason}
+Type: ${data.captureType === 'urgent' ? 'URGENT REQUEST' : 'Call Back Request'}
+Timestamp: ${timestamp}
+        `.trim()
+    };
+    
+    console.log('📧 Email parameters:', emailParams);
+    
+    emailjs.send('service_btav9yj', 'template_5vf2yuh', emailParams)
+        .then(function(response) {
+            console.log('✅ QUICK EMAIL SENT!', response.status, response.text);
+            
+            // Clear quick lead data
+            isInLeadCapture = false;
+            window.quickLeadData = null;
+            
+            // AI response
+            const responseText = `Perfect ${data.firstName}! Bruce will ${data.captureType === 'urgent' ? 'prioritize your urgent request' : 'call you shortly'}. Is there anything else I can help you with?`;
+            
+            speakText(responseText);
+            conversationState = 'asking_if_more_help';
+            
+        }, function(error) {
+            console.log('❌ QUICK EMAIL FAILED:', error);
+        });
+}
+
+// Make globally accessible
+window.initializeQuickLeadCapture = initializeQuickLeadCapture;
+window.processQuickLeadResponse = processQuickLeadResponse;
 
 // ===================================================
 // 📧 EMAIL FORMATTING FUNCTION

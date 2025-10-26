@@ -17,7 +17,7 @@
         'branding': 'quick',
         
         // CTA banners → Call-to-Action buttons
-        'freeBookWithConsultation': 'cta',
+        'appointment': 'cta',
         'freeIncentive': 'cta',  // 🎯 NEW: Free consultation offer
         'smartButton': 'cta',
         'leadMagnet': 'cta',

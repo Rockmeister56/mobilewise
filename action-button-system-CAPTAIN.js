@@ -175,8 +175,28 @@
             // Apply gradient background
             button.style.background = config.gradient;
             
-            // Attach click handler
-            button.onclick = () => handleButtonClick(buttonDef.action, buttonDef.param);
+            // Attach click handler based on button mode
+            if (mode === 'cta') {
+                // CTA buttons route to handleCTAButtonClick
+                button.onclick = () => {
+                    console.log(`🎯 CTA Button clicked: ${buttonDef.action}`);
+                    if (typeof window.handleCTAButtonClick === 'function') {
+                        window.handleCTAButtonClick(buttonDef.action);
+                    } else {
+                        console.error('❌ handleCTAButtonClick function not found');
+                    }
+                };
+            } else {
+                // Quick buttons route to askQuickQuestion
+                button.onclick = () => {
+                    console.log(`🎯 Quick Button clicked: ${buttonDef.param}`);
+                    if (typeof window.askQuickQuestion === 'function') {
+                        window.askQuickQuestion(buttonDef.param);
+                    } else {
+                        console.error('❌ askQuickQuestion function not found');
+                    }
+                };
+            }
             
             buttonContainer.appendChild(button);
         });
