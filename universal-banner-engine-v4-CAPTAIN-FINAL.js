@@ -162,15 +162,15 @@
         content: `
             <div class="banner-glow-container banner-cta-full" style="width: 760px; max-width: 760px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #0f5ef0ff 0%, #000000ff 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
                 <div style="display: flex; align-items: center;">
-                    <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758088515492_nci-book.png" 
+                    <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761252793411_free-ebook.png" 
                          class="book-white-glow"
                          style="width: 60px; height: 70px; border-radius: 0px; margin-right: 20px;">
                     <div style="color: white; text-align: left;">
                         <div style="font-size: 20px; font-weight: bold; margin-bottom: 5px;">
-                            📚 <span class="free-glow">FREE</span> Consultation & Book
+                            📚 <span class="free-glow">FREE-eBOOK</span> just ask AI for biz
                         </div>
                         <div style="font-size: 14px; color: #00ffb3ff; opacity: 0.95;">
-                            "7 Secrets to Selling Your Practice" FREE!
+                            "The most comprehensive update AI book for BIZ!!
                         </div>
                     </div>
                 </div>
@@ -210,26 +210,26 @@
     // 8. SCHEDULE APPOINTMENT (CTA with highlighter)
     setAppointment: {
         content: `
-            <div class="banner-glow-container banner-cta-full" style="width: 760px; max-width: 760px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #065f46 0%, #059669 50%, #065f46 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+            <div class="banner-glow-container banner-cta-full" style="width: 760px; max-width: 760px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #0f5ef0ff 0%, #000000ff 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
                 <div style="display: flex; align-items: center;">
-                    <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761253794926_calendar.png" 
+                    <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1758088515492_nci-book.png" 
                          class="book-white-glow"
-                         style="width: 70px; height: 70px; border-radius: 0px; margin-right: 20px;">
+                         style="width: 60px; height: 70px; border-radius: 0px; margin-right: 20px;">
                     <div style="color: white; text-align: left;">
                         <div style="font-size: 20px; font-weight: bold; margin-bottom: 5px;">
-                            📅 SCHEDULE appointment
+                            📚 <span class="free-glow">FREE</span> Consultation & Book
                         </div>
-                        <div style="font-size: 14px; opacity: 0.95;">
-                            What is the best time & date for you?
+                        <div style="font-size: 14px; color: #00ffb3ff; opacity: 0.95;">
+                            "7 Secrets to Selling Your Practice" FREE!
                         </div>
                     </div>
                 </div>
             </div>
         `,
         duration: 0,
-        colorLeft: '#065f46',
-        colorCenter: '#059669',
-        colorRight: '#065f46'
+        colorLeft: '#0f5ef0ff',
+        colorCenter: '#000000ff',
+        colorRight: '#0f5ef0ff'
     },
     
     // 9. GET PRE-QUALIFIED (CTA with highlighter)
