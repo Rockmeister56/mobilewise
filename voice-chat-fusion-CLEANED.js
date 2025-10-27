@@ -695,6 +695,11 @@ function suppressBrowserBeeps() {
             
             console.log('✅ Sending new message:', currentMessage);
 
+            // 🎯 ADD THESE DEBUG LOGS
+console.log('🔍 DEBUG: About to call sendMessage');
+console.log('🔍 DEBUG: sendMessage function exists?', typeof sendMessage);
+console.log('🔍 DEBUG: currentMessage value:', currentMessage);
+
             // 🎯 ADD BANNER CLEANUP HERE - RIGHT AFTER MESSAGE IS SENT
             if (typeof speakSequenceActive !== 'undefined' && speakSequenceActive) {
                 console.log('🎯 Closing Speak Now banner - message sent');
