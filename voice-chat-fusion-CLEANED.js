@@ -1112,6 +1112,126 @@ if (shouldTriggerLeadCapture(userText)) {
     return; // Exit early!
 }
 
+// ===================================================
+// 🚨 CONCERN DETECTION SYSTEM
+// INSERT THIS AT LINE 1114 (before "// Default AI response handler")
+// ===================================================
+
+// 🎯 CONCERN DETECTION: Check for objections/negative sentiment
+function detectConcernOrObjection(userText) {
+    const text = userText.toLowerCase().trim();
+    
+    // Price objections
+    const priceKeywords = [
+        'expensive', 'too much', 'cost', 'afford', 'price', 'money',
+        'budget', 'cheap', 'fee', 'charge', 'payment'
+    ];
+    
+    // Time objections
+    const timeKeywords = [
+        'busy', 'no time', 'later', 'not now', 'rush', 'hurry',
+        'schedule', 'appointment', 'timing'
+    ];
+    
+    // Trust/skepticism objections
+    const trustKeywords = [
+        'not sure', 'doubt', 'skeptical', 'risky', 'uncertain',
+        'hesitant', 'worried', 'concerned', 'afraid', 'nervous',
+        'scam', 'legit', 'trust', 'guarantee'
+    ];
+    
+    // General negative sentiment
+    const negativeKeywords = [
+        'don\'t want', 'not interested', 'no thanks', 'maybe later',
+        'think about it', 'need to consider', 'sounds too good',
+        'hard to believe', 'complicated', 'difficult'
+    ];
+    
+    // Check if any negative keywords present
+    const allKeywords = [...priceKeywords, ...timeKeywords, ...trustKeywords, ...negativeKeywords];
+    
+    for (let keyword of allKeywords) {
+        if (text.includes(keyword)) {
+            console.log(`🚨 CONCERN DETECTED: "${keyword}" in user input`);
+            
+            // Determine concern type
+            if (priceKeywords.some(k => text.includes(k))) {
+                window.detectedConcernType = 'price';
+            } else if (timeKeywords.some(k => text.includes(k))) {
+                window.detectedConcernType = 'time';
+            } else if (trustKeywords.some(k => text.includes(k))) {
+                window.detectedConcernType = 'trust';
+            } else {
+                window.detectedConcernType = 'general';
+            }
+            
+            return true;
+        }
+    }
+    
+    return false;
+}
+
+// 🎯 HANDLE CONCERN WITH TESTIMONIAL
+function handleConcernWithTestimonial(userText) {
+    const concernType = window.detectedConcernType || 'general';
+    
+    console.log(`🎯 Handling ${concernType} concern with testimonial`);
+    
+    // Empathetic acknowledgment based on concern type
+    let acknowledgment = '';
+    let testimonialType = 'skeptical'; // Default testimonial
+    
+    switch(concernType) {
+        case 'price':
+            acknowledgment = "I completely understand your concern about the investment. Many of our clients felt the same way initially. Let me show you what one of them had to say...";
+            testimonialType = 'skeptical';
+            break;
+            
+        case 'time':
+            acknowledgment = "I appreciate that you're busy. The good news is Bruce makes this process incredibly efficient. Here's what a client said about the speed of their experience...";
+            testimonialType = 'speed';
+            break;
+            
+        case 'trust':
+            acknowledgment = "Your caution is completely understandable. Bruce has helped hundreds of practice owners, and many started with similar concerns. Listen to what this client experienced...";
+            testimonialType = 'skeptical';
+            break;
+            
+        case 'general':
+            acknowledgment = "I hear you. Let me share what one of Bruce's clients experienced - they had similar thoughts initially...";
+            testimonialType = 'skeptical';
+            break;
+    }
+    
+    // Add AI message
+    if (typeof addAIMessage === 'function') {
+        addAIMessage(acknowledgment);
+    }
+    
+    // Speak the acknowledgment
+    setTimeout(() => {
+        if (typeof speakText === 'function') {
+            speakText(acknowledgment);
+        }
+    }, 100);
+    
+    // Show testimonial selector banner after acknowledgment
+    setTimeout(() => {
+        console.log('🎬 Triggering testimonial selector banner');
+        if (typeof showUniversalBanner === 'function') {
+            showUniversalBanner('testimonialSelector');
+        }
+    }, 3000); // Give time for acknowledgment to be spoken
+    
+    // Store the concern for follow-up
+    window.lastDetectedConcern = {
+        text: userText,
+        type: concernType,
+        timestamp: Date.now()
+    };
+}
+
 // Default AI response handler
 setTimeout(() => {
     const responseText = getAIResponse(userText);
@@ -2083,9 +2203,10 @@ function updateSmartButton(shouldShow, buttonText, action) {
             action: action
         });
     }
-    // ✅ REMOVE THE ELSE BLOCK ENTIRELY!
-    // Let your Universal Banner 2.0 system handle all removal/restoration
+    
 }
+
+
 
 // 🎯 COMPLETE AI RESPONSE SYSTEM - MOBILE-WISE AI FORMVISER
 // Captain's Architecture - Banner & Button Integration
@@ -4144,61 +4265,6 @@ function showTestimonialVideo(testimonialType, duration = 12000) {
     let responseText = '';
 
      }
-    
-    // ===================================================
-    // 🎯 CONSULTATIVE CONCERN DETECTION SYSTEM
-    // ===================================================
-function detectConsultativeResponse(userText) {
-    const text = userText.toLowerCase().trim();
-    
-    // 🎯 VALUE/WORTH CONCERNS
-    const valueConcerns = [
-        'concern', 'worried', 'afraid', 'nervous', 'anxious',
-        'worth', 'value', 'fair price', 'market value', 'low ball',
-        'undervalue', 'undersell', 'getting what', 'full value',
-        'what it\'s worth', 'fair deal', 'ripped off', 'enough money'
-    ];
-    
-    // 🎯 SPEED/TIMELINE CONCERNS  
-    const speedConcerns = [
-        'how long', 'timeline', 'time', 'quick', 'fast', 'speed',
-        'when', 'soon', 'quickly', 'process time', 'sell fast',
-        'too fast', 'rushed', 'patient', 'wait', 'takes forever'
-    ];
-    
-    // 🎯 CREDIBILITY/TRUST CONCERNS
-    const credibilityConcerns = [
-        'experience', 'credibility', 'trust', 'legitimate', 'proven',
-        'track record', 'skeptical', 'doubt', 'reliable', 'reputation',
-        'references', 'testimonials', 'reviews', 'who are you', 'can you really'
-    ];
-    
-    // Check for value concerns → Show "skeptical then exceeded" testimonial
-    for (let concern of valueConcerns) {
-        if (text.includes(concern)) {
-            console.log(`🎯 VALUE CONCERN detected: "${concern}" - will show value testimonial`);
-            return 'value';
-        }
-    }
-    
-    // Check for speed concerns → Show "speed of sale" testimonial
-    for (let concern of speedConcerns) {
-        if (text.includes(concern)) {
-            console.log(`🎯 SPEED CONCERN detected: "${concern}" - will show speed testimonial`);
-            return 'speed';
-        }
-    }
-    
-    // Check for credibility concerns → Show "skeptical then exceeded" testimonial
-    for (let concern of credibilityConcerns) {
-        if (text.includes(concern)) {
-            console.log(`🎯 CREDIBILITY CONCERN detected: "${concern}" - will show credibility testimonial`);
-            return 'credibility';
-        }
-    }
-    
-    return null; // No concern detected
-}
 
     // 🎯 CLEANUP - CONTINUES CONVERSATION (KEY DIFFERENCE FROM SORRY MESSAGE)
 function cleanup() {
