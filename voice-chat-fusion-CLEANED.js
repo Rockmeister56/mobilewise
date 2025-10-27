@@ -200,6 +200,12 @@ if (isDefinitelyMobile || (event && event.error === 'no-speech')) {
 
 // 🎯 COMPLETE REVISED showPostSorryListening() FUNCTION
 function showPostSorryListening() {
+     // 🛑 PREVENT INTERRUPTION IF CONCERN BANNER IS ACTIVE
+    if (window.concernBannerActive) {
+        console.log('⏸️ Concern banner active - blocking "Get Ready to Speak"');
+        return; // Exit immediately
+    }
+    
     console.log('🎯🎯🎯 POST-SORRY FUNCTION ACTUALLY CALLED! 🎯🎯🎯');
     console.log('🔄 Starting POST-SORRY direct listening');
     
@@ -1172,59 +1178,54 @@ function detectConcernOrObjection(userText) {
     return false;
 }
 
-// 🎯 HANDLE CONCERN WITH TESTIMONIAL
+// 🎯 HANDLE CONCERN WITH TESTIMONIAL - MODIFIED
 function handleConcernWithTestimonial(userText) {
     const concernType = window.detectedConcernType || 'general';
     
-    console.log(`🎯 Handling ${concernType} concern with testimonial`);
+    console.log(`🎯 Handling ${concernType} concern - triggering dynamic banner`);
     
-    // Empathetic acknowledgment based on concern type
+    // Empathetic acknowledgment
     let acknowledgment = '';
-    let testimonialType = 'skeptical'; // Default testimonial
     
-    switch(concernType) {
-        case 'price':
-            acknowledgment = "I completely understand your concern about the investment. Many of our clients felt the same way initially. Let me show you what one of them had to say...";
-            testimonialType = 'skeptical';
-            break;
-            
-        case 'time':
-            acknowledgment = "I appreciate that you're busy. The good news is Bruce makes this process incredibly efficient. Here's what a client said about the speed of their experience...";
-            testimonialType = 'speed';
-            break;
-            
-        case 'trust':
-            acknowledgment = "Your caution is completely understandable. Bruce has helped hundreds of practice owners, and many started with similar concerns. Listen to what this client experienced...";
-            testimonialType = 'skeptical';
-            break;
-            
-        case 'general':
-            acknowledgment = "I hear you. Let me share what one of Bruce's clients experienced - they had similar thoughts initially...";
-            testimonialType = 'skeptical';
-            break;
-    }
+   switch(concernType) {
+    case 'price':
+        acknowledgment = `I completely understand your concern regarding "${userText}". Many of our clients felt the same way initially. If you'd like to hear what they experienced, click a review below. Or click Skip to continue our conversation.`;
+        testimonialType = 'skeptical';
+        break;
+        
+    case 'time':
+        acknowledgment = `I hear you on "${userText}". Several of our clients had similar thoughts before working with Bruce. Feel free to click a review to hear their experience, or hit Skip and we'll keep talking.`;
+        testimonialType = 'speed';
+        break;
+        
+    case 'trust':
+        acknowledgment = `That's a fair concern about "${userText}". You're not alone - other practice owners felt the same way at first. You're welcome to check out their reviews below, or click Skip to move forward.`;
+        testimonialType = 'skeptical';
+        break;
+        
+    case 'general':
+        acknowledgment = `I appreciate you sharing that about "${userText}". Some of Bruce's clients started with similar hesitations. If you're curious what happened for them, click a review. Otherwise, click Skip and let's continue.`;
+        testimonialType = 'skeptical';
+        break;
+}
     
-    // Add AI message
-    if (typeof addAIMessage === 'function') {
-        addAIMessage(acknowledgment);
-    }
+      // Add AI message
+    addAIMessage(acknowledgment);
     
     // Speak the acknowledgment
     setTimeout(() => {
-        if (typeof speakText === 'function') {
-            speakText(acknowledgment);
-        }
+        speakResponse(acknowledgment);
     }, 100);
     
-    // Show testimonial selector banner after acknowledgment
+    // Show dynamic banner after speaking
     setTimeout(() => {
-        console.log('🎬 Triggering testimonial selector banner');
-        if (typeof showUniversalBanner === 'function') {
-            showUniversalBanner('testimonialSelector');
+        console.log('🎯 Triggering dynamic concern banner');
+        if (typeof showDynamicConcernBanner === 'function') {
+            showDynamicConcernBanner(concernType);
         }
-    }, 3000); // Give time for acknowledgment to be spoken
+    }, 3000);
     
-    // Store the concern for follow-up
+    // Store the concern
     window.lastDetectedConcern = {
         text: userText,
         type: concernType,
@@ -4625,6 +4626,11 @@ if (!window.disableDirectTimeout) {
 console.log('🎯 DIRECT Speak Now function loaded - No Get Ready phase!');
 
 function showHybridReadySequence() {
+    // 🛑 PREVENT INTERRUPTION IF CONCERN BANNER IS ACTIVE
+    if (window.concernBannerActive) {
+        console.log('⏸️ Concern banner active - blocking hybrid sequence');
+        return;
+    }
     console.log('🎯 Starting Mobile-Wise AI speak sequence...');
     
     // ===== BULLETPROOF BLOCKING =====
