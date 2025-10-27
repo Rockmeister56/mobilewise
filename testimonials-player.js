@@ -180,9 +180,6 @@ window.playTestimonialFromBanner = function(videoType) {
     }, 300);
 };
 
-// ===================================================
-// SKIP TESTIMONIAL BANNER
-// ===================================================
 window.skipTestimonialBanner = function() {
     console.log('⏭️ Skipping testimonial banner');
     
@@ -194,6 +191,13 @@ window.skipTestimonialBanner = function() {
             banner.remove();
             window.testimonialBannerActive = false;
             console.log('✅ Banner removed');
+            
+            // 🔓 CLEAR BLOCKING FLAG
+            window.concernBannerActive = false;
+            console.log('✅ FLAG CLEARED: concernBannerActive = false');
+            
+            // 🔄 RESUME CONVERSATION
+            resumeAfterTestimonial();
         }, 300);
     }
 };
