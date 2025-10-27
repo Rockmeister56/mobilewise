@@ -1118,6 +1118,12 @@ if (shouldTriggerLeadCapture(userText)) {
     return; // Exit early!
 }
 
+// 🚨 CHECK FOR CONCERNS/OBJECTIONS BEFORE AI RESPONSE
+if (detectConcernOrObjection(userText)) {
+    handleConcernWithTestimonial(userText);
+    return; // Exit - don't proceed to generic AI
+}
+
 // ===================================================
 // 🚨 CONCERN DETECTION SYSTEM
 // INSERT THIS AT LINE 1114 (before "// Default AI response handler")
@@ -1231,12 +1237,6 @@ function handleConcernWithTestimonial(userText) {
         type: concernType,
         timestamp: Date.now()
     };
-}
-
-// 🚨 CHECK FOR CONCERNS/OBJECTIONS BEFORE AI RESPONSE
-if (detectConcernOrObjection(userText)) {
-    handleConcernWithTestimonial(userText);
-    return; // Exit - don't proceed to generic AI
 }
 
 // Default AI response handler
