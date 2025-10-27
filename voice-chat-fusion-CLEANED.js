@@ -4679,12 +4679,15 @@ window.clearBulletproofTimer = function() {
         return;
     }
 
-    if (!window.playingSorryMessage) {
-        window.playingSorryMessage = true;
-        console.log('🔒 Setting playingSorryMessage protection (first time)');
-    } else {
-        console.log('🔄 playingSorryMessage already set - keeping existing protection');
-    }
+// ❌ DISABLED - This was causing listening delays
+// if (!window.playingSorryMessage) {
+//     window.playingSorryMessage = true;
+//     console.log('🔒 Setting playingSorryMessage protection (first time)');
+// } else {
+//     console.log('🔄 playingSorryMessage already set - keeping existing protection');
+// }
+
+console.log('🔓 playingSorryMessage protection DISABLED (was causing delays)');
 
     const isContactInterview = checkContactInterviewMode();
     console.log('📧 Contact interview mode:', isContactInterview);
