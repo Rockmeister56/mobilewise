@@ -355,6 +355,27 @@ function showTestimonialVideo(testimonialType, duration = null) {
 }
 
 // ===================================================
+// CLOSE TESTIMONIAL BANNER (Skip Reviews)
+// ===================================================
+function closeTestimonialBanner() {
+    console.log('🗑️ Closing testimonial banner');
+    
+    // Remove banner from DOM
+    const banner = document.getElementById('testimonial-review-banner');
+    if (banner) {
+        banner.remove();
+        console.log('✅ Banner removed from DOM');
+    }
+    
+    // 🔓 CLEAR BLOCKING FLAG
+    window.concernBannerActive = false;
+    console.log('✅ FLAG CLEARED: concernBannerActive = false');
+    
+    // Resume normal conversation flow
+    resumeAfterTestimonial();
+}
+
+// ===================================================
 // CLOSE VIDEO AND RESUME CONVERSATION
 // ===================================================
 function closeTestimonialVideo() {
@@ -365,6 +386,10 @@ function closeTestimonialVideo() {
     if (overlay) {
         overlay.remove();
     }
+    
+    // 🔓 CLEAR BLOCKING FLAG
+    window.concernBannerActive = false;
+    console.log('✅ FLAG CLEARED: concernBannerActive = false');
     
     // Reset playing flag
     window.avatarCurrentlyPlaying = false;
