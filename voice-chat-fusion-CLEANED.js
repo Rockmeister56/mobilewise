@@ -1178,50 +1178,50 @@ function detectConcernOrObjection(userText) {
     return false;
 }
 
-// 🎯 HANDLE CONCERN WITH TESTIMONIAL - MODIFIED
+// 🎯 HANDLE CONCERN WITH TESTIMONIAL - WITH USER TEXT ECHO
 function handleConcernWithTestimonial(userText) {
     const concernType = window.detectedConcernType || 'general';
     
-    console.log(`🎯 Handling ${concernType} concern - triggering dynamic banner`);
+    console.log(`🎯 Handling ${concernType} concern - triggering testimonial banner`);
     
-    // Empathetic acknowledgment
+    // Empathetic acknowledgment that INCLUDES the user's exact words
     let acknowledgment = '';
     
-   switch(concernType) {
-    case 'price':
-        acknowledgment = `I completely understand your concern regarding "${userText}". Many of our clients felt the same way initially. If you'd like to hear what they experienced, click a review below. Or click Skip to continue our conversation.`;
-        testimonialType = 'skeptical';
-        break;
-        
-    case 'time':
-        acknowledgment = `I hear you on "${userText}". Several of our clients had similar thoughts before working with Bruce. Feel free to click a review to hear their experience, or hit Skip and we'll keep talking.`;
-        testimonialType = 'speed';
-        break;
-        
-    case 'trust':
-        acknowledgment = `That's a fair concern about "${userText}". You're not alone - other practice owners felt the same way at first. You're welcome to check out their reviews below, or click Skip to move forward.`;
-        testimonialType = 'skeptical';
-        break;
-        
-    case 'general':
-        acknowledgment = `I appreciate you sharing that about "${userText}". Some of Bruce's clients started with similar hesitations. If you're curious what happened for them, click a review. Otherwise, click Skip and let's continue.`;
-        testimonialType = 'skeptical';
-        break;
-}
+    switch(concernType) {
+        case 'price':
+            acknowledgment = `I completely understand your concern regarding "${userText}". Many of our clients felt the same way initially. If you'd like to hear what they experienced, click a review below. Or click Skip to continue our conversation.`;
+            break;
+            
+        case 'time':
+            acknowledgment = `I hear you on "${userText}". Several of our clients had similar thoughts before working with Bruce. Feel free to click a review to hear their experience, or hit Skip and we'll keep talking.`;
+            break;
+            
+        case 'trust':
+            acknowledgment = `That's a fair concern about "${userText}". You're not alone - other practice owners felt the same way at first. You're welcome to check out their reviews below, or click Skip to move forward.`;
+            break;
+            
+        case 'general':
+            acknowledgment = `I appreciate you sharing that about "${userText}". Some of Bruce's clients started with similar hesitations. If you're curious what happened for them, click a review. Otherwise, click Skip and let's continue.`;
+            break;
+    }
     
-      // Add AI message
+    // Add AI message
     addAIMessage(acknowledgment);
     
     // Speak the acknowledgment
     setTimeout(() => {
-        speakResponse(acknowledgment);
+        if (typeof speakResponse === 'function') {
+            speakResponse(acknowledgment);
+        }
     }, 100);
     
-    // Show dynamic banner after speaking
+    // Show testimonial banner after speaking
     setTimeout(() => {
-        console.log('🎯 Triggering dynamic concern banner');
-        if (typeof showDynamicConcernBanner === 'function') {
-            showDynamicConcernBanner(concernType);
+        console.log('🎯 Triggering testimonial banner');
+        if (typeof showTestimonialBanner === 'function') {
+            showTestimonialBanner(concernType);
+        } else {
+            console.error('❌ showTestimonialBanner function not found');
         }
     }, 3000);
     
