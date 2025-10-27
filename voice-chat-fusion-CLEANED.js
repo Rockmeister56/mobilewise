@@ -1237,28 +1237,16 @@ if (detectConcernOrObjection(userText)) {
 function shouldTriggerLeadCapture(userInput) {
     const input = userInput.toLowerCase().trim();
     
-    // Get recent AI messages to check context
-    const recentAI = conversationHistory
-        .slice(-3)
-        .filter(msg => msg.role === 'assistant')
-        .map(msg => msg.content.toLowerCase())
-        .join(' ');
-    
-    // Check if recent AI mentioned consultation/scheduling
-    const aiOfferedConsultation = recentAI.includes('consultation') || 
-                                recentAI.includes('schedule') ||
-                                recentAI.includes('contact you') ||
-                                recentAI.includes('would you like');
-    
-    // User's affirmative responses
+    // Direct affirmative responses that suggest user wants consultation
     const yesResponses = [
         'yes', 'yeah', 'yep', 'sure', 'ok', 'okay', 'absolutely', 
         'definitely', 'of course', 'let\'s do it', 'sounds good',
-        'i would', 'i\'d like that', 'that sounds great', 'let\'s go'
+        'i would', 'i\'d like that', 'that sounds great', 'let\'s go',
+        'sign me up', 'i\'m interested', 'book it', 'schedule it'
     ];
     
-    return yesResponses.includes(input) && aiOfferedConsultation;
-}
+    // Only trigger if it's a clear yes (removed conversationHistory dependency)
+    return yesResponses.includes(input);
 }
 
 // ===================================================
