@@ -2592,7 +2592,6 @@ function handleTestimonialComplete() {
     conversationState = 'post_testimonial_consultation_offer';
 }
 
-// ✅ FIXED FUNCTION: Ask quick question (from buttons)
 function askQuickQuestion(questionText) {
     console.log('🎯 Quick button clicked:', questionText);
     
@@ -2699,12 +2698,102 @@ function askQuickQuestion(questionText) {
             speakText(fullResponse);
         }, 100);
         
+        // ✅ RESTART VOICE LISTENING AFTER SPEECH
+        setTimeout(() => {
+            if (typeof startListening === 'function') {
+                startListening();
+            }
+        }, 2000);
+        
         // Show expertise banner immediately
         setTimeout(() => {
             if (typeof showUniversalBanner === 'function') {
                 showUniversalBanner('expertise');
             }
         }, 1500);
+    }
+}
+
+// ===================================================
+// 🎯 PROCESS QUICK INTENT - HANDLES SPECIALTY FLOWS
+// ===================================================
+
+function processQuickIntent(intent, originalQuestion) {
+    console.log('🎯 Processing quick intent:', intent);
+    
+    switch(intent) {
+        case 'selling':
+            // Acknowledge and show expertise banner
+            const sellingMsg = `${window.userName}, I'd be happy to help you explore selling your practice. Let me show you our expertise in this area.`;
+            addAIMessage(sellingMsg);
+            speakResponse(sellingMsg);
+            
+            // Trigger expertise banner after a brief pause
+            setTimeout(() => {
+                triggerBanner('expertise');
+            }, 2000);
+            break;
+            
+        case 'buying':
+            // Acknowledge and show expertise banner
+            const buyingMsg = `${window.userName}, great to hear you're interested in buying a practice! Let me share our expertise in practice acquisitions.`;
+            addAIMessage(buyingMsg);
+            speakResponse(buyingMsg);
+            
+            // Trigger expertise banner
+            setTimeout(() => {
+                triggerBanner('expertise');
+            }, 2000);
+            break;
+            
+        case 'valuation':
+            // Acknowledge and show expertise banner
+            const valuationMsg = `${window.userName}, I can help you understand what your practice is worth. Let me show you our valuation expertise.`;
+            addAIMessage(valuationMsg);
+            speakResponse(valuationMsg);
+            
+            // Trigger expertise banner
+            setTimeout(() => {
+                triggerBanner('expertise');
+            }, 2000);
+            break;
+            
+        default:
+            // Fallback to regular AI processing if no specific intent
+            console.log('⚠️ No specific intent matched - using regular AI response');
+            processUserResponse(originalQuestion);
+            break;
+    }
+}
+
+// ===================================================
+// 🎯 NAME CAPTURE HANDLER - RESUME PENDING INTENT
+// ===================================================
+
+// Add this to your name capture logic (inside processUserResponse or wherever you handle name collection)
+function resumePendingIntent() {
+    if (window.pendingIntent) {
+        console.log('🎯 Resuming pendingIntent:', window.pendingIntent);
+        
+        const intent = window.pendingIntent;
+        window.pendingIntent = null; // Clear it
+        
+        // Create appropriate message based on intent
+        let message = '';
+        switch(intent) {
+            case 'selling':
+                message = 'I want to sell my practice';
+                break;
+            case 'buying':
+                message = 'I want to buy a practice';
+                break;
+            case 'valuation':
+                message = 'How much is my practice worth?';
+                break;
+        }
+        
+        // Process the intent
+        processQuickIntent(intent, message);
     }
 }
 
