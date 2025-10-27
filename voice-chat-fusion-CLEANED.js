@@ -992,11 +992,12 @@ function scrollChatToBottom() {
 // ===================================================
 // 💬 TEXT INPUT SYSTEM
 // ===================================================
-function sendMessage() {
+function sendMessage(messageText) {
     const userInput = document.getElementById('userInput');
     if (!userInput) return;
     
-    const message = userInput.value.trim();
+    // Use parameter if provided, otherwise get from input field
+    const message = messageText || userInput.value.trim();
     if (!message) return;
     
     const liveTranscript = document.getElementById('liveTranscript');
