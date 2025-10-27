@@ -171,13 +171,24 @@ const bannerHTML = `
 window.playTestimonialFromBanner = function(videoType) {
     console.log(`🎬 Playing video from banner: ${videoType}`);
     
-    // Close banner first
-    skipTestimonialBanner();
+    // Close banner WITHOUT resuming conversation
+    const banner = document.getElementById('testimonial-review-banner');
+    if (banner) {
+        banner.style.animation = 'slideOutBanner 0.3s ease-out';
+        
+        setTimeout(() => {
+            banner.remove();
+            window.testimonialBannerActive = false;
+            console.log('✅ Banner removed (video will play)');
+            
+            // DON'T resume here - video will handle it
+        }, 300);
+    }
     
     // Small delay before showing video
     setTimeout(() => {
         showTestimonialVideo(videoType);
-    }, 300);
+    }, 400);
 };
 
 window.skipTestimonialBanner = function() {
