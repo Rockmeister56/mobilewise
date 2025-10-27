@@ -1010,6 +1010,116 @@ function sendMessage() {
     processUserResponse(message);
 }
 
+// 🎯 CONCERN DETECTION: Check for objections/negative sentiment
+function detectConcernOrObjection(userText) {
+    const text = userText.toLowerCase().trim();
+    
+    // Price objections
+    const priceKeywords = [
+        'expensive', 'too much', 'cost', 'afford', 'price', 'money',
+        'budget', 'cheap', 'fee', 'charge', 'payment'
+    ];
+    
+    // Time objections
+    const timeKeywords = [
+        'busy', 'no time', 'later', 'not now', 'rush', 'hurry',
+        'schedule', 'appointment', 'timing'
+    ];
+    
+    // Trust/skepticism objections
+    const trustKeywords = [
+        'not sure', 'doubt', 'skeptical', 'risky', 'uncertain',
+        'hesitant', 'worried', 'concerned', 'afraid', 'nervous',
+        'scam', 'legit', 'trust', 'guarantee'
+    ];
+    
+    // General negative sentiment
+    const negativeKeywords = [
+        'don\'t want', 'not interested', 'no thanks', 'maybe later',
+        'think about it', 'need to consider', 'sounds too good',
+        'hard to believe', 'complicated', 'difficult'
+    ];
+    
+    // Check if any negative keywords present
+    const allKeywords = [...priceKeywords, ...timeKeywords, ...trustKeywords, ...negativeKeywords];
+    
+    for (let keyword of allKeywords) {
+        if (text.includes(keyword)) {
+            console.log(`🚨 CONCERN DETECTED: "${keyword}" in user input`);
+            
+            // Determine concern type
+            if (priceKeywords.some(k => text.includes(k))) {
+                window.detectedConcernType = 'price';
+            } else if (timeKeywords.some(k => text.includes(k))) {
+                window.detectedConcernType = 'time';
+            } else if (trustKeywords.some(k => text.includes(k))) {
+                window.detectedConcernType = 'trust';
+            } else {
+                window.detectedConcernType = 'general';
+            }
+            
+            return true;
+        }
+    }
+    
+    return false;
+}
+
+// 🎯 HANDLE CONCERN WITH TESTIMONIAL - WITH USER TEXT ECHO
+function handleConcernWithTestimonial(userText) {
+    const concernType = window.detectedConcernType || 'general';
+    
+    console.log(`🎯 Handling ${concernType} concern - triggering testimonial banner`);
+    
+    // Empathetic acknowledgment that INCLUDES the user's exact words
+    let acknowledgment = '';
+    
+    switch(concernType) {
+        case 'price':
+            acknowledgment = `I completely understand your concern regarding "${userText}". Many of our clients felt the same way initially. If you'd like to hear what they experienced, click a review below. Or click Skip to continue our conversation.`;
+            break;
+            
+        case 'time':
+            acknowledgment = `I hear you on "${userText}". Several of our clients had similar thoughts before working with Bruce. Feel free to click a review to hear their experience, or hit Skip and we'll keep talking.`;
+            break;
+            
+        case 'trust':
+            acknowledgment = `That's a fair concern about "${userText}". You're not alone - other practice owners felt the same way at first. You're welcome to check out their reviews below, or click Skip to move forward.`;
+            break;
+            
+        case 'general':
+            acknowledgment = `I appreciate you sharing that about "${userText}". Some of Bruce's clients started with similar hesitations. If you're curious what happened for them, click a review. Otherwise, click Skip and let's continue.`;
+            break;
+    }
+    
+    // Add AI message
+    addAIMessage(acknowledgment);
+    
+    // Speak the acknowledgment
+    setTimeout(() => {
+        if (typeof speakResponse === 'function') {
+            speakResponse(acknowledgment);
+        }
+    }, 100);
+    
+    // Show testimonial banner after speaking
+    setTimeout(() => {
+        console.log('🎯 Triggering testimonial banner');
+        if (typeof showTestimonialBanner === 'function') {
+            showTestimonialBanner(concernType);
+        } else {
+            console.error('❌ showTestimonialBanner function not found');
+        }
+    }, 3000);
+    
+    // Store the concern
+    window.lastDetectedConcern = {
+        text: userText,
+        type: concernType,
+        timestamp: Date.now()
+    };
+}
+
 function processUserResponse(userText) {
     userResponseCount++;
     
@@ -1124,150 +1234,6 @@ if (detectConcernOrObjection(userText)) {
     return; // Exit - don't proceed to generic AI
 }
 
-// ===================================================
-// 🚨 CONCERN DETECTION SYSTEM
-// INSERT THIS AT LINE 1114 (before "// Default AI response handler")
-// ===================================================
-
-// 🎯 CONCERN DETECTION: Check for objections/negative sentiment
-function detectConcernOrObjection(userText) {
-    const text = userText.toLowerCase().trim();
-    
-    // Price objections
-    const priceKeywords = [
-        'expensive', 'too much', 'cost', 'afford', 'price', 'money',
-        'budget', 'cheap', 'fee', 'charge', 'payment'
-    ];
-    
-    // Time objections
-    const timeKeywords = [
-        'busy', 'no time', 'later', 'not now', 'rush', 'hurry',
-        'schedule', 'appointment', 'timing'
-    ];
-    
-    // Trust/skepticism objections
-    const trustKeywords = [
-        'not sure', 'doubt', 'skeptical', 'risky', 'uncertain',
-        'hesitant', 'worried', 'concerned', 'afraid', 'nervous',
-        'scam', 'legit', 'trust', 'guarantee'
-    ];
-    
-    // General negative sentiment
-    const negativeKeywords = [
-        'don\'t want', 'not interested', 'no thanks', 'maybe later',
-        'think about it', 'need to consider', 'sounds too good',
-        'hard to believe', 'complicated', 'difficult'
-    ];
-    
-    // Check if any negative keywords present
-    const allKeywords = [...priceKeywords, ...timeKeywords, ...trustKeywords, ...negativeKeywords];
-    
-    for (let keyword of allKeywords) {
-        if (text.includes(keyword)) {
-            console.log(`🚨 CONCERN DETECTED: "${keyword}" in user input`);
-            
-            // Determine concern type
-            if (priceKeywords.some(k => text.includes(k))) {
-                window.detectedConcernType = 'price';
-            } else if (timeKeywords.some(k => text.includes(k))) {
-                window.detectedConcernType = 'time';
-            } else if (trustKeywords.some(k => text.includes(k))) {
-                window.detectedConcernType = 'trust';
-            } else {
-                window.detectedConcernType = 'general';
-            }
-            
-            return true;
-        }
-    }
-    
-    return false;
-}
-
-// 🎯 HANDLE CONCERN WITH TESTIMONIAL - WITH USER TEXT ECHO
-function handleConcernWithTestimonial(userText) {
-    const concernType = window.detectedConcernType || 'general';
-    
-    console.log(`🎯 Handling ${concernType} concern - triggering testimonial banner`);
-    
-    // Empathetic acknowledgment that INCLUDES the user's exact words
-    let acknowledgment = '';
-    
-    switch(concernType) {
-        case 'price':
-            acknowledgment = `I completely understand your concern regarding "${userText}". Many of our clients felt the same way initially. If you'd like to hear what they experienced, click a review below. Or click Skip to continue our conversation.`;
-            break;
-            
-        case 'time':
-            acknowledgment = `I hear you on "${userText}". Several of our clients had similar thoughts before working with Bruce. Feel free to click a review to hear their experience, or hit Skip and we'll keep talking.`;
-            break;
-            
-        case 'trust':
-            acknowledgment = `That's a fair concern about "${userText}". You're not alone - other practice owners felt the same way at first. You're welcome to check out their reviews below, or click Skip to move forward.`;
-            break;
-            
-        case 'general':
-            acknowledgment = `I appreciate you sharing that about "${userText}". Some of Bruce's clients started with similar hesitations. If you're curious what happened for them, click a review. Otherwise, click Skip and let's continue.`;
-            break;
-    }
-    
-    // Add AI message
-    addAIMessage(acknowledgment);
-    
-    // Speak the acknowledgment
-    setTimeout(() => {
-        if (typeof speakResponse === 'function') {
-            speakResponse(acknowledgment);
-        }
-    }, 100);
-    
-    // Show testimonial banner after speaking
-    setTimeout(() => {
-        console.log('🎯 Triggering testimonial banner');
-        if (typeof showTestimonialBanner === 'function') {
-            showTestimonialBanner(concernType);
-        } else {
-            console.error('❌ showTestimonialBanner function not found');
-        }
-    }, 3000);
-    
-    // Store the concern
-    window.lastDetectedConcern = {
-        text: userText,
-        type: concernType,
-        timestamp: Date.now()
-    };
-}
-
-// Default AI response handler
-setTimeout(() => {
-    const responseText = getAIResponse(userText);
-
-    console.log('🎯 USER SAID:', userText);
-    console.log('🎯 AI RESPONSE:', responseText);
-    
-    addAIMessage(responseText);
-    setAIResponse(responseText);
-    speakWithElevenLabs(responseText);
-    
-    function setAIResponse(response) {
-        currentAIResponse = response;
-        
-        // Track when we mention clicking
-        if (response && (response.includes('click') || response.includes('button above'))) {
-            window.lastClickMentionTime = Date.now();
-            console.log('⏰ Click mention detected - setting blocking window');
-        }
-    }
-    
-    updateSmartButton(shouldShowSmartButton, smartButtonText, smartButtonAction);
-    
-    setTimeout(() => {
-        window.lastProcessedMessage = null;
-    }, 3000);
-}, 800);
-}
-
 function shouldTriggerLeadCapture(userInput) {
     const input = userInput.toLowerCase().trim();
     
@@ -1292,6 +1258,7 @@ function shouldTriggerLeadCapture(userInput) {
     ];
     
     return yesResponses.includes(input) && aiOfferedConsultation;
+}
 }
 
 // ===================================================
