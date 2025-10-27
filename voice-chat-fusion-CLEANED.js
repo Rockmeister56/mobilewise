@@ -1232,6 +1232,12 @@ function handleConcernWithTestimonial(userText) {
     };
 }
 
+// 🚨 CHECK FOR CONCERNS/OBJECTIONS BEFORE AI RESPONSE
+if (detectConcernOrObjection(userText)) {
+    handleConcernWithTestimonial(userText);
+    return; // Exit - don't proceed to generic AI
+}
+
 // Default AI response handler
 setTimeout(() => {
     const responseText = getAIResponse(userText);
