@@ -1129,7 +1129,7 @@ function processUserResponse(userText) {
     
     stopListening();
 
-        // 🎯 CHECK FOR QUICK LEAD CAPTURE (Request-a-Call / URGENT)
+    // 🎯 CHECK FOR QUICK LEAD CAPTURE (Request-a-Call / URGENT)
     if (isInLeadCapture && window.quickLeadData) {
         console.log('📋 Quick lead capture active - routing to quick processor');
         processQuickLeadResponse(userText);
@@ -1152,14 +1152,13 @@ function processUserResponse(userText) {
             addAIMessage(goodbye);
             speakResponse(goodbye);
             
-            
             setTimeout(() => {
-    // Continue conversation instead of ending abruptly
-    addAIMessage("Is there anything else I can help you with today?", 'ai');
-    conversationState = 'asking_if_more_help';
-    stopListening();
-    window.lastProcessedMessage = null;
-     }, 1500);
+                // Continue conversation instead of ending abruptly
+                addAIMessage("Is there anything else I can help you with today?", 'ai');
+                conversationState = 'asking_if_more_help';
+                stopListening();
+                window.lastProcessedMessage = null;
+            }, 1500);
             
             return;
         }
@@ -1215,12 +1214,44 @@ function processUserResponse(userText) {
         }
     }
     
-  // 🆕 CHECK IF LEAD CAPTURE SHOULD HANDLE THIS FIRST
-if (processLeadResponse(userText)) {
+    // 🆕 CHECK IF LEAD CAPTURE SHOULD HANDLE THIS FIRST
+    if (processLeadResponse(userText)) {
+        setTimeout(() => {
+            window.lastProcessedMessage = null;
+        }, 2000);
+        return;
+    }
+
+    // 🎯 NEW: Direct consultation trigger - NO AI fluff!
+    if (shouldTriggerLeadCapture(userText)) {
+        console.log('🎯 BYPASSING AI - Direct to lead capture!');
+        setTimeout(() => {
+            initializeLeadCapture();
+        }, 300);
+        return; // Exit early!
+    }
+
+    // ✅ DEFAULT AI RESPONSE HANDLER - THIS WAS MISSING!
     setTimeout(() => {
-        window.lastProcessedMessage = null;
-    }, 2000);
-    return;
+        const responseText = getAIResponse(userText);
+
+        console.log('🎯 USER SAID:', userText);
+        console.log('🎯 AI RESPONSE:', responseText);
+        
+        addAIMessage(responseText);
+        setAIResponse(responseText);
+        speakWithElevenLabs(responseText);
+        
+        function setAIResponse(response) {
+            currentAIResponse = response;
+            
+            // Track when we mention clicking
+            if (response && (response.includes('click') || response.includes('button above'))) {
+                window.lastClickMentionTime = Date.now();
+                console.log('⏰ Click mention detected - setting blocking window');
+            }
+        }
+    }, 800);
 }
 
 // 🎯 NEW: Direct consultation trigger - NO AI fluff!
