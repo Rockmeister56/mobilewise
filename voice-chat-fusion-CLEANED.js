@@ -1067,6 +1067,10 @@ function detectConcernOrObjection(userText) {
 
 // 🎯 HANDLE CONCERN WITH TESTIMONIAL - WITH USER TEXT ECHO
 function handleConcernWithTestimonial(userText) {
+    // 🛑 BLOCK SPEAK SEQUENCE IMMEDIATELY
+    window.concernBannerActive = true;
+    console.log('🚫 FLAG SET: concernBannerActive = true');
+    
     const concernType = window.detectedConcernType || 'general';
     
     console.log(`🎯 Handling ${concernType} concern - triggering testimonial banner`);
