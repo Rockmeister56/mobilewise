@@ -1125,103 +1125,8 @@ function handleConcernWithTestimonial(userText) {
 }
 
 function processUserResponse(userText) {
-    userResponseCount++;
+    // ... all your lead capture checks ...
     
-    stopListening();
-
-    // 🎯 CHECK FOR QUICK LEAD CAPTURE (Request-a-Call / URGENT)
-    if (isInLeadCapture && window.quickLeadData) {
-        console.log('📋 Quick lead capture active - routing to quick processor');
-        processQuickLeadResponse(userText);
-        return;
-    }
-    
-    // 🎯 CHECK FOR FULL LEAD CAPTURE (Book Meeting)
-    if (isInLeadCapture && window.leadData) {
-        console.log('📋 Full lead capture active - routing to lead processor');
-        processLeadResponse(userText);
-        return;
-    }
-    
-    // ✅ CHECK FINAL QUESTION STATE FIRST (BEFORE LEAD CAPTURE!)
-    if (conversationState === 'final_question') {
-        const response = userText.toLowerCase().trim();
-        
-        if (response.includes('no') || response.includes('nope') || response.includes("i'm good") || response.includes('nothing')) {
-            const goodbye = "Thank you for visiting us today. Have a great day!";
-            addAIMessage(goodbye);
-            speakResponse(goodbye);
-            
-            setTimeout(() => {
-                // Continue conversation instead of ending abruptly
-                addAIMessage("Is there anything else I can help you with today?", 'ai');
-                conversationState = 'asking_if_more_help';
-                stopListening();
-                window.lastProcessedMessage = null;
-            }, 1500);
-            
-            return;
-        }
-        
-        // If unclear, ask again
-        addAIMessage("Is there anything else I can help you with today?");
-        speakResponse("Is there anything else I can help you with today?");
-        setTimeout(() => {
-            startListening();
-            window.lastProcessedMessage = null;
-        }, 800);
-        return;
-    }
-    
-    // 🆕 SINGLE EMAIL PERMISSION HANDLER - NO DUPLICATES
-    if (conversationState === 'asking_for_email_permission') {
-        const response = userText.toLowerCase().trim();
-        
-        if (response.includes('yes') || response.includes('sure') || response.includes('okay') || response.includes('send')) {
-            // Send confirmation email - this will handle the flow internally
-            sendFollowUpEmail();
-            
-            // Clear duplicate prevention
-            setTimeout(() => {
-                window.lastProcessedMessage = null;
-            }, 2000);
-            return;
-            
-        } else if (response.includes('no') || response.includes('skip') || response.includes("don't")) {
-            // Skip email, go to final question
-            const skipMessage = "No problem! Is there anything else I can help you with today?";
-            addAIMessage(skipMessage);
-            speakResponse(skipMessage);
-            conversationState = 'final_question';
-            
-            setTimeout(() => {
-                startListening();
-                window.lastProcessedMessage = null;
-            }, 1000);
-            return;
-            
-        } else {
-            // Clarify
-            const clarifyMessage = "Would you like me to send you the book and confirmation email? Just say yes or no.";
-            addAIMessage(clarifyMessage);
-            speakResponse(clarifyMessage);
-            
-            setTimeout(() => {
-                startListening();
-                window.lastProcessedMessage = null;
-            }, 1000);
-            return;
-        }
-    }
-    
-    // 🆕 CHECK IF LEAD CAPTURE SHOULD HANDLE THIS FIRST
-    if (processLeadResponse(userText)) {
-        setTimeout(() => {
-            window.lastProcessedMessage = null;
-        }, 2000);
-        return;
-    }
-
     // 🎯 NEW: Direct consultation trigger - NO AI fluff!
     if (shouldTriggerLeadCapture(userText)) {
         console.log('🎯 BYPASSING AI - Direct to lead capture!');
@@ -1229,6 +1134,12 @@ function processUserResponse(userText) {
             initializeLeadCapture();
         }, 300);
         return; // Exit early!
+    }
+
+    // 🚨 CHECK FOR CONCERNS/OBJECTIONS BEFORE AI RESPONSE
+    if (detectConcernOrObjection(userText)) {
+        handleConcernWithTestimonial(userText);
+        return; // Exit - don't proceed to generic AI
     }
 
     // ✅ DEFAULT AI RESPONSE HANDLER - THIS WAS MISSING!
@@ -1252,23 +1163,9 @@ function processUserResponse(userText) {
             }
         }
     }, 800);
-}
+} // ✅ END OF processUserResponse() function
 
-// 🎯 NEW: Direct consultation trigger - NO AI fluff!
-if (shouldTriggerLeadCapture(userText)) {
-    console.log('🎯 BYPASSING AI - Direct to lead capture!');
-    setTimeout(() => {
-        initializeLeadCapture();
-    }, 300);
-    return; // Exit early!
-}
-
-// 🚨 CHECK FOR CONCERNS/OBJECTIONS BEFORE AI RESPONSE
-if (detectConcernOrObjection(userText)) {
-    handleConcernWithTestimonial(userText);
-    return; // Exit - don't proceed to generic AI
-}
-
+// ✅ SEPARATE HELPER FUNCTION - OUTSIDE processUserResponse()
 function shouldTriggerLeadCapture(userInput) {
     const input = userInput.toLowerCase().trim();
     
