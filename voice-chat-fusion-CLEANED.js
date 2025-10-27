@@ -695,19 +695,7 @@ function suppressBrowserBeeps() {
             
             console.log('✅ Sending new message:', currentMessage);
 
-            // 🎯 DEBUG LOGS
-            console.log('🔍 DEBUG: About to call sendMessage');
-            console.log('🔍 DEBUG: sendMessage function exists?', typeof sendMessage);
-            console.log('🔍 DEBUG: currentMessage value:', currentMessage);
-
-            // 🎯 PROCESS MESSAGE FIRST - BEFORE CLEANUP!
-            window.lastMessageTime = now;
-            window.lastProcessedMessage = currentMessage;
-            console.log('🔍 DEBUG: Calling sendMessage NOW');
-            sendMessage(currentMessage);
-            console.log('🔍 DEBUG: sendMessage completed');
-
-            // 🎯 THEN CLEANUP BANNER (AFTER MESSAGE IS SENT)
+            // 🎯 ADD BANNER CLEANUP HERE - RIGHT AFTER MESSAGE IS SENT
             if (typeof speakSequenceActive !== 'undefined' && speakSequenceActive) {
                 console.log('🎯 Closing Speak Now banner - message sent');
                 
@@ -1004,12 +992,11 @@ function scrollChatToBottom() {
 // ===================================================
 // 💬 TEXT INPUT SYSTEM
 // ===================================================
-function sendMessage(messageText) {
+function sendMessage() {
     const userInput = document.getElementById('userInput');
     if (!userInput) return;
     
-    // Use parameter if provided, otherwise get from input field
-    const message = messageText || userInput.value.trim();
+    const message = userInput.value.trim();
     if (!message) return;
     
     const liveTranscript = document.getElementById('liveTranscript');
@@ -4692,15 +4679,12 @@ window.clearBulletproofTimer = function() {
         return;
     }
 
-// ❌ DISABLED - This was causing listening delays
-// if (!window.playingSorryMessage) {
-//     window.playingSorryMessage = true;
-//     console.log('🔒 Setting playingSorryMessage protection (first time)');
-// } else {
-//     console.log('🔄 playingSorryMessage already set - keeping existing protection');
-// }
-
-console.log('🔓 playingSorryMessage protection DISABLED (was causing delays)');
+    if (!window.playingSorryMessage) {
+        window.playingSorryMessage = true;
+        console.log('🔒 Setting playingSorryMessage protection (first time)');
+    } else {
+        console.log('🔄 playingSorryMessage already set - keeping existing protection');
+    }
 
     const isContactInterview = checkContactInterviewMode();
     console.log('📧 Contact interview mode:', isContactInterview);
