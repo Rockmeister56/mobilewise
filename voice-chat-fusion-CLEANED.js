@@ -2626,7 +2626,7 @@ function askQuickQuestion(questionText) {
             `Perfect ${window.leadData.firstName}! Bruce can provide a FREE valuation. Most owners are surprised by the value. Interested?` :
             "Perfect! Bruce can provide a FREE valuation. Most owners are surprised. Interested?";
             
-    } else if (buttonText.includes('selling')) {
+    } else if (buttonText.includes('sell')) {
         // SELLING OPTIONS BUTTON
         buttonIntent = 'selling';
         acknowledgment = "Fantastic! You want to sell your practice.";
@@ -2636,7 +2636,7 @@ function askQuickQuestion(questionText) {
             `Wow ${window.leadData.firstName}! That's a huge decision. How many clients are you serving?` :
             "Wow! That's a huge decision. How many clients are you serving?";
             
-    } else if (buttonText.includes('buying')) {
+    } else if (buttonText.includes('buy')) {
         // BUYING OPTIONS BUTTON
         buttonIntent = 'buying';
         acknowledgment = "Fantastic! You want to buy a practice.";
@@ -2711,58 +2711,6 @@ function askQuickQuestion(questionText) {
                 showUniversalBanner('expertise');
             }
         }, 1500);
-    }
-}
-
-// ===================================================
-// 🎯 PROCESS QUICK INTENT - HANDLES SPECIALTY FLOWS
-// ===================================================
-
-function processQuickIntent(intent, originalQuestion) {
-    console.log('🎯 Processing quick intent:', intent);
-    
-    switch(intent) {
-        case 'selling':
-            // Acknowledge and show expertise banner
-            const sellingMsg = `${window.userName}, I'd be happy to help you explore selling your practice. Let me show you our expertise in this area.`;
-            addAIMessage(sellingMsg);
-            speakResponse(sellingMsg);
-            
-            // Trigger expertise banner after a brief pause
-            setTimeout(() => {
-                triggerBanner('expertise');
-            }, 2000);
-            break;
-            
-        case 'buying':
-            // Acknowledge and show expertise banner
-            const buyingMsg = `${window.userName}, great to hear you're interested in buying a practice! Let me share our expertise in practice acquisitions.`;
-            addAIMessage(buyingMsg);
-            speakResponse(buyingMsg);
-            
-            // Trigger expertise banner
-            setTimeout(() => {
-                triggerBanner('expertise');
-            }, 2000);
-            break;
-            
-        case 'valuation':
-            // Acknowledge and show expertise banner
-            const valuationMsg = `${window.userName}, I can help you understand what your practice is worth. Let me show you our valuation expertise.`;
-            addAIMessage(valuationMsg);
-            speakResponse(valuationMsg);
-            
-            // Trigger expertise banner
-            setTimeout(() => {
-                triggerBanner('expertise');
-            }, 2000);
-            break;
-            
-        default:
-            // Fallback to regular AI processing if no specific intent
-            console.log('⚠️ No specific intent matched - using regular AI response');
-            processUserResponse(originalQuestion);
-            break;
     }
 }
 
