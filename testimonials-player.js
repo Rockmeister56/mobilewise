@@ -82,36 +82,39 @@ function showTestimonialBanner(concernType) {
     `).join('');
     
     // Create banner HTML
-    const bannerHTML = `
-        <div id="testimonial-review-banner" style="
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 16px;
-            padding: 24px;
-            margin: 20px auto;
-            max-width: 90%;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-            animation: slideInBanner 0.5s ease-out;
-            position: relative;
-            z-index: 998;
+const bannerHTML = `
+    <div id="testimonial-review-banner" style="
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 20px;
+        padding: 24px;
+        margin: 20px auto;
+        max-width: 90%;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        animation: slideInBanner 0.5s ease-out;
+        position: relative;
+        z-index: 998;
+    ">
+        <!-- Header -->
+        <div style="
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.4);
         ">
-            <!-- Header -->
-            <div style="
-                display: flex;
-                align-items: center;
-                gap: 12px;
-                margin-bottom: 20px;
-                padding-bottom: 15px;
-                border-bottom: 2px solid rgba(102, 126, 234, 0.2);
-            ">
-                <span style="font-size: 32px;">${concernData.icon}</span>
-                <h3 style="
-                    color: #333;
-                    margin: 0;
-                    font-size: 20px;
-                    font-weight: 600;
-                ">${concernData.title}</h3>
-            </div>
+            <span style="font-size: 32px;">${concernData.icon}</span>
+            <h3 style="
+                color: #ffffff;
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+                margin: 0;
+                font-size: 20px;
+                font-weight: 600;
+            ">${concernData.title}</h3>
+        </div>
             
             <!-- Review Items with Play Buttons -->
             <div style="margin-bottom: 20px;">
