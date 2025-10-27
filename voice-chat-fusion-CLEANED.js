@@ -1248,6 +1248,7 @@ function shouldTriggerLeadCapture(userInput) {
     // Only trigger if it's a clear yes (removed conversationHistory dependency)
     return yesResponses.includes(input);
 }
+}
 
 // ===================================================
 // 🔥 PRE-WARM ENGINE (SILENT - NO BEEP)
