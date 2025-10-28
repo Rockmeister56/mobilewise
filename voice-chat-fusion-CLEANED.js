@@ -2105,7 +2105,38 @@ function updateSmartButton(shouldShow, buttonText, action) {
     
 }
 
-
+// 🔥 PART 1: CREATE THE MISSING UTILITY FUNCTION
+function detectConsultativeResponse(userInput) {
+    const input = userInput.toLowerCase();
+    
+    // Detect if user wants to speak to Bruce/contact someone
+    const contactKeywords = [
+        'speak to bruce',
+        'talk to bruce',
+        'call bruce',
+        'contact bruce',
+        'get a hold of',
+        'rather just speak',
+        'rather talk',
+        'skip this',
+        'just call',
+        'want to speak'
+    ];
+    
+    const wantsContact = contactKeywords.some(keyword => input.includes(keyword));
+    
+    if (wantsContact) {
+        console.log('🎯 Consultative response detected: User wants direct contact');
+        return {
+            type: 'contact_request',
+            shouldShowBanner: true,
+            bannerType: 'clickToCall'
+        };
+    }
+    
+    // If not a contact request, return null (let normal concern detection handle it)
+    return null;
+}
 
 // 🎯 COMPLETE AI RESPONSE SYSTEM - MOBILE-WISE AI FORMVISER
 // Captain's Architecture - Banner & Button Integration
@@ -2115,6 +2146,26 @@ function getAIResponse(userInput) {
     const userText = userInput.toLowerCase().trim();
     const firstName = window.leadData.firstName || '';
     let responseText = '';
+    
+    // 🔥 PART 2: CHECK FOR CONTACT INTENT FIRST (before anything else)
+    const contactCheck = detectConsultativeResponse(userText);
+    
+    if (contactCheck && contactCheck.type === 'contact_request') {
+        console.log('🎯 User wants to contact Bruce - showing banner');
+        
+        // Show the contact banner
+        if (typeof showUniversalBanner === 'function') {
+            setTimeout(() => {
+                showUniversalBanner(contactCheck.bannerType);
+                console.log('✅ Contact banner triggered:', contactCheck.bannerType);
+            }, 1000);
+        }
+        
+        return {
+            response: "I completely understand! Bruce is our expert and the best person to talk to. I'm showing his contact information now - you can call him directly, or I can help gather a couple quick details so Bruce knows exactly what you're looking for. What works best for you?",
+            newState: 'offering_contact_options'
+        };
+    }
     
     // 🎯 CONCERN DETECTION - Skip in INITIAL state to avoid intent conflicts
     if (conversationState !== 'initial' &&
