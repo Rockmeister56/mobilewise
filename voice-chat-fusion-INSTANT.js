@@ -145,33 +145,11 @@ function createInstantBubble() {
         }
     }
     
-    // 🎯 USE THE SAME STYLING AS showDirectSpeakNow() - Frosted glass with animation
+    liveTranscript.style.display = 'block';
     liveTranscript.innerHTML = `
-        <div class="mobile-wise-banner speak-now-state" style="
-            width: 100%;
-            padding: 18px;
-            min-height: 50px;
-            font-weight: bold;
-            font-size: 18px;
-            border-radius: 20px;
-            border: 2px solid rgba(34, 197, 94, 0.8);
-            background: rgba(34, 197, 94, 0.4);
-            color: #ffffff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-            animation: speak-now-pulse 2s infinite;
-        ">
-            <div class="sound-waves" style="display: flex; gap: 3px; align-items: center;">
-                <div class="wave-bar" style="width: 3px; background: #4ade80; border-radius: 2px; height: 15px; animation: sound-wave 1.2s infinite ease-in-out; animation-delay: 0s;"></div>
-                <div class="wave-bar" style="width: 3px; background: #4ade80; border-radius: 2px; height: 25px; animation: sound-wave 1.2s infinite ease-in-out; animation-delay: 0.1s;"></div>
-                <div class="wave-bar" style="width: 3px; background: #4ade80; border-radius: 2px; height: 20px; animation: sound-wave 1.2s infinite ease-in-out; animation-delay: 0.2s;"></div>
-                <div class="wave-bar" style="width: 3px; background: #4ade80; border-radius: 2px; height: 30px; animation: sound-wave 1.2s infinite ease-in-out; animation-delay: 0.3s;"></div>
-                <div class="wave-bar" style="width: 3px; background: #4ade80; border-radius: 2px; height: 18px; animation: sound-wave 1.2s infinite ease-in-out; animation-delay: 0.4s;"></div>
-            </div>
-            <span class="green-dot-blink" style="animation: green-blink 1.5s infinite;">🟢</span>
-            <div id="transcriptText">Speak Now!</div>
+        <div style="text-align: center; padding: 15px; color: #10b981;">
+            <div style="font-size: 24px; margin-bottom: 5px;">🎤</div>
+            <div id="transcriptText" style="font-weight: bold;">Listening...</div>
         </div>
     `;
     
@@ -5515,42 +5493,4 @@ document.addEventListener('DOMContentLoaded', function() {
     `;
     document.head.appendChild(style);
     console.log('✅ Instant bubble CSS injected');
-})();
-
-// ===== SPEAK NOW BANNER ANIMATIONS =====
-(function() {
-    if (!document.getElementById('mobile-wise-speak-styles')) {
-        const style = document.createElement('style');
-        style.id = 'mobile-wise-speak-styles';
-        style.textContent = `
-            @keyframes speak-now-pulse {
-                0%, 100% { 
-                    box-shadow: 0 0 15px rgba(34, 197, 94, 0.6);
-                    transform: scale(1);
-                }
-                50% { 
-                    box-shadow: 0 0 25px rgba(34, 197, 94, 0.9);
-                    transform: scale(1.02);
-                }
-            }
-            
-            @keyframes sound-wave {
-                0%, 100% { transform: scaleY(0.3); opacity: 0.7; }
-                50% { transform: scaleY(1); opacity: 1; }
-            }
-            
-            @keyframes green-blink {
-                0%, 100% { opacity: 1; }
-                50% { opacity: 0.4; }
-            }
-            
-            #liveTranscript {
-                position: relative;
-                z-index: 999;
-                margin: 10px 0;
-            }
-        `;
-        document.head.appendChild(style);
-        console.log('✅ Speak Now banner animations loaded');
-    }
 })();
