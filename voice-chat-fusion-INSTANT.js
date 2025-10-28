@@ -127,7 +127,21 @@ function clearRestartTimers() {
 function createInstantBubble() {
     console.log('⚡ INSTANT: Creating listening bubble immediately');
     
-    // Find or create live transcript element
+    // 🎯 USE EXISTING showDirectSpeakNow() INSTEAD OF CREATING NEW BUBBLE
+    // This ensures consistent UI across all listening states
+    if (typeof showDirectSpeakNow === 'function') {
+        console.log('✅ INSTANT: Using showDirectSpeakNow() for consistent banner');
+        showDirectSpeakNow();
+        
+        // Return the speak sequence button element for compatibility
+        const speakButton = document.getElementById('speak-sequence-button') || 
+                           document.querySelector('[data-speak-now]');
+        return speakButton;
+    }
+    
+    // 🚨 FALLBACK: If showDirectSpeakNow not available, create basic bubble
+    console.warn('⚠️ showDirectSpeakNow not found, using fallback bubble');
+    
     let liveTranscript = document.getElementById('liveTranscript');
     if (!liveTranscript) {
         liveTranscript = document.createElement('div');
