@@ -85,7 +85,7 @@ if (typeof conversationState === 'undefined') {
 // Auto-restart configuration
 const AUTO_RESTART_DELAY = 1500; // 1.5 seconds after AI response
 let isAutoRestartEnabled = true;
-let restartTimeout = null;
+// restartTimeout already declared at line 39 - reusing existing variable
 let countdownInterval = null;
 
 // ===== NUCLEAR AUDIO SHUTDOWN =====
