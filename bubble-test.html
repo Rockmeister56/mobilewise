@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fixed Auto-Listening - Real-Time Speech Bubbles</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: #4f46e5;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+        .chat-area {
+            height: 400px;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f9fafb;
+        }
+
+        .bubble {
+            max-width: 80%;
+            padding: 12px 16px;
+            margin-bottom: 15px;
+            border-radius: 18px;
+            line-height: 1.4;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .user-bubble {
+            background: #4f46e5;
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 4px;
+        }
+
+        .ai-bubble {
+            background: #e5e7eb;
+            color: #374151;
+            margin-right: auto;
+            border-bottom-left-radius: 4px;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .ai-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            margin-right: 10px;
+            object-fit: cover;
+        }
+
+        .bubble.typing {
+            background: #e0e7ff !important;
+            color: #4338ca;
+            position: relative;
+        }
+
+        .bubble.typing::after {
+            content: '...';
+            animation: blink 1.5s infinite;
+            margin-left: 5px;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+
+        .controls {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .mic-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .mic-button {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .mic-button.start {
+            background: #10b981;
+            color: white;
+        }
+
+        .mic-button.start:hover {
+            background: #059669;
+            transform: scale(1.1);
+        }
+
+        .mic-button.stop {
+            background: #ef4444;
+            color: white;
+        }
+
+        .mic-button.stop:hover {
+            background: #dc2626;
+            transform: scale(1.1);
+        }
+
+        .mic-button.listening {
+            background: #ef4444;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        .status-info {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #6b7280;
+            margin-bottom: 10px;
+        }
+
+        .conversation-info {
+            background: #f3f4f6;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 0.8rem;
+            color: #4b5563;
+            width: 100%;
+            text-align: center;
+        }
+
+        .reset-button {
+            padding: 10px 20px;
+            background: #6b7280;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background 0.3s ease;
+        }
+
+        .reset-button:hover {
+            background: #4b5563;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                margin: 10px;
+                border-radius: 10px;
+            }
+
+            .header {
+                padding: 15px;
+            }
+
+            .header h1 {
+                font-size: 1.3rem;
+            }
+
+            .chat-area {
+                height: 350px;
+                padding: 15px;
+            }
+
+            .bubble {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✅ Fixed Auto-Listening</h1>
+            <p>Automatically returns to listening mode after AI responses</p>
+        </div>
+
+        <div class="chat-area" id="chatArea">
+            <div class="ai-bubble">
+                <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/avatars/avatar_1754810337622_AI%20assist%20head%20left.png" class="ai-avatar">
+                <div>👋 Welcome! I'm Bruce's AI assistant. I help with CPA firm transactions. What can I help you with today?</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="mic-controls">
+                <button class="mic-button start" id="startBtn" onclick="startListening()">🎤</button>
+                <button class="mic-button stop" id="stopBtn" onclick="stopListening()" style="display: none;">⏹️</button>
+            </div>
+
+            <div class="status-info" id="statusInfo">
+                Click microphone to start conversation
+            </div>
+
+            <div class="conversation-info" id="conversationInfo">
+                <strong>Conversation State:</strong> <span id="conversationState">Initial greeting</span><br>
+                <strong>Last Response:</strong> <span id="lastResponse">None yet</span>
+            </div>
+
+            <button class="reset-button" onclick="resetConversation()">Reset Conversation</button>
+        </div>
+    </div>
+
+    <script>
+        let recognition = null;
+        let isListening = false;
+        let isSpeaking = false;
+        
+        // Conversation state tracking
+        let conversationState = 'initial';
+        let lastAIResponse = '';
+        let userResponseCount = 0;
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            checkSpeechSupport();
+            updateConversationInfo();
+        });
+
+        function checkSpeechSupport() {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                document.getElementById('statusInfo').innerHTML = '❌ Speech recognition not supported in this browser';
+                document.getElementById('startBtn').disabled = true;
+                return false;
+            }
+            return true;
+        }
+
+        function startListening() {
+            if (!checkSpeechSupport()) return;
+            if (isSpeaking) return; // Don't start listening if AI is speaking
+
+            try {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                recognition = new SpeechRecognition();
+
+                recognition.continuous = true;
+                recognition.interimResults = true;
+                recognition.lang = 'en-US';
+
+                createRealtimeBubble();
+
+                document.getElementById('startBtn').style.display = 'none';
+                document.getElementById('stopBtn').style.display = 'block';
+                document.getElementById('statusInfo').innerHTML = '🎤 Listening... Speak now!';
+                isListening = true;
+
+                recognition.onresult = function(event) {
+                    let interimTranscript = '';
+                    let finalTranscript = '';
+
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        const transcript = event.results[i][0].transcript;
+                        if (event.results[i].isFinal) {
+                            finalTranscript += transcript;
+                        } else {
+                            interimTranscript += transcript;
+                        }
+                    }
+
+                    const currentBubble = document.getElementById('currentUserBubble');
+                    if (currentBubble) {
+                        const displayText = finalTranscript + interimTranscript;
+                        if (displayText.trim()) {
+                            currentBubble.querySelector('.bubble-text').textContent = displayText;
+
+                            if (interimTranscript) {
+                                currentBubble.classList.add('typing');
+                            } else {
+                                currentBubble.classList.remove('typing');
+                            }
+
+                            scrollToBottom();
+                        }
+                    }
+
+                    // Process final transcript
+                    if (finalTranscript) {
+                        setTimeout(() => {
+                            processUserResponse(finalTranscript);
+                        }, 500);
+                    }
+                };
+
+                recognition.onerror = function(event) {
+                    console.error('Speech recognition error:', event.error);
+                    document.getElementById('statusInfo').innerHTML = `❌ Error: ${event.error}`;
+                    stopListening();
+                };
+
+                recognition.onend = function() {
+                    if (isListening) {
+                        console.log("Recognition ended, but we're still in listening mode");
+                        // Don't change UI here - we'll handle it in processUserResponse
+                    }
+                };
+
+                recognition.start();
+
+            } catch (error) {
+                console.error('Error starting speech recognition:', error);
+                document.getElementById('statusInfo').innerHTML = '❌ Failed to start speech recognition';
+            }
+        }
+
+        function stopListening() {
+            if (recognition) {
+                recognition.stop();
+                recognition = null;
+            }
+
+            const currentBubble = document.getElementById('currentUserBubble');
+            if (currentBubble) {
+                currentBubble.classList.remove('typing');
+                if (!currentBubble.querySelector('.bubble-text').textContent.trim()) {
+                    currentBubble.querySelector('.bubble-text').textContent = 'No speech detected';
+                    currentBubble.style.opacity = '0.6';
+                }
+                // Remove the ID so we create a new bubble next time
+                currentBubble.removeAttribute('id');
+            }
+
+            document.getElementById('startBtn').style.display = 'block';
+            document.getElementById('stopBtn').style.display = 'none';
+            document.getElementById('statusInfo').innerHTML = 'Click microphone to continue conversation';
+            isListening = false;
+        }
+
+        function processUserResponse(userText) {
+            userResponseCount++;
+            
+            // Update UI
+            const currentBubble = document.getElementById('currentUserBubble');
+            if (currentBubble) {
+                currentBubble.classList.remove('typing');
+                currentBubble.removeAttribute('id');
+            }
+            
+            // Stop listening while AI responds
+            if (recognition) {
+                recognition.stop();
+                recognition = null;
+            }
+            
+            isListening = false;
+            document.getElementById('startBtn').style.display = 'block';
+            document.getElementById('stopBtn').style.display = 'none';
+            document.getElementById('statusInfo').innerHTML = 'AI is responding...';
+            
+            // Add AI response based on conversation state
+            setTimeout(() => {
+                addAIResponse(userText);
+            }, 800);
+        }
+
+        function addAIResponse(userText) {
+            const chatArea = document.getElementById('chatArea');
+            const aiBubble = document.createElement('div');
+            aiBubble.className = 'ai-bubble';
+            
+            const aiAvatar = document.createElement('img');
+            aiAvatar.src = 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/avatars/avatar_1754810337622_AI%20assist%20head%20left.png';
+            aiAvatar.className = 'ai-avatar';
+            aiBubble.appendChild(aiAvatar);
+            
+            const bubbleContent = document.createElement('div');
+            aiBubble.appendChild(bubbleContent);
+            
+            // Determine response based on conversation state and user input
+            let responseText = '';
+            
+            if (conversationState === 'initial') {
+                if (userText.toLowerCase().includes('sell') || userText.toLowerCase().includes('practice')) {
+                    responseText = "EXCELLENT timing for selling your accounting practice! The market is very strong right now. Should Bruce call you today or tomorrow for your FREE practice valuation?";
+                    conversationState = 'selling_inquiry';
+                } else if (userText.toLowerCase().includes('buy') || userText.toLowerCase().includes('purchase')) {
+                    responseText = "Looking to BUY a CPA firm? Perfect! Bruce has exclusive off-market opportunities available RIGHT NOW. Should Bruce show you available practices today or tomorrow?";
+                    conversationState = 'buying_inquiry';
+                } else if (userText.toLowerCase().includes('value') || userText.toLowerCase().includes('worth')) {
+                    responseText = "Your accounting practice could be worth MORE than you think! Bruce offers a FREE consultation to evaluate your practice. Are you interested in a valuation today?";
+                    conversationState = 'valuation_inquiry';
+                } else {
+                    responseText = "I specialize in CPA firm transactions - buying, selling, and valuations. What specifically are you interested in learning more about?";
+                    // conversationState remains 'initial'
+                }
+            } else if (conversationState === 'selling_inquiry') {
+                if (userText.toLowerCase().includes('today') || userText.toLowerCase().includes('now')) {
+                    responseText = "Great! Bruce will call you today. What's the best phone number to reach you, and what time works best?";
+                    conversationState = 'contact_today';
+                } else if (userText.toLowerCase().includes('tomorrow')) {
+                    responseText = "Perfect! Bruce will call you tomorrow. What's the best phone number to reach you, and what time works best?";
+                    conversationState = 'contact_tomorrow';
+                } else {
+                    responseText = "I didn't quite catch that. Should Bruce call you today or tomorrow for your FREE practice valuation?";
+                    // conversationState remains 'selling_inquiry'
+                }
+            } else if (conversationState === 'buying_inquiry') {
+                if (userText.toLowerCase().includes('today') || userText.toLowerCase().includes('now')) {
+                    responseText = "Excellent! Bruce will contact you today to discuss available practices. What's the best phone number to reach you?";
+                    conversationState = 'contact_today';
+                } else if (userText.toLowerCase().includes('tomorrow')) {
+                    responseText = "Great! Bruce will contact you tomorrow to discuss available practices. What's the best phone number to reach you?";
+                    conversationState = 'contact_tomorrow';
+                } else {
+                    responseText = "I didn't quite catch that. Should Bruce contact you today or tomorrow about available practices?";
+                    // conversationState remains 'buying_inquiry'
+                }
+            } else if (conversationState === 'valuation_inquiry') {
+                if (userText.toLowerCase().includes('yes') || userText.toLowerCase().includes('sure') || userText.toLowerCase().includes('interested')) {
+                    responseText = "Great! Bruce will contact you to set up your FREE valuation. What's the best phone number to reach you, and should he call today or tomorrow?";
+                    conversationState = 'contact_valuation';
+                } else {
+                    responseText = "No problem! Is there anything else I can help you with regarding your CPA practice?";
+                    conversationState = 'initial';
+                }
+            } else if (conversationState.startsWith('contact_')) {
+                // For any contact state, capture the phone number
+                const phoneMatch = userText.match(/\b(\d{3}[-.]?\d{3}[-.]?\d{4})\b/);
+                if (phoneMatch) {
+                    responseText = "Thank you! Bruce will call you at the number you provided. Is there anything else I can help you with today?";
+                    conversationState = 'completed';
+                } else {
+                    responseText = "Thanks! What's the best phone number for Bruce to reach you?";
+                    // conversationState remains the same
+                }
+            } else {
+                responseText = "Thanks for your message. Is there anything else I can help you with regarding your CPA practice?";
+                conversationState = 'initial';
+            }
+            
+            lastAIResponse = responseText;
+            bubbleContent.textContent = responseText;
+            
+            chatArea.appendChild(aiBubble);
+            scrollToBottom();
+            
+            // Update conversation info
+            updateConversationInfo();
+            
+            // Simulate AI speaking time based on response length
+            const speakTime = Math.max(2000, responseText.length * 50);
+            document.getElementById('statusInfo').innerHTML = '🤖 AI is responding...';
+            
+            // After AI "speaks", automatically start listening again
+            setTimeout(() => {
+                document.getElementById('statusInfo').innerHTML = '🔄 Returning to listening mode...';
+                setTimeout(() => {
+                    createRealtimeBubble();
+                    startListening();
+                }, 1000);
+            }, speakTime);
+        }
+
+        function createRealtimeBubble() {
+            const chatArea = document.getElementById('chatArea');
+            const userBubble = document.createElement('div');
+            userBubble.className = 'bubble user-bubble typing';
+            userBubble.id = 'currentUserBubble';
+            
+            const bubbleText = document.createElement('div');
+            bubbleText.className = 'bubble-text';
+            bubbleText.textContent = 'Listening...';
+            userBubble.appendChild(bubbleText);
+            
+            chatArea.appendChild(userBubble);
+            scrollToBottom();
+        }
+
+        function updateConversationInfo() {
+            document.getElementById('conversationState').textContent = conversationState;
+            document.getElementById('lastResponse').textContent = lastAIResponse.substring(0, 50) + (lastAIResponse.length > 50 ? '...' : '');
+        }
+
+        function scrollToBottom() {
+            const chatArea = document.getElementById('chatArea');
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        function resetConversation() {
+            const chatArea = document.getElementById('chatArea');
+            chatArea.innerHTML = `
+                <div class="ai-bubble">
+                    <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/avatars/avatar_1754810337622_AI%20assist%20head%20left.png" class="ai-avatar">
+                    <div>👋 Conversation reset! How can I help you with your CPA practice today?</div>
+                </div>
+            `;
+            
+            conversationState = 'initial';
+            lastAIResponse = '';
+            userResponseCount = 0;
+            
+            updateConversationInfo();
+            document.getElementById('statusInfo').innerHTML = 'Click microphone to start conversation';
+            
+            if (isListening) {
+                stopListening();
+            }
+        }
+    </script>
+</body>
+</html>
