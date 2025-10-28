@@ -36,6 +36,7 @@ let userResponseCount = 0;
 let shouldShowSmartButton = false;
 let smartButtonText = 'AI Smart Button';
 let smartButtonAction = 'default';
+let restartTimeout = null;
 let lastMessageWasApology = false;
 let isInLeadCapture = false;
 let speechDetected = false;
@@ -2445,7 +2446,7 @@ function getAIResponse(userInput) {
         const bannerMessage = consultativeResponse.bannerMessage || 'Let me help you get in touch...';
         
         // Trigger the CTA handler with detected action
-        handleCTAButtonClick(consultativeResponse.action);
+        handleSmartButtonClick(consultativeResponse.action);
         
         // Return STRING message for chat bubble (not object!)
         return bannerMessage;
@@ -3120,10 +3121,9 @@ function resumePendingIntent() {
     }
 }
 
-handleCTAButtonClick
 
 // Make globally accessible
-window.handleCTAButtonClick = handleCTAButtonClick;
+// window.handleCTAButtonClick = handleCTAButtonClick; // Function handled by action-button-system-CAPTAIN.js
 
 // 🎯 ADD THIS FUNCTION AT THE END OF YOUR FILE:
 function shouldTriggerLeadCapture(userInput) {
