@@ -2148,23 +2148,38 @@ function getAIResponse(userInput) {
     let responseText = '';
     
     // 🔥 PART 2: CHECK FOR CONTACT INTENT FIRST (before anything else)
-    const contactCheck = detectConsultativeResponse(userText);
+const contactCheck = detectConsultativeResponse(userText);
+
+if (contactCheck && contactCheck.type === 'contact_request') {
+    console.log('🎯 User wants to contact Bruce - showing banner');
     
-    if (contactCheck && contactCheck.type === 'contact_request') {
-        console.log('🎯 User wants to contact Bruce - showing banner');
-        
-        // Show the contact banner
-        if (typeof showUniversalBanner === 'function') {
-            setTimeout(() => {
-                showUniversalBanner(contactCheck.bannerType);
-                console.log('✅ Contact banner triggered:', contactCheck.bannerType);
-            }, 1000);
-        }
-        
-        return {
-            response: "I completely understand! Bruce is our expert and the best person to talk to. I'm showing his contact information now - you can call him directly, or I can help gather a couple quick details so Bruce knows exactly what you're looking for. What works best for you?",
-            newState: 'offering_contact_options'
-        };
+    if (typeof showUniversalBanner === 'function') {
+    setTimeout(() => {
+        showUniversalBanner(contactCheck.bannerType);
+        console.log('✅ Contact banner triggered:', contactCheck.bannerType);
+    }, 1000);
+}
+
+// 🔥 NEW: Also trigger Communication Action Center
+if (typeof window.showCommunicationActionCenter === 'function') {
+    setTimeout(() => {
+        window.showCommunicationActionCenter();
+        console.log('✅ Communication Action Center triggered');
+    }, 1200); // Slightly after banner
+} else if (typeof showCommunicationActionCenter === 'function') {
+    setTimeout(() => {
+        showCommunicationActionCenter();
+        console.log('✅ Communication Action Center triggered (alt)');
+    }, 1200);
+} else {
+    console.log('⚠️ Communication Action Center function not found');
+}
+    
+    // 🔥 UPDATE STATE SEPARATELY
+    conversationState = 'offering_contact_options';
+    
+    // 🔥 RETURN JUST THE STRING (not an object)
+    return "I completely understand! Bruce is our expert and the best person to talk to. I'm showing his contact information now - you can call him directly, or I can help gather a couple quick details so Bruce knows exactly what you're looking for. What works best for you?";
     }
     
     // 🎯 CONCERN DETECTION - Skip in INITIAL state to avoid intent conflicts
