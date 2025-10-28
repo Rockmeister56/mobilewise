@@ -2452,20 +2452,20 @@ function getAIResponse(userInput) {
         return bannerMessage;
     }
 
-// 🔥 NEW: Also trigger Communication Action Center
-if (typeof window.showCommunicationActionCenter === 'function') {
-    setTimeout(() => {
-        window.showCommunicationActionCenter();
-        console.log('✅ Communication Action Center triggered');
-    }, 1200); // Slightly after banner
-} else if (typeof showCommunicationActionCenter === 'function') {
-    setTimeout(() => {
-        showCommunicationActionCenter();
-        console.log('✅ Communication Action Center triggered (alt)');
-    }, 1200);
-} else {
-    console.log('⚠️ Communication Action Center function not found');
-}
+// 🔥 DISABLED: Communication Action Center (using action-button-system-CAPTAIN.js instead)
+// if (typeof window.showCommunicationActionCenter === 'function') {
+//     setTimeout(() => {
+//         window.showCommunicationActionCenter();
+//         console.log('✅ Communication Action Center triggered');
+//     }, 1200); // Slightly after banner
+// } else if (typeof showCommunicationActionCenter === 'function') {
+//     setTimeout(() => {
+//         showCommunicationActionCenter();
+//         console.log('✅ Communication Action Center triggered (alt)');
+//     }, 1200);
+// } else {
+//     console.log('⚠️ Communication Action Center function not found');
+// }
     
     // 🔥 UPDATE STATE SEPARATELY
     conversationState = 'offering_contact_options';
