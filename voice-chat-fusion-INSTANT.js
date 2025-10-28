@@ -4596,7 +4596,7 @@ function showAvatarSorryMessage(duration = 6000) {
         
         // Go back to Speak Now after brief delay
         setTimeout(() => {
-            console.log('✅ Avatar removed - going DIRECT to Speak Now');
+            console.log('✅ Avatar removed - going DIRCT to Speak Now');
             showDirectSpeakNow();
         }, 1000);
     }
