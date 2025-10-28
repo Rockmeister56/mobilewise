@@ -127,6 +127,21 @@ function clearRestartTimers() {
 function createInstantBubble() {
     console.log('⚡ INSTANT: Creating listening bubble immediately');
     
+    // 🎯 CONFIGURATION: Banner position offset from top (adjust this value as needed)
+    const BANNER_TOP_OFFSET = '20px'; // Change this to move banner up/down
+    
+    // 🔍 Find quick buttons container
+    const quickButtonsContainer = document.querySelector('.quick-questions') || 
+                                  document.querySelector('.quick-buttons') || 
+                                  document.getElementById('quickButtonsContainer');
+    
+    // 👻 Hide existing quick buttons (so banner replaces them)
+    if (quickButtonsContainer) {
+        const existingButtons = quickButtonsContainer.querySelectorAll('.quick-btn');
+        existingButtons.forEach(btn => btn.style.display = 'none');
+        console.log('👻 INSTANT: Hid', existingButtons.length, 'quick buttons');
+    }
+    
     // Find or create live transcript element
     let liveTranscript = document.getElementById('liveTranscript');
     if (!liveTranscript) {
@@ -134,18 +149,22 @@ function createInstantBubble() {
         liveTranscript.id = 'liveTranscript';
         liveTranscript.className = 'live-transcript realtime-bubble';
         
-        // Insert after chat messages or in quick buttons area
-        const chatMessages = document.getElementById('chatMessages');
-        const quickButtons = document.getElementById('quickButtonsContainer');
-        
-        if (chatMessages) {
-            chatMessages.parentNode.insertBefore(liveTranscript, chatMessages.nextSibling);
-        } else if (quickButtons) {
-            quickButtons.parentNode.insertBefore(liveTranscript, quickButtons);
+        // 🎯 INSERT INTO QUICK BUTTONS CONTAINER (replaces them visually)
+        if (quickButtonsContainer) {
+            quickButtonsContainer.appendChild(liveTranscript);
+            console.log('📍 INSTANT: Banner added to quick buttons container');
+        } else {
+            // Fallback: insert after chat messages
+            const chatMessages = document.getElementById('chatMessages');
+            if (chatMessages) {
+                chatMessages.parentNode.insertBefore(liveTranscript, chatMessages.nextSibling);
+            }
         }
     }
     
     liveTranscript.style.display = 'block';
+    liveTranscript.style.position = 'relative';
+    liveTranscript.style.top = BANNER_TOP_OFFSET; // Apply configurable offset
     liveTranscript.innerHTML = `
         <style>
             @keyframes pulse-left {
@@ -185,6 +204,19 @@ function updateRealtimeBubble(text) {
     const transcriptText = document.getElementById('transcriptText');
     if (transcriptText && text.trim()) {
         transcriptText.textContent = text;
+    }
+}
+
+// ===== RESTORE QUICK BUTTONS (when banner is hidden) =====
+function restoreQuickButtons() {
+    const quickButtonsContainer = document.querySelector('.quick-questions') || 
+                                  document.querySelector('.quick-buttons') || 
+                                  document.getElementById('quickButtonsContainer');
+    
+    if (quickButtonsContainer) {
+        const hiddenButtons = quickButtonsContainer.querySelectorAll('.quick-btn');
+        hiddenButtons.forEach(btn => btn.style.display = '');
+        console.log('🔄 INSTANT: Restored', hiddenButtons.length, 'quick buttons');
     }
 }
 
@@ -1243,6 +1275,7 @@ function sendMessage() {
     const liveTranscript = document.getElementById('liveTranscript');
     if (liveTranscript) {
         liveTranscript.style.display = 'none';
+        restoreQuickButtons(); // Show quick buttons again
     }
     
     addUserMessage(message);
@@ -2304,6 +2337,7 @@ setTimeout(() => {
     const liveTranscript = document.getElementById('liveTranscript');
     if (liveTranscript) {
         liveTranscript.style.display = 'none';
+        restoreQuickButtons(); // Show quick buttons again
     }
     
     // 5. UPDATE UI ELEMENTS
@@ -2460,21 +2494,23 @@ function getAIResponse(userInput) {
     const firstName = window.leadData.firstName || '';
     let responseText = '';
     
-    // 🔥 PART 2: CHECK FOR CONTACT INTENT FIRST (before anything else)
-    const consultativeResponse = detectConsultativeResponse(userText);
-
-    if (consultativeResponse && consultativeResponse.intent === 'contact_request') {
-        console.log('✅ Contact intent detected:', consultativeResponse);
+    // 🚨 PRIORITY #1: If getting first name, capture it FIRST (before contact detection)
+    if (conversationState === 'getting_first_name') {
+        const words = userInput.trim().split(' ');
+        const extractedName = words[0].replace(/[^a-zA-Z]/g, '');
         
-        // Get banner message for chat bubble
-        const bannerMessage = consultativeResponse.bannerMessage || 'Let me help you get in touch...';
-        
-        // Trigger the CTA handler with detected action
-        handleSmartButtonClick(consultativeResponse.action);
-        
-        // Return STRING message for chat bubble (not object!)
-        return bannerMessage;
+        if (extractedName.length > 0) {
+            window.leadData.firstName = extractedName.charAt(0).toUpperCase() + extractedName.slice(1).toLowerCase();
+            responseText = `Great to meet you ${window.leadData.firstName}! What brings you to New Clients Inc today?`;
+            conversationState = 'active';
+            return responseText; // Exit early with name captured
+        } else {
+            return "I didn't quite catch that. Could you tell me your first name?";
+        }
     }
+    
+    // 🔥 PART 2: CHECK FOR CONTACT INTENT (only if NOT getting name)
+    const consultativeResponse = detectConsultativeResponse(userText);
 
 // 🔥 DISABLED: Communication Action Center (using action-button-system-CAPTAIN.js instead)
 // if (typeof window.showCommunicationActionCenter === 'function') {
@@ -3207,6 +3243,7 @@ function hideSpeakNow() {
     
     if (liveTranscript) {
         liveTranscript.style.display = 'none';
+        restoreQuickButtons(); // Show quick buttons again
     }
     if (transcriptText) {
         transcriptText.style.display = 'none';
@@ -3411,6 +3448,7 @@ function speakMessage(message) {
             const liveTranscript = document.getElementById('liveTranscript');
             if (liveTranscript) {
                 liveTranscript.style.display = 'none';
+                restoreQuickButtons(); // Show quick buttons again
             }
         };
 
@@ -4289,7 +4327,10 @@ function switchToTextMode() {
     const liveTranscript = document.getElementById('liveTranscript');
     
     if (micButton) micButton.classList.remove('listening');
-    if (liveTranscript) liveTranscript.style.display = 'none';
+    if (liveTranscript) {
+        liveTranscript.style.display = 'none';
+        restoreQuickButtons(); // Show quick buttons again
+    }
     
     addAIMessage("Switched to text mode. Type your message in the text box below.");
     
