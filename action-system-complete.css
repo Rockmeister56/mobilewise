@@ -1,0 +1,597 @@
+/**
+ * =============================================================================
+ * MOBILE-WISE AI FORMVISER - UNIFIED ACTION SYSTEM STYLES
+ * =============================================================================
+ * Consolidates all action button, overlay, and splash screen styling
+ * Includes frosted glass effects, responsive design, and animations
+ * Author: Captain - Mobile-Wise AI Empire
+ * =============================================================================
+ */
+
+/* =============================================================================
+   SECTION 1: COMMUNICATION ACTION CENTER OVERLAY
+   ============================================================================= */
+
+.action-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    padding: 20px;
+}
+
+.action-overlay.active {
+    opacity: 1;
+}
+
+.action-center-content {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 20px;
+    padding: 40px;
+    max-width: 800px;
+    width: 100%;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+}
+
+.action-overlay.active .action-center-content {
+    transform: scale(1);
+}
+
+.action-center-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid rgba(0, 128, 128, 0.2);
+}
+
+.action-center-header h2 {
+    margin: 0;
+    color: #008080;
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.action-close-btn {
+    background: rgba(255, 0, 0, 0.1);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 24px;
+    color: #d32f2f;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.action-close-btn:hover {
+    background: rgba(255, 0, 0, 0.2);
+    transform: rotate(90deg);
+}
+
+.action-buttons-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.action-btn {
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid rgba(0, 128, 128, 0.3);
+    border-radius: 12px;
+    padding: 25px 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: left;
+    position: relative;
+    overflow: hidden;
+}
+
+.action-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(0, 128, 128, 0.1), rgba(0, 128, 128, 0.05));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.action-btn:hover::before {
+    opacity: 1;
+}
+
+.action-btn:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 128, 128, 0.3);
+    border-color: rgba(0, 128, 128, 0.6);
+}
+
+.action-btn-label {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: #333;
+    position: relative;
+    z-index: 1;
+}
+
+.action-btn-description {
+    font-size: 14px;
+    color: #666;
+    position: relative;
+    z-index: 1;
+}
+
+/* Button color variants */
+.action-btn-teal { border-color: rgba(0, 128, 128, 0.4); }
+.action-btn-teal:hover { 
+    border-color: rgba(0, 128, 128, 0.8);
+    box-shadow: 0 10px 30px rgba(0, 128, 128, 0.4);
+}
+
+.action-btn-blue { border-color: rgba(33, 150, 243, 0.4); }
+.action-btn-blue:hover { 
+    border-color: rgba(33, 150, 243, 0.8);
+    box-shadow: 0 10px 30px rgba(33, 150, 243, 0.4);
+}
+
+.action-btn-red { border-color: rgba(244, 67, 54, 0.4); }
+.action-btn-red:hover { 
+    border-color: rgba(244, 67, 54, 0.8);
+    box-shadow: 0 10px 30px rgba(244, 67, 54, 0.4);
+}
+
+.action-btn-green { border-color: rgba(76, 175, 80, 0.4); }
+.action-btn-green:hover { 
+    border-color: rgba(76, 175, 80, 0.8);
+    box-shadow: 0 10px 30px rgba(76, 175, 80, 0.4);
+}
+
+.action-btn-purple { border-color: rgba(156, 39, 176, 0.4); }
+.action-btn-purple:hover { 
+    border-color: rgba(156, 39, 176, 0.8);
+    box-shadow: 0 10px 30px rgba(156, 39, 176, 0.4);
+}
+
+/* =============================================================================
+   SECTION 2: AI LEAD CAPTURE SPLASH SCREEN
+   ============================================================================= */
+
+.action-splash {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index: 10001;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    padding: 20px;
+}
+
+.action-splash.active {
+    opacity: 1;
+}
+
+.action-splash-content {
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border-radius: 24px;
+    padding: 0;
+    max-width: 600px;
+    width: 100%;
+    box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4);
+    transform: scale(0.9) translateY(20px);
+    transition: transform 0.4s ease;
+    overflow: hidden;
+}
+
+.action-splash.active .action-splash-content {
+    transform: scale(1) translateY(0);
+}
+
+.action-splash-header {
+    background: linear-gradient(135deg, #008080, #006666);
+    color: white;
+    padding: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.action-splash-header h2 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.action-splash-close {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    font-size: 20px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.action-splash-close:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: rotate(90deg);
+}
+
+.action-splash-body {
+    padding: 40px;
+}
+
+#splash-input-container {
+    margin-bottom: 30px;
+    min-height: 80px;
+}
+
+.splash-input {
+    width: 100%;
+    padding: 15px 20px;
+    border: 2px solid rgba(0, 128, 128, 0.3);
+    border-radius: 12px;
+    font-size: 16px;
+    font-family: inherit;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.splash-input:focus {
+    outline: none;
+    border-color: #008080;
+    box-shadow: 0 0 0 4px rgba(0, 128, 128, 0.1);
+}
+
+.splash-select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath fill='%23008080' d='M0 0l6 8 6-8z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    padding-right: 40px;
+}
+
+.splash-textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.error-shake {
+    animation: shake 0.5s;
+    border-color: #d32f2f !important;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+.action-splash-progress {
+    margin-top: 20px;
+}
+
+.progress-bar {
+    background: rgba(0, 128, 128, 0.1);
+    border-radius: 10px;
+    height: 8px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.progress-fill {
+    background: linear-gradient(90deg, #008080, #00b3b3);
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.4s ease;
+}
+
+.progress-text {
+    text-align: center;
+    font-size: 14px;
+    color: #666;
+    font-weight: 600;
+}
+
+.action-splash-footer {
+    padding: 20px 40px 40px;
+    display: flex;
+    gap: 15px;
+    justify-content: space-between;
+}
+
+.action-btn-primary,
+.action-btn-secondary {
+    flex: 1;
+    padding: 15px 30px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.action-btn-primary {
+    background: linear-gradient(135deg, #008080, #006666);
+    color: white;
+    box-shadow: 0 4px 15px rgba(0, 128, 128, 0.3);
+}
+
+.action-btn-primary:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 128, 128, 0.4);
+}
+
+.action-btn-secondary {
+    background: rgba(0, 0, 0, 0.05);
+    color: #333;
+}
+
+.action-btn-secondary:hover:not(:disabled) {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.action-btn-primary:disabled,
+.action-btn-secondary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.action-splash-success {
+    text-align: center;
+    padding: 60px 40px;
+}
+
+.success-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4caf50, #45a049);
+    color: white;
+    font-size: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 30px;
+    animation: successPop 0.6s ease;
+}
+
+@keyframes successPop {
+    0% { transform: scale(0); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.action-splash-success h2 {
+    margin: 0 0 15px;
+    color: #333;
+    font-size: 28px;
+}
+
+.action-splash-success p {
+    color: #666;
+    font-size: 16px;
+    margin-bottom: 30px;
+}
+
+/* =============================================================================
+   SECTION 3: INLINE ACTION BUTTONS (PAGE EMBEDDED)
+   ============================================================================= */
+
+.inline-action-btn {
+    display: inline-block;
+    padding: 12px 24px;
+    margin: 8px;
+    background: linear-gradient(135deg, #008080, #006666);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 128, 128, 0.2);
+}
+
+.inline-action-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0, 128, 128, 0.3);
+}
+
+/* =============================================================================
+   SECTION 4: FLOATING CONTACT BUTTON
+   ============================================================================= */
+
+.floating-action-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: linear-gradient(135deg, #008080, #006666);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 16px 32px;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 8px 25px rgba(0, 128, 128, 0.4);
+    z-index: 9999;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.floating-action-btn:hover {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 12px 35px rgba(0, 128, 128, 0.5);
+}
+
+.floating-action-btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    border-radius: 50px;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%) scale(0);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1.5);
+        opacity: 0;
+    }
+}
+
+/* =============================================================================
+   SECTION 5: RESPONSIVE DESIGN
+   ============================================================================= */
+
+@media (max-width: 768px) {
+    .action-center-content {
+        padding: 30px 20px;
+        border-radius: 16px;
+    }
+    
+    .action-center-header h2 {
+        font-size: 22px;
+    }
+    
+    .action-buttons-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .action-splash-content {
+        border-radius: 20px;
+    }
+    
+    .action-splash-header {
+        padding: 20px;
+    }
+    
+    .action-splash-header h2 {
+        font-size: 20px;
+    }
+    
+    .action-splash-body {
+        padding: 30px 20px;
+    }
+    
+    .action-splash-footer {
+        padding: 15px 20px 30px;
+        flex-direction: column;
+    }
+    
+    .floating-action-btn {
+        bottom: 20px;
+        right: 20px;
+        padding: 14px 24px;
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .action-overlay,
+    .action-splash {
+        padding: 10px;
+    }
+    
+    .action-center-header h2 {
+        font-size: 18px;
+    }
+    
+    .action-btn {
+        padding: 20px 15px;
+    }
+    
+    .action-btn-label {
+        font-size: 16px;
+    }
+    
+    .action-btn-description {
+        font-size: 13px;
+    }
+}
+
+/* =============================================================================
+   SECTION 6: ACCESSIBILITY ENHANCEMENTS
+   ============================================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Focus styles for keyboard navigation */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 3px solid #008080;
+    outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .action-overlay,
+    .action-splash {
+        background: rgba(0, 0, 0, 0.95);
+    }
+    
+    .action-btn {
+        border-width: 3px;
+    }
+}
