@@ -127,21 +127,7 @@ function clearRestartTimers() {
 function createInstantBubble() {
     console.log('⚡ INSTANT: Creating listening bubble immediately');
     
-    // 🎯 USE EXISTING showDirectSpeakNow() INSTEAD OF CREATING NEW BUBBLE
-    // This ensures consistent UI across all listening states
-    if (typeof showDirectSpeakNow === 'function') {
-        console.log('✅ INSTANT: Using showDirectSpeakNow() for consistent banner');
-        showDirectSpeakNow();
-        
-        // Return the speak sequence button element for compatibility
-        const speakButton = document.getElementById('speak-sequence-button') || 
-                           document.querySelector('[data-speak-now]');
-        return speakButton;
-    }
-    
-    // 🚨 FALLBACK: If showDirectSpeakNow not available, create basic bubble
-    console.warn('⚠️ showDirectSpeakNow not found, using fallback bubble');
-    
+    // Find or create live transcript element
     let liveTranscript = document.getElementById('liveTranscript');
     if (!liveTranscript) {
         liveTranscript = document.createElement('div');
@@ -161,11 +147,46 @@ function createInstantBubble() {
     
     liveTranscript.style.display = 'block';
     liveTranscript.innerHTML = `
-        <div style="text-align: center; padding: 15px; color: #10b981;">
-            <div style="font-size: 24px; margin-bottom: 5px;">🎤</div>
-            <div id="transcriptText" style="font-weight: bold;">Listening...</div>
+    <div style="
+        text-align: center; 
+        padding: 20px; 
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.95) 0%, rgba(5, 150, 105, 0.95) 100%);
+        border-radius: 15px;
+        box-shadow: 0 0 30px rgba(16, 185, 129, 0.6);
+        animation: pulseGlow 2s ease-in-out infinite;
+        border: 2px solid rgba(16, 185, 129, 0.8);
+    ">
+        <div style="
+            font-size: 28px; 
+            font-weight: bold; 
+            color: white;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        ">
+            <span style="animation: micPulse 1.5s ease-in-out infinite;">🎤</span>
+            <span id="transcriptText">SPEAK NOW</span>
+            <span>🎵</span>
         </div>
-    `;
+        <div style="
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+            height: 25px;
+            align-items: center;
+        ">
+            <span style="width: 3px; background: white; border-radius: 2px; animation: waveBar1 1s ease-in-out infinite;"></span>
+            <span style="width: 3px; background: white; border-radius: 2px; animation: waveBar2 1s ease-in-out infinite;"></span>
+            <span style="width: 3px; background: white; border-radius: 2px; animation: waveBar3 1s ease-in-out infinite;"></span>
+            <span style="width: 3px; background: white; border-radius: 2px; animation: waveBar4 1s ease-in-out infinite;"></span>
+            <span style="width: 3px; background: white; border-radius: 2px; animation: waveBar5 1s ease-in-out infinite;"></span>
+            <span style="width: 3px; background: white; border-radius: 2px; animation: waveBar4 1s ease-in-out infinite;"></span>
+            <span style="width: 3px; background: white; border-radius: 2px; animation: waveBar3 1s ease-in-out infinite;"></span>
+        </div>
+    </div>
+`;
     
     return liveTranscript;
 }
@@ -5507,4 +5528,70 @@ document.addEventListener('DOMContentLoaded', function() {
     `;
     document.head.appendChild(style);
     console.log('✅ Instant bubble CSS injected');
+
+    // ===== ANIMATED SPEAK NOW BANNER CSS =====
+(function() {
+    const style = document.createElement('style');
+    style.textContent = `
+        /* Pulsing glow animation for banner */
+        @keyframes pulseGlow {
+            0%, 100% {
+                box-shadow: 0 0 30px rgba(16, 185, 129, 0.6);
+                transform: scale(1);
+            }
+            50% {
+                box-shadow: 0 0 50px rgba(16, 185, 129, 0.9);
+                transform: scale(1.02);
+            }
+        }
+        
+        /* Mic icon pulse */
+        @keyframes micPulse {
+            0%, 100% { 
+                transform: scale(1); 
+                opacity: 1;
+            }
+            50% { 
+                transform: scale(1.2); 
+                opacity: 0.8;
+            }
+        }
+        
+        /* Waveform animations - staggered timing */
+        @keyframes waveBar1 {
+            0%, 100% { height: 6px; }
+            50% { height: 25px; }
+        }
+        
+        @keyframes waveBar2 {
+            0%, 100% { height: 8px; }
+            50% { height: 20px; }
+        }
+        
+        @keyframes waveBar3 {
+            0%, 100% { height: 10px; }
+            50% { height: 15px; }
+        }
+        
+        @keyframes waveBar4 {
+            0%, 100% { height: 12px; }
+            50% { height: 18px; }
+        }
+        
+        @keyframes waveBar5 {
+            0%, 100% { height: 8px; }
+            50% { height: 25px; }
+        }
+        
+        /* Ensure banner is visible and positioned correctly */
+        #liveTranscript {
+            position: relative;
+            z-index: 999;
+            margin: 15px auto;
+            max-width: 600px;
+        }
+    `;
+    document.head.appendChild(style);
+    console.log('✅ Animated Speak Now banner CSS loaded');
+})();
 })();
