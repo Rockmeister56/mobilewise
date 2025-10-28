@@ -147,9 +147,33 @@ function createInstantBubble() {
     
     liveTranscript.style.display = 'block';
     liveTranscript.innerHTML = `
+        <style>
+            @keyframes pulse-left {
+                0%, 100% { opacity: 0.3; }
+                50% { opacity: 1; }
+            }
+            @keyframes pulse-right {
+                0%, 100% { opacity: 0.3; }
+                50% { opacity: 1; }
+            }
+            .arrow-left {
+                animation: pulse-left 1.5s ease-in-out infinite;
+                display: inline-block;
+                margin-right: 12px;
+            }
+            .arrow-right {
+                animation: pulse-right 1.5s ease-in-out infinite;
+                display: inline-block;
+                margin-left: 12px;
+            }
+        </style>
         <div style="text-align: center; padding: 15px; color: #10b981;">
-            <div style="font-size: 24px; margin-bottom: 5px;">🎤</div>
-            <div id="transcriptText" style="font-weight: bold;">Listening...</div>
+            <div style="font-size: 20px; font-weight: bold;">
+                <span class="arrow-left">&lt;&lt;&lt;</span>
+                <span>Please speak now</span>
+                <span class="arrow-right">&gt;&gt;&gt;</span>
+            </div>
+            <div id="transcriptText" style="font-weight: bold; margin-top: 8px; font-size: 16px;">Listening...</div>
         </div>
     `;
     
@@ -2436,23 +2460,21 @@ function getAIResponse(userInput) {
     const firstName = window.leadData.firstName || '';
     let responseText = '';
     
-    // 🚨 PRIORITY #1: If getting first name, capture it FIRST (before contact detection)
-    if (conversationState === 'getting_first_name') {
-        const words = userInput.trim().split(' ');
-        const extractedName = words[0].replace(/[^a-zA-Z]/g, '');
-        
-        if (extractedName.length > 0) {
-            window.leadData.firstName = extractedName.charAt(0).toUpperCase() + extractedName.slice(1).toLowerCase();
-            responseText = `Great to meet you ${window.leadData.firstName}! What brings you to New Clients Inc today?`;
-            conversationState = 'active';
-            return responseText; // Exit early with name captured
-        } else {
-            return "I didn't quite catch that. Could you tell me your first name?";
-        }
-    }
-    
-    // 🔥 PART 2: CHECK FOR CONTACT INTENT (only if NOT getting name)
+    // 🔥 PART 2: CHECK FOR CONTACT INTENT FIRST (before anything else)
     const consultativeResponse = detectConsultativeResponse(userText);
+
+    if (consultativeResponse && consultativeResponse.intent === 'contact_request') {
+        console.log('✅ Contact intent detected:', consultativeResponse);
+        
+        // Get banner message for chat bubble
+        const bannerMessage = consultativeResponse.bannerMessage || 'Let me help you get in touch...';
+        
+        // Trigger the CTA handler with detected action
+        handleSmartButtonClick(consultativeResponse.action);
+        
+        // Return STRING message for chat bubble (not object!)
+        return bannerMessage;
+    }
 
 // 🔥 DISABLED: Communication Action Center (using action-button-system-CAPTAIN.js instead)
 // if (typeof window.showCommunicationActionCenter === 'function') {
