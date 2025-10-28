@@ -1,0 +1,386 @@
+/**
+ * 🎨 MOBILE-WISE AI FORMVISER - FROSTED ACTION BUTTONS
+ * Matching Testimonial Splash Screen Style
+ * Transparent Blurred Frost Background
+ */
+
+/* ============================================================================
+   🎯 ACTION BUTTONS CONTAINER
+   ============================================================================ */
+
+.action-buttons-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* ============================================================================
+   ❄️ FROSTED GLASS ACTION BUTTON (Base Style)
+   ============================================================================ */
+
+.action-btn-frosted {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 25px;
+    
+    /* Frosted Glass Effect - MATCHING TESTIMONIALS */
+    background: rgba(255, 255, 255, 0.35);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.action-btn-frosted:hover {
+    background: rgba(255, 255, 255, 0.45);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+}
+
+.action-btn-frosted:active {
+    transform: translateY(0);
+}
+
+/* ============================================================================
+   📝 BUTTON LEFT SIDE - TITLE & DESCRIPTION
+   ============================================================================ */
+
+.action-btn-content {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    flex: 1;
+    text-align: left;
+}
+
+.action-btn-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a1a1a;
+    letter-spacing: -0.3px;
+    line-height: 1.2;
+}
+
+.action-btn-description {
+    font-size: 14px;
+    font-weight: 500;
+    color: #666;
+    line-height: 1.4;
+}
+
+/* ============================================================================
+   ➡️ BUTTON RIGHT SIDE - ICON/INDICATOR
+   ============================================================================ */
+
+.action-btn-icon {
+    font-size: 32px;
+    margin-left: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 50px;
+}
+
+/* ============================================================================
+   🟢 BUTTON VARIANT: REQUEST A CALL (Green Accent)
+   ============================================================================ */
+
+.action-btn-frosted.request-call {
+    border-left: 4px solid #00ff88;
+}
+
+.action-btn-frosted.request-call:hover {
+    border-left-color: #00cc6a;
+}
+
+.action-btn-frosted.request-call .action-btn-title {
+    color: #00cc6a;
+}
+
+.action-btn-frosted.request-call::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(180deg, #00ff88 0%, #00cc6a 100%);
+    opacity: 0.5;
+}
+
+/* ============================================================================
+   🔵 BUTTON VARIANT: FREE CONSULTATION (Purple Accent)
+   ============================================================================ */
+
+.action-btn-frosted.free-consultation {
+    border-left: 4px solid #667eea;
+}
+
+.action-btn-frosted.free-consultation:hover {
+    border-left-color: #5568d3;
+}
+
+.action-btn-frosted.free-consultation .action-btn-title {
+    color: #667eea;
+}
+
+.action-btn-frosted.free-consultation::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+    opacity: 0.5;
+}
+
+/* ============================================================================
+   🔴 BUTTON VARIANT: URGENT CALL (Red Accent with Pulse)
+   ============================================================================ */
+
+.action-btn-frosted.urgent-call {
+    border: 2px solid #ff4444;
+    border-left: 5px solid #ff4444;
+    background: rgba(255, 244, 244, 0.4);
+}
+
+.action-btn-frosted.urgent-call:hover {
+    background: rgba(255, 244, 244, 0.5);
+    border-color: #cc0000;
+    border-left-color: #cc0000;
+}
+
+.action-btn-frosted.urgent-call .action-btn-title {
+    color: #ff4444;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    animation: urgentPulse 2s ease-in-out infinite;
+}
+
+@keyframes urgentPulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.8;
+    }
+}
+
+.action-btn-frosted.urgent-call::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 5px;
+    background: linear-gradient(180deg, #ff4444 0%, #cc0000 100%);
+    animation: urgentGlow 2s ease-in-out infinite;
+}
+
+@keyframes urgentGlow {
+    0%, 100% {
+        opacity: 0.6;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
+/* Urgent icon pulse */
+.action-btn-frosted.urgent-call .action-btn-icon {
+    animation: iconPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes iconPulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.15);
+    }
+}
+
+/* ============================================================================
+   💎 BUTTON VARIANT: PRE-QUALIFIED (Blue Accent)
+   ============================================================================ */
+
+.action-btn-frosted.pre-qualify {
+    border-left: 4px solid #2A42F2;
+}
+
+.action-btn-frosted.pre-qualify:hover {
+    border-left-color: #1a2ed8;
+}
+
+.action-btn-frosted.pre-qualify .action-btn-title {
+    color: #2A42F2;
+}
+
+.action-btn-frosted.pre-qualify::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(180deg, #2A42F2 0%, #1a2ed8 100%);
+    opacity: 0.5;
+}
+
+/* ============================================================================
+   📚 BUTTON VARIANT: FREE BOOK (Orange/Gold Accent)
+   ============================================================================ */
+
+.action-btn-frosted.free-book {
+    border-left: 4px solid #ff9500;
+}
+
+.action-btn-frosted.free-book:hover {
+    border-left-color: #e08600;
+}
+
+.action-btn-frosted.free-book .action-btn-title {
+    color: #ff9500;
+}
+
+.action-btn-frosted.free-book::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(180deg, #ff9500 0%, #e08600 100%);
+    opacity: 0.5;
+}
+
+/* ============================================================================
+   📱 RESPONSIVE DESIGN
+   ============================================================================ */
+
+@media (max-width: 768px) {
+    .action-btn-frosted {
+        padding: 16px 20px;
+    }
+    
+    .action-btn-title {
+        font-size: 18px;
+    }
+    
+    .action-btn-description {
+        font-size: 13px;
+    }
+    
+    .action-btn-icon {
+        font-size: 28px;
+        min-width: 40px;
+        margin-left: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .action-buttons-container {
+        padding: 15px;
+    }
+    
+    .action-btn-frosted {
+        padding: 14px 16px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .action-btn-content {
+        width: 100%;
+    }
+    
+    .action-btn-title {
+        font-size: 16px;
+    }
+    
+    .action-btn-description {
+        font-size: 12px;
+    }
+    
+    .action-btn-icon {
+        margin-left: 0;
+        align-self: flex-end;
+        margin-top: -30px;
+    }
+}
+
+/* ============================================================================
+   ✨ HOVER EFFECTS & ANIMATIONS
+   ============================================================================ */
+
+/* Shine effect on hover */
+.action-btn-frosted::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.3) 50%,
+        transparent 100%
+    );
+    transition: left 0.5s ease;
+}
+
+.action-btn-frosted:hover::after {
+    left: 100%;
+}
+
+/* Focus state for accessibility */
+.action-btn-frosted:focus {
+    outline: 3px solid rgba(42, 66, 242, 0.5);
+    outline-offset: 2px;
+}
+
+/* ============================================================================
+   🎨 DISABLED STATE
+   ============================================================================ */
+
+.action-btn-frosted:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* ============================================================================
+   🌙 DARK MODE SUPPORT (Optional)
+   ============================================================================ */
+
+@media (prefers-color-scheme: dark) {
+    .action-btn-frosted {
+        background: rgba(40, 40, 40, 0.5);
+        border-color: rgba(255, 255, 255, 0.2);
+    }
+    
+    .action-btn-frosted:hover {
+        background: rgba(50, 50, 50, 0.6);
+    }
+    
+    .action-btn-title {
+        color: #ffffff;
+    }
+    
+    .action-btn-description {
+        color: #cccccc;
+    }
+}

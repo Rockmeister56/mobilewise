@@ -681,11 +681,29 @@ function suppressBrowserBeeps() {
     console.log('🔍 DEBUG: isSpeaking =', isSpeaking);
     console.log('🔍 DEBUG: speakSequenceActive =', speakSequenceActive);
     
-    const userInput = document.getElementById('userInput');
+    // 🔥 NEW: CAPTURE TRANSCRIPT PROPERLY FROM RECOGNITION RESULTS
+    let finalTranscript = '';
+    if (recognition.results && recognition.results.length > 0) {
+        for (let i = recognition.resultIndex; i < recognition.results.length; i++) {
+            if (recognition.results[i].isFinal) {
+                finalTranscript += recognition.results[i][0].transcript;
+            } else {
+                finalTranscript += recognition.results[i][0].transcript;
+            }
+        }
+    }
+    console.log('🔍 Captured transcript from results:', finalTranscript);
     
-    if (userInput && userInput.value.trim().length > 0) {
+    // 🔥 NEW: ALSO CHECK THE INPUT FIELD (FALLBACK)
+    const userInput = document.getElementById('userInput');
+    if (!finalTranscript && userInput && userInput.value.trim().length > 0) {
+        finalTranscript = userInput.value.trim();
+        console.log('🔍 Used fallback transcript from input field:', finalTranscript);
+    }
+    
+    if (finalTranscript && finalTranscript.trim().length > 0) {
         // User said something - process the message
-        const currentMessage = userInput.value.trim();
+        const currentMessage = finalTranscript.trim();
         const now = Date.now();
         const timeSinceLastMessage = now - (window.lastMessageTime || 0);
         
@@ -695,7 +713,20 @@ function suppressBrowserBeeps() {
             
             console.log('✅ Sending new message:', currentMessage);
 
-            // 🎯 ADD BANNER CLEANUP HERE - RIGHT AFTER MESSAGE IS SENT
+            // 🔥 NEW: CANCEL THE 4-SECOND TIMEOUT IMMEDIATELY
+            if (window.speakNowTimeout) {
+                clearTimeout(window.speakNowTimeout);
+                window.speakNowTimeout = null;
+                console.log('✅ Cancelled 4-second timeout - speech was captured');
+            }
+
+            // 🔥 NEW: STOP ANY PENDING TTS
+            if (window.speechSynthesis.speaking) {
+                window.speechSynthesis.cancel();
+                console.log('✅ Stopped any pending TTS');
+            }
+
+            // 🎯 CLOSE BANNER - RIGHT AFTER MESSAGE IS SENT
             if (typeof speakSequenceActive !== 'undefined' && speakSequenceActive) {
                 console.log('🎯 Closing Speak Now banner - message sent');
                 
@@ -727,14 +758,14 @@ function suppressBrowserBeeps() {
             console.log('🔓 Cleared playingSorryMessage after no-speech timeout');
         }, 3000);
 
-        // 🎯 ADD TIMER CANCELLATION RIGHT HERE!
+        // 🎯 CANCEL TIMER TO PREVENT SESSION KILL
         if (speakSequenceCleanupTimer) {
             clearTimeout(speakSequenceCleanupTimer);
             speakSequenceCleanupTimer = null;
             console.log('🕐 CANCELLED cleanup timer - preventing session kill');
         }
         
-        // ✅ NEW SIMPLE APPROACH: Just show overlay, keep microphone active
+        // ✅ SIMPLE APPROACH: Just show overlay, keep microphone active
         if (!isSpeaking) {
             setTimeout(() => {
                 console.log('🎯 DEBUG: About to show try again overlay');
