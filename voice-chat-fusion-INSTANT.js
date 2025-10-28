@@ -145,7 +145,6 @@ function createInstantBubble() {
         }
     }
     
-    liveTranscript.style.display = 'block';
     // 🎯 USE THE SAME STYLING AS showDirectSpeakNow() - Frosted glass with animation
     liveTranscript.innerHTML = `
         <div class="mobile-wise-banner speak-now-state" style="
