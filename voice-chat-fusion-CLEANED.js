@@ -2105,36 +2105,113 @@ function updateSmartButton(shouldShow, buttonText, action) {
     
 }
 
-// 🔥 PART 1: CREATE THE MISSING UTILITY FUNCTION
-function detectConsultativeResponse(userInput) {
-    const input = userInput.toLowerCase();
+/**
+ * =============================================================================
+ * UPDATED CONSULTATIVE RESPONSE DETECTOR
+ * =============================================================================
+ * Detects user intent to contact and returns appropriate action type
+ * Now maps to new consolidated action system
+ * =============================================================================
+ */
+
+function detectConsultativeResponse(userMessage) {
+    const message = userMessage.toLowerCase();
     
-    // Detect if user wants to speak to Bruce/contact someone
-    const contactKeywords = [
-        'speak to bruce',
-        'talk to bruce',
-        'call bruce',
-        'contact bruce',
-        'get a hold of',
-        'rather just speak',
-        'rather talk',
-        'skip this',
-        'just call',
-        'want to speak'
+    // Urgent/immediate help patterns
+    const urgentPatterns = [
+        'urgent', 'asap', 'right now', 'immediately', 'emergency',
+        'call me now', 'need help now', 'right away'
     ];
     
-    const wantsContact = contactKeywords.some(keyword => input.includes(keyword));
+    // Callback request patterns
+    const callbackPatterns = [
+        'call me back', 'callback', 'call back', 'phone me',
+        'give me a call', 'ring me'
+    ];
     
-    if (wantsContact) {
-        console.log('🎯 Consultative response detected: User wants direct contact');
+    // Meeting/consultation patterns
+    const meetingPatterns = [
+        'book a meeting', 'schedule', 'consultation', 'appointment',
+        'meet with', 'talk to someone', 'speak with', 'speak to bruce',
+        'i\'d rather speak', 'discuss', 'chat with'
+    ];
+    
+    // Pre-qualify patterns
+    const prequalifyPatterns = [
+        'pre-qualify', 'prequalify', 'am i qualified', 'do i qualify',
+        'see if', 'good fit', 'right for me'
+    ];
+    
+    // Free book patterns
+    const bookPatterns = [
+        'free book', 'send me the book', 'download', 'guide',
+        'ebook', 'pdf'
+    ];
+    
+    // Generic contact patterns (show all options)
+    const genericContactPatterns = [
+        'contact', 'get in touch', 'reach out', 'talk to you',
+        'speak to you', 'help me', 'more info', 'tell me more'
+    ];
+    
+    
+    // Check patterns in priority order (most specific first)
+    
+    if (urgentPatterns.some(pattern => message.includes(pattern))) {
         return {
-            type: 'contact_request',
-            shouldShowBanner: true,
-            bannerType: 'clickToCall'
+            intent: 'contact_request',
+            action: 'urgent',  // Maps to 'immediate-call'
+            confidence: 'high',
+            bannerMessage: 'Let me connect you right away...'
         };
     }
     
-    // If not a contact request, return null (let normal concern detection handle it)
+    if (callbackPatterns.some(pattern => message.includes(pattern))) {
+        return {
+            intent: 'contact_request',
+            action: 'requestCall',  // Maps to 'request-callback'
+            confidence: 'high',
+            bannerMessage: 'I\'ll set up that callback for you...'
+        };
+    }
+    
+    if (prequalifyPatterns.some(pattern => message.includes(pattern))) {
+        return {
+            intent: 'contact_request',
+            action: 'preQualify',  // Maps to 'pre-qualify'
+            confidence: 'high',
+            bannerMessage: 'Let\'s see if we\'re a good fit...'
+        };
+    }
+    
+    if (bookPatterns.some(pattern => message.includes(pattern))) {
+        return {
+            intent: 'contact_request',
+            action: 'freeBook',  // Maps to 'free-book'
+            confidence: 'high',
+            bannerMessage: 'I\'ll get that book to you...'
+        };
+    }
+    
+    if (meetingPatterns.some(pattern => message.includes(pattern))) {
+        return {
+            intent: 'contact_request',
+            action: 'bookMeeting',  // Maps to 'free-consultation'
+            confidence: 'high',
+            bannerMessage: 'Let me schedule that for you...'
+        };
+    }
+    
+    if (genericContactPatterns.some(pattern => message.includes(pattern))) {
+        return {
+            intent: 'contact_request',
+            action: 'showAll',  // Shows Communication Action Center with all options
+            confidence: 'medium',
+            bannerMessage: 'Here are all the ways I can help...'
+        };
+    }
+    
+    // No contact intent detected
     return null;
 }
 
@@ -2148,17 +2225,20 @@ function getAIResponse(userInput) {
     let responseText = '';
     
     // 🔥 PART 2: CHECK FOR CONTACT INTENT FIRST (before anything else)
-const contactCheck = detectConsultativeResponse(userText);
+    const consultativeResponse = detectConsultativeResponse(userText);
 
-if (contactCheck && contactCheck.type === 'contact_request') {
-    console.log('🎯 User wants to contact Bruce - showing banner');
-    
-    if (typeof showUniversalBanner === 'function') {
-    setTimeout(() => {
-        showUniversalBanner(contactCheck.bannerType);
-        console.log('✅ Contact banner triggered:', contactCheck.bannerType);
-    }, 1000);
-}
+    if (consultativeResponse && consultativeResponse.intent === 'contact_request') {
+        console.log('✅ Contact intent detected:', consultativeResponse);
+        
+        // Get banner message for chat bubble
+        const bannerMessage = consultativeResponse.bannerMessage || 'Let me help you get in touch...';
+        
+        // Trigger the CTA handler with detected action
+        handleCTAButtonClick(consultativeResponse.action);
+        
+        // Return STRING message for chat bubble (not object!)
+        return bannerMessage;
+    }
 
 // 🔥 NEW: Also trigger Communication Action Center
 if (typeof window.showCommunicationActionCenter === 'function') {
@@ -2831,31 +2911,7 @@ function resumePendingIntent() {
     }
 }
 
-function handleCTAButtonClick(action) {
-    console.log(`🎯 CTA button clicked: ${action}`);
-    
-    stopAllSpeech();
-    
-    if (action === 'requestCall' || action === 'urgent') {
-        // Quick capture (3 questions)
-        setTimeout(() => {
-            initializeQuickLeadCapture(action);
-        }, 500);
-        
-    } else if (action === 'bookMeeting') {
-        // Full capture (4 questions) - existing function
-        setTimeout(() => {
-            initializeLeadCapture();
-        }, 500);
-        
-    } else if (action === 'preQualify') {
-        // Future feature - for now treat as book meeting
-        speakText("Pre-qualification coming soon! Let's book a meeting instead.");
-        setTimeout(() => {
-            initializeLeadCapture();
-        }, 2000);
-    }
-}
+handleCTAButtonClick
 
 // Make globally accessible
 window.handleCTAButtonClick = handleCTAButtonClick;
