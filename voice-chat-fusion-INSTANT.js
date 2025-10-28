@@ -2436,38 +2436,36 @@ function getAIResponse(userInput) {
     const firstName = window.leadData.firstName || '';
     let responseText = '';
     
-    // 🚨 PRIORITY #1: If getting first name, capture it FIRST (before contact detection)
-    if (conversationState === 'getting_first_name') {
-        const words = userInput.trim().split(' ');
-        const extractedName = words[0].replace(/[^a-zA-Z]/g, '');
-        
-        if (extractedName.length > 0) {
-            window.leadData.firstName = extractedName.charAt(0).toUpperCase() + extractedName.slice(1).toLowerCase();
-            responseText = `Great to meet you ${window.leadData.firstName}! What brings you to New Clients Inc today?`;
-            conversationState = 'active';
-            return responseText; // Exit early with name captured
-        } else {
-            return "I didn't quite catch that. Could you tell me your first name?";
-        }
-    }
-    
-    // 🔥 PART 2: CHECK FOR CONTACT INTENT (only if NOT getting name)
+    // 🔥 PART 2: CHECK FOR CONTACT INTENT FIRST (before anything else)
     const consultativeResponse = detectConsultativeResponse(userText);
 
-// 🔥 DISABLED: Communication Action Center (using action-button-system-CAPTAIN.js instead)
-// if (typeof window.showCommunicationActionCenter === 'function') {
-//     setTimeout(() => {
-//         window.showCommunicationActionCenter();
-//         console.log('✅ Communication Action Center triggered');
-//     }, 1200); // Slightly after banner
-// } else if (typeof showCommunicationActionCenter === 'function') {
-//     setTimeout(() => {
-//         showCommunicationActionCenter();
-//         console.log('✅ Communication Action Center triggered (alt)');
-//     }, 1200);
-// } else {
-//     console.log('⚠️ Communication Action Center function not found');
-// }
+    if (consultativeResponse && consultativeResponse.intent === 'contact_request') {
+        console.log('✅ Contact intent detected:', consultativeResponse);
+        
+        // Get banner message for chat bubble
+        const bannerMessage = consultativeResponse.bannerMessage || 'Let me help you get in touch...';
+        
+        // Trigger the CTA handler with detected action
+        handleSmartButtonClick(consultativeResponse.action);
+        
+        // Return STRING message for chat bubble (not object!)
+        return bannerMessage;
+    }
+
+// 🔥 NEW: Also trigger Communication Action Center
+if (typeof window.showCommunicationActionCenter === 'function') {
+    setTimeout(() => {
+        window.showCommunicationActionCenter();
+        console.log('✅ Communication Action Center triggered');
+    }, 1200); // Slightly after banner
+} else if (typeof showCommunicationActionCenter === 'function') {
+    setTimeout(() => {
+        showCommunicationActionCenter();
+        console.log('✅ Communication Action Center triggered (alt)');
+    }, 1200);
+} else {
+    console.log('⚠️ Communication Action Center function not found');
+}
     
     // 🔥 UPDATE STATE SEPARATELY
     conversationState = 'offering_contact_options';
