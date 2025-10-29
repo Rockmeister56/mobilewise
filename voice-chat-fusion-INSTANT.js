@@ -2427,26 +2427,121 @@ function getAIResponse(userInput) {
     // 🔥 PART 2: CHECK FOR CONTACT INTENT (only if NOT getting name)
     const consultativeResponse = detectConsultativeResponse(userText);
 
-// 🔥 RE-ENABLED: Communication Action Center
-if (typeof window.showCommunicationActionCenter === 'function') {
-    setTimeout(() => {
-        window.showCommunicationActionCenter();
-        console.log('✅ Communication Action Center triggered');
-    }, 1200); // Slightly after banner
-} else if (typeof showCommunicationActionCenter === 'function') {
-    setTimeout(() => {
-        showCommunicationActionCenter();
-        console.log('✅ Communication Action Center triggered (alt)');
-    }, 1200);
-} else {
-    console.log('⚠️ Communication Action Center function not found');
-}
+    // 🎯 CONSULTATIVE RESPONSE - Acknowledge intent and offer free book
+    if (consultativeResponse) {
+        console.log('🎯 CONTACT INTENT DETECTED - Building consultative response');
+        
+        let acknowledgment = '';
+        let bookOffer = '';
+        
+        // Detect specific intent and create personalized response
+        if (userText.includes('sell') || userText.includes('selling')) {
+            acknowledgment = `That's fantastic that you want to sell your practice! You've definitely come to the right place, and I'd love to send you in the right direction to make your goal a reality.`;
+            bookOffer = `Have you heard of Bruce's book, "7 Secrets to Selling Your Practice"?`;
+            
+        } else if (userText.includes('buy') || userText.includes('buying') || userText.includes('purchase') || userText.includes('acquire')) {
+            acknowledgment = `That's fantastic that you want to buy a practice! You've definitely come to the right place, and I'd love to send you in the right direction to make your goal a reality.`;
+            bookOffer = `Have you heard of Bruce's book, "7 Secrets to Buying a Practice"?`;
+            
+        } else if (userText.includes('value') || userText.includes('valuation') || userText.includes('evaluate') || userText.includes('worth')) {
+            acknowledgment = `That's fantastic that you want to evaluate your practice! You've definitely come to the right place, and I'd love to send you in the right direction to get an accurate valuation.`;
+            bookOffer = `Have you heard of Bruce's book, "7 Secrets to Practice Valuation"?`;
+            
+        } else if (userText.includes('help') || userText.includes('assist') || userText.includes('information')) {
+            acknowledgment = `I'm so glad you reached out for help! You've definitely come to the right place, and I'd love to send you in the right direction.`;
+            bookOffer = `Have you heard of Bruce's book, "7 Secrets to Growing Your Practice"?`;
+            
+        } else {
+            // Generic for any other contact intent
+            acknowledgment = `That's fantastic! You've definitely come to the right place, and I'd love to send you in the right direction to make your goals a reality.`;
+            bookOffer = `Have you heard of Bruce's book, "7 Secrets for Practice Owners"?`;
+        }
+        
+        // Combine acknowledgment + book question
+        const fullResponse = `${acknowledgment} ${bookOffer}`;
+        
+        // Store that we're waiting for book response
+        window.waitingForBookResponse = true;
+        window.lastBookOfferType = userText.includes('sell') ? 'selling' : 
+                                    userText.includes('buy') ? 'buying' : 
+                                    userText.includes('value') ? 'valuation' : 'general';
+        
+        // Update state
+        conversationState = 'offering_book';
+        
+        return fullResponse;
+    }
     
-    // 🔥 UPDATE STATE SEPARATELY
-    conversationState = 'offering_contact_options';
-    
-    // 🔥 RETURN JUST THE STRING (not an object)
-    return "I completely understand! Bruce is our expert and the best person to talk to. I'm showing his contact information now - you can call him directly, or I can help gather a couple quick details so Bruce knows exactly what you're looking for. What works best for you?";
+    // 🎯 HANDLE BOOK RESPONSE - User says "no" to book question
+    if (window.waitingForBookResponse && conversationState === 'offering_book') {
+        
+        // User likely said "no" or similar
+        if (userText.includes('no') || userText.includes('not') || userText.includes('haven\'t') || 
+            userText.includes('never') || userText.includes('nope') || userText.includes('nah')) {
+            
+            console.log('📚 User hasn\'t heard of book - offering free copy + consultation');
+            
+            const bookType = window.lastBookOfferType || 'general';
+            let bookTitle = '';
+            
+            switch(bookType) {
+                case 'selling':
+                    bookTitle = '"7 Secrets to Selling Your Practice"';
+                    break;
+                case 'buying':
+                    bookTitle = '"7 Secrets to Buying a Practice"';
+                    break;
+                case 'valuation':
+                    bookTitle = '"7 Secrets to Practice Valuation"';
+                    break;
+                default:
+                    bookTitle = '"7 Secrets for Practice Owners"';
+            }
+            
+            const response = `Well, I can get you a free copy of ${bookTitle} with a free consultation! Just click the "Get a Free Consultation" button below and I'll get you that free copy right away.`;
+            
+            // Trigger Communication Action Center after response
+            setTimeout(() => {
+                if (typeof window.showCommunicationActionCenter === 'function') {
+                    window.showCommunicationActionCenter();
+                    console.log('✅ Communication Action Center triggered after book offer');
+                } else if (typeof showCommunicationActionCenter === 'function') {
+                    showCommunicationActionCenter();
+                }
+            }, 1500); // After AI finishes speaking
+            
+            // Update state
+            conversationState = 'showing_action_center';
+            window.waitingForBookResponse = false;
+            
+            return response;
+        }
+        
+        // User said "yes" - they've heard of the book
+        else if (userText.includes('yes') || userText.includes('yeah') || userText.includes('yep') || 
+                 userText.includes('heard') || userText.includes('familiar')) {
+            
+            console.log('📚 User has heard of book - offering action center');
+            
+            const response = `Great! Then you know how valuable Bruce's insights are. I can help you get started right away - just click one of the buttons below to connect with Bruce directly, or get your free consultation.`;
+            
+            // Trigger Communication Action Center
+            setTimeout(() => {
+                if (typeof window.showCommunicationActionCenter === 'function') {
+                    window.showCommunicationActionCenter();
+                    console.log('✅ Communication Action Center triggered');
+                } else if (typeof showCommunicationActionCenter === 'function') {
+                    showCommunicationActionCenter();
+                }
+            }, 1500);
+            
+            // Update state
+            conversationState = 'showing_action_center';
+            window.waitingForBookResponse = false;
+            
+            return response;
+        }
+    }
     
     // 🎯 CONCERN DETECTION - Skip in INITIAL state to avoid intent conflicts
     if (conversationState !== 'initial' &&
@@ -2918,9 +3013,10 @@ if (typeof window.showCommunicationActionCenter === 'function') {
         "Thanks! Anything else about buying, selling, or valuing?";
     
     conversationState = 'initial';
-    
+
     return responseText;
-}
+} // ← THIS WAS MISSING!
+
 
 function handleTestimonialComplete() {
     console.log('🎯 Testimonial finished - triggering comeback');
