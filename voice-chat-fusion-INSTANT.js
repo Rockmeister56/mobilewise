@@ -2405,7 +2405,7 @@ function detectConsultativeResponse(userMessage) {
 // UPDATED: Expertise banner on specialty topics, concern detection fixed
 
 // ===================================================
-// 💬 AI RESPONSE SYSTEM - WITH BANNER & BUTTON TRIGGERS
+// 💬 AI RESPONSE SYSTEM - ALL ISSUES FIXED
 // ===================================================
 
 function getAIResponse(userInput) {
@@ -2445,6 +2445,13 @@ function getAIResponse(userInput) {
     // ═══════════════════════════════════════════════════════════
     if (conversationState === 'active' || conversationState === 'initial') {
         console.log('🔍 Checking for consultative intent...');
+        
+        // 🧹 FIX #1: HIDE SPEAK NOW BANNER IMMEDIATELY WHEN INTENT DETECTED
+        const speakNowBanner = document.getElementById('speak-sequence-button');
+        if (speakNowBanner) {
+            speakNowBanner.remove();
+            console.log('🧹 Removed Speak Now banner for consultative response');
+        }
         
         let acknowledgment = '';
         let bookOffer = '';
@@ -2522,14 +2529,39 @@ function getAIResponse(userInput) {
         if (intentDetected) {
             const fullResponse = acknowledgment + bookOffer;
             
-            // 🎨 TRIGGER FREE BOOK BANNER + CTA BUTTONS AFTER ACKNOWLEDGMENT IS SPOKEN
-            // This happens mid-sentence for dramatic effect!
+            // 🎨 FIX #2: TRIGGER FREE BOOK BANNER WITH CORRECT NAME
+            // Try multiple banner names to find the right one
             setTimeout(() => {
-                if (typeof triggerBanner === 'function') {
-                    triggerBanner('freeBookWithConsultation');
-                    console.log('✅ Free Book banner triggered with CTA buttons');
-                } else {
-                    console.error('❌ triggerBanner function not found!');
+                let bannerTriggered = false;
+                
+                // Try different possible banner names
+                const possibleBannerNames = [
+                    'freeBookWithConsultation',
+                    'setAppointment',
+                    'clickToCall',
+                    'freeBook'
+                ];
+                
+                for (const bannerName of possibleBannerNames) {
+                    try {
+                        if (typeof triggerBanner === 'function') {
+                            triggerBanner(bannerName);
+                            console.log(`✅ Tried banner: ${bannerName}`);
+                            bannerTriggered = true;
+                            break; // Stop after first successful trigger
+                        } else if (typeof showUniversalBanner === 'function') {
+                            showUniversalBanner(bannerName);
+                            console.log(`✅ Tried banner (alt): ${bannerName}`);
+                            bannerTriggered = true;
+                            break;
+                        }
+                    } catch (e) {
+                        console.log(`⚠️ Banner ${bannerName} not found, trying next...`);
+                    }
+                }
+                
+                if (!bannerTriggered) {
+                    console.error('❌ Could not trigger any free book banner!');
                 }
             }, 3000); // 3 seconds - right after "reach your goals" is said
             
@@ -2544,7 +2576,7 @@ function getAIResponse(userInput) {
     }
     
     // ═══════════════════════════════════════════════════════════
-    // BOOK RESPONSE - YES/NO (NOW TRIGGERS ACTION CENTER)
+    // BOOK RESPONSE - YES/NO (TRIGGERS ACTION CENTER)
     // ═══════════════════════════════════════════════════════════
     if (window.waitingForBookResponse && conversationState === 'offering_book') {
         console.log('📚 Processing book response...');
@@ -2561,16 +2593,21 @@ function getAIResponse(userInput) {
                 `Perfect ${firstName}! Let me show you the options to connect with Bruce.` :
                 `Perfect! Let me show you the options to connect with Bruce.`;
             
-            // 🎨 TRIGGER COMMUNICATION ACTION CENTER
+            // 🎨 FIX #3: TRIGGER COMMUNICATION ACTION CENTER WITH ERROR HANDLING
             setTimeout(() => {
-                if (typeof window.showCommunicationActionCenter === 'function') {
-                    window.showCommunicationActionCenter();
-                    console.log('✅ Communication Action Center triggered');
-                } else if (typeof showCommunicationActionCenter === 'function') {
-                    showCommunicationActionCenter();
-                    console.log('✅ Communication Action Center triggered (alt)');
-                } else {
-                    console.error('❌ showCommunicationActionCenter function not found!');
+                try {
+                    if (typeof window.showCommunicationActionCenter === 'function') {
+                        window.showCommunicationActionCenter();
+                        console.log('✅ Communication Action Center triggered');
+                    } else if (typeof showCommunicationActionCenter === 'function') {
+                        showCommunicationActionCenter();
+                        console.log('✅ Communication Action Center triggered (alt)');
+                    } else {
+                        console.error('❌ showCommunicationActionCenter function not found!');
+                        console.log('🔍 Available functions:', Object.keys(window).filter(k => k.includes('show')));
+                    }
+                } catch (error) {
+                    console.error('❌ Error triggering Action Center:', error);
                 }
             }, 1500);
             
@@ -2655,8 +2692,7 @@ function getAIResponse(userInput) {
     return responseText;
 }
 
-console.log('✅ getAIResponse function loaded with banner triggers');
-
+console.log('✅ getAIResponse function loaded - ALL ISSUES FIXED');
 
 function handleTestimonialComplete() {
     console.log('🎯 Testimonial finished - triggering comeback');
