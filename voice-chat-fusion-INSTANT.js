@@ -2405,7 +2405,7 @@ function detectConsultativeResponse(userMessage) {
 // UPDATED: Expertise banner on specialty topics, concern detection fixed
 
 // ===================================================
-// 💬 AI RESPONSE SYSTEM - COMPLETE WITH BOOK RESPONSE
+// 💬 AI RESPONSE SYSTEM - WITH BANNER & BUTTON TRIGGERS
 // ===================================================
 
 function getAIResponse(userInput) {
@@ -2417,7 +2417,6 @@ function getAIResponse(userInput) {
     console.log('🔍 getAIResponse CALLED');
     console.log('Input:', userInput);
     console.log('State:', conversationState);
-    console.log('waitingForBookResponse:', window.waitingForBookResponse);
     console.log('========================================');
     
     // ═══════════════════════════════════════════════════════════
@@ -2442,7 +2441,7 @@ function getAIResponse(userInput) {
     }
     
     // ═══════════════════════════════════════════════════════════
-    // CONSULTATIVE RESPONSE - SELL/BUY/VALUE INTENT
+    // CONSULTATIVE RESPONSE - WITH BANNER TRIGGERS
     // ═══════════════════════════════════════════════════════════
     if (conversationState === 'active' || conversationState === 'initial') {
         console.log('🔍 Checking for consultative intent...');
@@ -2455,53 +2454,97 @@ function getAIResponse(userInput) {
         if (userText.includes('sell') || userText.includes('selling')) {
             console.log('🎯 SELLING INTENT DETECTED!');
             
-            acknowledgment = `That's fantastic that you want to sell your practice${firstName ? ', ' + firstName : ''}! You've definitely come to the right place, and I'd love to send you in the right direction to make your goal a reality.`;
-            bookOffer = ` Have you heard of Bruce's book, "7 Secrets to Selling Your Practice"? I can send you a free copy and set up a consultation with Bruce!`;
+            // 🎨 TRIGGER EXPERTISE BANNER IMMEDIATELY
+            setTimeout(() => {
+                if (typeof showUniversalBanner === 'function') {
+                    showUniversalBanner('expertise');
+                    console.log('✅ Expertise banner triggered for selling');
+                } else {
+                    console.error('❌ showUniversalBanner function not found!');
+                }
+            }, 500);
+            
+            acknowledgment = `That's fantastic that you want to sell your practice${firstName ? ', ' + firstName : ''}! I'd love to help you reach your goals`;
+            bookOffer = ` by sending you a free book written by the CEO and founder of New Clients Inc, Bruce Clark. Simply click Free Consultation below!`;
             window.lastBookOfferType = 'selling';
             intentDetected = true;
             
         } else if (userText.includes('buy') || userText.includes('buying') || userText.includes('purchase') || userText.includes('acquire')) {
             console.log('🎯 BUYING INTENT DETECTED!');
             
-            acknowledgment = `That's fantastic that you want to buy a practice${firstName ? ', ' + firstName : ''}! You've definitely come to the right place, and I'd love to send you in the right direction to make your goal a reality.`;
-            bookOffer = ` Have you heard of Bruce's book, "7 Secrets to Buying a Practice"? I can send you a free copy and set up a consultation with Bruce!`;
+            // 🎨 TRIGGER EXPERTISE BANNER IMMEDIATELY
+            setTimeout(() => {
+                if (typeof showUniversalBanner === 'function') {
+                    showUniversalBanner('expertise');
+                    console.log('✅ Expertise banner triggered for buying');
+                }
+            }, 500);
+            
+            acknowledgment = `That's fantastic that you want to buy a practice${firstName ? ', ' + firstName : ''}! I'd love to help you reach your goals`;
+            bookOffer = ` by sending you a free book written by the CEO and founder of New Clients Inc, Bruce Clark. Simply click Free Consultation below!`;
             window.lastBookOfferType = 'buying';
             intentDetected = true;
             
         } else if (userText.includes('value') || userText.includes('valuation') || userText.includes('evaluate') || userText.includes('worth')) {
             console.log('🎯 VALUATION INTENT DETECTED!');
             
-            acknowledgment = `That's fantastic that you want to evaluate your practice${firstName ? ', ' + firstName : ''}! You've definitely come to the right place, and I'd love to send you in the right direction to get an accurate valuation.`;
-            bookOffer = ` Have you heard of Bruce's book, "7 Secrets to Practice Valuation"? I can send you a free copy and set up a consultation with Bruce!`;
+            // 🎨 TRIGGER EXPERTISE BANNER IMMEDIATELY
+            setTimeout(() => {
+                if (typeof showUniversalBanner === 'function') {
+                    showUniversalBanner('expertise');
+                    console.log('✅ Expertise banner triggered for valuation');
+                }
+            }, 500);
+            
+            acknowledgment = `That's fantastic that you want to evaluate your practice${firstName ? ', ' + firstName : ''}! I'd love to help you reach your goals`;
+            bookOffer = ` by sending you a free book written by the CEO and founder of New Clients Inc, Bruce Clark. Simply click Free Consultation below!`;
             window.lastBookOfferType = 'valuation';
             intentDetected = true;
             
         } else if (userText.includes('help') || userText.includes('assist') || userText.includes('information')) {
             console.log('🎯 HELP INTENT DETECTED!');
             
-            acknowledgment = `I'm so glad you reached out for help${firstName ? ', ' + firstName : ''}! You've definitely come to the right place, and I'd love to send you in the right direction.`;
-            bookOffer = ` Have you heard of Bruce's book, "7 Secrets for Practice Owners"? I can send you a free copy and set up a consultation with Bruce!`;
+            // 🎨 TRIGGER EXPERTISE BANNER IMMEDIATELY
+            setTimeout(() => {
+                if (typeof showUniversalBanner === 'function') {
+                    showUniversalBanner('expertise');
+                    console.log('✅ Expertise banner triggered for help');
+                }
+            }, 500);
+            
+            acknowledgment = `I'm so glad you reached out for help${firstName ? ', ' + firstName : ''}! I'd love to help you reach your goals`;
+            bookOffer = ` by sending you a free book written by the CEO and founder of New Clients Inc, Bruce Clark. Simply click Free Consultation below!`;
             window.lastBookOfferType = 'general';
             intentDetected = true;
         }
         
-        // If intent detected, return response
+        // If intent detected, return response WITH BANNER TRIGGERS
         if (intentDetected) {
             const fullResponse = acknowledgment + bookOffer;
+            
+            // 🎨 TRIGGER FREE BOOK BANNER + CTA BUTTONS AFTER ACKNOWLEDGMENT IS SPOKEN
+            // This happens mid-sentence for dramatic effect!
+            setTimeout(() => {
+                if (typeof triggerBanner === 'function') {
+                    triggerBanner('freeBookWithConsultation');
+                    console.log('✅ Free Book banner triggered with CTA buttons');
+                } else {
+                    console.error('❌ triggerBanner function not found!');
+                }
+            }, 3000); // 3 seconds - right after "reach your goals" is said
             
             window.waitingForBookResponse = true;
             conversationState = 'offering_book';
             
-            console.log('✅ Returning consultative response');
+            console.log('✅ Returning consultative response with banner triggers');
             console.log('✅ State changed to: offering_book');
-            console.log('✅ waitingForBookResponse set to: true');
             
             return fullResponse;
         }
     }
     
     // ═══════════════════════════════════════════════════════════
-    // BOOK RESPONSE - YES/NO
+    // BOOK RESPONSE - YES/NO (NOW TRIGGERS ACTION CENTER)
     // ═══════════════════════════════════════════════════════════
     if (window.waitingForBookResponse && conversationState === 'offering_book') {
         console.log('📚 Processing book response...');
@@ -2518,12 +2561,14 @@ function getAIResponse(userInput) {
                 `Perfect ${firstName}! Let me show you the options to connect with Bruce.` :
                 `Perfect! Let me show you the options to connect with Bruce.`;
             
+            // 🎨 TRIGGER COMMUNICATION ACTION CENTER
             setTimeout(() => {
                 if (typeof window.showCommunicationActionCenter === 'function') {
                     window.showCommunicationActionCenter();
                     console.log('✅ Communication Action Center triggered');
                 } else if (typeof showCommunicationActionCenter === 'function') {
                     showCommunicationActionCenter();
+                    console.log('✅ Communication Action Center triggered (alt)');
                 } else {
                     console.error('❌ showCommunicationActionCenter function not found!');
                 }
@@ -2533,7 +2578,6 @@ function getAIResponse(userInput) {
             window.waitingForBookResponse = false;
             
             console.log('✅ State changed to: showing_action_center');
-            console.log('✅ waitingForBookResponse set to: false');
             
             return response;
         }
@@ -2546,6 +2590,14 @@ function getAIResponse(userInput) {
             
             const bookType = window.lastBookOfferType || 'general';
             window.waitingForBookResponse = false;
+            
+            // 🎨 SWITCH BACK TO BRANDING BANNER
+            setTimeout(() => {
+                if (typeof showUniversalBanner === 'function') {
+                    showUniversalBanner('branding');
+                    console.log('✅ Switched back to branding banner');
+                }
+            }, 1000);
             
             if (bookType === 'selling') {
                 responseText = firstName ?
@@ -2573,7 +2625,6 @@ function getAIResponse(userInput) {
             }
             
             console.log('✅ State changed to:', conversationState);
-            console.log('✅ waitingForBookResponse set to: false');
             
             return responseText;
         }
@@ -2583,8 +2634,8 @@ function getAIResponse(userInput) {
             console.log('❓ User response unclear - asking for clarification');
             
             const clarification = firstName ?
-                `${firstName}, I want to make sure I understand - would you like me to send you Bruce's book and set up a consultation? Please say yes or no.` :
-                "I want to make sure I understand - would you like me to send you Bruce's book and set up a consultation? Please say yes or no.";
+                `${firstName}, would you like the free book and consultation? Please say yes or no.` :
+                "Would you like the free book and consultation? Please say yes or no.";
             
             return clarification;
         }
@@ -2594,8 +2645,6 @@ function getAIResponse(userInput) {
     // DEFAULT FALLBACK
     // ═══════════════════════════════════════════════════════════
     console.log('⚠️ Reached default fallback');
-    console.log('   State:', conversationState);
-    console.log('   waitingForBookResponse:', window.waitingForBookResponse);
     
     responseText = firstName ?
         `Thanks ${firstName}! Anything else about buying, selling, or valuing practices?` :
@@ -2606,8 +2655,7 @@ function getAIResponse(userInput) {
     return responseText;
 }
 
-console.log('✅ getAIResponse function loaded successfully');
-
+console.log('✅ getAIResponse function loaded with banner triggers');
 
 
 function handleTestimonialComplete() {
