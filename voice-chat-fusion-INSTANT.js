@@ -124,24 +124,8 @@ function clearRestartTimers() {
 }
 
 // ===== CREATE INSTANT LISTENING BUBBLE =====
-// ❌ DEPRECATED - Using showDirectSpeakNow() instead
 function createInstantBubble() {
     console.log('⚡ INSTANT: Creating listening bubble immediately');
-    
-    // 🎯 CONFIGURATION: Banner position offset from top (adjust this value as needed)
-    const BANNER_TOP_OFFSET = '20px'; // Change this to move banner up/down
-    
-    // 🔍 Find quick buttons container
-    const quickButtonsContainer = document.querySelector('.quick-questions') || 
-                                  document.querySelector('.quick-buttons') || 
-                                  document.getElementById('quickButtonsContainer');
-    
-    // 👻 Hide existing quick buttons (so banner replaces them)
-    if (quickButtonsContainer) {
-        const existingButtons = quickButtonsContainer.querySelectorAll('.quick-btn');
-        existingButtons.forEach(btn => btn.style.display = 'none');
-        console.log('👻 INSTANT: Hid', existingButtons.length, 'quick buttons');
-    }
     
     // Find or create live transcript element
     let liveTranscript = document.getElementById('liveTranscript');
@@ -150,22 +134,18 @@ function createInstantBubble() {
         liveTranscript.id = 'liveTranscript';
         liveTranscript.className = 'live-transcript realtime-bubble';
         
-        // 🎯 INSERT INTO QUICK BUTTONS CONTAINER (replaces them visually)
-        if (quickButtonsContainer) {
-            quickButtonsContainer.appendChild(liveTranscript);
-            console.log('📍 INSTANT: Banner added to quick buttons container');
-        } else {
-            // Fallback: insert after chat messages
-            const chatMessages = document.getElementById('chatMessages');
-            if (chatMessages) {
-                chatMessages.parentNode.insertBefore(liveTranscript, chatMessages.nextSibling);
-            }
+        // Insert after chat messages or in quick buttons area
+        const chatMessages = document.getElementById('chatMessages');
+        const quickButtons = document.getElementById('quickButtonsContainer');
+        
+        if (chatMessages) {
+            chatMessages.parentNode.insertBefore(liveTranscript, chatMessages.nextSibling);
+        } else if (quickButtons) {
+            quickButtons.parentNode.insertBefore(liveTranscript, quickButtons);
         }
     }
     
     liveTranscript.style.display = 'block';
-    liveTranscript.style.position = 'relative';
-    liveTranscript.style.top = BANNER_TOP_OFFSET; // Apply configurable offset
     liveTranscript.innerHTML = `
         <style>
             @keyframes pulse-left {
@@ -200,7 +180,6 @@ function createInstantBubble() {
     return liveTranscript;
 }
 
-// ❌ DEPRECATED - Using showDirectSpeakNow() instead
 // ===== UPDATE REALTIME BUBBLE WITH SPEECH =====
 function updateRealtimeBubble(text) {
     const transcriptText = document.getElementById('transcriptText');
@@ -209,27 +188,101 @@ function updateRealtimeBubble(text) {
     }
 }
 
-// ❌ DEPRECATED - showDirectSpeakNow() handles button management
-// ===== RESTORE QUICK BUTTONS (when banner is hidden) =====
-function restoreQuickButtons() {
-    const quickButtonsContainer = document.querySelector('.quick-questions') || 
-                                  document.querySelector('.quick-buttons') || 
-                                  document.getElementById('quickButtonsContainer');
-    
-    if (quickButtonsContainer) {
-        const hiddenButtons = quickButtonsContainer.querySelectorAll('.quick-btn');
-        hiddenButtons.forEach(btn => btn.style.display = '');
-        console.log('🔄 INSTANT: Restored', hiddenButtons.length, 'quick buttons');
-    }
-}
-
 // ===== START INSTANT REALTIME LISTENING =====
 function startRealtimeListening() {
-    console.log('⚡⚡⚡ REDIRECTING TO showDirectSpeakNow() ⚡⚡⚡');
+    console.log('⚡⚡⚡ INSTANT LISTENING STARTED ⚡⚡⚡');
     
-    // 🎯 USE THE PERFECT "SPEAK NOW!" BANNER INSTEAD OF TRANSPARENT BUBBLE
-    // This is the banner with animated waveform bars that Captain loves
-    showDirectSpeakNow();
+    // Block if smart button is active
+    const smartButton = document.getElementById('smartButton');
+    if (smartButton && smartButton.style.display !== 'none') {
+        console.log('🚫 Smart button active - blocking instant listening');
+        return;
+    }
+    
+    // Block if concern banner is active
+    if (window.concernBannerActive) {
+        console.log('🚫 Concern banner active - blocking instant listening');
+        return;
+    }
+    
+    // Check conversation state
+    if (conversationState === 'ended') {
+        console.log('🚫 Conversation ended - blocking instant listening');
+        return;
+    }
+    
+    // Nuclear audio shutdown first
+    nuclearAudioShutdown();
+    
+    // Create instant bubble
+    createInstantBubble();
+    
+    // Start recognition immediately
+    if (!recognition) {
+        initializeSpeechRecognition();
+    }
+    
+    // Set up enhanced recognition handlers
+    recognition.onresult = function(event) {
+        console.log('⚡ INSTANT: Speech detected');
+        
+        let transcript = Array.from(event.results)
+            .map(result => result[0])
+            .map(result => result.transcript)
+            .join('');
+        
+        transcript = transcript.replace(/\.+$/, '');
+        
+        // Update bubble in realtime
+        updateRealtimeBubble(transcript);
+        
+        // Update input field
+        const userInput = document.getElementById('userInput');
+        if (userInput) {
+            userInput.value = transcript;
+        }
+        
+        // Store globally as backup
+        window.lastCapturedTranscript = transcript;
+        window.lastCapturedTime = Date.now();
+    };
+    
+    recognition.onend = function() {
+        console.log('⚡ INSTANT: Recognition ended');
+        
+        // Get final transcript
+        const userInput = document.getElementById('userInput');
+        const finalTranscript = (userInput && userInput.value.trim()) || window.lastCapturedTranscript || '';
+        
+        if (finalTranscript) {
+            console.log('✅ INSTANT: Sending message:', finalTranscript);
+            sendMessage(finalTranscript);
+        } else {
+            console.log('🔄 INSTANT: No speech detected - showing try again');
+            setTimeout(() => {
+                showAvatarSorryMessage();
+            }, 1500);
+        }
+    };
+    
+    recognition.onerror = function(event) {
+        console.log('⚡ INSTANT: Error:', event.error);
+        
+        if (event.error === 'no-speech') {
+            setTimeout(() => {
+                showAvatarSorryMessage();
+            }, 1500);
+        }
+    };
+    
+    // Start recognition
+    try {
+        recognition.start();
+        isListening = true;
+        console.log('✅ INSTANT: Recognition started successfully');
+    } catch (error) {
+        console.error('❌ INSTANT: Failed to start recognition:', error);
+    }
 }
 
 // ===== SCHEDULE AUTO-RESTART AFTER AI SPEAKS =====
@@ -1190,7 +1243,6 @@ function sendMessage() {
     const liveTranscript = document.getElementById('liveTranscript');
     if (liveTranscript) {
         liveTranscript.style.display = 'none';
-        restoreQuickButtons(); // Show quick buttons again
     }
     
     addUserMessage(message);
@@ -2252,7 +2304,6 @@ setTimeout(() => {
     const liveTranscript = document.getElementById('liveTranscript');
     if (liveTranscript) {
         liveTranscript.style.display = 'none';
-        restoreQuickButtons(); // Show quick buttons again
     }
     
     // 5. UPDATE UI ELEMENTS
@@ -2426,27 +2477,32 @@ function getAIResponse(userInput) {
     
     // 🔥 PART 2: CHECK FOR CONTACT INTENT (only if NOT getting name)
     const consultativeResponse = detectConsultativeResponse(userText);
-
-// 🔥 DISABLED: Communication Action Center (using action-button-system-CAPTAIN.js instead)
-// if (typeof window.showCommunicationActionCenter === 'function') {
-//     setTimeout(() => {
-//         window.showCommunicationActionCenter();
-//         console.log('✅ Communication Action Center triggered');
-//     }, 1200); // Slightly after banner
-// } else if (typeof showCommunicationActionCenter === 'function') {
-//     setTimeout(() => {
-//         showCommunicationActionCenter();
-//         console.log('✅ Communication Action Center triggered (alt)');
-//     }, 1200);
-// } else {
-//     console.log('⚠️ Communication Action Center function not found');
-// }
     
-    // 🔥 UPDATE STATE SEPARATELY
-    conversationState = 'offering_contact_options';
-    
-    // 🔥 RETURN JUST THE STRING (not an object)
-    return "I completely understand! Bruce is our expert and the best person to talk to. I'm showing his contact information now - you can call him directly, or I can help gather a couple quick details so Bruce knows exactly what you're looking for. What works best for you?";
+    // 🎯 IF CONTACT INTENT DETECTED - Trigger Communication Action Center
+    if (consultativeResponse) {
+        console.log('🎯 CONTACT INTENT DETECTED - Triggering Communication Action Center');
+        
+        // 🔥 RE-ENABLED: Communication Action Center
+        if (typeof window.showCommunicationActionCenter === 'function') {
+            setTimeout(() => {
+                window.showCommunicationActionCenter();
+                console.log('✅ Communication Action Center triggered');
+            }, 1200); // After AI finishes speaking
+        } else if (typeof showCommunicationActionCenter === 'function') {
+            setTimeout(() => {
+                showCommunicationActionCenter();
+                console.log('✅ Communication Action Center triggered (alt)');
+            }, 1200);
+        } else {
+            console.log('⚠️ Communication Action Center function not found');
+        }
+        
+        // 🔥 UPDATE STATE
+        conversationState = 'offering_contact_options';
+        
+        // 🔥 RETURN AI RESPONSE
+        return "I completely understand! Bruce is our expert and the best person to talk to. I'm showing his contact information now - you can call him directly, or I can help gather a couple quick details so Bruce knows exactly what you're looking for. What works best for you?";
+    }
     
     // 🎯 CONCERN DETECTION - Skip in INITIAL state to avoid intent conflicts
     if (conversationState !== 'initial' &&
@@ -3158,7 +3214,6 @@ function hideSpeakNow() {
     
     if (liveTranscript) {
         liveTranscript.style.display = 'none';
-        restoreQuickButtons(); // Show quick buttons again
     }
     if (transcriptText) {
         transcriptText.style.display = 'none';
@@ -3363,7 +3418,6 @@ function speakMessage(message) {
             const liveTranscript = document.getElementById('liveTranscript');
             if (liveTranscript) {
                 liveTranscript.style.display = 'none';
-                restoreQuickButtons(); // Show quick buttons again
             }
         };
 
@@ -4242,10 +4296,7 @@ function switchToTextMode() {
     const liveTranscript = document.getElementById('liveTranscript');
     
     if (micButton) micButton.classList.remove('listening');
-    if (liveTranscript) {
-        liveTranscript.style.display = 'none';
-        restoreQuickButtons(); // Show quick buttons again
-    }
+    if (liveTranscript) liveTranscript.style.display = 'none';
     
     addAIMessage("Switched to text mode. Type your message in the text box below.");
     
@@ -4765,12 +4816,11 @@ if (typeof startMobileListening === 'function') {
     startNormalInterviewListening();
 }
 
-// ❌ REMOVED: forceStartListening() backup call - causes "already started" error
-// Recognition is already started by startNormalInterviewListening() above
-// setTimeout(() => {
-//     console.log('🔄 DIRECT backup: calling forceStartListening()');
-//     forceStartListening();
-// }, 100);
+// Then call forceStartListening as backup (THE KEY!)
+setTimeout(() => {
+    console.log('🔄 DIRECT backup: calling forceStartListening()');
+    forceStartListening();
+}, 100); // Same delay as normal questions
         
         // 🔥 FIXED: Check disableDirectTimeout flag before setting timeout
 if (!window.disableDirectTimeout) {
