@@ -1115,7 +1115,7 @@ async function activateMicrophone() {
         window.leadData = { firstName: '' };
     }
     
-    const greeting = "Hi there! I'm Botimia your personal AI Voice assistant, may I get your first name please?";
+    const greeting = "Hi there! I'm Boteemia your personal AI Voice assistant, may I get your first name please?";
     addAIMessage(greeting);
     
     // Add delay before speaking to ensure audio system is ready
@@ -1313,22 +1313,7 @@ function handleConcernWithTestimonial(userText) {
     };
 }
 
-/**
- * ===================================================================
- * 🎯 FIXED processUserResponse() - ASYNC/AWAIT CORRECTED
- * ===================================================================
- * 
- * CHANGES MADE:
- * 1. Added 'async' to function declaration
- * 2. Added 'async' to setTimeout callback
- * 3. Added 'await' to getAIResponse() call
- * 
- * ALL OTHER LOGIC PRESERVED - NO FUNCTIONALITY REMOVED
- * 
- * Fixed: 2025-10-29
- */
-
-async function processUserResponse(userText) {  // ✅ CHANGE #1: Added 'async'
+function processUserResponse(userText) {
     // ... all your lead capture checks ...
     
     // 🎯 NEW: Direct consultation trigger - NO AI fluff!
@@ -1346,9 +1331,9 @@ async function processUserResponse(userText) {  // ✅ CHANGE #1: Added 'async'
         return; // Exit - don't proceed to generic AI
     }
 
-    // ✅ DEFAULT AI RESPONSE HANDLER - NOW WITH PROPER ASYNC/AWAIT!
-    setTimeout(async () => {  // ✅ CHANGE #2: Added 'async' to callback
-        const responseText = await getAIResponse(userText);  // ✅ CHANGE #3: Added 'await'
+    // ✅ DEFAULT AI RESPONSE HANDLER - THIS WAS MISSING!
+    setTimeout(() => {
+        const responseText = getAIResponse(userText);
 
         console.log('🎯 USER SAID:', userText);
         console.log('🎯 AI RESPONSE:', responseText);
@@ -1368,7 +1353,6 @@ async function processUserResponse(userText) {  // ✅ CHANGE #1: Added 'async'
         }
     }, 800);
 } // ✅ END OF processUserResponse() function
-
 
 // ✅ SEPARATE HELPER FUNCTION - OUTSIDE processUserResponse()
 function shouldTriggerLeadCapture(userInput) {
@@ -2416,20 +2400,25 @@ function detectConsultativeResponse(userMessage) {
     return null;
 }
 
+// 🎯 COMPLETE AI RESPONSE SYSTEM - MOBILE-WISE AI FORMVISER
+// Captain's Architecture - Banner & Button Integration
+// UPDATED: Expertise banner on specialty topics, concern detection fixed
+
 /**
  * ===================================================================
- * 🎯 COMPLETE AI RESPONSE HANDLER - WITH PROPER RETURN VALUES
+ * 🎯 COMPLETE AI RESPONSE HANDLER WITH BANNER CLICK TRIGGER
  * ===================================================================
  * 
  * FIXES APPLIED:
- * 1. ✅ Returns response text in ALL branches (fixes "undefined" issue)
- * 2. ✅ Removes Speak Now banner on intent detection
- * 3. ✅ Triggers expertise banner (500ms delay)
- * 4. ✅ Triggers setAppointment banner (3000ms delay)
- * 5. ✅ Attaches click handler to setAppointment banner
- * 6. ✅ Click triggers Communication Action Center
- * 7. ✅ Corrected wording ("on your screen" not "below")
- * 8. ✅ Enhanced error diagnostics
+ * 1. ✅ Removes Speak Now banner on intent detection
+ * 2. ✅ Triggers expertise banner (500ms delay)
+ * 3. ✅ Triggers setAppointment banner (3000ms delay)
+ * 4. ✅ Attaches click handler to setAppointment banner
+ * 5. ✅ Click triggers Communication Action Center
+ * 6. ✅ Corrected wording ("on your screen" not "below")
+ * 7. ✅ Enhanced error diagnostics
+ * 
+ * BANNER SELECTOR: #bannerHeaderContainer (from universal-banner-engine-v4)
  * 
  * Created: 2025-10-29
  */
@@ -2443,13 +2432,14 @@ async function getAIResponse(userMessage, conversationHistory = []) {
         window.userName = userMessage;
         window.waitingForName = false;
         
-        const response = `Nice to meet you, ${userMessage}! What brings you to New Clients Inc today?`;
-        
-        speakWithElevenLabs(response, false);
+        speakWithElevenLabs(
+            `Nice to meet you, ${userMessage}! What brings you to New Clients Inc today?`,
+            false
+        );
         
         // Mark that we're now waiting for their intent
         window.waitingForIntent = true;
-        return response;  // ✅ RETURN THE RESPONSE
+        return;
     }
     
     // Check if we're waiting for their intent (sell/buy/value/help)
@@ -2574,7 +2564,7 @@ async function getAIResponse(userMessage, conversationHistory = []) {
             
             // Mark that we're waiting for book response (yes/no)
             window.waitingForBookResponse = true;
-            return response;  // ✅ RETURN THE RESPONSE
+            return;
         }
         
         // If no intent detected, continue to OpenAI
@@ -2595,11 +2585,14 @@ async function getAIResponse(userMessage, conversationHistory = []) {
             console.log('✅ User said YES to book offer');
             window.waitingForBookResponse = false;
             
-            const response = `Perfect! I've got that ready for you. Just click the banner to choose how you'd like to proceed!`;
+            // Note: Communication Action Center is now triggered by banner click
+            // So we just acknowledge their response
+            speakWithElevenLabs(
+                `Perfect! I've got that ready for you. Just click the banner to choose how you'd like to proceed!`,
+                false
+            );
             
-            speakWithElevenLabs(response, false);
-            
-            return response;  // ✅ RETURN THE RESPONSE
+            return;
         }
         
         // Handle NO response
@@ -2609,21 +2602,22 @@ async function getAIResponse(userMessage, conversationHistory = []) {
             console.log('❌ User declined book offer, continuing with questions');
             window.waitingForBookResponse = false;
             
-            const response = `No problem! Let me ask you a few questions to better understand your needs. What type of practice do you have?`;
+            speakWithElevenLabs(
+                `No problem! Let me ask you a few questions to better understand your needs. What type of practice do you have?`,
+                false
+            );
             
-            speakWithElevenLabs(response, false);
-            
-            return response;  // ✅ RETURN THE RESPONSE
+            return;
         }
         
         // If ambiguous, ask for clarification
         console.log('⚠️ Ambiguous book response, asking for clarification');
+        speakWithElevenLabs(
+            `I'm not sure I caught that. Would you like me to send you Bruce's free book and set up a consultation?`,
+            false
+        );
         
-        const response = `I'm not sure I caught that. Would you like me to send you Bruce's free book and set up a consultation?`;
-        
-        speakWithElevenLabs(response, false);
-        
-        return response;  // ✅ RETURN THE RESPONSE
+        return;
     }
     
     // Continue with regular OpenAI conversation
@@ -2669,22 +2663,17 @@ async function getAIResponse(userMessage, conversationHistory = []) {
         
         // Speak the response
         speakWithElevenLabs(aiResponse, false);
-        
-        return aiResponse;  // ✅ RETURN THE RESPONSE
 
     } catch (error) {
         console.error('❌ Error in getAIResponse:', error);
-        
-        const errorResponse = "I apologize, I'm having trouble processing that right now. Could you try again?";
-        
-        speakWithElevenLabs(errorResponse, false);
-        
-        return errorResponse;  // ✅ RETURN THE ERROR RESPONSE
+        speakWithElevenLabs(
+            "I apologize, I'm having trouble processing that right now. Could you try again?",
+            false
+        );
     }
 }
 
-console.log('✅ getAIResponse function with proper returns loaded');
-
+console.log('✅ getAIResponse function with banner click handler loaded');
 
 function handleTestimonialComplete() {
     console.log('🎯 Testimonial finished - triggering comeback');
