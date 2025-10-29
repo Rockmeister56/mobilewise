@@ -1313,7 +1313,22 @@ function handleConcernWithTestimonial(userText) {
     };
 }
 
-function processUserResponse(userText) {
+/**
+ * ===================================================================
+ * 🎯 FIXED processUserResponse() - ASYNC/AWAIT CORRECTED
+ * ===================================================================
+ * 
+ * CHANGES MADE:
+ * 1. Added 'async' to function declaration
+ * 2. Added 'async' to setTimeout callback
+ * 3. Added 'await' to getAIResponse() call
+ * 
+ * ALL OTHER LOGIC PRESERVED - NO FUNCTIONALITY REMOVED
+ * 
+ * Fixed: 2025-10-29
+ */
+
+async function processUserResponse(userText) {  // ✅ CHANGE #1: Added 'async'
     // ... all your lead capture checks ...
     
     // 🎯 NEW: Direct consultation trigger - NO AI fluff!
@@ -1331,9 +1346,9 @@ function processUserResponse(userText) {
         return; // Exit - don't proceed to generic AI
     }
 
-    // ✅ DEFAULT AI RESPONSE HANDLER - THIS WAS MISSING!
-    setTimeout(() => {
-        const responseText = getAIResponse(userText);
+    // ✅ DEFAULT AI RESPONSE HANDLER - NOW WITH PROPER ASYNC/AWAIT!
+    setTimeout(async () => {  // ✅ CHANGE #2: Added 'async' to callback
+        const responseText = await getAIResponse(userText);  // ✅ CHANGE #3: Added 'await'
 
         console.log('🎯 USER SAID:', userText);
         console.log('🎯 AI RESPONSE:', responseText);
@@ -1353,6 +1368,7 @@ function processUserResponse(userText) {
         }
     }, 800);
 } // ✅ END OF processUserResponse() function
+
 
 // ✅ SEPARATE HELPER FUNCTION - OUTSIDE processUserResponse()
 function shouldTriggerLeadCapture(userInput) {
