@@ -2496,74 +2496,24 @@ async function getAIResponse(userMessage, conversationHistory = []) {
                 }
             }, 500);
             
-            // 🎯 Trigger setAppointment banner (3000ms delay - mid-sentence)
-            setTimeout(() => {
-                console.log('🎯 Attempting to show setAppointment banner...');
-                
-                if (typeof showUniversalBanner === 'function') {
-                    showUniversalBanner('setAppointment');
-                    console.log('✅ setAppointment banner triggered!');
-                    
-                    // 🔥 FIX #4: ATTACH CLICK HANDLER TO BANNER
-                    // Wait for banner to fully render in DOM
-                    setTimeout(() => {
-                        const bannerContainer = document.getElementById('bannerHeaderContainer');
-                        
-                        if (bannerContainer) {
-                            console.log('✅ Found bannerHeaderContainer, attaching click handler...');
-                            
-                            // Remove any existing click handlers to avoid duplicates
-                            const newBannerContainer = bannerContainer.cloneNode(true);
-                            bannerContainer.parentNode.replaceChild(newBannerContainer, bannerContainer);
-                            
-                            // Attach fresh click handler
-                            newBannerContainer.addEventListener('click', function(event) {
-                                console.log('🎯 setAppointment banner CLICKED!');
-                                console.log('Click event:', event);
-                                
-                                // Trigger Communication Action Center
-                                console.log('🎯 Attempting to trigger Communication Action Center...');
-                                console.log('Checking prerequisites:', {
-                                    functionExists: typeof showCommunicationActionCenter === 'function',
-                                    scriptLoaded: !!document.querySelector('script[src*="action-system-unified"]'),
-                                    cssLoaded: !!document.querySelector('link[href*="communication-action-center.css"]')
-                                });
-                                
-                                if (typeof showCommunicationActionCenter === 'function') {
-                                    try {
-                                        showCommunicationActionCenter();
-                                        console.log('✅ Communication Action Center triggered successfully!');
-                                    } catch (error) {
-                                        console.error('❌ Action Center error:', error);
-                                        console.error('Error stack:', error.stack);
-                                        console.error('Error name:', error.name);
-                                        console.error('Error message:', error.message);
-                                    }
-                                } else {
-                                    console.error('❌ showCommunicationActionCenter function not found!');
-                                    console.error('Available functions:', Object.keys(window).filter(key => key.toLowerCase().includes('action')));
-                                }
-                            });
-                            
-                            console.log('✅ Click handler attached to setAppointment banner!');
-                        } else {
-                            console.error('❌ Could not find bannerHeaderContainer after 800ms');
-                            console.log('Available banner elements:', {
-                                bannerHeaderContainer: !!document.getElementById('bannerHeaderContainer'),
-                                universalBanner: !!document.getElementById('universal-banner'),
-                                bannerByClass: !!document.querySelector('.universal-banner')
-                            });
-                        }
-                    }, 800); // Wait 800ms for banner to fully render
-                    
-                } else {
-                    console.error('❌ showUniversalBanner function not found for setAppointment banner');
-                }
-            }, 3000);
-            
-            // Mark that we're waiting for book response (yes/no)
-            window.waitingForBookResponse = true;
-            return response;  // ✅ RETURN THE RESPONSE
+           // 🎯 Trigger setAppointment banner (3000ms delay - mid-sentence)
+setTimeout(() => {
+    console.log('🎯 Attempting to show setAppointment banner...');
+    
+    if (typeof showUniversalBanner === 'function') {
+        showUniversalBanner('setAppointment');
+        console.log('✅ setAppointment banner triggered!');
+        
+        // ✅ NO CLICK HANDLER HERE - Banner engine handles it automatically!
+        
+    } else {
+        console.error('❌ showUniversalBanner function not found for setAppointment banner');
+    }
+}, 3000);
+
+// Mark that we're waiting for book response (yes/no)
+window.waitingForBookResponse = true;
+return response;  // ✅ RETURN THE RESPONSE
         }
         
         // If no intent detected, continue to OpenAI
@@ -2673,8 +2623,6 @@ async function getAIResponse(userMessage, conversationHistory = []) {
 }
 
 console.log('✅ getAIResponse function with proper returns loaded');
-
-
 
 
 function handleTestimonialComplete() {
