@@ -570,6 +570,46 @@ const BANNER_STYLES = `
     // Inject content and styles
     banner.innerHTML = BANNER_STYLES + config.content;
     headerContainer.appendChild(banner);
+
+    if (bannerType === 'setAppointment') {
+    console.log('🎯 setAppointment banner detected - attaching click handler...');
+    
+    // Make banner clickable
+    headerContainer.style.cursor = 'pointer';
+    
+    headerContainer.addEventListener('click', function(event) {
+        console.log('🎯 setAppointment banner CLICKED!');
+        
+        // Trigger Communication Action Center
+        console.log('🎯 Attempting to trigger Communication Action Center...');
+        console.log('Checking prerequisites:', {
+            functionExists: typeof showCommunicationActionCenter === 'function',
+            scriptLoaded: !!document.querySelector('script[src*="action-system-unified"]'),
+            cssLoaded: !!document.querySelector('link[href*="communication-action-center.css"]')
+        });
+        
+        if (typeof showCommunicationActionCenter === 'function') {
+            try {
+                showCommunicationActionCenter();
+                console.log('✅ Communication Action Center triggered successfully!');
+            } catch (error) {
+                console.error('❌ Action Center error:', error);
+                console.error('Error details:', {
+                    name: error.name,
+                    message: error.message,
+                    stack: error.stack
+                });
+            }
+        } else {
+            console.error('❌ showCommunicationActionCenter function not found!');
+            console.error('Available action functions:', 
+                Object.keys(window).filter(key => key.toLowerCase().includes('action'))
+            );
+        }
+    });
+    
+    console.log('✅ Click handler attached to setAppointment banner!');
+}
     
     // Find container and attach
     const mainContainer = document.querySelector('.container') || 

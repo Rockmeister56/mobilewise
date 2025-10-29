@@ -1116,7 +1116,7 @@ async function activateMicrophone() {
         window.leadData = { firstName: '' };
     }
     
-    const greeting = "Hi there! I'm Boateamia your personal AI Voice assistant, may I get your first name please?";
+    const greeting = "Hi there! I'm Boteemia your personal AI Voice assistant, may I get your first name please?";
     addAIMessage(greeting);
     
     // Add delay before speaking to ensure audio system is ready
