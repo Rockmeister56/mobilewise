@@ -4765,11 +4765,12 @@ if (typeof startMobileListening === 'function') {
     startNormalInterviewListening();
 }
 
-// Then call forceStartListening as backup (THE KEY!)
-setTimeout(() => {
-    console.log('🔄 DIRECT backup: calling forceStartListening()');
-    forceStartListening();
-}, 100); // Same delay as normal questions
+// ❌ REMOVED: forceStartListening() backup call - causes "already started" error
+// Recognition is already started by startNormalInterviewListening() above
+// setTimeout(() => {
+//     console.log('🔄 DIRECT backup: calling forceStartListening()');
+//     forceStartListening();
+// }, 100);
         
         // 🔥 FIXED: Check disableDirectTimeout flag before setting timeout
 if (!window.disableDirectTimeout) {
