@@ -1,9 +1,9 @@
 // ================================
-// ACTION SYSTEM UNIFIED
-// Complete action handling system with inline Communication Action Center
+// ACTION SYSTEM UNIFIED - CORPORATE DESIGN
+// Communication Action Center with royal blue buttons and avatar
 // ================================
 
-console.log('🎯 ACTION SYSTEM UNIFIED - Loading...');
+console.log('🎯 ACTION SYSTEM UNIFIED - Loading (CORPORATE DESIGN)...');
 
 // ================================
 // EMAILJS CONFIGURATION
@@ -193,10 +193,10 @@ function handleSmartButton(action) {
 }
 
 // ================================
-// COMMUNICATION ACTION CENTER - INLINE VERSION
+// COMMUNICATION ACTION CENTER - CORPORATE DESIGN
 // ================================
 function showCommunicationActionCenter(context = 'consultation') {
-    console.log('🎯 Showing Communication Action Center (INLINE) - Context:', context);
+    console.log('🎯 Showing Communication Action Center (CORPORATE) - Context:', context);
     
     // Check if already exists
     if (document.getElementById('communication-action-center')) {
@@ -215,12 +215,12 @@ function showCommunicationActionCenter(context = 'consultation') {
         return;
     }
     
-    // Create Action Center container (NO OVERLAY)
+    // Create Action Center container (NO OVERLAY - INLINE)
     const actionCenter = document.createElement('div');
     actionCenter.id = 'communication-action-center';
     actionCenter.className = 'action-center-inline';
     
-    // Create frosted glass container with buttons
+    // Create frosted glass container with corporate royal blue buttons
     actionCenter.innerHTML = `
         <div class="frosted-container" style="
             background: rgba(255, 255, 255, 0.95);
@@ -228,130 +228,139 @@ function showCommunicationActionCenter(context = 'consultation') {
             border-radius: 16px;
             padding: 30px;
             margin: 20px auto;
-            max-width: 600px;
+            max-width: 650px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.3);
         ">
-            <h3 style="
-                text-align: center;
-                color: #2c3e50;
+            <!-- Header with Avatar -->
+            <div style="
+                display: flex;
+                align-items: center;
                 margin-bottom: 24px;
-                font-size: 22px;
-                font-weight: 600;
-            ">How Would You Like to Connect?</h3>
+            ">
+                <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/avatars/avatar_1755209453856_avatar%20right.png" 
+                     alt="Assistant Avatar" 
+                     style="
+                         width: 60px;
+                         height: 60px;
+                         border-radius: 50%;
+                         margin-right: 16px;
+                         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                     ">
+                <h3 style="
+                    color: #2c3e50;
+                    margin: 0;
+                    font-size: 24px;
+                    font-weight: 600;
+                ">Communication Action Center</h3>
+            </div>
             
+            <!-- Action Buttons Grid -->
             <div class="action-buttons-grid" style="
                 display: grid;
                 grid-template-columns: repeat(2, 1fr);
                 gap: 16px;
-                margin-bottom: 16px;
             ">
-                <!-- Request Call Button -->
-                <button class="action-btn request-call" onclick="handleActionButton('request-call')" style="
-                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                <!-- 1. Click-to-Call -->
+                <button class="action-btn royal-blue-btn" onclick="handleActionButton('click-to-call')" style="
+                    background: #4169e1;
                     color: white;
                     border: none;
-                    border-radius: 12px;
-                    padding: 16px 20px;
-                    font-size: 15px;
+                    border-radius: 8px;
+                    padding: 20px;
+                    font-size: 17px;
                     font-weight: 600;
                     cursor: pointer;
                     transition: all 0.3s ease;
-                    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+                    box-shadow: 0 4px 15px rgba(65, 105, 225, 0.3);
+                    text-align: center;
                 ">
-                    <div style="font-size: 24px; margin-bottom: 8px;">📞</div>
-                    <div>Request Call</div>
-                    <div style="font-size: 11px; opacity: 0.9; margin-top: 4px;">Schedule a time</div>
+                    Click-to-Call
                 </button>
                 
-                <!-- Free Consultation Button -->
-                <button class="action-btn free-consultation" onclick="handleActionButton('free-consultation')" style="
-                    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+                <!-- 2. URGENT CALL -->
+                <button class="action-btn royal-blue-btn" onclick="handleActionButton('urgent-call')" style="
+                    background: #4169e1;
                     color: white;
                     border: none;
-                    border-radius: 12px;
-                    padding: 16px 20px;
-                    font-size: 15px;
+                    border-radius: 8px;
+                    padding: 20px;
+                    font-size: 17px;
                     font-weight: 600;
                     cursor: pointer;
                     transition: all 0.3s ease;
-                    box-shadow: 0 4px 15px rgba(245, 87, 108, 0.3);
+                    box-shadow: 0 4px 15px rgba(65, 105, 225, 0.3);
+                    text-align: center;
                 ">
-                    <div style="font-size: 24px; margin-bottom: 8px;">💬</div>
-                    <div>Free Consultation</div>
-                    <div style="font-size: 11px; opacity: 0.9; margin-top: 4px;">30-minute session</div>
+                    URGENT CALL
                 </button>
                 
-                <!-- Immediate Call Button -->
-                <button class="action-btn immediate-call" onclick="handleActionButton('immediate-call')" style="
-                    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+                <!-- 3. FREE Consultation -->
+                <button class="action-btn royal-blue-btn" onclick="handleActionButton('free-consultation')" style="
+                    background: #4169e1;
                     color: white;
                     border: none;
-                    border-radius: 12px;
-                    padding: 16px 20px;
-                    font-size: 15px;
+                    border-radius: 8px;
+                    padding: 20px;
+                    font-size: 17px;
                     font-weight: 600;
                     cursor: pointer;
                     transition: all 0.3s ease;
-                    box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+                    box-shadow: 0 4px 15px rgba(65, 105, 225, 0.3);
+                    text-align: center;
                 ">
-                    <div style="font-size: 24px; margin-bottom: 8px;">⚡</div>
-                    <div>Call Me Now</div>
-                    <div style="font-size: 11px; opacity: 0.9; margin-top: 4px;">Immediate contact</div>
+                    FREE Consultation
                 </button>
                 
-                <!-- Pre-Qualified Button -->
-                <button class="action-btn pre-qualified" onclick="handleActionButton('pre-qualified')" style="
-                    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+                <!-- 4. FREE BOOK -->
+                <button class="action-btn royal-blue-btn" onclick="handleActionButton('free-book')" style="
+                    background: #4169e1;
                     color: white;
                     border: none;
-                    border-radius: 12px;
-                    padding: 16px 20px;
-                    font-size: 15px;
+                    border-radius: 8px;
+                    padding: 20px;
+                    font-size: 17px;
                     font-weight: 600;
                     cursor: pointer;
                     transition: all 0.3s ease;
-                    box-shadow: 0 4px 15px rgba(67, 233, 123, 0.3);
+                    box-shadow: 0 4px 15px rgba(65, 105, 225, 0.3);
+                    text-align: center;
                 ">
-                    <div style="font-size: 24px; margin-bottom: 8px;">✅</div>
-                    <div>Pre-Qualified</div>
-                    <div style="font-size: 11px; opacity: 0.9; margin-top: 4px;">Fast track process</div>
+                    FREE BOOK
                 </button>
                 
-                <!-- Free Book Button -->
-                <button class="action-btn free-book" onclick="handleActionButton('free-book')" style="
-                    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+                <!-- 5. Pre Qualification -->
+                <button class="action-btn royal-blue-btn" onclick="handleActionButton('pre-qualification')" style="
+                    background: #4169e1;
                     color: white;
                     border: none;
-                    border-radius: 12px;
-                    padding: 16px 20px;
-                    font-size: 15px;
+                    border-radius: 8px;
+                    padding: 20px;
+                    font-size: 17px;
                     font-weight: 600;
                     cursor: pointer;
                     transition: all 0.3s ease;
-                    box-shadow: 0 4px 15px rgba(250, 112, 154, 0.3);
+                    box-shadow: 0 4px 15px rgba(65, 105, 225, 0.3);
+                    text-align: center;
                 ">
-                    <div style="font-size: 24px; margin-bottom: 8px;">📚</div>
-                    <div>Free Book</div>
-                    <div style="font-size: 11px; opacity: 0.9; margin-top: 4px;">7 Secrets guide</div>
+                    Pre Qualification
                 </button>
                 
-                <!-- Skip Button -->
-                <button class="action-btn skip-now" onclick="handleActionButton('skip')" style="
-                    background: linear-gradient(135deg, #a8a8a8 0%, #7f7f7f 100%);
+                <!-- 6. Skip for Now -->
+                <button class="action-btn skip-btn" onclick="handleActionButton('skip')" style="
+                    background: #95a5a6;
                     color: white;
                     border: none;
-                    border-radius: 12px;
-                    padding: 16px 20px;
-                    font-size: 15px;
+                    border-radius: 8px;
+                    padding: 20px;
+                    font-size: 17px;
                     font-weight: 600;
                     cursor: pointer;
                     transition: all 0.3s ease;
-                    box-shadow: 0 4px 15px rgba(127, 127, 127, 0.3);
+                    box-shadow: 0 4px 15px rgba(149, 165, 166, 0.3);
+                    text-align: center;
                 ">
-                    <div style="font-size: 24px; margin-bottom: 8px;">⏭️</div>
-                    <div>Skip for Now</div>
-                    <div style="font-size: 11px; opacity: 0.9; margin-top: 4px;">Continue browsing</div>
+                    Skip for Now
                 </button>
             </div>
         </div>
@@ -376,13 +385,24 @@ function showCommunicationActionCenter(context = 'consultation') {
             }
         }
         
-        .action-btn:hover {
-            transform: translateY(-4px) scale(1.02);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+        .royal-blue-btn:hover {
+            background: #3557c7 !important;
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(65, 105, 225, 0.4) !important;
         }
         
-        .action-btn:active {
-            transform: translateY(-2px) scale(0.98);
+        .royal-blue-btn:active {
+            transform: translateY(-1px) scale(0.98);
+        }
+        
+        .skip-btn:hover {
+            background: #7f8c8d !important;
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(149, 165, 166, 0.4) !important;
+        }
+        
+        .skip-btn:active {
+            transform: translateY(-1px) scale(0.98);
         }
     `;
     document.head.appendChild(styleElement);
@@ -395,7 +415,7 @@ function showCommunicationActionCenter(context = 'consultation') {
         actionCenter.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }, 100);
     
-    console.log('✅ Communication Action Center displayed inline in chat');
+    console.log('✅ Communication Action Center displayed inline (CORPORATE DESIGN)');
 }
 
 function hideCommunicationActionCenter() {
@@ -419,20 +439,20 @@ function handleActionButton(action) {
     window.capturedLeadData.actionType = action;
     
     switch(action) {
-        case 'request-call':
-            showContactForm('Request a Call Back', 'request-call');
+        case 'click-to-call':
+            showContactForm('Click-to-Call Request', 'click-to-call');
+            break;
+        case 'urgent-call':
+            showContactForm('URGENT CALL Request', 'urgent-call');
             break;
         case 'free-consultation':
             showContactForm('Schedule Free Consultation', 'free-consultation');
             break;
-        case 'immediate-call':
-            showContactForm('Call Me Immediately', 'immediate-call');
-            break;
-        case 'pre-qualified':
-            showContactForm('Get Pre-Qualified', 'pre-qualified');
-            break;
         case 'free-book':
             showContactForm('Send Me The Free Book', 'free-book');
+            break;
+        case 'pre-qualification':
+            showContactForm('Pre-Qualification Request', 'pre-qualification');
             break;
         case 'skip':
             hideCommunicationActionCenter();
@@ -545,7 +565,7 @@ function showContactForm(title, actionType) {
                 <div style="display: flex; gap: 12px;">
                     <button type="submit" style="
                         flex: 1;
-                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        background: #4169e1;
                         color: white;
                         border: none;
                         padding: 14px 24px;
@@ -679,4 +699,4 @@ window.captureLeadData = captureLeadData;
 window.sendEmailJS = sendEmailJS;
 window.closeContactForm = closeContactForm;
 
-console.log('✅ ACTION SYSTEM UNIFIED - Loaded successfully (INLINE VERSION)');
+console.log('✅ ACTION SYSTEM UNIFIED - Loaded successfully (CORPORATE DESIGN)');
