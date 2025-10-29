@@ -2404,23 +2404,25 @@ function detectConsultativeResponse(userMessage) {
 // Captain's Architecture - Banner & Button Integration
 // UPDATED: Expertise banner on specialty topics, concern detection fixed
 
+// ===================================================
+// 💬 AI RESPONSE SYSTEM - COMPLETE WITH BOOK RESPONSE
+// ===================================================
+
 function getAIResponse(userInput) {
     const userText = userInput.toLowerCase().trim();
     const firstName = window.leadData.firstName || '';
     let responseText = '';
     
-    // 🔍 DIAGNOSTIC LOGGING
     console.log('========================================');
-    console.log('🔍 getAIResponse() DIAGNOSTIC');
+    console.log('🔍 getAIResponse CALLED');
     console.log('Input:', userInput);
-    console.log('User Text (lowercased):', userText);
-    console.log('First Name:', firstName);
-    console.log('Conversation State:', conversationState);
-    console.log('Contains "sell":', userText.includes('sell'));
-    console.log('Contains "selling":', userText.includes('selling'));
+    console.log('State:', conversationState);
+    console.log('waitingForBookResponse:', window.waitingForBookResponse);
     console.log('========================================');
     
-    // 🚨 PRIORITY #1: If getting first name, capture it FIRST (before contact detection)
+    // ═══════════════════════════════════════════════════════════
+    // PRIORITY #1: NAME CAPTURE
+    // ═══════════════════════════════════════════════════════════
     if (conversationState === 'getting_first_name') {
         const words = userInput.trim().split(' ');
         const extractedName = words[0].replace(/[^a-zA-Z]/g, '');
@@ -2430,21 +2432,20 @@ function getAIResponse(userInput) {
             responseText = `Great to meet you ${window.leadData.firstName}! What brings you to New Clients Inc today?`;
             conversationState = 'active';
             
-            console.log('✅ Name captured, state changed to active');
+            console.log('✅ Name captured:', window.leadData.firstName);
+            console.log('✅ State changed to: active');
             
-            return responseText; // Exit early with name captured
+            return responseText;
         } else {
             return "I didn't quite catch that. Could you tell me your first name?";
         }
     }
     
-    // 🎯 CONSULTATIVE RESPONSE - Acknowledge intent WITH ECHO and offer free book
-    console.log('🔍 Checking consultative response section...');
-    console.log('   State check: active?', conversationState === 'active');
-    console.log('   State check: initial?', conversationState === 'initial');
-    
+    // ═══════════════════════════════════════════════════════════
+    // CONSULTATIVE RESPONSE - SELL/BUY/VALUE INTENT
+    // ═══════════════════════════════════════════════════════════
     if (conversationState === 'active' || conversationState === 'initial') {
-        console.log('✅ State check PASSED - inside consultative block');
+        console.log('🔍 Checking for consultative intent...');
         
         let acknowledgment = '';
         let bookOffer = '';
@@ -2452,18 +2453,15 @@ function getAIResponse(userInput) {
         
         // SELLING INTENT
         if (userText.includes('sell') || userText.includes('selling')) {
-            console.log('🎯 SELLING INTENT DETECTED!!!');
+            console.log('🎯 SELLING INTENT DETECTED!');
             
             acknowledgment = `That's fantastic that you want to sell your practice${firstName ? ', ' + firstName : ''}! You've definitely come to the right place, and I'd love to send you in the right direction to make your goal a reality.`;
             bookOffer = ` Have you heard of Bruce's book, "7 Secrets to Selling Your Practice"? I can send you a free copy and set up a consultation with Bruce!`;
             window.lastBookOfferType = 'selling';
             intentDetected = true;
             
-            console.log('📝 Acknowledgment:', acknowledgment);
-            console.log('📝 Book Offer:', bookOffer);
-            
         } else if (userText.includes('buy') || userText.includes('buying') || userText.includes('purchase') || userText.includes('acquire')) {
-            console.log('🎯 BUYING INTENT DETECTED!!!');
+            console.log('🎯 BUYING INTENT DETECTED!');
             
             acknowledgment = `That's fantastic that you want to buy a practice${firstName ? ', ' + firstName : ''}! You've definitely come to the right place, and I'd love to send you in the right direction to make your goal a reality.`;
             bookOffer = ` Have you heard of Bruce's book, "7 Secrets to Buying a Practice"? I can send you a free copy and set up a consultation with Bruce!`;
@@ -2471,7 +2469,7 @@ function getAIResponse(userInput) {
             intentDetected = true;
             
         } else if (userText.includes('value') || userText.includes('valuation') || userText.includes('evaluate') || userText.includes('worth')) {
-            console.log('🎯 VALUATION INTENT DETECTED!!!');
+            console.log('🎯 VALUATION INTENT DETECTED!');
             
             acknowledgment = `That's fantastic that you want to evaluate your practice${firstName ? ', ' + firstName : ''}! You've definitely come to the right place, and I'd love to send you in the right direction to get an accurate valuation.`;
             bookOffer = ` Have you heard of Bruce's book, "7 Secrets to Practice Valuation"? I can send you a free copy and set up a consultation with Bruce!`;
@@ -2479,7 +2477,7 @@ function getAIResponse(userInput) {
             intentDetected = true;
             
         } else if (userText.includes('help') || userText.includes('assist') || userText.includes('information')) {
-            console.log('🎯 HELP INTENT DETECTED!!!');
+            console.log('🎯 HELP INTENT DETECTED!');
             
             acknowledgment = `I'm so glad you reached out for help${firstName ? ', ' + firstName : ''}! You've definitely come to the right place, and I'd love to send you in the right direction.`;
             bookOffer = ` Have you heard of Bruce's book, "7 Secrets for Practice Owners"? I can send you a free copy and set up a consultation with Bruce!`;
@@ -2487,52 +2485,128 @@ function getAIResponse(userInput) {
             intentDetected = true;
         }
         
-        // If intent was detected, return combined response
+        // If intent detected, return response
         if (intentDetected) {
-            console.log('✅✅✅ INTENT DETECTED - RETURNING RESPONSE');
-            
             const fullResponse = acknowledgment + bookOffer;
             
-            console.log('📤 Full Response:', fullResponse);
-            
-            // Store that we're waiting for YES/NO response
             window.waitingForBookResponse = true;
             conversationState = 'offering_book';
             
-            console.log('🎯 State changed to: offering_book');
-            console.log('✅ RETURNING NOW - Should NOT reach fallback!');
+            console.log('✅ Returning consultative response');
+            console.log('✅ State changed to: offering_book');
+            console.log('✅ waitingForBookResponse set to: true');
             
-            return fullResponse; // ← THIS SHOULD STOP EXECUTION HERE
-        } else {
-            console.log('❌ No intent detected in consultative block');
+            return fullResponse;
         }
-    } else {
-        console.log('❌ State check FAILED - not active or initial');
-        console.log('   Current state:', conversationState);
     }
     
-    // 🎯 HANDLE BOOK RESPONSE - User says YES or NO to book/consultation offer
+    // ═══════════════════════════════════════════════════════════
+    // BOOK RESPONSE - YES/NO
+    // ═══════════════════════════════════════════════════════════
     if (window.waitingForBookResponse && conversationState === 'offering_book') {
-        // ... rest of book response logic ...
+        console.log('📚 Processing book response...');
+        console.log('   User said:', userText);
+        
+        // User said YES
+        if (userText.includes('yes') || userText.includes('yeah') || userText.includes('yep') || 
+            userText.includes('sure') || userText.includes('okay') || userText.includes('absolutely') || 
+            userText.includes('definitely')) {
+            
+            console.log('✅ User said YES - Triggering Action Center');
+            
+            const response = firstName ? 
+                `Perfect ${firstName}! Let me show you the options to connect with Bruce.` :
+                `Perfect! Let me show you the options to connect with Bruce.`;
+            
+            setTimeout(() => {
+                if (typeof window.showCommunicationActionCenter === 'function') {
+                    window.showCommunicationActionCenter();
+                    console.log('✅ Communication Action Center triggered');
+                } else if (typeof showCommunicationActionCenter === 'function') {
+                    showCommunicationActionCenter();
+                } else {
+                    console.error('❌ showCommunicationActionCenter function not found!');
+                }
+            }, 1500);
+            
+            conversationState = 'showing_action_center';
+            window.waitingForBookResponse = false;
+            
+            console.log('✅ State changed to: showing_action_center');
+            console.log('✅ waitingForBookResponse set to: false');
+            
+            return response;
+        }
+        
+        // User said NO
+        else if (userText.includes('no') || userText.includes('not') || userText.includes('nope') || 
+                 userText.includes('nah') || userText.includes('maybe later')) {
+            
+            console.log('❌ User said NO - Continuing conversation');
+            
+            const bookType = window.lastBookOfferType || 'general';
+            window.waitingForBookResponse = false;
+            
+            if (bookType === 'selling') {
+                responseText = firstName ?
+                    `No problem ${firstName}! Let's talk about your practice. How many clients are you currently serving?` :
+                    "No problem! Let's talk about your practice. How many clients are you currently serving?";
+                conversationState = 'selling_size_question';
+                
+            } else if (bookType === 'buying') {
+                responseText = firstName ?
+                    `No problem ${firstName}! Let's find you the right practice. What's your budget range?` :
+                    "No problem! Let's find you the right practice. What's your budget range?";
+                conversationState = 'buying_budget_question';
+                
+            } else if (bookType === 'valuation') {
+                responseText = firstName ?
+                    `No problem ${firstName}! Let's get you a valuation. What's your approximate annual revenue?` :
+                    "No problem! Let's get you a valuation. What's your approximate annual revenue?";
+                conversationState = 'valuation_revenue_question';
+                
+            } else {
+                responseText = firstName ?
+                    `No problem ${firstName}! How else can I help you today?` :
+                    "No problem! How else can I help you today?";
+                conversationState = 'active';
+            }
+            
+            console.log('✅ State changed to:', conversationState);
+            console.log('✅ waitingForBookResponse set to: false');
+            
+            return responseText;
+        }
+        
+        // User said something else - clarify
+        else {
+            console.log('❓ User response unclear - asking for clarification');
+            
+            const clarification = firstName ?
+                `${firstName}, I want to make sure I understand - would you like me to send you Bruce's book and set up a consultation? Please say yes or no.` :
+                "I want to make sure I understand - would you like me to send you Bruce's book and set up a consultation? Please say yes or no.";
+            
+            return clarification;
+        }
     }
     
     // ═══════════════════════════════════════════════════════════
     // DEFAULT FALLBACK
     // ═══════════════════════════════════════════════════════════
-    console.log('⚠️⚠️⚠️ REACHED DEFAULT FALLBACK - THIS SHOULD NOT HAPPEN FOR SELL INTENT!');
-    console.log('   Conversation State:', conversationState);
-    console.log('   User Text:', userText);
+    console.log('⚠️ Reached default fallback');
+    console.log('   State:', conversationState);
+    console.log('   waitingForBookResponse:', window.waitingForBookResponse);
     
     responseText = firstName ?
         `Thanks ${firstName}! Anything else about buying, selling, or valuing practices?` :
         "Thanks! Anything else about buying, selling, or valuing?";
     
     conversationState = 'initial';
-
-    console.log('📤 Returning fallback response');
     
     return responseText;
 }
+
+console.log('✅ getAIResponse function loaded successfully');
 
 
 
