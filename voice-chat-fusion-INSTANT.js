@@ -2404,295 +2404,276 @@ function detectConsultativeResponse(userMessage) {
 // Captain's Architecture - Banner & Button Integration
 // UPDATED: Expertise banner on specialty topics, concern detection fixed
 
-// ===================================================
-// 💬 AI RESPONSE SYSTEM - ALL ISSUES FIXED
-// ===================================================
+/**
+ * ===================================================================
+ * 🎯 COMPLETE AI RESPONSE HANDLER WITH BANNER CLICK TRIGGER
+ * ===================================================================
+ * 
+ * FIXES APPLIED:
+ * 1. ✅ Removes Speak Now banner on intent detection
+ * 2. ✅ Triggers expertise banner (500ms delay)
+ * 3. ✅ Triggers setAppointment banner (3000ms delay)
+ * 4. ✅ Attaches click handler to setAppointment banner
+ * 5. ✅ Click triggers Communication Action Center
+ * 6. ✅ Corrected wording ("on your screen" not "below")
+ * 7. ✅ Enhanced error diagnostics
+ * 
+ * BANNER SELECTOR: #bannerHeaderContainer (from universal-banner-engine-v4)
+ * 
+ * Created: 2025-10-29
+ */
 
-function getAIResponse(userInput) {
-    const userText = userInput.toLowerCase().trim();
-    const firstName = window.leadData.firstName || '';
-    let responseText = '';
+async function getAIResponse(userMessage, conversationHistory = []) {
+    console.log('🎯 getAIResponse called with:', userMessage);
     
-    console.log('========================================');
-    console.log('🔍 getAIResponse CALLED');
-    console.log('Input:', userInput);
-    console.log('State:', conversationState);
-    console.log('========================================');
-    
-    // ═══════════════════════════════════════════════════════════
-    // PRIORITY #1: NAME CAPTURE
-    // ═══════════════════════════════════════════════════════════
-    if (conversationState === 'getting_first_name') {
-        const words = userInput.trim().split(' ');
-        const extractedName = words[0].replace(/[^a-zA-Z]/g, '');
+    // Check if we're waiting for name
+    if (window.waitingForName) {
+        console.log('✅ Name captured:', userMessage);
+        window.userName = userMessage;
+        window.waitingForName = false;
         
-        if (extractedName.length > 0) {
-            window.leadData.firstName = extractedName.charAt(0).toUpperCase() + extractedName.slice(1).toLowerCase();
-            responseText = `Great to meet you ${window.leadData.firstName}! What brings you to New Clients Inc today?`;
-            conversationState = 'active';
-            
-            console.log('✅ Name captured:', window.leadData.firstName);
-            console.log('✅ State changed to: active');
-            
-            return responseText;
-        } else {
-            return "I didn't quite catch that. Could you tell me your first name?";
-        }
+        speakWithElevenLabs(
+            `Nice to meet you, ${userMessage}! What brings you to New Clients Inc today?`,
+            false
+        );
+        
+        // Mark that we're now waiting for their intent
+        window.waitingForIntent = true;
+        return;
     }
     
-    // ═══════════════════════════════════════════════════════════
-    // CONSULTATIVE RESPONSE - WITH BANNER TRIGGERS
-    // ═══════════════════════════════════════════════════════════
-    if (conversationState === 'active' || conversationState === 'initial') {
-        console.log('🔍 Checking for consultative intent...');
+    // Check if we're waiting for their intent (sell/buy/value/help)
+    if (window.waitingForIntent) {
+        console.log('🎯 Checking for consultative intent in:', userMessage);
         
-        // 🧹 FIX #1: HIDE SPEAK NOW BANNER IMMEDIATELY WHEN INTENT DETECTED
-        const speakNowBanner = document.getElementById('speak-sequence-button');
-        if (speakNowBanner) {
-            speakNowBanner.remove();
-            console.log('🧹 Removed Speak Now banner for consultative response');
+        const lowerMessage = userMessage.toLowerCase();
+        let detectedIntent = null;
+        
+        // Detect selling intent
+        if (lowerMessage.includes('sell') || lowerMessage.includes('selling')) {
+            detectedIntent = 'sell your practice';
+            console.log('✅ SELL intent detected');
+        }
+        // Detect buying intent
+        else if (lowerMessage.includes('buy') || lowerMessage.includes('buying') || lowerMessage.includes('purchase')) {
+            detectedIntent = 'buy a practice';
+            console.log('✅ BUY intent detected');
+        }
+        // Detect valuation intent
+        else if (lowerMessage.includes('value') || lowerMessage.includes('valuation') || lowerMessage.includes('worth')) {
+            detectedIntent = 'get your practice valued';
+            console.log('✅ VALUE intent detected');
+        }
+        // Detect general help intent
+        else if (lowerMessage.includes('help') || lowerMessage.includes('assist') || lowerMessage.includes('support')) {
+            detectedIntent = 'with your practice needs';
+            console.log('✅ HELP intent detected');
         }
         
-        let acknowledgment = '';
-        let bookOffer = '';
-        let intentDetected = false;
-        
-        // SELLING INTENT
-        if (userText.includes('sell') || userText.includes('selling')) {
-            console.log('🎯 SELLING INTENT DETECTED!');
+        if (detectedIntent) {
+            window.waitingForIntent = false;
+            window.userIntent = detectedIntent;
             
-            // 🎨 TRIGGER EXPERTISE BANNER IMMEDIATELY
-            setTimeout(() => {
-                if (typeof showUniversalBanner === 'function') {
-                    showUniversalBanner('expertise');
-                    console.log('✅ Expertise banner triggered for selling');
-                } else {
-                    console.error('❌ showUniversalBanner function not found!');
-                }
-            }, 500);
-            
-            acknowledgment = `That's fantastic that you want to sell your practice${firstName ? ', ' + firstName : ''}! I'd love to help you reach your goals`;
-            bookOffer = ` by sending you a free book written by the CEO and founder of New Clients Inc, Bruce Clark. Simply click Free Consultation below!`;
-            window.lastBookOfferType = 'selling';
-            intentDetected = true;
-            
-        } else if (userText.includes('buy') || userText.includes('buying') || userText.includes('purchase') || userText.includes('acquire')) {
-            console.log('🎯 BUYING INTENT DETECTED!');
-            
-            // 🎨 TRIGGER EXPERTISE BANNER IMMEDIATELY
-            setTimeout(() => {
-                if (typeof showUniversalBanner === 'function') {
-                    showUniversalBanner('expertise');
-                    console.log('✅ Expertise banner triggered for buying');
-                }
-            }, 500);
-            
-            acknowledgment = `That's fantastic that you want to buy a practice${firstName ? ', ' + firstName : ''}! I'd love to help you reach your goals`;
-            bookOffer = ` by sending you a free book written by the CEO and founder of New Clients Inc, Bruce Clark. Simply click Free Consultation below!`;
-            window.lastBookOfferType = 'buying';
-            intentDetected = true;
-            
-        } else if (userText.includes('value') || userText.includes('valuation') || userText.includes('evaluate') || userText.includes('worth')) {
-            console.log('🎯 VALUATION INTENT DETECTED!');
-            
-            // 🎨 TRIGGER EXPERTISE BANNER IMMEDIATELY
-            setTimeout(() => {
-                if (typeof showUniversalBanner === 'function') {
-                    showUniversalBanner('expertise');
-                    console.log('✅ Expertise banner triggered for valuation');
-                }
-            }, 500);
-            
-            acknowledgment = `That's fantastic that you want to evaluate your practice${firstName ? ', ' + firstName : ''}! I'd love to help you reach your goals`;
-            bookOffer = ` by sending you a free book written by the CEO and founder of New Clients Inc, Bruce Clark. Simply click Free Consultation below!`;
-            window.lastBookOfferType = 'valuation';
-            intentDetected = true;
-            
-        } else if (userText.includes('help') || userText.includes('assist') || userText.includes('information')) {
-            console.log('🎯 HELP INTENT DETECTED!');
-            
-            // 🎨 TRIGGER EXPERTISE BANNER IMMEDIATELY
-            setTimeout(() => {
-                if (typeof showUniversalBanner === 'function') {
-                    showUniversalBanner('expertise');
-                    console.log('✅ Expertise banner triggered for help');
-                }
-            }, 500);
-            
-            acknowledgment = `I'm so glad you reached out for help${firstName ? ', ' + firstName : ''}! I'd love to help you reach your goals`;
-            bookOffer = ` by sending you a free book written by the CEO and founder of New Clients Inc, Bruce Clark. Simply click Free Consultation below!`;
-            window.lastBookOfferType = 'general';
-            intentDetected = true;
-        }
-        
-        // If intent detected, return response WITH BANNER TRIGGERS
-        if (intentDetected) {
-            const fullResponse = acknowledgment + bookOffer;
-            
-            // 🎨 FIX #2: TRIGGER FREE BOOK BANNER WITH CORRECT NAME
-            // Try multiple banner names to find the right one
-            setTimeout(() => {
-                let bannerTriggered = false;
-                
-                // Try different possible banner names
-                const possibleBannerNames = [
-                    'freeBookWithConsultation',
-                    'setAppointment',
-                    'clickToCall',
-                    'freeBook'
-                ];
-                
-                for (const bannerName of possibleBannerNames) {
-                    try {
-                        if (typeof triggerBanner === 'function') {
-                            triggerBanner(bannerName);
-                            console.log(`✅ Tried banner: ${bannerName}`);
-                            bannerTriggered = true;
-                            break; // Stop after first successful trigger
-                        } else if (typeof showUniversalBanner === 'function') {
-                            showUniversalBanner(bannerName);
-                            console.log(`✅ Tried banner (alt): ${bannerName}`);
-                            bannerTriggered = true;
-                            break;
-                        }
-                    } catch (e) {
-                        console.log(`⚠️ Banner ${bannerName} not found, trying next...`);
-                    }
-                }
-                
-                if (!bannerTriggered) {
-                    console.error('❌ Could not trigger any free book banner!');
-                }
-            }, 3000); // 3 seconds - right after "reach your goals" is said
-            
-            window.waitingForBookResponse = true;
-            conversationState = 'offering_book';
-            
-            console.log('✅ Returning consultative response with banner triggers');
-            console.log('✅ State changed to: offering_book');
-            
-            return fullResponse;
-        }
-    }
-    
-    // ═══════════════════════════════════════════════════════════
-    // BOOK RESPONSE - YES/NO (TRIGGERS ACTION CENTER)
-    // ═══════════════════════════════════════════════════════════
-    if (window.waitingForBookResponse && conversationState === 'offering_book') {
-        console.log('📚 Processing book response...');
-        console.log('   User said:', userText);
-        
-        // User said YES
-        if (userText.includes('yes') || userText.includes('yeah') || userText.includes('yep') || 
-            userText.includes('sure') || userText.includes('okay') || userText.includes('absolutely') || 
-            userText.includes('definitely')) {
-            
-            console.log('✅ User said YES - Triggering Action Center');
-            
-            const response = firstName ? 
-                `Perfect ${firstName}! Let me show you the options to connect with Bruce.` :
-                `Perfect! Let me show you the options to connect with Bruce.`;
-            
-            // 🎨 FIX #3: TRIGGER COMMUNICATION ACTION CENTER WITH ERROR HANDLING
-            setTimeout(() => {
-                try {
-                    if (typeof window.showCommunicationActionCenter === 'function') {
-                        window.showCommunicationActionCenter();
-                        console.log('✅ Communication Action Center triggered');
-                    } else if (typeof showCommunicationActionCenter === 'function') {
-                        showCommunicationActionCenter();
-                        console.log('✅ Communication Action Center triggered (alt)');
-                    } else {
-                        console.error('❌ showCommunicationActionCenter function not found!');
-                        console.log('🔍 Available functions:', Object.keys(window).filter(k => k.includes('show')));
-                    }
-                } catch (error) {
-                    console.error('❌ Error triggering Action Center:', error);
-                }
-            }, 1500);
-            
-            conversationState = 'showing_action_center';
-            window.waitingForBookResponse = false;
-            
-            console.log('✅ State changed to: showing_action_center');
-            
-            return response;
-        }
-        
-        // User said NO
-        else if (userText.includes('no') || userText.includes('not') || userText.includes('nope') || 
-                 userText.includes('nah') || userText.includes('maybe later')) {
-            
-            console.log('❌ User said NO - Continuing conversation');
-            
-            const bookType = window.lastBookOfferType || 'general';
-            window.waitingForBookResponse = false;
-            
-            // 🎨 SWITCH BACK TO BRANDING BANNER
-            setTimeout(() => {
-                if (typeof showUniversalBanner === 'function') {
-                    showUniversalBanner('branding');
-                    console.log('✅ Switched back to branding banner');
-                }
-            }, 1000);
-            
-            if (bookType === 'selling') {
-                responseText = firstName ?
-                    `No problem ${firstName}! Let's talk about your practice. How many clients are you currently serving?` :
-                    "No problem! Let's talk about your practice. How many clients are you currently serving?";
-                conversationState = 'selling_size_question';
-                
-            } else if (bookType === 'buying') {
-                responseText = firstName ?
-                    `No problem ${firstName}! Let's find you the right practice. What's your budget range?` :
-                    "No problem! Let's find you the right practice. What's your budget range?";
-                conversationState = 'buying_budget_question';
-                
-            } else if (bookType === 'valuation') {
-                responseText = firstName ?
-                    `No problem ${firstName}! Let's get you a valuation. What's your approximate annual revenue?` :
-                    "No problem! Let's get you a valuation. What's your approximate annual revenue?";
-                conversationState = 'valuation_revenue_question';
-                
-            } else {
-                responseText = firstName ?
-                    `No problem ${firstName}! How else can I help you today?` :
-                    "No problem! How else can I help you today?";
-                conversationState = 'active';
+            // 🔥 FIX #1: REMOVE SPEAK NOW BANNER IMMEDIATELY
+            const speakNowBanner = document.querySelector('.speak-now-banner');
+            if (speakNowBanner) {
+                speakNowBanner.remove();
+                console.log('✅ Removed Speak Now banner - consultative flow active');
             }
             
-            console.log('✅ State changed to:', conversationState);
+            // Echo their intent back with enthusiasm
+            const response = `That's fantastic that you want to ${detectedIntent}, ${window.userName}! I'd love to help you reach your goals by sending you Bruce's free book "7 Secrets to Selling Your Practice" and setting up a consultation. Simply click the Free Book and Consultation banner on your screen!`;
             
-            return responseText;
+            console.log('🎤 Speaking consultative response:', response);
+            speakWithElevenLabs(response, false);
+            
+            // 🎯 Trigger expertise banner (500ms delay)
+            setTimeout(() => {
+                if (typeof showUniversalBanner === 'function') {
+                    showUniversalBanner('expertise');
+                    console.log('✅ Expertise banner triggered for ' + detectedIntent);
+                } else {
+                    console.error('❌ showUniversalBanner function not found for expertise banner');
+                }
+            }, 500);
+            
+            // 🎯 Trigger setAppointment banner (3000ms delay - mid-sentence)
+            setTimeout(() => {
+                console.log('🎯 Attempting to show setAppointment banner...');
+                
+                if (typeof showUniversalBanner === 'function') {
+                    showUniversalBanner('setAppointment');
+                    console.log('✅ setAppointment banner triggered!');
+                    
+                    // 🔥 FIX #4: ATTACH CLICK HANDLER TO BANNER
+                    // Wait for banner to fully render in DOM
+                    setTimeout(() => {
+                        const bannerContainer = document.getElementById('bannerHeaderContainer');
+                        
+                        if (bannerContainer) {
+                            console.log('✅ Found bannerHeaderContainer, attaching click handler...');
+                            
+                            // Remove any existing click handlers to avoid duplicates
+                            const newBannerContainer = bannerContainer.cloneNode(true);
+                            bannerContainer.parentNode.replaceChild(newBannerContainer, bannerContainer);
+                            
+                            // Attach fresh click handler
+                            newBannerContainer.addEventListener('click', function(event) {
+                                console.log('🎯 setAppointment banner CLICKED!');
+                                console.log('Click event:', event);
+                                
+                                // Trigger Communication Action Center
+                                console.log('🎯 Attempting to trigger Communication Action Center...');
+                                console.log('Checking prerequisites:', {
+                                    functionExists: typeof showCommunicationActionCenter === 'function',
+                                    scriptLoaded: !!document.querySelector('script[src*="action-system-unified"]'),
+                                    cssLoaded: !!document.querySelector('link[href*="communication-action-center.css"]')
+                                });
+                                
+                                if (typeof showCommunicationActionCenter === 'function') {
+                                    try {
+                                        showCommunicationActionCenter();
+                                        console.log('✅ Communication Action Center triggered successfully!');
+                                    } catch (error) {
+                                        console.error('❌ Action Center error:', error);
+                                        console.error('Error stack:', error.stack);
+                                        console.error('Error name:', error.name);
+                                        console.error('Error message:', error.message);
+                                    }
+                                } else {
+                                    console.error('❌ showCommunicationActionCenter function not found!');
+                                    console.error('Available functions:', Object.keys(window).filter(key => key.toLowerCase().includes('action')));
+                                }
+                            });
+                            
+                            console.log('✅ Click handler attached to setAppointment banner!');
+                        } else {
+                            console.error('❌ Could not find bannerHeaderContainer after 800ms');
+                            console.log('Available banner elements:', {
+                                bannerHeaderContainer: !!document.getElementById('bannerHeaderContainer'),
+                                universalBanner: !!document.getElementById('universal-banner'),
+                                bannerByClass: !!document.querySelector('.universal-banner')
+                            });
+                        }
+                    }, 800); // Wait 800ms for banner to fully render
+                    
+                } else {
+                    console.error('❌ showUniversalBanner function not found for setAppointment banner');
+                }
+            }, 3000);
+            
+            // Mark that we're waiting for book response (yes/no)
+            window.waitingForBookResponse = true;
+            return;
         }
         
-        // User said something else - clarify
-        else {
-            console.log('❓ User response unclear - asking for clarification');
-            
-            const clarification = firstName ?
-                `${firstName}, would you like the free book and consultation? Please say yes or no.` :
-                "Would you like the free book and consultation? Please say yes or no.";
-            
-            return clarification;
-        }
+        // If no intent detected, continue to OpenAI
+        console.log('⚠️ No consultative intent detected, continuing to OpenAI...');
     }
     
-    // ═══════════════════════════════════════════════════════════
-    // DEFAULT FALLBACK
-    // ═══════════════════════════════════════════════════════════
-    console.log('⚠️ Reached default fallback');
+    // Check if we're waiting for book response (yes/no)
+    if (window.waitingForBookResponse) {
+        console.log('📚 Checking book response:', userMessage);
+        
+        const lowerMessage = userMessage.toLowerCase();
+        
+        // Handle YES response
+        if (lowerMessage.includes('yes') || lowerMessage.includes('yeah') || 
+            lowerMessage.includes('sure') || lowerMessage.includes('okay') || 
+            lowerMessage.includes('ok') || lowerMessage.includes('absolutely')) {
+            
+            console.log('✅ User said YES to book offer');
+            window.waitingForBookResponse = false;
+            
+            // Note: Communication Action Center is now triggered by banner click
+            // So we just acknowledge their response
+            speakWithElevenLabs(
+                `Perfect! I've got that ready for you. Just click the banner to choose how you'd like to proceed!`,
+                false
+            );
+            
+            return;
+        }
+        
+        // Handle NO response
+        if (lowerMessage.includes('no') || lowerMessage.includes('nah') || 
+            lowerMessage.includes('not now') || lowerMessage.includes('maybe later')) {
+            
+            console.log('❌ User declined book offer, continuing with questions');
+            window.waitingForBookResponse = false;
+            
+            speakWithElevenLabs(
+                `No problem! Let me ask you a few questions to better understand your needs. What type of practice do you have?`,
+                false
+            );
+            
+            return;
+        }
+        
+        // If ambiguous, ask for clarification
+        console.log('⚠️ Ambiguous book response, asking for clarification');
+        speakWithElevenLabs(
+            `I'm not sure I caught that. Would you like me to send you Bruce's free book and set up a consultation?`,
+            false
+        );
+        
+        return;
+    }
     
-    responseText = firstName ?
-        `Thanks ${firstName}! Anything else about buying, selling, or valuing practices?` :
-        "Thanks! Anything else about buying, selling, or valuing?";
-    
-    conversationState = 'initial';
-    
-    return responseText;
+    // Continue with regular OpenAI conversation
+    try {
+        conversationHistory.push({
+            role: 'user',
+            content: userMessage
+        });
+
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${window.OPENAI_API_KEY}`
+            },
+            body: JSON.stringify({
+                model: 'gpt-4o-mini',
+                messages: [
+                    {
+                        role: 'system',
+                        content: window.AI_SYSTEM_PROMPT || 'You are a helpful assistant for New Clients Inc, specializing in practice sales and acquisitions.'
+                    },
+                    ...conversationHistory
+                ],
+                temperature: 0.7,
+                max_tokens: 500
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`OpenAI API error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        const aiResponse = data.choices[0].message.content;
+
+        conversationHistory.push({
+            role: 'assistant',
+            content: aiResponse
+        });
+
+        console.log('✅ OpenAI Response:', aiResponse);
+        
+        // Speak the response
+        speakWithElevenLabs(aiResponse, false);
+
+    } catch (error) {
+        console.error('❌ Error in getAIResponse:', error);
+        speakWithElevenLabs(
+            "I apologize, I'm having trouble processing that right now. Could you try again?",
+            false
+        );
+    }
 }
 
-console.log('✅ getAIResponse function loaded - ALL ISSUES FIXED');
+console.log('✅ getAIResponse function with banner click handler loaded');
 
 function handleTestimonialComplete() {
     console.log('🎯 Testimonial finished - triggering comeback');
