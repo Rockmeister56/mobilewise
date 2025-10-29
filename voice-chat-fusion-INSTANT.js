@@ -124,6 +124,7 @@ function clearRestartTimers() {
 }
 
 // ===== CREATE INSTANT LISTENING BUBBLE =====
+// ❌ DEPRECATED - Using showDirectSpeakNow() instead
 function createInstantBubble() {
     console.log('⚡ INSTANT: Creating listening bubble immediately');
     
@@ -199,6 +200,7 @@ function createInstantBubble() {
     return liveTranscript;
 }
 
+// ❌ DEPRECATED - Using showDirectSpeakNow() instead
 // ===== UPDATE REALTIME BUBBLE WITH SPEECH =====
 function updateRealtimeBubble(text) {
     const transcriptText = document.getElementById('transcriptText');
@@ -207,6 +209,7 @@ function updateRealtimeBubble(text) {
     }
 }
 
+// ❌ DEPRECATED - showDirectSpeakNow() handles button management
 // ===== RESTORE QUICK BUTTONS (when banner is hidden) =====
 function restoreQuickButtons() {
     const quickButtonsContainer = document.querySelector('.quick-questions') || 
@@ -222,99 +225,11 @@ function restoreQuickButtons() {
 
 // ===== START INSTANT REALTIME LISTENING =====
 function startRealtimeListening() {
-    console.log('⚡⚡⚡ INSTANT LISTENING STARTED ⚡⚡⚡');
+    console.log('⚡⚡⚡ REDIRECTING TO showDirectSpeakNow() ⚡⚡⚡');
     
-    // Block if smart button is active
-    const smartButton = document.getElementById('smartButton');
-    if (smartButton && smartButton.style.display !== 'none') {
-        console.log('🚫 Smart button active - blocking instant listening');
-        return;
-    }
-    
-    // Block if concern banner is active
-    if (window.concernBannerActive) {
-        console.log('🚫 Concern banner active - blocking instant listening');
-        return;
-    }
-    
-    // Check conversation state
-    if (conversationState === 'ended') {
-        console.log('🚫 Conversation ended - blocking instant listening');
-        return;
-    }
-    
-    // Nuclear audio shutdown first
-    nuclearAudioShutdown();
-    
-    // Create instant bubble
-    createInstantBubble();
-    
-    // Start recognition immediately
-    if (!recognition) {
-        initializeSpeechRecognition();
-    }
-    
-    // Set up enhanced recognition handlers
-    recognition.onresult = function(event) {
-        console.log('⚡ INSTANT: Speech detected');
-        
-        let transcript = Array.from(event.results)
-            .map(result => result[0])
-            .map(result => result.transcript)
-            .join('');
-        
-        transcript = transcript.replace(/\.+$/, '');
-        
-        // Update bubble in realtime
-        updateRealtimeBubble(transcript);
-        
-        // Update input field
-        const userInput = document.getElementById('userInput');
-        if (userInput) {
-            userInput.value = transcript;
-        }
-        
-        // Store globally as backup
-        window.lastCapturedTranscript = transcript;
-        window.lastCapturedTime = Date.now();
-    };
-    
-    recognition.onend = function() {
-        console.log('⚡ INSTANT: Recognition ended');
-        
-        // Get final transcript
-        const userInput = document.getElementById('userInput');
-        const finalTranscript = (userInput && userInput.value.trim()) || window.lastCapturedTranscript || '';
-        
-        if (finalTranscript) {
-            console.log('✅ INSTANT: Sending message:', finalTranscript);
-            sendMessage(finalTranscript);
-        } else {
-            console.log('🔄 INSTANT: No speech detected - showing try again');
-            setTimeout(() => {
-                showAvatarSorryMessage();
-            }, 1500);
-        }
-    };
-    
-    recognition.onerror = function(event) {
-        console.log('⚡ INSTANT: Error:', event.error);
-        
-        if (event.error === 'no-speech') {
-            setTimeout(() => {
-                showAvatarSorryMessage();
-            }, 1500);
-        }
-    };
-    
-    // Start recognition
-    try {
-        recognition.start();
-        isListening = true;
-        console.log('✅ INSTANT: Recognition started successfully');
-    } catch (error) {
-        console.error('❌ INSTANT: Failed to start recognition:', error);
-    }
+    // 🎯 USE THE PERFECT "SPEAK NOW!" BANNER INSTEAD OF TRANSPARENT BUBBLE
+    // This is the banner with animated waveform bars that Captain loves
+    showDirectSpeakNow();
 }
 
 // ===== SCHEDULE AUTO-RESTART AFTER AI SPEAKS =====
