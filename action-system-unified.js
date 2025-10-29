@@ -87,52 +87,55 @@
         }
     };
 
-    // =========================================================================
-    // SECTION 2: ACTION BUTTON CONFIGURATIONS
-    // =========================================================================
-
-    const ACTION_BUTTONS = [
-        {
-            id: 'request-call',
-            title: 'Request a Call',
-            description: 'Receive a call within 5 minutes',
-            icon: '📞',
-            cssClass: 'request-call',
-            urgent: false
-        },
-        {
-            id: 'free-consultation',
-            title: 'Get a Free Consultation',
-            description: 'Complete consultation booking with expert advisor',
-            icon: '💼',
-            cssClass: 'free-consultation',
-            urgent: false
-        },
-        {
-            id: 'urgent-call',
-            title: '🚨 Get an Immediate Call',
-            description: 'Priority response - Call back within 2 minutes',
-            icon: '🚨',
-            cssClass: 'urgent-call',
-            urgent: true
-        },
-        {
-            id: 'pre-qualify',
-            title: 'Get Pre-Qualified',
-            description: 'Quick qualification - Answer a few simple questions',
-            icon: '✅',
-            cssClass: 'pre-qualify',
-            urgent: false
-        },
-        {
-            id: 'free-book',
-            title: 'Free Book: Get 7 Secrets',
-            description: 'Download your free guide for selling your practice',
-            icon: '📚',
-            cssClass: 'free-book',
-            urgent: false
-        }
-    ];
+   const ACTION_BUTTONS = [
+    {
+        id: 'request-call',
+        title: 'Request a Call',
+        description: 'Receive a call within 5 minutes',
+        icon: '📞',
+        cssClass: 'request-call',
+        urgent: false
+    },
+    {
+        id: 'free-consultation',
+        title: 'Get a Free Consultation',
+        description: 'Complete consultation booking with expert advisor',
+        icon: '💼',
+        cssClass: 'free-consultation',
+        urgent: false
+    },
+    {
+        id: 'urgent-call',
+        title: '🚨 Get an Immediate Call',
+        description: 'Priority response - Call back within 2 minutes',
+        icon: '🚨',
+        cssClass: 'urgent-call',
+        urgent: true
+    },
+    {
+        id: 'pre-qualify',
+        title: 'Get Pre-Qualified',
+        description: 'Quick qualification - Answer a few simple questions',
+        icon: '✅',
+        cssClass: 'pre-qualify',
+        urgent: false
+    },
+    {
+        id: 'free-book',
+        title: 'Free Book: Get 7 Secrets',
+        description: 'Download your free guide for selling your practice',
+        icon: '📚',
+        cssClass: 'free-book',
+        urgent: false
+    },  // ← ADD THIS COMMA!
+    {
+        id: 'skip',
+        title: 'Skip for Now',
+        description: 'Continue chatting with AI assistant',
+        icon: '💬',
+        cssClass: 'skip-button'
+    }
+];
 
     // =========================================================================
     // SECTION 3: COMMUNICATION ACTION CENTER (OVERLAY)
@@ -151,24 +154,24 @@
             existing.remove();
         }
         
-        // Create overlay
-        const overlay = document.createElement('div');
-        overlay.id = 'action-center-overlay';
-        overlay.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, rgba(0, 128, 128, 0.95), rgba(0, 96, 96, 0.95));
-            z-index: 10000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        `;
+       // Create overlay
+const overlay = document.createElement('div');
+overlay.id = 'action-center-overlay';
+overlay.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+`;
         
         // Create buttons container using YOUR CSS classes
         const buttonsHTML = ACTION_BUTTONS.map(button => `
@@ -224,17 +227,47 @@
     /**
      * Handles action button clicks from the overlay
      */
-    function handleActionButtonClick(actionId) {
-        console.log(`🎯 Action button clicked: ${actionId}`);
-        
-        // Close action center
-        closeCommunicationActionCenter();
-        
-        // Wait for close animation, then show lead capture
-        setTimeout(() => {
-            showActionSplash(actionId);
-        }, 300);
+    function handleActionButtonClick(buttonType) {
+    console.log('Action button clicked:', buttonType);
+    
+    // Hide the Action Center
+    const actionCenter = document.getElementById('communicationActionCenter');
+    if (actionCenter) {
+        actionCenter.style.display = 'none';
     }
+    
+    // Handle each button type
+    switch(buttonType) {
+        case 'request-call':
+            addMessage("Great! I'll connect you with our team for a callback.", 'ai');
+            break;
+            
+        case 'free-consultation':
+            addMessage("Excellent! Let's schedule your free consultation.", 'ai');
+            break;
+            
+        case 'immediate-call':
+            addMessage("Connecting you now for an immediate conversation!", 'ai');
+            break;
+            
+        case 'pre-qualified':
+            addMessage("Let's get you pre-qualified quickly!", 'ai');
+            break;
+            
+        case 'free-book':
+            addMessage("Perfect! I'll send you Bruce's book right away.", 'ai');
+            break;
+            
+        case 'skip':
+            addMessage("No problem! How else can I help you today?", 'ai');
+            break;
+    }
+    
+    // Resume listening after action
+    setTimeout(() => {
+        startRealtimeListening();
+    }, 1500);
+}
 
     // =========================================================================
     // SECTION 4: AI LEAD CAPTURE INTERVIEW SYSTEM
