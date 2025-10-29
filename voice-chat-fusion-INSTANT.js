@@ -1108,6 +1108,7 @@ async function activateMicrophone() {
         window.conversationState = 'getting_first_name';
     } else {
         conversationState = 'getting_first_name';
+        window.waitingForName = true;
     }
     
         // Initialize leadData if it doesn't exist
