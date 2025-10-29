@@ -2509,7 +2509,7 @@ setTimeout(() => {
     } else {
         console.error('❌ showUniversalBanner function not found for setAppointment banner');
     }
-}, 3000);
+}, 6000);
 
 // Mark that we're waiting for book response (yes/no)
 window.waitingForBookResponse = true;

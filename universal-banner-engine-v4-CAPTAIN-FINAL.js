@@ -571,16 +571,12 @@ const BANNER_STYLES = `
     banner.innerHTML = BANNER_STYLES + config.content;
     headerContainer.appendChild(banner);
 
-    if (bannerType === 'setAppointment') {
-    console.log('🎯 setAppointment banner detected - attaching click handler...');
+   // 🔥 NEW: AUTO-TRIGGER ACTION CENTER FOR setAppointment BANNER
+if (bannerType === 'setAppointment') {
+    console.log('🎯 setAppointment banner detected - auto-triggering Action Center...');
     
-    // Make banner clickable
-    headerContainer.style.cursor = 'pointer';
-    
-    headerContainer.addEventListener('click', function(event) {
-        console.log('🎯 setAppointment banner CLICKED!');
-        
-        // Trigger Communication Action Center
+    // Trigger Action Center immediately when banner appears
+    setTimeout(() => {
         console.log('🎯 Attempting to trigger Communication Action Center...');
         console.log('Checking prerequisites:', {
             functionExists: typeof showCommunicationActionCenter === 'function',
@@ -602,13 +598,10 @@ const BANNER_STYLES = `
             }
         } else {
             console.error('❌ showCommunicationActionCenter function not found!');
-            console.error('Available action functions:', 
-                Object.keys(window).filter(key => key.toLowerCase().includes('action'))
-            );
         }
-    });
+    }, 500); // Small delay to let banner render first
     
-    console.log('✅ Click handler attached to setAppointment banner!');
+    console.log('✅ Action Center auto-trigger scheduled!');
 }
     
     // Find container and attach
