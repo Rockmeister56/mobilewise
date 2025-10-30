@@ -1853,45 +1853,47 @@ class MobileWiseVoiceSystem {
         if (VOICE_CONFIG.debug) {
             console.log("🔍 PERMANENT HANDLER: Speech completed - checking ElevenLabs banner logic (NO SMART BUTTON BLOCK)");
         }
-        
-        // ============================================================
-        // EXACT ELEVENLABS BLOCKING CONDITIONS CHECK
-        // ============================================================
-        const now = Date.now();
-        const clickMentionTime = window.lastClickMentionTime || 0;
-        const timeSinceClickMention = now - clickMentionTime;
-        const conversationState = window.conversationState || 'ready';
-        const thankYouSplashVisible = document.querySelector('.thank-you-splash:not([style*="display: none"])');
-        
-        if (VOICE_CONFIG.debug) {
-            console.log(`🐛 DEBUG: ElevenLabs blocking conditions check (SMART BUTTON BYPASSED):
-                - Time since click mention: ${timeSinceClickMention}ms (block if < 3000ms)
-                - Conversation state: ${conversationState} (block if 'speaking')
-                - Thank you splash visible: ${!!thankYouSplashVisible}
-                - Smart Button Check: PERMANENTLY BYPASSED ✅`);
-        }
-        
-        // Apply exact ElevenLabs blocking logic
-        if (timeSinceClickMention < 3000) {
-            console.log('🚫 BLOCKED: Recent click mention detected (ElevenLabs logic)');
-            return;
-        }
-        
-        if (conversationState === 'speaking') {
-            console.log('🚫 BLOCKED: System still in speaking state (ElevenLabs logic)');
-            return;
-        }
-        
-        if (thankYouSplashVisible) {
-            console.log('🚫 BLOCKED: Thank you splash currently visible (ElevenLabs logic)');
-            return;
-        }
-        
-        // Block if conversation ended (keep this check)
-        if (conversationState === 'ended' || conversationState === 'splash_screen_active') {
-            console.log('🚫 BLOCKED: Conversation ended');
-            return;
-        }
+// ============================================================
+// EXACT ELEVENLABS BLOCKING CONDITIONS CHECK
+// ============================================================
+const now = Date.now();
+const clickMentionTime = window.lastClickMentionTime || 0;
+const timeSinceClickMention = now - clickMentionTime;
+const conversationState = window.conversationState || 'ready';
+const thankYouSplashVisible = document.querySelector('.thank-you-splash:not([style*="display: none"])');
+
+// 🐛 DEBUG: ElevenLabs blocking conditions check
+if (VOICE_CONFIG.debug) {
+    console.log('🐛 DEBUG: ElevenLabs blocking conditions check (SMART BUTTON BYPASSED):');
+    console.log(`                - Time since click mention: ${timeSinceClickMention}ms (block if < 3000ms)`);
+    console.log(`                - Conversation state: ${conversationState} (block if 'speaking')`);
+    console.log('                - Thank you splash visible:', !!thankYouSplashVisible);
+    console.log('                - Smart Button Check: PERMANENTLY BYPASSED ✅');
+    
+    // 🆕 ADD THIS CHECK FOR LEAD CAPTURE MODE:
+    console.log('                - Lead Capture Active:', !!window.isInLeadCapture);
+}
+
+// Original blocking conditions
+const tooSoonAfterClick = timeSinceClickMention < 3000;
+const conversationEnded = conversationState === 'speaking';
+const thankYouActive = !!thankYouSplashVisible;
+
+// 🆕 NEW BLOCKING CONDITION - Block if lead capture is active
+const leadCaptureActive = window.isInLeadCapture === true;
+
+if (tooSoonAfterClick || conversationEnded || thankYouActive || leadCaptureActive) {
+    if (leadCaptureActive) {
+        console.log('🚫 BLOCKED: Lead capture in progress - waiting for user response');
+    } else {
+        console.log('🚫 BLOCKED: One or more blocking conditions active');
+    }
+    return; // Don't restart listening
+}
+
+if (VOICE_CONFIG.debug) {
+    console.log('🐛 DEBUG: No blocking conditions - calling startRealtimeListening() (Smart Button permanently bypassed)');
+}
         
         // *** SMART BUTTON CHECK PERMANENTLY REMOVED ***
         // This was preventing banner triggers in your system
