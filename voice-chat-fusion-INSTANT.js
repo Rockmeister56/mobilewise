@@ -58,6 +58,11 @@ let speakSequenceActive = false;
 let speakSequenceButton = null;
 let speakSequenceCleanupTimer = null;
 
+// Lead capture state for Action System integration
+window.isInLeadCapture = false;
+window.currentLeadData = null;
+window.currentCaptureType = null;
+
 // Lead data storage
 if (!window.leadData) {
     window.leadData = {
@@ -742,6 +747,29 @@ async function startListening() {
                     .join('');
 
                 transcript = transcript.replace(/\.+$/, '');
+
+                // 🆕 CHECK FOR LEAD CAPTURE MODE
+if (window.isInLeadCapture && window.processLeadResponse) {
+    console.log('🎯 Lead capture active - routing to processLeadResponse');
+    const handled = window.processLeadResponse(transcript);
+    if (handled) {
+        console.log('✅ Lead capture handled the response - not processing as normal chat');
+        
+        // Update UI
+        const transcriptText = document.getElementById('transcriptText');
+        if (transcriptText) {
+            transcriptText.textContent = transcript;
+        }
+        
+        const userInput = document.getElementById('userInput');
+        if (userInput) {
+            userInput.value = transcript;
+        }
+        
+        return; // STOP HERE - don't process as normal conversation
+    }
+}
+
                 
                 console.log('✅ Transcript captured:', transcript);
                 console.log('  - Length:', transcript.length);
@@ -1314,8 +1342,18 @@ function handleConcernWithTestimonial(userText) {
     };
 }
 
-function processUserResponse(userText) {
-    // ... all your lead capture checks ...
+async function processUserResponse(userText) {
+    // 🆕 PATCH 4: CHECK FOR LEAD CAPTURE MODE FIRST
+    if (window.isInLeadCapture && window.processLeadResponse) {
+        console.log('🎯 Lead capture mode - routing to lead system');
+        const handled = window.processLeadResponse(userText);
+        if (handled) {
+            console.log('✅ Lead capture handled - not processing as normal chat');
+            return; // Exit early - don't process as conversation
+        }
+    }
+    
+    // YOUR EXISTING CODE - all your lead capture checks
     
     // 🎯 NEW: Direct consultation trigger - NO AI fluff!
     if (shouldTriggerLeadCapture(userText)) {
@@ -2496,7 +2534,7 @@ async function getAIResponse(userMessage, conversationHistory = []) {
                 }
             }, 500);
             
-           // 🎯 Trigger setAppointment banner (3000ms delay - mid-sentence)
+        // 🎯 Trigger setAppointment banner (3000ms delay - mid-sentence)
 setTimeout(() => {
     console.log('🎯 Attempting to show setAppointment banner...');
     
@@ -2504,7 +2542,17 @@ setTimeout(() => {
         showUniversalBanner('setAppointment');
         console.log('✅ setAppointment banner triggered!');
         
-        // ✅ NO CLICK HANDLER HERE - Banner engine handles it automatically!
+        // 🆕 PATCH 5: Auto-trigger Action Center 500ms after banner appears
+        setTimeout(() => {
+            console.log('🎯 Auto-triggering Communication Action Center...');
+            
+            if (window.showCommunicationActionCenter) {
+                window.showCommunicationActionCenter();
+                console.log('✅ Communication Action Center displayed!');
+            } else {
+                console.error('❌ showCommunicationActionCenter not available - check if action-system-unified-FINAL.js is loaded');
+            }
+        }, 500);
         
     } else {
         console.error('❌ showUniversalBanner function not found for setAppointment banner');
@@ -3905,6 +3953,13 @@ function endConversation() {
 
 function startFollowUpSequence() {
     conversationState = 'asking_followup_email';
+
+    // 🆕 CLEANUP LEAD CAPTURE STATE
+window.isInLeadCapture = false;
+window.currentLeadData = null;
+window.currentCaptureType = null;
+
+console.log('✅ Lead capture state cleaned up');
     
     // ✅ ENHANCED: Combined personalized message with follow-up question
     const combinedMessage = `Excellent ${leadData.name}! I have all your information. Our specialist will contact you at ${leadData.phone} during your preferred ${leadData.contactTime} timeframe. May I follow up with a confirmation email and a link to Bruce's new book "7 Secrets to Selling Your Practice"?`;
@@ -5174,5 +5229,28 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     `;
     document.head.appendChild(style);
+// 🆕 EXPORT FUNCTIONS FOR ACTION SYSTEM INTEGRATION
+// These allow the action-system-unified-FINAL.js to integrate with voice chat
+
+// Export addAIMessage
+window.addAIMessage = addAIMessage;
+
+// Export speakText/speakResponse (use whichever function name you have)
+if (typeof speakResponse === 'function') {
+    window.speakText = speakResponse;
+} else if (typeof speakMessage === 'function') {
+    window.speakText = speakMessage;
+}
+
+// Export listening restart function
+window.startRealtimeListening = startRealtimeListening;
+
+// Export banner system (if available)
+if (typeof showUniversalBanner === 'function') {
+    window.showUniversalBanner = showUniversalBanner;
+}
+
+console.log('✅ Voice chat functions exported for Action System integration');
+
     console.log('✅ Instant bubble CSS injected');
 })();

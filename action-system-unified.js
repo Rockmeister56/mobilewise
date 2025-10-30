@@ -1,17 +1,21 @@
 // ================================
-// ACTION SYSTEM UNIFIED - CORPORATE DESIGN
-// Communication Action Center with royal blue buttons and avatar
+// ACTION SYSTEM UNIFIED - FINAL VERSION
+// 5-Button Corporate Design with 3 Lead Capture Flows
 // ================================
 
-console.log('🎯 ACTION SYSTEM UNIFIED - Loading (CORPORATE DESIGN)...');
+console.log('🎯 ACTION SYSTEM UNIFIED - Loading (FINAL VERSION)...');
 
 // ================================
 // EMAILJS CONFIGURATION
 // ================================
 const EMAILJS_CONFIG = {
-    serviceId: 'service_xnh3j5g',
-    templateId: 'template_j3bjrwd',
-    publicKey: 'z-_Kn4DwSmXCRtRuN'
+    serviceId: 'service_b9bppgb',
+    publicKey: '7-9oxa3UC3uKxtqGM',
+    templates: {
+        consultation: 'template_8i0k6hr',  // Request A Call
+        clickToCall: 'template_8i0k6hr',   // Same as consultation
+        freeBook: 'template_uix9cyx'        // Free Book
+    }
 };
 
 // Initialize EmailJS
@@ -19,6 +23,13 @@ const EMAILJS_CONFIG = {
     emailjs.init(EMAILJS_CONFIG.publicKey);
     console.log('✅ EmailJS initialized with public key');
 })();
+
+// ================================
+// GLOBAL LEAD CAPTURE STATE
+// ================================
+window.isInLeadCapture = false;
+window.currentLeadData = null;
+window.currentCaptureType = null;
 
 // ================================
 // FORM VALIDATION
@@ -33,178 +44,28 @@ function validatePhone(phone) {
     return cleaned.length >= 10;
 }
 
-// ================================
-// EMAILJS SENDING FUNCTION
-// ================================
-function sendEmailJS(formData) {
-    console.log('📧 Preparing to send email via EmailJS...');
-    console.log('Form data:', formData);
-
-    const templateParams = {
-        from_name: formData.name || 'Not provided',
-        from_email: formData.email || 'Not provided',
-        phone: formData.phone || 'Not provided',
-        message: formData.message || 'No message provided',
-        action_type: formData.actionType || 'General Inquiry',
-        timestamp: new Date().toLocaleString()
-    };
-
-    console.log('Template params:', templateParams);
-
-    return emailjs.send(
-        EMAILJS_CONFIG.serviceId,
-        EMAILJS_CONFIG.templateId,
-        templateParams
-    ).then(function(response) {
-        console.log('✅ EmailJS SUCCESS!', response.status, response.text);
-        return response;
-    }).catch(function(error) {
-        console.error('❌ EmailJS FAILED:', error);
-        throw error;
-    });
+function formatEmailFromSpeech(speechText) {
+    let formattedEmail = speechText.toLowerCase().trim();
+    formattedEmail = formattedEmail
+        .replace(/\s*at\s+/g, '@')
+        .replace(/\s*dot\s+/g, '.')
+        .replace(/\s+/g, '')
+        .replace(/,/g, '');
+    console.log('📧 Email conversion:', speechText, '→', formattedEmail);
+    return formattedEmail;
 }
 
 // ================================
-// LEAD CAPTURE SYSTEM
-// ================================
-window.capturedLeadData = {
-    name: '',
-    email: '',
-    phone: '',
-    intent: '',
-    timestamp: null
-};
-
-function captureLeadData(data) {
-    console.log('📝 Capturing lead data:', data);
-    
-    if (data.name) window.capturedLeadData.name = data.name;
-    if (data.email) window.capturedLeadData.email = data.email;
-    if (data.phone) window.capturedLeadData.phone = data.phone;
-    if (data.intent) window.capturedLeadData.intent = data.intent;
-    
-    window.capturedLeadData.timestamp = new Date().toISOString();
-    
-    console.log('✅ Lead data captured:', window.capturedLeadData);
-    return window.capturedLeadData;
-}
-
-// ================================
-// SMART BUTTON SYSTEM
-// ================================
-function showSmartButtons(type) {
-    console.log('🔘 Showing smart buttons:', type);
-    
-    let buttonsHTML = '';
-    
-    switch(type) {
-        case 'sell':
-            buttonsHTML = `
-                <div class="smart-buttons-container">
-                    <button class="smart-button" onclick="handleSmartButton('schedule-valuation')">
-                        📊 Schedule Free Valuation
-                    </button>
-                    <button class="smart-button" onclick="handleSmartButton('download-guide')">
-                        📘 Download Seller's Guide
-                    </button>
-                    <button class="smart-button" onclick="handleSmartButton('speak-specialist')">
-                        💬 Speak with Specialist
-                    </button>
-                </div>
-            `;
-            break;
-        case 'buy':
-            buttonsHTML = `
-                <div class="smart-buttons-container">
-                    <button class="smart-button" onclick="handleSmartButton('view-listings')">
-                        🏢 View Available Practices
-                    </button>
-                    <button class="smart-button" onclick="handleSmartButton('financing-info')">
-                        💰 Financing Information
-                    </button>
-                    <button class="smart-button" onclick="handleSmartButton('buyer-consultation')">
-                        📞 Buyer Consultation
-                    </button>
-                </div>
-            `;
-            break;
-        case 'evaluate':
-            buttonsHTML = `
-                <div class="smart-buttons-container">
-                    <button class="smart-button" onclick="handleSmartButton('instant-estimate')">
-                        ⚡ Instant Estimate
-                    </button>
-                    <button class="smart-button" onclick="handleSmartButton('detailed-analysis')">
-                        📊 Detailed Analysis
-                    </button>
-                    <button class="smart-button" onclick="handleSmartButton('market-trends')">
-                        📈 Market Trends
-                    </button>
-                </div>
-            `;
-            break;
-    }
-    
-    // Add to chat (assuming there's a function to add system messages)
-    if (window.addSystemMessage) {
-        window.addSystemMessage(buttonsHTML);
-    }
-}
-
-function handleSmartButton(action) {
-    console.log('🎯 Smart button clicked:', action);
-    
-    // Hide buttons after click
-    const buttonsContainer = document.querySelector('.smart-buttons-container');
-    if (buttonsContainer) {
-        buttonsContainer.style.display = 'none';
-    }
-    
-    // Handle the action
-    switch(action) {
-        case 'schedule-valuation':
-            showCommunicationActionCenter('valuation');
-            break;
-        case 'download-guide':
-            showCommunicationActionCenter('guide');
-            break;
-        case 'speak-specialist':
-            showCommunicationActionCenter('consultation');
-            break;
-        case 'view-listings':
-            window.open('https://newclientsinc.com/practices', '_blank');
-            break;
-        case 'financing-info':
-            showCommunicationActionCenter('financing');
-            break;
-        case 'buyer-consultation':
-            showCommunicationActionCenter('consultation');
-            break;
-        case 'instant-estimate':
-            showCommunicationActionCenter('valuation');
-            break;
-        case 'detailed-analysis':
-            showCommunicationActionCenter('analysis');
-            break;
-        case 'market-trends':
-            window.open('https://newclientsinc.com/market-insights', '_blank');
-            break;
-    }
-}
-
-// ================================
-// COMMUNICATION ACTION CENTER - CORPORATE DESIGN
+// COMMUNICATION ACTION CENTER - 5 BUTTON LAYOUT
 // ================================
 function showCommunicationActionCenter(context = 'consultation') {
-    console.log('🎯 Showing Communication Action Center (CORPORATE) - Context:', context);
+    console.log('🎯 Showing Communication Action Center (5-BUTTON) - Context:', context);
     
-    // Check if already exists
     if (document.getElementById('communication-action-center')) {
         console.log('⚠️ Action Center already exists');
         return;
     }
     
-    // Find chat messages container
     const chatContainer = document.getElementById('chatMessages') || 
                          document.querySelector('.chat-messages') || 
                          document.querySelector('#messages') ||
@@ -215,12 +76,10 @@ function showCommunicationActionCenter(context = 'consultation') {
         return;
     }
     
-    // Create Action Center container (NO OVERLAY - INLINE)
     const actionCenter = document.createElement('div');
     actionCenter.id = 'communication-action-center';
     actionCenter.className = 'action-center-inline';
     
-    // Create frosted glass container with corporate royal blue buttons
     actionCenter.innerHTML = `
         <div class="frosted-container" style="
             background: rgba(255, 255, 255, 0.95);
@@ -255,98 +114,79 @@ function showCommunicationActionCenter(context = 'consultation') {
                 ">Communication Action Center</h3>
             </div>
             
-            <!-- Action Buttons Grid -->
-            <div class="action-buttons-grid" style="
-                display: grid;
-                grid-template-columns: repeat(2, 1fr);
-                gap: 16px;
-            ">
-                <!-- 1. Click-to-Call -->
-                <button class="action-btn royal-blue-btn" onclick="handleActionButton('click-to-call')" style="
-                    background: #4169e1;
-                    color: white;
-                    border: none;
-                    border-radius: 8px;
-                    padding: 20px;
-                    font-size: 17px;
-                    font-weight: 600;
-                    cursor: pointer;
-                    transition: all 0.3s ease;
-                    box-shadow: 0 4px 15px rgba(65, 105, 225, 0.3);
-                    text-align: center;
-                ">
-                    Click-to-Call
-                </button>
+            <!-- Action Buttons - 5 Button Layout -->
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+                <!-- Row 1: Click-to-Call & URGENT CALL -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <button class="action-btn royal-blue-btn" onclick="handleActionButton('click-to-call')" style="
+                        background: #4169e1;
+                        color: white;
+                        border: none;
+                        border-radius: 8px;
+                        padding: 20px;
+                        font-size: 17px;
+                        font-weight: 600;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                        box-shadow: 0 4px 15px rgba(65, 105, 225, 0.3);
+                        text-align: center;
+                    ">
+                        Click-to-Call
+                    </button>
+                    
+                    <button class="action-btn urgent-btn" onclick="handleActionButton('urgent-call')" style="
+                        background: #e74c3c;
+                        color: white;
+                        border: none;
+                        border-radius: 8px;
+                        padding: 20px;
+                        font-size: 17px;
+                        font-weight: 600;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                        box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+                        text-align: center;
+                    ">
+                        URGENT CALL
+                    </button>
+                </div>
                 
-                <!-- 2. URGENT CALL -->
-                <button class="action-btn royal-blue-btn" onclick="handleActionButton('urgent-call')" style="
-                    background: #4169e1;
-                    color: white;
-                    border: none;
-                    border-radius: 8px;
-                    padding: 20px;
-                    font-size: 17px;
-                    font-weight: 600;
-                    cursor: pointer;
-                    transition: all 0.3s ease;
-                    box-shadow: 0 4px 15px rgba(65, 105, 225, 0.3);
-                    text-align: center;
-                ">
-                    URGENT CALL
-                </button>
+                <!-- Row 2: FREE Consultation & FREE BOOK -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <button class="action-btn royal-blue-btn" onclick="handleActionButton('free-consultation')" style="
+                        background: #4169e1;
+                        color: white;
+                        border: none;
+                        border-radius: 8px;
+                        padding: 20px;
+                        font-size: 17px;
+                        font-weight: 600;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                        box-shadow: 0 4px 15px rgba(65, 105, 225, 0.3);
+                        text-align: center;
+                    ">
+                        FREE Consultation
+                    </button>
+                    
+                    <button class="action-btn royal-blue-btn" onclick="handleActionButton('free-book')" style="
+                        background: #4169e1;
+                        color: white;
+                        border: none;
+                        border-radius: 8px;
+                        padding: 20px;
+                        font-size: 17px;
+                        font-weight: 600;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                        box-shadow: 0 4px 15px rgba(65, 105, 225, 0.3);
+                        text-align: center;
+                    ">
+                        FREE BOOK
+                    </button>
+                </div>
                 
-                <!-- 3. FREE Consultation -->
-                <button class="action-btn royal-blue-btn" onclick="handleActionButton('free-consultation')" style="
-                    background: #4169e1;
-                    color: white;
-                    border: none;
-                    border-radius: 8px;
-                    padding: 20px;
-                    font-size: 17px;
-                    font-weight: 600;
-                    cursor: pointer;
-                    transition: all 0.3s ease;
-                    box-shadow: 0 4px 15px rgba(65, 105, 225, 0.3);
-                    text-align: center;
-                ">
-                    FREE Consultation
-                </button>
-                
-                <!-- 4. FREE BOOK -->
-                <button class="action-btn royal-blue-btn" onclick="handleActionButton('free-book')" style="
-                    background: #4169e1;
-                    color: white;
-                    border: none;
-                    border-radius: 8px;
-                    padding: 20px;
-                    font-size: 17px;
-                    font-weight: 600;
-                    cursor: pointer;
-                    transition: all 0.3s ease;
-                    box-shadow: 0 4px 15px rgba(65, 105, 225, 0.3);
-                    text-align: center;
-                ">
-                    FREE BOOK
-                </button>
-                
-                <!-- 5. Pre Qualification -->
-                <button class="action-btn royal-blue-btn" onclick="handleActionButton('pre-qualification')" style="
-                    background: #4169e1;
-                    color: white;
-                    border: none;
-                    border-radius: 8px;
-                    padding: 20px;
-                    font-size: 17px;
-                    font-weight: 600;
-                    cursor: pointer;
-                    transition: all 0.3s ease;
-                    box-shadow: 0 4px 15px rgba(65, 105, 225, 0.3);
-                    text-align: center;
-                ">
-                    Pre Qualification
-                </button>
-                
-                <!-- 6. Skip for Now -->
+                <!-- Row 3: Skip for Now (Full Width) -->
                 <button class="action-btn skip-btn" onclick="handleActionButton('skip')" style="
                     background: #95a5a6;
                     color: white;
@@ -359,6 +199,7 @@ function showCommunicationActionCenter(context = 'consultation') {
                     transition: all 0.3s ease;
                     box-shadow: 0 4px 15px rgba(149, 165, 166, 0.3);
                     text-align: center;
+                    width: 100%;
                 ">
                     Skip for Now
                 </button>
@@ -366,7 +207,6 @@ function showCommunicationActionCenter(context = 'consultation') {
         </div>
     `;
     
-    // Add hover effects via style element
     const styleElement = document.createElement('style');
     styleElement.textContent = `
         .action-center-inline {
@@ -395,6 +235,16 @@ function showCommunicationActionCenter(context = 'consultation') {
             transform: translateY(-1px) scale(0.98);
         }
         
+        .urgent-btn:hover {
+            background: #c0392b !important;
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(231, 76, 60, 0.4) !important;
+        }
+        
+        .urgent-btn:active {
+            transform: translateY(-1px) scale(0.98);
+        }
+        
         .skip-btn:hover {
             background: #7f8c8d !important;
             transform: translateY(-3px) scale(1.02);
@@ -407,15 +257,13 @@ function showCommunicationActionCenter(context = 'consultation') {
     `;
     document.head.appendChild(styleElement);
     
-    // Append to chat messages container
     chatContainer.appendChild(actionCenter);
     
-    // Scroll to show the Action Center
     setTimeout(() => {
         actionCenter.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }, 100);
     
-    console.log('✅ Communication Action Center displayed inline (CORPORATE DESIGN)');
+    console.log('✅ Communication Action Center displayed (5-BUTTON LAYOUT)');
 }
 
 function hideCommunicationActionCenter() {
@@ -430,34 +278,28 @@ function hideCommunicationActionCenter() {
 }
 
 // ================================
-// ACTION BUTTON HANDLERS
+// ACTION BUTTON ROUTER
 // ================================
 function handleActionButton(action) {
     console.log('🎯 Action button clicked:', action);
     
-    // Capture the action type
-    window.capturedLeadData.actionType = action;
+    hideCommunicationActionCenter();
     
     switch(action) {
         case 'click-to-call':
-            showContactForm('Click-to-Call Request', 'click-to-call');
+            initializeClickToCallCapture();
             break;
         case 'urgent-call':
-            showContactForm('URGENT CALL Request', 'urgent-call');
+            initiateUrgentCall();
             break;
         case 'free-consultation':
-            showContactForm('Schedule Free Consultation', 'free-consultation');
+            initializeConsultationCapture();
             break;
         case 'free-book':
-            showContactForm('Send Me The Free Book', 'free-book');
-            break;
-        case 'pre-qualification':
-            showContactForm('Pre-Qualification Request', 'pre-qualification');
+            initializeFreeBookCapture();
             break;
         case 'skip':
-            hideCommunicationActionCenter();
             console.log('User chose to skip');
-            // Continue conversation
             if (window.addSystemMessage) {
                 window.addSystemMessage("No problem! Feel free to ask me anything else about your practice.");
             }
@@ -466,237 +308,434 @@ function handleActionButton(action) {
 }
 
 // ================================
-// CONTACT FORM SYSTEM
+// URGENT CALL - DIRECT DIAL
 // ================================
-function showContactForm(title, actionType) {
-    console.log('📝 Showing contact form:', title, actionType);
+function initiateUrgentCall() {
+    console.log('📞 Initiating urgent call to Bruce...');
     
-    // Hide Action Center
-    hideCommunicationActionCenter();
+    // Show message
+    if (window.addAIMessage) {
+        window.addAIMessage("Connecting you to Bruce right now at 856-304-1035...");
+    }
     
-    // Create form overlay
-    const formOverlay = document.createElement('div');
-    formOverlay.id = 'contact-form-overlay';
-    formOverlay.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.8);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 10000;
-        animation: fadeIn 0.3s ease;
-    `;
+    // Initiate call
+    window.location.href = 'tel:+1-856-304-1035';
     
-    formOverlay.innerHTML = `
-        <div class="contact-form-container" style="
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            max-width: 500px;
-            width: 90%;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            animation: slideUp 0.4s ease;
+    // Show follow-up message after brief delay
+    setTimeout(() => {
+        if (window.addAIMessage) {
+            window.addAIMessage("Is there anything else I can help you with while you wait?");
+        }
+    }, 2000);
+}
+
+// ================================
+// LEAD CAPTURE 1: FREE CONSULTATION
+// ================================
+function initializeConsultationCapture() {
+    console.log('🚀 Starting FREE Consultation capture...');
+    
+    if (window.isInLeadCapture) return;
+    
+    window.isInLeadCapture = true;
+    window.currentCaptureType = 'consultation';
+    window.currentLeadData = {
+        name: '',
+        phone: '',
+        email: '',
+        contactTime: '',
+        captureType: 'consultation',
+        step: 0,
+        tempAnswer: '',
+        questions: [
+            "Perfect. Let's start with your full name, please.",
+            "What's the best phone number to reach you?",
+            "What's your email address?",
+            "When would be the best time for our specialist to contact you?"
+        ]
+    };
+    
+    setTimeout(() => {
+        askLeadQuestion();
+    }, 500);
+}
+
+// ================================
+// LEAD CAPTURE 2: CLICK-TO-CALL
+// ================================
+function initializeClickToCallCapture() {
+    console.log('🚀 Starting Click-to-Call capture...');
+    
+    if (window.isInLeadCapture) return;
+    
+    window.isInLeadCapture = true;
+    window.currentCaptureType = 'clickToCall';
+    window.currentLeadData = {
+        name: '',
+        phone: '',
+        reason: '',
+        captureType: 'clickToCall',
+        step: 0,
+        tempAnswer: '',
+        questions: [
+            "What's your full name?",
+            "What's the best phone number to reach you?",
+            "What's this regarding - are you looking to buy, sell, or evaluate a practice?"
+        ]
+    };
+    
+    setTimeout(() => {
+        askLeadQuestion();
+    }, 500);
+}
+
+// ================================
+// LEAD CAPTURE 3: FREE BOOK
+// ================================
+function initializeFreeBookCapture() {
+    console.log('🚀 Starting FREE BOOK capture...');
+    
+    if (window.isInLeadCapture) return;
+    
+    window.isInLeadCapture = true;
+    window.currentCaptureType = 'freeBook';
+    window.currentLeadData = {
+        name: '',
+        email: '',
+        phone: '',
+        wantsEvaluation: null,
+        captureType: 'freeBook',
+        step: 0,
+        tempAnswer: '',
+        questions: [
+            "What's your full name?",
+            "What email should I send Bruce's '7 Secrets to Selling Your Practice' book to?",
+            "Would you be interested in a practice evaluation meeting?"
+        ]
+    };
+    
+    setTimeout(() => {
+        askLeadQuestion();
+    }, 500);
+}
+
+// ================================
+// UNIVERSAL LEAD QUESTION ASKER
+// ================================
+function askLeadQuestion() {
+    if (!window.isInLeadCapture || !window.currentLeadData) return;
+    
+    const data = window.currentLeadData;
+    
+    console.log('🎯 Asking question for step:', data.step);
+    
+    if (data.step < data.questions.length) {
+        const question = data.questions[data.step];
+        console.log('🎯 Question:', question);
+        
+        if (window.addAIMessage) {
+            window.addAIMessage(question);
+        }
+        
+        if (window.speakText) {
+            window.speakText(question);
+        }
+    } else {
+        completeLeadCapture();
+    }
+}
+
+// ================================
+// PROCESS USER RESPONSE
+// ================================
+function processLeadResponse(userInput) {
+    if (!window.isInLeadCapture || !window.currentLeadData) return false;
+    
+    console.log('🎯 Processing lead response:', userInput);
+    
+    const data = window.currentLeadData;
+    let processedInput = userInput;
+    
+    // Format email if on email question
+    if (data.captureType === 'consultation' && data.step === 2) {
+        processedInput = formatEmailFromSpeech(userInput);
+    } else if (data.captureType === 'freeBook' && data.step === 1) {
+        processedInput = formatEmailFromSpeech(userInput);
+    }
+    
+    // Handle yes/no for evaluation question in FREE BOOK flow
+    if (data.captureType === 'freeBook' && data.step === 2) {
+        const lowerInput = userInput.toLowerCase();
+        if (lowerInput.includes('yes') || lowerInput.includes('yeah') || lowerInput.includes('sure')) {
+            data.wantsEvaluation = true;
+            processedInput = 'Yes';
+        } else if (lowerInput.includes('no') || lowerInput.includes('nope') || lowerInput.includes('not')) {
+            data.wantsEvaluation = false;
+            processedInput = 'No';
+        }
+    }
+    
+    data.tempAnswer = processedInput;
+    showConfirmationButtons(processedInput);
+    
+    return true;
+}
+
+// ================================
+// CONFIRMATION BUTTONS
+// ================================
+function showConfirmationButtons(answer) {
+    const chatMessages = document.getElementById('chatMessages') ||
+                         document.querySelector('.chat-messages');
+    
+    if (!chatMessages) return;
+    
+    const buttonContainer = document.createElement('div');
+    buttonContainer.className = 'confirmation-buttons';
+    buttonContainer.innerHTML = `
+        <div style="
+            text-align: center; 
+            margin: 15px 0; 
+            padding: 20px; 
+            background: rgba(255,255,255,0.1); 
+            border-radius: 15px;
+            border: 2px solid rgba(255,255,255,0.2);
         ">
-            <h2 style="margin-bottom: 10px; color: #2c3e50;">${title}</h2>
-            <p style="color: #7f8c8d; margin-bottom: 30px; font-size: 14px;">We'll get back to you right away!</p>
-            
-            <form id="quick-contact-form">
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 8px; color: #2c3e50; font-weight: 600;">
-                        Name *
-                    </label>
-                    <input type="text" id="form-name" required style="
-                        width: 100%;
-                        padding: 12px 16px;
-                        border: 2px solid #e0e0e0;
-                        border-radius: 8px;
-                        font-size: 16px;
-                        transition: border-color 0.3s;
-                    " value="${window.capturedLeadData.name || ''}">
-                </div>
-                
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 8px; color: #2c3e50; font-weight: 600;">
-                        Email *
-                    </label>
-                    <input type="email" id="form-email" required style="
-                        width: 100%;
-                        padding: 12px 16px;
-                        border: 2px solid #e0e0e0;
-                        border-radius: 8px;
-                        font-size: 16px;
-                        transition: border-color 0.3s;
-                    " value="${window.capturedLeadData.email || ''}">
-                </div>
-                
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 8px; color: #2c3e50; font-weight: 600;">
-                        Phone *
-                    </label>
-                    <input type="tel" id="form-phone" required style="
-                        width: 100%;
-                        padding: 12px 16px;
-                        border: 2px solid #e0e0e0;
-                        border-radius: 8px;
-                        font-size: 16px;
-                        transition: border-color 0.3s;
-                    " value="${window.capturedLeadData.phone || ''}">
-                </div>
-                
-                <div style="margin-bottom: 30px;">
-                    <label style="display: block; margin-bottom: 8px; color: #2c3e50; font-weight: 600;">
-                        Message (Optional)
-                    </label>
-                    <textarea id="form-message" rows="4" style="
-                        width: 100%;
-                        padding: 12px 16px;
-                        border: 2px solid #e0e0e0;
-                        border-radius: 8px;
-                        font-size: 16px;
-                        resize: vertical;
-                        transition: border-color 0.3s;
-                    "></textarea>
-                </div>
-                
-                <div style="display: flex; gap: 12px;">
-                    <button type="submit" style="
-                        flex: 1;
-                        background: #4169e1;
-                        color: white;
-                        border: none;
-                        padding: 14px 24px;
-                        border-radius: 10px;
-                        font-size: 16px;
-                        font-weight: 600;
-                        cursor: pointer;
-                        transition: all 0.3s;
-                    ">
-                        Submit
-                    </button>
-                    <button type="button" onclick="closeContactForm()" style="
-                        flex: 0.3;
-                        background: #e0e0e0;
-                        color: #2c3e50;
-                        border: none;
-                        padding: 14px 24px;
-                        border-radius: 10px;
-                        font-size: 16px;
-                        font-weight: 600;
-                        cursor: pointer;
-                        transition: all 0.3s;
-                    ">
-                        Cancel
-                    </button>
-                </div>
-            </form>
+            <div style="
+                margin-bottom: 15px; 
+                color: white; 
+                font-size: 18px;
+                font-weight: bold;
+            ">
+                "${answer}"
+            </div>
+            <div style="margin-bottom: 20px; color: #ccc; font-size: 14px;">
+                Is this correct?
+            </div>
+            <div style="
+                display: flex; 
+                justify-content: center; 
+                gap: 20px;
+                flex-wrap: wrap;
+            ">
+                <button onclick="confirmAnswer(true)" style="
+                    background: linear-gradient(135deg, #4CAF50, #8BC34A);
+                    color: white; 
+                    border: none; 
+                    padding: 15px 30px; 
+                    border-radius: 25px; 
+                    cursor: pointer;
+                    font-weight: bold;
+                    font-size: 16px;
+                    min-width: 120px;
+                    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+                ">
+                    ✅ Correct
+                </button>
+                <button onclick="confirmAnswer(false)" style="
+                    background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+                    color: white; 
+                    border: none; 
+                    padding: 15px 30px; 
+                    border-radius: 25px; 
+                    cursor: pointer;
+                    font-weight: bold;
+                    font-size: 16px;
+                    min-width: 120px;
+                    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+                ">
+                    🔄 Redo
+                </button>
+            </div>
         </div>
     `;
     
-    document.body.appendChild(formOverlay);
+    chatMessages.appendChild(buttonContainer);
     
-    // Add form submit handler
-    document.getElementById('quick-contact-form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        handleFormSubmit(actionType);
-    });
+    if (chatMessages.scrollTop !== undefined) {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+}
+
+function removeLastUserMessage() {
+    const chatMessages = document.getElementById('chatMessages') ||
+                         document.querySelector('.chat-messages');
+    if (!chatMessages) return;
     
-    // Focus first empty field
-    setTimeout(() => {
-        if (!window.capturedLeadData.name) {
-            document.getElementById('form-name').focus();
-        } else if (!window.capturedLeadData.email) {
-            document.getElementById('form-email').focus();
-        } else if (!window.capturedLeadData.phone) {
-            document.getElementById('form-phone').focus();
+    const userMessages = chatMessages.querySelectorAll('.user-message');
+    if (userMessages.length > 0) {
+        userMessages[userMessages.length - 1].remove();
+    }
+}
+
+function confirmAnswer(isCorrect) {
+    console.log('🎯 User clicked:', isCorrect ? 'Correct' : 'Redo');
+    
+    const buttonContainer = document.querySelector('.confirmation-buttons');
+    if (buttonContainer) {
+        buttonContainer.remove();
+    }
+    
+    if (isCorrect) {
+        saveConfirmedAnswer();
+        window.currentLeadData.step++;
+        
+        // Special handling for FREE BOOK flow
+        if (window.currentCaptureType === 'freeBook' && window.currentLeadData.step === 3) {
+            if (window.currentLeadData.wantsEvaluation === false) {
+                // Skip phone question, go straight to completion
+                completeLeadCapture();
+                return;
+            } else if (window.currentLeadData.wantsEvaluation === true) {
+                // Add phone question
+                window.currentLeadData.questions.push("What's your phone number to coordinate?");
+            }
         }
-    }, 100);
-}
-
-function closeContactForm() {
-    const overlay = document.getElementById('contact-form-overlay');
-    if (overlay) {
-        overlay.style.animation = 'fadeOut 0.3s ease';
-        setTimeout(() => overlay.remove(), 300);
+        
+        if (window.currentLeadData.step < window.currentLeadData.questions.length) {
+            setTimeout(() => {
+                askLeadQuestion();
+            }, 800);
+        } else {
+            completeLeadCapture();
+        }
+        
+    } else {
+        // Redo
+        removeLastUserMessage();
+        window.currentLeadData.tempAnswer = '';
+        
+        setTimeout(() => {
+            if (window.startRealtimeListening) {
+                window.startRealtimeListening();
+            }
+        }, 100);
     }
 }
 
-function handleFormSubmit(actionType) {
-    console.log('📤 Handling form submit for:', actionType);
+function saveConfirmedAnswer() {
+    const data = window.currentLeadData;
+    const step = data.step;
     
-    // Get form values
-    const formData = {
-        name: document.getElementById('form-name').value.trim(),
-        email: document.getElementById('form-email').value.trim(),
-        phone: document.getElementById('form-phone').value.trim(),
-        message: document.getElementById('form-message').value.trim(),
-        actionType: actionType,
-        intent: window.capturedLeadData.intent || 'Not specified'
-    };
-    
-    // Validate
-    if (!formData.name || !formData.email || !formData.phone) {
-        alert('Please fill in all required fields');
-        return;
+    if (data.captureType === 'consultation') {
+        const fields = ['name', 'phone', 'email', 'contactTime'];
+        data[fields[step]] = data.tempAnswer;
+    } else if (data.captureType === 'clickToCall') {
+        const fields = ['name', 'phone', 'reason'];
+        data[fields[step]] = data.tempAnswer;
+    } else if (data.captureType === 'freeBook') {
+        if (step === 0) data.name = data.tempAnswer;
+        else if (step === 1) data.email = data.tempAnswer;
+        else if (step === 2) {} // Already handled wantsEvaluation
+        else if (step === 3) data.phone = data.tempAnswer;
     }
     
-    if (!validateEmail(formData.email)) {
-        alert('Please enter a valid email address');
-        return;
+    console.log('✅ Saved answer:', data.tempAnswer);
+}
+
+// Make globally accessible
+window.confirmAnswer = confirmAnswer;
+window.processLeadResponse = processLeadResponse;
+
+// ================================
+// COMPLETE LEAD CAPTURE & SEND EMAIL
+// ================================
+function completeLeadCapture() {
+    console.log('🎯 Completing lead capture...');
+    
+    const data = window.currentLeadData;
+    const type = window.currentCaptureType;
+    
+    // Prepare email parameters based on capture type
+    let templateId = '';
+    let templateParams = {};
+    
+    if (type === 'consultation') {
+        templateId = EMAILJS_CONFIG.templates.consultation;
+        templateParams = {
+            to_email: 'bruce@newclientsinc.com',
+            from_name: data.name,
+            from_email: data.email,
+            phone: data.phone,
+            contact_time: data.contactTime,
+            message: `FREE CONSULTATION REQUEST\n\nName: ${data.name}\nPhone: ${data.phone}\nEmail: ${data.email}\nBest Time: ${data.contactTime}`,
+            timestamp: new Date().toLocaleString()
+        };
+    } else if (type === 'clickToCall') {
+        templateId = EMAILJS_CONFIG.templates.clickToCall;
+        templateParams = {
+            to_email: 'bruce@newclientsinc.com',
+            from_name: data.name,
+            phone: data.phone,
+            message: `CLICK-TO-CALL REQUEST\n\nName: ${data.name}\nPhone: ${data.phone}\nReason: ${data.reason}`,
+            timestamp: new Date().toLocaleString()
+        };
+    } else if (type === 'freeBook') {
+        templateId = EMAILJS_CONFIG.templates.freeBook;
+        templateParams = {
+            to_email: data.email,
+            from_name: data.name,
+            book_image: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761797944987_book-promo.PNG',
+            message: `Here's your free copy of "7 Secrets to Selling Your Practice"!${data.wantsEvaluation ? '\n\nInterested in evaluation - Phone: ' + data.phone : ''}`,
+            timestamp: new Date().toLocaleString()
+        };
     }
     
-    if (!validatePhone(formData.phone)) {
-        alert('Please enter a valid phone number');
-        return;
-    }
+    console.log('📧 Sending email with template:', templateId);
+    console.log('📧 Parameters:', templateParams);
     
-    // Show loading state
-    const submitBtn = document.querySelector('#quick-contact-form button[type="submit"]');
-    submitBtn.textContent = 'Sending...';
-    submitBtn.disabled = true;
-    
-    // Send via EmailJS
-    sendEmailJS(formData)
+    // Send email
+    emailjs.send(EMAILJS_CONFIG.serviceId, templateId, templateParams)
         .then(function(response) {
-            console.log('✅ Email sent successfully!');
+            console.log('✅ EMAIL SENT!', response.status, response.text);
             
-            // Update captured lead data
-            captureLeadData(formData);
+            // Reset capture state
+            window.isInLeadCapture = false;
+            window.currentLeadData = null;
+            window.currentCaptureType = null;
             
-            // Close form
-            closeContactForm();
+            // Show success message
+            let successMessage = '';
+            if (type === 'consultation') {
+                successMessage = `Perfect ${data.name}! Our specialist will contact you at ${data.contactTime}. Is there anything else I can help you with?`;
+            } else if (type === 'clickToCall') {
+                successMessage = `Great ${data.name}! Bruce will call you at ${data.phone} shortly. Anything else I can help with?`;
+            } else if (type === 'freeBook') {
+                successMessage = `Excellent ${data.name}! I've sent Bruce's book to ${data.email}. Check your inbox!${data.wantsEvaluation ? ' Someone will contact you about the evaluation.' : ''}`;
+            }
             
-            // Show success banner
+            if (window.addAIMessage) {
+                window.addAIMessage(successMessage);
+            }
+            if (window.speakText) {
+                window.speakText(successMessage);
+            }
+            
+            // Show success banner if available
             if (window.showUniversalBanner) {
                 window.showUniversalBanner('emailSent');
             }
             
-            // Add success message to chat
-            if (window.addSystemMessage) {
-                window.addSystemMessage("Perfect! I've sent your information to Bruce. Someone will reach out to you shortly!");
+        }, function(error) {
+            console.error('❌ EMAIL FAILED:', error);
+            
+            if (window.addAIMessage) {
+                window.addAIMessage("I'm sorry, there was an issue. Please try again or call Bruce directly at 856-304-1035.");
             }
-        })
-        .catch(function(error) {
-            console.error('❌ Email send failed:', error);
-            alert('Sorry, there was an error sending your message. Please try again or call us directly at (800) 625-1196');
-            submitBtn.textContent = 'Submit';
-            submitBtn.disabled = false;
+            
+            window.isInLeadCapture = false;
         });
 }
 
 // ================================
-// GLOBAL FUNCTIONS
+// GLOBAL EXPORTS
 // ================================
 window.showCommunicationActionCenter = showCommunicationActionCenter;
 window.hideCommunicationActionCenter = hideCommunicationActionCenter;
 window.handleActionButton = handleActionButton;
-window.showSmartButtons = showSmartButtons;
-window.handleSmartButton = handleSmartButton;
-window.captureLeadData = captureLeadData;
-window.sendEmailJS = sendEmailJS;
-window.closeContactForm = closeContactForm;
+window.initializeConsultationCapture = initializeConsultationCapture;
+window.initializeClickToCallCapture = initializeClickToCallCapture;
+window.initializeFreeBookCapture = initializeFreeBookCapture;
+window.initiateUrgentCall = initiateUrgentCall;
 
-console.log('✅ ACTION SYSTEM UNIFIED - Loaded successfully (CORPORATE DESIGN)');
+console.log('✅ ACTION SYSTEM UNIFIED - Loaded successfully (FINAL VERSION with 5 buttons)');
