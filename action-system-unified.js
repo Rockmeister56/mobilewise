@@ -1,9 +1,10 @@
 // ================================
 // ACTION SYSTEM UNIFIED - FINAL VERSION
 // 5-Button Corporate Design with 3 Lead Capture Flows
+// CLEANED VERSION - No restore code for old buttons
 // ================================
 
-console.log('🎯 ACTION SYSTEM UNIFIED - Loading (FINAL VERSION)...');
+console.log('🎯 ACTION SYSTEM UNIFIED - Loading (FINAL CLEANED VERSION)...');
 
 // ================================
 // EMAILJS CONFIGURATION
@@ -67,7 +68,7 @@ function showCommunicationActionCenter(context = 'consultation') {
         return;
     }
     
-    // 🆕 HIDE OLD ACTION BUTTONS
+    // 🆕 HIDE OLD ACTION BUTTONS (but don't track them for restore)
     console.log('🧹 Hiding old action buttons...');
     
     // Hide all old action buttons by class
@@ -303,11 +304,10 @@ function showCommunicationActionCenter(context = 'consultation') {
     console.log('✅ Communication Action Center displayed (5-BUTTON LAYOUT)');
 }
 
-// ===================================================
-// RESTORE OLD BUTTONS WHEN ACTION CENTER CLOSES
-// Add this to hideCommunicationActionCenter() function
-// ===================================================
-
+// ================================
+// HIDE ACTION CENTER - CLEANED VERSION
+// No restore code - old buttons stay hidden
+// ================================
 function hideCommunicationActionCenter() {
     const actionCenter = document.getElementById('communication-action-center');
     if (actionCenter) {
@@ -315,23 +315,7 @@ function hideCommunicationActionCenter() {
         setTimeout(() => {
             actionCenter.remove();
             console.log('✅ Communication Action Center removed');
-            
-            // 🆕 RESTORE OLD ACTION BUTTONS
-            console.log('🔄 Restoring old action buttons...');
-            
-            const oldButtons = document.querySelectorAll('.action-button-dynamic, .quick-btn');
-            oldButtons.forEach(button => {
-                button.style.display = '';
-                console.log('🔄 Restored button:', button.id || button.textContent);
-            });
-            
-            const containers = document.querySelectorAll('.action-buttons-container, .quick-questions, .quick-buttons');
-            containers.forEach(container => {
-                container.style.display = '';
-                console.log('🔄 Restored container:', container.className);
-            });
-            
-            console.log('✅ Old action buttons restored');
+            // 🎯 NO RESTORE CODE - Old buttons stay hidden permanently
         }, 300);
     }
 }
@@ -797,4 +781,4 @@ window.initializeClickToCallCapture = initializeClickToCallCapture;
 window.initializeFreeBookCapture = initializeFreeBookCapture;
 window.initiateUrgentCall = initiateUrgentCall;
 
-console.log('✅ ACTION SYSTEM UNIFIED - Loaded successfully (FINAL VERSION with 5 buttons)');
+console.log('✅ ACTION SYSTEM UNIFIED - Loaded successfully (FINAL CLEANED VERSION - No restore code)');
