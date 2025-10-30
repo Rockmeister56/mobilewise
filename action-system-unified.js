@@ -61,10 +61,47 @@ function formatEmailFromSpeech(speechText) {
 function showCommunicationActionCenter(context = 'consultation') {
     console.log('🎯 Showing Communication Action Center (5-BUTTON) - Context:', context);
     
+    // Check if already exists
     if (document.getElementById('communication-action-center')) {
         console.log('⚠️ Action Center already exists');
         return;
     }
+    
+    // 🆕 HIDE OLD ACTION BUTTONS
+    console.log('🧹 Hiding old action buttons...');
+    
+    // Hide all old action buttons by class
+    const oldButtons = document.querySelectorAll('.action-button-dynamic, .quick-btn');
+    oldButtons.forEach(button => {
+        // Don't hide if it's part of the new Action Center
+        if (!button.closest('#communication-action-center')) {
+            button.style.display = 'none';
+            console.log('👻 Hidden old button:', button.id || button.textContent);
+        }
+    });
+    
+    // Hide specific button IDs if they exist
+    const buttonIds = ['cta1', 'cta2', 'cta3', 'smartButton'];
+    buttonIds.forEach(id => {
+        const button = document.getElementById(id);
+        if (button) {
+            button.style.display = 'none';
+            console.log('👻 Hidden button by ID:', id);
+        }
+    });
+    
+    // Hide button containers
+    const containers = document.querySelectorAll('.action-buttons-container, .quick-questions, .quick-buttons');
+    containers.forEach(container => {
+        // Don't hide if it contains the new Action Center
+        if (!container.querySelector('#communication-action-center')) {
+            const oldStyleDisplay = container.style.display;
+            container.style.display = 'none';
+            console.log('👻 Hidden container:', container.className, '(was:', oldStyleDisplay, ')');
+        }
+    });
+    
+    console.log('✅ Old action buttons hidden');
     
     const chatContainer = document.getElementById('chatMessages') || 
                          document.querySelector('.chat-messages') || 
@@ -266,6 +303,11 @@ function showCommunicationActionCenter(context = 'consultation') {
     console.log('✅ Communication Action Center displayed (5-BUTTON LAYOUT)');
 }
 
+// ===================================================
+// RESTORE OLD BUTTONS WHEN ACTION CENTER CLOSES
+// Add this to hideCommunicationActionCenter() function
+// ===================================================
+
 function hideCommunicationActionCenter() {
     const actionCenter = document.getElementById('communication-action-center');
     if (actionCenter) {
@@ -273,6 +315,23 @@ function hideCommunicationActionCenter() {
         setTimeout(() => {
             actionCenter.remove();
             console.log('✅ Communication Action Center removed');
+            
+            // 🆕 RESTORE OLD ACTION BUTTONS
+            console.log('🔄 Restoring old action buttons...');
+            
+            const oldButtons = document.querySelectorAll('.action-button-dynamic, .quick-btn');
+            oldButtons.forEach(button => {
+                button.style.display = '';
+                console.log('🔄 Restored button:', button.id || button.textContent);
+            });
+            
+            const containers = document.querySelectorAll('.action-buttons-container, .quick-questions, .quick-buttons');
+            containers.forEach(container => {
+                container.style.display = '';
+                console.log('🔄 Restored container:', container.className);
+            });
+            
+            console.log('✅ Old action buttons restored');
         }, 300);
     }
 }
