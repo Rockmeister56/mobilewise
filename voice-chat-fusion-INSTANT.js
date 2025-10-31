@@ -1883,27 +1883,33 @@ if (VOICE_CONFIG.debug) {
     console.log('🎯 DIRECT: No blocking conditions - showing banner and starting listening (CHAIN BYPASSED)');
 }
 
-// DIRECT BANNER DISPLAY
-if (typeof displaySpeakNowBanner === 'function') {
-    displaySpeakNowBanner();
+// DIRECT BANNER DISPLAY - USE THE CORRECT FUNCTION
+if (typeof showDirectSpeakNow === 'function') {
+    showDirectSpeakNow();
     if (VOICE_CONFIG.debug) {
-        console.log('✅ Banner displayed directly');
+        console.log('✅ Banner displayed directly via showDirectSpeakNow');
     }
 } else {
-    console.error('❌ displaySpeakNowBanner function not found');
+    console.warn('⚠️ showDirectSpeakNow not found - using simplified approach');
+    // Simple visual feedback instead
+    if (typeof showVisualFeedback === 'function') {
+        showVisualFeedback('speak-now');
+    }
 }
 
-// START LISTENING IMMEDIATELY
+// START LISTENING IMMEDIATELY (shorter delay since we're bypassing the chain)
 setTimeout(() => {
     if (typeof startListening === 'function') {
         startListening();
         if (VOICE_CONFIG.debug) {
-            console.log('✅ Listening started - chain bypassed');
+            console.log('✅ Listening started immediately - chain bypassed');
         }
     } else {
         console.error('❌ startListening function not found');
     }
-}, 200);
+}, 100); // Reduced delay since we're bypassing complex chain
+
+return; // CRITICAL: Stop the original chain execution
     }
     
     // Stop all speech
