@@ -1883,28 +1883,39 @@ if (VOICE_CONFIG.debug) {
     console.log('🎯 DIRECT: No blocking conditions - showing banner and starting listening (CHAIN BYPASSED)');
 }
 
-// DIRECT BANNER DISPLAY - NO CHAIN
-if (typeof displaySpeakNowBanner === 'function') {
-    displaySpeakNowBanner();
+// DISPLAY BANNER DIRECTLY (HTML)
+const existingBanner = document.querySelector('.elevenlabs-banner');
+if (existingBanner) {
+    existingBanner.style.display = 'flex';
+    existingBanner.style.opacity = '1';
     if (VOICE_CONFIG.debug) {
-        console.log('✅ Banner displayed directly');
+        console.log('✅ Banner displayed (reused existing)');
     }
 } else {
-    console.error('❌ displaySpeakNowBanner function not found');
+    // Create banner if it doesn't exist
+    const banner = document.createElement('div');
+    banner.className = 'elevenlabs-banner';
+    banner.innerHTML = `
+        <div class="banner-content">
+            <h2>Speak Now</h2>
+            <p>I'm listening...</p>
+        </div>
+    `;
+    document.body.appendChild(banner);
+    if (VOICE_CONFIG.debug) {
+        console.log('✅ Banner created and displayed');
+    }
 }
 
-// START LISTENING AFTER BRIEF DELAY FOR BANNER ANIMATION
+// START LISTENING IMMEDIATELY
 setTimeout(() => {
     if (typeof startListening === 'function') {
         startListening();
         if (VOICE_CONFIG.debug) {
-            console.log('✅ Listening started - 17-step chain bypassed');
+            console.log('✅ Listening started - chain bypassed');
         }
-    } else {
-        console.error('❌ startListening function not found');
     }
 }, 200);
-
     }
     
     // Stop all speech
