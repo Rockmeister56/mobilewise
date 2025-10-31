@@ -482,12 +482,19 @@ function askLeadQuestion() {
         
         if (window.speakText) {
             window.speakText(question);
+            
+            // 🆕 MANUALLY START LISTENING AFTER AI SPEAKS
+            setTimeout(() => {
+                if (window.startRealtimeListening) {
+                    console.log('🎤 Lead Capture: Manually starting listening for user answer');
+                    window.startRealtimeListening();
+                }
+            }, 2000); // Wait 2 seconds for speech to finish
         }
     } else {
         completeLeadCapture();
     }
 }
-
 // ================================
 // PROCESS USER RESPONSE
 // ================================
