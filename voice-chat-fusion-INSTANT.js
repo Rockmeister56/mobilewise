@@ -4344,22 +4344,19 @@ window.showAvatarSorryMessage = showAvatarSorryMessage;
 
 // Keep your existing showDirectSpeakNow function exactly as is
 async function showDirectSpeakNow() {
-    // ⏰ Wait 600ms for Action Center to appear first
-    await new Promise(resolve => setTimeout(resolve, 600));
-    
-    // Check #1: Action Center exists
-    const actionCenter = document.getElementById('communication-action-center');
-    if (actionCenter && actionCenter.style.display !== 'none') {
-        console.log('🚫 BLOCKED: Action Center visible');
-        return;
+    // If NOT in lead capture, wait for Action Center to appear
+    if (!window.isInLeadCapture) {
+        await new Promise(resolve => setTimeout(resolve, 600));
+        
+        // Check if Action Center appeared
+        const actionCenter = document.getElementById('communication-action-center');
+        if (actionCenter && actionCenter.style.display !== 'none') {
+            console.log('🚫 BLOCKED: Action Center visible');
+            return;
+        }
     }
     
-    // Check #2: Lead Capture active
-    if (window.isInLeadCapture) {
-        console.log('🚫 BLOCKED: Lead capture active');
-        return;
-    }
-    
+    // If we got here, show the banner
     console.log('🎯 DIRECT Speak Now - skipping Get Ready phase completely');
     
     window.speakSequenceBlocked = true;
