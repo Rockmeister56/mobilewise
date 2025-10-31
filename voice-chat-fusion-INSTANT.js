@@ -1908,8 +1908,6 @@ setTimeout(() => {
         console.error('❌ startListening function not found');
     }
 }, 100); // Reduced delay since we're bypassing complex chain
-
-return; // CRITICAL: Stop the original chain execution
     }
     
     // Stop all speech
