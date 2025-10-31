@@ -4532,7 +4532,6 @@ if (!window.disableDirectTimeout) {
         }
         
     }, listeningTimeout);  // ← Changed from hardcoded 7000
-}
 } else {
     console.log('🚫 DIRECT: Timeout disabled - banner will stay until speech detected');
 }
