@@ -1862,6 +1862,9 @@ const timeSinceClickMention = now - clickMentionTime;
 const conversationState = window.conversationState || 'ready';
 const thankYouSplashVisible = document.querySelector('.thank-you-splash:not([style*="display: none"])');
 
+// 🆕 CHECK IF COMMUNICATION ACTION CENTER IS VISIBLE
+const actionCenterVisible = document.getElementById('communication-action-center');
+
 // 🐛 DEBUG: ElevenLabs blocking conditions check
 if (VOICE_CONFIG.debug) {
     console.log('🐛 DEBUG: ElevenLabs blocking conditions check (SMART BUTTON BYPASSED):');
@@ -1870,6 +1873,7 @@ if (VOICE_CONFIG.debug) {
     console.log('                - Thank you splash visible:', !!thankYouSplashVisible);
     console.log('                - Smart Button Check: PERMANENTLY BYPASSED ✅');
     console.log('                - Lead Capture Active:', !!window.isInLeadCapture);
+    console.log('                - Action Center Visible:', !!actionCenterVisible);
 }
 
 // Original blocking conditions
@@ -1877,11 +1881,14 @@ const tooSoonAfterClick = timeSinceClickMention < 3000;
 const conversationEnded = conversationState === 'speaking';
 const thankYouActive = !!thankYouSplashVisible;
 
-// 🆕 NEW BLOCKING CONDITION - Block if lead capture is active
+// 🆕 NEW BLOCKING CONDITIONS
 const leadCaptureActive = window.isInLeadCapture === true;
+const actionCenterShowing = !!actionCenterVisible;
 
-if (tooSoonAfterClick || conversationEnded || thankYouActive || leadCaptureActive) {
-    if (leadCaptureActive) {
+if (tooSoonAfterClick || conversationEnded || thankYouActive || leadCaptureActive || actionCenterShowing) {
+    if (actionCenterShowing) {
+        console.log('🚫 BLOCKED: Communication Action Center is visible - waiting for user selection');
+    } else if (leadCaptureActive) {
         console.log('🚫 BLOCKED: Lead capture in progress - waiting for user response');
     } else {
         console.log('🚫 BLOCKED: One or more blocking conditions active');
