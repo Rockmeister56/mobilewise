@@ -786,7 +786,7 @@ async function startListening() {
                             console.log('🎯 Lead capture auto-send:', transcript);
                             sendMessage();
                         }
-                    }, 1500);
+                    }, 5000);
                 }
             };
 
@@ -3085,7 +3085,7 @@ function speakMessage(message) {
                     if (typeof showHybridReadySequence === 'function') {
                         startRealtimeListening();
                     }
-                }, 1300);
+                }, 5000);
             }
         };
         
