@@ -1854,6 +1854,17 @@ if (VOICE_CONFIG.debug) {
     console.log('                - Action Center Visible:', !!actionCenterVisible);
 }
 
+// 🎯 CAPTAIN'S ROOT FIX: Block banner when Action Center is active
+const actionCenterElement = document.getElementById('communication-action-center');
+const actionCenterActive = actionCenterElement && actionCenterElement.style.display !== 'none';
+
+if (actionCenterActive) {
+    if (VOICE_CONFIG.debug) {
+        console.log('🚫 ROOT BLOCK: Action Center is active - no banner allowed');
+    }
+    return; // STOP HERE - Don't show banner
+}
+
 // Original blocking conditions
 const tooSoonAfterClick = timeSinceClickMention < 3000;
 const conversationEnded = conversationState === 'speaking';
