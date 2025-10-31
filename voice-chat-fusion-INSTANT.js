@@ -1880,34 +1880,23 @@ if (tooSoonAfterClick || conversationEnded || thankYouActive || actionCenterShow
 }
 
 if (VOICE_CONFIG.debug) {
-    console.log('🎯 DIRECT: No blocking conditions - showing banner and starting listening (CHAIN BYPASSED)');
+    console.log('🎯 CLEAN CHAIN BYPASS: Triggering banner sequence only');
 }
 
-// DIRECT BANNER DISPLAY - USE THE CORRECT FUNCTION
+// CLEAN APPROACH: Let showDirectSpeakNow handle everything
+// It already contains the listening start logic internally
 if (typeof showDirectSpeakNow === 'function') {
     showDirectSpeakNow();
     if (VOICE_CONFIG.debug) {
-        console.log('✅ Banner displayed directly via showDirectSpeakNow');
+        console.log('✅ Banner triggered - listening will start via internal banner logic');
     }
 } else {
-    console.warn('⚠️ showDirectSpeakNow not found - using simplified approach');
-    // Simple visual feedback instead
-    if (typeof showVisualFeedback === 'function') {
-        showVisualFeedback('speak-now');
-    }
+    console.warn('⚠️ showDirectSpeakNow not found - using fallback chain');
+    startRealtimeListening();
 }
 
-// START LISTENING IMMEDIATELY (shorter delay since we're bypassing the chain)
-setTimeout(() => {
-    if (typeof startListening === 'function') {
-        startListening();
-        if (VOICE_CONFIG.debug) {
-            console.log('✅ Listening started immediately - chain bypassed');
-        }
-    } else {
-        console.error('❌ startListening function not found');
-    }
-}, 100); // Reduced delay since we're bypassing complex chain
+// NO setTimeout, NO duplicate startListening calls
+return; // Stop the original execution chain
     }
     
     // Stop all speech
