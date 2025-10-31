@@ -4494,10 +4494,14 @@ if (typeof startMobileListening === 'function') {
         
         // 🔥 FIXED: Check disableDirectTimeout flag before setting timeout
 if (!window.disableDirectTimeout) {
+    // 🎯 LEAD CAPTURE: Extended timeout for interview questions
+    const listeningTimeout = window.isInLeadCapture ? 20000 : 7000;
+    console.log(`⏰ DIRECT: Starting ${listeningTimeout/1000}-second listening window ${window.isInLeadCapture ? '(LEAD CAPTURE MODE)' : '(NORMAL MODE)'}`);
+    
     setTimeout(() => {
         if (!speakSequenceActive) return;
         
-        console.log('⏰ DIRECT: 4-second listening window ended - no speech detected');
+        console.log(`⏰ DIRECT: ${listeningTimeout/1000}-second listening window ended - no speech detected`);
         
         // Clean up and trigger avatar again
         window.clearBulletproofTimer();
@@ -4514,12 +4518,21 @@ if (!window.disableDirectTimeout) {
         
         directCleanup();
         
+        // ===== 🛡️ LEAD CAPTURE PROTECTION: NO AVATAR INTERRUPTION =====
+        if (window.isInLeadCapture) {
+            console.log('🛡️ LEAD CAPTURE ACTIVE: Skipping avatar, restarting Speak Now sequence');
+            // Just restart the speak sequence without avatar interruption
+            startRealtimeListening();
+            return;
+        }
+        
         console.log('🎬 DIRECT: Triggering avatar after timeout');
         if (typeof showAvatarSorryMessage === 'function') {
             showAvatarSorryMessage();
         }
         
-    }, 7000);
+    }, listeningTimeout);  // ← Changed from hardcoded 7000
+}
 } else {
     console.log('🚫 DIRECT: Timeout disabled - banner will stay until speech detected');
 }
@@ -4920,13 +4933,13 @@ playGetReadyAndSpeakNowSound();
                     // BULLETPROOF CLEANUP before avatar
                     bulletproofCleanup();
                     
-                    // ===== 🛡️ LEAD CAPTURE PROTECTION: NO AVATAR INTERRUPTION =====
-                    if (isInLeadCapture) {
-                        console.log('🛡️ LEAD CAPTURE ACTIVE: Skipping avatar, restarting Speak Now sequence');
-                        // Just restart the speak sequence without avatar interruption
-                        startRealtimeListening();
-                        return;
-                    }
+                   // ===== 🛡️ LEAD CAPTURE PROTECTION: NO AVATAR INTERRUPTION =====
+if (window.isInLeadCapture) {  // ← Added "window."
+    console.log('🛡️ LEAD CAPTURE ACTIVE: Skipping avatar, restarting Speak Now sequence');
+    // Just restart the speak sequence without avatar interruption
+    startRealtimeListening();
+    return;
+}
                     
                     // NOW SAFE TO TRIGGER AVATAR
                     console.log('🎬 Triggering avatar sorry message (after nuclear shutdown)...');
