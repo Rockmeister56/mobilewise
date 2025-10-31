@@ -2917,29 +2917,6 @@ function shouldTriggerLeadCapture(userInput) {
 }
 
 // ===================================================
-// 🎤 HYBRID SPEAK NOW SYSTEM - MOBILE-WISE AI
-// ===================================================
-
-function showSpeakNow() {
-    // Use new hybrid system instead of old button
-    startRealtimeListening();
-}
-
-function hideSpeakNow() {
-    // Hide transcript display
-    const liveTranscript = document.getElementById('liveTranscript');
-    const transcriptText = document.getElementById('transcriptText');
-    
-    if (liveTranscript) {
-        liveTranscript.style.display = 'none';
-        restoreQuickButtons(); // Show quick buttons again
-    }
-    if (transcriptText) {
-        transcriptText.style.display = 'none';
-    }
-}
-
-// ===================================================
 // 🎨 WHOLE BUTTON COLOR GLOW ANIMATION - UPDATED
 // ===================================================
 if (!document.getElementById('speakNowWholeButtonGlowAnimation')) {
@@ -3956,8 +3933,6 @@ function forceScrollToBottom() {
             top: document.body.scrollHeight,
             behavior: 'smooth'
         });
-        
-     //showSpeakNow();
    
     }, 100);
 }
@@ -4369,16 +4344,19 @@ window.showAvatarSorryMessage = showAvatarSorryMessage;
 
 // Keep your existing showDirectSpeakNow function exactly as is
 async function showDirectSpeakNow() {
-    // 🛡️ BLOCK if Action Center is visible
+    // ⏰ Wait 600ms for Action Center to appear first
+    await new Promise(resolve => setTimeout(resolve, 600));
+    
+    // Check #1: Action Center exists
     const actionCenter = document.getElementById('communication-action-center');
     if (actionCenter && actionCenter.style.display !== 'none') {
-        console.log('🚫 BLOCKED: Action Center visible - not showing Speak Now banner');
+        console.log('🚫 BLOCKED: Action Center visible');
         return;
     }
     
-    // 🛡️ BLOCK if Lead Capture is active
+    // Check #2: Lead Capture active
     if (window.isInLeadCapture) {
-        console.log('🚫 BLOCKED: Lead capture active - not showing Speak Now banner');
+        console.log('🚫 BLOCKED: Lead capture active');
         return;
     }
     
