@@ -2445,6 +2445,9 @@ async function getAIResponse(userMessage, conversationHistory = []) {
     // Check if we're waiting for name
     if (window.waitingForName) {
         console.log('✅ Name captured:', userMessage);
+        // 🎯 UPDATE STATE - MOVE PAST NAME CAPTURE
+window.conversationState = 'asking_reason';
+console.log('🔄 State changed to:', window.conversationState);
         window.userName = userMessage;
         window.waitingForName = false;
         
