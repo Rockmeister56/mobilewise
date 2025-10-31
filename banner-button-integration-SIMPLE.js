@@ -25,6 +25,7 @@
         'clickToCall': 'cta',
         'setAppointment': 'cta',
         'requestCallback': 'cta',
+        'expertise': 'quick', 
         
         // Testimonial banners → Review buttons
         'testimonialSelector': 'reviews',  // 🎯 NEW: Main testimonial banner

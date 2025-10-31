@@ -2505,15 +2505,17 @@ console.log('🔄 State changed to:', window.conversationState);
             console.log('🎤 Speaking consultative response:', response);
             speakWithElevenLabs(response, false);
             
-            // 🎯 Trigger expertise banner (500ms delay)
-            setTimeout(() => {
-                if (typeof showUniversalBanner === 'function') {
-                    showUniversalBanner('expertise');
-                    console.log('✅ Expertise banner triggered for ' + detectedIntent);
-                } else {
-                    console.error('❌ showUniversalBanner function not found for expertise banner');
-                }
-            }, 500);
+            // 🎯 Trigger setAppointment banner (2000ms delay - faster conversion)
+setTimeout(() => {
+    console.log('🎯 Attempting to show setAppointment banner...');
+    
+    if (typeof showUniversalBanner === 'function') {
+        showUniversalBanner('setAppointment');
+        console.log('✅ setAppointment banner triggered!');
+    } else {
+        console.error('❌ showUniversalBanner function not found for setAppointment banner');
+    }
+}, 2000);
             
         // 🎯 Trigger setAppointment banner (3000ms delay - mid-sentence)
 setTimeout(() => {
