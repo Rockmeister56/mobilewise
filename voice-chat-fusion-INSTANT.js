@@ -4368,15 +4368,21 @@ function showAvatarSorryMessage(duration = 6000) {
 window.showAvatarSorryMessage = showAvatarSorryMessage;
 
 // Keep your existing showDirectSpeakNow function exactly as is
-function showDirectSpeakNow() {
-    console.log('🎯 DIRECT Speak Now - skipping Get Ready phase completely');
-    
-    // Quick safety check
-    if (window.speakSequenceBlocked) {
-        console.log('🔇 DIRECT: Another session running - clearing first');
-        window.speakSequenceBlocked = false;
-        speakSequenceActive = false;
+async function showDirectSpeakNow() {
+    // 🛡️ BLOCK if Action Center is visible
+    const actionCenter = document.getElementById('communication-action-center');
+    if (actionCenter && actionCenter.style.display !== 'none') {
+        console.log('🚫 BLOCKED: Action Center visible - not showing Speak Now banner');
+        return;
     }
+    
+    // 🛡️ BLOCK if Lead Capture is active
+    if (window.isInLeadCapture) {
+        console.log('🚫 BLOCKED: Lead capture active - not showing Speak Now banner');
+        return;
+    }
+    
+    console.log('🎯 DIRECT Speak Now - skipping Get Ready phase completely');
     
     window.speakSequenceBlocked = true;
     speakSequenceActive = true;
