@@ -2434,6 +2434,13 @@ function detectConsultativeResponse(userMessage) {
 
 async function getAIResponse(userMessage, conversationHistory = []) {
     console.log('🎯 getAIResponse called with:', userMessage);
+
+    // Close Speak Now banner when AI responds
+    const speakNowBanner = document.querySelector('.speak-now-banner');
+    if (speakNowBanner) {
+        speakNowBanner.remove();
+        console.log('✅ Speak Now banner removed - AI responding');
+    }
     
     // Check if we're waiting for name
     if (window.waitingForName) {
@@ -2481,13 +2488,6 @@ async function getAIResponse(userMessage, conversationHistory = []) {
         if (detectedIntent) {
             window.waitingForIntent = false;
             window.userIntent = detectedIntent;
-            
-            // 🔥 FIX #1: REMOVE SPEAK NOW BANNER IMMEDIATELY
-            const speakNowBanner = document.querySelector('.speak-now-banner');
-            if (speakNowBanner) {
-                speakNowBanner.remove();
-                console.log('✅ Removed Speak Now banner - consultative flow active');
-            }
             
             // Echo their intent back with enthusiasm
             const response = `That's fantastic that you want to ${detectedIntent}, ${window.userName}! I'd love to help you reach your goals by sending you Bruce's free book "7 Secrets to Selling Your Practice" and setting up a consultation. Simply click the Free Book and Consultation banner on your screen!`;
