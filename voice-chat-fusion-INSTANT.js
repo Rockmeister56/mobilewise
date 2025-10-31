@@ -2516,19 +2516,6 @@ setTimeout(() => {
         console.error('❌ showUniversalBanner function not found for setAppointment banner');
     }
 }, 2000);
-            
-        // 🎯 Trigger setAppointment banner (3000ms delay - mid-sentence)
-setTimeout(() => {
-    console.log('🎯 Attempting to show setAppointment banner...');
-    
-    if (typeof showUniversalBanner === 'function') {
-        showUniversalBanner('setAppointment');
-        console.log('✅ setAppointment banner triggered!');
-        
-     } else {
-        console.error('❌ showUniversalBanner function not found for setAppointment banner');
-    }
-}, 6000);
 
 // Mark that we're waiting for book response (yes/no)
 window.waitingForBookResponse = true;
