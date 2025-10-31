@@ -2523,19 +2523,7 @@ setTimeout(() => {
         showUniversalBanner('setAppointment');
         console.log('✅ setAppointment banner triggered!');
         
-        // 🆕 PATCH 5: Auto-trigger Action Center 500ms after banner appears
-        setTimeout(() => {
-            console.log('🎯 Auto-triggering Communication Action Center...');
-            
-            if (window.showCommunicationActionCenter) {
-                window.showCommunicationActionCenter();
-                console.log('✅ Communication Action Center displayed!');
-            } else {
-                console.error('❌ showCommunicationActionCenter not available - check if action-system-unified-FINAL.js is loaded');
-            }
-        }, 500);
-        
-    } else {
+     } else {
         console.error('❌ showUniversalBanner function not found for setAppointment banner');
     }
 }, 6000);
