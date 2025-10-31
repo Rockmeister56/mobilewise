@@ -1865,18 +1865,14 @@ const leadCaptureActive = window.isInLeadCapture === true;
 // 🎯 ONLY CHECK ACTION CENTER IF NOT IN LEAD CAPTURE
 const actionCenterShowing = !leadCaptureActive && !!actionCenterVisible;
 
-// 🎯 ONLY ALLOW BANNER ON FIRST INTERACTION (getting name)
-const notInNameCaptureState = conversationState !== 'getting_first_name';
-
-if (tooSoonAfterClick || conversationEnded || thankYouActive || actionCenterShowing || notInNameCaptureState) {
+// Remove the state check - allow banner after every AI response
+if (tooSoonAfterClick || conversationEnded || thankYouActive || actionCenterShowing) {
     if (actionCenterShowing) {
         console.log('🚫 BLOCKED: Communication Action Center is visible - waiting for user selection');
-    } else if (notInNameCaptureState) {
-        console.log('🚫 BLOCKED: Not in name capture state - current state:', conversationState);
     } else {
         console.log('🚫 BLOCKED: One or more blocking conditions active');
     }
-    return; // Don't restart listening
+    return;
 }
 
 if (VOICE_CONFIG.debug) {
