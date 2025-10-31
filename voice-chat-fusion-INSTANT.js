@@ -1854,6 +1854,17 @@ if (VOICE_CONFIG.debug) {
     console.log('                - Action Center Visible:', !!actionCenterVisible);
 }
 
+// 🎯 CAPTAIN'S ROOT FIX: Block banner when Action Center is active
+const actionCenterElement = document.getElementById('communication-action-center');
+const actionCenterActive = actionCenterElement && actionCenterElement.style.display !== 'none';
+
+if (actionCenterActive) {
+    if (VOICE_CONFIG.debug) {
+        console.log('🚫 ROOT BLOCK: Action Center is active - no banner allowed');
+    }
+    return; // STOP HERE - Don't show banner
+}
+
 // Original blocking conditions
 const tooSoonAfterClick = timeSinceClickMention < 3000;
 const conversationEnded = conversationState === 'speaking';
@@ -1865,14 +1876,18 @@ const leadCaptureActive = window.isInLeadCapture === true;
 // 🎯 ONLY CHECK ACTION CENTER IF NOT IN LEAD CAPTURE
 const actionCenterShowing = !leadCaptureActive && !!actionCenterVisible;
 
-// Remove the state check - allow banner after every AI response
-if (tooSoonAfterClick || conversationEnded || thankYouActive || actionCenterShowing) {
+// 🎯 ONLY ALLOW BANNER ON FIRST INTERACTION (getting name)
+const notInNameCaptureState = conversationState !== 'getting_first_name';
+
+if (tooSoonAfterClick || conversationEnded || thankYouActive || actionCenterShowing || notInNameCaptureState) {
     if (actionCenterShowing) {
         console.log('🚫 BLOCKED: Communication Action Center is visible - waiting for user selection');
+    } else if (notInNameCaptureState) {
+        console.log('🚫 BLOCKED: Not in name capture state - current state:', conversationState);
     } else {
         console.log('🚫 BLOCKED: One or more blocking conditions active');
     }
-    return;
+    return; // Don't restart listening
 }
 
 if (VOICE_CONFIG.debug) {
