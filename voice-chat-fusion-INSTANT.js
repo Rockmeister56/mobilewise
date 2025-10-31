@@ -1869,8 +1869,6 @@ if (VOICE_CONFIG.debug) {
     console.log(`                - Conversation state: ${conversationState} (block if 'speaking')`);
     console.log('                - Thank you splash visible:', !!thankYouSplashVisible);
     console.log('                - Smart Button Check: PERMANENTLY BYPASSED ✅');
-    
-    // 🆕 ADD THIS CHECK FOR LEAD CAPTURE MODE:
     console.log('                - Lead Capture Active:', !!window.isInLeadCapture);
 }
 
