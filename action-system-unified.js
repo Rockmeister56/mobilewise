@@ -466,6 +466,7 @@ function initializeFreeBookCapture() {
 // UNIVERSAL LEAD QUESTION ASKER
 // ================================
 function askLeadQuestion() {
+    window.lastProcessedTranscript = null; // 🔄 Reset for new question
     if (!window.isInLeadCapture || !window.currentLeadData) return;
     
     const data = window.currentLeadData;
