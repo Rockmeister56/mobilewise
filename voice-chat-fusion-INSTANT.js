@@ -748,37 +748,6 @@ async function startListening() {
                     .join('');
 
                 transcript = transcript.replace(/\.+$/, '');
-
-                // 🆕 CHECK FOR LEAD CAPTURE MODE
-                if (window.isInLeadCapture && window.processLeadResponse) {
-                    // 🛡️ DUPLICATE PREVENTION: Check if already processed this transcript
-                    if (transcript === lastProcessedTranscript) {
-                        console.log('⏭️ SKIPPED: Already processed this transcript in onresult');
-                        return;
-                    }
-                    
-                    console.log('🎯 Lead capture active - routing to processLeadResponse');
-                    lastProcessedTranscript = transcript; // Mark as processed
-                    
-                    const handled = window.processLeadResponse(transcript);
-                    if (handled) {
-                        console.log('✅ Lead capture handled the response - not processing as normal chat');
-                        
-                        // Update UI
-                        const transcriptText = document.getElementById('transcriptText');
-                        if (transcriptText) {
-                            transcriptText.textContent = transcript;
-                        }
-                        
-                        const userInput = document.getElementById('userInput');
-                        if (userInput) {
-                            userInput.value = transcript;
-                        }
-                        
-                        return; // STOP HERE - don't process as normal conversation
-                    }
-                }
-
                 
                 console.log('✅ Transcript captured:', transcript);
                 console.log('  - Length:', transcript.length);
@@ -864,13 +833,6 @@ async function startListening() {
                 
                 if (finalTranscript && finalTranscript.trim().length > 0) {
                     const currentMessage = finalTranscript.trim();
-                    
-                    // 🛡️ DUPLICATE PREVENTION FOR LEAD CAPTURE IN ONEND
-                    if (window.isInLeadCapture && currentMessage === lastProcessedTranscript) {
-                        console.log('⏭️ SKIPPED: Already processed this transcript in onend');
-                        return;
-                    }
-                    
                     const now = Date.now();
                     const timeSinceLastMessage = now - (window.lastMessageTime || 0);
                     
@@ -1899,13 +1861,18 @@ const thankYouActive = !!thankYouSplashVisible;
 
 // 🆕 NEW BLOCKING CONDITIONS
 const leadCaptureActive = window.isInLeadCapture === true;
-const actionCenterShowing = !!actionCenterVisible;
 
-if (tooSoonAfterClick || conversationEnded || thankYouActive || leadCaptureActive || actionCenterShowing) {
+// 🎯 ONLY CHECK ACTION CENTER IF NOT IN LEAD CAPTURE
+const actionCenterShowing = !leadCaptureActive && !!actionCenterVisible;
+
+// 🎯 ONLY ALLOW BANNER ON FIRST INTERACTION (getting name)
+const notInNameCaptureState = conversationState !== 'getting_first_name';
+
+if (tooSoonAfterClick || conversationEnded || thankYouActive || actionCenterShowing || notInNameCaptureState) {
     if (actionCenterShowing) {
         console.log('🚫 BLOCKED: Communication Action Center is visible - waiting for user selection');
-    } else if (leadCaptureActive) {
-        console.log('🚫 BLOCKED: Lead capture in progress - waiting for user response');
+    } else if (notInNameCaptureState) {
+        console.log('🚫 BLOCKED: Not in name capture state - current state:', conversationState);
     } else {
         console.log('🚫 BLOCKED: One or more blocking conditions active');
     }
