@@ -1880,42 +1880,31 @@ if (tooSoonAfterClick || conversationEnded || thankYouActive || actionCenterShow
 }
 
 if (VOICE_CONFIG.debug) {
-    console.log('🐛 DEBUG: No blocking conditions - calling startRealtimeListening() (Smart Button permanently bypassed)');
+    console.log('🎯 DIRECT: No blocking conditions - showing banner and starting listening (CHAIN BYPASSED)');
 }
-        
-        // *** SMART BUTTON CHECK PERMANENTLY REMOVED ***
-        // This was preventing banner triggers in your system
-        
-        // ============================================================
-        // NO BLOCKS - TRIGGER BANNER (EXACT ELEVENLABS BEHAVIOR)
-        // ============================================================
+
+// DIRECT BANNER DISPLAY - NO CHAIN
+if (typeof displaySpeakNowBanner === 'function') {
+    displaySpeakNowBanner();
+    if (VOICE_CONFIG.debug) {
+        console.log('✅ Banner displayed directly');
+    }
+} else {
+    console.error('❌ displaySpeakNowBanner function not found');
+}
+
+// START LISTENING AFTER BRIEF DELAY FOR BANNER ANIMATION
+setTimeout(() => {
+    if (typeof startListening === 'function') {
+        startListening();
         if (VOICE_CONFIG.debug) {
-            console.log('🐛 DEBUG: No blocking conditions - calling startRealtimeListening() (Smart Button permanently bypassed)');
+            console.log('✅ Listening started - 17-step chain bypassed');
         }
-        
-        setTimeout(() => {
-            if (typeof showHybridReadySequence === 'function') {
-                try {
-                    startRealtimeListening();
-                    if (VOICE_CONFIG.debug) {
-                        console.log("✅ SUCCESS: Banner sequence triggered successfully (Smart Button permanently bypassed)");
-                    }
-                } catch (error) {
-                    console.error('❌ ERROR: Failed to trigger banner sequence:', error);
-                }
-            } else if (typeof showPostSorryListening === 'function') {
-                try {
-                    showPostSorryListening();
-                    if (VOICE_CONFIG.debug) {
-                        console.log("✅ SUCCESS: Post-Sorry listening triggered (fallback)");
-                    }
-                } catch (error) {
-                    console.error('❌ ERROR: Failed to trigger post-sorry listening:', error);
-                }
-            } else {
-                console.warn("⚠️ WARNING: No banner trigger functions available (showHybridReadySequence, showPostSorryListening)");
-            }
-        }, 500); // Optimal delay for mobile
+    } else {
+        console.error('❌ startListening function not found');
+    }
+}, 200);
+
     }
     
     // Stop all speech
