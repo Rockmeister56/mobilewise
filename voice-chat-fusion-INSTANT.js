@@ -4348,14 +4348,13 @@ async function showDirectSpeakNow() {
     if (!window.isInLeadCapture) {
         await new Promise(resolve => setTimeout(resolve, 600));
         
-       // Check if Action Center is visible (UNLESS in lead capture)
-if (!window.isInLeadCapture) {
+        // Check if Action Center appeared
     const actionCenter = document.getElementById('communication-action-center');
     if (actionCenter && actionCenter.style.display !== 'none') {
         console.log('🚫 BLOCKED: Communication Action Center is visible - waiting for user selection');
         return;
+        }
     }
-}
     
     // If we got here, show the banner
     console.log('🎯 DIRECT Speak Now - skipping Get Ready phase completely');
