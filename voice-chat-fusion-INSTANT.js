@@ -1870,13 +1870,17 @@ const leadCaptureActive = window.isInLeadCapture === true;
 const actionCenterShowing = !leadCaptureActive && !!actionCenterVisible;
 
 // Check blocking conditions (removed state check - banner appears after EVERY question)
-if (tooSoonAfterClick || conversationEnded || thankYouActive || actionCenterShowing) {
-    if (actionCenterShowing) {
-        console.log('🚫 BLOCKED: Communication Action Center is visible - waiting for user selection');
-    } else {
-        console.log('🚫 BLOCKED: One or more blocking conditions active');
+if (actionCenterActive || leadCaptureActive) {
+    if (VOICE_CONFIG.debug) {
+        console.log('🚫 ROOT BLOCK: Action Center or Lead Capture active - no banner allowed');
     }
-    return; // Don't restart listening
+    return; // STOP HERE - Don't show banner
+}
+
+// Then keep your original blocking conditions
+if (tooSoonAfterClick || conversationEnded || thankYouActive) {
+    console.log('🚫 BLOCKED: One or more blocking conditions active');
+    return;
 }
 
 if (VOICE_CONFIG.debug) {
