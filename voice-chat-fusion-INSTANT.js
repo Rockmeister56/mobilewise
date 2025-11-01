@@ -1785,7 +1785,7 @@ class MobileWiseVoiceSystem {
                 if (this.synthesis.paused) this.synthesis.resume();
             }, 100);
         });
-    }
+        }
     
     // ===========================================
     // BROWSER VOICE PROVIDER (FALLBACK)
@@ -1818,8 +1818,8 @@ class MobileWiseVoiceSystem {
             
             this.synthesis.speak(utterance);
         });
-    }
-    
+    };
+
    // ============================================================
 // 🎯 SPEECH COMPLETION HANDLER - WITH ELEVENLABS BANNER LOGIC
 // ✅ SMART BUTTON BLOCKING REMOVED FOR BANNER FUNCTIONALITY
@@ -1894,6 +1894,7 @@ handleSpeechComplete() {
 
     return; // Stop the original execution chain
 }
+
 }
 
 // ===========================================
@@ -1913,7 +1914,6 @@ setTimeout(() => {
         window.getVoiceStatus();
     }
 }, 3000);
-
 
 // ===========================================
 // ✅ NOW INITIALIZE AFTER CLASS IS DEFINED
