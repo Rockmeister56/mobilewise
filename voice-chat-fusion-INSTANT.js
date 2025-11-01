@@ -1870,7 +1870,7 @@ const leadCaptureActive = window.isInLeadCapture === true;
 const actionCenterShowing = !leadCaptureActive && !!actionCenterVisible;
 
 // Check blocking conditions (removed state check - banner appears after EVERY question)
-if (actionCenterActive || leadCaptureActive) {
+if (actionCenterShowing || leadCaptureActive) {
     if (VOICE_CONFIG.debug) {
         console.log('🚫 ROOT BLOCK: Action Center or Lead Capture active - no banner allowed');
     }
