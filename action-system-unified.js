@@ -702,7 +702,7 @@ function completeLeadCapture() {
     if (type === 'consultation') {
         templateId = EMAILJS_CONFIG.templates.consultation;
         templateParams = {
-            to_email: 'bruce@newclientsinc.com',
+            to_email: 'bizboost.expert@gmail.com',
             from_name: data.name,
             from_email: data.email,
             phone: data.phone,
@@ -713,7 +713,7 @@ function completeLeadCapture() {
     } else if (type === 'clickToCall') {
         templateId = EMAILJS_CONFIG.templates.clickToCall;
         templateParams = {
-            to_email: 'bruce@newclientsinc.com',
+            to_email: 'bizboost.expert@gmail.com',
             from_name: data.name,
             phone: data.phone,
             message: `CLICK-TO-CALL REQUEST\n\nName: ${data.name}\nPhone: ${data.phone}\nReason: ${data.reason}`,
