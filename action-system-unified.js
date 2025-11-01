@@ -13,7 +13,7 @@ const EMAILJS_CONFIG = {
     serviceId: 'service_b9bppgb',
     publicKey: '7-9oxa3UC3uKxtqGM',
     templates: {
-        consultation: 'template_8i0k6hr',  // Request A Call
+        consultation: 'template_yf09xm5',  // Request A Call
         clickToCall: 'template_8i0k6hr',   // Same as consultation
         freeBook: 'template_uix9cyx'        // Free Book
     }
