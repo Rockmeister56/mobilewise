@@ -4311,7 +4311,7 @@ async function showDirectSpeakNow() {
     let directTimer = setTimeout(() => {
         console.log('🕐 DIRECT: Safety timeout after 15 seconds');
         directCleanup();
-    }, 15000);
+    }, 30000);
     window.currentBulletproofTimer = directTimer;
     
     window.clearBulletproofTimer = function() {
