@@ -1820,116 +1820,103 @@ class MobileWiseVoiceSystem {
         });
     }
     
-    // ============================================================
-    // 🎯 SPEECH COMPLETION HANDLER - WITH ELEVENLABS BANNER LOGIC
-    // ✅ SMART BUTTON BLOCKING REMOVED FOR BANNER FUNCTIONALITY
-    // ============================================================
-    handleSpeechComplete() {
-        voiceSystem.isSpeaking = false;
-        window.isSpeaking = false; // Backward compatibility
-        
-        if (VOICE_CONFIG.debug) {
-            console.log("🔍 PERMANENT HANDLER: Speech completed - checking ElevenLabs banner logic (NO SMART BUTTON BLOCK)");
-        }
+   // ============================================================
+// 🎯 SPEECH COMPLETION HANDLER - WITH ELEVENLABS BANNER LOGIC
+// ✅ SMART BUTTON BLOCKING REMOVED FOR BANNER FUNCTIONALITY
 // ============================================================
-// EXACT ELEVENLABS BLOCKING CONDITIONS CHECK
-// ============================================================
-const now = Date.now();
-const clickMentionTime = window.lastClickMentionTime || 0;
-const timeSinceClickMention = now - clickMentionTime;
-const conversationState = window.conversationState || 'ready';
-const thankYouSplashVisible = document.querySelector('.thank-you-splash:not([style*="display: none"])');
-
-// 🆕 CHECK IF COMMUNICATION ACTION CENTER IS VISIBLE
-const actionCenterVisible = document.getElementById('communication-action-center');
-
-// 🐛 DEBUG: ElevenLabs blocking conditions check
-if (VOICE_CONFIG.debug) {
-    console.log('🐛 DEBUG: ElevenLabs blocking conditions check (SMART BUTTON BYPASSED):');
-    console.log(`                - Time since click mention: ${timeSinceClickMention}ms (block if < 3000ms)`);
-    console.log(`                - Conversation state: ${conversationState} (block if 'speaking')`);
-    console.log('                - Thank you splash visible:', !!thankYouSplashVisible);
-    console.log('                - Smart Button Check: PERMANENTLY BYPASSED ✅');
-    console.log('                - Lead Capture Active:', !!window.isInLeadCapture);
-    console.log('                - Action Center Visible:', !!actionCenterVisible);
-}
-
-// 🎯 CAPTAIN'S ROOT FIX: Block banner when Action Center is active
-const actionCenterElement = document.getElementById('communication-action-center');
-const actionCenterActive = actionCenterElement && actionCenterElement.style.display !== 'none';
-
-if (actionCenterActive) {
+handleSpeechComplete() {
+    voiceSystem.isSpeaking = false;
+    window.isSpeaking = false; // Backward compatibility
+    
     if (VOICE_CONFIG.debug) {
-        console.log('🚫 ROOT BLOCK: Action Center is active - no banner allowed');
+        console.log("🔍 PERMANENT HANDLER: Speech completed - checking ElevenLabs banner logic (NO SMART BUTTON BLOCK)");
     }
-    return; // STOP HERE - Don't show banner
-}
 
-// Original blocking conditions
-const tooSoonAfterClick = timeSinceClickMention < 3000;
-const conversationEnded = conversationState === 'speaking';
-const thankYouActive = !!thankYouSplashVisible;
+    // ============================================================
+    // EXACT ELEVENLABS BLOCKING CONDITIONS CHECK
+    // ============================================================
+    const now = Date.now();
+    const clickMentionTime = window.lastClickMentionTime || 0;
+    const timeSinceClickMention = now - clickMentionTime;
+    const conversationState = window.conversationState || 'ready';
+    const thankYouSplashVisible = document.querySelector('.thank-you-splash:not([style*="display: none"])');
 
-// 🆕 NEW BLOCKING CONDITIONS
-const leadCaptureActive = window.isInLeadCapture === true;
+    // 🆕 CHECK IF COMMUNICATION ACTION CENTER IS VISIBLE (SINGLE CHECK)
+    const actionCenterElement = document.getElementById('communication-action-center');
+    const actionCenterActive = actionCenterElement && actionCenterElement.style.display !== 'none';
+    const leadCaptureActive = window.isInLeadCapture === true;
 
-// 🎯 ONLY CHECK ACTION CENTER IF NOT IN LEAD CAPTURE
-const actionCenterShowing = !leadCaptureActive && !!actionCenterVisible;
+    // 🐛 DEBUG: ElevenLabs blocking conditions check
+    if (VOICE_CONFIG.debug) {
+        console.log('🐛 DEBUG: ElevenLabs blocking conditions check (SMART BUTTON BYPASSED):');
+        console.log(`                - Time since click mention: ${timeSinceClickMention}ms (block if < 3000ms)`);
+        console.log(`                - Conversation state: ${conversationState} (block if 'speaking')`);
+        console.log('                - Thank you splash visible:', !!thankYouSplashVisible);
+        console.log('                - Smart Button Check: PERMANENTLY BYPASSED ✅');
+        console.log('                - Lead Capture Active:', leadCaptureActive);
+        console.log('                - Action Center Visible:', actionCenterActive);
+    }
 
-// Check blocking conditions (removed state check - banner appears after EVERY question)
-if (tooSoonAfterClick || conversationEnded || thankYouActive || actionCenterShowing) {
-    if (actionCenterShowing) {
-        console.log('🚫 BLOCKED: Communication Action Center is visible - waiting for user selection');
-    } else {
+    // 🚫 CRITICAL BLOCK: PREVENT SPEAK NOW DURING ACTION CENTER OR LEAD CAPTURE
+    if (actionCenterActive || leadCaptureActive) {
+        if (VOICE_CONFIG.debug) {
+            console.log('🚫 ROOT BLOCK: Action Center or Lead Capture active - no banner allowed');
+        }
+        return; // STOP HERE - Don't show banner
+    }
+
+    // Original blocking conditions
+    const tooSoonAfterClick = timeSinceClickMention < 3000;
+    const conversationEnded = conversationState === 'speaking';
+    const thankYouActive = !!thankYouSplashVisible;
+
+    // Check blocking conditions
+    if (tooSoonAfterClick || conversationEnded || thankYouActive) {
         console.log('🚫 BLOCKED: One or more blocking conditions active');
+        return; // Don't restart listening
     }
-    return; // Don't restart listening
-}
 
-if (VOICE_CONFIG.debug) {
-    console.log('🎯 CLEAN CHAIN BYPASS: Triggering banner sequence only');
-}
-
-// CLEAN APPROACH: Let showDirectSpeakNow handle everything
-// It already contains the listening start logic internally
-if (typeof showDirectSpeakNow === 'function') {
-    showDirectSpeakNow();
     if (VOICE_CONFIG.debug) {
-        console.log('✅ Banner triggered - listening will start via internal banner logic');
+        console.log('🎯 CLEAN CHAIN BYPASS: Triggering banner sequence only');
     }
-} else {
-    console.warn('⚠️ showDirectSpeakNow not found - using fallback chain');
-    startRealtimeListening();
-}
 
-// NO setTimeout, NO duplicate startListening calls
-return; // Stop the original execution chain
-    }
-    
-    // Stop all speech
-    stop() {
-        this.synthesis.cancel();
-        voiceSystem.isSpeaking = false;
-        window.isSpeaking = false;
+    // CLEAN APPROACH: Let showDirectSpeakNow handle everything
+    // It already contains the listening start logic internally
+    if (typeof showDirectSpeakNow === 'function') {
+        showDirectSpeakNow();
         if (VOICE_CONFIG.debug) {
-            console.log("🛑 All speech stopped");
+            console.log('✅ Banner triggered - listening will start via internal banner logic');
         }
+    } else {
+        console.warn('⚠️ showDirectSpeakNow not found - using fallback chain');
+        startRealtimeListening();
     }
-    
-    // Log current system status
-    logSystemStatus() {
-        console.log("🎤 Voice System Status:");
-        console.log(`  Provider: ${VOICE_CONFIG.provider}`);
-        console.log(`  British Voice: ${voiceSystem.selectedBritishVoice?.name || 'None'}`);
-        console.log(`  ElevenLabs: ${VOICE_CONFIG.elevenlabs.enabled ? 'Enabled' : 'Disabled'}`);
-        console.log(`  Total Voices: ${this.voices.length}`);
-        console.log(`  ElevenLabs Banner Logic: ✅ INTEGRATED`);
-        console.log(`  Smart Button Blocking: ❌ REMOVED (for banner functionality)`);
-    }
+
+    return; // Stop the original execution chain
+}
 }
 
 // ===========================================
-// INITIALIZE SYSTEM
+// AUTO-INITIALIZATION
+// ===========================================
+if (VOICE_CONFIG.debug) {
+    console.log("✅ Consolidated Mobile-Wise Voice System loaded! (SMART BUTTON BLOCKING REMOVED)");
+    console.log("🎯 Commands: switchToBritish(), switchToElevenLabs(), getVoiceStatus(), stopAllSpeech()");
+    console.log(`🎤 Current provider: ${VOICE_CONFIG.provider}`);
+    console.log("🚀 ElevenLabs Banner Logic: PERMANENTLY INTEGRATED");
+    console.log("🎯 Smart Button Blocking: PERMANENTLY REMOVED");
+}
+
+// Auto-show status after initialization
+setTimeout(() => {
+    if (VOICE_CONFIG.debug && voiceSystem.isInitialized) {
+        window.getVoiceStatus();
+    }
+}, 3000);
+
+
+// ===========================================
+// ✅ NOW INITIALIZE AFTER CLASS IS DEFINED
 // ===========================================
 window.mobileWiseVoice = new MobileWiseVoiceSystem();
 
@@ -1975,23 +1962,6 @@ window.getVoiceStatus = function() {
     window.mobileWiseVoice.logSystemStatus();
 };
 
-// ===========================================
-// AUTO-INITIALIZATION
-// ===========================================
-if (VOICE_CONFIG.debug) {
-    console.log("✅ Consolidated Mobile-Wise Voice System loaded! (SMART BUTTON BLOCKING REMOVED)");
-    console.log("🎯 Commands: switchToBritish(), switchToElevenLabs(), getVoiceStatus(), stopAllSpeech()");
-    console.log(`🎤 Current provider: ${VOICE_CONFIG.provider}`);
-    console.log("🚀 ElevenLabs Banner Logic: PERMANENTLY INTEGRATED");
-    console.log("🎯 Smart Button Blocking: PERMANENTLY REMOVED");
-}
-
-// Auto-show status after initialization
-setTimeout(() => {
-    if (VOICE_CONFIG.debug && voiceSystem.isInitialized) {
-        window.getVoiceStatus();
-    }
-}, 3000);
 
 // ===========================================
 // 📧 EMAIL CONFIGURATION FIX
