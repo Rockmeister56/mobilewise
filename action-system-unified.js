@@ -709,9 +709,6 @@ function initializePreQualifierCapture() {
 // ================================
 // COMPLETE LEAD CAPTURE & SEND EMAIL
 // ================================
-// ================================
-// COMPLETE LEAD CAPTURE & SEND EMAIL
-// ================================
 function completeLeadCapture() {
     console.log('🎯 Completing lead capture...');
     
@@ -751,8 +748,72 @@ function completeLeadCapture() {
             message: `Here's your free copy of "7 Secrets to Selling Your Practice"!${data.wantsEvaluation ? '\n\nInterested in evaluation - Phone: ' + data.phone : ''}`,
             timestamp: new Date().toLocaleString()
         };
-   } else if (type === 'preQualifier') {
-    EMAILJS_CONFIG.templates.preQualifier = 'template_uix9cyx';
+    } else if (type === 'preQualifier') {
+        templateId = 'template_uix9cyx'; // 🎯 USING FREE BOOK TEMPLATE FOR PRE-QUALIFIER
+        
+        // Calculate qualification score
+        let qualificationScore = 0;
+        let qualifications = [];
+        
+        // Experience scoring
+        if (parseInt(data.experienceYears) >= 3) {
+            qualificationScore += 25;
+            qualifications.push(`${data.experienceYears} years experience`);
+        }
+        
+        // License scoring
+        if (data.licenseStatus && data.licenseStatus.toLowerCase().includes('cpa')) {
+            qualificationScore += 25;
+            qualifications.push('CPA licensed');
+        }
+        
+        // Timeline scoring (serious buyers)
+        if (data.acquisitionTimeline && 
+            (data.acquisitionTimeline.toLowerCase().includes('immediate') || 
+             data.acquisitionTimeline.toLowerCase().includes('3 month') ||
+             data.acquisitionTimeline.toLowerCase().includes('6 month'))) {
+            qualificationScore += 25;
+            qualifications.push('Ready for acquisition');
+        }
+        
+        // Budget scoring
+        if (data.budgetRange) {
+            qualificationScore += 25;
+            qualifications.push(`Budget: ${data.budgetRange}`);
+        }
+        
+        const qualificationLevel = qualificationScore >= 75 ? 'HIGH' : 
+                                  qualificationScore >= 50 ? 'MEDIUM' : 'BASIC';
+        
+        templateParams = {
+            to_email: 'bizboost.expert@gmail.com',
+            from_name: data.name || 'Not provided',
+            from_email: data.email || 'Not provided',
+            phone: data.phone || 'Not provided',
+            message: `PRE-QUALIFIER RESULTS - ${qualificationLevel} PRIORITY\n\n` +
+                    `QUALIFICATION SCORE: ${qualificationScore}/100\n` +
+                    `QUALIFICATIONS: ${qualifications.join(', ')}\n\n` +
+                    `DETAILED PROFILE:\n` +
+                    `Name: ${data.name}\n` +
+                    `Email: ${data.email}\n` +
+                    `Phone: ${data.phone}\n` +
+                    `Experience: ${data.experienceYears} years\n` +
+                    `License Status: ${data.licenseStatus}\n` +
+                    `Timeline: ${data.acquisitionTimeline}\n` +
+                    `Budget: ${data.budgetRange}\n` +
+                    `Location Preference: ${data.geographicPreference}\n` +
+                    `Practice Size: ${data.practiceSize}\n` +
+                    `Specialization: ${data.specializationInterest}\n` +
+                    `Financing: ${data.financingNeeded}\n\n` +
+                    `RECOMMENDATION: ${qualificationLevel} priority follow-up`,
+            timestamp: new Date().toLocaleString()
+        };
+    } // 🎯 CLOSING BRACKET ADDED HERE!
+    
+    console.log('📧 Sending email with template:', templateId);
+    console.log('📧 Parameters:', templateParams);
+    
+    // ... rest of your function continues ...
     
     // Calculate qualification score
     let qualificationScore = 0;
