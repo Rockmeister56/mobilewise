@@ -12,7 +12,6 @@ const EMAILJS_CONFIG = {
     templates: {
         consultation: 'template_yf09xm5',
         clickToCall: 'template_8i0k6hr', 
-        freeBook: 'template_uix9cyx',
         preQualifier: 'template_uix9cyx'  // Your new template
     }
 };
@@ -765,6 +764,14 @@ function completeLeadCapture() {
     
     console.log('📧 Sending email with template:', templateId);
     console.log('📧 Parameters:', templateParams);
+
+    console.log('🔍 DEBUG - Template Parameters Being Sent:');
+Object.keys(templateParams).forEach(key => {
+    console.log(`  ${key}:`, templateParams[key]);
+});
+
+// Also check what the template expects
+console.log('📧 Template ID:', templateId);
     
     // 🎯 KEEP THIS - IT'S THE ACTUAL EMAIL SENDING CODE
     emailjs.send(EMAILJS_CONFIG.serviceId, templateId, templateParams)
