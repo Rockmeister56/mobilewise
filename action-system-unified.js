@@ -706,28 +706,69 @@ function completeLeadCapture() {
   } else if (type === 'preQualifier') {
     templateId = 'template_uix9cyx';
     
-    // Calculate qualification score (keep your existing scoring logic)
+    // 🆕 FIXED QUALIFICATION SCORING LOGIC
+    console.log('🎯 CALCULATING QUALIFICATION SCORE:');
     let qualificationScore = 0;
     let qualifications = [];
     
-    // ... your existing scoring logic ...
+    // Experience scoring - FIXED
+    const experienceYears = parseInt(data.experienceYears) || 0;
+    if (experienceYears >= 3) {
+        qualificationScore += 25;
+        qualifications.push(`${experienceYears} years experience`);
+        console.log('✅ Experience:', experienceYears, 'years → +25 points');
+    } else {
+        console.log('❌ Experience:', experienceYears, 'years → +0 points');
+    }
+    
+    // License scoring - FIXED (case insensitive)
+    if (data.licenseStatus && data.licenseStatus.toLowerCase().includes('cpa')) {
+        qualificationScore += 25;
+        qualifications.push('CPA licensed');
+        console.log('✅ License: CPA licensed → +25 points');
+    } else {
+        console.log('❌ License: No CPA → +0 points');
+    }
+    
+    // Timeline scoring - FIXED
+    if (data.acquisitionTimeline) {
+        const timeline = data.acquisitionTimeline.toLowerCase();
+        if (timeline.includes('immediate') || timeline.includes('3 month') || timeline.includes('6 month')) {
+            qualificationScore += 25;
+            qualifications.push('Ready for acquisition');
+            console.log('✅ Timeline: Ready for acquisition → +25 points');
+        } else {
+            console.log('❌ Timeline: Not immediate → +0 points');
+        }
+    } else {
+        console.log('❌ Timeline: No timeline → +0 points');
+    }
+    
+    // Budget scoring - FIXED
+    if (data.budgetRange && data.budgetRange.trim() !== '') {
+        qualificationScore += 25;
+        qualifications.push(`Budget: ${data.budgetRange}`);
+        console.log('✅ Budget: Has budget → +25 points');
+    } else {
+        console.log('❌ Budget: No budget → +0 points');
+    }
     
     qualificationLevel = qualificationScore >= 75 ? 'HIGH' : 
                         qualificationScore >= 50 ? 'MEDIUM' : 'BASIC';
     
-    templateParams = {
+    console.log('🎯 FINAL SCORE:', qualificationScore, 'Points → Level:', qualificationLevel);
+    console.log('🎯 QUALIFICATIONS:', qualifications);
+    
+        templateParams = {
         to_email: 'bizboost.expert@gmail.com',
         from_name: data.name || 'Not provided',
         from_email: data.email || 'Not provided',
         phone: data.phone || 'Not provided',
-        
-        // 🆕 CRITICAL: Add these duplicate fields for template compatibility
         name: data.name || 'Not provided',
         email: data.email || 'Not provided',
-        
-        qualification_score: qualificationScore,
-        qualification_level: qualificationLevel,
-        qualifications: qualifications,
+        qualification_score: qualificationScore,  // 🆕 Now has proper value
+        qualification_level: qualificationLevel,  // 🆕 Now has proper value  
+        qualifications: qualifications,           // 🆕 Now has proper array
         experience_years: data.experienceYears || 'Not specified',
         license_status: data.licenseStatus || 'Not specified',
         acquisition_timeline: data.acquisitionTimeline || 'Not specified',
@@ -739,16 +780,16 @@ function completeLeadCapture() {
         recommended_action: qualificationLevel === 'HIGH' ? 'Contact within 4 hours' : 
                            qualificationLevel === 'MEDIUM' ? 'Contact within 24 hours' : 'Contact within 48 hours',
         timestamp: new Date().toLocaleString()
-    };
-}
+    };;
     
     console.log('📧 Sending email with template:', templateId);
     console.log('📧 Parameters:', templateParams);
 
     console.log('🔍 DEBUG - Template Parameters Being Sent:');
-Object.keys(templateParams).forEach(key => {
-    console.log(`  ${key}:`, templateParams[key]);
-});
+    Object.keys(templateParams).forEach(key => {
+        console.log(`  ${key}:`, templateParams[key]);
+    });
+}
 
 // Also check what the template expects
 console.log('📧 Template ID:', templateId);
