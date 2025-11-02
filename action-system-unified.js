@@ -12,7 +12,7 @@ const EMAILJS_CONFIG = {
     templates: {
         consultation: 'template_yf09xm5',
         clickToCall: 'template_8i0k6hr', 
-        freeBook: 'template_xxxxxxx',
+        freeBook: 'template_uix9cyx',
         preQualifier: 'template_uix9cyx'  // Your new template
     }
 };
@@ -785,72 +785,79 @@ function completeLeadCapture() {
         const qualificationLevel = qualificationScore >= 75 ? 'HIGH' : 
                                   qualificationScore >= 50 ? 'MEDIUM' : 'BASIC';
         
+        // 🎯 SINGLE templateParams assignment for pre-qualifier
         templateParams = {
             to_email: 'bizboost.expert@gmail.com',
             from_name: data.name || 'Not provided',
             from_email: data.email || 'Not provided',
             phone: data.phone || 'Not provided',
-            message: `PRE-QUALIFIER RESULTS - ${qualificationLevel} PRIORITY\n\n` +
-                    `QUALIFICATION SCORE: ${qualificationScore}/100\n` +
-                    `QUALIFICATIONS: ${qualifications.join(', ')}\n\n` +
-                    `DETAILED PROFILE:\n` +
-                    `Name: ${data.name}\n` +
-                    `Email: ${data.email}\n` +
-                    `Phone: ${data.phone}\n` +
-                    `Experience: ${data.experienceYears} years\n` +
-                    `License Status: ${data.licenseStatus}\n` +
-                    `Timeline: ${data.acquisitionTimeline}\n` +
-                    `Budget: ${data.budgetRange}\n` +
-                    `Location Preference: ${data.geographicPreference}\n` +
-                    `Practice Size: ${data.practiceSize}\n` +
-                    `Specialization: ${data.specializationInterest}\n` +
-                    `Financing: ${data.financingNeeded}\n\n` +
-                    `RECOMMENDATION: ${qualificationLevel} priority follow-up`,
+            qualification_score: qualificationScore,
+            qualification_level: qualificationLevel,
+            qualifications: qualifications,
+            experience_years: data.experienceYears || 'Not specified',
+            license_status: data.licenseStatus || 'Not specified',
+            acquisition_timeline: data.acquisitionTimeline || 'Not specified',
+            budget_range: data.budgetRange || 'Not specified',
+            geographic_preference: data.geographicPreference || 'Not specified',
+            practice_size: data.practiceSize || 'Not specified',
+            specialization_interest: data.specializationInterest || 'Not specified',
+            financing_needed: data.financingNeeded || 'Not specified',
+            recommended_action: qualificationLevel === 'HIGH' ? 'Contact within 4 hours' : 
+                               qualificationLevel === 'MEDIUM' ? 'Contact within 24 hours' : 'Contact within 48 hours',
             timestamp: new Date().toLocaleString()
         };
-    } // 🎯 CLOSING BRACKET ADDED HERE!
+    } // 🎯 CLOSING BRACKET FOR PRE-QUALIFIER
     
     console.log('📧 Sending email with template:', templateId);
     console.log('📧 Parameters:', templateParams);
     
-    // ... rest of your function continues ...
+    // Send email
+    emailjs.send(EMAILJS_CONFIG.serviceId, templateId, templateParams)
+        .then(function(response) {
+            console.log('✅ EMAIL SENT!', response.status, response.text);
+            
+            // Reset capture state
+            window.isInLeadCapture = false;
+            window.currentLeadData = null;
+            window.currentCaptureType = null;
+            
+            // Show success message
+            let successMessage = '';
+            if (type === 'consultation') {
+                successMessage = `Perfect ${data.name}! Our specialist will contact you at ${data.contactTime}. Is there anything else I can help you with?`;
+            } else if (type === 'clickToCall') {
+                successMessage = `Great ${data.name}! Bruce will call you at ${data.phone} shortly. Anything else I can help with?`;
+            } else if (type === 'freeBook') {
+                successMessage = `Excellent ${data.name}! I've sent Bruce's book to ${data.email}. Check your inbox!${data.wantsEvaluation ? ' Someone will contact you about the evaluation.' : ''}`;
+            } else if (type === 'preQualifier') {
+                successMessage = `Thank you ${data.name}! Your pre-qualification is complete. Based on your profile, you're a ${qualificationLevel} priority candidate. Bruce will contact you within 24 hours to discuss next steps.`;
+            }
+            
+            if (window.addAIMessage) {
+                window.addAIMessage(successMessage);
+            }
+            if (window.speakText) {
+                window.speakText(successMessage);
+            }
+            
+            // Show success banner if available
+            if (window.showUniversalBanner) {
+                window.showUniversalBanner('emailSent');
+            }
+            
+        }, function(error) {
+            console.error('❌ EMAIL FAILED:', error);
+            
+            if (window.addAIMessage) {
+                window.addAIMessage("I'm sorry, there was an issue. Please try again or call Bruce directly at 856-304-1035.");
+            }
+            
+            window.isInLeadCapture = false;
+        });
+} // 🎯 CLOSING BRACKET FOR COMPLETE FUNCTION
     
-    // Calculate qualification score
-    let qualificationScore = 0;
-    let qualifications = [];
-    
-    // Experience scoring
-    if (parseInt(data.experienceYears) >= 3) {
-        qualificationScore += 25;
-        qualifications.push(`${data.experienceYears} years experience`);
-    }
-    
-    // License scoring
-    if (data.licenseStatus && data.licenseStatus.toLowerCase().includes('cpa')) {
-        qualificationScore += 25;
-        qualifications.push('CPA licensed');
-    }
-    
-    // Timeline scoring (serious buyers)
-    if (data.acquisitionTimeline && 
-        (data.acquisitionTimeline.toLowerCase().includes('immediate') || 
-         data.acquisitionTimeline.toLowerCase().includes('3 month') ||
-         data.acquisitionTimeline.toLowerCase().includes('6 month'))) {
-        qualificationScore += 25;
-        qualifications.push('Ready for acquisition');
-    }
-    
-    // Budget scoring
-    if (data.budgetRange) {
-        qualificationScore += 25;
-        qualifications.push(`Budget: ${data.budgetRange}`);
-    }
-    
-    const qualificationLevel = qualificationScore >= 75 ? 'HIGH' : 
-                              qualificationScore >= 50 ? 'MEDIUM' : 'BASIC'; 
-    
-    };
-    
+    console.log('📧 Sending email with template:', templateId);
+    console.log('📧 Parameters:', templateParams);
     
     // Send email
     emailjs.send(EMAILJS_CONFIG.serviceId, templateId, templateParams)
