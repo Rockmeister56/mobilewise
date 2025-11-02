@@ -706,7 +706,7 @@ function completeLeadCapture() {
   } else if (type === 'preQualifier') {
     templateId = 'template_uix9cyx';
     
-    // 🆕 FIXED QUALIFICATION SCORING LOGIC
+       // 🆕 FIXED QUALIFICATION SCORING LOGIC
     console.log('🎯 CALCULATING QUALIFICATION SCORE:');
     let qualificationScore = 0;
     let qualifications = [];
@@ -717,17 +717,13 @@ function completeLeadCapture() {
         qualificationScore += 25;
         qualifications.push(`${experienceYears} years experience`);
         console.log('✅ Experience:', experienceYears, 'years → +25 points');
-    } else {
-        console.log('❌ Experience:', experienceYears, 'years → +0 points');
     }
     
-    // License scoring - FIXED (case insensitive)
+    // License scoring - FIXED
     if (data.licenseStatus && data.licenseStatus.toLowerCase().includes('cpa')) {
         qualificationScore += 25;
         qualifications.push('CPA licensed');
         console.log('✅ License: CPA licensed → +25 points');
-    } else {
-        console.log('❌ License: No CPA → +0 points');
     }
     
     // Timeline scoring - FIXED
@@ -737,11 +733,7 @@ function completeLeadCapture() {
             qualificationScore += 25;
             qualifications.push('Ready for acquisition');
             console.log('✅ Timeline: Ready for acquisition → +25 points');
-        } else {
-            console.log('❌ Timeline: Not immediate → +0 points');
         }
-    } else {
-        console.log('❌ Timeline: No timeline → +0 points');
     }
     
     // Budget scoring - FIXED
@@ -749,8 +741,6 @@ function completeLeadCapture() {
         qualificationScore += 25;
         qualifications.push(`Budget: ${data.budgetRange}`);
         console.log('✅ Budget: Has budget → +25 points');
-    } else {
-        console.log('❌ Budget: No budget → +0 points');
     }
     
     qualificationLevel = qualificationScore >= 75 ? 'HIGH' : 
