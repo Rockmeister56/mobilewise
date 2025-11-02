@@ -454,7 +454,7 @@ function askLeadQuestion() {
                     console.log('🎤 Lead Capture: Manually starting listening for user answer');
                     window.startRealtimeListening();
                 }
-            }, 5000); // Wait 2 seconds for speech to finish
+            }, 2000); // Wait 2 seconds for speech to finish
         }
     } else {
         completeLeadCapture();
