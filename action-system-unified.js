@@ -763,11 +763,10 @@ function completeLeadCapture() {
         };
     }
     
-    // 🎯 MOVE CONSOLE LOGS INSIDE THE FUNCTION SCOPE
     console.log('📧 Sending email with template:', templateId);
     console.log('📧 Parameters:', templateParams);
     
-    // Send email
+    // 🎯 KEEP THIS - IT'S THE ACTUAL EMAIL SENDING CODE
     emailjs.send(EMAILJS_CONFIG.serviceId, templateId, templateParams)
         .then(function(response) {
             console.log('✅ EMAIL SENT!', response.status, response.text);
@@ -810,51 +809,52 @@ function completeLeadCapture() {
             
             window.isInLeadCapture = false;
         });
-}
+} // 🎯 END OF FUNCTION - NO MORE CODE AFTER THIS!
+
+// ================================
+// LEAD CAPTURE 4: PRE-QUALIFIER INTERVIEW
+// ================================
+function initializePreQualifierCapture() {
+    console.log('🚀 Starting PRE-QUALIFIER capture...');
     
-    // Send email
-    emailjs.send(EMAILJS_CONFIG.serviceId, templateId, templateParams)
-        .then(function(response) {
-            console.log('✅ EMAIL SENT!', response.status, response.text);
-            
-            // Reset capture state
-            window.isInLeadCapture = false;
-            window.currentLeadData = null;
-            window.currentCaptureType = null;
-            
-            // Show success message
-            let successMessage = '';
-            if (type === 'consultation') {
-                successMessage = `Perfect ${data.name}! Our specialist will contact you at ${data.contactTime}. Is there anything else I can help you with?`;
-            } else if (type === 'clickToCall') {
-                successMessage = `Great ${data.name}! Bruce will call you at ${data.phone} shortly. Anything else I can help with?`;
-            } else if (type === 'freeBook') {
-                successMessage = `Excellent ${data.name}! I've sent Bruce's book to ${data.email}. Check your inbox!${data.wantsEvaluation ? ' Someone will contact you about the evaluation.' : ''}`;
-            } else if (type === 'preQualifier') {
-                successMessage = `Thank you ${data.name}! Your pre-qualification is complete. Based on your profile, you're a ${qualificationLevel} priority candidate. Bruce will contact you within 24 hours to discuss next steps.`;
-            }
-            
-            if (window.addAIMessage) {
-                window.addAIMessage(successMessage);
-            }
-            if (window.speakText) {
-                window.speakText(successMessage);
-            }
-            
-            // Show success banner if available
-            if (window.showUniversalBanner) {
-                window.showUniversalBanner('emailSent');
-            }
-            
-        }, function(error) {
-            console.error('❌ EMAIL FAILED:', error);
-            
-            if (window.addAIMessage) {
-                window.addAIMessage("I'm sorry, there was an issue. Please try again or call Bruce directly at 856-304-1035.");
-            }
-            
-            window.isInLeadCapture = false;
-        });
+    if (window.isInLeadCapture) return;
+    
+    window.isInLeadCapture = true;
+    window.currentCaptureType = 'preQualifier';
+    window.currentLeadData = {
+        name: '',
+        email: '',
+        phone: '',
+        experienceYears: '',
+        licenseStatus: '',
+        acquisitionTimeline: '',
+        budgetRange: '',
+        geographicPreference: '',
+        practiceSize: '',
+        specializationInterest: '',
+        financingNeeded: '',
+        captureType: 'preQualifier',
+        step: 0,
+        tempAnswer: '',
+        questions: [
+            "Let's start with your full name, please.",
+            "What's the best email to send your pre-qualification results to?",
+            "What's your phone number for follow-up?",
+            "How many years of accounting experience do you have?",
+            "Are you currently CPA-licensed or pursuing certification?",
+            "What's your ideal timeline for acquiring a practice?",
+            "What's your target budget range for this acquisition?",
+            "Which geographic areas are you considering for the practice?",
+            "What size practice are you looking for in terms of annual revenue?",
+            "Do you have a preference for any specific accounting specialties?",
+            "Will you need financing assistance for this acquisition?"
+        ]
+    };
+    
+    setTimeout(() => {
+        askLeadQuestion();
+    }, 500);
+}
 
 // ================================
 // GLOBAL EXPORTS
@@ -866,6 +866,6 @@ window.initializeConsultationCapture = initializeConsultationCapture;
 window.initializeClickToCallCapture = initializeClickToCallCapture;
 window.initializeFreeBookCapture = initializeFreeBookCapture;
 window.initiateUrgentCall = initiateUrgentCall;
-window.initializePreQualifierCapture = initializePreQualifierCapture;
+window.initializePreQualifierCapture = initializePreQualifierCapture; // 🎯 NOW THIS WILL BE GOLD!
 
 console.log('✅ ACTION SYSTEM UNIFIED - Loaded successfully (FINAL CLEANED VERSION - No restore code)');
