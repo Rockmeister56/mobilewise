@@ -302,6 +302,9 @@ function handleActionButton(action) {
         case 'free-consultation':
             initializeConsultationCapture();
             break;
+            case 'pre-qualifier':
+            initializePreQualifierCapture();
+            break;
         case 'free-book':
             initializeFreeBookCapture();
             break;
@@ -643,6 +646,14 @@ function saveConfirmedAnswer() {
         else if (step === 1) data.email = data.tempAnswer;
         else if (step === 2) {} // Already handled wantsEvaluation
         else if (step === 3) data.phone = data.tempAnswer;
+    } else if (data.captureType === 'preQualifier') {
+        // 🆕 PRE-QUALIFIER DATA SAVING
+        const fields = [
+            'name', 'email', 'phone', 'experienceYears', 'licenseStatus',
+            'acquisitionTimeline', 'budgetRange', 'geographicPreference',
+            'practiceSize', 'specializationInterest', 'financingNeeded'
+        ];
+        data[fields[step]] = data.tempAnswer;
     }
     
     console.log('✅ Saved answer:', data.tempAnswer);
@@ -652,6 +663,54 @@ function saveConfirmedAnswer() {
 window.confirmAnswer = confirmAnswer;
 window.processLeadResponse = processLeadResponse;
 
+// ================================
+// LEAD CAPTURE 4: PRE-QUALIFIER INTERVIEW
+// ================================
+function initializePreQualifierCapture() {
+    console.log('🚀 Starting PRE-QUALIFIER capture...');
+    
+    if (window.isInLeadCapture) return;
+    
+    window.isInLeadCapture = true;
+    window.currentCaptureType = 'preQualifier';
+    window.currentLeadData = {
+        name: '',
+        email: '',
+        phone: '',
+        experienceYears: '',
+        licenseStatus: '',
+        acquisitionTimeline: '',
+        budgetRange: '',
+        geographicPreference: '',
+        practiceSize: '',
+        specializationInterest: '',
+        financingNeeded: '',
+        captureType: 'preQualifier',
+        step: 0,
+        tempAnswer: '',
+        questions: [
+            "Let's start with your full name, please.",
+            "What's the best email to send your pre-qualification results to?",
+            "What's your phone number for follow-up?",
+            "How many years of accounting experience do you have?",
+            "Are you currently CPA-licensed or pursuing certification?",
+            "What's your ideal timeline for acquiring a practice?",
+            "What's your target budget range for this acquisition?",
+            "Which geographic areas are you considering for the practice?",
+            "What size practice are you looking for in terms of annual revenue?",
+            "Do you have a preference for any specific accounting specialties?",
+            "Will you need financing assistance for this acquisition?"
+        ]
+    };
+    
+    setTimeout(() => {
+        askLeadQuestion();
+    }, 500);
+}
+
+// ================================
+// COMPLETE LEAD CAPTURE & SEND EMAIL
+// ================================
 // ================================
 // COMPLETE LEAD CAPTURE & SEND EMAIL
 // ================================
@@ -694,6 +753,66 @@ function completeLeadCapture() {
             message: `Here's your free copy of "7 Secrets to Selling Your Practice"!${data.wantsEvaluation ? '\n\nInterested in evaluation - Phone: ' + data.phone : ''}`,
             timestamp: new Date().toLocaleString()
         };
+    } else if (type === 'preQualifier') {
+        templateId = EMAILJS_CONFIG.templates.preQualifier;
+        
+        // Calculate qualification score
+        let qualificationScore = 0;
+        let qualifications = [];
+        
+        // Experience scoring
+        if (parseInt(data.experienceYears) >= 3) {
+            qualificationScore += 25;
+            qualifications.push(`${data.experienceYears} years experience`);
+        }
+        
+        // License scoring
+        if (data.licenseStatus && data.licenseStatus.toLowerCase().includes('cpa')) {
+            qualificationScore += 25;
+            qualifications.push('CPA licensed');
+        }
+        
+        // Timeline scoring (serious buyers)
+        if (data.acquisitionTimeline && 
+            (data.acquisitionTimeline.toLowerCase().includes('immediate') || 
+             data.acquisitionTimeline.toLowerCase().includes('3 month') ||
+             data.acquisitionTimeline.toLowerCase().includes('6 month'))) {
+            qualificationScore += 25;
+            qualifications.push('Ready for acquisition');
+        }
+        
+        // Budget scoring
+        if (data.budgetRange) {
+            qualificationScore += 25;
+            qualifications.push(`Budget: ${data.budgetRange}`);
+        }
+        
+        const qualificationLevel = qualificationScore >= 75 ? 'HIGH' : 
+                                  qualificationScore >= 50 ? 'MEDIUM' : 'BASIC';
+        
+        templateParams = {
+            to_email: 'bizboost.expert@gmail.com',
+            from_name: data.name || 'Not provided',
+            from_email: data.email || 'Not provided',
+            phone: data.phone || 'Not provided',
+            message: `PRE-QUALIFIER RESULTS - ${qualificationLevel} PRIORITY\n\n` +
+                    `QUALIFICATION SCORE: ${qualificationScore}/100\n` +
+                    `QUALIFICATIONS: ${qualifications.join(', ')}\n\n` +
+                    `DETAILED PROFILE:\n` +
+                    `Name: ${data.name}\n` +
+                    `Email: ${data.email}\n` +
+                    `Phone: ${data.phone}\n` +
+                    `Experience: ${data.experienceYears} years\n` +
+                    `License Status: ${data.licenseStatus}\n` +
+                    `Timeline: ${data.acquisitionTimeline}\n` +
+                    `Budget: ${data.budgetRange}\n` +
+                    `Location Preference: ${data.geographicPreference}\n` +
+                    `Practice Size: ${data.practiceSize}\n` +
+                    `Specialization: ${data.specializationInterest}\n` +
+                    `Financing: ${data.financingNeeded}\n\n` +
+                    `RECOMMENDATION: ${qualificationLevel} priority follow-up`,
+            timestamp: new Date().toLocaleString()
+        };
     }
     
     console.log('📧 Sending email with template:', templateId);
@@ -717,6 +836,8 @@ function completeLeadCapture() {
                 successMessage = `Great ${data.name}! Bruce will call you at ${data.phone} shortly. Anything else I can help with?`;
             } else if (type === 'freeBook') {
                 successMessage = `Excellent ${data.name}! I've sent Bruce's book to ${data.email}. Check your inbox!${data.wantsEvaluation ? ' Someone will contact you about the evaluation.' : ''}`;
+            } else if (type === 'preQualifier') {
+                successMessage = `Thank you ${data.name}! Your pre-qualification is complete. Based on your profile, you're a ${qualificationLevel} priority candidate. Bruce will contact you within 24 hours to discuss next steps.`;
             }
             
             if (window.addAIMessage) {
@@ -752,5 +873,6 @@ window.initializeConsultationCapture = initializeConsultationCapture;
 window.initializeClickToCallCapture = initializeClickToCallCapture;
 window.initializeFreeBookCapture = initializeFreeBookCapture;
 window.initiateUrgentCall = initiateUrgentCall;
+window.initializePreQualifierCapture = initializePreQualifierCapture;
 
 console.log('✅ ACTION SYSTEM UNIFIED - Loaded successfully (FINAL CLEANED VERSION - No restore code)');
