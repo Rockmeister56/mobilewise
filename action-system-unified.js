@@ -847,13 +847,10 @@ function completeLeadCapture() {
     }
     
     const qualificationLevel = qualificationScore >= 75 ? 'HIGH' : 
-                              qualificationScore >= 50 ? 'MEDIUM' : 'BASIC';
-    
+                              qualificationScore >= 50 ? 'MEDIUM' : 'BASIC'; 
     
     };
     
-    console.log('📧 Sending email with template:', templateId);
-    console.log('📧 Parameters:', templateParams);
     
     // Send email
     emailjs.send(EMAILJS_CONFIG.serviceId, templateId, templateParams)
