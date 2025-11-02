@@ -59,247 +59,213 @@ function formatEmailFromSpeech(speechText) {
 // ================================
 // COMMUNICATION ACTION CENTER - 5 BUTTON LAYOUT
 // ================================
-function showCommunicationActionCenter(context = 'consultation') {
-    console.log('🎯 Showing Communication Action Center (5-BUTTON) - Context:', context);
-    
-    // Check if already exists
-    if (document.getElementById('communication-action-center')) {
-        console.log('⚠️ Action Center already exists');
-        return;
-    }
-    
-    // 🆕 HIDE OLD ACTION BUTTONS (but don't track them for restore)
-// console.log('🧹 Hiding old action buttons...');  // ← Comment this out
-
-// Hide all old action buttons by class
-const oldButtons = document.querySelectorAll('.action-button-dynamic, .quick-btn');
-oldButtons.forEach(button => {
-    if (!button.closest('#communication-action-center')) {
-        button.style.display = 'none';
-        // console.log('👻 Hidden old button:', button.id || button.textContent);  // ← Comment this out
-    }
-});
-
-// Hide specific button IDs if they exist
-const buttonIds = ['cta1', 'cta2', 'cta3', 'smartButton'];
-buttonIds.forEach(id => {
-    const button = document.getElementById(id);
-    if (button) {
-        button.style.display = 'none';
-        // console.log('👻 Hidden button by ID:', id);  // ← Comment this out
-    }
-});
-
-// Hide button containers
-const containers = document.querySelectorAll('.action-buttons-container, .quick-questions, .quick-buttons');
-containers.forEach(container => {
-    if (!container.querySelector('#communication-action-center')) {
-        const oldStyleDisplay = container.style.display;
-        container.style.display = 'none';
-        // console.log('👻 Hidden container:', container.className, '(was:', oldStyleDisplay, ')');  // ← Comment this out
-    }
-});
-
-// console.log('✅ Old action buttons hidden');  // ← Comment this out
-    
-    const chatContainer = document.getElementById('chatMessages') || 
-                         document.querySelector('.chat-messages') || 
-                         document.querySelector('#messages') ||
-                         document.querySelector('.messages-container');
-    
-    if (!chatContainer) {
-        console.error('❌ Could not find chat container');
-        return;
-    }
-    
+function showCommunicationActionCenter() {
     const actionCenter = document.createElement('div');
     actionCenter.id = 'communication-action-center';
-    actionCenter.className = 'action-center-inline';
-    
     actionCenter.innerHTML = `
-        <div class="frosted-container" style="
-            background: rgba(255, 255, 255, 0.95);
+        <div style="
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.9)),
+                        url('https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1762038349654_action-bg.jpg');
+            background-size: cover;
+            background-position: center;
+            background-blend-mode: overlay;
             backdrop-filter: blur(10px);
-            border-radius: 16px;
-            padding: 30px;
-            margin: 20px auto;
-            max-width: 650px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            padding: 30px 25px 30px 25px;
+            margin: 20px 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            color: white;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            max-width: 750px;
+            min-height: 450px;
         ">
-            <!-- Header with Avatar -->
+            <!-- Header with Video Avatar -->
             <div style="
                 display: flex;
                 align-items: center;
-                margin-bottom: 24px;
+                margin-bottom: 25px;
+                gap: 15px;
+                margin-top: 5px;
             ">
-                <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/avatars/avatar_1755209453856_avatar%20right.png" 
-                     alt="Assistant Avatar" 
-                     style="
-                         width: 60px;
-                         height: 60px;
-                         border-radius: 50%;
-                         margin-right: 16px;
-                         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-                     ">
-                <h3 style="
-                    color: #2c3e50;
-                    margin: 0;
-                    font-size: 24px;
-                    font-weight: 600;
-                ">Communication Action Center</h3>
-            </div>
-            
-            <!-- Action Buttons - 5 Button Layout -->
-            <div style="display: flex; flex-direction: column; gap: 16px;">
-                <!-- Row 1: Click-to-Call & URGENT CALL -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                    <button class="action-btn royal-blue-btn" onclick="handleActionButton('click-to-call')" style="
-                        background: #4169e1;
-                        color: white;
-                        border: none;
-                        border-radius: 8px;
-                        padding: 20px;
-                        font-size: 17px;
-                        font-weight: 600;
-                        cursor: pointer;
-                        transition: all 0.3s ease;
-                        box-shadow: 0 4px 15px rgba(65, 105, 225, 0.3);
-                        text-align: center;
-                    ">
-                        Click-to-Call
-                    </button>
-                    
-                    <button class="action-btn urgent-btn" onclick="handleActionButton('urgent-call')" style="
-                        background: #e74c3c;
-                        color: white;
-                        border: none;
-                        border-radius: 8px;
-                        padding: 20px;
-                        font-size: 17px;
-                        font-weight: 600;
-                        cursor: pointer;
-                        transition: all 0.3s ease;
-                        box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
-                        text-align: center;
-                    ">
-                        URGENT CALL
-                    </button>
-                </div>
-                
-                <!-- Row 2: FREE Consultation & FREE BOOK -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                    <button class="action-btn royal-blue-btn" onclick="handleActionButton('free-consultation')" style="
-                        background: #4169e1;
-                        color: white;
-                        border: none;
-                        border-radius: 8px;
-                        padding: 20px;
-                        font-size: 17px;
-                        font-weight: 600;
-                        cursor: pointer;
-                        transition: all 0.3s ease;
-                        box-shadow: 0 4px 15px rgba(65, 105, 225, 0.3);
-                        text-align: center;
-                    ">
-                        FREE Consultation
-                    </button>
-                    
-                    <button class="action-btn royal-blue-btn" onclick="handleActionButton('free-book')" style="
-                        background: #4169e1;
-                        color: white;
-                        border: none;
-                        border-radius: 8px;
-                        padding: 20px;
-                        font-size: 17px;
-                        font-weight: 600;
-                        cursor: pointer;
-                        transition: all 0.3s ease;
-                        box-shadow: 0 4px 15px rgba(65, 105, 225, 0.3);
-                        text-align: center;
-                    ">
-                        FREE BOOK
-                    </button>
-                </div>
-                
-                <!-- Row 3: Skip for Now (Full Width) -->
-                <button class="action-btn skip-btn" onclick="handleActionButton('skip')" style="
-                    background: #95a5a6;
-                    color: white;
-                    border: none;
-                    border-radius: 8px;
-                    padding: 20px;
-                    font-size: 17px;
-                    font-weight: 600;
-                    cursor: pointer;
-                    transition: all 0.3s ease;
-                    box-shadow: 0 4px 15px rgba(149, 165, 166, 0.3);
-                    text-align: center;
-                    width: 100%;
+                <video autoplay loop muted playsinline style="
+                    width: 80px;
+                    height: 80px;
+                    border-radius: 50%;
+                    object-fit: cover;
+                    border: 2px solid rgba(255, 255, 255, 0.2);
+                    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
                 ">
-                    Skip for Now
+                    <source src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1762037335280.mp4" type="video/mp4">
+                </video>
+                <div>
+                    <h3 style="
+                        margin: 0 0 5px 0;
+                        font-size: 22px;
+                        font-weight: 600;
+                        color: white;
+                    ">Communication Action Center</h3>
+                    <p style="
+                        margin: 0;
+                        opacity: 0.8;
+                        font-size: 13px;
+                        font-weight: 300;
+                        letter-spacing: 0.5px;
+                    ">AI-Powered Solutions</p>
+                </div>
+            </div>
+
+            <!-- 2x2 Grid Layout - EXACTLY like your current design -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px;">
+                <!-- Request A Call -->
+                <button onclick="handleActionButton('click-to-call')" style="
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    background: rgba(0, 0, 0, 0.6);
+                    border: 1px solid rgba(255, 255, 255, 0.2);
+                    color: white;
+                    padding: 18px 15px;
+                    border-radius: 10px;
+                    cursor: pointer;
+                    font-weight: 600;
+                    font-size: 17px;
+                    text-align: left;
+                    transition: all 0.3s ease;
+                    backdrop-filter: blur(10px);
+                    width: 100%;
+                    height: 84px;
+                    min-width: 295px;
+                " onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.borderColor='rgba(255, 255, 255, 0.3)'; this.style.transform='translateY(-2px)';" 
+                   onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.borderColor='rgba(255, 255, 255, 0.2)'; this.style.transform='translateY(0)';">
+                    <!-- Phone Icon - Using data URI to avoid CORS -->
+                    <div style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
+                        <span style="font-size: 24px;">📞</span>
+                    </div>
+                    <span style="flex: 1;">Request A Call</span>
+                </button>
+
+                <!-- URGENT CALL -->
+                <button onclick="handleActionButton('urgent-call')" style="
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    background: rgba(0, 0, 0, 0.6);
+                    border: 1px solid rgba(255, 255, 255, 0.2);
+                    color: white;
+                    padding: 18px 15px;
+                    border-radius: 10px;
+                    cursor: pointer;
+                    font-weight: 600;
+                    font-size: 17px;
+                    text-align: left;
+                    transition: all 0.3s ease;
+                    backdrop-filter: blur(10px);
+                    width: 100%;
+                    height: 84px;
+                    min-width: 295px;
+                " onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.borderColor='rgba(255, 255, 255, 0.3)'; this.style.transform='translateY(-2px)';" 
+                   onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.borderColor='rgba(255, 255, 255, 0.2)'; this.style.transform='translateY(0)';">
+                    <div style="font-size: 28px;">🚨</div>
+                    <span style="flex: 1;">URGENT CALL</span>
+                </button>
+
+                <!-- BOOK Consultation -->
+                <button onclick="handleActionButton('free-consultation')" style="
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    background: rgba(0, 0, 0, 0.6);
+                    border: 1px solid rgba(255, 255, 255, 0.2);
+                    color: white;
+                    padding: 18px 15px;
+                    border-radius: 10px;
+                    cursor: pointer;
+                    font-weight: 600;
+                    font-size: 17px;
+                    text-align: left;
+                    transition: all 0.3s ease;
+                    backdrop-filter: blur(10px);
+                    width: 100%;
+                    height: 84px;
+                    min-width: 295px;
+                " onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.borderColor='rgba(255, 255, 255, 0.3)'; this.style.transform='translateY(-2px)';" 
+                   onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.borderColor='rgba(255, 255, 255, 0.2)'; this.style.transform='translateY(0)';">
+                    <!-- Calendar Icon -->
+                    <div style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
+                        <span style="font-size: 24px;">📅</span>
+                    </div>
+                    <span style="flex: 1;">BOOK Consultation</span>
+                </button>
+
+                <!-- Pre-Qualifier -->
+                <button onclick="handleActionButton('pre-qualifier')" style="
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    background: rgba(0, 0, 0, 0.6);
+                    border: 1px solid rgba(255, 255, 255, 0.2);
+                    color: white;
+                    padding: 18px 15px;
+                    border-radius: 10px;
+                    cursor: pointer;
+                    font-weight: 600;
+                    font-size: 17px;
+                    text-align: left;
+                    transition: all 0.3s ease;
+                    backdrop-filter: blur(10px);
+                    width: 100%;
+                    height: 84px;
+                    min-width: 295px;
+                " onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.borderColor='rgba(255, 255, 255, 0.3)'; this.style.transform='translateY(-2px)';" 
+                   onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.borderColor='rgba(255, 255, 255, 0.2)'; this.style.transform='translateY(0)';">
+                    <!-- Checkmark Icon -->
+                    <div style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
+                        <span style="font-size: 24px;">✅</span>
+                    </div>
+                    <span style="flex: 1;">Pre-Qualification</span>
                 </button>
             </div>
+
+            <!-- Skip for Now - Full Width -->
+            <button onclick="handleActionButton('skip')" style="
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                background: rgba(0, 0, 0, 0.6);
+                color: rgba(255, 255, 255, 0.8);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                padding: 15px 20px;
+                border-radius: 10px;
+                cursor: pointer;
+                font-size: 16px;
+                font-weight: 500;
+                transition: all 0.3s ease;
+                width: 100%;
+                justify-content: center;
+                margin-top: 5px;
+            " onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.color='white';" 
+               onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.color='rgba(255, 255, 255, 0.8)';">
+                <!-- Skip Icon -->
+                <div style="width: 20px; height: 20px; display: flex; align-items: center; justify-content: center;">
+                    <span style="font-size: 16px;">⏭️</span>
+                </div>
+                <span>Skip for Now</span>
+            </button>
         </div>
     `;
     
-    const styleElement = document.createElement('style');
-    styleElement.textContent = `
-        .action-center-inline {
-            width: 100%;
-            animation: slideInFromBottom 0.4s ease-out;
-        }
+    const chatContainer = document.getElementById('chatMessages') || document.querySelector('.chat-messages');
+    if (chatContainer) {
+        chatContainer.appendChild(actionCenter);
         
-        @keyframes slideInFromBottom {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .royal-blue-btn:hover {
-            background: #3557c7 !important;
-            transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 8px 25px rgba(65, 105, 225, 0.4) !important;
-        }
-        
-        .royal-blue-btn:active {
-            transform: translateY(-1px) scale(0.98);
-        }
-        
-        .urgent-btn:hover {
-            background: #c0392b !important;
-            transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 8px 25px rgba(231, 76, 60, 0.4) !important;
-        }
-        
-        .urgent-btn:active {
-            transform: translateY(-1px) scale(0.98);
-        }
-        
-        .skip-btn:hover {
-            background: #7f8c8d !important;
-            transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 8px 25px rgba(149, 165, 166, 0.4) !important;
-        }
-        
-        .skip-btn:active {
-            transform: translateY(-1px) scale(0.98);
-        }
-    `;
-    document.head.appendChild(styleElement);
+        // Auto-scroll to show the action center
+        setTimeout(() => {
+            actionCenter.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 100);
+    }
     
-    chatContainer.appendChild(actionCenter);
-    
-    setTimeout(() => {
-        actionCenter.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }, 100);
-    
-    console.log('✅ Communication Action Center displayed (5-BUTTON LAYOUT)');
+    console.log('✅ Communication Action Center displayed with emojis');
 }
 
 // ================================
