@@ -6,15 +6,14 @@
 
 console.log('🎯 ACTION SYSTEM UNIFIED - Loading (FINAL CLEANED VERSION)...');
 
-// ================================
-// EMAILJS CONFIGURATION
-// ================================
 const EMAILJS_CONFIG = {
     serviceId: 'service_b9bppgb',
     publicKey: '7-9oxa3UC3uKxtqGM',
     templates: {
-        consultation: 'template_yf09xm5',  // Request A Call
-        clickToCall: 'template_8i0k6hr',   // Same as consultation
+        consultation: 'template_yf09xm5',
+        clickToCall: 'template_8i0k6hr', 
+        freeBook: 'template_xxxxxxx',
+        preQualifier: 'template_uix9cyx'  // Your new template
     }
 };
 
