@@ -662,51 +662,6 @@ window.confirmAnswer = confirmAnswer;
 window.processLeadResponse = processLeadResponse;
 
 // ================================
-// LEAD CAPTURE 4: PRE-QUALIFIER INTERVIEW
-// ================================
-function initializePreQualifierCapture() {
-    console.log('🚀 Starting PRE-QUALIFIER capture...');
-    
-    if (window.isInLeadCapture) return;
-    
-    window.isInLeadCapture = true;
-    window.currentCaptureType = 'preQualifier';
-    window.currentLeadData = {
-        name: '',
-        email: '',
-        phone: '',
-        experienceYears: '',
-        licenseStatus: '',
-        acquisitionTimeline: '',
-        budgetRange: '',
-        geographicPreference: '',
-        practiceSize: '',
-        specializationInterest: '',
-        financingNeeded: '',
-        captureType: 'preQualifier',
-        step: 0,
-        tempAnswer: '',
-        questions: [
-            "Let's start with your full name, please.",
-            "What's the best email to send your pre-qualification results to?",
-            "What's your phone number for follow-up?",
-            "How many years of accounting experience do you have?",
-            "Are you currently CPA-licensed or pursuing certification?",
-            "What's your ideal timeline for acquiring a practice?",
-            "What's your target budget range for this acquisition?",
-            "Which geographic areas are you considering for the practice?",
-            "What size practice are you looking for in terms of annual revenue?",
-            "Do you have a preference for any specific accounting specialties?",
-            "Will you need financing assistance for this acquisition?"
-        ]
-    };
-    
-    setTimeout(() => {
-        askLeadQuestion();
-    }, 500);
-}
-
-// ================================
 // COMPLETE LEAD CAPTURE & SEND EMAIL
 // ================================
 function completeLeadCapture() {
@@ -718,7 +673,8 @@ function completeLeadCapture() {
     // Prepare email parameters based on capture type
     let templateId = '';
     let templateParams = {};
-    
+    let qualificationLevel = ''; // 🆕 Make this accessible for success message
+
     if (type === 'consultation') {
         templateId = EMAILJS_CONFIG.templates.consultation;
         templateParams = {
@@ -782,10 +738,9 @@ function completeLeadCapture() {
             qualifications.push(`Budget: ${data.budgetRange}`);
         }
         
-        const qualificationLevel = qualificationScore >= 75 ? 'HIGH' : 
-                                  qualificationScore >= 50 ? 'MEDIUM' : 'BASIC';
+        qualificationLevel = qualificationScore >= 75 ? 'HIGH' : 
+                            qualificationScore >= 50 ? 'MEDIUM' : 'BASIC';
         
-        // 🎯 SINGLE templateParams assignment for pre-qualifier
         templateParams = {
             to_email: 'bizboost.expert@gmail.com',
             from_name: data.name || 'Not provided',
@@ -806,8 +761,9 @@ function completeLeadCapture() {
                                qualificationLevel === 'MEDIUM' ? 'Contact within 24 hours' : 'Contact within 48 hours',
             timestamp: new Date().toLocaleString()
         };
-    } // 🎯 CLOSING BRACKET FOR PRE-QUALIFIER
+    }
     
+    // 🎯 MOVE CONSOLE LOGS INSIDE THE FUNCTION SCOPE
     console.log('📧 Sending email with template:', templateId);
     console.log('📧 Parameters:', templateParams);
     
@@ -854,10 +810,7 @@ function completeLeadCapture() {
             
             window.isInLeadCapture = false;
         });
-} // 🎯 CLOSING BRACKET FOR COMPLETE FUNCTION
-    
-    console.log('📧 Sending email with template:', templateId);
-    console.log('📧 Parameters:', templateParams);
+}
     
     // Send email
     emailjs.send(EMAILJS_CONFIG.serviceId, templateId, templateParams)
