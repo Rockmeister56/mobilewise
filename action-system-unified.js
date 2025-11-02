@@ -872,7 +872,6 @@ function completeLeadCapture() {
     };
 }
     
-    console.log('📧 Sending email with template:', templateId);
     console.log('📧 Parameters:', templateParams);
     
     // Send email
