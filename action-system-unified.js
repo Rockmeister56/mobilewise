@@ -849,29 +849,10 @@ function completeLeadCapture() {
     const qualificationLevel = qualificationScore >= 75 ? 'HIGH' : 
                               qualificationScore >= 50 ? 'MEDIUM' : 'BASIC';
     
-    // Enhanced template parameters for killer email
-    templateParams = {
-        to_email: 'bizboost.expert@gmail.com',
-        from_name: data.name || 'Not provided',
-        from_email: data.email || 'Not provided',
-        phone: data.phone || 'Not provided',
-        qualification_score: qualificationScore,
-        qualification_level: qualificationLevel,
-        qualifications: qualifications,
-        experience_years: data.experienceYears || 'Not specified',
-        license_status: data.licenseStatus || 'Not specified',
-        acquisition_timeline: data.acquisitionTimeline || 'Not specified',
-        budget_range: data.budgetRange || 'Not specified',
-        geographic_preference: data.geographicPreference || 'Not specified',
-        practice_size: data.practiceSize || 'Not specified',
-        specialization_interest: data.specializationInterest || 'Not specified',
-        financing_needed: data.financingNeeded || 'Not specified',
-        recommended_action: qualificationLevel === 'HIGH' ? 'Contact within 4 hours' : 
-                           qualificationLevel === 'MEDIUM' ? 'Contact within 24 hours' : 'Contact within 48 hours',
-        timestamp: new Date().toLocaleString()
-    };
-}
     
+    };
+    
+    console.log('📧 Sending email with template:', templateId);
     console.log('📧 Parameters:', templateParams);
     
     // Send email
