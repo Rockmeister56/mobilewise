@@ -703,86 +703,86 @@ function completeLeadCapture() {
             message: `Here's your free copy of "7 Secrets to Selling Your Practice"!${data.wantsEvaluation ? '\n\nInterested in evaluation - Phone: ' + data.phone : ''}`,
             timestamp: new Date().toLocaleString()
         };
-  } else if (type === 'preQualifier') {
-    templateId = 'template_uix9cyx';
-    
-       // 🆕 FIXED QUALIFICATION SCORING LOGIC
-    console.log('🎯 CALCULATING QUALIFICATION SCORE:');
-    let qualificationScore = 0;
-    let qualifications = [];
-    
-    // Experience scoring - FIXED
-    const experienceYears = parseInt(data.experienceYears) || 0;
-    if (experienceYears >= 3) {
-        qualificationScore += 25;
-        qualifications.push(`${experienceYears} years experience`);
-        console.log('✅ Experience:', experienceYears, 'years → +25 points');
-    }
-    
-    // License scoring - FIXED
-    if (data.licenseStatus && data.licenseStatus.toLowerCase().includes('cpa')) {
-        qualificationScore += 25;
-        qualifications.push('CPA licensed');
-        console.log('✅ License: CPA licensed → +25 points');
-    }
-    
-    // Timeline scoring - FIXED
-    if (data.acquisitionTimeline) {
-        const timeline = data.acquisitionTimeline.toLowerCase();
-        if (timeline.includes('immediate') || timeline.includes('3 month') || timeline.includes('6 month')) {
+    } else if (type === 'preQualifier') {
+        templateId = 'template_uix9cyx';
+        
+        // 🆕 FIXED QUALIFICATION SCORING LOGIC
+        console.log('🎯 CALCULATING QUALIFICATION SCORE:');
+        let qualificationScore = 0;
+        let qualifications = [];
+        
+        // Experience scoring - FIXED
+        const experienceYears = parseInt(data.experienceYears) || 0;
+        if (experienceYears >= 3) {
             qualificationScore += 25;
-            qualifications.push('Ready for acquisition');
-            console.log('✅ Timeline: Ready for acquisition → +25 points');
+            qualifications.push(`${experienceYears} years experience`);
+            console.log('✅ Experience:', experienceYears, 'years → +25 points');
         }
-    }
-    
-    // Budget scoring - FIXED
-    if (data.budgetRange && data.budgetRange.trim() !== '') {
-        qualificationScore += 25;
-        qualifications.push(`Budget: ${data.budgetRange}`);
-        console.log('✅ Budget: Has budget → +25 points');
-    }
-    
-    qualificationLevel = qualificationScore >= 75 ? 'HIGH' : 
-                        qualificationScore >= 50 ? 'MEDIUM' : 'BASIC';
-    
-    console.log('🎯 FINAL SCORE:', qualificationScore, 'Points → Level:', qualificationLevel);
-    console.log('🎯 QUALIFICATIONS:', qualifications);
-    
+        
+        // License scoring - FIXED
+        if (data.licenseStatus && data.licenseStatus.toLowerCase().includes('cpa')) {
+            qualificationScore += 25;
+            qualifications.push('CPA licensed');
+            console.log('✅ License: CPA licensed → +25 points');
+        }
+        
+        // Timeline scoring - FIXED
+        if (data.acquisitionTimeline) {
+            const timeline = data.acquisitionTimeline.toLowerCase();
+            if (timeline.includes('immediate') || timeline.includes('3 month') || timeline.includes('6 month')) {
+                qualificationScore += 25;
+                qualifications.push('Ready for acquisition');
+                console.log('✅ Timeline: Ready for acquisition → +25 points');
+            }
+        }
+        
+        // Budget scoring - FIXED
+        if (data.budgetRange && data.budgetRange.trim() !== '') {
+            qualificationScore += 25;
+            qualifications.push(`Budget: ${data.budgetRange}`);
+            console.log('✅ Budget: Has budget → +25 points');
+        }
+        
+        qualificationLevel = qualificationScore >= 75 ? 'HIGH' : 
+                            qualificationScore >= 50 ? 'MEDIUM' : 'BASIC';
+        
+        console.log('🎯 FINAL SCORE:', qualificationScore, 'Points → Level:', qualificationLevel);
+        console.log('🎯 QUALIFICATIONS:', qualifications);
+        
         templateParams = {
-        to_email: 'bizboost.expert@gmail.com',
-        from_name: data.name || 'Not provided',
-        from_email: data.email || 'Not provided',
-        phone: data.phone || 'Not provided',
-        name: data.name || 'Not provided',
-        email: data.email || 'Not provided',
-        qualification_score: qualificationScore,  // 🆕 Now has proper value
-        qualification_level: qualificationLevel,  // 🆕 Now has proper value  
-        qualifications: qualifications,           // 🆕 Now has proper array
-        experience_years: data.experienceYears || 'Not specified',
-        license_status: data.licenseStatus || 'Not specified',
-        acquisition_timeline: data.acquisitionTimeline || 'Not specified',
-        budget_range: data.budgetRange || 'Not specified',
-        geographic_preference: data.geographicPreference || 'Not specified',
-        practice_size: data.practiceSize || 'Not specified',
-        specialization_interest: data.specializationInterest || 'Not specified',
-        financing_needed: data.financingNeeded || 'Not specified',
-        recommended_action: qualificationLevel === 'HIGH' ? 'Contact within 4 hours' : 
-                           qualificationLevel === 'MEDIUM' ? 'Contact within 24 hours' : 'Contact within 48 hours',
-        timestamp: new Date().toLocaleString()
-    };;
+            to_email: 'bizboost.expert@gmail.com',
+            from_name: data.name || 'Not provided',
+            from_email: data.email || 'Not provided',
+            phone: data.phone || 'Not provided',
+            name: data.name || 'Not provided',
+            email: data.email || 'Not provided',
+            qualification_score: qualificationScore,  // 🆕 Now has proper value
+            qualification_level: qualificationLevel,  // 🆕 Now has proper value  
+            qualifications: qualifications,           // 🆕 Now has proper array
+            experience_years: data.experienceYears || 'Not specified',
+            license_status: data.licenseStatus || 'Not specified',
+            acquisition_timeline: data.acquisitionTimeline || 'Not specified',
+            budget_range: data.budgetRange || 'Not specified',
+            geographic_preference: data.geographicPreference || 'Not specified',
+            practice_size: data.practiceSize || 'Not specified',
+            specialization_interest: data.specializationInterest || 'Not specified',
+            financing_needed: data.financingNeeded || 'Not specified',
+            recommended_action: qualificationLevel === 'HIGH' ? 'Contact within 4 hours' : 
+                               qualificationLevel === 'MEDIUM' ? 'Contact within 24 hours' : 'Contact within 48 hours',
+            timestamp: new Date().toLocaleString()
+        };
+        
+        console.log('📧 Sending email with template:', templateId);
+        console.log('📧 Parameters:', templateParams);
+
+        console.log('🔍 DEBUG - Template Parameters Being Sent:');
+        Object.keys(templateParams).forEach(key => {
+            console.log(`  ${key}:`, templateParams[key]);
+        });
+    } // 🎯 THIS CLOSING BRACE WAS MISSING!
     
-    console.log('📧 Sending email with template:', templateId);
-    console.log('📧 Parameters:', templateParams);
-
-    console.log('🔍 DEBUG - Template Parameters Being Sent:');
-    Object.keys(templateParams).forEach(key => {
-        console.log(`  ${key}:`, templateParams[key]);
-    });
-}
-
-// Also check what the template expects
-console.log('📧 Template ID:', templateId);
+    // Also check what the template expects
+    console.log('📧 Template ID:', templateId);
     
     // 🎯 KEEP THIS - IT'S THE ACTUAL EMAIL SENDING CODE
     emailjs.send(EMAILJS_CONFIG.serviceId, templateId, templateParams)
@@ -827,7 +827,7 @@ console.log('📧 Template ID:', templateId);
             
             window.isInLeadCapture = false;
         });
-} // 🎯 END OF FUNCTION - NO MORE CODE AFTER THIS!
+} // 🎯 END OF FUNCTION - NO MORE CODE AFTER THIS! 
 
 // ================================
 // LEAD CAPTURE 4: PRE-QUALIFIER INTERVIEW
