@@ -918,7 +918,6 @@ function completeLeadCapture() {
             
             window.isInLeadCapture = false;
         });
-}
 
 // ================================
 // GLOBAL EXPORTS
