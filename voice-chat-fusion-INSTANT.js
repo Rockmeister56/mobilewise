@@ -2446,22 +2446,27 @@ async function getAIResponse(userMessage, conversationHistory = []) {
         console.log('✅ Speak Now banner removed - AI responding');
     }
     
+    // 🧠 KNOWLEDGE BASE - Handle general questions first
+    const knowledgeResponse = handleGeneralQuestions(userMessage, window.userName || '');
+    if (knowledgeResponse) {
+        console.log('✅ Knowledge base response triggered');
+        speakWithElevenLabs(knowledgeResponse, false);
+        return knowledgeResponse;
+    }
+    
     // Check if we're waiting for name
     if (window.waitingForName) {
         console.log('✅ Name captured:', userMessage);
-        // 🎯 UPDATE STATE - MOVE PAST NAME CAPTURE
-window.conversationState = 'asking_reason';
-console.log('🔄 State changed to:', window.conversationState);
+        window.conversationState = 'asking_reason';
+        console.log('🔄 State changed to:', window.conversationState);
         window.userName = userMessage;
         window.waitingForName = false;
         
         const response = `Nice to meet you, ${userMessage}! What brings you to New Clients Inc today?`;
         
         speakWithElevenLabs(response, false);
-        
-        // Mark that we're now waiting for their intent
         window.waitingForIntent = true;
-        return response;  // ✅ RETURN THE RESPONSE
+        return response;
     }
     
     // Check if we're waiting for their intent (sell/buy/value/help)
@@ -2496,30 +2501,26 @@ console.log('🔄 State changed to:', window.conversationState);
             window.waitingForIntent = false;
             window.userIntent = detectedIntent;
             
-            // Echo their intent back with enthusiasm
             const response = `That's fantastic that you want to ${detectedIntent}, ${window.userName}! I'd love to help you reach your goals by sending you Bruce's free book "7 Secrets to Selling Your Practice" and setting up a consultation. Simply click the Free Book and Consultation banner on your screen!`;
             
             console.log('🎤 Speaking consultative response:', response);
             speakWithElevenLabs(response, false);
             
-            // 🎯 Trigger setAppointment banner (2000ms delay - faster conversion)
-setTimeout(() => {
-    console.log('🎯 Attempting to show setAppointment banner...');
-    
-    if (typeof showUniversalBanner === 'function') {
-        showUniversalBanner('setAppointment');
-        console.log('✅ setAppointment banner triggered!');
-    } else {
-        console.error('❌ showUniversalBanner function not found for setAppointment banner');
-    }
-}, 2000);
+            // 🎯 Trigger setAppointment banner
+            setTimeout(() => {
+                console.log('🎯 Attempting to show setAppointment banner...');
+                if (typeof showUniversalBanner === 'function') {
+                    showUniversalBanner('setAppointment');
+                    console.log('✅ setAppointment banner triggered!');
+                } else {
+                    console.error('❌ showUniversalBanner function not found');
+                }
+            }, 2000);
 
-// Mark that we're waiting for book response (yes/no)
-window.waitingForBookResponse = true;
-return response;  // ✅ RETURN THE RESPONSE
+            window.waitingForBookResponse = true;
+            return response;
         }
         
-        // If no intent detected, continue to OpenAI
         console.log('⚠️ No consultative intent detected, continuing to OpenAI...');
     }
     
@@ -2540,35 +2541,149 @@ return response;  // ✅ RETURN THE RESPONSE
             const response = `Perfect! I've got that ready for you. Just click the banner to choose how you'd like to proceed!`;
             
             speakWithElevenLabs(response, false);
-            
-            return response;  // ✅ RETURN THE RESPONSE
+            return response;
         }
         
-        // Handle NO response
+        // Handle NO response - Start qualification questions
         if (lowerMessage.includes('no') || lowerMessage.includes('nah') || 
             lowerMessage.includes('not now') || lowerMessage.includes('maybe later')) {
             
-            console.log('❌ User declined book offer, continuing with questions');
+            console.log('❌ User declined book offer, starting qualification');
             window.waitingForBookResponse = false;
             
-            const response = `No problem! Let me ask you a few questions to better understand your needs. What type of practice do you have?`;
+            // Start qualification process based on intent
+            let response = '';
+            if (window.userIntent === 'sell your practice') {
+                response = `No problem! Let me ask you a few questions to better understand your practice. How many clients do you currently serve?`;
+                window.qualificationState = 'selling_clients';
+            } else if (window.userIntent === 'buy a practice') {
+                response = `No problem! Let me ask a few questions to match you with the right opportunity. What's your budget range for acquiring a practice?`;
+                window.qualificationState = 'buying_budget';
+            } else if (window.userIntent === 'get your practice valued') {
+                response = `No problem! Let me gather some details for an accurate valuation. What's your practice's approximate annual revenue?`;
+                window.qualificationState = 'valuation_revenue';
+            } else {
+                response = `No problem! Let me ask you a few questions to better understand your needs. What type of practice do you have?`;
+                window.qualificationState = 'general_qualification';
+            }
             
             speakWithElevenLabs(response, false);
-            
-            return response;  // ✅ RETURN THE RESPONSE
+            return response;
         }
         
         // If ambiguous, ask for clarification
         console.log('⚠️ Ambiguous book response, asking for clarification');
-        
         const response = `I'm not sure I caught that. Would you like me to send you Bruce's free book and set up a consultation?`;
-        
         speakWithElevenLabs(response, false);
-        
-        return response;  // ✅ RETURN THE RESPONSE
+        return response;
     }
     
-    // Continue with regular OpenAI conversation
+    // 🎯 QUALIFICATION PROCESSING
+    if (window.qualificationState) {
+        console.log('🎯 Processing qualification in state:', window.qualificationState);
+        
+        let response = '';
+        let nextState = '';
+        
+        switch (window.qualificationState) {
+            case 'selling_clients':
+                response = `Great! With that many clients, what's your approximate annual revenue?`;
+                nextState = 'selling_revenue';
+                break;
+                
+            case 'selling_revenue':
+                response = `Excellent revenue! What's driving your decision to sell? Retirement, new opportunities, or something else?`;
+                nextState = 'selling_motivation';
+                break;
+                
+            case 'selling_motivation':
+                response = `Thank you for sharing! Based on everything you've told me, Bruce can help you get top dollar for your practice. Would you like me to connect you with him for a FREE consultation?`;
+                nextState = 'offer_consultation';
+                break;
+                
+            case 'buying_budget':
+                response = `Perfect! With that budget, are you looking for a CPA practice or general accounting firm?`;
+                nextState = 'buying_type';
+                break;
+                
+            case 'buying_type':
+                response = `Great! How soon are you looking to acquire a practice?`;
+                nextState = 'buying_timeline';
+                break;
+                
+            case 'buying_timeline':
+                response = `Excellent timing! Bruce has exclusive opportunities available. Would you like a FREE consultation to see what matches your criteria?`;
+                nextState = 'offer_consultation';
+                break;
+                
+            case 'valuation_revenue':
+                response = `Perfect! With that revenue, Bruce can provide an accurate valuation. Most owners are surprised by their practice's true worth. Would you like a FREE valuation consultation?`;
+                nextState = 'offer_consultation';
+                break;
+                
+            case 'general_qualification':
+                response = `Thanks! What are you hoping to achieve with your practice in the next year?`;
+                nextState = 'general_goals';
+                break;
+                
+            case 'general_goals':
+                response = `Those are great goals! Bruce specializes in helping accountants like you achieve exactly that. Would you like me to connect you with him for a FREE consultation?`;
+                nextState = 'offer_consultation';
+                break;
+                
+            case 'offer_consultation':
+                const lowerMessage = userMessage.toLowerCase();
+                if (lowerMessage.includes('yes') || lowerMessage.includes('yeah') || 
+                    lowerMessage.includes('sure') || lowerMessage.includes('okay')) {
+                    
+                    console.log('🎯 User accepted consultation - starting lead capture');
+                    response = `Perfect! Let me get your contact information so Bruce can reach out. What's the best email address to reach you?`;
+                    
+                    // 🎯 START LEAD CAPTURE
+                    setTimeout(() => {
+                        if (typeof startCompleteLeadCapture === 'function') {
+                            startCompleteLeadCapture();
+                            console.log('✅ Lead capture started!');
+                        } else {
+                            console.error('❌ startCompleteLeadCapture function not found');
+                        }
+                    }, 1000);
+                    
+                    nextState = 'lead_capture_active';
+                } else {
+                    response = `No problem! The offer stands whenever you're ready. Is there anything else I can help you with today?`;
+                    nextState = '';
+                    window.qualificationState = '';
+                    
+                    // 🎨 Return to branding
+                    setTimeout(() => {
+                        if (typeof showUniversalBanner === 'function') {
+                            showUniversalBanner('branding');
+                        }
+                    }, 1500);
+                }
+                break;
+                
+            case 'lead_capture_active':
+                // Lead capture handles its own responses
+                return "";
+        }
+        
+        if (nextState === 'offer_consultation') {
+            // 🎨 Show free incentive banner
+            setTimeout(() => {
+                if (typeof showUniversalBanner === 'function') {
+                    showUniversalBanner('freeIncentive');
+                }
+            }, 1000);
+        }
+        
+        window.qualificationState = nextState;
+        speakWithElevenLabs(response, false);
+        return response;
+    }
+    
+    // Continue with regular OpenAI conversation for everything else
     try {
         conversationHistory.push({
             role: 'user',
@@ -2608,24 +2723,80 @@ return response;  // ✅ RETURN THE RESPONSE
         });
 
         console.log('✅ OpenAI Response:', aiResponse);
-        
-        // Speak the response
         speakWithElevenLabs(aiResponse, false);
-        
-        return aiResponse;  // ✅ RETURN THE RESPONSE
+        return aiResponse;
 
     } catch (error) {
         console.error('❌ Error in getAIResponse:', error);
+        const errorResponse = "I appreciate your question! That's something Bruce would be perfect to answer. Would you like me to connect you with him for a FREE consultation?";
         
-        const errorResponse = "I apologize, I'm having trouble processing that right now. Could you try again?";
+        // 🎨 Show free incentive on error
+        setTimeout(() => {
+            if (typeof showUniversalBanner === 'function') {
+                showUniversalBanner('freeIncentive');
+            }
+        }, 1000);
         
         speakWithElevenLabs(errorResponse, false);
-        
-        return errorResponse;  // ✅ RETURN THE ERROR RESPONSE
+        return errorResponse;
     }
 }
 
-console.log('✅ getAIResponse function with proper returns loaded');
+// 🧠 KNOWLEDGE BASE FUNCTION
+function handleGeneralQuestions(userText, firstName) {
+    const lowerText = userText.toLowerCase();
+    
+    // NCI/BRUCE QUESTIONS
+    if (lowerText.includes('what is nci') || lowerText.includes('new clients inc') || 
+        lowerText.includes('who is bruce') || lowerText.includes('what do you do') ||
+        lowerText.includes('services') || lowerText.includes('help with')) {
+        
+        return firstName ? 
+            `${firstName}, New Clients Inc specializes in helping CPA firm owners buy, sell, and value their practices. Bruce has helped hundreds of accountants maximize their practice value. Would you like to learn more about our specific services?` :
+            "New Clients Inc helps CPA firm owners buy, sell, and value their practices. Bruce has helped hundreds of accountants succeed. Would you like to learn more about our services?";
+    }
+    
+    // PROCESS QUESTIONS
+    if (lowerText.includes('how does it work') || lowerText.includes('process') || 
+        lowerText.includes('how long') || lowerText.includes('timeline')) {
+        
+        return firstName ? 
+            `${firstName}, Bruce makes the process simple. For sellers, he maximizes value and finds qualified buyers. For buyers, he matches you with perfect practice opportunities. Most deals close within 60-90 days. Want me to connect you with Bruce to discuss specifics?` :
+            "The process is straightforward! Bruce handles everything from valuation to closing. Most deals complete in 60-90 days. Want to speak with Bruce about your situation?";
+    }
+    
+    // SUCCESS RATE/EXPERIENCE
+    if (lowerText.includes('experience') || lowerText.includes('how many') || 
+        lowerText.includes('success') || lowerText.includes('results')) {
+        
+        return firstName ? 
+            `${firstName}, Bruce has helped over 200 CPA firm owners successfully transition their practices. His clients typically get 15-30% higher valuations than going alone. Would you like to see some success stories?` :
+            "Bruce has helped over 200 CPA firm owners with 15-30% higher valuations on average. Want to see some success stories?";
+    }
+    
+    // FEES/COST
+    if (lowerText.includes('cost') || lowerText.includes('fee') || lowerText.includes('price') || 
+        lowerText.includes('how much')) {
+        
+        return firstName ? 
+            `${firstName}, Bruce's consultations are always free, and his fees are success-based for sellers. For buyers, there's typically no cost to you. The best way to get specific pricing is through a quick chat with Bruce. Would you like to schedule that?` :
+            "Consultations are free! Bruce's fees are success-based for sellers. For buyers, there's usually no cost. Want to get specific details from Bruce?";
+    }
+    
+    // LOCATION/AREA
+    if (lowerText.includes('where') || lowerText.includes('location') || lowerText.includes('area') ||
+        lowerText.includes('state') || lowerText.includes('city')) {
+        
+        return firstName ? 
+            `${firstName}, Bruce works with CPA firms nationwide! Location doesn't matter for practice transitions. He's helped clients in all 50 states. Would you like to discuss opportunities in your area?` :
+            "Bruce works nationwide! He's helped CPA firms in all 50 states. Location isn't a barrier. Want to discuss your area specifically?";
+    }
+    
+    // If no match found, return null to continue with normal flow
+    return null;
+}
+
+console.log('✅ Enhanced getAIResponse function with complete lead process loaded');
 
 
 function handleTestimonialComplete() {
