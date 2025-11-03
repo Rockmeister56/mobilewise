@@ -10,9 +10,10 @@ const EMAILJS_CONFIG = {
     serviceId: 'service_b9bppgb',
     publicKey: '7-9oxa3UC3uKxtqGM',
     templates: {
-        consultation: 'template_yf09xm5',
-        clickToCall: 'template_8i0k6hr', 
-        preQualifier: 'template_uix9cyx'  // Your new template
+        consultation: 'template_yf09xm5',        // Internal notification for consultation
+        clickToCall: 'template_8i0k6hr',         // Internal notification for call requests
+        preQualifier: 'template_uix9cyx',        // Internal notification for pre-qualifier
+        clientConfirmation: 'template_8kx812d'   // NEW: Client confirmation email with free book
     }
 };
 
@@ -454,7 +455,7 @@ function askLeadQuestion() {
                     console.log('🎤 Lead Capture: Manually starting listening for user answer');
                     window.startRealtimeListening();
                 }
-            }, 2000); // Wait 2 seconds for speech to finish
+            }, 4000); // Wait 2 seconds for speech to finish
         }
     } else {
         completeLeadCapture();
@@ -661,7 +662,7 @@ window.confirmAnswer = confirmAnswer;
 window.processLeadResponse = processLeadResponse;
 
 // ================================
-// COMPLETE LEAD CAPTURE & SEND EMAIL
+// COMPLETE LEAD CAPTURE & REQUEST EMAIL PERMISSION
 // ================================
 function completeLeadCapture() {
     console.log('🎯 Completing lead capture...');
@@ -669,14 +670,150 @@ function completeLeadCapture() {
     const data = window.currentLeadData;
     const type = window.currentCaptureType;
     
-    // Prepare email parameters based on capture type
-    let templateId = '';
-    let templateParams = {};
-    let qualificationLevel = ''; // 🆕 Make this accessible for success message
+    // 🆕 NEW: Reset capture state but keep data for email confirmation
+    window.isInLeadCapture = false;
+    window.currentCaptureType = null;
+    // Note: We keep window.currentLeadData for the email permission phase
+    
+    // 🆕 NEW: Ask for email confirmation permission instead of sending immediately
+    const emailPermissionMessage = `Perfect! Should I send a confirmation email to ${data.email} with all your details and next steps?`;
+    
+    if (window.addAIMessage) {
+        window.addAIMessage(emailPermissionMessage);
+    }
+    if (window.speakText) {
+        window.speakText(emailPermissionMessage);
+    }
+    
+    // 🆕 NEW: Show confirmation buttons for email permission
+    showEmailConfirmationButtons(data, type);
+}
 
+// ================================
+// 🆕 NEW: EMAIL CONFIRMATION BUTTONS
+// ================================
+function showEmailConfirmationButtons(leadData, captureType) {
+    const chatMessages = document.getElementById('chatMessages') ||
+                         document.querySelector('.chat-messages');
+    
+    if (!chatMessages) return;
+    
+    const buttonContainer = document.createElement('div');
+    buttonContainer.className = 'email-confirmation-buttons';
+    buttonContainer.innerHTML = `
+        <div style="
+            text-align: center; 
+            margin: 20px 0; 
+            padding: 25px; 
+            background: rgba(255,255,255,0.1); 
+            border-radius: 15px;
+            border: 2px solid rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+        ">
+            <div style="
+                margin-bottom: 20px; 
+                color: white; 
+                font-size: 18px;
+                font-weight: bold;
+            ">
+                Send confirmation email to:<br>
+                <span style="color: #4CAF50; font-size: 16px;">${leadData.email}</span>
+            </div>
+            <div style="
+                display: flex; 
+                justify-content: center; 
+                gap: 20px;
+                flex-wrap: wrap;
+            ">
+                <button onclick="handleEmailConfirmation(true, '${captureType}')" style="
+                    background: linear-gradient(135deg, #4CAF50, #8BC34A);
+                    color: white; 
+                    border: none; 
+                    padding: 15px 30px; 
+                    border-radius: 25px; 
+                    cursor: pointer;
+                    font-weight: bold;
+                    font-size: 16px;
+                    min-width: 140px;
+                    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+                    transition: all 0.3s ease;
+                " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(76, 175, 80, 0.4)';" 
+                   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(76, 175, 80, 0.3)';">
+                    ✅ Yes, Send Email
+                </button>
+                <button onclick="handleEmailConfirmation(false, '${captureType}')" style="
+                    background: linear-gradient(135deg, #757575, #9E9E9E);
+                    color: white; 
+                    border: none; 
+                    padding: 15px 30px; 
+                    border-radius: 25px; 
+                    cursor: pointer;
+                    font-weight: bold;
+                    font-size: 16px;
+                    min-width: 140px;
+                    box-shadow: 0 4px 15px rgba(117, 117, 117, 0.3);
+                    transition: all 0.3s ease;
+                " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(117, 117, 117, 0.4)';" 
+                   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(117, 117, 117, 0.3)';">
+                    ⏭️ Skip Email
+                </button>
+            </div>
+        </div>
+    `;
+    
+    chatMessages.appendChild(buttonContainer);
+    
+    // Auto-scroll to show the buttons
+    setTimeout(() => {
+        buttonContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 100);
+}
+
+// ================================
+// 🆕 NEW: HANDLE EMAIL CONFIRMATION RESPONSE
+// ================================
+function handleEmailConfirmation(sendEmail, captureType) {
+    console.log('🎯 Email confirmation:', sendEmail ? 'SENDING' : 'SKIPPING');
+    
+    // Remove confirmation buttons
+    const buttonContainer = document.querySelector('.email-confirmation-buttons');
+    if (buttonContainer) {
+        buttonContainer.remove();
+    }
+    
+    const data = window.currentLeadData;
+    
+    if (sendEmail) {
+        // User wants email - send it using your ORIGINAL email logic
+        sendOriginalLeadEmail(data, captureType);
+    } else {
+        // User skipped email - show thank you splash directly
+        if (window.addAIMessage) {
+            window.addAIMessage("No problem! Bruce will still contact you directly. Is there anything else I can help with?");
+        }
+        
+        // Show thank you splash after brief delay
+        setTimeout(() => {
+            showThankYouSplash(data.name, captureType);
+        }, 1500);
+        
+        // Clear the lead data
+        window.currentLeadData = null;
+    }
+}
+
+function sendOriginalLeadEmail(data, type) {
+    console.log('📧 Sending ORIGINAL lead email (internal notification)...');
+    
+    // 1. FIRST: Send INTERNAL notification to Bruce using your existing templates
+    let internalTemplateId = '';
+    let internalTemplateParams = {};
+    let qualificationLevel = '';
+
+    // Your existing internal email logic here...
     if (type === 'consultation') {
-        templateId = EMAILJS_CONFIG.templates.consultation;
-        templateParams = {
+        internalTemplateId = EMAILJS_CONFIG.templates.consultation;
+        internalTemplateParams = {
             to_email: 'bizboost.expert@gmail.com',
             from_name: data.name,
             from_email: data.email,
@@ -686,8 +823,8 @@ function completeLeadCapture() {
             timestamp: new Date().toLocaleString()
         };
     } else if (type === 'clickToCall') {
-        templateId = EMAILJS_CONFIG.templates.clickToCall;
-        templateParams = {
+        internalTemplateId = EMAILJS_CONFIG.templates.clickToCall;
+        internalTemplateParams = {
             to_email: 'bizboost.expert@gmail.com',
             from_name: data.name,
             phone: data.phone,
@@ -695,8 +832,8 @@ function completeLeadCapture() {
             timestamp: new Date().toLocaleString()
         };
     } else if (type === 'freeBook') {
-        templateId = EMAILJS_CONFIG.templates.freeBook;
-        templateParams = {
+        internalTemplateId = EMAILJS_CONFIG.templates.freeBook;
+        internalTemplateParams = {
             to_email: data.email,
             from_name: data.name,
             book_image: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761797944987_book-promo.PNG',
@@ -704,128 +841,160 @@ function completeLeadCapture() {
             timestamp: new Date().toLocaleString()
         };
     } else if (type === 'preQualifier') {
-        templateId = 'template_uix9cyx';
+        internalTemplateId = EMAILJS_CONFIG.templates.preQualifier;
         
-        // 🆕 FIXED QUALIFICATION SCORING LOGIC
-        console.log('🎯 CALCULATING QUALIFICATION SCORE:');
+        // Qualification scoring logic
         let qualificationScore = 0;
         let qualifications = [];
         
-        // Experience scoring - FIXED
         const experienceYears = parseInt(data.experienceYears) || 0;
         if (experienceYears >= 3) {
             qualificationScore += 25;
             qualifications.push(`${experienceYears} years experience`);
-            console.log('✅ Experience:', experienceYears, 'years → +25 points');
         }
         
-        // License scoring - FIXED
         if (data.licenseStatus && data.licenseStatus.toLowerCase().includes('cpa')) {
             qualificationScore += 25;
             qualifications.push('CPA licensed');
-            console.log('✅ License: CPA licensed → +25 points');
         }
         
-        // Timeline scoring - FIXED
         if (data.acquisitionTimeline) {
             const timeline = data.acquisitionTimeline.toLowerCase();
             if (timeline.includes('immediate') || timeline.includes('3 month') || timeline.includes('6 month')) {
                 qualificationScore += 25;
                 qualifications.push('Ready for acquisition');
-                console.log('✅ Timeline: Ready for acquisition → +25 points');
             }
         }
         
-        // Budget scoring - FIXED
         if (data.budgetRange && data.budgetRange.trim() !== '') {
             qualificationScore += 25;
             qualifications.push(`Budget: ${data.budgetRange}`);
-            console.log('✅ Budget: Has budget → +25 points');
         }
         
         qualificationLevel = qualificationScore >= 75 ? 'HIGH' : 
                             qualificationScore >= 50 ? 'MEDIUM' : 'BASIC';
         
-        console.log('🎯 FINAL SCORE:', qualificationScore, 'Points → Level:', qualificationLevel);
-        console.log('🎯 QUALIFICATIONS:', qualifications);
-        
-        templateParams = {
-    to_email: 'bizboost.expert@gmail.com',
-    name: data.name || 'Not provided',
-    email: data.email || 'Not provided',
-    phone: data.phone || 'Not provided',
-    qualification_score: qualificationScore.toString(),  // Convert to string
-    qualification_level: qualificationLevel,  
-    qualifications: qualifications.join(', '),  // Convert array to string
-    experience_years: data.experienceYears || 'Not specified',
-    license_status: data.licenseStatus || 'Not specified', 
-    acquisition_timeline: data.acquisitionTimeline || 'Not specified',
-    budget_range: data.budgetRange || 'Not specified',
-    geographic_preference: data.geographicPreference || 'Not specified',
-    practice_size: data.practiceSize || 'Not specified',
-    specialization_interest: data.specializationInterest || 'Not specified',
-    financing_needed: data.financingNeeded || 'Not specified',
-    recommended_action: qualificationLevel === 'HIGH' ? 'Contact within 4 hours' : 
-                       qualificationLevel === 'MEDIUM' ? 'Contact within 24 hours' : 'Contact within 48 hours',
-    timestamp: new Date().toLocaleString()
-};
-        
-        console.log('📧 Sending email with template:', templateId);
-        console.log('📧 Parameters:', templateParams);
-
-        console.log('🔍 DEBUG - Template Parameters Being Sent:');
-        Object.keys(templateParams).forEach(key => {
-            console.log(`  ${key}:`, templateParams[key]);
-        });
-    } // 🎯 THIS CLOSING BRACE WAS MISSING!
+        internalTemplateParams = {
+            to_email: 'bizboost.expert@gmail.com',
+            name: data.name || 'Not provided',
+            email: data.email || 'Not provided',
+            phone: data.phone || 'Not provided',
+            qualification_score: qualificationScore.toString(),
+            qualification_level: qualificationLevel,  
+            qualifications: qualifications.join(', '),
+            experience_years: data.experienceYears || 'Not specified',
+            license_status: data.licenseStatus || 'Not specified',
+            acquisition_timeline: data.acquisitionTimeline || 'Not specified',
+            budget_range: data.budgetRange || 'Not specified',
+            geographic_preference: data.geographicPreference || 'Not specified',
+            practice_size: data.practiceSize || 'Not specified',
+            specialization_interest: data.specializationInterest || 'Not specified',
+            financing_needed: data.financingNeeded || 'Not specified',
+            recommended_action: qualificationLevel === 'HIGH' ? 'Contact within 4 hours' : 
+                               qualificationLevel === 'MEDIUM' ? 'Contact within 24 hours' : 'Contact within 48 hours',
+            timestamp: new Date().toLocaleString()
+        };
+    }
     
-    // Also check what the template expects
-    console.log('📧 Template ID:', templateId);
-    
-    // 🎯 KEEP THIS - IT'S THE ACTUAL EMAIL SENDING CODE
-    emailjs.send(EMAILJS_CONFIG.serviceId, templateId, templateParams)
+    // Send internal notification
+    emailjs.send(EMAILJS_CONFIG.serviceId, internalTemplateId, internalTemplateParams)
         .then(function(response) {
-            console.log('✅ EMAIL SENT!', response.status, response.text);
+            console.log('✅ INTERNAL NOTIFICATION SENT TO BRUCE!');
             
-            // Reset capture state
-            window.isInLeadCapture = false;
-            window.currentLeadData = null;
-            window.currentCaptureType = null;
+            // 2. SECOND: Send CLIENT confirmation email
+            sendClientConfirmationEmail(data, type);
             
-            // Show success message
-            let successMessage = '';
-            if (type === 'consultation') {
-                successMessage = `Perfect ${data.name}! Our specialist will contact you at ${data.contactTime}. Is there anything else I can help you with?`;
-            } else if (type === 'clickToCall') {
-                successMessage = `Great ${data.name}! Bruce will call you at ${data.phone} shortly. Anything else I can help with?`;
-            } else if (type === 'freeBook') {
-                successMessage = `Excellent ${data.name}! I've sent Bruce's book to ${data.email}. Check your inbox!${data.wantsEvaluation ? ' Someone will contact you about the evaluation.' : ''}`;
-            } else if (type === 'preQualifier') {
-                successMessage = `Thank you ${data.name}! Your pre-qualification is complete. Based on your profile, you're a ${qualificationLevel} priority candidate. Bruce will contact you within 24 hours to discuss next steps.`;
-            }
+        }, function(error) {
+            console.error('❌ INTERNAL EMAIL FAILED:', error);
+            // Still try to send client confirmation even if internal fails
+            sendClientConfirmationEmail(data, type);
+        });
+}
+
+// NEW: Separate function for CLIENT confirmation email
+function sendClientConfirmationEmail(leadData, captureType) {
+    console.log('📧 Sending CLIENT confirmation email...');
+    
+    const cleanEmail = String(leadData.email).trim().replace(/[^\w@.-]/g, '');
+    
+    let inquiryType = '';
+    let emailSubject = '';
+    
+    switch(captureType) {
+        case 'preQualifier':
+            inquiryType = 'PRE-QUALIFICATION CONFIRMATION';
+            emailSubject = 'Pre-Qualification Confirmed + Free Book - New Clients Inc';
+            break;
+        case 'consultation':
+            inquiryType = 'CONSULTATION BOOKING CONFIRMATION';
+            emailSubject = 'Consultation Booked + Free Book - New Clients Inc';
+            break;
+        case 'freeBook':
+            inquiryType = 'FREE BOOK CONFIRMATION';
+            emailSubject = 'Your Free Book - New Clients Inc';
+            break;
+        case 'clickToCall':
+            inquiryType = 'CALL REQUEST CONFIRMATION';
+            emailSubject = 'Call Request Confirmed + Free Book - New Clients Inc';
+            break;
+        default:
+            inquiryType = 'REQUEST CONFIRMATION';
+            emailSubject = 'Confirmation - New Clients Inc';
+    }
+    
+    const confirmationParams = {
+        to_email: cleanEmail,
+        name: leadData.name,
+        email: cleanEmail,
+        phone: leadData.phone || 'Not provided',
+        contactTime: leadData.contactTime || 'Within 24 hours',
+        inquiryType: inquiryType,
+        subject: emailSubject,
+        timestamp: new Date().toLocaleString(),
+        book_image: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761797944987_book-promo.PNG'
+    };
+    
+    // Send CLIENT confirmation using the confirmation template
+    emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templates.clientConfirmation, confirmationParams)
+        .then(function(response) {
+            console.log('✅ CLIENT CONFIRMATION EMAIL SENT!');
             
-            if (window.addAIMessage) {
-                window.addAIMessage(successMessage);
-            }
-            if (window.speakText) {
-                window.speakText(successMessage);
-            }
-            
-            // Show success banner if available
+            // Show success banner
             if (window.showUniversalBanner) {
                 window.showUniversalBanner('emailSent');
             }
             
-        }, function(error) {
-            console.error('❌ EMAIL FAILED:', error);
-            
+            // Show success message
+            let successMessage = `✅ Confirmation email sent to ${cleanEmail}! Bruce will contact you soon.`;
             if (window.addAIMessage) {
-                window.addAIMessage("I'm sorry, there was an issue. Please try again or call Bruce directly at 856-304-1035.");
+                window.addAIMessage(successMessage);
             }
             
-            window.isInLeadCapture = false;
+            // Show thank you splash
+            setTimeout(() => {
+                showThankYouSplash(leadData.name, captureType);
+            }, 2000);
+            
+        }, function(error) {
+            console.error('❌ CLIENT CONFIRMATION EMAIL FAILED:', error);
+            
+            // Still show thank you even if email fails
+            if (window.addAIMessage) {
+                window.addAIMessage("Confirmation email couldn't be sent, but Bruce will still contact you directly!");
+            }
+            
+            setTimeout(() => {
+                showThankYouSplash(leadData.name, captureType);
+            }, 1500);
+        })
+        .finally(() => {
+            window.currentLeadData = null;
         });
-} // 🎯 END OF FUNCTION - NO MORE CODE AFTER THIS! 
+}
+    
+// Make functions globally accessible
+window.handleEmailConfirmation = handleEmailConfirmation;
+window.sendOriginalLeadEmail = sendOriginalLeadEmail; // 🎯 END OF FUNCTION - NO MORE CODE AFTER THIS! 
 
 // ================================
 // LEAD CAPTURE 4: PRE-QUALIFIER INTERVIEW
