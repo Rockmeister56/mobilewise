@@ -428,6 +428,24 @@ function initializeFreeBookCapture() {
 }
 
 // ================================
+// 🆕 AVOID AVATAR INTERRUPTIONS DURING LEAD CAPTURE
+// ================================
+function disableAvatarDuringLeadCapture() {
+    // Override the avatar function during lead capture
+    if (window.showAvatarSorryMessage) {
+        const originalShowAvatar = window.showAvatarSorryMessage;
+        window.showAvatarSorryMessage = function() {
+            if (window.isInLeadCapture || window.isInEmailPermissionPhase) {
+                console.log('🛡️ Lead capture active - avatar disabled');
+                return; // Skip avatar during lead capture
+            }
+            return originalShowAvatar.apply(this, arguments);
+        };
+        console.log('✅ Avatar interruptions disabled during lead capture');
+    }
+}
+
+// ================================
 // UNIVERSAL LEAD QUESTION ASKER
 // ================================
 function askLeadQuestion() {
@@ -455,7 +473,7 @@ function askLeadQuestion() {
                     console.log('🎤 Lead Capture: Manually starting listening for user answer');
                     window.startRealtimeListening();
                 }
-            }, 4000); // Wait 2 seconds for speech to finish
+            }, 5000); // Wait 2 seconds for speech to finish
         }
     } else {
         completeLeadCapture();
@@ -670,10 +688,12 @@ function completeLeadCapture() {
     const data = window.currentLeadData;
     const type = window.currentCaptureType;
     
-    // 🆕 NEW: Reset capture state but keep data for email confirmation
-    window.isInLeadCapture = false;
-    window.currentCaptureType = null;
-    // Note: We keep window.currentLeadData for the email permission phase
+    // 🛑 DON'T reset these yet - wait until AFTER email permission is handled
+    // window.isInLeadCapture = false;  // 🚨 REMOVE THIS LINE
+    // window.currentCaptureType = null; // 🚨 REMOVE THIS LINE
+    
+    // Instead, just mark that we're transitioning to email permission phase
+    window.isInEmailPermissionPhase = true;
     
     // 🆕 NEW: Ask for email confirmation permission instead of sending immediately
     const emailPermissionMessage = `Perfect! Should I send a confirmation email to ${data.email} with all your details and next steps?`;
@@ -775,6 +795,9 @@ function showEmailConfirmationButtons(leadData, captureType) {
 function handleEmailConfirmation(sendEmail, captureType) {
     console.log('🎯 Email confirmation:', sendEmail ? 'SENDING' : 'SKIPPING');
     
+    // 🆕 RE-ENABLE AVATAR
+    enableAvatarAfterLeadCapture();
+    
     // Remove confirmation buttons
     const buttonContainer = document.querySelector('.email-confirmation-buttons');
     if (buttonContainer) {
@@ -799,6 +822,14 @@ function handleEmailConfirmation(sendEmail, captureType) {
         
         // Clear the lead data
         window.currentLeadData = null;
+    }
+}
+
+// 🆕 ADD THIS FUNCTION TOO:
+function enableAvatarAfterLeadCapture() {
+    if (window.originalShowAvatar) {
+        window.showAvatarSorryMessage = window.originalShowAvatar;
+        console.log('✅ Avatar re-enabled after lead capture');
     }
 }
 
@@ -1040,6 +1071,97 @@ function initializePreQualifierCapture() {
         askLeadQuestion();
     }, 500);
 }
+
+// ================================
+// THANK YOU SPLASH SCREEN
+// ================================
+function showThankYouSplash(name, captureType) {
+    console.log('🎉 Showing thank you splash for:', name);
+    
+    const splashHTML = `
+        <div id="thank-you-splash" style="
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            text-align: center;
+            padding: 20px;
+            animation: fadeInScale 0.8s ease-out;
+        ">
+            <div style="font-size: 80px; margin-bottom: 20px;">🎉</div>
+            <h1 style="font-size: 2.5em; margin-bottom: 20px; font-weight: 700;">Thank You, ${name}!</h1>
+            
+            <div style="font-size: 1.3em; margin-bottom: 30px; max-width: 600px; line-height: 1.6;">
+                Your pre-qualification is complete! Bruce will contact you within 24 hours.
+            </div>
+            
+            <div style="
+                background: rgba(255,255,255,0.2);
+                padding: 25px;
+                border-radius: 15px;
+                margin: 20px 0;
+                max-width: 500px;
+                border: 2px solid rgba(255,255,255,0.3);
+            ">
+                <h3 style="margin-bottom: 15px; font-size: 1.4em;">📞 Next Steps</h3>
+                <p style="margin: 10px 0; font-size: 1.1em;">
+                    <strong>Bruce will contact you within 24 hours</strong><br>
+                    at the contact information you provided.
+                </p>
+            </div>
+            
+            <button onclick="closeThankYouSplash()" style="
+                background: white;
+                color: #667eea;
+                border: none;
+                padding: 18px 40px;
+                border-radius: 50px;
+                font-size: 1.2em;
+                font-weight: 700;
+                cursor: pointer;
+                margin-top: 30px;
+                box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+                transition: all 0.3s ease;
+            " onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 12px 30px rgba(0,0,0,0.3)';" 
+               onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.2)';">
+                Continue Conversation ✅
+            </button>
+        </div>
+        
+        <style>
+            @keyframes fadeInScale {
+                0% { opacity: 0; transform: scale(0.9); }
+                100% { opacity: 1; transform: scale(1); }
+            }
+        </style>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', splashHTML);
+}
+
+function closeThankYouSplash() {
+    const splash = document.getElementById('thank-you-splash');
+    if (splash) {
+        splash.style.animation = 'fadeOutScale 0.5s ease-in';
+        setTimeout(() => {
+            splash.remove();
+            console.log('✅ Thank you splash closed');
+        }, 500);
+    }
+}
+
+// Make globally accessible
+window.showThankYouSplash = showThankYouSplash;
+window.closeThankYouSplash = closeThankYouSplash;
 
 // ================================
 // GLOBAL EXPORTS
