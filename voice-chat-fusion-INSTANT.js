@@ -2461,10 +2461,11 @@ if ((window.waitingForConsultationResponse || window.qualificationState === 'off
             }
         }
     }, 500);
-    
-    speakWithElevenLabs(response, false);
-    return response;
-}
+        
+        return errorResponse;  // ✅ RETURN THE ERROR RESPONSE
+    }
+
+console.log('✅ getAIResponse function with proper returns loaded');
 
 
 function handleTestimonialComplete() {
