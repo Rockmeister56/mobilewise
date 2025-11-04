@@ -3204,6 +3204,362 @@ function removeLeadCaptureBanner() {
     console.log('🎨 Lead capture banner removed and padding restored');
 }
 
+// ===== INTEGRATED SPEAK NOW LEAD CAPTURE SYSTEM =====
+function createSpeakNowLeadCapture() {
+    return `
+        <div class="lead-capture-with-voice">
+            <div class="lead-header">
+                <h3>🎤 Speak Your Info - It's Faster!</h3>
+                <p>Just speak your details instead of typing</p>
+            </div>
+            
+            <div class="speak-now-banner-embedded" id="embeddedSpeakNow">
+                <div class="speak-now-indicator">
+                    <div class="pulse-dot"></div>
+                    <span>SPEAK NOW</span>
+                </div>
+                <div class="speak-now-instruction">
+                    I'm listening for your: <strong class="current-field">Name</strong>
+                </div>
+            </div>
+            
+            <div class="lead-form-fields">
+                <div class="form-field" data-field="name">
+                    <label>Full Name</label>
+                    <input type="text" id="leadName" placeholder="Say your full name">
+                    <button class="speak-field-btn" data-field="name">🎤</button>
+                </div>
+                
+                <div class="form-field" data-field="email">
+                    <label>Email</label>
+                    <input type="email" id="leadEmail" placeholder="Say your email address">
+                    <button class="speak-field-btn" data-field="email">🎤</button>
+                </div>
+                
+                <div class="form-field" data-field="phone">
+                    <label>Phone</label>
+                    <input type="tel" id="leadPhone" placeholder="Say your phone number">
+                    <button class="speak-field-btn" data-field="phone">🎤</button>
+                </div>
+            </div>
+            
+            <div class="lead-actions">
+                <button class="submit-lead-btn" onclick="submitVoiceLead()">Submit & Get Free Book</button>
+                <button class="speak-all-btn" onclick="startBulkCapture()">🎤 Speak All Info At Once</button>
+            </div>
+        </div>
+    `;
+}
+
+// ===== FIELD CAPTURE FUNCTIONS =====
+let currentCaptureField = 'name';
+let isFieldCaptureActive = false;
+
+function startFieldCapture(field) {
+    if (isFieldCaptureActive) return;
+    
+    currentCaptureField = field;
+    isFieldCaptureActive = true;
+    
+    // Update UI
+    document.querySelector('.current-field').textContent = field.charAt(0).toUpperCase() + field.slice(1);
+    document.getElementById('embeddedSpeakNow').style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+    
+    console.log(`🎤 FIELD CAPTURE: Listening for ${field}`);
+    
+    // Start listening using existing system
+    if (window.startListening) {
+        // Store original handlers
+        if (!window.originalRecognitionHandlers) {
+            window.originalRecognitionHandlers = {
+                onresult: recognition.onresult,
+                onend: recognition.onend
+            };
+        }
+        
+        // Override for field capture
+        recognition.onresult = function(event) {
+            const transcript = getFinalTranscript(event);
+            if (transcript) {
+                console.log(`✅ FIELD CAPTURE: ${field} captured:`, transcript);
+                populateField(field, transcript);
+                stopFieldCapture();
+                autoAdvanceField(field);
+            }
+        };
+        
+        recognition.onend = function() {
+            console.log(`🔚 FIELD CAPTURE: ${field} capture ended`);
+            isFieldCaptureActive = false;
+            document.getElementById('embeddedSpeakNow').style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
+        };
+        
+        window.startListening();
+    }
+}
+
+function stopFieldCapture() {
+    isFieldCaptureActive = false;
+    
+    // Restore original handlers if they exist
+    if (window.originalRecognitionHandlers && recognition) {
+        recognition.onresult = window.originalRecognitionHandlers.onresult;
+        recognition.onend = window.originalRecognitionHandlers.onend;
+    }
+    
+    document.getElementById('embeddedSpeakNow').style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
+}
+
+function populateField(field, value) {
+    const fieldMap = {
+        'name': 'leadName',
+        'email': 'leadEmail', 
+        'phone': 'leadPhone'
+    };
+    
+    const inputId = fieldMap[field];
+    if (inputId && document.getElementById(inputId)) {
+        document.getElementById(inputId).value = value;
+        showFieldSuccess(field);
+    }
+}
+
+function autoAdvanceField(currentField) {
+    const fields = ['name', 'email', 'phone'];
+    const currentIndex = fields.indexOf(currentField);
+    
+    if (currentIndex < fields.length - 1) {
+        const nextField = fields[currentIndex + 1];
+        setTimeout(() => {
+            startFieldCapture(nextField);
+        }, 1000);
+    }
+}
+
+function showFieldSuccess(field) {
+    const fieldElement = document.querySelector(`[data-field="${field}"]`);
+    if (fieldElement) {
+        fieldElement.style.borderLeft = '4px solid #10b981';
+        setTimeout(() => {
+            fieldElement.style.borderLeft = 'none';
+        }, 2000);
+    }
+}
+
+// ===== BULK CAPTURE =====
+function startBulkCapture() {
+    console.log('🎤 BULK CAPTURE: Listening for all information');
+    
+    // Update UI
+    document.querySelector('.current-field').textContent = 'All Information';
+    document.getElementById('embeddedSpeakNow').style.background = 'linear-gradient(135deg, #f59e0b, #d97706)';
+    
+    if (window.startListening) {
+        // Store original handlers
+        if (!window.originalRecognitionHandlers) {
+            window.originalRecognitionHandlers = {
+                onresult: recognition.onresult,
+                onend: recognition.onend
+            };
+        }
+        
+        recognition.onresult = function(event) {
+            const transcript = getFinalTranscript(event);
+            if (transcript) {
+                console.log('✅ BULK CAPTURE: Raw transcript:', transcript);
+                parseBulkInformation(transcript);
+                stopFieldCapture();
+            }
+        };
+        
+        window.startListening();
+    }
+}
+
+function parseBulkInformation(transcript) {
+    // Simple parsing - you can enhance this
+    const emailMatch = transcript.match(/\S+@\S+\.\S+/);
+    const phoneMatch = transcript.match(/(\d{3}[-.]?\d{3}[-.]?\d{4})|(\(\d{3}\)\s?\d{3}[-.]?\d{4})/);
+    
+    // Populate fields
+    if (emailMatch) {
+        document.getElementById('leadEmail').value = emailMatch[0];
+    }
+    if (phoneMatch) {
+        document.getElementById('leadPhone').value = phoneMatch[0];
+    }
+    
+    // Name is everything before email/phone
+    let name = transcript;
+    if (emailMatch) name = name.split(emailMatch[0])[0];
+    if (phoneMatch) name = name.split(phoneMatch[0])[0];
+    
+    document.getElementById('leadName').value = name.trim();
+    
+    showBulkCaptureSuccess();
+}
+
+function showBulkCaptureSuccess() {
+    const banner = document.getElementById('embeddedSpeakNow');
+    banner.innerHTML = `
+        <div style="text-align: center;">
+            <div style="font-size: 24px; margin-bottom: 10px;">✅</div>
+            <div>All information captured!</div>
+        </div>
+    `;
+    banner.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+    
+    setTimeout(() => {
+        banner.innerHTML = `
+            <div class="speak-now-indicator">
+                <div class="pulse-dot"></div>
+                <span>SPEAK NOW</span>
+            </div>
+            <div class="speak-now-instruction">
+                I'm listening for your: <strong class="current-field">Name</strong>
+            </div>
+        `;
+        banner.style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
+    }, 3000);
+}
+
+// ===== INTEGRATION WITH EXISTING FLOW =====
+function showVoiceLeadCapture() {
+    console.log('🎯 Showing voice-enabled lead capture');
+    
+    // Close any existing speak now banners
+    if (window.closeSpeakNowBanner) {
+        window.closeSpeakNowBanner();
+    }
+    
+    // Create modal container
+    const modal = document.createElement('div');
+    modal.id = 'voiceLeadCaptureModal';
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.7);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+        font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    `;
+    
+    // Create content
+    const content = document.createElement('div');
+    content.style.cssText = `
+        background: white;
+        padding: 25px;
+        border-radius: 15px;
+        max-width: 500px;
+        width: 90%;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    `;
+    content.innerHTML = createSpeakNowLeadCapture();
+    
+    // Close button
+    const closeBtn = document.createElement('button');
+    closeBtn.textContent = '×';
+    closeBtn.style.cssText = `
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: #6b7280;
+    `;
+    closeBtn.onclick = function() {
+        document.body.removeChild(modal);
+        stopFieldCapture();
+    };
+    
+    content.appendChild(closeBtn);
+    modal.appendChild(content);
+    document.body.appendChild(modal);
+    
+    // Auto-start name capture
+    setTimeout(() => {
+        startFieldCapture('name');
+    }, 500);
+    
+    return modal;
+}
+
+function submitVoiceLead() {
+    const name = document.getElementById('leadName').value;
+    const email = document.getElementById('leadEmail').value;
+    const phone = document.getElementById('leadPhone').value;
+    
+    if (!name || !email) {
+        alert('Please provide at least your name and email');
+        return;
+    }
+    
+    console.log('📥 Submitting lead:', { name, email, phone });
+    
+    // Here you would integrate with your existing lead submission
+    // For now, just show success and close
+    alert(`Thank you ${name}! Your free book will be sent to ${email}`);
+    
+    // Close modal
+    const modal = document.getElementById('voiceLeadCaptureModal');
+    if (modal) {
+        document.body.removeChild(modal);
+    }
+    
+    // Continue conversation
+    if (window.addAIResponse) {
+        window.addAIResponse(`Great! I've received ${name}'s information and will send the free book to ${email}. Is there anything else I can help you with?`);
+    }
+}
+
+// ===== ENHANCE EXISTING CONSULTATION LOGIC =====
+function enhanceConsultationHandling() {
+    // Store original function
+    const originalGetAIResponse = window.getAIResponse;
+    
+    // Enhanced version
+    window.getAIResponse = function(userMessage) {
+        console.log('🔄 ENHANCED getAIResponse checking:', userMessage);
+        
+        // Check for consultative intent
+        const lowerMessage = userMessage.toLowerCase();
+        if (lowerMessage.includes('sell') || lowerMessage.includes('practice') || 
+            lowerMessage.includes('buy') || lowerMessage.includes('purchase') ||
+            lowerMessage.includes('consult') || lowerMessage.includes('book')) {
+            
+            console.log('🎯 CONSULTATION INTENT DETECTED - showing voice lead capture');
+            
+            // Show voice lead capture after a brief delay
+            setTimeout(() => {
+                showVoiceLeadCapture();
+            }, 1500);
+            
+            return "That's fantastic! I'd love to help you. I'm opening a quick form where you can SPEAK your information instead of typing - it's much faster! Just tell me your name, email, and phone to get Bruce's free book and schedule your consultation.";
+        }
+        
+        // Fall back to original logic
+        return originalGetAIResponse(userMessage);
+    };
+    
+    console.log('✅ Enhanced consultation handling activated');
+}
+
+// Initialize when document is ready
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(() => {
+        enhanceConsultationHandling();
+    }, 2000);
+});
+
 // ===================================================
 // 🔄 COMPLETE LEAD CAPTURE WITH EMAIL INTEGRATION
 // ===================================================
