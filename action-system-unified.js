@@ -853,6 +853,53 @@ function enableAvatarAfterLeadCapture() {
         console.log('✅ Avatar re-enabled after lead capture');
     }
 }
+// ================================
+// 🆕 NEW: HANDLE EMAIL CONFIRMATION RESPONSE (FIXED VERSION)
+// ================================
+function handleEmailConfirmation(sendEmail, captureType) {
+    console.log('🎯 Email confirmation:', sendEmail ? 'SENDING' : 'SKIPPING');
+    
+    // Remove confirmation buttons
+    const buttonContainer = document.querySelector('.email-confirmation-buttons');
+    if (buttonContainer) {
+        buttonContainer.remove();
+    }
+    
+    const data = window.currentLeadData;
+    
+    if (sendEmail) {
+        // User wants email - send it and show confirmation
+        console.log('📧 Sending email and showing confirmation...');
+        
+        // Show "sending email" message
+        if (window.addAIMessage) {
+            window.addAIMessage("📧 Sending your confirmation email now...");
+        }
+        
+        // Send the email
+        sendOriginalLeadEmail(data, captureType);
+        
+    } else {
+        // User skipped email - show alternative message
+        console.log('⏭️ Email skipped by user');
+        
+        if (window.addAIMessage) {
+            window.addAIMessage("No problem! Bruce will still contact you directly. Is there anything else I can help with?");
+        }
+        
+        // Clear the lead data
+        window.isInLeadCapture = false;
+        window.currentCaptureType = null;
+        window.currentLeadData = null;
+        
+        // Don't show thank you splash - just continue conversation
+        setTimeout(() => {
+            if (window.startRealtimeListening) {
+                window.startRealtimeListening();
+            }
+        }, 1500);
+    }
+}
 
 function sendOriginalLeadEmail(data, type) {
     console.log('📧 Sending ORIGINAL lead email (internal notification)...');
@@ -1007,41 +1054,52 @@ function sendClientConfirmationEmail(leadData, captureType) {
     };
     
     // Send CLIENT confirmation using the confirmation template
-    emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templates.clientConfirmation, confirmationParams)
-        .then(function(response) {
-            console.log('✅ CLIENT CONFIRMATION EMAIL SENT!');
-            
-            // Show success banner
-            if (window.showUniversalBanner) {
-                window.showUniversalBanner('emailSent');
+emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templates.clientConfirmation, confirmationParams)
+    .then(function(response) {
+        console.log('✅ CLIENT CONFIRMATION EMAIL SENT!');
+        
+        // Show success banner
+        if (window.showUniversalBanner) {
+            window.showUniversalBanner('emailSent');
+        }
+        
+        // Show success message and continue conversation
+        let successMessage = `✅ Confirmation email sent to ${cleanEmail}! Bruce will contact you soon. Is there anything else I can help you with?`;
+        if (window.addAIMessage) {
+            window.addAIMessage(successMessage);
+        }
+        
+        // Clear lead data - conversation continues naturally
+        window.isInLeadCapture = false;
+        window.currentCaptureType = null;
+        window.currentLeadData = null;
+        
+        // Restart listening for further conversation
+        setTimeout(() => {
+            if (window.startRealtimeListening) {
+                window.startRealtimeListening();
             }
-            
-            // Show success message
-            let successMessage = `✅ Confirmation email sent to ${cleanEmail}! Bruce will contact you soon.`;
-            if (window.addAIMessage) {
-                window.addAIMessage(successMessage);
+        }, 2000);
+        
+    }, function(error) {
+        console.error('❌ CLIENT CONFIRMATION EMAIL FAILED:', error);
+        
+        // Show failure message but continue conversation
+        if (window.addAIMessage) {
+            window.addAIMessage("The confirmation email couldn't be sent, but Bruce will still contact you directly! Is there anything else I can help with?");
+        }
+        
+        // Clear lead data
+        window.isInLeadCapture = false;
+        window.currentCaptureType = null;
+        window.currentLeadData = null;
+        
+        setTimeout(() => {
+            if (window.startRealtimeListening) {
+                window.startRealtimeListening();
             }
-            
-            // Show thank you splash
-            setTimeout(() => {
-                showThankYouSplash(leadData.name, captureType);
-            }, 2000);
-            
-        }, function(error) {
-            console.error('❌ CLIENT CONFIRMATION EMAIL FAILED:', error);
-            
-            // Still show thank you even if email fails
-            if (window.addAIMessage) {
-                window.addAIMessage("Confirmation email couldn't be sent, but Bruce will still contact you directly!");
-            }
-            
-            setTimeout(() => {
-                showThankYouSplash(leadData.name, captureType);
-            }, 1500);
-        })
-        .finally(() => {
-            window.currentLeadData = null;
-        });
+        }, 1500);
+    });
 }
     
 // Make functions globally accessible
