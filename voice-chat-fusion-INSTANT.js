@@ -702,6 +702,15 @@ async function startListening() {
         console.log('🚫 Recognition already running - skipping start');
         return;
     }
+
+       // 🆕 ENHANCED DUPLICATE PREVENTION
+    if (window.isListening) {
+        console.log('🚫 isListening flag is true - stopping first, then restarting');
+        if (window.stopListening) window.stopListening();
+        // Wait a moment then try again
+        setTimeout(() => startListening(), 100);
+        return;
+    }
     
     // Smart button gate-keeper (keep this)
     const smartButton = document.getElementById('smartButton');
@@ -3979,6 +3988,35 @@ function endConversation() {
         stopListening();
     }, 2000);
 }
+
+// ================================
+// 🛑 STOP LISTENING FUNCTION
+// ================================
+function stopListening() {
+    console.log('🛑 stopListening() called');
+    
+    if (window.speechRecognition) {
+        try {
+            window.speechRecognition.stop();
+            window.speechRecognition.abort();
+            console.log('✅ Speech recognition stopped');
+        } catch (e) {
+            console.log('Speech recognition stop error:', e);
+        }
+    }
+    
+    window.isListening = false;
+    window.isRecording = false;
+    
+    // Clear any active timeouts
+    if (window.speechTimeout) {
+        clearTimeout(window.speechTimeout);
+        window.speechTimeout = null;
+    }
+}
+
+// Make globally accessible
+window.stopListening = stopListening;
 
 function startFollowUpSequence() {
     conversationState = 'asking_followup_email';

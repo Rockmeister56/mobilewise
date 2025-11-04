@@ -469,11 +469,14 @@ function askLeadQuestion() {
             
             // 🆕 MANUALLY START LISTENING AFTER AI SPEAKS
             setTimeout(() => {
-                if (window.startRealtimeListening) {
-                    console.log('🎤 Lead Capture: Manually starting listening for user answer');
-                    window.startRealtimeListening();
-                }
-            }, 5000); // Wait 2 seconds for speech to finish
+    if (window.startRealtimeListening) {
+        console.log('🎤 Lead Capture: Manually starting listening for user answer');
+        // Stop any potential conflicts first
+        if (window.stopListening) window.stopListening();
+        // Start listening immediately
+        window.startRealtimeListening();
+    }
+}, 2000); // Wait only 2 seconds for speech to finish
         }
     } else {
         completeLeadCapture();
