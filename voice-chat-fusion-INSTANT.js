@@ -2620,7 +2620,9 @@ async function getAIResponse(userMessage, conversationHistory = []) {
         
         // Mark that we're now waiting for their intent
         window.waitingForIntent = true;
-        return response;  // ✅ RETURN THE RESPONSE
+        
+        // 🛑 CRITICAL: RETURN HERE to prevent further processing
+        return response;
     }
     
     // Check if we're waiting for their intent (sell/buy/value/help)
@@ -2675,7 +2677,9 @@ async function getAIResponse(userMessage, conversationHistory = []) {
 
             // Mark that we're waiting for book response (yes/no)
             window.waitingForBookResponse = true;
-            return response;  // ✅ RETURN THE RESPONSE
+            
+            // 🛑 CRITICAL: RETURN HERE to prevent further processing
+            return response;
         }
         
         // If no intent detected, continue to OpenAI
@@ -2700,7 +2704,8 @@ async function getAIResponse(userMessage, conversationHistory = []) {
             
             speakWithElevenLabs(response, false);
             
-            return response;  // ✅ RETURN THE RESPONSE
+            // 🛑 CRITICAL: RETURN HERE to prevent further processing
+            return response;
         }
         
         // Handle NO response - Start qualification questions
@@ -2727,6 +2732,8 @@ async function getAIResponse(userMessage, conversationHistory = []) {
             }
             
             speakWithElevenLabs(response, false);
+            
+            // 🛑 CRITICAL: RETURN HERE to prevent further processing
             return response;
         }
         
@@ -2737,7 +2744,8 @@ async function getAIResponse(userMessage, conversationHistory = []) {
         
         speakWithElevenLabs(response, false);
         
-        return response;  // ✅ RETURN THE RESPONSE
+        // 🛑 CRITICAL: RETURN HERE to prevent further processing
+        return response;
     }
     
     // 🎯 QUALIFICATION PROCESSING
@@ -2809,6 +2817,8 @@ async function getAIResponse(userMessage, conversationHistory = []) {
         
         window.qualificationState = nextState;
         speakWithElevenLabs(response, false);
+        
+        // 🛑 CRITICAL: RETURN HERE to prevent further processing
         return response;
     }
     
@@ -2856,7 +2866,7 @@ async function getAIResponse(userMessage, conversationHistory = []) {
         // Speak the response
         speakWithElevenLabs(aiResponse, false);
         
-        return aiResponse;  // ✅ RETURN THE RESPONSE
+        return aiResponse;
 
     } catch (error) {
         console.error('❌ Error in getAIResponse:', error);
@@ -2878,95 +2888,6 @@ async function getAIResponse(userMessage, conversationHistory = []) {
         return errorResponse;
     }
 }
-
-// 🧠 ENHANCED KNOWLEDGE BASE FUNCTION
-function handleGeneralQuestions(userText, firstName) {
-    const lowerText = userText.toLowerCase();
-    
-    // NCI/BRUCE QUESTIONS - COMPREHENSIVE OVERVIEW
-    if (lowerText.includes('what is nci') || lowerText.includes('new clients inc') || 
-        lowerText.includes('who is bruce') || lowerText.includes('what do you do') ||
-        lowerText.includes('tell me about') || lowerText.includes('what does new clients') ||
-        lowerText.includes('what kind of company') || lowerText.includes('what services') ||
-        lowerText.includes('how can you help') || lowerText.includes('what do you offer')) {
-        
-        return firstName ? 
-            `${firstName}, as a leader in client acquisition, practice management, and accounting practice sales since 1987, New Clients Inc is an established international marketing and consulting firm that has helped thousands of accountants learn how to generate new clients and retain them. Moreover, we offer comprehensive Practice Acquisition Consulting Services to help with buying or selling your practice. What can we help you with today?` :
-            "As a leader in client acquisition, practice management, and accounting practice sales since 1987, New Clients Inc is an established international marketing and consulting firm that has helped thousands of accountants learn how to generate new clients and retain them. Moreover, we offer comprehensive Practice Acquisition Consulting Services to help with buying or selling your practice. What can we help you with today?";
-    }
-    
-    // SPECIFIC SERVICE QUESTIONS
-    if (lowerText.includes('services') || lowerText.includes('help with') ||
-        lowerText.includes('what do you provide') || lowerText.includes('offerings')) {
-        
-        return firstName ? 
-            `${firstName}, we provide three main services: Practice Acquisition for buying accounting firms, Practice Sales for selling your practice, and Practice Valuations to determine your firm's true market value. We also offer client acquisition strategies and practice management consulting. Which service interests you most?` :
-            "We provide three main services: Practice Acquisition for buying accounting firms, Practice Sales for selling your practice, and Practice Valuations to determine your firm's true market value. We also offer client acquisition strategies and practice management consulting. Which service interests you most?";
-    }
-    
-    // PROCESS QUESTIONS
-    if (lowerText.includes('how does it work') || lowerText.includes('process') || 
-        lowerText.includes('how long') || lowerText.includes('timeline') ||
-        lowerText.includes('whats the process')) {
-        
-        return firstName ? 
-            `${firstName}, Bruce makes the process simple. For sellers, he maximizes value through proper valuation and finds qualified buyers. For buyers, he matches you with perfect practice opportunities and handles negotiations. Most transitions complete within 60-90 days. Would you like to discuss your specific situation?` :
-            "The process is straightforward! For sellers, we maximize value and find qualified buyers. For buyers, we match you with ideal practices and handle negotiations. Most deals complete in 60-90 days. Would you like to discuss your specific goals?";
-    }
-    
-    // SUCCESS RATE/EXPERIENCE
-    if (lowerText.includes('experience') || lowerText.includes('how many') || 
-        lowerText.includes('success') || lowerText.includes('results') ||
-        lowerText.includes('track record') || lowerText.includes('how long have you')) {
-        
-        return firstName ? 
-            `${firstName}, with over 35 years in business since 1987, Bruce has helped thousands of CPA firm owners successfully transition their practices. His clients typically achieve 15-30% higher valuations than going it alone. Would you like to hear some success stories?` :
-            "With over 35 years in business since 1987, we've helped thousands of CPA firm owners. Our clients typically achieve 15-30% higher valuations than going it alone. Would you like to hear some success stories?";
-    }
-    
-    // FEES/COST
-    if (lowerText.includes('cost') || lowerText.includes('fee') || lowerText.includes('price') || 
-        lowerText.includes('how much') || lowerText.includes('what does it cost')) {
-        
-        return firstName ? 
-            `${firstName}, Bruce's consultations are always free, and his fees are success-based for sellers. For buyers, there's typically no cost to you as the practice seller covers our fees. The best way to get specific details is through a quick, no-obligation chat with Bruce. Would you like to schedule that?` :
-            "Consultations are always free! For sellers, our fees are success-based. For buyers, there's usually no cost as the seller covers our fees. Want to get specific details for your situation?";
-    }
-    
-    // LOCATION/AREA
-    if (lowerText.includes('where') || lowerText.includes('location') || lowerText.includes('area') ||
-        lowerText.includes('state') || lowerText.includes('city') || lowerText.includes('based')) {
-        
-        return firstName ? 
-            `${firstName}, Bruce works with CPA firms nationwide! Location doesn't matter for practice transitions - we've successfully helped clients in all 50 states and internationally. The beauty of accounting practices is they can transition seamlessly regardless of location. Would you like to discuss opportunities in your area?` :
-            "We work nationwide! Bruce has helped CPA firms in all 50 states and internationally. Location isn't a barrier for practice transitions. Want to discuss your specific area?";
-    }
-    
-    // QUALIFICATIONS
-    if (lowerText.includes('qualif') || lowerText.includes('requirement') || 
-        lowerText.includes('need to') || lowerText.includes('should i') ||
-        lowerText.includes('what do i need')) {
-        
-        return firstName ? 
-            `${firstName}, great question! For sellers, any profitable practice with a solid client base qualifies. For buyers, we look at your accounting experience, financial readiness, and commitment to practice growth. The best way to know if you qualify is through a quick pre-qualification chat. Would you like to check your eligibility?` :
-            "For sellers, any profitable practice with a solid client base qualifies. For buyers, we consider your experience, financial readiness, and growth commitment. Want to see if you qualify for our programs?";
-    }
-    
-    // HISTORY/FOUNDATION
-    if (lowerText.includes('when') || lowerText.includes('founded') || 
-        lowerText.includes('established') || lowerText.includes('since') ||
-        lowerText.includes('history') || lowerText.includes('background')) {
-        
-        return firstName ? 
-            `${firstName}, New Clients Inc was established in 1987 and has been helping accounting professionals for over 35 years. We started by helping accountants acquire new clients and evolved into comprehensive practice transition services. Our longevity speaks to our proven results and client satisfaction. What specifically would you like to know about our history?` :
-            "We were established in 1987 and have been serving accounting professionals for over 35 years. We began with client acquisition services and expanded into practice transitions. Our long history demonstrates proven results and client satisfaction. What would you like to know?";
-    }
-    
-    // If no match found, return null to continue with normal flow
-    return null;
-}
-
-console.log('✅ COMPLETE getAIResponse function with Knowledge Base & Consultation Handling loaded');
 
 
 function handleTestimonialComplete() {
