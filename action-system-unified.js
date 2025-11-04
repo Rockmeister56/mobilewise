@@ -467,52 +467,39 @@ function askLeadQuestion() {
         if (window.speakText) {
             window.speakText(question);
             
-            // 🎯 ADD SPEAK NOW BANNER RIGHT HERE - after starting speech
-            setTimeout(() => {
-                console.log('🎤 LEAD CAPTURE: Triggering Speak Now banner for step', data.step);
-                
-                // Method 1: Direct function (most likely to work)
-                if (window.showDirectSpeakNow && typeof window.showDirectSpeakNow === 'function') {
-                    window.showDirectSpeakNow();
-                    console.log('✅ Speak Now banner triggered via showDirectSpeakNow()');
+            // 🎯 SMART TIMING: Wait for speech to actually finish BEFORE showing banner
+            const checkSpeech = setInterval(() => {
+                if (!window.isSpeaking) {
+                    clearInterval(checkSpeech);
+                    console.log('✅ AI finished speaking - starting listening NOW');
+                    
+                    // 🎤 NOW SHOW SPEAK NOW BANNER (after speech finishes)
+                    console.log('🎤 LEAD CAPTURE: Triggering Speak Now banner for step', data.step);
+                    if (window.showDirectSpeakNow && typeof window.showDirectSpeakNow === 'function') {
+                        window.showDirectSpeakNow();
+                        console.log('✅ Speak Now banner triggered via showDirectSpeakNow()');
+                    }
+                    
+                    // 🚀 NOW WITH CONFLICT PROTECTION
+                    if (isInLeadCapture && window.startRealtimeListening && !window.isCurrentlyListening) {
+                        window.startRealtimeListening();
+                    }
                 }
-                // Method 2: Universal banner engine
-                else if (window.showUniversalBanner && typeof window.showUniversalBanner === 'function') {
-                    window.showUniversalBanner('speakNow');
-                    console.log('✅ Speak Now banner triggered via universal banner engine');
-                }
-                else {
-                    console.log('❌ No Speak Now banner method available');
-                }
-            }, 300); // Short delay to ensure speech started
-            
-// 🎯 SMART TIMING: Wait for speech to actually finish
-const checkSpeech = setInterval(() => {
-    if (!window.isSpeaking) {
-        clearInterval(checkSpeech);
-        console.log('✅ AI finished speaking - starting listening NOW');
-        
-        // 🚀 NOW WITH CONFLICT PROTECTION
-        if (isInLeadCapture && window.startRealtimeListening && !window.isCurrentlyListening) {
-            window.startRealtimeListening();
-        }
-    }
-}, 100);
+            }, 100);
 
-// Safety timeout (10 seconds max)
-setTimeout(() => {
-    clearInterval(checkSpeech);
-    if (isInLeadCapture && window.startRealtimeListening && !window.isCurrentlyListening) {
-        console.log('⏰ Safety timeout - starting listening');
-        window.startRealtimeListening();
-    }
-}, 10000);
+            // Safety timeout (10 seconds max)
+            setTimeout(() => {
+                clearInterval(checkSpeech);
+                if (isInLeadCapture && window.startRealtimeListening && !window.isCurrentlyListening) {
+                    console.log('⏰ Safety timeout - starting listening');
+                    window.startRealtimeListening();
+                }
+            }, 10000);
         }
     } else {
         completeLeadCapture();
     }
 }
-
 // ================================
 // PROCESS USER RESPONSE
 // ================================
