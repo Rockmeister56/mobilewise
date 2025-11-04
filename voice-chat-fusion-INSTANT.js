@@ -2857,6 +2857,24 @@ function handleGeneralQuestions(userText, firstName) {
             `${firstName}, as a leader in client acquisition, practice management, and accounting practice sales since 1987, New Clients Inc is an established international marketing and consulting firm that has helped thousands of accountants learn how to generate new clients and retain them. Moreover, we offer comprehensive Practice Acquisition Consulting Services to help with buying or selling your practice. What can we help you with today?` :
             "As a leader in client acquisition, practice management, and accounting practice sales since 1987, New Clients Inc is an established international marketing and consulting firm that has helped thousands of accountants learn how to generate new clients and retain them. Moreover, we offer comprehensive Practice Acquisition Consulting Services to help with buying or selling your practice. What can we help you with today?";
     }
+
+    // 🆕 ADD THIS TO handleGeneralQuestions function - put it near the top after the main overview questions
+if (lowerText.includes('speak to bruce') || lowerText.includes('talk to bruce') || 
+    lowerText.includes('urgent') || lowerText.includes('emergency') || 
+    lowerText.includes('immediate') || lowerText.includes('right now')) {
+    
+    // 🎯 TRIGGER URGENT BANNER IMMEDIATELY
+    setTimeout(() => {
+        if (typeof showUniversalBanner === 'function') {
+            showUniversalBanner('urgent');
+            console.log('✅ Urgent banner triggered for Bruce request');
+        }
+    }, 1000);
+    
+    return firstName ? 
+        `${firstName}, I understand you need to speak with Bruce urgently. Please click the "URGENT CALL" button and I'll connect you directly with him right away!` :
+        "I understand you need to speak with Bruce urgently. Please click the 'URGENT CALL' button and I'll connect you directly with him right away!";
+}
     
     // SPECIFIC SERVICE QUESTIONS
     if (lowerText.includes('services') || lowerText.includes('help with') ||
