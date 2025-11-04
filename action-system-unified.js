@@ -467,16 +467,29 @@ function askLeadQuestion() {
         if (window.speakText) {
             window.speakText(question);
             
-            // 🆕 SMARTER TIMING: Wait for speech to complete
+            // 🆕 SMARTER TIMING: Wait for speech to complete AND delay banner
 const waitForSpeechCompletion = () => {
     if (window.startRealtimeListening) {
         console.log('🎤 Lead Capture: Manually starting listening for user answer');
+        
         // Stop any potential conflicts first
         if (window.stopListening) window.stopListening();
-        // Start listening after brief delay
+        
+        // 🚨 CRITICAL FIX: Add delay before starting listening to ensure AI finished
         setTimeout(() => {
-            window.startRealtimeListening();
-        }, 500);
+            // Double-check AI is done speaking
+            if (!window.isSpeaking && isInLeadCapture) {
+                console.log('✅ AI confirmed finished - starting listening now');
+                window.startRealtimeListening();
+            } else {
+                console.log('⚠️ AI still speaking - waiting another second...');
+                setTimeout(() => {
+                    if (isInLeadCapture) {
+                        window.startRealtimeListening();
+                    }
+                }, 1000);
+            }
+        }, 800); // Additional safety delay
     }
 };
 
