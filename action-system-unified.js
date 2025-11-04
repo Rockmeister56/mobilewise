@@ -1054,52 +1054,86 @@ function sendClientConfirmationEmail(leadData, captureType) {
     };
     
     // Send CLIENT confirmation using the confirmation template
-emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templates.clientConfirmation, confirmationParams)
-    .then(function(response) {
-        console.log('✅ CLIENT CONFIRMATION EMAIL SENT!');
-        
-        // Show success banner
-        if (window.showUniversalBanner) {
-            window.showUniversalBanner('emailSent');
-        }
-        
-        // Show success message and continue conversation
-        let successMessage = `✅ Confirmation email sent to ${cleanEmail}! Bruce will contact you soon. Is there anything else I can help you with?`;
-        if (window.addAIMessage) {
-            window.addAIMessage(successMessage);
-        }
-        
-        // Clear lead data - conversation continues naturally
-        window.isInLeadCapture = false;
-        window.currentCaptureType = null;
-        window.currentLeadData = null;
-        
-        // Restart listening for further conversation
-        setTimeout(() => {
-            if (window.startRealtimeListening) {
-                window.startRealtimeListening();
+    emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templates.clientConfirmation, confirmationParams)
+        .then(function(response) {
+            console.log('✅ CLIENT CONFIRMATION EMAIL SENT!');
+            
+            // Show success banner
+            if (window.showUniversalBanner) {
+                window.showUniversalBanner('emailSent');
             }
-        }, 2000);
-        
-    }, function(error) {
-        console.error('❌ CLIENT CONFIRMATION EMAIL FAILED:', error);
-        
-        // Show failure message but continue conversation
-        if (window.addAIMessage) {
-            window.addAIMessage("The confirmation email couldn't be sent, but Bruce will still contact you directly! Is there anything else I can help with?");
-        }
-        
-        // Clear lead data
-        window.isInLeadCapture = false;
-        window.currentCaptureType = null;
-        window.currentLeadData = null;
-        
-        setTimeout(() => {
-            if (window.startRealtimeListening) {
-                window.startRealtimeListening();
+            
+            // Show success message and continue conversation
+            let successMessage = `✅ Confirmation email sent to ${cleanEmail}! Bruce will contact you soon. Is there anything else I can help you with?`;
+            if (window.addAIMessage) {
+                window.addAIMessage(successMessage);
             }
-        }, 1500);
-    });
+            
+            // 🎯 CRITICAL FIX: Wait for AI to finish speaking BEFORE showing Speak Now banner
+            if (window.speakText) {
+                window.speakText(successMessage);
+                
+                // Wait for speech to complete before continuing
+                const checkSpeechCompletion = setInterval(() => {
+                    if (!window.isSpeaking) {
+                        clearInterval(checkSpeechCompletion);
+                        console.log('✅ AI finished speaking confirmation - now clearing lead data');
+                        
+                        // Clear lead data - conversation continues naturally
+                        window.isInLeadCapture = false;
+                        window.currentCaptureType = null;
+                        window.currentLeadData = null;
+                        
+                        // Restart listening for further conversation
+                        setTimeout(() => {
+                            if (window.startRealtimeListening) {
+                                window.startRealtimeListening();
+                            }
+                        }, 1000);
+                    }
+                }, 100);
+                
+                // Safety timeout
+                setTimeout(() => {
+                    clearInterval(checkSpeechCompletion);
+                    window.isInLeadCapture = false;
+                    window.currentCaptureType = null;
+                    window.currentLeadData = null;
+                    if (window.startRealtimeListening) {
+                        window.startRealtimeListening();
+                    }
+                }, 10000);
+            } else {
+                // Fallback if no speech system
+                window.isInLeadCapture = false;
+                window.currentCaptureType = null;
+                window.currentLeadData = null;
+                setTimeout(() => {
+                    if (window.startRealtimeListening) {
+                        window.startRealtimeListening();
+                    }
+                }, 2000);
+            }
+            
+        }, function(error) {
+            console.error('❌ CLIENT CONFIRMATION EMAIL FAILED:', error);
+            
+            // Show failure message but continue conversation
+            if (window.addAIMessage) {
+                window.addAIMessage("The confirmation email couldn't be sent, but Bruce will still contact you directly! Is there anything else I can help with?");
+            }
+            
+            // Clear lead data
+            window.isInLeadCapture = false;
+            window.currentCaptureType = null;
+            window.currentLeadData = null;
+            
+            setTimeout(() => {
+                if (window.startRealtimeListening) {
+                    window.startRealtimeListening();
+                }
+            }, 1500);
+        });
 }
     
 // Make functions globally accessible
