@@ -1203,6 +1203,8 @@ function restartConversation() {
     window.qualificationState = '';
     window.userName = '';
     window.userIntent = '';
+    window.isInLeadCapture = false; // 🆕 ADD THIS!
+    window.currentLeadData = null; // 🆕 ADD THIS!
     
     // Show branding banner
     if (typeof showUniversalBanner === 'function') {
@@ -1219,10 +1221,17 @@ function restartConversation() {
         const greeting = "What else can I help you with today?";
         speakWithElevenLabs(greeting, false);
         
-        // Show speak now banner after greeting
+        // Show speak now banner after greeting - FIXED VERSION
         setTimeout(() => {
-            if (typeof showUniversalBanner === 'function') {
-                showUniversalBanner('speakNow');
+            if (typeof showDirectSpeakNow === 'function') {
+                console.log('🎤 Restart: Showing Direct Speak Now banner');
+                showDirectSpeakNow();
+            } else if (typeof startRealtimeListening === 'function') {
+                console.log('🎤 Restart: Starting listening directly');
+                startRealtimeListening();
+            } else if (typeof showUniversalBanner === 'function') {
+                console.log('🎤 Restart: Falling back to branding banner');
+                showUniversalBanner('branding');
             }
         }, 2000);
     }, 1000);
