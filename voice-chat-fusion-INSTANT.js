@@ -1218,6 +1218,34 @@ function stopListening() {
 // Make globally accessible
 window.stopListening = stopListening;
 
+// Add this function to clean emojis from speech text
+function cleanEmojisFromSpeech(text) {
+    if (!text) return text;
+    
+    // Remove common emojis that might appear in text but shouldn't be spoken
+    const emojiPatterns = [
+        /✅/g, /📧/g, /📞/g, /📅/g, /🚨/g, /⏭️/g, /🔄/g, /🙏/g,
+        /🎯/g, /🚀/g, /🛡️/g, /🎤/g, /🎬/g, /🆕/g
+    ];
+    
+    let cleanedText = text;
+    emojiPatterns.forEach(pattern => {
+        cleanedText = cleanedText.replace(pattern, '');
+    });
+    
+    // Clean up any double spaces caused by emoji removal
+    cleanedText = cleanedText.replace(/\s+/g, ' ').trim();
+    
+    if (cleanedText !== text) {
+        console.log('🎨 Cleaned emojis from speech:', text, '→', cleanedText);
+    }
+    
+    return cleanedText;
+}
+
+// Make it globally accessible
+window.cleanEmojisFromSpeech = cleanEmojisFromSpeech;
+
 // ===================================================
 // 💬 TEXT INPUT SYSTEM
 // ===================================================
@@ -1974,6 +2002,8 @@ window.mobileWiseVoice = new MobileWiseVoiceSystem();
 
 // MAIN FUNCTION - Use this everywhere
 window.speakText = async function(text) {
+    // 🎯 CLEAN EMOJIS BEFORE SPEAKING
+    const cleanText = cleanEmojisFromSpeech(text);
     return window.mobileWiseVoice.speak(text);
 };
 

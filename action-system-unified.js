@@ -1010,7 +1010,6 @@ function sendOriginalLeadEmail(data, type) {
         });
 }
 
-// NEW: Separate function for CLIENT confirmation email
 function sendClientConfirmationEmail(leadData, captureType) {
     console.log('📧 Sending CLIENT confirmation email...');
     
@@ -1063,15 +1062,21 @@ function sendClientConfirmationEmail(leadData, captureType) {
                 window.showUniversalBanner('emailSent');
             }
             
-            // Show success message and continue conversation
-            let successMessage = `✅ Confirmation email sent to ${cleanEmail}! Bruce will contact you soon. Is there anything else I can help you with?`;
+            // 🎯 CRITICAL FIX: Remove check mark from message text
+            let successMessage = `Confirmation email sent to ${cleanEmail}! Bruce will contact you soon. Is there anything else I can help you with?`;
+            
+            // Add AI message WITHOUT check mark emoji
             if (window.addAIMessage) {
                 window.addAIMessage(successMessage);
             }
             
             // 🎯 CRITICAL FIX: Wait for AI to finish speaking BEFORE showing Speak Now banner
             if (window.speakText) {
-                window.speakText(successMessage);
+                // Use clean message without check mark for speech
+                const cleanSpeechMessage = `Confirmation email sent to ${cleanEmail}! Bruce will contact you soon. Is there anything else I can help you with?`;
+                window.speakText(cleanSpeechMessage);
+                
+                console.log('🎯 Waiting for AI to finish speaking before continuing...');
                 
                 // Wait for speech to complete before continuing
                 const checkSpeechCompletion = setInterval(() => {
@@ -1084,8 +1089,9 @@ function sendClientConfirmationEmail(leadData, captureType) {
                         window.currentCaptureType = null;
                         window.currentLeadData = null;
                         
-                        // Restart listening for further conversation
+                        // 🎯 CRITICAL: Wait 1 second after speech finishes before showing Speak Now
                         setTimeout(() => {
+                            console.log('🎤 Now showing Speak Now banner after email confirmation');
                             if (window.startRealtimeListening) {
                                 window.startRealtimeListening();
                             }
@@ -1099,12 +1105,14 @@ function sendClientConfirmationEmail(leadData, captureType) {
                     window.isInLeadCapture = false;
                     window.currentCaptureType = null;
                     window.currentLeadData = null;
+                    console.log('⏰ Safety timeout - clearing lead data and restarting');
                     if (window.startRealtimeListening) {
                         window.startRealtimeListening();
                     }
-                }, 10000);
+                }, 15000);
             } else {
                 // Fallback if no speech system
+                console.log('📞 No speech system - using fallback');
                 window.isInLeadCapture = false;
                 window.currentCaptureType = null;
                 window.currentLeadData = null;
@@ -1112,15 +1120,17 @@ function sendClientConfirmationEmail(leadData, captureType) {
                     if (window.startRealtimeListening) {
                         window.startRealtimeListening();
                     }
-                }, 2000);
+                }, 3000);
             }
             
         }, function(error) {
             console.error('❌ CLIENT CONFIRMATION EMAIL FAILED:', error);
             
             // Show failure message but continue conversation
+            let failureMessage = "The confirmation email couldn't be sent, but Bruce will still contact you directly! Is there anything else I can help with?";
+            
             if (window.addAIMessage) {
-                window.addAIMessage("The confirmation email couldn't be sent, but Bruce will still contact you directly! Is there anything else I can help with?");
+                window.addAIMessage(failureMessage);
             }
             
             // Clear lead data
@@ -1128,11 +1138,34 @@ function sendClientConfirmationEmail(leadData, captureType) {
             window.currentCaptureType = null;
             window.currentLeadData = null;
             
-            setTimeout(() => {
-                if (window.startRealtimeListening) {
-                    window.startRealtimeListening();
-                }
-            }, 1500);
+            if (window.speakText) {
+                window.speakText(failureMessage);
+                
+                // Wait for speech to complete
+                const checkFailureSpeech = setInterval(() => {
+                    if (!window.isSpeaking) {
+                        clearInterval(checkFailureSpeech);
+                        setTimeout(() => {
+                            if (window.startRealtimeListening) {
+                                window.startRealtimeListening();
+                            }
+                        }, 1000);
+                    }
+                }, 100);
+                
+                setTimeout(() => {
+                    clearInterval(checkFailureSpeech);
+                    if (window.startRealtimeListening) {
+                        window.startRealtimeListening();
+                    }
+                }, 10000);
+            } else {
+                setTimeout(() => {
+                    if (window.startRealtimeListening) {
+                        window.startRealtimeListening();
+                    }
+                }, 3000);
+            }
         });
 }
     
