@@ -449,10 +449,11 @@ function disableAvatarDuringLeadCapture() {
 // UNIVERSAL LEAD QUESTION ASKER
 // ================================
 function askLeadQuestion() {
-    window.lastProcessedTranscript = null;
+    window.lastProcessedTranscript = null; // 🔄 Reset for new question
     if (!window.isInLeadCapture || !window.currentLeadData) return;
     
     const data = window.currentLeadData;
+    
     console.log('🎯 Asking question for step:', data.step);
     
     if (data.step < data.questions.length) {
@@ -466,36 +467,34 @@ function askLeadQuestion() {
         if (window.speakText) {
             window.speakText(question);
             
-            // 🎯 CLEAN TIMING: Wait for speech to finish
+            // 🎯 SMART TIMING: Wait for speech to actually finish BEFORE showing banner
             const checkSpeech = setInterval(() => {
                 if (!window.isSpeaking) {
                     clearInterval(checkSpeech);
                     console.log('✅ AI finished speaking - starting listening NOW');
                     
-                    // 🎤 SHOW SPEAK NOW BANNER (after speech finishes)
+                    // 🎤 NOW SHOW SPEAK NOW BANNER (after speech finishes)
                     console.log('🎤 LEAD CAPTURE: Triggering Speak Now banner for step', data.step);
                     if (window.showDirectSpeakNow && typeof window.showDirectSpeakNow === 'function') {
                         window.showDirectSpeakNow();
-                        console.log('✅ Speak Now banner triggered');
+                        console.log('✅ Speak Now banner triggered via showDirectSpeakNow()');
                     }
                     
-                    // 🚀 START LISTENING
-                    if (window.isInLeadCapture && window.startRealtimeListening && !window.isCurrentlyListening) {
+                    // 🚀 NOW WITH CONFLICT PROTECTION
+                    if (isInLeadCapture && window.startRealtimeListening && !window.isCurrentlyListening) {
                         window.startRealtimeListening();
                     }
                 }
             }, 100);
 
-            // 🚫 REMOVE THIS BACKUP TIMEOUT - IT'S CAUSING DUPLICATE BANNERS
-            // setTimeout(() => {
-            //     clearInterval(checkSpeech);
-            //     console.log('⏰ BACKUP TIMEOUT: Force proceeding after 12 seconds');
-            //     
-            //     if (window.showDirectSpeakNow) window.showDirectSpeakNow();
-            //     if (window.startRealtimeListening && !window.isCurrentlyListening) {
-            //         window.startRealtimeListening();
-            //     }
-            // }, 12000);
+            // Safety timeout (10 seconds max)
+            setTimeout(() => {
+                clearInterval(checkSpeech);
+                if (isInLeadCapture && window.startRealtimeListening && !window.isCurrentlyListening) {
+                    console.log('⏰ Safety timeout - starting listening');
+                    window.startRealtimeListening();
+                }
+            }, 10000);
         }
     } else {
         completeLeadCapture();
