@@ -467,34 +467,26 @@ function askLeadQuestion() {
         if (window.speakText) {
             window.speakText(question);
             
-            // 🆕 SMARTER TIMING: Wait for speech to complete AND delay banner
+            // 🆕 SIMPLE RELIABLE TIMING: Just use fixed delays
 const waitForSpeechCompletion = () => {
-    if (window.startRealtimeListening) {
-        console.log('🎤 Lead Capture: Manually starting listening for user answer');
+    if (window.startRealtimeListening && isInLeadCapture) {
+        console.log('🎤 Lead Capture: Starting listening after AI speech');
         
-        // Stop any potential conflicts first
+        // Stop any existing listening
         if (window.stopListening) window.stopListening();
         
-        // 🚨 CRITICAL FIX: Add delay before starting listening to ensure AI finished
+        // Simple delay - no complex checks
         setTimeout(() => {
-            // Double-check AI is done speaking
-            if (!window.isSpeaking && isInLeadCapture) {
-                console.log('✅ AI confirmed finished - starting listening now');
+            if (isInLeadCapture) {
+                console.log('✅ Starting listening now');
                 window.startRealtimeListening();
-            } else {
-                console.log('⚠️ AI still speaking - waiting another second...');
-                setTimeout(() => {
-                    if (isInLeadCapture) {
-                        window.startRealtimeListening();
-                    }
-                }, 1000);
             }
-        }, 800); // Additional safety delay
+        }, 1000); // 1-second delay after AI "finishes"
     }
 };
 
-// Wait longer for longer questions - this is a 5-second question
-setTimeout(waitForSpeechCompletion, 6000); // Wait 6 seconds for this specific question
+// Wait for the full question to be spoken
+setTimeout(waitForSpeechCompletion, 6000);
         }
     } else {
         completeLeadCapture();
