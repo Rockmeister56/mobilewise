@@ -467,12 +467,14 @@ function askLeadQuestion() {
         if (window.speakText) {
             window.speakText(question);
             
-         // 🎯 SMART TIMING: Wait for speech to actually finish
+// 🎯 SMART TIMING: Wait for speech to actually finish
 const checkSpeech = setInterval(() => {
     if (!window.isSpeaking) {
         clearInterval(checkSpeech);
         console.log('✅ AI finished speaking - starting listening NOW');
-        if (isInLeadCapture && window.startRealtimeListening) {
+        
+        // 🚀 NOW WITH CONFLICT PROTECTION
+        if (isInLeadCapture && window.startRealtimeListening && !window.isCurrentlyListening) {
             window.startRealtimeListening();
         }
     }
@@ -481,7 +483,7 @@ const checkSpeech = setInterval(() => {
 // Safety timeout (10 seconds max)
 setTimeout(() => {
     clearInterval(checkSpeech);
-    if (isInLeadCapture && window.startRealtimeListening) {
+    if (isInLeadCapture && window.startRealtimeListening && !window.isCurrentlyListening) {
         console.log('⏰ Safety timeout - starting listening');
         window.startRealtimeListening();
     }
