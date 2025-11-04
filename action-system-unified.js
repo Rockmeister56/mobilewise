@@ -1073,81 +1073,163 @@ function initializePreQualifierCapture() {
 }
 
 // ================================
-// THANK YOU SPLASH SCREEN
+// 🎬 CINEMATIC THANK YOU SPLASH SCREEN WITH RESTART BUTTON
 // ================================
 function showThankYouSplash(name, captureType) {
-    console.log('🎉 Showing thank you splash for:', name);
+    console.log('🎬 Deploying cinematic thank you splash screen with restart button...');
     
-    const splashHTML = `
-        <div id="thank-you-splash" style="
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 10000;
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            text-align: center;
-            padding: 20px;
-            animation: fadeInScale 0.8s ease-out;
-        ">
-            <div style="font-size: 80px; margin-bottom: 20px;">🎉</div>
-            <h1 style="font-size: 2.5em; margin-bottom: 20px; font-weight: 700;">Thank You, ${name}!</h1>
-            
-            <div style="font-size: 1.3em; margin-bottom: 30px; max-width: 600px; line-height: 1.6;">
-                Your pre-qualification is complete! Bruce will contact you within 24 hours.
-            </div>
-            
-            <div style="
-                background: rgba(255,255,255,0.2);
-                padding: 25px;
-                border-radius: 15px;
-                margin: 20px 0;
-                max-width: 500px;
-                border: 2px solid rgba(255,255,255,0.3);
-            ">
-                <h3 style="margin-bottom: 15px; font-size: 1.4em;">📞 Next Steps</h3>
-                <p style="margin: 10px 0; font-size: 1.1em;">
-                    <strong>Bruce will contact you within 24 hours</strong><br>
-                    at the contact information you provided.
-                </p>
-            </div>
-            
-            <button onclick="closeThankYouSplash()" style="
-                background: white;
-                color: #667eea;
-                border: none;
-                padding: 18px 40px;
-                border-radius: 50px;
-                font-size: 1.2em;
-                font-weight: 700;
-                cursor: pointer;
-                margin-top: 30px;
-                box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-                transition: all 0.3s ease;
-            " onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 12px 30px rgba(0,0,0,0.3)';" 
-               onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.2)';">
-                Continue Conversation ✅
-            </button>
-        </div>
-        
-        <style>
-            @keyframes fadeInScale {
-                0% { opacity: 0; transform: scale(0.9); }
-                100% { opacity: 1; transform: scale(1); }
-            }
-        </style>
+    // ✅ NUCLEAR OPTION - KILL ALL SPEECH SYSTEMS
+    if (window.speechRecognition) {
+        try {
+            window.speechRecognition.stop();
+            window.speechRecognition.abort();
+            window.speechRecognition = null;
+        } catch (e) {
+            console.log('Speech recognition cleanup:', e);
+        }
+    }
+    
+    // ✅ STOP ALL LISTENING FLAGS
+    window.isListening = false;
+    window.isRecording = false;
+    
+    // ✅ CLEAR ALL TIMEOUTS
+    if (window.speechTimeout) clearTimeout(window.speechTimeout);
+    if (window.restartTimeout) clearTimeout(window.restartTimeout);
+    
+    // ✅ SET FINAL STATE
+    conversationState = 'splash_screen_active';
+    
+    const splashOverlay = document.createElement('div');
+    splashOverlay.id = 'thankYouSplash';
+    splashOverlay.style.cssText = `
+        position: fixed; 
+        top: 50%; 
+        left: 50%; 
+        transform: translate(-50%, -50%);
+        width: 90%; 
+        max-width: 600px;
+        height: auto;
+        min-height: 500px;
+        background: linear-gradient(135deg, #000428 0%, #004e92 50%, #000428 100%);
+        z-index: 99999; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center;
+        animation: fadeInSplash 0.8s ease-in;
+        border-radius: 20px;
+        box-shadow: 0 0 50px rgba(0, 78, 146, 0.6), inset 0 0 50px rgba(0, 78, 146, 0.3);
+        border: 2px solid rgba(74, 144, 226, 0.5);
+        overflow: hidden;
     `;
     
-    document.body.insertAdjacentHTML('beforeend', splashHTML);
+    splashOverlay.innerHTML = `
+        <div style="text-align: center; color: white; animation: slideInContent 1s ease-out 0.3s both; position: relative; padding: 40px 30px; width: 100%;">
+            <!-- Goodbye Avatar Video -->
+            <div style="margin-bottom: 20px;">
+                <video autoplay loop muted playsinline style="width: 120px; height: 120px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.3);">
+                    <source src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1762224530592.mp4" type="video/mp4">
+                </video>
+            </div>
+            
+            <div style="font-size: 48px; margin-bottom: 15px; text-shadow: 0 0 20px rgba(255,255,255,0.4);">🙏</div>
+            <h1 style="font-size: 32px; margin-bottom: 15px; font-weight: 300; letter-spacing: 1px; text-shadow: 0 2px 8px rgba(0,0,0,0.3);">Thank You, ${name}!</h1>
+            <p style="font-size: 18px; opacity: 0.9; margin-bottom: 8px; font-weight: 300;">Your consultation has been confirmed!</p>
+            <p style="font-size: 16px; margin-top: 15px; opacity: 0.8; font-weight: 300;">Bruce will contact you within 24 hours.</p>
+            <div style="margin-top: 25px; font-size: 14px; opacity: 0.7; letter-spacing: 1px;">Mobile-Wise AI</div>
+            
+            <!-- RESTART BUTTON -->
+            <button onclick="restartConversation()" style="
+                margin-top: 30px;
+                background: linear-gradient(135deg, #00b4db, #0083b0);
+                color: white;
+                border: none;
+                padding: 15px 35px;
+                border-radius: 50px;
+                cursor: pointer;
+                font-weight: bold;
+                font-size: 16px;
+                box-shadow: 0 6px 20px rgba(0, 180, 219, 0.4);
+                transition: all 0.3s ease;
+                min-width: 180px;
+                animation: slideInButton 1s ease-out 1s both;
+            " onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 10px 30px rgba(0, 180, 219, 0.6)'" 
+               onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 6px 20px rgba(0, 180, 219, 0.4)'">
+                🔄 BACK TO AI CHAT
+            </button>
+        </div>
+    `;
+    
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes fadeInSplash { from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+        @keyframes slideInContent { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideInButton { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    `;
+    document.head.appendChild(style);
+    document.body.appendChild(splashOverlay);
+    
+    // ✅ PLAY OUTRO AUDIO
+    setTimeout(() => {
+        const audio = new Audio('https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/audio-intros/ai_intro_1758148837523.mp3');
+        audio.volume = 0.8;
+        audio.play().catch(e => console.log('Audio play failed:', e));
+    }, 500);
+    
+    // ✅ AUTO-DISMISS AFTER 20 SECONDS
+    setTimeout(() => {
+        if (document.getElementById('thankYouSplash')) {
+            restartConversation();
+        }
+    }, 20000);
 }
 
+// ================================
+// 🔄 RESTART CONVERSATION FUNCTION
+// ================================
+function restartConversation() {
+    console.log('🔄 Restarting conversation...');
+    
+    // Remove splash screen
+    const splash = document.getElementById('thankYouSplash');
+    if (splash) splash.remove();
+    
+    // Reset conversation state
+    conversationState = 'initial';
+    window.waitingForName = false;
+    window.waitingForIntent = false;
+    window.waitingForBookResponse = false;
+    window.waitingForConsultationResponse = false;
+    window.qualificationState = '';
+    window.userName = '';
+    window.userIntent = '';
+    
+    // Show branding banner
+    if (typeof showUniversalBanner === 'function') {
+        showUniversalBanner('branding');
+    }
+    
+    // Reset action buttons to quick mode
+    if (typeof window.actionButtonSystem === 'object') {
+        window.actionButtonSystem.renderButtons('quick');
+    }
+    
+    // Start fresh conversation
+    setTimeout(() => {
+        const greeting = "What else can I help you with today?";
+        speakWithElevenLabs(greeting, false);
+        
+        // Show speak now banner after greeting
+        setTimeout(() => {
+            if (typeof showUniversalBanner === 'function') {
+                showUniversalBanner('speakNow');
+            }
+        }, 2000);
+    }, 1000);
+}
+
+// Make globally accessible
+window.restartConversation = restartConversation;
 function closeThankYouSplash() {
     const splash = document.getElementById('thank-you-splash');
     if (splash) {
