@@ -3,6 +3,9 @@
 // Smart Button + Lead Capture + EmailJS + Banner System
 // ===================================================
 
+// Initialize conversation history if it doesn't exist
+window.conversationHistory = window.conversationHistory || [];
+
 // Add this at the VERY TOP of your JavaScript file (like line 1)
 if (typeof window.leadData === 'undefined' || !window.leadData) {
     window.leadData = { 
@@ -1392,6 +1395,15 @@ async function processUserResponse(userText) {
             return; // Exit early - don't process as conversation
         }
     }
+
+    // ✅ FIXED: Use userText (the parameter) and ensure conversationHistory exists
+    const aiResponse = await getAIResponse(userText, window.conversationHistory || []);
+
+    // 🆕 ADD THIS CHECK FOR CONVERSATION ENDING
+    if (aiResponse === "conversation_ended") {
+        console.log('🛑 Conversation ended - stopping all processing');
+        return; // Stop further processing
+    }
     
     // YOUR EXISTING CODE - all your lead capture checks
     
@@ -2508,7 +2520,7 @@ async function getAIResponse(userMessage, conversationHistory = []) {
     console.log('🎯 getAIResponse called with:', userMessage);
 
     // 🆕 NEW: Check for conversation-ending responses
-    const lowerInput = userMessage.toLowerCase().trim(); // FIXED: Changed userInput to userMessage
+    const lowerInput = userMessage.toLowerCase().trim();
     
     // Conversation-ending responses
     const endingResponses = [
@@ -2533,7 +2545,20 @@ async function getAIResponse(userMessage, conversationHistory = []) {
             }
         }
         
-        return; // Stop further processing
+        // 🛑 CRITICAL: Stop ALL speech and listening
+        if (window.stopAllSpeech) {
+            window.stopAllSpeech();
+        }
+        
+        // 🛑 Clear all conversation states
+        window.waitingForName = false;
+        window.waitingForIntent = false;
+        window.waitingForBookResponse = false;
+        window.waitingForConsultationResponse = false;
+        window.qualificationState = null;
+        window.conversationState = 'ended';
+        
+        return "conversation_ended"; // Special return value to stop processing
     }
 
     // Close Speak Now banner when AI responds
