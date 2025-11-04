@@ -1184,6 +1184,29 @@ function scrollChatToBottom() {
     }
 }
 
+// ================================
+// 🛑 STOP LISTENING FUNCTION (MISSING!)
+// ================================
+function stopListening() {
+    console.log('🛑 stopListening() called');
+    
+    if (window.speechRecognition) {
+        try {
+            window.speechRecognition.stop();
+            window.speechRecognition.abort();
+            console.log('✅ Speech recognition stopped');
+        } catch (e) {
+            console.log('Speech recognition stop error:', e);
+        }
+    }
+    
+    window.isListening = false;
+    window.isRecording = false;
+}
+
+// Make globally accessible
+window.stopListening = stopListening;
+
 // ===================================================
 // 💬 TEXT INPUT SYSTEM
 // ===================================================
@@ -3225,18 +3248,36 @@ function askLeadQuestion() {
     if (!isInLeadCapture || !leadData) return;
     
     if (leadData.step < leadData.questions.length) {
-        if (leadData.subStep === 'ask') {
-            const question = leadData.questions[leadData.step];
-            addAIMessage(question);
-            speakMessage(question);
-            
-        } else if (leadData.subStep === 'confirm') {
-            const confirmPrompt = leadData.confirmationPrompts[leadData.step]
-                .replace('{answer}', leadData.tempAnswer);
-            
-            addAIMessage(confirmPrompt);
-            speakMessage(confirmPrompt);
-        }
+        const question = leadData.questions[leadData.step];
+        addAIMessage(question);
+        
+        console.log('🎤 Lead Capture: Speaking question...');
+        
+        // Stop any existing listening
+        if (window.stopListening) window.stopListening();
+        
+        // Speak the question
+        speakMessage(question);
+        
+        // 🎯 SIMPLE: Wait for speech to finish, then listen immediately
+        const checkSpeech = setInterval(() => {
+            if (!window.isSpeaking) {
+                clearInterval(checkSpeech);
+                console.log('✅ AI finished - starting listening NOW');
+                if (isInLeadCapture && window.startRealtimeListening) {
+                    window.startRealtimeListening();
+                }
+            }
+        }, 100);
+        
+        // Safety timeout
+        setTimeout(() => {
+            clearInterval(checkSpeech);
+            if (isInLeadCapture && window.startRealtimeListening) {
+                console.log('⏰ Safety timeout - starting listening');
+                window.startRealtimeListening();
+            }
+        }, 10000);
     } else {
         completeLeadCollection();
     }
@@ -3251,7 +3292,7 @@ function speakMessage(message) {
         return; // ✅ DONE - Let main system handle everything
     }
     
-    // ❌ FALLBACK: Your exact current code (unchanged)
+    // ❌ FALLBACK: SIMPLIFIED - No timing logic
     if (window.speechSynthesis) {
         window.speechSynthesis.cancel();
         const utterance = new SpeechSynthesisUtterance(message);
@@ -3260,26 +3301,14 @@ function speakMessage(message) {
         utterance.volume = 0.85;
         
         utterance.onstart = function() {
-            isSpeaking = true;
-            console.log('🔊 AI started speaking - hiding Speak Now');
-            const liveTranscript = document.getElementById('liveTranscript');
-            if (liveTranscript) {
-                liveTranscript.style.display = 'none';
-                restoreQuickButtons(); // Show quick buttons again
-            }
+            window.isSpeaking = true; // Use global flag
+            console.log('🔊 AI started speaking');
         };
 
         utterance.onend = function() {
-            isSpeaking = false;
-            console.log('🔊 AI finished speaking for lead capture');
-            
-            if (isInLeadCapture) {
-                setTimeout(() => {
-                    if (typeof showHybridReadySequence === 'function') {
-                        startRealtimeListening();
-                    }
-                }, 5000);
-            }
+            window.isSpeaking = false; // Use global flag
+            console.log('🔊 AI finished speaking - timing handled by lead capture');
+            // 🎯 NO TIMING LOGIC HERE - let askLeadQuestion handle it
         };
         
         window.speechSynthesis.speak(utterance);
