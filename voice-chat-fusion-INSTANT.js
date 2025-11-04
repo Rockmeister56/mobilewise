@@ -2508,7 +2508,7 @@ async function getAIResponse(userMessage, conversationHistory = []) {
     console.log('🎯 getAIResponse called with:', userMessage);
 
     // 🆕 NEW: Check for conversation-ending responses
-    const lowerInput = userInput.toLowerCase().trim();
+    const lowerInput = userMessage.toLowerCase().trim(); // FIXED: Changed userInput to userMessage
     
     // Conversation-ending responses
     const endingResponses = [
