@@ -467,7 +467,7 @@ function askLeadQuestion() {
         if (window.speakText) {
             window.speakText(question);
             
-// 🎯 SMART TIMING: Wait for speech to actually finish
+         // 🎯 SMART TIMING: Wait for speech to actually finish
 const checkSpeech = setInterval(() => {
     if (!window.isSpeaking) {
         clearInterval(checkSpeech);
@@ -486,6 +486,7 @@ setTimeout(() => {
         window.showDirectSpeakNow();
     }
 }, 10000);
+        }
     } else {
         completeLeadCapture();
     }
