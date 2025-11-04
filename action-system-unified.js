@@ -54,6 +54,51 @@ function formatEmailFromSpeech(speechText) {
     return formattedEmail;
 }
 
+// 🆕 ADD THIS FUNCTION AT THE TOP OF action-system-unified.js
+function checkForConversationEnd(userMessage) {
+    const lowerInput = userMessage.toLowerCase().trim();
+    
+    const endingResponses = [
+        'no', 'no thanks', 'no thank you', 'not right now', 'that\'s all',
+        'that will be all', 'nothing else', 'i\'m good', 'i\'m done',
+        'that\'s it', 'all set', 'no more'
+    ];
+    
+    if (endingResponses.some(response => lowerInput.includes(response))) {
+        console.log('🎯 User wants to end conversation after lead capture - showing thank you splash');
+        
+        const userName = window.userName || 'Valued Client';
+        
+        // Show thank you splash screen
+        if (window.showThankYouSplash) {
+            window.showThankYouSplash(userName, 'conversation_end');
+        } else {
+            // Fallback if splash function isn't available
+            if (window.addAIMessage) {
+                window.addAIMessage("Thank you for chatting with us! Bruce will be in touch soon. Have a wonderful day!");
+            }
+        }
+        
+        // Stop ALL speech and listening
+        if (window.stopAllSpeech) {
+            window.stopAllSpeech();
+        }
+        
+        // Clear all conversation states
+        window.waitingForName = false;
+        window.waitingForIntent = false;
+        window.waitingForBookResponse = false;
+        window.waitingForConsultationResponse = false;
+        window.qualificationState = null;
+        window.conversationState = 'ended';
+        window.isInLeadCapture = false;
+        
+        return true; // Conversation ended
+    }
+    
+    return false; // Continue conversation
+}
+
 // ================================
 // COMMUNICATION ACTION CENTER - 5 BUTTON LAYOUT
 // ================================
@@ -500,40 +545,125 @@ function askLeadQuestion() {
         completeLeadCapture();
     }
 }
-// ================================
-// PROCESS USER RESPONSE
-// ================================
-function processLeadResponse(userInput) {
-    if (!window.isInLeadCapture || !window.currentLeadData) return false;
+async function processUserResponse(userText) {
+    console.log('🎯 Processing user response:', userText);
     
-    console.log('🎯 Processing lead response:', userInput);
+    // 🆕 NEW: CHECK FOR CONVERSATION-ENDING RESPONSES FIRST
+    const lowerInput = userText.toLowerCase().trim();
+    const endingResponses = [
+        'no', 'no thanks', 'no thank you', 'not right now', 'that\'s all',
+        'that will be all', 'nothing else', 'i\'m good', 'i\'m done',
+        'that\'s it', 'all set', 'no more'
+    ];
     
-    const data = window.currentLeadData;
-    let processedInput = userInput;
-    
-    // Format email if on email question
-    if (data.captureType === 'consultation' && data.step === 2) {
-        processedInput = formatEmailFromSpeech(userInput);
-    } else if (data.captureType === 'freeBook' && data.step === 1) {
-        processedInput = formatEmailFromSpeech(userInput);
+    if (endingResponses.some(response => lowerInput.includes(response))) {
+        console.log('🎯 User wants to end conversation - showing thank you splash');
+        
+        const userName = window.userName || 'Valued Client';
+        
+        // Show thank you splash screen
+        if (window.showThankYouSplash) {
+            window.showThankYouSplash(userName, 'conversation_end');
+        } else {
+            // Fallback if splash function isn't available
+            if (window.addAIMessage) {
+                window.addAIMessage("Thank you for chatting with us! Bruce will be in touch soon. Have a wonderful day!");
+            }
+        }
+        
+        // Stop ALL speech and listening
+        if (window.stopAllSpeech) {
+            window.stopAllSpeech();
+        }
+        
+        // Clear all conversation states
+        window.waitingForName = false;
+        window.waitingForIntent = false;
+        window.waitingForBookResponse = false;
+        window.waitingForConsultationResponse = false;
+        window.qualificationState = null;
+        window.conversationState = 'ended';
+        window.isInLeadCapture = false;
+        
+        return; // STOP PROCESSING - conversation ended
     }
     
-    // Handle yes/no for evaluation question in FREE BOOK flow
-    if (data.captureType === 'freeBook' && data.step === 2) {
-        const lowerInput = userInput.toLowerCase();
-        if (lowerInput.includes('yes') || lowerInput.includes('yeah') || lowerInput.includes('sure')) {
-            data.wantsEvaluation = true;
-            processedInput = 'Yes';
-        } else if (lowerInput.includes('no') || lowerInput.includes('nope') || lowerInput.includes('not')) {
-            data.wantsEvaluation = false;
-            processedInput = 'No';
+    // 🆕 PATCH 4: CHECK FOR LEAD CAPTURE MODE FIRST
+    if (window.isInLeadCapture && window.processLeadResponse) {
+        console.log('🎯 Lead capture mode - routing to lead system');
+        const handled = window.processLeadResponse(userText);
+        if (handled) {
+            console.log('✅ Lead capture handled - not processing as normal chat');
+            return; // Exit early - don't process as conversation
         }
     }
-    
-    data.tempAnswer = processedInput;
-    showConfirmationButtons(processedInput);
-    
-    return true;
+
+    // Add user message to chat
+    if (window.addUserMessage) {
+        window.addUserMessage(userText);
+    }
+
+    // Show typing indicator
+    if (window.showTypingIndicator) {
+        window.showTypingIndicator();
+    }
+
+    // Process through AI
+    try {
+        const aiResponse = await getAIResponse(userText, window.conversationHistory || []);
+        
+        // 🆕 ADD THIS CHECK FOR CONVERSATION ENDING
+        if (aiResponse === "conversation_ended") {
+            console.log('🛑 Conversation ended - stopping all processing');
+            return; // Stop further processing
+        }
+
+        // Hide typing indicator
+        if (window.hideTypingIndicator) {
+            window.hideTypingIndicator();
+        }
+
+        // Add AI response to chat
+        if (window.addAIMessage && aiResponse) {
+            window.addAIMessage(aiResponse);
+        }
+
+        console.log('🎯 USER SAID:', userText);
+        console.log('🎯 AI RESPONSE:', aiResponse);
+
+        // Check for click mentions to set blocking window
+        if (aiResponse && (aiResponse.includes('click') || aiResponse.includes('banner') || aiResponse.includes('select'))) {
+            console.log('⏰ Click mention detected - setting blocking window');
+            window.lastClickMentionTime = Date.now();
+        }
+
+        // Speak the response after a short delay
+        if (window.speakText && aiResponse) {
+            setTimeout(() => {
+                window.speakText(aiResponse);
+            }, 500);
+        }
+
+    } catch (error) {
+        console.error('❌ Error in processUserResponse:', error);
+        
+        // Hide typing indicator on error
+        if (window.hideTypingIndicator) {
+            window.hideTypingIndicator();
+        }
+        
+        // Show error message
+        if (window.addAIMessage) {
+            window.addAIMessage("I apologize, but I'm having trouble processing your request. Please try again.");
+        }
+        
+        // Speak error message
+        if (window.speakText) {
+            setTimeout(() => {
+                window.speakText("I apologize, but I'm having trouble processing your request. Please try again.");
+            }, 500);
+        }
+    }
 }
 
 // ================================
