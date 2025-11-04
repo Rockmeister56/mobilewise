@@ -472,8 +472,8 @@ const checkSpeech = setInterval(() => {
     if (!window.isSpeaking) {
         clearInterval(checkSpeech);
         console.log('✅ AI finished speaking - starting listening NOW');
-        if (isInLeadCapture && window.showDirectSpeakNow) {  // ✅ Check for showDirectSpeakNow
-            window.showDirectSpeakNow();
+        if (isInLeadCapture && window.startRealtimeListening) {
+            window.startRealtimeListening();
         }
     }
 }, 100);
@@ -481,9 +481,9 @@ const checkSpeech = setInterval(() => {
 // Safety timeout (10 seconds max)
 setTimeout(() => {
     clearInterval(checkSpeech);
-    if (isInLeadCapture && window.showDirectSpeakNow) {  // ✅ Check for showDirectSpeakNow
+    if (isInLeadCapture && window.startRealtimeListening) {
         console.log('⏰ Safety timeout - starting listening');
-        window.showDirectSpeakNow();
+        window.startRealtimeListening();
     }
 }, 10000);
         }
