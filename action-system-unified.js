@@ -519,72 +519,22 @@ function processLeadResponse(userInput) {
         processedInput = formatEmailFromSpeech(userInput);
     }
     
-   // Handle yes/no for evaluation question in FREE BOOK flow
-if (data.captureType === 'freeBook' && data.step === 2) {
-    const lowerInput = userInput.toLowerCase();
-    if (lowerInput.includes('yes') || lowerInput.includes('yeah') || lowerInput.includes('sure')) {
-        data.wantsEvaluation = true;
-        processedInput = 'Yes';
-        
-        // 🎯 ENHANCED: Send info and offer continued help
-        console.log('✅ User said YES - sending information and offering continued help');
-        
-        // Send the email (your existing email sending code)
-        sendLeadEmail(); // Make sure this function exists
-        
-        // 🎤 SAY THE PLEASURE MESSAGE
-        const pleasureMessage = "It's been a pleasure helping you! Is there anything else I can help you with today?";
-        
-        if (window.speakText) {
-            window.speakText(pleasureMessage);
+    // Handle yes/no for evaluation question in FREE BOOK flow
+    if (data.captureType === 'freeBook' && data.step === 2) {
+        const lowerInput = userInput.toLowerCase();
+        if (lowerInput.includes('yes') || lowerInput.includes('yeah') || lowerInput.includes('sure')) {
+            data.wantsEvaluation = true;
+            processedInput = 'Yes';
+        } else if (lowerInput.includes('no') || lowerInput.includes('nope') || lowerInput.includes('not')) {
+            data.wantsEvaluation = false;
+            processedInput = 'No';
         }
-        if (window.addAIMessage) {
-            window.addAIMessage(pleasureMessage);
-        }
-        
-        // 🎯 SCHEDULE SPEAK NOW BANNER FOR CONTINUED CONVERSATION
-        setTimeout(() => {
-            console.log('🎤 Showing Speak Now for continued conversation after YES');
-            if (window.showDirectSpeakNow) {
-                window.showDirectSpeakNow();
-            }
-        }, 3000);
-        
-        // 🧹 CLEAN UP AND COMPLETE
-        completeLeadCapture();
-        return true; // Stop further processing
-        
-    } else if (lowerInput.includes('no') || lowerInput.includes('nope') || lowerInput.includes('not')) {
-        data.wantsEvaluation = false;
-        processedInput = 'No';
-        
-        // 🎯 ENHANCED: Offer alternative help without sending
-        console.log('❌ User said NO - offering alternative help');
-        
-        // 🎤 SAY ALTERNATIVE HELP MESSAGE
-        const noMessage = "No problem at all! What else can I help you with today?";
-        
-        if (window.speakText) {
-            window.speakText(noMessage);
-        }
-        if (window.addAIMessage) {
-            window.addAIMessage(noMessage);
-        }
-        
-        // 🎯 SCHEDULE SPEAK NOW BANNER
-        setTimeout(() => {
-            console.log('🎤 Showing Speak Now for continued conversation after NO');
-            if (window.showDirectSpeakNow) {
-                window.showDirectSpeakNow();
-            }
-        }, 2000);
-        
-        // 🧹 CLEAN UP
-        completeLeadCapture();
-        return true; // Stop further processing
     }
- }
-   
+    
+    data.tempAnswer = processedInput;
+    showConfirmationButtons(processedInput);
+    
+    return true;
 }
 
 // ================================
@@ -864,66 +814,37 @@ function showEmailConfirmationButtons(leadData, captureType) {
 // ================================
 // 🆕 NEW: HANDLE EMAIL CONFIRMATION RESPONSE
 // ================================
-// ===== ENHANCED EMAIL CONFIRMATION HANDLER =====
-function handleEmailConfirmation(confirmed, type) {
-    console.log('🎯 Email confirmation:', confirmed, type);
+function handleEmailConfirmation(sendEmail, captureType) {
+    console.log('🎯 Email confirmation:', sendEmail ? 'SENDING' : 'SKIPPING');
     
-    if (confirmed) {
-        // ✅ USER CLICKED YES
-        console.log('✅ User confirmed - sending email and offering continued help');
-        
-        // 1. Send the email (your existing email sending code)
-        sendLeadEmail(); // or whatever your email function is called
-        
-        // 2. SAY THE PLEASURE MESSAGE
-        const pleasureMessage = "It's been a pleasure helping you! Is there anything else I can help you with today?";
-        
-        if (window.speakText) {
-            window.speakText(pleasureMessage);
-        }
-        if (window.addAIMessage) {
-            window.addAIMessage(pleasureMessage);
-        }
-        
-        // 3. SCHEDULE SPEAK NOW BANNER FOR CONTINUED CONVERSATION
-        setTimeout(() => {
-            console.log('🎤 Showing Speak Now for continued conversation after YES');
-            if (window.showDirectSpeakNow) {
-                window.showDirectSpeakNow();
-            }
-        }, 3000);
-        
-    } else {
-        // ❌ USER CLICKED NO
-        console.log('❌ User declined - offering alternative help');
-        
-        // 1. SAY ALTERNATIVE HELP MESSAGE
-        const noMessage = "No problem at all! What else can I help you with today?";
-        
-        if (window.speakText) {
-            window.speakText(noMessage);
-        }
-        if (window.addAIMessage) {
-            window.addAIMessage(noMessage);
-        }
-        
-        // 2. SCHEDULE SPEAK NOW BANNER
-        setTimeout(() => {
-            console.log('🎤 Showing Speak Now for continued conversation after NO');
-            if (window.showDirectSpeakNow) {
-                window.showDirectSpeakNow();
-            }
-        }, 2000);
+    // 🆕 RE-ENABLE AVATAR
+    enableAvatarAfterLeadCapture();
+    
+    // Remove confirmation buttons
+    const buttonContainer = document.querySelector('.email-confirmation-buttons');
+    if (buttonContainer) {
+        buttonContainer.remove();
     }
     
-    // 🧹 CLEAN UP REGARDLESS OF CHOICE
-    window.isInLeadCapture = false;
-    window.currentLeadData = null;
+    const data = window.currentLeadData;
     
-    // 🎯 REMOVE CONFIRMATION OVERLAY/BUTTONS
-    removeConfirmationOverlay(); // or whatever function closes the confirmation
-    
-    console.log('🔄 Conversation continuing after email confirmation');
+    if (sendEmail) {
+        // User wants email - send it using your ORIGINAL email logic
+        sendOriginalLeadEmail(data, captureType);
+    } else {
+        // User skipped email - show thank you splash directly
+        if (window.addAIMessage) {
+            window.addAIMessage("No problem! Bruce will still contact you directly. Is there anything else I can help with?");
+        }
+        
+        // Show thank you splash after brief delay
+        setTimeout(() => {
+            showThankYouSplash(data.name, captureType);
+        }, 1500);
+        
+        // Clear the lead data
+        window.currentLeadData = null;
+    }
 }
 
 // 🆕 ADD THIS FUNCTION TOO:
