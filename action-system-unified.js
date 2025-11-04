@@ -464,80 +464,38 @@ function askLeadQuestion() {
         }
         
         if (window.speakText) {
-            // 🎯 RESET SPEAKING STATE FOR CONSISTENCY
-            window.isSpeaking = true;
-            
             window.speakText(question);
             
-            // 🎯 ENHANCED TIMING WITH MULTIPLE SAFETY CHECKS
-            let speechCheckCount = 0;
-            const maxSpeechChecks = 100; // 10 seconds max (100 * 100ms)
-            
+            // 🎯 CLEAN TIMING: Wait for speech to finish
             const checkSpeech = setInterval(() => {
-                speechCheckCount++;
-                
-                // 🎯 MULTIPLE CONSISTENCY CHECKS:
-                // 1. Check isSpeaking flag
-                // 2. Check if speech synthesis is actually active
-                // 3. Safety counter to prevent infinite loops
-                const speechActuallyFinished = (
-                    !window.isSpeaking || 
-                    !window.speechSynthesis || 
-                    !window.speechSynthesis.speaking ||
-                    speechCheckCount >= maxSpeechChecks
-                );
-                
-                if (speechActuallyFinished) {
+                if (!window.isSpeaking) {
                     clearInterval(checkSpeech);
                     console.log('✅ AI finished speaking - starting listening NOW');
-                    console.log(`   - Checks performed: ${speechCheckCount}`);
-                    console.log(`   - isSpeaking: ${window.isSpeaking}`);
-                    console.log(`   - speechSynthesis.speaking: ${window.speechSynthesis?.speaking}`);
                     
                     // 🎤 SHOW SPEAK NOW BANNER (after speech finishes)
                     console.log('🎤 LEAD CAPTURE: Triggering Speak Now banner for step', data.step);
                     if (window.showDirectSpeakNow && typeof window.showDirectSpeakNow === 'function') {
                         window.showDirectSpeakNow();
                         console.log('✅ Speak Now banner triggered');
-                    } else {
-                        console.log('❌ Speak Now function not available');
                     }
                     
-                    // 🚀 START LISTENING WITH CONFLICT PROTECTION
+                    // 🚀 START LISTENING
                     if (window.isInLeadCapture && window.startRealtimeListening && !window.isCurrentlyListening) {
                         window.startRealtimeListening();
-                        console.log('✅ Listening started for lead capture');
-                    } else {
-                        console.log('❌ Cannot start listening - conflict detected');
-                        console.log(`   - isInLeadCapture: ${window.isInLeadCapture}`);
-                        console.log(`   - startRealtimeListening available: ${!!window.startRealtimeListening}`);
-                        console.log(`   - isCurrentlyListening: ${window.isCurrentlyListening}`);
                     }
                 }
-                
-                // 🎯 SAFETY: Force stop if taking too long
-                if (speechCheckCount >= maxSpeechChecks) {
-                    clearInterval(checkSpeech);
-                    console.log('⏰ SAFETY: Force stopping speech check after max attempts');
-                    
-                    // Still try to show banner and start listening
-                    if (window.showDirectSpeakNow) window.showDirectSpeakNow();
-                    if (window.startRealtimeListening && !window.isCurrentlyListening) {
-                        window.startRealtimeListening();
-                    }
-                }
-            }, 100); // Check every 100ms
+            }, 100);
 
-            // 🎯 BACKUP TIMEOUT (12 seconds)
-            setTimeout(() => {
-                clearInterval(checkSpeech);
-                console.log('⏰ BACKUP TIMEOUT: Force proceeding after 12 seconds');
-                
-                if (window.showDirectSpeakNow) window.showDirectSpeakNow();
-                if (window.startRealtimeListening && !window.isCurrentlyListening) {
-                    window.startRealtimeListening();
-                }
-            }, 12000);
+            // 🚫 REMOVE THIS BACKUP TIMEOUT - IT'S CAUSING DUPLICATE BANNERS
+            // setTimeout(() => {
+            //     clearInterval(checkSpeech);
+            //     console.log('⏰ BACKUP TIMEOUT: Force proceeding after 12 seconds');
+            //     
+            //     if (window.showDirectSpeakNow) window.showDirectSpeakNow();
+            //     if (window.startRealtimeListening && !window.isCurrentlyListening) {
+            //         window.startRealtimeListening();
+            //     }
+            // }, 12000);
         }
     } else {
         completeLeadCapture();
