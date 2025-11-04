@@ -449,11 +449,10 @@ function disableAvatarDuringLeadCapture() {
 // UNIVERSAL LEAD QUESTION ASKER
 // ================================
 function askLeadQuestion() {
-    window.lastProcessedTranscript = null; // 🔄 Reset for new question
+    window.lastProcessedTranscript = null;
     if (!window.isInLeadCapture || !window.currentLeadData) return;
     
     const data = window.currentLeadData;
-    
     console.log('🎯 Asking question for step:', data.step);
     
     if (data.step < data.questions.length) {
@@ -465,36 +464,80 @@ function askLeadQuestion() {
         }
         
         if (window.speakText) {
+            // 🎯 RESET SPEAKING STATE FOR CONSISTENCY
+            window.isSpeaking = true;
+            
             window.speakText(question);
             
-            // 🎯 SMART TIMING: Wait for speech to actually finish BEFORE showing banner
+            // 🎯 ENHANCED TIMING WITH MULTIPLE SAFETY CHECKS
+            let speechCheckCount = 0;
+            const maxSpeechChecks = 100; // 10 seconds max (100 * 100ms)
+            
             const checkSpeech = setInterval(() => {
-                if (!window.isSpeaking) {
+                speechCheckCount++;
+                
+                // 🎯 MULTIPLE CONSISTENCY CHECKS:
+                // 1. Check isSpeaking flag
+                // 2. Check if speech synthesis is actually active
+                // 3. Safety counter to prevent infinite loops
+                const speechActuallyFinished = (
+                    !window.isSpeaking || 
+                    !window.speechSynthesis || 
+                    !window.speechSynthesis.speaking ||
+                    speechCheckCount >= maxSpeechChecks
+                );
+                
+                if (speechActuallyFinished) {
                     clearInterval(checkSpeech);
                     console.log('✅ AI finished speaking - starting listening NOW');
+                    console.log(`   - Checks performed: ${speechCheckCount}`);
+                    console.log(`   - isSpeaking: ${window.isSpeaking}`);
+                    console.log(`   - speechSynthesis.speaking: ${window.speechSynthesis?.speaking}`);
                     
-                    // 🎤 NOW SHOW SPEAK NOW BANNER (after speech finishes)
+                    // 🎤 SHOW SPEAK NOW BANNER (after speech finishes)
                     console.log('🎤 LEAD CAPTURE: Triggering Speak Now banner for step', data.step);
                     if (window.showDirectSpeakNow && typeof window.showDirectSpeakNow === 'function') {
                         window.showDirectSpeakNow();
-                        console.log('✅ Speak Now banner triggered via showDirectSpeakNow()');
+                        console.log('✅ Speak Now banner triggered');
+                    } else {
+                        console.log('❌ Speak Now function not available');
                     }
                     
-                    // 🚀 NOW WITH CONFLICT PROTECTION
-                    if (isInLeadCapture && window.startRealtimeListening && !window.isCurrentlyListening) {
+                    // 🚀 START LISTENING WITH CONFLICT PROTECTION
+                    if (window.isInLeadCapture && window.startRealtimeListening && !window.isCurrentlyListening) {
+                        window.startRealtimeListening();
+                        console.log('✅ Listening started for lead capture');
+                    } else {
+                        console.log('❌ Cannot start listening - conflict detected');
+                        console.log(`   - isInLeadCapture: ${window.isInLeadCapture}`);
+                        console.log(`   - startRealtimeListening available: ${!!window.startRealtimeListening}`);
+                        console.log(`   - isCurrentlyListening: ${window.isCurrentlyListening}`);
+                    }
+                }
+                
+                // 🎯 SAFETY: Force stop if taking too long
+                if (speechCheckCount >= maxSpeechChecks) {
+                    clearInterval(checkSpeech);
+                    console.log('⏰ SAFETY: Force stopping speech check after max attempts');
+                    
+                    // Still try to show banner and start listening
+                    if (window.showDirectSpeakNow) window.showDirectSpeakNow();
+                    if (window.startRealtimeListening && !window.isCurrentlyListening) {
                         window.startRealtimeListening();
                     }
                 }
-            }, 100);
+            }, 100); // Check every 100ms
 
-            // Safety timeout (10 seconds max)
+            // 🎯 BACKUP TIMEOUT (12 seconds)
             setTimeout(() => {
                 clearInterval(checkSpeech);
-                if (isInLeadCapture && window.startRealtimeListening && !window.isCurrentlyListening) {
-                    console.log('⏰ Safety timeout - starting listening');
+                console.log('⏰ BACKUP TIMEOUT: Force proceeding after 12 seconds');
+                
+                if (window.showDirectSpeakNow) window.showDirectSpeakNow();
+                if (window.startRealtimeListening && !window.isCurrentlyListening) {
                     window.startRealtimeListening();
                 }
-            }, 10000);
+            }, 12000);
         }
     } else {
         completeLeadCapture();
