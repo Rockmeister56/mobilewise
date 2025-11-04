@@ -467,13 +467,25 @@ function askLeadQuestion() {
         if (window.speakText) {
             window.speakText(question);
             
-            // 🆕 MANUALLY START LISTENING AFTER AI SPEAKS
-            setTimeout(() => {
-                if (window.startRealtimeListening) {
-                    console.log('🎤 Lead Capture: Manually starting listening for user answer');
-                    window.startRealtimeListening();
-                }
-            }, 6000); // Wait 2 seconds for speech to finish
+         // 🎯 SMART TIMING: Wait for speech to actually finish
+const checkSpeech = setInterval(() => {
+    if (!window.isSpeaking) {
+        clearInterval(checkSpeech);
+        console.log('✅ AI finished speaking - starting listening NOW');
+        if (isInLeadCapture && window.startRealtimeListening) {
+            window.startRealtimeListening();
+        }
+    }
+}, 100);
+
+// Safety timeout (10 seconds max)
+setTimeout(() => {
+    clearInterval(checkSpeech);
+    if (isInLeadCapture && window.startRealtimeListening) {
+        console.log('⏰ Safety timeout - starting listening');
+        window.startRealtimeListening();
+    }
+}, 10000);
         }
     } else {
         completeLeadCapture();
