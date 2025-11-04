@@ -2507,6 +2507,35 @@ function detectConsultativeResponse(userMessage) {
 async function getAIResponse(userMessage, conversationHistory = []) {
     console.log('🎯 getAIResponse called with:', userMessage);
 
+    // 🆕 NEW: Check for conversation-ending responses
+    const lowerInput = userInput.toLowerCase().trim();
+    
+    // Conversation-ending responses
+    const endingResponses = [
+        'no', 'no thanks', 'no thank you', 'not right now', 'that\'s all',
+        'that will be all', 'nothing else', 'i\'m good', 'i\'m done',
+        'that\'s it', 'all set', 'no more'
+    ];
+    
+    if (endingResponses.some(response => lowerInput.includes(response))) {
+        console.log('🎯 User wants to end conversation - showing thank you splash');
+        
+        // Get the user's name from conversation state or use a default
+        const userName = window.userName || 'Valued Client';
+        
+        // Show thank you splash screen
+        if (window.showThankYouSplash) {
+            window.showThankYouSplash(userName, 'conversation_end');
+        } else {
+            // Fallback if splash function isn't available
+            if (window.addAIMessage) {
+                window.addAIMessage("Thank you for chatting with us! Bruce will be in touch soon. Have a wonderful day!");
+            }
+        }
+        
+        return; // Stop further processing
+    }
+
     // Close Speak Now banner when AI responds
     const speakNowBanner = document.querySelector('.speak-now-banner');
     if (speakNowBanner) {

@@ -1010,6 +1010,7 @@ function sendOriginalLeadEmail(data, type) {
         });
 }
 
+// NEW: Separate function for CLIENT confirmation email
 function sendClientConfirmationEmail(leadData, captureType) {
     console.log('📧 Sending CLIENT confirmation email...');
     
@@ -1062,13 +1063,18 @@ function sendClientConfirmationEmail(leadData, captureType) {
                 window.showUniversalBanner('emailSent');
             }
             
-            // 🎯 CRITICAL FIX: Remove check mark from message text
+            // 🎯 CRITICAL FIX: Ask if user needs anything else (NO CHECK MARK)
             let successMessage = `Confirmation email sent to ${cleanEmail}! Bruce will contact you soon. Is there anything else I can help you with?`;
             
             // Add AI message WITHOUT check mark emoji
             if (window.addAIMessage) {
                 window.addAIMessage(successMessage);
             }
+            
+            // 🎯 CRITICAL: Clear lead data immediately so conversation can continue
+            window.isInLeadCapture = false;
+            window.currentCaptureType = null;
+            window.currentLeadData = null;
             
             // 🎯 CRITICAL FIX: Wait for AI to finish speaking BEFORE showing Speak Now banner
             if (window.speakText) {
@@ -1082,12 +1088,7 @@ function sendClientConfirmationEmail(leadData, captureType) {
                 const checkSpeechCompletion = setInterval(() => {
                     if (!window.isSpeaking) {
                         clearInterval(checkSpeechCompletion);
-                        console.log('✅ AI finished speaking confirmation - now clearing lead data');
-                        
-                        // Clear lead data - conversation continues naturally
-                        window.isInLeadCapture = false;
-                        window.currentCaptureType = null;
-                        window.currentLeadData = null;
+                        console.log('✅ AI finished speaking confirmation - now ready for user response');
                         
                         // 🎯 CRITICAL: Wait 1 second after speech finishes before showing Speak Now
                         setTimeout(() => {
@@ -1102,10 +1103,7 @@ function sendClientConfirmationEmail(leadData, captureType) {
                 // Safety timeout
                 setTimeout(() => {
                     clearInterval(checkSpeechCompletion);
-                    window.isInLeadCapture = false;
-                    window.currentCaptureType = null;
-                    window.currentLeadData = null;
-                    console.log('⏰ Safety timeout - clearing lead data and restarting');
+                    console.log('⏰ Safety timeout - restarting listening');
                     if (window.startRealtimeListening) {
                         window.startRealtimeListening();
                     }
@@ -1113,9 +1111,6 @@ function sendClientConfirmationEmail(leadData, captureType) {
             } else {
                 // Fallback if no speech system
                 console.log('📞 No speech system - using fallback');
-                window.isInLeadCapture = false;
-                window.currentCaptureType = null;
-                window.currentLeadData = null;
                 setTimeout(() => {
                     if (window.startRealtimeListening) {
                         window.startRealtimeListening();
