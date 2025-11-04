@@ -1384,6 +1384,23 @@ function handleConcernWithTestimonial(userText) {
 
 async function processUserResponse(userText) {
     // 🆕 PATCH 4: CHECK FOR LEAD CAPTURE MODE FIRST
+      // 🆕 SIMPLE FIX: If user says "no", show thank you and STOP
+    if (userText.toLowerCase().trim() === 'no') {
+        console.log('🎯 User said NO - ending conversation');
+        
+        // Call the thank you splash from action-system-unified.js
+        if (window.showThankYouSplash) {
+            window.showThankYouSplash(window.userName || 'Valued Client', 'conversation_end');
+        } else {
+            // Fallback if function not found
+            console.log('❌ showThankYouSplash not found - using fallback');
+            if (window.addAIMessage) {
+                window.addAIMessage("Thank you for chatting with us! Bruce will be in touch soon. Have a wonderful day!");
+            }
+        }
+        return; // STOP EVERYTHING
+    }
+
     if (window.isInLeadCapture && window.processLeadResponse) {
         console.log('🎯 Lead capture mode - routing to lead system');
         const handled = window.processLeadResponse(userText);
