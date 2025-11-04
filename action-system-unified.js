@@ -500,7 +500,6 @@ function askLeadQuestion() {
         completeLeadCapture();
     }
 }
-
 // ================================
 // PROCESS USER RESPONSE
 // ================================
@@ -828,30 +827,23 @@ function handleEmailConfirmation(sendEmail, captureType) {
     
     const data = window.currentLeadData;
     
-    // In handleEmailConfirmation function, replace the success path:
-if (sendEmail) {
-    // User wants email - send it and show confirmation
-    console.log('📧 Sending email and showing confirmation...');
-    
-    // Show "sending email" message
-    if (window.addAIMessage) {
-        window.addAIMessage("📧 Sending your confirmation email now...");
+    if (sendEmail) {
+        // User wants email - send it using your ORIGINAL email logic
+        sendOriginalLeadEmail(data, captureType);
+    } else {
+        // User skipped email - show thank you splash directly
+        if (window.addAIMessage) {
+            window.addAIMessage("No problem! Bruce will still contact you directly. Is there anything else I can help with?");
+        }
+        
+        // Show thank you splash after brief delay
+        setTimeout(() => {
+            showThankYouSplash(data.name, captureType);
+        }, 1500);
+        
+        // Clear the lead data
+        window.currentLeadData = null;
     }
-    
-    // Send the email - this will now handle the clean transition
-    sendOriginalLeadEmail(data, captureType);
-    
-} else {
-    // User skipped email - use clean transition
-    console.log('⏭️ Email skipped by user - clean transition');
-    
-    if (window.addAIMessage) {
-        window.addAIMessage("No problem! Bruce will still contact you directly. Is there anything else I can help with?");
-    }
-    
-    // Use the clean transition function
-    cleanTransitionToNormalConversation();
-}
 }
 
 // 🆕 ADD THIS FUNCTION TOO:
@@ -859,53 +851,6 @@ function enableAvatarAfterLeadCapture() {
     if (window.originalShowAvatar) {
         window.showAvatarSorryMessage = window.originalShowAvatar;
         console.log('✅ Avatar re-enabled after lead capture');
-    }
-}
-// ================================
-// 🆕 NEW: HANDLE EMAIL CONFIRMATION RESPONSE (FIXED VERSION)
-// ================================
-function handleEmailConfirmation(sendEmail, captureType) {
-    console.log('🎯 Email confirmation:', sendEmail ? 'SENDING' : 'SKIPPING');
-    
-    // Remove confirmation buttons
-    const buttonContainer = document.querySelector('.email-confirmation-buttons');
-    if (buttonContainer) {
-        buttonContainer.remove();
-    }
-    
-    const data = window.currentLeadData;
-    
-    if (sendEmail) {
-        // User wants email - send it and show confirmation
-        console.log('📧 Sending email and showing confirmation...');
-        
-        // Show "sending email" message
-        if (window.addAIMessage) {
-            window.addAIMessage("📧 Sending your confirmation email now...");
-        }
-        
-        // Send the email
-        sendOriginalLeadEmail(data, captureType);
-        
-    } else {
-        // User skipped email - show alternative message
-        console.log('⏭️ Email skipped by user');
-        
-        if (window.addAIMessage) {
-            window.addAIMessage("No problem! Bruce will still contact you directly. Is there anything else I can help with?");
-        }
-        
-        // Clear the lead data
-        window.isInLeadCapture = false;
-        window.currentCaptureType = null;
-        window.currentLeadData = null;
-        
-        // Don't show thank you splash - just continue conversation
-        setTimeout(() => {
-            if (window.startRealtimeListening) {
-                window.startRealtimeListening();
-            }
-        }, 1500);
     }
 }
 
@@ -1071,199 +1016,37 @@ function sendClientConfirmationEmail(leadData, captureType) {
                 window.showUniversalBanner('emailSent');
             }
             
-            // 🎯 CRITICAL FIX: Ask if user needs anything else (NO CHECK MARK)
-            let successMessage = `Confirmation email sent to ${cleanEmail}! Bruce will contact you soon. Is there anything else I can help you with?`;
-            
-            // Add AI message WITHOUT check mark emoji
+            // Show success message
+            let successMessage = `✅ Confirmation email sent to ${cleanEmail}! Bruce will contact you soon.`;
             if (window.addAIMessage) {
                 window.addAIMessage(successMessage);
             }
             
-            // 🎯 CRITICAL: Clear lead data immediately so conversation can continue
-            window.isInLeadCapture = false;
-            window.currentCaptureType = null;
-            window.currentLeadData = null;
-            
-            // 🎯 CRITICAL FIX: Wait for AI to finish speaking BEFORE showing Speak Now banner
-            if (window.speakText) {
-                // Use clean message without check mark for speech
-                const cleanSpeechMessage = `Confirmation email sent to ${cleanEmail}! Bruce will contact you soon. Is there anything else I can help you with?`;
-                window.speakText(cleanSpeechMessage);
-                
-                console.log('🎯 Waiting for AI to finish speaking before continuing...');
-                
-                // Wait for speech to complete before continuing
-                const checkSpeechCompletion = setInterval(() => {
-                    if (!window.isSpeaking) {
-                        clearInterval(checkSpeechCompletion);
-                        console.log('✅ AI finished speaking confirmation - now ready for user response');
-                        
-                        // 🎯 CRITICAL: Wait 1 second after speech finishes before showing Speak Now
-                        setTimeout(() => {
-                            console.log('🎤 Now showing Speak Now banner after email confirmation');
-                            if (window.startRealtimeListening) {
-                                window.startRealtimeListening();
-                            }
-                        }, 1000);
-                    }
-                }, 100);
-                
-                // Safety timeout
-                setTimeout(() => {
-                    clearInterval(checkSpeechCompletion);
-                    console.log('⏰ Safety timeout - restarting listening');
-                    if (window.startRealtimeListening) {
-                        window.startRealtimeListening();
-                    }
-                }, 15000);
-            } else {
-                // Fallback if no speech system
-                console.log('📞 No speech system - using fallback');
-                setTimeout(() => {
-                    if (window.startRealtimeListening) {
-                        window.startRealtimeListening();
-                    }
-                }, 3000);
-            }
+            // Show thank you splash
+            setTimeout(() => {
+                showThankYouSplash(leadData.name, captureType);
+            }, 2000);
             
         }, function(error) {
             console.error('❌ CLIENT CONFIRMATION EMAIL FAILED:', error);
             
-            // 🎯 CRITICAL FIX: STILL SEND INTERNAL NOTIFICATION TO BRUCE EVEN IF CLIENT EMAIL FAILS
-            console.log('📧 Sending internal notification to Bruce despite client email failure...');
-            
-            let internalTemplateId = '';
-            let internalTemplateParams = {};
-            
-            // Determine which internal template to use based on capture type
-            switch(captureType) {
-                case 'consultation':
-                    internalTemplateId = EMAILJS_CONFIG.templates.consultation;
-                    internalTemplateParams = {
-                        to_email: 'bizboost.expert@gmail.com',
-                        from_name: leadData.name,
-                        from_email: leadData.email,
-                        phone: leadData.phone,
-                        contact_time: leadData.contactTime,
-                        message: `FREE CONSULTATION REQUEST (CLIENT EMAIL FAILED)\n\nName: ${leadData.name}\nPhone: ${leadData.phone}\nEmail: ${leadData.email}\nBest Time: ${leadData.contactTime}`,
-                        timestamp: new Date().toLocaleString()
-                    };
-                    break;
-                case 'clickToCall':
-                    internalTemplateId = EMAILJS_CONFIG.templates.clickToCall;
-                    internalTemplateParams = {
-                        to_email: 'bizboost.expert@gmail.com',
-                        from_name: leadData.name,
-                        phone: leadData.phone,
-                        message: `CLICK-TO-CALL REQUEST (CLIENT EMAIL FAILED)\n\nName: ${leadData.name}\nPhone: ${leadData.phone}\nReason: ${leadData.reason}`,
-                        timestamp: new Date().toLocaleString()
-                    };
-                    break;
-                case 'freeBook':
-                    internalTemplateId = EMAILJS_CONFIG.templates.freeBook;
-                    internalTemplateParams = {
-                        to_email: 'bizboost.expert@gmail.com',
-                        from_name: leadData.name,
-                        book_image: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761797944987_book-promo.PNG',
-                        message: `FREE BOOK REQUEST (CLIENT EMAIL FAILED)\n\nName: ${leadData.name}\nEmail: ${leadData.email}${leadData.wantsEvaluation ? '\nInterested in evaluation - Phone: ' + leadData.phone : ''}`,
-                        timestamp: new Date().toLocaleString()
-                    };
-                    break;
-                case 'preQualifier':
-                    internalTemplateId = EMAILJS_CONFIG.templates.preQualifier;
-                    // Add your pre-qualifier internal notification logic here
-                    break;
-            }
-            
-            // Send internal notification to Bruce
-            if (internalTemplateId) {
-                emailjs.send(EMAILJS_CONFIG.serviceId, internalTemplateId, internalTemplateParams)
-                    .then(function() {
-                        console.log('✅ INTERNAL NOTIFICATION SENT TO BRUCE despite client email failure');
-                    })
-                    .catch(function(internalError) {
-                        console.error('❌ INTERNAL NOTIFICATION ALSO FAILED:', internalError);
-                    });
-            }
-            
-            // Show failure message but continue conversation
-            let failureMessage = "The confirmation email couldn't be sent, but Bruce will still contact you directly! Is there anything else I can help with?";
-            
+            // Still show thank you even if email fails
             if (window.addAIMessage) {
-                window.addAIMessage(failureMessage);
+                window.addAIMessage("Confirmation email couldn't be sent, but Bruce will still contact you directly!");
             }
             
-            // Clear lead data
-            window.isInLeadCapture = false;
-            window.currentCaptureType = null;
+            setTimeout(() => {
+                showThankYouSplash(leadData.name, captureType);
+            }, 1500);
+        })
+        .finally(() => {
             window.currentLeadData = null;
-            
-            if (window.speakText) {
-                window.speakText(failureMessage);
-                
-                // Wait for speech to complete
-                const checkFailureSpeech = setInterval(() => {
-                    if (!window.isSpeaking) {
-                        clearInterval(checkFailureSpeech);
-                        setTimeout(() => {
-                            if (window.startRealtimeListening) {
-                                window.startRealtimeListening();
-                            }
-                        }, 1000);
-                    }
-                }, 100);
-                
-                setTimeout(() => {
-                    clearInterval(checkFailureSpeech);
-                    if (window.startRealtimeListening) {
-                        window.startRealtimeListening();
-                    }
-                }, 10000);
-            } else {
-                setTimeout(() => {
-                    if (window.startRealtimeListening) {
-                        window.startRealtimeListening();
-                    }
-                }, 3000);
-            }
         });
 }
     
 // Make functions globally accessible
 window.handleEmailConfirmation = handleEmailConfirmation;
 window.sendOriginalLeadEmail = sendOriginalLeadEmail; // 🎯 END OF FUNCTION - NO MORE CODE AFTER THIS! 
-
-// ================================
-// 🆕 CLEAN TRANSITION FUNCTION
-// ================================
-function cleanTransitionToNormalConversation() {
-    console.log('🧹 Cleaning up for normal conversation transition...');
-    
-    // Stop any active listening
-    if (window.stopListening && typeof window.stopListening === 'function') {
-        window.stopListening();
-    }
-    
-    // Clear any timeouts that might interfere
-    if (window.speechTimeout) {
-        clearTimeout(window.speechTimeout);
-        window.speechTimeout = null;
-    }
-    
-    // Reset states
-    window.isInLeadCapture = false;
-    window.currentCaptureType = null;
-    window.currentLeadData = null;
-    window.isInEmailPermissionPhase = false;
-    
-    // Wait for clean state then proceed
-    setTimeout(() => {
-        if (window.showDirectSpeakNow && typeof window.showDirectSpeakNow === 'function') {
-            console.log('🎤 CLEAN: Starting fresh listening session');
-            window.showDirectSpeakNow();
-        }
-    }, 1000);
-}
 
 // ================================
 // LEAD CAPTURE 4: PRE-QUALIFIER INTERVIEW
