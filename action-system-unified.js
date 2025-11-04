@@ -467,7 +467,6 @@ function askLeadQuestion() {
         if (window.speakText) {
             window.speakText(question);
             
-            // 🆕 MANUALLY START LISTENING AFTER AI SPEAKS
             // 🆕 SMARTER TIMING: Wait for speech to complete
 const waitForSpeechCompletion = () => {
     if (window.startRealtimeListening) {
@@ -477,7 +476,7 @@ const waitForSpeechCompletion = () => {
         // Start listening after brief delay
         setTimeout(() => {
             window.startRealtimeListening();
-        }, 2000);
+        }, 500);
     }
 };
 
