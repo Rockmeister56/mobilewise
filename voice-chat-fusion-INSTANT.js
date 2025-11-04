@@ -3237,14 +3237,81 @@ function askLeadQuestion() {
         if (leadData.subStep === 'ask') {
             const question = leadData.questions[leadData.step];
             addAIMessage(question);
-            speakMessage(question);
+            
+            // 🆕 USE COMPLETION CALLBACK INSTEAD OF TIMING GUESS
+            console.log('🎤 Lead Capture: Speaking question and waiting for completion...');
+            
+            if (window.speakWithElevenLabs) {
+                window.speakWithElevenLabs(question)
+                    .then(() => {
+                        // This runs WHEN THE AI FINISHES SPEAKING
+                        console.log('✅ AI finished speaking question - starting listening now');
+                        
+                        // Stop any potential conflicts first
+                        if (window.stopListening) window.stopListening();
+                        
+                        // Start listening for user response
+                        setTimeout(() => {
+                            if (window.startRealtimeListening) {
+                                window.startRealtimeListening();
+                                console.log('🎤 Listening started after AI speech completion');
+                            }
+                        }, 300); // Brief pause after speech ends
+                    })
+                    .catch(error => {
+                        console.error('❌ Error speaking question:', error);
+                        // Fallback: start listening even if speech fails
+                        if (window.startRealtimeListening) {
+                            window.startRealtimeListening();
+                        }
+                    });
+            } else {
+                // Fallback for other speech systems
+                speakMessage(question);
+                
+                // Fallback timing (less reliable)
+                setTimeout(() => {
+                    if (window.startRealtimeListening) {
+                        console.log('🎤 Lead Capture: Fallback timing - starting listening');
+                        if (window.stopListening) window.stopListening();
+                        window.startRealtimeListening();
+                    }
+                }, 6000); // Longer fallback delay
+            }
             
         } else if (leadData.subStep === 'confirm') {
             const confirmPrompt = leadData.confirmationPrompts[leadData.step]
                 .replace('{answer}', leadData.tempAnswer);
             
             addAIMessage(confirmPrompt);
-            speakMessage(confirmPrompt);
+            
+            // 🆕 SAME COMPLETION CALLBACK FOR CONFIRMATION PROMPTS
+            if (window.speakWithElevenLabs) {
+                window.speakWithElevenLabs(confirmPrompt)
+                    .then(() => {
+                        console.log('✅ AI finished confirmation prompt - starting listening');
+                        if (window.stopListening) window.stopListening();
+                        setTimeout(() => {
+                            if (window.startRealtimeListening) {
+                                window.startRealtimeListening();
+                            }
+                        }, 300);
+                    })
+                    .catch(error => {
+                        console.error('❌ Error speaking confirmation:', error);
+                        if (window.startRealtimeListening) {
+                            window.startRealtimeListening();
+                        }
+                    });
+            } else {
+                speakMessage(confirmPrompt);
+                setTimeout(() => {
+                    if (window.startRealtimeListening) {
+                        if (window.stopListening) window.stopListening();
+                        window.startRealtimeListening();
+                    }
+                }, 4000); // Shorter delay for confirmation prompts
+            }
         }
     } else {
         completeLeadCollection();
