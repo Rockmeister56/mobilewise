@@ -473,7 +473,7 @@ const checkSpeech = setInterval(() => {
         clearInterval(checkSpeech);
         console.log('✅ AI finished speaking - starting listening NOW');
         if (isInLeadCapture && window.startRealtimeListening) {
-            window.startRealtimeListening();
+            window.showDirectSpeakNow();
         }
     }
 }, 100);
@@ -483,7 +483,7 @@ setTimeout(() => {
     clearInterval(checkSpeech);
     if (isInLeadCapture && window.startRealtimeListening) {
         console.log('⏰ Safety timeout - starting listening');
-        window.startRealtimeListening();
+        window.showDirectSpeakNow()
     }
 }, 10000);
         }
