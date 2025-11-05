@@ -2541,9 +2541,12 @@ async function getAIResponse(userMessage, conversationHistory = []) {
     
     // 🎯 CONSULTATION ACCEPTANCE HANDLER - Check this FIRST
     const lowerMessage = userMessage.toLowerCase();
+    
+    // Handle consultation acceptance
     if ((window.waitingForConsultationResponse) && 
         (lowerMessage.includes('yes') || lowerMessage.includes('yeah') || lowerMessage.includes('sure') || 
-         lowerMessage.includes('okay') || lowerMessage.includes('ok') || lowerMessage.includes('absolutely'))) {
+         lowerMessage.includes('okay') || lowerMessage.includes('ok') || lowerMessage.includes('absolutely') ||
+         lowerMessage.includes('let\'s do it') || lowerMessage.includes('why not') || lowerMessage.includes('go ahead'))) {
         
         console.log('🎯 User accepted consultation - starting lead capture');
         window.waitingForConsultationResponse = false;
@@ -2568,6 +2571,20 @@ async function getAIResponse(userMessage, conversationHistory = []) {
         return response;
     }
     
+    // Handle consultation decline
+    if (window.waitingForConsultationResponse && 
+        (lowerMessage.includes('no') || lowerMessage.includes('not now') || lowerMessage.includes('maybe later') ||
+         lowerMessage.includes('not yet') || lowerMessage.includes('nah'))) {
+        
+        console.log('❌ User declined consultation');
+        window.waitingForConsultationResponse = false;
+        
+        const response = `No problem! If you change your mind, Bruce is always available to help. Is there anything else I can assist you with today?`;
+        
+        speakWithElevenLabs(response, false);
+        return response;
+    }
+    
     // Check if we're waiting for name
     if (window.waitingForName) {
         console.log('✅ Name captured:', userMessage);
@@ -2586,63 +2603,140 @@ async function getAIResponse(userMessage, conversationHistory = []) {
         return response;  // ✅ RETURN THE RESPONSE
     }
     
-    // Check if we're waiting for their intent (sell/buy/value/help)
-    if (window.waitingForIntent) {
+    // 🎯 CONSULTATIVE INTENT DETECTION - Comprehensive detection
+    if (window.waitingForIntent || !window.userIntent) {
         console.log('🎯 Checking for consultative intent in:', userMessage);
         
         const lowerMessage = userMessage.toLowerCase();
         let detectedIntent = null;
+        let intentStrength = 'weak';
         
-        // Detect selling intent
-        if (lowerMessage.includes('sell') || lowerMessage.includes('selling')) {
-            detectedIntent = 'sell your practice';
-            console.log('✅ SELL intent detected');
-        }
-        // Detect buying intent
-        else if (lowerMessage.includes('buy') || lowerMessage.includes('buying') || lowerMessage.includes('purchase')) {
-            detectedIntent = 'buy a practice';
-            console.log('✅ BUY intent detected');
-        }
-        // Detect valuation intent
-        else if (lowerMessage.includes('value') || lowerMessage.includes('valuation') || lowerMessage.includes('worth')) {
-            detectedIntent = 'get your practice valued';
-            console.log('✅ VALUE intent detected');
-        }
-        // Detect general help intent
-        else if (lowerMessage.includes('help') || lowerMessage.includes('assist') || lowerMessage.includes('support')) {
-            detectedIntent = 'with your practice needs';
-            console.log('✅ HELP intent detected');
+        // 🎯 STRONG INTENT INDICATORS - Direct statements
+        const strongSellingIndicators = [
+            'i want to sell', 'i need to sell', 'looking to sell', 'want to sell', 'need to sell',
+            'selling my practice', 'sell my practice', 'sell my firm', 'selling my firm',
+            'exit my practice', 'retire from practice', 'transition out'
+        ];
+        
+        const strongBuyingIndicators = [
+            'i want to buy', 'i need to buy', 'looking to buy', 'want to buy', 'need to buy',
+            'buy a practice', 'buy a firm', 'acquire a practice', 'purchase a practice',
+            'looking to acquire', 'want to acquire'
+        ];
+        
+        const strongValuationIndicators = [
+            'i need a valuation', 'want a valuation', 'get a valuation', 'value my practice',
+            'how much is my practice worth', 'what is my practice worth', 'practice worth',
+            'valuation of my practice'
+        ];
+        
+        // Check for strong intent indicators first
+        for (const indicator of strongSellingIndicators) {
+            if (lowerMessage.includes(indicator)) {
+                detectedIntent = 'sell your practice';
+                intentStrength = 'strong';
+                console.log('✅ STRONG SELL intent detected');
+                break;
+            }
         }
         
+        if (!detectedIntent) {
+            for (const indicator of strongBuyingIndicators) {
+                if (lowerMessage.includes(indicator)) {
+                    detectedIntent = 'buy a practice';
+                    intentStrength = 'strong';
+                    console.log('✅ STRONG BUY intent detected');
+                    break;
+                }
+            }
+        }
+        
+        if (!detectedIntent) {
+            for (const indicator of strongValuationIndicators) {
+                if (lowerMessage.includes(indicator)) {
+                    detectedIntent = 'get your practice valued';
+                    intentStrength = 'strong';
+                    console.log('✅ STRONG VALUE intent detected');
+                    break;
+                }
+            }
+        }
+        
+        // 🎯 WEAK INTENT INDICATORS - General mentions
+        if (!detectedIntent) {
+            if (lowerMessage.includes('sell') || lowerMessage.includes('selling') || 
+                lowerMessage.includes('sale') || lowerMessage.includes('exit') ||
+                lowerMessage.includes('retire') || lowerMessage.includes('transition')) {
+                detectedIntent = 'sell your practice';
+                console.log('✅ WEAK SELL intent detected');
+            }
+            // Detect buying intent
+            else if (lowerMessage.includes('buy') || lowerMessage.includes('buying') || 
+                     lowerMessage.includes('purchase') || lowerMessage.includes('acquire') ||
+                     lowerMessage.includes('acquisition')) {
+                detectedIntent = 'buy a practice';
+                console.log('✅ WEAK BUY intent detected');
+            }
+            // Detect valuation intent
+            else if (lowerMessage.includes('value') || lowerMessage.includes('valuation') || 
+                     lowerMessage.includes('worth') || lowerMessage.includes('appraisal')) {
+                detectedIntent = 'get your practice valued';
+                console.log('✅ WEAK VALUE intent detected');
+            }
+            // Detect general help intent
+            else if (lowerMessage.includes('help') || lowerMessage.includes('assist') || 
+                     lowerMessage.includes('support') || lowerMessage.includes('guidance') ||
+                     lowerMessage.includes('advice')) {
+                detectedIntent = 'with your practice needs';
+                console.log('✅ HELP intent detected');
+            }
+        }
+        
+        // 🎯 HANDLE DETECTED INTENT
         if (detectedIntent) {
             window.waitingForIntent = false;
             window.userIntent = detectedIntent;
             
-            // Echo their intent back with enthusiasm
-            const response = `That's fantastic that you want to ${detectedIntent}, ${window.userName}! I'd love to help you reach your goals by sending you Bruce's free book "7 Secrets to Selling Your Practice" and setting up a consultation. Simply click the Free Book and Consultation banner on your screen!`;
+            let response = '';
             
-            console.log('🎤 Speaking consultative response:', response);
-            speakWithElevenLabs(response, false);
-            
-            // 🎯 Trigger setAppointment banner (2000ms delay - faster conversion)
-            setTimeout(() => {
-                console.log('🎯 Attempting to show setAppointment banner...');
+            if (intentStrength === 'strong') {
+                // Strong intent - direct to conversion immediately
+                response = `Excellent! I can see you're serious about wanting to ${detectedIntent}. ${window.userName ? window.userName + ', ' : ''}Bruce specializes in exactly this and would love to help you achieve your goals. Let me get you connected with his free book and consultation right away!`;
                 
-                if (typeof showUniversalBanner === 'function') {
-                    showUniversalBanner('setAppointment');
-                    console.log('✅ setAppointment banner triggered!');
-                } else {
-                    console.error('❌ showUniversalBanner function not found for setAppointment banner');
-                }
-            }, 2000);
-
-            // Mark that we're waiting for book response (yes/no)
-            window.waitingForBookResponse = true;
-            return response;  // ✅ RETURN THE RESPONSE
+                console.log('🎤 Speaking STRONG intent response:', response);
+                speakWithElevenLabs(response, false);
+                
+                // 🎯 Trigger setAppointment banner immediately for strong intent
+                setTimeout(() => {
+                    console.log('🎯 Triggering immediate banner for strong intent...');
+                    
+                    if (typeof showUniversalBanner === 'function') {
+                        showUniversalBanner('setAppointment');
+                        console.log('✅ setAppointment banner triggered for strong intent!');
+                    } else {
+                        console.error('❌ showUniversalBanner function not found');
+                    }
+                }, 1500);
+                
+            } else {
+                // Weak intent - use consultative approach
+                response = `${window.userName ? window.userName + ', ' : ''}That's fantastic that you're thinking about ${detectedIntent}! Bruce has helped thousands of accountants successfully navigate this process. I'd love to send you his free book "7 Secrets to Success" and set up a no-obligation consultation. Would you like me to do that?`;
+                
+                console.log('🎤 Speaking WEAK intent response:', response);
+                speakWithElevenLabs(response, false);
+                
+                // Mark that we're waiting for book response (yes/no)
+                window.waitingForBookResponse = true;
+            }
+            
+            return response;
         }
         
-        // If no intent detected, continue to OpenAI
-        console.log('⚠️ No consultative intent detected, continuing to OpenAI...');
+        // If no intent detected and we were waiting for intent, continue to OpenAI
+        if (window.waitingForIntent) {
+            console.log('⚠️ No consultative intent detected, continuing to OpenAI...');
+            window.waitingForIntent = false; // Reset to avoid getting stuck
+        }
     }
     
     // Check if we're waiting for book response (yes/no)
@@ -2654,21 +2748,31 @@ async function getAIResponse(userMessage, conversationHistory = []) {
         // Handle YES response
         if (lowerMessage.includes('yes') || lowerMessage.includes('yeah') || 
             lowerMessage.includes('sure') || lowerMessage.includes('okay') || 
-            lowerMessage.includes('ok') || lowerMessage.includes('absolutely')) {
+            lowerMessage.includes('ok') || lowerMessage.includes('absolutely') ||
+            lowerMessage.includes('please') || lowerMessage.includes('go ahead')) {
             
             console.log('✅ User said YES to book offer');
             window.waitingForBookResponse = false;
             
-            const response = `Perfect! I've got that ready for you. Just click the banner to choose how you'd like to proceed!`;
+            const response = `Perfect! I've got Bruce's free book ready for you. Just click the "FREE BOOK" banner on your screen to choose how you'd like to receive it and schedule your consultation!`;
             
             speakWithElevenLabs(response, false);
             
-            return response;  // ✅ RETURN THE RESPONSE
+            // Trigger book banner
+            setTimeout(() => {
+                if (typeof showUniversalBanner === 'function') {
+                    showUniversalBanner('freeIncentive');
+                    console.log('✅ Free book banner triggered!');
+                }
+            }, 1000);
+            
+            return response;
         }
         
         // Handle NO response - Start qualification questions
         if (lowerMessage.includes('no') || lowerMessage.includes('nah') || 
-            lowerMessage.includes('not now') || lowerMessage.includes('maybe later')) {
+            lowerMessage.includes('not now') || lowerMessage.includes('maybe later') ||
+            lowerMessage.includes('not yet')) {
             
             console.log('❌ User declined book offer, starting qualification');
             window.waitingForBookResponse = false;
@@ -2700,7 +2804,7 @@ async function getAIResponse(userMessage, conversationHistory = []) {
         
         speakWithElevenLabs(response, false);
         
-        return response;  // ✅ RETURN THE RESPONSE
+        return response;
     }
     
     // 🎯 QUALIFICATION PROCESSING
@@ -2793,7 +2897,7 @@ async function getAIResponse(userMessage, conversationHistory = []) {
                 messages: [
                     {
                         role: 'system',
-                        content: window.AI_SYSTEM_PROMPT || 'You are a helpful assistant for New Clients Inc, specializing in practice sales and acquisitions.'
+                        content: window.AI_SYSTEM_PROMPT || 'You are a helpful assistant for New Clients Inc, specializing in practice sales and acquisitions. Your goal is to understand the user\'s needs and gently guide them toward booking a consultation with Bruce when appropriate.'
                     },
                     ...conversationHistory
                 ],
@@ -2819,7 +2923,7 @@ async function getAIResponse(userMessage, conversationHistory = []) {
         // Speak the response
         speakWithElevenLabs(aiResponse, false);
         
-        return aiResponse;  // ✅ RETURN THE RESPONSE
+        return aiResponse;
 
     } catch (error) {
         console.error('❌ Error in getAIResponse:', error);
@@ -2858,23 +2962,23 @@ function handleGeneralQuestions(userText, firstName) {
             "As a leader in client acquisition, practice management, and accounting practice sales since 1987, New Clients Inc is an established international marketing and consulting firm that has helped thousands of accountants learn how to generate new clients and retain them. Moreover, we offer comprehensive Practice Acquisition Consulting Services to help with buying or selling your practice. What can we help you with today?";
     }
 
-    // 🆕 ADD THIS TO handleGeneralQuestions function - put it near the top after the main overview questions
-if (lowerText.includes('speak to bruce') || lowerText.includes('talk to bruce') || 
-    lowerText.includes('urgent') || lowerText.includes('emergency') || 
-    lowerText.includes('immediate') || lowerText.includes('right now')) {
-    
-    // 🎯 TRIGGER URGENT BANNER IMMEDIATELY
-    setTimeout(() => {
-        if (typeof showUniversalBanner === 'function') {
-            showUniversalBanner('urgent');
-            console.log('✅ Urgent banner triggered for Bruce request');
-        }
-    }, 1000);
-    
-    return firstName ? 
-        `${firstName}, I understand you need to speak with Bruce urgently. Please click the "URGENT CALL" button and I'll connect you directly with him right away!` :
-        "I understand you need to speak with Bruce urgently. Please click the 'URGENT CALL' button and I'll connect you directly with him right away!";
-}
+    // URGENT BRUCE REQUESTS
+    if (lowerText.includes('speak to bruce') || lowerText.includes('talk to bruce') || 
+        lowerText.includes('urgent') || lowerText.includes('emergency') || 
+        lowerText.includes('immediate') || lowerText.includes('right now')) {
+        
+        // 🎯 TRIGGER URGENT BANNER IMMEDIATELY
+        setTimeout(() => {
+            if (typeof showUniversalBanner === 'function') {
+                showUniversalBanner('urgent');
+                console.log('✅ Urgent banner triggered for Bruce request');
+            }
+        }, 1000);
+        
+        return firstName ? 
+            `${firstName}, I understand you need to speak with Bruce urgently. Please click the "URGENT CALL" button and I'll connect you directly with him right away!` :
+            "I understand you need to speak with Bruce urgently. Please click the 'URGENT CALL' button and I'll connect you directly with him right away!";
+    }
     
     // SPECIFIC SERVICE QUESTIONS
     if (lowerText.includes('services') || lowerText.includes('help with') ||
@@ -2947,7 +3051,7 @@ if (lowerText.includes('speak to bruce') || lowerText.includes('talk to bruce') 
     return null;
 }
 
-console.log('✅ COMPLETE getAIResponse function with Knowledge Base & Consultation Handling loaded');
+console.log('✅ ENHANCED getAIResponse function with Comprehensive Consultative Intent Detection loaded');
 
 
 function handleTestimonialComplete() {
