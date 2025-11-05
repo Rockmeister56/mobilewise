@@ -3,48 +3,14 @@
 // Smart Button + Lead Capture + EmailJS + Banner System
 // ===================================================
 
-// 🎯 NUCLEAR BANNER DETECTION - FIND ALL TRIGGERS
-console.log('🔍 NUCLEAR: Tracking ALL banner triggers...');
+// 🎯 SIMPLE BANNER DETECTION - NO ERRORS
+console.log('🔍 SIMPLE: Tracking banner sources...');
 
-// Override EVERY possible banner function
-const originalShowDirectSpeakNow = window.showDirectSpeakNow;
+// Just log when showDirectSpeakNow is called
+const originalShowDirect = window.showDirectSpeakNow;
 window.showDirectSpeakNow = function() {
-    console.log('🚨 BANNER TRIGGERED FROM: showDirectSpeakNow');
-    console.trace('📋 Stack trace for showDirectSpeakNow');
-    return originalShowDirectSpeakNow.apply(this, arguments);
-};
-
-// Also track any other potential banner functions
-['showSpeakNowBanner', 'triggerSpeakNow', 'startListeningBanner', 'displaySpeakNow'].forEach(funcName => {
-    if (window[funcName]) {
-        const originalFunc = window[funcName];
-        window[funcName] = function() {
-            console.log(`🚨 BANNER TRIGGERED FROM: ${funcName}`);
-            console.trace(`📋 Stack trace for ${funcName}`);
-            return originalFunc.apply(this, arguments);
-        };
-    }
-});
-
-// Nuclear banner blocker during cooldown
-let nuclearCooldown = false;
-function nuclearBannerBlock() {
-    nuclearCooldown = true;
-    setTimeout(() => {
-        nuclearCooldown = false;
-        console.log('🕒 Nuclear cooldown ended');
-    }, 10000);
-}
-
-// Override with nuclear control
-const nuclearShowDirectSpeakNow = window.showDirectSpeakNow;
-window.showDirectSpeakNow = function() {
-    if (nuclearCooldown) {
-        console.log('🚫 NUCLEAR BLOCK: Banner prevented by nuclear cooldown');
-        return;
-    }
-    console.log('🚨 BANNER ALLOWED: showDirectSpeakNow');
-    return nuclearShowDirectSpeakNow.apply(this, arguments);
+    console.log('🚨 showDirectSpeakNow called - THIS IS ONE SOURCE');
+    return originalShowDirect.apply(this, arguments);
 };
 
 // Add this at the VERY TOP of your JavaScript file (like line 1)
