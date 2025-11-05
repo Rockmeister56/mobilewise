@@ -771,7 +771,7 @@ function completeLeadCapture() {
 }
 
 // ================================
-// 🆕 EMERGENCY STUCK BANNER FIX
+// 🆕 EMERGENCY STUCK BANNER 
 // ================================
 function emergencyStuckBannerFix() {
     console.log('🚨 EMERGENCY: Fixing stuck banner...');
@@ -801,6 +801,45 @@ function emergencyStuckBannerFix() {
 
 // Make it globally accessible
 window.emergencyStuckBannerFix = emergencyStuckBannerFix;
+
+// ================================
+// 🆕 EMERGENCY BANNER  
+// ================================
+function emergencyBannerCleanup() {
+    console.log('🚨 EMERGENCY: Cleaning up all stuck banners...');
+    
+    // Close Speak Now banner
+    if (window.closeSpeakNowBanner && typeof window.closeSpeakNowBanner === 'function') {
+        window.closeSpeakNowBanner();
+    }
+    
+    // Remove any Speak Now banner elements
+    const stuckBanners = document.querySelectorAll('.speak-now-banner, [class*="speakNow"], #speakNowBanner, .speak-now-container');
+    stuckBanners.forEach(banner => {
+        banner.remove();
+        console.log('✅ Removed stuck banner:', banner.className || banner.id);
+    });
+    
+    // Remove confirmation buttons if any
+    const confirmationButtons = document.querySelectorAll('.confirmation-buttons, .email-confirmation-buttons');
+    confirmationButtons.forEach(buttons => {
+        buttons.remove();
+        console.log('✅ Removed old confirmation buttons');
+    });
+    
+    // Stop any listening
+    if (window.stopListening && typeof window.stopListening === 'function') {
+        window.stopListening();
+    }
+    
+    // Reset states
+    window.isListening = false;
+    window.isRecording = false;
+    window.speakSequenceActive = false;
+}
+
+// Make it globally accessible
+window.emergencyBannerCleanup = emergencyBannerCleanup;
 
 // ================================
 // EMAIL CONFIRMATION BUTTONS - SIMPLE VERSION
