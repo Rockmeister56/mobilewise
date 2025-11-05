@@ -5,7 +5,7 @@
 // ===================================================
 
 // ===================================================
-// SHOW TESTIMONIAL BANNER WITH PLAY BUTTONS
+// SHOW TESTIMONIAL BANNER WITH PLAY BUTTONS (PREMIUM VERSION)
 // ===================================================
 function showTestimonialBanner(concernType) {
     console.log(`🎬 Showing testimonial banner for: ${concernType}`);
@@ -32,18 +32,19 @@ function showTestimonialBanner(concernType) {
         existingBanner.remove();
     }
     
-    // Create review items with play buttons
+    // Create review items with premium play buttons
     const reviewItems = concernData.reviews.map((review, index) => `
         <div style="
-            padding: 15px 0;
+            padding: 18px 0;
             ${index > 0 ? 'border-top: 1px solid rgba(255, 255, 255, 0.2);' : ''}
         ">
             <p style="
-                color: #333;
+                color: rgba(255, 255, 255, 0.9);
                 font-size: 15px;
                 line-height: 1.6;
-                margin: 0 0 10px 0;
+                margin: 0 0 12px 0;
                 font-style: italic;
+                text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
             ">"${review.text}"</p>
             
             <div style="
@@ -52,91 +53,121 @@ function showTestimonialBanner(concernType) {
                 align-items: center;
             ">
                 <p style="
-                    color: #666;
+                    color: rgba(255, 255, 255, 0.7);
                     font-size: 14px;
                     margin: 0;
                     font-weight: 500;
+                    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
                 ">— ${review.author}</p>
                 
                 <button onclick="playTestimonialFromBanner('${review.videoType}')" style="
-                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                    color: white;
-                    border: none;
-                    padding: 8px 16px;
-                    border-radius: 20px;
-                    font-size: 14px;
-                    font-weight: 600;
-                    cursor: pointer;
                     display: flex;
                     align-items: center;
-                    gap: 6px;
+                    gap: 8px;
+                    background: rgba(0, 0, 0, 0.6);
+                    border: 1px solid rgba(255, 255, 255, 0.2);
+                    color: white;
+                    padding: 10px 16px;
+                    border-radius: 10px;
+                    cursor: pointer;
+                    font-weight: 600;
+                    font-size: 14px;
                     transition: all 0.3s ease;
-                    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
-                " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.5)'"
-                   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(102, 126, 234, 0.3)'">
+                    backdrop-filter: blur(10px);
+                    min-width: 100px;
+                " onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.borderColor='rgba(255, 255, 255, 0.3)'; this.style.transform='translateY(-2px)';" 
+                   onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.borderColor='rgba(255, 255, 255, 0.2)'; this.style.transform='translateY(0)';">
                     <span style="font-size: 16px;">▶</span>
-                    <span>Play</span>
+                    <span>Play Video</span>
                 </button>
             </div>
         </div>
     `).join('');
     
-    // Create banner HTML
-const bannerHTML = `
-    <div id="testimonial-review-banner" style="
-        background: rgba(255, 255, 255, 0.15);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        border-radius: 20px;
-        padding: 24px;
-        margin: 20px auto;
-        max-width: 90%;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        animation: slideInBanner 0.5s ease-out;
-        position: relative;
-        z-index: 998;
-    ">
-        <!-- Header -->
-        <div style="
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid rgba(255, 255, 255, 0.4);
+    // Create premium banner HTML
+    const bannerHTML = `
+        <div id="testimonial-review-banner" style="
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.9)),
+                        url('https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1762038349654_action-bg.jpg');
+            background-size: cover;
+            background-position: center;
+            background-blend-mode: overlay;
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px 25px;
+            margin: 20px 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            color: white;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            max-width: 750px;
+            animation: slideInBanner 0.5s ease-out;
+            position: relative;
+            z-index: 998;
         ">
-            <span style="font-size: 32px;">${concernData.icon}</span>
-            <h3 style="
-                color: #ffffff;
-                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-                margin: 0;
-                font-size: 20px;
-                font-weight: 600;
-            ">${concernData.title}</h3>
-        </div>
+            <!-- Header with Icon -->
+            <div style="
+                display: flex;
+                align-items: center;
+                margin-bottom: 25px;
+                gap: 15px;
+            ">
+                <div style="
+                    width: 50px;
+                    height: 50px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background: rgba(255, 255, 255, 0.1);
+                    border-radius: 50%;
+                    border: 1px solid rgba(255, 255, 255, 0.2);
+                ">
+                    <span style="font-size: 24px;">${concernData.icon}</span>
+                </div>
+                <div>
+                    <h3 style="
+                        margin: 0 0 5px 0;
+                        font-size: 22px;
+                        font-weight: 600;
+                        color: white;
+                        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+                    ">${concernData.title}</h3>
+                    <p style="
+                        margin: 0;
+                        opacity: 0.8;
+                        font-size: 13px;
+                        font-weight: 300;
+                        letter-spacing: 0.5px;
+                    ">Client Video Testimonials</p>
+                </div>
+            </div>
             
             <!-- Review Items with Play Buttons -->
-            <div style="margin-bottom: 20px;">
+            <div style="margin-bottom: 25px;">
                 ${reviewItems}
             </div>
             
-            <!-- Skip Button -->
+            <!-- Skip Button - Premium Style -->
             <button onclick="skipTestimonialBanner()" style="
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: white;
-                border: none;
-                padding: 12px 24px;
-                border-radius: 8px;
-                font-size: 16px;
-                font-weight: 600;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                background: rgba(0, 0, 0, 0.6);
+                color: rgba(255, 255, 255, 0.8);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                padding: 15px 20px;
+                border-radius: 10px;
                 cursor: pointer;
-                width: 100%;
+                font-size: 16px;
+                font-weight: 500;
                 transition: all 0.3s ease;
-                box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-            " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(102, 126, 234, 0.5)'"
-               onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.3)'">
-                Skip Reviews →
+                width: 100%;
+                justify-content: center;
+                backdrop-filter: blur(10px);
+            " onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.color='white';" 
+               onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.color='rgba(255, 255, 255, 0.8)';">
+                <span style="font-size: 16px;">⏭️</span>
+                <span>Skip Reviews & Continue</span>
             </button>
         </div>
         
@@ -158,7 +189,7 @@ const bannerHTML = `
         // Scroll to show the banner
         chatContainer.scrollTop = chatContainer.scrollHeight;
         
-        console.log('✅ Testimonial banner displayed');
+        console.log('✅ Premium testimonial banner displayed');
     } else {
         console.error('❌ Chat container not found');
         window.testimonialBannerActive = false;
@@ -256,46 +287,60 @@ function showTestimonialVideo(testimonialType, duration = null) {
     
     if (isMobile) {
         // Mobile: Full screen
-        avatarOverlay.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
+       // Desktop: Centered floating player with CSS variables
+avatarOverlay.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* 50% transparent black */
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`;
+
+avatarOverlay.innerHTML = `
+    <div style="
+        position: relative;
+        width: 854px; /* 16:9 width */
+        height: 480px; /* 16:9 height */
+        background: #000;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+    ">
+        <video id="testimonialVideo" autoplay style="
             width: 100%;
             height: 100%;
-            background: ${config.overlay.background};
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        `;
+            object-fit: contain; /* FIX: Changed from 'cover' to 'contain' to maintain aspect ratio */
+        ">
+            <source src="${videoUrl}" type="video/mp4">
+        </video>
         
-        avatarOverlay.innerHTML = `
-            <video id="testimonialVideo" autoplay playsinline webkit-playsinline="true" style="
-                width: 100%;
-                height: 100%;
-                object-fit: contain;
-            ">
-                <source src="${videoUrl}" type="video/mp4">
-            </video>
-            
-            <button onclick="closeTestimonialVideo()" style="
-                position: absolute;
-                bottom: 20px;
-                left: 50%;
-                transform: translateX(-50%);
-                padding: 15px 30px;
-                background: white;
-                color: #333;
-                border: none;
-                border-radius: 25px;
-                font-size: 16px;
-                font-weight: 600;
-                cursor: pointer;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-                z-index: 10000;
-            ">Close & Continue</button>
-        `;
+        <button onclick="closeTestimonialVideo()" style="
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
+            background: white;
+            color: #333;
+            border: none;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            z-index: 10001;
+        " onmouseover="this.style.transform='translateX(-50%) translateY(-2px)'; this.style.background='#f0f0f0'"
+           onmouseout="this.style.transform='translateX(-50%) translateY(0)'; this.style.background='white'">
+            Close & Continue
+        </button>
+    </div>
+`;
     } else {
         // Desktop: Centered floating player with CSS variables
         avatarOverlay.style.cssText = `
