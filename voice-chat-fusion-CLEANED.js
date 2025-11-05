@@ -3,14 +3,49 @@
 // Smart Button + Lead Capture + EmailJS + Banner System
 // ===================================================
 
-// 🎯 ADD THIS AT THE TOP WITH OTHER GLOBAL VARIABLES
-function debugSpeakNowBanner(triggerSource) {
-    console.log(`🔍 BANNER DEBUG: ${triggerSource} called at ${new Date().toLocaleTimeString()}`);
-    console.log(`   - speakNowCooldown: ${window.speakNowCooldown}`);
+// 🎯 NUCLEAR BANNER DETECTION - FIND ALL TRIGGERS
+console.log('🔍 NUCLEAR: Tracking ALL banner triggers...');
+
+// Override EVERY possible banner function
+const originalShowDirectSpeakNow = window.showDirectSpeakNow;
+window.showDirectSpeakNow = function() {
+    console.log('🚨 BANNER TRIGGERED FROM: showDirectSpeakNow');
+    console.trace('📋 Stack trace for showDirectSpeakNow');
+    return originalShowDirectSpeakNow.apply(this, arguments);
+};
+
+// Also track any other potential banner functions
+['showSpeakNowBanner', 'triggerSpeakNow', 'startListeningBanner', 'displaySpeakNow'].forEach(funcName => {
+    if (window[funcName]) {
+        const originalFunc = window[funcName];
+        window[funcName] = function() {
+            console.log(`🚨 BANNER TRIGGERED FROM: ${funcName}`);
+            console.trace(`📋 Stack trace for ${funcName}`);
+            return originalFunc.apply(this, arguments);
+        };
+    }
+});
+
+// Nuclear banner blocker during cooldown
+let nuclearCooldown = false;
+function nuclearBannerBlock() {
+    nuclearCooldown = true;
+    setTimeout(() => {
+        nuclearCooldown = false;
+        console.log('🕒 Nuclear cooldown ended');
+    }, 10000);
 }
 
-// Make sure this global variable exists
-window.speakNowCooldown = false;
+// Override with nuclear control
+const nuclearShowDirectSpeakNow = window.showDirectSpeakNow;
+window.showDirectSpeakNow = function() {
+    if (nuclearCooldown) {
+        console.log('🚫 NUCLEAR BLOCK: Banner prevented by nuclear cooldown');
+        return;
+    }
+    console.log('🚨 BANNER ALLOWED: showDirectSpeakNow');
+    return nuclearShowDirectSpeakNow.apply(this, arguments);
+};
 
 // Add this at the VERY TOP of your JavaScript file (like line 1)
 if (typeof window.leadData === 'undefined' || !window.leadData) {
@@ -550,7 +585,9 @@ recognition.onresult = function(event) {
     transcript = transcript.replace(/\.+$/, '');
     
     console.log('✅ Transcript captured:', transcript);
-    console.log('🎤 Speech detected - calling closeSpeakNowBanner');closeSpeakNowBanner();
+    console.log('🎤 Speech detected - activating nuclear cooldown');
+nuclearBannerBlock(); // 🎯 ADD THIS LINE
+closeSpeakNowBanner();
     console.log('  - Length:', transcript.length);
     console.log('  - Is final:', event.results[event.results.length - 1]?.isFinal);
     
@@ -4079,22 +4116,6 @@ window.showAvatarSorryMessage = showAvatarSorryMessage;
 
 // Keep your existing showDirectSpeakNow function exactly as is
 function showDirectSpeakNow() {
-    // 🎯 ADD THIS DEBUG LINE AT THE VERY BEGINNING
-    debugSpeakNowBanner('showDirectSpeakNow');
-    
-    // 🎯 CHECK COOLDOWN FIRST
-    if (window.speakNowCooldown) {
-        console.log('⏳ Speak Now banner skipped - still in cooldown period');
-        return;
-    }
-    
-    // Quick safety check
-    if (window.speakSequenceBlocked) {
-        console.log('🔇 DIRECT: Another session running - clearing first');
-        window.speakSequenceBlocked = false;
-        speakSequenceActive = false;
-    }
-
     console.log('🎯 DIRECT Speak Now - skipping Get Ready phase completely');
 
     // 🎯 CHECK COOLDOWN FIRST
