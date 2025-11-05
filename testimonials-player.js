@@ -7,6 +7,11 @@
 // ===================================================
 // SHOW TESTIMONIAL BANNER WITH PLAY BUTTONS (PREMIUM VERSION)
 // ===================================================
+const TESTIMONIAL_VIDEOS = {
+    skeptical: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982717330.mp4",
+    speed: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982877040.mp4"
+};
+
 function showTestimonialBanner(concernType) {
     console.log(`🎬 Showing testimonial banner for: ${concernType}`);
     
@@ -255,12 +260,12 @@ styleSheet.textContent = `
 document.head.appendChild(styleSheet);
 
 // ===================================================
-// PLAY VIDEO TESTIMONIAL
+// PLAY VIDEO TESTIMONIAL (ENHANCED VERSION)
 // ===================================================
 function showTestimonialVideo(testimonialType, duration = null) {
     console.log(`🎬 Playing ${testimonialType} testimonial`);
     
-    // Prevent double calls
+    // 🚫 PREVENT DOUBLE CALLS - BULLETPROOF
     if (window.avatarCurrentlyPlaying) {
         console.log('🚫 Video already playing - skipping duplicate call');
         return;
@@ -276,10 +281,9 @@ function showTestimonialVideo(testimonialType, duration = null) {
         return;
     }
     
-    const videoUrl = videoData.url;
+    const videoUrl = TESTIMONIAL_VIDEOS[testimonialType] || TESTIMONIAL_VIDEOS.skeptical;
     const videoDuration = duration || videoData.duration;
     const isMobile = window.innerWidth <= 768;
-    const config = window.testimonialData.playerConfig;
     
     // Create overlay container
     const avatarOverlay = document.createElement('div');
@@ -287,69 +291,37 @@ function showTestimonialVideo(testimonialType, duration = null) {
     
     if (isMobile) {
         // Mobile: Full screen
-       // Desktop: Centered floating player with proper 16:9 ratio
-avatarOverlay.style.cssText = `
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5); /* 50% transparent black */
-    z-index: 9999;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-`;
-
-avatarOverlay.innerHTML = `
-    <div style="
-        position: relative;
-        width: 854px; /* 16:9 width */
-        height: 480px; /* 16:9 height */
-        background: #000;
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: 0 20px 60px rgba(0,0,0,0.7);
-    ">
-        <video id="testimonialVideo" autoplay style="
-            width: 100%;
-            height: 100%;
-            object-fit: contain; /* Maintains aspect ratio without cropping */
-        ">
-            <source src="${videoUrl}" type="video/mp4">
-        </video>
-        
-        <button onclick="closeTestimonialVideo()" style="
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 12px 24px;
-            background: white;
-            color: #333;
-            border: none;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            transition: all 0.3s ease;
-            z-index: 10001;
-        " onmouseover="this.style.transform='translateX(-50%) translateY(-2px)'; this.style.background='#f0f0f0'"
-           onmouseout="this.style.transform='translateX(-50%) translateY(0)'; this.style.background='white'">
-            Close & Continue
-        </button>
-    </div>
-`;
-    } else {
-        // Desktop: Centered floating player with CSS variables
         avatarOverlay.style.cssText = `
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: ${config.overlay.background};
+            background: #000;
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        `;
+        
+        avatarOverlay.innerHTML = `
+            <video id="testimonialVideo" autoplay playsinline webkit-playsinline="true" style="
+                width: 100%;
+                height: 100%;
+                object-fit: contain; /* Changed from cover to contain for mobile too */
+            ">
+                <source src="${videoUrl}" type="video/mp4">
+            </video>
+        `;
+    } else {
+        // Desktop: Centered floating player with proper 16:9 ratio
+        avatarOverlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5); /* 50% transparent black */
             z-index: 9999;
             display: flex;
             justify-content: center;
@@ -359,27 +331,24 @@ avatarOverlay.innerHTML = `
         avatarOverlay.innerHTML = `
             <div style="
                 position: relative;
-                width: ${config.desktop.width}px;
-                height: ${config.desktop.height}px;
-                top: var(--video-top, ${config.desktop.top});
-                left: var(--video-left, ${config.desktop.left});
-                transform: translate(-50%, -50%);
+                width: 854px; /* 16:9 width */
+                height: 480px; /* 16:9 height */
                 background: #000;
-                border-radius: ${config.desktop.borderRadius};
+                border-radius: 12px;
                 overflow: hidden;
-                box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+                box-shadow: 0 20px 60px rgba(0,0,0,0.7);
             ">
                 <video id="testimonialVideo" autoplay style="
                     width: 100%;
                     height: 100%;
-                    object-fit: cover;
+                    object-fit: contain; /* Maintains aspect ratio without cropping */
                 ">
                     <source src="${videoUrl}" type="video/mp4">
                 </video>
                 
                 <button onclick="closeTestimonialVideo()" style="
                     position: absolute;
-                    bottom: 15px;
+                    bottom: 20px;
                     left: 50%;
                     transform: translateX(-50%);
                     padding: 12px 24px;
@@ -393,8 +362,8 @@ avatarOverlay.innerHTML = `
                     box-shadow: 0 4px 12px rgba(0,0,0,0.3);
                     transition: all 0.3s ease;
                     z-index: 10001;
-                " onmouseover="this.style.transform='translateX(-50%) translateY(-2px)'"
-                   onmouseout="this.style.transform='translateX(-50%) translateY(0)'">
+                " onmouseover="this.style.transform='translateX(-50%) translateY(-2px)'; this.style.background='#f0f0f0'"
+                   onmouseout="this.style.transform='translateX(-50%) translateY(0)'; this.style.background='white'">
                     Close & Continue
                 </button>
             </div>
@@ -404,14 +373,31 @@ avatarOverlay.innerHTML = `
     // Add to page
     document.body.appendChild(avatarOverlay);
     
-    // Auto-close after duration
+    // 🎯 ENHANCED CLEANUP - BETTER THAN THE OLD FUNCTION
+    function enhancedCleanup() {
+        console.log(`🎬 Testimonial ${testimonialType} complete - enhanced cleanup`);
+        
+        if (avatarOverlay.parentNode) {
+            avatarOverlay.remove();
+        }
+        
+        window.avatarCurrentlyPlaying = false;
+        
+        // Call the testimonial completion handler
+        if (typeof window.handleTestimonialComplete === 'function') {
+            console.log('🎯 Calling handleTestimonialComplete callback');
+            window.handleTestimonialComplete();
+        }
+    }
+    
+    // Auto-close after duration OR use button
     setTimeout(() => {
         if (document.getElementById('testimonial-overlay')) {
-            closeTestimonialVideo();
+            enhancedCleanup();
         }
     }, videoDuration);
     
-    console.log('✅ Video testimonial playing');
+    console.log('✅ Enhanced video testimonial playing');
 }
 
 // ===================================================
