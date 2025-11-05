@@ -41,6 +41,8 @@ let lastMessageWasApology = false;
 let isInLeadCapture = false;
 let speechDetected = false;
 let currentAIResponse = '';
+let speakNowCooldown = false;
+let voiceMeterActive = false;
 window.leadData = window.leadData || {
     firstName: '',
     step: 0,
@@ -399,46 +401,24 @@ function playIntroJingle() {
 }
 
 // ===================================================
-// 🔊 DESKTOP BEEP WITH COOLDOWN PROTECTION
+// 🔊 CLOSE SPEAK NOW BANNER
 // ===================================================
-
-let lastBeepTime = 0;
-const BEEP_COOLDOWN = 3000; // 3 seconds between beeps
-
-// Desktop Get Ready + Speak Now beep (with cooldown)
-function playGetReadyAndSpeakNowSound() {
-    const now = Date.now();
-    
-    // Check if enough time has passed since last beep
-    if (now - lastBeepTime < BEEP_COOLDOWN) {
-        console.log('🔊 Beep skipped - too soon after previous beep');
-        return;
+function closeSpeakNowBanner() {
+    const speakNowBanner = document.getElementById('speakNowBanner');
+    if (speakNowBanner && speakNowBanner.style.display !== 'none') {
+        console.log('🎤 Speech detected - closing Speak Now banner immediately');
+        speakNowBanner.style.opacity = '0';
+        setTimeout(() => {
+            speakNowBanner.style.display = 'none';
+        }, 300);
     }
     
-    const getReadyAudio = new Audio('https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/audio-intros/ai_intro_1760038807240.mp3');
-    getReadyAudio.volume = 0.6;
-    getReadyAudio.preload = 'auto';
-    
-    getReadyAudio.play().catch(error => {
-        console.log('Get Ready + Speak Now sound failed to play:', error);
-    });
-    
-    // Update last beep time
-    lastBeepTime = now;
-    console.log('🔊 Get Ready + Speak Now sound played with cooldown protection');
-}
-
-// Desktop Listening Stops beep (no cooldown needed - only plays once at end)
-function playListeningStopsSound() {
-    const stopsAudio = new Audio('https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/audio-intros/ai_intro_1760038921880.mp3');
-    stopsAudio.volume = 0.5;
-    stopsAudio.preload = 'auto';
-    
-    stopsAudio.play().catch(error => {
-        console.log('Listening Stops sound failed to play:', error);
-    });
-    
-    console.log('🔊 Listening Stops sound played');
+    // 🎯 SET COOLDOWN - PREVENT BANNER FROM REAPPEARING FOR 10 SECONDS
+    speakNowCooldown = true;
+    setTimeout(() => {
+        speakNowCooldown = false;
+        console.log('🕒 Speak Now cooldown ended - banner can reappear');
+    }, 10000);
 }
 
 // ===================================================
@@ -548,58 +528,63 @@ async function startListening() {
             console.log('✅ Recognition exists - setting up handlers...');
             
             // 🔥 SET ONRESULT HANDLER
-            recognition.onresult = function(event) {
-                console.log('🎯 ONRESULT FIRED');
-                console.log('  - Results count:', event.results.length);
-                console.log('  - Result index:', event.resultIndex);
-                
-                let transcript = Array.from(event.results)
-                    .map(result => result[0])
-                    .map(result => result.transcript)
-                    .join('');
+recognition.onresult = function(event) {
+    console.log('🎯 ONRESULT FIRED');
+    console.log('  - Results count:', event.results.length);
+    console.log('  - Result index:', event.resultIndex);
+    
+    let transcript = Array.from(event.results)
+        .map(result => result[0])
+        .map(result => result.transcript)
+        .join('');
 
-                transcript = transcript.replace(/\.+$/, '');
-                
-                console.log('✅ Transcript captured:', transcript);
-                console.log('  - Length:', transcript.length);
-                console.log('  - Is final:', event.results[event.results.length - 1]?.isFinal);
-                
-                const transcriptText = document.getElementById('transcriptText');
-                const userInput = document.getElementById('userInput');
-                
-                if (transcriptText) {
-                    transcriptText.textContent = 'Speak Now';
-                }
-                
-                if (userInput) {
-                    userInput.value = transcript;
-                    console.log('✅ Updated userInput field:', userInput.value);
-                    
-                    // 🔥 Store transcript globally as backup
-                    window.lastCapturedTranscript = transcript;
-                    window.lastCapturedTime = Date.now();
-                    console.log('✅ Stored in window.lastCapturedTranscript');
-                } else {
-                    console.error('❌ userInput field NOT FOUND!');
-                }
-                
-                // 🔥 Cancel the 4-second timeout immediately when speech is detected
-                if (transcript.trim().length > 0 && window.speakNowTimeout) {
-                    console.log('🎯 Speech detected - cancelling nuclear timeout preemptively');
-                    clearTimeout(window.speakNowTimeout);
-                    window.speakNowTimeout = null;
-                }
-                
-                if (isInLeadCapture) {
-                    clearTimeout(window.leadCaptureTimeout);
-                    window.leadCaptureTimeout = setTimeout(() => {
-                        if (transcript.trim().length > 1 && userInput.value === transcript) {
-                            console.log('🎯 Lead capture auto-send:', transcript);
-                            sendMessage();
-                        }
-                    }, 1500);
-                }
-            };
+    transcript = transcript.replace(/\.+$/, '');
+    
+    console.log('✅ Transcript captured:', transcript);
+    console.log('  - Length:', transcript.length);
+    console.log('  - Is final:', event.results[event.results.length - 1]?.isFinal);
+    
+    const transcriptText = document.getElementById('transcriptText');
+    const userInput = document.getElementById('userInput');
+    
+    if (transcriptText) {
+        transcriptText.textContent = 'Speak Now';
+    }
+    
+    if (userInput) {
+        userInput.value = transcript;
+        console.log('✅ Updated userInput field:', userInput.value);
+        
+        // 🔥 Store transcript globally as backup
+        window.lastCapturedTranscript = transcript;
+        window.lastCapturedTime = Date.now();
+        console.log('✅ Stored in window.lastCapturedTranscript');
+    } else {
+        console.error('❌ userInput field NOT FOUND!');
+    }
+    
+    // 🎯 NEW: CLOSE SPEAK NOW BANNER IMMEDIATELY WHEN SPEECH STARTS
+    if (transcript.trim().length > 0) {
+        closeSpeakNowBanner(); // 🎤 Voice-activated banner closing
+        
+        // 🔥 Cancel the 4-second timeout immediately when speech is detected
+        if (window.speakNowTimeout) {
+            console.log('🎯 Speech detected - cancelling nuclear timeout preemptively');
+            clearTimeout(window.speakNowTimeout);
+            window.speakNowTimeout = null;
+        }
+    }
+    
+    if (isInLeadCapture) {
+        clearTimeout(window.leadCaptureTimeout);
+        window.leadCaptureTimeout = setTimeout(() => {
+            if (transcript.trim().length > 1 && userInput.value === transcript) {
+                console.log('🎯 Lead capture auto-send:', transcript);
+                sendMessage();
+            }
+        }, 1500);
+    }
+};
 
             // 🔥 SET ONEND HANDLER
             recognition.onend = function() {
@@ -4085,6 +4070,12 @@ window.showAvatarSorryMessage = showAvatarSorryMessage;
 // Keep your existing showDirectSpeakNow function exactly as is
 function showDirectSpeakNow() {
     console.log('🎯 DIRECT Speak Now - skipping Get Ready phase completely');
+
+    // 🎯 CHECK COOLDOWN FIRST
+    if (window.speakNowCooldown) {
+        console.log('⏳ Speak Now banner skipped - still in cooldown period');
+        return;
+    }
     
     // Quick safety check
     if (window.speakSequenceBlocked) {
