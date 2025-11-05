@@ -3134,7 +3134,7 @@ function handleUserConcern(concernType, userMessage) {
         
         speakWithElevenLabs(errorResponse, false);
         return errorResponse;
-    }
+    };
 
 // 🧠 ENHANCED KNOWLEDGE BASE FUNCTION
 function handleGeneralQuestions(userText, firstName) {
