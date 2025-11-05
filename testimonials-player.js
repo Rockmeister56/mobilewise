@@ -479,5 +479,17 @@ function resumeAfterTestimonial() {
         }, 2000);
     }, 800);
 }
+// ===================================================
+// 🚨 FORCE OVERRIDE - KILL OLD FUNCTION
+// ===================================================
+console.log('🚨 FORCE OVERRIDING showTestimonialVideo function...');
+window.showTestimonialVideo = function(testimonialType, duration = null) {
+    console.log('🎬 NEW testimonials-player.js function called!');
+    
+    // YOUR ENHANCED FUNCTION CODE GOES HERE - copy the entire
+    // showTestimonialVideo function from testimonials-player.js
+    // and paste it inside here
+};
+console.log('✅ showTestimonialVideo function overridden');
 
 console.log('✅ Testimonials Player Loaded');
