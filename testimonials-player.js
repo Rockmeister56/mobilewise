@@ -12,6 +12,12 @@ const TESTIMONIAL_VIDEOS = {
     speed: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982877040.mp4"
 };
 
+// 🎯 BRIDGE RECEPTOR - ADD THIS FUNCTION
+function showTestimonialVideo(type, duration) {
+    console.log('🎯 Bridge activated - showing testimonial:', type);
+    showTestimonialVideos(type, duration); // This calls your existing function
+}
+
 function showTestimonialBanner(concernType) {
     console.log(`🎬 Showing testimonial banner for: ${concernType}`);
     
