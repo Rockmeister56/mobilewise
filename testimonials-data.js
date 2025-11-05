@@ -122,13 +122,13 @@ window.testimonialData = {
     // VIDEO PLAYER CONFIGURATION
     // ===================================================
     playerConfig: {
-        desktop: {
-            width: 480,
-            height: 270,
-            top: '20%',
-            left: '50%',
-            borderRadius: '12px'
-        },
+    desktop: {
+        width: 854,  // Updated to 16:9
+        height: 480, // Updated to 16:9  
+        top: '50%',
+        left: '50%',
+        borderRadius: '12px'
+    },
         mobile: {
             fullscreen: true
         },
