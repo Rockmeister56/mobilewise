@@ -7,7 +7,10 @@
 // ===================================================
 // SHOW TESTIMONIAL BANNER WITH PLAY BUTTONS (PREMIUM VERSION)
 // ===================================================
-
+const TESTIMONIAL_VIDEOS = {
+    skeptical: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982717330.mp4",
+    speed: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982877040.mp4"
+};
 
 function showTestimonialBanner(concernType) {
     console.log(`🎬 Showing testimonial banner for: ${concernType}`);
