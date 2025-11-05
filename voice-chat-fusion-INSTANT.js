@@ -2534,7 +2534,14 @@ async function getAIResponse(userMessage, conversationHistory = []) {
         console.log('✅ Speak Now banner removed - AI responding');
     }
     
-    // 🧠 ENHANCED KNOWLEDGE BASE - Handle general questions first
+    // 🎯 CRITICAL FIX: CHECK CONSULTATIVE INTENT FIRST (before knowledge base)
+    const consultativeIntent = checkForConsultativeIntent(userMessage);
+    if (consultativeIntent) {
+        console.log('✅ CONSULTATIVE INTENT DETECTED:', consultativeIntent);
+        return handleConsultativeIntent(consultativeIntent, userMessage);
+    }
+    
+    // 🧠 ENHANCED KNOWLEDGE BASE - Handle general questions second
     const knowledgeResponse = handleGeneralQuestions(userMessage, window.userName || '');
     if (knowledgeResponse) {
         console.log('✅ Knowledge base response triggered');
@@ -2542,25 +2549,189 @@ async function getAIResponse(userMessage, conversationHistory = []) {
         return knowledgeResponse;
     }
 
-    // 🎯 URGENT/CONSULTATION REQUESTS - Check BEFORE concern detection
-    if (lowerMessage.includes('schedule') || lowerMessage.includes('call') || 
-        lowerMessage.includes('consultation') || lowerMessage.includes('appointment') ||
-        lowerMessage.includes('meeting') || lowerMessage.includes('talk to bruce')) {
-        
-        console.log('🎯 Direct consultation request detected');
-        
-        const response = `Perfect! I'd love to get you scheduled with Bruce. Please click the "BOOK CONSULTATION" button and I'll help you get confirmed for your free consultation.`;
-        
-        // Trigger consultation banner immediately
-        setTimeout(() => {
-            if (typeof showUniversalBanner === 'function') {
-                showUniversalBanner('setAppointment');
-            }
-        }, 500);
-        
-        speakWithElevenLabs(response, false);
-        return response;
+    // 🚨 CONCERN DETECTION - Only if no consultative intent or knowledge base match
+    const detectedConcern = detectUserConcern(userMessage);
+    if (detectedConcern) {
+        console.log('🚨 CONCERN DETECTED:', detectedConcern);
+        return handleUserConcern(detectedConcern, userMessage);
     }
+
+    // 📞 FALLBACK TO OPENAI - Only if nothing else matches
+    console.log('⚠️ No intent detected - falling back to OpenAI');
+    return await getOpenAIResponse(userMessage, conversationHistory);
+}
+
+// 🎯 NEW: IMPROVED CONSULTATIVE INTENT DETECTION
+function checkForConsultativeIntent(input) {
+    const lowerInput = input.toLowerCase().trim();
+    console.log('🎯 Checking consultative intent in:', lowerInput);
+    
+    // 🎯 APPOINTMENT-SPECIFIC INTENTS (HIGHEST PRIORITY)
+    const appointmentKeywords = [
+        'appointment', 'meeting', 'schedule', 'book', 'reserve', 'set up',
+        'get together', 'arrange', 'calendar', 'time slot', 'availability',
+        'meet with bruce', 'talk to bruce', 'see bruce', 'meet bruce'
+    ];
+    
+    const hasAppointmentIntent = appointmentKeywords.some(keyword => 
+        lowerInput.includes(keyword)
+    );
+    
+    if (hasAppointmentIntent) {
+        console.log('✅ APPOINTMENT INTENT DETECTED');
+        return 'appointment';
+    }
+    
+    // 🎯 CONSULTATION INTENTS
+    const consultativeKeywords = [
+        'consult', 'call', 'talk', 'speak', 'discuss', 'free consultation', 
+        'free consult', 'free meeting', 'connect', 'contact', 'reach out',
+        'get help', 'need help', 'want help', 'looking for help'
+    ];
+    
+    const hasConsultativeIntent = consultativeKeywords.some(keyword => 
+        lowerInput.includes(keyword)
+    );
+    
+    if (hasConsultativeIntent) {
+        console.log('✅ CONSULTATION INTENT DETECTED');
+        return 'consultation';
+    }
+    
+    // 🎯 PRE-QUALIFIER INTENTS
+    const preQualifierKeywords = [
+        'pre qualif', 'prequalif', 'check eligibility', 'see if i qualify',
+        'get qualified', 'am i eligible', 'do i qualify', 'pre-qual',
+        'qualification', 'qualified', 'eligibility'
+    ];
+    
+    const hasPreQualifierIntent = preQualifierKeywords.some(keyword => 
+        lowerInput.includes(keyword)
+    );
+    
+    if (hasPreQualifierIntent) {
+        console.log('✅ PRE-QUALIFIER INTENT DETECTED');
+        return 'pre-qualifier';
+    }
+    
+    // 🎯 YES/RESPONSE INTENTS (context-dependent)
+    const responseKeywords = ['yes', 'yeah', 'sure', 'okay', 'ok', 'yep', 'absolutely', 'definitely'];
+    const isResponse = responseKeywords.some(keyword => lowerInput === keyword);
+    
+    if (isResponse && window.lastAIResponse) {
+        const lastResponse = window.lastAIResponse.toLowerCase();
+        if (lastResponse.includes('eligibility') || lastResponse.includes('qualif')) {
+            console.log('✅ PRE-QUALIFIER RESPONSE DETECTED');
+            return 'pre-qualifier';
+        }
+        if (lastResponse.includes('consult') || lastResponse.includes('appointment') || lastResponse.includes('meeting')) {
+            console.log('✅ CONSULTATION RESPONSE DETECTED');
+            return 'consultation';
+        }
+    }
+    
+    console.log('❌ No consultative intent detected');
+    return null;
+}
+
+// 🎯 NEW: HANDLE CONSULTATIVE INTENTS
+function handleConsultativeIntent(intentType, userMessage) {
+    let responseMessage = '';
+    
+    switch(intentType) {
+        case 'appointment':
+            responseMessage = "Fantastic! I can help you get an appointment with Bruce. Please select 'BOOK CONSULTATION' from the options on your screen.";
+            break;
+            
+        case 'consultation':
+            responseMessage = "Perfect! I'd love to connect you with Bruce for a free consultation. Please select 'BOOK CONSULTATION' and I'll help you get scheduled.";
+            break;
+            
+        case 'pre-qualifier':
+            responseMessage = "Great! Let's check your eligibility. Please select 'PRE-QUALIFICATION' from the options on your screen to start the process.";
+            break;
+    }
+    
+    // Trigger appropriate action
+    setTimeout(() => {
+        if (window.showCommunicationActionCenter) {
+            window.showCommunicationActionCenter();
+        } else {
+            console.log('❌ Action center function not available');
+        }
+    }, 2000);
+    
+    speakWithElevenLabs(responseMessage, false);
+    return responseMessage;
+}
+
+// 🎯 UPDATED CONCERN DETECTION (EXCLUDE APPOINTMENT WORDS)
+function detectUserConcern(userInput) {
+    const lowerInput = userInput.toLowerCase();
+    
+    // 🎯 EXCLUDE appointment/consultation words from concern detection
+    const excludedWords = [
+        'appointment', 'meeting', 'schedule', 'book', 'reserve',
+        'consult', 'consultation', 'call', 'talk to bruce', 'meet with bruce'
+    ];
+    
+    const hasExcludedWord = excludedWords.some(word => lowerInput.includes(word));
+    if (hasExcludedWord) {
+        console.log('🔄 Appointment/consultation word detected - skipping concern detection');
+        return null;
+    }
+    
+    // Your existing concern detection logic
+    const concerns = {
+        time: ['time', 'busy', 'hours', 'weekend', 'evening', 'schedule'],
+        money: ['money', 'cost', 'price', 'fee', 'expensive', 'afford'],
+        trust: ['trust', 'scam', 'legit', 'real', 'fake', 'reviews'],
+        complexity: ['complicated', 'complex', 'hard', 'difficult', 'confusing']
+    };
+    
+    for (const [concern, keywords] of Object.entries(concerns)) {
+        if (keywords.some(keyword => lowerInput.includes(keyword))) {
+            return concern;
+        }
+    }
+    
+    return null;
+}
+
+// 🎯 NEW: HANDLE USER CONCERNS
+function handleUserConcern(concernType, userMessage) {
+    console.log('🎯 Handling concern:', concernType);
+    
+    let response = '';
+    switch(concernType) {
+        case 'time':
+            response = "I hear you're concerned about time. Many of our clients were worried about that too until they saw how efficient our process is. Let me show you what others have experienced...";
+            break;
+        case 'money':
+            response = "I understand cost is a consideration. The investment actually pays for itself quickly - let me share some experiences from others in your situation...";
+            break;
+        case 'trust':
+            response = "It's smart to verify credibility. Let me show you what other accounting professionals have said about working with us...";
+            break;
+        case 'complexity':
+            response = "The process is actually much simpler than it seems. Let me show you how others found it surprisingly straightforward...";
+            break;
+        default:
+            response = "I understand your concern. Let me show you how others have successfully navigated this...";
+    }
+    
+    // Trigger testimonial banner
+    setTimeout(() => {
+        if (typeof showTestimonialBanner === 'function') {
+            showTestimonialBanner(concernType);
+        } else if (typeof showUniversalBanner === 'function') {
+            showUniversalBanner('testimonialSelector');
+        }
+    }, 500);
+    
+    speakWithElevenLabs(response, false);
+    return response;
+}
     
     // Handle consultation acceptance
     if ((window.waitingForConsultationResponse) && 
@@ -2964,7 +3135,6 @@ async function getAIResponse(userMessage, conversationHistory = []) {
         speakWithElevenLabs(errorResponse, false);
         return errorResponse;
     }
-}
 
 // 🧠 ENHANCED KNOWLEDGE BASE FUNCTION
 function handleGeneralQuestions(userText, firstName) {
