@@ -475,9 +475,9 @@ function askLeadQuestion() {
                     
                     // 🎤 NOW SHOW SPEAK NOW BANNER (after speech finishes)
                     console.log('🎤 LEAD CAPTURE: Triggering Speak Now banner for step', data.step);
-                    if (window.showDirectSpeakNow && typeof window.showDirectSpeakNow === 'function') {
-                        window.showDirectSpeakNow();
-                        console.log('✅ Speak Now banner triggered via showDirectSpeakNow()');
+                    if (window.showHybridReadySequence && typeof window.showHybridReadySequence === 'function') {
+                        window.showHybridReadySequence();
+                        console.log('✅ Speak Now banner triggered via showHybridReadySequence()');
                     }
                     
                     // 🚀 NOW WITH CONFLICT PROTECTION
@@ -905,8 +905,8 @@ function handleEmailConfirmation(sendEmail, captureType) {
         
         // Wait then show Speak Now banner
         setTimeout(() => {
-            if (window.showDirectSpeakNow) {
-                window.showDirectSpeakNow();
+            if (window.showHybridReadySequence) {
+                window.showHybridReadySequence();
             }
         }, 2000);
     }
@@ -1263,16 +1263,16 @@ emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templates.clientConfirmati
                     if (!window.isSpeaking) {
                         clearInterval(checkSpeech);
                         setTimeout(() => {
-                            if (window.showDirectSpeakNow) {
-                                window.showDirectSpeakNow();
+                            if (window.showHybridReadySequence) {
+                                window.showHybridReadySequence();
                             }
                         }, 1000);
                     }
                 }, 100);
             } else {
                 setTimeout(() => {
-                    if (window.showDirectSpeakNow) {
-                        window.showDirectSpeakNow();
+                    if (window.showHybridReadySequence) {
+                        window.showHybridReadySequence();
                     }
                 }, 3000);
             }
@@ -1295,14 +1295,14 @@ emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templates.clientConfirmati
             if (window.speakText) {
                 window.speakText(failureMessage);
                 setTimeout(() => {
-                    if (window.showDirectSpeakNow) {
-                        window.showDirectSpeakNow();
+                    if (window.showHybridReadySequence) {
+                        window.showHybridReadySequence();
                     }
                 }, 3000);
             } else {
                 setTimeout(() => {
-                    if (window.showDirectSpeakNow) {
-                        window.showDirectSpeakNow();
+                    if (window.showHybridReadySequence) {
+                        window.showHybridReadySequence();
                     }
                 }, 2000);
             }
@@ -1509,9 +1509,9 @@ function restartConversation() {
         
         // Show speak now banner after greeting - FIXED VERSION
         setTimeout(() => {
-            if (typeof showDirectSpeakNow === 'function') {
+            if (typeof showHybridReadySequence === 'function') {
                 console.log('🎤 Restart: Showing Direct Speak Now banner');
-                showDirectSpeakNow();
+                showHybridReadySequence();
             } else if (typeof startRealtimeListening === 'function') {
                 console.log('🎤 Restart: Starting listening directly');
                 startRealtimeListening();
