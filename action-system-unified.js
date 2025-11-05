@@ -701,10 +701,7 @@ window.confirmAnswer = confirmAnswer;
 window.processLeadResponse = processLeadResponse;
 
 // ================================
-// COMPLETE LEAD CAPTURE & REQUEST EMAIL PERMISSION
-// ================================
-// ================================
-// COMPLETE LEAD CAPTURE - SIMPLE WORKING VERSION
+// COMPLETE LEAD CAPTURE & REQUEST EMAIL PERMISSION - FIXED VERSION
 // ================================
 function completeLeadCapture() {
     console.log('🎯 Completing lead capture...');
@@ -712,34 +709,100 @@ function completeLeadCapture() {
     const data = window.currentLeadData;
     const type = window.currentCaptureType;
     
-    // 🎯 SIMPLE FIX: Just close any visible Speak Now banner
+    // 🎯 CRITICAL FIX: CLOSE ANY STUCK SPEAK NOW BANNER FIRST
+    console.log('🧹 Closing any stuck Speak Now banner before email confirmation...');
+    if (window.closeSpeakNowBanner && typeof window.closeSpeakNowBanner === 'function') {
+        window.closeSpeakNowBanner();
+    }
+    
+    // Also try the direct cleanup method
     const speakNowBanner = document.querySelector('.speak-now-banner, [class*="speakNow"], #speakNowBanner');
     if (speakNowBanner) {
         speakNowBanner.remove();
-        console.log('✅ Removed Speak Now banner before email question');
+        console.log('✅ Removed stuck Speak Now banner');
     }
     
-    // Stop any listening
-    if (window.stopListening) {
+    // Stop any active listening
+    if (window.stopListening && typeof window.stopListening === 'function') {
         window.stopListening();
     }
     
-    // Ask for email confirmation
+    // Mark transition to email permission phase
+    window.isInEmailPermissionPhase = true;
+    
+    // 🆕 NEW: Ask for email confirmation permission instead of sending immediately
     const emailPermissionMessage = `Perfect! Should I send a confirmation email to ${data.email} with all your details and next steps?`;
     
     if (window.addAIMessage) {
         window.addAIMessage(emailPermissionMessage);
     }
     
-    if (window.speakText) {
-        window.speakText(emailPermissionMessage);
+    // 🎯 CRITICAL: Wait a moment for the message to appear BEFORE speaking
+    setTimeout(() => {
+        if (window.speakText) {
+            window.speakText(emailPermissionMessage);
+            
+            // Wait for speech to complete before showing buttons
+            const checkSpeech = setInterval(() => {
+                if (!window.isSpeaking) {
+                    clearInterval(checkSpeech);
+                    console.log('✅ AI finished speaking email question - showing buttons');
+                    
+                    // 🆕 NEW: Show confirmation buttons for email permission
+                    showEmailConfirmationButtons(data, type);
+                }
+            }, 100);
+            
+            // Safety timeout
+            setTimeout(() => {
+                clearInterval(checkSpeech);
+                showEmailConfirmationButtons(data, type);
+            }, 10000);
+        } else {
+            // No speech system - just show buttons
+            showEmailConfirmationButtons(data, type);
+        }
+    }, 500);
+}
+
+// ================================
+// 🆕 EMERGENCY BANNER CLEANUP FUNCTION
+// ================================
+function emergencyBannerCleanup() {
+    console.log('🚨 EMERGENCY: Cleaning up all stuck banners...');
+    
+    // Close Speak Now banner
+    if (window.closeSpeakNowBanner && typeof window.closeSpeakNowBanner === 'function') {
+        window.closeSpeakNowBanner();
     }
     
-    // Show confirmation buttons after a short delay
-    setTimeout(() => {
-        showEmailConfirmationButtons(data, type);
-    }, 1500);
+    // Remove any Speak Now banner elements
+    const stuckBanners = document.querySelectorAll('.speak-now-banner, [class*="speakNow"], #speakNowBanner, .speak-now-container');
+    stuckBanners.forEach(banner => {
+        banner.remove();
+        console.log('✅ Removed stuck banner:', banner.className || banner.id);
+    });
+    
+    // Remove confirmation buttons if any
+    const confirmationButtons = document.querySelectorAll('.confirmation-buttons, .email-confirmation-buttons');
+    confirmationButtons.forEach(buttons => {
+        buttons.remove();
+        console.log('✅ Removed old confirmation buttons');
+    });
+    
+    // Stop any listening
+    if (window.stopListening && typeof window.stopListening === 'function') {
+        window.stopListening();
+    }
+    
+    // Reset states
+    window.isListening = false;
+    window.isRecording = false;
+    window.speakSequenceActive = false;
 }
+
+// Make it globally accessible
+window.emergencyBannerCleanup = emergencyBannerCleanup;
 
 // ================================
 // EMAIL CONFIRMATION BUTTONS - SIMPLE VERSION
@@ -747,6 +810,9 @@ function completeLeadCapture() {
 function showEmailConfirmationButtons(leadData, captureType) {
     const chatMessages = document.getElementById('chatMessages') || document.querySelector('.chat-messages');
     if (!chatMessages) return;
+
+     // 🎯 CRITICAL: Emergency cleanup first
+    emergencyBannerCleanup();
     
     const buttonContainer = document.createElement('div');
     buttonContainer.className = 'email-confirmation-buttons';
