@@ -2733,30 +2733,6 @@ function handleUserConcern(concernType, userMessage) {
     return response;
 }
 
-// 🧠 BASIC KNOWLEDGE BASE HANDLER - ADD THIS FUNCTION
-function handleGeneralQuestions(userMessage, userName = '') {
-    const lowerMessage = userMessage.toLowerCase().trim();
-    
-    // Simple greetings
-    if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || 
-        lowerMessage.includes('hey') || lowerMessage === 'hi') {
-        return `Hello${userName ? ' ' + userName : ''}! I'm Boteemia, your personal AI assistant from New Clients Inc. How can I help you today?`;
-    }
-    
-    // Who are you questions
-    if (lowerMessage.includes('who are you') || lowerMessage.includes('what are you')) {
-        return `I'm Boteemia, an AI assistant from New Clients Inc. I specialize in helping accounting professionals with practice sales, acquisitions, and valuations. How can I assist you today?`;
-    }
-    
-    // Bruce questions
-    if (lowerMessage.includes('bruce') || lowerMessage.includes('founder')) {
-        return `Bruce is the founder of New Clients Inc and specializes in helping accounting professionals with practice transitions, valuations, and growth strategies. Would you like to connect with him?`;
-    }
-    
-    // No match found
-    return null;
-}
-
     // Handle consultation acceptance
     if ((window.waitingForConsultationResponse) && 
         (lowerMessage.includes('yes') || lowerMessage.includes('yeah') || lowerMessage.includes('sure') || 
@@ -2953,6 +2929,30 @@ function handleGeneralQuestions(userMessage, userName = '') {
             window.waitingForIntent = false; // Reset to avoid getting stuck
         }
     }
+
+    // 🧠 BASIC KNOWLEDGE BASE HANDLER - ADD THIS FUNCTION
+function handleGeneralQuestions(userMessage, userName = '') {
+    const lowerMessage = userMessage.toLowerCase().trim();
+    
+    // Simple greetings
+    if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || 
+        lowerMessage.includes('hey') || lowerMessage === 'hi') {
+        return `Hello${userName ? ' ' + userName : ''}! I'm Boteemia, your personal AI assistant from New Clients Inc. How can I help you today?`;
+    }
+    
+    // Who are you questions
+    if (lowerMessage.includes('who are you') || lowerMessage.includes('what are you')) {
+        return `I'm Boteemia, an AI assistant from New Clients Inc. I specialize in helping accounting professionals with practice sales, acquisitions, and valuations. How can I assist you today?`;
+    }
+    
+    // Bruce questions
+    if (lowerMessage.includes('bruce') || lowerMessage.includes('founder')) {
+        return `Bruce is the founder of New Clients Inc and specializes in helping accounting professionals with practice transitions, valuations, and growth strategies. Would you like to connect with him?`;
+    }
+    
+    // No match found
+    return null;
+}
     
     // Check if we're waiting for book response (yes/no)
     if (window.waitingForBookResponse) {
