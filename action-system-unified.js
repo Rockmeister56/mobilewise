@@ -905,6 +905,7 @@ if (sendEmail) {
     // Use the clean transition function
     cleanTransitionToNormalConversation();
 }
+}
 
 // ================================
 // 🆕 NEW: EMAIL CONFIRMATION BUTTONS
