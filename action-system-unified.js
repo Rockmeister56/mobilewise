@@ -428,6 +428,38 @@ function initializeFreeBookCapture() {
 }
 
 // ================================
+// 🆕 CLEAN TRANSITION FUNCTION
+// ================================
+function cleanTransitionToNormalConversation() {
+    console.log('🧹 Cleaning up for normal conversation transition...');
+    
+    // Stop any active listening
+    if (window.stopListening && typeof window.stopListening === 'function') {
+        window.stopListening();
+    }
+    
+    // Clear any timeouts that might interfere
+    if (window.speechTimeout) {
+        clearTimeout(window.speechTimeout);
+        window.speechTimeout = null;
+    }
+    
+    // Reset states
+    window.isInLeadCapture = false;
+    window.currentCaptureType = null;
+    window.currentLeadData = null;
+    window.isInEmailPermissionPhase = false;
+    
+    // Wait for clean state then proceed
+    setTimeout(() => {
+        if (window.showDirectSpeakNow && typeof window.showDirectSpeakNow === 'function') {
+            console.log('🎤 CLEAN: Starting fresh listening session');
+            window.showDirectSpeakNow();
+        }
+    }, 1000);
+}
+
+// ================================
 // 🆕 AVOID AVATAR INTERRUPTIONS DURING LEAD CAPTURE
 // ================================
 function disableAvatarDuringLeadCapture() {
@@ -849,30 +881,29 @@ function handleEmailConfirmation(sendEmail, captureType) {
     
     const data = window.currentLeadData;
     
-    if (sendEmail) {
-        // Send email
-        if (window.addAIMessage) {
-            window.addAIMessage("📧 Sending your confirmation email now...");
-        }
-        sendOriginalLeadEmail(data, captureType);
-    } else {
-        // Skip email - just continue conversation
-        if (window.addAIMessage) {
-            window.addAIMessage("No problem! Bruce will still contact you directly. Is there anything else I can help with?");
-        }
-        
-        // Clear lead data
-        window.isInLeadCapture = false;
-        window.currentCaptureType = null;
-        window.currentLeadData = null;
-        
-        // Wait then show Speak Now banner
-        setTimeout(() => {
-            if (window.showDirectSpeakNow) {
-                window.showDirectSpeakNow();
-            }
-        }, 2000);
+    // In handleEmailConfirmation function, replace the success path:
+if (sendEmail) {
+    // User wants email - send it and show confirmation
+    console.log('📧 Sending email and showing confirmation...');
+    
+    // Show "sending email" message
+    if (window.addAIMessage) {
+        window.addAIMessage("📧 Sending your confirmation email now...");
     }
+    
+    // Send the email - this will now handle the clean transition
+    sendOriginalLeadEmail(data, captureType);
+    
+} else {
+    // User skipped email - use clean transition
+    console.log('⏭️ Email skipped by user - clean transition');
+    
+    if (window.addAIMessage) {
+        window.addAIMessage("No problem! Bruce will still contact you directly. Is there anything else I can help with?");
+    }
+    
+    // Use the clean transition function
+    cleanTransitionToNormalConversation();
 }
 
 // ================================
