@@ -2524,6 +2524,9 @@ function detectConsultativeResponse(userMessage) {
 async function getAIResponse(userMessage, conversationHistory = []) {
     console.log('🎯 getAIResponse called with:', userMessage);
 
+    // 🎯 DEFINE lowerMessage HERE - at the very top
+    const lowerMessage = userMessage.toLowerCase();
+
     // Close Speak Now banner when AI responds
     const speakNowBanner = document.querySelector('.speak-now-banner');
     if (speakNowBanner) {
@@ -2540,27 +2543,24 @@ async function getAIResponse(userMessage, conversationHistory = []) {
     }
 
     // 🎯 URGENT/CONSULTATION REQUESTS - Check BEFORE concern detection
-if (lowerMessage.includes('schedule') || lowerMessage.includes('call') || 
-    lowerMessage.includes('consultation') || lowerMessage.includes('appointment') ||
-    lowerMessage.includes('meeting') || lowerMessage.includes('talk to bruce')) {
-    
-    console.log('🎯 Direct consultation request detected');
-    
-    const response = `Perfect! I'd love to get you scheduled with Bruce. Please click the "BOOK CONSULTATION" button and I'll help you get confirmed for your free consultation.`;
-    
-    // Trigger consultation banner immediately
-    setTimeout(() => {
-        if (typeof showUniversalBanner === 'function') {
-            showUniversalBanner('setAppointment');
-        }
-    }, 500);
-    
-    speakWithElevenLabs(response, false);
-    return response;
-}
-    
-    // 🎯 CONSULTATION ACCEPTANCE HANDLER - Check this FIRST
-    const lowerMessage = userMessage.toLowerCase();
+    if (lowerMessage.includes('schedule') || lowerMessage.includes('call') || 
+        lowerMessage.includes('consultation') || lowerMessage.includes('appointment') ||
+        lowerMessage.includes('meeting') || lowerMessage.includes('talk to bruce')) {
+        
+        console.log('🎯 Direct consultation request detected');
+        
+        const response = `Perfect! I'd love to get you scheduled with Bruce. Please click the "BOOK CONSULTATION" button and I'll help you get confirmed for your free consultation.`;
+        
+        // Trigger consultation banner immediately
+        setTimeout(() => {
+            if (typeof showUniversalBanner === 'function') {
+                showUniversalBanner('setAppointment');
+            }
+        }, 500);
+        
+        speakWithElevenLabs(response, false);
+        return response;
+    }
     
     // Handle consultation acceptance
     if ((window.waitingForConsultationResponse) && 
