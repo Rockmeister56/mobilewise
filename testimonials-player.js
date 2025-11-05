@@ -35,7 +35,7 @@ function showTestimonialBanner(concernType) {
     // Create review items with premium play buttons
     const reviewItems = concernData.reviews.map((review, index) => `
         <div style="
-            padding: 18px 0;
+            padding: 15px 0;
             ${index > 0 ? 'border-top: 1px solid rgba(255, 255, 255, 0.2);' : ''}
         ">
             <p style="
@@ -94,7 +94,7 @@ function showTestimonialBanner(concernType) {
             background-blend-mode: overlay;
             backdrop-filter: blur(10px);
             border-radius: 20px;
-            padding: 30px 25px;
+            padding: 20px 25px;
             margin: 20px 0;
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
@@ -109,7 +109,7 @@ function showTestimonialBanner(concernType) {
             <div style="
                 display: flex;
                 align-items: center;
-                margin-bottom: 25px;
+                margin-bottom: 20px;
                 gap: 15px;
             ">
                 <div style="
@@ -287,7 +287,7 @@ function showTestimonialVideo(testimonialType, duration = null) {
     
     if (isMobile) {
         // Mobile: Full screen
-       // Desktop: Centered floating player with CSS variables
+       // Desktop: Centered floating player with proper 16:9 ratio
 avatarOverlay.style.cssText = `
     position: fixed;
     top: 0;
@@ -314,7 +314,7 @@ avatarOverlay.innerHTML = `
         <video id="testimonialVideo" autoplay style="
             width: 100%;
             height: 100%;
-            object-fit: contain; /* FIX: Changed from 'cover' to 'contain' to maintain aspect ratio */
+            object-fit: contain; /* Maintains aspect ratio without cropping */
         ">
             <source src="${videoUrl}" type="video/mp4">
         </video>
