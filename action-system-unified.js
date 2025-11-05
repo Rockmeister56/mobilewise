@@ -428,59 +428,6 @@ function initializeFreeBookCapture() {
 }
 
 // ================================
-// 🆕 CLEAN TRANSITION FUNCTION
-// ================================
-function cleanTransitionToNormalConversation() {
-    console.log('🧹 CLEAN TRANSITION: Starting comprehensive cleanup...');
-    
-    // 🎯 NUCLEAR OPTION - KILL ALL SPEECH SYSTEMS
-    if (window.speechRecognition) {
-        try {
-            window.speechRecognition.stop();
-            window.speechRecognition.abort();
-            window.speechRecognition = null;
-            console.log('✅ Speech recognition stopped');
-        } catch (e) {
-            console.log('Speech recognition cleanup:', e);
-        }
-    }
-    
-    // 🎯 STOP ALL LISTENING FLAGS
-    window.isListening = false;
-    window.isRecording = false;
-    window.speakSequenceActive = false;
-    
-    // 🎯 CLEAR ALL TIMEOUTS
-    if (window.speechTimeout) {
-        clearTimeout(window.speechTimeout);
-        window.speechTimeout = null;
-    }
-    if (window.restartTimeout) {
-        clearTimeout(window.restartTimeout);
-        window.restartTimeout = null;
-    }
-    
-    // 🎯 RESET ALL STATES
-    window.isInLeadCapture = false;
-    window.currentCaptureType = null;
-    window.currentLeadData = null;
-    window.isInEmailPermissionPhase = false;
-    
-    // 🎯 REMOVE ANY STUCK BANNERS
-    emergencyBannerCleanup();
-    
-    // 🎯 WAIT FOR CLEAN STATE THEN PROCEED
-    setTimeout(() => {
-        console.log('🎯 CLEAN TRANSITION: Starting fresh listening session');
-        if (window.showDirectSpeakNow && typeof window.showDirectSpeakNow === 'function') {
-            window.showDirectSpeakNow();
-        } else if (window.startRealtimeListening && typeof window.startRealtimeListening === 'function') {
-            window.startRealtimeListening();
-        }
-    }, 1500);
-}
-
-// ================================
 // 🆕 AVOID AVATAR INTERRUPTIONS DURING LEAD CAPTURE
 // ================================
 function disableAvatarDuringLeadCapture() {
@@ -817,6 +764,36 @@ function completeLeadCapture() {
         }
     }, 500);
 }
+
+// 🆕 EMERGENCY STUCK BANNER CLEANUP - CALL THIS IN CONSOLE TO TEST
+function emergencyStuckBannerFix() {
+    console.log('🚨 EMERGENCY: Fixing stuck banner...');
+    
+    // Stop listening
+    if (window.stopListening && typeof window.stopListening === 'function') {
+        window.stopListening();
+    }
+    
+    // Clear timeouts
+    if (window.directSafetyTimeout) {
+        clearTimeout(window.directSafetyTimeout);
+        window.directSafetyTimeout = null;
+    }
+    
+    // Remove banner
+    const banners = document.querySelectorAll('.speak-now-banner, [class*="speakNow"], #speakNowBanner');
+    banners.forEach(banner => banner.remove());
+    
+    // Reset states
+    window.isListening = false;
+    window.isRecording = false;
+    window.speakSequenceActive = false;
+    
+    console.log('✅ Emergency cleanup complete');
+}
+
+// Make it globally accessible
+window.emergencyStuckBannerFix = emergencyStuckBannerFix;
 
 // ================================
 // 🆕 EMERGENCY BANNER CLEANUP FUNCTION
@@ -1252,7 +1229,7 @@ function sendClientConfirmationEmail(leadData, captureType) {
     };
     
     // Send CLIENT confirmation using the confirmation template
-    emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templates.clientConfirmation, confirmationParams)
+emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templates.clientConfirmation, confirmationParams)
         .then(function(response) {
             console.log('✅ CLIENT CONFIRMATION EMAIL SENT!');
             
@@ -1266,15 +1243,32 @@ function sendClientConfirmationEmail(leadData, captureType) {
                 window.addAIMessage(successMessage);
             }
             
-            // 🎯 CRITICAL FIX: Clear lead data FIRST
+            // Clear lead data
             window.isInLeadCapture = false;
             window.currentCaptureType = null;
             window.currentLeadData = null;
-            window.isInEmailPermissionPhase = false; // 🆕 ADD THIS!
             
-            // 🎯 CRITICAL FIX: Use clean transition instead of speakText
-            console.log('🎯 Using clean transition after email confirmation');
-            cleanTransitionToNormalConversation();
+            if (window.speakText) {
+                window.speakText(successMessage);
+                
+                // Wait for speech then show banner
+                const checkSpeech = setInterval(() => {
+                    if (!window.isSpeaking) {
+                        clearInterval(checkSpeech);
+                        setTimeout(() => {
+                            if (window.showDirectSpeakNow) {
+                                window.showDirectSpeakNow();
+                            }
+                        }, 1000);
+                    }
+                }, 100);
+            } else {
+                setTimeout(() => {
+                    if (window.showDirectSpeakNow) {
+                        window.showDirectSpeakNow();
+                    }
+                }, 3000);
+            }
             
         }, function(error) {
             console.error('❌ CLIENT CONFIRMATION EMAIL FAILED:', error);
@@ -1286,15 +1280,25 @@ function sendClientConfirmationEmail(leadData, captureType) {
                 window.addAIMessage(failureMessage);
             }
             
-            // 🎯 CRITICAL FIX: Clear lead data on failure too
+            // Clear lead data
             window.isInLeadCapture = false;
             window.currentCaptureType = null;
             window.currentLeadData = null;
-            window.isInEmailPermissionPhase = false; // 🆕 ADD THIS!
             
-            // 🎯 CRITICAL FIX: Use clean transition on failure too
-            console.log('🎯 Using clean transition after email failure');
-            cleanTransitionToNormalConversation();
+            if (window.speakText) {
+                window.speakText(failureMessage);
+                setTimeout(() => {
+                    if (window.showDirectSpeakNow) {
+                        window.showDirectSpeakNow();
+                    }
+                }, 3000);
+            } else {
+                setTimeout(() => {
+                    if (window.showDirectSpeakNow) {
+                        window.showDirectSpeakNow();
+                    }
+                }, 2000);
+            }
         });
 }
     
