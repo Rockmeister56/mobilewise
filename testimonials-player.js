@@ -40,7 +40,7 @@ function showTestimonialBanner(concernType) {
     // Create review items with premium play buttons
     const reviewItems = concernData.reviews.map((review, index) => `
         <div style="
-            padding: 15px 0;
+            padding: 10px 0;
             ${index > 0 ? 'border-top: 1px solid rgba(255, 255, 255, 0.2);' : ''}
         ">
             <p style="
@@ -99,7 +99,7 @@ function showTestimonialBanner(concernType) {
             background-blend-mode: overlay;
             backdrop-filter: blur(10px);
             border-radius: 20px;
-            padding: 20px 25px;
+            padding: 15px 20px;
             margin: 20px 0;
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
@@ -114,12 +114,12 @@ function showTestimonialBanner(concernType) {
             <div style="
                 display: flex;
                 align-items: center;
-                margin-bottom: 20px;
+               margin-bottom: 15px;
                 gap: 15px;
             ">
                 <div style="
                     width: 50px;
-                    height: 50px;
+                    height: 40px;
                     display: flex;
                     align-items: center;
                     justify-content: center;
