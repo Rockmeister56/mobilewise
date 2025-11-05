@@ -2556,6 +2556,207 @@ async function getAIResponse(userMessage, conversationHistory = []) {
         return handleUserConcern(detectedConcern, userMessage);
     }
 
+    // 📞 FALLBACK TO OPENAI - Only if nothing else matches
+    console.log('⚠️ No intent detected - falling back to OpenAI');
+    return await getOpenAIResponse(userMessage, conversationHistory);
+}
+
+// 🎯 NEW: IMPROVED CONSULTATIVE INTENT DETECTION
+function checkForConsultativeIntent(input) {
+    const lowerInput = input.toLowerCase().trim();
+    console.log('🎯 Checking consultative intent in:', lowerInput);
+    
+    // 🎯 APPOINTMENT-SPECIFIC INTENTS (HIGHEST PRIORITY)
+    const appointmentKeywords = [
+        'appointment', 'meeting', 'schedule', 'book', 'reserve', 'set up',
+        'get together', 'arrange', 'calendar', 'time slot', 'availability',
+        'meet with bruce', 'talk to bruce', 'see bruce', 'meet bruce'
+    ];
+    
+    const hasAppointmentIntent = appointmentKeywords.some(keyword => 
+        lowerInput.includes(keyword)
+    );
+    
+    if (hasAppointmentIntent) {
+        console.log('✅ APPOINTMENT INTENT DETECTED');
+        return 'appointment';
+    }
+    
+    // 🎯 CONSULTATION INTENTS
+    const consultativeKeywords = [
+        'consult', 'call', 'talk', 'speak', 'discuss', 'free consultation', 
+        'free consult', 'free meeting', 'connect', 'contact', 'reach out',
+        'get help', 'need help', 'want help', 'looking for help'
+    ];
+    
+    const hasConsultativeIntent = consultativeKeywords.some(keyword => 
+        lowerInput.includes(keyword)
+    );
+    
+    if (hasConsultativeIntent) {
+        console.log('✅ CONSULTATION INTENT DETECTED');
+        return 'consultation';
+    }
+    
+    // 🎯 PRE-QUALIFIER INTENTS
+    const preQualifierKeywords = [
+        'pre qualif', 'prequalif', 'check eligibility', 'see if i qualify',
+        'get qualified', 'am i eligible', 'do i qualify', 'pre-qual',
+        'qualification', 'qualified', 'eligibility'
+    ];
+    
+    const hasPreQualifierIntent = preQualifierKeywords.some(keyword => 
+        lowerInput.includes(keyword)
+    );
+    
+    if (hasPreQualifierIntent) {
+        console.log('✅ PRE-QUALIFIER INTENT DETECTED');
+        return 'pre-qualifier';
+    }
+    
+    // 🎯 YES/RESPONSE INTENTS (context-dependent)
+    const responseKeywords = ['yes', 'yeah', 'sure', 'okay', 'ok', 'yep', 'absolutely', 'definitely'];
+    const isResponse = responseKeywords.some(keyword => lowerInput === keyword);
+    
+    if (isResponse && window.lastAIResponse) {
+        const lastResponse = window.lastAIResponse.toLowerCase();
+        if (lastResponse.includes('eligibility') || lastResponse.includes('qualif')) {
+            console.log('✅ PRE-QUALIFIER RESPONSE DETECTED');
+            return 'pre-qualifier';
+        }
+        if (lastResponse.includes('consult') || lastResponse.includes('appointment') || lastResponse.includes('meeting')) {
+            console.log('✅ CONSULTATION RESPONSE DETECTED');
+            return 'consultation';
+        }
+    }
+    
+    console.log('❌ No consultative intent detected');
+    return null;
+}
+
+// 🎯 NEW: HANDLE CONSULTATIVE INTENTS
+function handleConsultativeIntent(intentType, userMessage) {
+    let responseMessage = '';
+    
+    switch(intentType) {
+        case 'appointment':
+            responseMessage = "Fantastic! I can help you get an appointment with Bruce. Please select 'BOOK CONSULTATION' from the options on your screen.";
+            break;
+            
+        case 'consultation':
+            responseMessage = "Perfect! I'd love to connect you with Bruce for a free consultation. Please select 'BOOK CONSULTATION' and I'll help you get scheduled.";
+            break;
+            
+        case 'pre-qualifier':
+            responseMessage = "Great! Let's check your eligibility. Please select 'PRE-QUALIFICATION' from the options on your screen to start the process.";
+            break;
+    }
+    
+    // Trigger appropriate action
+    setTimeout(() => {
+        if (window.showCommunicationActionCenter) {
+            window.showCommunicationActionCenter();
+        } else {
+            console.log('❌ Action center function not available');
+        }
+    }, 2000);
+    
+    speakWithElevenLabs(responseMessage, false);
+    return responseMessage;
+}
+
+// 🎯 UPDATED CONCERN DETECTION (EXCLUDE APPOINTMENT WORDS)
+function detectUserConcern(userInput) {
+    const lowerInput = userInput.toLowerCase();
+    
+    // 🎯 EXCLUDE appointment/consultation words from concern detection
+    const excludedWords = [
+        'appointment', 'meeting', 'schedule', 'book', 'reserve',
+        'consult', 'consultation', 'call', 'talk to bruce', 'meet with bruce'
+    ];
+    
+    const hasExcludedWord = excludedWords.some(word => lowerInput.includes(word));
+    if (hasExcludedWord) {
+        console.log('🔄 Appointment/consultation word detected - skipping concern detection');
+        return null;
+    }
+    
+    // Your existing concern detection logic
+    const concerns = {
+        time: ['time', 'busy', 'hours', 'weekend', 'evening', 'schedule'],
+        money: ['money', 'cost', 'price', 'fee', 'expensive', 'afford'],
+        trust: ['trust', 'scam', 'legit', 'real', 'fake', 'reviews'],
+        complexity: ['complicated', 'complex', 'hard', 'difficult', 'confusing']
+    };
+    
+    for (const [concern, keywords] of Object.entries(concerns)) {
+        if (keywords.some(keyword => lowerInput.includes(keyword))) {
+            return concern;
+        }
+    }
+    
+    return null;
+}
+
+// 🎯 NEW: HANDLE USER CONCERNS
+function handleUserConcern(concernType, userMessage) {
+    console.log('🎯 Handling concern:', concernType);
+    
+    let response = '';
+    switch(concernType) {
+        case 'time':
+            response = "I hear you're concerned about time. Many of our clients were worried about that too until they saw how efficient our process is. Let me show you what others have experienced...";
+            break;
+        case 'money':
+            response = "I understand cost is a consideration. The investment actually pays for itself quickly - let me share some experiences from others in your situation...";
+            break;
+        case 'trust':
+            response = "It's smart to verify credibility. Let me show you what other accounting professionals have said about working with us...";
+            break;
+        case 'complexity':
+            response = "The process is actually much simpler than it seems. Let me show you how others found it surprisingly straightforward...";
+            break;
+        default:
+            response = "I understand your concern. Let me show you how others have successfully navigated this...";
+    }
+    
+    // Trigger testimonial banner
+    setTimeout(() => {
+        if (typeof showTestimonialBanner === 'function') {
+            showTestimonialBanner(concernType);
+        } else if (typeof showUniversalBanner === 'function') {
+            showUniversalBanner('testimonialSelector');
+        }
+    }, 500);
+    
+    speakWithElevenLabs(response, false);
+    return response;
+}
+
+// 🧠 BASIC KNOWLEDGE BASE HANDLER - ADD THIS FUNCTION
+function handleGeneralQuestions(userMessage, userName = '') {
+    const lowerMessage = userMessage.toLowerCase().trim();
+    
+    // Simple greetings
+    if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || 
+        lowerMessage.includes('hey') || lowerMessage === 'hi') {
+        return `Hello${userName ? ' ' + userName : ''}! I'm Boteemia, your personal AI assistant from New Clients Inc. How can I help you today?`;
+    }
+    
+    // Who are you questions
+    if (lowerMessage.includes('who are you') || lowerMessage.includes('what are you')) {
+        return `I'm Boteemia, an AI assistant from New Clients Inc. I specialize in helping accounting professionals with practice sales, acquisitions, and valuations. How can I assist you today?`;
+    }
+    
+    // Bruce questions
+    if (lowerMessage.includes('bruce') || lowerMessage.includes('founder')) {
+        return `Bruce is the founder of New Clients Inc and specializes in helping accounting professionals with practice transitions, valuations, and growth strategies. Would you like to connect with him?`;
+    }
+    
+    // No match found
+    return null;
+}
+
     // Handle consultation acceptance
     if ((window.waitingForConsultationResponse) && 
         (lowerMessage.includes('yes') || lowerMessage.includes('yeah') || lowerMessage.includes('sure') || 
@@ -2614,7 +2815,7 @@ async function getAIResponse(userMessage, conversationHistory = []) {
         
         // Mark that we're now waiting for their intent
         window.waitingForIntent = true;
-        return response;
+        return response;  // ✅ RETURN THE RESPONSE
     }
     
     // 🎯 CONSULTATIVE INTENT DETECTION - Comprehensive detection
@@ -2893,185 +3094,7 @@ async function getAIResponse(userMessage, conversationHistory = []) {
         return response;
     }
     
-    // 📞 FALLBACK TO OPENAI - Only if nothing else matches
-    console.log('⚠️ No intent detected - falling back to OpenAI');
-    return await getOpenAIResponse(userMessage, conversationHistory);
-}
-
-// 🎯 NEW: IMPROVED CONSULTATIVE INTENT DETECTION
-function checkForConsultativeIntent(input) {
-    const lowerInput = input.toLowerCase().trim();
-    console.log('🎯 Checking consultative intent in:', lowerInput);
-    
-    // 🎯 APPOINTMENT-SPECIFIC INTENTS (HIGHEST PRIORITY)
-    const appointmentKeywords = [
-        'appointment', 'meeting', 'schedule', 'book', 'reserve', 'set up',
-        'get together', 'arrange', 'calendar', 'time slot', 'availability',
-        'meet with bruce', 'talk to bruce', 'see bruce', 'meet bruce'
-    ];
-    
-    const hasAppointmentIntent = appointmentKeywords.some(keyword => 
-        lowerInput.includes(keyword)
-    );
-    
-    if (hasAppointmentIntent) {
-        console.log('✅ APPOINTMENT INTENT DETECTED');
-        return 'appointment';
-    }
-    
-    // 🎯 CONSULTATION INTENTS
-    const consultativeKeywords = [
-        'consult', 'call', 'talk', 'speak', 'discuss', 'free consultation', 
-        'free consult', 'free meeting', 'connect', 'contact', 'reach out',
-        'get help', 'need help', 'want help', 'looking for help'
-    ];
-    
-    const hasConsultativeIntent = consultativeKeywords.some(keyword => 
-        lowerInput.includes(keyword)
-    );
-    
-    if (hasConsultativeIntent) {
-        console.log('✅ CONSULTATION INTENT DETECTED');
-        return 'consultation';
-    }
-    
-    // 🎯 PRE-QUALIFIER INTENTS
-    const preQualifierKeywords = [
-        'pre qualif', 'prequalif', 'check eligibility', 'see if i qualify',
-        'get qualified', 'am i eligible', 'do i qualify', 'pre-qual',
-        'qualification', 'qualified', 'eligibility'
-    ];
-    
-    const hasPreQualifierIntent = preQualifierKeywords.some(keyword => 
-        lowerInput.includes(keyword)
-    );
-    
-    if (hasPreQualifierIntent) {
-        console.log('✅ PRE-QUALIFIER INTENT DETECTED');
-        return 'pre-qualifier';
-    }
-    
-    // 🎯 YES/RESPONSE INTENTS (context-dependent)
-    const responseKeywords = ['yes', 'yeah', 'sure', 'okay', 'ok', 'yep', 'absolutely', 'definitely'];
-    const isResponse = responseKeywords.some(keyword => lowerInput === keyword);
-    
-    if (isResponse && window.lastAIResponse) {
-        const lastResponse = window.lastAIResponse.toLowerCase();
-        if (lastResponse.includes('eligibility') || lastResponse.includes('qualif')) {
-            console.log('✅ PRE-QUALIFIER RESPONSE DETECTED');
-            return 'pre-qualifier';
-        }
-        if (lastResponse.includes('consult') || lastResponse.includes('appointment') || lastResponse.includes('meeting')) {
-            console.log('✅ CONSULTATION RESPONSE DETECTED');
-            return 'consultation';
-        }
-    }
-    
-    console.log('❌ No consultative intent detected');
-    return null;
-}
-
-// 🎯 NEW: HANDLE CONSULTATIVE INTENTS
-function handleConsultativeIntent(intentType, userMessage) {
-    let responseMessage = '';
-    
-    switch(intentType) {
-        case 'appointment':
-            responseMessage = "Fantastic! I can help you get an appointment with Bruce. Please select 'BOOK CONSULTATION' from the options on your screen.";
-            break;
-            
-        case 'consultation':
-            responseMessage = "Perfect! I'd love to connect you with Bruce for a free consultation. Please select 'BOOK CONSULTATION' and I'll help you get scheduled.";
-            break;
-            
-        case 'pre-qualifier':
-            responseMessage = "Great! Let's check your eligibility. Please select 'PRE-QUALIFICATION' from the options on your screen to start the process.";
-            break;
-    }
-    
-    // Trigger appropriate action
-    setTimeout(() => {
-        if (window.showCommunicationActionCenter) {
-            window.showCommunicationActionCenter();
-        } else {
-            console.log('❌ Action center function not available');
-        }
-    }, 2000);
-    
-    speakWithElevenLabs(responseMessage, false);
-    return responseMessage;
-}
-
-// 🎯 UPDATED CONCERN DETECTION (EXCLUDE APPOINTMENT WORDS)
-function detectUserConcern(userInput) {
-    const lowerInput = userInput.toLowerCase();
-    
-    // 🎯 EXCLUDE appointment/consultation words from concern detection
-    const excludedWords = [
-        'appointment', 'meeting', 'schedule', 'book', 'reserve',
-        'consult', 'consultation', 'call', 'talk to bruce', 'meet with bruce'
-    ];
-    
-    const hasExcludedWord = excludedWords.some(word => lowerInput.includes(word));
-    if (hasExcludedWord) {
-        console.log('🔄 Appointment/consultation word detected - skipping concern detection');
-        return null;
-    }
-    
-    // Your existing concern detection logic
-    const concerns = {
-        time: ['time', 'busy', 'hours', 'weekend', 'evening', 'schedule'],
-        money: ['money', 'cost', 'price', 'fee', 'expensive', 'afford'],
-        trust: ['trust', 'scam', 'legit', 'real', 'fake', 'reviews'],
-        complexity: ['complicated', 'complex', 'hard', 'difficult', 'confusing']
-    };
-    
-    for (const [concern, keywords] of Object.entries(concerns)) {
-        if (keywords.some(keyword => lowerInput.includes(keyword))) {
-            return concern;
-        }
-    }
-    
-    return null;
-}
-
-// 🎯 NEW: HANDLE USER CONCERNS
-function handleUserConcern(concernType, userMessage) {
-    console.log('🎯 Handling concern:', concernType);
-    
-    let response = '';
-    switch(concernType) {
-        case 'time':
-            response = "I hear you're concerned about time. Many of our clients were worried about that too until they saw how efficient our process is. Let me show you what others have experienced...";
-            break;
-        case 'money':
-            response = "I understand cost is a consideration. The investment actually pays for itself quickly - let me share some experiences from others in your situation...";
-            break;
-        case 'trust':
-            response = "It's smart to verify credibility. Let me show you what other accounting professionals have said about working with us...";
-            break;
-        case 'complexity':
-            response = "The process is actually much simpler than it seems. Let me show you how others found it surprisingly straightforward...";
-            break;
-        default:
-            response = "I understand your concern. Let me show you how others have successfully navigated this...";
-    }
-    
-    // Trigger testimonial banner
-    setTimeout(() => {
-        if (typeof showTestimonialBanner === 'function') {
-            showTestimonialBanner(concernType);
-        } else if (typeof showUniversalBanner === 'function') {
-            showUniversalBanner('testimonialSelector');
-        }
-    }, 500);
-    
-    speakWithElevenLabs(response, false);
-    return response;
-}
-
-// 📞 OPENAI FALLBACK FUNCTION
-async function getOpenAIResponse(userMessage, conversationHistory) {
+    // Continue with regular OpenAI conversation for everything else
     try {
         conversationHistory.push({
             role: 'user',
@@ -3136,6 +3159,110 @@ async function getOpenAIResponse(userMessage, conversationHistory) {
         speakWithElevenLabs(errorResponse, false);
         return errorResponse;
     }
+
+// 🧠 ENHANCED KNOWLEDGE BASE FUNCTION
+function handleGeneralQuestions(userText, firstName) {
+    const lowerText = userText.toLowerCase();
+    
+    // NCI/BRUCE QUESTIONS - COMPREHENSIVE OVERVIEW
+    if (lowerText.includes('what is nci') || lowerText.includes('new clients inc') || 
+        lowerText.includes('who is bruce') || lowerText.includes('what do you do') ||
+        lowerText.includes('tell me about') || lowerText.includes('what does new clients') ||
+        lowerText.includes('what kind of company') || lowerText.includes('what services') ||
+        lowerText.includes('how can you help') || lowerText.includes('what do you offer')) {
+        
+        return firstName ? 
+            `${firstName}, as a leader in client acquisition, practice management, and accounting practice sales since 1987, New Clients Inc is an established international marketing and consulting firm that has helped thousands of accountants learn how to generate new clients and retain them. Moreover, we offer comprehensive Practice Acquisition Consulting Services to help with buying or selling your practice. What can we help you with today?` :
+            "As a leader in client acquisition, practice management, and accounting practice sales since 1987, New Clients Inc is an established international marketing and consulting firm that has helped thousands of accountants learn how to generate new clients and retain them. Moreover, we offer comprehensive Practice Acquisition Consulting Services to help with buying or selling your practice. What can we help you with today?";
+    }
+
+    // URGENT BRUCE REQUESTS
+    if (lowerText.includes('speak to bruce') || lowerText.includes('talk to bruce') || 
+        lowerText.includes('urgent') || lowerText.includes('emergency') || 
+        lowerText.includes('immediate') || lowerText.includes('right now')) {
+        
+        // 🎯 TRIGGER URGENT BANNER IMMEDIATELY
+        setTimeout(() => {
+            if (typeof showUniversalBanner === 'function') {
+                showUniversalBanner('urgent');
+                console.log('✅ Urgent banner triggered for Bruce request');
+            }
+        }, 1000);
+        
+        return firstName ? 
+            `${firstName}, I understand you need to speak with Bruce urgently. Please click the "URGENT CALL" button and I'll connect you directly with him right away!` :
+            "I understand you need to speak with Bruce urgently. Please click the 'URGENT CALL' button and I'll connect you directly with him right away!";
+    }
+    
+    // SPECIFIC SERVICE QUESTIONS
+    if (lowerText.includes('services') || lowerText.includes('help with') ||
+        lowerText.includes('what do you provide') || lowerText.includes('offerings')) {
+        
+        return firstName ? 
+            `${firstName}, we provide three main services: Practice Acquisition for buying accounting firms, Practice Sales for selling your practice, and Practice Valuations to determine your firm's true market value. We also offer client acquisition strategies and practice management consulting. Which service interests you most?` :
+            "We provide three main services: Practice Acquisition for buying accounting firms, Practice Sales for selling your practice, and Practice Valuations to determine your firm's true market value. We also offer client acquisition strategies and practice management consulting. Which service interests you most?";
+    }
+    
+    // PROCESS QUESTIONS
+    if (lowerText.includes('how does it work') || lowerText.includes('process') || 
+        lowerText.includes('how long') || lowerText.includes('timeline') ||
+        lowerText.includes('whats the process')) {
+        
+        return firstName ? 
+            `${firstName}, Bruce makes the process simple. For sellers, he maximizes value through proper valuation and finds qualified buyers. For buyers, he matches you with perfect practice opportunities and handles negotiations. Most transitions complete within 60-90 days. Would you like to discuss your specific situation?` :
+            "The process is straightforward! For sellers, we maximize value and find qualified buyers. For buyers, we match you with ideal practices and handle negotiations. Most deals complete in 60-90 days. Would you like to discuss your specific goals?";
+    }
+    
+    // SUCCESS RATE/EXPERIENCE
+    if (lowerText.includes('experience') || lowerText.includes('how many') || 
+        lowerText.includes('success') || lowerText.includes('results') ||
+        lowerText.includes('track record') || lowerText.includes('how long have you')) {
+        
+        return firstName ? 
+            `${firstName}, with over 35 years in business since 1987, Bruce has helped thousands of CPA firm owners successfully transition their practices. His clients typically achieve 15-30% higher valuations than going it alone. Would you like to hear some success stories?` :
+            "With over 35 years in business since 1987, we've helped thousands of CPA firm owners. Our clients typically achieve 15-30% higher valuations than going it alone. Would you like to hear some success stories?";
+    }
+    
+    // FEES/COST
+    if (lowerText.includes('cost') || lowerText.includes('fee') || lowerText.includes('price') || 
+        lowerText.includes('how much') || lowerText.includes('what does it cost')) {
+        
+        return firstName ? 
+            `${firstName}, Bruce's consultations are always free, and his fees are success-based for sellers. For buyers, there's typically no cost to you as the practice seller covers our fees. The best way to get specific details is through a quick, no-obligation chat with Bruce. Would you like to schedule that?` :
+            "Consultations are always free! For sellers, our fees are success-based. For buyers, there's usually no cost as the seller covers our fees. Want to get specific details for your situation?";
+    }
+    
+    // LOCATION/AREA
+    if (lowerText.includes('where') || lowerText.includes('location') || lowerText.includes('area') ||
+        lowerText.includes('state') || lowerText.includes('city') || lowerText.includes('based')) {
+        
+        return firstName ? 
+            `${firstName}, Bruce works with CPA firms nationwide! Location doesn't matter for practice transitions - we've successfully helped clients in all 50 states and internationally. The beauty of accounting practices is they can transition seamlessly regardless of location. Would you like to discuss opportunities in your area?` :
+            "We work nationwide! Bruce has helped CPA firms in all 50 states and internationally. Location isn't a barrier for practice transitions. Want to discuss your specific area?";
+    }
+    
+    // QUALIFICATIONS
+    if (lowerText.includes('qualif') || lowerText.includes('requirement') || 
+        lowerText.includes('need to') || lowerText.includes('should i') ||
+        lowerText.includes('what do i need')) {
+        
+        return firstName ? 
+            `${firstName}, great question! For sellers, any profitable practice with a solid client base qualifies. For buyers, we look at your accounting experience, financial readiness, and commitment to practice growth. The best way to know if you qualify is through a quick pre-qualification chat. Would you like to check your eligibility?` :
+            "For sellers, any profitable practice with a solid client base qualifies. For buyers, we consider your experience, financial readiness, and growth commitment. Want to see if you qualify for our programs?";
+    }
+    
+    // HISTORY/FOUNDATION
+    if (lowerText.includes('when') || lowerText.includes('founded') || 
+        lowerText.includes('established') || lowerText.includes('since') ||
+        lowerText.includes('history') || lowerText.includes('background')) {
+        
+        return firstName ? 
+            `${firstName}, New Clients Inc was established in 1987 and has been helping accounting professionals for over 35 years. We started by helping accountants acquire new clients and evolved into comprehensive practice transition services. Our longevity speaks to our proven results and client satisfaction. What specifically would you like to know about our history?` :
+            "We were established in 1987 and have been serving accounting professionals for over 35 years. We began with client acquisition services and expanded into practice transitions. Our long history demonstrates proven results and client satisfaction. What would you like to know?";
+    }
+    
+    // If no match found, return null to continue with normal flow
+    return null;
 }
 
 console.log('✅ ENHANCED getAIResponse function with Comprehensive Consultative Intent Detection loaded');
