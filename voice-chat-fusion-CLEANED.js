@@ -84,6 +84,28 @@ if (typeof conversationState === 'undefined') {
     var conversationState = 'initial';
 }
 
+// ===================================================
+// 🔄 STATE SYNCHRONIZATION GUARD
+// ===================================================
+function syncBannerState() {
+    // When AI starts speaking, ALWAYS close banner
+    if (isSpeaking && !speakNowCooldown) {
+        console.log('🔄 AI Speaking - Force closing banner');
+        closeSpeakNowBanner();
+        speakSequenceActive = false;
+    }
+    
+    // When listening stops, ALWAYS close banner  
+    if (!isListening && speakSequenceActive) {
+        console.log('🔄 Listening stopped - Force closing banner');
+        closeSpeakNowBanner();
+        speakSequenceActive = false;
+    }
+}
+
+// Run sync frequently
+setInterval(syncBannerState, 500);
+
 // ═══════════════════════════════════════════════════════════
 // MOBILE STABILITY FUNCTIONS
 // ═══════════════════════════════════════════════════════════
@@ -279,61 +301,42 @@ function playIntroJingle() {
 }
 
 // ===================================================
-// 🔊 CLOSE SPEAK NOW BANNER - UPDATED FOR ACTUAL ELEMENT NAMES
+// 🔊 CLOSE SPEAK NOW BANNER - ADD THIS TO VOICE CHAT FILE
 // ===================================================
 function closeSpeakNowBanner() {
-    console.log('🎯 Closing Speak Now banner - searching for actual elements...');
+    console.log('🎯 Closing Speak Now banner...');
     
-    // Try ALL possible selectors for the speak now banner/button
-    const speakNowElements = [
-        document.getElementById('speakNowBanner'),
-        document.getElementById('speakNowButton'),
+    // Find ALL possible banner elements
+    const banners = [
+        document.getElementById('speak-sequence-button'),
         document.querySelector('.speak-now-banner'),
         document.querySelector('.speak-now-container'),
-        document.querySelector('.speak-now-button'),
-        document.querySelector('[class*="speakNow"]'),
-        document.querySelector('[id*="speakNow"]'),
         document.querySelector('[class*="speak-now"]')
     ];
     
-    let foundElement = null;
-    for (const element of speakNowElements) {
-        if (element && element.style.display !== 'none') {
-            foundElement = element;
-            console.log('✅ Found speak now element:', element.id || element.className);
-            break;
-        }
-    }
-    
-    if (foundElement) {
-        console.log('🎤 Closing Speak Now banner immediately');
-        foundElement.style.opacity = '0';
-        foundElement.style.transform = 'translateY(20px)';
-        setTimeout(() => {
-            foundElement.style.display = 'none';
-            console.log('✅ Speak Now banner fully hidden');
-        }, 300);
-    } else {
-        console.log('🔍 No active Speak Now banner found to close');
-    }
-    
-    // 🎯 Also try the nuclear option - remove any element that looks like a speak now banner
-    const allPossibleBanners = document.querySelectorAll('[class*="speak"], [id*="speak"], [class*="listen"], [id*="listen"]');
-    allPossibleBanners.forEach(banner => {
-        const text = banner.textContent || '';
-        if (text.includes('Speak') || text.includes('Listen') || text.includes('Microphone')) {
-            console.log('🧹 Removing potential speak banner:', banner.className || banner.id);
+    banners.forEach(banner => {
+        if (banner) {
+            console.log('✅ Closing banner:', banner);
             banner.style.display = 'none';
+            banner.style.visibility = 'hidden';
+            banner.style.opacity = '0';
+            
+            // Also remove any animations
+            const waves = banner.querySelector('.sound-waves');
+            const greenDot = banner.querySelector('.green-dot-blink');
+            if (waves) waves.style.display = 'none';
+            if (greenDot) greenDot.style.display = 'none';
         }
     });
     
-    // 🎯 SET COOLDOWN - PREVENT BANNER FROM REAPPEARING FOR 3 SECONDS
-    speakNowCooldown = true;
-    setTimeout(() => {
-        speakNowCooldown = false;
-        console.log('🕒 Speak Now cooldown ended - banner can reappear');
-    }, 3000);
+    // Reset the state
+    if (window.speakSequenceActive !== undefined) {
+        window.speakSequenceActive = false;
+    }
 }
+
+// Make it globally accessible
+window.closeSpeakNowBanner = closeSpeakNowBanner;
 
 // ===================================================
 // 🎤 SPEECH RECOGNITION SYSTEM
@@ -1651,6 +1654,11 @@ window.mobileWiseVoice = new MobileWiseVoiceSystem();
 
 // MAIN FUNCTION - Use this everywhere
 window.speakText = async function(text) {
+    // 🎯 CRITICAL: Close banner when AI starts speaking
+    if (typeof closeSpeakNowBanner === 'function') {
+        closeSpeakNowBanner();
+    }
+    
     return window.mobileWiseVoice.speak(text);
 };
 
