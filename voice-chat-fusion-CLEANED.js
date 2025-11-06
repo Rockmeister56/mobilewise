@@ -65,11 +65,6 @@ window.leadData = window.leadData || {
 };
 let leadData = window.leadData;
 
-// ===================================================
-// 🛡️ GLOBAL BANNER COOLDOWN LOCK
-// ===================================================
-window.bannerCooldown = false;
-
 // Global flag to prevent multiple instances
 let speakSequenceActive = false;
 let speakSequenceButton = null;
@@ -306,7 +301,7 @@ function playIntroJingle() {
 }
 
 // ===================================================
-// 🔊 CLOSE SPEAK NOW BANNER 
+// 🔊 CLOSE SPEAK NOW BANNER - ADD THIS TO VOICE CHAT FILE
 // ===================================================
 function closeSpeakNowBanner() {
     console.log('🎯 Closing Speak Now banner...');
@@ -339,6 +334,9 @@ function closeSpeakNowBanner() {
         window.speakSequenceActive = false;
     }
 }
+
+// Make it globally accessible
+window.closeSpeakNowBanner = closeSpeakNowBanner;
 
 // ===================================================
 // 🎤 SPEECH RECOGNITION SYSTEM
@@ -2660,6 +2658,11 @@ function shouldTriggerLeadCapture(userInput) {
 }
 
 // ===================================================
+// 🛡️ GLOBAL BANNER COOLDOWN LOCK
+// ===================================================
+window.bannerCooldown = false;
+
+// ===================================================
 // 🎤 COMPLETE HYBRID SPEAK NOW SYSTEM - MOBILE-WISE AI
 // ===================================================
 
@@ -2745,6 +2748,41 @@ function hideSpeakNow() {
     }
     if (transcriptText) {
         transcriptText.style.display = 'none';
+    }
+}
+
+// ===================================================
+// 🔊 CLOSE SPEAK NOW BANNER 
+// ===================================================
+function closeSpeakNowBanner() {
+    console.log('🎯 Closing Speak Now banner...');
+    
+    // Find ALL possible banner elements
+    const banners = [
+        document.getElementById('speak-sequence-button'),
+        document.querySelector('.speak-now-banner'),
+        document.querySelector('.speak-now-container'),
+        document.querySelector('[class*="speak-now"]')
+    ];
+    
+    banners.forEach(banner => {
+        if (banner) {
+            console.log('✅ Closing banner:', banner);
+            banner.style.display = 'none';
+            banner.style.visibility = 'hidden';
+            banner.style.opacity = '0';
+            
+            // Also remove any animations
+            const waves = banner.querySelector('.sound-waves');
+            const greenDot = banner.querySelector('.green-dot-blink');
+            if (waves) waves.style.display = 'none';
+            if (greenDot) greenDot.style.display = 'none';
+        }
+    });
+    
+    // Reset the state
+    if (window.speakSequenceActive !== undefined) {
+        window.speakSequenceActive = false;
     }
 }
 
