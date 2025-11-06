@@ -501,7 +501,7 @@ function askLeadQuestion() {
     }
 }
 // ================================
-// PROCESS USER RESPONSE
+// PROCESS USER RESPONSE - FIXED VERSION
 // ================================
 function processLeadResponse(userInput) {
     if (!window.isInLeadCapture || !window.currentLeadData) return false;
@@ -518,7 +518,21 @@ function processLeadResponse(userInput) {
         processedInput = formatEmailFromSpeech(userInput);
     }
     
-    // Handle yes/no for evaluation question in FREE BOOK flow
+    // 🆕 CRITICAL FIX: Only handle "NO" as conversation-ender for the FINAL question
+    // For pre-qualifier flow, check if this is the LAST question (step 10)
+    if (data.captureType === 'preQualifier' && data.step === 10) {
+        // This is the FINAL question - "Will you need financing assistance for this acquisition?"
+        const lowerInput = userInput.toLowerCase();
+        if (lowerInput.includes('no') || lowerInput.includes('nope') || lowerInput.includes('not')) {
+            // This is the FINAL "no" that should end the conversation
+            console.log('🎯 Final "NO" detected - ending pre-qualification flow');
+            data.tempAnswer = 'No';
+            showConfirmationButtons('No');
+            return true;
+        }
+    }
+    
+    // 🆕 Handle yes/no for evaluation question in FREE BOOK flow (step 2)
     if (data.captureType === 'freeBook' && data.step === 2) {
         const lowerInput = userInput.toLowerCase();
         if (lowerInput.includes('yes') || lowerInput.includes('yeah') || lowerInput.includes('sure')) {
@@ -527,6 +541,17 @@ function processLeadResponse(userInput) {
         } else if (lowerInput.includes('no') || lowerInput.includes('nope') || lowerInput.includes('not')) {
             data.wantsEvaluation = false;
             processedInput = 'No';
+        }
+    }
+    
+    // 🆕 Handle CPA license question in PRE-QUALIFIER (step 4) - "NO" should continue flow
+    if (data.captureType === 'preQualifier' && data.step === 4) {
+        // This is the CPA license question - "NO" should NOT end conversation
+        const lowerInput = userInput.toLowerCase();
+        if (lowerInput.includes('yes') || lowerInput.includes('licensed') || lowerInput.includes('cpa')) {
+            processedInput = 'Yes';
+        } else if (lowerInput.includes('no') || lowerInput.includes('not') || lowerInput.includes('pursuing')) {
+            processedInput = 'No'; // This continues to next question
         }
     }
     
@@ -1010,6 +1035,15 @@ function completeLeadCapture() {
             showEmailConfirmationButtons(data, type);
         }
     }, 500);
+}
+
+function startCompleteLeadCapture() {
+    console.log('🎯 Starting complete lead capture...');
+    // Trigger the pre-qualifier button click
+    const preQualButton = document.querySelector('[data-action="pre-qualifier"]');
+    if (preQualButton) {
+        preQualButton.click();
+    }
 }
 
 // ================================
