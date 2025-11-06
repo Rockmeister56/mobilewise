@@ -65,6 +65,11 @@ window.leadData = window.leadData || {
 };
 let leadData = window.leadData;
 
+// ===================================================
+// 🛡️ GLOBAL BANNER COOLDOWN LOCK
+// ===================================================
+window.bannerCooldown = false;
+
 // Global flag to prevent multiple instances
 let speakSequenceActive = false;
 let speakSequenceButton = null;
@@ -301,7 +306,7 @@ function playIntroJingle() {
 }
 
 // ===================================================
-// 🔊 CLOSE SPEAK NOW BANNER - ADD THIS TO VOICE CHAT FILE
+// 🔊 CLOSE SPEAK NOW BANNER 
 // ===================================================
 function closeSpeakNowBanner() {
     console.log('🎯 Closing Speak Now banner...');
@@ -334,9 +339,6 @@ function closeSpeakNowBanner() {
         window.speakSequenceActive = false;
     }
 }
-
-// Make it globally accessible
-window.closeSpeakNowBanner = closeSpeakNowBanner;
 
 // ===================================================
 // 🎤 SPEECH RECOGNITION SYSTEM
@@ -2658,12 +2660,79 @@ function shouldTriggerLeadCapture(userInput) {
 }
 
 // ===================================================
-// 🎤 HYBRID SPEAK NOW SYSTEM - MOBILE-WISE AI
+// 🎤 COMPLETE HYBRID SPEAK NOW SYSTEM - MOBILE-WISE AI
 // ===================================================
 
 function showSpeakNow() {
+    // 🎯 PREVENT DUPLICATE BANNERS
+    if (window.bannerCooldown) {
+        console.log('🚫 Banner cooldown active - skipping showSpeakNow');
+        return;
+    }
+    
+    window.bannerCooldown = true;
+    console.log('🛡️ showSpeakNow: Banner lock activated');
+    
     // Use new hybrid system instead of old button
     showDirectSpeakNow();
+    
+    // Auto-release lock after 3 seconds
+    setTimeout(() => {
+        window.bannerCooldown = false;
+        console.log('🛡️ showSpeakNow: Banner lock released');
+    }, 3000);
+}
+
+function showDirectSpeakNow() {
+    // 🎯 PREVENT DUPLICATE BANNERS  
+    if (window.bannerCooldown) {
+        console.log('🚫 Banner cooldown active - skipping showDirectSpeakNow');
+        return;
+    }
+    
+    window.bannerCooldown = true;
+    console.log('🛡️ showDirectSpeakNow: Banner lock activated');
+    
+    // CREATE SPEAK NOW BANNER
+    console.log('🎤 Creating Speak Now banner...');
+    
+    // Remove any existing banner first
+    const existingBanner = document.getElementById('speak-sequence-button');
+    if (existingBanner) {
+        existingBanner.remove();
+    }
+    
+    // Create new banner
+    const speakNowBtn = document.createElement('button');
+    speakNowBtn.id = 'speak-sequence-button';
+    speakNowBtn.className = 'quick-btn mobile-wise-banner speak-now-state';
+    speakNowBtn.innerHTML = `
+        <div class="sound-waves">
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+        </div>
+        <span class="green-dot-blink">🟢</span>
+        <div>Speak Now!</div>
+    `;
+    
+    // Add to page
+    document.body.appendChild(speakNowBtn);
+    
+    // Start listening
+    setTimeout(() => {
+        if (window.startListening) {
+            window.startListening();
+        }
+    }, 500);
+    
+    // Auto-release lock after 3 seconds
+    setTimeout(() => {
+        window.bannerCooldown = false;
+        console.log('🛡️ showDirectSpeakNow: Banner lock released');
+    }, 3000);
 }
 
 function hideSpeakNow() {
@@ -2678,6 +2747,9 @@ function hideSpeakNow() {
         transcriptText.style.display = 'none';
     }
 }
+
+// Make it globally accessible
+window.closeSpeakNowBanner = closeSpeakNowBanner;
 
 // ===================================================
 // 🎨 WHOLE BUTTON COLOR GLOW ANIMATION - UPDATED
