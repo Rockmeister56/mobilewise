@@ -3031,25 +3031,28 @@ function formatEmailFromSpeech(speechText) {
 }
 
 // ===================================================
-// 🔄 FIXED PROCESS LEAD RESPONSE WITH EMAIL FORMATTING
+// 🔄 PROCESS LEAD RESPONSE - DEFER TO ACTION SYSTEM
 // ===================================================
 function processLeadResponse(userInput) {
-    if (!isInLeadCapture || !leadData) return false;
+    // 🎯 CRITICAL: Let the action system handle ALL lead responses
+    if (window.processLeadResponse && typeof window.processLeadResponse === 'function') {
+        console.log('🎯 Delegating lead response to action system...');
+        return window.processLeadResponse(userInput);
+    }
     
-    console.log('🎯 Processing lead response:', userInput);
+    // Fallback if action system function doesn't exist
+    console.log('⚠️ Action system not available, using fallback...');
+    if (!isInLeadCapture || !leadData) return false;
     
     let processedInput = userInput;
     
-    // ✅ NEW: Format email addresses when asking for email (step 2)
+    // Basic email formatting only
     if (leadData.step === 2) {
         processedInput = formatEmailFromSpeech(userInput);
         console.log('📧 Formatted email:', processedInput);
     }
     
-    // Store the processed input
     leadData.tempAnswer = processedInput;
-    
-    // Show visual confirmation buttons
     showConfirmationButtons(processedInput);
     
     return true;
