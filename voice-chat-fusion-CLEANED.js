@@ -646,11 +646,22 @@ closeSpeakNowBanner();
         recognition.start();
         isListening = true;
 
-    } catch (error) {
-        console.error('❌ Error starting speech recognition:', error);
-        addAIMessage("Speech recognition failed. Please try again or use text input.");
-        switchToTextMode();
+      }
+
+      catch (error) {
+    console.log('🔇 Silent speech recognition error:', error);
+    // 🚫 COMPLETELY SILENT - No error message to user
+
     }
+    
+    // Just auto-restart after brief pause
+    setTimeout(() => {
+        if (!window.isSpeaking && !window.thankYouSplashVisible) {
+            if (window.showDirectSpeakNow) {
+                window.showDirectSpeakNow();
+            }
+        }
+    }, 1000);
 }
 
 // ===================================================
