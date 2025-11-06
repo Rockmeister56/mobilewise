@@ -943,6 +943,76 @@ function handleEmailConfirmation(sendEmail, captureType) {
 }
 
 // ================================
+// COMPLETE LEAD CAPTURE & REQUEST EMAIL PERMISSION - FIXED VERSION
+// ================================
+function completeLeadCapture() {
+    console.log('🎯 Completing lead capture...');
+
+    // 🆕 NEW: EMERGENCY CLEANUP FIRST THING
+    if (typeof emergencyStuckBannerFix === 'function') {
+        emergencyStuckBannerFix();
+    }
+    
+    const data = window.currentLeadData;
+    const type = window.currentCaptureType;
+    
+    // 🎯 CRITICAL FIX: CLOSE ANY STUCK SPEAK NOW BANNER FIRST
+    console.log('🧹 Closing any stuck Speak Now banner before email confirmation...');
+    if (window.closeSpeakNowBanner && typeof window.closeSpeakNowBanner === 'function') {
+        window.closeSpeakNowBanner();
+    }
+    
+    // Also try the direct cleanup method
+    const speakNowBanner = document.querySelector('.speak-now-banner, [class*="speakNow"], #speakNowBanner');
+    if (speakNowBanner) {
+        speakNowBanner.remove();
+        console.log('✅ Removed stuck Speak Now banner');
+    }
+    
+    // Stop any active listening
+    if (window.stopListening && typeof window.stopListening === 'function') {
+        window.stopListening();
+    }
+    
+    // Mark transition to email permission phase
+    window.isInEmailPermissionPhase = true;
+    
+    // 🆕 NEW: Ask for email confirmation permission instead of sending immediately
+    const emailPermissionMessage = `Perfect! Should I send a confirmation email to ${data.email} with all your details and next steps?`;
+    
+    if (window.addAIMessage) {
+        window.addAIMessage(emailPermissionMessage);
+    }
+    
+    // 🎯 CRITICAL: Wait a moment for the message to appear BEFORE speaking
+    setTimeout(() => {
+        if (window.speakText) {
+            window.speakText(emailPermissionMessage);
+            
+            // Wait for speech to complete before showing buttons
+            const checkSpeech = setInterval(() => {
+                if (!window.isSpeaking) {
+                    clearInterval(checkSpeech);
+                    console.log('✅ AI finished speaking email question - showing buttons');
+                    
+                    // 🆕 NEW: Show confirmation buttons for email permission
+                    showEmailConfirmationButtons(data, type);
+                }
+            }, 100);
+            
+            // Safety timeout
+            setTimeout(() => {
+                clearInterval(checkSpeech);
+                showEmailConfirmationButtons(data, type);
+            }, 10000);
+        } else {
+            // No speech system - just show buttons
+            showEmailConfirmationButtons(data, type);
+        }
+    }, 500);
+}
+
+// ================================
 // 🆕 NEW: EMAIL CONFIRMATION BUTTONS
 // ================================
 function showEmailConfirmationButtons(leadData, captureType) {
