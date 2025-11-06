@@ -279,30 +279,60 @@ function playIntroJingle() {
 }
 
 // ===================================================
-// 🔊 CLOSE SPEAK NOW BANNER - UPDATED FOR CURRENT SYSTEM
+// 🔊 CLOSE SPEAK NOW BANNER - UPDATED FOR ACTUAL ELEMENT NAMES
 // ===================================================
 function closeSpeakNowBanner() {
-    // Try multiple selectors to find the actual banner
-    const speakNowBanner = document.getElementById('speakNowBanner') || 
-                          document.querySelector('.speak-now-banner') ||
-                          document.querySelector('.speak-now-container') ||
-                          document.querySelector('[class*="speakNow"]');
+    console.log('🎯 Closing Speak Now banner - searching for actual elements...');
     
-    if (speakNowBanner && speakNowBanner.style.display !== 'none') {
-        console.log('🎤 Speech detected - closing Speak Now banner immediately');
-        speakNowBanner.style.opacity = '0';
-        speakNowBanner.style.transform = 'translateY(20px)';
-        setTimeout(() => {
-            speakNowBanner.style.display = 'none';
-        }, 300);
+    // Try ALL possible selectors for the speak now banner/button
+    const speakNowElements = [
+        document.getElementById('speakNowBanner'),
+        document.getElementById('speakNowButton'),
+        document.querySelector('.speak-now-banner'),
+        document.querySelector('.speak-now-container'),
+        document.querySelector('.speak-now-button'),
+        document.querySelector('[class*="speakNow"]'),
+        document.querySelector('[id*="speakNow"]'),
+        document.querySelector('[class*="speak-now"]')
+    ];
+    
+    let foundElement = null;
+    for (const element of speakNowElements) {
+        if (element && element.style.display !== 'none') {
+            foundElement = element;
+            console.log('✅ Found speak now element:', element.id || element.className);
+            break;
+        }
     }
     
-    // 🎯 SET COOLDOWN - PREVENT BANNER FROM REAPPEARING FOR 3 SECONDS (reduced from 10)
+    if (foundElement) {
+        console.log('🎤 Closing Speak Now banner immediately');
+        foundElement.style.opacity = '0';
+        foundElement.style.transform = 'translateY(20px)';
+        setTimeout(() => {
+            foundElement.style.display = 'none';
+            console.log('✅ Speak Now banner fully hidden');
+        }, 300);
+    } else {
+        console.log('🔍 No active Speak Now banner found to close');
+    }
+    
+    // 🎯 Also try the nuclear option - remove any element that looks like a speak now banner
+    const allPossibleBanners = document.querySelectorAll('[class*="speak"], [id*="speak"], [class*="listen"], [id*="listen"]');
+    allPossibleBanners.forEach(banner => {
+        const text = banner.textContent || '';
+        if (text.includes('Speak') || text.includes('Listen') || text.includes('Microphone')) {
+            console.log('🧹 Removing potential speak banner:', banner.className || banner.id);
+            banner.style.display = 'none';
+        }
+    });
+    
+    // 🎯 SET COOLDOWN - PREVENT BANNER FROM REAPPEARING FOR 3 SECONDS
     speakNowCooldown = true;
     setTimeout(() => {
         speakNowCooldown = false;
         console.log('🕒 Speak Now cooldown ended - banner can reappear');
-    }, 3000); // Reduced to 3 seconds for lead capture flow
+    }, 3000);
 }
 
 // ===================================================
