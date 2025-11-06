@@ -623,15 +623,20 @@ function removeLastUserMessage() {
     }
 }
 
+// ================================
+// 🎯 UPDATED CONFIRM ANSWER FUNCTION (MERGED FROM confirmAnswer2.txt)
+// ================================
 function confirmAnswer(isCorrect) {
     console.log('🎯 User clicked:', isCorrect ? 'Correct' : 'Redo');
     
+    // Remove the confirmation buttons
     const buttonContainer = document.querySelector('.confirmation-buttons');
     if (buttonContainer) {
         buttonContainer.remove();
     }
     
     if (isCorrect) {
+        // ✅ CORRECT - Save and move on
         saveConfirmedAnswer();
         window.currentLeadData.step++;
         
@@ -648,23 +653,48 @@ function confirmAnswer(isCorrect) {
         }
         
         if (window.currentLeadData.step < window.currentLeadData.questions.length) {
+            // More questions to ask
             setTimeout(() => {
                 askLeadQuestion();
             }, 800);
         } else {
-            completeLeadCapture();
+            // ✅ FINAL STEP - COMPLETE LEAD CAPTURE
+            setTimeout(() => {
+                console.log('🎯 Final confirmation completed - completing lead capture!');
+                completeLeadCapture();
+            }, 800);
         }
         
     } else {
-        // Redo
-        removeLastUserMessage();
-        window.currentLeadData.tempAnswer = '';
+        // 🔄 REDO - LIGHTER cleanup approach with FORCE STOP
+        console.log('🔄 Redo - clearing field and restarting speak sequence');
         
+        // 🎯 FORCE BYPASS - Reset the timing check for user-initiated redo
+        if (window.lastSequenceStart) window.lastSequenceStart = 0; // Reset timing so blocking allows restart
+        if (window.speakSequenceActive) window.speakSequenceActive = false; // Force reset the flag
+        
+        // 🎯 FORCE STOP the active sequence first
+        if (window.isInSpeakSequence) window.isInSpeakSequence = false; // Reset the flag that's blocking us
+        if (window.recognition) {
+            window.recognition.stop(); // Stop any active recognition
+        }
+        
+        // ✅ KEEP the main fix - remove wrong answer FIRST
+        removeLastUserMessage();
+        
+        // ✅ KEEP basic cleanup
+        window.currentLeadData.tempAnswer = '';
+        const userInput = document.getElementById('userInput');
+        if (userInput) {
+            userInput.value = '';
+        }
+        
+        // ✅ KEEP the restart with slightly longer timeout for cleanup
         setTimeout(() => {
-            if (window.startRealtimeListening) {
-                window.startRealtimeListening();
+            if (window.showDirectSpeakNow) {
+                window.showDirectSpeakNow(); // Restart the full red -> green sequence
             }
-        }, 100);
+        }, 100); // Back to 100ms to allow force stop to complete
     }
 }
 
