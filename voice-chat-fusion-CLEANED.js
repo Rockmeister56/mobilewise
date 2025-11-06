@@ -301,7 +301,7 @@ function playIntroJingle() {
 }
 
 // ===================================================
-// 🕐 DIRECT: SAFETY TIMEOUT FUNCTION - ADD THIS
+// 🕐 DIRECT: SAFETY TIMEOUT FUNCTION - FIXED VERSION
 // ===================================================
 function setupSafetyTimeout() {
     // Clear any existing timeout first
@@ -310,43 +310,34 @@ function setupSafetyTimeout() {
         window.directSafetyTimeout = null;
     }
     
-    // Set new timeout - DISABLED DURING LEAD CAPTURE
-    if (!window.isInLeadCapture) {
-        window.directSafetyTimeout = setTimeout(() => {
-            console.log('🕐 DIRECT: Safety timeout after 30 seconds (INCREASED)');
+    // Set new timeout - ONLY for normal conversation
+    window.directSafetyTimeout = setTimeout(() => {
+        console.log('🕐 DIRECT: Safety timeout after 30 seconds');
+        
+        // Only cleanup if not processing speech AND not in important flow
+        if (!window.isCurrentlyProcessingSpeech && !window.isInLeadCapture) {
+            console.log('🧹 DIRECT: Running cleanup');
             
-            // Only cleanup if not processing speech
-            if (!window.isCurrentlyProcessingSpeech) {
-                console.log('🧹 DIRECT: Running cleanup - no speech in progress');
-                
-                // Stop listening
-                if (window.recognition && window.recognition.state === 'started') {
-                    window.recognition.stop();
-                }
-                
-                // Close banner
-                if (typeof closeSpeakNowBanner === 'function') {
-                    closeSpeakNowBanner();
-                }
-                
-                // Reset states
-                window.isListening = false;
-                if (window.speakSequenceActive !== undefined) {
-                    window.speakSequenceActive = false;
-                }
-                
-                console.log('🔓 DIRECT: All locks released');
-            } else {
-                console.log('🚫 DIRECT: Skipping cleanup - speech still processing');
+            // Stop listening
+            if (window.recognition && window.recognition.state === 'started') {
+                window.recognition.stop();
             }
-        }, 30000); // 30 seconds for lead capture
-    } else {
-        console.log('🛡️ DIRECT: Safety timeout DISABLED during lead capture');
-    }
+            
+            // Close banner
+            if (typeof closeSpeakNowBanner === 'function') {
+                closeSpeakNowBanner();
+            }
+            
+            // Reset states
+            window.isListening = false;
+            if (window.speakSequenceActive !== undefined) {
+                window.speakSequenceActive = false;
+            }
+        } else {
+            console.log('🚫 DIRECT: Skipping cleanup - important flow active');
+        }
+    }, 30000);
 }
-
-// Call this function whenever you start listening in lead capture
-// Add this to your startListening function or lead capture initiation
 
 // ===================================================
 // 🔊 CLOSE SPEAK NOW BANNER - ADD THIS TO VOICE CHAT FILE
