@@ -3,16 +3,6 @@
 // Smart Button + Lead Capture + EmailJS + Banner System
 // ===================================================
 
-// 🎯 SIMPLE BANNER DETECTION - NO ERRORS
-console.log('🔍 SIMPLE: Tracking banner sources...');
-
-// Just log when showDirectSpeakNow is called
-const originalShowDirect = window.showDirectSpeakNow;
-window.showDirectSpeakNow = function() {
-    console.log('🚨 showDirectSpeakNow called - THIS IS ONE SOURCE');
-    return originalShowDirect.apply(this, arguments);
-};
-
 // Add this at the VERY TOP of your JavaScript file (like line 1)
 if (typeof window.leadData === 'undefined' || !window.leadData) {
     window.leadData = { 
@@ -298,45 +288,6 @@ function playIntroJingle() {
             }, 100);
         }
     }, 3000);
-}
-
-// ===================================================
-// 🕐 DIRECT: SAFETY TIMEOUT FUNCTION - FIXED VERSION
-// ===================================================
-function setupSafetyTimeout() {
-    // Clear any existing timeout first
-    if (window.directSafetyTimeout) {
-        clearTimeout(window.directSafetyTimeout);
-        window.directSafetyTimeout = null;
-    }
-    
-    // Set new timeout - ONLY for normal conversation
-    window.directSafetyTimeout = setTimeout(() => {
-        console.log('🕐 DIRECT: Safety timeout after 30 seconds');
-        
-        // Only cleanup if not processing speech AND not in important flow
-        if (!window.isCurrentlyProcessingSpeech && !window.isInLeadCapture) {
-            console.log('🧹 DIRECT: Running cleanup');
-            
-            // Stop listening
-            if (window.recognition && window.recognition.state === 'started') {
-                window.recognition.stop();
-            }
-            
-            // Close banner
-            if (typeof closeSpeakNowBanner === 'function') {
-                closeSpeakNowBanner();
-            }
-            
-            // Reset states
-            window.isListening = false;
-            if (window.speakSequenceActive !== undefined) {
-                window.speakSequenceActive = false;
-            }
-        } else {
-            console.log('🚫 DIRECT: Skipping cleanup - important flow active');
-        }
-    }, 30000);
 }
 
 // ===================================================
