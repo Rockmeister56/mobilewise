@@ -4080,10 +4080,7 @@ function showAvatarSorryMessage(duration = 6000) {
 // Ensure global availability
 window.showAvatarSorryMessage = showAvatarSorryMessage;
 
-// Keep your existing showHybridReadySequence function exactly as is
 function showHybridReadySequence() {
-    console.log('🎯 DIRECT Speak Now - skipping Get Ready phase completely');
-
     // 🎯 CHECK COOLDOWN FIRST
     if (window.speakNowCooldown) {
         console.log('⏳ Speak Now banner skipped - still in cooldown period');
@@ -4113,44 +4110,7 @@ function showHybridReadySequence() {
         console.log('🔓 DIRECT: All locks released');
     }
     
-    // Set up timer for this sequence
-    let directTimer = setTimeout(() => {
-        console.log('🕐 DIRECT: Safety timeout after 15 seconds');
-        directCleanup();
-    }, 15000);
-    window.currentBulletproofTimer = directTimer;
-    
-    window.clearBulletproofTimer = function() {
-        if (window.currentBulletproofTimer) {
-            clearTimeout(window.currentBulletproofTimer);
-            window.currentBulletproofTimer = null;
-            console.log('🧹 DIRECT: Timer cleared');
-        }
-    };
-
-    const isContactInterview = checkContactInterviewMode();
-    console.log('📧 DIRECT Contact interview mode:', isContactInterview);
-
-    const quickButtonsContainer = document.querySelector('.quick-questions') || 
-                                  document.querySelector('.quick-buttons') || 
-                                  document.getElementById('quickButtonsContainer');
-
-    if (!quickButtonsContainer) {
-        console.log('❌ DIRECT: Quick buttons container not found');
-        directCleanup();
-        return;
-    }
-
-    const existingButtons = quickButtonsContainer.querySelectorAll('.quick-btn');
-    existingButtons.forEach(btn => btn.style.display = 'none');
-
-    const existingSpeakBtn = document.getElementById('speak-sequence-button');
-    if (existingSpeakBtn) {
-        existingSpeakBtn.remove();
-        console.log('🗑️ DIRECT: Removed existing speak button');
-    }
-    
-    // Make sure styles exist
+    // ===== CREATE BANNER STYLES (ONCE) =====
     if (!document.getElementById('mobile-wise-speak-styles')) {
         const style = document.createElement('style');
         style.id = 'mobile-wise-speak-styles';
@@ -4225,12 +4185,29 @@ function showHybridReadySequence() {
         document.head.appendChild(style);
     }
     
-    // CREATE SPEAK NOW BANNER DIRECTLY - NO GET READY!
-    speakSequenceButton = document.createElement('button');
-    speakSequenceButton.id = 'speak-sequence-button';
-    speakSequenceButton.className = 'quick-btn mobile-wise-banner speak-now-state';
+    // ===== CREATE BANNER (ONCE) =====
+    const container = document.querySelector('.quick-questions') || 
+                      document.querySelector('.quick-buttons') || 
+                      document.getElementById('quickButtonsContainer');
+
+    // Hide existing buttons
+    if (container) {
+        const existingButtons = container.querySelectorAll('.quick-btn');
+        existingButtons.forEach(btn => btn.style.display = 'none');
+    }
+
+    // Remove existing banner
+    const existingBanner = document.getElementById('speak-sequence-button');
+    if (existingBanner) {
+        existingBanner.remove();
+    }
     
-    speakSequenceButton.innerHTML = `
+    // Create new banner
+    const banner = document.createElement('button');
+    banner.id = 'speak-sequence-button';
+    banner.className = 'quick-btn mobile-wise-banner speak-now-state';
+    
+    banner.innerHTML = `
         <div class="sound-waves">
             <div class="wave-bar"></div>
             <div class="wave-bar"></div>
@@ -4242,91 +4219,94 @@ function showHybridReadySequence() {
         <div>Speak Now!</div>
     `;
     
-    if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
-        speakSequenceButton.style.cssText += `
-            position: relative !important;
-            z-index: 1000 !important;
-            min-height: 50px !important;
-            padding: 18px !important;
+    // Add to container or fallback to body
+    if (container) {
+        container.appendChild(banner);
+    } else {
+        banner.style.cssText = `
+            position: fixed !important;
+            bottom: 20px !important;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            width: 90% !important;
+            max-width: 400px !important;
+            z-index: 10000 !important;
         `;
+        document.body.appendChild(banner);
     }
     
-    quickButtonsContainer.appendChild(speakSequenceButton);
-    console.log('🟢 DIRECT Speak Now state active - starting listening immediately');
+    console.log('🎨 Speak Now banner created');
     
-    // Use the SAME pattern as normal questions
-console.log('🎤 DIRECT: Starting listening after Speak Now banner');
-window.lastRecognitionResult = null;
+    // ===== START LISTENING =====
+    console.log('🎤 DIRECT: Starting listening after Speak Now banner');
+    
+    const isContactInterview = checkContactInterviewMode();
+    console.log('📧 DIRECT Contact interview mode:', isContactInterview);
 
-// Call startListening first (like normal questions)
-if (typeof startMobileListening === 'function') {
-    startMobileListening();
-} else {
-    startNormalInterviewListening();
-}
+    // Start listening
+    window.lastRecognitionResult = null;
+    if (typeof startMobileListening === 'function') {
+        startMobileListening();
+    } else {
+        startNormalInterviewListening();
+    }
 
-// Then call forceStartListening as backup (THE KEY!)
-setTimeout(() => {
-    console.log('🔄 DIRECT backup: calling forceStartListening()');
-    forceStartListening();
-}, 100); // Same delay as normal questions
-        
-        // 🔥 FIXED: Check disableDirectTimeout flag before setting timeout
-if (!window.disableDirectTimeout) {
+    // Backup start
     setTimeout(() => {
+        console.log('🔄 DIRECT backup: calling forceStartListening()');
+        forceStartListening();
+    }, 100);
+    
+    // ===== TIMEOUT HANDLER =====
+    const directTimer = setTimeout(() => {
         if (!speakSequenceActive) return;
         
-        console.log('⏰ DIRECT: 4-second listening window ended - no speech detected');
+        console.log('⏰ DIRECT: 7-second listening window ended - no speech detected');
         
-        // Clean up and trigger avatar again
-        window.clearBulletproofTimer();
+        // Clean up
+        if (banner) banner.remove();
         
-        if (speakSequenceButton) {
-            speakSequenceButton.remove();
+        if (container) {
+            const existingButtons = container.querySelectorAll('.quick-btn');
+            existingButtons.forEach(btn => {
+                if (btn.id !== 'speak-sequence-button') {
+                    btn.style.display = 'block';
+                }
+            });
         }
-        
-        existingButtons.forEach(btn => {
-            if (btn.id !== 'speak-sequence-button') {
-                btn.style.display = 'block';
-            }
-        });
         
         directCleanup();
         
+        // Trigger avatar
         console.log('🎬 DIRECT: Triggering avatar after timeout');
         if (typeof showAvatarSorryMessage === 'function') {
             showAvatarSorryMessage();
         }
         
     }, 7000);
-} else {
-    console.log('🚫 DIRECT: Timeout disabled - banner will stay until speech detected');
-}
-        
     
-    // Success handler for direct speak now
+    window.currentBulletproofTimer = directTimer;
+    
+    // Success handler
     window.handleSpeechSuccess = function(transcript) {
         console.log('✅ DIRECT: Speech detected:', transcript);
         
-        window.clearBulletproofTimer();
+        if (banner) banner.remove();
         
-        if (speakSequenceButton) {
-            speakSequenceButton.remove();
+        if (container) {
+            const existingButtons = container.querySelectorAll('.quick-btn');
+            existingButtons.forEach(btn => {
+                if (btn.id !== 'speak-sequence-button') {
+                    btn.style.display = 'block';
+                }
+            });
         }
-        
-        existingButtons.forEach(btn => {
-            if (btn.id !== 'speak-sequence-button') {
-                btn.style.display = 'block';
-            }
-        });
         
         directCleanup();
         
         console.log('🧹 DIRECT: Speech sequence completed successfully');
     };
 }
-
-console.log('🎯 DIRECT Speak Now function loaded - No Get Ready phase!');
 
 // 🎯 DETECT CONTACT INTERVIEW MODE
 function checkContactInterviewMode() {
