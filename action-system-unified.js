@@ -507,6 +507,12 @@ function processLeadResponse(userInput) {
     if (!window.isInLeadCapture || !window.currentLeadData) return false;
     
     console.log('🎯 Processing lead response:', userInput);
+
+     // 🎯 CRITICAL FIX: CLOSE BANNER WHEN PROCESSING RESPONSE
+    if (typeof closeSpeakNowBanner === 'function') {
+        console.log('🎯 LEAD CAPTURE: Closing banner before processing');
+        closeSpeakNowBanner();
+    }
     
     const data = window.currentLeadData;
     let processedInput = userInput;
@@ -653,6 +659,12 @@ function removeLastUserMessage() {
 // ================================
 function confirmAnswer(isCorrect) {
     console.log('🎯 User clicked:', isCorrect ? 'Correct' : 'Redo');
+
+        // 🎯 CRITICAL FIX: CLOSE BANNER ON CONFIRMATION
+    if (typeof closeSpeakNowBanner === 'function') {
+        console.log('🎯 CONFIRMATION: Closing banner');
+        closeSpeakNowBanner();
+    }
     
     // Remove the confirmation buttons
     const buttonContainer = document.querySelector('.confirmation-buttons');
