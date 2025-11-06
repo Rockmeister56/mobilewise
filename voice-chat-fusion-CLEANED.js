@@ -301,6 +301,54 @@ function playIntroJingle() {
 }
 
 // ===================================================
+// 🕐 DIRECT: SAFETY TIMEOUT FUNCTION - ADD THIS
+// ===================================================
+function setupSafetyTimeout() {
+    // Clear any existing timeout first
+    if (window.directSafetyTimeout) {
+        clearTimeout(window.directSafetyTimeout);
+        window.directSafetyTimeout = null;
+    }
+    
+    // Set new timeout - DISABLED DURING LEAD CAPTURE
+    if (!window.isInLeadCapture) {
+        window.directSafetyTimeout = setTimeout(() => {
+            console.log('🕐 DIRECT: Safety timeout after 30 seconds (INCREASED)');
+            
+            // Only cleanup if not processing speech
+            if (!window.isCurrentlyProcessingSpeech) {
+                console.log('🧹 DIRECT: Running cleanup - no speech in progress');
+                
+                // Stop listening
+                if (window.recognition && window.recognition.state === 'started') {
+                    window.recognition.stop();
+                }
+                
+                // Close banner
+                if (typeof closeSpeakNowBanner === 'function') {
+                    closeSpeakNowBanner();
+                }
+                
+                // Reset states
+                window.isListening = false;
+                if (window.speakSequenceActive !== undefined) {
+                    window.speakSequenceActive = false;
+                }
+                
+                console.log('🔓 DIRECT: All locks released');
+            } else {
+                console.log('🚫 DIRECT: Skipping cleanup - speech still processing');
+            }
+        }, 30000); // 30 seconds for lead capture
+    } else {
+        console.log('🛡️ DIRECT: Safety timeout DISABLED during lead capture');
+    }
+}
+
+// Call this function whenever you start listening in lead capture
+// Add this to your startListening function or lead capture initiation
+
+// ===================================================
 // 🔊 CLOSE SPEAK NOW BANNER - ADD THIS TO VOICE CHAT FILE
 // ===================================================
 function closeSpeakNowBanner() {
@@ -2750,6 +2798,8 @@ function hideSpeakNow() {
         transcriptText.style.display = 'none';
     }
 }
+
+
 
 // ===================================================
 // 🔊 CLOSE SPEAK NOW BANNER 

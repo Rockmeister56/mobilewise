@@ -1464,6 +1464,14 @@ window.sendOriginalLeadEmail = sendOriginalLeadEmail; // 🎯 END OF FUNCTION - 
 // ================================
 function initializePreQualifierCapture() {
     console.log('🚀 Starting PRE-QUALIFIER capture...');
+
+       // 🎯 DISABLE SAFETY TIMEOUT DURING LEAD CAPTURE
+    window.isInLeadCapture = true;
+    
+    if (window.directSafetyTimeout) {
+        clearTimeout(window.directSafetyTimeout);
+        console.log('🛡️ Lead capture: Safety timeout cleared');
+    }
     
     if (window.isInLeadCapture) return;
     
