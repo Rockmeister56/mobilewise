@@ -6,10 +6,10 @@
 // 🎯 SIMPLE BANNER DETECTION - NO ERRORS
 console.log('🔍 SIMPLE: Tracking banner sources...');
 
-// Just log when showHybridReadySequence is called
-const originalShowDirect = window.showHybridReadySequence;
-window.showHybridReadySequence = function() {
-    console.log('🚨 showHybridReadySequence called - THIS IS ONE SOURCE');
+// Just log when showDirectSpeakNow is called
+const originalShowDirect = window.showDirectSpeakNow;
+window.showDirectSpeakNow = function() {
+    console.log('🚨 showDirectSpeakNow called - THIS IS ONE SOURCE');
     return originalShowDirect.apply(this, arguments);
 };
 
@@ -615,7 +615,7 @@ closeSpeakNowBanner();
                                     console.log('🔄 Mobile: Restarting via hybrid system');
                                     isListening = false;
                                     setTimeout(() => {
-                                        showHybridReadySequence();
+                                        showDirectSpeakNow();
                                     }, 800);
                                 }
                             }, 1500);
@@ -1543,13 +1543,13 @@ class MobileWiseVoiceSystem {
         // NO BLOCKS - TRIGGER BANNER (EXACT ELEVENLABS BEHAVIOR)
         // ============================================================
         if (VOICE_CONFIG.debug) {
-            console.log('🐛 DEBUG: No blocking conditions - calling showHybridReadySequence() (Smart Button permanently bypassed)');
+            console.log('🐛 DEBUG: No blocking conditions - calling showDirectSpeakNow() (Smart Button permanently bypassed)');
         }
         
         setTimeout(() => {
-            if (typeof showHybridReadySequence === 'function') {
+            if (typeof showDirectSpeakNow === 'function') {
                 try {
-                    showHybridReadySequence();
+                    showDirectSpeakNow();
                     if (VOICE_CONFIG.debug) {
                         console.log("✅ SUCCESS: Banner sequence triggered successfully (Smart Button permanently bypassed)");
                     }
@@ -1566,7 +1566,7 @@ class MobileWiseVoiceSystem {
                     console.error('❌ ERROR: Failed to trigger post-sorry listening:', error);
                 }
             } else {
-                console.warn("⚠️ WARNING: No banner trigger functions available (showHybridReadySequence, showPostSorryListening)");
+                console.warn("⚠️ WARNING: No banner trigger functions available (showDirectSpeakNow, showPostSorryListening)");
             }
         }, 500); // Optimal delay for mobile
     }
@@ -2608,7 +2608,7 @@ function shouldTriggerLeadCapture(userInput) {
 
 function showSpeakNow() {
     // Use new hybrid system instead of old button
-    showHybridReadySequence();
+    showDirectSpeakNow();
 }
 
 function hideSpeakNow() {
@@ -2831,8 +2831,8 @@ function speakMessage(message) {
             
             if (isInLeadCapture) {
                 setTimeout(() => {
-                    if (typeof showHybridReadySequence === 'function') {
-                        showHybridReadySequence();
+                    if (typeof showDirectSpeakNow === 'function') {
+                        showDirectSpeakNow();
                     }
                 }, 1300);
             }
@@ -3159,7 +3159,7 @@ function confirmAnswer(isCorrect) {
     
     // ✅ KEEP the restart with slightly longer timeout for cleanup
     setTimeout(() => {
-        showHybridReadySequence(); // Restart the full red -> green sequence
+        showDirectSpeakNow(); // Restart the full red -> green sequence
     }, 100); // Back to 100ms to allow force stop to complete
 }
 }
@@ -3937,7 +3937,7 @@ function showAvatarSorryMessage(duration = 6000) {
         // Go back to Speak Now after brief delay
         setTimeout(() => {
             console.log('✅ Avatar removed - going DIRECT to Speak Now');
-            showHybridReadySequence();
+            showDirectSpeakNow();
         }, 1000);
     }
     
