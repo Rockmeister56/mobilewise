@@ -264,6 +264,23 @@ function showMicActivatedStatus() {
 }
 
 // ===================================================
+// 🔊 SPEECH RECOGNITION ERROR HANDLER - ADD THIS
+// ===================================================
+function handleSpeechRecognitionError(error) {
+    console.log('🔊 Handling speech recognition error:', error);
+    
+    // Just log errors quietly - don't break the flow
+    if (error === 'no-speech') {
+        console.log('🔇 No speech detected - normal behavior');
+    } else {
+        console.log('🎤 Speech error occurred:', error);
+    }
+}
+
+// Make it globally accessible
+window.handleSpeechRecognitionError = handleSpeechRecognitionError;
+
+// ===================================================
 // 🎵 INTRO JINGLE PLAYER (YOUR EXISTING CODE - KEEP AS-IS)
 // ===================================================
 function playIntroJingle() {
