@@ -279,24 +279,30 @@ function playIntroJingle() {
 }
 
 // ===================================================
-// 🔊 CLOSE SPEAK NOW BANNER
+// 🔊 CLOSE SPEAK NOW BANNER - UPDATED FOR CURRENT SYSTEM
 // ===================================================
 function closeSpeakNowBanner() {
-    const speakNowBanner = document.getElementById('speakNowBanner');
+    // Try multiple selectors to find the actual banner
+    const speakNowBanner = document.getElementById('speakNowBanner') || 
+                          document.querySelector('.speak-now-banner') ||
+                          document.querySelector('.speak-now-container') ||
+                          document.querySelector('[class*="speakNow"]');
+    
     if (speakNowBanner && speakNowBanner.style.display !== 'none') {
         console.log('🎤 Speech detected - closing Speak Now banner immediately');
         speakNowBanner.style.opacity = '0';
+        speakNowBanner.style.transform = 'translateY(20px)';
         setTimeout(() => {
             speakNowBanner.style.display = 'none';
         }, 300);
     }
     
-    // 🎯 SET COOLDOWN - PREVENT BANNER FROM REAPPEARING FOR 10 SECONDS
+    // 🎯 SET COOLDOWN - PREVENT BANNER FROM REAPPEARING FOR 3 SECONDS (reduced from 10)
     speakNowCooldown = true;
     setTimeout(() => {
         speakNowCooldown = false;
         console.log('🕒 Speak Now cooldown ended - banner can reappear');
-    }, 10000);
+    }, 3000); // Reduced to 3 seconds for lead capture flow
 }
 
 // ===================================================
