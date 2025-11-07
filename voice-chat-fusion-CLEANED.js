@@ -963,7 +963,8 @@ async function activateMicrophone() {
         }
 
         addAIMessage(errorMessage);
-        switchToTextMode();
+        // 🛡️ REMOVED: switchToTextMode(); - This prevents the bubble!
+    // The system will stay in voice mode and try to recover
     }
 }
 
