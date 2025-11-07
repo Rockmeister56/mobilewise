@@ -411,8 +411,8 @@ function suppressBrowserBeeps() {
 // ===================================================
 // 🎤 START LISTENING new function
 // ===================================================
-async function startListening() {
-        // 🛡️ CRITICAL FIX: Multiple protection layers
+function startListening() {
+    // 🛡️ CRITICAL FIX: Multiple protection layers
     if (window.recognition) {
         // Method 1: Check if we already have an active recognition session
         if (window.recognition.isListening) {
@@ -432,6 +432,13 @@ async function startListening() {
             return;
         }
     }
+    
+    // Set our custom flag
+    window.recognitionStarted = true;
+    
+    // Your existing startListening code...
+    console.log('🎯 startListening() called');
+}
     
     // Smart button gate-keeper (keep this)
     const smartButton = document.getElementById('smartButton');
@@ -635,7 +642,20 @@ closeSpeakNowBanner();
 
             // 🔥 SET ONERROR HANDLER
             recognition.onerror = function(event) {
-                console.log('🔊 Speech error:', event.error);
+    console.log('🔊 Speech error:', event.error);
+
+    // 🛡️ CRITICAL: ALWAYS clean up on ANY error to prevent bubble
+    if (typeof cleanupSpeakSequence === 'function') {
+        cleanupSpeakSequence();
+        console.log('✅ Auto-cleaned speak sequence for error:', event.error);
+    }
+
+    // Continue with existing error handling...
+    if (speakSequenceCleanupTimer) {
+        clearTimeout(speakSequenceCleanupTimer);
+        speakSequenceCleanupTimer = null;
+        console.log('🕐 CANCELLED cleanup timer in error handler');
+    }
 
                 if (speakSequenceCleanupTimer) {
                     clearTimeout(speakSequenceCleanupTimer);
@@ -652,34 +672,40 @@ closeSpeakNowBanner();
                 }
 
                 if (event.error === 'no-speech') {
-                    const transcriptText = document.getElementById('transcriptText');
-                    const isDefinitelyMobile = window.innerWidth <= 768 || window.innerHeight <= 1024;
+    const transcriptText = document.getElementById('transcriptText');
+    const isDefinitelyMobile = window.innerWidth <= 768 || window.innerHeight <= 1024;
 
-                    if (isDefinitelyMobile) {
-                        console.log('📱📱📱 MOBILE: Using visual feedback system');
+    if (isDefinitelyMobile) {
+        console.log('📱📱📱 MOBILE: Using visual feedback system');
+        
+        // 🛡️ CRITICAL FIX: Clean up the banner to prevent bubble
+        if (typeof cleanupSpeakSequence === 'function') {
+            cleanupSpeakSequence();
+            console.log('✅ Cleaned up speak sequence to prevent bubble');
+        }
+        
+        if (window.noSpeechTimeout) {
+            clearTimeout(window.noSpeechTimeout);
+        }
 
-                        if (window.noSpeechTimeout) {
-                            clearTimeout(window.noSpeechTimeout);
-                        }
+        if (transcriptText) {
+            transcriptText.textContent = 'I didn\'t hear anything...';
+            transcriptText.style.color = '#ff6b6b';
 
-                        if (transcriptText) {
-                            transcriptText.textContent = 'I didn\'t hear anything...';
-                            transcriptText.style.color = '#ff6b6b';
+            window.noSpeechTimeout = setTimeout(() => {
+                if (transcriptText) {
+                    transcriptText.textContent = 'Please speak now';
+                    transcriptText.style.color = '#ffffff';
+                }
 
-                            window.noSpeechTimeout = setTimeout(() => {
-                                if (transcriptText) {
-                                    transcriptText.textContent = 'Please speak now';
-                                    transcriptText.style.color = '#ffffff';
-                                }
-
-                                if (isAudioMode && !isSpeaking) {
-                                    console.log('🔄 Mobile: Restarting via hybrid system');
-                                    isListening = false;
-                                    setTimeout(() => {
-                                        showDirectSpeakNow();
-                                    }, 800);
-                                }
-                            }, 1500);
+                if (isAudioMode && !isSpeaking) {
+                    console.log('🔄 Mobile: Restarting via hybrid system');
+                    isListening = false;
+                    setTimeout(() => {
+                        showDirectSpeakNow();
+                    }, 800);
+                }
+            }, 1500);
                         }
                     }
                 } else if (event.error === 'audio-capture') {
@@ -717,7 +743,6 @@ closeSpeakNowBanner();
             }
         }
     }, 1000);
-}
 
 function stopListening() {
     console.log('🛑 stopListening() called');
