@@ -412,10 +412,25 @@ function suppressBrowserBeeps() {
 // 🎤 START LISTENING new function
 // ===================================================
 async function startListening() {
-    // ✅ PREVENT MULTIPLE STARTS
-    if (recognition && recognition.state === 'started') {
-        console.log('🚫 Recognition already running - skipping start');
-        return;
+        // 🛡️ CRITICAL FIX: Multiple protection layers
+    if (window.recognition) {
+        // Method 1: Check if we already have an active recognition session
+        if (window.recognition.isListening) {
+            console.log('🛡️ Recognition already active (isListening) - skipping duplicate start');
+            return;
+        }
+        
+        // Method 2: Check state if available
+        if (window.recognition.state && window.recognition.state === 'listening') {
+            console.log('🛡️ Recognition state is "listening" - skipping start');
+            return;
+        }
+        
+        // Method 3: Add a custom flag to track our own state
+        if (window.recognitionStarted) {
+            console.log('🛡️ Custom flag: recognition already started - skipping');
+            return;
+        }
     }
     
     // Smart button gate-keeper (keep this)
@@ -702,6 +717,40 @@ closeSpeakNowBanner();
             }
         }
     }, 1000);
+}
+
+function stopListening() {
+    console.log('🛑 stopListening() called');
+    
+    // Clear our custom flag
+    window.recognitionStarted = false;
+    
+    // Stop the recognition if it exists and is running
+    if (window.recognition) {
+        try {
+            window.recognition.stop();
+            console.log('✅ Recognition stopped successfully');
+        } catch (e) {
+            console.log('⚠️ Error stopping recognition (might not be running):', e.message);
+        }
+    }
+    
+    // Clear any active timeouts
+    if (window.listeningTimeout) {
+        clearTimeout(window.listeningTimeout);
+        window.listeningTimeout = null;
+        console.log('⏰ Cleared listening timeout');
+    }
+    
+    // Clear the safety timeout in DIRECT mode
+    if (window.directSafetyTimeout) {
+        clearTimeout(window.directSafetyTimeout);
+        window.directSafetyTimeout = null;
+        console.log('🛡️ Cleared direct safety timeout');
+    }
+    
+    // Reset any sequence locks
+    window.speakSequenceActive = false;
 }
 
 // ===================================================
