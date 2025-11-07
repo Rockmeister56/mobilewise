@@ -266,19 +266,29 @@ function showMicActivatedStatus() {
 // ===================================================
 // 🔊 SPEECH RECOGNITION ERROR HANDLER - ADD THIS
 // ===================================================
-function handleSpeechRecognitionError(error) {
-    console.log('🔊 Handling speech recognition error:', error);
+function handleSpeechRecognitionError(event) {
+    console.log('🔊 Handling speech recognition error:', event.error);
+    
+    // Call cleanup to prevent the bubble
+    if (typeof cleanupSpeakSequence === 'function') {
+        cleanupSpeakSequence();
+    }
     
     // Just log errors quietly - don't break the flow
-    if (error === 'no-speech') {
+    if (event.error === 'no-speech') {
         console.log('🔇 No speech detected - normal behavior');
     } else {
-        console.log('🎤 Speech error occurred:', error);
+        console.log('🎤 Speech error occurred:', event.error);
     }
 }
 
 // Make it globally accessible
 window.handleSpeechRecognitionError = handleSpeechRecognitionError;
+
+// 🚨 CRITICAL: Connect the handler to the recognition system
+if (window.recognition) {
+    window.recognition.onerror = handleSpeechRecognitionError;
+}
 
 // ===================================================
 // 🎵 INTRO JINGLE PLAYER (YOUR EXISTING CODE - KEEP AS-IS)
