@@ -976,7 +976,7 @@ async function startListening() {
     } catch (error) {
         console.error('❌ Error starting speech recognition:', error);
         addAIMessage("Speech recognition failed. Please try again or use text input.");
-        switchToTextMode();
+        //switchToTextMode(); // 🚨 REMOVE THIS LINE
     }
 }
 
@@ -1156,7 +1156,7 @@ async function activateMicrophone() {
         }
 
         addAIMessage(errorMessage);
-        switchToTextMode();
+        //switchToTextMode(); // 🚨 REMOVE THIS LINE
     }
 }
 
