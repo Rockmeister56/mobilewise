@@ -2197,6 +2197,25 @@ function updateSmartButton(shouldShow, buttonText, action) {
 async function getAIResponse(userMessage, conversationHistory = []) {
     console.log('🎯 GOLD STANDARD getAIResponse called:', userMessage);
 
+    // 🎯 AUTO-INITIALIZE SalesAI on page load
+setTimeout(() => {
+    if (!window.salesAI) {
+        window.salesAI = {
+            state: 'introduction',
+            userData: { firstName: '', intent: null },
+            getInvestigationQuestion: function() {
+                const questions = {
+                    'sell-practice': "How long have you been thinking about selling your practice?",
+                    'buy-practice': "What type of practice are you looking to acquire?",
+                    'practice-valuation': "What's driving your interest in a valuation right now?"
+                };
+                return questions[this.userData.intent] || "What specifically are you looking to accomplish?";
+            }
+        };
+        console.log('🔄 SalesAI auto-initialized on page load');
+    }
+}, 1000);
+
     // 🎯 STEP 0: CHECK FOR CONCERNS FIRST - NEW INTEGRATION
     if (detectConcernOrObjection(userMessage)) {
         console.log('🚨 Concern detected - handling with testimonial');
