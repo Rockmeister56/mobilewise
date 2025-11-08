@@ -2191,6 +2191,62 @@ function updateSmartButton(shouldShow, buttonText, action) {
 }
 
 // =============================================================================
+// 🎯 SALES AI CLASS - ADD THIS BEFORE getAIResponse
+// =============================================================================
+
+class SalesAI {
+    constructor(config) {
+        this.config = config;
+        this.state = 'introduction';
+        this.userData = { firstName: '', intent: null, history: [] };
+        console.log('🎯 SalesAI Initialized for:', config.companyName);
+    }
+
+    async handleIntroduction(userMessage) {
+        const lowerMsg = userMessage.toLowerCase();
+
+        // If we don't have name yet
+        if (!this.userData.firstName) {
+            const name = this.extractName(userMessage);
+            if (name) {
+                this.userData.firstName = name;
+                return `Great to meet you ${name}! I help with ${this.config.serviceType}. What brings you here today?`;
+            } else {
+                return "Hi! I'm your practice transition assistant. What's your first name?";
+            }
+        }
+
+        // If we have name, detect initial intent
+        this.detectInitialIntent(userMessage);
+        this.state = 'investigation';
+
+        return this.getInvestigationQuestion();
+    }
+
+    extractName(message) {
+        const words = message.split(' ');
+        return words[0] || null;
+    }
+
+    detectInitialIntent(message) {
+        const lowerMsg = message.toLowerCase();
+        if (lowerMsg.includes('sell') && lowerMsg.includes('practice')) {
+            this.userData.intent = 'sell-practice';
+        } else if (lowerMsg.includes('buy') && lowerMsg.includes('practice')) {
+            this.userData.intent = 'buy-practice';
+        } else if ((lowerMsg.includes('value') || lowerMsg.includes('worth')) && lowerMsg.includes('practice')) {
+            this.userData.intent = 'practice-valuation';
+        }
+    }
+
+    getInvestigationQuestion() {
+        const intent = this.userData.intent;
+        const path = this.config.salesPaths[intent];
+        return path ? path.investigationQuestion : "What specifically are you looking to accomplish?";
+    }
+}
+
+// =============================================================================
 // 🎯 GOLD STANDARD getAIResponse - 4-STEP SALES PROCESS
 // =============================================================================
 
