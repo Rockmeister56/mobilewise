@@ -2389,142 +2389,234 @@ function updateSmartButton(shouldShow, buttonText, action) {
     
 }
 
-/**
- * =============================================================================
- * UPDATED CONSULTATIVE RESPONSE DETECTOR
- * =============================================================================
- * Detects user intent to contact and returns appropriate action type
- * Now maps to new consolidated action system
- * =============================================================================
- */
+// =============================================================================
+// 🎯 COMPLETE GOLD STANDARD SYSTEM - REPLACES ENTIRE getAIResponse + SUPPORT
+// =============================================================================
 
-function detectConsultativeResponse(userMessage) {
-    const message = userMessage.toLowerCase();
+const NCI_CONFIG = {
+    companyName: "New Clients Inc",
+    expertName: "Bruce", 
+    serviceType: "CPA practice transitions",
+
+    salesPaths: {
+        'sell-practice': {
+            investigationQuestion: "How long have you been thinking about selling your practice?",
+            valueProp: "Bruce has helped thousands of accountants successfully exit their practices while maximizing value.",
+            timeFrame: "3 months or less", 
+            result: "get your practice sold for 20-30% more than going alone",
+            offer: "free valuation consultation with Bruce"
+        },
+        'buy-practice': {
+            investigationQuestion: "What type of practice are you looking to acquire?",
+            valueProp: "Bruce has exclusive off-market opportunities that most buyers never see.",
+            timeFrame: "60-90 days",
+            result: "find you the perfect practice match", 
+            offer: "free buying consultation with Bruce"
+        },
+        'practice-valuation': {
+            investigationQuestion: "What's driving your interest in a valuation right now?",
+            valueProp: "Most owners are surprised by their practice's true market worth.",
+            timeFrame: "immediately",
+            result: "show you exactly what your practice is worth",
+            offer: "free valuation from Bruce"
+        }
+    }
+};
+
+class SalesAI {
+    constructor(config) {
+        this.config = config;
+        this.state = 'introduction';
+        this.userData = { firstName: '', intent: null, history: [] };
+        console.log('🎯 SalesAI Initialized for:', config.companyName);
+    }
+
+    async handleIntroduction(userMessage) {
+        const lowerMsg = userMessage.toLowerCase();
+
+        // If we don't have name yet
+        if (!this.userData.firstName) {
+            const name = this.extractName(userMessage);
+            if (name) {
+                this.userData.firstName = name;
+                return `Great to meet you ${name}! I help with ${this.config.serviceType}. What brings you here today?`;
+            } else {
+                return "Hi! I'm your practice transition assistant. What's your first name?";
+            }
+        }
+
+        // If we have name, detect initial intent
+        this.detectInitialIntent(userMessage);
+        this.state = 'investigation';
+
+        return this.getInvestigationQuestion();
+    }
+
+    extractName(message) {
+        const words = message.split(' ');
+        return words[0] || null;
+    }
+
+    detectInitialIntent(message) {
+        const lowerMsg = message.toLowerCase();
+        if (lowerMsg.includes('sell') && lowerMsg.includes('practice')) {
+            this.userData.intent = 'sell-practice';
+        } else if (lowerMsg.includes('buy') && lowerMsg.includes('practice')) {
+            this.userData.intent = 'buy-practice';
+        } else if ((lowerMsg.includes('value') || lowerMsg.includes('worth')) && lowerMsg.includes('practice')) {
+            this.userData.intent = 'practice-valuation';
+        }
+    }
+
+    getInvestigationQuestion() {
+        const intent = this.userData.intent;
+        const path = this.config.salesPaths[intent];
+        return path ? path.investigationQuestion : "What specifically are you looking to accomplish?";
+    }
+}
+
+const BANNER_MAPPING = {
+    'urgent': 'urgent',
+    'sell-practice': { investigation: 'expertise', preClose: 'freeIncentive', yesResponse: 'setAppointment' },
+    'buy-practice': { investigation: 'expertise', preClose: 'freeIncentive', yesResponse: 'setAppointment' },
+    'practice-valuation': { investigation: 'expertise', preClose: 'freeIncentive', yesResponse: 'setAppointment' },
+    'appointment': 'setAppointment',
+    'consultation': 'setAppointment',
+    'pre-qualifier': 'preQualifier',
+    'time': 'testimonialSelector',
+    'money': 'testimonialSelector', 
+    'trust': 'testimonialSelector',
+    'complexity': 'testimonialSelector',
+    'about-nci': 'expertise',
+    'services': 'freeIncentive',
+    'process': 'freeIncentive'
+};
+
+function triggerBanner(intentType, step = 'default') {
+    const mapping = BANNER_MAPPING[intentType];
+    if (!mapping) {
+        console.log('❌ No banner mapping for:', intentType);
+        return;
+    }
+
+    let bannerType = mapping;
+    if (typeof mapping === 'object') {
+        if (step === 'investigation' && mapping.investigation) {
+            bannerType = mapping.investigation;
+        } else if (step === 'preClose' && mapping.preClose) {
+            bannerType = mapping.preClose;
+        } else if (step === 'yesResponse' && mapping.yesResponse) {
+            bannerType = mapping.yesResponse;
+        }
+    }
+
+    console.log(`🎯 Triggering banner: ${bannerType} for ${intentType} at step: ${step}`);
+
+    setTimeout(() => {
+        if (typeof showUniversalBanner === 'function') {
+            showUniversalBanner(bannerType);
+        }
+    }, 1000);
+}
+
+// STRONG INTENT DETECTION
+function detectStrongIntent(userMessage) {
+    const lowerMsg = userMessage.toLowerCase();
     
-    // Urgent/immediate help patterns
-    const urgentPatterns = [
-        'urgent', 'asap', 'right now', 'immediately', 'emergency',
-        'call me now', 'need help now', 'right away'
+    const strongSellingIndicators = [
+        'i want to sell', 'i need to sell', 'looking to sell', 'want to sell', 'need to sell',
+        'selling my practice', 'sell my practice', 'sell my firm', 'selling my firm',
+        'exit my practice', 'retire from practice', 'transition out'
     ];
     
-    // Callback request patterns
-    const callbackPatterns = [
-        'call me back', 'callback', 'call back', 'phone me',
-        'give me a call', 'ring me'
+    const strongBuyingIndicators = [
+        'i want to buy', 'i need to buy', 'looking to buy', 'want to buy', 'need to buy',
+        'buy a practice', 'buy a firm', 'acquire a practice', 'purchase a practice',
+        'looking to acquire', 'want to acquire'
     ];
     
-    // Meeting/consultation patterns
-    const meetingPatterns = [
-        'book a meeting', 'schedule', 'consultation', 'appointment',
-        'meet with', 'talk to someone', 'speak with', 'speak to bruce',
-        'i\'d rather speak', 'discuss', 'chat with'
+    const strongValuationIndicators = [
+        'i need a valuation', 'want a valuation', 'get a valuation', 'value my practice',
+        'how much is my practice worth', 'what is my practice worth', 'practice worth',
+        'valuation of my practice'
     ];
     
-    // Pre-qualify patterns
-    const prequalifyPatterns = [
-        'pre-qualify', 'prequalify', 'am i qualified', 'do i qualify',
-        'see if', 'good fit', 'right for me'
-    ];
-    
-    // Free book patterns
-    const bookPatterns = [
-        'free book', 'send me the book', 'download', 'guide',
-        'ebook', 'pdf'
-    ];
-    
-    // Generic contact patterns (show all options)
-    const genericContactPatterns = [
-        'contact', 'get in touch', 'reach out', 'talk to you',
-        'speak to you', 'help me', 'more info', 'tell me more'
-    ];
-    
-    
-    // Check patterns in priority order (most specific first)
-    
-    if (urgentPatterns.some(pattern => message.includes(pattern))) {
-        return {
-            intent: 'contact_request',
-            action: 'urgent',  // Maps to 'immediate-call'
-            confidence: 'high',
-            bannerMessage: 'Let me connect you right away...'
-        };
+    for (const indicator of strongSellingIndicators) {
+        if (lowerMsg.includes(indicator)) {
+            console.log('🎯 STRONG SELL INTENT DETECTED');
+            return { type: 'sell-practice', strength: 'strong' };
+        }
     }
     
-    if (callbackPatterns.some(pattern => message.includes(pattern))) {
-        return {
-            intent: 'contact_request',
-            action: 'requestCall',  // Maps to 'request-callback'
-            confidence: 'high',
-            bannerMessage: 'I\'ll set up that callback for you...'
-        };
+    for (const indicator of strongBuyingIndicators) {
+        if (lowerMsg.includes(indicator)) {
+            console.log('🎯 STRONG BUY INTENT DETECTED');
+            return { type: 'buy-practice', strength: 'strong' };
+        }
     }
     
-    if (prequalifyPatterns.some(pattern => message.includes(pattern))) {
-        return {
-            intent: 'contact_request',
-            action: 'preQualify',  // Maps to 'pre-qualify'
-            confidence: 'high',
-            bannerMessage: 'Let\'s see if we\'re a good fit...'
-        };
+    for (const indicator of strongValuationIndicators) {
+        if (lowerMsg.includes(indicator)) {
+            console.log('🎯 STRONG VALUATION INTENT DETECTED');
+            return { type: 'practice-valuation', strength: 'strong' };
+        }
     }
     
-    if (bookPatterns.some(pattern => message.includes(pattern))) {
-        return {
-            intent: 'contact_request',
-            action: 'freeBook',  // Maps to 'free-book'
-            confidence: 'high',
-            bannerMessage: 'I\'ll get that book to you...'
-        };
-    }
-    
-    if (meetingPatterns.some(pattern => message.includes(pattern))) {
-        return {
-            intent: 'contact_request',
-            action: 'bookMeeting',  // Maps to 'free-consultation'
-            confidence: 'high',
-            bannerMessage: 'Let me schedule that for you...'
-        };
-    }
-    
-    if (genericContactPatterns.some(pattern => message.includes(pattern))) {
-        return {
-            intent: 'contact_request',
-            action: 'showAll',  // Shows Communication Action Center with all options
-            confidence: 'medium',
-            bannerMessage: 'Here are all the ways I can help...'
-        };
-    }
-    
-    // No contact intent detected
     return null;
 }
 
-// 🎯 COMPLETE AI RESPONSE SYSTEM - MOBILE-WISE AI FORMVISER
-// Captain's Architecture - Banner & Button Integration
-// UPDATED: Expertise banner on specialty topics, concern detection fixed
+function buildRapportResponse(intentType, userName = '') {
+    const name = userName ? `${userName}, ` : '';
+    const paths = NCI_CONFIG.salesPaths;
 
-/**
- * ===================================================================
- * 🎯 COMPLETE AI RESPONSE HANDLER - WITH PROPER RETURN VALUES
- * ===================================================================
- * 
- * FIXES APPLIED:
- * 1. ✅ Returns response text in ALL branches (fixes "undefined" issue)
- * 2. ✅ Removes Speak Now banner on intent detection
- * 3. ✅ Triggers expertise banner (500ms delay)
- * 4. ✅ Triggers setAppointment banner (3000ms delay)
- * 5. ✅ Attaches click handler to setAppointment banner
- * 6. ✅ Click triggers Communication Action Center
- * 7. ✅ Corrected wording ("on your screen" not "below")
- * 8. ✅ Enhanced error diagnostics
- * 
- * Created: 2025-10-29
- */
+    switch(intentType) {
+        case 'sell-practice':
+            return `${name}I appreciate you giving us a chance to earn your trust with selling your practice. ${paths['sell-practice'].valueProp}`;
+        case 'buy-practice':
+            return `${name}I appreciate you considering us for your practice acquisition journey. ${paths['buy-practice'].valueProp}`;
+        case 'practice-valuation':
+            return `${name}I appreciate you wanting to understand your practice's true value. ${paths['practice-valuation'].valueProp}`;
+        default:
+            return `${name}I appreciate you reaching out to New Clients Inc. Bruce has helped thousands of accountants achieve their practice goals.`;
+    }
+}
 
+function buildPreCloseQuestion(intentType, userName = '') {
+    const name = userName ? `${userName}, ` : '';
+    const path = NCI_CONFIG.salesPaths[intentType];
+
+    if (!path) return `${name}Would you be interested in a free consultation with Bruce?`;
+
+    return `${name}If we could ${path.result} in ${path.timeFrame}, would you be interested in a ${path.offer}?`;
+}
+
+function handlePreCloseResponse(userResponse, intentType) {
+    const lowerResponse = userResponse.toLowerCase();
+
+    const yesPatterns = ['yes', 'yeah', 'sure', 'okay', 'ok', 'absolutely', 'definitely', 'let\'s do it'];
+    const skipPatterns = ['skip', 'not now', 'maybe later', 'not yet', 'no thanks', 'no', 'nah'];
+
+    if (yesPatterns.some(pattern => lowerResponse.includes(pattern))) {
+        return "Perfect! Let me get you connected right away...";
+    }
+
+    if (skipPatterns.some(pattern => lowerResponse.includes(pattern))) {
+        return "No problem! What specific questions can I answer about your practice?";
+    }
+
+    return "I'm not sure I caught that. Would you like to proceed with a free consultation?";
+}
+
+// MAIN AI RESPONSE ENGINE - 4-STEP SALES PROCESS
 async function getAIResponse(userMessage, conversationHistory = []) {
-    console.log('🎯 getAIResponse called with:', userMessage);
+    console.log('🎯 GOLD STANDARD getAIResponse called with:', userMessage);
 
-    // 🎯 DEFINE lowerMessage HERE - at the very top
+    // Initialize Sales AI if not exists
+    if (!window.salesAI) {
+        window.salesAI = new SalesAI(NCI_CONFIG);
+        console.log('🔄 New SalesAI instance created');
+    }
+
     const lowerMessage = userMessage.toLowerCase();
 
     // Close Speak Now banner when AI responds
@@ -2533,717 +2625,111 @@ async function getAIResponse(userMessage, conversationHistory = []) {
         speakNowBanner.remove();
         console.log('✅ Speak Now banner removed - AI responding');
     }
-    
-    // 🎯 CRITICAL FIX: CHECK CONSULTATIVE INTENT FIRST (before knowledge base)
-    const consultativeIntent = checkForConsultativeIntent(userMessage);
-    if (consultativeIntent) {
-        console.log('✅ CONSULTATIVE INTENT DETECTED:', consultativeIntent);
-        return handleConsultativeIntent(consultativeIntent, userMessage);
-    }
-    
-    // 🧠 ENHANCED KNOWLEDGE BASE - Handle general questions second
-    const knowledgeResponse = handleGeneralQuestions(userMessage, window.userName || '');
-    if (knowledgeResponse) {
-        console.log('✅ Knowledge base response triggered');
-        speakWithElevenLabs(knowledgeResponse, false);
-        return knowledgeResponse;
+
+    // STEP 1: CHECK FOR URGENT REQUESTS FIRST
+    const urgentPatterns = ['urgent', 'asap', 'right now', 'immediately', 'emergency', 'call me now'];
+    if (urgentPatterns.some(pattern => lowerMessage.includes(pattern))) {
+        console.log('🚨 URGENT INTENT DETECTED - FAST TRACKING');
+        triggerBanner('urgent');
+        return "I understand this is urgent! Let me connect you with Bruce immediately.";
     }
 
-    // 🚨 CONCERN DETECTION - Only if no consultative intent or knowledge base match
-    const detectedConcern = detectUserConcern(userMessage);
-    if (detectedConcern) {
-        console.log('🚨 CONCERN DETECTED:', detectedConcern);
-        return handleUserConcern(detectedConcern, userMessage);
-    }
+    // STEP 2: STRONG INTENT DETECTION
+    const strongIntent = detectStrongIntent(userMessage);
+    if (strongIntent) {
+        console.log('🎯 STRONG INTENT DETECTED:', strongIntent);
 
-    // Handle consultation acceptance
-    if ((window.waitingForConsultationResponse) && 
-        (lowerMessage.includes('yes') || lowerMessage.includes('yeah') || lowerMessage.includes('sure') || 
-         lowerMessage.includes('okay') || lowerMessage.includes('ok') || lowerMessage.includes('absolutely') ||
-         lowerMessage.includes('let\'s do it') || lowerMessage.includes('why not') || lowerMessage.includes('go ahead'))) {
-        
-        console.log('🎯 User accepted consultation - starting lead capture');
-        window.waitingForConsultationResponse = false;
-        
-        const response = `Perfect! Please select "BOOK CONSULTATION" and I'll help you get confirmed with Bruce for your free consultation.`;
-        
-        // 🎯 START LEAD CAPTURE IMMEDIATELY
-        setTimeout(() => {
-            if (typeof startCompleteLeadCapture === 'function') {
-                startCompleteLeadCapture();
-                console.log('✅ Lead capture started!');
-            } else {
-                console.error('❌ startCompleteLeadCapture function not found');
-                // Fallback: Show action buttons
-                if (typeof showUniversalBanner === 'function') {
-                    showUniversalBanner('setAppointment');
-                }
+        // Check if we're in different states
+        if (window.salesAI.state === 'rapport_building') {
+            // STEP 2B: INVESTIGATION QUESTION (AFTER RAPPORT)
+            console.log('🎯 Moving to investigation question...');
+            window.salesAI.state = 'investigation';
+
+            const investigationQuestion = window.salesAI.getInvestigationQuestion();
+
+            // Speak the question
+            if (typeof speakWithElevenLabs === 'function') {
+                speakWithElevenLabs(investigationQuestion, false);
             }
-        }, 500);
-        
-        speakWithElevenLabs(response, false);
-        return response;
-    }
-    
-    // Handle consultation decline
-    if (window.waitingForConsultationResponse && 
-        (lowerMessage.includes('no') || lowerMessage.includes('not now') || lowerMessage.includes('maybe later') ||
-         lowerMessage.includes('not yet') || lowerMessage.includes('nah'))) {
-        
-        console.log('❌ User declined consultation');
-        window.waitingForConsultationResponse = false;
-        
-        const response = `No problem! If you change your mind, Bruce is always available to help. Is there anything else I can assist you with today?`;
-        
-        speakWithElevenLabs(response, false);
-        return response;
-    }
-    
-    // Check if we're waiting for name
-    if (window.waitingForName) {
-        console.log('✅ Name captured:', userMessage);
-        // 🎯 UPDATE STATE - MOVE PAST NAME CAPTURE
-        window.conversationState = 'asking_reason';
-        console.log('🔄 State changed to:', window.conversationState);
-        window.userName = userMessage;
-        window.waitingForName = false;
-        
-        const response = `Nice to meet you, ${userMessage}! What brings you to New Clients Inc today?`;
-        
-        speakWithElevenLabs(response, false);
-        
-        // Mark that we're now waiting for their intent
-        window.waitingForIntent = true;
-        return response;
-    }
-    
-    // 🎯 CONSULTATIVE INTENT DETECTION - Comprehensive detection
-    if (window.waitingForIntent || !window.userIntent) {
-        console.log('🎯 Checking for consultative intent in:', userMessage);
-        
-        const lowerMessage = userMessage.toLowerCase();
-        let detectedIntent = null;
-        let intentStrength = 'weak';
-        
-        // 🎯 STRONG INTENT INDICATORS - Direct statements
-        const strongSellingIndicators = [
-            'i want to sell', 'i need to sell', 'looking to sell', 'want to sell', 'need to sell',
-            'selling my practice', 'sell my practice', 'sell my firm', 'selling my firm',
-            'exit my practice', 'retire from practice', 'transition out'
-        ];
-        
-        const strongBuyingIndicators = [
-            'i want to buy', 'i need to buy', 'looking to buy', 'want to buy', 'need to buy',
-            'buy a practice', 'buy a firm', 'acquire a practice', 'purchase a practice',
-            'looking to acquire', 'want to acquire'
-        ];
-        
-        const strongValuationIndicators = [
-            'i need a valuation', 'want a valuation', 'get a valuation', 'value my practice',
-            'how much is my practice worth', 'what is my practice worth', 'practice worth',
-            'valuation of my practice'
-        ];
-        
-        // Check for strong intent indicators first
-        for (const indicator of strongSellingIndicators) {
-            if (lowerMessage.includes(indicator)) {
-                detectedIntent = 'sell your practice';
-                intentStrength = 'strong';
-                console.log('✅ STRONG SELL intent detected');
-                break;
-            }
-        }
-        
-        if (!detectedIntent) {
-            for (const indicator of strongBuyingIndicators) {
-                if (lowerMessage.includes(indicator)) {
-                    detectedIntent = 'buy a practice';
-                    intentStrength = 'strong';
-                    console.log('✅ STRONG BUY intent detected');
-                    break;
-                }
-            }
-        }
-        
-        if (!detectedIntent) {
-            for (const indicator of strongValuationIndicators) {
-                if (lowerMessage.includes(indicator)) {
-                    detectedIntent = 'get your practice valued';
-                    intentStrength = 'strong';
-                    console.log('✅ STRONG VALUE intent detected');
-                    break;
-                }
-            }
-        }
-        
-        // 🎯 WEAK INTENT INDICATORS - General mentions
-        if (!detectedIntent) {
-            if (lowerMessage.includes('sell') || lowerMessage.includes('selling') || 
-                lowerMessage.includes('sale') || lowerMessage.includes('exit') ||
-                lowerMessage.includes('retire') || lowerMessage.includes('transition')) {
-                detectedIntent = 'sell your practice';
-                console.log('✅ WEAK SELL intent detected');
-            }
-            // Detect buying intent
-            else if (lowerMessage.includes('buy') || lowerMessage.includes('buying') || 
-                     lowerMessage.includes('purchase') || lowerMessage.includes('acquire') ||
-                     lowerMessage.includes('acquisition')) {
-                detectedIntent = 'buy a practice';
-                console.log('✅ WEAK BUY intent detected');
-            }
-            // Detect valuation intent
-            else if (lowerMessage.includes('value') || lowerMessage.includes('valuation') || 
-                     lowerMessage.includes('worth') || lowerMessage.includes('appraisal')) {
-                detectedIntent = 'get your practice valued';
-                console.log('✅ WEAK VALUE intent detected');
-            }
-            // Detect general help intent
-            else if (lowerMessage.includes('help') || lowerMessage.includes('assist') || 
-                     lowerMessage.includes('support') || lowerMessage.includes('guidance') ||
-                     lowerMessage.includes('advice')) {
-                detectedIntent = 'with your practice needs';
-                console.log('✅ HELP intent detected');
-            }
-        }
-        
-        // 🎯 HANDLE DETECTED INTENT
-        if (detectedIntent) {
-            window.waitingForIntent = false;
-            window.userIntent = detectedIntent;
-            
-            let response = '';
-            
-            if (intentStrength === 'strong') {
-                // Strong intent - direct to conversion immediately
-                response = `Excellent! I can see you're serious about wanting to ${detectedIntent}. ${window.userName ? window.userName + ', ' : ''}Bruce specializes in exactly this and would love to help you achieve your goals. Let me get you connected with his free book and consultation right away!`;
-                
-                console.log('🎤 Speaking STRONG intent response:', response);
-                speakWithElevenLabs(response, false);
-                
-                // 🎯 Trigger setAppointment banner immediately for strong intent
-                setTimeout(() => {
-                    console.log('🎯 Triggering immediate banner for strong intent...');
-                    
-                    if (typeof showUniversalBanner === 'function') {
-                        showUniversalBanner('setAppointment');
-                        console.log('✅ setAppointment banner triggered for strong intent!');
-                    } else {
-                        console.error('❌ showUniversalBanner function not found');
-                    }
-                }, 1500);
-                
-            } else {
-                // Weak intent - use consultative approach
-                response = `${window.userName ? window.userName + ', ' : ''}That's fantastic that you're thinking about ${detectedIntent}! Bruce has helped thousands of accountants successfully navigate this process. I'd love to send you his free book "7 Secrets to Success" and set up a no-obligation consultation. Would you like me to do that?`;
-                
-                console.log('🎤 Speaking WEAK intent response:', response);
-                speakWithElevenLabs(response, false);
-                
-                // Mark that we're waiting for book response (yes/no)
-                window.waitingForBookResponse = true;
-            }
-            
-            return response;
-        }
-        
-        // If no intent detected and we were waiting for intent, continue to OpenAI
-        if (window.waitingForIntent) {
-            console.log('⚠️ No consultative intent detected, continuing to OpenAI...');
-            window.waitingForIntent = false; // Reset to avoid getting stuck
-        }
-    }
-    
-    // Check if we're waiting for book response (yes/no)
-    if (window.waitingForBookResponse) {
-        console.log('📚 Checking book response:', userMessage);
-        
-        const lowerMessage = userMessage.toLowerCase();
-        
-        // Handle YES response
-        if (lowerMessage.includes('yes') || lowerMessage.includes('yeah') || 
-            lowerMessage.includes('sure') || lowerMessage.includes('okay') || 
-            lowerMessage.includes('ok') || lowerMessage.includes('absolutely') ||
-            lowerMessage.includes('please') || lowerMessage.includes('go ahead')) {
-            
-            console.log('✅ User said YES to book offer');
-            window.waitingForBookResponse = false;
-            
-            const response = `Perfect! I've got Bruce's free book ready for you. Just click the "FREE BOOK" banner on your screen to choose how you'd like to receive it and schedule your consultation!`;
-            
-            speakWithElevenLabs(response, false);
-            
-            // Trigger book banner
+
+            // Move to pre-close after investigation response
             setTimeout(() => {
-                if (typeof showUniversalBanner === 'function') {
-                    showUniversalBanner('freeIncentive');
-                    console.log('✅ Free book banner triggered!');
-                }
-            }, 1000);
-            
-            return response;
-        }
-        
-        // Handle NO response - Start qualification questions
-        if (lowerMessage.includes('no') || lowerMessage.includes('nah') || 
-            lowerMessage.includes('not now') || lowerMessage.includes('maybe later') ||
-            lowerMessage.includes('not yet')) {
-            
-            console.log('❌ User declined book offer, starting qualification');
-            window.waitingForBookResponse = false;
-            
-            // Start qualification process based on intent
-            let response = '';
-            if (window.userIntent === 'sell your practice') {
-                response = `No problem! Let me ask you a few questions to better understand your practice. How many clients do you currently serve?`;
-                window.qualificationState = 'selling_clients';
-            } else if (window.userIntent === 'buy a practice') {
-                response = `No problem! Let me ask a few questions to match you with the right opportunity. What's your budget range for acquiring a practice?`;
-                window.qualificationState = 'buying_budget';
-            } else if (window.userIntent === 'get your practice valued') {
-                response = `No problem! Let me gather some details for an accurate valuation. What's your practice's approximate annual revenue?`;
-                window.qualificationState = 'valuation_revenue';
-            } else {
-                response = `No problem! Let me ask you a few questions to better understand your needs. What type of practice do you have?`;
-                window.qualificationState = 'general_qualification';
-            }
-            
-            speakWithElevenLabs(response, false);
-            return response;
-        }
-        
-        // If ambiguous, ask for clarification
-        console.log('⚠️ Ambiguous book response, asking for clarification');
-        
-        const response = `I'm not sure I caught that. Would you like me to send you Bruce's free book and set up a consultation?`;
-        
-        speakWithElevenLabs(response, false);
-        
-        return response;
-    }
-    
-    // 🎯 QUALIFICATION PROCESSING
-    if (window.qualificationState) {
-        console.log('🎯 Processing qualification in state:', window.qualificationState);
-        
-        let response = '';
-        let nextState = '';
-        
-        switch (window.qualificationState) {
-            case 'selling_clients':
-                response = `Great! With that many clients, what's your approximate annual revenue?`;
-                nextState = 'selling_revenue';
-                break;
-                
-            case 'selling_revenue':
-                response = `Excellent revenue! What's driving your decision to sell? Retirement, new opportunities, or something else?`;
-                nextState = 'selling_motivation';
-                break;
-                
-            case 'selling_motivation':
-                response = `Thank you for sharing! Based on everything you've told me, Bruce can help you get top dollar for your practice. Would you like me to connect you with him for a FREE consultation?`;
-                nextState = 'offer_consultation';
-                window.waitingForConsultationResponse = true;
-                break;
-                
-            case 'buying_budget':
-                response = `Perfect! With that budget, are you looking for a CPA practice or general accounting firm?`;
-                nextState = 'buying_type';
-                break;
-                
-            case 'buying_type':
-                response = `Great! How soon are you looking to acquire a practice?`;
-                nextState = 'buying_timeline';
-                break;
-                
-            case 'buying_timeline':
-                response = `Excellent timing! Bruce has exclusive opportunities available. Would you like a FREE consultation to see what matches your criteria?`;
-                nextState = 'offer_consultation';
-                window.waitingForConsultationResponse = true;
-                break;
-                
-            case 'valuation_revenue':
-                response = `Perfect! With that revenue, Bruce can provide an accurate valuation. Most owners are surprised by their practice's true worth. Would you like a FREE valuation consultation?`;
-                nextState = 'offer_consultation';
-                window.waitingForConsultationResponse = true;
-                break;
-                
-            case 'general_qualification':
-                response = `Thanks! What are you hoping to achieve with your practice in the next year?`;
-                nextState = 'general_goals';
-                break;
-                
-            case 'general_goals':
-                response = `Those are great goals! Bruce specializes in helping accountants like you achieve exactly that. Would you like me to connect you with him for a FREE consultation?`;
-                nextState = 'offer_consultation';
-                window.waitingForConsultationResponse = true;
-                break;
-        }
-        
-        if (nextState === 'offer_consultation') {
-            // 🎨 Show free incentive banner
-            setTimeout(() => {
-                if (typeof showUniversalBanner === 'function') {
-                    showUniversalBanner('freeIncentive');
-                }
-            }, 1000);
-        }
-        
-        window.qualificationState = nextState;
-        speakWithElevenLabs(response, false);
-        return response;
-    }
-    
-    // 📞 FALLBACK TO OPENAI - Only if nothing else matches
-    console.log('⚠️ No intent detected - falling back to OpenAI');
-    return await getOpenAIResponse(userMessage, conversationHistory);
-}
+                window.salesAI.state = 'pre_close';
+                console.log('🔄 State changed to: pre_close - waiting for response');
+                triggerBanner(strongIntent.type, 'preClose');
+            }, 3000);
 
-// 🎯 NEW: IMPROVED CONSULTATIVE INTENT DETECTION
-function checkForConsultativeIntent(input) {
-    const lowerInput = input.toLowerCase().trim();
-    console.log('🎯 Checking consultative intent in:', lowerInput);
-    
-    // 🎯 APPOINTMENT-SPECIFIC INTENTS (HIGHEST PRIORITY)
-    const appointmentKeywords = [
-        'appointment', 'meeting', 'schedule', 'book', 'reserve', 'set up',
-        'get together', 'arrange', 'calendar', 'time slot', 'availability',
-        'meet with bruce', 'talk to bruce', 'see bruce', 'meet bruce'
-    ];
-    
-    const hasAppointmentIntent = appointmentKeywords.some(keyword => 
-        lowerInput.includes(keyword)
-    );
-    
-    if (hasAppointmentIntent) {
-        console.log('✅ APPOINTMENT INTENT DETECTED');
-        return 'appointment';
-    }
-    
-    // 🎯 CONSULTATION INTENTS
-    const consultativeKeywords = [
-        'consult', 'call', 'talk', 'speak', 'discuss', 'free consultation', 
-        'free consult', 'free meeting', 'connect', 'contact', 'reach out',
-        'get help', 'need help', 'want help', 'looking for help'
-    ];
-    
-    const hasConsultativeIntent = consultativeKeywords.some(keyword => 
-        lowerInput.includes(keyword)
-    );
-    
-    if (hasConsultativeIntent) {
-        console.log('✅ CONSULTATION INTENT DETECTED');
-        return 'consultation';
-    }
-    
-    // 🎯 PRE-QUALIFIER INTENTS
-    const preQualifierKeywords = [
-        'pre qualif', 'prequalif', 'check eligibility', 'see if i qualify',
-        'get qualified', 'am i eligible', 'do i qualify', 'pre-qual',
-        'qualification', 'qualified', 'eligibility'
-    ];
-    
-    const hasPreQualifierIntent = preQualifierKeywords.some(keyword => 
-        lowerInput.includes(keyword)
-    );
-    
-    if (hasPreQualifierIntent) {
-        console.log('✅ PRE-QUALIFIER INTENT DETECTED');
-        return 'pre-qualifier';
-    }
-    
-    // 🎯 YES/RESPONSE INTENTS (context-dependent)
-    const responseKeywords = ['yes', 'yeah', 'sure', 'okay', 'ok', 'yep', 'absolutely', 'definitely'];
-    const isResponse = responseKeywords.some(keyword => lowerInput === keyword);
-    
-    if (isResponse && window.lastAIResponse) {
-        const lastResponse = window.lastAIResponse.toLowerCase();
-        if (lastResponse.includes('eligibility') || lastResponse.includes('qualif')) {
-            console.log('✅ PRE-QUALIFIER RESPONSE DETECTED');
-            return 'pre-qualifier';
-        }
-        if (lastResponse.includes('consult') || lastResponse.includes('appointment') || lastResponse.includes('meeting')) {
-            console.log('✅ CONSULTATION RESPONSE DETECTED');
-            return 'consultation';
-        }
-    }
-    
-    console.log('❌ No consultative intent detected');
-    return null;
-}
+            return investigationQuestion;
 
-// 🎯 NEW: HANDLE CONSULTATIVE INTENTS
-function handleConsultativeIntent(intentType, userMessage) {
-    let responseMessage = '';
-    
-    switch(intentType) {
-        case 'appointment':
-            responseMessage = "Fantastic! I can help you get an appointment with Bruce. Please select 'BOOK CONSULTATION' from the options on your screen.";
-            break;
-            
-        case 'consultation':
-            responseMessage = "Perfect! I'd love to connect you with Bruce for a free consultation. Please select 'BOOK CONSULTATION' and I'll help you get scheduled.";
-            break;
-            
-        case 'pre-qualifier':
-            responseMessage = "Great! Let's check your eligibility. Please select 'PRE-QUALIFICATION' from the options on your screen to start the process.";
-            break;
-    }
-    
-    // Trigger appropriate action
-    setTimeout(() => {
-        if (window.showCommunicationActionCenter) {
-            window.showCommunicationActionCenter();
         } else {
-            console.log('❌ Action center function not available');
-        }
-    }, 2000);
-    
-    speakWithElevenLabs(responseMessage, false);
-    return responseMessage;
-}
+            // STEP 2A: RAPPORT BUILDING (FIRST TIME)
+            console.log('🎯 Starting rapport building...');
+            triggerBanner(strongIntent.type, 'investigation');
 
-// 🎯 UPDATED CONCERN DETECTION (EXCLUDE APPOINTMENT WORDS)
-function detectUserConcern(userInput) {
-    const lowerInput = userInput.toLowerCase();
-    
-    // 🎯 EXCLUDE appointment/consultation words from concern detection
-    const excludedWords = [
-        'appointment', 'meeting', 'schedule', 'book', 'reserve',
-        'consult', 'consultation', 'call', 'talk to bruce', 'meet with bruce'
-    ];
-    
-    const hasExcludedWord = excludedWords.some(word => lowerInput.includes(word));
-    if (hasExcludedWord) {
-        console.log('🔄 Appointment/consultation word detected - skipping concern detection');
-        return null;
-    }
-    
-    // Your existing concern detection logic
-    const concerns = {
-        time: ['time', 'busy', 'hours', 'weekend', 'evening', 'schedule'],
-        money: ['money', 'cost', 'price', 'fee', 'expensive', 'afford'],
-        trust: ['trust', 'scam', 'legit', 'real', 'fake', 'reviews'],
-        complexity: ['complicated', 'complex', 'hard', 'difficult', 'confusing']
-    };
-    
-    for (const [concern, keywords] of Object.entries(concerns)) {
-        if (keywords.some(keyword => lowerInput.includes(keyword))) {
-            return concern;
+            window.salesAI.state = 'rapport_building';
+            window.salesAI.userData.intent = strongIntent.type;
+
+            const rapportResponse = buildRapportResponse(strongIntent.type, window.salesAI.userData.firstName);
+
+            // Speak the response
+            if (typeof speakWithElevenLabs === 'function') {
+                speakWithElevenLabs(rapportResponse, false);
+            }
+
+            return rapportResponse;
         }
     }
-    
-    return null;
-}
 
-// 🎯 NEW: HANDLE USER CONCERNS
-function handleUserConcern(concernType, userMessage) {
-    console.log('🎯 Handling concern:', concernType);
-    
-    let response = '';
-    switch(concernType) {
-        case 'time':
-            response = "I hear you're concerned about time. Many of our clients were worried about that too until they saw how efficient our process is. Let me show you what others have experienced...";
-            break;
-        case 'money':
-            response = "I understand cost is a consideration. The investment actually pays for itself quickly - let me share some experiences from others in your situation...";
-            break;
-        case 'trust':
-            response = "It's smart to verify credibility. Let me show you what other accounting professionals have said about working with us...";
-            break;
-        case 'complexity':
-            response = "The process is actually much simpler than it seems. Let me show you how others found it surprisingly straightforward...";
-            break;
-        default:
-            response = "I understand your concern. Let me show you how others have successfully navigated this...";
-    }
-    
-    // Trigger testimonial banner
-    setTimeout(() => {
-        if (typeof showTestimonialBanner === 'function') {
-            showTestimonialBanner(concernType);
-        } else if (typeof showUniversalBanner === 'function') {
-            showUniversalBanner('testimonialSelector');
-        }
-    }, 500);
-    
-    speakWithElevenLabs(response, false);
-    return response;
-}
+    // STEP 3: PRE-CLOSE HANDLING
+    if (window.salesAI.state === 'pre_close') {
+        console.log('🎯 Processing pre-close response...');
+        const preCloseResponse = handlePreCloseResponse(userMessage, window.salesAI.userData.intent);
 
-// 📞 OPENAI FALLBACK FUNCTION
-async function getOpenAIResponse(userMessage, conversationHistory) {
-    try {
-        conversationHistory.push({
-            role: 'user',
-            content: userMessage
-        });
-
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${window.OPENAI_API_KEY}`
-            },
-            body: JSON.stringify({
-                model: 'gpt-4o-mini',
-                messages: [
-                    {
-                        role: 'system',
-                        content: window.AI_SYSTEM_PROMPT || 'You are a helpful assistant for New Clients Inc, specializing in practice sales and acquisitions. Your goal is to understand the user\'s needs and gently guide them toward booking a consultation with Bruce when appropriate.'
-                    },
-                    ...conversationHistory
-                ],
-                temperature: 0.7,
-                max_tokens: 500
-            })
-        });
-
-        if (!response.ok) {
-            throw new Error(`OpenAI API error: ${response.status}`);
-        }
-
-        const data = await response.json();
-        const aiResponse = data.choices[0].message.content;
-
-        conversationHistory.push({
-            role: 'assistant',
-            content: aiResponse
-        });
-
-        console.log('✅ OpenAI Response:', aiResponse);
-        
         // Speak the response
-        speakWithElevenLabs(aiResponse, false);
-        
-        return aiResponse;
+        if (typeof speakWithElevenLabs === 'function') {
+            speakWithElevenLabs(preCloseResponse, false);
+        }
 
-    } catch (error) {
-        console.error('❌ Error in getAIResponse:', error);
-        
-        // 🎯 IMPROVED ERROR HANDLING - Offer consultation on API errors
-        const errorResponse = "I appreciate your question! That's something Bruce would be perfect to answer. Would you like me to connect you with him for a FREE consultation?";
-        
-        // Set flag to catch "yes" response
-        window.waitingForConsultationResponse = true;
-        
-        // 🎨 Show free incentive on error
-        setTimeout(() => {
-            if (typeof showUniversalBanner === 'function') {
-                showUniversalBanner('freeIncentive');
+        if (preCloseResponse.includes("Perfect! Let me get you connected")) {
+            // User said YES - trigger action center
+            window.salesAI.state = 'lead_capture';
+            console.log('✅ User said YES - triggering action center');
+            triggerBanner(window.salesAI.userData.intent, 'yesResponse');
+        } else {
+            // User said SKIP - return to investigation
+            window.salesAI.state = 'investigation';
+            console.log('🔄 User said SKIP - returning to investigation');
+        }
+
+        return preCloseResponse;
+    }
+
+    // STEP 4: INTRODUCTION HANDLING
+    if (window.salesAI.state === 'introduction') {
+        console.log('🎯 Handling introduction...');
+        const introResponse = await window.salesAI.handleIntroduction(userMessage);
+        if (introResponse) {
+            if (typeof speakWithElevenLabs === 'function') {
+                speakWithElevenLabs(introResponse, false);
             }
-        }, 1000);
-        
-        speakWithElevenLabs(errorResponse, false);
-        return errorResponse;
+            return introResponse;
+        }
+    }
+
+    // FALLBACK TO ORIGINAL SYSTEM LOGIC
+    console.log('🔄 Falling back to original system logic...');
+    if (typeof getOpenAIResponse === 'function') {
+        return await getOpenAIResponse(userMessage, conversationHistory);
+    } else {
+        const fallbackResponse = "I appreciate your message! That's something Bruce would be perfect to help with. Would you like me to connect you with him for a free consultation?";
+        if (typeof speakWithElevenLabs === 'function') {
+            speakWithElevenLabs(fallbackResponse, false);
+        }
+        return fallbackResponse;
     }
 }
 
-// 🧠 ENHANCED KNOWLEDGE BASE FUNCTION
-function handleGeneralQuestions(userText, firstName) {
-    const lowerText = userText.toLowerCase();
-    
-    // NCI/BRUCE QUESTIONS - COMPREHENSIVE OVERVIEW
-    if (lowerText.includes('what is nci') || lowerText.includes('new clients inc') || 
-        lowerText.includes('who is bruce') || lowerText.includes('what do you do') ||
-        lowerText.includes('tell me about') || lowerText.includes('what does new clients') ||
-        lowerText.includes('what kind of company') || lowerText.includes('what services') ||
-        lowerText.includes('how can you help') || lowerText.includes('what do you offer')) {
-        
-        return firstName ? 
-            `${firstName}, as a leader in client acquisition, practice management, and accounting practice sales since 1987, New Clients Inc is an established international marketing and consulting firm that has helped thousands of accountants learn how to generate new clients and retain them. Moreover, we offer comprehensive Practice Acquisition Consulting Services to help with buying or selling your practice. What can we help you with today?` :
-            "As a leader in client acquisition, practice management, and accounting practice sales since 1987, New Clients Inc is an established international marketing and consulting firm that has helped thousands of accountants learn how to generate new clients and retain them. Moreover, we offer comprehensive Practice Acquisition Consulting Services to help with buying or selling your practice. What can we help you with today?";
-    }
-
-    // URGENT BRUCE REQUESTS
-    if (lowerText.includes('speak to bruce') || lowerText.includes('talk to bruce') || 
-        lowerText.includes('urgent') || lowerText.includes('emergency') || 
-        lowerText.includes('immediate') || lowerText.includes('right now')) {
-        
-        // 🎯 TRIGGER URGENT BANNER IMMEDIATELY
-        setTimeout(() => {
-            if (typeof showUniversalBanner === 'function') {
-                showUniversalBanner('urgent');
-                console.log('✅ Urgent banner triggered for Bruce request');
-            }
-        }, 1000);
-        
-        return firstName ? 
-            `${firstName}, I understand you need to speak with Bruce urgently. Please click the "URGENT CALL" button and I'll connect you directly with him right away!` :
-            "I understand you need to speak with Bruce urgently. Please click the 'URGENT CALL' button and I'll connect you directly with him right away!";
-    }
-    
-    // SPECIFIC SERVICE QUESTIONS
-    if (lowerText.includes('services') || lowerText.includes('help with') ||
-        lowerText.includes('what do you provide') || lowerText.includes('offerings')) {
-        
-        return firstName ? 
-            `${firstName}, we provide three main services: Practice Acquisition for buying accounting firms, Practice Sales for selling your practice, and Practice Valuations to determine your firm's true market value. We also offer client acquisition strategies and practice management consulting. Which service interests you most?` :
-            "We provide three main services: Practice Acquisition for buying accounting firms, Practice Sales for selling your practice, and Practice Valuations to determine your firm's true market value. We also offer client acquisition strategies and practice management consulting. Which service interests you most?";
-    }
-    
-    // PROCESS QUESTIONS
-    if (lowerText.includes('how does it work') || lowerText.includes('process') || 
-        lowerText.includes('how long') || lowerText.includes('timeline') ||
-        lowerText.includes('whats the process')) {
-        
-        return firstName ? 
-            `${firstName}, Bruce makes the process simple. For sellers, he maximizes value through proper valuation and finds qualified buyers. For buyers, he matches you with perfect practice opportunities and handles negotiations. Most transitions complete within 60-90 days. Would you like to discuss your specific situation?` :
-            "The process is straightforward! For sellers, we maximize value and find qualified buyers. For buyers, we match you with ideal practices and handle negotiations. Most deals complete in 60-90 days. Would you like to discuss your specific goals?";
-    }
-    
-    // SUCCESS RATE/EXPERIENCE
-    if (lowerText.includes('experience') || lowerText.includes('how many') || 
-        lowerText.includes('success') || lowerText.includes('results') ||
-        lowerText.includes('track record') || lowerText.includes('how long have you')) {
-        
-        return firstName ? 
-            `${firstName}, with over 35 years in business since 1987, Bruce has helped thousands of CPA firm owners successfully transition their practices. His clients typically achieve 15-30% higher valuations than going it alone. Would you like to hear some success stories?` :
-            "With over 35 years in business since 1987, we've helped thousands of CPA firm owners. Our clients typically achieve 15-30% higher valuations than going it alone. Would you like to hear some success stories?";
-    }
-    
-    // FEES/COST
-    if (lowerText.includes('cost') || lowerText.includes('fee') || lowerText.includes('price') || 
-        lowerText.includes('how much') || lowerText.includes('what does it cost')) {
-        
-        return firstName ? 
-            `${firstName}, Bruce's consultations are always free, and his fees are success-based for sellers. For buyers, there's typically no cost to you as the practice seller covers our fees. The best way to get specific details is through a quick, no-obligation chat with Bruce. Would you like to schedule that?` :
-            "Consultations are always free! For sellers, our fees are success-based. For buyers, there's usually no cost as the seller covers our fees. Want to get specific details for your situation?";
-    }
-    
-    // LOCATION/AREA
-    if (lowerText.includes('where') || lowerText.includes('location') || lowerText.includes('area') ||
-        lowerText.includes('state') || lowerText.includes('city') || lowerText.includes('based')) {
-        
-        return firstName ? 
-            `${firstName}, Bruce works with CPA firms nationwide! Location doesn't matter for practice transitions - we've successfully helped clients in all 50 states and internationally. The beauty of accounting practices is they can transition seamlessly regardless of location. Would you like to discuss opportunities in your area?` :
-            "We work nationwide! Bruce has helped CPA firms in all 50 states and internationally. Location isn't a barrier for practice transitions. Want to discuss your specific area?";
-    }
-    
-    // QUALIFICATIONS
-    if (lowerText.includes('qualif') || lowerText.includes('requirement') || 
-        lowerText.includes('need to') || lowerText.includes('should i') ||
-        lowerText.includes('what do i need')) {
-        
-        return firstName ? 
-            `${firstName}, great question! For sellers, any profitable practice with a solid client base qualifies. For buyers, we look at your accounting experience, financial readiness, and commitment to practice growth. The best way to know if you qualify is through a quick pre-qualification chat. Would you like to check your eligibility?` :
-            "For sellers, any profitable practice with a solid client base qualifies. For buyers, we consider your experience, financial readiness, and growth commitment. Want to see if you qualify for our programs?";
-    }
-    
-    // HISTORY/FOUNDATION
-    if (lowerText.includes('when') || lowerText.includes('founded') || 
-        lowerText.includes('established') || lowerText.includes('since') ||
-        lowerText.includes('history') || lowerText.includes('background')) {
-        
-        return firstName ? 
-            `${firstName}, New Clients Inc was established in 1987 and has been helping accounting professionals for over 35 years. We started by helping accountants acquire new clients and evolved into comprehensive practice transition services. Our longevity speaks to our proven results and client satisfaction. What specifically would you like to know about our history?` :
-            "We were established in 1987 and have been serving accounting professionals for over 35 years. We began with client acquisition services and expanded into practice transitions. Our long history demonstrates proven results and client satisfaction. What would you like to know?";
-    }
-    
-    // If no match found, return null to continue with normal flow
-    return null;
-}
-
-console.log('✅ COMPLETE getAIResponse function with Knowledge Base & Consultation Handling loaded');
+console.log('✅ COMPLETE GOLD STANDARD SYSTEM WITH 4-STEP SALES PROCESS LOADED!');
 
 
 function handleTestimonialComplete() {
