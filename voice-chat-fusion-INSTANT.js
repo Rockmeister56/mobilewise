@@ -1265,205 +1265,6 @@ function sendMessage() {
     addUserMessage(message);
     userInput.value = '';
     
-    processUserResponse(message);
-}
-
-// 🎯 CONCERN DETECTION: Check for objections/negative sentiment
-function detectConcernOrObjection(userText) {
-    const text = userText.toLowerCase().trim();
-    
-    // Price objections
-    const priceKeywords = [
-        'expensive', 'too much', 'cost', 'afford', 'price', 'money',
-        'budget', 'cheap', 'fee', 'charge', 'payment'
-    ];
-    
-    // Time objections
-    const timeKeywords = [
-        'busy', 'no time', 'later', 'not now', 'rush', 'hurry',
-        'schedule', 'appointment', 'timing'
-    ];
-    
-    // Trust/skepticism objections
-    const trustKeywords = [
-        'not sure', 'doubt', 'skeptical', 'risky', 'uncertain',
-        'hesitant', 'worried', 'concerned', 'afraid', 'nervous',
-        'scam', 'legit', 'trust', 'guarantee'
-    ];
-    
-    // General negative sentiment
-    const negativeKeywords = [
-        'don\'t want', 'not interested', 'no thanks', 'maybe later',
-        'think about it', 'need to consider', 'sounds too good',
-        'hard to believe', 'complicated', 'difficult'
-    ];
-    
-    // Check if any negative keywords present
-    const allKeywords = [...priceKeywords, ...timeKeywords, ...trustKeywords, ...negativeKeywords];
-    
-    for (let keyword of allKeywords) {
-        if (text.includes(keyword)) {
-            console.log(`🚨 CONCERN DETECTED: "${keyword}" in user input`);
-            
-            // Determine concern type
-            if (priceKeywords.some(k => text.includes(k))) {
-                window.detectedConcernType = 'price';
-            } else if (timeKeywords.some(k => text.includes(k))) {
-                window.detectedConcernType = 'time';
-            } else if (trustKeywords.some(k => text.includes(k))) {
-                window.detectedConcernType = 'trust';
-            } else {
-                window.detectedConcernType = 'general';
-            }
-            
-            return true;
-        }
-    }
-    
-    return false;
-}
-
-// 🎯 HANDLE CONCERN WITH TESTIMONIAL - WITH USER TEXT ECHO
-function handleConcernWithTestimonial(userText) {
-    // 🛑 BLOCK SPEAK SEQUENCE IMMEDIATELY
-    window.concernBannerActive = true;
-    console.log('🚫 FLAG SET: concernBannerActive = true');
-    
-    const concernType = window.detectedConcernType || 'general';
-    
-    console.log(`🎯 Handling ${concernType} concern - triggering testimonial banner`);
-    
-    // Empathetic acknowledgment that INCLUDES the user's exact words
-    let acknowledgment = '';
-    
-    switch(concernType) {
-        case 'price':
-            acknowledgment = `I completely understand your concern regarding "${userText}". Many of our clients felt the same way initially. If you'd like to hear what they experienced, click a review below. Or click Skip to continue our conversation.`;
-            break;
-            
-        case 'time':
-            acknowledgment = `I hear you on "${userText}". Several of our clients had similar thoughts before working with Bruce. Feel free to click a review to hear their experience, or hit Skip and we'll keep talking.`;
-            break;
-            
-        case 'trust':
-            acknowledgment = `That's a fair concern about "${userText}". You're not alone - other practice owners felt the same way at first. You're welcome to check out their reviews below, or click Skip to move forward.`;
-            break;
-            
-        case 'general':
-            acknowledgment = `I appreciate you sharing that about "${userText}". Some of Bruce's clients started with similar hesitations. If you're curious what happened for them, click a review. Otherwise, click Skip and let's continue.`;
-            break;
-    }
-    
-    // Add AI message
-    addAIMessage(acknowledgment);
-    
-    // Speak the acknowledgment
-    setTimeout(() => {
-        if (typeof speakResponse === 'function') {
-            speakResponse(acknowledgment);
-        }
-    }, 100);
-    
-    // Show testimonial banner after speaking
-    setTimeout(() => {
-        console.log('🎯 Triggering testimonial banner');
-        if (typeof showTestimonialBanner === 'function') {
-            showTestimonialBanner(concernType);
-        } else {
-            console.error('❌ showTestimonialBanner function not found');
-        }
-    }, 3000);
-    
-    // Store the concern
-    window.lastDetectedConcern = {
-        text: userText,
-        type: concernType,
-        timestamp: Date.now()
-    };
-}
-
-async function processUserResponse(userText) {
-    // 🆕 PATCH 4: CHECK FOR LEAD CAPTURE MODE FIRST
-      // 🆕 SIMPLE FIX: If user says "no", show thank you and STOP
-    if (userText.toLowerCase().trim() === 'no') {
-        console.log('🎯 User said NO - ending conversation');
-        
-        // Call the thank you splash from action-system-unified.js
-        if (window.showThankYouSplash) {
-            window.showThankYouSplash(window.userName || 'Valued Client', 'conversation_end');
-        } else {
-            // Fallback if function not found
-            console.log('❌ showThankYouSplash not found - using fallback');
-            if (window.addAIMessage) {
-                window.addAIMessage("Thank you for chatting with us! Bruce will be in touch soon. Have a wonderful day!");
-            }
-        }
-        return; // STOP EVERYTHING
-    }
-
-    if (window.isInLeadCapture && window.processLeadResponse) {
-        console.log('🎯 Lead capture mode - routing to lead system');
-        const handled = window.processLeadResponse(userText);
-        if (handled) {
-            console.log('✅ Lead capture handled - not processing as normal chat');
-            return; // Exit early - don't process as conversation
-        }
-    }
-    
-    // YOUR EXISTING CODE - all your lead capture checks
-    
-    // 🎯 NEW: Direct consultation trigger - NO AI fluff!
-    if (shouldTriggerLeadCapture(userText)) {
-        console.log('🎯 BYPASSING AI - Direct to lead capture!');
-        setTimeout(() => {
-            initializeLeadCapture();
-        }, 300);
-        return; // Exit early!
-    }
-
-    // 🚨 CHECK FOR CONCERNS/OBJECTIONS BEFORE AI RESPONSE
-    if (detectConcernOrObjection(userText)) {
-        handleConcernWithTestimonial(userText);
-        return; // Exit - don't proceed to generic AI
-    }
-
-    // ✅ DEFAULT AI RESPONSE HANDLER - THIS WAS MISSING!
-    setTimeout(async () => {  // ✅ Add 'async' here too
-    const responseText = await getAIResponse(userText);
-
-        console.log('🎯 USER SAID:', userText);
-        console.log('🎯 AI RESPONSE:', responseText);
-        
-        addAIMessage(responseText);
-        setAIResponse(responseText);
-        speakWithElevenLabs(responseText);
-        
-        function setAIResponse(response) {
-            currentAIResponse = response;
-            
-            // Track when we mention clicking
-            if (response && (response.includes('click') || response.includes('button above'))) {
-                window.lastClickMentionTime = Date.now();
-                console.log('⏰ Click mention detected - setting blocking window');
-            }
-        }
-    }, 800);
-} // ✅ END OF processUserResponse() function
-
-// ✅ SEPARATE HELPER FUNCTION - OUTSIDE processUserResponse()
-function shouldTriggerLeadCapture(userInput) {
-    const input = userInput.toLowerCase().trim();
-    
-    // Direct affirmative responses that suggest user wants consultation
-    const yesResponses = [
-        'yes', 'yeah', 'yep', 'sure', 'ok', 'okay', 'absolutely', 
-        'definitely', 'of course', 'let\'s do it', 'sounds good',
-        'i would', 'i\'d like that', 'that sounds great', 'let\'s go',
-        'sign me up', 'i\'m interested', 'book it', 'schedule it'
-    ];
-    
-    // Only trigger if it's a clear yes (removed conversationHistory dependency)
-    return yesResponses.includes(input);
 }
 
 // ===================================================
@@ -2390,9 +2191,263 @@ function updateSmartButton(shouldShow, buttonText, action) {
 }
 
 // =============================================================================
-// 🎯 COMPLETE GOLD STANDARD SYSTEM - REPLACES ENTIRE getAIResponse + SUPPORT
+// 🎯 GOLD STANDARD getAIResponse - 4-STEP SALES PROCESS
 // =============================================================================
 
+async function getAIResponse(userMessage, conversationHistory = []) {
+    console.log('🎯 GOLD STANDARD getAIResponse called:', userMessage);
+
+    // 🎯 STEP 0: CHECK FOR CONCERNS FIRST - NEW INTEGRATION
+    if (detectConcernOrObjection(userMessage)) {
+        console.log('🚨 Concern detected - handling with testimonial');
+        handleConcernWithTestimonial(userMessage);
+        return; // Stop the sales process for concerns
+    }
+
+    // Initialize Sales AI if not exists - USING FILE 2'S BETTER VERSION
+    if (!window.salesAI) {
+        window.salesAI = new SalesAI(NCI_CONFIG);
+        console.log('🔄 New SalesAI instance created');
+    }
+
+    const lowerMessage = userMessage.toLowerCase();
+
+    // Close Speak Now banner when AI responds
+    const speakNowBanner = document.querySelector('.speak-now-banner');
+    if (speakNowBanner) {
+        speakNowBanner.remove();
+        console.log('✅ Speak Now banner removed - AI responding');
+    }
+    
+    // 🎯 STEP 1: URGENT REQUESTS - FAST TRACK TO BRUCE
+    const urgentPatterns = ['urgent', 'asap', 'right now', 'immediately', 'emergency', 'call me now'];
+    if (urgentPatterns.some(pattern => lowerMessage.includes(pattern))) {
+        console.log('🚨 URGENT INTENT DETECTED - FAST TRACKING TO BRUCE');
+        triggerBanner('urgent');
+        return "I understand this is urgent! Let me connect you with Bruce immediately.";
+    }
+    
+    // 🎯 STEP 2: STRONG INTENT DETECTION & 4-STEP SALES PROCESS
+    const strongIntent = detectStrongIntent(userMessage);
+    if (strongIntent) {
+        console.log('🎯 STRONG INTENT DETECTED:', strongIntent);
+        
+        if (window.salesAI.state === 'rapport_building') {
+            // 🎯 STEP 2B: INVESTIGATION QUESTION (AFTER RAPPORT)
+            console.log('🎯 Moving to investigation question...');
+            window.salesAI.state = 'investigation';
+
+            const investigationQuestion = window.salesAI.getInvestigationQuestion();
+            speakWithElevenLabs(investigationQuestion, false);
+            
+            // Trigger investigation banner - USING FILE 2'S BETTER BANNER SYSTEM
+            triggerBanner(strongIntent.type, 'investigation');
+            
+            return investigationQuestion;
+            
+        } else if (window.salesAI.state === 'investigation') {
+            // 🎯 STEP 2C: PRE-CLOSE QUESTION (AFTER INVESTIGATION RESPONSE) - FILE 2 IMPROVEMENT
+            console.log('🎯 Moving to pre-close question...');
+            window.salesAI.state = 'pre_close';
+
+            const preCloseQuestion = buildPreCloseQuestion(strongIntent.type, window.salesAI.userData.firstName);
+            speakWithElevenLabs(preCloseQuestion, false);
+            
+            // Trigger pre-close banner
+            triggerBanner(strongIntent.type, 'preClose');
+            
+            return preCloseQuestion;
+            
+        } else {
+            // 🎯 STEP 2A: RAPPORT BUILDING (FIRST TIME)
+            console.log('🎯 Starting rapport building...');
+            triggerBanner(strongIntent.type, 'investigation');
+            
+            window.salesAI.state = 'rapport_building';
+            window.salesAI.userData.intent = strongIntent.type;
+            
+            const rapportResponse = buildRapportResponse(strongIntent.type, window.salesAI.userData.firstName);
+            speakWithElevenLabs(rapportResponse, false);
+            
+            // 🎯 CRITICAL: AUTO-ADVANCE TO INVESTIGATION AFTER RAPPORT - FILE 2 IMPROVEMENT
+            setTimeout(() => {
+                if (window.salesAI && window.salesAI.state === 'rapport_building') {
+                    console.log('🔄 Auto-advancing from rapport to investigation...');
+                    window.salesAI.state = 'investigation';
+                    console.log('🎯 Ready for investigation question on next response');
+                }
+            }, 2000);
+            
+            return rapportResponse;
+        }
+    }
+    
+    // 🎯 STEP 3: PRE-CLOSE HANDLING
+    if (window.salesAI.state === 'pre_close') {
+        console.log('🎯 Processing pre-close response...');
+        const preCloseResponse = handlePreCloseResponse(userMessage, window.salesAI.userData.intent);
+        speakWithElevenLabs(preCloseResponse, false);
+        
+        if (preCloseResponse.includes("Perfect! Let me get you connected")) {
+            // User said YES - trigger action center
+            window.salesAI.state = 'lead_capture';
+            console.log('✅ User said YES - triggering action center');
+            triggerBanner(window.salesAI.userData.intent, 'yesResponse');
+        } else {
+            // User said SKIP - return to investigation
+            window.salesAI.state = 'investigation';
+            console.log('🔄 User said SKIP - returning to investigation');
+        }
+        
+        return preCloseResponse;
+    }
+
+    // 🎯 STEP 4: INTRODUCTION HANDLING - FILE 2 IMPROVEMENT
+    if (window.salesAI.state === 'introduction') {
+        console.log('🎯 Handling introduction...');
+        const introResponse = await window.salesAI.handleIntroduction(userMessage);
+        if (introResponse) {
+            speakWithElevenLabs(introResponse, false);
+            return introResponse;
+        }
+    }
+    
+    // 🧠 STEP 5: FALLBACK TO ORIGINAL LOGIC
+    console.log('🔄 No strong intent - using original system logic');
+    if (typeof getOpenAIResponse === 'function') {
+        return await getOpenAIResponse(userMessage, conversationHistory);
+    } else {
+        const fallbackResponse = "I appreciate your message! That's something Bruce would be perfect to help with. Would you like me to connect you with him for a free consultation?";
+        speakWithElevenLabs(fallbackResponse, false);
+        return fallbackResponse;
+    }
+}
+
+// =============================================================================
+// 🎯 CONCERN DETECTION SYSTEM - NEW INTEGRATION
+// =============================================================================
+
+// 🎯 CONCERN DETECTION: Check for objections/negative sentiment
+function detectConcernOrObjection(userText) {
+    const text = userText.toLowerCase().trim();
+    
+    // Price objections
+    const priceKeywords = [
+        'expensive', 'too much', 'cost', 'afford', 'price', 'money',
+        'budget', 'cheap', 'fee', 'charge', 'payment'
+    ];
+    
+    // Time objections
+    const timeKeywords = [
+        'busy', 'no time', 'later', 'not now', 'rush', 'hurry',
+        'schedule', 'appointment', 'timing'
+    ];
+    
+    // Trust/skepticism objections
+    const trustKeywords = [
+        'not sure', 'doubt', 'skeptical', 'risky', 'uncertain',
+        'hesitant', 'worried', 'concerned', 'afraid', 'nervous',
+        'scam', 'legit', 'trust', 'guarantee'
+    ];
+    
+    // General negative sentiment
+    const negativeKeywords = [
+        'don\'t want', 'not interested', 'no thanks', 'maybe later',
+        'think about it', 'need to consider', 'sounds too good',
+        'hard to believe', 'complicated', 'difficult'
+    ];
+    
+    // Check if any negative keywords present
+    const allKeywords = [...priceKeywords, ...timeKeywords, ...trustKeywords, ...negativeKeywords];
+    
+    for (let keyword of allKeywords) {
+        if (text.includes(keyword)) {
+            console.log(`🚨 CONCERN DETECTED: "${keyword}" in user input`);
+            
+            // Determine concern type
+            if (priceKeywords.some(k => text.includes(k))) {
+                window.detectedConcernType = 'price';
+            } else if (timeKeywords.some(k => text.includes(k))) {
+                window.detectedConcernType = 'time';
+            } else if (trustKeywords.some(k => text.includes(k))) {
+                window.detectedConcernType = 'trust';
+            } else {
+                window.detectedConcernType = 'general';
+            }
+            
+            return true;
+        }
+    }
+    
+    return false;
+}
+
+// 🎯 HANDLE CONCERN WITH TESTIMONIAL - WITH USER TEXT ECHO
+function handleConcernWithTestimonial(userText) {
+    // 🛑 BLOCK SPEAK SEQUENCE IMMEDIATELY
+    window.concernBannerActive = true;
+    console.log('🚫 FLAG SET: concernBannerActive = true');
+    
+    const concernType = window.detectedConcernType || 'general';
+    
+    console.log(`🎯 Handling ${concernType} concern - triggering testimonial banner`);
+    
+    // Empathetic acknowledgment that INCLUDES the user's exact words
+    let acknowledgment = '';
+    
+    switch(concernType) {
+        case 'price':
+            acknowledgment = `I completely understand your concern regarding "${userText}". Many of our clients felt the same way initially. If you'd like to hear what they experienced, click a review below. Or click Skip to continue our conversation.`;
+            break;
+            
+        case 'time':
+            acknowledgment = `I hear you on "${userText}". Several of our clients had similar thoughts before working with Bruce. Feel free to click a review to hear their experience, or hit Skip and we'll keep talking.`;
+            break;
+            
+        case 'trust':
+            acknowledgment = `That's a fair concern about "${userText}". You're not alone - other practice owners felt the same way at first. You're welcome to check out their reviews below, or click Skip to move forward.`;
+            break;
+            
+        case 'general':
+            acknowledgment = `I appreciate you sharing that about "${userText}". Some of Bruce's clients started with similar hesitations. If you're curious what happened for them, click a review. Otherwise, click Skip and let's continue.`;
+            break;
+    }
+    
+    // Add AI message
+    addAIMessage(acknowledgment);
+    
+    // Speak the acknowledgment
+    setTimeout(() => {
+        if (typeof speakResponse === 'function') {
+            speakResponse(acknowledgment);
+        }
+    }, 100);
+    
+    // Show testimonial banner after speaking
+    setTimeout(() => {
+        console.log('🎯 Triggering testimonial banner');
+        if (typeof showTestimonialBanner === 'function') {
+            showTestimonialBanner(concernType);
+        } else {
+            console.error('❌ showTestimonialBanner function not found');
+        }
+    }, 3000);
+    
+    // Store the concern
+    window.lastDetectedConcern = {
+        text: userText,
+        type: concernType,
+        timestamp: Date.now()
+    };
+}
+
+console.log('✅ COMPLETE GOLD STANDARD getAIResponse WITH 4-STEP SALES PROCESS & CONCERN DETECTION LOADED!');
+
+// =============================================================================
+// 🛠️ NOW ADDING ALL SUPPORTING FUNCTIONS FROM BOTH FILES
+// =============================================================================
+
+// FILE 2 HAS BETTER CONFIG - ADDING IT
 const NCI_CONFIG = {
     companyName: "New Clients Inc",
     expertName: "Bruce", 
@@ -2423,6 +2478,7 @@ const NCI_CONFIG = {
     }
 };
 
+// FILE 2 HAS BETTER SalesAI CLASS - ADDING IT
 class SalesAI {
     constructor(config) {
         this.config = config;
@@ -2475,6 +2531,106 @@ class SalesAI {
     }
 }
 
+// BOTH FILES HAVE detectStrongIntent - USING FILE 1'S VERSION (IT'S MORE COMPLETE)
+function detectStrongIntent(userMessage) {
+    console.log('🔍 detectStrongIntent analyzing:', userMessage);
+    const lowerMsg = userMessage.toLowerCase();
+    
+    // Strong selling indicators
+    const strongSellingIndicators = [
+        'i want to sell', 'i need to sell', 'looking to sell', 'want to sell', 'need to sell',
+        'selling my practice', 'sell my practice', 'sell my firm', 'selling my firm',
+        'exit my practice', 'retire from practice', 'transition out'
+    ];
+    
+    // Strong buying indicators
+    const strongBuyingIndicators = [
+        'i want to buy', 'i need to buy', 'looking to buy', 'want to buy', 'need to buy',
+        'buy a practice', 'buy a firm', 'acquire a practice', 'purchase a practice',
+        'looking to acquire', 'want to acquire'
+    ];
+    
+    // Strong valuation indicators
+    const strongValuationIndicators = [
+        'i need a valuation', 'want a valuation', 'get a valuation', 'value my practice',
+        'how much is my practice worth', 'what is my practice worth', 'practice worth',
+        'valuation of my practice'
+    ];
+    
+    // Check strong intents
+    for (const indicator of strongSellingIndicators) {
+        if (lowerMsg.includes(indicator)) {
+            console.log('🎯 STRONG SELL INTENT DETECTED');
+            return { type: 'sell-practice', strength: 'strong' };
+        }
+    }
+    
+    for (const indicator of strongBuyingIndicators) {
+        if (lowerMsg.includes(indicator)) {
+            console.log('🎯 STRONG BUY INTENT DETECTED');
+            return { type: 'buy-practice', strength: 'strong' };
+        }
+    }
+    
+    for (const indicator of strongValuationIndicators) {
+        if (lowerMsg.includes(indicator)) {
+            console.log('🎯 STRONG VALUATION INTENT DETECTED');
+            return { type: 'practice-valuation', strength: 'strong' };
+        }
+    }
+    
+    console.log('🔍 No strong intent detected');
+    return null;
+}
+
+// BOTH FILES HAVE buildRapportResponse - USING FILE 1'S VERSION (IT'S MORE PERSONAL)
+function buildRapportResponse(intentType, userName = '') {
+    const namePart = userName ? `${userName}, ` : '';
+    
+    const responses = {
+        'sell-practice': `${namePart}I completely understand your interest in selling your practice. Many practitioners reach a point where they're ready for their next chapter. Bruce actually helped me transition my own practice 5 years ago before I joined him here. His approach is truly different - he focuses on finding the right cultural fit, not just the highest bidder. What got you thinking about selling at this particular time?`,
+        
+        'buy-practice': `${namePart}That's exciting that you're looking to acquire a practice! Growth through acquisition can be incredibly rewarding. Bruce has an amazing track record of matching buyers with practices that align with their vision. He actually helped me find my current practice when I was in your position. What specific type of practice are you hoping to find?`,
+        
+        'practice-valuation': `${namePart}Getting a proper valuation is so important. Many practitioners are surprised to learn what their life's work is truly worth. Bruce has a unique methodology that looks beyond just the numbers - he considers strategic value, growth potential, and market positioning. He helped me understand the real value drivers in my own practice. What's motivating your interest in a valuation right now?`
+    };
+    
+    return responses[intentType] || `${namePart}I'd love to help you with that. Could you tell me more about what you're looking to accomplish?`;
+}
+
+// FILE 2 HAS buildPreCloseQuestion - ADDING IT (IT WAS MISSING FROM FILE 1)
+function buildPreCloseQuestion(intentType, userName = '') {
+    const name = userName ? `${userName}, ` : '';
+    const path = NCI_CONFIG.salesPaths[intentType];
+
+    if (!path) return `${name}Would you be interested in a free consultation with Bruce?`;
+
+    return `${name}If we could ${path.result} in ${path.timeFrame}, would you be interested in a ${path.offer}?`;
+}
+
+// BOTH FILES HAVE handlePreCloseResponse - USING FILE 1'S VERSION (IT'S MORE COMPLETE)
+function handlePreCloseResponse(userResponse, intentType) {
+    const lowerResponse = userResponse.toLowerCase();
+    
+    // YES responses
+    const yesPatterns = ['yes', 'yeah', 'sure', 'okay', 'ok', 'absolutely', 'definitely', 'let\'s do it', 'ready', 'go ahead'];
+    
+    // NO responses  
+    const noPatterns = ['no', 'not yet', 'maybe later', 'not now', 'no thanks', 'nah', 'wait', 'hold on'];
+    
+    if (yesPatterns.some(pattern => lowerResponse.includes(pattern))) {
+        return "Perfect! Let me get you connected with Bruce directly. He's the expert who can give you personalized guidance based on your specific situation. He should be available for a quick call within the next few minutes.";
+    }
+    
+    if (noPatterns.some(pattern => lowerResponse.includes(pattern))) {
+        return "I completely understand wanting to take your time with such an important decision. What specific questions or concerns would be most helpful for you to have answered right now?";
+    }
+    
+    // Ambiguous response
+    return "Thanks for sharing that. To make sure I connect you with the right resources, would now be a good time for Bruce to give you a quick call, or would you prefer to get some initial information first?";
+}
+
+// FILE 2 HAS BANNER_MAPPING AND triggerBanner - ADDING THEM (THEY WERE MISSING FROM FILE 1)
 const BANNER_MAPPING = {
     'urgent': 'urgent',
     'sell-practice': { investigation: 'expertise', preClose: 'freeIncentive', yesResponse: 'setAppointment' },
@@ -2519,239 +2675,8 @@ function triggerBanner(intentType, step = 'default') {
     }, 1000);
 }
 
-// STRONG INTENT DETECTION
-function detectStrongIntent(userMessage) {
-    const lowerMsg = userMessage.toLowerCase();
-    
-    const strongSellingIndicators = [
-        'i want to sell', 'i need to sell', 'looking to sell', 'want to sell', 'need to sell',
-        'selling my practice', 'sell my practice', 'sell my firm', 'selling my firm',
-        'exit my practice', 'retire from practice', 'transition out'
-    ];
-    
-    const strongBuyingIndicators = [
-        'i want to buy', 'i need to buy', 'looking to buy', 'want to buy', 'need to buy',
-        'buy a practice', 'buy a firm', 'acquire a practice', 'purchase a practice',
-        'looking to acquire', 'want to acquire'
-    ];
-    
-    const strongValuationIndicators = [
-        'i need a valuation', 'want a valuation', 'get a valuation', 'value my practice',
-        'how much is my practice worth', 'what is my practice worth', 'practice worth',
-        'valuation of my practice'
-    ];
-    
-    for (const indicator of strongSellingIndicators) {
-        if (lowerMsg.includes(indicator)) {
-            console.log('🎯 STRONG SELL INTENT DETECTED');
-            return { type: 'sell-practice', strength: 'strong' };
-        }
-    }
-    
-    for (const indicator of strongBuyingIndicators) {
-        if (lowerMsg.includes(indicator)) {
-            console.log('🎯 STRONG BUY INTENT DETECTED');
-            return { type: 'buy-practice', strength: 'strong' };
-        }
-    }
-    
-    for (const indicator of strongValuationIndicators) {
-        if (lowerMsg.includes(indicator)) {
-            console.log('🎯 STRONG VALUATION INTENT DETECTED');
-            return { type: 'practice-valuation', strength: 'strong' };
-        }
-    }
-    
-    return null;
-}
+console.log('✅ COMPLETE GOLD STANDARD getAIResponse WITH 4-STEP SALES PROCESS & AUTO-ADVANCE LOADED!');
 
-function buildRapportResponse(intentType, userName = '') {
-    const name = userName ? `${userName}, ` : '';
-    const paths = NCI_CONFIG.salesPaths;
-
-    switch(intentType) {
-        case 'sell-practice':
-            return `${name}I appreciate you giving us a chance to earn your trust with selling your practice. ${paths['sell-practice'].valueProp}`;
-        case 'buy-practice':
-            return `${name}I appreciate you considering us for your practice acquisition journey. ${paths['buy-practice'].valueProp}`;
-        case 'practice-valuation':
-            return `${name}I appreciate you wanting to understand your practice's true value. ${paths['practice-valuation'].valueProp}`;
-        default:
-            return `${name}I appreciate you reaching out to New Clients Inc. Bruce has helped thousands of accountants achieve their practice goals.`;
-    }
-}
-
-function buildPreCloseQuestion(intentType, userName = '') {
-    const name = userName ? `${userName}, ` : '';
-    const path = NCI_CONFIG.salesPaths[intentType];
-
-    if (!path) return `${name}Would you be interested in a free consultation with Bruce?`;
-
-    return `${name}If we could ${path.result} in ${path.timeFrame}, would you be interested in a ${path.offer}?`;
-}
-
-function handlePreCloseResponse(userResponse, intentType) {
-    const lowerResponse = userResponse.toLowerCase();
-
-    const yesPatterns = ['yes', 'yeah', 'sure', 'okay', 'ok', 'absolutely', 'definitely', 'let\'s do it'];
-    const skipPatterns = ['skip', 'not now', 'maybe later', 'not yet', 'no thanks', 'no', 'nah'];
-
-    if (yesPatterns.some(pattern => lowerResponse.includes(pattern))) {
-        return "Perfect! Let me get you connected right away...";
-    }
-
-    if (skipPatterns.some(pattern => lowerResponse.includes(pattern))) {
-        return "No problem! What specific questions can I answer about your practice?";
-    }
-
-    return "I'm not sure I caught that. Would you like to proceed with a free consultation?";
-}
-
-// MAIN AI RESPONSE ENGINE - 4-STEP SALES PROCESS
-async function getAIResponse(userMessage, conversationHistory = []) {
-    console.log('🎯 GOLD STANDARD getAIResponse called with:', userMessage);
-
-    // Initialize Sales AI if not exists
-    if (!window.salesAI) {
-        window.salesAI = new SalesAI(NCI_CONFIG);
-        console.log('🔄 New SalesAI instance created');
-    }
-
-    const lowerMessage = userMessage.toLowerCase();
-
-    // Close Speak Now banner when AI responds
-    const speakNowBanner = document.querySelector('.speak-now-banner');
-    if (speakNowBanner) {
-        speakNowBanner.remove();
-        console.log('✅ Speak Now banner removed - AI responding');
-    }
-
-    // STEP 1: CHECK FOR URGENT REQUESTS FIRST
-    const urgentPatterns = ['urgent', 'asap', 'right now', 'immediately', 'emergency', 'call me now'];
-    if (urgentPatterns.some(pattern => lowerMessage.includes(pattern))) {
-        console.log('🚨 URGENT INTENT DETECTED - FAST TRACKING');
-        triggerBanner('urgent');
-        return "I understand this is urgent! Let me connect you with Bruce immediately.";
-    }
-
-    // STEP 2: STRONG INTENT DETECTION
-    const strongIntent = detectStrongIntent(userMessage);
-    if (strongIntent) {
-        console.log('🎯 STRONG INTENT DETECTED:', strongIntent);
-
-        // Check if we're in different states
-        if (window.salesAI.state === 'rapport_building') {
-            // STEP 2B: INVESTIGATION QUESTION (AFTER RAPPORT)
-            console.log('🎯 Moving to investigation question...');
-            window.salesAI.state = 'investigation';
-
-            const investigationQuestion = window.salesAI.getInvestigationQuestion();
-
-            // Speak the question
-            if (typeof speakWithElevenLabs === 'function') {
-                speakWithElevenLabs(investigationQuestion, false);
-            }
-
-            // Move to pre-close after investigation response
-            setTimeout(() => {
-                window.salesAI.state = 'pre_close';
-                console.log('🔄 State changed to: pre_close - waiting for response');
-                triggerBanner(strongIntent.type, 'preClose');
-            }, 3000);
-
-            return investigationQuestion;
-
-        } else {
-            // STEP 2A: RAPPORT BUILDING (FIRST TIME)
-            console.log('🎯 Starting rapport building...');
-            triggerBanner(strongIntent.type, 'investigation');
-
-            window.salesAI.state = 'rapport_building';
-            window.salesAI.userData.intent = strongIntent.type;
-
-            const rapportResponse = buildRapportResponse(strongIntent.type, window.salesAI.userData.firstName);
-
-            // Speak the response
-            if (typeof speakWithElevenLabs === 'function') {
-                speakWithElevenLabs(rapportResponse, false);
-            }
-
-            return rapportResponse;
-        }
-    }
-
-    // STEP 3: PRE-CLOSE HANDLING
-    if (window.salesAI.state === 'pre_close') {
-        console.log('🎯 Processing pre-close response...');
-        const preCloseResponse = handlePreCloseResponse(userMessage, window.salesAI.userData.intent);
-
-        // Speak the response
-        if (typeof speakWithElevenLabs === 'function') {
-            speakWithElevenLabs(preCloseResponse, false);
-        }
-
-        if (preCloseResponse.includes("Perfect! Let me get you connected")) {
-            // User said YES - trigger action center
-            window.salesAI.state = 'lead_capture';
-            console.log('✅ User said YES - triggering action center');
-            triggerBanner(window.salesAI.userData.intent, 'yesResponse');
-        } else {
-            // User said SKIP - return to investigation
-            window.salesAI.state = 'investigation';
-            console.log('🔄 User said SKIP - returning to investigation');
-        }
-
-        return preCloseResponse;
-    }
-
-    // STEP 4: INTRODUCTION HANDLING
-    if (window.salesAI.state === 'introduction') {
-        console.log('🎯 Handling introduction...');
-        const introResponse = await window.salesAI.handleIntroduction(userMessage);
-        if (introResponse) {
-            if (typeof speakWithElevenLabs === 'function') {
-                speakWithElevenLabs(introResponse, false);
-            }
-            return introResponse;
-        }
-    }
-
-    // FALLBACK TO ORIGINAL SYSTEM LOGIC
-    console.log('🔄 Falling back to original system logic...');
-    if (typeof getOpenAIResponse === 'function') {
-        return await getOpenAIResponse(userMessage, conversationHistory);
-    } else {
-        const fallbackResponse = "I appreciate your message! That's something Bruce would be perfect to help with. Would you like me to connect you with him for a free consultation?";
-        if (typeof speakWithElevenLabs === 'function') {
-            speakWithElevenLabs(fallbackResponse, false);
-        }
-        return fallbackResponse;
-    }
-}
-
-console.log('✅ COMPLETE GOLD STANDARD SYSTEM WITH 4-STEP SALES PROCESS LOADED!');
-
-
-function handleTestimonialComplete() {
-    console.log('🎯 Testimonial finished - triggering comeback');
-    
-    const firstName = leadData.firstName || '';
-    const comebackText = firstName ?
-        `${firstName}, if we could get results like this for you, would you be interested in a FREE consultation with Bruce?` :
-        "If we could get results like this for you, would you be interested in a FREE consultation?";
-    
-    // Speak the comeback
-    speakText(comebackText);
-    
-    // 🎨 BANNER: Show free incentive
-    // 🔘 BUTTONS: Switch to CTA mode (green)
-    setTimeout(() => {
-        triggerBanner('setAppointment');
-    }, 2000);
-    
-    // Change state
-    conversationState = 'post_testimonial_consultation_offer';
-}
 
 function askQuickQuestion(questionText) {
     console.log('🎯 Quick button clicked:', questionText);
