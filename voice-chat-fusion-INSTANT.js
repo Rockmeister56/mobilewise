@@ -348,13 +348,13 @@ class SpeechEngineManager {
         }
         
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        this.recognition = new SpeechRecognition(); 
+        window.recognition = new SpeechRecognition(); 
         
-        this.recognition.continuous = true;  // ← FIXED: Use 'this.recognition'
-        this.recognition.interimResults = true;
-        this.recognition.lang = 'en-US';
-        // 🎯 ADD PAUSE THRESHOLD:
-        this.recognition.pauseThreshold = 2000;
+        recognition.continuous = true;  // ← CHANGE TO TRUE
+recognition.interimResults = true;
+recognition.lang = 'en-US';
+// 🎯 ADD PAUSE THRESHOLD:
+recognition.pauseThreshold = 2000;
         
         console.log('🎯 Speech engine created successfully');
         return true;
@@ -657,17 +657,20 @@ function initializeSpeechRecognition() {
     if (!checkSpeechSupport()) return false;
 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    window.recognition = new SpeechRecognition();
+    const recognition = new SpeechRecognition(); 
     
-    window.recognition.continuous = true;
-    window.recognition.interimResults = true;
-    window.recognition.lang = 'en-US';
-    window.recognition.pauseThreshold = 2000;
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = 'en-US';
+    recognition.pauseThreshold = 2000;
+
+    // Store globally for other functions to use
+    window.recognition = recognition;
 
     // 🚫 CRITICAL: DISABLE BROWSER BEEP
-    window.recognition.onsoundstart = null;
-    window.recognition.onaudiostart = null;
-    window.recognition.onstart = null;
+    recognition.onsoundstart = null;
+    recognition.onaudiostart = null;
+    recognition.onstart = null;
 
     console.log('✅ Speech recognition initialized');
     
