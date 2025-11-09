@@ -2242,6 +2242,125 @@ function getPreCloseQuestion(intent) {
     }
 }
 
+// =============================================
+// 🚨 ADD THESE MISSING FUNCTIONS RIGHT AFTER getPreCloseQuestion
+// =============================================
+
+function handleStrongIntentWithTrustBuilding(intent, message) {
+    const userFirstName = salesAI.userData.firstName || 'there';
+    console.log(`🏠 TRUST-BUILDING: Handling ${intent.type} for ${userFirstName}, state: ${salesAI.state}`);
+    
+    switch(intent.type) {
+        case 'sell-practice':
+            return handleSellPracticeIntent(message, userFirstName);
+            
+        case 'buy-practice':
+            return handleBuyPracticeIntent(message, userFirstName);
+            
+        case 'practice-valuation':
+            return handleValuationIntent(message, userFirstName);
+            
+        case 'general-question':
+            return handleGeneralQuestion(message, userFirstName);
+            
+        default:
+            salesAI.state = 'pre_close';
+            return getPreCloseQuestion(intent);
+    }
+}
+
+function handleSellPracticeIntent(message, userName) {
+    console.log(`🏠 SELL PRACTICE TRUST-BUILDING: state=${salesAI.state}, user=${userName}`);
+    
+    switch(salesAI.state) {
+        case 'investigation':
+            // 🎯 STEP 1: Build rapport & understand motivation
+            salesAI.state = 'building_trust_sell';
+            return `${userName}, that's a significant decision. Selling a practice isn't just about the price - it's about your legacy and ensuring your clients are in good hands. How long have you been considering this move?`;
+            
+        case 'building_trust_sell':
+            // 🎯 STEP 2: Understand timing & urgency
+            salesAI.state = 'understanding_timing_sell';
+            return `I appreciate you sharing that. What's your ideal timeline for the transition? Are you looking to sell in the next few months, or is this more of a future planning conversation?`;
+            
+        case 'understanding_timing_sell':
+            // 🎯 STEP 3: Custom close based on their timing
+            const wantsQuickSale = message.toLowerCase().includes('soon') || 
+                                 message.toLowerCase().includes('quick') || 
+                                 message.toLowerCase().includes('asap') ||
+                                 message.toLowerCase().includes('month') ||
+                                 message.toLowerCase().includes('immediately');
+            
+            salesAI.state = 'pre_close';
+            if (wantsQuickSale) {
+                return `If we could help you sell 20-30% faster than going it alone while maximizing your sale price, would you be open to a free valuation consultation with Bruce?`;
+            } else {
+                return `If we could secure you 20-30% more for your practice than selling independently, would you be interested in a free valuation consultation with Bruce?`;
+            }
+            
+        default:
+            salesAI.state = 'pre_close';
+            return getPreCloseQuestion({type: 'sell-practice'});
+    }
+}
+
+function handleBuyPracticeIntent(message, userName) {
+    console.log(`🏠 BUY PRACTICE TRUST-BUILDING: state=${salesAI.state}, user=${userName}`);
+    
+    switch(salesAI.state) {
+        case 'investigation':
+            salesAI.state = 'building_trust_buy';
+            return `${userName}, acquiring a practice is an exciting growth opportunity! Are you looking to expand your current operations, or is this your first practice purchase?`;
+            
+        case 'building_trust_buy':
+            salesAI.state = 'understanding_criteria_buy';
+            return `That's great context. What type of practice are you ideally looking for? Any specific size, location, or specialty you're targeting?`;
+            
+        case 'understanding_criteria_buy':
+            salesAI.state = 'pre_close';
+            return `If we could help you find practices that match your criteria and provide financing guidance, would you be interested in a free acquisition consultation?`;
+            
+        default:
+            salesAI.state = 'pre_close';
+            return getPreCloseQuestion({type: 'buy-practice'});
+    }
+}
+
+function handleValuationIntent(message, userName) {
+    console.log(`🏠 VALUATION TRUST-BUILDING: state=${salesAI.state}, user=${userName}`);
+    
+    switch(salesAI.state) {
+        case 'investigation':
+            salesAI.state = 'building_trust_valuation';
+            return `${userName}, understanding your practice's true value is so important whether you're planning to sell, grow, or just understand your options. What's motivating you to get a valuation right now?`;
+            
+        case 'building_trust_valuation':
+            salesAI.state = 'understanding_valuation_timing';
+            return `That makes sense. Are you thinking about selling in the near future, or is this more about understanding your practice's current position for growth planning?`;
+            
+        case 'understanding_valuation_timing':
+            salesAI.state = 'pre_close';
+            return `If we could provide you with a comprehensive valuation that shows you exactly what your practice is worth and how to maximize its value, would you be interested in a free valuation consultation?`;
+            
+        default:
+            salesAI.state = 'pre_close';
+            return getPreCloseQuestion({type: 'practice-valuation'});
+    }
+}
+
+function handleGeneralQuestion(message, userName) {
+    console.log(`🏠 GENERAL QUESTION: state=${salesAI.state}, user=${userName}`);
+    
+    // For general questions, we can be more direct but still friendly
+    if (salesAI.state === 'investigation') {
+        salesAI.state = 'pre_close_general';
+        return `I understand you have some questions, ${userName}. If we could provide you with clear answers and help you explore your options, would you be open to a quick consultation with one of our specialists?`;
+    }
+    
+    salesAI.state = 'pre_close';
+    return `Would you like to schedule a quick call with one of our specialists to discuss this further?`;
+}
+
 // =============================================================================
 // 🎯 GOLD STANDARD getAIResponse - 4-STEP SALES PROCESS
 // =============================================================================
@@ -2291,59 +2410,11 @@ async function getAIResponse(userMessage, conversationHistory = []) {
     }
     
     // 🎯 STEP 2: STRONG INTENT DETECTION & 4-STEP SALES PROCESS
-    const strongIntent = detectStrongIntent(userMessage);
-    if (strongIntent) {
-        console.log('🎯 STRONG INTENT DETECTED:', strongIntent);
-        
-        if (window.salesAI.state === 'rapport_building') {
-            // 🎯 STEP 2B: INVESTIGATION QUESTION (AFTER RAPPORT)
-            console.log('🎯 Moving to investigation question...');
-            window.salesAI.state = 'investigation';
-
-            const investigationQuestion = window.salesAI.getInvestigationQuestion();
-            speakWithElevenLabs(investigationQuestion, false);
-            
-            // Trigger investigation banner - USING FILE 2'S BETTER BANNER SYSTEM
-            triggerBanner(strongIntent.type, 'investigation');
-            
-            return investigationQuestion;
-            
-        } else if (window.salesAI.state === 'investigation') {
-            // 🎯 STEP 2C: PRE-CLOSE QUESTION (AFTER INVESTIGATION RESPONSE) - FILE 2 IMPROVEMENT
-            console.log('🎯 Moving to pre-close question...');
-            window.salesAI.state = 'pre_close';
-
-            const preCloseQuestion = buildPreCloseQuestion(strongIntent.type, window.salesAI.userData.firstName);
-            speakWithElevenLabs(preCloseQuestion, false);
-            
-            // Trigger pre-close banner
-            triggerBanner(strongIntent.type, 'preClose');
-            
-            return preCloseQuestion;
-            
-        } else {
-            // 🎯 STEP 2A: RAPPORT BUILDING (FIRST TIME)
-            console.log('🎯 Starting rapport building...');
-            triggerBanner(strongIntent.type, 'investigation');
-            
-            window.salesAI.state = 'rapport_building';
-            window.salesAI.userData.intent = strongIntent.type;
-            
-            const rapportResponse = buildRapportResponse(strongIntent.type, window.salesAI.userData.firstName);
-            speakWithElevenLabs(rapportResponse, false);
-            
-            // 🎯 CRITICAL: AUTO-ADVANCE TO INVESTIGATION AFTER RAPPORT - FILE 2 IMPROVEMENT
-            setTimeout(() => {
-                if (window.salesAI && window.salesAI.state === 'rapport_building') {
-                    console.log('🔄 Auto-advancing from rapport to investigation...');
-                    window.salesAI.state = 'investigation';
-                    console.log('🎯 Ready for investigation question on next response');
-                }
-            }, 2000);
-            
-            return rapportResponse;
-        }
-    }
+const strongIntent = detectStrongIntent(userMessage);
+if (strongIntent) {
+    console.log('🎯 STRONG INTENT DETECTED:', strongIntent);
+    return handleStrongIntentWithTrustBuilding(strongIntent, userMessage);
+}
     
     // 🎯 STEP 3: PRE-CLOSE HANDLING
     if (window.salesAI.state === 'pre_close') {
