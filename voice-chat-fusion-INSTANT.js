@@ -2730,7 +2730,9 @@ function detectStrongIntent(userMessage) {
     const strongValuationIndicators = [
         'i need a valuation', 'want a valuation', 'get a valuation', 'value my practice',
         'how much is my practice worth', 'what is my practice worth', 'practice worth',
-        'valuation of my practice'
+        'valuation of my practice', 'get an evaluation', 'want an evaluation', 'need an evaluation', 
+        'evaluate my practice', 'practice evaluation', 'free evaluation',
+         'get my practice evaluated', 'evaluation on my practice'
     ];
     
     // Check strong intents
@@ -2840,10 +2842,7 @@ function handlePreCloseResponse(userResponse, intentType) {
     
     // YES responses
     const yesPatterns = ['yes', 'yeah', 'sure', 'okay', 'ok', 'absolutely', 'definitely', 'let\'s do it', 'ready', 'go ahead'];
-    
-    // NO responses  
-    const noPatterns = ['no', 'not yet', 'maybe later', 'not now', 'no thanks', 'nah', 'wait', 'hold on'];
-    
+
     if (yesPatterns.some(pattern => lowerResponse.includes(pattern))) {
         // 🎯 CRITICAL FIX: Trigger Action Center for YES responses
         setTimeout(() => {
@@ -2859,6 +2858,9 @@ function handlePreCloseResponse(userResponse, intentType) {
     if (noPatterns.some(pattern => lowerResponse.includes(pattern))) {
         return "I completely understand wanting to take your time with such an important decision. What specific questions or concerns would be most helpful for you to have answered right now?";
     }
+    
+    // NO responses  
+    const noPatterns = ['no', 'not yet', 'maybe later', 'not now', 'no thanks', 'nah', 'wait', 'hold on'];
     
     // Ambiguous response
     return "Thanks for sharing that. To make sure I connect you with the right resources, would now be a good time for Bruce to give you a quick call, or would you prefer to get some initial information first?";
