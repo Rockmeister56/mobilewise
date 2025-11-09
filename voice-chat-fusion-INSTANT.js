@@ -2323,10 +2323,11 @@ async function getAIResponse(userMessage, conversationHistory = []) {
         speakWithElevenLabs(preCloseResponse, false);
         
         if (preCloseResponse.includes("Perfect! Let me get you connected")) {
-            // User said YES - trigger action center
-            window.salesAI.state = 'lead_capture';
-            console.log('✅ User said YES - triggering action center');
-            triggerBanner(window.salesAI.userData.intent, 'yesResponse');
+    // User said YES - trigger appointment banner
+    window.salesAI.state = 'lead_capture';
+    console.log('✅ User said YES - triggering appointment banner');
+    triggerBanner('setAppointment');
+    
         } else {
             // User said SKIP - return to investigation
             window.salesAI.state = 'investigation';
