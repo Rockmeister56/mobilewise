@@ -2716,13 +2716,6 @@ const strongBuyingIndicators = [
     'i want to buy', 'i need to buy', 'looking to buy', 'want to buy', 'need to buy',
     'buy a practice', 'buy a firm', 'acquire a practice', 'purchase a practice',
     'looking to acquire', 'want to acquire',
-    // ADD PRE-QUALIFICATION KEYWORDS:
-    'pre qualification', 'prequalification', 'pre qual', 'prequal',
-    'get pre qualified', 'pre qualified', 'pre-qualified',
-    'qualify for a practice', 'pre approval', 'pre-approval',
-    'get qualified to buy', 'buying qualification', 'purchase qualification',
-    'financial qualification', 'ready to buy a practice', 'qualify to purchase',
-    'pre qualification for', 'prequalification for'
 ];
     
     // Strong pre-qualification indicators for buying
