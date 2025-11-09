@@ -2534,13 +2534,29 @@ console.log('🔄 No strong intent - using original system logic');
     }
 }
 
-// =============================================================================
-// 🎯 CONCERN DETECTION SYSTEM - NEW INTEGRATION
+/// 🎯 CONCERN DETECTION SYSTEM - FIXED VERSION
 // =============================================================================
 
 // 🎯 CONCERN DETECTION: Check for objections/negative sentiment
 function detectConcernOrObjection(userText) {
     const text = userText.toLowerCase().trim();
+    
+    // 🎯 CRITICAL FIX: EXCLUDE appointment/consultation intent words
+    const appointmentKeywords = [
+        'appointment', 'meeting', 'schedule', 'book', 'reserve', 'set up',
+        'consult', 'consultation', 'call', 'talk to bruce', 'meet with bruce',
+        'free consultation', 'free consult', 'book a meeting'
+    ];
+    
+    // Check if this is actually an appointment request (NOT a concern)
+    const hasAppointmentIntent = appointmentKeywords.some(keyword => 
+        text.includes(keyword)
+    );
+    
+    if (hasAppointmentIntent) {
+        console.log('🔄 Appointment intent detected - skipping concern detection');
+        return false; // This is NOT a concern - it's a positive action request
+    }
     
     // Price objections
     const priceKeywords = [
@@ -2548,10 +2564,11 @@ function detectConcernOrObjection(userText) {
         'budget', 'cheap', 'fee', 'charge', 'payment'
     ];
     
-    // Time objections
+    // Time objections (EXCLUDE appointment words - they're already handled above)
     const timeKeywords = [
         'busy', 'no time', 'later', 'not now', 'rush', 'hurry',
-        'schedule', 'appointment', 'timing'
+        'timing', 'too long', 'wait'
+        // REMOVED: 'schedule', 'appointment' - these are positive actions
     ];
     
     // Trust/skepticism objections
