@@ -2715,7 +2715,7 @@ function detectStrongIntent(userMessage) {
 const strongBuyingIndicators = [
     'i want to buy', 'i need to buy', 'looking to buy', 'want to buy', 'need to buy',
     'buy a practice', 'buy a firm', 'acquire a practice', 'purchase a practice',
-    'looking to acquire', 'want to acquire',
+    'looking to acquire', 'want to acquire'
 ];
     
     // Strong pre-qualification indicators for buying
