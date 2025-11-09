@@ -2251,7 +2251,7 @@ function handleSellPracticeIntent(message, userName) {
                 const years = yearMatch[0];
                 return `${userName}, ${years} years is definitely a substantial time to build a practice. What's your ideal timeline for the transition? Are you looking to sell in the next few months, or taking a more measured approach?`;
             } else {
-                return `I appreciate you sharing that, ${userName}. What's your ideal timeline for the transition? Are you looking to sell in the next few months, or taking a more measured approach?`;
+                return `I appreciate you sharing that ${userName}. What's your ideal timeline for the transition? Are you looking to sell in the next few months, or taking a more measured approach?`;
             }
             
         case 'understanding_timing_sell':
