@@ -2330,7 +2330,7 @@ function handleValuationIntent(message, userName) {
         case 'investigation':
             // 🎯 STEP 1: Understand valuation motivation
             salesAI.state = 'building_trust_valuation';
-            return `${userName}, understanding your practice's true value is so important whether you're planning to sell, grow, or just understand your options. What's motivating you to get a valuation right now?`;
+            return `${userName}, Getting properly pre-qualified is such an important first step whether you're looking to buy your first practice, expand to multiple locations, or just understand what's financially possible. What's motivating you to explore practice ownership right now?`;
             
         case 'building_trust_valuation':
             // 🎯 STEP 2: Understand timing context - WITH PERSONALIZATION!
