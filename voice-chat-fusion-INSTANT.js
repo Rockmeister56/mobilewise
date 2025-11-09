@@ -981,7 +981,7 @@ if (typeof processUserResponse === 'function') {
 
     } catch (error) {
         console.error('❌ Error starting speech recognition:', error);
-        addAIMessage("Speech recognition failed. Please try again or use text input.");
+        addAIMessage("Woops, I missed that please try again.");
         //switchToTextMode(); // 🚨 REMOVE THIS LINE
     }
 }
