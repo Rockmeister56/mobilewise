@@ -2213,6 +2213,35 @@ window.salesAI = window.salesAI || {
 };
 console.log('🔄 SalesAI auto-initialized on page load:', window.salesAI);
 
+// =============================================
+// 🎯 MISSING getPreCloseQuestion FUNCTION 
+// =============================================
+
+function getPreCloseQuestion(intent) {
+    const userName = salesAI.userData.firstName || '';
+    const namePart = userName ? `${userName}, ` : '';
+    
+    switch(intent.type) {
+        case 'sell-practice':
+            return `${namePart}If we could get your practice sold for 20-30% more than going alone in 3 months or less, would you be interested in a free valuation consultation with Bruce?`;
+            
+        case 'buy-practice':
+            return `${namePart}If we could help you find the perfect practice to acquire with financing options, would you be interested in a free acquisition consultation?`;
+            
+        case 'marketing-help':
+            return `${namePart}If we could help you get 5-10 new qualified clients in the next 90 days, would you be interested in a free marketing strategy session?`;
+            
+        case 'growth-help':
+            return `${namePart}If we could help you increase your practice revenue by 25-50% in the next year, would you be interested in a free growth consultation?`;
+            
+        case 'general-question':
+            return `${namePart}Would you like to schedule a quick call with one of our specialists to discuss this further?`;
+            
+        default:
+            return `${namePart}Would you be interested in a free consultation to explore how we can help you?`;
+    }
+}
+
 // =============================================================================
 // 🎯 GOLD STANDARD getAIResponse - 4-STEP SALES PROCESS
 // =============================================================================
@@ -2525,6 +2554,7 @@ const NCI_CONFIG = {
 };
 
 // BOTH FILES HAVE detectStrongIntent - USING FILE 1'S VERSION (IT'S MORE COMPLETE)
+// ✅ KEEP YOUR EXISTING detectStrongIntent FUNCTION - IT'S BETTER!
 function detectStrongIntent(userMessage) {
     console.log('🔍 detectStrongIntent analyzing:', userMessage);
     const lowerMsg = userMessage.toLowerCase();
@@ -2571,11 +2601,83 @@ function detectStrongIntent(userMessage) {
             return { type: 'practice-valuation', strength: 'strong' };
         }
     }
-
-
     
     console.log('🔍 No strong intent detected');
     return null;
+}
+
+// ✅ ADD THE MISSING getPreCloseQuestion FUNCTION
+function getPreCloseQuestion(intent) {
+    const userName = salesAI.userData.firstName || '';
+    const namePart = userName ? `${userName}, ` : '';
+    
+    switch(intent.type) {
+        case 'sell-practice':
+            return `${namePart}If we could get your practice sold for 20-30% more than going alone in 3 months or less, would you be interested in a free valuation consultation with Bruce?`;
+            
+        case 'buy-practice':
+            return `${namePart}If we could help you find the perfect practice to acquire with financing options, would you be interested in a free acquisition consultation?`;
+            
+        case 'practice-valuation':
+            return `${namePart}If we could provide you with a comprehensive practice valuation and show you how to maximize your practice's worth, would you be interested in a free valuation session?`;
+            
+        case 'marketing-help':
+            return `${namePart}If we could help you get 5-10 new qualified clients in the next 90 days, would you be interested in a free marketing strategy session?`;
+            
+        case 'growth-help':
+            return `${namePart}If we could help you increase your practice revenue by 25-50% in the next year, would you be interested in a free growth consultation?`;
+            
+        case 'general-question':
+            return `${namePart}Would you like to schedule a quick call with one of our specialists to discuss this further?`;
+            
+        default:
+            return `${namePart}Would you be interested in a free consultation to explore how we can help you?`;
+    }
+}
+
+// ✅ UPDATE handleStrongIntentWithTrustBuilding TO INCLUDE VALUATION
+function handleStrongIntentWithTrustBuilding(intent, message) {
+    const userFirstName = salesAI.userData.firstName || 'there';
+    console.log(`🏠 TRUST-BUILDING: Handling ${intent.type} for ${userFirstName}, state: ${salesAI.state}`);
+    
+    switch(intent.type) {
+        case 'sell-practice':
+            return handleSellPracticeIntent(message, userFirstName);
+            
+        case 'buy-practice':
+            return handleBuyPracticeIntent(message, userFirstName);
+            
+        case 'practice-valuation':
+            return handleValuationIntent(message, userFirstName);
+            
+        case 'general-question':
+            return handleGeneralQuestion(message, userFirstName);
+            
+        default:
+            salesAI.state = 'pre_close';
+            return getPreCloseQuestion(intent);
+    }
+}
+
+// ✅ ADD VALUATION INTENT HANDLER
+function handleValuationIntent(message, userName) {
+    switch(salesAI.state) {
+        case 'investigation':
+            salesAI.state = 'building_trust_valuation';
+            return `${userName}, understanding your practice's true value is so important whether you're planning to sell, grow, or just understand your options. What's motivating you to get a valuation right now?`;
+            
+        case 'building_trust_valuation':
+            salesAI.state = 'understanding_valuation_timing';
+            return `That makes sense. Are you thinking about selling in the near future, or is this more about understanding your practice's current position for growth planning?`;
+            
+        case 'understanding_valuation_timing':
+            salesAI.state = 'pre_close';
+            return `If we could provide you with a comprehensive valuation that shows you exactly what your practice is worth and how to maximize its value, would you be interested in a free valuation consultation?`;
+            
+        default:
+            salesAI.state = 'pre_close';
+            return getPreCloseQuestion({type: 'practice-valuation'});
+    }
 }
 
 // BOTH FILES HAVE buildRapportResponse - USING FILE 1'S VERSION (IT'S MORE PERSONAL)
@@ -2706,6 +2808,35 @@ function processUserResponse(userText) {
             speakWithElevenLabs(responseText);
         }
     }, 800);
+}
+
+// =============================================
+// 🎯 MISSING getPreCloseQuestion FUNCTION 
+// =============================================
+
+function getPreCloseQuestion(intent) {
+    const userName = salesAI.userData.firstName || '';
+    const namePart = userName ? `${userName}, ` : '';
+    
+    switch(intent.type) {
+        case 'sell-practice':
+            return `${namePart}If we could get your practice sold for 20-30% more than going alone in 3 months or less, would you be interested in a free valuation consultation with Bruce?`;
+            
+        case 'buy-practice':
+            return `${namePart}If we could help you find the perfect practice to acquire with financing options, would you be interested in a free acquisition consultation?`;
+            
+        case 'marketing-help':
+            return `${namePart}If we could help you get 5-10 new qualified clients in the next 90 days, would you be interested in a free marketing strategy session?`;
+            
+        case 'growth-help':
+            return `${namePart}If we could help you increase your practice revenue by 25-50% in the next year, would you be interested in a free growth consultation?`;
+            
+        case 'general-question':
+            return `${namePart}Would you like to schedule a quick call with one of our specialists to discuss this further?`;
+            
+        default:
+            return `${namePart}Would you be interested in a free consultation to explore how we can help you?`;
+    }
 }
 
 function askQuickQuestion(questionText) {
