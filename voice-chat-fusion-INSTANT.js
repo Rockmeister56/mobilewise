@@ -2783,20 +2783,20 @@ function handleStrongIntentWithTrustBuilding(intent, message) {
     }
 }
 
-// ✅ ADD VALUATION INTENT HANDLER
-function handleValuationIntent(message, userName) {
+// ✅ ADD PRE-QUALIFICATION INTENT HANDLER
+function handlePreQualificationIntent(message, userName) {
     switch(salesAI.state) {
         case 'investigation':
-            salesAI.state = 'building_trust_valuation';
-            return `${userName}, understanding your practice's true value is so important whether you're planning to sell, grow, or just understand your options. What's motivating you to get a valuation right now?`;
+            salesAI.state = 'building_trust_prequal';
+            return `${userName}, getting properly pre-qualified is such an important first step in practice ownership. It helps you understand exactly what you can afford and what opportunities are within reach. What's motivating you to explore practice ownership right now?`;
             
-        case 'building_trust_valuation':
-            salesAI.state = 'understanding_valuation_timing';
-            return `That makes sense. Are you thinking about selling in the near future, or is this more about understanding your practice's current position for growth planning?`;
+        case 'building_trust_prequal':
+            salesAI.state = 'understanding_prequal_goals';
+            return `That's a great starting point. Are you looking for your first practice, or are you thinking about expanding your current operations with an additional location?`;
             
-        case 'understanding_valuation_timing':
+        case 'understanding_prequal_goals':
             salesAI.state = 'pre_close';
-            return `If we could provide you with a comprehensive valuation that shows you exactly what your practice is worth and how to maximize its value, would you be interested in a free valuation consultation?`;
+            return `If we could help you get pre-qualified and show you exactly what practice options fit your budget and goals, would you be interested in a free pre-qualification consultation with Bruce?`;
             
         default:
             salesAI.state = 'pre_close';
