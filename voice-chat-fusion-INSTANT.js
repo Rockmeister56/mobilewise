@@ -715,6 +715,8 @@ async function startListening() {
         console.log('🚫 Recognition already running - skipping start');
         return;
     }
+
+    window.isCurrentlyListening = true;
     
     // Smart button gate-keeper (keep this)
     const smartButton = document.getElementById('smartButton');
