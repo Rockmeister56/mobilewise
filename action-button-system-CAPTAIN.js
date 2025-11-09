@@ -7,7 +7,6 @@
  * Modes: Quick Questions, Call-to-Action, Reviews (Testimonials)
  * 
  * Created: 2025-10-24
- * Modified: 2025-10-30 - CTA MODE DISABLED (replaced by Communication Action Center)
  */
 
 (function() {
@@ -21,14 +20,15 @@
                 { id: 'q2', text: 'Selling Options', action: 'askQuickQuestion', param: 'I want to sell my practice' },
                 { id: 'q3', text: 'Buying Options', action: 'askQuickQuestion', param: 'I want to buy a practice' }
             ],
-            gradient: 'linear-gradient(135deg, #667eea 0%, #0e27b5ff 100%)' // Blue
+            gradient: 'linear-gradient(135deg, #667eea 0%, #2e44c3ff 100%)' // Blue
         },
         'cta': {
-            // 🚫 CTA MODE DISABLED - REPLACED BY COMMUNICATION ACTION CENTER
-            // Old buttons (cta1, cta2, cta3) permanently removed
-            // Do not render anything in CTA mode
-            buttons: [],
-            gradient: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)' // Green (preserved for reference)
+            buttons: [
+                { id: 'cta1', text: 'Free Book + Call', action: 'openLink', param: 'https://mobile-wise.com/book-consultation' },
+                { id: 'cta2', text: 'Smart Button Demo', action: 'openLink', param: 'https://mobile-wise.com/smart-button' },
+                { id: 'cta3', text: 'Free Guide', action: 'openLink', param: 'https://mobile-wise.com/practice-valuation-guide' }
+            ],
+            gradient: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)' // Green
         },
         'reviews': {
             buttons: [
@@ -74,7 +74,7 @@
         renderButtons(currentMode);
 
         isInitialized = true;
-        console.log('✅ Action Button System initialized (Captain\'s Edition - CTA MODE DISABLED)');
+        console.log('✅ Action Button System initialized (Captain\'s Edition)');
     }
 
     /**
@@ -162,31 +162,7 @@
             return;
         }
 
-        // ✅ ALLOW CTA MODE RENDERING
-if (mode === 'cta') {
-    console.log('🎯 URGENT CTA MODE - Showing action buttons immediately');
-    
-    // Clear the container first
-    buttonContainer.innerHTML = '';
-    
-    // Add urgent CTA buttons directly
-    buttonContainer.innerHTML = `
-        <div style="text-align: center; padding: 15px;">
-            <h3 style="color: #d40000; margin-bottom: 15px; font-size: 18px;">🚨 Urgent Assistance</h3>
-            <button onclick="window.handleActionButton('click-to-call')" 
-                    style="background: #d40000; color: white; border: none; padding: 12px 20px; border-radius: 25px; font-size: 16px; font-weight: bold; cursor: pointer; margin: 5px; display: block; width: 100%; transition: all 0.3s;">
-                📞 Call Bruce Now
-            </button>
-            <button onclick="window.handleActionButton('set-appointment')" 
-                    style="background: #0066cc; color: white; border: none; padding: 12px 20px; border-radius: 25px; font-size: 16px; font-weight: bold; cursor: pointer; margin: 5px; display: block; width: 100%; transition: all 0.3s;">
-                📅 Schedule Emergency Meeting
-            </button>
-        </div>
-    `;
-    return;
-}
-
-        // Clear container (only for non-CTA modes)
+        // Clear container
         buttonContainer.innerHTML = '';
 
         // Create buttons
@@ -199,28 +175,8 @@ if (mode === 'cta') {
             // Apply gradient background
             button.style.background = config.gradient;
             
-            // Attach click handler based on button mode
-            if (mode === 'cta') {
-                // This code path should never execute due to the block above, but keeping for safety
-                button.onclick = () => {
-                    console.log(`🎯 CTA Button clicked: ${buttonDef.action}`);
-                    if (typeof window.handleCTAButtonClick === 'function') {
-                        window.handleCTAButtonClick(buttonDef.action);
-                    } else {
-                        console.error('❌ handleCTAButtonClick function not found');
-                    }
-                };
-            } else {
-                // Quick buttons route to askQuickQuestion
-                button.onclick = () => {
-                    console.log(`🎯 Quick Button clicked: ${buttonDef.param}`);
-                    if (typeof window.askQuickQuestion === 'function') {
-                        window.askQuickQuestion(buttonDef.param);
-                    } else {
-                        console.error('❌ askQuickQuestion function not found');
-                    }
-                };
-            }
+            // Attach click handler
+            button.onclick = () => handleButtonClick(buttonDef.action, buttonDef.param);
             
             buttonContainer.appendChild(button);
         });
@@ -276,13 +232,6 @@ if (mode === 'cta') {
             return;
         }
 
-        // 🚫 BLOCK SWITCHING TO CTA MODE
-        if (mode === 'cta') {
-    console.log('🎯 CTA MODE ACTIVATED - Showing urgent action buttons');
-    this.renderButtons('cta'); // 🎯 THIS SHOWS THE BUTTONS!
-    return;
-}
-
         console.log(`🔄 Switching buttons: ${currentMode} → ${newMode}`);
 
         // Add blink animation to current buttons
@@ -328,5 +277,5 @@ if (mode === 'cta') {
         setTimeout(initializeButtonSystem, 500);
     }
 
-    console.log('✅ Action Button System loaded (Captain\'s Edition - CTA MODE DISABLED)');
+    console.log('✅ Action Button System loaded (Captain\'s Edition)');
 })();
