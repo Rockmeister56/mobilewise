@@ -2274,9 +2274,9 @@ function handleSellPracticeIntent(message, userName) {
                                  message.toLowerCase().includes('right away');
             
             if (wantsQuickSale) {
-                return `If we could help you sell 20-30% faster than going it alone while maximizing your sale price, would you be open to a free valuation consultation with Bruce?`;
+                return `If we could help you sell 20-30% faster than going it alone while maximizing your sale price, would you be open to a valuation consultation with Bruce,the founder and CEO of NCI?`;
             } else {
-                return `If we could secure you 20-30% more for your practice than selling independently, would you be interested in a free valuation consultation with Bruce?`;
+                return `If we could secure you 20-30% more for your practice than selling independently, would you be interested in a valuation consultation with Bruce,the founder and CEO of NCI?`;
             }
             
         default:
@@ -2457,7 +2457,7 @@ if (urgentPatterns.some(pattern => lowerMessage.includes(pattern))) {
         }
     }, 1000);
     
-    return "I understand this is urgent! Let me bring up all the ways to connect with Bruce immediately.";
+    return "I understand this is urgent! Let me bring up all the ways to connect with Bruce,the founder and CEO of NCI immediately.";
 }
 
 // Check for APPOINTMENT second
@@ -2472,7 +2472,7 @@ if (appointmentPatterns.some(pattern => lowerMessage.includes(pattern))) {
         }
     }, 1000);
     
-    return "Perfect! I'd love to help you schedule that. Let me bring up all the ways to connect with Bruce for your appointment.";
+    return "Perfect! I'd love to help you schedule that. Let me bring up all the ways to connect with Bruce,the founder and CEO of NCI for your appointment.";
 }
     
     // 🎯 STEP 2: STRONG INTENT DETECTION & 4-STEP SALES PROCESS
@@ -2529,7 +2529,7 @@ console.log('🔄 No strong intent - using original system logic');
     if (typeof getOpenAIResponse === 'function') {
         return await getOpenAIResponse(userMessage, conversationHistory);
     } else {
-        const fallbackResponse = "I appreciate your message! That's something Bruce would be perfect to help with. Would you like me to connect you with him for a free consultation?";
+        const fallbackResponse = "I appreciate your message! That's something Bruce,the founder and CEO of NCI would be perfect to help with. Would you like me to connect you with him for a free consultation?";
         speakWithElevenLabs(fallbackResponse, false);
         return fallbackResponse;
     }
@@ -2630,7 +2630,7 @@ function handleConcernWithTestimonial(userText) {
             break;
             
         case 'time':
-            acknowledgment = `I hear you on "${userText}". Several of our clients had similar thoughts before working with Bruce. Feel free to click a review to hear their experience, or hit Skip and we'll keep talking.`;
+            acknowledgment = `I hear you on "${userText}". Several of our clients had similar thoughts before working with Bruce,the founder and CEO of NCI. Feel free to click a review to hear their experience, or hit Skip and we'll keep talking.`;
             break;
             
         case 'trust':
@@ -2638,7 +2638,7 @@ function handleConcernWithTestimonial(userText) {
             break;
             
         case 'general':
-            acknowledgment = `I appreciate you sharing that about "${userText}". Some of Bruce's clients started with similar hesitations. If you're curious what happened for them, click a review. Otherwise, click Skip and let's continue.`;
+            acknowledgment = `I appreciate you sharing that about "${userText}". Some of valued clients of Bruce,the founder and CEO of NCI started with similar hesitations. If you're curious what happened for them, click a review. Otherwise, click Skip and let's continue.`;
             break;
     }
     
@@ -2685,24 +2685,24 @@ const NCI_CONFIG = {
     salesPaths: {
         'sell-practice': {
             investigationQuestion: "How long have you been thinking about selling your practice?",
-            valueProp: "Bruce has helped thousands of accountants successfully exit their practices while maximizing value.",
+            valueProp: "Bruce,the founder and CEO of NCI has helped thousands of accountants successfully exit their practices while maximizing value.",
             timeFrame: "3 months or less", 
             result: "get your practice sold for 20-30% more than going alone",
-            offer: "free valuation consultation with Bruce"
+            offer: "free valuation consultation with Bruce,the founder and CEO of NCI"
         },
         'buy-practice': {
             investigationQuestion: "What type of practice are you looking to acquire?",
-            valueProp: "Bruce has exclusive off-market opportunities that most buyers never see.",
+            valueProp: "Bruce,the founder and CEO of NCI has exclusive off-market opportunities that most buyers never see.",
             timeFrame: "60-90 days",
             result: "find you the perfect practice match", 
-            offer: "free buying consultation with Bruce"
+            offer: "free buying consultation with Bruce,the founder and CEO of NCI"
         },
         'practice-valuation': {
             investigationQuestion: "What's driving your interest in a valuation right now?",
             valueProp: "Most owners are surprised by their practice's true market worth.",
             timeFrame: "immediately",
             result: "show you exactly what your practice is worth",
-            offer: "free valuation from Bruce"
+            offer: "free valuation from Bruce,the founder and CEO of NCI"
         }
     }
 };
@@ -2817,11 +2817,11 @@ function buildRapportResponse(intentType, userName = '') {
     const namePart = userName ? `${userName}, ` : '';
     
     const responses = {
-        'sell-practice': `${namePart}I completely understand your interest in selling your practice. Many practitioners reach a point where they're ready for their next chapter. Bruce actually helped me transition my own practice 5 years ago before I joined him here. His approach is truly different - he focuses on finding the right cultural fit, not just the highest bidder. What got you thinking about selling at this particular time?`,
+        'sell-practice': `${namePart}I completely understand your interest in selling your practice. Many practitioners reach a point where they're ready for their next chapter. Bruce,the founder and CEO of NCI actually helped me transition my own practice 5 years ago before I joined him here. His approach is truly different - he focuses on finding the right cultural fit, not just the highest bidder. What got you thinking about selling at this particular time?`,
         
-        'buy-practice': `${namePart}That's exciting that you're looking to acquire a practice! Growth through acquisition can be incredibly rewarding. Bruce has an amazing track record of matching buyers with practices that align with their vision. He actually helped me find my current practice when I was in your position. What specific type of practice are you hoping to find?`,
+        'buy-practice': `${namePart}That's exciting that you're looking to acquire a practice! Growth through acquisition can be incredibly rewarding. Bruce,the founder and CEO of NCI has an amazing track record of matching buyers with practices that align with their vision. He actually helped me find my current practice when I was in your position. What specific type of practice are you hoping to find?`,
         
-        'practice-valuation': `${namePart}Getting a proper valuation is so important. Many practitioners are surprised to learn what their life's work is truly worth. Bruce has a unique methodology that looks beyond just the numbers - he considers strategic value, growth potential, and market positioning. He helped me understand the real value drivers in my own practice. What's motivating your interest in a valuation right now?`
+        'practice-valuation': `${namePart}Getting a proper valuation is so important. Many practitioners are surprised to learn what their life's work is truly worth. Bruce,the founder and CEO of NCI has a unique methodology that looks beyond just the numbers - he considers strategic value, growth potential, and market positioning. He helped me understand the real value drivers in my own practice. What's motivating your interest in a valuation right now?`
     };
     
     return responses[intentType] || `${namePart}I'd love to help you with that. Could you tell me more about what you're looking to accomplish?`;
@@ -2832,7 +2832,7 @@ function buildPreCloseQuestion(intentType, userName = '') {
     const name = userName ? `${userName}, ` : '';
     const path = NCI_CONFIG.salesPaths[intentType];
 
-    if (!path) return `${name}Would you be interested in a free consultation with Bruce?`;
+    if (!path) return `${name}Would you be interested in a free consultation with Bruce,the founder and CEO of NCI?`;
 
     return `${name}If we could ${path.result} in ${path.timeFrame}, would you be interested in a ${path.offer}?`;
 }
@@ -2852,7 +2852,7 @@ function handlePreCloseResponse(userResponse, intentType) {
             }
         }, 1000);
         
-        return "Perfect! Let me bring up all the ways to connect with Bruce directly. He's the expert who can give you personalized guidance!";
+        return "Perfect! Let me bring up all the ways to connect with Bruce,the founder and CEO of NCI directly. He's the expert who can give you personalized guidance!";
     }
     
     if (noPatterns.some(pattern => lowerResponse.includes(pattern))) {
@@ -2863,7 +2863,7 @@ function handlePreCloseResponse(userResponse, intentType) {
     const noPatterns = ['no', 'not yet', 'maybe later', 'not now', 'no thanks', 'nah', 'wait', 'hold on'];
     
     // Ambiguous response
-    return "Thanks for sharing that. To make sure I connect you with the right resources, would now be a good time for Bruce to give you a quick call, or would you prefer to get some initial information first?";
+    return "Thanks for sharing that. To make sure I connect you with the right resources, would now be a good time for Bruce,the founder and CEO of NCI to give you a quick call, or would you prefer to get some initial information first?";
 }
 
 // FILE 2 HAS BANNER_MAPPING AND triggerBanner - ADDING THEM (THEY WERE MISSING FROM FILE 1)
@@ -2959,7 +2959,7 @@ function getPreCloseQuestion(intent) {
     
     switch(intent.type) {
         case 'sell-practice':
-            return `${namePart}If we could get your practice sold for 20-30% more than going alone in 3 months or less, would you be interested in a free valuation consultation with Bruce?`;
+            return `${namePart}If we could get your practice sold for 20-30% more than going alone in 3 months or less, would you be interested in a valuation consultation with Bruce,the founder and CEO of NCI?`;
             
         case 'buy-practice':
             return `${namePart}If we could help you find the perfect practice to acquire with financing options, would you be interested in a free acquisition consultation?`;
@@ -3009,8 +3009,8 @@ function askQuickQuestion(questionText) {
         targetState = 'asking_valuation_consultation';
         
         scriptResponse = window.leadData && window.leadData.firstName ?
-            `Perfect ${window.leadData.firstName}! Bruce can provide a FREE valuation. Most owners are surprised by the value. Interested?` :
-            "Perfect! Bruce can provide a FREE valuation. Most owners are surprised. Interested?";
+            `Perfect ${window.leadData.firstName}! Bruce, the founder and CEO of NCI can provide a valuation. Most owners are surprised by the value. Interested?` :
+            "Perfect! Bruce,the founder and CEO of NCI can provide a valuation. Most owners are surprised. Interested?";
             
     } else if (buttonText.includes('sell')) {
         // SELLING OPTIONS BUTTON
@@ -3029,8 +3029,8 @@ function askQuickQuestion(questionText) {
         targetState = 'buying_budget_question';
         
         scriptResponse = window.leadData && window.leadData.firstName ?
-            `Excellent, ${window.leadData.firstName}! Bruce has some fantastic opportunities available right now. Tell me, what's your budget range for acquiring a practice?` :
-            "Excellent! Bruce has some fantastic opportunities available. What's your budget range for acquiring a practice?";
+            `Excellent, ${window.leadData.firstName}! Bruce,the founder and CEO of NCI has some fantastic opportunities available right now. Tell me, what's your budget range for acquiring a practice?` :
+            "Excellent! Bruce,the founder and CEO of NCI has some fantastic opportunities available. What's your budget range for acquiring a practice?";
     }
     
     // 3️⃣ CHECK IF WE HAVE THEIR NAME
@@ -3512,7 +3512,7 @@ Timestamp: ${timestamp}
             window.quickLeadData = null;
             
             // AI response
-            const responseText = `Perfect ${data.firstName}! Bruce will ${data.captureType === 'urgent' ? 'prioritize your urgent request' : 'call you shortly'}. Is there anything else I can help you with?`;
+            const responseText = `Perfect ${data.firstName}! Bruce,the founder and CEO of NCI will ${data.captureType === 'urgent' ? 'prioritize your urgent request' : 'call you shortly'}. Is there anything else I can help you with?`;
             
             speakText(responseText);
             conversationState = 'asking_if_more_help';
@@ -3814,7 +3814,7 @@ function sendLeadEmail(data) {
                     
                     // Add inquiry-specific messaging
                     if (data.inquiryType === 'buying') {
-                        askEmailMessage += ` Bruce will share some exclusive opportunities that match your criteria.`;
+                        askEmailMessage += ` Bruce,the founder and CEO of NCI will share some exclusive opportunities that match your criteria.`;
                     } else if (data.inquiryType === 'valuation') {
                         askEmailMessage += ` You'll receive a comprehensive practice valuation analysis.`;
                     }
