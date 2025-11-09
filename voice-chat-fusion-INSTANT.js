@@ -98,7 +98,7 @@ if (typeof window.isSpeaking === 'undefined') {
 // ===================================================
 
 // Auto-restart configuration
-const AUTO_RESTART_DELAY = 1500; // 1.5 seconds after AI response
+const AUTO_RESTART_DELAY = 500; // 1.5 seconds after AI response
 let isAutoRestartEnabled = true;
 // restartTimeout already declared at line 39 - reusing existing variable
 let countdownInterval = null;
@@ -350,9 +350,11 @@ class SpeechEngineManager {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         this.recognition = new SpeechRecognition();
         
-        this.recognition.continuous = false;
-        this.recognition.interimResults = true;
-        this.recognition.lang = 'en-US';
+        recognition.continuous = true;  // ← CHANGE TO TRUE
+recognition.interimResults = true;
+recognition.lang = 'en-US';
+// 🎯 ADD PAUSE THRESHOLD:
+recognition.pauseThreshold = 2000;
         
         console.log('🎯 Speech engine created successfully');
         return true;
@@ -657,9 +659,11 @@ function initializeSpeechRecognition() {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     recognition = new SpeechRecognition();
     
-    recognition.continuous = false;
-    recognition.interimResults = true;
-    recognition.lang = 'en-US';
+    this.recognition.continuous = true;  // ← CHANGE TO TRUE
+this.recognition.interimResults = true;
+this.recognition.lang = 'en-US';
+// 🎯 ADD PAUSE THRESHOLD:
+this.recognition.pauseThreshold = 2000;
 
     // 🚫 CRITICAL: DISABLE BROWSER BEEP
     recognition.onsoundstart = null;
@@ -2037,14 +2041,6 @@ function triggerBanner(triggerName) {
 }
 
 // ===================================================
-// 🔇 SPEECH PAUSE HELPER
-// ===================================================
-function pauseSpeechForBannerInteraction() {
-    console.log('🔇 Speech paused for banner interaction');
-    // Add any speech pausing logic here if needed
-}
-
-// ===================================================
 // 🎖️ UNIVERSAL MASTER BANNER TRIGGER SYSTEM
 // ===================================================
 window.triggerBanner = function(bannerType, options = {}) {
@@ -3089,7 +3085,7 @@ function askQuickQuestion(questionText) {
             if (typeof startListening === 'function') {
                 startListening();
             }
-        }, 2000);
+        }, 1000);
         
         // Show expertise banner immediately
         setTimeout(() => {
