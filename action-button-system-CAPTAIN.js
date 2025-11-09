@@ -260,10 +260,10 @@
             return;
         }
 
-        // 🚫 BLOCK SWITCHING TO CTA MODE
         if (mode === 'cta') {
-    console.log('🎯 CTA MODE ACTIVATED - Showing urgent action buttons');
-    this.renderButtons('cta'); // 🎯 THIS SHOWS THE BUTTONS!
+    console.log('🎯 URGENT CTA MODE - Showing action buttons immediately');
+    this.currentMode = 'cta';
+    this.renderButtons('cta'); // ✅ ALLOW CTA BUTTONS
     return;
 }
 
