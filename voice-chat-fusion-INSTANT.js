@@ -2214,35 +2214,6 @@ window.salesAI = window.salesAI || {
 console.log('🔄 SalesAI auto-initialized on page load:', window.salesAI);
 
 // =============================================
-// 🎯 MISSING getPreCloseQuestion FUNCTION 
-// =============================================
-
-function getPreCloseQuestion(intent) {
-    const userName = salesAI.userData.firstName || '';
-    const namePart = userName ? `${userName}, ` : '';
-    
-    switch(intent.type) {
-        case 'sell-practice':
-            return `${namePart}If we could get your practice sold for 20-30% more than going alone in 3 months or less, would you be interested in a free valuation consultation with Bruce?`;
-            
-        case 'buy-practice':
-            return `${namePart}If we could help you find the perfect practice to acquire with financing options, would you be interested in a free acquisition consultation?`;
-            
-        case 'marketing-help':
-            return `${namePart}If we could help you get 5-10 new qualified clients in the next 90 days, would you be interested in a free marketing strategy session?`;
-            
-        case 'growth-help':
-            return `${namePart}If we could help you increase your practice revenue by 25-50% in the next year, would you be interested in a free growth consultation?`;
-            
-        case 'general-question':
-            return `${namePart}Would you like to schedule a quick call with one of our specialists to discuss this further?`;
-            
-        default:
-            return `${namePart}Would you be interested in a free consultation to explore how we can help you?`;
-    }
-}
-
-// =============================================
 // 🚨 ADD THESE MISSING FUNCTIONS RIGHT AFTER getPreCloseQuestion
 // =============================================
 
@@ -2764,35 +2735,6 @@ function detectStrongIntent(userMessage) {
     return null;
 }
 
-// ✅ ADD THE MISSING getPreCloseQuestion FUNCTION
-function getPreCloseQuestion(intent) {
-    const userName = salesAI.userData.firstName || '';
-    const namePart = userName ? `${userName}, ` : '';
-    
-    switch(intent.type) {
-        case 'sell-practice':
-            return `${namePart}If we could get your practice sold for 20-30% more than going alone in 3 months or less, would you be interested in a free valuation consultation with Bruce?`;
-            
-        case 'buy-practice':
-            return `${namePart}If we could help you find the perfect practice to acquire with financing options, would you be interested in a free acquisition consultation?`;
-            
-        case 'practice-valuation':
-            return `${namePart}If we could provide you with a comprehensive practice valuation and show you how to maximize your practice's worth, would you be interested in a free valuation session?`;
-            
-        case 'marketing-help':
-            return `${namePart}If we could help you get 5-10 new qualified clients in the next 90 days, would you be interested in a free marketing strategy session?`;
-            
-        case 'growth-help':
-            return `${namePart}If we could help you increase your practice revenue by 25-50% in the next year, would you be interested in a free growth consultation?`;
-            
-        case 'general-question':
-            return `${namePart}Would you like to schedule a quick call with one of our specialists to discuss this further?`;
-            
-        default:
-            return `${namePart}Would you be interested in a free consultation to explore how we can help you?`;
-    }
-}
-
 // ✅ UPDATE handleStrongIntentWithTrustBuilding TO INCLUDE VALUATION
 function handleStrongIntentWithTrustBuilding(intent, message) {
     const userFirstName = salesAI.userData.firstName || 'there';
@@ -2863,7 +2805,6 @@ function buildPreCloseQuestion(intentType, userName = '') {
     return `${name}If we could ${path.result} in ${path.timeFrame}, would you be interested in a ${path.offer}?`;
 }
 
-// BOTH FILES HAVE handlePreCloseResponse - USING FILE 1'S VERSION (IT'S MORE COMPLETE)
 function handlePreCloseResponse(userResponse, intentType) {
     const lowerResponse = userResponse.toLowerCase();
     
@@ -2874,7 +2815,15 @@ function handlePreCloseResponse(userResponse, intentType) {
     const noPatterns = ['no', 'not yet', 'maybe later', 'not now', 'no thanks', 'nah', 'wait', 'hold on'];
     
     if (yesPatterns.some(pattern => lowerResponse.includes(pattern))) {
-        return "Perfect! Let me get you connected with Bruce directly. He's the expert who can give you personalized guidance based on your specific situation. He should be available for a quick call within the next few minutes.";
+        // 🎯 CRITICAL FIX: Trigger Action Center for YES responses
+        setTimeout(() => {
+            if (window.showCommunicationActionCenter) {
+                window.showCommunicationActionCenter();
+                console.log('✅ Action Center triggered for consultation YES response');
+            }
+        }, 1000);
+        
+        return "Perfect! Let me bring up all the ways to connect with Bruce directly. He's the expert who can give you personalized guidance!";
     }
     
     if (noPatterns.some(pattern => lowerResponse.includes(pattern))) {
