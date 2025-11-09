@@ -348,7 +348,7 @@ class SpeechEngineManager {
         }
         
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        this.recognition = new SpeechRecognition();
+        const recognition = new SpeechRecognition();
         
         recognition.continuous = true;  // ← CHANGE TO TRUE
 recognition.interimResults = true;
@@ -657,7 +657,7 @@ function initializeSpeechRecognition() {
     if (!checkSpeechSupport()) return false;
 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    recognition = new SpeechRecognition();
+    const recognition = new SpeechRecognition();
     
     this.recognition.continuous = true;  // ← CHANGE TO TRUE
 this.recognition.interimResults = true;
