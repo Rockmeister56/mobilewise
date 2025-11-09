@@ -2437,21 +2437,30 @@ async function getAIResponse(userMessage, conversationHistory = []) {
         console.log('✅ Speak Now banner removed - AI responding');
     }
     
-    // 🎯 STEP 1: URGENT REQUESTS - FAST TRACK TO BRUCE
-    const urgentPatterns = ['urgent', 'asap', 'right now', 'immediately', 'emergency', 'call me now'];
-    if (urgentPatterns.some(pattern => lowerMessage.includes(pattern))) {
-        console.log('🚨 URGENT INTENT DETECTED - FAST TRACKING TO BRUCE');
-        triggerBanner('urgent');
-        return "I understand this is urgent! Let me connect you with Bruce immediately.";
-    }
-
-    // 🎯 APPOINTMENT INTENT DETECTION - HIGH PRIORITY
+   // 🎯 MACARONI BUNDLE: Urgent + Appointment Intents - HIGH PRIORITY
+const urgentPatterns = ['urgent', 'asap', 'right now', 'immediately', 'emergency', 'call me now', 'need help now'];
 const appointmentPatterns = [
     'appointment', 'meeting', 'schedule', 'book', 'reserve', 'set up',
     'consult', 'consultation', 'call', 'talk to bruce', 'meet with bruce',
     'free consultation', 'free consult', 'book a meeting'
 ];
 
+// Check for URGENT first (highest priority)
+if (urgentPatterns.some(pattern => lowerMessage.includes(pattern))) {
+    console.log('🚨 URGENT INTENT DETECTED - FAST TRACKING TO BRUCE');
+    
+    // 🎯 TRIGGER ACTION CENTER IMMEDIATELY
+    setTimeout(() => {
+        if (window.showCommunicationActionCenter) {
+            window.showCommunicationActionCenter();
+            console.log('✅ Action Center triggered for urgent request');
+        }
+    }, 1000);
+    
+    return "I understand this is urgent! Let me bring up all the ways to connect with Bruce immediately.";
+}
+
+// Check for APPOINTMENT second
 if (appointmentPatterns.some(pattern => lowerMessage.includes(pattern))) {
     console.log('🎯 APPOINTMENT INTENT DETECTED - Triggering Action Center');
     
@@ -2464,7 +2473,7 @@ if (appointmentPatterns.some(pattern => lowerMessage.includes(pattern))) {
     }, 1000);
     
     return "Perfect! I'd love to help you schedule that. Let me bring up all the ways to connect with Bruce for your appointment.";
-}
+}   
     
     // 🎯 STEP 2: STRONG INTENT DETECTION & 4-STEP SALES PROCESS
 const strongIntent = detectStrongIntent(userMessage);
