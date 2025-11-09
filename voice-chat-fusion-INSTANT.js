@@ -2712,20 +2712,27 @@ function detectStrongIntent(userMessage) {
     ];
     
     // Strong buying indicators
-    const strongBuyingIndicators = [
-        'i want to buy', 'i need to buy', 'looking to buy', 'want to buy', 'need to buy',
-        'buy a practice', 'buy a firm', 'acquire a practice', 'purchase a practice',
-        'looking to acquire', 'want to acquire'
-    ];
+const strongBuyingIndicators = [
+    'i want to buy', 'i need to buy', 'looking to buy', 'want to buy', 'need to buy',
+    'buy a practice', 'buy a firm', 'acquire a practice', 'purchase a practice',
+    'looking to acquire', 'want to acquire',
+    // ADD PRE-QUALIFICATION KEYWORDS:
+    'pre qualification', 'prequalification', 'pre qual', 'prequal',
+    'get pre qualified', 'pre qualified', 'pre-qualified',
+    'qualify for a practice', 'pre approval', 'pre-approval',
+    'get qualified to buy', 'buying qualification', 'purchase qualification',
+    'financial qualification', 'ready to buy a practice', 'qualify to purchase',
+    'pre qualification for', 'prequalification for'
+];
     
-    // Strong valuation indicators
-    const strongValuationIndicators = [
-        'i need a valuation', 'want a valuation', 'get a valuation', 'value my practice',
-        'how much is my practice worth', 'what is my practice worth', 'practice worth',
-        'valuation of my practice', 'get an evaluation', 'want an evaluation', 'need an evaluation', 
-        'evaluate my practice', 'practice evaluation', 'free evaluation',
-         'get my practice evaluated', 'evaluation on my practice'
-    ];
+    // Strong pre-qualification indicators for buying
+const strongPreQualIndicators = [
+    'pre qualification', 'prequalification', 'pre qual', 'prequal',
+    'get pre qualified', 'pre qualified', 'pre-qualified',
+    'qualify for a practice', 'pre approval', 'pre-approval',
+    'get qualified to buy', 'buying qualification', 'purchase qualification',
+    'financial qualification', 'ready to buy a practice', 'qualify to purchase'
+];
     
     // Check strong intents
     for (const indicator of strongSellingIndicators) {
