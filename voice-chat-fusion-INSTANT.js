@@ -348,13 +348,11 @@ class SpeechEngineManager {
         }
         
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        window.recognition = new SpeechRecognition(); 
+        this.recognition = new SpeechRecognition();
         
-        recognition.continuous = true;  // ← CHANGE TO TRUE
-recognition.interimResults = true;
-recognition.lang = 'en-US';
-// 🎯 ADD PAUSE THRESHOLD:
-recognition.pauseThreshold = 2000;
+        this.recognition.continuous = false;
+        this.recognition.interimResults = true;
+        this.recognition.lang = 'en-US';
         
         console.log('🎯 Speech engine created successfully');
         return true;
@@ -657,15 +655,11 @@ function initializeSpeechRecognition() {
     if (!checkSpeechSupport()) return false;
 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    const recognition = new SpeechRecognition(); 
+    recognition = new SpeechRecognition();
     
-    recognition.continuous = true;
+    recognition.continuous = false;
     recognition.interimResults = true;
     recognition.lang = 'en-US';
-    recognition.pauseThreshold = 2000;
-
-    // Store globally for other functions to use
-    window.recognition = recognition;
 
     // 🚫 CRITICAL: DISABLE BROWSER BEEP
     recognition.onsoundstart = null;
