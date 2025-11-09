@@ -2270,7 +2270,7 @@ function handleStrongIntentWithTrustBuilding(intent, message) {
 }
 
 function handleSellPracticeIntent(message, userName) {
-    console.log(`🏠 SELL PRACTICE TRUST-BUILDING: state=${salesAI.state}, user=${userName}`);
+    console.log(`🏠 SELL PRACTICE TRUST-BUILDING: state=${salesAI.state}, user=${userName}, message=${message}`);
     
     switch(salesAI.state) {
         case 'investigation':
@@ -2279,19 +2279,29 @@ function handleSellPracticeIntent(message, userName) {
             return `${userName}, that's a significant decision. Selling a practice isn't just about the price - it's about your legacy and ensuring your clients are in good hands. How long have you been considering this move?`;
             
         case 'building_trust_sell':
-            // 🎯 STEP 2: Understand timing & urgency
+            // 🎯 STEP 2: Understand timing & urgency - WITH PERSONALIZATION!
             salesAI.state = 'understanding_timing_sell';
-            return `I appreciate you sharing that. What's your ideal timeline for the transition? Are you looking to sell in the next few months, or is this more of a future planning conversation?`;
+            
+            // Extract number of years from the message for personalization
+            const yearMatch = message.match(/\d+/);
+            if (yearMatch) {
+                const years = yearMatch[0];
+                return `${userName}, ${years} years is definitely a substantial time to build a practice. What's your ideal timeline for the transition? Are you looking to sell in the next few months, or taking a more measured approach?`;
+            } else {
+                return `I appreciate you sharing that, ${userName}. What's your ideal timeline for the transition? Are you looking to sell in the next few months, or taking a more measured approach?`;
+            }
             
         case 'understanding_timing_sell':
-            // 🎯 STEP 3: Custom close based on their timing
+            // 🎯 STEP 3: Custom close based on their timing - WITH PERSONALIZATION!
+            salesAI.state = 'pre_close';
+            
             const wantsQuickSale = message.toLowerCase().includes('soon') || 
                                  message.toLowerCase().includes('quick') || 
                                  message.toLowerCase().includes('asap') ||
                                  message.toLowerCase().includes('month') ||
-                                 message.toLowerCase().includes('immediately');
+                                 message.toLowerCase().includes('immediately') ||
+                                 message.toLowerCase().includes('right away');
             
-            salesAI.state = 'pre_close';
             if (wantsQuickSale) {
                 return `If we could help you sell 20-30% faster than going it alone while maximizing your sale price, would you be open to a free valuation consultation with Bruce?`;
             } else {
@@ -2305,20 +2315,44 @@ function handleSellPracticeIntent(message, userName) {
 }
 
 function handleBuyPracticeIntent(message, userName) {
-    console.log(`🏠 BUY PRACTICE TRUST-BUILDING: state=${salesAI.state}, user=${userName}`);
+    console.log(`🏠 BUY PRACTICE TRUST-BUILDING: state=${salesAI.state}, user=${userName}, message=${message}`);
     
     switch(salesAI.state) {
         case 'investigation':
+            // 🎯 STEP 1: Understand their buying motivation
             salesAI.state = 'building_trust_buy';
             return `${userName}, acquiring a practice is an exciting growth opportunity! Are you looking to expand your current operations, or is this your first practice purchase?`;
             
         case 'building_trust_buy':
+            // 🎯 STEP 2: Understand their criteria - WITH PERSONALIZATION!
             salesAI.state = 'understanding_criteria_buy';
-            return `That's great context. What type of practice are you ideally looking for? Any specific size, location, or specialty you're targeting?`;
+            
+            // Personalize based on their response
+            if (message.toLowerCase().includes('first') || message.toLowerCase().includes('new')) {
+                return `That's fantastic, ${userName}! Starting with an established practice is a smart move. What type of practice are you ideally looking for? Any specific size, location, or specialty you're targeting?`;
+            } else if (message.toLowerCase().includes('expand') || message.toLowerCase().includes('grow')) {
+                return `Excellent strategy, ${userName}! Expanding through acquisition can really accelerate your growth. What type of practice would complement your current operations?`;
+            } else {
+                return `Thanks for sharing that, ${userName}. What type of practice are you ideally looking for? Any specific size, location, or specialty you're targeting?`;
+            }
             
         case 'understanding_criteria_buy':
+            // 🎯 STEP 3: Custom close for buyers - WITH PERSONALIZATION!
             salesAI.state = 'pre_close';
-            return `If we could help you find practices that match your criteria and provide financing guidance, would you be interested in a free acquisition consultation?`;
+            
+            // Extract key criteria for personalization
+            let criteria = '';
+            if (message.toLowerCase().includes('location')) {
+                criteria = 'in your preferred location';
+            } else if (message.toLowerCase().includes('size') || message.toLowerCase().includes('revenue')) {
+                criteria = 'that matches your size requirements';
+            } else if (message.toLowerCase().includes('specialty') || message.toLowerCase().includes('niche')) {
+                criteria = 'in your specialty area';
+            } else {
+                criteria = 'that fits your criteria';
+            }
+            
+            return `${userName}, if we could help you find practices ${criteria} and provide financing guidance, would you be interested in a free acquisition consultation?`;
             
         default:
             salesAI.state = 'pre_close';
@@ -2327,20 +2361,43 @@ function handleBuyPracticeIntent(message, userName) {
 }
 
 function handleValuationIntent(message, userName) {
-    console.log(`🏠 VALUATION TRUST-BUILDING: state=${salesAI.state}, user=${userName}`);
+    console.log(`🏠 VALUATION TRUST-BUILDING: state=${salesAI.state}, user=${userName}, message=${message}`);
     
     switch(salesAI.state) {
         case 'investigation':
+            // 🎯 STEP 1: Understand valuation motivation
             salesAI.state = 'building_trust_valuation';
             return `${userName}, understanding your practice's true value is so important whether you're planning to sell, grow, or just understand your options. What's motivating you to get a valuation right now?`;
             
         case 'building_trust_valuation':
+            // 🎯 STEP 2: Understand timing context - WITH PERSONALIZATION!
             salesAI.state = 'understanding_valuation_timing';
-            return `That makes sense. Are you thinking about selling in the near future, or is this more about understanding your practice's current position for growth planning?`;
+            
+            // Personalize based on their motivation
+            if (message.toLowerCase().includes('sell') || message.toLowerCase().includes('exit')) {
+                return `That makes perfect sense, ${userName}. Knowing your practice's true worth is crucial before entering negotiations. Are you thinking about selling in the near future, or is this more about understanding your position?`;
+            } else if (message.toLowerCase().includes('grow') || message.toLowerCase().includes('expand')) {
+                return `Smart thinking, ${userName}! A solid valuation gives you the foundation for strategic growth planning. Are you looking to expand soon, or just building your long-term strategy?`;
+            } else if (message.toLowerCase().includes('plan') || message.toLowerCase().includes('future')) {
+                return `Very prudent, ${userName}. Having accurate numbers really helps with retirement or succession planning. What timeframe are you considering for your planning?`;
+            } else {
+                return `That's very insightful, ${userName}. Are you thinking about this more for near-term decisions, or longer-term strategic planning?`;
+            }
             
         case 'understanding_valuation_timing':
+            // 🎯 STEP 3: Custom close for valuation - WITH PERSONALIZATION!
             salesAI.state = 'pre_close';
-            return `If we could provide you with a comprehensive valuation that shows you exactly what your practice is worth and how to maximize its value, would you be interested in a free valuation consultation?`;
+            
+            const isNearTerm = message.toLowerCase().includes('soon') || 
+                              message.toLowerCase().includes('near') || 
+                              message.toLowerCase().includes('quick') ||
+                              message.toLowerCase().includes('month');
+            
+            if (isNearTerm) {
+                return `${userName}, if we could provide you with a comprehensive valuation quickly so you can move forward with confidence, would you be interested in a free valuation consultation?`;
+            } else {
+                return `${userName}, if we could provide you with a detailed valuation that shows you exactly what your practice is worth and how to maximize its value over time, would you be interested in a free valuation session?`;
+            }
             
         default:
             salesAI.state = 'pre_close';
@@ -2349,12 +2406,20 @@ function handleValuationIntent(message, userName) {
 }
 
 function handleGeneralQuestion(message, userName) {
-    console.log(`🏠 GENERAL QUESTION: state=${salesAI.state}, user=${userName}`);
+    console.log(`🏠 GENERAL QUESTION: state=${salesAI.state}, user=${userName}, message=${message}`);
     
-    // For general questions, we can be more direct but still friendly
+    // For general questions, we can be more direct but still personalized
     if (salesAI.state === 'investigation') {
         salesAI.state = 'pre_close_general';
-        return `I understand you have some questions, ${userName}. If we could provide you with clear answers and help you explore your options, would you be open to a quick consultation with one of our specialists?`;
+        
+        // Acknowledge their specific question type
+        if (message.toLowerCase().includes('how') || message.toLowerCase().includes('what') || message.toLowerCase().includes('can')) {
+            return `I understand you have some questions about how this works, ${userName}. If we could provide you with clear answers and help you explore your options, would you be open to a quick consultation with one of our specialists?`;
+        } else if (message.toLowerCase().includes('cost') || message.toLowerCase().includes('price') || message.toLowerCase().includes('fee')) {
+            return `Those are important questions about investment, ${userName}. If we could provide you with transparent pricing and show you the potential return, would you be interested in a free consultation to discuss the numbers?`;
+        } else {
+            return `I understand you have some questions, ${userName}. If we could provide you with clear answers and help you explore your options, would you be open to a quick consultation with one of our specialists?`;
+        }
     }
     
     salesAI.state = 'pre_close';
@@ -2624,7 +2689,6 @@ const NCI_CONFIG = {
     }
 };
 
-// BOTH FILES HAVE detectStrongIntent - USING FILE 1'S VERSION (IT'S MORE COMPLETE)
 // ✅ KEEP YOUR EXISTING detectStrongIntent FUNCTION - IT'S BETTER!
 function detectStrongIntent(userMessage) {
     console.log('🔍 detectStrongIntent analyzing:', userMessage);
@@ -2671,6 +2735,12 @@ function detectStrongIntent(userMessage) {
             console.log('🎯 STRONG VALUATION INTENT DETECTED');
             return { type: 'practice-valuation', strength: 'strong' };
         }
+    }
+
+      // 🚨 ADD THIS: If we're already in a trust-building flow, keep the intent!
+    if (salesAI.state.includes('building_trust') || salesAI.state.includes('understanding_timing')) {
+        console.log('🎯 CONTINUING EXISTING TRUST-BUILDING FLOW');
+        return { type: 'sell-practice', strength: 'strong' };
     }
     
     console.log('🔍 No strong intent detected');
