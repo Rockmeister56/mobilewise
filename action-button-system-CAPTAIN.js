@@ -7,6 +7,7 @@
  * Modes: Quick Questions, Call-to-Action, Reviews (Testimonials)
  * 
  * Created: 2025-10-24
+ * Modified: 2025-10-30 - CTA MODE DISABLED (replaced by Communication Action Center)
  */
 
 (function() {
@@ -20,15 +21,14 @@
                 { id: 'q2', text: 'Selling Options', action: 'askQuickQuestion', param: 'I want to sell my practice' },
                 { id: 'q3', text: 'Buying Options', action: 'askQuickQuestion', param: 'I want to buy a practice' }
             ],
-            gradient: 'linear-gradient(135deg, #667eea 0%, #2e44c3ff 100%)' // Blue
+            gradient: 'linear-gradient(135deg, #667eea 0%, #0e27b5ff 100%)' // Blue
         },
         'cta': {
-            buttons: [
-                { id: 'cta1', text: 'Free Book + Call', action: 'openLink', param: 'https://mobile-wise.com/book-consultation' },
-                { id: 'cta2', text: 'Smart Button Demo', action: 'openLink', param: 'https://mobile-wise.com/smart-button' },
-                { id: 'cta3', text: 'Free Guide', action: 'openLink', param: 'https://mobile-wise.com/practice-valuation-guide' }
-            ],
-            gradient: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)' // Green
+            // 🚫 CTA MODE DISABLED - REPLACED BY COMMUNICATION ACTION CENTER
+            // Old buttons (cta1, cta2, cta3) permanently removed
+            // Do not render anything in CTA mode
+            buttons: [],
+            gradient: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)' // Green (preserved for reference)
         },
         'reviews': {
             buttons: [
@@ -74,7 +74,7 @@
         renderButtons(currentMode);
 
         isInitialized = true;
-        console.log('✅ Action Button System initialized (Captain\'s Edition)');
+        console.log('✅ Action Button System initialized (Captain\'s Edition - CTA MODE DISABLED)');
     }
 
     /**
@@ -162,7 +162,15 @@
             return;
         }
 
-        // Clear container
+        // 🚫 BLOCK CTA MODE RENDERING
+        if (mode === 'cta') {
+            console.log('🚫 CTA mode blocked - Communication Action Center handles this now');
+            // Don't clear the container, don't render anything
+            // Just silently ignore the CTA mode request
+            return;
+        }
+
+        // Clear container (only for non-CTA modes)
         buttonContainer.innerHTML = '';
 
         // Create buttons
@@ -175,8 +183,28 @@
             // Apply gradient background
             button.style.background = config.gradient;
             
-            // Attach click handler
-            button.onclick = () => handleButtonClick(buttonDef.action, buttonDef.param);
+            // Attach click handler based on button mode
+            if (mode === 'cta') {
+                // This code path should never execute due to the block above, but keeping for safety
+                button.onclick = () => {
+                    console.log(`🎯 CTA Button clicked: ${buttonDef.action}`);
+                    if (typeof window.handleCTAButtonClick === 'function') {
+                        window.handleCTAButtonClick(buttonDef.action);
+                    } else {
+                        console.error('❌ handleCTAButtonClick function not found');
+                    }
+                };
+            } else {
+                // Quick buttons route to askQuickQuestion
+                button.onclick = () => {
+                    console.log(`🎯 Quick Button clicked: ${buttonDef.param}`);
+                    if (typeof window.askQuickQuestion === 'function') {
+                        window.askQuickQuestion(buttonDef.param);
+                    } else {
+                        console.error('❌ askQuickQuestion function not found');
+                    }
+                };
+            }
             
             buttonContainer.appendChild(button);
         });
@@ -232,6 +260,12 @@
             return;
         }
 
+        // 🚫 BLOCK SWITCHING TO CTA MODE
+        if (newMode === 'cta') {
+            console.log('🚫 CTA mode switch blocked - Communication Action Center handles this');
+            return;
+        }
+
         console.log(`🔄 Switching buttons: ${currentMode} → ${newMode}`);
 
         // Add blink animation to current buttons
@@ -277,5 +311,5 @@
         setTimeout(initializeButtonSystem, 500);
     }
 
-    console.log('✅ Action Button System loaded (Captain\'s Edition)');
+    console.log('✅ Action Button System loaded (Captain\'s Edition - CTA MODE DISABLED)');
 })();
