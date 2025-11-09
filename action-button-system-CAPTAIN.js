@@ -162,13 +162,29 @@
             return;
         }
 
-        // 🚫 BLOCK CTA MODE RENDERING
-        if (mode === 'cta') {
-            console.log('🚫 CTA mode blocked - Communication Action Center handles this now');
-            // Don't clear the container, don't render anything
-            // Just silently ignore the CTA mode request
-            return;
-        }
+        // ✅ ALLOW CTA MODE RENDERING
+if (mode === 'cta') {
+    console.log('🎯 URGENT CTA MODE - Showing action buttons immediately');
+    
+    // Clear the container first
+    buttonContainer.innerHTML = '';
+    
+    // Add urgent CTA buttons directly
+    buttonContainer.innerHTML = `
+        <div style="text-align: center; padding: 15px;">
+            <h3 style="color: #d40000; margin-bottom: 15px; font-size: 18px;">🚨 Urgent Assistance</h3>
+            <button onclick="window.handleActionButton('click-to-call')" 
+                    style="background: #d40000; color: white; border: none; padding: 12px 20px; border-radius: 25px; font-size: 16px; font-weight: bold; cursor: pointer; margin: 5px; display: block; width: 100%; transition: all 0.3s;">
+                📞 Call Bruce Now
+            </button>
+            <button onclick="window.handleActionButton('set-appointment')" 
+                    style="background: #0066cc; color: white; border: none; padding: 12px 20px; border-radius: 25px; font-size: 16px; font-weight: bold; cursor: pointer; margin: 5px; display: block; width: 100%; transition: all 0.3s;">
+                📅 Schedule Emergency Meeting
+            </button>
+        </div>
+    `;
+    return;
+}
 
         // Clear container (only for non-CTA modes)
         buttonContainer.innerHTML = '';
@@ -260,10 +276,10 @@
             return;
         }
 
+        // 🚫 BLOCK SWITCHING TO CTA MODE
         if (mode === 'cta') {
-    console.log('🎯 URGENT CTA MODE - Showing action buttons immediately');
-    this.currentMode = 'cta';
-    this.renderButtons('cta'); // ✅ ALLOW CTA BUTTONS
+    console.log('🎯 CTA MODE ACTIVATED - Showing urgent action buttons');
+    this.renderButtons('cta'); // 🎯 THIS SHOWS THE BUTTONS!
     return;
 }
 
