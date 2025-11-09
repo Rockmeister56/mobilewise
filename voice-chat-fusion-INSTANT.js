@@ -2444,6 +2444,16 @@ async function getAIResponse(userMessage, conversationHistory = []) {
         triggerBanner('urgent');
         return "I understand this is urgent! Let me connect you with Bruce immediately.";
     }
+
+    const appointmentPatterns = [
+    'appointment', 'meeting', 'schedule', 'book', 'reserve', 'set up',
+    'consult', 'consultation', 'call', 'talk to bruce', 'meet with bruce',
+    'free consultation', 'free consult', 'book a meeting'
+];
+
+if (appointmentPatterns.some(pattern => lowerMessage.includes(pattern))) {
+    console.log('🎯 APPOINTMENT INTENT DETECTED - Triggering Action Center');
+    
     
     // 🎯 STEP 2: STRONG INTENT DETECTION & 4-STEP SALES PROCESS
 const strongIntent = detectStrongIntent(userMessage);
