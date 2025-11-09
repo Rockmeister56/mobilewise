@@ -2198,7 +2198,7 @@ window.salesAI = window.salesAI || {
         const questions = {
             'sell-practice': "How long have you been thinking about selling your practice?",
             'buy-practice': "What type of practice are you looking to acquire?",
-            'practice-valuation': "What's driving your interest in a valuation right now?"
+            'pre-qualification': "What's driving your interest for a pre-qualification right now?"
         };
         return questions[this.userData.intent] || "What specifically are you looking to accomplish?";
     }
@@ -2220,7 +2220,7 @@ function handleStrongIntentWithTrustBuilding(intent, message) {
         case 'buy-practice':
             return handleBuyPracticeIntent(message, userFirstName);
             
-        case 'practice-valuation':
+        case 'pre-qualification':
             return handleValuationIntent(message, userFirstName);
             
         case 'general-question':
@@ -2364,7 +2364,7 @@ function handleValuationIntent(message, userName) {
             
         default:
             salesAI.state = 'pre_close';
-            return getPreCloseQuestion({type: 'practice-valuation'});
+            return getPreCloseQuestion({type: 'pre-qualification'});
     }
 }
 
@@ -2412,7 +2412,7 @@ async function getAIResponse(userMessage, conversationHistory = []) {
                 const questions = {
                     'sell-practice': "How long have you been thinking about selling your practice?",
                     'buy-practice': "What type of practice are you looking to acquire?",
-                    'practice-valuation': "What's driving your interest in a valuation right now?"
+                    'pre-qualification': "What's driving your interest in a pre-qualification right now?"
                 };
                 return questions[this.userData.intent] || "What specifically are you looking to accomplish?";
             }
@@ -2689,12 +2689,12 @@ const NCI_CONFIG = {
             result: "find you the perfect practice match", 
             offer: "free buying consultation with Bruce,the founder and CEO of NCI"
         },
-        'practice-valuation': {
-            investigationQuestion: "What's driving your interest in a valuation right now?",
-            valueProp: "Most owners are surprised by their practice's true market worth.",
-            timeFrame: "immediately",
-            result: "show you exactly what your practice is worth",
-            offer: "free valuation from Bruce,the founder and CEO of NCI"
+        'pre-qualification': {
+    investigationQuestion: "What's motivating you to explore practice ownership right now?",
+    valueProp: "Most first-time buyers are surprised by how achievable practice ownership can be.",
+    timeFrame: "immediately", 
+    result: "help you understand exactly what you qualify for",
+    offer: "Submit a no-obligation pre-qualification to Bruce, the founder and CEO of NCI"
         }
     }
 };
@@ -2745,7 +2745,7 @@ function detectStrongIntent(userMessage) {
     for (const indicator of strongValuationIndicators) {
         if (lowerMsg.includes(indicator)) {
             console.log('🎯 STRONG VALUATION INTENT DETECTED');
-            return { type: 'practice-valuation', strength: 'strong' };
+            return { type: 'pre-qualification', strength: 'strong' };
         }
     }
 
@@ -2771,7 +2771,7 @@ function handleStrongIntentWithTrustBuilding(intent, message) {
         case 'buy-practice':
             return handleBuyPracticeIntent(message, userFirstName);
             
-        case 'practice-valuation':
+        case 'pre-qualification':
             return handleValuationIntent(message, userFirstName);
             
         case 'general-question':
@@ -2800,7 +2800,7 @@ function handleValuationIntent(message, userName) {
             
         default:
             salesAI.state = 'pre_close';
-            return getPreCloseQuestion({type: 'practice-valuation'});
+            return getPreCloseQuestion({type: 'pre-qualification'});
     }
 }
 
@@ -2813,7 +2813,7 @@ function buildRapportResponse(intentType, userName = '') {
         
         'buy-practice': `${namePart}That's exciting that you're looking to acquire a practice! Growth through acquisition can be incredibly rewarding. Bruce,the founder and CEO of NCI has an amazing track record of matching buyers with practices that align with their vision. He actually helped me find my current practice when I was in your position. What specific type of practice are you hoping to find?`,
         
-        'practice-valuation': `${namePart}Getting a proper valuation is so important. Many practitioners are surprised to learn what their life's work is truly worth. Bruce,the founder and CEO of NCI has a unique methodology that looks beyond just the numbers - he considers strategic value, growth potential, and market positioning. He helped me understand the real value drivers in my own practice. What's motivating your interest in a valuation right now?`
+        'pre-qualification': `${namePart}Getting properly pre-qualified is so important for practice ownership. Many first-time buyers are surprised to learn how achievable their dream practice can be. Bruce, the founder and CEO of NCI, has a unique approach that looks beyond just the numbers - he considers your goals, growth potential, and the right practice fit for you. He helped me understand the real opportunities in practice ownership. What's motivating your interest in getting pre-qualified right now?`
     };
     
     return responses[intentType] || `${namePart}I'd love to help you with that. Could you tell me more about what you're looking to accomplish?`;
@@ -2863,7 +2863,7 @@ const BANNER_MAPPING = {
     'urgent': 'urgent',
     'sell-practice': { investigation: 'expertise', preClose: 'freeIncentive', yesResponse: 'setAppointment' },
     'buy-practice': { investigation: 'expertise', preClose: 'freeIncentive', yesResponse: 'setAppointment' },
-    'practice-valuation': { investigation: 'expertise', preClose: 'freeIncentive', yesResponse: 'setAppointment' },
+    'pre-qualification': { investigation: 'expertise', preClose: 'freeIncentive', yesResponse: 'setAppointment' },
     'appointment': 'setAppointment',
     'consultation': 'setAppointment',
     'pre-qualifier': 'preQualifier',
