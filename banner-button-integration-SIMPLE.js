@@ -17,26 +17,27 @@
         'branding': 'quick',
         
         // CTA banners → Call-to-Action buttons
-        'appointment': 'cta',
-        'freeIncentive': 'cta',  // 🎯 NEW: Free consultation offer
-        'smartButton': 'cta',
-        'leadMagnet': 'cta',
-        'thankYou': 'cta',
-        'clickToCall': 'cta',
-        'setAppointment': 'cta',
-        'requestCallback': 'cta',
-        'expertise': 'quick', 
+    'appointment': 'cta',
+    'freeIncentive': 'cta',  // 🎯 NEW: Free consultation offer
+    'smartButton': 'cta',
+    'leadMagnet': 'cta',
+    'thankYou': 'cta',
+    'clickToCall': 'cta',
+    'setAppointment': 'cta',
+    'requestCallback': 'cta',
+    'expertise': 'quick', 
+    'urgent': 'cta',  // 🚨 ADD THIS LINE - URGENT BANNER TRIGGERS CTA BUTTONS!
         
         // Testimonial banners → Review buttons
-        'testimonialSelector': 'reviews',  // 🎯 NEW: Main testimonial banner
-        'testimonial1': 'reviews',
-        'testimonial2': 'reviews',
-        'testimonial3': 'reviews',
+    'testimonialSelector': 'reviews',  // 🎯 NEW: Main testimonial banner
+    'testimonial1': 'reviews',
+    'testimonial2': 'reviews',
+    'testimonial3': 'reviews',
         
         // Practice-specific banners → Quick Questions
-        'sellingPractice': 'quick',
-        'buyingPractice': 'quick',
-        'valuationHelp': 'quick',
+    'sellingPractice': 'quick',
+    'buyingPractice': 'quick',
+    'valuationHelp': 'quick',
         
         // Email confirmations → No change (keep current mode)
         'emailSent': null,
