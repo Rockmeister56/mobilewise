@@ -2635,6 +2635,34 @@ function triggerBanner(intentType, step = 'default') {
 
 console.log('✅ COMPLETE GOLD STANDARD getAIResponse WITH 4-STEP SALES PROCESS & AUTO-ADVANCE LOADED!');
 
+// 🎯 CRITICAL: MESSAGE PROCESSING BRIDGE - CALLS getAIResponse
+function processUserResponse(userText) {
+    console.log('🎯 processUserResponse called with:', userText);
+    
+    // 🎯 STEP 0: CHECK FOR CONCERNS FIRST
+    if (detectConcernOrObjection(userText)) {
+        console.log('🚨 Concern detected - handling with testimonial');
+        handleConcernWithTestimonial(userText);
+        return; // Stop the sales process for concerns
+    }
+
+    // Process through getAIResponse
+    setTimeout(async () => {
+        const responseText = await getAIResponse(userText);
+        
+        console.log('🎯 AI RESPONSE:', responseText);
+        
+        // Add AI message to chat
+        if (typeof addAIMessage === 'function') {
+            addAIMessage(responseText);
+        }
+        
+        // Speak the response
+        if (typeof speakWithElevenLabs === 'function') {
+            speakWithElevenLabs(responseText);
+        }
+    }, 800);
+}
 
 function askQuickQuestion(questionText) {
     console.log('🎯 Quick button clicked:', questionText);
