@@ -657,20 +657,17 @@ function initializeSpeechRecognition() {
     if (!checkSpeechSupport()) return false;
 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    const recognition = new SpeechRecognition(); 
+    window.recognition = new SpeechRecognition();
     
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.lang = 'en-US';
-    recognition.pauseThreshold = 2000;
-
-    // Store globally for other functions to use
-    window.recognition = recognition;
+    window.recognition.continuous = true;
+    window.recognition.interimResults = true;
+    window.recognition.lang = 'en-US';
+    window.recognition.pauseThreshold = 2000;
 
     // 🚫 CRITICAL: DISABLE BROWSER BEEP
-    recognition.onsoundstart = null;
-    recognition.onaudiostart = null;
-    recognition.onstart = null;
+    window.recognition.onsoundstart = null;
+    window.recognition.onaudiostart = null;
+    window.recognition.onstart = null;
 
     console.log('✅ Speech recognition initialized');
     
@@ -714,7 +711,7 @@ function suppressBrowserBeeps() {
 async function startListening() {
     window.isCurrentlyListening = true;
     // ✅ PREVENT MULTIPLE STARTS
-    if (recognition && recognition.state === 'started') {
+    if (window.recognition && window.recognition.state === 'started') {  // ← ADD 'window.'
         console.log('🚫 Recognition already running - skipping start');
         return;
     }
@@ -739,9 +736,9 @@ async function startListening() {
             await speechEngine.initializeEngine();
         }
         
-        if (!recognition) {
+        if (!window.recognition) {  // ← ADD 'window.'
             if (isMobile && speechEngine.isReady()) {
-                recognition = speechEngine.getEngine();
+                window.recognition = speechEngine.getEngine();  // ← ADD 'window.'
                 console.log('📱 Using pre-warmed mobile engine');
             } else {
                 initializeSpeechRecognition();
@@ -749,11 +746,12 @@ async function startListening() {
         }
 
         // 🔥 CRITICAL: ONLY SET HANDLERS IF RECOGNITION EXISTS
-        if (recognition && recognition !== null) {
+        if (window.recognition && window.recognition !== null) {  // ← ADD 'window.'
             console.log('✅ Recognition exists - setting up handlers...');
             
-            // 🔥 SET ONRESULT HANDLER
-            recognition.onresult = function(event) {
+            
+                      // 🔥 SET ONRESULT HANDLER
+            window.recognition.onresult = function(event) {
                 console.log('🎯 ONRESULT FIRED');
                 console.log('  - Results count:', event.results.length);
                 console.log('  - Result index:', event.resultIndex);
@@ -807,7 +805,7 @@ async function startListening() {
             };
 
             // 🔥 SET ONEND HANDLER
-            recognition.onend = function() {
+            window.recognition.onend = function() {
                 console.log('🎯🎯🎯 WHICH ONEND IS RUNNING? 🎯🎯🎯');
                 console.log('🔚 Recognition ended');
                 console.log('🔍 DEBUG: playingSorryMessage =', window.playingSorryMessage);
@@ -818,13 +816,13 @@ async function startListening() {
                 let finalTranscript = '';
                 const userInput = document.getElementById('userInput');
 
-                // SOURCE 1: Check recognition.results
-                if (recognition.results && recognition.results.length > 0) {
-                    for (let i = recognition.resultIndex; i < recognition.results.length; i++) {
-                        if (recognition.results[i].isFinal) {
-                            finalTranscript += recognition.results[i][0].transcript;
+                // SOURCE 1: Check window.recognition.results
+                if (window.recognition.results && window.recognition.results.length > 0) {
+                    for (let i = window.recognition.resultIndex; i < window.recognition.results.length; i++) {
+                        if (window.recognition.results[i].isFinal) {
+                            finalTranscript += window.recognition.results[i][0].transcript;
                         } else {
-                            finalTranscript += recognition.results[i][0].transcript;
+                            finalTranscript += window.recognition.results[i][0].transcript;
                         }
                     }
                     console.log('🔍 SOURCE 1 (recognition.results):', finalTranscript);
@@ -858,11 +856,10 @@ async function startListening() {
                         
                         console.log('✅ Sending new message:', currentMessage);
 
-                        // 🎯 ADD THIS RIGHT AFTER LINE 853
-console.log('🎯 Calling processUserResponse with:', finalTranscript);
-if (typeof processUserResponse === 'function') {
-    processUserResponse(finalTranscript);
-}
+                        console.log('🎯 Calling processUserResponse with:', finalTranscript);
+                        if (typeof processUserResponse === 'function') {
+                            processUserResponse(finalTranscript);
+                        }
 
                         if (window.speakNowTimeout) {
                             clearTimeout(window.speakNowTimeout);
@@ -918,7 +915,7 @@ if (typeof processUserResponse === 'function') {
             };
 
             // 🔥 SET ONERROR HANDLER
-            recognition.onerror = function(event) {
+            window.recognition.onerror = function(event) {
                 console.log('🔊 Speech error:', event.error);
 
                 if (speakSequenceCleanupTimer) {
@@ -982,51 +979,49 @@ if (typeof processUserResponse === 'function') {
         }
 
         // Continue with the rest of startListening...
-        recognition.start();
+        window.recognition.start();
         isListening = true;
 
     } catch (error) {
         console.error('❌ Error starting speech recognition:', error);
         addAIMessage("Speech recognition failed. Please try again or use text input.");
-        //switchToTextMode(); // 🚨 REMOVE THIS LINE
     }
 }
 
 // ===================================================
 // 🔍 FORCE START LISTENING - FIXED (DUPLICATE HANDLER REMOVED)
 // ===================================================
-
 function forceStartListening() {
     console.log('🎤 TEST 8: forceStartListening() CALLED at:', Date.now());
     console.log('🎤 TEST 9: isSpeaking:', isSpeaking);
-    console.log('🎤 TEST 10: recognition exists:', !!recognition);
+    console.log('🎤 TEST 10: recognition exists:', !!window.recognition);  // ← ADD 'window.'
     console.log('🔄 FORCE starting speech recognition (mobile reset)');
     
     if (!checkSpeechSupport()) return;
     if (isSpeaking) return;
     
     try {
-        if (!recognition) {
+        if (!window.recognition) {  // ← ADD 'window.'
             initializeSpeechRecognition();
         }
         
         // 🎯 DIAGNOSTIC: Check recognition state BEFORE starting
-        console.log('🔍 DIAGNOSTIC: Recognition state before start:', recognition.state || 'undefined');
+        console.log('🔍 DIAGNOSTIC: Recognition state before start:', window.recognition.state || 'undefined');  // ← ADD 'window.'
         
         // 🎯 DIAGNOSTIC: Add detailed event logging
-        recognition.onstart = function() {
+        window.recognition.onstart = function() {  // ← ADD 'window.'
             console.log('✅ DIAGNOSTIC: Recognition STARTED successfully');
         };
         
         // ✅ DUPLICATE recognition.onerror REMOVED - Using the one from startListening()
         
         console.log('🎤 Force starting speech recognition...');
-        recognition.start();
+        window.recognition.start();  // ← ADD 'window.'
         isListening = true;
         
         // 🎯 DIAGNOSTIC: Check state AFTER starting
         setTimeout(() => {
-            console.log('🔍 DIAGNOSTIC: Recognition state after start:', recognition.state || 'undefined');
+            console.log('🔍 DIAGNOSTIC: Recognition state after start:', window.recognition.state || 'undefined');  // ← ADD 'window.'
         }, 100);
         
         console.log('✅ Force speech recognition started successfully');
