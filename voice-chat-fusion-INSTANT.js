@@ -2437,7 +2437,7 @@ async function getAIResponse(userMessage, conversationHistory = []) {
         console.log('✅ Speak Now banner removed - AI responding');
     }
     
-   // 🎯 MACARONI BUNDLE: Urgent + Appointment Intents - HIGH PRIORITY
+    // 🎯 MACARONI BUNDLE: Urgent + Appointment Intents - HIGH PRIORITY
 const urgentPatterns = ['urgent', 'asap', 'right now', 'immediately', 'emergency', 'call me now', 'need help now'];
 const appointmentPatterns = [
     'appointment', 'meeting', 'schedule', 'book', 'reserve', 'set up',
@@ -2473,7 +2473,7 @@ if (appointmentPatterns.some(pattern => lowerMessage.includes(pattern))) {
     }, 1000);
     
     return "Perfect! I'd love to help you schedule that. Let me bring up all the ways to connect with Bruce for your appointment.";
-}   
+}
     
     // 🎯 STEP 2: STRONG INTENT DETECTION & 4-STEP SALES PROCESS
 const strongIntent = detectStrongIntent(userMessage);
