@@ -709,6 +709,7 @@ function suppressBrowserBeeps() {
 // 🎤 START LISTENING new function
 // ===================================================
 async function startListening() {
+    window.isCurrentlyListening = true;
     // ✅ PREVENT MULTIPLE STARTS
     if (recognition && recognition.state === 'started') {
         console.log('🚫 Recognition already running - skipping start');
@@ -854,6 +855,12 @@ async function startListening() {
                         
                         console.log('✅ Sending new message:', currentMessage);
 
+                        // 🎯 ADD THIS RIGHT AFTER LINE 853
+console.log('🎯 Calling processUserResponse with:', finalTranscript);
+if (typeof processUserResponse === 'function') {
+    processUserResponse(finalTranscript);
+}
+
                         if (window.speakNowTimeout) {
                             clearTimeout(window.speakNowTimeout);
                             window.speakNowTimeout = null;
@@ -978,7 +985,7 @@ async function startListening() {
     } catch (error) {
         console.error('❌ Error starting speech recognition:', error);
         addAIMessage("Speech recognition failed. Please try again or use text input.");
-        switchToTextMode();
+        //switchToTextMode(); // 🚨 REMOVE THIS LINE
     }
 }
 
