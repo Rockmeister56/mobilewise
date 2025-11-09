@@ -993,37 +993,38 @@ async function startListening() {
 // ===================================================
 // 🔍 FORCE START LISTENING - FIXED (DUPLICATE HANDLER REMOVED)
 // ===================================================
+
 function forceStartListening() {
     console.log('🎤 TEST 8: forceStartListening() CALLED at:', Date.now());
     console.log('🎤 TEST 9: isSpeaking:', isSpeaking);
-    console.log('🎤 TEST 10: recognition exists:', !!window.recognition);  // ← ADD 'window.'
+    console.log('🎤 TEST 10: recognition exists:', !!recognition);
     console.log('🔄 FORCE starting speech recognition (mobile reset)');
     
     if (!checkSpeechSupport()) return;
     if (isSpeaking) return;
     
     try {
-        if (!window.recognition) {  // ← ADD 'window.'
+        if (!recognition) {
             initializeSpeechRecognition();
         }
         
         // 🎯 DIAGNOSTIC: Check recognition state BEFORE starting
-        console.log('🔍 DIAGNOSTIC: Recognition state before start:', window.recognition.state || 'undefined');  // ← ADD 'window.'
+        console.log('🔍 DIAGNOSTIC: Recognition state before start:', recognition.state || 'undefined');
         
         // 🎯 DIAGNOSTIC: Add detailed event logging
-        window.recognition.onstart = function() {  // ← ADD 'window.'
+        recognition.onstart = function() {
             console.log('✅ DIAGNOSTIC: Recognition STARTED successfully');
         };
         
         // ✅ DUPLICATE recognition.onerror REMOVED - Using the one from startListening()
         
         console.log('🎤 Force starting speech recognition...');
-        window.recognition.start();  // ← ADD 'window.'
+        recognition.start();
         isListening = true;
         
         // 🎯 DIAGNOSTIC: Check state AFTER starting
         setTimeout(() => {
-            console.log('🔍 DIAGNOSTIC: Recognition state after start:', window.recognition.state || 'undefined');  // ← ADD 'window.'
+            console.log('🔍 DIAGNOSTIC: Recognition state after start:', recognition.state || 'undefined');
         }, 100);
         
         console.log('✅ Force speech recognition started successfully');
