@@ -709,14 +709,11 @@ function suppressBrowserBeeps() {
 // 🎤 START LISTENING new function
 // ===================================================
 async function startListening() {
-    window.isCurrentlyListening = true;
     // ✅ PREVENT MULTIPLE STARTS
-    if (window.recognition && window.recognition.state === 'started') {  // ← ADD 'window.'
+    if (recognition && recognition.state === 'started') {
         console.log('🚫 Recognition already running - skipping start');
         return;
     }
-
-    window.isCurrentlyListening = true;
     
     // Smart button gate-keeper (keep this)
     const smartButton = document.getElementById('smartButton');
@@ -738,9 +735,9 @@ async function startListening() {
             await speechEngine.initializeEngine();
         }
         
-        if (!window.recognition) {  // ← ADD 'window.'
+        if (!recognition) {
             if (isMobile && speechEngine.isReady()) {
-                window.recognition = speechEngine.getEngine();  // ← ADD 'window.'
+                recognition = speechEngine.getEngine();
                 console.log('📱 Using pre-warmed mobile engine');
             } else {
                 initializeSpeechRecognition();
@@ -748,12 +745,11 @@ async function startListening() {
         }
 
         // 🔥 CRITICAL: ONLY SET HANDLERS IF RECOGNITION EXISTS
-        if (window.recognition && window.recognition !== null) {  // ← ADD 'window.'
+        if (recognition && recognition !== null) {
             console.log('✅ Recognition exists - setting up handlers...');
             
-            
-                      // 🔥 SET ONRESULT HANDLER
-            window.recognition.onresult = function(event) {
+            // 🔥 SET ONRESULT HANDLER
+            recognition.onresult = function(event) {
                 console.log('🎯 ONRESULT FIRED');
                 console.log('  - Results count:', event.results.length);
                 console.log('  - Result index:', event.resultIndex);
@@ -807,7 +803,7 @@ async function startListening() {
             };
 
             // 🔥 SET ONEND HANDLER
-            window.recognition.onend = function() {
+            recognition.onend = function() {
                 console.log('🎯🎯🎯 WHICH ONEND IS RUNNING? 🎯🎯🎯');
                 console.log('🔚 Recognition ended');
                 console.log('🔍 DEBUG: playingSorryMessage =', window.playingSorryMessage);
@@ -818,13 +814,13 @@ async function startListening() {
                 let finalTranscript = '';
                 const userInput = document.getElementById('userInput');
 
-                // SOURCE 1: Check window.recognition.results
-                if (window.recognition.results && window.recognition.results.length > 0) {
-                    for (let i = window.recognition.resultIndex; i < window.recognition.results.length; i++) {
-                        if (window.recognition.results[i].isFinal) {
-                            finalTranscript += window.recognition.results[i][0].transcript;
+                // SOURCE 1: Check recognition.results
+                if (recognition.results && recognition.results.length > 0) {
+                    for (let i = recognition.resultIndex; i < recognition.results.length; i++) {
+                        if (recognition.results[i].isFinal) {
+                            finalTranscript += recognition.results[i][0].transcript;
                         } else {
-                            finalTranscript += window.recognition.results[i][0].transcript;
+                            finalTranscript += recognition.results[i][0].transcript;
                         }
                     }
                     console.log('🔍 SOURCE 1 (recognition.results):', finalTranscript);
@@ -857,11 +853,6 @@ async function startListening() {
                         timeSinceLastMessage > 3000) {
                         
                         console.log('✅ Sending new message:', currentMessage);
-
-                        console.log('🎯 Calling processUserResponse with:', finalTranscript);
-                        if (typeof processUserResponse === 'function') {
-                            processUserResponse(finalTranscript);
-                        }
 
                         if (window.speakNowTimeout) {
                             clearTimeout(window.speakNowTimeout);
@@ -917,7 +908,7 @@ async function startListening() {
             };
 
             // 🔥 SET ONERROR HANDLER
-            window.recognition.onerror = function(event) {
+            recognition.onerror = function(event) {
                 console.log('🔊 Speech error:', event.error);
 
                 if (speakSequenceCleanupTimer) {
@@ -981,12 +972,13 @@ async function startListening() {
         }
 
         // Continue with the rest of startListening...
-        window.recognition.start();
+        recognition.start();
         isListening = true;
 
     } catch (error) {
         console.error('❌ Error starting speech recognition:', error);
         addAIMessage("Speech recognition failed. Please try again or use text input.");
+        switchToTextMode();
     }
 }
 
