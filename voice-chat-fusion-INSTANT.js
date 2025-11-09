@@ -2318,16 +2318,6 @@ async function getAIResponse(userMessage, conversationHistory = []) {
         
         return preCloseResponse;
     }
-
-    // 🎯 STEP 4: INTRODUCTION HANDLING - FILE 2 IMPROVEMENT
-    if (window.salesAI.state === 'introduction') {
-        console.log('🎯 Handling introduction...');
-        const introResponse = await window.salesAI.handleIntroduction(userMessage);
-        if (introResponse) {
-            speakWithElevenLabs(introResponse, false);
-            return introResponse;
-        }
-    }
     
     // 🧠 STEP 5: FALLBACK TO ORIGINAL LOGIC
     console.log('🔄 No strong intent - using original system logic');
