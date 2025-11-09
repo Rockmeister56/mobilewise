@@ -261,10 +261,11 @@
         }
 
         // 🚫 BLOCK SWITCHING TO CTA MODE
-        if (newMode === 'cta') {
-            console.log('🚫 CTA mode switch blocked - Communication Action Center handles this');
-            return;
-        }
+        if (mode === 'cta') {
+    console.log('🎯 CTA MODE ACTIVATED - Showing urgent action buttons');
+    this.renderButtons('cta'); // 🎯 THIS SHOWS THE BUTTONS!
+    return;
+}
 
         console.log(`🔄 Switching buttons: ${currentMode} → ${newMode}`);
 
