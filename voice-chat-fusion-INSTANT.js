@@ -852,6 +852,14 @@ async function startListening() {
                         
                         console.log('✅ Sending new message:', currentMessage);
 
+                        // 🎯 ADD THIS RIGHT AFTER LINE 853
+console.log('🎯 Calling processUserResponse with:', userText);
+if (typeof processUserResponse === 'function') {
+    processUserResponse(userText);
+} else {
+    console.error('❌ processUserResponse function not found!');
+}
+
                         if (window.speakNowTimeout) {
                             clearTimeout(window.speakNowTimeout);
                             window.speakNowTimeout = null;
