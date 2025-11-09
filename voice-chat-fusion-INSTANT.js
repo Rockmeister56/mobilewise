@@ -2197,6 +2197,23 @@ function updateSmartButton(shouldShow, buttonText, action) {
 }
 
 // =============================================================================
+// 🎯 CRITICAL: AUTO-INITIALIZE SalesAI ON PAGE LOAD
+// =============================================================================
+window.salesAI = window.salesAI || {
+    state: 'introduction',
+    userData: { firstName: '', intent: null },
+    getInvestigationQuestion: function() {
+        const questions = {
+            'sell-practice': "How long have you been thinking about selling your practice?",
+            'buy-practice': "What type of practice are you looking to acquire?",
+            'practice-valuation': "What's driving your interest in a valuation right now?"
+        };
+        return questions[this.userData.intent] || "What specifically are you looking to accomplish?";
+    }
+};
+console.log('🔄 SalesAI auto-initialized on page load:', window.salesAI);
+
+// =============================================================================
 // 🎯 GOLD STANDARD getAIResponse - 4-STEP SALES PROCESS
 // =============================================================================
 
