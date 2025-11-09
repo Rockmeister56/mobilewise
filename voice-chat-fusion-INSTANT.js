@@ -2335,6 +2335,27 @@ async function getAIResponse(userMessage, conversationHistory = []) {
         
         return preCloseResponse;
     }
+
+    // 🎯 INTRODUCTION HANDLING - NAME CAPTURE
+if (window.salesAI.state === 'introduction') {
+    console.log('🎯 Handling introduction - capturing name...');
+    
+    // Simple name handling
+    if (!window.salesAI.userData.firstName) {
+        const name = userMessage.split(' ')[0];
+        if (name && name.length > 1) {
+            window.salesAI.userData.firstName = name;
+            window.salesAI.state = 'investigation';
+            const response = `Nice to meet you ${name}! What brings you to New Clients Inc today?`;
+            console.log('✅ Name captured, moving to investigation state');
+            return response;
+        } else {
+            return "Hi! I'm your practice transition assistant. What's your first name?";
+        }
+    }
+}
+
+console.log('🔄 No strong intent - using original system logic');
     
     // 🧠 STEP 5: FALLBACK TO ORIGINAL LOGIC
     console.log('🔄 No strong intent - using original system logic');
@@ -2549,30 +2570,11 @@ function detectStrongIntent(userMessage) {
             return { type: 'practice-valuation', strength: 'strong' };
         }
     }
+
+
     
     console.log('🔍 No strong intent detected');
     return null;
-}
-
-// =============================================================================
-// 🎯 INTRODUCTION HANDLING - NAME CAPTURE
-// =============================================================================
-if (window.salesAI.state === 'introduction') {
-    console.log('🎯 Handling introduction - capturing name...');
-    
-    // Simple name handling
-    if (!window.salesAI.userData.firstName) {
-        const name = userMessage.split(' ')[0];
-        if (name && name.length > 1) {
-            window.salesAI.userData.firstName = name;
-            window.salesAI.state = 'investigation';
-            const response = `Nice to meet you ${name}! What brings you to New Clients Inc today?`;
-            console.log('✅ Name captured, moving to investigation state');
-            return response;
-        } else {
-            return "Hi! I'm your practice transition assistant. What's your first name?";
-        }
-    }
 }
 
 // BOTH FILES HAVE buildRapportResponse - USING FILE 1'S VERSION (IT'S MORE PERSONAL)
