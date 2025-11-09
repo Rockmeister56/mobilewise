@@ -2327,7 +2327,7 @@ async function getAIResponse(userMessage, conversationHistory = []) {
     window.salesAI.state = 'lead_capture';
     console.log('✅ User said YES - triggering appointment banner');
     triggerBanner('setAppointment');
-    
+
         } else {
             // User said SKIP - return to investigation
             window.salesAI.state = 'investigation';
@@ -2672,9 +2672,18 @@ function triggerBanner(intentType, step = 'default') {
 
 console.log('✅ COMPLETE GOLD STANDARD getAIResponse WITH 4-STEP SALES PROCESS & AUTO-ADVANCE LOADED!');
 
-// 🎯 CRITICAL: MESSAGE PROCESSING BRIDGE - CALLS getAIResponse
 function processUserResponse(userText) {
     console.log('🎯 processUserResponse called with:', userText);
+    
+    // 🚨 CHECK IF ACTION SYSTEM IS IN LEAD CAPTURE MODE
+    if (window.isInLeadCapture && window.processLeadResponse) {
+        console.log('🎯 Lead capture active - routing to Action System');
+        const handled = window.processLeadResponse(userText);
+        if (handled) {
+            console.log('✅ Lead capture handled - not processing as normal chat');
+            return; // Exit early - don't process as conversation
+        }
+    }
     
     // 🎯 STEP 0: CHECK FOR CONCERNS FIRST
     if (detectConcernOrObjection(userText)) {
@@ -2690,9 +2699,7 @@ function processUserResponse(userText) {
         console.log('🎯 AI RESPONSE:', responseText);
         
         // Add AI message to chat
-        if (typeof addAIMessage === 'function') {
-            addAIMessage(responseText);
-        }
+        addAIMessage(responseText);
         
         // Speak the response
         if (typeof speakWithElevenLabs === 'function') {
