@@ -2704,10 +2704,14 @@ function detectStrongIntent(userMessage) {
     const lowerMsg = userMessage.toLowerCase();
     
     // Strong selling indicators
-    const strongSellingIndicators = [
-        'i want to sell', 'i need to sell', 'looking to sell', 'want to sell', 'need to sell',
-        'selling my practice', 'sell my practice', 'sell my firm', 'selling my firm',
-        'exit my practice', 'retire from practice', 'transition out'
+   const strongPreQualifYIndicators = [
+    'pre qualification', 'prequalification', 'pre qual', 'prequal',
+    'get pre qualified', 'pre qualified', 'pre-qualified',
+    'qualify for a practice', 'pre approval', 'pre-approval',
+    'get qualified to buy', 'buying qualification', 'purchase qualification',
+    'financial qualification', 'ready to buy a practice', 'qualify to purchase',
+    'pre qualification for', 'prequalification for', 'want to get qualified'
+
     ];
     
     // Strong buying indicators
@@ -2716,14 +2720,11 @@ function detectStrongIntent(userMessage) {
         'buy a practice', 'buy a firm', 'acquire a practice', 'purchase a practice',
         'looking to acquire', 'want to acquire'
     ];
-    
-    const strongPreQualifYIndicators = [
-    'pre qualification', 'prequalification', 'pre qual', 'prequal',
-    'get pre qualified', 'pre qualified', 'pre-qualified',
-    'qualify for a practice', 'pre approval', 'pre-approval',
-    'get qualified to buy', 'buying qualification', 'purchase qualification',
-    'financial qualification', 'ready to buy a practice', 'qualify to purchase',
-    'pre qualification for', 'prequalification for', 'want to get qualified'
+
+    const strongSellingIndicators = [
+        'i want to sell', 'i need to sell', 'looking to sell', 'want to sell', 'need to sell',
+        'selling my practice', 'sell my practice', 'sell my firm', 'selling my firm',
+        'exit my practice', 'retire from practice', 'transition out'    
 ];
     
     // Check strong intents
