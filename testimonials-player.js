@@ -3,9 +3,11 @@ const TESTIMONIAL_VIDEOS = {
     skeptical: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982717330.mp4",
     speed: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982877040.mp4"
 };
+const isMobile = window.innerWidth <= 768;
 
 // 2. MAIN VIDEO PLAYER FUNCTION
 function play16x9TestimonialVideo(testimonialType, duration = 12000) {
+    const isMobile = window.innerWidth <= 768;
     // Your video player code
 }
 

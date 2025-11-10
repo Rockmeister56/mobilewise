@@ -2651,6 +2651,16 @@ function handleConcernWithTestimonial(userText) {
         }
     }, 100);
     
+    // 🚨 ADD THIS: TRIGGER THE VIDEO SPLASH SCREEN
+    setTimeout(() => {
+        console.log('🎬 BRIDGE: Triggering testimonial video splash screen');
+        if (typeof showTestimonialVideo === 'function') {
+            showTestimonialVideo('skeptical', 12000); // This shows the video splash screen
+        } else {
+            console.error('❌ showTestimonialVideo bridge function not found');
+        }
+    }, 1500);
+    
     // Show testimonial banner after speaking
     setTimeout(() => {
         console.log('🎯 Triggering testimonial banner');
