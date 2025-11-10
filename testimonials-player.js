@@ -487,3 +487,32 @@ window.skipTestimonialBanner = skipTestimonialBanner;
 
 console.log('✅ Global testimonial functions registered');
 console.log('✅ Testimonials Player Loaded');
+
+// ===================================================
+// 🎯 IMMEDIATE CONSOLE TEST - FIND MISSING FUNCTIONS
+// ===================================================
+console.log('🔍 IMMEDIATE FUNCTION CHECK:');
+console.log('1. showTestimonialBanner:', typeof showTestimonialBanner);
+console.log('2. showTestimonialVideo:', typeof showTestimonialVideo); 
+console.log('3. closeTestimonialVideo:', typeof closeTestimonialVideo);
+console.log('4. playTestimonialFromBanner:', typeof playTestimonialFromBanner);
+console.log('5. skipTestimonialBanner:', typeof skipTestimonialBanner);
+
+// Check if they exist as variables at all
+console.log('🔍 DO THEY EXIST AS VARIABLES?');
+console.log('showTestimonialBanner exists:', typeof showTestimonialBanner !== 'undefined');
+console.log('showTestimonialVideo exists:', typeof showTestimonialVideo !== 'undefined');
+
+// ===================================================
+// 🎯 MAKE FUNCTIONS GLOBALLY AVAILABLE (SAFE VERSION)
+// ===================================================
+if (typeof showTestimonialBanner !== 'undefined') {
+    window.showTestimonialBanner = showTestimonialBanner;
+    console.log('✅ showTestimonialBanner registered globally');
+} else {
+    console.error('❌ showTestimonialBanner is NOT DEFINED in this file!');
+}
+
+// Repeat for other functions...
+
+console.log('✅ Testimonials Player Loaded');
