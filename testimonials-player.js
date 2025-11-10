@@ -1,43 +1,293 @@
-// 1. VIDEO URLS at the TOP
-const TESTIMONIAL_VIDEOS = {
-    skeptical: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982717330.mp4",
-    speed: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982877040.mp4"
-};
-const isMobile = window.innerWidth <= 768;
+// ===================================================
+// 🎬 MOBILE-WISE AI TESTIMONIALS PLAYER
+// Video testimonial player with controls and resume logic
+// Banner display with play buttons for individual reviews
+// ===================================================
 
-// 2. MAIN VIDEO PLAYER FUNCTION
-function play16x9TestimonialVideo(testimonialType, duration = 12000) {
+function showTestimonialVideo(testimonialType, duration = null) {
+    console.log(`🎬 Playing ${testimonialType} testimonial`);
+    
+    // 🚫 PREVENT DOUBLE CALLS - BULLETPROOF
+    if (window.avatarCurrentlyPlaying) {
+        console.log('🚫 Video already playing - skipping duplicate call');
+        return;
+    }
+    
+    window.avatarCurrentlyPlaying = true;
+    
+    // Get video data
+    const videoData = window.testimonialData.videos[testimonialType];
+    if (!videoData) {
+        console.error('❌ Video type not found:', testimonialType);
+        window.avatarCurrentlyPlaying = false;
+        return;
+    }
+    
+    const videoUrl = TESTIMONIAL_VIDEOS[testimonialType] || TESTIMONIAL_VIDEOS.skeptical;
+    const videoDuration = duration || videoData.duration;
+    
+    // 🆕 ADD THIS ONE LINE TO FIX THE isMobile ERROR
     const isMobile = window.innerWidth <= 768;
-    // Your video player code
-}
-
-// 3. BANNER FUNCTION (NEW - ADD THIS HERE)
-function showTestimonialBanner(concernType = 'reputation') {
-    console.log('🎬 Showing testimonial banner for concern:', concernType);
-    
-    // Wait for chat bubble to appear first
-    setTimeout(() => {
-        showTestimonialVideo('skeptical', 12000);
-    }, 1000);
-    
-    console.log('✅ Testimonial banner triggered - delayed video start');
-}
-
-// 5. MAKE FUNCTIONS GLOBAL
-window.showTestimonialBanner = showTestimonialBanner;
-
-// CLOSE FUNCTION
-function close16x9TestimonialVideo() {
-    // [Your close code here]
-}
     
     // Create overlay container
-    const videoOverlay = document.createElement('div');
-    videoOverlay.id = 'testimonial-video-overlay';
+    const avatarOverlay = document.createElement('div');
+    avatarOverlay.id = 'testimonial-overlay';
+    
+    // Create review items with premium play buttons
+    const reviewItems = concernData.reviews.map((review, index) => `
+        <div style="
+            padding: 10px 0;
+            ${index > 0 ? 'border-top: 1px solid rgba(255, 255, 255, 0.2);' : ''}
+        ">
+            <p style="
+                color: rgba(255, 255, 255, 0.9);
+                font-size: 15px;
+                line-height: 1.6;
+                margin: 0 0 12px 0;
+                font-style: italic;
+                text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            ">"${review.text}"</p>
+            
+            <div style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            ">
+                <p style="
+                    color: rgba(255, 255, 255, 0.7);
+                    font-size: 14px;
+                    margin: 0;
+                    font-weight: 500;
+                    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+                ">— ${review.author}</p>
+                
+                <button onclick="playTestimonialFromBanner('${review.videoType}')" style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    background: rgba(0, 0, 0, 0.6);
+                    border: 1px solid rgba(255, 255, 255, 0.2);
+                    color: white;
+                    padding: 10px 16px;
+                    border-radius: 10px;
+                    cursor: pointer;
+                    font-weight: 600;
+                    font-size: 14px;
+                    transition: all 0.3s ease;
+                    backdrop-filter: blur(10px);
+                    min-width: 100px;
+                " onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.borderColor='rgba(255, 255, 255, 0.3)'; this.style.transform='translateY(-2px)';" 
+                   onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.borderColor='rgba(255, 255, 255, 0.2)'; this.style.transform='translateY(0)';">
+                    <span style="font-size: 16px;">▶</span>
+                    <span>Play Video</span>
+                </button>
+            </div>
+        </div>
+    `).join('');
+    
+    // Create premium banner HTML
+    const bannerHTML = `
+        <div id="testimonial-review-banner" style="
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.9)),
+                        url('https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1762038349654_action-bg.jpg');
+            background-size: cover;
+            background-position: center;
+            background-blend-mode: overlay;
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            color: white;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            max-width: 750px;
+            animation: slideInBanner 0.5s ease-out;
+            position: relative;
+            z-index: 998;
+        ">
+            <!-- Header with Icon -->
+            <div style="
+                display: flex;
+                align-items: center;
+               margin-bottom: 15px;
+                gap: 15px;
+            ">
+                <div style="
+                    width: 50px;
+                    height: 40px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background: rgba(255, 255, 255, 0.1);
+                    border-radius: 50%;
+                    border: 1px solid rgba(255, 255, 255, 0.2);
+                ">
+                    <span style="font-size: 24px;">${concernData.icon}</span>
+                </div>
+                <div>
+                    <h3 style="
+                        margin: 0 0 5px 0;
+                        font-size: 22px;
+                        font-weight: 600;
+                        color: white;
+                        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+                    ">${concernData.title}</h3>
+                    <p style="
+                        margin: 0;
+                        opacity: 0.8;
+                        font-size: 13px;
+                        font-weight: 300;
+                        letter-spacing: 0.5px;
+                    ">Client Video Testimonials</p>
+                </div>
+            </div>
+            
+            <!-- Review Items with Play Buttons -->
+            <div style="margin-bottom: 25px;">
+                ${reviewItems}
+            </div>
+            
+            <!-- Skip Button - Premium Style -->
+            <button onclick="skipTestimonialBanner()" style="
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                background: rgba(0, 0, 0, 0.6);
+                color: rgba(255, 255, 255, 0.8);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                padding: 15px 20px;
+                border-radius: 10px;
+                cursor: pointer;
+                font-size: 16px;
+                font-weight: 500;
+                transition: all 0.3s ease;
+                width: 100%;
+                justify-content: center;
+                backdrop-filter: blur(10px);
+            " onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.color='white';" 
+               onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.color='rgba(255, 255, 255, 0.8)';">
+                <span style="font-size: 16px;">⏭️</span>
+                <span>Skip Reviews & Continue</span>
+            </button>
+        </div>
+        
+        <style>
+            @keyframes slideInBanner {
+                from { opacity: 0; transform: translateY(-30px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+        </style>
+    `;
+    
+    // Insert banner into chat
+    const chatContainer = document.getElementById('chatMessages');
+    if (chatContainer) {
+        const bannerElement = document.createElement('div');
+        bannerElement.innerHTML = bannerHTML;
+        chatContainer.appendChild(bannerElement);
+        
+        // Scroll to show the banner
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+        
+        console.log('✅ Premium testimonial banner displayed');
+    } else {
+        console.error('❌ Chat container not found');
+        window.testimonialBannerActive = false;
+    }
+}
+
+// ===================================================
+// PLAY TESTIMONIAL VIDEO FROM BANNER
+// ===================================================
+window.playTestimonialFromBanner = function(videoType) {
+    console.log(`🎬 Playing video from banner: ${videoType}`);
+    
+    // Close banner WITHOUT resuming conversation
+    const banner = document.getElementById('testimonial-review-banner');
+    if (banner) {
+        banner.style.animation = 'slideOutBanner 0.3s ease-out';
+        
+        setTimeout(() => {
+            banner.remove();
+            window.testimonialBannerActive = false;
+            console.log('✅ Banner removed (video will play)');
+            
+            // DON'T resume here - video will handle it
+        }, 300);
+    }
+    
+    // Small delay before showing video
+    setTimeout(() => {
+        showTestimonialVideo(videoType);
+    }, 400);
+};
+
+window.skipTestimonialBanner = function() {
+    console.log('⏭️ Skipping testimonial banner');
+    
+    const banner = document.getElementById('testimonial-review-banner');
+    if (banner) {
+        banner.style.animation = 'slideOutBanner 0.3s ease-out';
+        
+        setTimeout(() => {
+            banner.remove();
+            window.testimonialBannerActive = false;
+            console.log('✅ Banner removed');
+            
+            // 🔓 CLEAR BLOCKING FLAG
+            window.concernBannerActive = false;
+            console.log('✅ FLAG CLEARED: concernBannerActive = false');
+            
+            // 🔄 RESUME CONVERSATION
+            resumeAfterTestimonial();
+        }, 300);
+    }
+};
+
+// Add slideOut animation
+const styleSheet = document.createElement('style');
+styleSheet.textContent = `
+    @keyframes slideOutBanner {
+        from { opacity: 1; transform: translateY(0); }
+        to { opacity: 0; transform: translateY(-30px); }
+    }
+`;
+document.head.appendChild(styleSheet);
+
+// ===================================================
+// PLAY VIDEO TESTIMONIAL (ENHANCED VERSION)
+// ===================================================
+function showTestimonialVideo(testimonialType, duration = null) {
+    console.log(`🎬 Playing ${testimonialType} testimonial`);
+    
+    // 🚫 PREVENT DOUBLE CALLS - BULLETPROOF
+    if (window.avatarCurrentlyPlaying) {
+        console.log('🚫 Video already playing - skipping duplicate call');
+        return;
+    }
+    
+    window.avatarCurrentlyPlaying = true;
+    
+    // Get video data
+    const videoData = window.testimonialData.videos[testimonialType];
+    if (!videoData) {
+        console.error('❌ Video type not found:', testimonialType);
+        window.avatarCurrentlyPlaying = false;
+        return;
+    }
+    
+    const videoUrl = TESTIMONIAL_VIDEOS[testimonialType] || TESTIMONIAL_VIDEOS.skeptical;
+    const videoDuration = duration || videoData.duration;
+    const isMobile = window.innerWidth <= 768;
+    
+    // Create overlay container
+    const avatarOverlay = document.createElement('div');
+    avatarOverlay.id = 'testimonial-overlay';
     
     if (isMobile) {
-        // MOBILE: Full screen with top-right close button
-        videoOverlay.style.cssText = `
+        // Mobile: Full screen
+        avatarOverlay.style.cssText = `
             position: fixed;
             top: 0;
             left: 0;
@@ -50,7 +300,224 @@ function close16x9TestimonialVideo() {
             align-items: center;
         `;
         
-        videoOverlay.innerHTML = `
+        avatarOverlay.innerHTML = `
+            <video id="testimonialVideo" autoplay playsinline webkit-playsinline="true" style="
+                width: 100%;
+                height: 100%;
+                object-fit: contain; /* Changed from cover to contain for mobile too */
+            ">
+                <source src="${videoUrl}" type="video/mp4">
+            </video>
+        `;
+    } else {
+        // Desktop: Centered floating player with proper 16:9 ratio
+        avatarOverlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5); /* 50% transparent black */
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        `;
+        
+        avatarOverlay.innerHTML = `
+            <div style="
+                position: relative;
+                width: 854px; /* 16:9 width */
+                height: 480px; /* 16:9 height */
+                background: #000;
+                border-radius: 12px;
+                overflow: hidden;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+            ">
+                <video id="testimonialVideo" autoplay style="
+                    width: 100%;
+                    height: 100%;
+                    object-fit: contain; /* Maintains aspect ratio without cropping */
+                ">
+                    <source src="${videoUrl}" type="video/mp4">
+                </video>
+                
+                <button onclick="closeTestimonialVideo()" style="
+                    position: absolute;
+                    bottom: 20px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    padding: 12px 24px;
+                    background: white;
+                    color: #333;
+                    border: none;
+                    border-radius: 20px;
+                    font-size: 14px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                    transition: all 0.3s ease;
+                    z-index: 10001;
+                " onmouseover="this.style.transform='translateX(-50%) translateY(-2px)'; this.style.background='#f0f0f0'"
+                   onmouseout="this.style.transform='translateX(-50%) translateY(0)'; this.style.background='white'">
+                    Close & Continue
+                </button>
+            </div>
+        `;
+    }
+    
+    // Add to page
+    document.body.appendChild(avatarOverlay);
+    
+    // 🎯 ENHANCED CLEANUP - BETTER THAN THE OLD FUNCTION
+    function enhancedCleanup() {
+        console.log(`🎬 Testimonial ${testimonialType} complete - enhanced cleanup`);
+        
+        if (avatarOverlay.parentNode) {
+            avatarOverlay.remove();
+        }
+        
+        window.avatarCurrentlyPlaying = false;
+        
+        // Call the testimonial completion handler
+        if (typeof window.handleTestimonialComplete === 'function') {
+            console.log('🎯 Calling handleTestimonialComplete callback');
+            window.handleTestimonialComplete();
+        }
+    }
+    
+    // Auto-close after duration OR use button
+    setTimeout(() => {
+        if (document.getElementById('testimonial-overlay')) {
+            enhancedCleanup();
+        }
+    }, videoDuration);
+    
+    console.log('✅ Enhanced video testimonial playing');
+}
+
+// ===================================================
+// CLOSE TESTIMONIAL BANNER (Skip Reviews)
+// ===================================================
+function closeTestimonialBanner() {
+    console.log('🗑️ Closing testimonial banner');
+    
+    // Remove banner from DOM
+    const banner = document.getElementById('testimonial-review-banner');
+    if (banner) {
+        banner.remove();
+        console.log('✅ Banner removed from DOM');
+    }
+    
+    // 🔓 CLEAR BLOCKING FLAG
+    window.concernBannerActive = false;
+    console.log('✅ FLAG CLEARED: concernBannerActive = false');
+    
+    // Resume normal conversation flow
+    resumeAfterTestimonial();
+}
+
+// ===================================================
+// CLOSE VIDEO AND RESUME CONVERSATION
+// ===================================================
+function closeTestimonialVideo() {
+    console.log('🎬 Closing testimonial video');
+    
+    // Remove overlay
+    const overlay = document.getElementById('testimonial-overlay');
+    if (overlay) {
+        overlay.remove();
+    }
+    
+    // 🔓 CLEAR BLOCKING FLAG
+    window.concernBannerActive = false;
+    console.log('✅ FLAG CLEARED: concernBannerActive = false');
+    
+    // Reset playing flag
+    window.avatarCurrentlyPlaying = false;
+    
+    // Resume AI conversation
+    setTimeout(() => {
+        resumeAfterTestimonial();
+    }, 500);
+}
+
+// ===================================================
+// RESUME AI CONVERSATION AFTER VIDEO
+// ===================================================
+function resumeAfterTestimonial() {
+    console.log('💬 Resuming conversation after testimonial');
+    
+    const resumeMessage = window.testimonialData.playerConfig.resumeMessage;
+    
+    // Add AI message
+    if (typeof addAIMessage === 'function') {
+        addAIMessage(resumeMessage);
+    }
+    
+    // Speak the message
+    setTimeout(() => {
+        if (typeof speakResponse === 'function') {
+            speakResponse(resumeMessage);
+        } else if (typeof speakText === 'function') {
+            speakText(resumeMessage);
+        }
+        
+        // After speaking, start listening for YES/NO
+        setTimeout(() => {
+            if (typeof startListening === 'function' && window.isAudioMode) {
+                startListening();
+            }
+            
+            // Set conversation state to capture consultation response
+            window.conversationState = 'asking_consultation_after_testimonial';
+            console.log('🎯 Waiting for consultation response (YES/NO)');
+        }, 2000);
+    }, 800);
+}
+// ===================================================
+// 🚨 FORCE OVERRIDE - KILL OLD FUNCTION
+// ===================================================
+console.log('🚨 FORCE OVERRIDING showTestimonialVideo function...');
+
+window.showTestimonialVideo = function(testimonialType, duration = null) {
+    console.log('🎬 NEW testimonials-player.js function called!');
+    
+    // 🚫 PREVENT DOUBLE CALLS - BULLETPROOF
+    if (window.avatarCurrentlyPlaying) {
+        console.log('🚫 Video already playing - skipping duplicate call');
+        return;
+    }
+    
+    window.avatarCurrentlyPlaying = true;
+    
+    // Use our direct video URLs
+    const videoUrl = TESTIMONIAL_VIDEOS[testimonialType] || TESTIMONIAL_VIDEOS.skeptical;
+    const videoDuration = duration || 12000;
+    const isMobile = window.innerWidth <= 768;
+    
+    console.log('🎯 Using 16:9 video dimensions: 854x480px');
+    
+    // Create overlay container
+    const avatarOverlay = document.createElement('div');
+    avatarOverlay.id = 'testimonial-overlay';
+    
+    if (isMobile) {
+        // Mobile: Full screen
+        avatarOverlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        `;
+        
+        avatarOverlay.innerHTML = `
             <video id="testimonialVideo" autoplay playsinline webkit-playsinline="true" style="
                 width: 100%;
                 height: 100%;
@@ -58,29 +525,10 @@ function close16x9TestimonialVideo() {
             ">
                 <source src="${videoUrl}" type="video/mp4">
             </video>
-            <button onclick="close16x9TestimonialVideo()" style="
-                position: absolute;
-                top: 20px;
-                right: 20px;
-                width: 44px;
-                height: 44px;
-                background: rgba(255, 0, 0, 0.8);
-                color: white;
-                border: none;
-                border-radius: 50%;
-                font-size: 20px;
-                font-weight: bold;
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                z-index: 10001;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-            ">✕</button>
         `;
     } else {
-        // DESKTOP: Centered 16:9 player with 50% transparent background
-        videoOverlay.style.cssText = `
+        // Desktop: Centered floating player with proper 16:9 ratio
+        avatarOverlay.style.cssText = `
             position: fixed;
             top: 0;
             left: 0;
@@ -93,7 +541,7 @@ function close16x9TestimonialVideo() {
             align-items: center;
         `;
         
-        videoOverlay.innerHTML = `
+        avatarOverlay.innerHTML = `
             <div style="
                 position: relative;
                 width: 854px;
@@ -111,94 +559,128 @@ function close16x9TestimonialVideo() {
                     <source src="${videoUrl}" type="video/mp4">
                 </video>
                 
-                <button onclick="close16x9TestimonialVideo()" style="
+                <button onclick="closeTestimonialVideo()" style="
                     position: absolute;
-                    top: 15px;
-                    right: 15px;
-                    width: 40px;
-                    height: 40px;
-                    background: rgba(255, 0, 0, 0.8);
-                    color: white;
+                    bottom: 20px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    padding: 12px 24px;
+                    background: white;
+                    color: #333;
                     border: none;
-                    border-radius: 50%;
-                    font-size: 18px;
-                    font-weight: bold;
+                    border-radius: 20px;
+                    font-size: 14px;
+                    font-weight: 600;
                     cursor: pointer;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    z-index: 10001;
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
                     transition: all 0.3s ease;
-                " onmouseover="this.style.background='rgba(255, 0, 0, 1)'; this.style.transform='scale(1.1)'"
-                   onmouseout="this.style.background='rgba(255, 0, 0, 0.8)'; this.style.transform='scale(1)'">✕</button>
+                    z-index: 10001;
+                " onmouseover="this.style.transform='translateX(-50%) translateY(-2px)'; this.style.background='#f0f0f0'"
+                   onmouseout="this.style.transform='translateX(-50%) translateY(0)'; this.style.background='white'">
+                    Close & Continue
+                </button>
             </div>
         `;
     }
     
     // Add to page
-    document.body.appendChild(videoOverlay);
+    document.body.appendChild(avatarOverlay);
     
-    // Enhanced cleanup function
+    // Enhanced cleanup
     function enhancedCleanup() {
-        console.log(`🎬 Testimonial ${testimonialType} complete`);
+        console.log(`🎬 NEW FUNCTION: Testimonial ${testimonialType} complete`);
         
-        const overlay = document.getElementById('testimonial-video-overlay');
-        if (overlay && overlay.parentNode) {
-            overlay.remove();
+        if (avatarOverlay.parentNode) {
+            avatarOverlay.remove();
         }
         
         window.avatarCurrentlyPlaying = false;
         
-        // Call completion handler
         if (typeof window.handleTestimonialComplete === 'function') {
-            console.log('🎯 Calling handleTestimonialComplete callback');
+            console.log('🎯 NEW FUNCTION: Calling handleTestimonialComplete');
             window.handleTestimonialComplete();
         }
     }
     
     // Auto-close after duration
     setTimeout(() => {
-        if (document.getElementById('testimonial-video-overlay')) {
+        if (document.getElementById('testimonial-overlay')) {
             enhancedCleanup();
         }
-    }, duration);
+    }, videoDuration);
     
-    console.log('✅ 16:9 testimonial video playing');
-    
+    console.log('✅ NEW FUNCTION: Enhanced video testimonial playing with 16:9 ratio');
+};
 
 // ===================================================
-// CLOSE VIDEO FUNCTION
+// 🚨 NUCLEAR OPTION - DELETE OLD TESTIMONIAL FUNCTION
 // ===================================================
-function close16x9TestimonialVideo() {
-    console.log('🎬 Closing 16:9 testimonial video manually');
-    
-    const overlay = document.getElementById('testimonial-video-overlay');
-    if (overlay) {
-        overlay.remove();
-    }
-    
-    window.avatarCurrentlyPlaying = false;
-    
-    // Call completion handler for manual close too
-    if (typeof window.handleTestimonialComplete === 'function') {
-        console.log('🎯 Calling handleTestimonialComplete for manual close');
-        window.handleTestimonialComplete();
+console.log('🚨 NUCLEAR: Deleting old showTestimonialVideo function...');
+
+// Completely remove the old function
+if (typeof showTestimonialVideo === 'function') {
+    // Check if it's the OLD function (from voice-chat-fusion.js)
+    const funcString = showTestimonialVideo.toString();
+    if (!funcString.includes('NEW testimonials-player.js function called')) {
+        console.log('💥 DELETING OLD showTestimonialVideo function');
+        // Set to undefined to completely remove it
+        window.showTestimonialVideo = undefined;
+        delete window.showTestimonialVideo;
     }
 }
 
-// ===================================================
-// 🚨 NUCLEAR OVERRIDE - REPLACE ANY OLD VERSIONS
-// ===================================================
-console.log('🚨 testimonials-player.js: DUAL BRIDGE SYSTEM ACTIVATED');
+// Wait for testimonials-player.js to load, then restore the NEW function
+setTimeout(() => {
+    if (typeof TESTIMONIAL_VIDEOS !== 'undefined' && typeof window.showTestimonialVideo === 'undefined') {
+        console.log('🔄 Restoring NEW showTestimonialVideo function');
+        // Recreate the function using the testimonials-player.js logic
+        window.showTestimonialVideo = function(testimonialType, duration = null) {
+            console.log('🎉 FINALLY Using NEW 16:9 testimonial function!');
+            
+            if (window.avatarCurrentlyPlaying) return;
+            window.avatarCurrentlyPlaying = true;
+            
+            const videoUrl = TESTIMONIAL_VIDEOS[testimonialType] || TESTIMONIAL_VIDEOS.skeptical;
+            const videoDuration = duration || 12000;
+            const isMobile = window.innerWidth <= 768;
+            
+            console.log('🎯 16:9 VIDEO: 854x480px with object-fit: contain');
+            
+            // Your 16:9 video code here...
+            const avatarOverlay = document.createElement('div');
+            avatarOverlay.id = 'testimonial-overlay';
+            
+            if (isMobile) {
+                avatarOverlay.style.cssText = `position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; display: flex; justify-content: center; align-items: center;`;
+                avatarOverlay.innerHTML = `<video autoplay playsinline style="width: 100%; height: 100%; object-fit: contain;"><source src="${videoUrl}" type="video/mp4"></video>`;
+            } else {
+                avatarOverlay.style.cssText = `position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; justify-content: center; align-items: center;`;
+                avatarOverlay.innerHTML = `
+                    <div style="position: relative; width: 854px; height: 480px; background: #000; border-radius: 12px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.7);">
+                        <video autoplay style="width: 100%; height: 100%; object-fit: contain;"><source src="${videoUrl}" type="video/mp4"></video>
+                        <button onclick="this.parentElement.parentElement.remove(); window.avatarCurrentlyPlaying = false;" style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); padding: 12px 24px; background: white; color: #333; border: none; border-radius: 20px; font-size: 14px; font-weight: 600; cursor: pointer;">Close & Continue</button>
+                    </div>
+                `;
+            }
+            
+            document.body.appendChild(avatarOverlay);
+            
+            setTimeout(() => {
+                if (avatarOverlay.parentNode) {
+                    avatarOverlay.remove();
+                    window.avatarCurrentlyPlaying = false;
+                    if (typeof window.handleTestimonialComplete === 'function') {
+                        window.handleTestimonialComplete();
+                    }
+                }
+            }, videoDuration);
+        };
+        
+        console.log('✅ NEW 16:9 testimonial function restored!');
+    }
+}, 1000);
 
-// Make all functions globally available
-window.showTestimonialVideo = showTestimonialVideo;
-window.showTestimonialVideos = showTestimonialVideos;
-window.play16x9TestimonialVideo = play16x9TestimonialVideo;
-window.close16x9TestimonialVideo = close16x9TestimonialVideo;
+console.log('✅ showTestimonialVideo function overridden with NEW version');
+console.log('✅ showTestimonialVideo function overridden');
 
-console.log('✅ DUAL BRIDGE SYSTEM READY:');
-console.log('   🎯 Bridge 1: showTestimonialVideo() -> for voice-chat-fusion-clean.js');
-console.log('   🎯 Bridge 2: showTestimonialVideos() -> for voice-chat-fusion-instant.js');
-console.log('   🎬 Main: play16x9TestimonialVideo() -> actual 16:9 player');
+console.log('✅ Testimonials Player Loaded');
