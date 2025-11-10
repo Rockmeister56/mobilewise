@@ -2939,10 +2939,6 @@ function processUserResponse(userText) {
     }, 800);
 }
 
-// =============================================
-// 🎯 MISSING getPreCloseQuestion FUNCTION 
-// =============================================
-
 function getPreCloseQuestion(intent) {
     const userName = salesAI.userData.firstName || '';
     const namePart = userName ? `${userName}, ` : '';
@@ -2953,6 +2949,9 @@ function getPreCloseQuestion(intent) {
             
         case 'buy-practice':
             return `${namePart}If we could help you find the perfect practice to acquire with financing options, would you be interested in a free acquisition consultation?`;
+            
+        case 'pre-qualification':  // ← ADD THIS CASE
+            return `${namePart}If we could help you get pre-qualified and find the right practice opportunity that fits your goals and budget, would you be interested in a free pre-qualification consultation with Bruce, the founder and CEO of NCI?`;
             
         case 'marketing-help':
             return `${namePart}If we could help you get 5-10 new qualified clients in the next 90 days, would you be interested in a free marketing strategy session?`;
