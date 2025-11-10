@@ -162,6 +162,22 @@ window.close16x9TestimonialVideo = close16x9TestimonialVideo;
     console.log('✅ 16:9 testimonial video playing');
 
 // ===================================================
+// 🎯 TESTIMONIAL BANNER FUNCTION (MISSING!)
+// ===================================================
+function showTestimonialBanner(concernType = 'reputation') {
+    console.log('🎬 Showing testimonial banner for concern:', concernType);
+    
+    // This should show the testimonial selection screen
+    // For now, let's just trigger a video as a quick test
+    showTestimonialVideo('skeptical', 12000);
+    
+    console.log('✅ Testimonial banner triggered');
+}
+
+// Make it globally available
+window.showTestimonialBanner = showTestimonialBanner;
+
+// ===================================================
 // CLOSE VIDEO FUNCTION
 // ===================================================
 function close16x9TestimonialVideo() {
