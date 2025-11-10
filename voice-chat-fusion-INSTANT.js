@@ -2783,7 +2783,7 @@ function handleStrongIntentWithTrustBuilding(intent, message) {
 }
 
 // ✅ ADD PRE-QUALIFICATION INTENT HANDLER
-function handlePreQualificationIntent(message, userName) {
+function handlePreQualifyIntent(message, userName) {
     switch(salesAI.state) {
         case 'investigation':
             salesAI.state = 'building_trust_prequal';
