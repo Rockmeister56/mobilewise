@@ -613,72 +613,15 @@ window.showTestimonialVideo = function(testimonialType, duration = null) {
 };
 
 // ===================================================
-// 🚨 NUCLEAR OPTION - DELETE OLD TESTIMONIAL FUNCTION
+// 🎯 MAKE FUNCTIONS GLOBALLY AVAILABLE
 // ===================================================
-console.log('🚨 NUCLEAR: Deleting old showTestimonialVideo function...');
+window.showTestimonialBanner = showTestimonialBanner;
+window.showTestimonialVideo = showTestimonialVideo;
+window.closeTestimonialVideo = closeTestimonialVideo;
+window.playTestimonialFromBanner = playTestimonialFromBanner;
+window.skipTestimonialBanner = skipTestimonialBanner;
 
-// Completely remove the old function
-if (typeof showTestimonialVideo === 'function') {
-    // Check if it's the OLD function (from voice-chat-fusion.js)
-    const funcString = showTestimonialVideo.toString();
-    if (!funcString.includes('NEW testimonials-player.js function called')) {
-        console.log('💥 DELETING OLD showTestimonialVideo function');
-        // Set to undefined to completely remove it
-        window.showTestimonialVideo = undefined;
-        delete window.showTestimonialVideo;
-    }
-}
-
-// Wait for testimonials-player.js to load, then restore the NEW function
-setTimeout(() => {
-    if (typeof TESTIMONIAL_VIDEOS !== 'undefined' && typeof window.showTestimonialVideo === 'undefined') {
-        console.log('🔄 Restoring NEW showTestimonialVideo function');
-        // Recreate the function using the testimonials-player.js logic
-        window.showTestimonialVideo = function(testimonialType, duration = null) {
-            console.log('🎉 FINALLY Using NEW 16:9 testimonial function!');
-            
-            if (window.avatarCurrentlyPlaying) return;
-            window.avatarCurrentlyPlaying = true;
-            
-            const videoUrl = TESTIMONIAL_VIDEOS[testimonialType] || TESTIMONIAL_VIDEOS.skeptical;
-            const videoDuration = duration || 12000;
-            const isMobile = window.innerWidth <= 768;
-            
-            console.log('🎯 16:9 VIDEO: 854x480px with object-fit: contain');
-            
-            // Your 16:9 video code here...
-            const avatarOverlay = document.createElement('div');
-            avatarOverlay.id = 'testimonial-overlay';
-            
-            if (isMobile) {
-                avatarOverlay.style.cssText = `position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; display: flex; justify-content: center; align-items: center;`;
-                avatarOverlay.innerHTML = `<video autoplay playsinline style="width: 100%; height: 100%; object-fit: contain;"><source src="${videoUrl}" type="video/mp4"></video>`;
-            } else {
-                avatarOverlay.style.cssText = `position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; justify-content: center; align-items: center;`;
-                avatarOverlay.innerHTML = `
-                    <div style="position: relative; width: 854px; height: 480px; background: #000; border-radius: 12px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.7);">
-                        <video autoplay style="width: 100%; height: 100%; object-fit: contain;"><source src="${videoUrl}" type="video/mp4"></video>
-                        <button onclick="this.parentElement.parentElement.remove(); window.avatarCurrentlyPlaying = false;" style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); padding: 12px 24px; background: white; color: #333; border: none; border-radius: 20px; font-size: 14px; font-weight: 600; cursor: pointer;">Close & Continue</button>
-                    </div>
-                `;
-            }
-            
-            document.body.appendChild(avatarOverlay);
-            
-            setTimeout(() => {
-                if (avatarOverlay.parentNode) {
-                    avatarOverlay.remove();
-                    window.avatarCurrentlyPlaying = false;
-                    if (typeof window.handleTestimonialComplete === 'function') {
-                        window.handleTestimonialComplete();
-                    }
-                }
-            }, videoDuration);
-        };
-        
-        console.log('✅ NEW 16:9 testimonial function restored!');
-    }
-}, 1000);
+console.log('✅ Global testimonial functions registered');
 
 console.log('✅ showTestimonialVideo function overridden with NEW version');
 console.log('✅ showTestimonialVideo function overridden');

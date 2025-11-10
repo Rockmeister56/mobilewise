@@ -2116,12 +2116,11 @@ function deliverLeadMagnet(leadMagnet, userEmail) {
     }
 }
 
-// ===================================================
-// 🎯 SINGLE BRIDGE for voice-chat-fusion-instant.js
-// ===================================================
-function showTestimonialVideo(testimonialType, duration = 12000) {
+function bridgeToTestimonialVideo(testimonialType, duration = 12000) {
     console.log('🎯 BRIDGE: Routing to 16:9 player');
-    play16x9TestimonialVideo(testimonialType, duration);
+    if (typeof showTestimonialVideo === 'function') {
+        showTestimonialVideo(testimonialType, duration);
+    }
 }
 
 // ===================================================
