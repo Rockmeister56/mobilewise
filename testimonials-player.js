@@ -486,8 +486,4 @@ window.playTestimonialFromBanner = playTestimonialFromBanner;
 window.skipTestimonialBanner = skipTestimonialBanner;
 
 console.log('✅ Global testimonial functions registered');
-
-console.log('✅ showTestimonialVideo function overridden with NEW version');
-console.log('✅ showTestimonialVideo function overridden');
-
 console.log('✅ Testimonials Player Loaded');
