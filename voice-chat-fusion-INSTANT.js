@@ -2748,15 +2748,19 @@ function detectStrongIntent(userMessage) {
             return { type: 'pre-qualification', strength: 'strong' };
         }
     }
-
-      // 🚨 ADD THIS: If we're already in a trust-building flow, keep the intent!
-    if (salesAI.state.includes('building_trust') || salesAI.state.includes('understanding_timing')) {
-        console.log('🎯 CONTINUING EXISTING TRUST-BUILDING FLOW');
+// 🚨 FIX THIS: If we're already in a trust-building flow, keep the CURRENT intent!
+if (salesAI.state.includes('building_trust') || salesAI.state.includes('understanding_timing')) {
+    console.log('🎯 CONTINUING EXISTING TRUST-BUILDING FLOW');
+    
+    // Determine current intent from state
+    if (salesAI.state.includes('prequal')) {
+        return { type: 'pre-qualification', strength: 'strong' };
+    } else if (salesAI.state.includes('buy')) {
+        return { type: 'buy-practice', strength: 'strong' };
+    } else {
         return { type: 'sell-practice', strength: 'strong' };
     }
-    
-    console.log('🔍 No strong intent detected');
-    return null;
+}
 }
 
 // ✅ UPDATE handleStrongIntentWithTrustBuilding TO INCLUDE VALUATION
