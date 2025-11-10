@@ -2787,7 +2787,7 @@ function handlePreQualifyIntent(message, userName) {
     switch(salesAI.state) {
         case 'investigation':
             salesAI.state = 'building_trust_prequal';
-            return `${userName}, getting properly pre-qualified is such an important first step in practice ownership. It helps you understand exactly what you can afford and what opportunities are within reach. What's motivating you to explore practice ownership right now?`;
+            return `${userName}, getting properly pre-qualified is such an important first step in practice ownership. What's motivating you to explore practice ownership right now?`;
             
         case 'building_trust_prequal':
             salesAI.state = 'understanding_prequal_goals';
