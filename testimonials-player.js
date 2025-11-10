@@ -160,7 +160,6 @@ window.close16x9TestimonialVideo = close16x9TestimonialVideo;
     }, duration);
     
     console.log('✅ 16:9 testimonial video playing');
-}
 
 // ===================================================
 // CLOSE VIDEO FUNCTION
