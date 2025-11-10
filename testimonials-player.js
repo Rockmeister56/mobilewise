@@ -3,31 +3,28 @@
 // Video testimonial player with controls and resume logic
 // Banner display with play buttons for individual reviews
 // ===================================================
+const TESTIMONIAL_VIDEOS = {
+    skeptical: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982717330.mp4",
+    speed: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982877040.mp4"
+};
 
-function showTestimonialVideo(testimonialType, duration = null) {
-    console.log(`🎬 Playing ${testimonialType} testimonial`);
+// 2. MAIN VIDEO PLAYER FUNCTION
+function play16x9TestimonialVideo(testimonialType, duration = 12000) {
+    console.log(`🎬 Playing ${testimonialType} testimonial - 16:9 format`);
     
-    // 🚫 PREVENT DOUBLE CALLS - BULLETPROOF
+    // 🚫 PREVENT DOUBLE CALLS
     if (window.avatarCurrentlyPlaying) {
-        console.log('🚫 Video already playing - skipping duplicate call');
+        console.log('🚫 Video already playing - skipping duplicate');
         return;
     }
     
     window.avatarCurrentlyPlaying = true;
     
-    // Get video data
-    const videoData = window.testimonialData.videos[testimonialType];
-    if (!videoData) {
-        console.error('❌ Video type not found:', testimonialType);
-        window.avatarCurrentlyPlaying = false;
-        return;
-    }
-    
-    const videoUrl = TESTIMONIAL_VIDEOS[testimonialType] || TESTIMONIAL_VIDEOS.skeptical;
-    const videoDuration = duration || videoData.duration;
-    
-    // 🆕 ADD THIS ONE LINE TO FIX THE isMobile ERROR
+    // 🆕 DEFINE isMobile
     const isMobile = window.innerWidth <= 768;
+    const videoUrl = TESTIMONIAL_VIDEOS[testimonialType] || TESTIMONIAL_VIDEOS.skeptical;
+    
+    console.log('🎯 Using 16:9 video format (854x480)');
     
     // Create overlay container
     const avatarOverlay = document.createElement('div');
@@ -486,33 +483,4 @@ window.playTestimonialFromBanner = playTestimonialFromBanner;
 window.skipTestimonialBanner = skipTestimonialBanner;
 
 console.log('✅ Global testimonial functions registered');
-console.log('✅ Testimonials Player Loaded');
-
-// ===================================================
-// 🎯 IMMEDIATE CONSOLE TEST - FIND MISSING FUNCTIONS
-// ===================================================
-console.log('🔍 IMMEDIATE FUNCTION CHECK:');
-console.log('1. showTestimonialBanner:', typeof showTestimonialBanner);
-console.log('2. showTestimonialVideo:', typeof showTestimonialVideo); 
-console.log('3. closeTestimonialVideo:', typeof closeTestimonialVideo);
-console.log('4. playTestimonialFromBanner:', typeof playTestimonialFromBanner);
-console.log('5. skipTestimonialBanner:', typeof skipTestimonialBanner);
-
-// Check if they exist as variables at all
-console.log('🔍 DO THEY EXIST AS VARIABLES?');
-console.log('showTestimonialBanner exists:', typeof showTestimonialBanner !== 'undefined');
-console.log('showTestimonialVideo exists:', typeof showTestimonialVideo !== 'undefined');
-
-// ===================================================
-// 🎯 MAKE FUNCTIONS GLOBALLY AVAILABLE (SAFE VERSION)
-// ===================================================
-if (typeof showTestimonialBanner !== 'undefined') {
-    window.showTestimonialBanner = showTestimonialBanner;
-    console.log('✅ showTestimonialBanner registered globally');
-} else {
-    console.error('❌ showTestimonialBanner is NOT DEFINED in this file!');
-}
-
-// Repeat for other functions...
-
 console.log('✅ Testimonials Player Loaded');
