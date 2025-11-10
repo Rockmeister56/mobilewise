@@ -393,6 +393,36 @@ function showTestimonialVideo(testimonialType, duration = null) {
     console.log('✅ Enhanced video testimonial playing');
 }
 
+// 3. BANNER FUNCTION
+function showTestimonialBanner(concernType = 'reputation') {
+    console.log('🎬 Showing testimonial banner for concern:', concernType);
+    
+    // Wait for chat bubble to appear first
+    setTimeout(() => {
+        play16x9TestimonialVideo('skeptical', 12000);
+    }, 1000);
+    
+    console.log('✅ Testimonial banner triggered - delayed video start');
+}
+
+// 4. CLOSE VIDEO FUNCTION
+function close16x9TestimonialVideo() {
+    console.log('🎬 Closing 16:9 testimonial video manually');
+    
+    const overlay = document.getElementById('testimonial-video-overlay');
+    if (overlay) {
+        overlay.remove();
+    }
+    
+    window.avatarCurrentlyPlaying = false;
+    
+    // Call completion handler for manual close too
+    if (typeof window.handleTestimonialComplete === 'function') {
+        console.log('🎯 Calling handleTestimonialComplete for manual close');
+        window.handleTestimonialComplete();
+    }
+}
+
 // ===================================================
 // CLOSE TESTIMONIAL BANNER (Skip Reviews)
 // ===================================================
@@ -472,15 +502,15 @@ function resumeAfterTestimonial() {
         }, 2000);
     }, 800);
 }
-    
+
 // ===================================================
 // 🎯 MAKE FUNCTIONS GLOBALLY AVAILABLE
 // ===================================================
 window.showTestimonialBanner = showTestimonialBanner;
-window.showTestimonialVideo = showTestimonialVideo;
+window.play16x9TestimonialVideo = play16x9TestimonialVideo;
+window.close16x9TestimonialVideo = close16x9TestimonialVideo;
+window.closeTestimonialBanner = closeTestimonialBanner;
 window.closeTestimonialVideo = closeTestimonialVideo;
-window.playTestimonialFromBanner = playTestimonialFromBanner;
-window.skipTestimonialBanner = skipTestimonialBanner;
+window.resumeAfterTestimonial = resumeAfterTestimonial;
 
-console.log('✅ Global testimonial functions registered');
-console.log('✅ Testimonials Player Loaded');
+console.log('✅ Testimonials Player Loaded - Ready for concerns!');
