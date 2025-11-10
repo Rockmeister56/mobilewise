@@ -2221,7 +2221,7 @@ function handleStrongIntentWithTrustBuilding(intent, message) {
             return handleBuyPracticeIntent(message, userFirstName);
             
         case 'pre-qualification':
-            return handleValuationIntent(message, userFirstName);
+            return handlePreQualifyIntent(message, userFirstName);
             
         case 'general-question':
             return handleGeneralQuestion(message, userFirstName);
@@ -2323,7 +2323,7 @@ function handleBuyPracticeIntent(message, userName) {
     }
 }
 
-function handleValuationIntent(message, userName) {
+function handlePreQualifyIntent(message, userName) {
     console.log(`🏠 VALUATION TRUST-BUILDING: state=${salesAI.state}, user=${userName}, message=${message}`);
     
     switch(salesAI.state) {
@@ -2718,14 +2718,14 @@ function detectStrongIntent(userMessage) {
         'looking to acquire', 'want to acquire'
     ];
     
-    // Strong valuation indicators
-    const strongValuationIndicators = [
-        'pre qualification', 'prequalification', 'pre qual', 'prequal',
+    const strongPreQualifYIndicators = [
+    'pre qualification', 'prequalification', 'pre qual', 'prequal',
     'get pre qualified', 'pre qualified', 'pre-qualified',
     'qualify for a practice', 'pre approval', 'pre-approval',
     'get qualified to buy', 'buying qualification', 'purchase qualification',
-    'financial qualification', 'ready to buy a practice', 'qualify to purchase'
-    ];
+    'financial qualification', 'ready to buy a practice', 'qualify to purchase',
+    'pre qualification for', 'prequalification for', 'want to get qualified'
+];
     
     // Check strong intents
     for (const indicator of strongSellingIndicators) {
@@ -2742,9 +2742,9 @@ function detectStrongIntent(userMessage) {
         }
     }
     
-    for (const indicator of strongValuationIndicators) {
+    for (const indicator of strongPreQualifYIndicators) {
         if (lowerMsg.includes(indicator)) {
-            console.log('🎯 STRONG VALUATION INTENT DETECTED');
+            console.log('🎯 STRONG PREQUALIFY INTENT DETECTED');
             return { type: 'pre-qualification', strength: 'strong' };
         }
     }
@@ -2772,7 +2772,7 @@ function handleStrongIntentWithTrustBuilding(intent, message) {
             return handleBuyPracticeIntent(message, userFirstName);
             
         case 'pre-qualification':
-            return handleValuationIntent(message, userFirstName);
+            return handlePreQualifyIntent(message, userFirstName);
             
         case 'general-question':
             return handleGeneralQuestion(message, userFirstName);
