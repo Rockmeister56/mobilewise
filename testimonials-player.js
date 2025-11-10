@@ -1,30 +1,39 @@
-// ===================================================
-// 🎬 TESTIMONIALS PLAYER - SINGLE BRIDGE VERSION
-// Overrides OLD function in voice-chat-fusion-instant.js
-// ===================================================
-
+// 1. VIDEO URLS at the TOP
 const TESTIMONIAL_VIDEOS = {
     skeptical: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982717330.mp4",
     speed: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982877040.mp4"
 };
 
-// 🎯 SINGLE BRIDGE - Override the OLD function
-window.showTestimonialVideo = function(testimonialType, duration = 12000) {
-    console.log('🎯 BRIDGE: Routing to 16:9 player');
-    play16x9TestimonialVideo(testimonialType, duration);
-};
-
-// 🎬 16:9 VIDEO PLAYER (same as before)
+// 2. MAIN VIDEO PLAYER FUNCTION
 function play16x9TestimonialVideo(testimonialType, duration = 12000) {
-    // [Your 16:9 video code here]
+    // Your video player code
 }
+
+// 3. BANNER FUNCTION (NEW - ADD THIS HERE)
+function showTestimonialBanner(concernType = 'reputation') {
+    console.log('🎬 Showing testimonial banner for concern:', concernType);
+    
+    // Wait for chat bubble to appear first
+    setTimeout(() => {
+        showTestimonialVideo('skeptical', 12000);
+    }, 1000);
+    
+    console.log('✅ Testimonial banner triggered - delayed video start');
+}
+
+// 4. BRIDGE FUNCTION (KEEP THIS)
+function showTestimonialVideo(type, duration) {
+    console.log('🎯 Bridge activated - showing testimonial:', type);
+    showTestimonialVideos(type, duration);
+}
+
+// 5. MAKE FUNCTIONS GLOBAL
+window.showTestimonialBanner = showTestimonialBanner;
 
 // CLOSE FUNCTION
 function close16x9TestimonialVideo() {
     // [Your close code here]
 }
-
-window.close16x9TestimonialVideo = close16x9TestimonialVideo;
     
     // Create overlay container
     const videoOverlay = document.createElement('div');
@@ -160,22 +169,7 @@ window.close16x9TestimonialVideo = close16x9TestimonialVideo;
     }, duration);
     
     console.log('✅ 16:9 testimonial video playing');
-
-// ===================================================
-// 🎯 TESTIMONIAL BANNER FUNCTION (MISSING!)
-// ===================================================
-function showTestimonialBanner(concernType = 'reputation') {
-    console.log('🎬 Showing testimonial banner for concern:', concernType);
     
-    // This should show the testimonial selection screen
-    // For now, let's just trigger a video as a quick test
-    showTestimonialVideo('skeptical', 12000);
-    
-    console.log('✅ Testimonial banner triggered');
-}
-
-// Make it globally available
-window.showTestimonialBanner = showTestimonialBanner;
 
 // ===================================================
 // CLOSE VIDEO FUNCTION
