@@ -21,12 +21,6 @@ function showTestimonialBanner(concernType = 'reputation') {
     console.log('✅ Testimonial banner triggered - delayed video start');
 }
 
-// 4. BRIDGE FUNCTION (KEEP THIS)
-function showTestimonialVideo(type, duration) {
-    console.log('🎯 Bridge activated - showing testimonial:', type);
-    showTestimonialVideos(type, duration);
-}
-
 // 5. MAKE FUNCTIONS GLOBAL
 window.showTestimonialBanner = showTestimonialBanner;
 
