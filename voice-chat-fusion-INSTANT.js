@@ -2324,42 +2324,41 @@ function handleBuyPracticeIntent(message, userName) {
 }
 
 function handlePreQualifyIntent(message, userName) {
-    console.log(`🏠 VALUATION TRUST-BUILDING: state=${salesAI.state}, user=${userName}, message=${message}`);
+    console.log(`🏠 PRE-QUALIFICATION TRUST-BUILDING: state=${salesAI.state}, user=${userName}, message=${message}`);
     
     switch(salesAI.state) {
         case 'investigation':
-            // 🎯 STEP 1: Understand valuation motivation
-            salesAI.state = 'building_trust_valuation';
+            // 🎯 STEP 1: Understand pre-qualification motivation
+            salesAI.state = 'building_trust_prequal';
             return `${userName}, Getting properly pre-qualified is such an important first step whether you're looking to buy your first practice, expand to multiple locations, or just understand what's financially possible. What's motivating you to explore practice ownership right now?`;
             
-        case 'building_trust_valuation':
-            // 🎯 STEP 2: Understand timing context - WITH PERSONALIZATION!
-            salesAI.state = 'understanding_valuation_timing';
+        case 'building_trust_prequal':
+            // 🎯 STEP 2: Understand goals context - WITH PERSONALIZATION!
+            salesAI.state = 'understanding_prequal_goals';
             
             // Personalize based on their motivation
-            if (message.toLowerCase().includes('sell') || message.toLowerCase().includes('exit')) {
-                return `That makes perfect sense, ${userName}. Knowing your practice's true worth is crucial before entering negotiations. Are you thinking about selling in the near future, or is this more about understanding your position?`;
-            } else if (message.toLowerCase().includes('grow') || message.toLowerCase().includes('expand')) {
-                return `Smart thinking, ${userName}! A solid valuation gives you the foundation for strategic growth planning. Are you looking to expand soon, or just building your long-term strategy?`;
-            } else if (message.toLowerCase().includes('plan') || message.toLowerCase().includes('future')) {
-                return `Very prudent, ${userName}. Having accurate numbers really helps with retirement or succession planning. What timeframe are you considering for your planning?`;
+            if (message.toLowerCase().includes('first') || message.toLowerCase().includes('new') || message.toLowerCase().includes('start')) {
+                return `That's exciting, ${userName}! Buying your first practice is a huge milestone. Are you looking for a specific type of practice, or are you open to exploring different opportunities?`;
+            } else if (message.toLowerCase().includes('expand') || message.toLowerCase().includes('grow') || message.toLowerCase().includes('additional')) {
+                return `Smart thinking, ${userName}! Expanding with additional locations is a great growth strategy. Are you looking to add to your current operations, or explore new markets?`;
+            } else if (message.toLowerCase().includes('retire') || message.toLowerCase().includes('succession') || message.toLowerCase().includes('transition')) {
+                return `Very prudent, ${userName}. Planning for ownership transition is so important. Are you considering this as a long-term succession plan, or more immediate transition?`;
             } else {
-                return `That's very insightful, ${userName}. Are you thinking about this more for near-term decisions, or longer-term strategic planning?`;
+                return `That's very insightful, ${userName}. Are you looking for your first practice ownership opportunity, or thinking about expanding your current operations?`;
             }
             
-        case 'understanding_valuation_timing':
-            // 🎯 STEP 3: Custom close for valuation - WITH PERSONALIZATION!
+        case 'understanding_prequal_goals':
+            // 🎯 STEP 3: Custom close for pre-qualification - WITH PERSONALIZATION!
             salesAI.state = 'pre_close';
             
-            const isNearTerm = message.toLowerCase().includes('soon') || 
-                              message.toLowerCase().includes('near') || 
-                              message.toLowerCase().includes('quick') ||
-                              message.toLowerCase().includes('month');
+            const isFirstTime = message.toLowerCase().includes('first') || 
+                               message.toLowerCase().includes('new') || 
+                               message.toLowerCase().includes('start');
             
-            if (isNearTerm) {
-                return `${userName}, if we could provide you with a comprehensive valuation quickly so you can move forward with confidence, would you be interested in a free valuation consultation?`;
+            if (isFirstTime) {
+                return `${userName}, if we could help you get pre-qualified and find the perfect first practice that fits your goals and budget, would you be interested in a free pre-qualification consultation with Bruce?`;
             } else {
-                return `${userName}, if we could provide you with a detailed valuation that shows you exactly what your practice is worth and how to maximize its value over time, would you be interested in a free valuation session?`;
+                return `${userName}, if we could help you get pre-qualified and identify expansion opportunities that align with your growth strategy, would you be interested in a free pre-qualification consultation with Bruce?`;
             }
             
         default:
@@ -2553,7 +2552,7 @@ function detectConcernOrObjection(userText) {
     
     // Price objections
     const priceKeywords = [
-        'expensive', 'too much', 'cost', 'afford', 'price', 'money',
+        'expensive', 'too much', 'cost', 'afford', 'price', 
         'budget', 'cheap', 'fee', 'charge', 'payment'
     ];
     
@@ -2867,8 +2866,7 @@ const BANNER_MAPPING = {
     'appointment': 'setAppointment',
     'consultation': 'setAppointment',
     'pre-qualifier': 'preQualifier',
-    'time': 'testimonialSelector',
-    'money': 'testimonialSelector', 
+    'time': 'testimonialSelector', 
     'trust': 'testimonialSelector',
     'complexity': 'testimonialSelector',
     'about-nci': 'expertise',
