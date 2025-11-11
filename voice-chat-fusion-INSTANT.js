@@ -2117,10 +2117,10 @@ function deliverLeadMagnet(leadMagnet, userEmail) {
 }
 
 // ===================================================
-// 🎯 CORRECTED BRIDGE - Uses proper separation
+// 🎯 FIXED BRIDGE - NO NAMING CONFLICTS!
 // ===================================================
 
-function showTestimonialVideo(testimonialType, duration = 12000) {
+function bridgeShowTestimonialVideo(testimonialType, duration = 12000) {
     console.log('🎯 BRIDGE: Video path → Testimonial Player');
     // Call the DIRECT video function from testimonials-player.js
     if (typeof window.showTestimonialVideo === 'function') {
@@ -2128,7 +2128,7 @@ function showTestimonialVideo(testimonialType, duration = 12000) {
     }
 }
 
-function showReviewsBanner() {
+function bridgeShowReviewsBanner() {
     console.log('🎯 BRIDGE: Banner path → Universal Banner Engine');
     // Call the UNIVERSAL BANNER ENGINE for testimonial banner
     if (typeof window.showUniversalBanner === 'function') {
