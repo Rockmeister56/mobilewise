@@ -2614,16 +2614,22 @@ function detectConcernOrObjection(userText) {
     return false;
 }
 
-// 🎯 ENHANCED CONCERN HANDLER - CONNECTED TO UNIVERSAL BANNER ENGINE v4
 function handleConcernWithTestimonial(userText) {
     // 🛑 BLOCK SPEAK SEQUENCE IMMEDIATELY
     window.concernBannerActive = true;
-    console.log('🚫 FLAG SET: concernBannerActive = true');
     
-    const concernType = window.detectedConcernType || 'general';
-    console.log(`🎯 Handling ${concernType} concern with Universal Banner Engine`);
+    // 🎯 SET CONCERN DATA IMMEDIATELY (CRITICAL FIX)
+    const concernType = window.detectedConcernType || detectConcernTypeFromText(userText) || 'general';
+    const testimonialData = getTestimonialsForConcern(concernType);
+    window.concernData = {
+        title: testimonialData.title,
+        icon: testimonialData.icon,
+        reviews: testimonialData.videos
+    };
     
-    // Empathetic acknowledgment that INCLUDES the user's exact words
+    console.log(`🎯 Handling ${concernType} concern - data set immediately`);
+    
+    // [KEEP ALL YOUR EXISTING ACKNOWLEDGMENT LOGIC]
     let acknowledgment = '';
     switch(concernType) {
         case 'price':
@@ -2650,19 +2656,24 @@ function handleConcernWithTestimonial(userText) {
         }
     }, 100);
     
-    // 🎯 PHASE 1: SHOW RELEVANT TESTIMONIAL VIDEO (NOW WITH DATA)
+    // 🎯 PHASE 1: SHOW RELEVANT TESTIMONIAL VIDEO (WITH DATA)
     setTimeout(() => {
         console.log('🎬 PHASE 1: Triggering video for:', concernType);
         if (typeof showTestimonialVideo === 'function') {
             showTestimonialVideo(concernType, 12000);  // Use actual concernType
+        } else {
+            console.error('❌ showTestimonialVideo function not found');
         }
     }, 1500);
     
-    // 🎯 PHASE 2: Universal banner (data already set)
+    // 🎯 PHASE 2: SHOW TESTIMONIAL BANNER via UNIVERSAL ENGINE v4
     setTimeout(() => {
-        console.log('🎯 PHASE 2: Triggering universal banner');
+        console.log('🎯 PHASE 2: Triggering testimonial banner via Universal Engine v4');
         if (typeof showUniversalBanner === 'function') {
             showUniversalBanner('testimonialSelector');
+            console.log('✅ Testimonial banner triggered via Universal Engine v4');
+        } else {
+            console.error('❌ showUniversalBanner function not found - system not connected');
         }
     }, 4000);
     
