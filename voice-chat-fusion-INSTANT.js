@@ -2117,56 +2117,29 @@ function deliverLeadMagnet(leadMagnet, userEmail) {
 }
 
 // ===================================================
-// 🎯 FIXED bridge function - NO INFINITE LOOP
+// 🎯 FIXED bridge function - Connects to your existing video system
 // ===================================================
 function showTestimonialVideo(testimonialType, duration = 12000) {
-    console.log('🎯 BRIDGE: Routing to VIDEO PLAYER (Phase 1)');
+    console.log('🎯 BRIDGE: Routing to EXISTING VIDEO PLAYER SYSTEM');
     
-    // Your actual video player logic here - NOT calling itself!
-    const videoContainer = document.getElementById('video-container');
-    const reviewsBanner = document.getElementById('reviews-banner');
-    
-    // Show video player, hide reviews banner
-    if (videoContainer) {
-        videoContainer.style.display = 'block';
-        videoContainer.classList.add('active');
-        console.log('✅ Video player activated');
-    }
-    
-    if (reviewsBanner) {
-        reviewsBanner.style.display = 'none';
-        reviewsBanner.classList.remove('active');
-    }
-    
-    // Auto-close after duration
-    if (duration) {
-        setTimeout(() => {
-            if (videoContainer) {
-                videoContainer.style.display = 'none';
-                videoContainer.classList.remove('active');
-                console.log('⏰ Video auto-closed');
-            }
-        }, duration);
+    // Call your existing video player function
+    if (typeof play16x9TestimonialVideo === 'function') {
+        play16x9TestimonialVideo(testimonialType, duration);
+    } else {
+        console.error('❌ play16x9TestimonialVideo function not found');
     }
 }
 
-// Separate function for reviews banner
+// For the reviews banner, you probably have a similar function
 function showReviewsBanner() {
-    console.log('🎯 BRIDGE: Routing to REVIEWS BANNER (Phase 2)');
+    console.log('🎯 BRIDGE: Routing to REVIEWS BANNER');
     
-    const videoContainer = document.getElementById('video-container');
-    const reviewsBanner = document.getElementById('reviews-banner');
-    
-    // Show reviews banner, hide video player
-    if (videoContainer) {
-        videoContainer.style.display = 'none';
-        videoContainer.classList.remove('active');
-    }
-    
-    if (reviewsBanner) {
-        reviewsBanner.style.display = 'block';
-        reviewsBanner.classList.add('active');
-        console.log('✅ Reviews banner activated');
+    // Look for your existing banner function
+    // This might be something like showTestimonialBanner() or displayReviews()
+    if (typeof showTestimonialBanner === 'function') {
+        showTestimonialBanner();
+    } else {
+        console.log('ℹ️ No reviews banner function found - check your testimonial player file');
     }
 }
 
