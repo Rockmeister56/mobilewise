@@ -10,6 +10,49 @@ const TESTIMONIAL_VIDEOS = {
     speed: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982877040.mp4"
 };
 
+// ===================================================
+// 🎯 PROPER BRIDGE FOR VOICE CHAT INTEGRATION
+// ===================================================
+
+// Bridge function that works with direct voice chat calls
+function handleVoiceChatTestimonialCall(testimonialType, duration = 12000) {
+    console.log('🎯 BRIDGE: Voice chat calling testimonial:', testimonialType);
+    
+    // Create mock concern data for direct calls
+    const mockConcernData = {
+        type: testimonialType,
+        title: 'Client Testimonials',
+        icon: '🎬',
+        reviews: [
+            {
+                text: "This product completely changed my business!",
+                author: "Sarah Johnson", 
+                videoType: testimonialType
+            },
+            {
+                text: "I was skeptical at first but now I'm a believer!",
+                author: "Mike Chen",
+                videoType: testimonialType
+            }
+        ]
+    };
+    
+    // Set the concern data so the video player works
+    window.concernData = mockConcernData;
+    
+    // Call the appropriate function based on what we want
+    if (testimonialType === 'banner' || testimonialType === 'reviews') {
+        // Show banner with reviews
+        showTestimonialBanner();
+    } else {
+        // Show video directly
+        showTestimonialVideo(testimonialType);
+    }
+}
+
+// Make it globally available
+window.handleVoiceChatTestimonialCall = handleVoiceChatTestimonialCall;
+
 // 2. MAIN VIDEO PLAYER FUNCTION
 function play16x9TestimonialVideo(testimonialType, duration = 12000) {
     console.log(`🎬 Playing ${testimonialType} testimonial - 16:9 format`);

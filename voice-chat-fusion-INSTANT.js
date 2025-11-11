@@ -2120,27 +2120,18 @@ function deliverLeadMagnet(leadMagnet, userEmail) {
 // 🎯 FIXED bridge function - Connects to your existing video system
 // ===================================================
 function showTestimonialVideo(testimonialType, duration = 12000) {
-    console.log('🎯 BRIDGE: Routing to EXISTING VIDEO PLAYER SYSTEM');
+    console.log('🎯 BRIDGE: Routing to TESTIMONIAL PLAYER');
     
-    // Call your existing video player function
-    if (typeof play16x9TestimonialVideo === 'function') {
-        play16x9TestimonialVideo(testimonialType, duration);
+    if (typeof handleVoiceChatTestimonialCall === 'function') {
+        handleVoiceChatTestimonialCall(testimonialType, duration);
     } else {
-        console.error('❌ play16x9TestimonialVideo function not found');
+        console.error('❌ Bridge function not found in testimonial player');
     }
 }
 
-// For the reviews banner, you probably have a similar function
 function showReviewsBanner() {
     console.log('🎯 BRIDGE: Routing to REVIEWS BANNER');
-    
-    // Look for your existing banner function
-    // This might be something like showTestimonialBanner() or displayReviews()
-    if (typeof showTestimonialBanner === 'function') {
-        showTestimonialBanner();
-    } else {
-        console.log('ℹ️ No reviews banner function found - check your testimonial player file');
-    }
+    handleVoiceChatTestimonialCall('banner');
 }
 
 // ===================================================
