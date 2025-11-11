@@ -11,10 +11,8 @@ const TESTIMONIAL_VIDEOS = {
 };
 
 // ===================================================
-// 🎯 PROPER BRIDGE FOR VOICE CHAT INTEGRATION
+// 🎯 FIXED BRIDGE - NO LOOPS!
 // ===================================================
-
-// Bridge function that works with direct voice chat calls
 function handleVoiceChatTestimonialCall(testimonialType, duration = 12000) {
     console.log('🎯 BRIDGE: Voice chat calling testimonial:', testimonialType);
     
@@ -40,18 +38,19 @@ function handleVoiceChatTestimonialCall(testimonialType, duration = 12000) {
     // Set the concern data so the video player works
     window.concernData = mockConcernData;
     
-    // Call the appropriate function based on what we want
+    // 🚫 CRITICAL FIX: Call the DIRECT video function, NOT showTestimonialVideo()
     if (testimonialType === 'banner' || testimonialType === 'reviews') {
         // Show banner with reviews
         showTestimonialBanner();
     } else {
-        // Show video directly
-        showTestimonialVideo(testimonialType);
+        // 🎯 CALL THE ACTUAL VIDEO FUNCTION DIRECTLY - NO BRIDGE!
+        // This is the function at line 107 in your file
+        const videoFunction = window.showTestimonialVideo || showTestimonialVideo;
+        if (typeof videoFunction === 'function') {
+            videoFunction(testimonialType);
+        }
     }
 }
-
-// Make it globally available
-window.handleVoiceChatTestimonialCall = handleVoiceChatTestimonialCall;
 
 // 2. MAIN VIDEO PLAYER FUNCTION
 function play16x9TestimonialVideo(testimonialType, duration = 12000) {
