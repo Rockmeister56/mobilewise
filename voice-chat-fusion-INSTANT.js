@@ -2117,21 +2117,23 @@ function deliverLeadMagnet(leadMagnet, userEmail) {
 }
 
 // ===================================================
-// 🎯 FIXED bridge function - Connects to your existing video system
+// 🎯 CORRECTED BRIDGE - Uses proper separation
 // ===================================================
+
 function showTestimonialVideo(testimonialType, duration = 12000) {
-    console.log('🎯 BRIDGE: Routing to TESTIMONIAL PLAYER');
-    
-    if (typeof handleVoiceChatTestimonialCall === 'function') {
-        handleVoiceChatTestimonialCall(testimonialType, duration);
-    } else {
-        console.error('❌ Bridge function not found in testimonial player');
+    console.log('🎯 BRIDGE: Video path → Testimonial Player');
+    // Call the DIRECT video function from testimonials-player.js
+    if (typeof window.showTestimonialVideo === 'function') {
+        window.showTestimonialVideo(testimonialType);
     }
 }
 
 function showReviewsBanner() {
-    console.log('🎯 BRIDGE: Routing to REVIEWS BANNER');
-    handleVoiceChatTestimonialCall('banner');
+    console.log('🎯 BRIDGE: Banner path → Universal Banner Engine');
+    // Call the UNIVERSAL BANNER ENGINE for testimonial banner
+    if (typeof window.showUniversalBanner === 'function') {
+        window.showUniversalBanner('testimonialSelector');
+    }
 }
 
 // ===================================================

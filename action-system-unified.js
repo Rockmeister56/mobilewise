@@ -1181,53 +1181,6 @@ function enableAvatarAfterLeadCapture() {
         console.log('✅ Avatar re-enabled after lead capture');
     }
 }
-// ================================
-// 🆕 NEW: HANDLE EMAIL CONFIRMATION RESPONSE (FIXED VERSION)
-// ================================
-function handleEmailConfirmation(sendEmail, captureType) {
-    console.log('🎯 Email confirmation:', sendEmail ? 'SENDING' : 'SKIPPING');
-    
-    // Remove confirmation buttons
-    const buttonContainer = document.querySelector('.email-confirmation-buttons');
-    if (buttonContainer) {
-        buttonContainer.remove();
-    }
-    
-    const data = window.currentLeadData;
-    
-    if (sendEmail) {
-        // User wants email - send it and show confirmation
-        console.log('📧 Sending email and showing confirmation...');
-        
-        // Show "sending email" message
-        if (window.addAIMessage) {
-            window.addAIMessage("📧 Sending your confirmation email now...");
-        }
-        
-        // Send the email
-        sendOriginalLeadEmail(data, captureType);
-        
-    } else {
-        // User skipped email - show alternative message
-        console.log('⏭️ Email skipped by user');
-        
-        if (window.addAIMessage) {
-            window.addAIMessage("No problem! Bruce will still contact you directly. Is there anything else I can help with?");
-        }
-        
-        // Clear the lead data
-        window.isInLeadCapture = false;
-        window.currentCaptureType = null;
-        window.currentLeadData = null;
-        
-        // Don't show thank you splash - just continue conversation
-        setTimeout(() => {
-            if (window.startRealtimeListening) {
-                window.startRealtimeListening();
-            }
-        }, 1500);
-    }
-}
 
 function sendOriginalLeadEmail(data, type) {
     console.log('📧 Sending ORIGINAL lead email (internal notification)...');
@@ -1673,6 +1626,115 @@ function restartConversation() {
         }, 2000);
     }, 1000);
 }
+
+// ================================
+// 🎬 TESTIMONIAL SPLASH SCREEN - ADD TO ACTION SYSTEM
+// ================================
+function showTestimonialSplashScreen() {
+    console.log('🎬 Deploying testimonial splash screen...');
+    
+    const splashScreen = document.createElement('div');
+    splashScreen.id = 'testimonial-splash-screen';
+    splashScreen.innerHTML = `
+        <div style="
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.9)),
+                        url('https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1762038349654_action-bg.jpg');
+            background-size: cover;
+            background-position: center;
+            background-blend-mode: overlay;
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px 25px;
+            margin: 20px 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            color: white;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            max-width: 750px;
+        ">
+            <!-- Header with Video Avatar -->
+            <div style="display: flex; align-items: center; margin-bottom: 25px; gap: 15px;">
+                <video autoplay loop muted playsinline style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255, 255, 255, 0.2);">
+                    <source src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1762037335280.mp4" type="video/mp4">
+                </video>
+                <div>
+                    <h3 style="margin: 0 0 5px 0; font-size: 22px; font-weight: 600;">Client Testimonials</h3>
+                    <p style="margin: 0; opacity: 0.8; font-size: 13px; font-weight: 300;">Real stories from satisfied clients</p>
+                </div>
+            </div>
+
+            <!-- Testimonial Buttons Grid -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px;">
+                <!-- Skeptical Client -->
+                <button onclick="handleTestimonialButton('skeptical')" style="
+                    display: flex; align-items: center; gap: 12px;
+                    background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(255, 255, 255, 0.2);
+                    color: white; padding: 18px 15px; border-radius: 10px; cursor: pointer;
+                    font-weight: 600; font-size: 17px; text-align: left; transition: all 0.3s ease;
+                    backdrop-filter: blur(10px); width: 100%; height: 84px;
+                " onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.borderColor='rgba(255, 255, 255, 0.3)'; this.style.transform='translateY(-2px)';" 
+                   onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.borderColor='rgba(255, 255, 255, 0.2)'; this.style.transform='translateY(0)';">
+                    <div style="font-size: 28px;">🤔</div>
+                    <span style="flex: 1;">Skeptical Client</span>
+                </button>
+
+                <!-- Speed Results -->
+                <button onclick="handleTestimonialButton('speed')" style="
+                    display: flex; align-items: center; gap: 12px;
+                    background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(255, 255, 255, 0.2);
+                    color: white; padding: 18px 15px; border-radius: 10px; cursor: pointer;
+                    font-weight: 600; font-size: 17px; text-align: left; transition: all 0.3s ease;
+                    backdrop-filter: blur(10px); width: 100%; height: 84px;
+                " onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.borderColor='rgba(255, 255, 255, 0.3)'; this.style.transform='translateY(-2px)';" 
+                   onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.borderColor='rgba(255, 255, 255, 0.2)'; this.style.transform='translateY(0)';">
+                    <div style="font-size: 28px;">⚡</div>
+                    <span style="flex: 1;">Speed Results</span>
+                </button>
+            </div>
+
+            <!-- Skip Button -->
+            <button onclick="hideTestimonialSplash()" style="
+                display: flex; align-items: center; gap: 10px;
+                background: rgba(0, 0, 0, 0.6); color: rgba(255, 255, 255, 0.8);
+                border: 1px solid rgba(255, 255, 255, 0.2); padding: 15px 20px;
+                border-radius: 10px; cursor: pointer; font-size: 16px; font-weight: 500;
+                transition: all 0.3s ease; width: 100%; justify-content: center; margin-top: 5px;
+            " onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.color='white';" 
+               onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.color='rgba(255, 255, 255, 0.8)';">
+                <span>⏭️ Skip Testimonials</span>
+            </button>
+        </div>
+    `;
+    
+    const chatContainer = document.getElementById('chatMessages') || document.querySelector('.chat-messages');
+    if (chatContainer) {
+        chatContainer.appendChild(splashScreen);
+        splashScreen.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+}
+
+function hideTestimonialSplash() {
+    const splash = document.getElementById('testimonial-splash-screen');
+    if (splash) {
+        splash.style.animation = 'slideOutToBottom 0.3s ease-in';
+        setTimeout(() => splash.remove(), 300);
+    }
+}
+
+function handleTestimonialButton(testimonialType) {
+    console.log('🎬 Testimonial selected:', testimonialType);
+    hideTestimonialSplash();
+    
+    // Call the video player directly - NO BRIDGE!
+    if (typeof window.showTestimonialVideo === 'function') {
+        window.showTestimonialVideo(testimonialType);
+    }
+}
+
+// Make globally accessible
+window.showTestimonialSplashScreen = showTestimonialSplashScreen;
+window.hideTestimonialSplash = hideTestimonialSplash;
+window.handleTestimonialButton = handleTestimonialButton;
 
 // Make globally accessible
 window.restartConversation = restartConversation;

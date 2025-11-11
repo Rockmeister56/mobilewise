@@ -5,21 +5,6 @@
 
 window.testimonialData = {
     
-    // ===================================================
-    // VIDEO TESTIMONIALS (Bruce's Avatar Videos)
-    // ===================================================
-    videos: {
-        skeptical: {
-            url: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982717330.mp4",
-            title: "Skeptical, Then Exceeded Expectations",
-            duration: 12000
-        },
-        speed: {
-            url: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982877040.mp4",
-            title: "Surprised by the Speed of the Sale",
-            duration: 12000
-        }
-    },
     
     // ===================================================
     // TEXT TESTIMONIALS BY CONCERN TYPE
