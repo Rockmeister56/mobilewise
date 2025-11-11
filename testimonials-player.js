@@ -210,11 +210,24 @@ function createTestimonialBanner(concernData) {
     }
 }
 
-// 5. SHOW TESTIMONIAL VIDEO PLAYER
+// 5. SHOW TESTIMONIAL VIDEO PLAYER - FIXED VERSION
 function showTestimonialVideo(testimonialType) {
+    console.log('🎬 Playing testimonial video:', testimonialType);
+    
     const videoUrl = TESTIMONIAL_VIDEOS[testimonialType] || TESTIMONIAL_VIDEOS.skeptical;
     
-    // Create video overlay
+    // 🚫 PREVENT DOUBLE CALLS
+    if (window.avatarCurrentlyPlaying) {
+        console.log('🚫 Video already playing - skipping duplicate');
+        return;
+    }
+    window.avatarCurrentlyPlaying = true;
+    
+    // Remove any existing overlay
+    const existingOverlay = document.getElementById('testimonial-video-overlay');
+    if (existingOverlay) existingOverlay.remove();
+    
+    // Create video overlay with proper transparent background
     const videoOverlay = document.createElement('div');
     videoOverlay.id = 'testimonial-video-overlay';
     videoOverlay.style.cssText = `
@@ -223,25 +236,20 @@ function showTestimonialVideo(testimonialType) {
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0, 0, 0, 0.95);
+        background: rgba(0, 0, 0, 0.85); /* More transparent */
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
         z-index: 10000;
         font-family: 'Segoe UI', system-ui, sans-serif;
+        backdrop-filter: blur(5px); /* Added blur effect */
     `;
 
-    // Video container
+    // Video container with proper styling
     videoOverlay.innerHTML = `
         <div style="width: 90%; max-width: 854px; position: relative;">
-            <!-- Video Player -->
-            <video id="testimonial-video" controls autoplay style="width: 100%; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-                <source src="${videoUrl}" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
-            
-            <!-- Close Button -->
+            <!-- Close Button - Top Right -->
             <button onclick="close16x9TestimonialVideo()" style="
                 position: absolute;
                 top: -50px;
@@ -255,14 +263,26 @@ function showTestimonialVideo(testimonialType) {
                 font-size: 14px;
                 backdrop-filter: blur(10px);
                 transition: all 0.3s ease;
+                z-index: 10001;
             " onmouseover="this.style.background='rgba(255,255,255,0.2)';" 
                onmouseout="this.style.background='rgba(255,255,255,0.1)';">
                 ✕ Close
             </button>
+            
+            <!-- Video Player -->
+            <video id="testimonial-video" controls autoplay style="
+                width: 100%; 
+                border-radius: 12px; 
+                box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            ">
+                <source src="${videoUrl}" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
         </div>
     `;
 
     document.body.appendChild(videoOverlay);
+    console.log('✅ Fixed video overlay created');
 
     // Handle video end
     const video = document.getElementById('testimonial-video');
