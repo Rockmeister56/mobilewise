@@ -2117,14 +2117,56 @@ function deliverLeadMagnet(leadMagnet, userEmail) {
 }
 
 // ===================================================
-// 🎯 bridge function
+// 🎯 FIXED bridge function - NO INFINITE LOOP
 // ===================================================
 function showTestimonialVideo(testimonialType, duration = 12000) {
-    console.log('🎯 BRIDGE: Routing to VIDEO PLAYER (not banner)');
-    if (typeof window.showTestimonialVideo === 'function') {
-        window.showTestimonialVideo(testimonialType, duration);
-    } else {
-        console.error('❌ showTestimonialVideo function not found');
+    console.log('🎯 BRIDGE: Routing to VIDEO PLAYER (Phase 1)');
+    
+    // Your actual video player logic here - NOT calling itself!
+    const videoContainer = document.getElementById('video-container');
+    const reviewsBanner = document.getElementById('reviews-banner');
+    
+    // Show video player, hide reviews banner
+    if (videoContainer) {
+        videoContainer.style.display = 'block';
+        videoContainer.classList.add('active');
+        console.log('✅ Video player activated');
+    }
+    
+    if (reviewsBanner) {
+        reviewsBanner.style.display = 'none';
+        reviewsBanner.classList.remove('active');
+    }
+    
+    // Auto-close after duration
+    if (duration) {
+        setTimeout(() => {
+            if (videoContainer) {
+                videoContainer.style.display = 'none';
+                videoContainer.classList.remove('active');
+                console.log('⏰ Video auto-closed');
+            }
+        }, duration);
+    }
+}
+
+// Separate function for reviews banner
+function showReviewsBanner() {
+    console.log('🎯 BRIDGE: Routing to REVIEWS BANNER (Phase 2)');
+    
+    const videoContainer = document.getElementById('video-container');
+    const reviewsBanner = document.getElementById('reviews-banner');
+    
+    // Show reviews banner, hide video player
+    if (videoContainer) {
+        videoContainer.style.display = 'none';
+        videoContainer.classList.remove('active');
+    }
+    
+    if (reviewsBanner) {
+        reviewsBanner.style.display = 'block';
+        reviewsBanner.classList.add('active');
+        console.log('✅ Reviews banner activated');
     }
 }
 
