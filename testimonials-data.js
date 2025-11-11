@@ -124,4 +124,4 @@ window.testimonialData = {
     }
 };
 
-console.log('✅ Testimonials Data Loaded:', Object.keys(window.testimonialData.videos).length, 'videos,', Object.keys(window.testimonialData.concerns).length, 'concern types');
+console.log('✅ Testimonials Data Loaded:', Object.keys(window.testimonialData.concerns).length, 'concern types');
