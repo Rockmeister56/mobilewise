@@ -2120,11 +2120,11 @@ function deliverLeadMagnet(leadMagnet, userEmail) {
 // 🎯 bridge function
 // ===================================================
 function showTestimonialVideo(testimonialType, duration = 12000) {
-    console.log('🎯 BRIDGE: Routing to 16:9 player');
-    if (typeof window.play16x9TestimonialVideo === 'function') {
-        window.play16x9TestimonialVideo(testimonialType, duration);
+    console.log('🎯 BRIDGE: Routing to VIDEO PLAYER (not banner)');
+    if (typeof window.showTestimonialVideo === 'function') {
+        window.showTestimonialVideo(testimonialType, duration);
     } else {
-        console.error('❌ play16x9TestimonialVideo function not found');
+        console.error('❌ showTestimonialVideo function not found');
     }
 }
 
