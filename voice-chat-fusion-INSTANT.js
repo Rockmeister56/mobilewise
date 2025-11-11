@@ -2116,10 +2116,15 @@ function deliverLeadMagnet(leadMagnet, userEmail) {
     }
 }
 
-function bridgeToTestimonialVideo(testimonialType, duration = 12000) {
+// ===================================================
+// 🎯 bridge function
+// ===================================================
+function showTestimonialVideo(testimonialType, duration = 12000) {
     console.log('🎯 BRIDGE: Routing to 16:9 player');
-    if (typeof showTestimonialVideo === 'function') {
-        showTestimonialVideo(testimonialType, duration);
+    if (typeof window.play16x9TestimonialVideo === 'function') {
+        window.play16x9TestimonialVideo(testimonialType, duration);
+    } else {
+        console.error('❌ play16x9TestimonialVideo function not found');
     }
 }
 
@@ -2609,34 +2614,29 @@ function detectConcernOrObjection(userText) {
     return false;
 }
 
-// 🎯 HANDLE CONCERN WITH TESTIMONIAL - WITH USER TEXT ECHO
+// 🎯 ENHANCED CONCERN HANDLER - CONNECTED TO UNIVERSAL BANNER ENGINE v4
 function handleConcernWithTestimonial(userText) {
     // 🛑 BLOCK SPEAK SEQUENCE IMMEDIATELY
     window.concernBannerActive = true;
     console.log('🚫 FLAG SET: concernBannerActive = true');
     
     const concernType = window.detectedConcernType || 'general';
-    
-    console.log(`🎯 Handling ${concernType} concern - triggering testimonial banner`);
+    console.log(`🎯 Handling ${concernType} concern with Universal Banner Engine`);
     
     // Empathetic acknowledgment that INCLUDES the user's exact words
     let acknowledgment = '';
-    
     switch(concernType) {
         case 'price':
             acknowledgment = `I completely understand your concern regarding "${userText}". Many of our clients felt the same way initially. If you'd like to hear what they experienced, click a review below. Or click Skip to continue our conversation.`;
             break;
-            
         case 'time':
-            acknowledgment = `I hear you on "${userText}". Several of our clients had similar thoughts before working with Bruce,the founder and CEO of NCI. Feel free to click a review to hear their experience, or hit Skip and we'll keep talking.`;
+            acknowledgment = `I hear you on "${userText}". Several of our clients had similar thoughts before working with Bruce, the founder and CEO of NCI. Feel free to click a review to hear their experience, or hit Skip and we'll keep talking.`;
             break;
-            
         case 'trust':
             acknowledgment = `That's a fair concern about "${userText}". You're not alone - other practice owners felt the same way at first. You're welcome to check out their reviews below, or click Skip to move forward.`;
             break;
-            
         case 'general':
-            acknowledgment = `I appreciate you sharing that about "${userText}". Some of valued clients of Bruce,the founder and CEO of NCI started with similar hesitations. If you're curious what happened for them, click a review. Otherwise, click Skip and let's continue.`;
+            acknowledgment = `I appreciate you sharing that about "${userText}". Some of valued clients of Bruce, the founder and CEO of NCI started with similar hesitations. If you're curious what happened for them, click a review. Otherwise, click Skip and let's continue.`;
             break;
     }
     
@@ -2650,9 +2650,9 @@ function handleConcernWithTestimonial(userText) {
         }
     }, 100);
     
-    // 🚨 ADD THIS: TRIGGER THE VIDEO SPLASH SCREEN
+    // 🎬 PHASE 1: SHOW TESTIMONIAL VIDEO SPLASH SCREEN
     setTimeout(() => {
-        console.log('🎬 BRIDGE: Triggering testimonial video splash screen');
+        console.log('🎬 PHASE 1: Triggering testimonial video splash screen');
         if (typeof showTestimonialVideo === 'function') {
             showTestimonialVideo('skeptical', 12000); // This shows the video splash screen
         } else {
@@ -2660,15 +2660,23 @@ function handleConcernWithTestimonial(userText) {
         }
     }, 1500);
     
-    // Show testimonial banner after speaking
+    // 🎯 PHASE 2: SHOW TESTIMONIAL BANNER via UNIVERSAL ENGINE v4
     setTimeout(() => {
-        console.log('🎯 Triggering testimonial banner');
-        if (typeof showTestimonialBanner === 'function') {
-            showTestimonialBanner(concernType);
+        console.log('🎯 PHASE 2: Triggering testimonial banner via Universal Engine v4');
+        if (typeof showUniversalBanner === 'function') {
+            // ✅ CONNECTED TO ACTIVE SYSTEM: Universal Banner Engine v4
+            showUniversalBanner('testimonialSelector');
+            console.log('✅ Testimonial banner triggered via Universal Engine v4');
         } else {
-            console.error('❌ showTestimonialBanner function not found');
+            console.error('❌ showUniversalBanner function not found - system not connected');
         }
-    }, 3000);
+    }, 4000); // After video is showing
+    
+    // 🎯 COORDINATION: RESUME NORMAL FLOW AFTER TESTIMONIAL SEQUENCE
+    setTimeout(() => {
+        window.concernBannerActive = false;
+        console.log('🔄 Concern flow completed - system resumed');
+    }, 8000);
     
     // Store the concern
     window.lastDetectedConcern = {
@@ -2678,7 +2686,62 @@ function handleConcernWithTestimonial(userText) {
     };
 }
 
-console.log('✅ COMPLETE GOLD STANDARD getAIResponse WITH 4-STEP SALES PROCESS & CONCERN DETECTION LOADED!');
+// 🎯 SIMPLE BANNER QUEUE PROCESSOR (if needed)
+function processBannerQueue() {
+    // This is a placeholder - your Universal Engine handles its own queue
+    console.log('🔄 Banner queue processing (if needed)');
+}
+
+// 🎯 HELPER: GET RELEVANT TESTIMONIALS FOR CONCERN TYPE
+function getTestimonialsForConcern(concernType) {
+    // Check if testimonial data is available
+    if (typeof window.testimonialVideos === 'undefined') {
+        console.error('❌ testimonial-data.js not loaded - using fallback');
+        return getFallbackTestimonials(concernType);
+    }
+    
+    // Get testimonials for this specific concern
+    const testimonials = window.testimonialVideos[concernType];
+    
+    if (!testimonials) {
+        console.warn(`❌ No testimonials found for ${concernType} - using skeptical as fallback`);
+        return window.testimonialVideos['skeptical'] || getFallbackTestimonials(concernType);
+    }
+    
+    return testimonials;
+}
+
+// 🎯 FALLBACK IF TESTIMONIAL DATA NOT AVAILABLE
+function getFallbackTestimonials(concernType) {
+    const fallbackTestimonials = {
+        'price': {
+            title: "Proving the Value",
+            videos: [
+                {name: "Fallback Client", url: "fallback-price.mp4", duration: 12000}
+            ]
+        },
+        'time': {
+            title: "Time Well Spent", 
+            videos: [
+                {name: "Fallback Client", url: "fallback-time.mp4", duration: 12000}
+            ]
+        },
+        'trust': {
+            title: "Building Trust",
+            videos: [
+                {name: "Fallback Client", url: "fallback-trust.mp4", duration: 12000}
+            ]
+        },
+        'general': {
+            title: "Success Stories",
+            videos: [
+                {name: "Fallback Client", url: "fallback-general.mp4", duration: 12000}
+            ]
+        }
+    };
+    
+    return fallbackTestimonials[concernType] || fallbackTestimonials['general'];
+}
 
 // =============================================================================
 // 🛠️ NOW ADDING ALL SUPPORTING FUNCTIONS FROM BOTH FILES
