@@ -2686,6 +2686,23 @@ function handleConcernWithTestimonial(userText) {
     };
 }
 
+// 🎯 ENHANCED CONCERN HANDLER - USING TESTIMONIAL DATA (YOUR EXISTING)
+function handleConcernWithTestimonial(userText) {
+    // ... your existing enhanced code ...
+}
+
+// 🎯 ADD THIS RIGHT AFTER YOUR EXISTING FUNCTION:
+function getResumeMessageForConcern(concernType) {
+    const messages = {
+        price: "As you can see, many clients found the investment well worth it. The ROI typically pays for itself within the first month. Would you like me to show you how we can achieve similar results for you?",
+        time: "Like those clients, we understand you're busy. That's why Bruce has streamlined the process to deliver fast results without taking much of your time. Ready to see how quickly we can help you?",
+        trust: "I understand the skepticism - many successful clients felt the same way initially. But as you can see, Bruce's results speak for themselves. Would you like me to show you exactly how this works?",
+        general: "Many clients had similar concerns initially, but were thrilled once they saw Bruce's results. Would you like me to show you how we can address your specific situation?"
+    };
+    
+    return messages[concernType] || messages.general;
+}
+
 // 🎯 SIMPLE BANNER QUEUE PROCESSOR (if needed)
 function processBannerQueue() {
     // This is a placeholder - your Universal Engine handles its own queue
