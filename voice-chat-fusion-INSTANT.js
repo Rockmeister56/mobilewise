@@ -2661,16 +2661,38 @@ function handleConcernWithTestimonial(userText) {
     }, 1500);
     
     // 🎯 PHASE 2: SHOW TESTIMONIAL BANNER via UNIVERSAL ENGINE v4
-    setTimeout(() => {
-        console.log('🎯 PHASE 2: Triggering testimonial banner via Universal Engine v4');
-        if (typeof showUniversalBanner === 'function') {
-            // ✅ CONNECTED TO ACTIVE SYSTEM: Universal Banner Engine v4
-            showUniversalBanner('testimonialSelector');
-            console.log('✅ Testimonial banner triggered via Universal Engine v4');
-        } else {
-            console.error('❌ showUniversalBanner function not found - system not connected');
+setTimeout(() => {
+    console.log('🎯 PHASE 2: Triggering testimonial banner via Universal Engine v4');
+    if (typeof showUniversalBanner === 'function') {
+        // ✅ CONNECTED TO ACTIVE SYSTEM: Universal Banner Engine v4
+        // First ensure concern data is properly set for the banner
+        const testimonialData = getTestimonialsForConcern(concernType);
+        window.concernData = {
+            title: testimonialData.title,
+            icon: testimonialData.icon,
+            reviews: testimonialData.videos  // Convert "videos" to "reviews" format
+        };
+        
+        console.log(`🎯 Universal Banner: Showing ${concernType} testimonials`);
+        showUniversalBanner('testimonialSelector');
+        console.log('✅ Testimonial banner triggered via Universal Engine v4');
+    } else {
+        console.error('❌ showUniversalBanner function not found - system not connected');
+        
+        // 🆘 FALLBACK: Use direct testimonial player
+        console.log('🔄 Fallback: Using direct testimonial player');
+        if (typeof play16x9TestimonialVideo === 'function') {
+            // Set concern data for fallback system
+            const testimonialData = getTestimonialsForConcern(concernType);
+            window.concernData = {
+                title: testimonialData.title,
+                icon: testimonialData.icon,
+                reviews: testimonialData.videos
+            };
+            play16x9TestimonialVideo(concernType);
         }
-    }, 4000); // After video is showing
+    }
+}, 4000); // After video is showing
     
     // 🎯 COORDINATION: RESUME NORMAL FLOW AFTER TESTIMONIAL SEQUENCE
     setTimeout(() => {
