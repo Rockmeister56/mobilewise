@@ -2624,7 +2624,8 @@ for (let keyword of allKeywords) {
     return false;
 }
 
-function handleConcernWithTestimonial(userText, concernType) {
+// 🚨 RE-APPLY THE FULL handleConcernWithTestimonial FUNCTION
+window.handleConcernWithTestimonial = function(userText, concernType) {
     console.log(`🎯 handleConcernWithTestimonial called: "${userText}" (${concernType})`);
     
     // 🛑 BLOCK SPEAK SEQUENCE IMMEDIATELY
@@ -2685,7 +2686,8 @@ function handleConcernWithTestimonial(userText, concernType) {
         type: finalConcernType,
         timestamp: Date.now()
     };
-}
+};
+
 
 // 🎯 ENHANCED CONCERN HANDLER - USING TESTIMONIAL DATA (YOUR EXISTING)
 function handleConcernWithTestimonial(userText) {
