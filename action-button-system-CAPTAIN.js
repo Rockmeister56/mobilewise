@@ -71,53 +71,41 @@
             padding: 10px;
         }
 
-        /* Communication Relay Center Button - Transparent White */
+        /* Communication Relay Center Button - MATCHES OTHER QUICK BUTTONS */
         .comm-relay-btn {
-            padding: 14px 28px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 25px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            color: #333;
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(10px);
+            padding: 12px 25px !important;
+            background: rgba(255, 255, 255, 0.15) !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 20px !important;
+            cursor: pointer !important;
+            font-size: 14px !important;
+            font-weight: 600 !important;
+            min-width: 120px !important;
             text-align: center;
-            min-width: 220px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease !important;
         }
 
         .comm-relay-btn:hover {
-            transform: translateY(-2px);
-            background: rgba(255, 255, 255, 0.95);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-            border-color: rgba(102, 126, 234, 0.5);
+            background: rgba(255, 255, 255, 0.25) !important;
+            transform: translateY(-1px) !important;
         }
 
         .comm-relay-btn:active {
-            transform: translateY(0);
+            transform: translateY(0) !important;
         }
 
-        /* Remove pulse animation - use subtle glow instead */
+        /* Remove any glow/pulse - keep it clean */
         .comm-relay-btn.glow {
-            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
-            border-color: rgba(102, 126, 234, 0.4);
+            box-shadow: none !important;
         }
 
         /* Mobile responsive */
         @media (max-width: 768px) {
             .comm-relay-btn {
-                padding: 12px 20px;
-                font-size: 14px;
-                min-width: 200px;
-                border-radius: 20px;
-            }
-            
-            #comm-relay-button-container {
-                padding: 8px;
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+                min-width: 110px !important;
             }
         }
     `;
@@ -125,27 +113,26 @@
     document.head.appendChild(styleSheet);
 }
 
-    /**
-     * Render the single Communication Relay Center button
-     */
     function renderCommRelayButton() {
-        if (!buttonContainer) return;
+    if (!buttonContainer) return;
 
-        // Clear container
-        buttonContainer.innerHTML = '';
+    // Clear container
+    buttonContainer.innerHTML = '';
 
-        // Create the single button
-        const button = document.createElement('button');
-        button.id = BUTTON_CONFIG.id;
-        button.className = 'comm-relay-btn pulse'; // Starts with pulse animation
-        button.textContent = BUTTON_CONFIG.text;
-        
-        // Attach click handler
-        button.onclick = openCommRelayCenter;
-        
-        buttonContainer.appendChild(button);
-        console.log('🚀 Communication Relay Center button rendered');
-    }
+    // Create the single button
+    const button = document.createElement('button');
+    button.id = BUTTON_CONFIG.id;
+    button.className = 'comm-relay-btn'; // Just the base class - no glow, no pulse
+    button.textContent = BUTTON_CONFIG.text;
+    
+    // NO inline styles - let CSS handle everything
+    
+    // Attach click handler
+    button.onclick = openCommRelayCenter;
+    
+    buttonContainer.appendChild(button);
+    console.log('🚀 Communication Relay Center button rendered');
+}
 
     /**
      * OPEN COMMUNICATION RELAY CENTER
