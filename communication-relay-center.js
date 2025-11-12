@@ -1,11 +1,11 @@
 /**
  * MOBILE-WISE AI FORMVISER
- * Communication Relay Center - SINGLE BUTTON SYSTEM
+ * Communication Relay Center - ENHANCED VERSION
  * 
- * Cleaned up: Only ONE button that opens Communication Relay Center
- * With video avatar introduction for direct connections
+ * Uses existing Action Center styling but adds avatar introduction
+ * Preserves original Action Center for AI-triggered calls
  * 
- * Created: 2025-10-31 - COMPLETE OVERHAUL
+ * Created: 2025-10-31 - ENHANCEMENT VERSION
  */
 
 (function() {
@@ -152,37 +152,25 @@
 
     /**
      * OPEN COMMUNICATION RELAY CENTER
-     * With video avatar introduction
+     * With enhanced avatar introduction
      */
     function openCommRelayCenter() {
-        console.log('🚀 Opening Communication Relay Center...');
+        console.log('🚀 Opening ENHANCED Communication Relay Center...');
         
         // 🛑 STOP ALL VOICE ACTIVITY
         if (typeof stopAllSpeech === 'function') stopAllSpeech();
         if (typeof stopListening === 'function') stopListening();
         if (window.speechSynthesis) window.speechSynthesis.cancel();
         
-        // 🎯 SHOW VIDEO AVATAR INTRODUCTION
+        // 🎯 SHOW AVATAR INTRODUCTION FIRST
         showAvatarIntroduction();
-        
-        // 🎤 OPTIONAL: VOICE INTRODUCTION
-        setTimeout(() => {
-            if (typeof speakText === 'function') {
-                speakText("Welcome to the Communication Relay Center. Let me connect you directly with Bruce for a personalized consultation.");
-            }
-        }, 1000);
-        
-        // 📞 OPEN ACTION CENTER AFTER AVATAR
-        setTimeout(() => {
-            openActionCenterWithConfig();
-        }, 3000); // Wait for avatar to finish
     }
 
     /**
-     * SHOW VIDEO AVATAR INTRODUCTION
+     * SHOW AVATAR INTRODUCTION FOR RELAY CENTER
      */
     function showAvatarIntroduction() {
-        console.log('🎬 Playing avatar introduction video');
+        console.log('🎬 Playing avatar introduction for Relay Center');
         
         // Create video overlay
         const videoOverlay = document.createElement('div');
@@ -193,7 +181,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.9);
+            background: rgba(0,0,0,0.95);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -201,7 +189,7 @@
             flex-direction: column;
         `;
         
-        // Create video element
+        // Video element
         const video = document.createElement('video');
         video.src = BUTTON_CONFIG.avatarVideoUrl;
         video.controls = false;
@@ -214,63 +202,112 @@
             box-shadow: 0 10px 40px rgba(0,0,0,0.5);
         `;
         
-        // Create close button
+        // Title for Relay Center
+        const title = document.createElement('div');
+        title.textContent = '🚀 Communication Relay Center';
+        title.style.cssText = `
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        `;
+        
+        // Close button
         const closeBtn = document.createElement('button');
-        closeBtn.textContent = 'Skip Introduction';
+        closeBtn.textContent = 'Skip to Relay Center';
         closeBtn.style.cssText = `
             margin-top: 20px;
-            padding: 10px 20px;
-            background: #667eea;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #0e27b5ff 100%);
             color: white;
             border: none;
             border-radius: 20px;
             cursor: pointer;
             font-weight: bold;
+            font-size: 14px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
         `;
         closeBtn.onclick = () => {
             document.body.removeChild(videoOverlay);
-            openActionCenterWithConfig(); // Open immediately if skipped
+            showEnhancedActionCenter(); // Skip to enhanced center
         };
         
-        // Auto-remove when video ends
+        // Auto-open enhanced center when video ends
         video.onended = () => {
             document.body.removeChild(videoOverlay);
-            openActionCenterWithConfig();
+            showEnhancedActionCenter();
         };
         
+        videoOverlay.appendChild(title);
         videoOverlay.appendChild(video);
         videoOverlay.appendChild(closeBtn);
         document.body.appendChild(videoOverlay);
+        
+        // 🎤 OPTIONAL: VOICE INTRODUCTION
+        setTimeout(() => {
+            if (typeof speakText === 'function') {
+                speakText("Welcome to the Communication Relay Center. You're now connected directly to Bruce for personalized consultation.");
+            }
+        }, 1000);
     }
 
     /**
-     * OPEN ACTION CENTER WITH PRE-CONFIGURED SETTINGS
+     * SHOW ENHANCED ACTION CENTER
+     * Uses the original Action Center but with Relay Center branding
      */
-    function openActionCenterWithConfig() {
-        const config = {
-            title: 'Communication Relay Center',
-            description: 'You\'re now connected to Bruce, founder and CEO of NCI. Choose how you\'d like to proceed:',
-            highlight: 'Direct line to decision maker - no gatekeepers',
-            preferredMethod: 'phone',
-            fields: ['name', 'email', 'phone', 'message'],
-            messagePlaceholder: 'Briefly describe what you\'d like to discuss with Bruce...'
-        };
+    function showEnhancedActionCenter() {
+        console.log('🎯 Showing Enhanced Action Center with Relay Center branding');
         
-        // 🎯 OPEN COMMUNICATION ACTION CENTER
-        if (typeof window.openCommunicationActionCenter === 'function') {
-            window.openCommunicationActionCenter(config);
-        } else if (typeof window.showUniversalBanner === 'function') {
-            // Fallback to appointment banner
-            window.showUniversalBanner('setAppointment');
+        // 🎯 USE THE ORIGINAL ACTION CENTER BUT WITH ENHANCED MESSAGING
+        if (typeof window.showCommunicationActionCenter === 'function') {
+            
+            // Add a special header message first
+            const enhancedMessage = "🚀 You're connected to the Communication Relay Center - Direct line to Bruce";
+            
+            if (window.addAIMessage) {
+                window.addAIMessage(enhancedMessage);
+            }
+            
+            // Wait a moment then show the original Action Center
+            setTimeout(() => {
+                window.showCommunicationActionCenter();
+                
+                // Optional: Add a small visual indicator that this is the Relay Center version
+                const actionCenter = document.getElementById('communication-action-center');
+                if (actionCenter) {
+                    const relayBadge = document.createElement('div');
+                    relayBadge.style.cssText = `
+                        position: absolute;
+                        top: -10px;
+                        right: -10px;
+                        background: linear-gradient(135deg, #667eea 0%, #0e27b5ff 100%);
+                        color: white;
+                        padding: 5px 12px;
+                        border-radius: 15px;
+                        font-size: 12px;
+                        font-weight: bold;
+                        z-index: 1;
+                        box-shadow: 0 3px 10px rgba(102, 126, 234, 0.4);
+                    `;
+                    relayBadge.textContent = 'RELAY CENTER';
+                    actionCenter.style.position = 'relative';
+                    actionCenter.appendChild(relayBadge);
+                }
+            }, 500);
+            
         } else {
-            // Ultimate fallback
-            alert('🚀 Communication Relay Center\n\nReady to connect with Bruce?\nCall: (555) 123-4567');
+            console.error('❌ Original Action Center not found - falling back');
+            // Fallback to basic contact info
+            alert('🚀 Communication Relay Center\n\nDirect connection to Bruce:\n📞 856-304-1035\n✉️ bizboost.expert@gmail.com');
         }
     }
 
     // Export functions globally
     window.openCommRelayCenter = openCommRelayCenter;
     window.initializeCommRelayButton = initializeCommRelayButton;
+    window.showEnhancedActionCenter = showEnhancedActionCenter;
 
     // Initialize on DOM ready
     if (document.readyState === 'loading') {
@@ -279,5 +316,5 @@
         setTimeout(initializeCommRelayButton, 500);
     }
 
-    console.log('✅ Communication Relay Center System loaded');
+    console.log('✅ Enhanced Communication Relay Center System loaded');
 })();
