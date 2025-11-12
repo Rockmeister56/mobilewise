@@ -1845,5 +1845,22 @@ window.initializeClickToCallCapture = initializeClickToCallCapture;
 window.initializeFreeBookCapture = initializeFreeBookCapture;
 window.initiateUrgentCall = initiateUrgentCall;
 window.initializePreQualifierCapture = initializePreQualifierCapture; // 🎯 NOW THIS WILL BE GOLD!
+window.askQuickQuestion = askQuickQuestion;
+
+function askQuickQuestion(questionText) {
+    console.log('🔄 REDIRECTING: askQuickQuestion → Communication Relay Center');
+    console.log('   Original question:', questionText);
+    
+    // Redirect to our new Communication Relay Center
+    if (typeof openCommRelayCenter === 'function') {
+        openCommRelayCenter();
+    } else {
+        console.error('❌ openCommRelayCenter not available');
+        // Fallback to original action center
+        if (typeof showCommunicationActionCenter === 'function') {
+            showCommunicationActionCenter();
+        }
+    }
+}
 
 console.log('✅ ACTION SYSTEM UNIFIED - Loaded successfully (FINAL CLEANED VERSION - No restore code)');

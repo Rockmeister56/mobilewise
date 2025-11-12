@@ -4186,7 +4186,6 @@ function initializeChatInterface() {
 // ===================================================
 // 🌍 GLOBAL FUNCTIONS
 // ===================================================
-window.askQuickQuestion = askQuickQuestion;
 window.handleSmartButtonClick = handleSmartButtonClick;
 
 // ===================================================

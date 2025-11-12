@@ -48,12 +48,16 @@
      * Initialize integration
      */
     function initializeIntegration() {
-        // Wait for banner engine to be ready
-        if (typeof window.onBannerChange !== 'function') {
-            console.warn('⏳ Banner engine not ready, retrying...');
-            setTimeout(initializeIntegration, 500);
-            return;
-        }
+    // OLD: Checking for switchActionButtonMode (removed system)
+    // NEW: Check for our Communication Relay Center system
+    if (typeof window.initializeCommRelayButton === 'function') {
+        console.log('✅ Communication Relay system found - integration ready');
+        // Integration successful - the button system is our new relay center
+    } else {
+        console.log('⏳ Communication Relay system not ready, retrying...');
+        setTimeout(initializeIntegration, 500);
+    }
+}
 
         // Wait for button system to be ready
         if (typeof window.switchActionButtonMode !== 'function') {
