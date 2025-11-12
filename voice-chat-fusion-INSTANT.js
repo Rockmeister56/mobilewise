@@ -2605,27 +2605,22 @@ for (let keyword of allKeywords) {
         console.log(`🚨 CONCERN DETECTED: "${keyword}" in user input`);
         
         // Determine concern type
+        let concernType = 'general';
         if (priceKeywords.some(k => text.includes(k))) {
+            concernType = 'price';
             window.detectedConcernType = 'price';
         } else if (timeKeywords.some(k => text.includes(k))) {
+            concernType = 'time';
             window.detectedConcernType = 'time';
         } else if (trustKeywords.some(k => text.includes(k))) {
+            concernType = 'trust';
             window.detectedConcernType = 'trust';
         } else {
             window.detectedConcernType = 'general';
         }
-        
-        // 🎯 CRITICAL FIX: ACTUALLY SHOW TESTIMONIAL SPLASH SCREEN!
-        console.log('🎬 Launching testimonial splash screen for concern...');
-        setTimeout(() => {
-            if (window.showTestimonialSplashScreen && typeof window.showTestimonialSplashScreen === 'function') {
-                window.showTestimonialSplashScreen();
-                console.log('✅ Testimonial splash screen launched successfully');
-            } else {
-                console.error('❌ showTestimonialSplashScreen not available');
-            }
-        }, 500);
-        
+
+        // 🎯 CALL THE COMPLETE CONCERN HANDLER
+        handleConcernWithTestimonial(text, concernType);
         return true;
         }
     }
@@ -2633,81 +2628,92 @@ for (let keyword of allKeywords) {
     return false;
 }
 
-function handleConcernWithTestimonial(userText) {
+function handleConcernWithTestimonial(userText, concernType) {
+    console.log(`🎯 handleConcernWithTestimonial called: "${userText}" (${concernType})`);
+    
     // 🛑 BLOCK SPEAK SEQUENCE IMMEDIATELY
     window.concernBannerActive = true;
     
     // 🎯 SET CONCERN DATA IMMEDIATELY (CRITICAL FIX)
-    const concernType = window.detectedConcernType || detectConcernTypeFromText(userText) || 'general';
-    const testimonialData = getTestimonialsForConcern(concernType);
+    const finalConcernType = concernType || window.detectedConcernType || detectConcernTypeFromText(userText) || 'general';
+    const testimonialData = getTestimonialsForConcern(finalConcernType);
     window.concernData = {
         title: testimonialData.title,
         icon: testimonialData.icon,
         reviews: testimonialData.videos
     };
     
-    console.log(`🎯 Handling ${concernType} concern - data set immediately`);
+    console.log(`🎯 Handling ${finalConcernType} concern - data set immediately`);
     
     // [KEEP ALL YOUR EXISTING ACKNOWLEDGMENT LOGIC]
     let acknowledgment = '';
-    switch(concernType) {
+    switch(finalConcernType) {
         case 'price':
-            acknowledgment = `I completely understand your concern regarding "${userText}". Many of our clients felt the same way initially. If you'd like to hear what they experienced, click a review below. Or click Skip to continue our conversation.`;
+            acknowledgment = `I completely understand your concern regarding pricing. Many of our clients felt the same way initially. If you'd like to hear what they experienced, click a review below. Or click Skip to continue our conversation.`;
             break;
         case 'time':
-            acknowledgment = `I hear you on "${userText}". Several of our clients had similar thoughts before working with Bruce, the founder and CEO of NCI. Feel free to click a review to hear their experience, or hit Skip and we'll keep talking.`;
+            acknowledgment = `I hear you on the timing. Several of our clients had similar thoughts before working with Bruce, the founder and CEO of NCI. Feel free to click a review to hear their experience, or hit Skip and we'll keep talking.`;
             break;
         case 'trust':
-            acknowledgment = `That's a fair concern about "${userText}". You're not alone - other practice owners felt the same way at first. You're welcome to check out their reviews below, or click Skip to move forward.`;
+            acknowledgment = `That's a fair concern. You're not alone - other practice owners felt the same way at first. You're welcome to check out their reviews below, or click Skip to move forward.`;
             break;
         case 'general':
-            acknowledgment = `I appreciate you sharing that about "${userText}". Some of valued clients of Bruce, the founder and CEO of NCI started with similar hesitations. If you're curious what happened for them, click a review. Otherwise, click Skip and let's continue.`;
+            acknowledgment = `I appreciate you sharing that. Some of valued clients of Bruce, the founder and CEO of NCI started with similar hesitations. If you're curious what happened for them, click a review. Otherwise, click Skip and let's continue.`;
             break;
     }
     
     // Add AI message
-    addAIMessage(acknowledgment);
+    if (window.addAIMessage && typeof window.addAIMessage === 'function') {
+        window.addAIMessage(acknowledgment);
+    }
     
     // Speak the acknowledgment
-    setTimeout(() => {
-        if (typeof speakResponse === 'function') {
-            speakResponse(acknowledgment);
-        }
-    }, 100);
-    
-    // 🎯 PHASE 1: SHOW RELEVANT TESTIMONIAL VIDEO (WITH DATA)
-    setTimeout(() => {
-        console.log('🎬 PHASE 1: Triggering video for:', concernType);
-        if (typeof showTestimonialVideo === 'function') {
-            showTestimonialVideo(concernType, 12000);  // Use actual concernType
-        } else {
-            console.error('❌ showTestimonialVideo function not found');
-        }
-    }, 1500);
-    
-    // 🎯 PHASE 2: SHOW TESTIMONIAL BANNER via UNIVERSAL ENGINE v4
-    setTimeout(() => {
-        console.log('🎯 PHASE 2: Triggering testimonial banner via Universal Engine v4');
-        if (typeof showUniversalBanner === 'function') {
-            showUniversalBanner('testimonialSelector');
-            console.log('✅ Testimonial banner triggered via Universal Engine v4');
-        } else {
-            console.error('❌ showUniversalBanner function not found - system not connected');
-        }
-    }, 4000);
-    
-    // 🎯 COORDINATION: RESUME NORMAL FLOW AFTER TESTIMONIAL SEQUENCE
-    setTimeout(() => {
-        window.concernBannerActive = false;
-        console.log('🔄 Concern flow completed - system resumed');
-    }, 8000);
+    if (window.speakText && typeof window.speakText === 'function') {
+        window.speakText(acknowledgment);
+        
+        // Wait for speech to finish, THEN show testimonials
+        const checkSpeech = setInterval(() => {
+            if (!window.isSpeaking) {
+                clearInterval(checkSpeech);
+                console.log('✅ AI finished acknowledgment speech - showing testimonials');
+                
+                // 🎯 SHOW TESTIMONIAL SPLASH SCREEN (from Action System)
+                setTimeout(() => {
+                    if (window.showTestimonialSplashScreen && typeof window.showTestimonialSplashScreen === 'function') {
+                        window.showTestimonialSplashScreen();
+                        console.log('✅ Testimonial splash screen launched after speech');
+                    } else {
+                        console.error('❌ showTestimonialSplashScreen not available');
+                    }
+                }, 300);
+            }
+        }, 100);
+        
+        // Safety timeout
+        setTimeout(() => {
+            clearInterval(checkSpeech);
+            if (window.showTestimonialSplashScreen) {
+                window.showTestimonialSplashScreen();
+            }
+        }, 10000);
+        
+    } else {
+        // No speech system - just show testimonials after delay
+        setTimeout(() => {
+            if (window.showTestimonialSplashScreen) {
+                window.showTestimonialSplashScreen();
+            }
+        }, 2000);
+    }
     
     // Store the concern
     window.lastDetectedConcern = {
         text: userText,
-        type: concernType,
+        type: finalConcernType,
         timestamp: Date.now()
     };
+    
+    return true;
 }
 
 // 🎯 ENHANCED CONCERN HANDLER - USING TESTIMONIAL DATA (YOUR EXISTING)
