@@ -1628,13 +1628,42 @@ function restartConversation() {
 }
 
 // ================================
-// 🎬 TESTIMONIAL SPLASH SCREEN - ADD TO ACTION SYSTEM
+// 🎬 UPDATED TESTIMONIAL HANDLER - SPLASH SCREEN CONTROLS VIDEO PLAYBACK
+// ================================
+function handleTestimonialButton(testimonialType) {
+    console.log('🎬 Testimonial selected:', testimonialType);
+    
+    // First hide the splash screen
+    hideTestimonialSplash();
+    
+    // Wait for splash to fully hide, THEN show video
+    setTimeout(() => {
+        // Call the video player - NOW CONTROLLED BY SPLASH SCREEN
+        if (typeof window.showTestimonialVideo === 'function') {
+            window.showTestimonialVideo(testimonialType);
+        } else {
+            console.error('❌ Video player function not found');
+            // Fallback: restart conversation if video fails
+            restartConversation();
+        }
+    }, 400); // Matches the 300ms hide animation + 100ms buffer
+}
+
+// ================================
+// 🎬 ENHANCED TESTIMONIAL SPLASH SCREEN WITH BETTER TIMING
 // ================================
 function showTestimonialSplashScreen() {
     console.log('🎬 Deploying testimonial splash screen...');
     
+    // Stop any current listening first
+    if (window.stopListening && typeof window.stopListening === 'function') {
+        window.stopListening();
+    }
+    
     const splashScreen = document.createElement('div');
     splashScreen.id = 'testimonial-splash-screen';
+    splashScreen.style.animation = 'fadeInSplash 0.5s ease-in';
+    
     splashScreen.innerHTML = `
         <div style="
             background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.9)),
@@ -1651,6 +1680,7 @@ function showTestimonialSplashScreen() {
             color: white;
             font-family: 'Segoe UI', system-ui, sans-serif;
             max-width: 750px;
+            animation: slideInFromBottom 0.5s ease-out;
         ">
             <!-- Header with Video Avatar -->
             <div style="display: flex; align-items: center; margin-bottom: 25px; gap: 15px;">
@@ -1693,7 +1723,7 @@ function showTestimonialSplashScreen() {
             </div>
 
             <!-- Skip Button -->
-            <button onclick="hideTestimonialSplash()" style="
+            <button onclick="handleTestimonialSkip()" style="
                 display: flex; align-items: center; gap: 10px;
                 background: rgba(0, 0, 0, 0.6); color: rgba(255, 255, 255, 0.8);
                 border: 1px solid rgba(255, 255, 255, 0.2); padding: 15px 20px;
@@ -1713,41 +1743,60 @@ function showTestimonialSplashScreen() {
     }
 }
 
+// ================================
+// 🎬 NEW: HANDLE TESTIMONIAL SKIP
+// ================================
+function handleTestimonialSkip() {
+    console.log('🎬 User skipped testimonials');
+    hideTestimonialSplash();
+    
+    // Wait for splash to hide, then restart conversation
+    setTimeout(() => {
+        restartConversation();
+    }, 400);
+}
+
+// ================================
+// 🎬 UPDATED HIDE TESTIMONIAL SPLASH
+// ================================
 function hideTestimonialSplash() {
     const splash = document.getElementById('testimonial-splash-screen');
     if (splash) {
         splash.style.animation = 'slideOutToBottom 0.3s ease-in';
-        setTimeout(() => splash.remove(), 300);
-    }
-}
-
-function handleTestimonialButton(testimonialType) {
-    console.log('🎬 Testimonial selected:', testimonialType);
-    hideTestimonialSplash();
-    
-    // Call the video player directly - NO BRIDGE!
-    if (typeof window.showTestimonialVideo === 'function') {
-        window.showTestimonialVideo(testimonialType);
-    }
-}
-
-// Make globally accessible
-window.showTestimonialSplashScreen = showTestimonialSplashScreen;
-window.hideTestimonialSplash = hideTestimonialSplash;
-window.handleTestimonialButton = handleTestimonialButton;
-
-// Make globally accessible
-window.restartConversation = restartConversation;
-function closeThankYouSplash() {
-    const splash = document.getElementById('thank-you-splash');
-    if (splash) {
-        splash.style.animation = 'fadeOutScale 0.5s ease-in';
         setTimeout(() => {
-            splash.remove();
-            console.log('✅ Thank you splash closed');
-        }, 500);
+            if (splash.parentNode) {
+                splash.remove();
+                console.log('✅ Testimonial splash screen removed');
+            }
+        }, 300);
     }
 }
+
+// Add these CSS animations if not already present
+function addTestimonialAnimations() {
+    if (!document.getElementById('testimonial-animations')) {
+        const style = document.createElement('style');
+        style.id = 'testimonial-animations';
+        style.textContent = `
+            @keyframes fadeInSplash {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            @keyframes slideInFromBottom {
+                from { transform: translateY(30px); opacity: 0; }
+                to { transform: translateY(0); opacity: 1; }
+            }
+            @keyframes slideOutToBottom {
+                from { transform: translateY(0); opacity: 1; }
+                to { transform: translateY(30px); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+}
+
+// Initialize animations when the script loads
+addTestimonialAnimations();
 
 // Make globally accessible
 window.showThankYouSplash = showThankYouSplash;
