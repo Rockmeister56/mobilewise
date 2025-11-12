@@ -2622,24 +2622,20 @@ for (let keyword of allKeywords) {
     return false;
 }
 
+// 🚨 REPLACE THE EMPTY handleConcernWithTestimonial WITH THIS FULL VERSION:
+
 function handleConcernWithTestimonial(userText, concernType) {
     console.log(`🎯 handleConcernWithTestimonial called: "${userText}" (${concernType})`);
     
     // 🛑 BLOCK SPEAK SEQUENCE IMMEDIATELY
     window.concernBannerActive = true;
     
-    // 🎯 SET CONCERN DATA IMMEDIATELY (CRITICAL FIX)
-    const finalConcernType = concernType || window.detectedConcernType || detectConcernTypeFromText(userText) || 'general';
-    const testimonialData = getTestimonialsForConcern(finalConcernType);
-    window.concernData = {
-        title: testimonialData.title,
-        icon: testimonialData.icon,
-        reviews: testimonialData.videos
-    };
+    // 🎯 USE THE PASSED CONCERN TYPE OR DETECT IT
+    const finalConcernType = concernType || window.detectedConcernType || 'general';
     
-    console.log(`🎯 Handling ${finalConcernType} concern - data set immediately`);
+    console.log(`🎯 Handling ${finalConcernType} concern - showing testimonial response`);
     
-    // [KEEP ALL YOUR EXISTING ACKNOWLEDGMENT LOGIC]
+    // [YOUR ACKNOWLEDGMENT LOGIC]
     let acknowledgment = '';
     switch(finalConcernType) {
         case 'price':
@@ -2656,40 +2652,33 @@ function handleConcernWithTestimonial(userText, concernType) {
             break;
     }
     
-    // Add AI message
+    // 1. Add AI message to chat
     if (window.addAIMessage && typeof window.addAIMessage === 'function') {
         window.addAIMessage(acknowledgment);
+        console.log('✅ AI message added to chat');
     }
     
-    // Speak the acknowledgment
+    // 2. Speak the acknowledgment
     if (window.speakText && typeof window.speakText === 'function') {
         window.speakText(acknowledgment);
+        console.log('✅ AI speaking acknowledgment');
         
-        // Wait for speech to finish, THEN show testimonials
+        // 3. Wait for speech to finish, THEN show testimonials
         const checkSpeech = setInterval(() => {
             if (!window.isSpeaking) {
                 clearInterval(checkSpeech);
-                console.log('✅ AI finished acknowledgment speech - showing testimonials');
+                console.log('✅ AI finished speaking - showing testimonials');
                 
-                // 🎯 SHOW TESTIMONIAL SPLASH SCREEN (from Action System)
                 setTimeout(() => {
                     if (window.showTestimonialSplashScreen && typeof window.showTestimonialSplashScreen === 'function') {
                         window.showTestimonialSplashScreen();
-                        console.log('✅ Testimonial splash screen launched after speech');
+                        console.log('✅ Testimonial splash screen launched');
                     } else {
                         console.error('❌ showTestimonialSplashScreen not available');
                     }
                 }, 300);
             }
         }, 100);
-        
-        // Safety timeout
-        setTimeout(() => {
-            clearInterval(checkSpeech);
-            if (window.showTestimonialSplashScreen) {
-                window.showTestimonialSplashScreen();
-            }
-        }, 10000);
         
     } else {
         // No speech system - just show testimonials after delay
@@ -2706,8 +2695,6 @@ function handleConcernWithTestimonial(userText, concernType) {
         type: finalConcernType,
         timestamp: Date.now()
     };
-    
-    return true;
 }
 
 // 🎯 ENHANCED CONCERN HANDLER - USING TESTIMONIAL DATA (YOUR EXISTING)
@@ -3063,7 +3050,7 @@ function processUserResponse(userText) {
         }
         
         console.log(`🎯 Calling handleConcernWithTestimonial with type: ${concernType}`);
-        handleConcernWithTestimonial(userText, concernType);
+        handleConcernWithTestimonial(userText, window.detectedConcernType);
         return; // Stop the sales process for concerns
     }
 
