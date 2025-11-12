@@ -2597,25 +2597,36 @@ function detectConcernOrObjection(userText) {
         'hard to believe', 'complicated', 'difficult'
     ];
     
-    // Check if any negative keywords present
-    const allKeywords = [...priceKeywords, ...timeKeywords, ...trustKeywords, ...negativeKeywords];
-    
-    for (let keyword of allKeywords) {
-        if (text.includes(keyword)) {
-            console.log(`🚨 CONCERN DETECTED: "${keyword}" in user input`);
-            
-            // Determine concern type
-            if (priceKeywords.some(k => text.includes(k))) {
-                window.detectedConcernType = 'price';
-            } else if (timeKeywords.some(k => text.includes(k))) {
-                window.detectedConcernType = 'time';
-            } else if (trustKeywords.some(k => text.includes(k))) {
-                window.detectedConcernType = 'trust';
+   // Check if any negative keywords present
+const allKeywords = [...priceKeywords, ...timeKeywords, ...trustKeywords, ...negativeKeywords];
+
+for (let keyword of allKeywords) {
+    if (text.includes(keyword)) {
+        console.log(`🚨 CONCERN DETECTED: "${keyword}" in user input`);
+        
+        // Determine concern type
+        if (priceKeywords.some(k => text.includes(k))) {
+            window.detectedConcernType = 'price';
+        } else if (timeKeywords.some(k => text.includes(k))) {
+            window.detectedConcernType = 'time';
+        } else if (trustKeywords.some(k => text.includes(k))) {
+            window.detectedConcernType = 'trust';
+        } else {
+            window.detectedConcernType = 'general';
+        }
+        
+        // 🎯 CRITICAL FIX: ACTUALLY SHOW TESTIMONIAL SPLASH SCREEN!
+        console.log('🎬 Launching testimonial splash screen for concern...');
+        setTimeout(() => {
+            if (window.showTestimonialSplashScreen && typeof window.showTestimonialSplashScreen === 'function') {
+                window.showTestimonialSplashScreen();
+                console.log('✅ Testimonial splash screen launched successfully');
             } else {
-                window.detectedConcernType = 'general';
+                console.error('❌ showTestimonialSplashScreen not available');
             }
-            
-            return true;
+        }, 500);
+        
+        return true;
         }
     }
     
