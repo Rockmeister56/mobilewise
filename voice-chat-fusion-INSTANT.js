@@ -2622,8 +2622,6 @@ for (let keyword of allKeywords) {
     return false;
 }
 
-// 🚨 REPLACE THE EMPTY handleConcernWithTestimonial WITH THIS FULL VERSION:
-
 function handleConcernWithTestimonial(userText, concernType) {
     console.log(`🎯 handleConcernWithTestimonial called: "${userText}" (${concernType})`);
     
