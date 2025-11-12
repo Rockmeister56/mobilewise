@@ -2650,41 +2650,31 @@ function handleConcernWithTestimonial(userText, concernType) {
             break;
     }
     
-    // 1. Add AI message to chat
+    // 🎯 CRITICAL FIX: SHOW TESTIMONIALS IMMEDIATELY (BEFORE/AFTER VOICE)
+    
+    // 1. Add AI message to chat FIRST
     if (window.addAIMessage && typeof window.addAIMessage === 'function') {
         window.addAIMessage(acknowledgment);
         console.log('✅ AI message added to chat');
     }
     
-    // 2. Speak the acknowledgment
+    // 2. SHOW TESTIMONIALS IMMEDIATELY (NO WAITING!)
+    setTimeout(() => {
+        if (window.showTestimonialSplashScreen && typeof window.showTestimonialSplashScreen === 'function') {
+            window.showTestimonialSplashScreen();
+            console.log('✅ Testimonial splash screen launched IMMEDIATELY');
+        } else {
+            console.error('❌ showTestimonialSplashScreen not available');
+        }
+    }, 100); // Small delay to ensure chat message appears first
+    
+    // 3. START SPEAKING (testimonials are already visible)
     if (window.speakText && typeof window.speakText === 'function') {
-        window.speakText(acknowledgment);
-        console.log('✅ AI speaking acknowledgment');
-        
-        // 3. Wait for speech to finish, THEN show testimonials
-        const checkSpeech = setInterval(() => {
-            if (!window.isSpeaking) {
-                clearInterval(checkSpeech);
-                console.log('✅ AI finished speaking - showing testimonials');
-                
-                setTimeout(() => {
-                    if (window.showTestimonialSplashScreen && typeof window.showTestimonialSplashScreen === 'function') {
-                        window.showTestimonialSplashScreen();
-                        console.log('✅ Testimonial splash screen launched');
-                    } else {
-                        console.error('❌ showTestimonialSplashScreen not available');
-                    }
-                }, 300);
-            }
-        }, 100);
-        
-    } else {
-        // No speech system - just show testimonials after delay
+        // Small delay to let testimonials render first
         setTimeout(() => {
-            if (window.showTestimonialSplashScreen) {
-                window.showTestimonialSplashScreen();
-            }
-        }, 2000);
+            window.speakText(acknowledgment);
+            console.log('✅ AI speaking acknowledgment (testimonials already visible)');
+        }, 300);
     }
     
     // Store the concern
