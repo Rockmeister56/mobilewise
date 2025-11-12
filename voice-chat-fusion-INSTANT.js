@@ -2631,9 +2631,10 @@ window.handleConcernWithTestimonial = function(userText, concernType) {
     window.concernBannerActive = true;
     window.isInTestimonialMode = true; // 🆕 ADD THIS ONE LINE
     
-    // 🛑 STOP ACTIVE LISTENING & CLOSE BANNERS
+   // 🛑 STOP ACTIVE LISTENING & CLOSE BANNERS - USING CORRECT FUNCTIONS!
     if (window.stopListening) window.stopListening();
-    if (window.closeSpeakNowBanner) window.closeSpeakNowBanner();
+    if (window.hideSpeakNowBanner) window.hideSpeakNowBanner(); // 🆕 CORRECT FUNCTION!
+    if (window.cleanupSpeakSequence) window.cleanupSpeakSequence(); // 🆕 DIRECT CLEANUP!
     
     // 🎯 TRIGGER UNIVERSAL BANNER ENGINE (TOP BANNER)
     if (window.showUniversalBanner) {
