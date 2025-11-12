@@ -2601,27 +2601,21 @@ function detectConcernOrObjection(userText) {
 const allKeywords = [...priceKeywords, ...timeKeywords, ...trustKeywords, ...negativeKeywords];
 
 for (let keyword of allKeywords) {
-    if (text.includes(keyword)) {
-        console.log(`🚨 CONCERN DETECTED: "${keyword}" in user input`);
-        
-        // Determine concern type
-        let concernType = 'general';
-        if (priceKeywords.some(k => text.includes(k))) {
-            concernType = 'price';
-            window.detectedConcernType = 'price';
-        } else if (timeKeywords.some(k => text.includes(k))) {
-            concernType = 'time';
-            window.detectedConcernType = 'time';
-        } else if (trustKeywords.some(k => text.includes(k))) {
-            concernType = 'trust';
-            window.detectedConcernType = 'trust';
-        } else {
-            window.detectedConcernType = 'general';
-        }
-
-        // 🎯 CALL THE COMPLETE CONCERN HANDLER
-        handleConcernWithTestimonial(text, concernType);
-        return true;
+        if (text.includes(keyword)) {
+            console.log(`🚨 CONCERN DETECTED: "${keyword}" in user input`);
+            
+            // 🎯 CRITICAL: SET THE CONCERN TYPE
+            if (priceKeywords.some(k => text.includes(k))) {
+                window.detectedConcernType = 'price';
+            } else if (timeKeywords.some(k => text.includes(k))) {
+                window.detectedConcernType = 'time';
+            } else if (trustKeywords.some(k => text.includes(k))) {
+                window.detectedConcernType = 'trust';
+            } else {
+                window.detectedConcernType = 'general';
+            }
+            
+            return true;
         }
     }
     
@@ -3049,9 +3043,27 @@ function processUserResponse(userText) {
     }
     
     // 🎯 STEP 0: CHECK FOR CONCERNS FIRST
-    if (detectConcernOrObjection(userText)) {
+    const concernDetected = detectConcernOrObjection(userText);
+    if (concernDetected) {
         console.log('🚨 Concern detected - handling with testimonial');
-        handleConcernWithTestimonial(userText);
+        
+        // 🎯 CRITICAL FIX: PASS THE CONCERN TYPE!
+        // Get the concern type that was detected
+        let concernType = window.detectedConcernType || 'general';
+        
+        // If concern type wasn't set, detect it from text
+        if (!window.detectedConcernType) {
+            if (userText.toLowerCase().includes('expensive') || userText.toLowerCase().includes('cost') || userText.toLowerCase().includes('price')) {
+                concernType = 'price';
+            } else if (userText.toLowerCase().includes('time') || userText.toLowerCase().includes('long') || userText.toLowerCase().includes('soon')) {
+                concernType = 'time';
+            } else if (userText.toLowerCase().includes('trust') || userText.toLowerCase().includes('believe') || userText.toLowerCase().includes('sure')) {
+                concernType = 'trust';
+            }
+        }
+        
+        console.log(`🎯 Calling handleConcernWithTestimonial with type: ${concernType}`);
+        handleConcernWithTestimonial(userText, concernType);
         return; // Stop the sales process for concerns
     }
 
