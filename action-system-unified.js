@@ -1795,6 +1795,38 @@ function addTestimonialAnimations() {
     }
 }
 
+// ================================
+// 🎬 CLOSE THANK YOU SPLASH FUNCTION
+// ================================
+function closeThankYouSplash() {
+    const splash = document.getElementById('thank-you-splash');
+    if (splash) {
+        splash.style.animation = 'fadeOutScale 0.5s ease-in';
+        setTimeout(() => {
+            splash.remove();
+            console.log('✅ Thank you splash closed');
+        }, 500);
+    }
+}
+
+// Make sure this CSS animation exists
+function ensureSplashAnimations() {
+    if (!document.getElementById('splash-animations')) {
+        const style = document.createElement('style');
+        style.id = 'splash-animations';
+        style.textContent = `
+            @keyframes fadeOutScale {
+                from { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+                to { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+}
+
+// Call this when your script loads
+ensureSplashAnimations();
+
 // Initialize animations when the script loads
 addTestimonialAnimations();
 
