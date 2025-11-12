@@ -2623,13 +2623,22 @@ for (let keyword of allKeywords) {
     
     return false;
 }
-
-// 🚨 RE-APPLY THE FULL handleConcernWithTestimonial FUNCTION
+// 🚨 UPDATED handleConcernWithTestimonial FUNCTION - MINIMAL CHANGES
 window.handleConcernWithTestimonial = function(userText, concernType) {
     console.log(`🎯 handleConcernWithTestimonial called: "${userText}" (${concernType})`);
     
     // 🛑 BLOCK SPEAK SEQUENCE IMMEDIATELY
     window.concernBannerActive = true;
+    window.isInTestimonialMode = true; // 🆕 ADD THIS ONE LINE
+    
+    // 🛑 STOP ACTIVE LISTENING & CLOSE BANNERS
+    if (window.stopListening) window.stopListening();
+    if (window.closeSpeakNowBanner) window.closeSpeakNowBanner();
+    
+    // 🎯 TRIGGER UNIVERSAL BANNER ENGINE (TOP BANNER)
+    if (window.showUniversalBanner) {
+        window.showUniversalBanner('testimonialSelector');
+    }
     
     // 🎯 USE THE PASSED CONCERN TYPE OR DETECT IT
     const finalConcernType = concernType || window.detectedConcernType || 'general';
