@@ -2416,11 +2416,13 @@ async function getAIResponse(userMessage, conversationHistory = []) {
     console.log('🎯 GOLD STANDARD getAIResponse called:', userMessage);   
 
     // 🎯 STEP 0: CHECK FOR CONCERNS FIRST - NEW INTEGRATION
-    if (detectConcernOrObjection(userMessage)) {
-        console.log('🚨 Concern detected - handling with testimonial');
-        handleConcernWithTestimonial(userMessage);
-        return; // Stop the sales process for concerns
-    }
+if (detectConcernOrObjection(userMessage)) {
+    console.log('🚨 Concern detected - handling with testimonial');
+    const concernType = window.detectedConcernType || 'general';
+    console.log(`🎯 Calling handleConcernWithTestimonial with type: ${concernType}`);
+    handleConcernWithTestimonial(userMessage, concernType);
+    return; // Stop the sales process for concerns
+}
 
     // Initialize Sales AI if not exists
     if (!window.salesAI) {
