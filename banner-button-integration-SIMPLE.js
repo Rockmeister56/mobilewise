@@ -44,23 +44,27 @@
         'consultationConfirmed': null
     };
 
-    /**
-     * Initialize integration with Communication Relay Center
-     */
-    function initializeIntegration() {
-        // 🆕 CHECK FOR OUR NEW COMMUNICATION RELAY SYSTEM
-        if (typeof window.initializeCommRelayButton === 'function') {
-            console.log('✅ Communication Relay Center system found - integration ready');
-            window.initializeCommRelayButton(); // Initialize our button system
-            
-            // ✅ PRESERVE BANNER LISTENING FUNCTIONALITY
-            setupBannerListeners();
-            
-        } else {
-            console.log('⏳ Communication Relay Center system not ready, retrying...');
-            setTimeout(initializeIntegration, 500);
-        }
+// 🛑 URGENT FIX - REPLACE THE initializeIntegration FUNCTION:
+let retryCount = 0;
+const MAX_RETRIES = 5;
+
+function initializeIntegration() {
+    retryCount++;
+    
+    if (retryCount > MAX_RETRIES) {
+        console.log('🛑 STOPPING RETRY LOOP - Communication Relay Center not loading after ' + MAX_RETRIES + ' attempts');
+        console.log('🔧 Please upload communication-relay-center.js to Netlify');
+        return;
     }
+    
+    if (typeof window.initializeCommRelayButton === 'function') {
+        console.log('✅ Communication Relay Center system found - integration ready');
+        window.initializeCommRelayButton();
+    } else {
+        console.log('⏳ Communication Relay Center system not ready, retrying... (' + retryCount + '/' + MAX_RETRIES + ')');
+        setTimeout(initializeIntegration, 1000);
+    }
+}
 
     /**
      * Set up banner listening (PRESERVED FROM ORIGINAL)
