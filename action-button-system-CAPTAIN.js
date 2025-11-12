@@ -58,74 +58,72 @@
      * Add button CSS styles
      */
     function addButtonStyles() {
-        if (document.getElementById('comm-relay-button-styles')) return;
+    if (document.getElementById('comm-relay-button-styles')) return;
 
-        const styleSheet = document.createElement('style');
-        styleSheet.id = 'comm-relay-button-styles';
-        styleSheet.textContent = `
-            /* Single button container */
-            #comm-relay-button-container {
-                display: flex !important;
-                justify-content: center;
-                align-items: center;
-                padding: 10px;
-            }
+    const styleSheet = document.createElement('style');
+    styleSheet.id = 'comm-relay-button-styles';
+    styleSheet.textContent = `
+        /* Single button container */
+        #comm-relay-button-container {
+            display: flex !important;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+        }
 
-            /* Communication Relay Center Button */
+        /* Communication Relay Center Button - Transparent White */
+        .comm-relay-btn {
+            padding: 14px 28px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 25px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #333;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            text-align: center;
+            min-width: 220px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .comm-relay-btn:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            border-color: rgba(102, 126, 234, 0.5);
+        }
+
+        .comm-relay-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Remove pulse animation - use subtle glow instead */
+        .comm-relay-btn.glow {
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+            border-color: rgba(102, 126, 234, 0.4);
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
             .comm-relay-btn {
-                padding: 16px 32px;
-                border: none;
-                border-radius: 25px;
-                font-size: 16px;
-                font-weight: 700;
-                cursor: pointer;
-                transition: all 0.3s ease;
-                color: white;
-                background: linear-gradient(135deg, #667eea 0%, #0e27b5ff 100%);
-                box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-                text-align: center;
-                min-width: 250px;
-                text-transform: uppercase;
-                letter-spacing: 1px;
+                padding: 12px 20px;
+                font-size: 14px;
+                min-width: 200px;
+                border-radius: 20px;
             }
-
-            .comm-relay-btn:hover {
-                transform: translateY(-3px);
-                box-shadow: 0 10px 30px rgba(102, 126, 234, 0.6);
-                background: linear-gradient(135deg, #5a6fd8 0%, #0a1f9a 100%);
+            
+            #comm-relay-button-container {
+                padding: 8px;
             }
+        }
+    `;
 
-            .comm-relay-btn:active {
-                transform: translateY(-1px);
-            }
-
-            /* Blink animation for attention */
-            @keyframes relayPulse {
-                0%, 100% { transform: scale(1); box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4); }
-                50% { transform: scale(1.05); box-shadow: 0 8px 25px rgba(102, 126, 234, 0.7); }
-            }
-
-            .comm-relay-btn.pulse {
-                animation: relayPulse 2s ease-in-out infinite;
-            }
-
-            /* Mobile responsive */
-            @media (max-width: 768px) {
-                .comm-relay-btn {
-                    padding: 14px 24px;
-                    font-size: 14px;
-                    min-width: 220px;
-                    border-radius: 22px;
-                }
-                
-                #comm-relay-button-container {
-                    padding: 8px;
-                }
-            }
-        `;
-
-        document.head.appendChild(styleSheet);
-    }
+    document.head.appendChild(styleSheet);
+}
 
     /**
      * Render the single Communication Relay Center button
