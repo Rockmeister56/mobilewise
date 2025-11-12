@@ -139,7 +139,6 @@
         button.id = BUTTON_CONFIG.id;
         button.className = 'comm-relay-btn pulse'; // Starts with pulse animation
         button.textContent = BUTTON_CONFIG.text;
-        button.style.background = BUTTON_CONFIG.gradient;
         
         // Attach click handler
         button.onclick = openCommRelayCenter;
