@@ -336,58 +336,6 @@ function initiateUrgentCall() {
     }, 2000);
 }
 
-function handleActionButton(action) {
-    console.log('🎯 Action button clicked:', action);
-    
-    hideCommunicationActionCenter();
-    
-    // 🆕 CALL COMPLETION HANDLER
-    if (typeof handleActionCenterCompletion === 'function') {
-        handleActionCenterCompletion();
-    }
-    
-    switch(action) {
-        case 'click-to-call':
-            // 🆕 SHOW CLICK TO CALL BANNER
-            if (typeof showUniversalBanner === 'function') {
-                showUniversalBanner('clickToCall');
-            }
-            initializeClickToCallCapture();
-            break;
-            
-        case 'urgent-call':
-            // 🆕 SHOW URGENT BANNER
-            if (typeof showUniversalBanner === 'function') {
-                showUniversalBanner('urgent');
-            }
-            initiateUrgentCall();
-            break;
-            
-        case 'free-consultation':
-      // 🆕 SHOW SET APPOINTMENT BANNER (not freeBookWithConsultation)
-      if (typeof showUniversalBanner === 'function') {
-        showUniversalBanner('setAppointment');
-    }
-     initializeConsultationCapture();
-     break;
-            
-        case 'pre-qualifier':
-            // 🆕 SHOW PRE-QUALIFIER BANNER
-            if (typeof showUniversalBanner === 'function') {
-                showUniversalBanner('preQualifier');
-            }
-            initializePreQualifierCapture();
-            break;
-            
-        case 'skip':
-            console.log('User chose to skip');
-            if (window.addSystemMessage) {
-                window.addSystemMessage("No problem! Feel free to ask me anything else about your practice.");
-            }
-            break;
-    }
-}
-
 // ================================
 // LEAD CAPTURE 1: FREE CONSULTATION
 // ================================
@@ -531,28 +479,26 @@ function askLeadQuestion() {
                         console.log('✅ Speak Now banner triggered via showDirectSpeakNow()');
                     }
                     
-                    // ❌ REMOVE THIS CONFLICTING LINE - showDirectSpeakNow() already starts listening
-                    // if (window.isInLeadCapture && window.startRealtimeListening && !window.isCurrentlyListening) {
-                    //     window.startRealtimeListening();
-                    // }
+                    // 🚀 NOW WITH CONFLICT PROTECTION
+                    if (isInLeadCapture && window.startRealtimeListening && !window.isCurrentlyListening) {
+                        window.startRealtimeListening();
+                    }
                 }
             }, 100);
 
             // Safety timeout (10 seconds max)
             setTimeout(() => {
                 clearInterval(checkSpeech);
-                // ❌ REMOVE THIS TOO - let showDirectSpeakNow() handle the listening
-                // if (window.isInLeadCapture && window.startRealtimeListening && !window.isCurrentlyListening) {
-                //     console.log('⏰ Safety timeout - starting listening');
-                //     window.startRealtimeListening();
-                // }
+                if (isInLeadCapture && window.startRealtimeListening && !window.isCurrentlyListening) {
+                    console.log('⏰ Safety timeout - starting listening');
+                    window.startRealtimeListening();
+                }
             }, 10000);
         }
     } else {
         completeLeadCapture();
     }
 }
-
 // ================================
 // PROCESS USER RESPONSE - FIXED VERSION
 // ================================
@@ -1684,46 +1630,19 @@ function restartConversation() {
  * HANDLE ACTION CENTER COMPLETION
  * Re-enables Speak Now banner when user makes a selection or closes
  */
-// 🎯 GENERIC COMPLETION HANDLER FOR ALL ACTION BUTTONS
 function handleActionCenterCompletion() {
-    console.log("🔄 Action Center completion - generic handler for all buttons");
+    console.log('✅ Action Center completed - re-enabling Speak Now banner');
     
-    // 1. Close ALL UI elements (works for any button type)
-    const actionCenter = document.getElementById('communication-action-center');
-    const relayCenter = document.getElementById('communication-relay-center');
+    // Re-enable Speak Now banner
+    window.disableSpeakNowBanner = false;
     
-    // Smooth fade out for both centers
-    [actionCenter, relayCenter].forEach(center => {
-        if (center) {
-            center.style.transition = 'opacity 0.3s ease';
-            center.style.opacity = '0';
-            center.style.pointerEvents = 'none';
-            setTimeout(() => {
-                center.style.display = 'none';
-            }, 300);
-        }
-    });
-    
-    // 2. Set generic flags (works for any lead capture)
-    window.isInLeadCapture = true;
-    window.disableSpeakNowBanner = true;
-    
-    // 3. The specific button handler (handleActionButton) should have already:
-    //    - Set window.currentLeadData for that specific button type
-    //    - Initialized the proper questions for that flow
-    
-    console.log('✅ UI closed, ready for specific lead capture flow');
-    
-    // 4. Start lead questions - askLeadQuestion will use the currentLeadData 
-    //    that was set by the specific button handler
+    // Optional: Auto-show Speak Now banner after selection
     setTimeout(() => {
-        if (window.askLeadQuestion && window.currentLeadData) {
-            console.log('🎤 Starting lead questions for:', window.currentCaptureType);
-            window.askLeadQuestion();
-        } else {
-            console.log('❌ No lead data set - check button handler');
+        if (typeof showDirectSpeakNow === 'function' && !window.disableSpeakNowBanner) {
+            console.log('🔄 Auto-showing Speak Now banner after Action Center');
+            showDirectSpeakNow();
         }
-    }, 500);
+    }, 2000);
 }
 
 // ================================
