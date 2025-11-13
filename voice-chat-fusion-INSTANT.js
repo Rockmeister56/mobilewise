@@ -4493,7 +4493,7 @@ async function showDirectSpeakNow() {
     }
             
             .speak-now-state {
-                background: rgba(19, 51, 214, 0.6) !important;
+                background: rgba(14, 36, 232, 0.87) !important;
                 border-color: rgba(34, 197, 94, 0.8) !important;
                 color: #ffffff !important;
                 animation: speak-now-pulse 2s infinite;
