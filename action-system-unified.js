@@ -531,26 +531,28 @@ function askLeadQuestion() {
                         console.log('✅ Speak Now banner triggered via showDirectSpeakNow()');
                     }
                     
-                    // 🚀 NOW WITH CONFLICT PROTECTION
-                    if (isInLeadCapture && window.startRealtimeListening && !window.isCurrentlyListening) {
-                        window.startRealtimeListening();
-                    }
+                    // ❌ REMOVE THIS CONFLICTING LINE - showDirectSpeakNow() already starts listening
+                    // if (window.isInLeadCapture && window.startRealtimeListening && !window.isCurrentlyListening) {
+                    //     window.startRealtimeListening();
+                    // }
                 }
             }, 100);
 
             // Safety timeout (10 seconds max)
             setTimeout(() => {
                 clearInterval(checkSpeech);
-                if (isInLeadCapture && window.startRealtimeListening && !window.isCurrentlyListening) {
-                    console.log('⏰ Safety timeout - starting listening');
-                    window.startRealtimeListening();
-                }
+                // ❌ REMOVE THIS TOO - let showDirectSpeakNow() handle the listening
+                // if (window.isInLeadCapture && window.startRealtimeListening && !window.isCurrentlyListening) {
+                //     console.log('⏰ Safety timeout - starting listening');
+                //     window.startRealtimeListening();
+                // }
             }, 10000);
         }
     } else {
         completeLeadCapture();
     }
 }
+
 // ================================
 // PROCESS USER RESPONSE - FIXED VERSION
 // ================================
