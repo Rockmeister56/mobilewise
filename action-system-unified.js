@@ -282,13 +282,15 @@ function hideCommunicationActionCenter() {
     }
 }
 
-// ================================
-// ACTION BUTTON ROUTER
-// ================================
 function handleActionButton(action) {
     console.log('🎯 Action button clicked:', action);
     
     hideCommunicationActionCenter();
+    
+    // 🆕 CALL COMPLETION HANDLER
+    if (typeof handleActionCenterCompletion === 'function') {
+        handleActionCenterCompletion();
+    }
     
     switch(action) {
         case 'click-to-call':
@@ -300,11 +302,8 @@ function handleActionButton(action) {
         case 'free-consultation':
             initializeConsultationCapture();
             break;
-            case 'pre-qualifier':
+        case 'pre-qualifier':
             initializePreQualifierCapture();
-            break;
-        case 'free-book':
-            initializeFreeBookCapture();
             break;
         case 'skip':
             console.log('User chose to skip');
@@ -1625,6 +1624,25 @@ function restartConversation() {
             }
         }, 2000);
     }, 1000);
+}
+
+/**
+ * HANDLE ACTION CENTER COMPLETION
+ * Re-enables Speak Now banner when user makes a selection or closes
+ */
+function handleActionCenterCompletion() {
+    console.log('✅ Action Center completed - re-enabling Speak Now banner');
+    
+    // Re-enable Speak Now banner
+    window.disableSpeakNowBanner = false;
+    
+    // Optional: Auto-show Speak Now banner after selection
+    setTimeout(() => {
+        if (typeof showDirectSpeakNow === 'function' && !window.disableSpeakNowBanner) {
+            console.log('🔄 Auto-showing Speak Now banner after Action Center');
+            showDirectSpeakNow();
+        }
+    }, 2000);
 }
 
 // ================================

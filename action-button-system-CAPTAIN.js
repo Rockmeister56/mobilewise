@@ -11,16 +11,11 @@
 (function() {
     'use strict';
 
-    // Single button configuration
-    const BUTTON_CONFIG = {
-        id: 'comm-relay-center-btn',
-        text: '🚀 Communication Relay Center',
-        gradient: 'linear-gradient(135deg, #667eea 0%, #0e27b5ff 100%)',
-        avatarVideoUrl: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1762980653076.mp4'
-    };
-
     let buttonContainer = null;
     let isInitialized = false;
+
+    // Global flag to prevent Speak Now banner
+window.disableSpeakNowBanner = false;
 
     /**
      * Initialize single button system
@@ -252,16 +247,28 @@
      * With enhanced avatar introduction
      */
     function openCommRelayCenter() {
-        console.log('🚀 Opening ENHANCED Communication Relay Center...');
-        
-        // 🛑 STOP ALL VOICE ACTIVITY
-        if (typeof stopAllSpeech === 'function') stopAllSpeech();
-        if (typeof stopListening === 'function') stopListening();
-        if (window.speechSynthesis) window.speechSynthesis.cancel();
-        
-        // 🎯 SHOW AVATAR INTRODUCTION FIRST
-        showAvatarIntroduction();
+    console.log('🚀 Opening ENHANCED Communication Relay Center...');
+    
+    // 🛑 STOP ALL VOICE ACTIVITY
+    if (typeof stopAllSpeech === 'function') stopAllSpeech();
+    if (typeof stopListening === 'function') stopListening();
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    
+    // 🎤 PLAY VOICE INTRODUCTION
+    playRelayCenterIntroduction();
+}
+
+function playRelayCenterIntroduction() {
+    console.log('🎙️ Playing voice introduction for Relay Center');
+    
+    // Speak the welcome message
+    if (typeof speakText === 'function') {
+        speakText("Welcome to the Communication Relay Center. You're now connected directly to Bruce for personalized consultation.");
     }
+    
+    // Show Enhanced Action Center immediately (no video delay)
+    showEnhancedActionCenter();
+}
 
     /**
      * SHOW AVATAR INTRODUCTION FOR RELAY CENTER
@@ -350,61 +357,67 @@
         }, 1000);
     }
 
-    /**
-     * SHOW ENHANCED ACTION CENTER
-     * Uses the original Action Center but with Relay Center branding
-     */
-    function showEnhancedActionCenter() {
-        console.log('🎯 Showing Enhanced Action Center with Relay Center branding');
+   /**
+ * SHOW ENHANCED ACTION CENTER
+ * Uses the original Action Center but with Relay Center branding
+ * PREVENTS Speak Now banner from appearing
+ */
+function showEnhancedActionCenter() {
+    console.log('🎯 Showing Enhanced Action Center with Relay Center branding');
+    
+    // 🚫 CRITICAL: Set flag to prevent Speak Now banner
+    window.disableSpeakNowBanner = true;
+    
+    // 🎯 USE THE ORIGINAL ACTION CENTER BUT WITH ENHANCED MESSAGING
+    if (typeof window.showCommunicationActionCenter === 'function') {
         
-        // 🎯 USE THE ORIGINAL ACTION CENTER BUT WITH ENHANCED MESSAGING
-        if (typeof window.showCommunicationActionCenter === 'function') {
-            
-            // Add a special header message first
-            const enhancedMessage = "🚀 You're connected to the Communication Relay Center - Direct line to Bruce";
-            
-            if (window.addAIMessage) {
-                window.addAIMessage(enhancedMessage);
-            }
-            
-            // Wait a moment then show the original Action Center
-            setTimeout(() => {
-                window.showCommunicationActionCenter();
-                
-                // Optional: Add a small visual indicator that this is the Relay Center version
-                const actionCenter = document.getElementById('communication-action-center');
-                if (actionCenter) {
-                    const relayBadge = document.createElement('div');
-                    relayBadge.style.cssText = `
-                        position: absolute;
-                        top: -10px;
-                        right: -10px;
-                        background: linear-gradient(135deg, #667eea 0%, #0e27b5ff 100%);
-                        color: white;
-                        padding: 5px 12px;
-                        border-radius: 15px;
-                        font-size: 12px;
-                        font-weight: bold;
-                        z-index: 1;
-                        box-shadow: 0 3px 10px rgba(102, 126, 234, 0.4);
-                    `;
-                    relayBadge.textContent = 'RELAY CENTER';
-                    actionCenter.style.position = 'relative';
-                    actionCenter.appendChild(relayBadge);
-                }
-            }, 500);
-            
-        } else {
-            console.error('❌ Original Action Center not found - falling back');
-            // Fallback to basic contact info
-            alert('🚀 Communication Relay Center\n\nDirect connection to Bruce:\n📞 856-304-1035\n✉️ bizboost.expert@gmail.com');
+        // Add a special header message first
+        const enhancedMessage = "🚀 You're connected to the Communication Relay Center - Direct line to Bruce";
+        
+        if (window.addAIMessage) {
+            window.addAIMessage(enhancedMessage);
         }
+        
+        // Wait a moment then show the original Action Center
+        setTimeout(() => {
+            window.showCommunicationActionCenter();
+            
+            // Optional: Add a small visual indicator that this is the Relay Center version
+            const actionCenter = document.getElementById('communication-action-center');
+            if (actionCenter) {
+                const relayBadge = document.createElement('div');
+                relayBadge.style.cssText = `
+                    position: absolute;
+                    top: -10px;
+                    right: -10px;
+                    background: linear-gradient(135deg, #667eea 0%, #0e27b5ff 100%);
+                    color: white;
+                    padding: 5px 12px;
+                    border-radius: 15px;
+                    font-size: 12px;
+                    font-weight: bold;
+                    z-index: 1;
+                    box-shadow: 0 3px 10px rgba(102, 126, 234, 0.4);
+                `;
+                relayBadge.textContent = 'RELAY CENTER';
+                actionCenter.style.position = 'relative';
+                actionCenter.appendChild(relayBadge);
+            }
+        }, 500);
+        
+    } else {
+        console.error('❌ Original Action Center not found - falling back');
+        // Fallback to basic contact info
+        alert('🚀 Communication Relay Center\n\nDirect connection to Bruce:\n📞 856-304-1035\n✉️ bizboost.expert@gmail.com');
     }
+}
 
     // Export functions globally
     window.openCommRelayCenter = openCommRelayCenter;
     window.initializeCommRelayButton = initializeCommRelayButton;
     window.showEnhancedActionCenter = showEnhancedActionCenter;
+    window.handleActionCenterCompletion = handleActionCenterCompletion; // 🆕 NEW
+window.playRelayCenterIntroduction = playRelayCenterIntroduction;   // 🆕 NEW
 
     // Initialize on DOM ready
     if (document.readyState === 'loading') {
