@@ -612,31 +612,19 @@ function openCommRelayCenter() {
     if (typeof stopListening === 'function') stopListening();
     if (window.speechSynthesis) window.speechSynthesis.cancel();
     
-    // 🎤 PLAY VOICE INTRODUCTION
-    if (typeof speakText === 'function') {
-        speakText("Welcome to the Communication Relay Center. You're now connected directly to Bruce for personalized consultation.");
-    }
+    // ❌ REMOVE THIS VOICE LINE (so your video audio can play)
+    // if (typeof speakText === 'function') {
+    //     speakText("Welcome to the Communication Relay Center. You're now connected directly to Bruce for personalized consultation.");
+    // }
     
-    // 🎯 GO DIRECTLY TO ENHANCED ACTION CENTER
+    // 🎯 GO DIRECTLY TO COMMUNICATION RELAY CENTER
     showCommunicationRelayCenter();
     
-    // Re-enable Speak Now banner after a reasonable time (when user makes selection)
+    // Re-enable Speak Now banner after a reasonable time
     setTimeout(() => {
         window.disableSpeakNowBanner = false;
         console.log('✅ Speak Now banner re-enabled');
-    }, 30000); // 30 seconds should be enough time for user to make a selection
-}
-
-function playRelayCenterIntroduction() {
-    console.log('🎙️ Playing voice introduction for Relay Center');
-    
-    // Speak the welcome message
-    if (typeof speakText === 'function') {
-        speakText("Welcome to the Communication Relay Center. You're now connected directly to Bruce for personalized consultation.");
-    }
-    
-    // Show Enhanced Action Center immediately (no video delay)
-    showEnhancedActionCenter();
+    }, 30000);
 }
 
     /**
@@ -718,12 +706,6 @@ function playRelayCenterIntroduction() {
         videoOverlay.appendChild(closeBtn);
         document.body.appendChild(videoOverlay);
         
-        // 🎤 OPTIONAL: VOICE INTRODUCTION
-        setTimeout(() => {
-            if (typeof speakText === 'function') {
-                speakText("Welcome to the Communication Relay Center. You're now connected directly to Bruce for personalized consultation.");
-            }
-        }, 1000);
     }
 
    /**
