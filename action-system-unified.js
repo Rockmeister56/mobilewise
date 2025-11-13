@@ -336,6 +336,58 @@ function initiateUrgentCall() {
     }, 2000);
 }
 
+function handleActionButton(action) {
+    console.log('🎯 Action button clicked:', action);
+    
+    hideCommunicationActionCenter();
+    
+    // 🆕 CALL COMPLETION HANDLER
+    if (typeof handleActionCenterCompletion === 'function') {
+        handleActionCenterCompletion();
+    }
+    
+    switch(action) {
+        case 'click-to-call':
+            // 🆕 SHOW CLICK TO CALL BANNER
+            if (typeof showUniversalBanner === 'function') {
+                showUniversalBanner('clickToCall');
+            }
+            initializeClickToCallCapture();
+            break;
+            
+        case 'urgent-call':
+            // 🆕 SHOW URGENT BANNER
+            if (typeof showUniversalBanner === 'function') {
+                showUniversalBanner('urgent');
+            }
+            initiateUrgentCall();
+            break;
+            
+        case 'free-consultation':
+      // 🆕 SHOW SET APPOINTMENT BANNER (not freeBookWithConsultation)
+      if (typeof showUniversalBanner === 'function') {
+        showUniversalBanner('setAppointment');
+    }
+     initializeConsultationCapture();
+     break;
+            
+        case 'pre-qualifier':
+            // 🆕 SHOW PRE-QUALIFIER BANNER
+            if (typeof showUniversalBanner === 'function') {
+                showUniversalBanner('preQualifier');
+            }
+            initializePreQualifierCapture();
+            break;
+            
+        case 'skip':
+            console.log('User chose to skip');
+            if (window.addSystemMessage) {
+                window.addSystemMessage("No problem! Feel free to ask me anything else about your practice.");
+            }
+            break;
+    }
+}
+
 // ================================
 // LEAD CAPTURE 1: FREE CONSULTATION
 // ================================
