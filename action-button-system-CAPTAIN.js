@@ -53,21 +53,20 @@
         isInitialized = true;
         console.log('✅ Communication Relay Center Button initialized');
     }
-function addButtonStyles() {
+
+    function addButtonStyles() {
     if (document.getElementById('comm-relay-button-styles')) return;
 
     const styleSheet = document.createElement('style');
     styleSheet.id = 'comm-relay-button-styles';
     styleSheet.textContent = `
-        /* Single button container - FULL WIDTH with relative positioning */
+        /* Single button container - FULL WIDTH */
         #comm-relay-button-container {
             display: flex !important;
             justify-content: center;
             align-items: center;
             padding: 10px;
             width: 100%;
-            position: relative !important; /* Essential for overlay positioning */
-            min-height: 60px !important; /* Ensure container has height */
         }
 
         /* Communication Relay Center Button - FULL WIDTH */
@@ -80,8 +79,8 @@ function addButtonStyles() {
             cursor: pointer !important;
             font-size: 15px !important;
             font-weight: 600 !important;
-            width: 100% !important;
-            max-width: 400px !important;
+            width: 100% !important; /* KEY CHANGE - full width */
+            max-width: 400px !important; /* But not too wide on desktop */
             text-align: center;
             transition: all 0.2s ease !important;
         }
@@ -91,19 +90,8 @@ function addButtonStyles() {
             transform: translateY(-1px) !important;
         }
 
-        /* OVERRIDE quick-btn flex for Speak Now banner */
-        #speakNowButton {
-            position: absolute !important;
-            top: 10px !important;
-            left: 10px !important;
-            width: calc(100% - 20px) !important;
-            height: calc(100% - 20px) !important;
-            flex: none !important;
-            margin: 0 !important;
-            z-index: 1000 !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
+        .comm-relay-btn:active {
+            transform: translateY(0) !important;
         }
 
         /* Mobile responsive */
@@ -111,19 +99,11 @@ function addButtonStyles() {
             .comm-relay-btn {
                 padding: 12px 20px !important;
                 font-size: 14px !important;
-                max-width: 100% !important;
+                max-width: 100% !important; /* Full width on mobile */
             }
             
             #comm-relay-button-container {
                 padding: 8px;
-                min-height: 55px !important;
-            }
-            
-            #speakNowButton {
-                top: 8px !important;
-                left: 8px !important;
-                width: calc(100% - 16px) !important;
-                height: calc(100% - 16px) !important;
             }
         }
     `;
