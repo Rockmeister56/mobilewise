@@ -388,6 +388,11 @@ function showCommunicationRelayCenter() {
     }, 30000);
 }
 
+function playRelayCenterIntroduction() {
+    // This function can just call openCommRelayCenter now
+    openCommRelayCenter();
+}
+
 /**
  * SHOW COMMUNICATION RELAY CENTER - CLONED VERSION
  * Same as original Action Center but with your video avatar
