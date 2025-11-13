@@ -171,7 +171,7 @@
         /* SPEAK NOW BANNER OVERLAY POSITIONING - FULL WIDTH */
         #speak-sequence-button {
             position: absolute !important;
-            top: 15px !important;
+            top: 12px !important;
             left: 5px !important;
             width: calc(100% - 10px) !important;  /* Full width minus small padding */
             height: calc(100% - 30px) !important;
