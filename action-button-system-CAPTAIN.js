@@ -69,21 +69,21 @@
             padding: 12px 10px;
             width: 100%;
             position: relative !important;
-            min-height: 70px !important;
+            min-height: 60px !important;
         }
 
-        /* COMMUNICATION RELAY CENTER BUTTON - BEEFED UP WITH SIZZLE */
+        /* COMMUNICATION RELAY CENTER BUTTON - CONDENSED WITH INTENSE GLOW */
         .comm-relay-btn {
-            padding: 18px 30px !important;
+            padding: 14px 20px !important;
             background: linear-gradient(135deg, 
                 rgba(255, 255, 255, 0.15) 0%, 
                 rgba(255, 255, 255, 0.25) 50%,
                 rgba(255, 255, 255, 0.15) 100%) !important;
             color: white !important;
             border: 2px solid rgba(255, 255, 255, 0.3) !important;
-            border-radius: 25px !important;
+            border-radius: 20px !important;
             cursor: pointer !important;
-            font-size: 16px !important;
+            font-size: 14px !important;
             font-weight: 700 !important;
             width: 100% !important;
             max-width: 450px !important;
@@ -91,55 +91,60 @@
             transition: all 0.3s ease !important;
             position: relative !important;
             text-transform: uppercase !important;
-            letter-spacing: 0.5px !important;
+            letter-spacing: 0.8px !important;
             backdrop-filter: blur(15px) !important;
             box-shadow: 
-                0 8px 32px rgba(0, 0, 0, 0.2),
-                0 0 0 1px rgba(255, 255, 255, 0.1),
+                0 6px 25px rgba(0, 0, 0, 0.25),
+                0 0 0 1px rgba(255, 255, 255, 0.15),
+                0 0 20px rgba(34, 197, 94, 0.3),
                 inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
             overflow: hidden !important;
         }
 
-        /* Hover effects with green glow */
+        /* Hover effects with INTENSE green glow */
         .comm-relay-btn:hover {
             background: linear-gradient(135deg, 
-                rgba(34, 197, 94, 0.3) 0%, 
-                rgba(34, 197, 94, 0.4) 50%,
-                rgba(34, 197, 94, 0.3) 100%) !important;
-            border-color: rgba(34, 197, 94, 0.6) !important;
+                rgba(34, 197, 94, 0.4) 0%, 
+                rgba(34, 197, 94, 0.6) 50%,
+                rgba(34, 197, 94, 0.4) 100%) !important;
+            border-color: rgba(34, 197, 94, 0.8) !important;
             transform: translateY(-2px) !important;
             box-shadow: 
-                0 12px 40px rgba(34, 197, 94, 0.3),
-                0 0 20px rgba(34, 197, 94, 0.2),
-                inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+                0 10px 35px rgba(34, 197, 94, 0.5),
+                0 0 30px rgba(34, 197, 94, 0.4),
+                0 0 40px rgba(34, 197, 94, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
         }
 
-        /* Active state */
+        /* Active state with even more glow */
         .comm-relay-btn:active {
             transform: translateY(0) !important;
             box-shadow: 
-                0 6px 25px rgba(34, 197, 94, 0.4),
-                0 0 15px rgba(34, 197, 94, 0.3) !important;
+                0 8px 30px rgba(34, 197, 94, 0.6),
+                0 0 25px rgba(34, 197, 94, 0.5),
+                0 0 35px rgba(34, 197, 94, 0.4) !important;
         }
 
-        /* Subtle pulse animation */
+        /* Strong pulse animation */
         .comm-relay-btn {
-            animation: gentle-pulse 4s ease-in-out infinite;
+            animation: intense-pulse 3s ease-in-out infinite;
         }
 
-        @keyframes gentle-pulse {
+        @keyframes intense-pulse {
             0%, 100% { 
                 box-shadow: 
-                    0 8px 32px rgba(0, 0, 0, 0.2),
-                    0 0 0 1px rgba(255, 255, 255, 0.1),
+                    0 6px 25px rgba(0, 0, 0, 0.25),
+                    0 0 0 1px rgba(255, 255, 255, 0.15),
+                    0 0 20px rgba(34, 197, 94, 0.3),
                     inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
             }
             50% { 
                 box-shadow: 
-                    0 8px 32px rgba(0, 0, 0, 0.25),
-                    0 0 0 1px rgba(255, 255, 255, 0.15),
-                    0 0 15px rgba(34, 197, 94, 0.1),
-                    inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+                    0 6px 25px rgba(0, 0, 0, 0.3),
+                    0 0 0 1px rgba(255, 255, 255, 0.2),
+                    0 0 30px rgba(34, 197, 94, 0.5),
+                    0 0 40px rgba(34, 197, 94, 0.3),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
             }
         }
 
@@ -160,15 +165,16 @@
         /* Mobile responsive */
         @media (max-width: 768px) {
             .comm-relay-btn {
-                padding: 16px 25px !important;
-                font-size: 15px !important;
+                padding: 12px 18px !important;
+                font-size: 13px !important;
                 max-width: 100% !important;
-                border-radius: 22px !important;
+                border-radius: 18px !important;
+                letter-spacing: 0.6px !important;
             }
             
             #comm-relay-button-container {
                 padding: 10px 8px;
-                min-height: 65px !important;
+                min-height: 55px !important;
             }
             
             #speak-sequence-button {
@@ -182,8 +188,9 @@
         /* Small mobile devices */
         @media (max-width: 480px) {
             .comm-relay-btn {
-                padding: 14px 20px !important;
-                font-size: 14px !important;
+                padding: 10px 15px !important;
+                font-size: 12px !important;
+                letter-spacing: 0.5px !important;
             }
         }
     `;
@@ -197,17 +204,17 @@
     // Clear container
     buttonContainer.innerHTML = '';
 
-    // Create the beefed up button
+    // Create the condensed button with emojis
     const button = document.createElement('button');
     button.id = BUTTON_CONFIG.id;
     button.className = 'comm-relay-btn';
-    button.textContent = '🚀 Comm-Relay-Center / Click-to-Call / Book Consultation / Get-Pre-Qualified';
+    button.textContent = '⚡ Communication-Relay-Center 📞 📅 🚨 🚀';
     
     // Attach click handler
     button.onclick = openCommRelayCenter;
     
     buttonContainer.appendChild(button);
-    console.log('🚀 BEEFED UP Communication Relay Center button rendered');
+    console.log('🚀 CONDENSED Communication Relay Center button rendered');
 }
 
     /**
