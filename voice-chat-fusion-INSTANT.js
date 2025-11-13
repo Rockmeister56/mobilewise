@@ -1784,7 +1784,6 @@ if (VOICE_CONFIG.debug) {
     console.log('🎯 CLEAN CHAIN BYPASS: Triggering banner sequence only');
 }
 
-// CLEAN APPROACH: Let showDirectSpeakNow handle everything
 // It already contains the listening start logic internally
 if (typeof showDirectSpeakNow === 'function') {
     showDirectSpeakNow();
@@ -4478,20 +4477,20 @@ async function showDirectSpeakNow() {
         style.id = 'mobile-wise-speak-styles';
         style.textContent = `
             .mobile-wise-banner {
-                width: 100% !important;
-                padding: 18px !important;
-                min-height: 50px !important;
-                font-weight: bold !important;
-                font-size: 18px !important;
-                border-radius: 20px !important;
-                border: 2px solid !important;
-                position: relative !important;
-                overflow: hidden !important;
-                display: flex !important;
-                align-items: center !important;
-                justify-content: center !important;
-                gap: 15px !important;
-            }
+        /* REMOVE width: 100% !important; - Let the overlay CSS control width */
+        padding: 18px !important;
+        min-height: 50px !important;
+        font-weight: bold !important;
+        font-size: 18px !important;
+        border-radius: 20px !important;
+        border: 2px solid !important;
+        position: relative !important;
+        overflow: hidden !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 15px !important;
+    }
             
             .speak-now-state {
                 background: rgba(34, 197, 94, 0.4) !important;
