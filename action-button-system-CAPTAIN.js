@@ -768,7 +768,7 @@ function showEnhancedActionCenter() {
     window.initializeCommRelayButton = initializeCommRelayButton;
     window.showEnhancedActionCenter = showEnhancedActionCenter;
     window.handleActionCenterCompletion = handleActionCenterCompletion; // 🆕 NEW
-window.playRelayCenterIntroduction = playRelayCenterIntroduction;   // 🆕 NEW
+    // window.playRelayCenterIntroduction = playRelayCenterIntroduction;   // 🆕 NEW
 
     // Initialize on DOM ready
     if (document.readyState === 'loading') {
