@@ -471,16 +471,23 @@ function showPostSorryListening() {
     `;
     
     speakSequenceButton.style.cssText = `
-        width: 100% !important;
-        background: rgba(34, 197, 94, 0.4) !important;
-        color: #ffffff !important;
-        border: 2px solid rgba(34, 197, 94, 0.8) !important;
-        padding: 15px !important;
-        min-height: 45px !important;
-        font-weight: bold !important;
-        font-size: 18px !important;
-        border-radius: 20px !important;
-    `;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: rgba(34, 197, 94, 0.4) !important;
+    color: #ffffff !important;
+    border: 2px solid rgba(34, 197, 94, 0.8) !important;
+    padding: 15px !important;
+    font-weight: bold !important;
+    font-size: 18px !important;
+    border-radius: 20px !important;
+    z-index: 1000 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+`;
     
     // ✅ Enhanced mobile stability (if needed)
     if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
