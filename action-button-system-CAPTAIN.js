@@ -60,21 +60,22 @@
     const styleSheet = document.createElement('style');
     styleSheet.id = 'comm-relay-button-styles';
     styleSheet.textContent = `
-        /* Single button container - FULL WIDTH */
+        /* Single button container - FULL WIDTH TO EDGES */
         #comm-relay-button-container {
             display: flex !important;
             flex-direction: column !important;
             justify-content: center;
             align-items: center;
-            padding: 12px 10px;
-            width: 100%;
+            padding: 15px 5px !important;  /* Reduced side padding */
+            width: 100% !important;
             position: relative !important;
-            min-height: 60px !important;
+            min-height: 65px !important;
+            box-sizing: border-box !important;
         }
 
-        /* COMMUNICATION RELAY CENTER BUTTON - CONDENSED WITH INTENSE GLOW */
+        /* COMMUNICATION RELAY CENTER BUTTON - FULL WIDTH, LARGER TEXT & EMOJIS */
         .comm-relay-btn {
-            padding: 14px 20px !important;
+            padding: 16px 15px !important;  /* More vertical padding */
             background: linear-gradient(135deg, 
                 rgba(255, 255, 255, 0.15) 0%, 
                 rgba(255, 255, 255, 0.25) 50%,
@@ -83,15 +84,15 @@
             border: 2px solid rgba(255, 255, 255, 0.3) !important;
             border-radius: 20px !important;
             cursor: pointer !important;
-            font-size: 14px !important;
+            font-size: 17px !important;  /* Larger text */
             font-weight: 700 !important;
             width: 100% !important;
-            max-width: 450px !important;
+            max-width: none !important;  /* Remove max-width constraint */
             text-align: center;
             transition: all 0.3s ease !important;
             position: relative !important;
             text-transform: uppercase !important;
-            letter-spacing: 0.8px !important;
+            letter-spacing: 1px !important;
             backdrop-filter: blur(15px) !important;
             box-shadow: 
                 0 6px 25px rgba(0, 0, 0, 0.25),
@@ -99,6 +100,25 @@
                 0 0 20px rgba(34, 197, 94, 0.3),
                 inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
             overflow: hidden !important;
+            box-sizing: border-box !important;
+            margin: 0 !important;  /* Remove any margins */
+        }
+
+        /* Make emojis 30% larger */
+        .comm-relay-btn {
+            font-family: 'Segoe UI Emoji', 'Apple Color Emoji', sans-serif !important;
+        }
+
+        .comm-relay-btn::before {
+            content: "⚡";
+            font-size: 1.3em !important;  /* 30% larger emojis */
+            margin-right: 8px;
+        }
+
+        .comm-relay-btn::after {
+            content: " 📞 📅 🚨 🚀";
+            font-size: 1.3em !important;  /* 30% larger emojis */
+            margin-left: 8px;
         }
 
         /* Hover effects with INTENSE green glow */
@@ -148,13 +168,13 @@
             }
         }
 
-        /* SPEAK NOW BANNER OVERLAY POSITIONING */
+        /* SPEAK NOW BANNER OVERLAY POSITIONING - FULL WIDTH */
         #speak-sequence-button {
             position: absolute !important;
-            top: 12px !important;
-            left: 10px !important;
-            width: calc(100% - 20px) !important;
-            height: calc(100% - 24px) !important;
+            top: 15px !important;
+            left: 5px !important;
+            width: calc(100% - 10px) !important;  /* Full width minus small padding */
+            height: calc(100% - 30px) !important;
             z-index: 1000 !important;
             margin: 0 !important;
             display: flex !important;
@@ -165,32 +185,42 @@
         /* Mobile responsive */
         @media (max-width: 768px) {
             .comm-relay-btn {
-                padding: 12px 18px !important;
-                font-size: 13px !important;
-                max-width: 100% !important;
+                padding: 14px 12px !important;
+                font-size: 16px !important;  /* Still larger on mobile */
                 border-radius: 18px !important;
-                letter-spacing: 0.6px !important;
+                letter-spacing: 0.8px !important;
             }
             
             #comm-relay-button-container {
-                padding: 10px 8px;
-                min-height: 55px !important;
+                padding: 12px 3px !important;  /* Even less side padding on mobile */
+                min-height: 60px !important;
             }
             
             #speak-sequence-button {
-                top: 10px !important;
-                left: 8px !important;
-                width: calc(100% - 16px) !important;
-                height: calc(100% - 20px) !important;
+                top: 12px !important;
+                left: 3px !important;
+                width: calc(100% - 6px) !important;
+                height: calc(100% - 24px) !important;
+            }
+
+            /* Smaller emojis on very small screens */
+            .comm-relay-btn::before,
+            .comm-relay-btn::after {
+                font-size: 1.2em !important;
             }
         }
 
         /* Small mobile devices */
         @media (max-width: 480px) {
             .comm-relay-btn {
-                padding: 10px 15px !important;
-                font-size: 12px !important;
-                letter-spacing: 0.5px !important;
+                padding: 12px 10px !important;
+                font-size: 15px !important;
+                letter-spacing: 0.6px !important;
+            }
+            
+            .comm-relay-btn::before,
+            .comm-relay-btn::after {
+                font-size: 1.1em !important;
             }
         }
     `;
@@ -198,23 +228,23 @@
     document.head.appendChild(styleSheet);
 }
 
-    function renderCommRelayButton() {
+   function renderCommRelayButton() {
     if (!buttonContainer) return;
 
     // Clear container
     buttonContainer.innerHTML = '';
 
-    // Create the condensed button with emojis
+    // Create the full-width button with larger text
     const button = document.createElement('button');
     button.id = BUTTON_CONFIG.id;
     button.className = 'comm-relay-btn';
-    button.textContent = '⚡ Communication-Relay-Center 📞 📅 🚨 🚀';
+    button.textContent = 'COMMUNICATION-RELAY-CENTER';  // Text only - emojis added via CSS
     
     // Attach click handler
     button.onclick = openCommRelayCenter;
     
     buttonContainer.appendChild(button);
-    console.log('🚀 CONDENSED Communication Relay Center button rendered');
+    console.log('🚀 FULL-WIDTH Communication Relay Center button rendered');
 }
 
     /**
