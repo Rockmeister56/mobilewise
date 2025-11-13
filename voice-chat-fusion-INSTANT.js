@@ -4401,7 +4401,9 @@ function showAvatarSorryMessage(duration = 6000) {
 // Ensure global availability
 window.showAvatarSorryMessage = showAvatarSorryMessage;
 
-// Keep your existing showDirectSpeakNow function exactly as is
+// ===================================================
+// 🔊 SPEAK NOW BANNER - CRITICAL MISSING FUNCTION
+// ===================================================
 async function showDirectSpeakNow() {
     // If NOT in lead capture, wait for Action Center to appear
     
@@ -4591,13 +4593,6 @@ if (typeof startMobileListening === 'function') {
 } else {
     startNormalInterviewListening();
 }
-
-// ❌ REMOVED: forceStartListening() backup call - causes "already started" error
-// Recognition is already started by startNormalInterviewListening() above
-// setTimeout(() => {
-//     console.log('🔄 DIRECT backup: calling forceStartListening()');
-//     forceStartListening();
-// }, 100);
         
         // 🔥 FIXED: Check disableDirectTimeout flag before setting timeout
 if (!window.disableDirectTimeout) {
@@ -4642,8 +4637,327 @@ if (!window.disableDirectTimeout) {
 } else {
     console.log('🚫 DIRECT: Timeout disabled - banner will stay until speech detected');
 }
-        
+
+// ===================================================
+// 🛡️ COMPLETE BANNER SYNCHRONIZATION SYSTEM
+// ===================================================
+console.log('🎯 Loading Complete Banner Synchronization System...');
+
+// Global State Management
+window.bannerCooldown = false;
+window.lastBannerAction = 0;
+window.bannerCooldownTime = 1000;
+window.currentBulletproofTimer = null;
+
+// ===================================================
+// 🧹 DIRECT CLEANUP - CRITICAL SAFETY NET
+// ===================================================
+function directCleanup() {
+    console.log('🧹 DIRECT: Running emergency cleanup');
+    window.speakSequenceBlocked = false;
+    window.speakSequenceActive = false;
+    window.playingSorryMessage = false;
+    window.bannerCooldown = false;
     
+    if (window.currentBulletproofTimer) {
+        clearTimeout(window.currentBulletproofTimer);
+        window.currentBulletproofTimer = null;
+    }
+    
+    // Force close any banners
+    const banners = [
+        document.getElementById('speak-sequence-button'),
+        document.querySelector('.speak-now-banner'),
+        document.querySelector('.speak-now-container'),
+        document.querySelector('[class*="speak-now"]'),
+        document.querySelector('.universal-banner')
+    ];
+    
+    banners.forEach(banner => {
+        if (banner && banner.parentNode) {
+            console.log('✅ Emergency removing banner:', banner.className || banner.id);
+            banner.style.opacity = '0';
+            banner.style.transform = 'translateY(20px)';
+            setTimeout(() => {
+                if (banner.parentNode) banner.remove();
+            }, 300);
+        }
+    });
+    
+    console.log('🔓 DIRECT: All emergency locks released');
+}
+
+window.clearBulletproofTimer = function() {
+    if (window.currentBulletproofTimer) {
+        clearTimeout(window.currentBulletproofTimer);
+        window.currentBulletproofTimer = null;
+        console.log('🧹 DIRECT: Safety timer cleared (normal operation)');
+    }
+};
+
+// ===================================================
+// 🔊 CLOSE SPEAK NOW BANNER - COMPLETE VERSION
+// ===================================================
+function closeSpeakNowBanner() {
+    console.log('🎯 CLOSE SPEAK NOW BANNER: Starting cleanup...'); 
+    
+    // Clear the safety timer when closing normally
+    window.clearBulletproofTimer();
+    
+    // Update cooldown state
+    window.bannerCooldown = true;
+    window.lastBannerAction = Date.now();
+    
+    // Close ALL banner variations
+    const banners = [
+        document.getElementById('speak-sequence-button'),
+        document.querySelector('.speak-now-banner'),
+        document.querySelector('.speak-now-container'),
+        document.querySelector('[class*="speak-now"]'),
+        document.querySelector('.universal-banner')
+    ];
+    
+    banners.forEach(banner => {
+        if (banner && banner.parentNode) {
+            console.log('✅ Removing banner:', banner.className || banner.id);
+            banner.style.opacity = '0';
+            banner.style.transform = 'translateY(20px)';
+            setTimeout(() => {
+                if (banner.parentNode) banner.remove();
+            }, 300);
+        }
+    });
+    
+    // Reset ALL global states
+    window.speakSequenceActive = false;
+    window.isListening = false;
+    window.isRecording = false;
+    window.speakSequenceBlocked = false;
+    
+    // Clear any pending timeouts
+    if (window.speakSequenceCleanupTimer) {
+        clearTimeout(window.speakSequenceCleanupTimer);
+        window.speakSequenceCleanupTimer = null;
+    }
+    
+    // Reset cooldown after delay
+    setTimeout(() => {
+        window.bannerCooldown = false;
+        console.log('🔄 Banner cooldown reset');
+    }, window.bannerCooldownTime);
+    
+    console.log('✅ SPEAK NOW BANNER: Fully closed and reset');
+}
+
+// Make it globally accessible
+window.closeSpeakNowBanner = closeSpeakNowBanner;
+
+// ===================================================
+// 🧹 CLEANUP SPEAK SEQUENCE - COMPLETE VERSION
+// ===================================================
+function cleanupSpeakSequence() {
+    console.log('🧹 CLEANUP SPEAK SEQUENCE: Starting...');
+    
+    // SMART CLEANUP - Handle sorry messages differently
+    if (window.playingSorryMessage) {
+        console.log('🛡️ Sorry message in progress - minimal cleanup');
+        
+        // Reset flags but keep visual
+        window.speakSequenceBlocked = false;
+        window.speakSequenceActive = false;
+        
+        if (window.speakSequenceCleanupTimer) {
+            clearTimeout(window.speakSequenceCleanupTimer);
+            window.speakSequenceCleanupTimer = null;
+        }
+        
+        console.log('🔓 Hybrid blocking reset (during sorry message)');
+        return;
+    }
+    
+    // FULL CLEANUP - Normal case
+    window.speakSequenceActive = false;
+    window.speakSequenceBlocked = false;
+    window.isListening = false;
+    window.isRecording = false;
+    
+    // Close the banner using our synchronized function
+    if (window.closeSpeakNowBanner) {
+        window.closeSpeakNowBanner();
+    }
+    
+    console.log('✅ Speak sequence fully cleaned up');
+}
+
+window.cleanupSpeakSequence = cleanupSpeakSequence;
+
+// ===================================================
+// 🔄 STATE SYNCHRONIZATION GUARD - COMPLETE VERSION
+// ===================================================
+function syncBannerState() {
+    const now = Date.now();
+    
+    // Check if cooldown has expired
+    if (window.bannerCooldown && (now - window.lastBannerAction > window.bannerCooldownTime)) {
+        window.bannerCooldown = false;
+        console.log('🔄 SYNC: Cooldown expired - banner system unlocked');
+    }
+    
+    // SAFETY CHECK: If banner has been open too long
+    const bannerElements = document.querySelectorAll('.speak-now-banner, .speak-now-container');
+    if (bannerElements.length > 0 && window.currentBulletproofTimer) {
+        const timeSinceBanner = now - window.lastBannerAction;
+        if (timeSinceBanner > 25000) {
+            console.log('⚠️ SAFETY WARNING: Banner open for 25+ seconds');
+        }
+    }
+    
+    // EMERGENCY: If AI is speaking, FORCE CLOSE banner (respect cooldown)
+    if (window.isSpeaking && !window.bannerCooldown) {
+        console.log('🔄 SYNC: AI Speaking - Force closing banner');
+        if (window.closeSpeakNowBanner) {
+            window.closeSpeakNowBanner();
+        }
+        window.speakSequenceActive = false;
+        window.bannerCooldown = true;
+        window.lastBannerAction = now;
+    }
+    
+    // EMERGENCY: If listening stopped but banner is active (respect cooldown)
+    if (!window.isListening && window.speakSequenceActive && (now - window.lastBannerAction > 2000) && !window.bannerCooldown) {
+        console.log('🔄 SYNC: Listening stopped - Cleaning up stuck banner');
+        if (window.closeSpeakNowBanner) {
+            window.closeSpeakNowBanner();
+        }
+        window.speakSequenceActive = false;
+        window.bannerCooldown = true;
+        window.lastBannerAction = now;
+    }
+    
+    // EMERGENCY: If banner should be closed but isn't (respect cooldown)
+    if (bannerElements.length > 0 && !window.speakSequenceActive && !window.isListening && !window.bannerCooldown) {
+        console.log('🔄 SYNC: Stray banner detected - Emergency cleanup');
+        if (window.closeSpeakNowBanner) {
+            window.closeSpeakNowBanner();
+        }
+        window.bannerCooldown = true;
+        window.lastBannerAction = now;
+    }
+    
+    // EMERGENCY: If multiple banners exist (always fix this)
+    if (bannerElements.length > 1) {
+        console.log('🔄 SYNC: Multiple banners detected - Emergency cleanup');
+        for (let i = 1; i < bannerElements.length; i++) {
+            bannerElements[i].remove();
+        }
+    }
+}
+
+// Start synchronization (but only if not already running)
+if (!window.bannerSyncInterval) {
+    window.bannerSyncInterval = setInterval(syncBannerState, 500);
+    console.log('✅ Banner state synchronization started with safety timer');
+}
+
+// ===================================================
+// 🎯 INTEGRATION WITH EXISTING SHOW BANNER FUNCTION
+// ===================================================
+// Wrap the existing showDirectSpeakNow to respect cooldown
+if (typeof window.showDirectSpeakNow === 'function') {
+    const originalShowDirectSpeakNow = window.showDirectSpeakNow;
+    window.showDirectSpeakNow = function() {
+        const now = Date.now();
+        
+        // CHECK COOLDOWN FIRST
+        if (window.bannerCooldown) {
+            console.log('🛑 BANNER COOLDOWN: Skipping banner show - system cooling down');
+            return;
+        }
+        
+        // CHECK IF BANNER ALREADY EXISTS
+        const existingBanners = document.querySelectorAll('.speak-now-banner, .speak-now-container');
+        if (existingBanners.length > 0) {
+            console.log('🛑 BANNER EXISTS: Skipping duplicate banner');
+            return;
+        }
+        
+        console.log('✅ COOLDOWN CHECK PASSED: Showing banner');
+        window.bannerCooldown = true;
+        window.lastBannerAction = now;
+        
+        // SET SAFETY TIMER (30 seconds)
+        if (window.currentBulletproofTimer) {
+            clearTimeout(window.currentBulletproofTimer);
+        }
+        window.currentBulletproofTimer = setTimeout(() => {
+            console.log('🕐 SAFETY TIMEOUT: Banner stuck for 30s - emergency cleanup');
+            directCleanup();
+        }, 30000);
+        
+        // Call original function
+        originalShowDirectSpeakNow.call(this);
+        
+        // Reset cooldown after delay
+        setTimeout(() => {
+            window.bannerCooldown = false;
+            console.log('🔄 Show banner cooldown reset');
+        }, window.bannerCooldownTime);
+    };
+    console.log('✅ showDirectSpeakNow wrapped with cooldown protection');
+}
+
+// ===================================================
+// ✅ INITIALIZATION COMPLETE
+// ===================================================
+console.log('=== COMPLETE BANNER SYSTEM LOADED ===');
+console.log('• closeSpeakNowBanner: ✅ Loaded');
+console.log('• cleanupSpeakSequence: ✅ Loaded'); 
+console.log('• syncBannerState: ✅ Active every 500ms');
+console.log('• directCleanup: ✅ Safety net ready');
+console.log('• bannerCooldown: ✅ Global lock active');
+console.log('• Safety Timer: ✅ 30-second protection');
+console.log('🎯 ALL MISSING FUNCTIONS RESTORED AND SYNCHRONIZED!');
+
+// ===================================================
+// 🧹 CLEANUP SPEAK SEQUENCE - ENHANCED VERSION
+// ===================================================
+function cleanupSpeakSequence() {
+    console.log('🧹 CLEANUP SPEAK SEQUENCE: Starting...');
+    
+    // 🎯 SMART CLEANUP - Handle sorry messages differently
+    if (window.playingSorryMessage) {
+        console.log('🛡️ Sorry message in progress - minimal cleanup');
+        
+        // Reset flags but keep visual
+        window.speakSequenceBlocked = false;
+        window.speakSequenceActive = false;
+        
+        if (window.speakSequenceCleanupTimer) {
+            clearTimeout(window.speakSequenceCleanupTimer);
+            window.speakSequenceCleanupTimer = null;
+        }
+        
+        console.log('🔓 Hybrid blocking reset (during sorry message)');
+        return;
+    }
+    
+    // 🎯 FULL CLEANUP - Normal case
+    window.speakSequenceActive = false;
+    window.speakSequenceBlocked = false;
+    window.isListening = false;
+    window.isRecording = false;
+    
+    // Close the banner
+    if (window.closeSpeakNowBanner) {
+        window.closeSpeakNowBanner();
+    }
+    
+    console.log('✅ Speak sequence fully cleaned up');
+}
+
+window.cleanupSpeakSequence = cleanupSpeakSequence;
+        
+
     // Success handler for direct speak now
     window.handleSpeechSuccess = function(transcript) {
         console.log('✅ DIRECT: Speech detected:', transcript);
