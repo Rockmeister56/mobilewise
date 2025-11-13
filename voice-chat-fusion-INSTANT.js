@@ -453,6 +453,87 @@ function showPostSorryListening() {
         existingSpeakBtn.remove();
         console.log('🧹 POST-SORRY: Removed existing speak button');
     }
+    
+    // ✅ Create DIRECT "Speak Now" button
+    speakSequenceButton = document.createElement('button');
+    speakSequenceButton.id = 'speak-sequence-button';
+    speakSequenceButton.className = 'quick-btn green-button-glow';
+    
+    speakSequenceButton.innerHTML = `
+        <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+            <div style="margin-bottom: 6px;">
+                <span class="green-dot-blink">🟢</span> Speak Now!
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #4caf50, #2e7d32);"></div>
+            </div>
+        </div>
+    `;
+    
+    speakSequenceButton.style.cssText = `
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: rgba(34, 197, 94, 0.4) !important;
+    color: #ffffff !important;
+    border: 2px solid rgba(34, 197, 94, 0.8) !important;
+    padding: 15px !important;
+    font-weight: bold !important;
+    font-size: 18px !important;
+    border-radius: 20px !important;
+    z-index: 1000 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+`;
+    
+    // ✅ Enhanced mobile stability (if needed)
+    if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
+        speakSequenceButton.style.cssText += `
+            position: relative !important;
+            z-index: 1000 !important;
+            min-height: 50px !important;
+            padding: 18px !important;
+        `;
+        console.log('📱 POST-SORRY: Mobile enhancements applied');
+    }
+    
+    quickButtonsContainer.appendChild(speakSequenceButton);
+    console.log('✅ POST-SORRY: Direct "Speak Now" button created and added to DOM');
+    
+    // ✅ Start listening immediately (no delays, no preparation)
+    setTimeout(() => {
+        console.log('🎤 POST-SORRY: Starting DIRECT recognition');
+        
+        // Clear any previous result flag
+        window.lastRecognitionResult = null;
+        
+        if (typeof recognition !== 'undefined' && recognition) {
+            try {
+                recognition.start();
+                console.log('✅ POST-SORRY: Direct recognition started successfully');
+            } catch (e) {
+                console.log('❌ POST-SORRY: Recognition start failed:', e);
+                // Fallback: try again after a short delay
+                setTimeout(() => {
+                    try {
+                        recognition.start();
+                        console.log('✅ POST-SORRY: Fallback recognition started');
+                    } catch (e2) {
+                        console.log('❌ POST-SORRY: Fallback also failed:', e2);
+                    }
+                }, 300);
+            }
+        } else {
+            console.log('❌ POST-SORRY: Recognition object not found');
+        }
+    }, 100);
+    
+    // 🚫 NO CLEANUP TIMER - Let it run until user speaks or session naturally ends!
+    console.log('✅ POST-SORRY: Function completed - no cleanup timer set');
+}
 
 // ===================================================
 // 🎤 MICROPHONE PERMISSION SYSTEM
