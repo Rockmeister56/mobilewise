@@ -374,9 +374,9 @@ function showCommunicationRelayCenter() {
     if (typeof stopListening === 'function') stopListening();
     if (window.speechSynthesis) window.speechSynthesis.cancel();
     
-    if (typeof speakText === 'function') {
-    speakText("Welcome to the Communication Relay Center. Please click how you want to connect and I'll be there to help.");
-     }
+    //if (typeof speakText === 'function') {
+    // speakText("Welcome to the Communication Relay Center. Please click how you want to connect and I'll be there to help.");
+     //}
     
     // 🎯 GO DIRECTLY TO ENHANCED ACTION CENTER
     showCommunicationRelayCenter();
@@ -612,9 +612,9 @@ function openCommRelayCenter() {
     if (window.speechSynthesis) window.speechSynthesis.cancel();
     
     // ❌ REMOVE THIS VOICE LINE (so your video audio can play)
-    // if (typeof speakText === 'function') {
-    //     speakText("Welcome to the Communication Relay Center. You're now connected directly to Bruce for personalized consultation.");
-    // }
+    if (typeof speakText === 'function') {
+    speakText("Welcome to the Communication Relay Center. Please click how you want to connect and I'll be there to help.");
+    }
     
     // 🎯 GO DIRECTLY TO COMMUNICATION RELAY CENTER
     showCommunicationRelayCenter();
