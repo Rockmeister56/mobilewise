@@ -54,48 +54,102 @@
         console.log('✅ Communication Relay Center Button initialized');
     }
 
-    function addButtonStyles() {
+   function addButtonStyles() {
     if (document.getElementById('comm-relay-button-styles')) return;
 
     const styleSheet = document.createElement('style');
     styleSheet.id = 'comm-relay-button-styles';
     styleSheet.textContent = `
-        /* Single button container - COLUMN LAYOUT FOR OVERLAY */
+        /* Single button container - FULL WIDTH */
         #comm-relay-button-container {
             display: flex !important;
             flex-direction: column !important;
             justify-content: center;
             align-items: center;
-            padding: 10px;
+            padding: 12px 10px;
             width: 100%;
             position: relative !important;
-            min-height: 60px !important;
+            min-height: 70px !important;
         }
 
-        /* Communication Relay Center Button - FULL WIDTH */
+        /* COMMUNICATION RELAY CENTER BUTTON - BEEFED UP WITH SIZZLE */
         .comm-relay-btn {
-            padding: 14px 25px !important;
-            background: rgba(255, 255, 255, 0.15) !important;
+            padding: 18px 30px !important;
+            background: linear-gradient(135deg, 
+                rgba(255, 255, 255, 0.15) 0%, 
+                rgba(255, 255, 255, 0.25) 50%,
+                rgba(255, 255, 255, 0.15) 100%) !important;
             color: white !important;
-            border: none !important;
-            border-radius: 20px !important;
+            border: 2px solid rgba(255, 255, 255, 0.3) !important;
+            border-radius: 25px !important;
             cursor: pointer !important;
-            font-size: 15px !important;
-            font-weight: 600 !important;
+            font-size: 16px !important;
+            font-weight: 700 !important;
             width: 100% !important;
-            max-width: 400px !important;
+            max-width: 450px !important;
             text-align: center;
-            transition: all 0.2s ease !important;
+            transition: all 0.3s ease !important;
             position: relative !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.5px !important;
+            backdrop-filter: blur(15px) !important;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.2),
+                0 0 0 1px rgba(255, 255, 255, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+            overflow: hidden !important;
+        }
+
+        /* Hover effects with green glow */
+        .comm-relay-btn:hover {
+            background: linear-gradient(135deg, 
+                rgba(34, 197, 94, 0.3) 0%, 
+                rgba(34, 197, 94, 0.4) 50%,
+                rgba(34, 197, 94, 0.3) 100%) !important;
+            border-color: rgba(34, 197, 94, 0.6) !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 
+                0 12px 40px rgba(34, 197, 94, 0.3),
+                0 0 20px rgba(34, 197, 94, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+        }
+
+        /* Active state */
+        .comm-relay-btn:active {
+            transform: translateY(0) !important;
+            box-shadow: 
+                0 6px 25px rgba(34, 197, 94, 0.4),
+                0 0 15px rgba(34, 197, 94, 0.3) !important;
+        }
+
+        /* Subtle pulse animation */
+        .comm-relay-btn {
+            animation: gentle-pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes gentle-pulse {
+            0%, 100% { 
+                box-shadow: 
+                    0 8px 32px rgba(0, 0, 0, 0.2),
+                    0 0 0 1px rgba(255, 255, 255, 0.1),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+            }
+            50% { 
+                box-shadow: 
+                    0 8px 32px rgba(0, 0, 0, 0.25),
+                    0 0 0 1px rgba(255, 255, 255, 0.15),
+                    0 0 15px rgba(34, 197, 94, 0.1),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+            }
         }
 
         /* SPEAK NOW BANNER OVERLAY POSITIONING */
         #speak-sequence-button {
             position: absolute !important;
-            top: 10px !important;
+            top: 12px !important;
             left: 10px !important;
             width: calc(100% - 20px) !important;
-            height: calc(100% - 20px) !important;
+            height: calc(100% - 24px) !important;
             z-index: 1000 !important;
             margin: 0 !important;
             display: flex !important;
@@ -106,21 +160,30 @@
         /* Mobile responsive */
         @media (max-width: 768px) {
             .comm-relay-btn {
-                padding: 12px 20px !important;
-                font-size: 14px !important;
+                padding: 16px 25px !important;
+                font-size: 15px !important;
                 max-width: 100% !important;
+                border-radius: 22px !important;
             }
             
             #comm-relay-button-container {
-                padding: 8px;
-                min-height: 55px !important;
+                padding: 10px 8px;
+                min-height: 65px !important;
             }
             
             #speak-sequence-button {
-                top: 8px !important;
+                top: 10px !important;
                 left: 8px !important;
                 width: calc(100% - 16px) !important;
-                height: calc(100% - 16px) !important;
+                height: calc(100% - 20px) !important;
+            }
+        }
+
+        /* Small mobile devices */
+        @media (max-width: 480px) {
+            .comm-relay-btn {
+                padding: 14px 20px !important;
+                font-size: 14px !important;
             }
         }
     `;
@@ -134,19 +197,17 @@
     // Clear container
     buttonContainer.innerHTML = '';
 
-    // Create the single button
+    // Create the beefed up button
     const button = document.createElement('button');
     button.id = BUTTON_CONFIG.id;
-    button.className = 'comm-relay-btn'; // Just the base class - no glow, no pulse
-    button.textContent = BUTTON_CONFIG.text;
-    
-    // NO inline styles - let CSS handle everything
+    button.className = 'comm-relay-btn';
+    button.textContent = '🚀 Comm-Relay-Center / Click-to-Call / Book Consultation / Get-Pre-Qualified';
     
     // Attach click handler
     button.onclick = openCommRelayCenter;
     
     buttonContainer.appendChild(button);
-    console.log('🚀 Communication Relay Center button rendered');
+    console.log('🚀 BEEFED UP Communication Relay Center button rendered');
 }
 
     /**
