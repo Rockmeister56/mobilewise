@@ -15,7 +15,7 @@ const BUTTON_CONFIG = {
     id: 'comm-relay-center-btn',
     text: 'COMMUNICATION-RELAY-CENTER',  // Text only - emojis added via CSS
     gradient: 'linear-gradient(135deg, #667eea 0%, #0e27b5ff 100%)',
-    avatarVideoUrl: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1762980653076.mp4'
+    avatarVideoUrl: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1763021413143.mp4'
 };
 
 let buttonContainer = null;
@@ -104,7 +104,7 @@ function showCommunicationRelayCenter() {
                     border: 2px solid rgba(255, 255, 255, 0.2);
                     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
                 ">
-                    <source src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1762980653076.mp4" type="video/mp4">
+                    <source src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1763021413143.mp4" type="video/mp4">
                 </video>
                 <div>
                     <h3 style="
