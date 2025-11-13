@@ -54,33 +54,34 @@
         console.log('✅ Communication Relay Center Button initialized');
     }
 
+    /**
+     * Add button CSS styles
+     */
     function addButtonStyles() {
     if (document.getElementById('comm-relay-button-styles')) return;
 
     const styleSheet = document.createElement('style');
     styleSheet.id = 'comm-relay-button-styles';
     styleSheet.textContent = `
-        /* Single button container - FULL WIDTH */
+        /* Single button container */
         #comm-relay-button-container {
             display: flex !important;
             justify-content: center;
             align-items: center;
             padding: 10px;
-            width: 100%;
         }
 
-        /* Communication Relay Center Button - FULL WIDTH */
+        /* Communication Relay Center Button - MATCHES OTHER QUICK BUTTONS */
         .comm-relay-btn {
-            padding: 14px 25px !important;
+            padding: 12px 25px !important;
             background: rgba(255, 255, 255, 0.15) !important;
             color: white !important;
             border: none !important;
             border-radius: 20px !important;
             cursor: pointer !important;
-            font-size: 15px !important;
+            font-size: 14px !important;
             font-weight: 600 !important;
-            width: 100% !important; /* KEY CHANGE - full width */
-            max-width: 400px !important; /* But not too wide on desktop */
+            min-width: 120px !important;
             text-align: center;
             transition: all 0.2s ease !important;
         }
@@ -94,16 +95,17 @@
             transform: translateY(0) !important;
         }
 
+        /* Remove any glow/pulse - keep it clean */
+        .comm-relay-btn.glow {
+            box-shadow: none !important;
+        }
+
         /* Mobile responsive */
         @media (max-width: 768px) {
             .comm-relay-btn {
-                padding: 12px 20px !important;
-                font-size: 14px !important;
-                max-width: 100% !important; /* Full width on mobile */
-            }
-            
-            #comm-relay-button-container {
-                padding: 8px;
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+                min-width: 110px !important;
             }
         }
     `;
