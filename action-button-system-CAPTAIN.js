@@ -374,10 +374,9 @@ function showCommunicationRelayCenter() {
     if (typeof stopListening === 'function') stopListening();
     if (window.speechSynthesis) window.speechSynthesis.cancel();
     
-        // ❌ REMOVED: AI Voice Introduction (so video audio can play)
-    // if (typeof speakText === 'function') {
-    //     speakText("Welcome to the Communication Relay Center. You're now connected directly to Bruce for personalized consultation.");
-    // }
+    if (typeof speakText === 'function') {
+    speakText("Welcome to the Communication Relay Center. Please click how you want to connect and I'll be there to help.");
+     }
     
     // 🎯 GO DIRECTLY TO ENHANCED ACTION CENTER
     showCommunicationRelayCenter();
@@ -768,7 +767,7 @@ function showEnhancedActionCenter() {
     window.initializeCommRelayButton = initializeCommRelayButton;
     window.showEnhancedActionCenter = showEnhancedActionCenter;
     window.handleActionCenterCompletion = handleActionCenterCompletion; // 🆕 NEW
-    // window.playRelayCenterIntroduction = playRelayCenterIntroduction;   // 🆕 NEW
+    window.playRelayCenterIntroduction = playRelayCenterIntroduction;   // 🆕 NEW
 
     // Initialize on DOM ready
     if (document.readyState === 'loading') {
