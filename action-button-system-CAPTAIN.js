@@ -96,7 +96,7 @@ function showCommunicationRelayCenter() {
                 margin-top: 5px;
             ">
                 <!-- YOUR VIDEO AVATAR WITH AUDIO -->
-                <video autoplay loop muted playsinline style="
+                <video autoplay loop muted="false" playsinline style="
                     width: 80px;
                     height: 80px;
                     border-radius: 50%;
@@ -374,13 +374,19 @@ function showCommunicationRelayCenter() {
     if (typeof stopListening === 'function') stopListening();
     if (window.speechSynthesis) window.speechSynthesis.cancel();
     
-    // Play voice introduction
-    if (typeof speakText === 'function') {
-        speakText("Welcome to the Communication Relay Center. You're now connected directly to Bruce for personalized consultation.");
-    }
+        // ❌ REMOVED: AI Voice Introduction (so video audio can play)
+    // if (typeof speakText === 'function') {
+    //     speakText("Welcome to the Communication Relay Center. You're now connected directly to Bruce for personalized consultation.");
+    // }
     
-    // Show CLONED Action Center with YOUR video
+    // 🎯 GO DIRECTLY TO ENHANCED ACTION CENTER
     showCommunicationRelayCenter();
+    
+    // Re-enable Speak Now banner after a reasonable time
+    setTimeout(() => {
+        window.disableSpeakNowBanner = false;
+        console.log('✅ Speak Now banner re-enabled');
+    }, 30000);
 }
 
 /**
@@ -423,7 +429,7 @@ function showCommunicationRelayCenter() {
                 gap: 15px;
                 margin-top: 5px;
             ">
-                <video autoplay loop muted playsinline style="
+                <video autoplay loop muted="false" playsinline style="
                     width: 80px;
                     height: 80px;
                     border-radius: 50%;
