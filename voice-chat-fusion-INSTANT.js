@@ -476,7 +476,7 @@ function showPostSorryListening() {
     left: 0 !important;
     width: 100% !important;
     height: 100% !important;
-    background: rgba(34, 197, 94, 0.4) !important;
+    background: rgba(34, 197, 94, 0.9) !important;
     color: #ffffff !important;
     border: 2px solid rgba(34, 197, 94, 0.8) !important;
     padding: 15px !important;
