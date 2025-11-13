@@ -1684,19 +1684,46 @@ function restartConversation() {
  * HANDLE ACTION CENTER COMPLETION
  * Re-enables Speak Now banner when user makes a selection or closes
  */
+// 🎯 GENERIC COMPLETION HANDLER FOR ALL ACTION BUTTONS
 function handleActionCenterCompletion() {
-    console.log('✅ Action Center completed - re-enabling Speak Now banner');
+    console.log("🔄 Action Center completion - generic handler for all buttons");
     
-    // Re-enable Speak Now banner
-    window.disableSpeakNowBanner = false;
+    // 1. Close ALL UI elements (works for any button type)
+    const actionCenter = document.getElementById('communication-action-center');
+    const relayCenter = document.getElementById('communication-relay-center');
     
-    // Optional: Auto-show Speak Now banner after selection
-    setTimeout(() => {
-        if (typeof showDirectSpeakNow === 'function' && !window.disableSpeakNowBanner) {
-            console.log('🔄 Auto-showing Speak Now banner after Action Center');
-            showDirectSpeakNow();
+    // Smooth fade out for both centers
+    [actionCenter, relayCenter].forEach(center => {
+        if (center) {
+            center.style.transition = 'opacity 0.3s ease';
+            center.style.opacity = '0';
+            center.style.pointerEvents = 'none';
+            setTimeout(() => {
+                center.style.display = 'none';
+            }, 300);
         }
-    }, 2000);
+    });
+    
+    // 2. Set generic flags (works for any lead capture)
+    window.isInLeadCapture = true;
+    window.disableSpeakNowBanner = true;
+    
+    // 3. The specific button handler (handleActionButton) should have already:
+    //    - Set window.currentLeadData for that specific button type
+    //    - Initialized the proper questions for that flow
+    
+    console.log('✅ UI closed, ready for specific lead capture flow');
+    
+    // 4. Start lead questions - askLeadQuestion will use the currentLeadData 
+    //    that was set by the specific button handler
+    setTimeout(() => {
+        if (window.askLeadQuestion && window.currentLeadData) {
+            console.log('🎤 Starting lead questions for:', window.currentCaptureType);
+            window.askLeadQuestion();
+        } else {
+            console.log('❌ No lead data set - check button handler');
+        }
+    }, 500);
 }
 
 // ================================
