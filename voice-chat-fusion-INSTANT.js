@@ -4404,6 +4404,12 @@ window.showAvatarSorryMessage = showAvatarSorryMessage;
 // Keep your existing showDirectSpeakNow function exactly as is
 async function showDirectSpeakNow() {
     // If NOT in lead capture, wait for Action Center to appear
+    
+    // 🚫 CHECK IF SPEAK NOW BANNER SHOULD BE DISABLED
+    if (window.disableSpeakNowBanner) {
+        console.log('🚫 Speak Now banner disabled - Communication Relay Center active');
+        return;
+    }
     if (!window.isInLeadCapture) {
         await new Promise(resolve => setTimeout(resolve, 600));
         

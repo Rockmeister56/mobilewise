@@ -595,6 +595,32 @@ function showCommunicationRelayCenter() {
 // Make sure to export it
 window.showCommunicationRelayCenter = showCommunicationRelayCenter;
 
+function openCommRelayCenter() {
+    console.log('🚀 Opening Communication Relay Center (CLONED VERSION)...');
+    
+    // 🚫 CRITICAL: Set flag to prevent Speak Now banner
+    window.disableSpeakNowBanner = true;
+    
+    // 🛑 STOP ALL VOICE ACTIVITY
+    if (typeof stopAllSpeech === 'function') stopAllSpeech();
+    if (typeof stopListening === 'function') stopListening();
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    
+    // 🎤 PLAY VOICE INTRODUCTION
+    if (typeof speakText === 'function') {
+        speakText("Welcome to the Communication Relay Center. You're now connected directly to Bruce for personalized consultation.");
+    }
+    
+    // 🎯 GO DIRECTLY TO ENHANCED ACTION CENTER
+    showCommunicationRelayCenter();
+    
+    // Re-enable Speak Now banner after a reasonable time (when user makes selection)
+    setTimeout(() => {
+        window.disableSpeakNowBanner = false;
+        console.log('✅ Speak Now banner re-enabled');
+    }, 30000); // 30 seconds should be enough time for user to make a selection
+}
+
 function playRelayCenterIntroduction() {
     console.log('🎙️ Playing voice introduction for Relay Center');
     
