@@ -54,6 +54,38 @@ function formatEmailFromSpeech(speechText) {
     return formattedEmail;
 }
 
+// 🎯 DIFFERENT BUTTON SETS FOR DIFFERENT MODES
+function getAvatarButtons() {
+    return `
+        <!-- Your specific avatar buttons -->
+        <button onclick="handleAvatarAction('consultation')">📅 Book with Avatar</button>
+        <button onclick="handleAvatarAction('urgent')">🚨 Avatar Urgent</button>
+    `;
+}
+
+function getCorporateButtons() {
+    return `
+        <!-- Original 5-button layout -->
+        <button onclick="handleActionButton('click-to-call')">📞 Request A Call</button>
+        <button onclick="handleActionButton('urgent-call')">🚨 URGENT CALL</button>
+        <button onclick="handleActionButton('free-consultation')">📅 BOOK Consultation</button>
+        <button onclick="handleActionButton('pre-qualifier')">✅ Pre-Qualification</button>
+        <button onclick="handleActionButton('skip')">⏭️ Skip for Now</button>
+    `;
+}
+
+// 🆕 ADD THIS MISSING FUNCTION!
+function getDefaultButtons() {
+    return `
+        <!-- Default buttons - same as corporate for now -->
+        <button onclick="handleActionButton('click-to-call')">📞 Request A Call</button>
+        <button onclick="handleActionButton('urgent-call')">🚨 URGENT CALL</button>
+        <button onclick="handleActionButton('free-consultation')">📅 BOOK Consultation</button>
+        <button onclick="handleActionButton('pre-qualifier')">✅ Pre-Qualification</button>
+        <button onclick="handleActionButton('skip')">⏭️ Skip for Now</button>
+    `;
+}
+
 // ================================
 // ENHANCED ORIGINAL ACTION CENTER
 // ================================
