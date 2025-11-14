@@ -4,66 +4,6 @@
 // CLEANED VERSION - No restore code for old buttons
 // ================================
 
-// ================================
-// 🛡️ GLOBAL ACTION CENTER CONFLICT RESOLUTION
-// ================================
-console.log('🛡️ Loading Global Action Center Conflict Resolution...');
-
-// Global state management
-window.actionCenterState = {
-    activeSystem: null, // 'original', 'cloned', null
-    isProcessing: false,
-    lastActionTime: 0,
-    cooldownPeriod: 2000 // 2 seconds
-};
-
-// Global lock function
-window.acquireActionCenterLock = function(systemType) {
-    const now = Date.now();
-    
-    // 🚨 Check if we're in cooldown period
-    if (now - window.actionCenterState.lastActionTime < window.actionCenterState.cooldownPeriod) {
-        console.log('🛡️ COOLDOWN: Action center locked - too soon since last action');
-        return false;
-    }
-    
-    // 🚨 Check if another system is active
-    if (window.actionCenterState.activeSystem && window.actionCenterState.activeSystem !== systemType) {
-        console.log(`🛡️ BLOCKED: ${systemType} cannot start - ${window.actionCenterState.activeSystem} is active`);
-        return false;
-    }
-    
-    // 🚨 Check if already processing
-    if (window.actionCenterState.isProcessing) {
-        console.log('🛡️ BLOCKED: Action already in progress');
-        return false;
-    }
-    
-    // ✅ ACQUIRE LOCK
-    window.actionCenterState.activeSystem = systemType;
-    window.actionCenterState.isProcessing = true;
-    window.actionCenterState.lastActionTime = now;
-    
-    console.log(`🛡️ LOCK ACQUIRED: ${systemType} can proceed`);
-    return true;
-};
-
-// Global release function
-window.releaseActionCenterLock = function() {
-    console.log('🛡️ LOCK RELEASED');
-    window.actionCenterState.activeSystem = null;
-    window.actionCenterState.isProcessing = false;
-};
-
-// Auto-release safety timeout
-setInterval(() => {
-    if (window.actionCenterState.isProcessing && 
-        (Date.now() - window.actionCenterState.lastActionTime > 10000)) { // 10 second timeout
-        console.log('🛡️ SAFETY TIMEOUT: Forcing lock release');
-        window.releaseActionCenterLock();
-    }
-}, 5000);
-
 console.log('🎯 ACTION SYSTEM UNIFIED - Loading (FINAL CLEANED VERSION)...');
 
 const EMAILJS_CONFIG = {
