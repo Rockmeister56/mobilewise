@@ -4552,33 +4552,21 @@ window.updateVoiceTranscription = function(text) {
     }
 };
 
-    async function showDirectSpeakNow() {
+async function showDirectSpeakNow() {
     console.log('🎯 DIRECT Speak Now - Black Transparent Overlay');
     
     if (window.disableSpeakNowBanner) return;
     
-    // 🎯 CRITICAL FIX: DON'T BLOCK DURING LEAD CAPTURE
+    // 🎯 CRITICAL FIX: ONLY block when Communication Relay Center is ACTUALLY OPEN
     if (!window.isInLeadCapture) {
         await new Promise(resolve => setTimeout(resolve, 600));
         
-        // Only check for Communication Relay Center, NOT lead capture Action Center
-        const commRelayCenter = document.querySelector('.communication-relay-center, [class*="relay"], [class*="avatar-center"]');
-        if (commRelayCenter && commRelayCenter.style.display !== 'none') {
-            console.log('🚫 BLOCKED: Communication Relay Center is visible - waiting for user selection');
+        // ONLY block if the actual opened Communication Relay Center is visible
+        const openedRelayCenter = document.querySelector('.communication-relay-center[style*="display: block"], .communication-relay-center[style*="display: flex"], .relay-center-open, .avatar-center-open');
+        
+        if (openedRelayCenter) {
+            console.log('🚫 BLOCKED: Communication Relay Center is OPEN - waiting for user selection');
             return;
-        }
-    }
-    
-    window.speakSequenceBlocked = true;
-    speakSequenceActive = true;
-
-    function directCleanup() {
-        speakSequenceActive = false;
-        window.playingSorryMessage = false;
-        hideVoiceOverlay();
-        if (window.currentBulletproofTimer) {
-            clearTimeout(window.currentBulletproofTimer);
-            window.currentBulletproofTimer = null;
         }
     }
 
