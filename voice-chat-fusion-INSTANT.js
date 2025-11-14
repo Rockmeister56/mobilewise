@@ -4402,7 +4402,7 @@ function showAvatarSorryMessage(duration = 6000) {
 window.showAvatarSorryMessage = showAvatarSorryMessage;
 
 async function showDirectSpeakNow() {
-    console.log('🎯 DIRECT Speak Now - Simple Transparent Overlay');
+    console.log('🎯 DIRECT Speak Now - Transparent Overlay');
     
     // Your existing logic here...
     if (window.disableSpeakNowBanner) {
@@ -4410,7 +4410,7 @@ async function showDirectSpeakNow() {
         return;
     }
     
-    // Your existing cooldown, action center checks...
+    // Your existing checks...
     
     window.speakSequenceBlocked = true;
     speakSequenceActive = true;
@@ -4420,7 +4420,7 @@ async function showDirectSpeakNow() {
         window.speakSequenceBlocked = false;
         speakSequenceActive = false;
         window.playingSorryMessage = false;
-        hideVoiceOverlay(); // Clean up our overlay
+        hideVoiceOverlay();
         if (window.currentBulletproofTimer) {
             clearTimeout(window.currentBulletproofTimer);
             window.currentBulletproofTimer = null;
@@ -4429,21 +4429,19 @@ async function showDirectSpeakNow() {
 
     // Your existing timer logic...
     let directTimer = setTimeout(() => {
-        console.log('🕐 DIRECT: Safety timeout after 15 seconds');
         directCleanup();
     }, 30000);
     window.currentBulletproofTimer = directTimer;
 
-    // 🎨 SIMPLE TRANSPARENT OVERLAY
-    console.log('🎨 Creating simple transparent voice overlay');
+    // 🎨 TRANSPARENT OVERLAY (FIXED)
+    console.log('🎨 Creating transparent voice overlay');
     
-    // Remove any existing overlay first
     hideVoiceOverlay();
     
     const voiceOverlay = document.createElement('div');
-    voiceOverlay.className = 'simple-voice-overlay';
+    voiceOverlay.className = 'transparent-voice-overlay';
     voiceOverlay.innerHTML = `
-        <div class="voice-overlay-content">
+        <div class="voice-overlay-card">
             <div class="voice-animation">
                 <div class="sound-wave-bar"></div>
                 <div class="sound-wave-bar"></div>
@@ -4451,17 +4449,16 @@ async function showDirectSpeakNow() {
                 <div class="sound-wave-bar"></div>
                 <div class="sound-wave-bar"></div>
             </div>
-            <div class="speak-now-text">Speak Now</div>
+            <div class="speak-now-text">🎤 Speak Now</div>
             <div class="live-transcription">Listening...</div>
         </div>
     `;
 
     document.body.appendChild(voiceOverlay);
     
-    // Add the simple CSS
     addVoiceOverlayStyles();
 
-    // 🎤 START LISTENING AUTOMATICALLY (NO BUTTONS!)
+    // 🎤 START LISTENING AUTOMATICALLY
     console.log('🎤 DIRECT: Starting automatic listening');
     window.lastRecognitionResult = null;
     
@@ -4474,11 +4471,9 @@ async function showDirectSpeakNow() {
     // Your existing timeout logic...
     if (!window.disableDirectTimeout) {
         const listeningTimeout = window.isInLeadCapture ? 20000 : 7000;
-        console.log(`⏰ DIRECT: Starting ${listeningTimeout/1000}-second listening window`);
         
         setTimeout(() => {
             if (!speakSequenceActive) return;
-            console.log(`⏰ DIRECT: ${listeningTimeout/1000}-second listening window ended`);
             window.clearBulletproofTimer();
             directCleanup();
             
@@ -4494,37 +4489,37 @@ async function showDirectSpeakNow() {
     }
 }
 
-// 🎨 SIMPLE CSS STYLES
+// 🎨 FIXED CSS - TRANSPARENT BACKGROUND
 function addVoiceOverlayStyles() {
-    if (document.getElementById('simple-voice-overlay-styles')) return;
+    if (document.getElementById('transparent-voice-overlay-styles')) return;
     
     const styles = document.createElement('style');
-    styles.id = 'simple-voice-overlay-styles';
+    styles.id = 'transparent-voice-overlay-styles';
     styles.textContent = `
-        .simple-voice-overlay {
+        .transparent-voice-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(255, 255, 255, 0.92);
-            backdrop-filter: blur(15px);
+            background: transparent !important; /* 🚫 NO WHITE BACKGROUND */
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 10000;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            pointer-events: none; /* Allow clicks through overlay */
         }
         
-        .voice-overlay-content {
+        .voice-overlay-card {
             text-align: center;
-            background: rgba(255, 255, 255, 0.8);
+            background: rgba(255, 255, 255, 0.95); /* Only the card has background */
             border-radius: 20px;
-            padding: 40px 30px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 30px 25px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15);
+            border: 2px solid rgba(102, 126, 234, 0.3); /* Blue border like you wanted */
             backdrop-filter: blur(10px);
-            min-width: 300px;
+            min-width: 280px;
+            pointer-events: auto; /* Card can be interactive if needed */
         }
         
         .voice-animation {
@@ -4532,8 +4527,8 @@ function addVoiceOverlayStyles() {
             justify-content: center;
             align-items: center;
             gap: 4px;
-            margin-bottom: 20px;
-            height: 40px;
+            margin-bottom: 15px;
+            height: 35px;
         }
         
         .sound-wave-bar {
@@ -4552,35 +4547,45 @@ function addVoiceOverlayStyles() {
         
         @keyframes soundWave {
             0%, 100% { 
-                height: 10px;
+                height: 8px;
                 opacity: 0.5;
             }
             50% { 
-                height: 25px;
+                height: 22px;
                 opacity: 1;
             }
         }
         
         .speak-now-text {
-            font-size: 24px;
+            font-size: 22px;
             font-weight: bold;
             background: linear-gradient(135deg, #667eea, #764ba2);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
         
         .live-transcription {
             color: #333;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 500;
-            min-height: 24px;
-            padding: 12px 20px;
-            background: rgba(241, 245, 249, 0.7);
-            border-radius: 12px;
-            border: 1px solid rgba(226, 232, 240, 0.8);
+            min-height: 22px;
+            padding: 10px 15px;
+            background: rgba(241, 245, 249, 0.8);
+            border-radius: 10px;
+            border: 1px solid rgba(226, 232, 240, 0.6);
             transition: all 0.3s ease;
+        }
+        
+        /* Optional: Add a subtle pulse to the card */
+        @keyframes gentlePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+        
+        .voice-overlay-card {
+            animation: gentlePulse 3s ease-in-out infinite;
         }
     `;
     
@@ -4589,26 +4594,18 @@ function addVoiceOverlayStyles() {
 
 // 🧹 CLEANUP FUNCTION
 function hideVoiceOverlay() {
-    const existing = document.querySelector('.simple-voice-overlay');
+    const existing = document.querySelector('.transparent-voice-overlay');
     if (existing) {
         existing.style.opacity = '0';
         setTimeout(() => existing.remove(), 300);
 }
 
-// 🎤 TRANSCRIPTION UPDATE FUNCTION
+// 🎤 TRANSCRIPTION UPDATE
 window.updateVoiceTranscription = function(text) {
     const transcription = document.querySelector('.live-transcription');
     if (transcription) {
         transcription.textContent = text || 'Listening...';
         transcription.style.color = text ? '#000' : '#666';
-        
-        // Add typing effect for new text
-        if (text) {
-            transcription.style.animation = 'none';
-            setTimeout(() => {
-                transcription.style.animation = 'fadeIn 0.3s ease';
-            }, 10);
-        }
     }
 };
 
