@@ -8,36 +8,6 @@
  * Created: 2025-10-31 - ENHANCEMENT VERSION
  */
 
-// 🛡️ PATCH CLONED SYSTEM
-if (typeof window.openCommRelayCenter === 'function') {
-    const originalOpenRelay = window.openCommRelayCenter;
-    window.openCommRelayCenter = function() {
-        // 🛡️ ACQUIRE LOCK FOR CLONED SYSTEM
-        if (!window.acquireActionCenterLock('cloned')) {
-            console.log('🛡️ Cloned system blocked by global lock');
-            return;
-        }
-        
-        console.log('🚀 Opening Communication Relay Center (CLONED VERSION)...');
-        return originalOpenRelay.call(this);
-    };
-}
-
-// 🛡️ ALSO PATCH THE CLONED handleActionButton IF IT EXISTS
-if (typeof window.handleActionButton === 'function') {
-    const originalHandleAction = window.handleActionButton;
-    window.handleActionButton = function(action) {
-        // 🛡️ ACQUIRE LOCK FOR CLONED SYSTEM
-        if (!window.acquireActionCenterLock('cloned')) {
-            console.log('🛡️ Cloned action button blocked by global lock');
-            return;
-        }
-        
-        console.log('🎯 Cloned Action button clicked:', action);
-        return originalHandleAction.call(this, action);
-    };
-}
-
 console.log('✅ Enhanced Communication Relay Center System loaded');
 
 // Single button configuration - ADD THIS

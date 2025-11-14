@@ -115,215 +115,74 @@ function formatEmailFromSpeech(speechText) {
 }
 
 // ================================
-// COMMUNICATION ACTION CENTER - 5 BUTTON LAYOUT
+// ENHANCED ORIGINAL ACTION CENTER
 // ================================
-function showCommunicationActionCenter() {
+function showCommunicationActionCenter(mode = 'default') {
+    console.log('🎯 Showing Enhanced Action Center - Mode:', mode);
+    
+    // Remove any existing action center
+    hideCommunicationActionCenter();
+    
     const actionCenter = document.createElement('div');
     actionCenter.id = 'communication-action-center';
-    actionCenter.innerHTML = `
-        <div style="
-            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.9)),
-                        url('https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1762038349654_action-bg.jpg');
-            background-size: cover;
-            background-position: center;
-            background-blend-mode: overlay;
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 30px 25px 30px 25px;
-            margin: 20px 0;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            color: white;
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            max-width: 750px;
-            min-height: 450px;
-        ">
-            <!-- Header with Video Avatar -->
-            <div style="
-                display: flex;
-                align-items: center;
-                margin-bottom: 25px;
-                gap: 15px;
-                margin-top: 5px;
-            ">
-                <video autoplay loop muted playsinline style="
-                    width: 80px;
-                    height: 80px;
-                    border-radius: 50%;
-                    object-fit: cover;
-                    border: 2px solid rgba(255, 255, 255, 0.2);
-                    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-                ">
-                    <source src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1762037335280.mp4" type="video/mp4">
-                </video>
-                <div>
-                    <h3 style="
-                        margin: 0 0 5px 0;
-                        font-size: 22px;
-                        font-weight: 600;
-                        color: white;
-                    ">Communication Action Center</h3>
-                    <p style="
-                        margin: 0;
-                        opacity: 0.8;
-                        font-size: 13px;
-                        font-weight: 300;
-                        letter-spacing: 0.5px;
-                    ">AI-Powered Solutions</p>
-                </div>
-            </div>
-
-            <!-- 2x2 Grid Layout - EXACTLY like your current design -->
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px;">
-                <!-- Request A Call -->
-                <button onclick="handleActionButton('click-to-call')" style="
-                    display: flex;
-                    align-items: center;
-                    gap: 12px;
-                    background: rgba(0, 0, 0, 0.6);
-                    border: 1px solid rgba(255, 255, 255, 0.2);
-                    color: white;
-                    padding: 18px 15px;
-                    border-radius: 10px;
-                    cursor: pointer;
-                    font-weight: 600;
-                    font-size: 17px;
-                    text-align: left;
-                    transition: all 0.3s ease;
-                    backdrop-filter: blur(10px);
-                    width: 100%;
-                    height: 84px;
-                    min-width: 295px;
-                " onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.borderColor='rgba(255, 255, 255, 0.3)'; this.style.transform='translateY(-2px)';" 
-                   onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.borderColor='rgba(255, 255, 255, 0.2)'; this.style.transform='translateY(0)';">
-                    <!-- Phone Icon - Using data URI to avoid CORS -->
-                    <div style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
-                        <span style="font-size: 24px;">📞</span>
-                    </div>
-                    <span style="flex: 1;">Request A Call</span>
-                </button>
-
-                <!-- URGENT CALL -->
-                <button onclick="handleActionButton('urgent-call')" style="
-                    display: flex;
-                    align-items: center;
-                    gap: 12px;
-                    background: rgba(0, 0, 0, 0.6);
-                    border: 1px solid rgba(255, 255, 255, 0.2);
-                    color: white;
-                    padding: 18px 15px;
-                    border-radius: 10px;
-                    cursor: pointer;
-                    font-weight: 600;
-                    font-size: 17px;
-                    text-align: left;
-                    transition: all 0.3s ease;
-                    backdrop-filter: blur(10px);
-                    width: 100%;
-                    height: 84px;
-                    min-width: 295px;
-                " onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.borderColor='rgba(255, 255, 255, 0.3)'; this.style.transform='translateY(-2px)';" 
-                   onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.borderColor='rgba(255, 255, 255, 0.2)'; this.style.transform='translateY(0)';">
-                    <div style="font-size: 28px;">🚨</div>
-                    <span style="flex: 1;">URGENT CALL</span>
-                </button>
-
-                <!-- BOOK Consultation -->
-                <button onclick="handleActionButton('free-consultation')" style="
-                    display: flex;
-                    align-items: center;
-                    gap: 12px;
-                    background: rgba(0, 0, 0, 0.6);
-                    border: 1px solid rgba(255, 255, 255, 0.2);
-                    color: white;
-                    padding: 18px 15px;
-                    border-radius: 10px;
-                    cursor: pointer;
-                    font-weight: 600;
-                    font-size: 17px;
-                    text-align: left;
-                    transition: all 0.3s ease;
-                    backdrop-filter: blur(10px);
-                    width: 100%;
-                    height: 84px;
-                    min-width: 295px;
-                " onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.borderColor='rgba(255, 255, 255, 0.3)'; this.style.transform='translateY(-2px)';" 
-                   onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.borderColor='rgba(255, 255, 255, 0.2)'; this.style.transform='translateY(0)';">
-                    <!-- Calendar Icon -->
-                    <div style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
-                        <span style="font-size: 24px;">📅</span>
-                    </div>
-                    <span style="flex: 1;">BOOK Consultation</span>
-                </button>
-
-                <!-- Pre-Qualifier -->
-                <button onclick="handleActionButton('pre-qualifier')" style="
-                    display: flex;
-                    align-items: center;
-                    gap: 12px;
-                    background: rgba(0, 0, 0, 0.6);
-                    border: 1px solid rgba(255, 255, 255, 0.2);
-                    color: white;
-                    padding: 18px 15px;
-                    border-radius: 10px;
-                    cursor: pointer;
-                    font-weight: 600;
-                    font-size: 17px;
-                    text-align: left;
-                    transition: all 0.3s ease;
-                    backdrop-filter: blur(10px);
-                    width: 100%;
-                    height: 84px;
-                    min-width: 295px;
-                " onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.borderColor='rgba(255, 255, 255, 0.3)'; this.style.transform='translateY(-2px)';" 
-                   onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.borderColor='rgba(255, 255, 255, 0.2)'; this.style.transform='translateY(0)';">
-                    <!-- Checkmark Icon -->
-                    <div style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
-                        <span style="font-size: 24px;">✅</span>
-                    </div>
-                    <span style="flex: 1;">Pre-Qualification</span>
-                </button>
-            </div>
-
-            <!-- Skip for Now - Full Width -->
-            <button onclick="handleActionButton('skip')" style="
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                background: rgba(0, 0, 0, 0.6);
-                color: rgba(255, 255, 255, 0.8);
-                border: 1px solid rgba(255, 255, 255, 0.2);
-                padding: 15px 20px;
-                border-radius: 10px;
-                cursor: pointer;
-                font-size: 16px;
-                font-weight: 500;
-                transition: all 0.3s ease;
-                width: 100%;
-                justify-content: center;
-                margin-top: 5px;
-            " onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.color='white';" 
-               onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.color='rgba(255, 255, 255, 0.8)';">
-                <!-- Skip Icon -->
-                <div style="width: 20px; height: 20px; display: flex; align-items: center; justify-content: center;">
-                    <span style="font-size: 16px;">⏭️</span>
-                </div>
-                <span>Skip for Now</span>
-            </button>
-        </div>
-    `;
     
+    // 🎯 DIFFERENT MODES, SAME CONTAINER
+    if (mode === 'avatar') {
+        // Your talking avatar version
+        actionCenter.innerHTML = `
+            <div style="...avatar styling...">
+                <!-- Your avatar video -->
+                <video autoplay loop muted playsinline>
+                    <source src="your-avatar-video.mp4" type="video/mp4">
+                </video>
+                <!-- Avatar-specific buttons -->
+                ${getAvatarButtons()}
+            </div>
+        `;
+    } else if (mode === 'corporate') {
+        // Original 5-button corporate design
+        actionCenter.innerHTML = `
+            <div style="...corporate styling...">
+                <!-- Corporate header -->
+                ${getCorporateButtons()}
+            </div>
+        `;
+    } else {
+        // Default mode
+        actionCenter.innerHTML = `
+            <div style="...default styling...">
+                ${getDefaultButtons()}
+            </div>
+        `;
+    }
+    
+    // Add to page
     const chatContainer = document.getElementById('chatMessages') || document.querySelector('.chat-messages');
     if (chatContainer) {
         chatContainer.appendChild(actionCenter);
-        
-        // Auto-scroll to show the action center
-        setTimeout(() => {
-            actionCenter.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }, 100);
     }
     
-    console.log('✅ Communication Action Center displayed with emojis');
+    console.log('✅ Enhanced Action Center displayed - Mode:', mode);
+}
+
+// 🎯 DIFFERENT BUTTON SETS FOR DIFFERENT MODES
+function getAvatarButtons() {
+    return `
+        <!-- Your specific avatar buttons -->
+        <button onclick="handleAvatarAction('consultation')">📅 Book with Avatar</button>
+        <button onclick="handleAvatarAction('urgent')">🚨 Avatar Urgent</button>
+    `;
+}
+
+function getCorporateButtons() {
+    return `
+        <!-- Original 5-button layout -->
+        <button onclick="handleActionButton('click-to-call')">📞 Request A Call</button>
+        <button onclick="handleActionButton('urgent-call')">🚨 URGENT CALL</button>
+        <button onclick="handleActionButton('free-consultation')">📅 BOOK Consultation</button>
+        <button onclick="handleActionButton('pre-qualifier')">✅ Pre-Qualification</button>
+        <button onclick="handleActionButton('skip')">⏭️ Skip for Now</button>
+    `;
 }
 
 // ================================
@@ -367,11 +226,13 @@ function initiateUrgentCall() {
 function handleActionButton(action) {
     console.log('🎯 Action button clicked:', action);
     
-    // 🛡️ ACQUIRE LOCK FOR ORIGINAL SYSTEM
-    if (!window.acquireActionCenterLock('original')) {
-        console.log('🛡️ Action blocked by global lock');
+    // 🛑 CHECK IF WE'RE ALREADY PROCESSING
+    if (window.isProcessingAction) {
+        console.log('🛑 Action already in progress - skipping');
         return;
     }
+    
+    window.isProcessingAction = true;
     
     hideCommunicationActionCenter();
     
@@ -382,43 +243,46 @@ function handleActionButton(action) {
     
     switch(action) {
         case 'click-to-call':
+            // 🆕 SHOW CLICK TO CALL BANNER (with anti-loop protection)
             if (typeof showUniversalBanner === 'function') {
-                showUniversalBanner('clickToCall');
+                showUniversalBanner('clickToCall', { autoTriggerActionCenter: false });
             }
             initializeClickToCallCapture();
             break;
             
         case 'urgent-call':
             if (typeof showUniversalBanner === 'function') {
-                showUniversalBanner('urgent');
+                showUniversalBanner('urgent', { autoTriggerActionCenter: false });
             }
             initiateUrgentCall();
             break;
             
         case 'free-consultation':
             if (typeof showUniversalBanner === 'function') {
-                showUniversalBanner('setAppointment');
+                showUniversalBanner('setAppointment', { autoTriggerActionCenter: false });
             }
             initializeConsultationCapture();
             break;
             
         case 'pre-qualifier':
             if (typeof showUniversalBanner === 'function') {
-                showUniversalBanner('preQualifier');
+                showUniversalBanner('preQualifier', { autoTriggerActionCenter: false });
             }
             initializePreQualifierCapture();
             break;
             
         case 'skip':
             console.log('User chose to skip');
-            // 🛡️ RELEASE LOCK
-            window.releaseActionCenterLock();
-            
             if (window.addSystemMessage) {
                 window.addSystemMessage("No problem! Feel free to ask me anything else about your practice.");
             }
             break;
     }
+    
+    // Reset processing flag after a delay
+    setTimeout(() => {
+        window.isProcessingAction = false;
+    }, 1000);
 }
 
 // ================================
@@ -856,9 +720,6 @@ window.processLeadResponse = processLeadResponse;
 // ================================
 function completeLeadCapture() {
     console.log('🎯 Completing lead capture...');
-
-     // 🛡️ RELEASE LOCK WHEN DONE
-    window.releaseActionCenterLock();
 
     // 🆕 NEW: EMERGENCY CLEANUP FIRST THING
     if (typeof emergencyStuckBannerFix === 'function') {
