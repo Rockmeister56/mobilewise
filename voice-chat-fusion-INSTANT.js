@@ -4402,283 +4402,213 @@ function showAvatarSorryMessage(duration = 6000) {
 window.showAvatarSorryMessage = showAvatarSorryMessage;
 
 async function showDirectSpeakNow() {
-    // 🐛 DEBUG: Add immediate visibility check
-    console.log('🔍 DEBUG: showDirectSpeakNow() called');
+    console.log('🎯 DIRECT Speak Now - Simple Transparent Overlay');
     
-    // If NOT in lead capture, wait for Action Center to appear
+    // Your existing logic here...
     if (window.disableSpeakNowBanner) {
-        console.log('🚫 Speak Now banner disabled - Communication Relay Center active');
+        console.log('🚫 Speak Now banner disabled');
         return;
     }
     
-    if (!window.isInLeadCapture) {
-        await new Promise(resolve => setTimeout(resolve, 600));
-        const actionCenter = document.getElementById('communication-action-center');
-        if (actionCenter && actionCenter.style.display !== 'none') {
-            console.log('🚫 BLOCKED: Communication Action Center is visible - waiting for user selection');
-            return;
-        }
-    }
-    
-    console.log('🎯 DIRECT Speak Now - Enhanced with White Transparent Interface');
+    // Your existing cooldown, action center checks...
     
     window.speakSequenceBlocked = true;
     speakSequenceActive = true;
-    console.log('🔒 DIRECT: Sequence locked for Speak Now only');
-    
+
     function directCleanup() {
         console.log('🧹 DIRECT: Running cleanup');
         window.speakSequenceBlocked = false;
         speakSequenceActive = false;
         window.playingSorryMessage = false;
-        hideVoiceInterface();
+        hideVoiceOverlay(); // Clean up our overlay
         if (window.currentBulletproofTimer) {
             clearTimeout(window.currentBulletproofTimer);
             window.currentBulletproofTimer = null;
         }
-        console.log('🔓 DIRECT: All locks released');
     }
-    
-    // Set up timer for this sequence
+
+    // Your existing timer logic...
     let directTimer = setTimeout(() => {
         console.log('🕐 DIRECT: Safety timeout after 15 seconds');
         directCleanup();
     }, 30000);
     window.currentBulletproofTimer = directTimer;
-    
-    window.clearBulletproofTimer = function() {
-        if (window.currentBulletproofTimer) {
-            clearTimeout(window.currentBulletproofTimer);
-            window.currentBulletproofTimer = null;
-            console.log('🧹 DIRECT: Timer cleared');
-        }
-    };
 
-    const isContactInterview = checkContactInterviewMode();
-    console.log('📧 DIRECT Contact interview mode:', isContactInterview);
-
-    // 🐛 DEBUG: Check if CSS is loaded
-    console.log('🔍 DEBUG: Checking CSS status...');
+    // 🎨 SIMPLE TRANSPARENT OVERLAY
+    console.log('🎨 Creating simple transparent voice overlay');
     
-    // 🎯 ENHANCED: CREATE THE INTERFACE WITH BETTER DEBUGGING
-    console.log('🎨 ENHANCED: Creating white transparent voice interface');
+    // Remove any existing overlay first
+    hideVoiceOverlay();
     
-    // Remove any existing interface first
-    hideVoiceInterface();
-    
-    // 🐛 DEBUG: Create with immediate visibility
-    const voiceInterface = document.createElement('div');
-    voiceInterface.className = 'voice-interface';
-    voiceInterface.style.cssText = `
-        position: fixed !important;
-        top: 0 !important;
-        left: 0 !important;
-        width: 100% !important;
-        height: 100% !important;
-        background: rgba(255, 255, 255, 0.98) !important;
-        backdrop-filter: blur(20px) !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        z-index: 10000 !important;
-        opacity: 1 !important;
-        visibility: visible !important;
-    `;
-    
-    voiceInterface.innerHTML = `
-        <div class="voice-container" style="
-            background: white !important;
-            border-radius: 24px !important;
-            padding: 40px 30px !important;
-            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.15) !important;
-            text-align: center !important;
-            border: 1px solid rgba(0, 0, 0, 0.1) !important;
-            max-width: 90% !important;
-            width: 320px !important;
-        ">
-            <div class="voice-header" style="margin-bottom: 25px;">
-                <div class="animated-wave" style="display: flex; justify-content: center; align-items: center; gap: 4px; margin-bottom: 15px; height: 30px;">
-                    <div class="wave-bar" style="width: 4px; height: 20px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 2px; animation: waveAnimation 1.5s ease-in-out infinite;"></div>
-                    <div class="wave-bar" style="width: 4px; height: 20px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 2px; animation: waveAnimation 1.5s ease-in-out infinite; animation-delay: 0.1s;"></div>
-                    <div class="wave-bar" style="width: 4px; height: 20px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 2px; animation: waveAnimation 1.5s ease-in-out infinite; animation-delay: 0.2s;"></div>
-                    <div class="wave-bar" style="width: 4px; height: 20px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 2px; animation: waveAnimation 1.5s ease-in-out infinite; animation-delay: 0.3s;"></div>
-                    <div class="wave-bar" style="width: 4px; height: 20px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 2px; animation: waveAnimation 1.5s ease-in-out infinite; animation-delay: 0.4s;"></div>
-                </div>
-                <div class="speak-prompt" style="font-size: 22px; font-weight: bold; background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
-                    Speak Now
-                </div>
+    const voiceOverlay = document.createElement('div');
+    voiceOverlay.className = 'simple-voice-overlay';
+    voiceOverlay.innerHTML = `
+        <div class="voice-overlay-content">
+            <div class="voice-animation">
+                <div class="sound-wave-bar"></div>
+                <div class="sound-wave-bar"></div>
+                <div class="sound-wave-bar"></div>
+                <div class="sound-wave-bar"></div>
+                <div class="sound-wave-bar"></div>
             </div>
-            
-            <button class="speak-button" style="
-                background: linear-gradient(135deg, #667eea, #764ba2);
-                color: white;
-                border: none;
-                border-radius: 50px;
-                padding: 18px 30px;
-                font-size: 18px;
-                font-weight: bold;
-                margin: 20px 0;
-                cursor: pointer;
-                transition: all 0.3s ease;
-                box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
-            ">🎤 Tap to Speak</button>
-            
-            <div class="transcription-area" style="margin: 20px 0; min-height: 60px; display: flex; align-items: center; justify-content: center;">
-                <div class="transcription-text" style="
-                    color: #333;
-                    font-size: 16px;
-                    font-weight: 500;
-                    line-height: 1.4;
-                    padding: 12px 20px;
-                    background: rgba(241, 245, 249, 0.7);
-                    border-radius: 12px;
-                    border: 1px solid rgba(226, 232, 240, 0.8);
-                    max-width: 100%;
-                    word-wrap: break-word;
-                ">Listening...</div>
-            </div>
-            
-            <button class="close-interface" style="
-                background: rgba(241, 245, 249, 0.8);
-                color: #64748b;
-                border: 1px solid rgba(226, 232, 240, 0.8);
-                border-radius: 20px;
-                padding: 12px 24px;
-                cursor: pointer;
-                font-size: 14px;
-                font-weight: 600;
-                transition: all 0.3s ease;
-            ">✕ Close</button>
+            <div class="speak-now-text">Speak Now</div>
+            <div class="live-transcription">Listening...</div>
         </div>
     `;
 
-    // 🐛 DEBUG: Add to DOM and verify
-    document.body.appendChild(voiceInterface);
-    console.log('🔍 DEBUG: Voice interface added to DOM:', !!document.querySelector('.voice-interface'));
-    console.log('🔍 DEBUG: Voice interface visibility:', voiceInterface.style.display, voiceInterface.style.visibility, voiceInterface.style.opacity);
+    document.body.appendChild(voiceOverlay);
     
-    // Add animation keyframes dynamically
-    if (!document.getElementById('voice-interface-animations')) {
-        const style = document.createElement('style');
-        style.id = 'voice-interface-animations';
-        style.textContent = `
-            @keyframes waveAnimation {
-                0%, 100% { height: 10px; opacity: 0.5; }
-                50% { height: 25px; opacity: 1; }
-            }
-            @keyframes pulse {
-                0%, 100% { transform: scale(1); }
-                50% { transform: scale(1.05); }
-            }
-        `;
-        document.head.appendChild(style);
-        console.log('🔍 DEBUG: Animation styles added');
+    // Add the simple CSS
+    addVoiceOverlayStyles();
+
+    // 🎤 START LISTENING AUTOMATICALLY (NO BUTTONS!)
+    console.log('🎤 DIRECT: Starting automatic listening');
+    window.lastRecognitionResult = null;
+    
+    if (typeof startMobileListening === 'function') {
+        startMobileListening();
+    } else {
+        startNormalInterviewListening();
     }
 
-    // Bind events
-    voiceInterface.querySelector('.speak-button').addEventListener('click', handleSpeakButton);
-    voiceInterface.querySelector('.close-interface').addEventListener('click', function() {
-        console.log('🎯 User closed voice interface');
-        directCleanup();
-    });
-    
-    // 🆕 ENHANCED HELPER FUNCTIONS
-    function hideVoiceInterface() {
-        const existing = document.querySelector('.voice-interface');
-        if (existing) {
-            console.log('🔍 DEBUG: Hiding voice interface');
-            existing.style.opacity = '0';
-            setTimeout(() => {
-                if (existing.parentNode) {
-                    existing.remove();
-                    console.log('🔍 DEBUG: Voice interface removed from DOM');
-                }
-            }, 300);
-        }
-    }
-    
-    function handleSpeakButton() {
-        const button = document.querySelector('.speak-button');
-        button.classList.toggle('listening');
-        
-        if (button.classList.contains('listening')) {
-            startEnhancedListening();
-            button.innerHTML = '⏸️ Stop Listening';
-            button.style.background = 'linear-gradient(135deg, #f56565, #e53e3e)';
-        } else {
-            stopEnhancedListening();
-            button.innerHTML = '🎤 Tap to Speak';
-            button.style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
-            updateVoiceTranscription('');
-        }
-    }
-    
-    function updateVoiceTranscription(text) {
-        const transcription = document.querySelector('.transcription-text');
-        if (transcription) {
-            transcription.textContent = text || 'Listening...';
-            transcription.style.color = text ? '#000' : '#666';
-        }
-    }
-    
-    function startEnhancedListening() {
-        console.log('🎤 ENHANCED: Starting voice listening...');
-        updateVoiceTranscription('Listening...');
-        
-        if (typeof startMobileListening === 'function') {
-            startMobileListening();
-        } else {
-            startNormalInterviewListening();
-        }
-    }
-    
-    function stopEnhancedListening() {
-        console.log('🛑 ENHANCED: Stopping voice listening...');
-        updateVoiceTranscription('');
-        
-        if (typeof stopListening === 'function') {
-            stopListening();
-        }
-    }
-    
-    // 🎯 START LISTENING AUTOMATICALLY
-    console.log('🎤 DIRECT: Starting enhanced listening immediately');
-    window.lastRecognitionResult = null;
-    startEnhancedListening();
-        
+    // Your existing timeout logic...
     if (!window.disableDirectTimeout) {
         const listeningTimeout = window.isInLeadCapture ? 20000 : 7000;
-        console.log(`⏰ DIRECT: Starting ${listeningTimeout/1000}-second listening window ${window.isInLeadCapture ? '(LEAD CAPTURE MODE)' : '(NORMAL MODE)'}`);
+        console.log(`⏰ DIRECT: Starting ${listeningTimeout/1000}-second listening window`);
         
         setTimeout(() => {
             if (!speakSequenceActive) return;
-            
-            console.log(`⏰ DIRECT: ${listeningTimeout/1000}-second listening window ended - no speech detected`);
+            console.log(`⏰ DIRECT: ${listeningTimeout/1000}-second listening window ended`);
             window.clearBulletproofTimer();
             directCleanup();
             
             if (window.isInLeadCapture) {
-                console.log('🛡️ LEAD CAPTURE ACTIVE: Skipping avatar, restarting Speak Now sequence');
                 startRealtimeListening();
                 return;
             }
             
-            console.log('🎬 DIRECT: Triggering avatar after timeout');
             if (typeof showAvatarSorryMessage === 'function') {
                 showAvatarSorryMessage();
             }
-            
         }, listeningTimeout);
-    } else {
-        console.log('🚫 DIRECT: Timeout disabled - interface will stay until speech detected');
+    }
 }
 
-// Make transcription update available globally
+// 🎨 SIMPLE CSS STYLES
+function addVoiceOverlayStyles() {
+    if (document.getElementById('simple-voice-overlay-styles')) return;
+    
+    const styles = document.createElement('style');
+    styles.id = 'simple-voice-overlay-styles';
+    styles.textContent = `
+        .simple-voice-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(15px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        .voice-overlay-content {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 20px;
+            padding: 40px 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+            min-width: 300px;
+        }
+        
+        .voice-animation {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 4px;
+            margin-bottom: 20px;
+            height: 40px;
+        }
+        
+        .sound-wave-bar {
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 2px;
+            animation: soundWave 1.2s ease-in-out infinite;
+        }
+        
+        .sound-wave-bar:nth-child(1) { animation-delay: 0s; }
+        .sound-wave-bar:nth-child(2) { animation-delay: 0.1s; }
+        .sound-wave-bar:nth-child(3) { animation-delay: 0.2s; }
+        .sound-wave-bar:nth-child(4) { animation-delay: 0.3s; }
+        .sound-wave-bar:nth-child(5) { animation-delay: 0.4s; }
+        
+        @keyframes soundWave {
+            0%, 100% { 
+                height: 10px;
+                opacity: 0.5;
+            }
+            50% { 
+                height: 25px;
+                opacity: 1;
+            }
+        }
+        
+        .speak-now-text {
+            font-size: 24px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+        }
+        
+        .live-transcription {
+            color: #333;
+            font-size: 16px;
+            font-weight: 500;
+            min-height: 24px;
+            padding: 12px 20px;
+            background: rgba(241, 245, 249, 0.7);
+            border-radius: 12px;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            transition: all 0.3s ease;
+        }
+    `;
+    
+    document.head.appendChild(styles);
+}
+
+// 🧹 CLEANUP FUNCTION
+function hideVoiceOverlay() {
+    const existing = document.querySelector('.simple-voice-overlay');
+    if (existing) {
+        existing.style.opacity = '0';
+        setTimeout(() => existing.remove(), 300);
+}
+
+// 🎤 TRANSCRIPTION UPDATE FUNCTION
 window.updateVoiceTranscription = function(text) {
-    const transcription = document.querySelector('.transcription-text');
+    const transcription = document.querySelector('.live-transcription');
     if (transcription) {
         transcription.textContent = text || 'Listening...';
         transcription.style.color = text ? '#000' : '#666';
+        
+        // Add typing effect for new text
+        if (text) {
+            transcription.style.animation = 'none';
+            setTimeout(() => {
+                transcription.style.animation = 'fadeIn 0.3s ease';
+            }, 10);
+        }
     }
 };
 
