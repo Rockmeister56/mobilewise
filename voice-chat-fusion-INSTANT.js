@@ -4552,10 +4552,22 @@ window.updateVoiceTranscription = function(text) {
     }
 };
 
-async function showDirectSpeakNow() {
+    async function showDirectSpeakNow() {
     console.log('🎯 DIRECT Speak Now - Black Transparent Overlay');
     
     if (window.disableSpeakNowBanner) return;
+    
+    // 🎯 CRITICAL FIX: DON'T BLOCK DURING LEAD CAPTURE
+    if (!window.isInLeadCapture) {
+        await new Promise(resolve => setTimeout(resolve, 600));
+        
+        // Only check for Communication Relay Center, NOT lead capture Action Center
+        const commRelayCenter = document.querySelector('.communication-relay-center, [class*="relay"], [class*="avatar-center"]');
+        if (commRelayCenter && commRelayCenter.style.display !== 'none') {
+            console.log('🚫 BLOCKED: Communication Relay Center is visible - waiting for user selection');
+            return;
+        }
+    }
     
     window.speakSequenceBlocked = true;
     speakSequenceActive = true;
