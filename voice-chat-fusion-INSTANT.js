@@ -1787,13 +1787,13 @@ class MobileWiseVoiceSystem {
         window.isSpeaking = false; // Backward compatibility
         
         // 🆕🎯 CRITICAL FIX: ADD ONLY THIS COOLDOWN RESET BLOCK
-       // console.log('🎯 RESET: Clearing all banner cooldowns after AI speech');
-        //window.bannerCooldown = false;
-      //  window.directSpeakNowCooldown = false;
-      //  if (window.bannerCooldownTimer) {
-      //      clearTimeout(window.bannerCooldownTimer);
-      //      window.bannerCooldownTimer = null;
-      //  }
+        console.log('🎯 RESET: Clearing all banner cooldowns after AI speech');
+        window.bannerCooldown = false;
+        window.directSpeakNowCooldown = false;
+        if (window.bannerCooldownTimer) {
+            clearTimeout(window.bannerCooldownTimer);
+            window.bannerCooldownTimer = null;
+        }
         // 🆕 END OF COOLDOWN RESET BLOCK
         
         if (VOICE_CONFIG.debug) {
@@ -1871,24 +1871,14 @@ return; // Stop the original execution chain
     }
     
     // Stop all speech
-stop() {
-    this.synthesis.cancel();
-    voiceSystem.isSpeaking = false;
-    window.isSpeaking = false;
-    
-    // 🆕🎯 ADD COOLDOWN RESET HERE TOO (when speech is manually stopped)
-    console.log('🎯 RESET: Clearing banner cooldowns (speech stopped)');
-    window.bannerCooldown = false;
-    window.directSpeakNowCooldown = false;
-    if (window.bannerCooldownTimer) {
-        clearTimeout(window.bannerCooldownTimer);
-        window.bannerCooldownTimer = null;
+    stop() {
+        this.synthesis.cancel();
+        voiceSystem.isSpeaking = false;
+        window.isSpeaking = false;
+        if (VOICE_CONFIG.debug) {
+            console.log("🛑 All speech stopped");
+        }
     }
-    
-    if (VOICE_CONFIG.debug) {
-        console.log("🛑 All speech stopped");
-    }
-}
     
     // Log current system status
     logSystemStatus() {
