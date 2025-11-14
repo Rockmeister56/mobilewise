@@ -1725,14 +1725,9 @@ class MobileWiseVoiceSystem {
             utterance.volume = 0.85; // Kept same
             
             utterance.onend = () => {
-    // 🆕 ADD COOLDOWN RESET HERE  
-    console.log('🎯 RESET: Clearing banner cooldowns (British completed)');
-    window.bannerCooldown = false;
-    window.directSpeakNowCooldown = false;
-    
-    this.handleSpeechComplete();
-    resolve();
-};
+                this.handleSpeechComplete();
+                resolve();
+            };
             
            utterance.onerror = (error) => {
     // Suppress "interrupted" errors - they're expected when user clicks buttons
