@@ -1807,6 +1807,7 @@ class MobileWiseVoiceSystem {
         console.log('🎯 RESET: Clearing all banner cooldowns after AI speech');
         window.bannerCooldown = false;
         window.directSpeakNowCooldown = false;
+         window.showBannerCooldown = false;  // 🆕 ADD THIS ONE!
         if (window.bannerCooldownTimer) {
             clearTimeout(window.bannerCooldownTimer);
             window.bannerCooldownTimer = null;
