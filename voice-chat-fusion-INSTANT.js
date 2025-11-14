@@ -1684,12 +1684,16 @@ class MobileWiseVoiceSystem {
                 audio.play();
             };
             
-            audio.onended = () => {
-                this.handleSpeechComplete();
-                URL.revokeObjectURL(audioUrl);
-                resolve();
-            };
-            
+          audio.onended = () => {
+    // 🆕 ADD COOLDOWN RESET HERE
+    console.log('🎯 RESET: Clearing banner cooldowns (ElevenLabs completed)');
+    window.bannerCooldown = false;
+    window.directSpeakNowCooldown = false;
+    
+    this.handleSpeechComplete();
+    URL.revokeObjectURL(audioUrl);
+    resolve();
+     }       
             audio.onerror = (error) => {
                 console.error('🚫 ElevenLabs audio error:', error);
                 reject(error);
@@ -1721,9 +1725,14 @@ class MobileWiseVoiceSystem {
             utterance.volume = 0.85; // Kept same
             
             utterance.onend = () => {
-                this.handleSpeechComplete();
-                resolve();
-            };
+    // 🆕 ADD COOLDOWN RESET HERE  
+    console.log('🎯 RESET: Clearing banner cooldowns (British completed)');
+    window.bannerCooldown = false;
+    window.directSpeakNowCooldown = false;
+    
+    this.handleSpeechComplete();
+    resolve();
+};
             
            utterance.onerror = (error) => {
     // Suppress "interrupted" errors - they're expected when user clicks buttons
@@ -1765,9 +1774,14 @@ class MobileWiseVoiceSystem {
             utterance.volume = VOICE_CONFIG.browser.volume;
             
             utterance.onend = () => {
-                this.handleSpeechComplete();
-                resolve();
-            };
+    // 🆕 ADD COOLDOWN RESET HERE
+    console.log('🎯 RESET: Clearing banner cooldowns (Browser completed)');
+    window.bannerCooldown = false;
+    window.directSpeakNowCooldown = false;
+    
+    this.handleSpeechComplete();
+    resolve();
+};
             
             utterance.onerror = (error) => {
                 console.error('🚫 Browser voice error:', error);
@@ -1781,10 +1795,20 @@ class MobileWiseVoiceSystem {
     // ============================================================
     // 🎯 SPEECH COMPLETION HANDLER - WITH ELEVENLABS BANNER LOGIC
     // ✅ SMART BUTTON BLOCKING REMOVED FOR BANNER FUNCTIONALITY
-    // ============================================================
+   // ============================================================
     handleSpeechComplete() {
         voiceSystem.isSpeaking = false;
         window.isSpeaking = false; // Backward compatibility
+        
+        // 🆕🎯 CRITICAL FIX: ADD ONLY THIS COOLDOWN RESET BLOCK
+        console.log('🎯 RESET: Clearing all banner cooldowns after AI speech');
+        window.bannerCooldown = false;
+        window.directSpeakNowCooldown = false;
+        if (window.bannerCooldownTimer) {
+            clearTimeout(window.bannerCooldownTimer);
+            window.bannerCooldownTimer = null;
+        }
+        // 🆕 END OF COOLDOWN RESET BLOCK
         
         if (VOICE_CONFIG.debug) {
             console.log("🔍 PERMANENT HANDLER: Speech completed - checking ElevenLabs banner logic (NO SMART BUTTON BLOCK)");
@@ -1861,14 +1885,24 @@ return; // Stop the original execution chain
     }
     
     // Stop all speech
-    stop() {
-        this.synthesis.cancel();
-        voiceSystem.isSpeaking = false;
-        window.isSpeaking = false;
-        if (VOICE_CONFIG.debug) {
-            console.log("🛑 All speech stopped");
-        }
+stop() {
+    this.synthesis.cancel();
+    voiceSystem.isSpeaking = false;
+    window.isSpeaking = false;
+    
+    // 🆕🎯 ADD COOLDOWN RESET HERE TOO (when speech is manually stopped)
+    console.log('🎯 RESET: Clearing banner cooldowns (speech stopped)');
+    window.bannerCooldown = false;
+    window.directSpeakNowCooldown = false;
+    if (window.bannerCooldownTimer) {
+        clearTimeout(window.bannerCooldownTimer);
+        window.bannerCooldownTimer = null;
     }
+    
+    if (VOICE_CONFIG.debug) {
+        console.log("🛑 All speech stopped");
+    }
+}
     
     // Log current system status
     logSystemStatus() {
