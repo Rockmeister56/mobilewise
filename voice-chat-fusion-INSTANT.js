@@ -4448,10 +4448,145 @@ function showAvatarSorryMessage(duration = 6000) {
 // Ensure global availability
 window.showAvatarSorryMessage = showAvatarSorryMessage;
 
+// 🧹 CLEANUP FUNCTION - DEFINE THIS FIRST!
+function hideVoiceOverlay() {
+    const existing = document.querySelector('.black-voice-overlay');
+    if (existing) {
+        console.log('🎨 Hiding voice overlay');
+        existing.style.opacity = '0';
+        existing.style.transition = 'opacity 0.3s ease';
+        setTimeout(() => {
+            if (existing.parentNode) {
+                existing.remove();
+                console.log('🎨 Voice overlay removed');
+            }
+        }, 300);
+    }
+}
+
+// 🎨 BLACK TRANSPARENT CSS FUNCTION
+function addBlackOverlayStyles() {
+    if (document.getElementById('black-voice-overlay-styles')) return;
+    
+    const styles = document.createElement('style');
+    styles.id = 'black-voice-overlay-styles';
+    styles.textContent = `
+        .black-voice-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5) !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            pointer-events: none;
+        }
+        
+        .voice-overlay-card {
+            text-align: center;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 20px;
+            padding: 30px 25px;
+            box-shadow: 
+                0 0 0 1px rgba(59, 130, 246, 0.5),
+                0 0 20px rgba(59, 130, 246, 0.6),
+                0 0 40px rgba(59, 130, 246, 0.3);
+            border: 2px solid rgba(59, 130, 246, 0.8);
+            backdrop-filter: blur(10px);
+            min-width: 280px;
+            pointer-events: auto;
+            animation: glowPulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes glowPulse {
+            0%, 100% { 
+                box-shadow: 
+                    0 0 0 1px rgba(59, 130, 246, 0.5),
+                    0 0 20px rgba(59, 130, 246, 0.6),
+                    0 0 40px rgba(59, 130, 246, 0.3);
+            }
+            50% { 
+                box-shadow: 
+                    0 0 0 1px rgba(59, 130, 246, 0.8),
+                    0 0 30px rgba(59, 130, 246, 0.8),
+                    0 0 60px rgba(59, 130, 246, 0.5);
+            }
+        }
+        
+        .voice-animation {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 4px;
+            margin-bottom: 15px;
+            height: 35px;
+        }
+        
+        .sound-wave-bar {
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(135deg, #3b82f6, #60a5fa);
+            border-radius: 2px;
+            animation: soundWave 1.2s ease-in-out infinite;
+        }
+        
+        .sound-wave-bar:nth-child(1) { animation-delay: 0s; }
+        .sound-wave-bar:nth-child(2) { animation-delay: 0.1s; }
+        .sound-wave-bar:nth-child(3) { animation-delay: 0.2s; }
+        .sound-wave-bar:nth-child(4) { animation-delay: 0.3s; }
+        .sound-wave-bar:nth-child(5) { animation-delay: 0.4s; }
+        
+        @keyframes soundWave {
+            0%, 100% { 
+                height: 8px;
+                opacity: 0.5;
+            }
+            50% { 
+                height: 22px;
+                opacity: 1;
+            }
+        }
+        
+        .speak-now-text {
+            font-size: 22px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #60a5fa, #93c5fd);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+        }
+        
+        .live-transcription {
+            color: #e5e7eb;
+            font-size: 15px;
+            font-weight: 500;
+            min-height: 22px;
+            padding: 10px 15px;
+            background: rgba(55, 65, 81, 0.6);
+            border-radius: 10px;
+            border: 1px solid rgba(75, 85, 99, 0.8);
+            transition: all 0.3s ease;
+        }
+    `;
+    
+    document.head.appendChild(styles);
+}
+
+// 🆕 GLOBAL TRANSCRIPTION FUNCTION
+window.updateVoiceTranscription = function(text) {
+    const transcription = document.querySelector('.live-transcription');
+    if (transcription) {
+        transcription.textContent = text || 'Listening...';
+        transcription.style.color = text ? '#ffffff' : '#9ca3af';
+    }
+};
+
 async function showDirectSpeakNow() {
     console.log('🎯 DIRECT Speak Now - DEBUG TESTING MODE');
-    
-    // 🧪 TEST 1: Check if function is called
     console.log('🧪 TEST 1: showDirectSpeakNow() called ✅');
     
     if (window.disableSpeakNowBanner) {
@@ -4467,7 +4602,7 @@ async function showDirectSpeakNow() {
     speakSequenceActive = true;
 
     // 🧪 TEST 2: Check cleanup function
-    console.log('🧪 TEST 2: Cleanup function available:', typeof directCleanup === 'function' ? '✅' : '❌');
+    console.log('🧪 TEST 2: Cleanup function available:', typeof hideVoiceOverlay === 'function' ? '✅' : '❌');
 
     function directCleanup() {
         console.log('🧪 TEST 2.1: Cleanup function called ✅');
@@ -4484,7 +4619,7 @@ async function showDirectSpeakNow() {
     // 🎨 BLACK TRANSPARENT OVERLAY
     console.log('🧪 TEST 3: Creating overlay...');
     
-    hideVoiceOverlay();
+    hideVoiceOverlay(); // ✅ NOW THIS WILL WORK!
     
     const voiceOverlay = document.createElement('div');
     voiceOverlay.className = 'black-voice-overlay';
@@ -4507,7 +4642,6 @@ async function showDirectSpeakNow() {
     // 🧪 TEST 4: Check if overlay was created
     const overlayCheck = document.querySelector('.black-voice-overlay');
     console.log('🧪 TEST 4: Overlay created:', overlayCheck ? '✅' : '❌');
-    console.log('🧪 TEST 4.1: Overlay content:', overlayCheck ? overlayCheck.innerHTML.substring(0, 100) + '...' : 'MISSING');
     
     addBlackOverlayStyles();
 
@@ -4540,14 +4674,6 @@ async function showDirectSpeakNow() {
     
     // 🆕 MAKE FUNCTIONS GLOBALLY ACCESSIBLE
     window.hideVoiceOverlay = hideVoiceOverlay;
-    window.updateVoiceTranscription = function(text) {
-        console.log('🧪 TRANSCRIPTION UPDATE:', text || 'Listening...');
-        const transcription = document.querySelector('.live-transcription');
-        if (transcription) {
-            transcription.textContent = text || 'Listening...';
-            transcription.style.color = text ? '#ffffff' : '#9ca3af';
-        }
-    };
     
     console.log('🧪 TEST 8.1: Global functions assigned ✅');
 
