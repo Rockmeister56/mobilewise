@@ -1684,16 +1684,12 @@ class MobileWiseVoiceSystem {
                 audio.play();
             };
             
-          audio.onended = () => {
-    // 🆕 ADD COOLDOWN RESET HERE
-    console.log('🎯 RESET: Clearing banner cooldowns (ElevenLabs completed)');
-    window.bannerCooldown = false;
-    window.directSpeakNowCooldown = false;
-    
-    this.handleSpeechComplete();
-    URL.revokeObjectURL(audioUrl);
-    resolve();
-     }       
+            audio.onended = () => {
+                this.handleSpeechComplete();
+                URL.revokeObjectURL(audioUrl);
+                resolve();
+            };
+            
             audio.onerror = (error) => {
                 console.error('🚫 ElevenLabs audio error:', error);
                 reject(error);
