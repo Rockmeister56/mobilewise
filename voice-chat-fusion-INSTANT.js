@@ -1800,22 +1800,8 @@ class MobileWiseVoiceSystem {
         voiceSystem.isSpeaking = false;
         window.isSpeaking = false; // Backward compatibility
 
-            // 🆕🎯 NUCLEAR COOLDOWN RESET - RESET EVERYTHING
-    console.log('🎯 NUCLEAR RESET: Clearing ALL banner cooldowns');
-    window.bannerCooldown = false;
-    window.directSpeakNowCooldown = false;
-    window.showBannerCooldown = false;
-    window.bannerCooldownTimer = null;
-    window.directSpeakNowCooldownTimer = null;
-    window.showBannerCooldownTimer = null;
-    
-    // Reset ANY cooldown variable we can find
-    Object.keys(window).forEach(key => {
-        if (key.toLowerCase().includes('cooldown') && typeof window[key] === 'boolean') {
-            window[key] = false;
-            console.log('✅ Reset cooldown:', key);
-        }
-    });
+         // 🆕🎯 SURGICAL FIX: ADD ONLY THIS LINE
+    window.bannerCooldownTime = 0;  // 🆕 RESET THE TIMESTAMP!
         
         // 🆕🎯 CRITICAL FIX: ADD ONLY THIS COOLDOWN RESET BLOCK
         console.log('🎯 RESET: Clearing all banner cooldowns after AI speech');
