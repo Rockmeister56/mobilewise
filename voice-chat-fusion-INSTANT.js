@@ -769,6 +769,7 @@ async function startListening() {
                 transcript = transcript.replace(/\.+$/, '');
                 
                 console.log('✅ Transcript captured:', transcript);
+                if (window.updateVoiceTranscription) window.updateVoiceTranscription(transcript);
                 console.log('  - Length:', transcript.length);
                 console.log('  - Is final:', event.results[event.results.length - 1]?.isFinal);
                 
@@ -813,6 +814,7 @@ async function startListening() {
             recognition.onend = function() {
                 console.log('🎯🎯🎯 WHICH ONEND IS RUNNING? 🎯🎯🎯');
                 console.log('🔚 Recognition ended');
+                if (window.hideVoiceOverlay) window.hideVoiceOverlay();
                 console.log('🔍 DEBUG: playingSorryMessage =', window.playingSorryMessage);
                 console.log('🔍 DEBUG: isSpeaking =', isSpeaking);
                 console.log('🔍 DEBUG: speakSequenceActive =', speakSequenceActive);
@@ -4423,14 +4425,14 @@ async function showDirectSpeakNow() {
         window.speakSequenceBlocked = false;
         speakSequenceActive = false;
         window.playingSorryMessage = false;
-        hideVoiceOverlay(); // 🆕 FIXED: Call our overlay cleanup
+        hideVoiceOverlay();
         if (window.currentBulletproofTimer) {
             clearTimeout(window.currentBulletproofTimer);
             window.currentBulletproofTimer = null;
         }
     }
 
-    // 🎨 BLACK TRANSPARENT OVERLAY WITH GLOWING BORDER
+    // 🎨 BLACK TRANSPARENT OVERLAY
     console.log('🎨 Creating black transparent voice overlay');
     
     hideVoiceOverlay();
@@ -4465,16 +4467,10 @@ async function showDirectSpeakNow() {
         startNormalInterviewListening();
     }
 
-    // 🆕 CRITICAL FIX: Connect speech recognition to overlay cleanup
-    // Override the existing onend handler to include our overlay cleanup
-    const originalOnEnd = window.recognition.onend;
-    window.recognition.onend = function() {
-        console.log('🔚 Recognition ended - cleaning up overlay');
-        hideVoiceOverlay(); // 🆕 Clean up our overlay
-        if (originalOnEnd) {
-            originalOnEnd.call(this);
-        }
-    };
+    // 🆕 FIXED: Don't override onend - use event listener instead
+    // Remove the problematic code that was causing the error:
+    // ❌ DELETE THIS: const originalOnEnd = window.recognition.onend;
+    // ❌ DELETE THIS: window.recognition.onend = function() { ... };
 
     // Your existing timeout logic...
     if (!window.disableDirectTimeout) {
@@ -4496,9 +4492,12 @@ async function showDirectSpeakNow() {
             }
         }, listeningTimeout);
     }
+    
+    // 🆕 MAKE FUNCTIONS GLOBALLY ACCESSIBLE
+    window.hideVoiceOverlay = hideVoiceOverlay;
 }
 
-// 🎨 BLACK TRANSPARENT CSS WITH GLOWING BLUE BORDER
+// 🎨 BLACK TRANSPARENT CSS (keep this the same)
 function addBlackOverlayStyles() {
     if (document.getElementById('black-voice-overlay-styles')) return;
     
@@ -4511,7 +4510,7 @@ function addBlackOverlayStyles() {
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5) !important; /* 50% black transparency */
+            background: rgba(0, 0, 0, 0.5) !important;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -4521,14 +4520,14 @@ function addBlackOverlayStyles() {
         
         .voice-overlay-card {
             text-align: center;
-            background: rgba(0, 0, 0, 0.8); /* Dark card background */
+            background: rgba(0, 0, 0, 0.8);
             border-radius: 20px;
             padding: 30px 25px;
             box-shadow: 
-                0 0 0 1px rgba(59, 130, 246, 0.5), /* Inner blue border */
-                0 0 20px rgba(59, 130, 246, 0.6), /* Glow effect */
-                0 0 40px rgba(59, 130, 246, 0.3); /* Outer glow */
-            border: 2px solid rgba(59, 130, 246, 0.8); /* Solid blue border */
+                0 0 0 1px rgba(59, 130, 246, 0.5),
+                0 0 20px rgba(59, 130, 246, 0.6),
+                0 0 40px rgba(59, 130, 246, 0.3);
+            border: 2px solid rgba(59, 130, 246, 0.8);
             backdrop-filter: blur(10px);
             min-width: 280px;
             pointer-events: auto;
@@ -4562,7 +4561,7 @@ function addBlackOverlayStyles() {
         .sound-wave-bar {
             width: 4px;
             height: 20px;
-            background: linear-gradient(135deg, #3b82f6, #60a5fa); /* Blue gradient */
+            background: linear-gradient(135deg, #3b82f6, #60a5fa);
             border-radius: 2px;
             animation: soundWave 1.2s ease-in-out infinite;
         }
@@ -4587,7 +4586,7 @@ function addBlackOverlayStyles() {
         .speak-now-text {
             font-size: 22px;
             font-weight: bold;
-            background: linear-gradient(135deg, #60a5fa, #93c5fd); /* Light blue gradient */
+            background: linear-gradient(135deg, #60a5fa, #93c5fd);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -4595,12 +4594,12 @@ function addBlackOverlayStyles() {
         }
         
         .live-transcription {
-            color: #e5e7eb; /* Light text for dark background */
+            color: #e5e7eb;
             font-size: 15px;
             font-weight: 500;
             min-height: 22px;
             padding: 10px 15px;
-            background: rgba(55, 65, 81, 0.6); /* Dark gray background */
+            background: rgba(55, 65, 81, 0.6);
             border-radius: 10px;
             border: 1px solid rgba(75, 85, 99, 0.8);
             transition: all 0.3s ease;
@@ -4610,7 +4609,7 @@ function addBlackOverlayStyles() {
     document.head.appendChild(styles);
 }
 
-// 🧹 CLEANUP FUNCTION
+// 🧹 CLEANUP FUNCTION (keep this the same)
 function hideVoiceOverlay() {
     const existing = document.querySelector('.black-voice-overlay');
     if (existing) {
@@ -4625,34 +4624,15 @@ function hideVoiceOverlay() {
         }, 300);
 }
 
-// 🎤 TRANSCRIPTION UPDATE - Connect to your existing system
+// 🆕 GLOBAL TRANSCRIPTION FUNCTION
 window.updateVoiceTranscription = function(text) {
     const transcription = document.querySelector('.live-transcription');
     if (transcription) {
         transcription.textContent = text || 'Listening...';
         transcription.style.color = text ? '#ffffff' : '#9ca3af';
-        
-        // Auto-hide overlay when speech is complete (no more text)
-        if (!text) {
-            setTimeout(() => {
-                hideVoiceOverlay();
-            }, 1000);
-        }
     }
 };
 
-// 🆕 CRITICAL: Connect to your existing speech recognition
-// Add this to your speech recognition result handler:
-function connectOverlayToSpeech() {
-    // Find where your speech recognition calls processUserResponse
-    // and add this before it:
-    
-    // In your onresult handler, call:
-    // window.updateVoiceTranscription(transcript);
-    
-    // In your onend handler, call:
-    // hideVoiceOverlay();
-}
 // ===================================================
 // 🛡️ COMPLETE BANNER SYNCHRONIZATION SYSTEM
 // ===================================================
