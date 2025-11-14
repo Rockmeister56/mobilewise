@@ -1788,7 +1788,6 @@ class MobileWiseVoiceSystem {
         
         // 🆕🎯 CRITICAL FIX: ADD ONLY THIS COOLDOWN RESET BLOCK
         console.log('🎯 RESET: Clearing all banner cooldowns after AI speech');
-        window.bannerCooldown = false;
         window.directSpeakNowCooldown = false;
         if (window.bannerCooldownTimer) {
             clearTimeout(window.bannerCooldownTimer);
@@ -4562,7 +4561,6 @@ async function showDirectSpeakNow() {
     speakSequenceActive = true;
 
     function directCleanup() {
-        window.speakSequenceBlocked = false;
         speakSequenceActive = false;
         window.playingSorryMessage = false;
         hideVoiceOverlay();
@@ -4634,53 +4632,74 @@ window.updateVoiceTranscription = function(text) {
 };
 
 // ===================================================
-// 🛡️ COMPLETE BANNER SYNCHRONIZATION SYSTEM
+// 🛡️ PERMANENT COOLDOWN BYPASS SYSTEM
 // ===================================================
-console.log('🎯 Loading Complete Banner Synchronization System...');
+console.log('💣 INSTALLING PERMANENT COOLDOWN BYPASS...');
 
-// Global State Management
-window.bannerCooldown = false;
+// 1. THE WINNING FIX: Permanently disable bannerCooldown
+Object.defineProperty(window, 'bannerCooldown', {
+    get: function() { 
+        console.log('🛡️ COOLDOWN BYPASS: Always returning false');
+        return false; 
+    },
+    set: function(value) { 
+        console.log('🛡️ COOLDOWN BLOCKED: Attempt to set to', value);
+        return false;
+    }
+});
+
+// 2. Also block speakSequenceBlocked permanently
+Object.defineProperty(window, 'speakSequenceBlocked', {
+    get: function() { 
+        console.log('🛡️ SEQUENCE BLOCKED: Always returning false');
+        return false; 
+    },
+    set: function(value) { 
+        console.log('🛡️ SEQUENCE BLOCKED: Attempt to set to', value);
+        return false;
+    }
+});
+
 window.lastBannerAction = 0;
 window.bannerCooldownTime = 1000;
 window.currentBulletproofTimer = null;
 
-// ===================================================
-// 🧹 DIRECT CLEANUP - CRITICAL SAFETY NET
-// ===================================================
-function directCleanup() {
-    console.log('🧹 DIRECT: Running emergency cleanup');
-    window.speakSequenceBlocked = false;
-    window.speakSequenceActive = false;
-    window.playingSorryMessage = false;
-    window.bannerCooldown = false;
-    
+window.clearBulletproofTimer = function() {
     if (window.currentBulletproofTimer) {
         clearTimeout(window.currentBulletproofTimer);
         window.currentBulletproofTimer = null;
+        console.log('🧹 DIRECT: Safety timer cleared (normal operation)');
     }
-    
-    // Force close any banners
-    const banners = [
-        document.getElementById('speak-sequence-button'),
-        document.querySelector('.speak-now-banner'),
-        document.querySelector('.speak-now-container'),
-        document.querySelector('[class*="speak-now"]'),
-        document.querySelector('.universal-banner')
-    ];
-    
-    banners.forEach(banner => {
-        if (banner && banner.parentNode) {
-            console.log('✅ Emergency removing banner:', banner.className || banner.id);
-            banner.style.opacity = '0';
-            banner.style.transform = 'translateY(20px)';
-            setTimeout(() => {
-                if (banner.parentNode) banner.remove();
-            }, 300);
-        }
-    });
-    
-    console.log('🔓 DIRECT: All emergency locks released');
-}
+};
+
+console.log('✅ PERMANENT COOLDOWN BYPASS INSTALLED!');
+// 🛡️ PERMANENT COOLDOWN BYPASS SYSTEM
+// ===================================================
+console.log('💣 INSTALLING PERMANENT COOLDOWN BYPASS...');
+
+// 1. THE WINNING FIX: Permanently disable bannerCooldown
+Object.defineProperty(window, 'bannerCooldown', {
+    get: function() { 
+        console.log('🛡️ COOLDOWN BYPASS: Always returning false');
+        return false; 
+    },
+    set: function(value) { 
+        console.log('🛡️ COOLDOWN BLOCKED: Attempt to set to', value);
+        return false;
+    }
+});
+
+// 2. Also block speakSequenceBlocked permanently
+Object.defineProperty(window, 'speakSequenceBlocked', {
+    get: function() { 
+        console.log('🛡️ SEQUENCE BLOCKED: Always returning false');
+        return false; 
+    },
+    set: function(value) { 
+        console.log('🛡️ SEQUENCE BLOCKED: Attempt to set to', value);
+        return false;
+    }
+});
 
 window.clearBulletproofTimer = function() {
     if (window.currentBulletproofTimer) {
@@ -4727,7 +4746,6 @@ function closeSpeakNowBanner() {
     window.speakSequenceActive = false;
     window.isListening = false;
     window.isRecording = false;
-    window.speakSequenceBlocked = false;
     
     // Clear any pending timeouts
     if (window.speakSequenceCleanupTimer) {
@@ -4737,7 +4755,6 @@ function closeSpeakNowBanner() {
     
     // Reset cooldown after delay
     setTimeout(() => {
-        window.bannerCooldown = false;
         console.log('🔄 Banner cooldown reset');
     }, window.bannerCooldownTime);
     
@@ -4758,7 +4775,6 @@ function cleanupSpeakSequence() {
         console.log('🛡️ Sorry message in progress - minimal cleanup');
         
         // Reset flags but keep visual
-        window.speakSequenceBlocked = false;
         window.speakSequenceActive = false;
         
         if (window.speakSequenceCleanupTimer) {
@@ -4772,7 +4788,6 @@ function cleanupSpeakSequence() {
     
     // FULL CLEANUP - Normal case
     window.speakSequenceActive = false;
-    window.speakSequenceBlocked = false;
     window.isListening = false;
     window.isRecording = false;
     
@@ -4794,7 +4809,6 @@ function syncBannerState() {
     
     // Check if cooldown has expired
     if (window.bannerCooldown && (now - window.lastBannerAction > window.bannerCooldownTime)) {
-        window.bannerCooldown = false;
         console.log('🔄 SYNC: Cooldown expired - banner system unlocked');
     }
     
@@ -4894,7 +4908,6 @@ if (typeof window.showDirectSpeakNow === 'function') {
         
         // Reset cooldown after delay
         setTimeout(() => {
-            window.bannerCooldown = false;
             console.log('🔄 Show banner cooldown reset');
         }, window.bannerCooldownTime);
     };
@@ -4924,7 +4937,6 @@ function cleanupSpeakSequence() {
         console.log('🛡️ Sorry message in progress - minimal cleanup');
         
         // Reset flags but keep visual
-        window.speakSequenceBlocked = false;
         window.speakSequenceActive = false;
         
         if (window.speakSequenceCleanupTimer) {
@@ -4938,7 +4950,6 @@ function cleanupSpeakSequence() {
     
     // 🎯 FULL CLEANUP - Normal case
     window.speakSequenceActive = false;
-    window.speakSequenceBlocked = false;
     window.isListening = false;
     window.isRecording = false;
     
@@ -5079,7 +5090,6 @@ function cleanupSpeakSequence() {
         console.log('🛡️ Sorry message in progress - doing minimal cleanup');
         
         // 🎯 STILL CLEAN UP TIMERS AND FLAGS, BUT KEEP THE VISUAL
-        window.speakSequenceBlocked = false;
         speakSequenceActive = false;
         
         if (speakSequenceCleanupTimer) {
@@ -5099,7 +5109,6 @@ return; // ←←← Now the diagnostic runs BEFORE this return
 }
     
     // 🛑 CRITICAL: RE-ENABLE FUTURE SESSIONS
-    window.speakSequenceBlocked = false;
     speakSequenceActive = false;
     
     console.log('🧹 Cleaning up speak sequence');
