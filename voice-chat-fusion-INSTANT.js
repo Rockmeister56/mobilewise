@@ -1787,13 +1787,13 @@ class MobileWiseVoiceSystem {
         window.isSpeaking = false; // Backward compatibility
         
         // 🆕🎯 CRITICAL FIX: ADD ONLY THIS COOLDOWN RESET BLOCK
-        console.log('🎯 RESET: Clearing all banner cooldowns after AI speech');
-        window.bannerCooldown = false;
-        window.directSpeakNowCooldown = false;
-        if (window.bannerCooldownTimer) {
-            clearTimeout(window.bannerCooldownTimer);
-            window.bannerCooldownTimer = null;
-        }
+       // console.log('🎯 RESET: Clearing all banner cooldowns after AI speech');
+        //window.bannerCooldown = false;
+      //  window.directSpeakNowCooldown = false;
+      //  if (window.bannerCooldownTimer) {
+      //      clearTimeout(window.bannerCooldownTimer);
+      //      window.bannerCooldownTimer = null;
+      //  }
         // 🆕 END OF COOLDOWN RESET BLOCK
         
         if (VOICE_CONFIG.debug) {
