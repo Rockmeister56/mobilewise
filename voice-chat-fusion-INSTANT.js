@@ -1774,14 +1774,9 @@ class MobileWiseVoiceSystem {
             utterance.volume = VOICE_CONFIG.browser.volume;
             
             utterance.onend = () => {
-    // 🆕 ADD COOLDOWN RESET HERE
-    console.log('🎯 RESET: Clearing banner cooldowns (Browser completed)');
-    window.bannerCooldown = false;
-    window.directSpeakNowCooldown = false;
-    
-    this.handleSpeechComplete();
-    resolve();
-};
+                this.handleSpeechComplete();
+                resolve();
+            };
             
             utterance.onerror = (error) => {
                 console.error('🚫 Browser voice error:', error);
@@ -1799,15 +1794,11 @@ class MobileWiseVoiceSystem {
     handleSpeechComplete() {
         voiceSystem.isSpeaking = false;
         window.isSpeaking = false; // Backward compatibility
-
-         // 🆕🎯 SURGICAL FIX: ADD ONLY THIS LINE
-    window.bannerCooldownTime = 0;  // 🆕 RESET THE TIMESTAMP!
         
         // 🆕🎯 CRITICAL FIX: ADD ONLY THIS COOLDOWN RESET BLOCK
         console.log('🎯 RESET: Clearing all banner cooldowns after AI speech');
         window.bannerCooldown = false;
         window.directSpeakNowCooldown = false;
-         window.showBannerCooldown = false;  // 🆕 ADD THIS ONE!
         if (window.bannerCooldownTimer) {
             clearTimeout(window.bannerCooldownTimer);
             window.bannerCooldownTimer = null;
