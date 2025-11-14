@@ -4627,6 +4627,20 @@ window.updateVoiceTranscription = function(text) {
     }
 };
 
+function directCleanup() {
+    console.log('🧹 DIRECT CLEANUP: Emergency cleanup');
+    window.speakSequenceBlocked = false;
+    window.speakSequenceActive = false;
+    window.playingSorryMessage = false;
+    if (window.currentBulletproofTimer) {
+        clearTimeout(window.currentBulletproofTimer);
+        window.currentBulletproofTimer = null;
+    }
+    if (window.closeSpeakNowBanner) {
+        window.closeSpeakNowBanner();
+    }
+}
+
 // ===================================================
 // 🛡️ PERMANENT COOLDOWN BYPASS SYSTEM
 // ===================================================
@@ -4634,7 +4648,7 @@ if (!window.bannerCooldownBypassInstalled) {
     console.log('💣 INSTALLING PERMANENT COOLDOWN BYPASS...');
 
     // 1. THE WINNING FIX: Permanently disable bannerCooldown
-    Object.defineProperty(window, 'bannerCooldown', {
+     Object.defineProperty(window, 'bannerCooldown', {
         get: function() { 
             console.log('🛡️ COOLDOWN BYPASS: Always returning false');
             return false; 

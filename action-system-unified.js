@@ -17,6 +17,21 @@ const EMAILJS_CONFIG = {
     }
 };
 
+function getDefaultButtons() {
+    return getCorporateButtons(); // Use existing corporate buttons
+}
+
+function getCorporateButtons() {
+    return `
+        <!-- Original 5-button layout -->
+        <button onclick="handleActionButton('click-to-call')">📞 Request A Call</button>
+        <button onclick="handleActionButton('urgent-call')">🚨 URGENT CALL</button>
+        <button onclick="handleActionButton('free-consultation')">📅 BOOK Consultation</button>
+        <button onclick="handleActionButton('pre-qualifier')">✅ Pre-Qualification</button>
+        <button onclick="handleActionButton('skip')">⏭️ Skip for Now</button>
+    `;
+}
+
 // Initialize EmailJS
 (function() {
     emailjs.init(EMAILJS_CONFIG.publicKey);
@@ -111,17 +126,6 @@ function getAvatarButtons() {
         <!-- Your specific avatar buttons -->
         <button onclick="handleAvatarAction('consultation')">📅 Book with Avatar</button>
         <button onclick="handleAvatarAction('urgent')">🚨 Avatar Urgent</button>
-    `;
-}
-
-function getCorporateButtons() {
-    return `
-        <!-- Original 5-button layout -->
-        <button onclick="handleActionButton('click-to-call')">📞 Request A Call</button>
-        <button onclick="handleActionButton('urgent-call')">🚨 URGENT CALL</button>
-        <button onclick="handleActionButton('free-consultation')">📅 BOOK Consultation</button>
-        <button onclick="handleActionButton('pre-qualifier')">✅ Pre-Qualification</button>
-        <button onclick="handleActionButton('skip')">⏭️ Skip for Now</button>
     `;
 }
 
