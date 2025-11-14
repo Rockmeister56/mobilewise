@@ -4,6 +4,66 @@
 // CLEANED VERSION - No restore code for old buttons
 // ================================
 
+// ================================
+// 🛡️ GLOBAL ACTION CENTER CONFLICT RESOLUTION
+// ================================
+console.log('🛡️ Loading Global Action Center Conflict Resolution...');
+
+// Global state management
+window.actionCenterState = {
+    activeSystem: null, // 'original', 'cloned', null
+    isProcessing: false,
+    lastActionTime: 0,
+    cooldownPeriod: 2000 // 2 seconds
+};
+
+// Global lock function
+window.acquireActionCenterLock = function(systemType) {
+    const now = Date.now();
+    
+    // 🚨 Check if we're in cooldown period
+    if (now - window.actionCenterState.lastActionTime < window.actionCenterState.cooldownPeriod) {
+        console.log('🛡️ COOLDOWN: Action center locked - too soon since last action');
+        return false;
+    }
+    
+    // 🚨 Check if another system is active
+    if (window.actionCenterState.activeSystem && window.actionCenterState.activeSystem !== systemType) {
+        console.log(`🛡️ BLOCKED: ${systemType} cannot start - ${window.actionCenterState.activeSystem} is active`);
+        return false;
+    }
+    
+    // 🚨 Check if already processing
+    if (window.actionCenterState.isProcessing) {
+        console.log('🛡️ BLOCKED: Action already in progress');
+        return false;
+    }
+    
+    // ✅ ACQUIRE LOCK
+    window.actionCenterState.activeSystem = systemType;
+    window.actionCenterState.isProcessing = true;
+    window.actionCenterState.lastActionTime = now;
+    
+    console.log(`🛡️ LOCK ACQUIRED: ${systemType} can proceed`);
+    return true;
+};
+
+// Global release function
+window.releaseActionCenterLock = function() {
+    console.log('🛡️ LOCK RELEASED');
+    window.actionCenterState.activeSystem = null;
+    window.actionCenterState.isProcessing = false;
+};
+
+// Auto-release safety timeout
+setInterval(() => {
+    if (window.actionCenterState.isProcessing && 
+        (Date.now() - window.actionCenterState.lastActionTime > 10000)) { // 10 second timeout
+        console.log('🛡️ SAFETY TIMEOUT: Forcing lock release');
+        window.releaseActionCenterLock();
+    }
+}, 5000);
+
 console.log('🎯 ACTION SYSTEM UNIFIED - Loading (FINAL CLEANED VERSION)...');
 
 const EMAILJS_CONFIG = {
@@ -307,13 +367,11 @@ function initiateUrgentCall() {
 function handleActionButton(action) {
     console.log('🎯 Action button clicked:', action);
     
-    // 🛑 CHECK IF WE'RE ALREADY PROCESSING
-    if (window.isProcessingAction) {
-        console.log('🛑 Action already in progress - skipping');
+    // 🛡️ ACQUIRE LOCK FOR ORIGINAL SYSTEM
+    if (!window.acquireActionCenterLock('original')) {
+        console.log('🛡️ Action blocked by global lock');
         return;
     }
-    
-    window.isProcessingAction = true;
     
     hideCommunicationActionCenter();
     
@@ -324,46 +382,43 @@ function handleActionButton(action) {
     
     switch(action) {
         case 'click-to-call':
-            // 🆕 SHOW CLICK TO CALL BANNER (with anti-loop protection)
             if (typeof showUniversalBanner === 'function') {
-                showUniversalBanner('clickToCall', { autoTriggerActionCenter: false });
+                showUniversalBanner('clickToCall');
             }
             initializeClickToCallCapture();
             break;
             
         case 'urgent-call':
             if (typeof showUniversalBanner === 'function') {
-                showUniversalBanner('urgent', { autoTriggerActionCenter: false });
+                showUniversalBanner('urgent');
             }
             initiateUrgentCall();
             break;
             
         case 'free-consultation':
             if (typeof showUniversalBanner === 'function') {
-                showUniversalBanner('setAppointment', { autoTriggerActionCenter: false });
+                showUniversalBanner('setAppointment');
             }
             initializeConsultationCapture();
             break;
             
         case 'pre-qualifier':
             if (typeof showUniversalBanner === 'function') {
-                showUniversalBanner('preQualifier', { autoTriggerActionCenter: false });
+                showUniversalBanner('preQualifier');
             }
             initializePreQualifierCapture();
             break;
             
         case 'skip':
             console.log('User chose to skip');
+            // 🛡️ RELEASE LOCK
+            window.releaseActionCenterLock();
+            
             if (window.addSystemMessage) {
                 window.addSystemMessage("No problem! Feel free to ask me anything else about your practice.");
             }
             break;
     }
-    
-    // Reset processing flag after a delay
-    setTimeout(() => {
-        window.isProcessingAction = false;
-    }, 1000);
 }
 
 // ================================
@@ -801,6 +856,9 @@ window.processLeadResponse = processLeadResponse;
 // ================================
 function completeLeadCapture() {
     console.log('🎯 Completing lead capture...');
+
+     // 🛡️ RELEASE LOCK WHEN DONE
+    window.releaseActionCenterLock();
 
     // 🆕 NEW: EMERGENCY CLEANUP FIRST THING
     if (typeof emergencyStuckBannerFix === 'function') {
