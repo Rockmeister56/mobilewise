@@ -3032,10 +3032,13 @@ function handlePreCloseResponse(userResponse, intentType) {
                 window.showCommunicationActionCenter();
                 console.log('✅ Action Center triggered for consultation YES response');
             }
-        }, 1000);
+        }, 1500); // Increased to 1500ms for better timing
         
-        return "Perfect! Let me bring up all the ways to connect with Bruce,the founder and CEO of NCI directly. He's the expert who can give you personalized guidance!";
-    }
+        return "Perfect! Let me bring up all the ways to connect with Bruce, the founder and CEO of NCI directly. He's the expert who can give you personalized guidance!";
+    
+    // Handle other responses if needed
+    return "I understand. Is there anything else I can help you with today?";
+}
     
     if (noPatterns.some(pattern => lowerResponse.includes(pattern))) {
         return "I completely understand wanting to take your time with such an important decision. What specific questions or concerns would be most helpful for you to have answered right now?";
@@ -4555,20 +4558,13 @@ window.updateVoiceTranscription = function(text) {
 async function showDirectSpeakNow() {
     console.log('🎯 DIRECT Speak Now - Black Transparent Overlay');
     
-    if (window.disableSpeakNowBanner) return;
-    
-    // 🎯 CRITICAL FIX: ONLY block when Communication Relay Center is ACTUALLY OPEN
-    if (!window.isInLeadCapture) {
-        await new Promise(resolve => setTimeout(resolve, 600));
-        
-        // ONLY block if the actual opened Communication Relay Center is visible
-        const openedRelayCenter = document.querySelector('.communication-relay-center[style*="display: block"], .communication-relay-center[style*="display: flex"], .relay-center-open, .avatar-center-open');
-        
-        if (openedRelayCenter) {
-            console.log('🚫 BLOCKED: Communication Relay Center is OPEN - waiting for user selection');
-            return;
-        }
+    // 🎯 COORDINATION: Block Speak Now when Action Center is about to appear
+    if (window.actionCenterPending) {
+        console.log('🚫 Speak Now blocked - Action Center pending');
+        return;
     }
+    
+    if (window.disableSpeakNowBanner) return;
 
     // 🎨 CREATE OVERLAY
     hideVoiceOverlay();
