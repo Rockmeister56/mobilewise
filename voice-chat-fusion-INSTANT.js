@@ -753,7 +753,7 @@ async function startListening() {
         if (recognition && recognition !== null) {
             console.log('✅ Recognition exists - setting up handlers...');
             
-           // 🔥 SET ONRESULT HANDLER - FIXED VERSION
+// 🔥 SET ONRESULT HANDLER - COMPLETE FIXED VERSION
 recognition.onresult = function(event) {
     console.log('🎯 ONRESULT FIRED');
     console.log('  - Results count:', event.results.length);
@@ -799,6 +799,13 @@ recognition.onresult = function(event) {
         console.error('❌ userInput field NOT FOUND!');
     }
     
+    // 🔥🚨🚨🚨 CRITICAL MISSING FIX: CANCEL THE DIRECT SPEAK NOW TIMEOUT 🚨🚨🚨
+    if (transcript.trim().length > 0 && window.directSpeakNowTimeout) {
+        console.log('🎯 Speech detected - CANCELLING directSpeakNow timeout');
+        clearTimeout(window.directSpeakNowTimeout);
+        window.directSpeakNowTimeout = null;
+    }
+    
     // 🔥 Cancel the 4-second timeout immediately when speech is detected
     if (transcript.trim().length > 0 && window.speakNowTimeout) {
         console.log('🎯 Speech detected - cancelling nuclear timeout preemptively');
@@ -817,7 +824,7 @@ recognition.onresult = function(event) {
     }
 };
 
-            // 🔥 SET ONEND HANDLER - DEBUGGED VERSION
+           // 🔥 SET ONEND HANDLER - COMPLETE FIXED VERSION
 recognition.onend = function() {
     console.log('🎯🎯🎯 WHICH ONEND IS RUNNING? 🎯🎯🎯');
     console.log('🔚 Recognition ended');
@@ -829,6 +836,13 @@ recognition.onend = function() {
         window.hideVoiceOverlay();
     } else {
         console.log('🧪 ONEND TEST 1.1: hideVoiceOverlay not available ❌');
+    }
+    
+    // 🔥🚨🚨🚨 CRITICAL MISSING FIX: CANCEL THE DIRECT SPEAK NOW TIMEOUT 🚨🚨🚨
+    if (window.directSpeakNowTimeout) {
+        console.log('🎯 Recognition ended - CANCELLING directSpeakNow timeout');
+        clearTimeout(window.directSpeakNowTimeout);
+        window.directSpeakNowTimeout = null;
     }
     
     console.log('🔍 DEBUG: playingSorryMessage =', window.playingSorryMessage);
@@ -888,82 +902,82 @@ recognition.onend = function() {
             console.log('🔍 SOURCE 3 (global backup):', finalTranscript);
         } else {
             console.log('🧪 ONEND TEST 6.3: Global backup too old (>5000ms)');
-                        finalTranscript = window.lastCapturedTranscript;
-                        console.log('🔍 SOURCE 3 (global backup):', finalTranscript);
-                    }
-                }
+            finalTranscript = window.lastCapturedTranscript;
+            console.log('🔍 SOURCE 3 (global backup):', finalTranscript);
+        }
+    }
 
-                console.log('🔍 FINAL transcript to use:', finalTranscript);
+    console.log('🔍 FINAL transcript to use:', finalTranscript);
+    
+    if (finalTranscript && finalTranscript.trim().length > 0) {
+        const currentMessage = finalTranscript.trim();
+        const now = Date.now();
+        const timeSinceLastMessage = now - (window.lastMessageTime || 0);
+        
+        if (!window.lastProcessedMessage || 
+            window.lastProcessedMessage !== currentMessage || 
+            timeSinceLastMessage > 3000) {
+            
+            console.log('✅ Sending new message:', currentMessage);
+
+            // 🎯 ADD THIS RIGHT AFTER LINE 853
+            console.log('🎯 Calling processUserResponse with:', finalTranscript);
+            if (typeof processUserResponse === 'function') {
+                processUserResponse(finalTranscript);
+            }
+
+            if (window.speakNowTimeout) {
+                clearTimeout(window.speakNowTimeout);
+                window.speakNowTimeout = null;
+                console.log('✅ Cancelled 4-second timeout - speech was captured');
+            }
+
+            if (window.speechSynthesis.speaking) {
+                window.speechSynthesis.cancel();
+                console.log('✅ Stopped any pending TTS');
+            }
+
+            if (typeof speakSequenceActive !== 'undefined' && speakSequenceActive) {
+                console.log('🎯 Closing Speak Now banner - message sent');
+                window.playingSorryMessage = false;
                 
-                if (finalTranscript && finalTranscript.trim().length > 0) {
-                    const currentMessage = finalTranscript.trim();
-                    const now = Date.now();
-                    const timeSinceLastMessage = now - (window.lastMessageTime || 0);
-                    
-                    if (!window.lastProcessedMessage || 
-                        window.lastProcessedMessage !== currentMessage || 
-                        timeSinceLastMessage > 3000) {
-                        
-                        console.log('✅ Sending new message:', currentMessage);
-
-                        // 🎯 ADD THIS RIGHT AFTER LINE 853
-console.log('🎯 Calling processUserResponse with:', finalTranscript);
-if (typeof processUserResponse === 'function') {
-    processUserResponse(finalTranscript);
-}
-
-                        if (window.speakNowTimeout) {
-                            clearTimeout(window.speakNowTimeout);
-                            window.speakNowTimeout = null;
-                            console.log('✅ Cancelled 4-second timeout - speech was captured');
-                        }
-
-                        if (window.speechSynthesis.speaking) {
-                            window.speechSynthesis.cancel();
-                            console.log('✅ Stopped any pending TTS');
-                        }
-
-                        if (typeof speakSequenceActive !== 'undefined' && speakSequenceActive) {
-                            console.log('🎯 Closing Speak Now banner - message sent');
-                            window.playingSorryMessage = false;
-                            
-                            if (speakSequenceCleanupTimer) {
-                                clearTimeout(speakSequenceCleanupTimer);
-                                speakSequenceCleanupTimer = null;
-                            }
-                            
-                            cleanupSpeakSequence();
-                        }
-                        
-                        window.lastMessageTime = now;
-                        window.lastProcessedMessage = currentMessage;
-                        sendMessage(currentMessage);
-                    }
-                } else {
-                    console.log('🔄 No speech detected via onend - showing try again overlay');
-
-                    setTimeout(() => {
-                        window.playingSorryMessage = false;
-                        console.log('🔓 Cleared playingSorryMessage after no-speech timeout');
-                    }, 3000);
-
-                    if (speakSequenceCleanupTimer) {
-                        clearTimeout(speakSequenceCleanupTimer);
-                        speakSequenceCleanupTimer = null;
-                        console.log('🕐 CANCELLED cleanup timer - preventing session kill');
-                    }
-                    
-                    if (!isSpeaking) {
-                        setTimeout(() => {
-                            console.log('🎯 DEBUG: About to show try again overlay');
-                            showAvatarSorryMessage();
-                            console.log('🎯 DEBUG: Try again overlay shown');
-                        }, 7000);
-                    } else {
-                        console.log('🚫 DEBUG: BLOCKED - AI is speaking');
-                    }
+                if (speakSequenceCleanupTimer) {
+                    clearTimeout(speakSequenceCleanupTimer);
+                    speakSequenceCleanupTimer = null;
                 }
-            };
+                
+                cleanupSpeakSequence();
+            }
+            
+            window.lastMessageTime = now;
+            window.lastProcessedMessage = currentMessage;
+            sendMessage(currentMessage);
+        }
+    } else {
+        console.log('🔄 No speech detected via onend - showing try again overlay');
+
+        setTimeout(() => {
+            window.playingSorryMessage = false;
+            console.log('🔓 Cleared playingSorryMessage after no-speech timeout');
+        }, 3000);
+
+        if (speakSequenceCleanupTimer) {
+            clearTimeout(speakSequenceCleanupTimer);
+            speakSequenceCleanupTimer = null;
+            console.log('🕐 CANCELLED cleanup timer - preventing session kill');
+        }
+        
+        if (!isSpeaking) {
+            setTimeout(() => {
+                console.log('🎯 DEBUG: About to show try again overlay');
+                showAvatarSorryMessage();
+                console.log('🎯 DEBUG: Try again overlay shown');
+            }, 7000);
+        } else {
+            console.log('🚫 DEBUG: BLOCKED - AI is speaking');
+        }
+    }
+};
 
             // 🔥 SET ONERROR HANDLER
             recognition.onerror = function(event) {
@@ -4448,23 +4462,18 @@ function showAvatarSorryMessage(duration = 6000) {
 // Ensure global availability
 window.showAvatarSorryMessage = showAvatarSorryMessage;
 
-// 🧹 CLEANUP FUNCTION - DEFINE THIS FIRST!
+// 🧹 CLEANUP FUNCTION
 function hideVoiceOverlay() {
     const existing = document.querySelector('.black-voice-overlay');
     if (existing) {
-        console.log('🎨 Hiding voice overlay');
         existing.style.opacity = '0';
-        existing.style.transition = 'opacity 0.3s ease';
         setTimeout(() => {
-            if (existing.parentNode) {
-                existing.remove();
-                console.log('🎨 Voice overlay removed');
-            }
+            if (existing.parentNode) existing.remove();
         }, 300);
     }
 }
 
-// 🎨 BLACK TRANSPARENT CSS FUNCTION
+// 🎨 BLACK TRANSPARENT CSS
 function addBlackOverlayStyles() {
     if (document.getElementById('black-voice-overlay-styles')) return;
     
@@ -4472,111 +4481,60 @@ function addBlackOverlayStyles() {
     styles.id = 'black-voice-overlay-styles';
     styles.textContent = `
         .black-voice-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.5) !important;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10000;
-            pointer-events: none;
+            display: flex; align-items: center; justify-content: center;
+            z-index: 10000; pointer-events: none;
         }
-        
         .voice-overlay-card {
-            text-align: center;
-            background: rgba(0, 0, 0, 0.8);
-            border-radius: 20px;
-            padding: 30px 25px;
-            box-shadow: 
-                0 0 0 1px rgba(59, 130, 246, 0.5),
-                0 0 20px rgba(59, 130, 246, 0.6),
-                0 0 40px rgba(59, 130, 246, 0.3);
+            text-align: center; background: rgba(0, 0, 0, 0.8);
+            border-radius: 20px; padding: 30px 25px;
+            box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.5),
+                       0 0 20px rgba(59, 130, 246, 0.6),
+                       0 0 40px rgba(59, 130, 246, 0.3);
             border: 2px solid rgba(59, 130, 246, 0.8);
-            backdrop-filter: blur(10px);
-            min-width: 280px;
-            pointer-events: auto;
-            animation: glowPulse 2s ease-in-out infinite;
+            backdrop-filter: blur(10px); min-width: 280px;
+            pointer-events: auto; animation: glowPulse 2s ease-in-out infinite;
         }
-        
         @keyframes glowPulse {
-            0%, 100% { 
-                box-shadow: 
-                    0 0 0 1px rgba(59, 130, 246, 0.5),
-                    0 0 20px rgba(59, 130, 246, 0.6),
-                    0 0 40px rgba(59, 130, 246, 0.3);
-            }
-            50% { 
-                box-shadow: 
-                    0 0 0 1px rgba(59, 130, 246, 0.8),
-                    0 0 30px rgba(59, 130, 246, 0.8),
-                    0 0 60px rgba(59, 130, 246, 0.5);
-            }
+            0%, 100% { box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.5), 0 0 20px rgba(59, 130, 246, 0.6), 0 0 40px rgba(59, 130, 246, 0.3); }
+            50% { box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.8), 0 0 30px rgba(59, 130, 246, 0.8), 0 0 60px rgba(59, 130, 246, 0.5); }
         }
-        
         .voice-animation {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 4px;
-            margin-bottom: 15px;
-            height: 35px;
+            display: flex; justify-content: center; align-items: center;
+            gap: 4px; margin-bottom: 15px; height: 35px;
         }
-        
         .sound-wave-bar {
-            width: 4px;
-            height: 20px;
+            width: 4px; height: 20px;
             background: linear-gradient(135deg, #3b82f6, #60a5fa);
-            border-radius: 2px;
-            animation: soundWave 1.2s ease-in-out infinite;
+            border-radius: 2px; animation: soundWave 1.2s ease-in-out infinite;
         }
-        
         .sound-wave-bar:nth-child(1) { animation-delay: 0s; }
         .sound-wave-bar:nth-child(2) { animation-delay: 0.1s; }
         .sound-wave-bar:nth-child(3) { animation-delay: 0.2s; }
         .sound-wave-bar:nth-child(4) { animation-delay: 0.3s; }
         .sound-wave-bar:nth-child(5) { animation-delay: 0.4s; }
-        
         @keyframes soundWave {
-            0%, 100% { 
-                height: 8px;
-                opacity: 0.5;
-            }
-            50% { 
-                height: 22px;
-                opacity: 1;
-            }
+            0%, 100% { height: 8px; opacity: 0.5; }
+            50% { height: 22px; opacity: 1; }
         }
-        
         .speak-now-text {
-            font-size: 22px;
-            font-weight: bold;
+            font-size: 22px; font-weight: bold;
             background: linear-gradient(135deg, #60a5fa, #93c5fd);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 12px;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text; margin-bottom: 12px;
         }
-        
         .live-transcription {
-            color: #e5e7eb;
-            font-size: 15px;
-            font-weight: 500;
-            min-height: 22px;
-            padding: 10px 15px;
-            background: rgba(55, 65, 81, 0.6);
-            border-radius: 10px;
+            color: #e5e7eb; font-size: 15px; font-weight: 500;
+            min-height: 22px; padding: 10px 15px;
+            background: rgba(55, 65, 81, 0.6); border-radius: 10px;
             border: 1px solid rgba(75, 85, 99, 0.8);
-            transition: all 0.3s ease;
         }
     `;
-    
     document.head.appendChild(styles);
 }
 
-// 🆕 GLOBAL TRANSCRIPTION FUNCTION
+// 🎤 GLOBAL TRANSCRIPTION
 window.updateVoiceTranscription = function(text) {
     const transcription = document.querySelector('.live-transcription');
     if (transcription) {
@@ -4586,26 +4544,14 @@ window.updateVoiceTranscription = function(text) {
 };
 
 async function showDirectSpeakNow() {
-    console.log('🎯 DIRECT Speak Now - DEBUG TESTING MODE');
-    console.log('🧪 TEST 1: showDirectSpeakNow() called ✅');
+    console.log('🎯 DIRECT Speak Now - Black Transparent Overlay');
     
-    if (window.disableSpeakNowBanner) {
-        console.log('🚫 TEST 1.1: Banner disabled ❌');
-        return;
-    } else {
-        console.log('🧪 TEST 1.1: Banner enabled ✅');
-    }
-    
-    // Your existing checks...
+    if (window.disableSpeakNowBanner) return;
     
     window.speakSequenceBlocked = true;
     speakSequenceActive = true;
 
-    // 🧪 TEST 2: Check cleanup function
-    console.log('🧪 TEST 2: Cleanup function available:', typeof hideVoiceOverlay === 'function' ? '✅' : '❌');
-
     function directCleanup() {
-        console.log('🧪 TEST 2.1: Cleanup function called ✅');
         window.speakSequenceBlocked = false;
         speakSequenceActive = false;
         window.playingSorryMessage = false;
@@ -4616,91 +4562,56 @@ async function showDirectSpeakNow() {
         }
     }
 
-    // 🎨 BLACK TRANSPARENT OVERLAY
-    console.log('🧪 TEST 3: Creating overlay...');
-    
-    hideVoiceOverlay(); // ✅ NOW THIS WILL WORK!
+    // 🎨 CREATE OVERLAY
+    hideVoiceOverlay();
     
     const voiceOverlay = document.createElement('div');
     voiceOverlay.className = 'black-voice-overlay';
     voiceOverlay.innerHTML = `
         <div class="voice-overlay-card">
             <div class="voice-animation">
-                <div class="sound-wave-bar"></div>
-                <div class="sound-wave-bar"></div>
-                <div class="sound-wave-bar"></div>
-                <div class="sound-wave-bar"></div>
+                <div class="sound-wave-bar"></div><div class="sound-wave-bar"></div>
+                <div class="sound-wave-bar"></div><div class="sound-wave-bar"></div>
                 <div class="sound-wave-bar"></div>
             </div>
             <div class="speak-now-text">🎤 Speak Now</div>
             <div class="live-transcription">Listening...</div>
         </div>
     `;
-
     document.body.appendChild(voiceOverlay);
-    
-    // 🧪 TEST 4: Check if overlay was created
-    const overlayCheck = document.querySelector('.black-voice-overlay');
-    console.log('🧪 TEST 4: Overlay created:', overlayCheck ? '✅' : '❌');
-    
     addBlackOverlayStyles();
 
-    // 🧪 TEST 5: Check if styles were added
-    const stylesCheck = document.getElementById('black-voice-overlay-styles');
-    console.log('🧪 TEST 5: Styles added:', stylesCheck ? '✅' : '❌');
-
-    // 🎤 START LISTENING AUTOMATICALLY
-    console.log('🧪 TEST 6: Starting voice listening...');
+    // 🎤 START LISTENING
     window.lastRecognitionResult = null;
     
-    // 🧪 TEST 7: Check listening functions
-    console.log('🧪 TEST 7: startMobileListening available:', typeof startMobileListening === 'function' ? '✅' : '❌');
-    console.log('🧪 TEST 7.1: startNormalInterviewListening available:', typeof startNormalInterviewListening === 'function' ? '✅' : '❌');
-    
     if (typeof startMobileListening === 'function') {
-        console.log('🧪 TEST 7.2: Calling startMobileListening ✅');
         startMobileListening();
-    } else if (typeof startNormalInterviewListening === 'function') {
-        console.log('🧪 TEST 7.2: Calling startNormalInterviewListening ✅');
-        startNormalInterviewListening();
     } else {
-        console.log('🧪 TEST 7.2: No listening function found ❌');
+        startNormalInterviewListening();
     }
 
-    // 🧪 TEST 8: Check global functions
-    console.log('🧪 TEST 8: Global functions:');
-    console.log('  - hideVoiceOverlay:', typeof hideVoiceOverlay === 'function' ? '✅' : '❌');
-    console.log('  - updateVoiceTranscription:', typeof window.updateVoiceTranscription === 'function' ? '✅' : '❌');
-    
-    // 🆕 MAKE FUNCTIONS GLOBALLY ACCESSIBLE
-    window.hideVoiceOverlay = hideVoiceOverlay;
-    
-    console.log('🧪 TEST 8.1: Global functions assigned ✅');
-
-    // Your existing timeout logic...
+    // 🆕 TIMEOUT WITH CANCELLATION
     if (!window.disableDirectTimeout) {
         const listeningTimeout = window.isInLeadCapture ? 20000 : 7000;
-        console.log('🧪 TEST 9: Timeout set for', listeningTimeout/1000, 'seconds ✅');
         
-        setTimeout(() => {
+        // 🆕 STORE TIMEOUT FOR CANCELLATION
+        window.directSpeakNowTimeout = setTimeout(() => {
             if (!speakSequenceActive) return;
-            console.log('🧪 TEST 9.1: Timeout triggered ✅');
             window.clearBulletproofTimer();
             directCleanup();
             
             if (window.isInLeadCapture) {
-                console.log('🧪 TEST 9.2: Lead capture restart ✅');
                 startRealtimeListening();
                 return;
             }
             
             if (typeof showAvatarSorryMessage === 'function') {
-                console.log('🧪 TEST 9.3: Showing avatar sorry message ✅');
                 showAvatarSorryMessage();
             }
         }, listeningTimeout);
     
-    console.log('🎯 DEBUG TESTING COMPLETE - Check console for results!');
+    // 🆕 MAKE GLOBAL
+    window.hideVoiceOverlay = hideVoiceOverlay;
 }
 
 // 🆕 GLOBAL TRANSCRIPTION FUNCTION
