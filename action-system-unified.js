@@ -307,6 +307,14 @@ function initiateUrgentCall() {
 function handleActionButton(action) {
     console.log('🎯 Action button clicked:', action);
     
+    // 🛑 CHECK IF WE'RE ALREADY PROCESSING
+    if (window.isProcessingAction) {
+        console.log('🛑 Action already in progress - skipping');
+        return;
+    }
+    
+    window.isProcessingAction = true;
+    
     hideCommunicationActionCenter();
     
     // 🆕 CALL COMPLETION HANDLER
@@ -316,33 +324,30 @@ function handleActionButton(action) {
     
     switch(action) {
         case 'click-to-call':
-            // 🆕 SHOW CLICK TO CALL BANNER
+            // 🆕 SHOW CLICK TO CALL BANNER (with anti-loop protection)
             if (typeof showUniversalBanner === 'function') {
-                showUniversalBanner('clickToCall');
+                showUniversalBanner('clickToCall', { autoTriggerActionCenter: false });
             }
             initializeClickToCallCapture();
             break;
             
         case 'urgent-call':
-            // 🆕 SHOW URGENT BANNER
             if (typeof showUniversalBanner === 'function') {
-                showUniversalBanner('urgent');
+                showUniversalBanner('urgent', { autoTriggerActionCenter: false });
             }
             initiateUrgentCall();
             break;
             
         case 'free-consultation':
-    // 🆕 SHOW SET APPOINTMENT BANNER (not freeBookWithConsultation)
-    if (typeof showUniversalBanner === 'function') {
-        showUniversalBanner('setAppointment');
-    }
-    initializeConsultationCapture();
-    break;
+            if (typeof showUniversalBanner === 'function') {
+                showUniversalBanner('setAppointment', { autoTriggerActionCenter: false });
+            }
+            initializeConsultationCapture();
+            break;
             
         case 'pre-qualifier':
-            // 🆕 SHOW PRE-QUALIFIER BANNER
             if (typeof showUniversalBanner === 'function') {
-                showUniversalBanner('preQualifier');
+                showUniversalBanner('preQualifier', { autoTriggerActionCenter: false });
             }
             initializePreQualifierCapture();
             break;
@@ -354,6 +359,11 @@ function handleActionButton(action) {
             }
             break;
     }
+    
+    // Reset processing flag after a delay
+    setTimeout(() => {
+        window.isProcessingAction = false;
+    }, 1000);
 }
 
 // ================================
