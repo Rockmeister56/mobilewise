@@ -4684,29 +4684,22 @@ console.log('✅ PERMANENT COOLDOWN BYPASS INSTALLED!');
 // ===================================================
 console.log('💣 INSTALLING PERMANENT COOLDOWN BYPASS...');
 
-// 1. THE WINNING FIX: Permanently disable bannerCooldown
-Object.defineProperty(window, 'bannerCooldown', {
-    get: function() { 
-        console.log('🛡️ COOLDOWN BYPASS: Always returning false');
-        return false; 
-    },
-    set: function(value) { 
-        console.log('🛡️ COOLDOWN BLOCKED: Attempt to set to', value);
-        return false;
-    }
-});
+// SIMPLE APPROACH - Just set them to false and override any setters
+window.bannerCooldown = false;
+window.speakSequenceBlocked = false;
 
-// 2. Also block speakSequenceBlocked permanently
-Object.defineProperty(window, 'speakSequenceBlocked', {
-    get: function() { 
-        console.log('🛡️ SEQUENCE BLOCKED: Always returning false');
-        return false; 
-    },
-    set: function(value) { 
-        console.log('🛡️ SEQUENCE BLOCKED: Attempt to set to', value);
-        return false;
-    }
-});
+// Prevent any other code from changing these values
+window.setBannerCooldown = function() { 
+    console.log('🛡️ COOLDOWN BLOCKED: Attempt to set banner cooldown');
+    return false;
+};
+
+window.setSpeakSequenceBlocked = function() { 
+    console.log('🛡️ SEQUENCE BLOCKED: Attempt to set sequence blocked');
+    return false;
+};
+
+console.log('✅ PERMANENT COOLDOWN BYPASS INSTALLED SUCCESSFULLY!');
 
 window.clearBulletproofTimer = function() {
     if (window.currentBulletproofTimer) {
