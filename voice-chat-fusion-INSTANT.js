@@ -4937,12 +4937,17 @@ function syncBannerState() {
         }
     }
     
-    // EMERGENCY: If AI is speaking, ONLY close contextual banners (keep branding!)
+// EMERGENCY: If AI is speaking, FORCE CLOSE banner (respect cooldown)
 if (window.isSpeaking && !window.bannerCooldown) {
-    console.log('🔄 SYNC: AI Speaking - Closing contextual banners only');
+    console.log('🔄 SYNC: AI Speaking - Force closing banner');
     
-    // 🎯 ONLY close speak-now/contextual banners, PRESERVE branding
-    if (isContextualBannerActive()) {
+    // 🎯 SIMPLE CHECK: Only close if it's NOT the branding banner
+    const currentBanner = document.querySelector('#universal-banner');
+    const isBrandingBanner = currentBanner && 
+        (currentBanner.getAttribute('data-banner-type') === 'branding' ||
+         currentBanner.className.toLowerCase().includes('branding'));
+    
+    if (!isBrandingBanner) {
         if (window.closeSpeakNowBanner) {
             window.closeSpeakNowBanner();
         }
@@ -4950,7 +4955,7 @@ if (window.isSpeaking && !window.bannerCooldown) {
         window.bannerCooldown = true;
         window.lastBannerAction = now;
     } else {
-        console.log('🛡️ SYNC: Preserving persistent banners during AI speech');
+        console.log('🛡️ SYNC: Preserving branding banner during AI speech');
     }
 }
     
