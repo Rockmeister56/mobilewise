@@ -62,18 +62,21 @@ window.disableSpeakNowBanner = false;
         console.log('✅ Communication Relay Center Button initialized');
     }
 
-  function triggerLeadActionCenter() {
+ function triggerLeadActionCenter() {
     console.log('🚀 Triggering Lead Action Center (Silent Version)...');
-    
-    // Stop any current voice activity
-    if (typeof stopAllSpeech === 'function') stopAllSpeech();
-    if (window.speechSynthesis) window.speechSynthesis.cancel();
     
     // 🚫 CRITICAL: Prevent Speak Now banner
     window.disableSpeakNowBanner = true;
     
-    // 🎯 USE DIFFERENT AVATAR VIDEO FOR LEAD VERSION
-    showSilentCommunicationRelayCenter(); // Just change this line
+    // 🎯 SHOW THE ACTION CENTER FIRST (let AI keep speaking)
+    showSilentCommunicationRelayCenter();
+    
+    // 🎯 STOP SPEECH AFTER A BRIEF DELAY (let AI finish her line)
+    setTimeout(() => {
+        if (typeof stopAllSpeech === 'function') stopAllSpeech();
+        if (window.speechSynthesis) window.speechSynthesis.cancel();
+        console.log('✅ Speech stopped after Action Center displayed');
+    }, 2000); // 2-second delay to let AI finish speaking
     
     // Re-enable Speak Now banner after reasonable time
     setTimeout(() => {
