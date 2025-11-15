@@ -4948,17 +4948,14 @@ function syncBannerState() {
         }
     }
     
-// EMERGENCY: If AI is speaking, FORCE CLOSE banner (respect cooldown)
+// FIXED: Only close banner if AI is speaking AND we're NOT in a voice conversation
 if (window.isSpeaking && !window.bannerCooldown) {
-    console.log('🔄 SYNC: AI Speaking - Force closing banner');
+    // Check if we're in a voice-based conversation state
+    const voiceResponseStates = ['getting_first_name', 'investigation', 'awaiting_voice_response', 'active_conversation'];
+    const isVoiceConversation = voiceResponseStates.includes(window.conversationState);
     
-    // 🎯 CHECK: Only close if it's NOT the branding banner
-    const currentBanner = document.querySelector('#universal-banner');
-    const isBrandingBanner = currentBanner && 
-        (currentBanner.getAttribute('data-banner-type') === 'branding' ||
-         currentBanner.className.toLowerCase().includes('branding'));
-    
-    if (!isBrandingBanner) {
+    if (!isVoiceConversation) {
+        console.log('🔄 SYNC: AI Speaking (non-voice mode) - Closing banner');
         if (window.closeSpeakNowBanner) {
             window.closeSpeakNowBanner();
         }
@@ -4966,7 +4963,8 @@ if (window.isSpeaking && !window.bannerCooldown) {
         window.bannerCooldown = true;
         window.lastBannerAction = now;
     } else {
-        console.log('🛡️ SYNC: Preserving branding banner during AI speech');
+        console.log('🎤 SYNC: AI Speaking (voice mode) - KEEPING banner open for response');
+        // Banner stays open for voice response!
     }
 }
     
