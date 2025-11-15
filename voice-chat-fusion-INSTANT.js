@@ -2724,6 +2724,7 @@ if (!window.salesAI.userData.firstName) {
         return response;
     } else {
         return "Hi! I'm your practice transition assistant. What's your first name?";
+        }
     }
 }
 
@@ -5063,7 +5064,7 @@ window.showWelcomeSplash = function(userName) {
             splash.remove();
             console.log('🎉 Welcome splash auto-closed');
         }
-    }, 2000);
+    }, 3000);
     
     // Set flag
     window.welcomeSplashShown = true;
