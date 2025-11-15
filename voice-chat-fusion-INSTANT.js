@@ -2539,14 +2539,14 @@ if (urgentPatterns.some(pattern => lowerMessage.includes(pattern))) {
     console.log('🚨 URGENT INTENT DETECTED - FAST TRACKING TO BRUCE');
     
     // 🎯 TRIGGER ACTION CENTER IMMEDIATELY
-    setTimeout(() => {
-        if (window.showCommunicationActionCenter) {
-            window.showCommunicationActionCenter();
-            console.log('✅ Action Center triggered for urgent request');
-        }
-    }, 1000);
-    
-    return "I understand this is urgent! Let me bring up all the ways to connect with Bruce,the founder and CEO of NCI immediately.";
+setTimeout(() => {
+    if (window.triggerLeadActionCenter) {
+        window.triggerLeadActionCenter(); // 🎯 SILENT VERSION FOR LEADS
+        console.log('✅ Communication Relay Center triggered for urgent request');
+    }
+}, 1000);
+
+return "I understand this is urgent! Let me bring up all the ways to connect with Bruce, the founder and CEO of NCI immediately.";
 }
 
 // Check for APPOINTMENT second

@@ -63,6 +63,33 @@ window.disableSpeakNowBanner = false;
     }
 
     /**
+ * TRIGGER LEAD ACTION CENTER (SILENT VERSION)
+ * For lead system - same beautiful UI but no voice welcome
+ */
+function triggerLeadActionCenter() {
+    console.log('🚀 Triggering Lead Action Center (Silent Version)...');
+    
+    // Stop any current voice activity
+    if (typeof stopAllSpeech === 'function') stopAllSpeech();
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    
+    // 🚫 CRITICAL: Prevent Speak Now banner
+    window.disableSpeakNowBanner = true;
+    
+    // 🎯 SHOW THE BEAUTIFUL ACTION CENTER (NO VOICE WELCOME)
+    showCommunicationRelayCenter();
+    
+    // Re-enable Speak Now banner after reasonable time
+    setTimeout(() => {
+        window.disableSpeakNowBanner = false;
+        console.log('✅ Speak Now banner re-enabled');
+    }, 30000);
+}
+
+// Export globally so lead system can call it
+window.triggerLeadActionCenter = triggerLeadActionCenter;
+
+    /**
  * SHOW COMMUNICATION RELAY CENTER - CLONED VERSION
  * Same layout as Action Center but with YOUR video avatar
  */
