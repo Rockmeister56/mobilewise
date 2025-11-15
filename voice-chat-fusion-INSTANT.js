@@ -2541,11 +2541,10 @@ if (urgentPatterns.some(pattern => lowerMessage.includes(pattern))) {
 // 🎯 TRIGGER ACTION CENTER IMMEDIATELY
 setTimeout(() => {
     if (window.triggerLeadActionCenter) {
-        window.triggerLeadActionCenter(); // ✅ WORKING - CALLS BEAUTIFUL RELAY CENTER
-        console.log('✅ Communication Relay Center triggered for urgent request');
-    } else if (window.showCommunicationRelayCenter) {
-        window.showCommunicationRelayCenter(); // ✅ FALLBACK TO BUTTON VERSION
-        console.log('✅ Communication Relay Center triggered (fallback)');
+        window.triggerLeadActionCenter(); // ✅ SILENT VERSION
+        console.log('✅ SILENT Communication Relay Center triggered for urgent request');
+    } else {
+        console.error('❌ triggerLeadActionCenter not found - urgent system broken');
     }
 }, 1000);
 
@@ -2556,11 +2555,12 @@ return "I understand this is urgent! Let me bring up all the ways to connect wit
 if (appointmentPatterns.some(pattern => lowerMessage.includes(pattern))) {
     console.log('🎯 APPOINTMENT INTENT DETECTED - Triggering Action Center');
     
-    // 🎯 TRIGGER ACTION CENTER IMMEDIATELY
-    setTimeout(() => {
-        if (window.showCommunicationActionCenter) {
-            window.showCommunicationActionCenter();
-            console.log('✅ Action Center triggered for appointment request');
+   setTimeout(() => {
+    if (window.triggerLeadActionCenter) {
+        window.triggerLeadActionCenter(); // ✅ SILENT VERSION
+        console.log('✅ SILENT Action Center triggered for appointment request');
+    } else {
+        console.error('❌ triggerLeadActionCenter not found - appointment system broken');
         }
     }, 1000);
     
@@ -2581,10 +2581,18 @@ if (strongIntent) {
         speakWithElevenLabs(preCloseResponse, false);
         
         if (preCloseResponse.includes("Perfect! Let me get you connected")) {
-    // User said YES - trigger appointment banner
+    // User said YES - trigger SILENT Communication Relay Center
     window.salesAI.state = 'lead_capture';
-    console.log('✅ User said YES - triggering appointment banner');
-    triggerBanner('setAppointment');
+    console.log('✅ User said YES - triggering SILENT Communication Relay Center');
+    
+    setTimeout(() => {
+        if (window.triggerLeadActionCenter) {
+            window.triggerLeadActionCenter(); // ✅ SILENT VERSION
+            console.log('✅ SILENT Action Center triggered for pre-close YES response');
+        } else {
+            console.error('❌ triggerLeadActionCenter not found - pre-close system broken');
+        }
+    }, 1000);
 
         } else {
             // User said SKIP - return to investigation
@@ -3029,11 +3037,13 @@ function handlePreCloseResponse(userResponse, intentType) {
     const yesPatterns = ['yes', 'yeah', 'sure', 'okay', 'ok', 'absolutely', 'definitely', 'let\'s do it', 'ready', 'go ahead'];
 
     if (yesPatterns.some(pattern => lowerResponse.includes(pattern))) {
-        // 🎯 CRITICAL FIX: Trigger Action Center for YES responses
-        setTimeout(() => {
-            if (window.showCommunicationActionCenter) {
-                window.showCommunicationActionCenter();
-                console.log('✅ Action Center triggered for consultation YES response');
+    // 🎯 CRITICAL FIX: Trigger SILENT Action Center for YES responses
+    setTimeout(() => {
+        if (window.triggerLeadActionCenter) {
+            window.triggerLeadActionCenter(); // ✅ SILENT VERSION
+            console.log('✅ SILENT Action Center triggered for consultation YES response');
+        } else {
+            console.error('❌ triggerLeadActionCenter not found - lead system broken');
             }
         }, 1500); // Increased to 1500ms for better timing
         
