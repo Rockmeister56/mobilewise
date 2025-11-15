@@ -17,8 +17,14 @@ const EMAILJS_CONFIG = {
     }
 };
 
+// REPLACE THIS FUNCTION in action-system-unified.js:
 function getDefaultButtons() {
-    return getCorporateButtons(); // Use existing corporate buttons
+    // 🎯 RETURN THE BEAUTIFUL COMMUNICATION RELAY CENTER INSTEAD
+    return `
+        <div style="[COPY THE ENTIRE BEAUTIFUL HTML FROM showCommunicationRelayCenter()]">
+            [INCLUDE THE SILENT AVATAR VIDEO AND ALL BUTTONS]
+        </div>
+    `;
 }
 
 // Initialize EmailJS
