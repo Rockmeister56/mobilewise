@@ -1238,6 +1238,7 @@ async function activateMicrophone() {
 // 💭 MESSAGE HANDLING SYSTEM
 // ===================================================
 function addUserMessage(message) {
+    console.log('🔍 DEBUG: addUserMessage called with:', message);
     const chatMessages = document.getElementById('chatMessages');
     if (!chatMessages) return;
     
@@ -4951,7 +4952,7 @@ function syncBannerState() {
 if (window.isSpeaking && !window.bannerCooldown) {
     console.log('🔄 SYNC: AI Speaking - Force closing banner');
     
-    // 🎯 SIMPLE CHECK: Only close if it's NOT the branding banner
+    // 🎯 CHECK: Only close if it's NOT the branding banner
     const currentBanner = document.querySelector('#universal-banner');
     const isBrandingBanner = currentBanner && 
         (currentBanner.getAttribute('data-banner-type') === 'branding' ||
