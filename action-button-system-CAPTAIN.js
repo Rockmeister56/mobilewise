@@ -68,15 +68,21 @@ window.disableSpeakNowBanner = false;
     // 🚫 CRITICAL: Prevent Speak Now banner
     window.disableSpeakNowBanner = true;
     
-    // 🎯 SHOW THE ACTION CENTER FIRST (let AI keep speaking)
-    showSilentCommunicationRelayCenter();
+    // 🎯 WAIT for AI to finish speaking BEFORE showing Action Center
+    const checkSpeechCompletion = setInterval(() => {
+        if (!window.speechSynthesis.speaking) {
+            clearInterval(checkSpeechCompletion);
+            console.log('✅ AI finished speaking - now showing Action Center');
+            showSilentCommunicationRelayCenter();
+        }
+    }, 500); // Check every 500ms
     
-    // 🎯 STOP SPEECH AFTER A BRIEF DELAY (let AI finish her line)
+    // Safety timeout - show after 5 seconds max
     setTimeout(() => {
-        if (typeof stopAllSpeech === 'function') stopAllSpeech();
-        if (window.speechSynthesis) window.speechSynthesis.cancel();
-        console.log('✅ Speech stopped after Action Center displayed');
-    }, 2000); // 2-second delay to let AI finish speaking
+        clearInterval(checkSpeechCompletion);
+        showSilentCommunicationRelayCenter();
+        console.log('✅ Safety timeout - showing Action Center');
+    }, 5000);
     
     // Re-enable Speak Now banner after reasonable time
     setTimeout(() => {
