@@ -2253,6 +2253,8 @@ function showWelcomeSplashScreen(userName) {
 }
 
 function detectAndStoreUserName(message) {
+    console.log('🔍 DEBUG: detectAndStoreUserName called with:', message);
+    
     const namePatterns = [
         /my name is (\w+)/i,
         /i'm (\w+)/i,
@@ -4881,7 +4883,7 @@ function closeSpeakNowBanner() {
 window.closeSpeakNowBanner = closeSpeakNowBanner;
 
 // ===================================================
-// 🧹 CLEANUP SPEAK SEQUENCE - COMPLETE VERSION
+// 🧹 CLEANUP SPEAK SEQUENCE - COMPLETE VERSION (FIXED)
 // ===================================================
 function cleanupSpeakSequence() {
     console.log('🧹 CLEANUP SPEAK SEQUENCE: Starting...');
@@ -4907,9 +4909,17 @@ function cleanupSpeakSequence() {
     window.isListening = false;
     window.isRecording = false;
     
-    // Close the banner using our synchronized function
-    if (window.closeSpeakNowBanner) {
+    // 🎯 ONLY CLOSE SPEAK-NOW BANNERS, NOT BRANDING BANNERS
+    const speakNowBanner = document.querySelector('.speak-now-banner, .speak-now-container, #universal-banner[data-banner-type="speak-now"]');
+    const brandingBanner = document.querySelector('#universal-banner[data-banner-type="branding"]');
+    
+    if (speakNowBanner && !brandingBanner && window.closeSpeakNowBanner) {
+        console.log('🎯 Closing speak-now banner only');
         window.closeSpeakNowBanner();
+    } else if (brandingBanner) {
+        console.log('🛡️ Preserving branding banner - only cleaning up speak sequence flags');
+    } else {
+        console.log('🔍 No banners to close or close function not available');
     }
     
     console.log('✅ Speak sequence fully cleaned up');
