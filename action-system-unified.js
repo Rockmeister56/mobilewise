@@ -17,10 +17,6 @@ const EMAILJS_CONFIG = {
     }
 };
 
-function getDefaultButtons() {
-    return getCorporateButtons(); // Use existing corporate buttons
-}
-
 // Initialize EmailJS
 (function() {
     emailjs.init(EMAILJS_CONFIG.publicKey);
@@ -59,54 +55,21 @@ function formatEmailFromSpeech(speechText) {
 }
 
 // ================================
-// ENHANCED ORIGINAL ACTION CENTER
+// ENHANCED ORIGINAL ACTION CENTER - SIMPLE ROUTER
 // ================================
 function showCommunicationActionCenter(mode = 'default') {
-    console.log('🎯 Showing Enhanced Action Center - Mode:', mode);
+    console.log('🎯 Routing to Communication Relay Center - Mode:', mode);
     
-    // Remove any existing action center
-    hideCommunicationActionCenter();
-    
-    const actionCenter = document.createElement('div');
-    actionCenter.id = 'communication-action-center';
-    
-    // 🎯 DIFFERENT MODES, SAME CONTAINER
-    if (mode === 'avatar') {
-        // Your talking avatar version
-        actionCenter.innerHTML = `
-            <div style="...avatar styling...">
-                <!-- Your avatar video -->
-                <video autoplay loop muted playsinline>
-                    <source src="your-avatar-video.mp4" type="video/mp4">
-                </video>
-                <!-- Avatar-specific buttons -->
-                ${getAvatarButtons()}
-            </div>
-        `;
-    } else if (mode === 'corporate') {
-        // Original 5-button corporate design
-        actionCenter.innerHTML = `
-            <div style="...corporate styling...">
-                <!-- Corporate header -->
-                ${getCorporateButtons()}
-            </div>
-        `;
+    // 🎯 SIMPLE ROUTER TO EXISTING WORKING SYSTEM
+    if (mode === 'avatar' && window.triggerLeadActionCenter) {
+        // Lead version (silent beautiful UI)
+        window.triggerLeadActionCenter();
+    } else if (window.openCommRelayCenter) {
+        // Button version (voice + beautiful UI) or default fallback
+        window.openCommRelayCenter();
     } else {
-        // Default mode
-        actionCenter.innerHTML = `
-            <div style="...default styling...">
-                ${getDefaultButtons()}
-            </div>
-        `;
+        console.error('❌ Communication Relay Center system not available');
     }
-    
-    // Add to page
-    const chatContainer = document.getElementById('chatMessages') || document.querySelector('.chat-messages');
-    if (chatContainer) {
-        chatContainer.appendChild(actionCenter);
-    }
-    
-    console.log('✅ Enhanced Action Center displayed - Mode:', mode);
 }
 
 // ================================

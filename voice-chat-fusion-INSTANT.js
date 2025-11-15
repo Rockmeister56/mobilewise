@@ -2538,11 +2538,14 @@ const appointmentPatterns = [
 if (urgentPatterns.some(pattern => lowerMessage.includes(pattern))) {
     console.log('🚨 URGENT INTENT DETECTED - FAST TRACKING TO BRUCE');
     
-    // 🎯 TRIGGER ACTION CENTER IMMEDIATELY
+// 🎯 TRIGGER ACTION CENTER IMMEDIATELY
 setTimeout(() => {
     if (window.triggerLeadActionCenter) {
-        window.triggerLeadActionCenter(); // 🎯 SILENT VERSION FOR LEADS
+        window.triggerLeadActionCenter(); // ✅ WORKING - CALLS BEAUTIFUL RELAY CENTER
         console.log('✅ Communication Relay Center triggered for urgent request');
+    } else if (window.showCommunicationRelayCenter) {
+        window.showCommunicationRelayCenter(); // ✅ FALLBACK TO BUTTON VERSION
+        console.log('✅ Communication Relay Center triggered (fallback)');
     }
 }, 1000);
 
