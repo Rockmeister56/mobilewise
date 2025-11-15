@@ -2193,6 +2193,99 @@ function deliverLeadMagnet(leadMagnet, userEmail) {
 }
 
 // ===================================================
+// 🎉 WELCOME SPLASH SCREEN SYSTEM
+// ===================================================
+
+function showWelcomeSplashScreen(userName) {
+    console.log('🎉 Showing welcome splash for:', userName);
+    
+    // Create splash screen element
+    const splashScreen = document.createElement('div');
+    splashScreen.id = 'welcome-splash-screen';
+    splashScreen.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+        color: white;
+        font-family: 'Segoe UI', system-ui, sans-serif;
+        text-align: center;
+        opacity: 0;
+        transition: opacity 0.5s ease-in-out;
+    `;
+    
+    // Splash screen content
+    splashScreen.innerHTML = `
+        <div style="max-width: 80%;">
+            <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1763241555499_pngegg%20(13).png" 
+                 alt="Welcome" 
+                 style="width: 120px; height: 120px; border-radius: 20px; margin-bottom: 20px; border: 3px solid white;">
+            <h1 style="font-size: 2.5rem; margin: 0 0 10px 0; font-weight: 700;">Welcome, ${userName}! 🎉</h1>
+            <p style="font-size: 1.2rem; opacity: 0.9; margin: 0;">So glad you're here!</p>
+        </div>
+    `;
+    
+    // Add to page
+    document.body.appendChild(splashScreen);
+    
+    // Animate in
+    setTimeout(() => {
+        splashScreen.style.opacity = '1';
+    }, 50);
+    
+    // Auto-remove after 3 seconds
+    setTimeout(() => {
+        splashScreen.style.opacity = '0';
+        setTimeout(() => {
+            if (splashScreen.parentNode) {
+                splashScreen.parentNode.removeChild(splashScreen);
+            }
+            console.log('✅ Welcome splash screen removed');
+        }, 500);
+    }, 3000);
+}
+
+function detectAndStoreUserName(message) {
+    const namePatterns = [
+        /my name is (\w+)/i,
+        /i'm (\w+)/i,
+        /call me (\w+)/i,
+        /^(\w+)$/i,
+        /this is (\w+)/i,
+        /it's (\w+)/i,
+        /you can call me (\w+)/i
+    ];
+    
+    for (let pattern of namePatterns) {
+        const match = message.match(pattern);
+        if (match && match[1]) {
+            const userName = match[1].trim();
+            const formattedName = userName.charAt(0).toUpperCase() + userName.slice(1).toLowerCase();
+            
+            console.log('🎉 NAME CAPTURED FROM BUBBLE:', formattedName);
+            
+            // 🎯 STORE FOR FUTURE USE
+            window.userFirstName = formattedName;
+            
+            // 🎯 SHOW WELCOME SPLASH SCREEN
+            showWelcomeSplashScreen(formattedName);
+            
+            // 🎯 HIGHLIGHT THE NAME BUBBLE
+            highlightNameBubble(formattedName);
+            
+            break;
+        }
+    }
+}
+
+// ===================================================
 // 🎯 FIXED BRIDGE - NO NAMING CONFLICTS!
 // ===================================================
 
@@ -4844,16 +4937,22 @@ function syncBannerState() {
         }
     }
     
-    // EMERGENCY: If AI is speaking, FORCE CLOSE banner (respect cooldown)
-    if (window.isSpeaking && !window.bannerCooldown) {
-        console.log('🔄 SYNC: AI Speaking - Force closing banner');
+    // EMERGENCY: If AI is speaking, ONLY close contextual banners (keep branding!)
+if (window.isSpeaking && !window.bannerCooldown) {
+    console.log('🔄 SYNC: AI Speaking - Closing contextual banners only');
+    
+    // 🎯 ONLY close speak-now/contextual banners, PRESERVE branding
+    if (isContextualBannerActive()) {
         if (window.closeSpeakNowBanner) {
             window.closeSpeakNowBanner();
         }
         window.speakSequenceActive = false;
         window.bannerCooldown = true;
         window.lastBannerAction = now;
+    } else {
+        console.log('🛡️ SYNC: Preserving persistent banners during AI speech');
     }
+}
     
     // EMERGENCY: If listening stopped but banner is active (respect cooldown)
     if (!window.isListening && window.speakSequenceActive && (now - window.lastBannerAction > 2000) && !window.bannerCooldown) {
