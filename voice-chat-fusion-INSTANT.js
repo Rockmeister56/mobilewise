@@ -4948,25 +4948,16 @@ function syncBannerState() {
         }
     }
     
-// FIXED: Only close banner if AI is speaking AND we're NOT in a voice conversation
-if (window.isSpeaking && !window.bannerCooldown) {
-    // Check if we're in a voice-based conversation state
-    const voiceResponseStates = ['getting_first_name', 'investigation', 'awaiting_voice_response', 'active_conversation'];
-    const isVoiceConversation = voiceResponseStates.includes(window.conversationState);
-    
-    if (!isVoiceConversation) {
-        console.log('🔄 SYNC: AI Speaking (non-voice mode) - Closing banner');
-        if (window.closeSpeakNowBanner) {
-            window.closeSpeakNowBanner();
-        }
-        window.speakSequenceActive = false;
-        window.bannerCooldown = true;
-        window.lastBannerAction = now;
-    } else {
-        console.log('🎤 SYNC: AI Speaking (voice mode) - KEEPING banner open for response');
-        // Banner stays open for voice response!
-    }
-}
+// 🚨 REMOVED: Banner closure during AI speech - KEEP banner open for continuous voice conversations
+// if (window.isSpeaking && !window.bannerCooldown) {
+//     console.log('🔄 SYNC: AI Speaking - Force closing banner');
+//     if (window.closeSpeakNowBanner) {
+//         window.closeSpeakNowBanner();
+//     }
+//     window.speakSequenceActive = false;
+//     window.bannerCooldown = true;
+//     window.lastBannerAction = now;
+// }
     
     // EMERGENCY: If listening stopped but banner is active (respect cooldown)
     if (!window.isListening && window.speakSequenceActive && (now - window.lastBannerAction > 2000) && !window.bannerCooldown) {
