@@ -2679,22 +2679,32 @@ if (typeof getOpenAIResponse === 'function') {
 } else {
     const fallbackResponse = "I appreciate your message! That's something Bruce,the founder and CEO of NCI would be perfect to help with. Would you like me to connect you with him for a free consultation?";
 
-    // 🎯 ADD THESE LINES RIGHT HERE:
-    window.lastPreCloseQuestion = fallbackResponse;
-    window.lastPreCloseIntent = 'bruce_consultation';
-    window.conversationState = 'qualification';
-    console.log('🎯 BRUCE PRE-CLOSE QUESTION SET:', fallbackResponse);
+    // 🎯 BRUCE PRE-CLOSE QUESTION SET: 
+window.lastPreCloseQuestion = fallbackResponse;
+window.lastPreCloseIntent = 'bruce_consultation';
+window.conversationState = 'qualification';
+console.log('🎯 BRUCE PRE-CLOSE QUESTION SET:', fallbackResponse);
 
-    // 🚀 TRIGGER BANNER IMMEDIATELY when asking the closing question
-    setTimeout(() => {
-        if (window.showDirectSpeakNow) {
-            window.showDirectSpeakNow();
-            console.log('✅ Appointment Banner triggered for Bruce consultation offer');
-        }
-    }, 100); // Minimal delay to ensure question is displayed first
+// 🚀 CRITICAL FIX: Trigger banner WITHOUT starting listening
+setTimeout(() => {
+    if (window.showDirectSpeakNow) {
+        // Temporarily disable Bruce detection to prevent loops
+        const originalLastPreCloseIntent = window.lastPreCloseIntent;
+        window.lastPreCloseIntent = null;
+        
+        // Show banner but don't auto-start listening
+        window.showDirectSpeakNow();
+        console.log('✅ Appointment Banner triggered for Bruce consultation offer');
+        
+        // Restore Bruce detection after a safe period
+        setTimeout(() => {
+            window.lastPreCloseIntent = originalLastPreCloseIntent;
+        }, 3000);
+    }
+}, 500); // Wait for question to be spoken first
 
-    speakWithElevenLabs(fallbackResponse, false);
-    return fallbackResponse;
+speakWithElevenLabs(fallbackResponse, false);
+return fallbackResponse;
 }
 }
 
