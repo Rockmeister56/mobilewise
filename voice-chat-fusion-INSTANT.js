@@ -2704,18 +2704,26 @@ if (window.salesAI.state === 'introduction') {
     console.log('🎯 Handling introduction - capturing name...');
     
     // Simple name handling
+// Simple name handling
 if (!window.salesAI.userData.firstName) {
     const name = userMessage.split(' ')[0];
     if (name && name.length > 1) {
         window.salesAI.userData.firstName = name;
         window.salesAI.state = 'investigation';
         
+        // 🎯 NEW: Force close banner to trigger welcome splash
+        setTimeout(() => {
+            if (window.closeSpeakNowBanner) {
+                console.log('🎯 Force closing banner to trigger welcome splash for:', name);
+                window.closeSpeakNowBanner();
+            }
+        }, 300);
+        
         const response = `Nice to meet you ${name}! What brings you to New Clients Inc today?`;
         console.log('✅ Name captured, moving to investigation state');
         return response;
     } else {
         return "Hi! I'm your practice transition assistant. What's your first name?";
-        }
     }
 }
 
@@ -4835,14 +4843,15 @@ window.clearBulletproofTimer = function() {
 function closeSpeakNowBanner() {
     console.log('🎯 CLOSE SPEAK NOW BANNER: Starting cleanup...'); 
     
-    // 🎉 NEW: Trigger welcome splash when banner closes (if name was captured)
-    if (window.userName && !window.welcomeSplashShown) {
-        console.log('🎉 Triggering welcome splash after banner close');
+    // 🎉 FIXED: Check salesAI for the name
+    const userName = window.salesAI?.userData?.firstName;
+    if (userName && userName.length > 0 && !window.welcomeSplashShown) {
+        console.log('🎉 Triggering welcome splash for:', userName);
         setTimeout(() => {
             if (window.showWelcomeSplash) {
-                window.showWelcomeSplash(window.userName);
+                window.showWelcomeSplash(userName);
             }
-        }, 100); // Tiny delay to ensure banner is fully closed
+        }, 100);
     }
     
     // Clear the safety timer when closing normally
