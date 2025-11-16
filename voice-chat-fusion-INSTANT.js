@@ -4983,28 +4983,7 @@ window.showWelcomeSplash = function(userName) {
     display: flex;
     align-items: center;
     gap: 10px;
-    animation: blinkThreeTimes 6s ease-in-out;
 `;
-
-// ADD THIS ANIMATION STYLE
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes blinkThreeTimes {
-        0% { opacity: 0; }
-        20% { opacity: 1; }
-        40% { opacity: 0; }
-        60% { opacity: 1; }
-        80% { opacity: 0; }
-        90% { opacity: 1; }
-        100% { opacity: 0; }
-    }
-`;
-document.head.appendChild(style);
-
-// Remove the style after animation
-setTimeout(() => {
-    if (style.parentElement) style.remove();
-}, 2000);
 
     welcomeContainer.innerHTML = `
         <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1763241555499_pngegg%20(13).png" 
