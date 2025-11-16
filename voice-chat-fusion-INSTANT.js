@@ -5029,7 +5029,7 @@ window.showWelcomeSplash = function(userName) {
     welcomeContainer.id = 'minimal-welcome';
     welcomeContainer.style.cssText = `
         position: absolute;
-        top: 15px;
+        top: -10px;
         left: 15px;
         color: #007AFF;
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -5046,7 +5046,7 @@ window.showWelcomeSplash = function(userName) {
     welcomeContainer.innerHTML = `
         <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1763241555499_pngegg%20(13).png" 
              alt="Welcome" 
-             style="height: 80px; border-radius: 6px;"
+             style="height: 10px; border-radius: 6px;"
              onerror="this.style.display='none'">
         <span>Welcome, ${userName}</span>
     `;
