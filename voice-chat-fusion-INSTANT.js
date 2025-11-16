@@ -4962,7 +4962,7 @@ window.showWelcomeSplash = function(userName) {
     console.log('🎉 ULTRA-MINIMAL WELCOME: Showing for', userName);
     
     // 🎨 SIZE CONTROLS - CHANGE THESE:
-    const logoHeight = '50px';   // Change logo size: '60px', '100px', '120px'
+    const logoHeight = '55px';   // Change logo size: '60px', '100px', '120px'
     const fontSize = '20px';     // Change text size: '20px', '28px', '32px'
     
     const existingWelcome = document.getElementById('minimal-welcome');
@@ -4972,7 +4972,7 @@ window.showWelcomeSplash = function(userName) {
     welcomeContainer.id = 'minimal-welcome';
   welcomeContainer.style.cssText = `
     position: absolute;
-    top: -90px;
+    top: -25px;
     left: 12px;
     color: #024082ff;
     font-family: cursive, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -4988,7 +4988,7 @@ window.showWelcomeSplash = function(userName) {
     welcomeContainer.innerHTML = `
         <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1763241555499_pngegg%20(13).png" 
              alt="Welcome" 
-             style="height: ${logoHeight}; border-radius: 10px;"
+             style="height: ${logoHeight}; border-radius: 6px;"
              onerror="this.style.display='none'">
         <span>${userName}!</span>
     `;
