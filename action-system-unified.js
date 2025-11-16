@@ -1134,122 +1134,103 @@ function showEmailConfirmationButtons(leadData, captureType) {
     }, 100);
 }
 
-// ADD THIS TO action-system-unified.js (around line 980)
-
-// ADD THIS TO action-system-unified.js (around line 980)
-
 function showDecisionPanel(options) {
-    console.log("🎯 DECISION PANEL: Showing with options", options);
+    console.log("🎯 DECISION PANEL: Showing IN-CHAT decision");
     
-    // Close any existing banners first
-    if (window.closeSpeakNowBanner) {
-        window.closeSpeakNowBanner();
-    }
+    // Remove any existing decision panel first
+    cleanupDecisionPanel();
     
-    // Default options
     const config = {
         question: options.question || "What would you like to do next?",
-        yesText: options.yesText || "Continue",
-        skipText: options.skipText || "Finish", 
-        onYes: options.onYes || function() { console.log("Continue clicked"); },
-        onSkip: options.onSkip || function() { console.log("Finish clicked"); }
+        yesText: options.yesText || "Continue", 
+        skipText: options.skipText || "Finish",
+        onYes: options.onYes || function() { 
+            console.log("Continue clicked");
+            if (window.showDirectSpeakNow) window.showDirectSpeakNow();
+        },
+        onSkip: options.onSkip || function() { 
+            console.log("Finish clicked");
+            if (window.showThankYouSplash) window.showThankYouSplash();
+        }
     };
     
-    // Create decision panel HTML
+    // Create IN-CHAT decision panel (appears as part of chat flow)
     const decisionHTML = `
-        <div id="decision-panel" style="
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            z-index: 10000;
+        <div class="chat-message ai-message decision-panel" style="
+            background: rgba(248, 249, 250, 0.9);
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 15px 0;
             text-align: center;
-            min-width: 300px;
-            border: 3px solid #2ecc71;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
         ">
-            <h3 style="margin: 0 0 20px 0; color: #2c3e50;">🎉 Consultation Booked!</h3>
-            <p style="margin: 0 0 25px 0; color: #555; line-height: 1.5;">
+            <div style="font-size: 24px; margin-bottom: 10px;">🎯</div>
+            <p style="margin: 0 0 20px 0; color: #2c3e50; font-size: 16px; line-height: 1.4; font-weight: 500;">
                 ${config.question}
             </p>
-            <div style="display: flex; gap: 15px; justify-content: center;">
+            <div style="display: flex; gap: 12px; justify-content: center;">
                 <button onclick="window.handleDecisionYes()" style="
                     background: #2ecc71;
                     color: white;
                     border: none;
-                    padding: 12px 25px;
+                    padding: 12px 24px;
                     border-radius: 8px;
                     cursor: pointer;
-                    font-weight: bold;
-                    flex: 1;
-                ">${config.yesText}</button>
+                    font-weight: 600;
+                    font-size: 14px;
+                    transition: background 0.2s;
+                " onmouseover="this.style.background='#27ae60'" onmouseout="this.style.background='#2ecc71'">
+                    ${config.yesText}
+                </button>
                 <button onclick="window.handleDecisionSkip()" style="
                     background: #3498db;
                     color: white;
                     border: none;
-                    padding: 12px 25px;
+                    padding: 12px 24px;
                     border-radius: 8px;
                     cursor: pointer;
-                    font-weight: bold;
-                    flex: 1;
-                ">${config.skipText}</button>
+                    font-weight: 600;
+                    font-size: 14px;
+                    transition: background 0.2s;
+                " onmouseover="this.style.background='#2980b9'" onmouseout="this.style.background='#3498db'">
+                    ${config.skipText}
+                </button>
             </div>
         </div>
-        <div id="decision-overlay" style="
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.7);
-            z-index: 9999;
-        "></div>
     `;
     
-    // Add to page
-    document.body.insertAdjacentHTML('beforeend', decisionHTML);
+    // Add to chat container (not as overlay)
+    const chatContainer = document.getElementById('chat-messages') || 
+                         document.querySelector('.chat-messages') ||
+                         document.body;
+    
+    chatContainer.insertAdjacentHTML('beforeend', decisionHTML);
     
     // Store callbacks globally
-    window.handleDecisionYes = config.onYes;
-    window.handleDecisionSkip = config.onSkip;
+    window.handleDecisionYes = function() {
+        cleanupDecisionPanel();
+        config.onYes();
+    };
     
-    console.log("✅ DECISION PANEL: Displayed successfully with callbacks");
+    window.handleDecisionSkip = function() {
+        cleanupDecisionPanel();
+        config.onSkip();
+    };
+    
+    console.log("✅ DECISION PANEL: In-chat panel displayed");
 }
 
-// Make function globally available
-window.showDecisionPanel = showDecisionPanel;
-
-// ADD decision handler function too
-function handleDecision(choice) {
-    console.log(`🎯 USER DECISION: ${choice}`);
-    
-    // Remove decision panel
-    const panel = document.getElementById('decision-panel');
-    const overlay = document.getElementById('decision-overlay');
-    if (panel) panel.remove();
-    if (overlay) overlay.remove();
-    
-    if (choice === 'continue') {
-        // Continue chatting - show Speak Now banner
-        if (window.showDirectSpeakNow) {
-            window.showDirectSpeakNow();
-        }
-        console.log("✅ Continuing conversation");
-    } else {
-        // Finish - show thank you
-        if (window.showThankYouSplash) {
-            window.showThankYouSplash();
-        }
-        console.log("✅ Ending conversation with thank you");
-    }
+function cleanupDecisionPanel() {
+    const panels = document.querySelectorAll('.decision-panel');
+    panels.forEach(panel => panel.remove());
 }
 
-// Make functions globally available
+// Make globally available (ONLY ONCE)
 window.showDecisionPanel = showDecisionPanel;
-window.handleDecision = handleDecision;
+window.cleanupDecisionPanel = cleanupDecisionPanel;
 
 // ================================
 // 🆕 ENHANCED: HANDLE EMAIL CONFIRMATION RESPONSE WITH UNIVERSAL CONFIRMATION
