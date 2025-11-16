@@ -2678,8 +2678,16 @@ console.log('🔄 No strong intent - using original system logic');
         return await getOpenAIResponse(userMessage, conversationHistory);
     } else {
         const fallbackResponse = "I appreciate your message! That's something Bruce,the founder and CEO of NCI would be perfect to help with. Would you like me to connect you with him for a free consultation?";
-        speakWithElevenLabs(fallbackResponse, false);
-        return fallbackResponse;
+
+// 🎯 CRITICAL: Mark this as a pre-close opportunity
+window.lastPreCloseQuestion = fallbackResponse;
+window.lastPreCloseIntent = 'bruce_consultation';
+window.conversationState = 'qualification';
+
+console.log('🎯 BRUCE PRE-CLOSE QUESTION SET:', fallbackResponse);
+
+speakWithElevenLabs(fallbackResponse, false);
+return fallbackResponse;
     }
 }
 
@@ -4962,8 +4970,8 @@ window.showWelcomeSplash = function(userName) {
     console.log('🎉 ULTRA-MINIMAL WELCOME: Showing for', userName);
     
     // 🎨 SIZE CONTROLS - CHANGE THESE:
-    const logoHeight = '60px';   // Change logo size: '60px', '100px', '120px'
-    const fontSize = '24px';     // Change text size: '20px', '28px', '32px'
+    const logoHeight = '65px';   // Change logo size: '60px', '100px', '120px'
+    const fontSize = '22px';     // Change text size: '20px', '28px', '32px'
     
     const existingWelcome = document.getElementById('minimal-welcome');
     if (existingWelcome) existingWelcome.remove();
