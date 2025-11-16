@@ -5018,17 +5018,18 @@ if (!window.bannerSyncInterval) {
 }
 
 // BLUE THEMED WELCOME BANNER WITH IMAGE
-// ULTRA-MINIMAL WELCOME WITH CUSTOM CONTROLS
+// ULTRA-MINIMAL WELCOME WITH PROPER TEXT SIZE CONTROL
 window.showWelcomeSplash = function(userName) {
     console.log('🎉 ULTRA-MINIMAL WELCOME: Showing for', userName);
     
     // 🎨 CUSTOMIZATION SETTINGS
     const settings = {
         logoUrl: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1763241555499_pngegg%20(13).png',
-        logoHeight: '30px',           // Adjust logo size: '25px', '35px', '40px'
-        textTopPosition: '15px',      // Adjust vertical position: '10px', '20px', '25px'
-        textLeftPosition: '15px',     // Adjust horizontal position: '10px', '20px'
-        fontSize: '16px',             // Adjust text size: '14px', '18px', '20px'
+        logoHeight: '85px',           // Logo size
+        textTopPosition: '20px',      // Vertical position
+        textLeftPosition: '20px',     // Horizontal position  
+        fontSize: '24px',             // 🎯 TEXT SIZE - MUCH LARGER!
+        fontWeight: '600',            // Text thickness - '400'=normal, '600'=bold, '700'=bolder
         duration: 1500                // Display duration
     };
     
@@ -5041,16 +5042,17 @@ window.showWelcomeSplash = function(userName) {
         position: absolute;
         top: ${settings.textTopPosition};
         left: ${settings.textLeftPosition};
-        color: rgba(255,255,255,0.9);
+        color: rgba(0, 13, 255, 0.95);
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         font-size: ${settings.fontSize};
-        font-weight: 500;
+        font-weight: ${settings.fontWeight};
         z-index: 10000;
         opacity: 0;
         transition: opacity 0.5s ease;
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 12px;
+        text-shadow: 0 1px 3px rgba(0,0,0,0.5);
     `;
     
     welcomeContainer.innerHTML = `
@@ -5076,7 +5078,7 @@ window.showWelcomeSplash = function(userName) {
     }
     
     window.welcomeSplashShown = true;
-    console.log('✅ Ultra-minimal welcome shown with controls');
+    console.log('✅ Ultra-minimal welcome shown with proper text size');
 };
 
 // ===================================================
