@@ -5018,20 +5018,9 @@ if (!window.bannerSyncInterval) {
 }
 
 // BLUE THEMED WELCOME BANNER WITH IMAGE
-// ULTRA-MINIMAL WELCOME WITH PROPER TEXT SIZE CONTROL
+// ULTRA-MINIMAL WELCOME WITH LOGO
 window.showWelcomeSplash = function(userName) {
     console.log('🎉 ULTRA-MINIMAL WELCOME: Showing for', userName);
-    
-    // 🎨 CUSTOMIZATION SETTINGS
-    const settings = {
-        logoUrl: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1763241555499_pngegg%20(13).png',
-        logoHeight: '85px',           // Logo size
-        textTopPosition: '20px',      // Vertical position
-        textLeftPosition: '20px',     // Horizontal position  
-        fontSize: '24px',             // 🎯 TEXT SIZE - MUCH LARGER!
-        fontWeight: '600',            // Text thickness - '400'=normal, '600'=bold, '700'=bolder
-        duration: 1500                // Display duration
-    };
     
     const existingWelcome = document.getElementById('minimal-welcome');
     if (existingWelcome) existingWelcome.remove();
@@ -5040,25 +5029,24 @@ window.showWelcomeSplash = function(userName) {
     welcomeContainer.id = 'minimal-welcome';
     welcomeContainer.style.cssText = `
         position: absolute;
-        top: ${settings.textTopPosition};
-        left: ${settings.textLeftPosition};
-        color: rgba(0, 13, 255, 0.95);
+        top: 15px;
+        left: 15px;
+        color: #007AFF;
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        font-size: ${settings.fontSize};
-        font-weight: ${settings.fontWeight};
+        font-size: 24px;
+        font-weight: 600;
         z-index: 10000;
         opacity: 0;
         transition: opacity 0.5s ease;
         display: flex;
         align-items: center;
-        gap: 12px;
-        text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+        gap: 10px;
     `;
     
     welcomeContainer.innerHTML = `
-        <img src="${settings.logoUrl}" 
+        <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1763241555499_pngegg%20(13).png" 
              alt="Welcome" 
-             style="height: ${settings.logoHeight}; border-radius: 4px;"
+             style="height: 80px; border-radius: 6px;"
              onerror="this.style.display='none'">
         <span>Welcome, ${userName}</span>
     `;
@@ -5074,11 +5062,11 @@ window.showWelcomeSplash = function(userName) {
         setTimeout(() => {
             welcomeContainer.style.opacity = '0';
             setTimeout(() => welcomeContainer.remove(), 500);
-        }, settings.duration);
+        }, 1500);
     }
     
     window.welcomeSplashShown = true;
-    console.log('✅ Ultra-minimal welcome shown with proper text size');
+    console.log('✅ Ultra-minimal welcome shown');
 };
 
 // ===================================================
