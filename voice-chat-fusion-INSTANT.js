@@ -4957,44 +4957,40 @@ if (!window.bannerSyncInterval) {
     console.log('✅ Banner state synchronization started with safety timer');
 }
 
-// ULTRA-MINIMAL WELCOME - YOUR EXACT VERSION WITH POSITION CONTROLS
+// ULTRA-MINIMAL WELCOME WITH LOGO & FONT SIZE CONTROLS
 window.showWelcomeSplash = function(userName) {
     console.log('🎉 ULTRA-MINIMAL WELCOME: Showing for', userName);
     
-    // 🎨 POSITION CONTROLS - ADD THESE TWO LINES:
-    const topPosition = '15px';    // Move up/down: '10px', '20px', '25px', '30px'
-    const leftPosition = '15px';   // Move left/right: '10px', '20px', '25px'
-    
-    const logoHeight = '80px';
-    const fontSize = '24px';
+    // 🎨 SIZE CONTROLS - CHANGE THESE:
+    const logoHeight = '50px';   // Change logo size: '60px', '100px', '120px'
+    const fontSize = '20px';     // Change text size: '20px', '28px', '32px'
     
     const existingWelcome = document.getElementById('minimal-welcome');
     if (existingWelcome) existingWelcome.remove();
     
     const welcomeContainer = document.createElement('div');
     welcomeContainer.id = 'minimal-welcome';
-    welcomeContainer.style.cssText = `
-        position: absolute;
-        top: ${topPosition};      // NOW USING VARIABLE
-        left: ${leftPosition};    // NOW USING VARIABLE
-        color: #024082ff;
-        font-family: cursive, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        font-size: ${fontSize};
-        font-weight: 600;
-        z-index: 10000;
-        opacity: 0;
-        transition: opacity 0.5s ease;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    `;
-    
+  welcomeContainer.style.cssText = `
+    position: absolute;
+    top: -20px;
+    left: 12px;
+    color: #024082ff;
+    font-family: cursive, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: ${fontSize};
+    font-weight: 600;
+    z-index: 10000;
+    opacity: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+`;
+
     welcomeContainer.innerHTML = `
         <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1763241555499_pngegg%20(13).png" 
              alt="Welcome" 
              style="height: ${logoHeight}; border-radius: 6px;"
              onerror="this.style.display='none'">
-        <span>Welcome, ${userName}</span>
+        <span>${userName}!</span>
     `;
     
     const banner = document.querySelector('.speak-now-banner, .speak-now-container, .universal-banner');
