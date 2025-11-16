@@ -5004,7 +5004,7 @@ if (!window.bannerSyncInterval) {
     console.log('✅ Banner state synchronization started with safety timer');
 }
 
-// CLEAN WHITE BANNER WITH TRANSPARENT BACKGROUND
+// BLUE THEMED WELCOME BANNER WITH IMAGE
 window.showWelcomeSplash = function(userName) {
     console.log('🎉 WELCOME SPLASH: Showing for', userName);
     
@@ -5012,7 +5012,7 @@ window.showWelcomeSplash = function(userName) {
     const existingSplash = document.getElementById('welcome-splash');
     if (existingSplash) existingSplash.remove();
     
-    // Create clean white banner with transparent background
+    // Create blue-themed banner with transparency
     const splash = document.createElement('div');
     splash.id = 'welcome-splash';
     splash.style.cssText = `
@@ -5021,7 +5021,7 @@ window.showWelcomeSplash = function(userName) {
         left: 0;
         width: 100%;
         height: 100%;
-        background: transparent; /* TRANSPARENT background */
+        background: transparent;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -5031,17 +5031,21 @@ window.showWelcomeSplash = function(userName) {
     
     splash.innerHTML = `
         <div style="
-            background: white;
+            background: rgba(255, 255, 255, 0.5); /* 50% transparent white */
             padding: 40px 60px;
-            border-radius: 20px; /* Curved edges */
+            border-radius: 20px;
             text-align: center;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            border: 1px solid rgba(255,255,255,0.2);
+            border: 3px solid #007AFF; /* Blue border */
         ">
-            <div style="font-size: 32px; font-weight: 700; color: #1a1a1a; margin-bottom: 10px;">
+            <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1763241555499_pngegg%20(13).png" 
+                 alt="Welcome" 
+                 style="height: 60px; margin-bottom: 20px; border-radius: 8px;"
+                 onerror="this.style.display='none'">
+            <div style="font-size: 32px; font-weight: 700; color: #007AFF; margin-bottom: 10px;">
                 Welcome
             </div>
-            <div style="font-size: 28px; font-weight: 600; color: #4a5568;">
+            <div style="font-size: 28px; font-weight: 600; color: #007AFF;">
                 ${userName}
             </div>
         </div>
