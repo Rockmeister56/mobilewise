@@ -737,6 +737,11 @@ function handleEmailConfirmation(sendEmail, captureType) {
         setTimeout(() => {
             console.log('📧 Email sent - showing completion decision panel');
             
+            // 🚫 STOP any pending Speak Now banners first
+            if (window.closeSpeakNowBanner) {
+                window.closeSpeakNowBanner();
+            }
+            
             showDecisionPanel({
                 question: "Is that everything I can help you with today?",
                 yesText: "Yes, I Have More Questions",
@@ -797,6 +802,119 @@ function handleEmailConfirmation(sendEmail, captureType) {
         }, 2000);
     }
 }
+
+// ================================
+// IN-CHAT DECISION PANEL (CLEAN VERSION)
+// ================================
+function showDecisionPanel(options) {
+    console.log("🎯 DECISION PANEL: Showing IN-CHAT decision");
+    
+    // 🚫 CRITICAL: Stop the Speak Now banner from showing
+    if (window.closeSpeakNowBanner) {
+        window.closeSpeakNowBanner();
+    }
+    
+    // Remove any existing decision panel first
+    cleanupDecisionPanel();
+    
+    const config = {
+        question: options.question || "What would you like to do next?",
+        yesText: options.yesText || "Continue", 
+        skipText: options.skipText || "Finish",
+        onYes: options.onYes || function() { 
+            console.log("Continue clicked");
+            if (window.showDirectSpeakNow) window.showDirectSpeakNow();
+        },
+        onSkip: options.onSkip || function() { 
+            console.log("Finish clicked");
+            if (window.showThankYouSplash) window.showThankYouSplash();
+        }
+    };
+    
+    // Create IN-CHAT decision panel (EXACTLY like email confirmation)
+    const decisionHTML = `
+        <div class="chat-message ai-message decision-panel" style="
+            background: rgba(248, 249, 250, 0.95);
+            border: 2px solid #e9ecef;
+            border-radius: 16px;
+            padding: 25px;
+            margin: 20px auto;
+            text-align: center;
+            max-width: 380px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        ">
+            <div style="font-size: 32px; margin-bottom: 15px; color: #2ecc71;">🎯</div>
+            <p style="margin: 0 0 25px 0; color: #2c3e50; font-size: 17px; line-height: 1.5; font-weight: 500;">
+                ${config.question}
+            </p>
+            <div style="display: flex; gap: 15px; justify-content: center;">
+                <button onclick="window.handleDecisionYes()" style="
+                    background: #2ecc71;
+                    color: white;
+                    border: none;
+                    padding: 14px 28px;
+                    border-radius: 10px;
+                    cursor: pointer;
+                    font-weight: 600;
+                    font-size: 15px;
+                    transition: all 0.2s;
+                    box-shadow: 0 2px 8px rgba(46, 204, 113, 0.3);
+                " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(46, 204, 113, 0.4)'" 
+                   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(46, 204, 113, 0.3)'">
+                    ${config.yesText}
+                </button>
+                <button onclick="window.handleDecisionSkip()" style="
+                    background: #3498db;
+                    color: white;
+                    border: none;
+                    padding: 14px 28px;
+                    border-radius: 10px;
+                    cursor: pointer;
+                    font-weight: 600;
+                    font-size: 15px;
+                    transition: all 0.2s;
+                    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+                " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(52, 152, 219, 0.4)'" 
+                   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(52, 152, 219, 0.3)'">
+                    ${config.skipText}
+                </button>
+            </div>
+        </div>
+    `;
+    
+    // Add to chat container (EXACTLY where email confirmation appears)
+    const chatContainer = document.getElementById('chat-messages') || 
+                         document.querySelector('.chat-messages') ||
+                         document.querySelector('.chat-container') ||
+                         document.body;
+    
+    chatContainer.insertAdjacentHTML('beforeend', decisionHTML);
+    
+    // Scroll to show the decision panel
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+    
+    // Store callbacks globally
+    window.handleDecisionYes = function() {
+        cleanupDecisionPanel();
+        config.onYes();
+    };
+    
+    window.handleDecisionSkip = function() {
+        cleanupDecisionPanel();
+        config.onSkip();
+    };
+    
+    console.log("✅ DECISION PANEL: In-chat panel displayed (banner blocked)");
+}
+
+function cleanupDecisionPanel() {
+    const panels = document.querySelectorAll('.decision-panel');
+    panels.forEach(panel => panel.remove());
+}
+
+// Make globally available
+window.showDecisionPanel = showDecisionPanel;
+window.cleanupDecisionPanel = cleanupDecisionPanel;
 
 /**
  * 🎯 UNIVERSAL CONFIRMATION SYSTEM
@@ -1137,6 +1255,11 @@ function showEmailConfirmationButtons(leadData, captureType) {
 function showDecisionPanel(options) {
     console.log("🎯 DECISION PANEL: Showing IN-CHAT decision");
     
+    // 🚫 CRITICAL: Stop the Speak Now banner from showing
+    if (window.closeSpeakNowBanner) {
+        window.closeSpeakNowBanner();
+    }
+    
     // Remove any existing decision panel first
     cleanupDecisionPanel();
     
@@ -1154,60 +1277,67 @@ function showDecisionPanel(options) {
         }
     };
     
-    // Create IN-CHAT decision panel (appears as part of chat flow)
+    // Create IN-CHAT decision panel (EXACTLY like email confirmation)
     const decisionHTML = `
         <div class="chat-message ai-message decision-panel" style="
-            background: rgba(248, 249, 250, 0.9);
-            border: 1px solid rgba(0,0,0,0.1);
-            border-radius: 12px;
-            padding: 20px;
-            margin: 15px 0;
+            background: rgba(248, 249, 250, 0.95);
+            border: 2px solid #e9ecef;
+            border-radius: 16px;
+            padding: 25px;
+            margin: 20px auto;
             text-align: center;
-            max-width: 400px;
-            margin-left: auto;
-            margin-right: auto;
+            max-width: 380px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         ">
-            <div style="font-size: 24px; margin-bottom: 10px;">🎯</div>
-            <p style="margin: 0 0 20px 0; color: #2c3e50; font-size: 16px; line-height: 1.4; font-weight: 500;">
+            <div style="font-size: 32px; margin-bottom: 15px; color: #2ecc71;">🎯</div>
+            <p style="margin: 0 0 25px 0; color: #2c3e50; font-size: 17px; line-height: 1.5; font-weight: 500;">
                 ${config.question}
             </p>
-            <div style="display: flex; gap: 12px; justify-content: center;">
+            <div style="display: flex; gap: 15px; justify-content: center;">
                 <button onclick="window.handleDecisionYes()" style="
                     background: #2ecc71;
                     color: white;
                     border: none;
-                    padding: 12px 24px;
-                    border-radius: 8px;
+                    padding: 14px 28px;
+                    border-radius: 10px;
                     cursor: pointer;
                     font-weight: 600;
-                    font-size: 14px;
-                    transition: background 0.2s;
-                " onmouseover="this.style.background='#27ae60'" onmouseout="this.style.background='#2ecc71'">
+                    font-size: 15px;
+                    transition: all 0.2s;
+                    box-shadow: 0 2px 8px rgba(46, 204, 113, 0.3);
+                " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(46, 204, 113, 0.4)'" 
+                   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(46, 204, 113, 0.3)'">
                     ${config.yesText}
                 </button>
                 <button onclick="window.handleDecisionSkip()" style="
                     background: #3498db;
                     color: white;
                     border: none;
-                    padding: 12px 24px;
-                    border-radius: 8px;
+                    padding: 14px 28px;
+                    border-radius: 10px;
                     cursor: pointer;
                     font-weight: 600;
-                    font-size: 14px;
-                    transition: background 0.2s;
-                " onmouseover="this.style.background='#2980b9'" onmouseout="this.style.background='#3498db'">
+                    font-size: 15px;
+                    transition: all 0.2s;
+                    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+                " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(52, 152, 219, 0.4)'" 
+                   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(52, 152, 219, 0.3)'">
                     ${config.skipText}
                 </button>
             </div>
         </div>
     `;
     
-    // Add to chat container (not as overlay)
+    // Add to chat container (EXACTLY where email confirmation appears)
     const chatContainer = document.getElementById('chat-messages') || 
                          document.querySelector('.chat-messages') ||
+                         document.querySelector('.chat-container') ||
                          document.body;
     
     chatContainer.insertAdjacentHTML('beforeend', decisionHTML);
+    
+    // Scroll to show the decision panel
+    chatContainer.scrollTop = chatContainer.scrollHeight;
     
     // Store callbacks globally
     window.handleDecisionYes = function() {
@@ -1220,7 +1350,7 @@ function showDecisionPanel(options) {
         config.onSkip();
     };
     
-    console.log("✅ DECISION PANEL: In-chat panel displayed");
+    console.log("✅ DECISION PANEL: In-chat panel displayed (banner blocked)");
 }
 
 function cleanupDecisionPanel() {
@@ -1228,137 +1358,10 @@ function cleanupDecisionPanel() {
     panels.forEach(panel => panel.remove());
 }
 
-// Make globally available (ONLY ONCE)
+// Make globally available
 window.showDecisionPanel = showDecisionPanel;
 window.cleanupDecisionPanel = cleanupDecisionPanel;
 
-// ================================
-// 🆕 ENHANCED: HANDLE EMAIL CONFIRMATION RESPONSE WITH UNIVERSAL CONFIRMATION
-// ================================
-function handleEmailConfirmation(sendEmail, captureType) {
-    console.log('🎯 Email confirmation:', sendEmail ? 'SENDING' : 'SKIPPING');
-    
-    // 🆕 RE-ENABLE AVATAR
-    enableAvatarAfterLeadCapture();
-    
-    // Remove confirmation buttons
-    const buttonContainer = document.querySelector('.email-confirmation-buttons');
-    if (buttonContainer) {
-        buttonContainer.remove();
-    }
-    
-    const data = window.currentLeadData;
-    
-    if (sendEmail) {
-        // User wants email - send it using your ORIGINAL email logic
-        sendOriginalLeadEmail(data, captureType);
-        
-        // 🚀 AFTER EMAIL SENT - SHOW UNIVERSAL CONFIRMATION PANEL
-        setTimeout(() => {
-            console.log('📧 Email sent - showing universal confirmation panel');
-            
-            // Use the new Universal Confirmation System
-            if (window.showUniversalConfirmation) {
-                window.showUniversalConfirmation({
-                    type: 'email',
-                    title: "📧 Email Sent!",
-                    message: `Confirmation sent to ${data.email}<br>Bruce will contact you at ${data.phone}`,
-                    question: "Is that everything I can help you with today?",
-                    primaryText: "Yes, I Have More Questions",
-                    secondaryText: "No, I'm All Done",
-                    onPrimary: function() {
-                        // User wants to continue
-                        console.log('✅ User wants to continue - restarting conversation');
-                        window.currentLeadData = null;
-                        
-                        setTimeout(() => {
-                            const continueMessage = "Great! What else can I help you with?";
-                            speakWithElevenLabs(continueMessage, false);
-                            
-                            // Show speak now banner after speech
-                            setTimeout(() => {
-                                if (typeof showDirectSpeakNow === 'function') {
-                                    showDirectSpeakNow();
-                                }
-                            }, 2000);
-                        }, 500);
-                    },
-                    onSecondary: function() {
-                        // User is done - show thank you screen
-                        console.log('✅ User is done - showing thank you screen');
-                        window.currentLeadData = null;
-                        
-                        // 🎯 CALL THE EXISTING THANK YOU FUNCTION
-                        showThankYouSplash(data.name, captureType);
-                        
-                        setTimeout(() => {
-                            speakWithElevenLabs("Thank you for your time! Feel free to come back anytime.", false);
-                        }, 1000);
-                    },
-                    data: data
-                });
-            } else {
-                // Fallback to old decision panel if universal not available
-                console.log('❌ Universal confirmation not available - using fallback');
-                if (window.showDecisionPanel) {
-                    window.showDecisionPanel({
-                        question: "Is that everything I can help you with today?",
-                        yesText: "Yes, I Have More Questions",
-                        skipText: "No, I'm All Done", 
-                        onYes: function() {
-                            // User wants to continue
-                            console.log('✅ User wants to continue - restarting conversation');
-                            window.currentLeadData = null;
-                            
-                            setTimeout(() => {
-                                const continueMessage = "Great! What else can I help you with?";
-                                speakWithElevenLabs(continueMessage, false);
-                                
-                                // Show speak now banner after speech
-                                setTimeout(() => {
-                                    if (typeof showDirectSpeakNow === 'function') {
-                                        showDirectSpeakNow();
-                                    }
-                                }, 2000);
-                            }, 500);
-                        },
-                        onSkip: function() {
-                            // User is done - show thank you screen
-                            console.log('✅ User is done - showing thank you screen');
-                            window.currentLeadData = null;
-                            
-                            // 🎯 CALL THE EXISTING THANK YOU FUNCTION
-                            showThankYouSplash(data.name, captureType);
-                            
-                            setTimeout(() => {
-                                speakWithElevenLabs("Thank you for your time! Feel free to come back anytime.", false);
-                            }, 1000);
-                        }
-                    });
-                } else {
-                    // Ultimate fallback - just show thank you
-                    console.log('❌ No confirmation system available - showing thank you');
-                    showThankYouSplash(data.name, captureType);
-                    window.currentLeadData = null;
-                }
-            }
-        }, 1000); // Wait for email send to complete
-        
-    } else {
-        // User skipped email - show thank you splash directly
-        if (window.addAIMessage) {
-            window.addAIMessage("No problem! Bruce will still contact you directly. Is there anything else I can help with?");
-        }
-        
-        // Show thank you splash after brief delay
-        setTimeout(() => {
-            showThankYouSplash(data.name, captureType);
-        }, 1500);
-        
-        // Clear the lead data
-        window.currentLeadData = null;
-    }
-}
 
 // 🆕 ADD THIS FUNCTION TOO:
 function enableAvatarAfterLeadCapture() {
