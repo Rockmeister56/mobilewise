@@ -2673,21 +2673,29 @@ if (!window.salesAI.userData.firstName) {
 console.log('🔄 No strong intent - using original system logic');
     
     // 🧠 STEP 5: FALLBACK TO ORIGINAL LOGIC
-    console.log('🔄 No strong intent - using original system logic');
-    if (typeof getOpenAIResponse === 'function') {
-        return await getOpenAIResponse(userMessage, conversationHistory);
-    } else {
-        const fallbackResponse = "I appreciate your message! That's something Bruce,the founder and CEO of NCI would be perfect to help with. Would you like me to connect you with him for a free consultation?";
+console.log('🔄 No strong intent - using original system logic');
+if (typeof getOpenAIResponse === 'function') {
+    return await getOpenAIResponse(userMessage, conversationHistory);
+} else {
+    const fallbackResponse = "I appreciate your message! That's something Bruce,the founder and CEO of NCI would be perfect to help with. Would you like me to connect you with him for a free consultation?";
 
-// 🎯 ADD THESE 4 LINES RIGHT HERE:
-window.lastPreCloseQuestion = fallbackResponse;
-window.lastPreCloseIntent = 'bruce_consultation';
-window.conversationState = 'qualification';
-console.log('🎯 BRUCE PRE-CLOSE QUESTION SET:', fallbackResponse);
+    // 🎯 ADD THESE LINES RIGHT HERE:
+    window.lastPreCloseQuestion = fallbackResponse;
+    window.lastPreCloseIntent = 'bruce_consultation';
+    window.conversationState = 'qualification';
+    console.log('🎯 BRUCE PRE-CLOSE QUESTION SET:', fallbackResponse);
 
-speakWithElevenLabs(fallbackResponse, false);
-return fallbackResponse;
-    }
+    // 🚀 TRIGGER BANNER IMMEDIATELY when asking the closing question
+    setTimeout(() => {
+        if (window.showDirectSpeakNow) {
+            window.showDirectSpeakNow();
+            console.log('✅ Appointment Banner triggered for Bruce consultation offer');
+        }
+    }, 100); // Minimal delay to ensure question is displayed first
+
+    speakWithElevenLabs(fallbackResponse, false);
+    return fallbackResponse;
+}
 }
 
 // Add this emergency Bruce detection in getAIResponse
@@ -2699,23 +2707,23 @@ window.getAIResponse = function(userMessage) {
 if ((lowerMessage.includes('yes') || lowerMessage.includes('yeah') || lowerMessage.includes('sure')) &&
     window.lastPreCloseIntent === 'bruce_consultation') {
     
-    console.log('🎯 EMERGENCY BRUCE YES DETECTED - Triggering Action Center immediately');
+    console.log('🎯 EMERGENCY BRUCE YES DETECTED - Triggering Action Center IMMEDIATELY');
     
     // Clear the context
     window.lastPreCloseIntent = null;
     window.lastPreCloseQuestion = null;
     
-    // 🚀 CRITICAL FIX: Trigger Action Center IMMEDIATELY (no delay)
+    // 🚀 CRITICAL: Trigger Action Center IMMEDIATELY (no delays)
     if (window.triggerLeadActionCenter) {
         window.triggerLeadActionCenter();
-        console.log('✅ Action Center triggered via emergency detection');
+        console.log('✅ Action Center triggered IMMEDIATELY via emergency detection');
     }
     
-    // Return instruction speech that plays AFTER Action Center appears
+    // Return instruction speech that plays AFTER Action Center is visible
     return "Simply click the book consultation button or whatever you prefer and I'll help you set up a consultation with Bruce";
 }
-    
-    return originalGetAIResponse.apply(this, arguments);
+
+return originalGetAIResponse.apply(this, arguments);
 };
 
 /// 🎯 CONCERN DETECTION SYSTEM - FIXED VERSION
