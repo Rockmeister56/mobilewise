@@ -5089,21 +5089,43 @@ if (typeof window.showDirectSpeakNow === 'function') {
         if (window.currentBulletproofTimer) {
             clearTimeout(window.currentBulletproofTimer);
         }
-       window.currentBulletproofTimer = setTimeout(() => {
-    // 🚀 CRITICAL FIX: Don't cleanup if Action Center is visible
-    const actionCenterVisible = document.querySelector('.communication-relay-center') || 
-                               window.actionCenterVisible ||
-                               document.querySelector('#action-center-overlay');
-    
-    if (actionCenterVisible) {
-        console.log('🔒 Safety timeout BYPASSED - Action Center is open, banner should persist');
-        // Reset the timer to check again in 30 seconds
-        window.currentBulletproofTimer = setTimeout(arguments.callee, 30000);
-    } else {
-        console.log('🕐 SAFETY TIMEOUT: Banner stuck for 30s - emergency cleanup');
-        directCleanup();
-    }
-}, 30000);
+        
+        // Create named function for the safety timeout
+        const createSafetyTimeout = () => {
+            // 🚀 PROTECT ALL KEY SALES BANNERS
+            const protectedBannerTypes = [
+                'setAppointment',           // Consultation
+                'preQualifier',            // Pre-qualification  
+                'urgent',                  // Urgent call
+                'clickToCall',             // Call now
+                'freeBookWithConsultation' // Free book offer
+            ];
+            
+            const hasProtectedBanner = protectedBannerTypes.some(bannerType => 
+                document.querySelector(`[data-banner-type="${bannerType}"]`)
+            );
+            
+            const actionCenterVisible = document.querySelector('.communication-relay-center') || 
+                                       window.actionCenterVisible ||
+                                       document.querySelector('#action-center-overlay');
+            
+            const universalBanner = document.getElementById('universal-banner');
+            const hasVisibleUniversalBanner = universalBanner && universalBanner.style.display !== 'none';
+            
+            if (actionCenterVisible || hasProtectedBanner || hasVisibleUniversalBanner) {
+                const activeBanner = protectedBannerTypes.find(type => 
+                    document.querySelector(`[data-banner-type="${type}"]`)
+                ) || 'universal-banner';
+                console.log('🔒 Safety timeout BYPASSED - Action Center or sales banner active:', activeBanner);
+                // Reset the timer to check again in 30 seconds
+                window.currentBulletproofTimer = setTimeout(createSafetyTimeout, 30000);
+            } else {
+                console.log('🕐 SAFETY TIMEOUT: Generic banner stuck - emergency cleanup');
+                directCleanup();
+            }
+        };
+        
+        window.currentBulletproofTimer = setTimeout(createSafetyTimeout, 30000);
         
         // Call original function
         originalShowDirectSpeakNow.call(this);
