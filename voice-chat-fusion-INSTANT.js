@@ -5419,8 +5419,7 @@ if (typeof showUniversalBanner === 'function') {
     window.showUniversalBanner = showUniversalBanner;
 }
 
-// 🎯 UNIVERSAL DECISION PANEL SYSTEM - LEE DWAYNE MAESTRO EDITION
-// ARCHIVED: [Timestamp] - For consultation, pre-qual, appointments, downloads
+// 🎯 UNIVERSAL DECISION PANEL SYSTEM - COMPLETE IMPLEMENTATION
 function showDecisionPanel(options) {
     const {
         question,
