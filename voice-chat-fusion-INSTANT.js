@@ -4962,8 +4962,8 @@ window.showWelcomeSplash = function(userName) {
     console.log('🎉 ULTRA-MINIMAL WELCOME: Showing for', userName);
     
     // 🎨 SIZE CONTROLS - CHANGE THESE:
-    const logoHeight = '50px';   // Change logo size: '60px', '100px', '120px'
-    const fontSize = '20px';     // Change text size: '20px', '28px', '32px'
+    const logoHeight = '60px';   // Change logo size: '60px', '100px', '120px'
+    const fontSize = '24px';     // Change text size: '20px', '28px', '32px'
     
     const existingWelcome = document.getElementById('minimal-welcome');
     if (existingWelcome) existingWelcome.remove();
@@ -4979,6 +4979,7 @@ window.showWelcomeSplash = function(userName) {
     font-size: ${fontSize};
     font-weight: 600;
     z-index: 10000;
+    transition: opacity 0.7s ease;
     opacity: 0;
     display: flex;
     align-items: center;
