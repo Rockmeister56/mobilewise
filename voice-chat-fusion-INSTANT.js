@@ -2690,6 +2690,35 @@ return fallbackResponse;
     }
 }
 
+// Add this emergency Bruce detection in getAIResponse
+const originalGetAIResponse = window.getAIResponse;
+window.getAIResponse = function(userMessage) {
+    const lowerMessage = userMessage.toLowerCase();
+    
+    // 🎯 EMERGENCY BRUCE DETECTION
+    if ((lowerMessage.includes('yes') || lowerMessage.includes('yeah') || lowerMessage.includes('sure')) &&
+        window.lastPreCloseIntent === 'bruce_consultation') {
+        
+        console.log('🎯 EMERGENCY BRUCE YES DETECTED - Triggering Action Center');
+        
+        // Clear the context
+        window.lastPreCloseIntent = null;
+        window.lastPreCloseQuestion = null;
+        
+        // Trigger Action Center
+        setTimeout(() => {
+            if (window.triggerLeadActionCenter) {
+                window.triggerLeadActionCenter();
+                console.log('✅ Action Center triggered via emergency detection');
+            }
+        }, 1000);
+        
+        return "Perfect! Connecting you with Bruce now...";
+    }
+    
+    return originalGetAIResponse.apply(this, arguments);
+};
+
 /// 🎯 CONCERN DETECTION SYSTEM - FIXED VERSION
 // =============================================================================
 
