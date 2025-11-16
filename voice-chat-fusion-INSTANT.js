@@ -5005,13 +5005,7 @@ document.head.appendChild(style);
 setTimeout(() => {
     if (style.parentElement) style.remove();
 }, 2000);
-document.head.appendChild(style);
 
-// Remove the style after animation completes
-setTimeout(() => {
-    if (style.parentElement) style.remove();
-}, 2000);
-    
     welcomeContainer.innerHTML = `
         <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1763241555499_pngegg%20(13).png" 
              alt="Welcome" 
