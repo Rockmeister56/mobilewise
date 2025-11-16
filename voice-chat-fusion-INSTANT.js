@@ -5030,22 +5030,41 @@ window.showWelcomeSplash = function(userName) {
     
     const welcomeContainer = document.createElement('div');
     welcomeContainer.id = 'minimal-welcome';
-    welcomeContainer.style.cssText = `
-        position: absolute;
-        top: -20px;
-        left: 12px;
-        color: #024082ff;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        font-size: ${fontSize};
-        font-family: cursive;
-        font-weight: 600;
-        z-index: 10000;
-        opacity: 0;
-        transition: opacity 0.5s ease;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    `;
+   welcomeContainer.style.cssText = `
+    position: absolute;
+    top: -20px;
+    left: 12px;
+    color: #024082ff;
+    font-family: cursive, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: ${fontSize};
+    font-weight: 600;
+    z-index: 10000;
+    opacity: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: blinkThreeTimes 2s ease-in-out;
+`;
+
+// Add this style block for the animation
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes blinkThreeTimes {
+        0% { opacity: 0; }
+        20% { opacity: 1; }
+        40% { opacity: 0; }
+        60% { opacity: 1; }
+        80% { opacity: 0; }
+        90% { opacity: 1; }
+        100% { opacity: 0; }
+    }
+`;
+document.head.appendChild(style);
+
+// Remove the style after animation completes
+setTimeout(() => {
+    if (style.parentElement) style.remove();
+}, 2000);
     
     welcomeContainer.innerHTML = `
         <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1763241555499_pngegg%20(13).png" 
