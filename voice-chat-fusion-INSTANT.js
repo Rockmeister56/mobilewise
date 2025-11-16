@@ -2714,8 +2714,9 @@ if ((lowerMessage.includes('yes') || lowerMessage.includes('yeah') || lowerMessa
     // Return instruction speech that plays AFTER Action Center appears
     return "Simply click the book consultation button or whatever you prefer and I'll help you set up a consultation with Bruce";
 }
-}
-return originalGetAIResponse.apply(this, arguments);
+    
+    return originalGetAIResponse.apply(this, arguments);
+};
 
 /// 🎯 CONCERN DETECTION SYSTEM - FIXED VERSION
 // =============================================================================
