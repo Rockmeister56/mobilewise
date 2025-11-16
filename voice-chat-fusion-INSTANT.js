@@ -2691,6 +2691,14 @@ setTimeout(() => {
     if (typeof showUniversalBanner === 'function') {
         showUniversalBanner('setAppointment');
         console.log('✅ Free Consultation Banner triggered');
+
+        // 🚀 TRIGGER ACTION CENTER IMMEDIATELY (not waiting for banner delay)
+setTimeout(() => {
+    if (window.triggerLeadActionCenter) {
+        window.triggerLeadActionCenter();
+        console.log('✅ Action Center triggered IMMEDIATELY after banner');
+    }
+}, 200); // Minimal delay just to ensure banner renders first
     }
 }, 500); // Wait for question to start speaking
 
