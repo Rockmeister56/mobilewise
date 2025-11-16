@@ -4957,9 +4957,13 @@ if (!window.bannerSyncInterval) {
     console.log('✅ Banner state synchronization started with safety timer');
 }
 
-// ULTRA-MINIMAL WELCOME - SIMPLE FADE VERSION
+// ULTRA-MINIMAL WELCOME - YOUR EXACT VERSION WITH POSITION CONTROLS
 window.showWelcomeSplash = function(userName) {
     console.log('🎉 ULTRA-MINIMAL WELCOME: Showing for', userName);
+    
+    // 🎨 POSITION CONTROLS - ADD THESE TWO LINES:
+    const topPosition = '15px';    // Move up/down: '10px', '20px', '25px', '30px'
+    const leftPosition = '15px';   // Move left/right: '10px', '20px', '25px'
     
     const logoHeight = '80px';
     const fontSize = '24px';
@@ -4971,8 +4975,8 @@ window.showWelcomeSplash = function(userName) {
     welcomeContainer.id = 'minimal-welcome';
     welcomeContainer.style.cssText = `
         position: absolute;
-        top: -20px;  // Changed from 15px to -20px to move it higher
-        left: 12px;
+        top: ${topPosition};      // NOW USING VARIABLE
+        left: ${leftPosition};    // NOW USING VARIABLE
         color: #024082ff;
         font-family: cursive, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         font-size: ${fontSize};
@@ -4997,10 +5001,10 @@ window.showWelcomeSplash = function(userName) {
     if (banner) {
         banner.appendChild(welcomeContainer);
         
-        // SIMPLE FADE IN
+        // Fade in
         setTimeout(() => welcomeContainer.style.opacity = '1', 10);
         
-        // FADE OUT AFTER 5 SECONDS
+        // Fade out and remove after 5 seconds
         setTimeout(() => {
             welcomeContainer.style.opacity = '0';
             setTimeout(() => {
@@ -5014,6 +5018,7 @@ window.showWelcomeSplash = function(userName) {
     window.welcomeSplashShown = true;
     console.log('✅ Ultra-minimal welcome shown');
 };
+
 // ===================================================
 // 🎯 INTEGRATION WITH EXISTING SHOW BANNER FUNCTION
 // ===================================================
