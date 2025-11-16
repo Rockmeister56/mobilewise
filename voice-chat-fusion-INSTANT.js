@@ -4962,7 +4962,7 @@ window.showWelcomeSplash = function(userName) {
     console.log('🎉 ULTRA-MINIMAL WELCOME: Showing for', userName);
     
     // 🎨 SIZE CONTROLS - CHANGE THESE:
-    const logoHeight = '60px';   // Change logo size: '60px', '100px', '120px'
+    const logoHeight = '80px';   // Change logo size: '60px', '100px', '120px'
     const fontSize = '24px';     // Change text size: '20px', '28px', '32px'
     
     const existingWelcome = document.getElementById('minimal-welcome');
