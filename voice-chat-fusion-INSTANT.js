@@ -5022,8 +5022,8 @@ window.showWelcomeSplash = function(userName) {
     console.log('🎉 ULTRA-MINIMAL WELCOME: Showing for', userName);
     
     // 🎨 SIZE CONTROLS - CHANGE THESE:
-    const logoHeight = '10px';   // Change logo size: '60px', '100px', '120px'
-    const fontSize = '16px';     // Change text size: '20px', '28px', '32px'
+    const logoHeight = '40px';   // Change logo size: '60px', '100px', '120px'
+    const fontSize = '24px';     // Change text size: '20px', '28px', '32px'
     
     const existingWelcome = document.getElementById('minimal-welcome');
     if (existingWelcome) existingWelcome.remove();
@@ -5032,7 +5032,7 @@ window.showWelcomeSplash = function(userName) {
     welcomeContainer.id = 'minimal-welcome';
     welcomeContainer.style.cssText = `
         position: absolute;
-        top: -40px;
+        top: -20px;
         left: 15px;
         color: #007AFF;
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
