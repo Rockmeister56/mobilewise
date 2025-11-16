@@ -2704,26 +2704,29 @@ if (window.salesAI.state === 'introduction') {
     console.log('🎯 Handling introduction - capturing name...');
     
     // Simple name handling
-// Simple name handling
 if (!window.salesAI.userData.firstName) {
     const name = userMessage.split(' ')[0];
     if (name && name.length > 1) {
         window.salesAI.userData.firstName = name;
         window.salesAI.state = 'investigation';
-        
-        // 🎯 NEW: Force close banner to trigger welcome splash
+
+        // 🎉 FIXED: Check salesAI for the name
+    const userName = window.salesAI?.userData?.firstName;
+    if (userName && userName.length > 0 && !window.welcomeSplashShown) {
+        console.log('🎉 Triggering welcome splash for:', userName);
         setTimeout(() => {
-            if (window.closeSpeakNowBanner) {
-                console.log('🎯 Force closing banner to trigger welcome splash for:', name);
-                window.closeSpeakNowBanner();
+            if (window.showWelcomeSplash) {
+                window.showWelcomeSplash(userName);
             }
-        }, 300);
+        }, 100);
+    }
         
         const response = `Nice to meet you ${name}! What brings you to New Clients Inc today?`;
         console.log('✅ Name captured, moving to investigation state');
         return response;
     } else {
         return "Hi! I'm your practice transition assistant. What's your first name?";
+        }
     }
 }
 
@@ -4843,7 +4846,7 @@ window.clearBulletproofTimer = function() {
 function closeSpeakNowBanner() {
     console.log('🎯 CLOSE SPEAK NOW BANNER: Starting cleanup...'); 
     
-    // 🎉 FIXED: Check salesAI for the name
+     // 🎉 FIXED: Check salesAI for the name
     const userName = window.salesAI?.userData?.firstName;
     if (userName && userName.length > 0 && !window.welcomeSplashShown) {
         console.log('🎉 Triggering welcome splash for:', userName);
@@ -4853,7 +4856,6 @@ function closeSpeakNowBanner() {
             }
         }, 100);
     }
-    
     // Clear the safety timer when closing normally
     window.clearBulletproofTimer();
     
