@@ -2679,11 +2679,10 @@ console.log('🔄 No strong intent - using original system logic');
     } else {
         const fallbackResponse = "I appreciate your message! That's something Bruce,the founder and CEO of NCI would be perfect to help with. Would you like me to connect you with him for a free consultation?";
 
-// 🎯 CRITICAL: Mark this as a pre-close opportunity
+// 🎯 ADD THESE 4 LINES RIGHT HERE:
 window.lastPreCloseQuestion = fallbackResponse;
 window.lastPreCloseIntent = 'bruce_consultation';
 window.conversationState = 'qualification';
-
 console.log('🎯 BRUCE PRE-CLOSE QUESTION SET:', fallbackResponse);
 
 speakWithElevenLabs(fallbackResponse, false);
