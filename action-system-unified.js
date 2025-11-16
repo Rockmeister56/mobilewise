@@ -717,39 +717,6 @@ function completeLeadCapture() {
 // ================================
 // EMAIL CONFIRMATION BUTTONS - SIMPLE VERSION
 // ================================
-function showEmailConfirmationButtons(leadData, captureType) {
-    const chatMessages = document.getElementById('chatMessages') || document.querySelector('.chat-messages');
-    if (!chatMessages) return;
-
-     // 🎯 CRITICAL: Emergency cleanup first
-    emergencyBannerCleanup();
-    
-    const buttonContainer = document.createElement('div');
-    buttonContainer.className = 'email-confirmation-buttons';
-    buttonContainer.innerHTML = `
-        <div style="text-align: center; margin: 20px 0; padding: 25px; background: rgba(255,255,255,0.1); border-radius: 15px; border: 2px solid rgba(255,255,255,0.2);">
-            <div style="margin-bottom: 20px; color: white; font-size: 18px; font-weight: bold;">
-                Send confirmation email to:<br>
-                <span style="color: #4CAF50; font-size: 16px;">${leadData.email}</span>
-            </div>
-            <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
-                <button onclick="handleEmailConfirmation(true, '${captureType}')" style="background: linear-gradient(135deg, #4CAF50, #8BC34A); color: white; border: none; padding: 15px 30px; border-radius: 25px; cursor: pointer; font-weight: bold; font-size: 16px; min-width: 140px;">
-                    ✅ Yes, Send Email
-                </button>
-                <button onclick="handleEmailConfirmation(false, '${captureType}')" style="background: linear-gradient(135deg, #757575, #9E9E9E); color: white; border: none; padding: 15px 30px; border-radius: 25px; cursor: pointer; font-weight: bold; font-size: 16px; min-width: 140px;">
-                    ⏭️ Skip Email
-                </button>
-            </div>
-        </div>
-    `;
-    
-    chatMessages.appendChild(buttonContainer);
-    buttonContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-}
-
-// ================================
-// HANDLE EMAIL CONFIRMATION - SIMPLE VERSION
-// ================================
 function handleEmailConfirmation(sendEmail, captureType) {
     console.log('🎯 Email confirmation:', sendEmail ? 'SENDING' : 'SKIPPING');
     
@@ -765,6 +732,52 @@ function handleEmailConfirmation(sendEmail, captureType) {
             window.addAIMessage("📧 Sending your confirmation email now...");
         }
         sendOriginalLeadEmail(data, captureType);
+        
+        // 🚀 AFTER EMAIL SENT - SHOW DECISION PANEL INSTEAD OF VOICE QUESTION
+        setTimeout(() => {
+            console.log('📧 Email sent - showing completion decision panel');
+            
+            showDecisionPanel({
+                question: "Is that everything I can help you with today?",
+                yesText: "Yes, I Have More Questions",
+                skipText: "No, I'm All Done", 
+                onYes: function() {
+                    // User wants to continue
+                    console.log('✅ User wants to continue - restarting conversation');
+                    window.isInLeadCapture = false;
+                    window.currentCaptureType = null;
+                    window.currentLeadData = null;
+                    
+                    setTimeout(() => {
+                        const continueMessage = "Great! What else can I help you with?";
+                        speakWithElevenLabs(continueMessage, false);
+                        
+                        // Show speak now banner after speech
+                        setTimeout(() => {
+                            if (typeof showDirectSpeakNow === 'function') {
+                                showDirectSpeakNow();
+                            }
+                        }, 2000);
+                    }, 500);
+                },
+                onSkip: function() {
+                    // User is done - show thank you screen
+                    console.log('✅ User is done - showing thank you screen');
+                    window.isInLeadCapture = false;
+                    window.currentCaptureType = null;
+                    window.currentLeadData = null;
+                    
+                    if (typeof showThankYouSplash === 'function') {
+                        showThankYouSplash();
+                    }
+                    
+                    setTimeout(() => {
+                        speakWithElevenLabs("Thank you for your time! Feel free to come back anytime.", false);
+                    }, 1000);
+                }
+            });
+        }, 1000); // Wait for email send to complete
+        
     } else {
         // Skip email - just continue conversation
         if (window.addAIMessage) {
@@ -945,7 +958,7 @@ function showEmailConfirmationButtons(leadData, captureType) {
 }
 
 // ================================
-// 🆕 NEW: HANDLE EMAIL CONFIRMATION RESPONSE
+// 🆕 ENHANCED: HANDLE EMAIL CONFIRMATION RESPONSE WITH DECISION PANEL
 // ================================
 function handleEmailConfirmation(sendEmail, captureType) {
     console.log('🎯 Email confirmation:', sendEmail ? 'SENDING' : 'SKIPPING');
@@ -964,6 +977,47 @@ function handleEmailConfirmation(sendEmail, captureType) {
     if (sendEmail) {
         // User wants email - send it using your ORIGINAL email logic
         sendOriginalLeadEmail(data, captureType);
+        
+        // 🚀 AFTER EMAIL SENT - SHOW DECISION PANEL
+        setTimeout(() => {
+            console.log('📧 Email sent - showing completion decision panel');
+            
+            showDecisionPanel({
+                question: "Is that everything I can help you with today?",
+                yesText: "Yes, I Have More Questions",
+                skipText: "No, I'm All Done", 
+                onYes: function() {
+                    // User wants to continue
+                    console.log('✅ User wants to continue - restarting conversation');
+                    window.currentLeadData = null;
+                    
+                    setTimeout(() => {
+                        const continueMessage = "Great! What else can I help you with?";
+                        speakWithElevenLabs(continueMessage, false);
+                        
+                        // Show speak now banner after speech
+                        setTimeout(() => {
+                            if (typeof showDirectSpeakNow === 'function') {
+                                showDirectSpeakNow();
+                            }
+                        }, 2000);
+                    }, 500);
+                },
+                onSkip: function() {
+                    // User is done - show thank you screen
+                    console.log('✅ User is done - showing thank you screen');
+                    window.currentLeadData = null;
+                    
+                    // 🎯 CALL THE EXISTING THANK YOU FUNCTION
+                    showThankYouSplash(data.name, captureType);
+                    
+                    setTimeout(() => {
+                        speakWithElevenLabs("Thank you for your time! Feel free to come back anytime.", false);
+                    }, 1000);
+                }
+            });
+        }, 1000); // Wait for email send to complete
+        
     } else {
         // User skipped email - show thank you splash directly
         if (window.addAIMessage) {
