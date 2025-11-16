@@ -5017,10 +5017,13 @@ if (!window.bannerSyncInterval) {
     console.log('✅ Banner state synchronization started with safety timer');
 }
 
-// BLUE THEMED WELCOME BANNER WITH IMAGE
-// ULTRA-MINIMAL WELCOME WITH LOGO
+// ULTRA-MINIMAL WELCOME WITH LOGO & FONT SIZE CONTROLS
 window.showWelcomeSplash = function(userName) {
     console.log('🎉 ULTRA-MINIMAL WELCOME: Showing for', userName);
+    
+    // 🎨 SIZE CONTROLS - CHANGE THESE:
+    const logoHeight = '50px';   // Change logo size: '60px', '100px', '120px'
+    const fontSize = '16px';     // Change text size: '20px', '28px', '32px'
     
     const existingWelcome = document.getElementById('minimal-welcome');
     if (existingWelcome) existingWelcome.remove();
@@ -5029,11 +5032,11 @@ window.showWelcomeSplash = function(userName) {
     welcomeContainer.id = 'minimal-welcome';
     welcomeContainer.style.cssText = `
         position: absolute;
-        top: -60px;
+        top: 15px;
         left: 15px;
         color: #007AFF;
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        font-size: 24px;
+        font-size: ${fontSize};
         font-weight: 600;
         z-index: 10000;
         opacity: 0;
@@ -5046,7 +5049,7 @@ window.showWelcomeSplash = function(userName) {
     welcomeContainer.innerHTML = `
         <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1763241555499_pngegg%20(13).png" 
              alt="Welcome" 
-             style="height: -60px; border-radius: 6px;"
+             style="height: ${logoHeight}; border-radius: 6px;"
              onerror="this.style.display='none'">
         <span>Welcome, ${userName}</span>
     `;
