@@ -5033,10 +5033,11 @@ window.showWelcomeSplash = function(userName) {
     welcomeContainer.style.cssText = `
         position: absolute;
         top: -20px;
-        left: 15px;
-        color: #007AFF;
+        left: 12px;
+        color: #024082ff;
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         font-size: ${fontSize};
+        font-family: cursive;
         font-weight: 600;
         z-index: 10000;
         opacity: 0;
@@ -5051,7 +5052,7 @@ window.showWelcomeSplash = function(userName) {
              alt="Welcome" 
              style="height: ${logoHeight}; border-radius: 6px;"
              onerror="this.style.display='none'">
-        <span>${userName}</span>
+        <span>${userName}!</span>
     `;
     
     const banner = document.querySelector('.speak-now-banner, .speak-now-container, .universal-banner');
