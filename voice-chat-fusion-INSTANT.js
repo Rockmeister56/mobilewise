@@ -2707,8 +2707,14 @@ window.getAIResponse = function(userMessage) {
     // 🎯 EMERGENCY BRUCE DETECTION
 if ((lowerMessage.includes('yes') || lowerMessage.includes('yeah') || lowerMessage.includes('sure')) &&
     window.lastPreCloseIntent === 'bruce_consultation') {
-    
-    console.log('🎯 EMERGENCY BRUCE YES DETECTED - Triggering Action Center IMMEDIATELY');
+
+        // 🚀 TRIGGER ACTION CENTER IMMEDIATELY (not waiting for banner delay)
+setTimeout(() => {
+    if (window.triggerLeadActionCenter) {
+        window.triggerLeadActionCenter();
+        console.log('✅ Action Center triggered IMMEDIATELY after banner');
+    }
+}, 100); // Minimal delay just to ensure banner renders first
     
     // Clear the context
     window.lastPreCloseIntent = null;
