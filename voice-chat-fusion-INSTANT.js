@@ -2712,11 +2712,10 @@ if (!window.salesAI.userData.firstName) {
         
         // 🎉 SHOW WELCOME SPLASH IMMEDIATELY (before AI speaks)
         if (name && !window.welcomeSplashShown) {
-            setTimeout(() => {
-                if (window.showWelcomeSplash) {
-                    window.showWelcomeSplash(name);
+    // NO DELAY - show immediately
+    if (window.showWelcomeSplash) {
+        window.showWelcomeSplash(name);
                 }
-            }, 500); // Show after 0.5 seconds (immediately)
         }
         
         const response = `Nice to meet you ${name}! What brings you to New Clients Inc today?`;
@@ -5011,60 +5010,52 @@ if (!window.bannerSyncInterval) {
 window.showWelcomeSplash = function(userName) {
     console.log('🎉 WELCOME SPLASH: Showing for', userName);
     
-    // Create splash element with white background
+    // Remove any existing splash
+    const existingSplash = document.getElementById('welcome-splash');
+    if (existingSplash) existingSplash.remove();
+    
+    // Create simple transparent splash with image
     const splash = document.createElement('div');
     splash.id = 'welcome-splash';
+    splash.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5); /* 50% transparent black */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    `;
+    
     splash.innerHTML = `
-        <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-                   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-                   display: flex; align-items: center; justify-content: center; 
-                   z-index: 10000; font-family: -apple-system, BlinkMacSystemFont, 
-                   'Segoe UI', Roboto, sans-serif;">
-            <div style="background: white; padding: 50px 40px; border-radius: 20px; 
-                       text-align: center; max-width: 450px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-                       border: 1px solid rgba(255,255,255,0.2);">
-                <div style="margin-bottom: 25px;">
-                    <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1763241555499_pngegg%20(13).png" 
-                         alt="New Clients Inc" 
-                         style="height: 70px; margin-bottom: 20px; border-radius: 8px;"
-                         onerror="this.style.display='none'">
-                </div>
-                <h2 style="color: #1a1a1a; margin-bottom: 16px; font-size: 28px; font-weight: 700;">
-                    Welcome, ${userName}! 👋
-                </h2>
-                <p style="color: #4a5568; margin-bottom: 30px; font-size: 16px; line-height: 1.5;">
-                    I'm Boteemia, your AI voice assistant. Ready to help you with your practice sale journey!
-                </p>
-                <button onclick="this.parentElement.parentElement.parentElement.remove();" 
-                        style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-                               color: white; border: none; padding: 14px 32px; 
-                               border-radius: 10px; cursor: pointer; font-size: 16px;
-                               font-weight: 600; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-                               transition: transform 0.2s;">
-                    Let's Get Started
-                </button>
+        <div style="
+            background: transparent;
+            color: white;
+            text-align: center;
+        ">
+            <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1763241555499_pngegg%20(13).png" 
+                 alt="Welcome" 
+                 style="height: 80px; margin-bottom: 20px; border-radius: 8px;"
+                 onerror="this.style.display='none'">
+            <div style="font-size: 48px; font-weight: bold; text-shadow: 0 2px 10px rgba(0,0,0,0.5);">
+                Welcome, ${userName}!
             </div>
         </div>
     `;
     
-    // Add hover effect to button
-    setTimeout(() => {
-        const button = splash.querySelector('button');
-        if (button) {
-            button.onmouseover = () => button.style.transform = 'translateY(-2px)';
-            button.onmouseout = () => button.style.transform = 'translateY(0)';
-        }
-    }, 100);
-    
     document.body.appendChild(splash);
     
-    // Auto-remove after 4 seconds
+    // Auto-remove after 2 seconds
     setTimeout(() => {
         if (splash.parentElement) {
             splash.remove();
             console.log('🎉 Welcome splash auto-closed');
         }
-    }, 3000);
+    }, 2000);
     
     // Set flag
     window.welcomeSplashShown = true;
