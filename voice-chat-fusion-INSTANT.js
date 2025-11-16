@@ -5004,9 +5004,7 @@ if (!window.bannerSyncInterval) {
     console.log('✅ Banner state synchronization started with safety timer');
 }
 
-// ===================================================
-// 🎉 WELCOME SPLASH FUNCTION 
-// ===================================================
+// CLEAN WHITE BANNER WITH TRANSPARENT BACKGROUND
 window.showWelcomeSplash = function(userName) {
     console.log('🎉 WELCOME SPLASH: Showing for', userName);
     
@@ -5014,7 +5012,7 @@ window.showWelcomeSplash = function(userName) {
     const existingSplash = document.getElementById('welcome-splash');
     if (existingSplash) existingSplash.remove();
     
-    // Create simple transparent splash with image
+    // Create clean white banner with transparent background
     const splash = document.createElement('div');
     splash.id = 'welcome-splash';
     splash.style.cssText = `
@@ -5023,7 +5021,7 @@ window.showWelcomeSplash = function(userName) {
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0,0,0,0.5); /* 50% transparent black */
+        background: transparent; /* TRANSPARENT background */
         display: flex;
         align-items: center;
         justify-content: center;
@@ -5033,16 +5031,18 @@ window.showWelcomeSplash = function(userName) {
     
     splash.innerHTML = `
         <div style="
-            background: transparent;
-            color: white;
+            background: white;
+            padding: 40px 60px;
+            border-radius: 20px; /* Curved edges */
             text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.2);
         ">
-            <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1763241555499_pngegg%20(13).png" 
-                 alt="Welcome" 
-                 style="height: 80px; margin-bottom: 20px; border-radius: 8px;"
-                 onerror="this.style.display='none'">
-            <div style="font-size: 48px; font-weight: bold; text-shadow: 0 2px 10px rgba(0,0,0,0.5);">
-                Welcome, ${userName}!
+            <div style="font-size: 32px; font-weight: 700; color: #1a1a1a; margin-bottom: 10px;">
+                Welcome
+            </div>
+            <div style="font-size: 28px; font-weight: 600; color: #4a5568;">
+                ${userName}
             </div>
         </div>
     `;
