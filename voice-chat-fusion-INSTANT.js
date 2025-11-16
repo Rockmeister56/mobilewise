@@ -5030,7 +5030,7 @@ setTimeout(() => {
         // Fade out and remove
         setTimeout(() => {
             welcomeContainer.style.opacity = '0';
-            setTimeout(() => welcomeContainer.remove(), 500);
+            setTimeout(() => welcomeContainer.remove(), 5000);
         }, 5000);
     }
     
