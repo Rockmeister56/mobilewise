@@ -2692,7 +2692,7 @@ setTimeout(() => {
         showUniversalBanner('setAppointment');
         console.log('✅ Free Consultation Banner triggered');
     }
-}, 500); // Wait for question to start speaking
+}, 50); // Wait for question to start speaking
 
 speakWithElevenLabs(fallbackResponse, false);
 return fallbackResponse;
@@ -5418,116 +5418,6 @@ window.startRealtimeListening = startRealtimeListening;
 // Export banner system (if available)
 if (typeof showUniversalBanner === 'function') {
     window.showUniversalBanner = showUniversalBanner;
-}
-
-// 🎯 UNIVERSAL DECISION PANEL SYSTEM - COMPLETE IMPLEMENTATION
-function showDecisionPanel(options) {
-    const {
-        question,
-        yesText = "Yes, Continue",
-        skipText = "Not Now", 
-        onYes,
-        onSkip,
-        yesColor = "#007bff",
-        skipColor = "#6c757d"
-    } = options;
-    
-    // Remove existing overlay if any
-    const existingOverlay = document.getElementById('decision-panel-overlay');
-    if (existingOverlay) {
-        document.body.removeChild(existingOverlay);
-    }
-    
-    // Create overlay container
-    const overlay = document.createElement('div');
-    overlay.id = 'decision-panel-overlay';
-    overlay.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0,0,0,0.8);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 10000;
-        font-family: Arial, sans-serif;
-    `;
-    
-    // Create content box
-    const content = document.createElement('div');
-    content.style.cssText = `
-        background: white;
-        padding: 30px;
-        border-radius: 10px;
-        text-align: center;
-        max-width: 500px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    `;
-    
-    // Add question
-    const questionEl = document.createElement('h3');
-    questionEl.textContent = question;
-    questionEl.style.cssText = `
-        margin-bottom: 20px;
-        color: #333;
-        font-size: 18px;
-        line-height: 1.4;
-    `;
-    
-    // Add buttons container
-    const buttons = document.createElement('div');
-    buttons.style.cssText = `
-        display: flex;
-        gap: 15px;
-        justify-content: center;
-    `;
-    
-    // Yes button
-    const yesBtn = document.createElement('button');
-    yesBtn.textContent = yesText;
-    yesBtn.style.cssText = `
-        background: ${yesColor};
-        color: white;
-        border: none;
-        padding: 12px 25px;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 16px;
-        font-weight: bold;
-    `;
-    yesBtn.onclick = function() {
-        document.body.removeChild(overlay);
-        if (onYes) onYes();
-    };
-    
-    // Skip button  
-    const skipBtn = document.createElement('button');
-    skipBtn.textContent = skipText;
-    skipBtn.style.cssText = `
-        background: ${skipColor};
-        color: white;
-        border: none;
-        padding: 12px 25px;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 16px;
-    `;
-    skipBtn.onclick = function() {
-        document.body.removeChild(overlay);
-        if (onSkip) onSkip();
-    };
-    
-    // Assemble everything
-    buttons.appendChild(yesBtn);
-    buttons.appendChild(skipBtn);
-    content.appendChild(questionEl);
-    content.appendChild(buttons);
-    overlay.appendChild(content);
-    document.body.appendChild(overlay);
-    
-    console.log('🎯 UNIVERSAL DECISION PANEL: Displayed -', question);
 }
 
 console.log('✅ Voice chat functions exported for Action System integration');
