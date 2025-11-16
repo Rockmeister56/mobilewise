@@ -5022,8 +5022,8 @@ window.showWelcomeSplash = function(userName) {
     console.log('🎉 ULTRA-MINIMAL WELCOME: Showing for', userName);
     
     // 🎨 SIZE CONTROLS - CHANGE THESE:
-    const logoHeight = '40px';   // Change logo size: '60px', '100px', '120px'
-    const fontSize = '24px';     // Change text size: '20px', '28px', '32px'
+    const logoHeight = '50px';   // Change logo size: '60px', '100px', '120px'
+    const fontSize = '20px';     // Change text size: '20px', '28px', '32px'
     
     const existingWelcome = document.getElementById('minimal-welcome');
     if (existingWelcome) existingWelcome.remove();
@@ -5051,7 +5051,7 @@ window.showWelcomeSplash = function(userName) {
              alt="Welcome" 
              style="height: ${logoHeight}; border-radius: 6px;"
              onerror="this.style.display='none'">
-        <span>Welcome, ${userName}</span>
+        <span>${userName}</span>
     `;
     
     const banner = document.querySelector('.speak-now-banner, .speak-now-container, .universal-banner');
