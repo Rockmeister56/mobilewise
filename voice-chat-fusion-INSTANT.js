@@ -5031,7 +5031,7 @@ setTimeout(() => {
         setTimeout(() => {
             welcomeContainer.style.opacity = '0';
             setTimeout(() => welcomeContainer.remove(), 500);
-        }, 1500);
+        }, 5000);
     }
     
     window.welcomeSplashShown = true;
