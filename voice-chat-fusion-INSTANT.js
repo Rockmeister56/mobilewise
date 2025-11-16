@@ -5030,7 +5030,7 @@ window.showWelcomeSplash = function(userName) {
         position: absolute;
         top: 15px;
         left: 15px;
-        color: rgba(255,255,255,0.9);
+        color: rgba(0, 68, 255, 1);
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         font-size: 16px;
         font-weight: 500;
