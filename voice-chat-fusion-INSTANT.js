@@ -2696,28 +2696,26 @@ window.getAIResponse = function(userMessage) {
     const lowerMessage = userMessage.toLowerCase();
     
     // 🎯 EMERGENCY BRUCE DETECTION
-    if ((lowerMessage.includes('yes') || lowerMessage.includes('yeah') || lowerMessage.includes('sure')) &&
-        window.lastPreCloseIntent === 'bruce_consultation') {
-        
-        console.log('🎯 EMERGENCY BRUCE YES DETECTED - Triggering Action Center');
-        
-        // Clear the context
-        window.lastPreCloseIntent = null;
-        window.lastPreCloseQuestion = null;
-        
-        // Trigger Action Center
-        setTimeout(() => {
-            if (window.triggerLeadActionCenter) {
-                window.triggerLeadActionCenter();
-                console.log('✅ Action Center triggered via emergency detection');
-            }
-        }, 1000);
-        
-        return "Perfect! Connecting you with Bruce now...";
+if ((lowerMessage.includes('yes') || lowerMessage.includes('yeah') || lowerMessage.includes('sure')) &&
+    window.lastPreCloseIntent === 'bruce_consultation') {
+    
+    console.log('🎯 EMERGENCY BRUCE YES DETECTED - Triggering Action Center immediately');
+    
+    // Clear the context
+    window.lastPreCloseIntent = null;
+    window.lastPreCloseQuestion = null;
+    
+    // 🚀 CRITICAL FIX: Trigger Action Center IMMEDIATELY (no delay)
+    if (window.triggerLeadActionCenter) {
+        window.triggerLeadActionCenter();
+        console.log('✅ Action Center triggered via emergency detection');
     }
     
-    return originalGetAIResponse.apply(this, arguments);
-};
+    // Return instruction speech that plays AFTER Action Center appears
+    return "Simply click the book consultation button or whatever you prefer and I'll help you set up a consultation with Bruce";
+}
+}
+return originalGetAIResponse.apply(this, arguments);
 
 /// 🎯 CONCERN DETECTION SYSTEM - FIXED VERSION
 // =============================================================================
