@@ -3119,45 +3119,29 @@ function handlePreCloseResponse(userResponse, intentType) {
     
     // YES responses
     const yesPatterns = ['yes', 'yeah', 'sure', 'okay', 'ok', 'absolutely', 'definitely', 'let\'s do it', 'ready', 'go ahead'];
+    
+    // NO responses  
+    const noPatterns = ['no', 'not yet', 'maybe later', 'not now', 'no thanks', 'nah', 'wait', 'hold on'];
 
     if (yesPatterns.some(pattern => lowerResponse.includes(pattern))) {
-        // 🎯 CRITICAL FIX: Wait for speech to complete before triggering Action Center
-        console.log('🎯 BRUCE CONSULTATION ACCEPTED - Waiting for speech to complete');
+        // 🎯 CRITICAL FIX: Trigger Action Center IMMEDIATELY, then speak instructions
+        console.log('🎯 BRUCE CONSULTATION ACCEPTED - Triggering Action Center immediately');
         
-        // Use the speech completion callback instead of fixed delay
-        if (window.speechSynthesis && window.speechSynthesis.speaking) {
-            // Wait for current speech to complete
-            window.speechSynthesis.addEventListener('end', function bruceSpeechHandler() {
-                window.speechSynthesis.removeEventListener('end', bruceSpeechHandler);
-                if (window.triggerLeadActionCenter) {
-                    console.log('✅ Speech completed - triggering SILENT Action Center');
-                    window.triggerLeadActionCenter(); // ✅ SILENT VERSION
-                }
-            });
+        // Trigger Action Center RIGHT AWAY
+        if (window.triggerLeadActionCenter) {
+            window.triggerLeadActionCenter(); // ✅ SILENT VERSION
+            console.log('✅ Action Center triggered immediately');
         } else {
-            // No speech active, trigger after brief delay
-            setTimeout(() => {
-                if (window.triggerLeadActionCenter) {
-                    console.log('✅ No speech active - triggering SILENT Action Center');
-                    window.triggerLeadActionCenter(); // ✅ SILENT VERSION
-                } else {
-                    console.error('❌ triggerLeadActionCenter not found - lead system broken');
-                }
-            }, 1000);
+            console.error('❌ triggerLeadActionCenter not found');
         }
         
-        return "Perfect! Let me bring up all the ways to connect with Bruce, the founder and CEO of NCI directly. He's the expert who can give you personalized guidance!";
+        // This speech will play AFTER Action Center appears
+        return "Simply click the book consultation button or whatever you prefer and I'll help you set up a consultation with Bruce";
     }
-    
-    // Handle other responses if needed
-    return "I understand. Is there anything else I can help you with today?";
     
     if (noPatterns.some(pattern => lowerResponse.includes(pattern))) {
         return "I completely understand wanting to take your time with such an important decision. What specific questions or concerns would be most helpful for you to have answered right now?";
     }
-    
-    // NO responses  
-    const noPatterns = ['no', 'not yet', 'maybe later', 'not now', 'no thanks', 'nah', 'wait', 'hold on'];
     
     // Ambiguous response
     return "Thanks for sharing that. To make sure I connect you with the right resources, would now be a good time for Bruce,the founder and CEO of NCI to give you a quick call, or would you prefer to get some initial information first?";
