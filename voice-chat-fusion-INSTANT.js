@@ -2721,7 +2721,7 @@ if ((lowerMessage.includes('yes') || lowerMessage.includes('yeah') || lowerMessa
     }
     
     // Return instruction speech that plays AFTER Action Center is visible
-    return "Simply click the book consultation button or whatever you prefer and I'll help you set up a consultation with Bruce";
+    return "Great! I can make that painless with my assistance after clicking one of our communication relay buttons on your screen";
 }
 
 return originalGetAIResponse.apply(this, arguments);
