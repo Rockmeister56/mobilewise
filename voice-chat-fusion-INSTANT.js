@@ -2710,32 +2710,14 @@ if (!window.salesAI.userData.firstName) {
         window.salesAI.userData.firstName = name;
         window.salesAI.state = 'investigation';
         
-        // 🎯 FIXED: Use the correct function name - hideSpeakNowBanner
-        console.log('🎯 Closing banner and showing welcome splash for:', name);
+        // 🎯 FIXED: ONLY close the banner - let closeSpeakNowBanner handle the welcome splash
+        console.log('🎯 Name captured, closing banner for:', name);
         
-        // 1. Show welcome splash immediately
-        if (window.showWelcomeSplash) {
-            setTimeout(() => {
-                window.showWelcomeSplash(name);
-            }, 50);
-        }
-        
-        // 2. Close the speak now banner using the correct function
+        // Close the speak now banner - this will trigger welcome splash via closeSpeakNowBanner
         if (window.hideSpeakNowBanner) {
             window.hideSpeakNowBanner();
-        } else {
-            // Fallback: manually close the banner
-            const banners = document.querySelectorAll('.speak-now-banner, .speak-now-container, .universal-banner');
-            banners.forEach(banner => {
-                if (banner && banner.parentNode) {
-                    console.log('✅ Manually closing banner:', banner.className || banner.id);
-                    banner.style.opacity = '0';
-                    banner.style.transform = 'translateY(20px)';
-                    setTimeout(() => {
-                        if (banner.parentNode) banner.remove();
-                    }, 300);
-                }
-            });
+        } else if (window.closeSpeakNowBanner) {
+            window.closeSpeakNowBanner();
         }
         
         const response = `Nice to meet you ${name}! What brings you to New Clients Inc today?`;
@@ -4863,7 +4845,7 @@ window.clearBulletproofTimer = function() {
 function closeSpeakNowBanner() {
     console.log('🎯 CLOSE SPEAK NOW BANNER: Starting cleanup...'); 
     
-     // 🎉 FIXED: Check salesAI for the name
+     // 🎉 SINGLE SOURCE: Trigger welcome splash here only
     const userName = window.salesAI?.userData?.firstName;
     if (userName && userName.length > 0 && !window.welcomeSplashShown) {
         console.log('🎉 Triggering welcome splash for:', userName);
