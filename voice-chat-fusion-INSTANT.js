@@ -4983,22 +4983,8 @@ window.showWelcomeSplash = function(userName) {
     display: flex;
     align-items: center;
     gap: 10px;
-    animation: blinkThreeTimes 6s ease-in-out;
 `;
 
-// ADD THIS ANIMATION STYLE
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes blinkThreeTimes {
-        0% { opacity: 0; }
-        20% { opacity: 1; }
-        40% { opacity: 0; }
-        60% { opacity: 1; }
-        80% { opacity: 0; }
-        90% { opacity: 1; }
-        100% { opacity: 0; }
-    }
-`;
 document.head.appendChild(style);
 
 // Remove the style after animation
@@ -5025,13 +5011,17 @@ setTimeout(() => {
         banner.appendChild(welcomeContainer);
         
         // Fade in
-        setTimeout(() => welcomeContainer.style.opacity = '1', 10);
-        
-        // Fade out and remove
-        setTimeout(() => {
-            welcomeContainer.style.opacity = '0';
-            setTimeout(() => welcomeContainer.remove(), 5000);
-        }, 5000);
+setTimeout(() => welcomeContainer.style.opacity = '1', 10);
+
+// Fade out and remove after 5 seconds
+setTimeout(() => {
+    welcomeContainer.style.opacity = '0';
+    setTimeout(() => {
+        if (welcomeContainer.parentElement) {
+            welcomeContainer.remove();
+        }
+    }, 500);
+}, 5000);
     }
     
     window.welcomeSplashShown = true;
