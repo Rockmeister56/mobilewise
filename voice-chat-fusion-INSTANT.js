@@ -2709,16 +2709,17 @@ if (!window.salesAI.userData.firstName) {
     if (name && name.length > 1) {
         window.salesAI.userData.firstName = name;
         window.salesAI.state = 'investigation';
-        
-        // 🎯 FIXED: ONLY close the banner - let closeSpeakNowBanner handle the welcome splash
-        console.log('🎯 Name captured, closing banner for:', name);
-        
-        // Close the speak now banner - this will trigger welcome splash via closeSpeakNowBanner
-        if (window.hideSpeakNowBanner) {
-            window.hideSpeakNowBanner();
-        } else if (window.closeSpeakNowBanner) {
-            window.closeSpeakNowBanner();
-        }
+
+        // 🎉 FIXED: Check salesAI for the name
+    const userName = window.salesAI?.userData?.firstName;
+    if (userName && userName.length > 0 && !window.welcomeSplashShown) {
+        console.log('🎉 Triggering welcome splash for:', userName);
+        setTimeout(() => {
+            if (window.showWelcomeSplash) {
+                window.showWelcomeSplash(userName);
+            }
+        }, 100);
+    }
         
         const response = `Nice to meet you ${name}! What brings you to New Clients Inc today?`;
         console.log('✅ Name captured, moving to investigation state');
@@ -4845,7 +4846,7 @@ window.clearBulletproofTimer = function() {
 function closeSpeakNowBanner() {
     console.log('🎯 CLOSE SPEAK NOW BANNER: Starting cleanup...'); 
     
-     // 🎉 SINGLE SOURCE: Trigger welcome splash here only
+     // 🎉 FIXED: Check salesAI for the name
     const userName = window.salesAI?.userData?.firstName;
     if (userName && userName.length > 0 && !window.welcomeSplashShown) {
         console.log('🎉 Triggering welcome splash for:', userName);
