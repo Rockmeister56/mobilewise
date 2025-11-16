@@ -5017,46 +5017,73 @@ if (!window.bannerSyncInterval) {
     console.log('✅ Banner state synchronization started with safety timer');
 }
 
-// BLUE THEMED WELCOME BANNER WITH IMAGe
+// BLUE THEMED WELCOME BANNER WITH IMAGE
+// CUSTOMIZABLE WELCOME SPLASH WITH LOGO AND HEIGHT CONTROL
 window.showWelcomeSplash = function(userName) {
-    console.log('🎉 ULTRA-MINIMAL WELCOME: Showing for', userName);
+    console.log('🎉 CUSTOM WELCOME: Showing for', userName);
     
-    const existingWelcome = document.getElementById('minimal-welcome');
+    // 🎨 CUSTOMIZATION SETTINGS - Adjust these!
+    const settings = {
+        logoUrl: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1763241555499_pngegg%20(13).png',
+        logoHeight: '50px',     // Adjust logo size
+        bannerHeight: '180px',  // Adjust overall banner height
+        textColor: '#007AFF',   // Blue text
+        duration: 2000          // Display duration
+    };
+    
+    const existingWelcome = document.getElementById('custom-welcome');
     if (existingWelcome) existingWelcome.remove();
     
-    const welcomeText = document.createElement('div');
-    welcomeText.id = 'minimal-welcome';
-    welcomeText.style.cssText = `
-        position: absolute;
-        top: 15px;
-        left: 15px;
-        color: rgba(0, 68, 255, 1);
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        font-size: 16px;
-        font-weight: 500;
+    const welcomeBanner = document.createElement('div');
+    welcomeBanner.id = 'custom-welcome';
+    welcomeBanner.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(255, 255, 255, 0.95);
+        padding: 30px 40px;
+        border-radius: 16px;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        border: 2px solid #007AFF;
         z-index: 10000;
+        height: ${settings.bannerHeight};
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
         opacity: 0;
         transition: opacity 0.5s ease;
     `;
     
-    welcomeText.innerHTML = `Welcome, ${userName}`;
+    welcomeBanner.innerHTML = `
+        <img src="${settings.logoUrl}" 
+             alt="Welcome" 
+             style="height: ${settings.logoHeight}; margin-bottom: 15px; border-radius: 6px;"
+             onerror="this.style.display='none'">
+        <div style="font-size: 24px; font-weight: 700; color: ${settings.textColor};">
+            Welcome, ${userName}
+        </div>
+    `;
     
-    const banner = document.querySelector('.speak-now-banner, .speak-now-container, .universal-banner');
-    if (banner) {
-        banner.appendChild(welcomeText);
-        
-        // Fade in
-        setTimeout(() => welcomeText.style.opacity = '1', 10);
-        
-        // Fade out and remove
+    document.body.appendChild(welcomeBanner);
+    
+    // Smooth fade in
+    setTimeout(() => welcomeBanner.style.opacity = '1', 10);
+    
+    // Smooth fade out and remove
+    setTimeout(() => {
+        welcomeBanner.style.opacity = '0';
         setTimeout(() => {
-            welcomeText.style.opacity = '0';
-            setTimeout(() => welcomeText.remove(), 500);
-        }, 1500);
-    }
+            if (welcomeBanner.parentElement) {
+                welcomeBanner.remove();
+            }
+        }, 500);
+    }, settings.duration);
     
     window.welcomeSplashShown = true;
-    console.log('✅ Ultra-minimal welcome shown');
+    console.log('✅ Custom welcome shown with height:', settings.bannerHeight);
 };
 
 // ===================================================
