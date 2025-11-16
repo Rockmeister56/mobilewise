@@ -798,6 +798,183 @@ function handleEmailConfirmation(sendEmail, captureType) {
     }
 }
 
+/**
+ * 🎯 UNIVERSAL CONFIRMATION SYSTEM
+ * Handles both email confirmations AND decision panels
+ */
+function showUniversalConfirmation(options) {
+    console.log("🎯 UNIVERSAL CONFIRMATION: Showing", options);
+    
+    // Close any existing banners first
+    if (window.closeSpeakNowBanner) {
+        window.closeSpeakNowBanner();
+    }
+    
+    const config = {
+        type: options.type || 'decision', // 'email' or 'decision'
+        title: options.title || "🎉 Success!",
+        message: options.message || "Your request has been processed.",
+        question: options.question || "What would you like to do next?",
+        primaryText: options.primaryText || "Continue",
+        secondaryText: options.secondaryText || "Finish",
+        onPrimary: options.onPrimary || function() { 
+            console.log("Primary action clicked");
+            if (window.showDirectSpeakNow) window.showDirectSpeakNow();
+        },
+        onSecondary: options.onSecondary || function() { 
+            console.log("Secondary action clicked");
+            if (window.showThankYouSplash) window.showThankYouSplash();
+        },
+        data: options.data || {} // For thank you screen
+    };
+    
+    let confirmationHTML = '';
+    
+    if (config.type === 'email') {
+        // EMAIL CONFIRMATION STYLE
+        confirmationHTML = `
+            <div id="universal-confirmation" style="
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                padding: 40px;
+                border-radius: 20px;
+                box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+                z-index: 10000;
+                text-align: center;
+                min-width: 400px;
+                color: white;
+                border: 4px solid #fff;
+            ">
+                <div style="font-size: 60px; margin-bottom: 20px;">📧</div>
+                <h3 style="margin: 0 0 15px 0; font-size: 28px;">${config.title}</h3>
+                <p style="margin: 0 0 10px 0; font-size: 16px; line-height: 1.5; opacity: 0.9;">
+                    ${config.message}
+                </p>
+                <p style="margin: 0 0 30px 0; font-size: 18px; line-height: 1.5; font-weight: bold; background: rgba(255,255,255,0.2); padding: 15px; border-radius: 10px;">
+                    ${config.question}
+                </p>
+                <div style="display: flex; gap: 15px; justify-content: center;">
+                    <button onclick="window.handleUniversalPrimary()" style="
+                        background: rgba(255,255,255,0.2);
+                        color: white;
+                        border: 2px solid white;
+                        padding: 15px 30px;
+                        border-radius: 10px;
+                        cursor: pointer;
+                        font-weight: bold;
+                        font-size: 16px;
+                        flex: 1;
+                        backdrop-filter: blur(10px);
+                    ">${config.primaryText}</button>
+                    <button onclick="window.handleUniversalSecondary()" style="
+                        background: white;
+                        color: #667eea;
+                        border: 2px solid white;
+                        padding: 15px 30px;
+                        border-radius: 10px;
+                        cursor: pointer;
+                        font-weight: bold;
+                        font-size: 16px;
+                        flex: 1;
+                    ">${config.secondaryText}</button>
+                </div>
+            </div>
+        `;
+    } else {
+        // DECISION PANEL STYLE
+        confirmationHTML = `
+            <div id="universal-confirmation" style="
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: white;
+                padding: 40px;
+                border-radius: 20px;
+                box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+                z-index: 10000;
+                text-align: center;
+                min-width: 400px;
+                border: 4px solid #2ecc71;
+            ">
+                <div style="font-size: 60px; margin-bottom: 20px;">🎯</div>
+                <h3 style="margin: 0 0 15px 0; color: #2c3e50; font-size: 28px;">${config.title}</h3>
+                ${config.message ? `<p style="margin: 0 0 10px 0; color: #555; line-height: 1.5; font-size: 16px;">${config.message}</p>` : ''}
+                <p style="margin: 0 0 25px 0; color: #2c3e50; line-height: 1.5; font-size: 18px; font-weight: bold;">
+                    ${config.question}
+                </p>
+                <div style="display: flex; gap: 15px; justify-content: center;">
+                    <button onclick="window.handleUniversalPrimary()" style="
+                        background: #2ecc71;
+                        color: white;
+                        border: none;
+                        padding: 15px 30px;
+                        border-radius: 10px;
+                        cursor: pointer;
+                        font-weight: bold;
+                        font-size: 16px;
+                        flex: 1;
+                    ">${config.primaryText}</button>
+                    <button onclick="window.handleUniversalSecondary()" style="
+                        background: #3498db;
+                        color: white;
+                        border: none;
+                        padding: 15px 30px;
+                        border-radius: 10px;
+                        cursor: pointer;
+                        font-weight: bold;
+                        font-size: 16px;
+                        flex: 1;
+                    ">${config.secondaryText}</button>
+                </div>
+            </div>
+        `;
+    }
+    
+    // Add overlay
+    confirmationHTML += `
+        <div id="universal-confirmation-overlay" style="
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 9999;
+        "></div>
+    `;
+    
+    // Add to page
+    document.body.insertAdjacentHTML('beforeend', confirmationHTML);
+    
+    // Store callbacks globally
+    window.handleUniversalPrimary = function() {
+        cleanupUniversalConfirmation();
+        config.onPrimary();
+    };
+    
+    window.handleUniversalSecondary = function() {
+        cleanupUniversalConfirmation();
+        config.onSecondary();
+    };
+    
+    console.log("✅ UNIVERSAL CONFIRMATION: Displayed successfully");
+}
+
+function cleanupUniversalConfirmation() {
+    const confirmation = document.getElementById('universal-confirmation');
+    const overlay = document.getElementById('universal-confirmation-overlay');
+    if (confirmation) confirmation.remove();
+    if (overlay) overlay.remove();
+}
+
+// Make globally available
+window.showUniversalConfirmation = showUniversalConfirmation;
+window.cleanupUniversalConfirmation = cleanupUniversalConfirmation;
+
 // ================================
 // COMPLETE LEAD CAPTURE & REQUEST EMAIL PERMISSION - FIXED VERSION
 // ================================
@@ -957,8 +1134,125 @@ function showEmailConfirmationButtons(leadData, captureType) {
     }, 100);
 }
 
+// ADD THIS TO action-system-unified.js (around line 980)
+
+// ADD THIS TO action-system-unified.js (around line 980)
+
+function showDecisionPanel(options) {
+    console.log("🎯 DECISION PANEL: Showing with options", options);
+    
+    // Close any existing banners first
+    if (window.closeSpeakNowBanner) {
+        window.closeSpeakNowBanner();
+    }
+    
+    // Default options
+    const config = {
+        question: options.question || "What would you like to do next?",
+        yesText: options.yesText || "Continue",
+        skipText: options.skipText || "Finish", 
+        onYes: options.onYes || function() { console.log("Continue clicked"); },
+        onSkip: options.onSkip || function() { console.log("Finish clicked"); }
+    };
+    
+    // Create decision panel HTML
+    const decisionHTML = `
+        <div id="decision-panel" style="
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            z-index: 10000;
+            text-align: center;
+            min-width: 300px;
+            border: 3px solid #2ecc71;
+        ">
+            <h3 style="margin: 0 0 20px 0; color: #2c3e50;">🎉 Consultation Booked!</h3>
+            <p style="margin: 0 0 25px 0; color: #555; line-height: 1.5;">
+                ${config.question}
+            </p>
+            <div style="display: flex; gap: 15px; justify-content: center;">
+                <button onclick="window.handleDecisionYes()" style="
+                    background: #2ecc71;
+                    color: white;
+                    border: none;
+                    padding: 12px 25px;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    font-weight: bold;
+                    flex: 1;
+                ">${config.yesText}</button>
+                <button onclick="window.handleDecisionSkip()" style="
+                    background: #3498db;
+                    color: white;
+                    border: none;
+                    padding: 12px 25px;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    font-weight: bold;
+                    flex: 1;
+                ">${config.skipText}</button>
+            </div>
+        </div>
+        <div id="decision-overlay" style="
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 9999;
+        "></div>
+    `;
+    
+    // Add to page
+    document.body.insertAdjacentHTML('beforeend', decisionHTML);
+    
+    // Store callbacks globally
+    window.handleDecisionYes = config.onYes;
+    window.handleDecisionSkip = config.onSkip;
+    
+    console.log("✅ DECISION PANEL: Displayed successfully with callbacks");
+}
+
+// Make function globally available
+window.showDecisionPanel = showDecisionPanel;
+
+// ADD decision handler function too
+function handleDecision(choice) {
+    console.log(`🎯 USER DECISION: ${choice}`);
+    
+    // Remove decision panel
+    const panel = document.getElementById('decision-panel');
+    const overlay = document.getElementById('decision-overlay');
+    if (panel) panel.remove();
+    if (overlay) overlay.remove();
+    
+    if (choice === 'continue') {
+        // Continue chatting - show Speak Now banner
+        if (window.showDirectSpeakNow) {
+            window.showDirectSpeakNow();
+        }
+        console.log("✅ Continuing conversation");
+    } else {
+        // Finish - show thank you
+        if (window.showThankYouSplash) {
+            window.showThankYouSplash();
+        }
+        console.log("✅ Ending conversation with thank you");
+    }
+}
+
+// Make functions globally available
+window.showDecisionPanel = showDecisionPanel;
+window.handleDecision = handleDecision;
+
 // ================================
-// 🆕 ENHANCED: HANDLE EMAIL CONFIRMATION RESPONSE WITH DECISION PANEL
+// 🆕 ENHANCED: HANDLE EMAIL CONFIRMATION RESPONSE WITH UNIVERSAL CONFIRMATION
 // ================================
 function handleEmailConfirmation(sendEmail, captureType) {
     console.log('🎯 Email confirmation:', sendEmail ? 'SENDING' : 'SKIPPING');
@@ -978,44 +1272,95 @@ function handleEmailConfirmation(sendEmail, captureType) {
         // User wants email - send it using your ORIGINAL email logic
         sendOriginalLeadEmail(data, captureType);
         
-        // 🚀 AFTER EMAIL SENT - SHOW DECISION PANEL
+        // 🚀 AFTER EMAIL SENT - SHOW UNIVERSAL CONFIRMATION PANEL
         setTimeout(() => {
-            console.log('📧 Email sent - showing completion decision panel');
+            console.log('📧 Email sent - showing universal confirmation panel');
             
-            showDecisionPanel({
-                question: "Is that everything I can help you with today?",
-                yesText: "Yes, I Have More Questions",
-                skipText: "No, I'm All Done", 
-                onYes: function() {
-                    // User wants to continue
-                    console.log('✅ User wants to continue - restarting conversation');
-                    window.currentLeadData = null;
-                    
-                    setTimeout(() => {
-                        const continueMessage = "Great! What else can I help you with?";
-                        speakWithElevenLabs(continueMessage, false);
+            // Use the new Universal Confirmation System
+            if (window.showUniversalConfirmation) {
+                window.showUniversalConfirmation({
+                    type: 'email',
+                    title: "📧 Email Sent!",
+                    message: `Confirmation sent to ${data.email}<br>Bruce will contact you at ${data.phone}`,
+                    question: "Is that everything I can help you with today?",
+                    primaryText: "Yes, I Have More Questions",
+                    secondaryText: "No, I'm All Done",
+                    onPrimary: function() {
+                        // User wants to continue
+                        console.log('✅ User wants to continue - restarting conversation');
+                        window.currentLeadData = null;
                         
-                        // Show speak now banner after speech
                         setTimeout(() => {
-                            if (typeof showDirectSpeakNow === 'function') {
-                                showDirectSpeakNow();
-                            }
-                        }, 2000);
-                    }, 500);
-                },
-                onSkip: function() {
-                    // User is done - show thank you screen
-                    console.log('✅ User is done - showing thank you screen');
-                    window.currentLeadData = null;
-                    
-                    // 🎯 CALL THE EXISTING THANK YOU FUNCTION
+                            const continueMessage = "Great! What else can I help you with?";
+                            speakWithElevenLabs(continueMessage, false);
+                            
+                            // Show speak now banner after speech
+                            setTimeout(() => {
+                                if (typeof showDirectSpeakNow === 'function') {
+                                    showDirectSpeakNow();
+                                }
+                            }, 2000);
+                        }, 500);
+                    },
+                    onSecondary: function() {
+                        // User is done - show thank you screen
+                        console.log('✅ User is done - showing thank you screen');
+                        window.currentLeadData = null;
+                        
+                        // 🎯 CALL THE EXISTING THANK YOU FUNCTION
+                        showThankYouSplash(data.name, captureType);
+                        
+                        setTimeout(() => {
+                            speakWithElevenLabs("Thank you for your time! Feel free to come back anytime.", false);
+                        }, 1000);
+                    },
+                    data: data
+                });
+            } else {
+                // Fallback to old decision panel if universal not available
+                console.log('❌ Universal confirmation not available - using fallback');
+                if (window.showDecisionPanel) {
+                    window.showDecisionPanel({
+                        question: "Is that everything I can help you with today?",
+                        yesText: "Yes, I Have More Questions",
+                        skipText: "No, I'm All Done", 
+                        onYes: function() {
+                            // User wants to continue
+                            console.log('✅ User wants to continue - restarting conversation');
+                            window.currentLeadData = null;
+                            
+                            setTimeout(() => {
+                                const continueMessage = "Great! What else can I help you with?";
+                                speakWithElevenLabs(continueMessage, false);
+                                
+                                // Show speak now banner after speech
+                                setTimeout(() => {
+                                    if (typeof showDirectSpeakNow === 'function') {
+                                        showDirectSpeakNow();
+                                    }
+                                }, 2000);
+                            }, 500);
+                        },
+                        onSkip: function() {
+                            // User is done - show thank you screen
+                            console.log('✅ User is done - showing thank you screen');
+                            window.currentLeadData = null;
+                            
+                            // 🎯 CALL THE EXISTING THANK YOU FUNCTION
+                            showThankYouSplash(data.name, captureType);
+                            
+                            setTimeout(() => {
+                                speakWithElevenLabs("Thank you for your time! Feel free to come back anytime.", false);
+                            }, 1000);
+                        }
+                    });
+                } else {
+                    // Ultimate fallback - just show thank you
+                    console.log('❌ No confirmation system available - showing thank you');
                     showThankYouSplash(data.name, captureType);
-                    
-                    setTimeout(() => {
-                        speakWithElevenLabs("Thank you for your time! Feel free to come back anytime.", false);
-                    }, 1000);
+                    window.currentLeadData = null;
                 }
-            });
+            }
         }, 1000); // Wait for email send to complete
         
     } else {
