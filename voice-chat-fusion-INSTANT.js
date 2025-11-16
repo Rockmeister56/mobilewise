@@ -5040,10 +5040,11 @@ window.showWelcomeSplash = function(userName) {
         ">
             <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1763241555499_pngegg%20(13).png" 
                  alt="Welcome" 
-                 style="height: 100px; margin-bottom: 20px; border-radius: 8px;"
+                 style="height: 120px; margin-bottom: 20px; border-radius: 8px;"
                  onerror="this.style.display='none'">
+            <div style="font-size: 32px; font-weight: 700; color: #007AFF; margin-bottom: 10px;">
             </div>
-            <div style="font-size: 35px; font-weight: 600; color: #007AFF;">
+            <div style="font-size: 28px; font-weight: 600; color: #007AFF;">
                 ${userName}
             </div>
         </div>
