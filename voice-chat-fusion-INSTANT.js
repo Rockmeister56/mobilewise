@@ -5017,65 +5017,46 @@ if (!window.bannerSyncInterval) {
     console.log('✅ Banner state synchronization started with safety timer');
 }
 
-// BLUE THEMED WELCOME BANNER WITH IMAGE
+// BLUE THEMED WELCOME BANNER WITH IMAGe
 window.showWelcomeSplash = function(userName) {
-    console.log('🎉 WELCOME SPLASH: Showing for', userName);
+    console.log('🎉 ULTRA-MINIMAL WELCOME: Showing for', userName);
     
-    // Remove any existing splash
-    const existingSplash = document.getElementById('welcome-splash');
-    if (existingSplash) existingSplash.remove();
+    const existingWelcome = document.getElementById('minimal-welcome');
+    if (existingWelcome) existingWelcome.remove();
     
-    // Create blue-themed banner with transparency
-    const splash = document.createElement('div');
-    splash.id = 'welcome-splash';
-    splash.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: transparent;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 9999;
+    const welcomeText = document.createElement('div');
+    welcomeText.id = 'minimal-welcome';
+    welcomeText.style.cssText = `
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        color: rgba(255,255,255,0.9);
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        font-size: 16px;
+        font-weight: 500;
+        z-index: 10000;
+        opacity: 0;
+        transition: opacity 0.5s ease;
     `;
     
-    splash.innerHTML = `
-        <div style="
-            background: rgba(255, 255, 255, 0.5); /* 50% transparent white */
-            padding: 40px 60px;
-            border-radius: 20px;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            border: 3px solid #007AFF; /* Blue border */
-        ">
-            <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1763241555499_pngegg%20(13).png" 
-                 alt="Welcome" 
-                 style="height: 120px; margin-bottom: 20px; border-radius: 8px;"
-                 onerror="this.style.display='none'">
-            <div style="font-size: 32px; font-weight: 700; color: #007AFF; margin-bottom: 10px;">
-            </div>
-            <div style="font-size: 28px; font-weight: 600; color: #007AFF;">
-                ${userName}
-            </div>
-        </div>
-    `;
+    welcomeText.innerHTML = `Welcome, ${userName}`;
     
-    document.body.appendChild(splash);
+    const banner = document.querySelector('.speak-now-banner, .speak-now-container, .universal-banner');
+    if (banner) {
+        banner.appendChild(welcomeText);
+        
+        // Fade in
+        setTimeout(() => welcomeText.style.opacity = '1', 10);
+        
+        // Fade out and remove
+        setTimeout(() => {
+            welcomeText.style.opacity = '0';
+            setTimeout(() => welcomeText.remove(), 500);
+        }, 1500);
+    }
     
-    // Auto-remove after 2 seconds
-    setTimeout(() => {
-        if (splash.parentElement) {
-            splash.remove();
-            console.log('🎉 Welcome splash auto-closed');
-        }
-    }, 2000);
-    
-    // Set flag
     window.welcomeSplashShown = true;
-    console.log('✅ Welcome splash shown for:', userName);
+    console.log('✅ Ultra-minimal welcome shown');
 };
 
 // ===================================================
