@@ -2710,14 +2710,6 @@ if (!window.salesAI.userData.firstName) {
         window.salesAI.userData.firstName = name;
         window.salesAI.state = 'investigation';
         
-        // 🎉 SHOW WELCOME SPLASH IMMEDIATELY (before AI speaks)
-        if (name && !window.welcomeSplashShown) {
-    // NO DELAY - show immediately
-    if (window.showWelcomeSplash) {
-        window.showWelcomeSplash(name);
-                }
-        }
-        
         const response = `Nice to meet you ${name}! What brings you to New Clients Inc today?`;
         console.log('✅ Name captured, moving to investigation state');
         return response;
@@ -4842,6 +4834,16 @@ window.clearBulletproofTimer = function() {
 // ===================================================
 function closeSpeakNowBanner() {
     console.log('🎯 CLOSE SPEAK NOW BANNER: Starting cleanup...'); 
+    
+    // 🎉 NEW: Trigger welcome splash when banner closes (if name was captured)
+    if (window.userName && !window.welcomeSplashShown) {
+        console.log('🎉 Triggering welcome splash after banner close');
+        setTimeout(() => {
+            if (window.showWelcomeSplash) {
+                window.showWelcomeSplash(window.userName);
+            }
+        }, 100); // Tiny delay to ensure banner is fully closed
+    }
     
     // Clear the safety timer when closing normally
     window.clearBulletproofTimer();
