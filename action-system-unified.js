@@ -17,16 +17,6 @@ const EMAILJS_CONFIG = {
     }
 };
 
-// REPLACE THIS FUNCTION in action-system-unified.js:
-function getDefaultButtons() {
-    // 🎯 RETURN THE BEAUTIFUL COMMUNICATION RELAY CENTER INSTEAD
-    return `
-        <div style="[COPY THE ENTIRE BEAUTIFUL HTML FROM showCommunicationRelayCenter()]">
-            [INCLUDE THE SILENT AVATAR VIDEO AND ALL BUTTONS]
-        </div>
-    `;
-}
-
 // Initialize EmailJS
 (function() {
     emailjs.init(EMAILJS_CONFIG.publicKey);
