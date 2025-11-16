@@ -4957,64 +4957,63 @@ if (!window.bannerSyncInterval) {
     console.log('✅ Banner state synchronization started with safety timer');
 }
 
-// ULTRA-MINIMAL WELCOME WITH LOGO & FONT SIZE CONTROLS
+// ULTRA-MINIMAL WELCOME - SIMPLE FADE VERSION
 window.showWelcomeSplash = function(userName) {
     console.log('🎉 ULTRA-MINIMAL WELCOME: Showing for', userName);
     
-    // 🎨 SIZE CONTROLS - CHANGE THESE:
-    const logoHeight = '55px';   // Change logo size: '60px', '100px', '120px'
-    const fontSize = '20px';     // Change text size: '20px', '28px', '32px'
+    const logoHeight = '80px';
+    const fontSize = '24px';
     
     const existingWelcome = document.getElementById('minimal-welcome');
     if (existingWelcome) existingWelcome.remove();
     
     const welcomeContainer = document.createElement('div');
     welcomeContainer.id = 'minimal-welcome';
-  welcomeContainer.style.cssText = `
-    position: absolute;
-    top: -25px;
-    left: 12px;
-    color: #024082ff;
-    font-family: cursive, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    font-size: ${fontSize};
-    font-weight: 600;
-    z-index: 10000;
-    opacity: 0;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-`;
-
+    welcomeContainer.style.cssText = `
+        position: absolute;
+        top: -20px;  // Changed from 15px to -20px to move it higher
+        left: 12px;
+        color: #024082ff;
+        font-family: cursive, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        font-size: ${fontSize};
+        font-weight: 600;
+        z-index: 10000;
+        opacity: 0;
+        transition: opacity 0.5s ease;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    `;
+    
     welcomeContainer.innerHTML = `
         <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1763241555499_pngegg%20(13).png" 
              alt="Welcome" 
              style="height: ${logoHeight}; border-radius: 6px;"
              onerror="this.style.display='none'">
-        <span>${userName}!</span>
+        <span>Welcome, ${userName}</span>
     `;
     
     const banner = document.querySelector('.speak-now-banner, .speak-now-container, .universal-banner');
     if (banner) {
         banner.appendChild(welcomeContainer);
         
-        // Fade in
-setTimeout(() => welcomeContainer.style.opacity = '1', 10);
-
-// Fade out and remove after 5 seconds
-setTimeout(() => {
-    welcomeContainer.style.opacity = '0';
-    setTimeout(() => {
-        if (welcomeContainer.parentElement) {
-            welcomeContainer.remove();
-        }
-    }, 500);
-}, 5000);
+        // SIMPLE FADE IN
+        setTimeout(() => welcomeContainer.style.opacity = '1', 10);
+        
+        // FADE OUT AFTER 5 SECONDS
+        setTimeout(() => {
+            welcomeContainer.style.opacity = '0';
+            setTimeout(() => {
+                if (welcomeContainer.parentElement) {
+                    welcomeContainer.remove();
+                }
+            }, 500);
+        }, 5000);
     }
     
     window.welcomeSplashShown = true;
     console.log('✅ Ultra-minimal welcome shown');
 };
-
 // ===================================================
 // 🎯 INTEGRATION WITH EXISTING SHOW BANNER FUNCTION
 // ===================================================
