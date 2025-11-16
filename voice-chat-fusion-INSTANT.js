@@ -5009,7 +5009,7 @@ window.showWelcomeSplash = function(userName) {
                     welcomeContainer.remove();
                 }
             }, 500);
-        }, 5000);
+        }, 30000);
     }
     
     window.welcomeSplashShown = true;
