@@ -5089,10 +5089,21 @@ if (typeof window.showDirectSpeakNow === 'function') {
         if (window.currentBulletproofTimer) {
             clearTimeout(window.currentBulletproofTimer);
         }
-        window.currentBulletproofTimer = setTimeout(() => {
-            console.log('🕐 SAFETY TIMEOUT: Banner stuck for 30s - emergency cleanup');
-            directCleanup();
-        }, 30000);
+       window.currentBulletproofTimer = setTimeout(() => {
+    // 🚀 CRITICAL FIX: Don't cleanup if Action Center is visible
+    const actionCenterVisible = document.querySelector('.communication-relay-center') || 
+                               window.actionCenterVisible ||
+                               document.querySelector('#action-center-overlay');
+    
+    if (actionCenterVisible) {
+        console.log('🔒 Safety timeout BYPASSED - Action Center is open, banner should persist');
+        // Reset the timer to check again in 30 seconds
+        window.currentBulletproofTimer = setTimeout(arguments.callee, 30000);
+    } else {
+        console.log('🕐 SAFETY TIMEOUT: Banner stuck for 30s - emergency cleanup');
+        directCleanup();
+    }
+}, 30000);
         
         // Call original function
         originalShowDirectSpeakNow.call(this);
