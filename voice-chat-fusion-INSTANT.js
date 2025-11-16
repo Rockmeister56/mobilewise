@@ -4962,7 +4962,7 @@ window.showWelcomeSplash = function(userName) {
     console.log('🎉 ULTRA-MINIMAL WELCOME: Showing for', userName);
     
     // 🎨 SIZE CONTROLS - CHANGE THESE:
-    const logoHeight = '55px';   // Change logo size: '60px', '100px', '120px'
+    const logoHeight = '50px';   // Change logo size: '60px', '100px', '120px'
     const fontSize = '20px';     // Change text size: '20px', '28px', '32px'
     
     const existingWelcome = document.getElementById('minimal-welcome');
@@ -4970,7 +4970,7 @@ window.showWelcomeSplash = function(userName) {
     
     const welcomeContainer = document.createElement('div');
     welcomeContainer.id = 'minimal-welcome';
-   welcomeContainer.style.cssText = `
+  welcomeContainer.style.cssText = `
     position: absolute;
     top: -20px;
     left: 12px;
@@ -4983,10 +4983,10 @@ window.showWelcomeSplash = function(userName) {
     display: flex;
     align-items: center;
     gap: 10px;
-    animation: blinkThreeTimes 8s ease-in-out;
+    animation: blinkThreeTimes 6s ease-in-out;
 `;
 
-// Add this style block for the animation
+// ADD THIS ANIMATION STYLE
 const style = document.createElement('style');
 style.textContent = `
     @keyframes blinkThreeTimes {
@@ -4999,6 +4999,12 @@ style.textContent = `
         100% { opacity: 0; }
     }
 `;
+document.head.appendChild(style);
+
+// Remove the style after animation
+setTimeout(() => {
+    if (style.parentElement) style.remove();
+}, 2000);
 document.head.appendChild(style);
 
 // Remove the style after animation completes
