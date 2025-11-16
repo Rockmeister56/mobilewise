@@ -2685,35 +2685,46 @@ window.lastPreCloseIntent = 'bruce_consultation';
 window.conversationState = 'qualification';
 console.log('🎯 BRUCE PRE-CLOSE QUESTION SET:', fallbackResponse);
 
-// 🚀 CRITICAL FIX: Show Universal Decision Panel instead of banner
+// 🚀 CRITICAL FIX: Show Free Consultation Banner AND Decision Panel TOGETHER
 setTimeout(() => {
-    showDecisionPanel({
-        question: "Would you like a free consultation with Bruce and receive his latest 7 secrets for buying and selling your practice?",
-        yesText: "Yes, Connect Me!",
-        skipText: "Not Now",
-        onYes: function() {
-            // Yes clicked - trigger Action Center immediately
-            if (window.triggerLeadActionCenter) {
-                window.triggerLeadActionCenter();
-                console.log('✅ Action Center triggered via Universal Decision Panel');
-            }
-            // Show instruction message
-            setTimeout(() => {
-                const instruction = "Simply click the book consultation button or whatever you prefer and I'll help you set up a consultation with Bruce";
-                speakWithElevenLabs(instruction, false);
-                console.log('🎤 Speaking button instructions');
-            }, 500);
-        },
-        onSkip: function() {
-            // Skip clicked
-            setTimeout(() => {
-                const skipResponse = "I understand. What other questions can I help with today?";
-                speakWithElevenLabs(skipResponse, false);
-                console.log('🎤 Speaking skip response');
-            }, 500);
+    // 1. TRIGGER FREE CONSULTATION BANNER
+    if (typeof showUniversalBanner === 'function') {
+        showUniversalBanner('setAppointment');
+        console.log('✅ Free Consultation Banner triggered');
+    }
+    
+    // 2. SHOW DECISION PANEL (with proper timing - after banner)
+    setTimeout(() => {
+        if (typeof showDecisionPanel === 'function') {
+            showDecisionPanel({
+                question: "Would you like a free consultation with Bruce and receive his latest 7 secrets for buying and selling your practice?",
+                yesText: "Yes, Connect Me!",
+                skipText: "Not Now",
+                onYes: function() {
+                    // Yes clicked - trigger Action Center immediately
+                    if (window.triggerLeadActionCenter) {
+                        window.triggerLeadActionCenter();
+                        console.log('✅ Action Center triggered via Decision Panel');
+                    }
+                    // Show instruction message
+                    setTimeout(() => {
+                        const instruction = "Simply click the book consultation button or whatever you prefer and I'll help you set up a consultation with Bruce";
+                        speakWithElevenLabs(instruction, false);
+                    }, 500);
+                },
+                onSkip: function() {
+                    // Skip clicked
+                    setTimeout(() => {
+                        const skipResponse = "I understand. What other questions can I help with today?";
+                        speakWithElevenLabs(skipResponse, false);
+                    }, 500);
+                }
+            });
+        } else {
+            console.error('❌ showDecisionPanel not found - using voice only');
         }
-    });
-}, 500); // Wait for question to be spoken first
+    }, 800); // Wait 800ms for banner to appear first
+}, 500); // Wait for question to start speaking
 
 speakWithElevenLabs(fallbackResponse, false);
 return fallbackResponse;
