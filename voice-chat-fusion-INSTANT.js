@@ -2193,66 +2193,6 @@ function deliverLeadMagnet(leadMagnet, userEmail) {
     }
 }
 
-// ===================================================
-// 🎉 WELCOME SPLASH SCREEN SYSTEM
-// ===================================================
-
-function showWelcomeSplashScreen(userName) {
-    console.log('🎉 Showing welcome splash for:', userName);
-    
-    // Create splash screen element
-    const splashScreen = document.createElement('div');
-    splashScreen.id = 'welcome-splash-screen';
-    splashScreen.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        z-index: 10000;
-        color: white;
-        font-family: 'Segoe UI', system-ui, sans-serif;
-        text-align: center;
-        opacity: 0;
-        transition: opacity 0.5s ease-in-out;
-    `;
-    
-    // Splash screen content
-    splashScreen.innerHTML = `
-        <div style="max-width: 80%;">
-            <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1763241555499_pngegg%20(13).png" 
-                 alt="Welcome" 
-                 style="width: 120px; height: 120px; border-radius: 20px; margin-bottom: 20px; border: 3px solid white;">
-            <h1 style="font-size: 2.5rem; margin: 0 0 10px 0; font-weight: 700;">Welcome, ${userName}! 🎉</h1>
-            <p style="font-size: 1.2rem; opacity: 0.9; margin: 0;">So glad you're here!</p>
-        </div>
-    `;
-    
-    // Add to page
-    document.body.appendChild(splashScreen);
-    
-    // Animate in
-    setTimeout(() => {
-        splashScreen.style.opacity = '1';
-    }, 50);
-    
-    // Auto-remove after 3 seconds
-    setTimeout(() => {
-        splashScreen.style.opacity = '0';
-        setTimeout(() => {
-            if (splashScreen.parentNode) {
-                splashScreen.parentNode.removeChild(splashScreen);
-            }
-            console.log('✅ Welcome splash screen removed');
-        }, 500);
-    }, 3000);
-}
-
 function detectAndStoreUserName(message) {
     console.log('🔍 DEBUG: detectAndStoreUserName called with:', message);
     
@@ -5022,7 +4962,7 @@ window.showWelcomeSplash = function(userName) {
     console.log('🎉 ULTRA-MINIMAL WELCOME: Showing for', userName);
     
     // 🎨 SIZE CONTROLS - CHANGE THESE:
-    const logoHeight = '50px';   // Change logo size: '60px', '100px', '120px'
+    const logoHeight = '55px';   // Change logo size: '60px', '100px', '120px'
     const fontSize = '20px';     // Change text size: '20px', '28px', '32px'
     
     const existingWelcome = document.getElementById('minimal-welcome');
@@ -5043,7 +4983,7 @@ window.showWelcomeSplash = function(userName) {
     display: flex;
     align-items: center;
     gap: 10px;
-    animation: blinkThreeTimes 2s ease-in-out;
+    animation: blinkThreeTimes 8s ease-in-out;
 `;
 
 // Add this style block for the animation
