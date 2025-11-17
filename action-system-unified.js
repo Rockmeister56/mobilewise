@@ -758,27 +758,27 @@ function handleEmailConfirmation(sendEmail, captureType) {
                 
                 showDecisionPanel({
     question: "Is that everything I can help you with today?",
-    yesText: "Yes, I Have More Questions", 
+    yesText: "Yes, I Have More Questions",
     skipText: "No, I'm All Done",
     onYes: function() {
-        console.log('🚨 USER WANTS TO CONTINUE - USING EMERGENCY RESET');
-        emergencyCooldownReset(); // 🚨 BREAK THE LOOP FIRST
+        console.log('🎸 USER CONTINUING - APPLYING EMERGENCY FIX');
+        
+        // 🚨 APPLY THE FIX IMMEDIATELY
+        emergencySpeechFix();
         
         setTimeout(() => {
-            const continueMessage = "Great! What else can I can help you with?";
+            const continueMessage = "Great! What else can I help you with?";
             speakWithElevenLabs(continueMessage, false);
             
-            // Wait longer before showing banner (5 seconds instead of 2)
-            setTimeout(() => {
-                if (typeof showDirectSpeakNow === 'function') {
-                    showDirectSpeakNow();
-                }
-            }, 5000); // Increased to 5 seconds
+            // 🚫 DO NOT SHOW AUTOMATIC BANNER - LET USER INITIATE
+            console.log('✅ Conversation continued - NO automatic banner');
         }, 1000);
     },
     onSkip: function() {
-        console.log('🚨 USER IS DONE - USING EMERGENCY RESET');
-        emergencyCooldownReset(); // 🚨 BREAK THE LOOP FIRST
+        console.log('🎸 USER FINISHED - APPLYING EMERGENCY FIX');
+        
+        // 🚨 APPLY THE FIX IMMEDIATELY  
+        emergencySpeechFix();
         
         if (typeof showThankYouSplash === 'function') {
             showThankYouSplash();
@@ -1229,6 +1229,35 @@ function cleanupUniversalConfirmation() {
 window.showUniversalConfirmation = showUniversalConfirmation;
 window.cleanupUniversalConfirmation = cleanupUniversalConfirmation;
 
+// 🚨 EMERGENCY FIX - REMOVE COOLDOWN INTERFERENCE
+function emergencySpeechFix() {
+    console.log('🚨 EMERGENCY SPEECH FIX - Removing cooldown interference');
+    
+    // COMPLETELY DISABLE COOLDOWN SYSTEM
+    window.bannerCooldown = false;
+    window.suppressSpeakNowBanner = false;
+    window.isInLeadCapture = false;
+    
+    // STOP ALL ACTIVE LISTENING FIRST
+    if (window.stopListening && typeof window.stopListening === 'function') {
+        window.stopListening();
+    }
+    
+    // REMOVE ANY ACTIVE BANNERS
+    const banners = document.querySelectorAll('.speak-now-banner, [class*="speakNow"], #speakNowBanner');
+    banners.forEach(banner => banner.remove());
+    
+    // WAIT 500ms FOR CLEAN RESET
+    setTimeout(() => {
+        // START FRESH LISTENING SESSION
+        if (window.startListening && typeof window.startListening === 'function') {
+            window.startListening();
+        }
+    }, 500);
+    
+    console.log('✅ Emergency speech fix applied - voice should capture instantly now');
+}
+
 // ================================
 // COMPLETE LEAD CAPTURE & REQUEST EMAIL PERMISSION - FIXED VERSION
 // ================================
@@ -1306,27 +1335,6 @@ function startCompleteLeadCapture() {
     if (preQualButton) {
         preQualButton.click();
     }
-}
-
-// 🚨 EMERGENCY COOLDOWN RESET - BREAK THE LOOP
-function emergencyCooldownReset() {
-    console.log('🚨 EMERGENCY COOLDOWN RESET - Breaking permanent bypass loop');
-    
-    // Reset all cooldown flags
-    window.bannerCooldown = false;
-    window.suppressSpeakNowBanner = false;
-    window.isInLeadCapture = false;
-    window.currentCaptureType = null;
-    window.currentLeadData = null;
-    
-    // Force remove any active banners
-    const banners = document.querySelectorAll('.speak-now-banner, [class*="speakNow"], #speakNowBanner');
-    banners.forEach(banner => banner.remove());
-    
-    // Stop any listening
-    if (window.stopListening) window.stopListening();
-    
-    console.log('✅ Emergency reset complete - system should be clean now');
 }
 
 // ================================
