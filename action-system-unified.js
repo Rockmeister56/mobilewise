@@ -4,8 +4,6 @@
 // CLEANED VERSION - No restore code for old buttons
 // ================================
 
-console.log('🎯 ACTION SYSTEM UNIFIED - Loading (FINAL CLEANED VERSION)...');
-
 const EMAILJS_CONFIG = {
     serviceId: 'service_b9bppgb',
     publicKey: '7-9oxa3UC3uKxtqGM',
@@ -16,15 +14,6 @@ const EMAILJS_CONFIG = {
         clientConfirmation: 'template_8kx812d'   // NEW: Client confirmation email with free book
     }
 };
-
-// REPLACE THIS FUNCTION in action-system-unified.js:
-function getDefaultButtons() {
-    // 🎯 RETURN THE BEAUTIFUL COMMUNICATION RELAY CENTER INSTEAD
-    return `
-        <div style="[COPY THE ENTIRE BEAUTIFUL HTML FROM showCommunicationRelayCenter()]">
-        </div>
-    `;
-}
 
 // Initialize EmailJS
 (function() {
@@ -353,6 +342,7 @@ function askLeadQuestion() {
                     // 🎯 TRACKED BANNER SHOW
                     console.log('🎤 LEAD CAPTURE: Triggering Speak Now banner for step', data.step);
                     if (window.showDirectSpeakNow && typeof window.showDirectSpeakNow === 'function') {
+                        window.showDirectSpeakNow();
                     }
                 }
             }, 100);
