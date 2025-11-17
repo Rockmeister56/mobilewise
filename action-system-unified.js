@@ -717,6 +717,9 @@ function completeLeadCapture() {
 // ================================
 // EMAIL CONFIRMATION BUTTONS - SIMPLE VERSION
 // ================================
+// ================================
+// EMAIL CONFIRMATION BUTTONS - SIMPLE VERSION
+// ================================
 function handleEmailConfirmation(sendEmail, captureType) {
     console.log('🎯 Email confirmation:', sendEmail ? 'SENDING' : 'SKIPPING');
     
@@ -742,45 +745,50 @@ function handleEmailConfirmation(sendEmail, captureType) {
                 window.closeSpeakNowBanner();
             }
             
-            showDecisionPanel({
-                question: "Is that everything I can help you with today?",
-                yesText: "Yes, I Have More Questions",
-                skipText: "No, I'm All Done", 
-                onYes: function() {
-                    // User wants to continue
-                    console.log('✅ User wants to continue - restarting conversation');
-                    window.isInLeadCapture = false;
-                    window.currentCaptureType = null;
-                    window.currentLeadData = null;
-                    
-                    setTimeout(() => {
-                        const continueMessage = "Great! What else can I help you with?";
-                        speakWithElevenLabs(continueMessage, false);
+            // Let AI speak FIRST, then show decision panel
+            setTimeout(() => {
+                console.log('🎯 AI finished speaking - showing decision panel');
+                
+                showDecisionPanel({
+                    question: "Is that everything I can help you with today?",
+                    yesText: "Yes, I Have More Questions",
+                    skipText: "No, I'm All Done", 
+                    onYes: function() {
+                        // User wants to continue
+                        console.log('✅ User wants to continue - restarting conversation');
+                        window.isInLeadCapture = false;
+                        window.currentCaptureType = null;
+                        window.currentLeadData = null;
                         
-                        // Show speak now banner after speech
                         setTimeout(() => {
-                            if (typeof showDirectSpeakNow === 'function') {
-                                showDirectSpeakNow();
-                            }
-                        }, 2000);
-                    }, 500);
-                },
-                onSkip: function() {
-                    // User is done - show thank you screen
-                    console.log('✅ User is done - showing thank you screen');
-                    window.isInLeadCapture = false;
-                    window.currentCaptureType = null;
-                    window.currentLeadData = null;
-                    
-                    if (typeof showThankYouSplash === 'function') {
-                        showThankYouSplash();
+                            const continueMessage = "Great! What else can I help you with?";
+                            speakWithElevenLabs(continueMessage, false);
+                            
+                            // Show speak now banner after speech
+                            setTimeout(() => {
+                                if (typeof showDirectSpeakNow === 'function') {
+                                    showDirectSpeakNow();
+                                }
+                            }, 2000);
+                        }, 500);
+                    },
+                    onSkip: function() {
+                        // User is done - show thank you screen
+                        console.log('✅ User is done - showing thank you screen');
+                        window.isInLeadCapture = false;
+                        window.currentCaptureType = null;
+                        window.currentLeadData = null;
+                        
+                        if (typeof showThankYouSplash === 'function') {
+                            showThankYouSplash();
+                        }
+                        
+                        setTimeout(() => {
+                            speakWithElevenLabs("Thank you for your time! Feel free to come back anytime.", false);
+                        }, 1000);
                     }
-                    
-                    setTimeout(() => {
-                        speakWithElevenLabs("Thank you for your time! Feel free to come back anytime.", false);
-                    }, 1000);
-                }
-            });
+                });
+            }, 3000); // Wait for AI to finish speaking
         }, 1000); // Wait for email send to complete
         
     } else {
@@ -804,7 +812,7 @@ function handleEmailConfirmation(sendEmail, captureType) {
 }
 
 // ================================
-// IN-CHAT DECISION PANEL (CLEAN VERSION)
+// IN-CHAT DECISION PANEL (MATCHES EMAIL CONFIRMATION)
 // ================================
 function showDecisionPanel(options) {
     console.log("🎯 DECISION PANEL: Showing IN-CHAT decision");
@@ -831,59 +839,64 @@ function showDecisionPanel(options) {
         }
     };
     
-    // Create IN-CHAT decision panel (EXACTLY like email confirmation)
+    // Create decision panel that MATCHES your email confirmation EXACTLY
     const decisionHTML = `
-        <div class="chat-message ai-message decision-panel" style="
-            background: rgba(248, 249, 250, 0.95);
-            border: 2px solid #e9ecef;
-            border-radius: 16px;
-            padding: 25px;
-            margin: 20px auto;
-            text-align: center;
-            max-width: 380px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        <div class="confirmation-buttons decision-panel" style="
+            text-align: center; 
+            margin: 15px 0; 
+            padding: 20px; 
+            background: rgba(255,255,255,0.1); 
+            border-radius: 15px;
+            border: 2px solid rgba(255,255,255,0.2);
         ">
-            <div style="font-size: 32px; margin-bottom: 15px; color: #2ecc71;">🎯</div>
-            <p style="margin: 0 0 25px 0; color: #2c3e50; font-size: 17px; line-height: 1.5; font-weight: 500;">
+            <div style="
+                margin-bottom: 15px; 
+                color: white; 
+                font-size: 18px;
+                font-weight: bold;
+            ">
                 ${config.question}
-            </p>
-            <div style="display: flex; gap: 15px; justify-content: center;">
+            </div>
+            <div style="
+                display: flex; 
+                justify-content: center; 
+                gap: 20px;
+                flex-wrap: wrap;
+            ">
                 <button onclick="window.handleDecisionYes()" style="
-                    background: #2ecc71;
-                    color: white;
-                    border: none;
-                    padding: 14px 28px;
-                    border-radius: 10px;
+                    background: linear-gradient(135deg, #4CAF50, #8BC34A);
+                    color: white; 
+                    border: none; 
+                    padding: 15px 30px; 
+                    border-radius: 25px; 
                     cursor: pointer;
-                    font-weight: 600;
-                    font-size: 15px;
-                    transition: all 0.2s;
-                    box-shadow: 0 2px 8px rgba(46, 204, 113, 0.3);
-                " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(46, 204, 113, 0.4)'" 
-                   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(46, 204, 113, 0.3)'">
+                    font-weight: bold;
+                    font-size: 16px;
+                    min-width: 120px;
+                    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+                ">
                     ${config.yesText}
                 </button>
                 <button onclick="window.handleDecisionSkip()" style="
-                    background: #3498db;
-                    color: white;
-                    border: none;
-                    padding: 14px 28px;
-                    border-radius: 10px;
+                    background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+                    color: white; 
+                    border: none; 
+                    padding: 15px 30px; 
+                    border-radius: 25px; 
                     cursor: pointer;
-                    font-weight: 600;
-                    font-size: 15px;
-                    transition: all 0.2s;
-                    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
-                " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(52, 152, 219, 0.4)'" 
-                   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(52, 152, 219, 0.3)'">
+                    font-weight: bold;
+                    font-size: 16px;
+                    min-width: 120px;
+                    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+                ">
                     ${config.skipText}
                 </button>
             </div>
         </div>
     `;
     
-    // Add to chat container (EXACTLY where email confirmation appears)
-    const chatContainer = document.getElementById('chat-messages') || 
+    // Add to the SAME container as email confirmation
+    const chatContainer = document.getElementById('chatMessages') || 
                          document.querySelector('.chat-messages') ||
                          document.querySelector('.chat-container') ||
                          document.body;
@@ -904,7 +917,128 @@ function showDecisionPanel(options) {
         config.onSkip();
     };
     
-    console.log("✅ DECISION PANEL: In-chat panel displayed (banner blocked)");
+    console.log("✅ DECISION PANEL: Matching email confirmation style displayed");
+}
+
+function cleanupDecisionPanel() {
+    const panels = document.querySelectorAll('.decision-panel');
+    panels.forEach(panel => panel.remove());
+}
+
+// Make globally available
+window.showDecisionPanel = showDecisionPanel;
+window.cleanupDecisionPanel = cleanupDecisionPanel;
+
+// ================================
+// IN-CHAT DECISION PANEL (CLEAN VERSION)
+// ================================
+function showDecisionPanel(options) {
+    console.log("🎯 DECISION PANEL: Matching email confirmation style EXACTLY");
+    
+    // 🚫 CRITICAL: Stop listening and speaking FIRST
+    if (window.stopAllSpeech) {
+        window.stopAllSpeech();
+    }
+    if (window.stopListening) {
+        window.stopListening();
+    }
+    
+    // Remove any existing decision panel first
+    cleanupDecisionPanel();
+    
+    const config = {
+        question: options.question || "What would you like to do next?",
+        yesText: options.yesText || "Continue", 
+        skipText: options.skipText || "Finish",
+        onYes: options.onYes || function() { 
+            console.log("Continue clicked");
+            if (window.showDirectSpeakNow) window.showDirectSpeakNow();
+        },
+        onSkip: options.onSkip || function() { 
+            console.log("Finish clicked");
+            if (window.showThankYouSplash) window.showThankYouSplash();
+        }
+    };
+    
+    // Create decision panel that MATCHES your email confirmation EXACTLY
+    const decisionHTML = `
+        <div class="confirmation-buttons decision-panel" style="
+            text-align: center; 
+            margin: 15px 0; 
+            padding: 20px; 
+            background: rgba(255,255,255,0.1); 
+            border-radius: 15px;
+            border: 2px solid rgba(255,255,255,0.2);
+        ">
+            <div style="
+                margin-bottom: 15px; 
+                color: white; 
+                font-size: 18px;
+                font-weight: bold;
+            ">
+                ${config.question}
+            </div>
+            <div style="
+                display: flex; 
+                justify-content: center; 
+                gap: 20px;
+                flex-wrap: wrap;
+            ">
+                <button onclick="window.handleDecisionYes()" style="
+                    background: linear-gradient(135deg, #4CAF50, #8BC34A);
+                    color: white; 
+                    border: none; 
+                    padding: 15px 30px; 
+                    border-radius: 25px; 
+                    cursor: pointer;
+                    font-weight: bold;
+                    font-size: 16px;
+                    min-width: 120px;
+                    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+                ">
+                    ${config.yesText}
+                </button>
+                <button onclick="window.handleDecisionSkip()" style="
+                    background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+                    color: white; 
+                    border: none; 
+                    padding: 15px 30px; 
+                    border-radius: 25px; 
+                    cursor: pointer;
+                    font-weight: bold;
+                    font-size: 16px;
+                    min-width: 120px;
+                    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+                ">
+                    ${config.skipText}
+                </button>
+            </div>
+        </div>
+    `;
+    
+    // Add to the SAME container as email confirmation
+    const chatContainer = document.getElementById('chatMessages') || 
+                         document.querySelector('.chat-messages') ||
+                         document.querySelector('.chat-container') ||
+                         document.body;
+    
+    chatContainer.insertAdjacentHTML('beforeend', decisionHTML);
+    
+    // Scroll to show the decision panel
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+    
+    // Store callbacks globally
+    window.handleDecisionYes = function() {
+        cleanupDecisionPanel();
+        config.onYes();
+    };
+    
+    window.handleDecisionSkip = function() {
+        cleanupDecisionPanel();
+        config.onSkip();
+    };
+    
+    console.log("✅ DECISION PANEL: Matching email confirmation style displayed (AI stopped)");
 }
 
 function cleanupDecisionPanel() {
