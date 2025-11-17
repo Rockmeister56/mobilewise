@@ -720,7 +720,7 @@ function completeLeadCapture() {
 function handleEmailConfirmation(sendEmail, captureType) {
     console.log('🎯 Email confirmation:', sendEmail ? 'SENDING' : 'SKIPPING');
 
-      // 🚫 SET SUPPRESSION FLAG IMMEDIATELY
+    // 🚫 SET SUPPRESSION FLAG IMMEDIATELY
     window.suppressSpeakNowBanner = true;
     
     // Remove confirmation buttons
@@ -738,77 +738,67 @@ function handleEmailConfirmation(sendEmail, captureType) {
         
         // 🚀 AFTER EMAIL SENT - WAIT FOR AI TO SPEAK FIRST
         setTimeout(() => {
-    console.log('📧 Email sent - waiting for AI to ask if more help needed');
-    
-    // Let AI speak FIRST: "Is there anything else I can help you with?"
-    
-    // 🕒 INCREASED TO 8 SECONDS to ensure AI finishes speaking AND auto-listening times out
-    setTimeout(() => {
-        console.log('🎯 AI finished speaking AND auto-listening timed out - showing decision panel');
-        
-        // 🚫 STOP any listening that might have started
-        if (window.stopListening) {
-            window.stopListening();
-        }
-        
-        // 🚫 STOP any pending Speak Now banners
-        if (window.closeSpeakNowBanner) {
-            window.closeSpeakNowBanner();
-        }
-        
-        showDecisionPanel({
-    question: "Is that everything I can help you with today?",
-    yesText: "Yes, I Have More Questions",
-    skipText: "No, I'm All Done", 
-    onYes: function() {
-        // User wants to continue - FORCE reset all flags
-        console.log('🛑 FORCE RESETTING LEAD CAPTURE FLAGS');
-        
-        // Multiple approaches to ensure flags are cleared
-        window.isInLeadCapture = false;
-        window.currentCaptureType = null;
-        window.currentLeadData = null;
-        
-        // Force cleanup of any active banners
-        if (typeof closeSpeakNowBanner === 'function') {
-            closeSpeakNowBanner();
-        }
-        
-        // Add a small delay to ensure cleanup completes
-        setTimeout(() => {
-            const continueMessage = "Great! What else can I help you with?";
-            speakWithElevenLabs(continueMessage, false);
+            console.log('📧 Email sent - waiting for AI to ask if more help needed');
             
-            // Don't show speak now banner automatically - let user initiate
-            console.log('✅ Conversation restarted WITHOUT automatic banner');
-        }, 1000);
-    },
-    onSkip: function() {
-        // User is done - FORCE reset all flags
-        console.log('🛑 FORCE RESETTING LEAD CAPTURE FLAGS FOR EXIT');
-        
-        window.isInLeadCapture = false;
-        window.currentCaptureType = null;
-        window.currentLeadData = null;
-        
-        // Force cleanup of any active banners
-        if (typeof closeSpeakNowBanner === 'function') {
-            closeSpeakNowBanner();
-        }
-        
-        // Show thank you screen
-        setTimeout(() => {
-            if (typeof showThankYouSplash === 'function') {
-                showThankYouSplash();
+            // Let AI speak FIRST: "Is there anything else I can help you with?"
+            
+            // 🕒 INCREASED TO 8 SECONDS to ensure AI finishes speaking AND auto-listening times out
+            setTimeout(() => {
+                console.log('🎯 AI finished speaking AND auto-listening timed out - showing decision panel');
+                
+                // 🚫 STOP any listening that might have started
+                if (window.stopListening) {
+                    window.stopListening();
                 }
                 
-                setTimeout(() => {
-                    speakWithElevenLabs("Thank you for your time! Feel free to come back anytime.", false);
-                }, 1000);
-            }
-        });
-    }, 8000); // 🕒 INCREASED TO 8 SECONDS - ensures AI finishes + auto-listening times out
-}, 1000); // Wait for email send to complete
+                // 🚫 STOP any pending Speak Now banners
+                if (window.closeSpeakNowBanner) {
+                    window.closeSpeakNowBanner();
+                }
+                
+                showDecisionPanel({
+                    question: "Is that everything I can help you with today?",
+                    yesText: "Yes, I Have More Questions",
+                    skipText: "No, I'm All Done", 
+                    onYes: function() {
+                        // User wants to continue
+                        console.log('✅ User wants to continue - restarting conversation');
+                        window.isInLeadCapture = false;
+                        window.currentCaptureType = null;
+                        window.currentLeadData = null;
+                        window.suppressSpeakNowBanner = false; // Reset suppression
+                        
+                        setTimeout(() => {
+                            const continueMessage = "Great! What else can I help you with?";
+                            speakWithElevenLabs(continueMessage, false);
+                            
+                            // Show speak now banner after speech
+                            setTimeout(() => {
+                                if (typeof showDirectSpeakNow === 'function') {
+                                    showDirectSpeakNow();
+                                }
+                            }, 2000);
+                        }, 500);
+                    },
+                    onSkip: function() {
+                        // User is done - show thank you screen
+                        console.log('✅ User is done - showing thank you screen');
+                        window.isInLeadCapture = false;
+                        window.currentCaptureType = null;
+                        window.currentLeadData = null;
+                        window.suppressSpeakNowBanner = false; // Reset suppression
+                        
+                        if (typeof showThankYouSplash === 'function') {
+                            showThankYouSplash();
+                        }
+                        
+                        setTimeout(() => {
+                            speakWithElevenLabs("Thank you for your time! Feel free to come back anytime.", false);
+                        }, 1000);
+                    }
+                });
+            }, 8000); // 🕒 INCREASED TO 8 SECONDS - ensures AI finishes + auto-listening times out
+        }, 1000); // Wait for email send to complete
         
     } else {
         // Skip email - just continue conversation
@@ -820,6 +810,7 @@ function handleEmailConfirmation(sendEmail, captureType) {
         window.isInLeadCapture = false;
         window.currentCaptureType = null;
         window.currentLeadData = null;
+        window.suppressSpeakNowBanner = false; // Reset suppression
         
         // Wait then show Speak Now banner
         setTimeout(() => {
