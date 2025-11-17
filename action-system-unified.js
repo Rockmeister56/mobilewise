@@ -757,37 +757,37 @@ function handleEmailConfirmation(sendEmail, captureType) {
         }
         
         showDecisionPanel({
-    question: "Is that everything I can help you with today?",
-    yesText: "Yes, I Have More Questions",
-    skipText: "No, I'm All Done", 
-    onYes: function() {
-        // User wants to continue
-        console.log('✅ User wants to continue - restarting conversation');
-        window.isInLeadCapture = false;
-        window.currentCaptureType = null;
-        window.currentLeadData = null;
-        
-        setTimeout(() => {
-            const continueMessage = "Great! What else can I help you with?";
-            speakWithElevenLabs(continueMessage, false);
-            
-            // Show speak now banner after speech
-            setTimeout(() => {
-                if (typeof showDirectSpeakNow === 'function') {
-                    showDirectSpeakNow();
-                }
-            }, 2000);
-        }, 500);
-    },
-    onSkip: function() {
-        // User is done - show thank you screen
-        console.log('✅ User is done - showing thank you screen');
-        window.isInLeadCapture = false;
-        window.currentCaptureType = null;
-        window.currentLeadData = null;
-        
-        if (typeof showThankYouSplash === 'function') {
-            showThankYouSplash();
+            question: "Is that everything I can help you with today?",
+            yesText: "Yes, I Have More Questions",
+            skipText: "No, I'm All Done", 
+            onYes: function() {
+                // User wants to continue
+                console.log('✅ User wants to continue - restarting conversation');
+                window.isInLeadCapture = false;
+                window.currentCaptureType = null;
+                window.currentLeadData = null;
+                
+                setTimeout(() => {
+                    const continueMessage = "Great! What else can I help you with?";
+                    speakWithElevenLabs(continueMessage, false);
+                    
+                    // Show speak now banner after speech
+                    setTimeout(() => {
+                        if (typeof showDirectSpeakNow === 'function') {
+                            showDirectSpeakNow();
+                        }
+                    }, 2000);
+                }, 500);
+            },
+            onSkip: function() {
+                // User is done - show thank you screen
+                console.log('✅ User is done - showing thank you screen');
+                window.isInLeadCapture = false;
+                window.currentCaptureType = null;
+                window.currentLeadData = null;
+                
+                if (typeof showThankYouSplash === 'function') {
+                    showThankYouSplash();
                 }
                 
                 setTimeout(() => {
