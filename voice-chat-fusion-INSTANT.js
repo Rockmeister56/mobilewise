@@ -708,27 +708,6 @@ function suppressBrowserBeeps() {
     recognition.onaudiostart = function() { /* SILENCE */ };
     recognition.onspeechstart = function() { /* SILENCE */ };
 }
-
-// 🛡️ SAFE SPEECH RECOGNITION START
-function safeStartListening() {
-    console.log('🛡️ SAFE START LISTENING - Checking if already running');
-    
-    // Check if recognition is already active
-    if (window.recognition && window.recognition.state === 'listening') {
-        console.log('✅ Recognition already listening - skipping duplicate start');
-        return true; // Already listening, no need to start again
-    }
-    
-    // If not already listening, start fresh
-    if (window.startListening && typeof window.startListening === 'function') {
-        console.log('🎯 Starting fresh listening session');
-        window.startListening();
-        return true;
-    }
-    
-    console.log('❌ startListening function not available');
-    return false;
-}
     
 // ===================================================
 // 🎤 START LISTENING new function
@@ -5258,6 +5237,12 @@ function startNormalInterviewListening() {
     }
     
     setTimeout(() => {
+        // 🛡️ SAFETY CHECK: Prevent duplicate recognition starts
+        if (window.recognition && window.recognition.state === 'listening') {
+            console.log('✅ Recognition already active - skipping duplicate start');
+            return;
+        }
+        
         if (typeof startListening === 'function') {
             try {
                 startListening();
