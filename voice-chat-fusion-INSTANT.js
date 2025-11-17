@@ -3,6 +3,85 @@
 // Smart Button + Lead Capture + EmailJS + Banner System
 // ===================================================
 
+// ================================
+// 🎯 SPEECH RECOGNITION ARTILLERY DEBUGGER
+// ================================
+
+// 🎯 SPEECH RECOGNITION TRACKER - FULL ARTILLERY
+window.recognitionStarts = [];
+window.recognitionTracker = [];
+
+// 🎯 TRACK EVERY START ATTEMPT
+function trackRecognitionStart(source) {
+    const stack = new Error().stack;
+    const timestamp = Date.now();
+    const state = window.recognition ? window.recognition.state : 'no-recognition';
+    
+    window.recognitionStarts.push({
+        source: source,
+        timestamp: timestamp,
+        state: state,
+        stack: stack
+    });
+    
+    console.log(`🎯 RECOGNITION START ATTEMPT #${window.recognitionStarts.length}:`, {
+        source: source,
+        state: state,
+        time: new Date(timestamp).toISOString()
+    });
+    
+    // Keep only last 10 entries
+    if (window.recognitionStarts.length > 10) {
+        window.recognitionStarts.shift();
+    }
+}
+
+// 🎯 ENHANCED startListening WITH COMPLETE TRACKING
+const originalStartListening = window.startListening;
+window.startListening = function() {
+    trackRecognitionStart('startListening Function');
+    
+    console.log('🔍 STARTLISTENING DEBUG:');
+    console.log('  - recognition exists:', !!window.recognition);
+    console.log('  - recognition state:', window.recognition ? window.recognition.state : 'N/A');
+    console.log('  - isCurrentlyListening:', window.isCurrentlyListening);
+    console.log('  - stack trace:', new Error().stack);
+    
+    // 🛡️ ULTRA SAFETY CHECK
+    if (window.recognition && window.recognition.state === 'listening') {
+        console.log('🚫 🚫 🚫 BLOCKED DUPLICATE START - Recognition already listening!');
+        console.log('💀 OFFENDING CALL STACK:', new Error().stack);
+        return;
+    }
+    
+    // Call original function
+    if (originalStartListening) {
+        return originalStartListening.apply(this, arguments);
+    }
+};
+
+// 🎯 TRACK BANNER SHOWS
+const originalShowDirectSpeakNow = window.showDirectSpeakNow;
+window.showDirectSpeakNow = function() {
+    console.log('🎤 BANNER SHOW TRACKER:');
+    console.log('  - Called from:', new Error().stack);
+    trackRecognitionStart('showDirectSpeakNow');
+    
+    if (originalShowDirectSpeakNow) {
+        return originalShowDirectSpeakNow.apply(this, arguments);
+    }
+};
+
+// 🎯 TRACK LEAD CAPTURE STARTS
+window.trackLeadCaptureStart = function() {
+    console.log('📝 LEAD CAPTURE START TRACKER:');
+    console.log('  - isInLeadCapture:', window.isInLeadCapture);
+    console.log('  - current step:', window.currentLeadData ? window.currentLeadData.step : 'N/A');
+    trackRecognitionStart('Lead Capture');
+};
+
+console.log('💥 ARTILLERY DEBUGGER LOADED - READY FOR BATTLE!');
+
 // Add this at the VERY TOP of your JavaScript file (like line 1)
 if (typeof window.leadData === 'undefined' || !window.leadData) {
     window.leadData = { 

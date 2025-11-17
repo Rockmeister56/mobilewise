@@ -326,11 +326,12 @@ function disableAvatarDuringLeadCapture() {
 // UNIVERSAL LEAD QUESTION ASKER
 // ================================
 function askLeadQuestion() {
-    window.lastProcessedTranscript = null; // 🔄 Reset for new question
+    window.trackLeadCaptureStart(); // 🎯 TRACK THIS!
+    
+    window.lastProcessedTranscript = null;
     if (!window.isInLeadCapture || !window.currentLeadData) return;
     
     const data = window.currentLeadData;
-    
     console.log('🎯 Asking question for step:', data.step);
     
     if (data.step < data.questions.length) {
@@ -344,33 +345,21 @@ function askLeadQuestion() {
         if (window.speakText) {
             window.speakText(question);
             
-            // 🎯 SMART TIMING: Wait for speech to actually finish BEFORE showing banner
             const checkSpeech = setInterval(() => {
                 if (!window.isSpeaking) {
                     clearInterval(checkSpeech);
                     console.log('✅ AI finished speaking - starting listening NOW');
                     
-                    // 🎤 NOW SHOW SPEAK NOW BANNER (after speech finishes)
+                    // 🎯 TRACKED BANNER SHOW
                     console.log('🎤 LEAD CAPTURE: Triggering Speak Now banner for step', data.step);
                     if (window.showDirectSpeakNow && typeof window.showDirectSpeakNow === 'function') {
                         window.showDirectSpeakNow();
-                        console.log('✅ Speak Now banner triggered via showDirectSpeakNow()');
-                    }
-                    
-                    // 🚀 NOW WITH CONFLICT PROTECTION
-                    if (isInLeadCapture && window.startRealtimeListening && !window.isCurrentlyListening) {
-                        window.startRealtimeListening();
                     }
                 }
             }, 100);
 
-            // Safety timeout (10 seconds max)
             setTimeout(() => {
                 clearInterval(checkSpeech);
-                if (isInLeadCapture && window.startRealtimeListening && !window.isCurrentlyListening) {
-                    console.log('⏰ Safety timeout - starting listening');
-                    window.startRealtimeListening();
-                }
             }, 10000);
         }
     } else {
