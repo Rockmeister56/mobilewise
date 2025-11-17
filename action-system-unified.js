@@ -2042,6 +2042,7 @@ setTimeout(() => {
             }, 5000);
         } else {
             console.log('🎤 Speak Now overlay triggered (no AI speech detected)');
+            showDirectSpeakNow();
         }
     }
 }, 2000);
