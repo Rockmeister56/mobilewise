@@ -353,7 +353,6 @@ function askLeadQuestion() {
                     // 🎯 TRACKED BANNER SHOW
                     console.log('🎤 LEAD CAPTURE: Triggering Speak Now banner for step', data.step);
                     if (window.showDirectSpeakNow && typeof window.showDirectSpeakNow === 'function') {
-                        window.showDirectSpeakNow();
                     }
                 }
             }, 100);
@@ -2040,11 +2039,9 @@ setTimeout(() => {
             setTimeout(() => {
                 window.speechSynthesis.removeEventListener('end', speechEndHandler);
                 console.log('🎤 Speak Now overlay triggered via safety timeout');
-                showDirectSpeakNow();
             }, 5000);
         } else {
             console.log('🎤 Speak Now overlay triggered (no AI speech detected)');
-            showDirectSpeakNow();
         }
     }
 }, 2000);
