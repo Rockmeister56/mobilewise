@@ -757,44 +757,36 @@ function handleEmailConfirmation(sendEmail, captureType) {
                 }
                 
                 showDecisionPanel({
-                    question: "Is that everything I can help you with today?",
-                    yesText: "Yes, I Have More Questions",
-                    skipText: "No, I'm All Done", 
-                    onYes: function() {
-                        // User wants to continue
-                        console.log('✅ User wants to continue - restarting conversation');
-                        window.isInLeadCapture = false;
-                        window.currentCaptureType = null;
-                        window.currentLeadData = null;
-                        window.suppressSpeakNowBanner = false; // Reset suppression
-                        
-                        setTimeout(() => {
-                            const continueMessage = "Great! What else can I help you with?";
-                            speakWithElevenLabs(continueMessage, false);
-                            
-                            // Show speak now banner after speech
-                            setTimeout(() => {
-                                if (typeof showDirectSpeakNow === 'function') {
-                                    showDirectSpeakNow();
-                                }
-                            }, 2000);
-                        }, 500);
-                    },
-                    onSkip: function() {
-                        // User is done - show thank you screen
-                        console.log('✅ User is done - showing thank you screen');
-                        window.isInLeadCapture = false;
-                        window.currentCaptureType = null;
-                        window.currentLeadData = null;
-                        window.suppressSpeakNowBanner = false; // Reset suppression
-                        
-                        if (typeof showThankYouSplash === 'function') {
-                            showThankYouSplash();
-                        }
-                        
-                        setTimeout(() => {
-                            speakWithElevenLabs("Thank you for your time! Feel free to come back anytime.", false);
-                        }, 1000);
+    question: "Is that everything I can help you with today?",
+    yesText: "Yes, I Have More Questions", 
+    skipText: "No, I'm All Done",
+    onYes: function() {
+        console.log('🚨 USER WANTS TO CONTINUE - USING EMERGENCY RESET');
+        emergencyCooldownReset(); // 🚨 BREAK THE LOOP FIRST
+        
+        setTimeout(() => {
+            const continueMessage = "Great! What else can I can help you with?";
+            speakWithElevenLabs(continueMessage, false);
+            
+            // Wait longer before showing banner (5 seconds instead of 2)
+            setTimeout(() => {
+                if (typeof showDirectSpeakNow === 'function') {
+                    showDirectSpeakNow();
+                }
+            }, 5000); // Increased to 5 seconds
+        }, 1000);
+    },
+    onSkip: function() {
+        console.log('🚨 USER IS DONE - USING EMERGENCY RESET');
+        emergencyCooldownReset(); // 🚨 BREAK THE LOOP FIRST
+        
+        if (typeof showThankYouSplash === 'function') {
+            showThankYouSplash();
+        }
+        
+        setTimeout(() => {
+            speakWithElevenLabs("Thank you for your time! Feel free to come back anytime.", false);
+        }, 1000);
                     }
                 });
             }, 8000); // 🕒 INCREASED TO 8 SECONDS - ensures AI finishes + auto-listening times out
@@ -1314,6 +1306,27 @@ function startCompleteLeadCapture() {
     if (preQualButton) {
         preQualButton.click();
     }
+}
+
+// 🚨 EMERGENCY COOLDOWN RESET - BREAK THE LOOP
+function emergencyCooldownReset() {
+    console.log('🚨 EMERGENCY COOLDOWN RESET - Breaking permanent bypass loop');
+    
+    // Reset all cooldown flags
+    window.bannerCooldown = false;
+    window.suppressSpeakNowBanner = false;
+    window.isInLeadCapture = false;
+    window.currentCaptureType = null;
+    window.currentLeadData = null;
+    
+    // Force remove any active banners
+    const banners = document.querySelectorAll('.speak-now-banner, [class*="speakNow"], #speakNowBanner');
+    banners.forEach(banner => banner.remove());
+    
+    // Stop any listening
+    if (window.stopListening) window.stopListening();
+    
+    console.log('✅ Emergency reset complete - system should be clean now');
 }
 
 // ================================
