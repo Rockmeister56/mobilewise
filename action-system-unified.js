@@ -761,33 +761,45 @@ function handleEmailConfirmation(sendEmail, captureType) {
     yesText: "Yes, I Have More Questions",
     skipText: "No, I'm All Done", 
     onYes: function() {
-        // User wants to continue
-        console.log('✅ User wants to continue - restarting conversation');
+        // User wants to continue - FORCE reset all flags
+        console.log('🛑 FORCE RESETTING LEAD CAPTURE FLAGS');
+        
+        // Multiple approaches to ensure flags are cleared
         window.isInLeadCapture = false;
         window.currentCaptureType = null;
         window.currentLeadData = null;
         
+        // Force cleanup of any active banners
+        if (typeof closeSpeakNowBanner === 'function') {
+            closeSpeakNowBanner();
+        }
+        
+        // Add a small delay to ensure cleanup completes
         setTimeout(() => {
             const continueMessage = "Great! What else can I help you with?";
             speakWithElevenLabs(continueMessage, false);
             
-            // Show speak now banner after speech
-            setTimeout(() => {
-                if (typeof showDirectSpeakNow === 'function') {
-                    showDirectSpeakNow();
-                }
-            }, 2000);
-        }, 500);
+            // Don't show speak now banner automatically - let user initiate
+            console.log('✅ Conversation restarted WITHOUT automatic banner');
+        }, 1000);
     },
     onSkip: function() {
-        // User is done - show thank you screen
-        console.log('✅ User is done - showing thank you screen');
+        // User is done - FORCE reset all flags
+        console.log('🛑 FORCE RESETTING LEAD CAPTURE FLAGS FOR EXIT');
+        
         window.isInLeadCapture = false;
         window.currentCaptureType = null;
         window.currentLeadData = null;
         
-        if (typeof showThankYouSplash === 'function') {
-            showThankYouSplash();
+        // Force cleanup of any active banners
+        if (typeof closeSpeakNowBanner === 'function') {
+            closeSpeakNowBanner();
+        }
+        
+        // Show thank you screen
+        setTimeout(() => {
+            if (typeof showThankYouSplash === 'function') {
+                showThankYouSplash();
                 }
                 
                 setTimeout(() => {
