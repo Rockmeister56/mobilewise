@@ -821,6 +821,7 @@ function completeSystemShutdown() {
     window.currentCaptureType = null;
     window.currentLeadData = null;
     window.bannerCooldown = false;
+    window.suppressSpeakNowBanner = true; // 🚫 PREVENT FUTURE BANNERS
     
     // 5. CLEAR ANY PENDING TIMEOUTS
     const highestTimeoutId = setTimeout(() => {}, 0);
