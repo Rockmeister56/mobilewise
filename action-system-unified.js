@@ -719,6 +719,9 @@ function completeLeadCapture() {
 // ================================
 function handleEmailConfirmation(sendEmail, captureType) {
     console.log('🎯 Email confirmation:', sendEmail ? 'SENDING' : 'SKIPPING');
+
+      // 🚫 SET SUPPRESSION FLAG IMMEDIATELY
+    window.suppressSpeakNowBanner = true;
     
     // Remove confirmation buttons
     const buttonContainer = document.querySelector('.email-confirmation-buttons');
@@ -754,37 +757,37 @@ function handleEmailConfirmation(sendEmail, captureType) {
         }
         
         showDecisionPanel({
-            question: "Is that everything I can help you with today?",
-            yesText: "Yes, I Have More Questions",
-            skipText: "No, I'm All Done", 
-            onYes: function() {
-                // User wants to continue
-                console.log('✅ User wants to continue - restarting conversation');
-                window.isInLeadCapture = false;
-                window.currentCaptureType = null;
-                window.currentLeadData = null;
-                
-                setTimeout(() => {
-                    const continueMessage = "Great! What else can I help you with?";
-                    speakWithElevenLabs(continueMessage, false);
-                    
-                    // Show speak now banner after speech
-                    setTimeout(() => {
-                        if (typeof showDirectSpeakNow === 'function') {
-                            showDirectSpeakNow();
-                        }
-                    }, 2000);
-                }, 500);
-            },
-            onSkip: function() {
-                // User is done - show thank you screen
-                console.log('✅ User is done - showing thank you screen');
-                window.isInLeadCapture = false;
-                window.currentCaptureType = null;
-                window.currentLeadData = null;
-                
-                if (typeof showThankYouSplash === 'function') {
-                    showThankYouSplash();
+    question: "Is that everything I can help you with today?",
+    yesText: "Yes, I Have More Questions",
+    skipText: "No, I'm All Done", 
+    onYes: function() {
+        // User wants to continue
+        console.log('✅ User wants to continue - restarting conversation');
+        window.isInLeadCapture = false;
+        window.currentCaptureType = null;
+        window.currentLeadData = null;
+        
+        setTimeout(() => {
+            const continueMessage = "Great! What else can I help you with?";
+            speakWithElevenLabs(continueMessage, false);
+            
+            // Show speak now banner after speech
+            setTimeout(() => {
+                if (typeof showDirectSpeakNow === 'function') {
+                    showDirectSpeakNow();
+                }
+            }, 2000);
+        }, 500);
+    },
+    onSkip: function() {
+        // User is done - show thank you screen
+        console.log('✅ User is done - showing thank you screen');
+        window.isInLeadCapture = false;
+        window.currentCaptureType = null;
+        window.currentLeadData = null;
+        
+        if (typeof showThankYouSplash === 'function') {
+            showThankYouSplash();
                 }
                 
                 setTimeout(() => {
@@ -1683,6 +1686,9 @@ function sendClientConfirmationEmail(leadData, captureType) {
 emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templates.clientConfirmation, confirmationParams)
         .then(function(response) {
             console.log('✅ CLIENT CONFIRMATION EMAIL SENT!');
+
+            // 🚫 ADD SUPPRESSION FLAG TO BLOCK AUTO-SPEAK-NOW BANNER
+        window.suppressSpeakNowBanner = true;         
             
             if (window.showUniversalBanner) {
                 window.showUniversalBanner('emailSent');
@@ -1703,23 +1709,29 @@ emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templates.clientConfirmati
                 window.speakText(successMessage);
                 
                 // Wait for speech then show banner
-                const checkSpeech = setInterval(() => {
-                    if (!window.isSpeaking) {
-                        clearInterval(checkSpeech);
-                        setTimeout(() => {
-                            if (window.showDirectSpeakNow) {
-                                window.showDirectSpeakNow();
-                            }
-                        }, 1000);
-                    }
-                }, 100);
-            } else {
-                setTimeout(() => {
-                    if (window.showDirectSpeakNow) {
-                        window.showDirectSpeakNow();
-                    }
-                }, 3000);
+const checkSpeech = setInterval(() => {
+    if (!window.isSpeaking) {
+        clearInterval(checkSpeech);
+        setTimeout(() => {
+            // 🚫 ADD SUPPRESSION CHECK HERE
+            if (window.showDirectSpeakNow && !window.suppressSpeakNowBanner) {
+                window.showDirectSpeakNow();
+            } else if (window.suppressSpeakNowBanner) {
+                console.log('🚫 Speak Now banner suppressed - decision panel active');
             }
+        }, 1000);
+    }
+}, 100);
+} else {
+setTimeout(() => {
+    // 🚫 ADD SUPPRESSION CHECK HERE TOO
+    if (window.showDirectSpeakNow && !window.suppressSpeakNowBanner) {
+        window.showDirectSpeakNow();
+    } else if (window.suppressSpeakNowBanner) {
+        console.log('🚫 Speak Now banner suppressed - decision panel active');
+    }
+}, 3000);
+}
             
         }, function(error) {
             console.error('❌ CLIENT CONFIRMATION EMAIL FAILED:', error);
