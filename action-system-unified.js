@@ -719,9 +719,6 @@ function completeLeadCapture() {
 // ================================
 function handleEmailConfirmation(sendEmail, captureType) {
     console.log('🎯 Email confirmation:', sendEmail ? 'SENDING' : 'SKIPPING');
-
-      // 🚫 SET SUPPRESSION FLAG IMMEDIATELY
-    window.suppressSpeakNowBanner = true;
     
     // Remove confirmation buttons
     const buttonContainer = document.querySelector('.email-confirmation-buttons');
@@ -1709,29 +1706,23 @@ emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templates.clientConfirmati
                 window.speakText(successMessage);
                 
                 // Wait for speech then show banner
-const checkSpeech = setInterval(() => {
-    if (!window.isSpeaking) {
-        clearInterval(checkSpeech);
-        setTimeout(() => {
-            // 🚫 ADD SUPPRESSION CHECK HERE
-            if (window.showDirectSpeakNow && !window.suppressSpeakNowBanner) {
-                window.showDirectSpeakNow();
-            } else if (window.suppressSpeakNowBanner) {
-                console.log('🚫 Speak Now banner suppressed - decision panel active');
+                const checkSpeech = setInterval(() => {
+                    if (!window.isSpeaking) {
+                        clearInterval(checkSpeech);
+                        setTimeout(() => {
+                            if (window.showDirectSpeakNow) {
+                                window.showDirectSpeakNow();
+                            }
+                        }, 1000);
+                    }
+                }, 100);
+            } else {
+                setTimeout(() => {
+                    if (window.showDirectSpeakNow) {
+                        window.showDirectSpeakNow();
+                    }
+                }, 3000);
             }
-        }, 1000);
-    }
-}, 100);
-} else {
-setTimeout(() => {
-    // 🚫 ADD SUPPRESSION CHECK HERE TOO
-    if (window.showDirectSpeakNow && !window.suppressSpeakNowBanner) {
-        window.showDirectSpeakNow();
-    } else if (window.suppressSpeakNowBanner) {
-        console.log('🚫 Speak Now banner suppressed - decision panel active');
-    }
-}, 3000);
-}
             
         }, function(error) {
             console.error('❌ CLIENT CONFIRMATION EMAIL FAILED:', error);
