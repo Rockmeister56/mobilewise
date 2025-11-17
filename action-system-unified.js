@@ -717,6 +717,9 @@ function completeLeadCapture() {
 // ================================
 // EMAIL CONFIRMATION BUTTONS - SIMPLE VERSION
 // ================================
+// ================================
+// EMAIL CONFIRMATION BUTTONS - SIMPLE VERSION
+// ================================
 function handleEmailConfirmation(sendEmail, captureType) {
     console.log('🎯 Email confirmation:', sendEmail ? 'SENDING' : 'SKIPPING');
     
@@ -733,21 +736,18 @@ function handleEmailConfirmation(sendEmail, captureType) {
         }
         sendOriginalLeadEmail(data, captureType);
         
-        // 🚀 AFTER EMAIL SENT - WAIT FOR AI TO SPEAK FIRST
+        // 🚀 AFTER EMAIL SENT - SHOW DECISION PANEL INSTEAD OF VOICE QUESTION
         setTimeout(() => {
-            console.log('📧 Email sent - waiting for AI to ask if more help needed');
+            console.log('📧 Email sent - showing completion decision panel');
             
-            // Let AI speak FIRST: "Is there anything else I can help you with?"
-            // This should happen automatically through your existing AI flow
+            // 🚫 STOP any pending Speak Now banners first
+            if (window.closeSpeakNowBanner) {
+                window.closeSpeakNowBanner();
+            }
             
-            // Then show decision panel AFTER AI finishes speaking (approx 3-4 seconds)
+            // Let AI speak FIRST, then show decision panel
             setTimeout(() => {
                 console.log('🎯 AI finished speaking - showing decision panel');
-                
-                // 🚫 STOP any pending Speak Now banners
-                if (window.closeSpeakNowBanner) {
-                    window.closeSpeakNowBanner();
-                }
                 
                 showDecisionPanel({
                     question: "Is that everything I can help you with today?",
@@ -788,7 +788,7 @@ function handleEmailConfirmation(sendEmail, captureType) {
                         }, 1000);
                     }
                 });
-            }, 4000); // Wait for AI to finish speaking "Is there anything else I can help you with?"
+            }, 3000); // Wait for AI to finish speaking
         }, 1000); // Wait for email send to complete
         
     } else {
