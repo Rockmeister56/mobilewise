@@ -352,10 +352,18 @@ function askLeadQuestion() {
                     
                     // 🎤 NOW SHOW SPEAK NOW BANNER (after speech finishes)
                     console.log('🎤 LEAD CAPTURE: Triggering Speak Now banner for step', data.step);
-                    if (window.showDirectSpeakNow && typeof window.showDirectSpeakNow === 'function') {
+                    
+                    // 🛡️ SAFE START: Use safeStartListening instead of direct banner
+                    if (window.safeStartListening && typeof window.safeStartListening === 'function') {
+                        console.log('🛡️ Using safeStartListening for lead capture');
+                        window.safeStartListening();
+                    } else if (window.showDirectSpeakNow && typeof window.showDirectSpeakNow === 'function') {
+                        // Fallback to original method
+                        console.log('⚠️ Using fallback showDirectSpeakNow');
                         window.showDirectSpeakNow();
-                        console.log('✅ Speak Now banner triggered via showDirectSpeakNow()');
                     }
+                    
+                    console.log('✅ Speak Now banner triggered safely');
                     
                     // 🚀 NOW WITH CONFLICT PROTECTION
                     if (isInLeadCapture && window.startRealtimeListening && !window.isCurrentlyListening) {
@@ -377,6 +385,7 @@ function askLeadQuestion() {
         completeLeadCapture();
     }
 }
+
 // ================================
 // PROCESS USER RESPONSE - FIXED VERSION
 // ================================
