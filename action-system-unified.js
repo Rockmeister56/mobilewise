@@ -717,11 +717,11 @@ function completeLeadCapture() {
 // ================================
 // EMAIL CONFIRMATION BUTTONS - SIMPLE VERSION
 // ================================
-// ================================
-// EMAIL CONFIRMATION BUTTONS - SIMPLE VERSION
-// ================================
 function handleEmailConfirmation(sendEmail, captureType) {
     console.log('🎯 Email confirmation:', sendEmail ? 'SENDING' : 'SKIPPING');
+
+    // 🚫 SET SUPPRESSION FLAG IMMEDIATELY
+    window.suppressSpeakNowBanner = true;
     
     // Remove confirmation buttons
     const buttonContainer = document.querySelector('.email-confirmation-buttons');
@@ -736,18 +736,25 @@ function handleEmailConfirmation(sendEmail, captureType) {
         }
         sendOriginalLeadEmail(data, captureType);
         
-        // 🚀 AFTER EMAIL SENT - SHOW DECISION PANEL INSTEAD OF VOICE QUESTION
+        // 🚀 AFTER EMAIL SENT - WAIT FOR AI TO SPEAK FIRST
         setTimeout(() => {
-            console.log('📧 Email sent - showing completion decision panel');
+            console.log('📧 Email sent - waiting for AI to ask if more help needed');
             
-            // 🚫 STOP any pending Speak Now banners first
-            if (window.closeSpeakNowBanner) {
-                window.closeSpeakNowBanner();
-            }
+            // Let AI speak FIRST: "Is there anything else I can help you with?"
             
-            // Let AI speak FIRST, then show decision panel
+            // 🕒 INCREASED TO 8 SECONDS to ensure AI finishes speaking AND auto-listening times out
             setTimeout(() => {
-                console.log('🎯 AI finished speaking - showing decision panel');
+                console.log('🎯 AI finished speaking AND auto-listening timed out - showing decision panel');
+                
+                // 🚫 STOP any listening that might have started
+                if (window.stopListening) {
+                    window.stopListening();
+                }
+                
+                // 🚫 STOP any pending Speak Now banners
+                if (window.closeSpeakNowBanner) {
+                    window.closeSpeakNowBanner();
+                }
                 
                 showDecisionPanel({
                     question: "Is that everything I can help you with today?",
@@ -759,6 +766,7 @@ function handleEmailConfirmation(sendEmail, captureType) {
                         window.isInLeadCapture = false;
                         window.currentCaptureType = null;
                         window.currentLeadData = null;
+                        window.suppressSpeakNowBanner = false; // Reset suppression
                         
                         setTimeout(() => {
                             const continueMessage = "Great! What else can I help you with?";
@@ -778,6 +786,7 @@ function handleEmailConfirmation(sendEmail, captureType) {
                         window.isInLeadCapture = false;
                         window.currentCaptureType = null;
                         window.currentLeadData = null;
+                        window.suppressSpeakNowBanner = false; // Reset suppression
                         
                         if (typeof showThankYouSplash === 'function') {
                             showThankYouSplash();
@@ -788,7 +797,7 @@ function handleEmailConfirmation(sendEmail, captureType) {
                         }, 1000);
                     }
                 });
-            }, 3000); // Wait for AI to finish speaking
+            }, 8000); // 🕒 INCREASED TO 8 SECONDS - ensures AI finishes + auto-listening times out
         }, 1000); // Wait for email send to complete
         
     } else {
@@ -801,6 +810,7 @@ function handleEmailConfirmation(sendEmail, captureType) {
         window.isInLeadCapture = false;
         window.currentCaptureType = null;
         window.currentLeadData = null;
+        window.suppressSpeakNowBanner = false; // Reset suppression
         
         // Wait then show Speak Now banner
         setTimeout(() => {
