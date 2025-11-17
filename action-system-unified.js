@@ -1936,10 +1936,6 @@ function restartConversation() {
     window.userIntent = '';
     window.isInLeadCapture = false; // 🆕 ADD THIS!
     window.currentLeadData = null; // 🆕 ADD THIS!
-    window.currentCaptureType = null; // 🆕 ADD THIS!
-    
-    // Remove any decision panels
-    cleanupDecisionPanel();
     
     // Show branding banner
     if (typeof showUniversalBanner === 'function') {
