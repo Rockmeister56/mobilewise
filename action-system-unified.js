@@ -85,30 +85,9 @@ function showCommunicationActionCenter(mode = 'default') {
                 ${getCorporateButtons()}
             </div>
         `;
-} else {
-    // Default mode
-    actionCenter.innerHTML = `
-        <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 20px rgba(0,0,0,0.3); z-index: 10000; max-width: 400px; width: 90%;">
-            <div class="communication-relay-center">
-                <div class="relay-header" style="text-align: center; margin-bottom: 20px;">
-                    <h3 style="margin: 0 0 10px 0; color: #333;">🚀 Communication Relay Center</h3>
-                    <p style="margin: 0; color: #666;">Choose your preferred connection method:</p>
-                </div>
-                <div class="relay-buttons" style="display: flex; flex-direction: column; gap: 10px;">
-                    <button class="relay-btn phone" onclick="handleActionButton('click-to-call')" style="padding: 12px; border: none; border-radius: 5px; background: #4CAF50; color: white; font-size: 16px; cursor: pointer;">
-                        📞 Click-to-Call
-                    </button>
-                    <button class="relay-btn consultation" onclick="handleActionButton('free-consultation')" style="padding: 12px; border: none; border-radius: 5px; background: #2196F3; color: white; font-size: 16px; cursor: pointer;">
-                        🎯 Free Consultation  
-                    </button>
-                    <button class="relay-btn qualify" onclick="handleActionButton('pre-qualifier')" style="padding: 12px; border: none; border-radius: 5px; background: #FF9800; color: white; font-size: 16px; cursor: pointer;">
-                        📝 Pre-Qualifier
-                    </button>
-                </div>
-            </div>
-        </div>
-    `;
-}
+    } else {
+    
+    }
     
     // Add to page
     const chatContainer = document.getElementById('chatMessages') || document.querySelector('.chat-messages');
