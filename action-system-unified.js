@@ -352,18 +352,10 @@ function askLeadQuestion() {
                     
                     // 🎤 NOW SHOW SPEAK NOW BANNER (after speech finishes)
                     console.log('🎤 LEAD CAPTURE: Triggering Speak Now banner for step', data.step);
-                    
-                    // 🛡️ SAFE START: Use safeStartListening instead of direct banner
-                    if (window.safeStartListening && typeof window.safeStartListening === 'function') {
-                        console.log('🛡️ Using safeStartListening for lead capture');
-                        window.safeStartListening();
-                    } else if (window.showDirectSpeakNow && typeof window.showDirectSpeakNow === 'function') {
-                        // Fallback to original method
-                        console.log('⚠️ Using fallback showDirectSpeakNow');
+                    if (window.showDirectSpeakNow && typeof window.showDirectSpeakNow === 'function') {
                         window.showDirectSpeakNow();
+                        console.log('✅ Speak Now banner triggered via showDirectSpeakNow()');
                     }
-                    
-                    console.log('✅ Speak Now banner triggered safely');
                     
                     // 🚀 NOW WITH CONFLICT PROTECTION
                     if (isInLeadCapture && window.startRealtimeListening && !window.isCurrentlyListening) {
@@ -385,7 +377,6 @@ function askLeadQuestion() {
         completeLeadCapture();
     }
 }
-
 // ================================
 // PROCESS USER RESPONSE - FIXED VERSION
 // ================================
@@ -728,9 +719,6 @@ function completeLeadCapture() {
 // ================================
 function handleEmailConfirmation(sendEmail, captureType) {
     console.log('🎯 Email confirmation:', sendEmail ? 'SENDING' : 'SKIPPING');
-
-    // 🚫 SET SUPPRESSION FLAG IMMEDIATELY
-    window.suppressSpeakNowBanner = true;
     
     // Remove confirmation buttons
     const buttonContainer = document.querySelector('.email-confirmation-buttons');
@@ -833,7 +821,6 @@ function completeSystemShutdown() {
     window.currentCaptureType = null;
     window.currentLeadData = null;
     window.bannerCooldown = false;
-    window.suppressSpeakNowBanner = true; // 🚫 PREVENT FUTURE BANNERS
     
     // 5. CLEAR ANY PENDING TIMEOUTS
     const highestTimeoutId = setTimeout(() => {}, 0);
