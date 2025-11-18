@@ -735,7 +735,6 @@ function handleEmailConfirmation(sendEmail, captureType) {
                     question: "Is that everything I can help you with today?",
                     yesText: "Yes, I Have More Questions",
                     skipText: "No, I'm All Done",
-                    
                     onYes: function() {
                         console.log('🎸 USER CONTINUING - APPLYING EMERGENCY FIX');
                         emergencySpeechFix();
