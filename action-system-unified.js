@@ -692,9 +692,6 @@ function completeLeadCapture() {
     }, 500);
 }
 
-// ================================
-// EMAIL CONFIRMATION BUTTONS - SIMPLE VERSION
-// ================================
 function handleEmailConfirmation(sendEmail, captureType) {
     console.log('🎯 Email confirmation:', sendEmail ? 'SENDING' : 'SKIPPING');
     
@@ -731,27 +728,10 @@ function handleEmailConfirmation(sendEmail, captureType) {
                     window.closeSpeakNowBanner();
                 }
                 
-                 showDecisionPanel({
+                showDecisionPanel({
                     question: "Is that everything I can help you with today?",
                     yesText: "Yes, I Have More Questions",
                     skipText: "No, I'm All Done",
-                    onSkip: function() {
-    console.log('✅ User is done - clean shutdown');
-    
-    // 🎯 SIMPLE, CLEAN SHUTDOWN
-    if (window.stopListening) window.stopListening();
-    if (window.closeSpeakNowBanner) window.closeSpeakNowBanner();
-    
-    // Reset flags
-    window.isInLeadCapture = false;
-    window.currentLeadData = null;
-    window.suppressSpeakNowBanner = true; // Prevent new banners
-    
-    // Show thank you
-    if (typeof showThankYouSplash === 'function') {
-        showThankYouSplash();
-    }
-}
                     onYes: function() {
                         console.log('🎸 USER CONTINUING - APPLYING EMERGENCY FIX');
                         emergencySpeechFix();
@@ -762,10 +742,23 @@ function handleEmailConfirmation(sendEmail, captureType) {
                         }, 1000);
                     },
                     onSkip: function() {
-                        console.log('🛑 USER FINISHED - COMPLETE SYSTEM SHUTDOWN');
+                        console.log('✅ User is done - clean shutdown');
                         
+                        // 🎯 SIMPLE, CLEAN SHUTDOWN
+                        if (window.stopListening) window.stopListening();
+                        if (window.closeSpeakNowBanner) window.closeSpeakNowBanner();
+                        
+                        // Reset flags
+                        window.isInLeadCapture = false;
+                        window.currentLeadData = null;
+                        window.suppressSpeakNowBanner = true; // Prevent new banners
+                        
+                        // Show thank you
+                        if (typeof showThankYouSplash === 'function') {
+                            showThankYouSplash();
+                        }
                     }
-                });
+                }); // 🎯 ADD THIS CLOSING PAREN AND BRACE
                 
             }, 8000); // 🕒 INCREASED TO 8 SECONDS - ensures AI finishes + auto-listening times out
         }, 1000); // Wait for email send to complete
@@ -789,7 +782,7 @@ function handleEmailConfirmation(sendEmail, captureType) {
             }
         }, 2000);
     }
-}
+} // 🎯 THIS CLOSES THE handleEmailConfirmation FUNCTION
 
 // ================================
 // IN-CHAT DECISION PANEL (MATCHES EMAIL CONFIRMATION)
