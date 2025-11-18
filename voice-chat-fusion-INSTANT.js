@@ -2850,15 +2850,10 @@ window.handleConcernWithTestimonial = function(userText, concernType) {
         console.log('✅ AI message added to chat');
     }
     
-    // 2. SHOW TESTIMONIALS IMMEDIATELY (NO WAITING!)
-    setTimeout(() => {
-        if (window.showTestimonialSplashScreen && typeof window.showTestimonialSplashScreen === 'function') {
-            window.showTestimonialSplashScreen();
-            console.log('✅ Testimonial splash screen launched IMMEDIATELY');
-        } else {
-            console.error('❌ showTestimonialSplashScreen not available');
-        }
-    }, 100); // Small delay to ensure chat message appears first
+    // This will STILL WORK after you move the code:
+if (window.showTestimonialSplashScreen && typeof window.showTestimonialSplashScreen === 'function') {
+    window.showTestimonialSplashScreen();
+}
     
     // 3. START SPEAKING (testimonials are already visible)
     if (window.speakText && typeof window.speakText === 'function') {

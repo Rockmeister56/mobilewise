@@ -10,94 +10,24 @@ const TESTIMONIAL_VIDEOS = {
     speed: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982877040.mp4"
 };
 
-// 2. MAIN VIDEO PLAYER FUNCTION
-function play16x9TestimonialVideo(testimonialType, duration = 12000) {
-    console.log(`🎬 Playing ${testimonialType} testimonial - 16:9 format`);
+// ================================
+// 🎬 ENHANCED TESTIMONIAL SPLASH SCREEN WITH BETTER TIMING
+// ================================
+function showTestimonialSplashScreen() {
+    console.log('🎬 TESTIMONIAL SPLASH: Loading from TESTIMONIALS-PLAYER.js');
+    console.log('🎬 Deploying testimonial splash screen...');
     
-    // 🚫 PREVENT DOUBLE CALLS
-    if (window.avatarCurrentlyPlaying) {
-        console.log('🚫 Video already playing - skipping duplicate');
-        return;
+    // Stop any current listening first
+    if (window.stopListening && typeof window.stopListening === 'function') {
+        window.stopListening();
     }
     
-    window.avatarCurrentlyPlaying = true;
+    const splashScreen = document.createElement('div');
+    splashScreen.id = 'testimonial-splash-screen';
+    splashScreen.style.animation = 'fadeInSplash 0.5s ease-in';
     
-    // Use concernData from the concern handler (set by handleConcernWithTestimonial)
-    if (!window.concernData) {
-        console.error('❌ concernData not found - make sure concern handler is working');
-        window.avatarCurrentlyPlaying = false;
-        return;
-    }
-    
-    const isMobile = window.innerWidth <= 768;
-    const videoUrl = TESTIMONIAL_VIDEOS[testimonialType] || TESTIMONIAL_VIDEOS.skeptical;
-
-    console.log('🎯 Using 16:9 video format (854x480)');
-    
-    // Create and display the banner with actual concern data
-    createTestimonialBanner(window.concernData);
-}
-
-// 3. CREATE TESTIMONIAL BANNER WITH REVIEWS
-function createTestimonialBanner(concernData) {
-console.log('🎬 TESTIMONIAL SPLASH: Loading from TESTIMONIALS-PLAYER.js');
-    console.log('🎨 Creating testimonial banner with reviews from concernData');
-    
-    // Create review items with premium play buttons
-    const reviewItems = concernData.reviews.map((review, index) => `
+    splashScreen.innerHTML = `
         <div style="
-            padding: 10px 0;
-            ${index > 0 ? 'border-top: 1px solid rgba(255, 255, 255, 0.2);' : ''}
-        ">
-            <p style="
-                color: rgba(255, 255, 255, 0.9);
-                font-size: 15px;
-                line-height: 1.6;
-                margin: 0 0 12px 0;
-                font-style: italic;
-                text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-            ">"${review.text}"</p>
-            
-            <div style="
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-            ">
-                <p style="
-                    color: rgba(255, 255, 255, 0.7);
-                    font-size: 14px;
-                    margin: 0;
-                    font-weight: 500;
-                    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-                ">— ${review.author}</p>
-                
-                <button onclick="playTestimonialFromBanner('${review.videoType}')" style="
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
-                    background: rgba(0, 0, 0, 0.6);
-                    border: 1px solid rgba(255, 255, 255, 0.2);
-                    color: white;
-                    padding: 10px 16px;
-                    border-radius: 10px;
-                    cursor: pointer;
-                    font-weight: 600;
-                    font-size: 14px;
-                    transition: all 0.3s ease;
-                    backdrop-filter: blur(10px);
-                    min-width: 100px;
-                " onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.borderColor='rgba(255, 255, 255, 0.3)'; this.style.transform='translateY(-2px)';" 
-                   onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.borderColor='rgba(255, 255, 255, 0.2)'; this.style.transform='translateY(0)';">
-                    <span style="font-size: 16px;">▶</span>
-                    <span>Play Video</span>
-                </button>
-            </div>
-        </div>
-    `).join('');
-
-    // Create premium banner HTML with your Supabase background
-    const bannerHTML = `
-        <div id="testimonial-review-banner" style="
             background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.9)),
                         url('https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1762038349654_action-bg.jpg');
             background-size: cover;
@@ -105,185 +35,128 @@ console.log('🎬 TESTIMONIAL SPLASH: Loading from TESTIMONIALS-PLAYER.js');
             background-blend-mode: overlay;
             backdrop-filter: blur(10px);
             border-radius: 20px;
-            padding: 15px 20px;
+            padding: 30px 25px;
             margin: 20px 0;
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
             color: white;
             font-family: 'Segoe UI', system-ui, sans-serif;
             max-width: 750px;
-            animation: slideInBanner 0.5s ease-out;
-            position: relative;
-            z-index: 998;
+            animation: slideInFromBottom 0.5s ease-out;
         ">
-            <!-- Header with Icon -->
-            <div style="
-                display: flex;
-                align-items: center;
-               margin-bottom: 15px;
-                gap: 15px;
-            ">
-                <div style="
-                    width: 50px;
-                    height: 40px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    background: rgba(255, 255, 255, 0.1);
-                    border-radius: 50%;
-                    border: 1px solid rgba(255, 255, 255, 0.2);
-                ">
-                    <span style="font-size: 24px;">${concernData.icon}</span>
-                </div>
+            <!-- Header with Video Avatar -->
+            <div style="display: flex; align-items: center; margin-bottom: 25px; gap: 15px;">
+                <video autoplay loop muted playsinline style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255, 255, 255, 0.2);">
+                    <source src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1762037335280.mp4" type="video/mp4">
+                </video>
                 <div>
-                    <h3 style="
-                        margin: 0 0 5px 0;
-                        font-size: 22px;
-                        font-weight: 600;
-                        color: white;
-                        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-                    ">${concernData.title}</h3>
-                    <p style="
-                        margin: 0;
-                        opacity: 0.8;
-                        font-size: 13px;
-                        font-weight: 300;
-                        letter-spacing: 0.5px;
-                    ">Client Video Testimonials</p>
+                    <h3 style="margin: 0 0 5px 0; font-size: 22px; font-weight: 600;">Client Testimonials</h3>
+                    <p style="margin: 0; opacity: 0.8; font-size: 13px; font-weight: 300;">Real stories from satisfied clients</p>
                 </div>
             </div>
-            
-            <!-- Review Items with Play Buttons -->
-            <div style="margin-bottom: 25px;">
-                ${reviewItems}
+
+            <!-- Testimonial Buttons Grid -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px;">
+                <!-- Skeptical Client -->
+                <button onclick="handleTestimonialButton('skeptical')" style="
+                    display: flex; align-items: center; gap: 12px;
+                    background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(255, 255, 255, 0.2);
+                    color: white; padding: 18px 15px; border-radius: 10px; cursor: pointer;
+                    font-weight: 600; font-size: 17px; text-align: left; transition: all 0.3s ease;
+                    backdrop-filter: blur(10px); width: 100%; height: 84px;
+                " onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.borderColor='rgba(255, 255, 255, 0.3)'; this.style.transform='translateY(-2px)';" 
+                   onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.borderColor='rgba(255, 255, 255, 0.2)'; this.style.transform='translateY(0)';">
+                    <div style="font-size: 28px;">🤔</div>
+                    <span style="flex: 1;">Skeptical Client</span>
+                </button>
+
+                <!-- Speed Results -->
+                <button onclick="handleTestimonialButton('speed')" style="
+                    display: flex; align-items: center; gap: 12px;
+                    background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(255, 255, 255, 0.2);
+                    color: white; padding: 18px 15px; border-radius: 10px; cursor: pointer;
+                    font-weight: 600; font-size: 17px; text-align: left; transition: all 0.3s ease;
+                    backdrop-filter: blur(10px); width: 100%; height: 84px;
+                " onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.borderColor='rgba(255, 255, 255, 0.3)'; this.style.transform='translateY(-2px)';" 
+                   onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.borderColor='rgba(255, 255, 255, 0.2)'; this.style.transform='translateY(0)';">
+                    <div style="font-size: 28px;">⚡</div>
+                    <span style="flex: 1;">Speed Results</span>
+                </button>
             </div>
-            
-            <!-- Skip Button - Premium Style -->
-            <button onclick="skipTestimonialBanner()" style="
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                background: rgba(0, 0, 0, 0.6);
-                color: rgba(255, 255, 255, 0.8);
-                border: 1px solid rgba(255, 255, 255, 0.2);
-                padding: 15px 20px;
-                border-radius: 10px;
-                cursor: pointer;
-                font-size: 16px;
-                font-weight: 500;
-                transition: all 0.3s ease;
-                width: 100%;
-                justify-content: center;
-                backdrop-filter: blur(10px);
+
+            <!-- Skip Button -->
+            <button onclick="handleTestimonialSkip()" style="
+                display: flex; align-items: center; gap: 10px;
+                background: rgba(0, 0, 0, 0.6); color: rgba(255, 255, 255, 0.8);
+                border: 1px solid rgba(255, 255, 255, 0.2); padding: 15px 20px;
+                border-radius: 10px; cursor: pointer; font-size: 16px; font-weight: 500;
+                transition: all 0.3s ease; width: 100%; justify-content: center; margin-top: 5px;
             " onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.color='white';" 
                onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.color='rgba(255, 255, 255, 0.8)';">
-                <span style="font-size: 16px;">⏭️</span>
-                <span>Skip Reviews & Continue</span>
+                <span>⏭️ Skip Testimonials</span>
             </button>
         </div>
-        
-        <style>
-            @keyframes slideInBanner {
-                from { opacity: 0; transform: translateY(-30px); }
-                to { opacity: 1; transform: translateY(0); }
-            }
-        </style>
     `;
-
-    // Insert banner into chat
-    const chatContainer = document.getElementById('chatMessages');
+    
+    const chatContainer = document.getElementById('chatMessages') || document.querySelector('.chat-messages');
     if (chatContainer) {
-        const bannerElement = document.createElement('div');
-        bannerElement.innerHTML = bannerHTML;
-        chatContainer.appendChild(bannerElement);
-        
-        // Scroll to show the banner
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-        
-        // Set banner as active
-        window.testimonialBannerActive = true;
-        window.concernBannerActive = true;
-        
-        console.log('✅ Premium testimonial banner displayed');
-    } else {
-        console.error('❌ Chat container not found');
-        window.testimonialBannerActive = false;
+        chatContainer.appendChild(splashScreen);
+        splashScreen.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 }
 
-// 5. SHOW TESTIMONIAL VIDEO PLAYER - FIXED VERSION
-function showTestimonialVideo(testimonialType) {
-    console.log('🎬 Playing testimonial video:', testimonialType);
+// ================================
+// 🎬 NEW: HANDLE TESTIMONIAL SKIP
+// ================================
+function handleTestimonialSkip() {
+    console.log('🎬 User skipped testimonials');
+    hideTestimonialSplash();
     
-    const videoUrl = TESTIMONIAL_VIDEOS[testimonialType] || TESTIMONIAL_VIDEOS.skeptical;
-    
-    // 🚫 PREVENT DOUBLE CALLS
-    if (window.avatarCurrentlyPlaying) {
-        console.log('🚫 Video already playing - skipping duplicate');
-        return;
+    // Wait for splash to hide, then restart conversation
+    setTimeout(() => {
+        restartConversation();
+    }, 400);
+}
+
+// ================================
+// 🎬 UPDATED HIDE TESTIMONIAL SPLASH
+// ================================
+function hideTestimonialSplash() {
+    const splash = document.getElementById('testimonial-splash-screen');
+    if (splash) {
+        splash.style.animation = 'slideOutToBottom 0.3s ease-in';
+        setTimeout(() => {
+            if (splash.parentNode) {
+                splash.remove();
+                console.log('✅ Testimonial splash screen removed');
+            }
+        }, 300);
     }
-    window.avatarCurrentlyPlaying = true;
-    
-    // Remove any existing overlay
-    const existingOverlay = document.getElementById('testimonial-video-overlay');
-    if (existingOverlay) existingOverlay.remove();
-    
-    // Create video overlay with proper transparent background
-    const videoOverlay = document.createElement('div');
-    videoOverlay.id = 'testimonial-video-overlay';
-    videoOverlay.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.85); /* More transparent */
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        z-index: 10000;
-        font-family: 'Segoe UI', system-ui, sans-serif;
-        backdrop-filter: blur(5px); /* Added blur effect */
-    `;
+}
 
-    // Video container with proper styling
-    videoOverlay.innerHTML = `
-        <div style="width: 90%; max-width: 854px; position: relative;">
-            <!-- Close Button - Top Right -->
-            <button onclick="close16x9TestimonialVideo()" style="
-                position: absolute;
-                top: -50px;
-                right: 0;
-                background: rgba(255,255,255,0.1);
-                border: 1px solid rgba(255,255,255,0.3);
-                color: white;
-                border-radius: 8px;
-                padding: 10px 16px;
-                cursor: pointer;
-                font-size: 14px;
-                backdrop-filter: blur(10px);
-                transition: all 0.3s ease;
-                z-index: 10001;
-            " onmouseover="this.style.background='rgba(255,255,255,0.2)';" 
-               onmouseout="this.style.background='rgba(255,255,255,0.1)';">
-                ✕ Close
-            </button>
-            
-            <!-- Video Player -->
-            <video id="testimonial-video" controls autoplay style="
-                width: 100%; 
-                border-radius: 12px; 
-                box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            ">
-                <source src="${videoUrl}" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
-        </div>
-    `;
+// Add these CSS animations if not already present
+function addTestimonialAnimations() {
+    if (!document.getElementById('testimonial-animations')) {
+        const style = document.createElement('style');
+        style.id = 'testimonial-animations';
+        style.textContent = `
+            @keyframes fadeInSplash {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            @keyframes slideInFromBottom {
+                from { transform: translateY(30px); opacity: 0; }
+                to { transform: translateY(0); opacity: 1; }
+            }
+            @keyframes slideOutToBottom {
+                from { transform: translateY(0); opacity: 1; }
+                to { transform: translateY(30px); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+}
 
-    document.body.appendChild(videoOverlay);
-    console.log('✅ Fixed video overlay created');
 
     // Handle video end
     const video = document.getElementById('testimonial-video');
@@ -302,7 +175,6 @@ function showTestimonialVideo(testimonialType) {
         console.error('❌ Video loading error');
         close16x9TestimonialVideo();
     });
-}
 
 // 6. PLAY FROM BANNER FUNCTION
 window.playTestimonialFromBanner = function(videoType) {
@@ -444,16 +316,13 @@ function initTestimonialPlayer() {
     console.log('✅ Testimonials Player Initialized');
 }
 
-// ===================================================
-// 🎯 MAKE FUNCTIONS GLOBALLY AVAILABLE
-// ===================================================
-window.showTestimonialBanner = showTestimonialBanner;
-window.play16x9TestimonialVideo = play16x9TestimonialVideo;
-window.close16x9TestimonialVideo = close16x9TestimonialVideo;
-window.playTestimonialFromBanner = window.playTestimonialFromBanner;
-window.skipTestimonialBanner = window.skipTestimonialBanner;
-window.resumeAfterTestimonial = resumeAfterTestimonial;
-window.createTestimonialBanner = createTestimonialBanner;
+// ================================
+// GLOBAL EXPORTS - TESTIMONIAL SYSTEM
+// ================================
+window.handleTestimonialButton = handleTestimonialButton;
+window.showTestimonialSplashScreen = showTestimonialSplashScreen;
+window.handleTestimonialSkip = handleTestimonialSkip;
+window.hideTestimonialSplash = hideTestimonialSplash;
 
 // Initialize when loaded
 if (document.readyState === 'loading') {
