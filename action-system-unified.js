@@ -85,14 +85,9 @@ function showCommunicationActionCenter(mode = 'default') {
                 ${getCorporateButtons()}
             </div>
         `;
-   } else {
-    // Default mode - use existing Communication Relay Center
-    actionCenter.innerHTML = `
-        <div class="communication-relay-center">
-            <!-- Your existing Communication Relay Center HTML goes here -->
-        </div>
-    `;
-}
+    } else {
+    
+    }
     
     // Add to page
     const chatContainer = document.getElementById('chatMessages') || document.querySelector('.chat-messages');
@@ -747,6 +742,8 @@ function handleEmailConfirmation(sendEmail, captureType) {
                     onSkip: function() {
                         console.log('🛑 USER FINISHED - COMPLETE SYSTEM SHUTDOWN');
                         
+                        // 🚨 COMPLETE SHUTDOWN - NO MORE AI LOOPS!
+                        completeSystemShutdown();
                     }
                 });
                 
@@ -772,6 +769,45 @@ function handleEmailConfirmation(sendEmail, captureType) {
             }
         }, 2000);
     }
+}
+
+// 🚨 COMPLETE SYSTEM SHUTDOWN FUNCTION
+function completeSystemShutdown() {
+    console.log('🛑 COMPLETE SYSTEM SHUTDOWN - Stopping all AI activity');
+    
+    // 1. STOP ALL AI SPEECH IMMEDIATELY
+    if (window.stopAllSpeech && typeof window.stopAllSpeech === 'function') {
+        window.stopAllSpeech();
+    }
+    
+    // 2. STOP ALL LISTENING
+    if (window.stopListening && typeof window.stopListening === 'function') {
+        window.stopListening();
+    }
+    
+    // 3. REMOVE ALL BANNERS
+    const banners = document.querySelectorAll('.speak-now-banner, [class*="speakNow"], #speakNowBanner');
+    banners.forEach(banner => banner.remove());
+    
+    // 4. RESET ALL CONVERSATION FLAGS
+    window.isInLeadCapture = false;
+    window.currentCaptureType = null;
+    window.currentLeadData = null;
+    window.bannerCooldown = false;
+    window.suppressSpeakNowBanner = true; // 🚫 PREVENT FUTURE BANNERS
+    
+    // 5. CLEAR ANY PENDING TIMEOUTS
+    const highestTimeoutId = setTimeout(() => {}, 0);
+    for (let i = 0; i < highestTimeoutId; i++) {
+        clearTimeout(i);
+    }
+    
+    // 6. SHOW THANK YOU SCREEN
+    if (typeof showThankYouSplash === 'function') {
+        showThankYouSplash();
+    }
+    
+    console.log('✅ SYSTEM COMPLETELY SHUT DOWN - No more AI loops');
 }
 
 // ================================
@@ -1627,6 +1663,8 @@ function sendOriginalLeadEmail(data, type) {
 // NEW: Separate function for CLIENT confirmation email
 function sendClientConfirmationEmail(leadData, captureType) {
     console.log('📧 Sending CLIENT confirmation email...');
+    
+     }
 
     const cleanEmail = String(leadData.email).trim().replace(/[^\w@.-]/g, '');
     
@@ -1807,7 +1845,6 @@ emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templates.clientConfirmati
             }, 2000);
         }
     });
- } 
     
 // Make functions globally accessible
 window.handleEmailConfirmation = handleEmailConfirmation;
