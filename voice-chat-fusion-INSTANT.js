@@ -3576,11 +3576,13 @@ function initializeLeadCapture(buttonType = 'valuation') {
 }
 
 function askLeadQuestion() {
-    if (!isInLeadCapture || !leadData) return;
+    if (!window.isInLeadCapture || !window.currentLeadData) return;
+    
+    const leadData = window.currentLeadData;
     
     if (leadData.step < leadData.questions.length) {
         const question = leadData.questions[leadData.step];
-        addAIMessage(question);
+        if (window.addAIMessage) window.addAIMessage(question);
         
         console.log('🎤 Lead Capture: Speaking question...');
         
@@ -3588,15 +3590,33 @@ function askLeadQuestion() {
         if (window.stopListening) window.stopListening();
         
         // Speak the question
-        speakMessage(question);
+        if (window.speakMessage) {
+            window.speakMessage(question);
+        } else if (window.speakText) {
+            window.speakText(question);
+        }
         
         // 🎯 SIMPLE: Wait for speech to finish, then listen immediately
         const checkSpeech = setInterval(() => {
             if (!window.isSpeaking) {
                 clearInterval(checkSpeech);
                 console.log('✅ AI finished - starting listening NOW');
-                if (isInLeadCapture && window.startRealtimeListening) {
-                    window.startRealtimeListening();
+                if (window.isInLeadCapture) {
+                    console.log('🎤 LEAD CAPTURE: Showing Speak Now banner for step', leadData.step);
+                    
+                    // 🎯 TEMPORARILY BYPASS THE BLOCKER
+                    const originalIsInLeadCapture = window.isInLeadCapture;
+                    window.isInLeadCapture = false; // Temporary bypass
+                    
+                    if (window.showDirectSpeakNow && typeof window.showDirectSpeakNow === 'function') {
+                        window.showDirectSpeakNow();
+                    }
+                    
+                    // 🎯 RESTORE IMMEDIATELY
+                    setTimeout(() => {
+                        window.isInLeadCapture = originalIsInLeadCapture;
+                        console.log('✅ Lead capture state restored');
+                    }, 100);
                 }
             }
         }, 100);
@@ -3604,13 +3624,11 @@ function askLeadQuestion() {
         // Safety timeout
         setTimeout(() => {
             clearInterval(checkSpeech);
-            if (isInLeadCapture && window.startRealtimeListening) {
-                console.log('⏰ Safety timeout - starting listening');
-                window.startRealtimeListening();
-            }
         }, 10000);
     } else {
-        completeLeadCollection();
+        if (window.completeLeadCapture) {
+            window.completeLeadCapture();
+        }
     }
 }
 
