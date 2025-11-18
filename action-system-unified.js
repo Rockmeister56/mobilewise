@@ -99,6 +99,17 @@ function showCommunicationActionCenter(mode = 'default') {
 }
 
 // ================================
+// LEAD CAPTURE TRACKING
+// ================================
+window.trackLeadCaptureStart = function() {
+    console.log('🎯 LEAD CAPTURE: Starting lead capture process');
+};
+
+window.trackLeadCaptureComplete = function() {
+    console.log('🎯 LEAD CAPTURE: Lead capture completed');
+};
+
+// ================================
 // HIDE ACTION CENTER - CLEANED VERSION
 // No restore code - old buttons stay hidden
 // ================================
