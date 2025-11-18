@@ -1663,6 +1663,7 @@ function sendOriginalLeadEmail(data, type) {
 // NEW: Separate function for CLIENT confirmation email
 function sendClientConfirmationEmail(leadData, captureType) {
     console.log('📧 Sending CLIENT confirmation email...');
+    }
     
     const cleanEmail = String(leadData.email).trim().replace(/[^\w@.-]/g, '');
     
@@ -1703,79 +1704,146 @@ function sendClientConfirmationEmail(leadData, captureType) {
         book_image: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761797944987_book-promo.PNG'
     };
     
-    // Send CLIENT confirmation using the confirmation template
+   // Send CLIENT confirmation using the confirmation template
 emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templates.clientConfirmation, confirmationParams)
-        .then(function(response) {
-            console.log('✅ CLIENT CONFIRMATION EMAIL SENT!');
+    .then(function(response) {
+        console.log('✅ CLIENT CONFIRMATION EMAIL SENT!');
+        
+        if (window.showUniversalBanner) {
+            window.showUniversalBanner('emailSent');
+        }
+        
+        let successMessage = `Confirmation email sent to ${cleanEmail}! Bruce will contact you soon. Is there anything else I can help you with?`;
+        
+        if (window.addAIMessage) {
+            window.addAIMessage(successMessage);
+        }
+        
+        // Clear lead data
+        window.isInLeadCapture = false;
+        window.currentCaptureType = null;
+        window.currentLeadData = null;
+        
+        if (window.speakText) {
+            window.speakText(successMessage);
             
-            if (window.showUniversalBanner) {
-                window.showUniversalBanner('emailSent');
-            }
-            
-            let successMessage = `Confirmation email sent to ${cleanEmail}! Bruce will contact you soon. Is there anything else I can help you with?`;
-            
-            if (window.addAIMessage) {
-                window.addAIMessage(successMessage);
-            }
-            
-            // Clear lead data
-            window.isInLeadCapture = false;
-            window.currentCaptureType = null;
-            window.currentLeadData = null;
-            
-            if (window.speakText) {
-                window.speakText(successMessage);
-                
-                // Wait for speech then show banner
-                const checkSpeech = setInterval(() => {
-                    if (!window.isSpeaking) {
-                        clearInterval(checkSpeech);
-                        setTimeout(() => {
-                            if (window.showDirectSpeakNow) {
-                                window.showDirectSpeakNow();
+            // Wait for speech then show decision panel
+            const checkSpeech = setInterval(() => {
+                if (!window.isSpeaking) {
+                    clearInterval(checkSpeech);
+                    setTimeout(() => {
+                        showDecisionPanel({
+                            question: "Is there anything else I can help with?",
+                            yesText: "Yes, I Have More Questions", 
+                            skipText: "No, I'm All Done",
+                            onYes: function() {
+                                console.log('✅ User wants to continue after email success');
+                                setTimeout(() => {
+                                    const continueMessage = "Great! What else can I help you with?";
+                                    speakWithElevenLabs(continueMessage, false);
+                                }, 1000);
+                            },
+                            onSkip: function() {
+                                console.log('✅ User is done after email success');
+                                if (typeof showThankYouSplash === 'function') {
+                                    showThankYouSplash();
+                                }
                             }
+                        });
+                    }, 1000);
+                }
+            }, 100);
+        } else {
+            // No speech system - just show decision panel
+            setTimeout(() => {
+                showDecisionPanel({
+                    question: "Is there anything else I can help with?",
+                    yesText: "Yes, I Have More Questions",
+                    skipText: "No, I'm All Done", 
+                    onYes: function() {
+                        console.log('✅ User wants to continue after email success');
+                        setTimeout(() => {
+                            const continueMessage = "Great! What else can I help you with?";
+                            speakWithElevenLabs(continueMessage, false);
                         }, 1000);
+                    },
+                    onSkip: function() {
+                        console.log('✅ User is done after email success');
+                        if (typeof showThankYouSplash === 'function') {
+                            showThankYouSplash();
+                        }
                     }
-                }, 100);
-            } else {
-                setTimeout(() => {
-                    if (window.showDirectSpeakNow) {
-                        window.showDirectSpeakNow();
+                });
+            }, 2000);
+        }
+    }, function(error) {
+        console.error('❌ CLIENT CONFIRMATION EMAIL FAILED:', error);
+        
+        // Simple error handling
+        let failureMessage = "The confirmation email couldn't be sent, but Bruce will still contact you directly! Is there anything else I can help with?";
+        
+        if (window.addAIMessage) {
+            window.addAIMessage(failureMessage);
+        }
+        
+        // Clear lead data
+        window.isInLeadCapture = false;
+        window.currentCaptureType = null;
+        window.currentLeadData = null;
+        
+        if (window.speakText) {
+            window.speakText(failureMessage);
+            
+            // Wait for speech then show decision panel
+            const checkSpeech = setInterval(() => {
+                if (!window.isSpeaking) {
+                    clearInterval(checkSpeech);
+                    setTimeout(() => {
+                        showDecisionPanel({
+                            question: "Is there anything else I can help with?",
+                            yesText: "Yes, I Have More Questions", 
+                            skipText: "No, I'm All Done",
+                            onYes: function() {
+                                console.log('✅ User wants to continue after email failure');
+                                setTimeout(() => {
+                                    const continueMessage = "Great! What else can I help you with?";
+                                    speakWithElevenLabs(continueMessage, false);
+                                }, 1000);
+                            },
+                            onSkip: function() {
+                                console.log('✅ User is done after email failure');
+                                if (typeof showThankYouSplash === 'function') {
+                                    showThankYouSplash();
+                                }
+                            }
+                        });
+                    }, 1000);
+                }
+            }, 100);
+        } else {
+            // No speech system - just show decision panel
+            setTimeout(() => {
+                showDecisionPanel({
+                    question: "Is there anything else I can help with?",
+                    yesText: "Yes, I Have More Questions",
+                    skipText: "No, I'm All Done", 
+                    onYes: function() {
+                        console.log('✅ User wants to continue after email failure');
+                        setTimeout(() => {
+                            const continueMessage = "Great! What else can I help you with?";
+                            speakWithElevenLabs(continueMessage, false);
+                        }, 1000);
+                    },
+                    onSkip: function() {
+                        console.log('✅ User is done after email failure');
+                        if (typeof showThankYouSplash === 'function') {
+                            showThankYouSplash();
+                        }
                     }
-                }, 3000);
-            }
-            
-        }, function(error) {
-            console.error('❌ CLIENT CONFIRMATION EMAIL FAILED:', error);
-            
-            // Simple error handling
-            let failureMessage = "The confirmation email couldn't be sent, but Bruce will still contact you directly! Is there anything else I can help with?";
-            
-            if (window.addAIMessage) {
-                window.addAIMessage(failureMessage);
-            }
-            
-            // Clear lead data
-            window.isInLeadCapture = false;
-            window.currentCaptureType = null;
-            window.currentLeadData = null;
-            
-            if (window.speakText) {
-                window.speakText(failureMessage);
-                setTimeout(() => {
-                    if (window.showDirectSpeakNow) {
-                        window.showDirectSpeakNow();
-                    }
-                }, 3000);
-            } else {
-                setTimeout(() => {
-                    if (window.showDirectSpeakNow) {
-                        window.showDirectSpeakNow();
-                    }
-                }, 2000);
-            }
-        });
-}
+                });
+            }, 2000);
+        }
+    });
     
 // Make functions globally accessible
 window.handleEmailConfirmation = handleEmailConfirmation;
