@@ -29,6 +29,20 @@ window.currentLeadData = null;
 window.currentCaptureType = null;
 
 // ================================
+// LEAD CAPTURE TRACKING  <-- ADD HERE
+// ================================
+window.trackLeadCaptureStart = function() {
+    console.log('🎯 LEAD CAPTURE: Starting lead capture process');
+};
+
+// ================================
+// GLOBAL LEAD CAPTURE STATE
+// ================================
+window.isInLeadCapture = false;
+window.currentLeadData = null;
+window.currentCaptureType = null;
+
+// ================================
 // FORM VALIDATION
 // ================================
 function validateEmail(email) {
