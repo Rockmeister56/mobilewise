@@ -735,6 +735,23 @@ function handleEmailConfirmation(sendEmail, captureType) {
                     question: "Is that everything I can help you with today?",
                     yesText: "Yes, I Have More Questions",
                     skipText: "No, I'm All Done",
+                    onSkip: function() {
+    console.log('✅ User is done - clean shutdown');
+    
+    // 🎯 SIMPLE, CLEAN SHUTDOWN
+    if (window.stopListening) window.stopListening();
+    if (window.closeSpeakNowBanner) window.closeSpeakNowBanner();
+    
+    // Reset flags
+    window.isInLeadCapture = false;
+    window.currentLeadData = null;
+    window.suppressSpeakNowBanner = true; // Prevent new banners
+    
+    // Show thank you
+    if (typeof showThankYouSplash === 'function') {
+        showThankYouSplash();
+    }
+}
                     onYes: function() {
                         console.log('🎸 USER CONTINUING - APPLYING EMERGENCY FIX');
                         emergencySpeechFix();
@@ -747,8 +764,6 @@ function handleEmailConfirmation(sendEmail, captureType) {
                     onSkip: function() {
                         console.log('🛑 USER FINISHED - COMPLETE SYSTEM SHUTDOWN');
                         
-                        // 🚨 COMPLETE SHUTDOWN - NO MORE AI LOOPS!
-                        completeSystemShutdown();
                     }
                 });
                 
@@ -774,45 +789,6 @@ function handleEmailConfirmation(sendEmail, captureType) {
             }
         }, 2000);
     }
-}
-
-// 🚨 COMPLETE SYSTEM SHUTDOWN FUNCTION
-function completeSystemShutdown() {
-    console.log('🛑 COMPLETE SYSTEM SHUTDOWN - Stopping all AI activity');
-    
-    // 1. STOP ALL AI SPEECH IMMEDIATELY
-    if (window.stopAllSpeech && typeof window.stopAllSpeech === 'function') {
-        window.stopAllSpeech();
-    }
-    
-    // 2. STOP ALL LISTENING
-    if (window.stopListening && typeof window.stopListening === 'function') {
-        window.stopListening();
-    }
-    
-    // 3. REMOVE ALL BANNERS
-    const banners = document.querySelectorAll('.speak-now-banner, [class*="speakNow"], #speakNowBanner');
-    banners.forEach(banner => banner.remove());
-    
-    // 4. RESET ALL CONVERSATION FLAGS
-    window.isInLeadCapture = false;
-    window.currentCaptureType = null;
-    window.currentLeadData = null;
-    window.bannerCooldown = false;
-    window.suppressSpeakNowBanner = true; // 🚫 PREVENT FUTURE BANNERS
-    
-    // 5. CLEAR ANY PENDING TIMEOUTS
-    const highestTimeoutId = setTimeout(() => {}, 0);
-    for (let i = 0; i < highestTimeoutId; i++) {
-        clearTimeout(i);
-    }
-    
-    // 6. SHOW THANK YOU SCREEN
-    if (typeof showThankYouSplash === 'function') {
-        showThankYouSplash();
-    }
-    
-    console.log('✅ SYSTEM COMPLETELY SHUT DOWN - No more AI loops');
 }
 
 // ================================
