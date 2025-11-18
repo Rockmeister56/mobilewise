@@ -3,6 +3,67 @@
 // Smart Button + Lead Capture + EmailJS + Banner System
 // ===================================================
 
+// 🚨 SPEECH DETECTIVE - ADD TO voice-chat-fusion-INSTANT.js
+function activateSpeechDetective() {
+    console.log('🔍 🎤 SPEECH DETECTIVE ACTIVATED - Tracking ALL banner triggers');
+    
+    // Track original function
+    const originalShowDirectSpeakNow = window.showDirectSpeakNow;
+    
+    window.showDirectSpeakNow = function() {
+        console.log('🔍 🎤 BANNER TRIGGER DETECTED!');
+        console.log('🕒 Time:', new Date().toISOString());
+        console.log('🗣️ AI Speaking:', window.isSpeaking);
+        console.log('🎤 Listening:', window.isListening);
+        console.log('📊 Speech State:', window.speechSynthesis ? window.speechSynthesis.speaking : 'no synth');
+        console.log('💬 Conversation State:', window.conversationState);
+        console.log('📝 Call Stack:', new Error().stack);
+        
+        // Check if we should actually show it
+        const shouldShow = !window.isSpeaking && 
+                          !window.speechSynthesis?.speaking && 
+                          !window.isInLeadCapture;
+        
+        console.log('✅ Should show banner?', shouldShow);
+        
+        if (shouldShow) {
+            console.log('🎯 PROCEEDING - Conditions met');
+            return originalShowDirectSpeakNow.apply(this, arguments);
+        } else {
+            console.log('🚫 BLOCKED - AI still speaking or lead capture active');
+            return;
+        }
+    };
+}
+
+// Run it immediately
+activateSpeechDetective();
+
+// 🚨 TIMER DETECTIVE - Find what's triggering the banner
+function activateTimerDetective() {
+    console.log('🔍 ⏰ TIMER DETECTIVE ACTIVATED');
+    
+    // Track all timeouts that might trigger banners
+    const originalSetTimeout = window.setTimeout;
+    window.setTimeout = function(callback, delay) {
+        const stack = new Error().stack;
+        
+        // Check if this timeout might trigger a banner
+        if (typeof callback === 'function' && callback.toString().includes('SpeakNow') || 
+            callback.toString().includes('showDirectSpeakNow') ||
+            callback.toString().includes('startListening')) {
+            console.log('⏰ SUSPICIOUS TIMEOUT DETECTED:');
+            console.log('   Delay:', delay, 'ms');
+            console.log('   Function:', callback.toString().substring(0, 200));
+            console.log('   Stack:', stack.split('\n').slice(1, 4).join(' | '));
+        }
+        
+        return originalSetTimeout.apply(this, arguments);
+    };
+}
+
+activateTimerDetective();
+
 // Add this at the VERY TOP of your JavaScript file (like line 1)
 if (typeof window.leadData === 'undefined' || !window.leadData) {
     window.leadData = { 
