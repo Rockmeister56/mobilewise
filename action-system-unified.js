@@ -2017,30 +2017,32 @@ function handleActionCenterCompletion() {
     window.disableSpeakNowBanner = false;
     
     // 🚀 DELAY SPEAK NOW OVERLAY UNTIL AFTER AI SPEECH COMPLETES
-setTimeout(() => {
-    if (typeof showDirectSpeakNow === 'function' && !window.disableSpeakNowBanner) {
-        // Wait for AI speech to complete first
-        if (window.speechSynthesis && window.speechSynthesis.speaking) {
-            const speechEndHandler = function() {
-                window.speechSynthesis.removeEventListener('end', speechEndHandler);
-                setTimeout(() => {
-                    console.log('🎤 Speak Now overlay triggered AFTER AI speech completed');
-                    showDirectSpeakNow();
-                }, 500);
-            };
-            window.speechSynthesis.addEventListener('end', speechEndHandler);
-            
-            // Safety timeout
-            setTimeout(() => {
-                window.speechSynthesis.removeEventListener('end', speechEndHandler);
-                console.log('🎤 Speak Now overlay triggered via safety timeout');
-            }, 5000);
-        } else {
-            console.log('🎤 Speak Now overlay triggered (no AI speech detected)');
-            // showDirectSpeakNow();
+    setTimeout(() => {
+        if (typeof showDirectSpeakNow === 'function' && !window.disableSpeakNowBanner) {
+            // Wait for AI speech to complete first
+            if (window.speechSynthesis && window.speechSynthesis.speaking) {
+                const speechEndHandler = function() {
+                    window.speechSynthesis.removeEventListener('end', speechEndHandler);
+                    setTimeout(() => {
+                        console.log('🎤 Speak Now overlay triggered AFTER AI speech completed');
+                        showDirectSpeakNow();
+                    }, 500);
+                };
+                window.speechSynthesis.addEventListener('end', speechEndHandler);
+                
+                // 🗑️ DELETE THIS SAFETY TIMEOUT - IT'S CAUSING THE PROBLEM!
+                // Safety timeout
+                // setTimeout(() => {
+                //     window.speechSynthesis.removeEventListener('end', speechEndHandler);
+                //     console.log('🎤 Speak Now overlay triggered via safety timeout');
+                // }, 5000);
+                
+            } else {
+                console.log('🎤 Speak Now overlay triggered (no AI speech detected)');
+                // showDirectSpeakNow();
+            }
         }
-    }
-}, 2000);
+    }, 2000);
 }
 
 // ================================
