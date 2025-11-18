@@ -692,6 +692,9 @@ function completeLeadCapture() {
     }, 500);
 }
 
+// ================================
+// EMAIL CONFIRMATION BUTTONS - SIMPLE VERSION
+// ================================
 function handleEmailConfirmation(sendEmail, captureType) {
     console.log('🎯 Email confirmation:', sendEmail ? 'SENDING' : 'SKIPPING');
     
@@ -728,61 +731,57 @@ function handleEmailConfirmation(sendEmail, captureType) {
                     window.closeSpeakNowBanner();
                 }
                 
-                showDecisionPanel({
-                    question: "Is that everything I can help you with today?",
-                    yesText: "Yes, I Have More Questions",
-                    skipText: "No, I'm All Done",
-                    onYes: function() {
-                        console.log('🎸 USER CONTINUING - APPLYING EMERGENCY FIX');
-                        emergencySpeechFix();
-                        
-                        setTimeout(() => {
-                            const continueMessage = "Great! What else can I help you with?";
-                            speakWithElevenLabs(continueMessage, false);
-                        }, 1000);
-                    },
-                    onSkip: function() {
-                        console.log('✅ User is done - clean shutdown');
-                        
-                        // 🎯 SIMPLE, CLEAN SHUTDOWN
-                        if (window.stopListening) window.stopListening();
-                        if (window.closeSpeakNowBanner) window.closeSpeakNowBanner();
-                        
-                        // Reset flags
-                        window.isInLeadCapture = false;
-                        window.currentLeadData = null;
-                        window.suppressSpeakNowBanner = true; // Prevent new banners
-                        
-                        // Show thank you
-                        if (typeof showThankYouSplash === 'function') {
-                            showThankYouSplash();
-                        }
-                    }
-                }); // 🎯 ADD THIS CLOSING PAREN AND BRACE
-                
-            }, 8000); // 🕒 INCREASED TO 8 SECONDS - ensures AI finishes + auto-listening times out
-        }, 1000); // Wait for email send to complete
+               showDecisionPanel({
+    question: "Is that everything I can help you with today?",
+    yesText: "Yes, I Have More Questions",
+    skipText: "No, I'm All Done",
+    
+    onYes: function() {
+        console.log('🎸 USER CONTINUING - APPLYING EMERGENCY FIX');
+        emergencySpeechFix();
         
-    } else {
-        // Skip email - just continue conversation
-        if (window.addAIMessage) {
-            window.addAIMessage("No problem! Bruce will still contact you directly. Is there anything else I can help with?");
-        }
-        
-        // Clear lead data
-        window.isInLeadCapture = false;
-        window.currentCaptureType = null;
-        window.currentLeadData = null;
-        window.suppressSpeakNowBanner = false; // Reset suppression
-        
-        // Wait then show Speak Now banner
         setTimeout(() => {
-            if (window.showDirectSpeakNow) {
-                window.showDirectSpeakNow();
-            }
-        }, 2000);
+            const continueMessage = "Great! What else can I help you with?";
+            speakWithElevenLabs(continueMessage, false);
+        }, 1000);
+    },
+    onSkip: function() {
+        console.log('✅ User chose to finish');
+        
+        // Simple cleanup
+        if (window.stopListening) window.stopListening();
+        if (window.closeSpeakNowBanner) window.closeSpeakNowBanner();
+        
+        // Show thank you
+        if (typeof showThankYouSplash === 'function') {
+            showThankYouSplash();
+        }
     }
-} // 🎯 THIS CLOSES THE handleEmailConfirmation FUNCTION
+});
+
+}, 8000); // 🕒 INCREASED TO 8 SECONDS - ensures AI finishes + auto-listening times out
+}, 1000); // Wait for email send to complete
+
+} else {
+    // Skip email - just continue conversation
+    if (window.addAIMessage) {
+        window.addAIMessage("No problem! Bruce will still contact you directly. Is there anything else I can help with?");
+    }
+    
+    // Clear lead data
+    window.isInLeadCapture = false;
+    window.currentCaptureType = null;
+    window.currentLeadData = null;
+    window.suppressSpeakNowBanner = false; // Reset suppression
+    
+    // Wait then show Speak Now banner
+    setTimeout(() => {
+        if (window.showDirectSpeakNow) {
+            window.showDirectSpeakNow();
+        }
+    }, 2000);
+}
+}
 
 // ================================
 // IN-CHAT DECISION PANEL (MATCHES EMAIL CONFIRMATION)
