@@ -1907,25 +1907,25 @@ function showThankYouSplash(name, captureType) {
             <p style="font-size: 16px; margin-top: 15px; opacity: 0.8; font-weight: 300;">Bruce will contact you within 24 hours.</p>
             <div style="margin-top: 25px; font-size: 14px; opacity: 0.7; letter-spacing: 1px;">Mobile-Wise AI</div>
             
-            <!-- RESTART BUTTON -->
-            <button onclick="restartConversation()" style="
-                margin-top: 30px;
-                background: linear-gradient(135deg, #00b4db, #0083b0);
-                color: white;
-                border: none;
-                padding: 15px 35px;
-                border-radius: 50px;
-                cursor: pointer;
-                font-weight: bold;
-                font-size: 16px;
-                box-shadow: 0 6px 20px rgba(0, 180, 219, 0.4);
-                transition: all 0.3s ease;
-                min-width: 180px;
-                animation: slideInButton 1s ease-out 1s both;
-            " onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 10px 30px rgba(0, 180, 219, 0.6)'" 
-               onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 6px 20px rgba(0, 180, 219, 0.4)'">
-                🔄 BACK TO AI CHAT
-            </button>
+            <!-- CLOSE CHAT BUTTON -->
+<button onclick="closeChatCompletely()" style="
+    margin-top: 30px;
+    background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+    color: white;
+    border: none;
+    padding: 15px 35px;
+    border-radius: 50px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 16px;
+    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+    transition: all 0.3s ease;
+    min-width: 180px;
+    animation: slideInButton 1s ease-out 1s both;
+" onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 10px 30px rgba(255, 107, 107, 0.6)'" 
+   onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 6px 20px rgba(255, 107, 107, 0.4)'">
+    ❌ CLOSE CHAT & EXIT
+</button>
         </div>
     `;
     
@@ -1950,7 +1950,39 @@ function showThankYouSplash(name, captureType) {
         if (document.getElementById('thankYouSplash')) {
             restartConversation();
         }
-    }, 20000);
+    }, 30000);
+}
+
+function closeChatCompletely() {
+    console.log('🚪 Closing chat completely - returning to website');
+    
+    // Remove thank you splash
+    const splash = document.getElementById('thankYouSplash');
+    if (splash) splash.remove();
+    
+    // Remove ALL chat interface elements
+    const chatElements = [
+        '.chat-container',
+        '#chatContainer', 
+        '.chat-interface',
+        '.chat-messages',
+        '#chatMessages',
+        '.speak-now-banner',
+        '.universal-banner',
+        '.action-center'
+    ];
+    
+    chatElements.forEach(selector => {
+        document.querySelectorAll(selector).forEach(el => el.remove());
+    });
+    
+    // If you want to redirect to main website URL:
+    // window.location.href = 'https://yourmainwebsite.com';
+    
+    // Or just hide everything and show original page content
+    document.body.style.overflow = 'auto'; // Restore scrolling
+    
+    console.log('✅ Chat completely closed - user returned to website');
 }
 
 // ================================
