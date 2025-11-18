@@ -1,21 +1,28 @@
 // ===================================================
-// 🎬 MOBILE-WISE AI TESTIMONIALS PLAYER
-// Video testimonial player with controls and resume logic
-// Banner display with play buttons for individual reviews
+// 🎬 COMPLETE TESTIMONIAL SYSTEM (SPLASH + VIDEO PLAYER)
 // ===================================================
 
-// 1. TESTIMONIAL VIDEO DATA
+// Video URLs - UPDATE THESE WITH YOUR ACTUAL VIDEO LINKS
 const TESTIMONIAL_VIDEOS = {
-    skeptical: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982717330.mp4",
-    speed: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982877040.mp4"
+    skeptical: 'https://your-actual-url-here/skeptical-testimonial.mp4',
+    speed: 'https://your-actual-url-here/speed-testimonial.mp4',
+    convinced: 'https://your-actual-url-here/convinced-testimonial.mp4',
+    excited: 'https://your-actual-url-here/excited-testimonial.mp4'
+};
+
+// Video durations in milliseconds
+const VIDEO_DURATIONS = {
+    skeptical: 22000,
+    speed: 18000, 
+    convinced: 25000,
+    excited: 20000
 };
 
 // ================================
-// 🎬 ENHANCED TESTIMONIAL SPLASH SCREEN WITH BETTER TIMING
+// 🎬 SPLASH SCREEN (YOUR BEAUTIFUL CSS)
 // ================================
 function showTestimonialSplashScreen() {
-    console.log('🎬 TESTIMONIAL SPLASH: Loading from TESTIMONIALS-PLAYER.js');
-    console.log('🎬 Deploying testimonial splash screen...');
+    console.log('🎬 TESTIMONIAL SPLASH: Loading complete system');
     
     // Stop any current listening first
     if (window.stopListening && typeof window.stopListening === 'function') {
@@ -82,6 +89,32 @@ function showTestimonialSplashScreen() {
                     <div style="font-size: 28px;">⚡</div>
                     <span style="flex: 1;">Speed Results</span>
                 </button>
+
+                <!-- Convinced Client -->
+                <button onclick="handleTestimonialButton('convinced')" style="
+                    display: flex; align-items: center; gap: 12px;
+                    background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(255, 255, 255, 0.2);
+                    color: white; padding: 18px 15px; border-radius: 10px; cursor: pointer;
+                    font-weight: 600; font-size: 17px; text-align: left; transition: all 0.3s ease;
+                    backdrop-filter: blur(10px); width: 100%; height: 84px;
+                " onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.borderColor='rgba(255, 255, 255, 0.3)'; this.style.transform='translateY(-2px)';" 
+                   onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.borderColor='rgba(255, 255, 255, 0.2)'; this.style.transform='translateY(0)';">
+                    <div style="font-size: 28px;">😊</div>
+                    <span style="flex: 1;">Convinced Client</span>
+                </button>
+
+                <!-- Excited Results -->
+                <button onclick="handleTestimonialButton('excited')" style="
+                    display: flex; align-items: center; gap: 12px;
+                    background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(255, 255, 255, 0.2);
+                    color: white; padding: 18px 15px; border-radius: 10px; cursor: pointer;
+                    font-weight: 600; font-size: 17px; text-align: left; transition: all 0.3s ease;
+                    backdrop-filter: blur(10px); width: 100%; height: 84px;
+                " onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.borderColor='rgba(255, 255, 255, 0.3)'; this.style.transform='translateY(-2px)';" 
+                   onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.borderColor='rgba(255, 255, 255, 0.2)'; this.style.transform='translateY(0)';">
+                    <div style="font-size: 28px;">🎉</div>
+                    <span style="flex: 1;">Excited Results</span>
+                </button>
             </div>
 
             <!-- Skip Button -->
@@ -106,16 +139,178 @@ function showTestimonialSplashScreen() {
 }
 
 // ================================
-// 🎬 NEW: HANDLE TESTIMONIAL SKIP
+// 🎬 VIDEO PLAYER (16:9 CONTAINER)
 // ================================
-function handleTestimonialSkip() {
-    console.log('🎬 User skipped testimonials');
-    hideTestimonialSplash();
+function playTestimonialVideo(testimonialType) {
+    console.log(`🎬 Playing ${testimonialType} testimonial`);
     
-    // Wait for splash to hide, then restart conversation
+    // 🚫 PREVENT DOUBLE CALLS
+    if (window.avatarCurrentlyPlaying) {
+        console.log('🚫 Video already playing - skipping');
+        return;
+    }
+    
+    window.avatarCurrentlyPlaying = true;
+    
+    const videoUrl = TESTIMONIAL_VIDEOS[testimonialType];
+    if (!videoUrl) {
+        console.error('❌ Video URL not found for:', testimonialType);
+        window.avatarCurrentlyPlaying = false;
+        return;
+    }
+    
+    const videoDuration = VIDEO_DURATIONS[testimonialType] || 20000;
+    
+    // Remove splash screen first
+    const splashScreen = document.getElementById('testimonial-splash-screen');
+    if (splashScreen) {
+        splashScreen.remove();
+    }
+    
+    // Create the 16:9 video container (MATCHES YOUR SPLASH SCREEN STYLING)
+    const videoOverlay = document.createElement('div');
+    videoOverlay.id = 'testimonial-video-player';
+    videoOverlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.85);
+        z-index: 9999;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        backdrop-filter: blur(10px);
+        animation: fadeInSplash 0.5s ease-in;
+    `;
+    
+    videoOverlay.innerHTML = `
+        <div style="
+            position: relative;
+            width: 854px;
+            height: 480px;
+            background: #000;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: slideInFromBottom 0.5s ease-out;
+        ">
+            <video id="testimonialVideo" autoplay style="
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+                background: #000;
+            ">
+                <source src="${videoUrl}" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+            
+            <!-- Close Button - Matches Your Splash Screen Styling -->
+            <button onclick="closeTestimonialVideo()" style="
+                position: absolute;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                padding: 12px 32px;
+                background: rgba(0, 0, 0, 0.6);
+                color: white;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                border-radius: 25px;
+                font-size: 14px;
+                font-weight: 600;
+                cursor: pointer;
+                backdrop-filter: blur(10px);
+                transition: all 0.3s ease;
+                z-index: 10001;
+            " 
+            onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.borderColor='rgba(255, 255, 255, 0.3)'; this.style.transform='translateX(-50%) translateY(-2px)';" 
+            onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.borderColor='rgba(255, 255, 255, 0.2)'; this.style.transform='translateX(-50%) translateY(0)';">
+                ✕ Close & Continue
+            </button>
+        </div>
+    `;
+    
+    document.body.appendChild(videoOverlay);
+    
+    // Click outside to close
+    videoOverlay.addEventListener('click', function(e) {
+        if (e.target === videoOverlay) {
+            closeTestimonialVideo();
+        }
+    });
+    
+    // Auto-close after video duration
     setTimeout(() => {
-        restartConversation();
-    }, 400);
+        if (document.getElementById('testimonial-video-player')) {
+            closeTestimonialVideo();
+        }
+    }, videoDuration);
+}
+
+// ================================
+// 🎬 BUTTON HANDLERS
+// ================================
+function handleTestimonialButton(testimonialType) {
+    console.log(`🎬 Button clicked: ${testimonialType}`);
+    playTestimonialVideo(testimonialType);
+}
+
+function handleTestimonialSkip() {
+    console.log('⏭️ Skipping testimonials');
+    const splashScreen = document.getElementById('testimonial-splash-screen');
+    if (splashScreen) {
+        splashScreen.remove();
+    }
+    
+    // Continue with conversation
+    if (typeof window.handleTestimonialComplete === 'function') {
+        window.handleTestimonialComplete();
+    }
+}
+
+function closeTestimonialVideo() {
+    console.log('🎬 Closing testimonial video');
+    const videoPlayer = document.getElementById('testimonial-video-player');
+    if (videoPlayer) {
+        videoPlayer.remove();
+    }
+    window.avatarCurrentlyPlaying = false;
+    
+    // Resume conversation
+    if (typeof window.handleTestimonialComplete === 'function') {
+        console.log('🎯 Calling handleTestimonialComplete callback');
+        window.handleTestimonialComplete();
+    }
+}
+
+// ================================
+// 🎬 INITIALIZE THE SYSTEM
+// ================================
+// Call this function to start the testimonial system
+function initializeTestimonialSystem() {
+    // Make sure global state is reset
+    window.avatarCurrentlyPlaying = false;
+    
+    // Add CSS animations if not already present
+    if (!document.getElementById('testimonial-animations')) {
+        const style = document.createElement('style');
+        style.id = 'testimonial-animations';
+        style.textContent = `
+            @keyframes fadeInSplash {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            @keyframes slideInFromBottom {
+                from { transform: translateY(30px); opacity: 0; }
+                to { transform: translateY(0); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    console.log('✅ Testimonial system initialized');
 }
 
 // ================================
