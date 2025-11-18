@@ -2076,11 +2076,6 @@ setTimeout(() => {
             window.speechSynthesis.addEventListener('end', speechEndHandler);
             
             // Safety timeout
-            setTimeout(() => {
-                window.speechSynthesis.removeEventListener('end', speechEndHandler);
-                console.log('🎤 Speak Now overlay triggered via safety timeout');
-            }, 5000);
-        } else {
             console.log('🎤 Speak Now overlay triggered (no AI speech detected)');
             // showDirectSpeakNow();
         }
