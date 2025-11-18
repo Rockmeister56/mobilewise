@@ -29,20 +29,6 @@ window.currentLeadData = null;
 window.currentCaptureType = null;
 
 // ================================
-// LEAD CAPTURE TRACKING  <-- ADD HERE
-// ================================
-window.trackLeadCaptureStart = function() {
-    console.log('🎯 LEAD CAPTURE: Starting lead capture process');
-};
-
-// ================================
-// GLOBAL LEAD CAPTURE STATE
-// ================================
-window.isInLeadCapture = false;
-window.currentLeadData = null;
-window.currentCaptureType = null;
-
-// ================================
 // FORM VALIDATION
 // ================================
 function validateEmail(email) {
@@ -745,56 +731,48 @@ function handleEmailConfirmation(sendEmail, captureType) {
                     window.closeSpeakNowBanner();
                 }
                 
-               showDecisionPanel({
-    question: "Is that everything I can help you with today?",
-    yesText: "Yes, I Have More Questions",
-    skipText: "No, I'm All Done",
-    
-    onYes: function() {
-        console.log('🎸 USER CONTINUING - APPLYING EMERGENCY FIX');
-        emergencySpeechFix();
+                 showDecisionPanel({
+                    question: "Is that everything I can help you with today?",
+                    yesText: "Yes, I Have More Questions",
+                    skipText: "No, I'm All Done",
+                    
+                    onYes: function() {
+                        console.log('🎸 USER CONTINUING - APPLYING EMERGENCY FIX');
+                        emergencySpeechFix();
+                        
+                        setTimeout(() => {
+                            const continueMessage = "Great! What else can I help you with?";
+                            speakWithElevenLabs(continueMessage, false);
+                        }, 1000);
+                    },
+                    onSkip: function() {
+                        console.log('🛑 USER FINISHED - COMPLETE SYSTEM SHUTDOWN');
+                        
+                    }
+                });
+                
+            }, 8000); // 🕒 INCREASED TO 8 SECONDS - ensures AI finishes + auto-listening times out
+        }, 1000); // Wait for email send to complete
         
+    } else {
+        // Skip email - just continue conversation
+        if (window.addAIMessage) {
+            window.addAIMessage("No problem! Bruce will still contact you directly. Is there anything else I can help with?");
+        }
+        
+        // Clear lead data
+        window.isInLeadCapture = false;
+        window.currentCaptureType = null;
+        window.currentLeadData = null;
+        window.suppressSpeakNowBanner = false; // Reset suppression
+        
+        // Wait then show Speak Now banner
         setTimeout(() => {
-            const continueMessage = "Great! What else can I help you with?";
-            speakWithElevenLabs(continueMessage, false);
-        }, 1000);
-    },
-    onSkip: function() {
-        console.log('✅ User chose to finish');
-        
-        // Simple cleanup
-        if (window.stopListening) window.stopListening();
-        if (window.closeSpeakNowBanner) window.closeSpeakNowBanner();
-        
-        // Show thank you
-        if (typeof showThankYouSplash === 'function') {
-            showThankYouSplash();
-        }
+            if (window.showDirectSpeakNow) {
+                window.showDirectSpeakNow();
+            }
+        }, 2000);
     }
-});
-
-}, 8000); // 🕒 INCREASED TO 8 SECONDS - ensures AI finishes + auto-listening times out
-}, 1000); // Wait for email send to complete
-
-} else {
-    // Skip email - just continue conversation
-    if (window.addAIMessage) {
-        window.addAIMessage("No problem! Bruce will still contact you directly. Is there anything else I can help with?");
-    }
-    
-    // Clear lead data
-    window.isInLeadCapture = false;
-    window.currentCaptureType = null;
-    window.currentLeadData = null;
-    window.suppressSpeakNowBanner = false; // Reset suppression
-    
-    // Wait then show Speak Now banner
-    setTimeout(() => {
-        if (window.showDirectSpeakNow) {
-            window.showDirectSpeakNow();
-        }
-    }, 2000);
-}
 }
 
 // ================================
@@ -2076,6 +2054,11 @@ setTimeout(() => {
             window.speechSynthesis.addEventListener('end', speechEndHandler);
             
             // Safety timeout
+            setTimeout(() => {
+                window.speechSynthesis.removeEventListener('end', speechEndHandler);
+                console.log('🎤 Speak Now overlay triggered via safety timeout');
+            }, 5000);
+        } else {
             console.log('🎤 Speak Now overlay triggered (no AI speech detected)');
             // showDirectSpeakNow();
         }
