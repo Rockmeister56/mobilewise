@@ -85,9 +85,14 @@ function showCommunicationActionCenter(mode = 'default') {
                 ${getCorporateButtons()}
             </div>
         `;
-    } else {
-    
-    }
+   } else {
+    // Default mode - use existing Communication Relay Center
+    actionCenter.innerHTML = `
+        <div class="communication-relay-center">
+            <!-- Your existing Communication Relay Center HTML goes here -->
+        </div>
+    `;
+}
     
     // Add to page
     const chatContainer = document.getElementById('chatMessages') || document.querySelector('.chat-messages');
@@ -1663,8 +1668,7 @@ function sendOriginalLeadEmail(data, type) {
 // NEW: Separate function for CLIENT confirmation email
 function sendClientConfirmationEmail(leadData, captureType) {
     console.log('📧 Sending CLIENT confirmation email...');
-    }
-    
+
     const cleanEmail = String(leadData.email).trim().replace(/[^\w@.-]/g, '');
     
     let inquiryType = '';
@@ -1844,6 +1848,7 @@ emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templates.clientConfirmati
             }, 2000);
         }
     });
+ } 
     
 // Make functions globally accessible
 window.handleEmailConfirmation = handleEmailConfirmation;
