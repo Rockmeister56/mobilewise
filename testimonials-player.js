@@ -4,8 +4,8 @@
 
 // Video URLs - UPDATE THESE WITH YOUR ACTUAL VIDEO LINKS
 const TESTIMONIAL_VIDEOS = {
-    skeptical: 'https://your-actual-url-here/skeptical-testimonial.mp4',
-    speed: 'https://your-actual-url-here/speed-testimonial.mp4',
+    skeptical: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982717330.mp4',
+    speed: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982877040.mp4',
     convinced: 'https://your-actual-url-here/convinced-testimonial.mp4',
     excited: 'https://your-actual-url-here/excited-testimonial.mp4'
 };
