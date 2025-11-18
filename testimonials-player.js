@@ -40,6 +40,7 @@ function play16x9TestimonialVideo(testimonialType, duration = 12000) {
 
 // 3. CREATE TESTIMONIAL BANNER WITH REVIEWS
 function createTestimonialBanner(concernData) {
+console.log('🎬 TESTIMONIAL SPLASH: Loading from TESTIMONIALS-PLAYER.js');
     console.log('🎨 Creating testimonial banner with reviews from concernData');
     
     // Create review items with premium play buttons

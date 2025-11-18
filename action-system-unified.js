@@ -2103,6 +2103,7 @@ function handleTestimonialButton(testimonialType) {
 // 🎬 ENHANCED TESTIMONIAL SPLASH SCREEN WITH BETTER TIMING
 // ================================
 function showTestimonialSplashScreen() {
+    console.log('🎬 TESTIMONIAL SPLASH: Loading from ACTION-SYSTEM-UNIFIED.js');
     console.log('🎬 Deploying testimonial splash screen...');
     
     // Stop any current listening first
