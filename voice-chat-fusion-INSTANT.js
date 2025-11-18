@@ -3,67 +3,6 @@
 // Smart Button + Lead Capture + EmailJS + Banner System
 // ===================================================
 
-// 🚨 SPEECH DETECTIVE - ADD TO voice-chat-fusion-INSTANT.js
-function activateSpeechDetective() {
-    console.log('🔍 🎤 SPEECH DETECTIVE ACTIVATED - Tracking ALL banner triggers');
-    
-    // Track original function
-    const originalShowDirectSpeakNow = window.showDirectSpeakNow;
-    
-    window.showDirectSpeakNow = function() {
-        console.log('🔍 🎤 BANNER TRIGGER DETECTED!');
-        console.log('🕒 Time:', new Date().toISOString());
-        console.log('🗣️ AI Speaking:', window.isSpeaking);
-        console.log('🎤 Listening:', window.isListening);
-        console.log('📊 Speech State:', window.speechSynthesis ? window.speechSynthesis.speaking : 'no synth');
-        console.log('💬 Conversation State:', window.conversationState);
-        console.log('📝 Call Stack:', new Error().stack);
-        
-        // Check if we should actually show it
-        const shouldShow = !window.isSpeaking && 
-                          !window.speechSynthesis?.speaking && 
-                          !window.isInLeadCapture;
-        
-        console.log('✅ Should show banner?', shouldShow);
-        
-        if (shouldShow) {
-            console.log('🎯 PROCEEDING - Conditions met');
-            return originalShowDirectSpeakNow.apply(this, arguments);
-        } else {
-            console.log('🚫 BLOCKED - AI still speaking or lead capture active');
-            return;
-        }
-    };
-}
-
-// Run it immediately
-activateSpeechDetective();
-
-// 🚨 TIMER DETECTIVE - Find what's triggering the banner
-function activateTimerDetective() {
-    console.log('🔍 ⏰ TIMER DETECTIVE ACTIVATED');
-    
-    // Track all timeouts that might trigger banners
-    const originalSetTimeout = window.setTimeout;
-    window.setTimeout = function(callback, delay) {
-        const stack = new Error().stack;
-        
-        // Check if this timeout might trigger a banner
-        if (typeof callback === 'function' && callback.toString().includes('SpeakNow') || 
-            callback.toString().includes('showDirectSpeakNow') ||
-            callback.toString().includes('startListening')) {
-            console.log('⏰ SUSPICIOUS TIMEOUT DETECTED:');
-            console.log('   Delay:', delay, 'ms');
-            console.log('   Function:', callback.toString().substring(0, 200));
-            console.log('   Stack:', stack.split('\n').slice(1, 4).join(' | '));
-        }
-        
-        return originalSetTimeout.apply(this, arguments);
-    };
-}
-
-activateTimerDetective();
-
 // Add this at the VERY TOP of your JavaScript file (like line 1)
 if (typeof window.leadData === 'undefined' || !window.leadData) {
     window.leadData = { 
@@ -3576,13 +3515,11 @@ function initializeLeadCapture(buttonType = 'valuation') {
 }
 
 function askLeadQuestion() {
-    if (!window.isInLeadCapture || !window.currentLeadData) return;
-    
-    const leadData = window.currentLeadData;
+    if (!isInLeadCapture || !leadData) return;
     
     if (leadData.step < leadData.questions.length) {
         const question = leadData.questions[leadData.step];
-        if (window.addAIMessage) window.addAIMessage(question);
+        addAIMessage(question);
         
         console.log('🎤 Lead Capture: Speaking question...');
         
@@ -3590,33 +3527,15 @@ function askLeadQuestion() {
         if (window.stopListening) window.stopListening();
         
         // Speak the question
-        if (window.speakMessage) {
-            window.speakMessage(question);
-        } else if (window.speakText) {
-            window.speakText(question);
-        }
+        speakMessage(question);
         
         // 🎯 SIMPLE: Wait for speech to finish, then listen immediately
         const checkSpeech = setInterval(() => {
             if (!window.isSpeaking) {
                 clearInterval(checkSpeech);
                 console.log('✅ AI finished - starting listening NOW');
-                if (window.isInLeadCapture) {
-                    console.log('🎤 LEAD CAPTURE: Showing Speak Now banner for step', leadData.step);
-                    
-                    // 🎯 TEMPORARILY BYPASS THE BLOCKER
-                    const originalIsInLeadCapture = window.isInLeadCapture;
-                    window.isInLeadCapture = false; // Temporary bypass
-                    
-                    if (window.showDirectSpeakNow && typeof window.showDirectSpeakNow === 'function') {
-                        window.showDirectSpeakNow();
-                    }
-                    
-                    // 🎯 RESTORE IMMEDIATELY
-                    setTimeout(() => {
-                        window.isInLeadCapture = originalIsInLeadCapture;
-                        console.log('✅ Lead capture state restored');
-                    }, 100);
+                if (isInLeadCapture && window.startRealtimeListening) {
+                    window.startRealtimeListening();
                 }
             }
         }, 100);
@@ -3624,11 +3543,13 @@ function askLeadQuestion() {
         // Safety timeout
         setTimeout(() => {
             clearInterval(checkSpeech);
+            if (isInLeadCapture && window.startRealtimeListening) {
+                console.log('⏰ Safety timeout - starting listening');
+                window.startRealtimeListening();
+            }
         }, 10000);
     } else {
-        if (window.completeLeadCapture) {
-            window.completeLeadCapture();
-        }
+        completeLeadCollection();
     }
 }
 
