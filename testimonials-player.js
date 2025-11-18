@@ -1,5 +1,5 @@
 // ===================================================
-// 🎬 COMPLETE TESTIMONIAL SYSTEM (SPLASH + VIDEO PLAYER)
+// 🎬 COMPLETE TESTIMONIAL SYSTEM (SPLASH + VIDEO PLAYERS)
 // ===================================================
 
 // Video URLs - UPDATE THESE WITH YOUR ACTUAL VIDEO LINKS
