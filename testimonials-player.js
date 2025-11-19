@@ -48,7 +48,7 @@ function showTestimonialSplashScreen() {
             border-radius: 20px;
             padding: 30px 25px;
             margin: 20px 0;
-            margin-top: 50px;
+            margin-top: 120px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
             color: white;
