@@ -385,11 +385,11 @@ window.handleTestimonialSkip = handleTestimonialSkip;
 window.hideTestimonialSplash = hideTestimonialSplash;
 window.avatarCurrentlyPlaying = false;
 
-// Initialize when loaded
+// ✅ USE THIS - It's the safest approach:
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initTestimonialPlayer);
+    document.addEventListener('DOMContentLoaded', initializeTestimonialSystem);
 } else {
-    initTestimonialPlayer();
+    initializeTestimonialSystem();
 }
 
 console.log('✅ Testimonials Player Loaded - Ready for concerns!');
