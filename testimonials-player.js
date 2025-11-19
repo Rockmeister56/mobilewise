@@ -37,35 +37,35 @@ function showTestimonialSplashScreen() {
     splashScreen.id = 'testimonial-splash-screen';
     splashScreen.style.animation = 'fadeInSplash 0.5s ease-in';
     
-    splashScreen.innerHTML = `
-        <div style="
-            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.9)),
-                        url('https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1762038349654_action-bg.jpg');
-            background-size: cover;
-            background-position: center;
-            background-blend-mode: overlay;
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 30px 25px;
-            margin: 20px 0;
-            margin-top: 120px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            color: white;
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            max-width: 750px;
-            animation: slideInFromBottom 0.5s ease-out;
-        ">
-            <!-- Header with Video Avatar -->
-            <div style="display: flex; align-items: center; margin-bottom: 25px; gap: 15px;">
-                <video autoplay loop muted playsinline style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255, 255, 255, 0.2);">
-                    <source src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1762037335280.mp4" type="video/mp4">
-                </video>
-                <div>
-                    <h3 style="margin: 0 0 5px 0; font-size: 22px; font-weight: 600;">Client Testimonials</h3>
-                    <p style="margin: 0; opacity: 0.8; font-size: 13px; font-weight: 300;">Real stories from satisfied clients</p>
-                </div>
-            </div>
+   splashScreen.innerHTML = `
+    <div style="
+        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.9)),
+                    url('https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1762038349654_action-bg.jpg');
+        background-size: cover;
+        background-position: center;
+        background-blend-mode: overlay;
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 30px 25px;
+        margin: 20px 0;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        color: white;
+        font-family: 'Segoe UI', system-ui, sans-serif;
+        max-width: 750px;
+        /* REMOVE margin-top - let it flow naturally like action buttons */
+    ">
+    
+    <!-- USE THE EXACT SAME HEADER STRUCTURE AS YOUR ACTION BUTTONS -->
+    <div style="display: flex; align-items: center; margin-bottom: 25px; gap: 15px; margin-top: 5px;">
+        <video autoplay loop muted playsinline style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255, 255, 255, 0.2); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);">
+            <source src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1762037335280.mp4" type="video/mp4">
+        </video>
+        <div>
+            <h3 style="margin: 0 0 5px 0; font-size: 22px; font-weight: 600; color: white;">Client Testimonials</h3>
+            <p style="margin: 0; opacity: 0.8; font-size: 13px; font-weight: 300; letter-spacing: 0.5px;">Real stories from satisfied clients</p>
+        </div>
+    </div>
 
             <!-- Testimonial Buttons Grid -->
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px;">
