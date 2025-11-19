@@ -56,7 +56,7 @@ function showTestimonialSplashScreen() {
     ">
     
     <!-- USE THE EXACT SAME HEADER STRUCTURE AS YOUR ACTION BUTTONS -->
-    <div style="display: flex; align-items: center; margin-bottom: 25px; gap: 15px; margin-top: 70px;">
+    <div style="display: flex; align-items: center; margin-bottom: 25px; gap: 15px; margin-top: 5px;">
         <video autoplay loop muted playsinline style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255, 255, 255, 0.2); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);">
             <source src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1762037335280.mp4" type="video/mp4">
         </video>
