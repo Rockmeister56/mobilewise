@@ -136,11 +136,12 @@ function showTestimonialSplashScreen() {
         </div>
     `;
     
-    const chatContainer = document.getElementById('chatMessages') || document.querySelector('.chat-messages');
-    if (chatContainer) {
-        chatContainer.appendChild(splashScreen);
-        splashScreen.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }
+   const chatContainer = document.getElementById('chatMessages') || document.querySelector('.chat-messages');
+if (chatContainer) {
+    chatContainer.style.paddingTop = '80px'; // Push everything down
+    chatContainer.appendChild(splashScreen);
+    splashScreen.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
 }
 
 // ================================
