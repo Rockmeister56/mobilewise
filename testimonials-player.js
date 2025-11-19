@@ -6,8 +6,8 @@
 const TESTIMONIAL_VIDEOS = {
     skeptical: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982717330.mp4',
     speed: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982877040.mp4',
-    convinced: 'https://your-actual-url-here/convinced-testimonial.mp4',
-    excited: 'https://your-actual-url-here/excited-testimonial.mp4'
+    convinced: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1763530566773.mp4',
+    excited: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1763531028258.mp4'
 };
 
 // Video durations in milliseconds
