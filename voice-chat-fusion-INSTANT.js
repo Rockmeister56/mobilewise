@@ -4656,6 +4656,12 @@ window.updateVoiceTranscription = function(text) {
 
 async function showDirectSpeakNow() {
     console.log('🎯 DIRECT Speak Now - Black Transparent Overlay');
+
+     // 🛡️ CHECK IF TESTIMONIAL SESSION IS ACTIVE
+    if (window.testimonialSessionActive) {
+        console.log('🛡️ Speak Now blocked - testimonial session active');
+        return; // Don't show speak now during testimonials
+    }
     
     // 🎯 COORDINATION: Block Speak Now when Action Center is about to appear
     if (window.actionCenterPending) {

@@ -23,6 +23,10 @@ const VIDEO_DURATIONS = {
 // ================================
 function showTestimonialSplashScreen() {
     console.log('🎬 TESTIMONIAL SPLASH: Loading complete system');
+
+     // 🛡️ SET PROTECTION FLAG - BLOCK SPEAK NOW
+    window.testimonialSessionActive = true;
+    console.log('🛡️ Testimonial protection activated - Speak Now blocked');
     
     // Stop any current listening first
     if (window.stopListening && typeof window.stopListening === 'function') {
@@ -44,6 +48,7 @@ function showTestimonialSplashScreen() {
             border-radius: 20px;
             padding: 30px 25px;
             margin: 20px 0;
+            margin-top: 50px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
             color: white;
@@ -288,7 +293,12 @@ function handleTestimonialSkip() {
     if (splashScreen) {
         splashScreen.remove();
     }
+
+     // 🛡️ CLEAR PROTECTION FLAG
+    window.testimonialSessionActive = false;
+    console.log('🛡️ Testimonial protection deactivated');
     
+    // Continue with conversation
     if (typeof window.handleTestimonialComplete === 'function') {
         window.handleTestimonialComplete();
     }
@@ -302,6 +312,11 @@ function closeTestimonialVideo() {
     }
     window.avatarCurrentlyPlaying = false;
     
+    // 🛡️ CLEAR PROTECTION FLAG
+    window.testimonialSessionActive = false;
+    console.log('🛡️ Testimonial protection deactivated');
+    
+    // Resume conversation
     if (typeof window.handleTestimonialComplete === 'function') {
         console.log('🎯 Calling handleTestimonialComplete callback');
         window.handleTestimonialComplete();
@@ -315,6 +330,12 @@ function closeTestimonialVideo() {
 function initializeTestimonialSystem() {
     // Make sure global state is reset
     window.avatarCurrentlyPlaying = false;
+    window.testimonialSessionActive = false;
+
+     // Add CSS animations
+    addTestimonialAnimations();
+    
+    console.log('✅ Testimonial system initialized with protection');
     
     // Add CSS animations if not already present
     if (!document.getElementById('testimonial-animations')) {
