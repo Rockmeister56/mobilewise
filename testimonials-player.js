@@ -139,7 +139,7 @@ function showTestimonialSplashScreen() {
 }
 
 // ================================
-// 🎬 VIDEO PLAYER (16:9 CONTAINER)
+// 🎬 VIDEO PLAYER (16:9 CONTAINER) - FIXED VERSION
 // ================================
 function playTestimonialVideo(testimonialType) {
     console.log(`🎬 Playing ${testimonialType} testimonial`);
@@ -234,6 +234,31 @@ function playTestimonialVideo(testimonialType) {
     
     document.body.appendChild(videoOverlay);
     
+    // ✅ FIX: Wait for video element to be in DOM, then add event listeners
+    setTimeout(() => {
+        const video = document.getElementById('testimonialVideo');
+        if (video) {
+            // Handle video end
+            video.addEventListener('ended', function() {
+                console.log('✅ Video ended naturally');
+                closeTestimonialVideo();
+                
+                // Resume conversation after video ends
+                if (typeof window.handleTestimonialComplete === 'function') {
+                    window.handleTestimonialComplete();
+                }
+            });
+
+            // Handle video errors
+            video.addEventListener('error', function(e) {
+                console.error('❌ Video error:', e);
+                closeTestimonialVideo();
+            });
+        } else {
+            console.error('❌ Video element not found for event listeners');
+        }
+    }, 100);
+    
     // Click outside to close
     videoOverlay.addEventListener('click', function(e) {
         if (e.target === videoOverlay) {
@@ -247,42 +272,6 @@ function playTestimonialVideo(testimonialType) {
             closeTestimonialVideo();
         }
     }, videoDuration);
-}
-
-// ================================
-// 🎬 BUTTON HANDLERS
-// ================================
-function handleTestimonialButton(testimonialType) {
-    console.log(`🎬 Button clicked: ${testimonialType}`);
-    playTestimonialVideo(testimonialType);
-}
-
-function handleTestimonialSkip() {
-    console.log('⏭️ Skipping testimonials');
-    const splashScreen = document.getElementById('testimonial-splash-screen');
-    if (splashScreen) {
-        splashScreen.remove();
-    }
-    
-    // Continue with conversation
-    if (typeof window.handleTestimonialComplete === 'function') {
-        window.handleTestimonialComplete();
-    }
-}
-
-function closeTestimonialVideo() {
-    console.log('🎬 Closing testimonial video');
-    const videoPlayer = document.getElementById('testimonial-video-player');
-    if (videoPlayer) {
-        videoPlayer.remove();
-    }
-    window.avatarCurrentlyPlaying = false;
-    
-    // Resume conversation
-    if (typeof window.handleTestimonialComplete === 'function') {
-        console.log('🎯 Calling handleTestimonialComplete callback');
-        window.handleTestimonialComplete();
-    }
 }
 
 // ================================
@@ -350,165 +339,7 @@ function addTestimonialAnimations() {
         `;
         document.head.appendChild(style);
     }
-}
-
-
-    // Handle video end
-    const video = document.getElementById('testimonial-video');
-    video.addEventListener('ended', function() {
-        console.log('✅ Video ended naturally');
-        close16x9TestimonialVideo();
-        
-        // Resume conversation after video ends
-        if (typeof window.handleTestimonialComplete === 'function') {
-            window.handleTestimonialComplete();
-        }
-    });
-
-    // Handle video errors
-    video.addEventListener('error', function() {
-        console.error('❌ Video loading error');
-        close16x9TestimonialVideo();
-    });
-
-// 6. PLAY FROM BANNER FUNCTION
-window.playTestimonialFromBanner = function(videoType) {
-    console.log(`🎬 Playing video from banner: ${videoType}`);
-    
-    // Close banner WITHOUT resuming conversation
-    const banner = document.getElementById('testimonial-review-banner');
-    if (banner) {
-        banner.style.animation = 'slideOutBanner 0.3s ease-out';
-        
-        setTimeout(() => {
-            banner.remove();
-            window.testimonialBannerActive = false;
-            console.log('✅ Banner removed (video will play)');
-            
-            // Show video after banner removal
-            setTimeout(() => {
-                showTestimonialVideo(videoType);
-            }, 300);
-        }, 300);
-    }
-};
-
-// 7. SKIP BANNER FUNCTION
-window.skipTestimonialBanner = function() {
-    console.log('⏭️ Skipping testimonial banner');
-    
-    const banner = document.getElementById('testimonial-review-banner');
-    if (banner) {
-        banner.style.animation = 'slideOutBanner 0.3s ease-out';
-        
-        setTimeout(() => {
-            banner.remove();
-            window.testimonialBannerActive = false;
-            console.log('✅ Banner removed');
-            
-            // 🔓 CLEAR BLOCKING FLAG
-            window.concernBannerActive = false;
-            console.log('✅ FLAG CLEARED: concernBannerActive = false');
-            
-            // 🔄 RESUME CONVERSATION
-            resumeAfterTestimonial();
-        }, 300);
-    }
-};
-
-// 8. CLOSE VIDEO FUNCTION
-function close16x9TestimonialVideo() {
-    console.log('🎬 Closing 16:9 testimonial video manually');
-    
-    const overlay = document.getElementById('testimonial-video-overlay');
-    if (overlay) {
-        overlay.remove();
-    }
-    
-    window.avatarCurrentlyPlaying = false;
-    
-    // Call completion handler for manual close too
-    if (typeof window.handleTestimonialComplete === 'function') {
-        console.log('🎯 Calling handleTestimonialComplete for manual close');
-        window.handleTestimonialComplete();
-    }
-}
-
-// In testimonials-player.js - UPDATE THIS FUNCTION:
-function resumeAfterTestimonial() {
-    console.log('💬 Resuming conversation after testimonial');
-    
-    // 🎯 USE THE CONCERN-SPECIFIC RESUME MESSAGE
-    const concernType = window.detectedConcernType || 'general';
-    const resumeMessage = getResumeMessageForConcern(concernType);
-    
-    // Add AI message
-    if (typeof addAIMessage === 'function') {
-        addAIMessage(resumeMessage);
-    }
-    
-    // Speak the message
-    setTimeout(() => {
-        if (typeof speakResponse === 'function') {
-            speakResponse(resumeMessage);
-        }
-        
-        // After speaking, start listening for YES/NO
-        setTimeout(() => {
-            if (typeof startListening === 'function' && window.isAudioMode) {
-                startListening();
-            }
-            
-            window.conversationState = 'asking_consultation_after_testimonial';
-            console.log('🎯 Waiting for consultation response (YES/NO)');
-        }, 2000);
-    }, 800);
-}
-
-// 10. BANNER TRIGGER FUNCTION
-function showTestimonialBanner(concernType = 'reputation') {
-    console.log('🎬 Showing testimonial banner for concern:', concernType);
-    
-    // Use the main function to display banner with videos
-    play16x9TestimonialVideo('skeptical', 12000);
-    
-    console.log('✅ Testimonial banner triggered');
-}
-
-// 11. INITIALIZATION
-function initTestimonialPlayer() {
-    // Ensure required global variables exist
-    if (typeof window.TESTIMONIAL_VIDEOS === 'undefined') {
-        window.TESTIMONIAL_VIDEOS = TESTIMONIAL_VIDEOS;
-    }
-    
-    if (typeof window.testimonialBannerActive === 'undefined') {
-        window.testimonialBannerActive = false;
-    }
-    
-    if (typeof window.avatarCurrentlyPlaying === 'undefined') {
-        window.avatarCurrentlyPlaying = false;
-    }
-    
-    if (typeof window.concernBannerActive === 'undefined') {
-        window.concernBannerActive = false;
-    }
-    
-    // Add CSS animations
-    const styleSheet = document.createElement('style');
-    styleSheet.textContent = `
-        @keyframes slideOutBanner {
-            from { opacity: 1; transform: translateY(0); }
-            to { opacity: 0; transform: translateY(-30px); }
-        }
-        @keyframes slideInBanner {
-            from { opacity: 0; transform: translateY(-30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-    `;
-    document.head.appendChild(styleSheet);
-    
-    console.log('✅ Testimonials Player Initialized');
+    console.log('✅ Testimonial system initialized');
 }
 
 // ================================
@@ -518,6 +349,7 @@ window.handleTestimonialButton = handleTestimonialButton;
 window.showTestimonialSplashScreen = showTestimonialSplashScreen;
 window.handleTestimonialSkip = handleTestimonialSkip;
 window.hideTestimonialSplash = hideTestimonialSplash;
+window.avatarCurrentlyPlaying = false;
 
 // Initialize when loaded
 if (document.readyState === 'loading') {
