@@ -275,6 +275,40 @@ function playTestimonialVideo(testimonialType) {
 }
 
 // ================================
+// 🎬 BUTTON HANDLERS - ADD THESE BACK
+// ================================
+function handleTestimonialButton(testimonialType) {
+    console.log(`🎬 Button clicked: ${testimonialType}`);
+    playTestimonialVideo(testimonialType);
+}
+
+function handleTestimonialSkip() {
+    console.log('⏭️ Skipping testimonials');
+    const splashScreen = document.getElementById('testimonial-splash-screen');
+    if (splashScreen) {
+        splashScreen.remove();
+    }
+    
+    if (typeof window.handleTestimonialComplete === 'function') {
+        window.handleTestimonialComplete();
+    }
+}
+
+function closeTestimonialVideo() {
+    console.log('🎬 Closing testimonial video');
+    const videoPlayer = document.getElementById('testimonial-video-player');
+    if (videoPlayer) {
+        videoPlayer.remove();
+    }
+    window.avatarCurrentlyPlaying = false;
+    
+    if (typeof window.handleTestimonialComplete === 'function') {
+        console.log('🎯 Calling handleTestimonialComplete callback');
+        window.handleTestimonialComplete();
+    }
+}
+
+// ================================
 // 🎬 INITIALIZE THE SYSTEM
 // ================================
 // Call this function to start the testimonial system
