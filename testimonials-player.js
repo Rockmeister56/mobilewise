@@ -563,7 +563,7 @@ function triggerPostTestimonialSpeech() {
     console.log('💬 Said: "If we can get you the same results as our previous customers, would you be interested in that consultation?"');
 }
 
-activateVoiceChatSystem
+
 
 function showMainInterface() {
     console.log('🔄 Showing main interface - CLEAN STATE');
