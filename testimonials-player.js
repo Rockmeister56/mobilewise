@@ -563,7 +563,30 @@ function triggerPostTestimonialSpeech() {
     console.log('💬 Said: "If we can get you the same results as our previous customers, would you be interested in that consultation?"');
 }
 
-
+function activateVoiceChatSystem() {
+    console.log('🎯 Activating voice chat system');
+    
+    // Reset any banner sequences that might interfere
+    if (window.currentBannerSequence) {
+        console.log('🔄 Resetting banner sequence');
+        window.currentBannerSequence = null;
+    }
+    
+    // Ensure the speak now functionality is available
+    if (window.activateVoiceChat) {
+        window.activateVoiceChat();
+    } else {
+        // Fallback activation
+        showMainInterface();
+        initializeVoiceRecognition();
+    }
+    
+    // Make sure the black overlay is gone
+    const blackOverlay = document.querySelector('.black-transparent-overlay');
+    if (blackOverlay) {
+        blackOverlay.style.display = 'none';
+    }
+}
 
 function showMainInterface() {
     console.log('🔄 Showing main interface - CLEAN STATE');
