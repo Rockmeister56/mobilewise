@@ -328,12 +328,39 @@ function closeTestimonialVideo() {
         videoOverlay.style.display = 'none';
     }
     
-    // 🛡️ Deactivate testimonial protection
+    // 🛡️ COMPLETE Deactivation of testimonial protection
     window.testimonialSessionActive = false;
-    console.log('🛡️ Testimonial protection deactivated');
+    window.testimonialProtectionActive = false; // Add this
+    console.log('🛡️🛡️ DOUBLE Testimonial protection deactivated');
     
     // 🎯 SHOW NAVIGATION OPTIONS SCREEN instead of closing everything
     showTestimonialNavigationOptions();
+}
+
+function showMoreTestimonials() {
+    console.log('🎯 User chose: Watch more testimonials');
+    
+    // Hide navigation screen
+    const navScreen = document.getElementById('testimonial-nav-options');
+    if (navScreen) {
+        navScreen.style.display = 'none';
+    }
+    
+    // COMPLETELY deactivate protection temporarily
+    window.testimonialSessionActive = false;
+    window.testimonialProtectionActive = false;
+    
+    // Wait a moment, then show splash screen
+    setTimeout(() => {
+        // Show the testimonial splash screen again
+        showTestimonialSplashScreen();
+        
+        // Reactivate protection for the new session
+        setTimeout(() => {
+            window.testimonialSessionActive = true;
+            window.testimonialProtectionActive = true;
+        }, 100);
+    }, 200);
 }
 
 // ✅ ADD THIS RIGHT HERE - Connect the close button to the new function
@@ -440,39 +467,120 @@ function showTestimonialNavigationOptions() {
     }, 100);
 }
 
-function showMoreTestimonials() {
-    console.log('🎯 User chose: Watch more testimonials');
-    
-    // Hide navigation screen
-    const navScreen = document.getElementById('testimonial-nav-options');
-    if (navScreen) {
-        navScreen.style.display = 'none';
-    }
-    
-    // Show the testimonial splash screen again
-    showTestimonialSplashScreen();
-}
-
 function returnToVoiceChat() {
     console.log('🎯 User chose: Return to voice chat');
     
+    // COMPLETELY deactivate testimonial protection
+    window.testimonialSessionActive = false;
+    window.testimonialProtectionActive = false; // Add this line
+    
+    console.log('🛡️🛡️ DOUBLE Testimonial protection deactivated');
+    
     // Hide navigation screen
     const navScreen = document.getElementById('testimonial-nav-options');
     if (navScreen) {
         navScreen.style.display = 'none';
     }
     
-    // Reactivate voice chat
-    window.testimonialSessionActive = false;
+    // Hide any remaining testimonial elements
+    const videoOverlay = document.getElementById('testimonial-video-overlay');
+    const splashScreen = document.getElementById('testimonial-splash-screen');
     
-    // Trigger voice chat interface
-    console.log('🎤 Returning to voice chat interface...');
-    if (window.triggerVoiceChat) {
-        window.triggerVoiceChat();
-    } else {
-        // Fallback: show speak now button or main interface
-        showMainInterface();
+    if (videoOverlay) videoOverlay.style.display = 'none';
+    if (splashScreen) splashScreen.style.display = 'none';
+    
+    // IMPORTANT: Clear any cooldowns that might block voice chat
+    if (window.cooldownActive !== undefined) {
+        window.cooldownActive = false;
+        console.log('🛡️ Cooldown cleared for voice chat');
     }
+    
+    // Wait a moment for DOM to update, then trigger voice chat
+    setTimeout(() => {
+        console.log('🎤 Activating voice chat system...');
+        
+        // Trigger the specific speech
+        triggerPostTestimonialSpeech();
+        
+        // Ensure voice chat system is fully activated
+        activateVoiceChatSystem();
+        
+    }, 300);
+}
+
+function triggerPostTestimonialSpeech() {
+    console.log('🗣️ Playing post-testimonial speech');
+    
+    // Use your existing speech system to say the specific phrase
+    const speechText = "If we can get you the same results as our previous customers, would you be interested in that consultation?";
+    
+    // Use whichever speech method your system uses:
+    if (window.playVoiceResponse) {
+        window.playVoiceResponse(speechText);
+    } else if (window.speakResponse) {
+        window.speakResponse(speechText);
+    } else if (window.ttsPlay) {
+        window.ttsPlay(speechText);
+    } else {
+        // Fallback: use browser TTS
+        const utterance = new SpeechSynthesisUtterance(speechText);
+        speechSynthesis.speak(utterance);
+    }
+    
+    console.log('💬 Said: "If we can get you the same results as our previous customers, would you be interested in that consultation?"');
+}
+
+function activateVoiceChatSystem() {
+    console.log('🎯 Activating voice chat system');
+    
+    // Reset any banner sequences that might interfere
+    if (window.currentBannerSequence) {
+        console.log('🔄 Resetting banner sequence');
+        window.currentBannerSequence = null;
+    }
+    
+    // Ensure the speak now functionality is available
+    if (window.activateVoiceChat) {
+        window.activateVoiceChat();
+    } else {
+        // Fallback activation
+        showMainInterface();
+        initializeVoiceRecognition();
+    }
+    
+    // Make sure the black overlay is gone
+    const blackOverlay = document.querySelector('.black-transparent-overlay');
+    if (blackOverlay) {
+        blackOverlay.style.display = 'none';
+    }
+}
+
+function showMainInterface() {
+    console.log('🔄 Showing main interface - CLEAN STATE');
+    
+    // Hide any testimonial elements
+    const testimonialElements = document.querySelectorAll('[id*="testimonial"], [class*="testimonial"]');
+    testimonialElements.forEach(el => {
+        if (el.id !== 'testimonial-nav-options') { // Keep nav options for now
+            el.style.display = 'none';
+        }
+    });
+    
+    // Show your main chat interface
+    const mainInterface = document.getElementById('voice-chat-interface') || 
+                         document.getElementById('universal-banner') ||
+                         document.querySelector('.speak-now-container');
+    
+    if (mainInterface) {
+        mainInterface.style.display = 'block';
+    }
+    
+    // Trigger your banner system in a clean way
+    setTimeout(() => {
+        if (window.triggerCleanBannerSequence) {
+            window.triggerCleanBannerSequence();
+        }
+    }, 500);
 }
 
 function closeTestimonialNav() {
