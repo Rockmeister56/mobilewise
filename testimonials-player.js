@@ -390,91 +390,64 @@ function showTestimonialNavigationOptions() {
                 left: 0;
                 width: 100%;
                 height: 100%;
-                background: rgba(0, 0, 0, 0.85);
+                background: rgba(0,0,0,0.9);
                 display: flex;
                 flex-direction: column;
                 justify-content: center;
                 align-items: center;
                 z-index: 10000;
-                font-family: 'Segoe UI', system-ui, sans-serif;
-                backdrop-filter: blur(15px);
-                animation: fadeInSplash 0.4s ease-out;
+                font-family: Arial, sans-serif;
+                color: white;
             ">
                 <div class="nav-content" style="
                     text-align: center;
-                    background: rgba(255, 255, 255, 0.12);
-                    backdrop-filter: blur(20px);
-                    padding: 40px 35px;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    padding: 40px;
                     border-radius: 20px;
-                    border: 1px solid rgba(255, 255, 255, 0.15);
-                    box-shadow: 
-                        0 25px 80px rgba(0, 0, 0, 0.4),
-                        0 0 0 1px rgba(255, 255, 255, 0.05) inset;
-                    max-width: 480px;
-                    width: 85%;
-                    color: white;
+                    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+                    max-width: 500px;
+                    width: 90%;
                 ">
-                    <div style="margin-bottom: 30px;">
-                        <div style="font-size: 42px; margin-bottom: 10px; opacity: 0.9;">🎬</div>
-                        <h2 style="margin: 0 0 8px 0; font-size: 26px; font-weight: 500; color: white; letter-spacing: 0.5px;">Continue Your Journey</h2>
-                        <p style="margin: 0; opacity: 0.7; font-size: 15px; font-weight: 300;">Choose your next step</p>
-                    </div>
+                    <h2 style="margin-bottom: 30px; font-size: 28px;">🎬 What would you like to do?</h2>
                     
-                    <div class="nav-buttons" style="display: flex; flex-direction: column; gap: 12px;">
+                    <div class="nav-buttons" style="display: flex; flex-direction: column; gap: 15px;">
                         <button onclick="showMoreTestimonials()" class="nav-btn" style="
-                            background: rgba(255, 255, 255, 0.1);
+                            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
                             color: white;
-                            border: 1px solid rgba(255, 255, 255, 0.25);
-                            padding: 16px 24px;
-                            border-radius: 12px;
-                            font-size: 16px;
-                            font-weight: 500;
+                            border: none;
+                            padding: 15px 30px;
+                            border-radius: 10px;
+                            font-size: 18px;
                             cursor: pointer;
-                            backdrop-filter: blur(10px);
                             transition: all 0.3s ease;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            gap: 10px;
                         ">
-                            <span style="font-size: 18px;">📺</span>
-                            Watch More Testimonials
+                            📺 Watch More Testimonials
                         </button>
                         
                         <button onclick="returnToVoiceChat()" class="nav-btn" style="
-                            background: rgba(255, 255, 255, 0.1);
+                            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
                             color: white;
-                            border: 1px solid rgba(255, 255, 255, 0.25);
-                            padding: 16px 24px;
-                            border-radius: 12px;
-                            font-size: 16px;
-                            font-weight: 500;
+                            border: none;
+                            padding: 15px 30px;
+                            border-radius: 10px;
+                            font-size: 18px;
                             cursor: pointer;
-                            backdrop-filter: blur(10px);
                             transition: all 0.3s ease;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            gap: 10px;
                         ">
-                            <span style="font-size: 18px;">🎤</span>
-                            Return to Conversation
+                            🎤 Return to Voice Chat
                         </button>
                         
                         <button onclick="closeTestimonialNav()" class="nav-btn" style="
-                            background: rgba(255, 255, 255, 0.05);
-                            color: rgba(255, 255, 255, 0.7);
-                            border: 1px solid rgba(255, 255, 255, 0.15);
-                            padding: 14px 24px;
-                            border-radius: 12px;
-                            font-size: 15px;
-                            font-weight: 400;
+                            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+                            color: white;
+                            border: none;
+                            padding: 15px 30px;
+                            border-radius: 10px;
+                            font-size: 18px;
                             cursor: pointer;
-                            backdrop-filter: blur(10px);
                             transition: all 0.3s ease;
-                            margin-top: 8px;
                         ">
-                            Close Menu
+                            ❌ Skip All Testimonials
                         </button>
                     </div>
                 </div>
@@ -485,19 +458,15 @@ function showTestimonialNavigationOptions() {
     
     navScreen.style.display = 'flex';
     
-    // Add elegant hover effects
+    // Add hover effects
     setTimeout(() => {
         const buttons = navScreen.querySelectorAll('.nav-btn');
         buttons.forEach(btn => {
             btn.addEventListener('mouseenter', function() {
-                this.style.background = 'rgba(255, 255, 255, 0.18)';
-                this.style.borderColor = 'rgba(255, 255, 255, 0.35)';
                 this.style.transform = 'translateY(-2px)';
-                this.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.2)';
+                this.style.boxShadow = '0 10px 25px rgba(0,0,0,0.3)';
             });
             btn.addEventListener('mouseleave', function() {
-                this.style.background = '';
-                this.style.borderColor = '';
                 this.style.transform = 'translateY(0)';
                 this.style.boxShadow = 'none';
             });
