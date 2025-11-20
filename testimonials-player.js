@@ -490,6 +490,9 @@ function returnToVoiceChat() {
     const navScreen = document.getElementById('testimonial-nav-options');
     if (navScreen) {
         navScreen.style.display = 'none';
+        // 🎯 ADD THIS ONE LINE:
+        navScreen.remove(); // Completely remove it from DOM instead of just hiding
+        console.log('✅ Navigation overlay removed from DOM');
     }
     
     // Hide any remaining testimonial elements
