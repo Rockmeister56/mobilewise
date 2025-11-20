@@ -922,22 +922,9 @@ recognition.onend = function() {
 
             // 🎯 ADD THIS RIGHT AFTER LINE 853
             console.log('🎯 Calling processUserResponse with:', finalTranscript);
-
-// 🎯 FIRST check if this is a consultation response
-if (window.consultationOfferActive && finalTranscript.toLowerCase().includes('yes')) {
-    console.log('🎯🎯🎯 CONSULTATION "YES" DETECTED - USING PRE-CLOSE SYSTEM');
-    window.consultationOfferActive = false;
-    
-    // Use your proven pre-close system that already works
-    const response = handlePreCloseResponse(finalTranscript, 'consultation');
-    console.log('✅ Action center triggered via pre-close system');
-    return; // STOP - don't process as normal conversation
-}
-
-// If not a consultation response, proceed normally
-if (typeof processUserResponse === 'function') {
-    processUserResponse(finalTranscript);
-}
+            if (typeof processUserResponse === 'function') {
+                processUserResponse(finalTranscript);
+            }
 
             if (window.speakNowTimeout) {
                 clearTimeout(window.speakNowTimeout);
