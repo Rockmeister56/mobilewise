@@ -929,17 +929,17 @@ console.log('🔍 FINAL transcript to use:', finalTranscript);
 if (window.consultationOfferActive && finalTranscript.toLowerCase().includes('yes')) {
     console.log('🎯🎯🎯 CONSULTATION "YES" DETECTED - USING PRE-CLOSE SYSTEM');
     window.consultationOfferActive = false;
-
-     // 🚫 TEMPORARILY BLOCK ACTION CENTER FROM STOPPING SPEECH
-    window.suppressSpeechStop = true;
     
     // Use your proven pre-close system that already works
-    const response = handlePreCloseResponse(finalTranscript, 'consultation');
+    const responseText = handlePreCloseResponse(finalTranscript, 'consultation');
     console.log('✅ Action center triggered via pre-close system');
     
-    // 🎯 ADD THIS LINE: Speak the response
-    if (response && window.playVoiceResponse) {
-        window.playVoiceResponse(response);
+    // 🎯 CRITICAL: SPEAK THE RESPONSE
+    if (responseText && window.playVoiceResponse) {
+        console.log('🗣️ SPEAKING consultation follow-up:', responseText);
+        window.playVoiceResponse(responseText);
+    } else {
+        console.log('❌ SPEECH FAILED: responseText=', responseText, 'playVoiceResponse=', !!window.playVoiceResponse);
     }
     
     return; // STOP - don't process as normal conversation
