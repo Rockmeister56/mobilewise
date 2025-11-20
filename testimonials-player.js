@@ -290,20 +290,10 @@ function handleTestimonialButton(testimonialType) {
 }
 
 function handleTestimonialSkip() {
-    console.log('⏭️ Skipping testimonials');
-    const splashScreen = document.getElementById('testimonial-splash-screen');
-    if (splashScreen) {
-        splashScreen.remove();
-    }
-
-     // 🛡️ CLEAR PROTECTION FLAG
-    window.testimonialSessionActive = false;
-    console.log('🛡️ Testimonial protection deactivated');
+    console.log('⏭️ Skipping testimonials - using returnToVoiceChat flow');
     
-    // Continue with conversation
-    if (typeof window.handleTestimonialComplete === 'function') {
-        window.handleTestimonialComplete();
-    }
+    // Just use the same function that already works!
+    returnToVoiceChat();
 }
 
 // NEW CODE - Replace the close functionality:
