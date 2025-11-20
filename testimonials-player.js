@@ -465,24 +465,26 @@ function showTestimonialNavigationOptions() {
 function returnToVoiceChat() {
     console.log('🎯 User chose: Return to voice chat');
 
-    // 🎯 CRITICAL: Set consultation response flag (ONCE)
-    window.expectingConsultationResponse = true;
-    window.consultationQuestionActive = true;
-    console.log('🎯 Consultation response expected - next "yes" will trigger action panel');
+    // 🚫 CRITICAL: Clear any pending concern that would re-trigger testimonials
+    window.currentConcern = null;
+    window.currentQuestionContext = null;
+    window.expectingPositiveResponse = false;
+    
+    // Also clear any AI state that might re-trigger testimonials
+    if (window.salesAI && window.salesAI.state) {
+        window.salesAI.state = 'consultation_offer';
+    }
+    
+    console.log('🛑 Cleared concern context to prevent testimonial re-trigger');
+    
+    // 🎯 Set consultation flag
+    window.consultationOfferActive = true;
+    console.log('🎯 Consultation offer active - next "yes" will trigger action center');
     
     // COMPLETELY deactivate testimonial protection
     window.testimonialSessionActive = false;
     window.testimonialProtectionActive = false;
     console.log('🛡️🛡️ DOUBLE Testimonial protection deactivated');
-    
-    // Debug available action systems
-    console.log('🎯 Available action systems:', {
-        showCommunicationRelayCenter: !!window.showCommunicationRelayCenter,
-        showActionCenter: !!window.showActionCenter, 
-        showActionPanel: !!window.showActionPanel,
-        universalBannerEngine: !!window.universalBannerEngine,
-        showUniversalBanner: !!window.showUniversalBanner
-    });
     
     // Hide navigation screen
     const navScreen = document.getElementById('testimonial-nav-options');
