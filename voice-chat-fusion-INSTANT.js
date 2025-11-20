@@ -902,10 +902,8 @@ if (!finalTranscript && window.lastCapturedTranscript) {
         console.log('🔍 SOURCE 3 (global backup):', finalTranscript);
     } else {
         console.log('🛑 IGNORING old transcript (>5000ms):', window.lastCapturedTranscript);
-        // Clear the old transcript so it doesn't get used again
-        window.lastCapturedTranscript = '';
-        window.lastCapturedTime = 0;
-        // Don't set finalTranscript - let it remain empty
+        // DON'T use old transcript - leave finalTranscript empty
+        window.lastCapturedTranscript = ''; // Clear it
     }
 }
 
@@ -933,12 +931,6 @@ if (window.consultationOfferActive && finalTranscript.toLowerCase().includes('ye
     // Use your proven pre-close system that already works
     const response = handlePreCloseResponse(finalTranscript, 'consultation');
     console.log('✅ Action center triggered via pre-close system');
-    
-    // 🎯 ADD THIS LINE: Speak the response
-    if (response && window.playVoiceResponse) {
-        window.playVoiceResponse(response);
-    }
-    
     return; // STOP - don't process as normal conversation
 }
 
