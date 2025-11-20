@@ -196,11 +196,34 @@ function handleActionButton(action) {
             break;
             
         case 'skip':
-            console.log('User chose to skip');
-            if (window.addSystemMessage) {
-                window.addSystemMessage("No problem! Feel free to ask me anything else about your practice.");
-            }
-            break;
+    console.log('User chose to skip - cleaning up and continuing conversation');
+    
+    // 1. Add your MUCH BETTER system message
+    if (window.addSystemMessage) {
+        window.addSystemMessage("I appreciate you're not ready to connect with our helpful staff. How else can I help you today?");
+    }
+    
+    // 2. PROPER CLEANUP - Hide ALL action center elements
+    setTimeout(() => {
+        document.querySelectorAll('.communication-relay-center, .action-panel, .action-center, [class*="action"]').forEach(el => {
+            el.style.display = 'none';
+        });
+        
+        // 3. Clear action center flags
+        window.actionCenterActive = false;
+        window.communicationRelayActive = false;
+        
+        // 4. REACTIVATE VOICE CHAT
+        console.log('🎤 Reactivating voice chat after skip...');
+        if (window.activateVoiceChat) {
+            window.activateVoiceChat();
+        } else if (window.showUniversalBanner) {
+            window.showUniversalBanner();
+        } else if (window.startListening) {
+            window.startListening();
+        }
+    }, 500);
+    break;
     }
     
     // Reset processing flag after a delay
