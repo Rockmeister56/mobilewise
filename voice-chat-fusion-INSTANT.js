@@ -921,10 +921,46 @@ recognition.onend = function() {
             console.log('✅ Sending new message:', currentMessage);
 
             // 🎯 ADD THIS RIGHT AFTER LINE 853
-            console.log('🎯 Calling processUserResponse with:', finalTranscript);
-            if (typeof processUserResponse === 'function') {
-                processUserResponse(finalTranscript);
+           console.log('🎯 Calling processUserResponse with:', finalTranscript);
+
+// 🎯 FIRST check if this is a consultation response
+if (window.expectingConsultationResponse) {
+    console.log('🎯 CHECKING FOR CONSULTATION RESPONSE:', finalTranscript);
+    
+    const positiveResponses = ['yes', 'yeah', 'yep', 'sure', 'okay', 'ok', 'absolutely', 'definitely', 'of course', 'why not', 'let\'s do it', 'i\'m interested', 'interested', 'yes please', 'please'];
+    const transcriptLower = finalTranscript.toLowerCase().trim();
+    
+    if (positiveResponses.some(response => transcriptLower.includes(response))) {
+        console.log('🎯🎯🎯 POSITIVE CONSULTATION RESPONSE DETECTED - TRIGGERING ACTION PANEL');
+        
+        // Reset the flag
+        window.expectingConsultationResponse = false;
+        window.consultationQuestionActive = false;
+        
+        // Trigger action panel immediately
+        setTimeout(() => {
+            if (window.showActionPanel) {
+                console.log('🚀 Calling showActionPanel()');
+                window.showActionPanel();
+            } else if (window.triggerActionCenter) {
+                console.log('🚀 Calling triggerActionCenter()');
+                window.triggerActionCenter();
+            } else if (window.universalBannerEngine && window.universalBannerEngine.showBanner) {
+                console.log('🚀 Showing set_appointment banner');
+                window.universalBannerEngine.showBanner('set_appointment');
             }
+        }, 800);
+        
+        return; // STOP - don't process as normal conversation
+    } else {
+        console.log('🎯 Not a positive consultation response, continuing normally');
+    }
+}
+
+// If not a consultation response, proceed normally
+if (typeof processUserResponse === 'function') {
+    processUserResponse(finalTranscript);
+}
 
             if (window.speakNowTimeout) {
                 clearTimeout(window.speakNowTimeout);

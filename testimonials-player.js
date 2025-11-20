@@ -464,12 +464,22 @@ function showTestimonialNavigationOptions() {
 
 function returnToVoiceChat() {
     console.log('🎯 User chose: Return to voice chat');
+
+     // 🎯 CRITICAL: Set consultation response flag
+    window.expectingConsultationResponse = true;
+    window.consultationQuestionActive = true;
+    console.log('🎯 Consultation response expected - next "yes" will trigger action panel');
     
     // COMPLETELY deactivate testimonial protection
     window.testimonialSessionActive = false;
-    window.testimonialProtectionActive = false; // Add this line
+    window.testimonialProtectionActive = false;
     
     console.log('🛡️🛡️ DOUBLE Testimonial protection deactivated');
+    
+    // 🎯 CRITICAL: Set consultation response flag
+    window.expectingConsultationResponse = true;
+    window.consultationQuestionActive = true;
+    console.log('🎯 Consultation response expected - next user input should trigger action panel');
     
     // Hide navigation screen
     const navScreen = document.getElementById('testimonial-nav-options');
@@ -506,7 +516,6 @@ function returnToVoiceChat() {
 function triggerPostTestimonialSpeech() {
     console.log('🗣️ Playing post-testimonial speech');
     
-    // Use your existing speech system to say the specific phrase
     const speechText = "If we can get you the same results as our previous customers, would you be interested in that consultation?";
     
     // Use whichever speech method your system uses:
@@ -523,6 +532,50 @@ function triggerPostTestimonialSpeech() {
     }
     
     console.log('💬 Said: "If we can get you the same results as our previous customers, would you be interested in that consultation?"');
+    
+    // 🎯 Set the consultation context
+    window.currentQuestionContext = 'consultation_offer';
+    window.expectingPositiveResponse = true;
+}
+
+// Add this function to handle consultation responses
+function handleConsultationResponse(userInput) {
+    console.log('🎯 Checking consultation response:', userInput);
+    
+    const positiveResponses = [
+        'yes', 'yeah', 'yep', 'sure', 'okay', 'ok', 'absolutely', 'definitely',
+        'of course', 'why not', 'let\'s do it', 'i\'m interested', 'interested',
+        'yes please', 'please', 'go ahead', 'continue', 'proceed'
+    ];
+    
+    const userInputLower = userInput.toLowerCase().trim();
+    
+    // Check if this is a positive response to consultation offer
+    if (window.expectingConsultationResponse && positiveResponses.some(response => 
+        userInputLower.includes(response) || userInputLower === response)) {
+        
+        console.log('🎯 POSITIVE CONSULTATION RESPONSE DETECTED - Triggering action panel');
+        
+        // Reset the flag
+        window.expectingConsultationResponse = false;
+        window.consultationQuestionActive = false;
+        
+        // Trigger action panel
+        setTimeout(() => {
+            if (window.showActionPanel) {
+                window.showActionPanel();
+            } else if (window.triggerActionCenter) {
+                window.triggerActionCenter();
+            } else if (window.universalBannerEngine) {
+                window.universalBannerEngine.showBanner('set_appointment');
+            }
+            console.log('✅ Action panel triggered for consultation response');
+        }, 1000);
+        
+        return true; // Handled
+    }
+    
+    return false; // Not a consultation response
 }
 
 function activateVoiceChatSystem() {
