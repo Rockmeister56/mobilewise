@@ -926,27 +926,20 @@ console.log('🔍 FINAL transcript to use:', finalTranscript);
             console.log('🎯 Calling processUserResponse with:', finalTranscript);
 
 // 🎯 FIRST check if this is a consultation response
-if (window.consultationOfferActive) {
-    if (finalTranscript.toLowerCase().includes('yes')) {
-        console.log('🎯🎯🎯 CONSULTATION "YES" DETECTED - USING PRE-CLOSE SYSTEM');
-        window.consultationOfferActive = false;
-        
-        // Use your proven pre-close system that already works
-        const responseText = handlePreCloseResponse(finalTranscript, 'consultation');
-        console.log('✅ Action center triggered via pre-close system');
-        
-        // 🎯 SPEAK THE RESPONSE
-        if (responseText && window.playVoiceResponse) {
-            console.log('🗣️ Speaking consultation follow-up:', responseText);
-            window.playVoiceResponse(responseText);
-        }
-        
-        return; // STOP - don't process as normal conversation
-    } else {
-        // 🎯 NOT a consultation response - CLEAR the flag and proceed normally
-        console.log('🎯 Not a consultation response - clearing flag and proceeding normally');
-        window.consultationOfferActive = false;
+if (window.consultationOfferActive && finalTranscript.toLowerCase().includes('yes')) {
+    console.log('🎯🎯🎯 CONSULTATION "YES" DETECTED - USING PRE-CLOSE SYSTEM');
+    window.consultationOfferActive = false;
+    
+    // Use your proven pre-close system that already works
+    const response = handlePreCloseResponse(finalTranscript, 'consultation');
+    console.log('✅ Action center triggered via pre-close system');
+    
+    // 🎯 ADD THIS LINE: Speak the response
+    if (response && window.playVoiceResponse) {
+        window.playVoiceResponse(response);
     }
+    
+    return; // STOP - don't process as normal conversation
 }
 
 // If not a consultation response, proceed normally
