@@ -401,7 +401,7 @@ function showTestimonialNavigationOptions() {
             ">
                 <div class="nav-content" style="
                     text-align: center;
-                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    background: linear-gradient(135deg, #001885ff 0%, #764ba2 100%);
                     padding: 40px;
                     border-radius: 20px;
                     box-shadow: 0 20px 60px rgba(0,0,0,0.5);
@@ -412,7 +412,7 @@ function showTestimonialNavigationOptions() {
                     
                     <div class="nav-buttons" style="display: flex; flex-direction: column; gap: 15px;">
                         <button onclick="showMoreTestimonials()" class="nav-btn" style="
-                            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+                            background: linear-gradient(135deg, #0f6bd4ff 0%, #04b3eeff 100%);
                             color: white;
                             border: none;
                             padding: 15px 30px;
