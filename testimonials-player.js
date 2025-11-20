@@ -390,64 +390,91 @@ function showTestimonialNavigationOptions() {
                 left: 0;
                 width: 100%;
                 height: 100%;
-                background: rgba(0,0,0,0.9);
+                background: rgba(0, 0, 0, 0.85);
                 display: flex;
                 flex-direction: column;
                 justify-content: center;
                 align-items: center;
                 z-index: 10000;
-                font-family: Arial, sans-serif;
-                color: white;
+                font-family: 'Segoe UI', system-ui, sans-serif;
+                backdrop-filter: blur(15px);
+                animation: fadeInSplash 0.4s ease-out;
             ">
                 <div class="nav-content" style="
                     text-align: center;
-                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                    padding: 40px;
+                    background: rgba(255, 255, 255, 0.12);
+                    backdrop-filter: blur(20px);
+                    padding: 40px 35px;
                     border-radius: 20px;
-                    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-                    max-width: 500px;
-                    width: 90%;
+                    border: 1px solid rgba(255, 255, 255, 0.15);
+                    box-shadow: 
+                        0 25px 80px rgba(0, 0, 0, 0.4),
+                        0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+                    max-width: 480px;
+                    width: 85%;
+                    color: white;
                 ">
-                    <h2 style="margin-bottom: 30px; font-size: 28px;">🎬 What would you like to do?</h2>
+                    <div style="margin-bottom: 30px;">
+                        <div style="font-size: 42px; margin-bottom: 10px; opacity: 0.9;">🎬</div>
+                        <h2 style="margin: 0 0 8px 0; font-size: 26px; font-weight: 500; color: white; letter-spacing: 0.5px;">Continue Your Journey</h2>
+                        <p style="margin: 0; opacity: 0.7; font-size: 15px; font-weight: 300;">Choose your next step</p>
+                    </div>
                     
-                    <div class="nav-buttons" style="display: flex; flex-direction: column; gap: 15px;">
+                    <div class="nav-buttons" style="display: flex; flex-direction: column; gap: 12px;">
                         <button onclick="showMoreTestimonials()" class="nav-btn" style="
-                            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+                            background: rgba(255, 255, 255, 0.1);
                             color: white;
-                            border: none;
-                            padding: 15px 30px;
-                            border-radius: 10px;
-                            font-size: 18px;
+                            border: 1px solid rgba(255, 255, 255, 0.25);
+                            padding: 16px 24px;
+                            border-radius: 12px;
+                            font-size: 16px;
+                            font-weight: 500;
                             cursor: pointer;
+                            backdrop-filter: blur(10px);
                             transition: all 0.3s ease;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            gap: 10px;
                         ">
-                            📺 Watch More Testimonials
+                            <span style="font-size: 18px;">📺</span>
+                            Watch More Testimonials
                         </button>
                         
                         <button onclick="returnToVoiceChat()" class="nav-btn" style="
-                            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+                            background: rgba(255, 255, 255, 0.1);
                             color: white;
-                            border: none;
-                            padding: 15px 30px;
-                            border-radius: 10px;
-                            font-size: 18px;
+                            border: 1px solid rgba(255, 255, 255, 0.25);
+                            padding: 16px 24px;
+                            border-radius: 12px;
+                            font-size: 16px;
+                            font-weight: 500;
                             cursor: pointer;
+                            backdrop-filter: blur(10px);
                             transition: all 0.3s ease;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            gap: 10px;
                         ">
-                            🎤 Return to Voice Chat
+                            <span style="font-size: 18px;">🎤</span>
+                            Return to Conversation
                         </button>
                         
                         <button onclick="closeTestimonialNav()" class="nav-btn" style="
-                            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
-                            color: white;
-                            border: none;
-                            padding: 15px 30px;
-                            border-radius: 10px;
-                            font-size: 18px;
+                            background: rgba(255, 255, 255, 0.05);
+                            color: rgba(255, 255, 255, 0.7);
+                            border: 1px solid rgba(255, 255, 255, 0.15);
+                            padding: 14px 24px;
+                            border-radius: 12px;
+                            font-size: 15px;
+                            font-weight: 400;
                             cursor: pointer;
+                            backdrop-filter: blur(10px);
                             transition: all 0.3s ease;
+                            margin-top: 8px;
                         ">
-                            ❌ Skip All Testimonials
+                            Close Menu
                         </button>
                     </div>
                 </div>
@@ -458,15 +485,19 @@ function showTestimonialNavigationOptions() {
     
     navScreen.style.display = 'flex';
     
-    // Add hover effects
+    // Add elegant hover effects
     setTimeout(() => {
         const buttons = navScreen.querySelectorAll('.nav-btn');
         buttons.forEach(btn => {
             btn.addEventListener('mouseenter', function() {
+                this.style.background = 'rgba(255, 255, 255, 0.18)';
+                this.style.borderColor = 'rgba(255, 255, 255, 0.35)';
                 this.style.transform = 'translateY(-2px)';
-                this.style.boxShadow = '0 10px 25px rgba(0,0,0,0.3)';
+                this.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.2)';
             });
             btn.addEventListener('mouseleave', function() {
+                this.style.background = '';
+                this.style.borderColor = '';
                 this.style.transform = 'translateY(0)';
                 this.style.boxShadow = 'none';
             });
@@ -692,6 +723,55 @@ function addTestimonialAnimations() {
     }
     console.log('✅ Testimonial system initialized');
 }
+
+// 🚨 EMERGENCY SPEECH STOPPER - Add this to the VERY BOTTOM of your file
+function emergencyStopAllSpeech() {
+    console.log('🔇 EMERGENCY STOP - Killing all speech for testimonial');
+    
+    // 1. Cancel all browser speech synthesis
+    if (window.speechSynthesis) {
+        speechSynthesis.cancel();
+        console.log('✅ Browser TTS stopped');
+    }
+    
+    // 2. Stop any custom TTS systems
+    const stopFunctions = [
+        'stopAllSpeech', 'stopCurrentSpeech', 'stopVoiceResponse', 
+        'stopElevenLabsSpeech', 'stopBritishSpeech', 'stopTTS'
+    ];
+    
+    stopFunctions.forEach(funcName => {
+        if (window[funcName] && typeof window[funcName] === 'function') {
+            try {
+                window[funcName]();
+                console.log(`✅ ${funcName} stopped`);
+            } catch (e) {
+                // Function doesn't exist - that's fine
+            }
+        }
+    });
+    
+    // 3. Pause all audio/video elements (except testimonials)
+    document.querySelectorAll('audio, video').forEach(media => {
+        if (!media.paused && !media.closest('#testimonial-video-player')) {
+            media.pause();
+        }
+    });
+}
+
+// 🎯 OVERRIDE the existing function - AUTOMATIC SPEECH STOPPING
+const originalHandleTestimonialButton = window.handleTestimonialButton;
+window.handleTestimonialButton = function(testimonialType) {
+    console.log(`🎬🛑 AUTO-STOP: Stopping AI speech for ${testimonialType} testimonial`);
+    emergencyStopAllSpeech();
+    
+    // Wait a tiny moment to ensure speech is fully stopped, then play video
+    setTimeout(() => {
+        originalHandleTestimonialButton(testimonialType);
+    }, 50);
+};
+
+console.log('✅ AUTO-SPEECH-STOPPER installed - testimonials will automatically stop AI narration');
 
 // ================================
 // GLOBAL EXPORTS - TESTIMONIAL SYSTEM
