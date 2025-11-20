@@ -2888,9 +2888,10 @@ function getResumeMessageForConcern(concernType) {
     
     const message = messages[concernType] || messages.general;
     
-    // 🎯 SIMPLEST FIX: Set flag that next "yes" should use pre-close system
-    window.usePreCloseForConsultation = true;
-    console.log('🎯 Consultation question - next "yes" will use pre-close system');
+    // 🎯 SET CONSULTATION CONTEXT - This tells the AI system that the next "yes" should trigger action center
+    window.currentQuestionContext = 'consultation_offer';
+    window.expectingPositiveResponse = true;
+    console.log('🎯 Consultation question asked - next "yes" will trigger action center');
     
     return message;
 }
