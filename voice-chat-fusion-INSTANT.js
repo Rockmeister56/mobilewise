@@ -2878,6 +2878,7 @@ function handleConcernWithTestimonial(userText) {
     // ... your existing enhanced code ...
 }
 
+// 🎯 ADD THIS RIGHT AFTER YOUR EXISTING FUNCTION:
 function getResumeMessageForConcern(concernType) {
     const messages = {
         price: "As you can see, many clients found the investment well worth it. The ROI typically pays for itself within the first month. Would you like me to show you how we can achieve similar results for you?",
@@ -2886,14 +2887,7 @@ function getResumeMessageForConcern(concernType) {
         general: "Many clients had similar concerns initially, but were thrilled once they saw Bruce's results. Would you like me to show you how we can address your specific situation?"
     };
     
-    const message = messages[concernType] || messages.general;
-    
-    // 🎯 SET CONSULTATION CONTEXT - This tells the AI system that the next "yes" should trigger action center
-    window.currentQuestionContext = 'consultation_offer';
-    window.expectingPositiveResponse = true;
-    console.log('🎯 Consultation question asked - next "yes" will trigger action center');
-    
-    return message;
+    return messages[concernType] || messages.general;
 }
 
 // 🎯 SIMPLE BANNER QUEUE PROCESSOR (if needed)
