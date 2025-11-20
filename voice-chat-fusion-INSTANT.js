@@ -889,25 +889,27 @@ recognition.onend = function() {
         console.log('🧪 ONEND TEST 5.1: Input field empty or not available');
     }
 
-    // SOURCE 3: Check global backup
-    console.log('🧪 ONEND TEST 6: Checking global backup');
-    console.log('🧪 ONEND TEST 6.1: lastCapturedTranscript:', window.lastCapturedTranscript || 'NOT SET');
-    console.log('🧪 ONEND TEST 6.2: lastCapturedTime:', window.lastCapturedTime || 'NOT SET');
-    
-    if (!finalTranscript && window.lastCapturedTranscript) {
-        const timeSinceCapture = Date.now() - (window.lastCapturedTime || 0);
-        console.log('🧪 ONEND TEST 6.3: Time since capture:', timeSinceCapture + 'ms');
-        if (timeSinceCapture < 5000) {
-            finalTranscript = window.lastCapturedTranscript;
-            console.log('🔍 SOURCE 3 (global backup):', finalTranscript);
-        } else {
-            console.log('🧪 ONEND TEST 6.3: Global backup too old (>5000ms)');
-            finalTranscript = window.lastCapturedTranscript;
-            console.log('🔍 SOURCE 3 (global backup):', finalTranscript);
-        }
-    }
+   // SOURCE 3: Check global backup
+console.log('🧪 ONEND TEST 6: Checking global backup');
+console.log('🧪 ONEND TEST 6.1: lastCapturedTranscript:', window.lastCapturedTranscript || 'NOT SET');
+console.log('🧪 ONEND TEST 6.2: lastCapturedTime:', window.lastCapturedTime || 'NOT SET');
 
-    console.log('🔍 FINAL transcript to use:', finalTranscript);
+if (!finalTranscript && window.lastCapturedTranscript) {
+    const timeSinceCapture = Date.now() - (window.lastCapturedTime || 0);
+    console.log('🧪 ONEND TEST 6.3: Time since capture:', timeSinceCapture + 'ms');
+    if (timeSinceCapture < 5000) {
+        finalTranscript = window.lastCapturedTranscript;
+        console.log('🔍 SOURCE 3 (global backup):', finalTranscript);
+    } else {
+        console.log('🛑 IGNORING old transcript (>5000ms):', window.lastCapturedTranscript);
+        // DON'T use old transcript - leave finalTranscript empty
+        window.lastCapturedTranscript = ''; // Clear it
+    }
+}
+
+console.log('🔍 FINAL transcript to use:', finalTranscript);
+
+console.log('🔍 FINAL transcript to use:', finalTranscript);
     
     if (finalTranscript && finalTranscript.trim().length > 0) {
         const currentMessage = finalTranscript.trim();
@@ -922,9 +924,22 @@ recognition.onend = function() {
 
             // 🎯 ADD THIS RIGHT AFTER LINE 853
             console.log('🎯 Calling processUserResponse with:', finalTranscript);
-            if (typeof processUserResponse === 'function') {
-                processUserResponse(finalTranscript);
-            }
+
+// 🎯 FIRST check if this is a consultation response
+if (window.consultationOfferActive && finalTranscript.toLowerCase().includes('yes')) {
+    console.log('🎯🎯🎯 CONSULTATION "YES" DETECTED - USING PRE-CLOSE SYSTEM');
+    window.consultationOfferActive = false;
+    
+    // Use your proven pre-close system that already works
+    const response = handlePreCloseResponse(finalTranscript, 'consultation');
+    console.log('✅ Action center triggered via pre-close system');
+    return; // STOP - don't process as normal conversation
+}
+
+// If not a consultation response, proceed normally
+if (typeof processUserResponse === 'function') {
+    processUserResponse(finalTranscript);
+}
 
             if (window.speakNowTimeout) {
                 clearTimeout(window.speakNowTimeout);
@@ -2528,6 +2543,29 @@ async function getAIResponse(userMessage, conversationHistory = []) {
     console.log('🎯 GOLD STANDARD getAIResponse called:', userMessage);   
 
     // 🎯 STEP 0: CHECK FOR CONCERNS FIRST - NEW INTEGRATION
+    if (detectConcernOrObjection(userMessage)) {
+        console.log('🚨 Concern detected - handling with testimonial');
+        const concernType = window.detectedConcernType || 'general';
+        console.log(`🎯 Calling handleConcernWithTestimonial with type: ${concernType}`);
+        handleConcernWithTestimonial(userMessage, concernType);
+        return; // Stop the sales process for concerns
+    }
+
+    // 🚨 TEMPORARY FIX - ADD THIS RIGHT HERE:
+    if (window.salesAI && window.salesAI.state === 'introduction') {
+        console.log('🔄 TEMP FIX: Forcing out of introduction state');
+        window.salesAI.state = 'investigation';
+    }
+
+    // 🎯 STEP 2: STRONG INTENT DETECTION & 4-STEP SALES PROCESS
+    const strongIntent = detectStrongIntent(userMessage);
+    if (strongIntent) {
+        console.log('🎯 STRONG INTENT DETECTED:', strongIntent);
+        return handleStrongIntentWithTrustBuilding(strongIntent, userMessage);
+    }
+
+
+    // 🎯 STEP 0: CHECK FOR CONCERNS FIRST - NEW INTEGRATION
 if (detectConcernOrObjection(userMessage)) {
     console.log('🚨 Concern detected - handling with testimonial');
     const concernType = window.detectedConcernType || 'general';
@@ -2601,13 +2639,6 @@ if (appointmentPatterns.some(pattern => lowerMessage.includes(pattern))) {
     }, 1000);
     
     return "Perfect! I'd love to help you schedule that. Let me bring up all the ways to connect with Bruce,the founder and CEO of NCI for your appointment.";
-}
-    
-    // 🎯 STEP 2: STRONG INTENT DETECTION & 4-STEP SALES PROCESS
-const strongIntent = detectStrongIntent(userMessage);
-if (strongIntent) {
-    console.log('🎯 STRONG INTENT DETECTED:', strongIntent);
-    return handleStrongIntentWithTrustBuilding(strongIntent, userMessage);
 }
     
     // 🎯 STEP 3: PRE-CLOSE HANDLING
@@ -2878,7 +2909,6 @@ function handleConcernWithTestimonial(userText) {
     // ... your existing enhanced code ...
 }
 
-// 🎯 ADD THIS RIGHT AFTER YOUR EXISTING FUNCTION:
 function getResumeMessageForConcern(concernType) {
     const messages = {
         price: "As you can see, many clients found the investment well worth it. The ROI typically pays for itself within the first month. Would you like me to show you how we can achieve similar results for you?",
@@ -2887,7 +2917,13 @@ function getResumeMessageForConcern(concernType) {
         general: "Many clients had similar concerns initially, but were thrilled once they saw Bruce's results. Would you like me to show you how we can address your specific situation?"
     };
     
-    return messages[concernType] || messages.general;
+    const message = messages[concernType] || messages.general;
+    
+    // 🎯 SIMPLE FLAG: Next "yes" should use pre-close system
+    window.consultationOfferActive = true;
+    console.log('🎯 Consultation offer active - next "yes" will trigger action center');
+    
+    return message;
 }
 
 // 🎯 SIMPLE BANNER QUEUE PROCESSOR (if needed)
