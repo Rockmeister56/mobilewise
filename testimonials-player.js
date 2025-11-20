@@ -306,24 +306,203 @@ function handleTestimonialSkip() {
     }
 }
 
+// NEW CODE - Replace the close functionality:
 function closeTestimonialVideo() {
-    console.log('🎬 Closing testimonial video');
-    const videoPlayer = document.getElementById('testimonial-video-player');
-    if (videoPlayer) {
-        videoPlayer.remove();
-    }
-    window.avatarCurrentlyPlaying = false;
+    console.log('🎬 Closing testimonial video - showing navigation options');
     
-    // 🛡️ CLEAR PROTECTION FLAG
+    // First, hide the video player
+    const videoPlayer = document.getElementById('testimonial-video-player');
+    const videoOverlay = document.getElementById('testimonial-video-overlay');
+    
+    if (videoPlayer) {
+        videoPlayer.style.display = 'none';
+        // Stop the video
+        const video = videoPlayer.querySelector('video');
+        if (video) {
+            video.pause();
+            video.currentTime = 0;
+        }
+    }
+    
+    if (videoOverlay) {
+        videoOverlay.style.display = 'none';
+    }
+    
+    // 🛡️ Deactivate testimonial protection
     window.testimonialSessionActive = false;
     console.log('🛡️ Testimonial protection deactivated');
     
-    // Resume conversation
-    if (typeof window.handleTestimonialComplete === 'function') {
-        console.log('🎯 Calling handleTestimonialComplete callback');
-        window.handleTestimonialComplete();
+    // 🎯 SHOW NAVIGATION OPTIONS SCREEN instead of closing everything
+    showTestimonialNavigationOptions();
+}
+
+// ✅ ADD THIS RIGHT HERE - Connect the close button to the new function
+document.querySelector('.testimonial-close-btn').addEventListener('click', closeTestimonialVideo);
+
+
+function showTestimonialNavigationOptions() {
+    console.log('🎯 Showing testimonial navigation options');
+    
+    // Create or show navigation options screen
+    let navScreen = document.getElementById('testimonial-nav-options');
+    
+    if (!navScreen) {
+        navScreen = document.createElement('div');
+        navScreen.id = 'testimonial-nav-options';
+        navScreen.innerHTML = `
+            <div class="testimonial-nav-overlay" style="
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.9);
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                z-index: 10000;
+                font-family: Arial, sans-serif;
+                color: white;
+            ">
+                <div class="nav-content" style="
+                    text-align: center;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    padding: 40px;
+                    border-radius: 20px;
+                    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+                    max-width: 500px;
+                    width: 90%;
+                ">
+                    <h2 style="margin-bottom: 30px; font-size: 28px;">🎬 What would you like to do?</h2>
+                    
+                    <div class="nav-buttons" style="display: flex; flex-direction: column; gap: 15px;">
+                        <button onclick="showMoreTestimonials()" class="nav-btn" style="
+                            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+                            color: white;
+                            border: none;
+                            padding: 15px 30px;
+                            border-radius: 10px;
+                            font-size: 18px;
+                            cursor: pointer;
+                            transition: all 0.3s ease;
+                        ">
+                            📺 Watch More Testimonials
+                        </button>
+                        
+                        <button onclick="returnToVoiceChat()" class="nav-btn" style="
+                            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+                            color: white;
+                            border: none;
+                            padding: 15px 30px;
+                            border-radius: 10px;
+                            font-size: 18px;
+                            cursor: pointer;
+                            transition: all 0.3s ease;
+                        ">
+                            🎤 Return to Voice Chat
+                        </button>
+                        
+                        <button onclick="closeTestimonialNav()" class="nav-btn" style="
+                            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+                            color: white;
+                            border: none;
+                            padding: 15px 30px;
+                            border-radius: 10px;
+                            font-size: 18px;
+                            cursor: pointer;
+                            transition: all 0.3s ease;
+                        ">
+                            ❌ Skip All Testimonials
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(navScreen);
+    }
+    
+    navScreen.style.display = 'flex';
+    
+    // Add hover effects
+    setTimeout(() => {
+        const buttons = navScreen.querySelectorAll('.nav-btn');
+        buttons.forEach(btn => {
+            btn.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+                this.style.boxShadow = '0 10px 25px rgba(0,0,0,0.3)';
+            });
+            btn.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = 'none';
+            });
+        });
+    }, 100);
+}
+
+function showMoreTestimonials() {
+    console.log('🎯 User chose: Watch more testimonials');
+    
+    // Hide navigation screen
+    const navScreen = document.getElementById('testimonial-nav-options');
+    if (navScreen) {
+        navScreen.style.display = 'none';
+    }
+    
+    // Show the testimonial splash screen again
+    showTestimonialSplashScreen();
+}
+
+function returnToVoiceChat() {
+    console.log('🎯 User chose: Return to voice chat');
+    
+    // Hide navigation screen
+    const navScreen = document.getElementById('testimonial-nav-options');
+    if (navScreen) {
+        navScreen.style.display = 'none';
+    }
+    
+    // Reactivate voice chat
+    window.testimonialSessionActive = false;
+    
+    // Trigger voice chat interface
+    console.log('🎤 Returning to voice chat interface...');
+    if (window.triggerVoiceChat) {
+        window.triggerVoiceChat();
+    } else {
+        // Fallback: show speak now button or main interface
+        showMainInterface();
     }
 }
+
+function closeTestimonialNav() {
+    console.log('🎯 User chose: Skip all testimonials');
+    
+    // Completely close everything
+    const navScreen = document.getElementById('testimonial-nav-options');
+    if (navScreen) {
+        navScreen.style.display = 'none';
+    }
+    
+    // Close any remaining testimonial elements
+    const videoOverlay = document.getElementById('testimonial-video-overlay');
+    const splashScreen = document.getElementById('testimonial-splash-screen');
+    
+    if (videoOverlay) videoOverlay.style.display = 'none';
+    if (splashScreen) splashScreen.style.display = 'none';
+    
+    // Ensure voice chat is available
+    window.testimonialSessionActive = false;
+    console.log('🛡️ Testimonial session completely closed');
+}
+
+// Helper function to show main interface
+function showMainInterface() {
+    console.log('🔄 Showing main interface');
+    // Add your main interface showing logic here
+    // This might include showing the universal banner, action center, etc.
+}
+
 
 // ================================
 // 🎬 INITIALIZE THE SYSTEM
@@ -414,5 +593,11 @@ if (document.readyState === 'loading') {
 } else {
     initializeTestimonialSystem();
 }
+
+document.addEventListener('click', function(e) {
+    if (e.target.closest('.testimonial-close-btn')) {
+        closeTestimonialVideo();
+    }
+});
 
 console.log('✅ Testimonials Player Loaded - Ready for concerns!');
