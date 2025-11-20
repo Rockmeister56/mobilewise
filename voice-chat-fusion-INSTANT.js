@@ -890,24 +890,26 @@ recognition.onend = function() {
     }
 
     // SOURCE 3: Check global backup
-    console.log('🧪 ONEND TEST 6: Checking global backup');
-    console.log('🧪 ONEND TEST 6.1: lastCapturedTranscript:', window.lastCapturedTranscript || 'NOT SET');
-    console.log('🧪 ONEND TEST 6.2: lastCapturedTime:', window.lastCapturedTime || 'NOT SET');
-    
-    if (!finalTranscript && window.lastCapturedTranscript) {
-        const timeSinceCapture = Date.now() - (window.lastCapturedTime || 0);
-        console.log('🧪 ONEND TEST 6.3: Time since capture:', timeSinceCapture + 'ms');
-        if (timeSinceCapture < 5000) {
-            finalTranscript = window.lastCapturedTranscript;
-            console.log('🔍 SOURCE 3 (global backup):', finalTranscript);
-        } else {
-            console.log('🧪 ONEND TEST 6.3: Global backup too old (>5000ms)');
-            finalTranscript = window.lastCapturedTranscript;
-            console.log('🔍 SOURCE 3 (global backup):', finalTranscript);
-        }
-    }
+console.log('🧪 ONEND TEST 6: Checking global backup');
+console.log('🧪 ONEND TEST 6.1: lastCapturedTranscript:', window.lastCapturedTranscript || 'NOT SET');
+console.log('🧪 ONEND TEST 6.2: lastCapturedTime:', window.lastCapturedTime || 'NOT SET');
 
-    console.log('🔍 FINAL transcript to use:', finalTranscript);
+if (!finalTranscript && window.lastCapturedTranscript) {
+    const timeSinceCapture = Date.now() - (window.lastCapturedTime || 0);
+    console.log('🧪 ONEND TEST 6.3: Time since capture:', timeSinceCapture + 'ms');
+    if (timeSinceCapture < 5000) {
+        finalTranscript = window.lastCapturedTranscript;
+        console.log('🔍 SOURCE 3 (global backup):', finalTranscript);
+    } else {
+        console.log('🛑 IGNORING old transcript (>5000ms):', window.lastCapturedTranscript);
+        // Clear the old transcript so it doesn't get used again
+        window.lastCapturedTranscript = '';
+        window.lastCapturedTime = 0;
+        // Don't set finalTranscript - let it remain empty
+    }
+}
+
+console.log('🔍 FINAL transcript to use:', finalTranscript);
     
     if (finalTranscript && finalTranscript.trim().length > 0) {
         const currentMessage = finalTranscript.trim();

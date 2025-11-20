@@ -465,17 +465,17 @@ function showTestimonialNavigationOptions() {
 function returnToVoiceChat() {
     console.log('🎯 User chose: Return to voice chat');
 
-    // 🚫 CRITICAL: Clear any pending concern that would re-trigger testimonials
-    window.currentConcern = null;
-    window.currentQuestionContext = null;
-    window.expectingPositiveResponse = false;
+    // 🚫 CRITICAL: Clear the OLD transcript that causes testimonials to re-appear
+    window.lastCapturedTranscript = '';
+    window.lastCapturedTime = 0;
     
-    // Also clear any AI state that might re-trigger testimonials
-    if (window.salesAI && window.salesAI.state) {
-        window.salesAI.state = 'consultation_offer';
+    // Also clear any input fields
+    const userInput = document.getElementById('userInput');
+    if (userInput) {
+        userInput.value = '';
     }
     
-    console.log('🛑 Cleared concern context to prevent testimonial re-trigger');
+     console.log('🛑 Cleared old transcript to prevent testimonial re-trigger');
     
     // 🎯 Set consultation flag
     window.consultationOfferActive = true;
