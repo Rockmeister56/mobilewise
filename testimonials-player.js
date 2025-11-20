@@ -812,7 +812,37 @@ if (document.readyState === 'loading') {
 }
 
 document.addEventListener('click', function(e) {
-    if (e.target.closest('.testimonial-close-btn')) {
+    const closeBtn = e.target.closest('.testimonial-close-btn');
+    if (closeBtn) {
+        console.log('🔍 Close button clicked - checking context...');
+        
+        // 🚫 MULTIPLE PROTECTIONS:
+        // 1. Check if we're in conversation mode
+        if (window.consultationOfferActive) {
+            console.log('🛑 BLOCKED: In consultation conversation');
+            return;
+        }
+        
+        // 2. Check if action center is active  
+        if (window.actionCenterActive) {
+            console.log('🛑 BLOCKED: Action center is active');
+            return;
+        }
+        
+        // 3. Check if video is actually visible
+        const videoPlayer = document.getElementById('testimonial-video-player');
+        if (!videoPlayer || window.getComputedStyle(videoPlayer).display === 'none') {
+            console.log('🛑 BLOCKED: No video player visible');
+            return;
+        }
+        
+        // 4. Only proceed if we're actually in a testimonial session
+        if (!window.testimonialSessionActive) {
+            console.log('🛑 BLOCKED: Not in active testimonial session');
+            return;
+        }
+        
+        console.log('✅ Safe to close testimonial video');
         closeTestimonialVideo();
     }
 });
