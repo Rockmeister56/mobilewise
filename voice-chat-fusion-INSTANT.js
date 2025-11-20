@@ -933,6 +933,12 @@ if (window.consultationOfferActive && finalTranscript.toLowerCase().includes('ye
     // Use your proven pre-close system that already works
     const response = handlePreCloseResponse(finalTranscript, 'consultation');
     console.log('✅ Action center triggered via pre-close system');
+    
+    // 🎯 ADD THIS LINE: Speak the response
+    if (response && window.playVoiceResponse) {
+        window.playVoiceResponse(response);
+    }
+    
     return; // STOP - don't process as normal conversation
 }
 
