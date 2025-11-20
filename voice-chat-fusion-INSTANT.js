@@ -890,24 +890,24 @@ recognition.onend = function() {
     }
 
     // SOURCE 3: Check global backup
-console.log('🧪 ONEND TEST 6: Checking global backup');
-console.log('🧪 ONEND TEST 6.1: lastCapturedTranscript:', window.lastCapturedTranscript || 'NOT SET');
-console.log('🧪 ONEND TEST 6.2: lastCapturedTime:', window.lastCapturedTime || 'NOT SET');
-
-if (!finalTranscript && window.lastCapturedTranscript) {
-    const timeSinceCapture = Date.now() - (window.lastCapturedTime || 0);
-    console.log('🧪 ONEND TEST 6.3: Time since capture:', timeSinceCapture + 'ms');
-    if (timeSinceCapture < 5000) {
-        finalTranscript = window.lastCapturedTranscript;
-        console.log('🔍 SOURCE 3 (global backup):', finalTranscript);
-    } else {
-        console.log('🛑 IGNORING old transcript (>5000ms):', window.lastCapturedTranscript);
-        // DON'T use old transcript - leave finalTranscript empty
-        window.lastCapturedTranscript = ''; // Clear it
+    console.log('🧪 ONEND TEST 6: Checking global backup');
+    console.log('🧪 ONEND TEST 6.1: lastCapturedTranscript:', window.lastCapturedTranscript || 'NOT SET');
+    console.log('🧪 ONEND TEST 6.2: lastCapturedTime:', window.lastCapturedTime || 'NOT SET');
+    
+    if (!finalTranscript && window.lastCapturedTranscript) {
+        const timeSinceCapture = Date.now() - (window.lastCapturedTime || 0);
+        console.log('🧪 ONEND TEST 6.3: Time since capture:', timeSinceCapture + 'ms');
+        if (timeSinceCapture < 5000) {
+            finalTranscript = window.lastCapturedTranscript;
+            console.log('🔍 SOURCE 3 (global backup):', finalTranscript);
+        } else {
+            console.log('🧪 ONEND TEST 6.3: Global backup too old (>5000ms)');
+            finalTranscript = window.lastCapturedTranscript;
+            console.log('🔍 SOURCE 3 (global backup):', finalTranscript);
+        }
     }
-}
 
-console.log('🔍 FINAL transcript to use:', finalTranscript);
+    console.log('🔍 FINAL transcript to use:', finalTranscript);
     
     if (finalTranscript && finalTranscript.trim().length > 0) {
         const currentMessage = finalTranscript.trim();
@@ -2901,9 +2901,9 @@ function getResumeMessageForConcern(concernType) {
     
     const message = messages[concernType] || messages.general;
     
-    // 🎯 SIMPLE FLAG: Next "yes" should use pre-close system
-    window.consultationOfferActive = true;
-    console.log('🎯 Consultation offer active - next "yes" will trigger action center');
+    // 🎯 SIMPLEST FIX: Set flag that next "yes" should use pre-close system
+    window.usePreCloseForConsultation = true;
+    console.log('🎯 Consultation question - next "yes" will use pre-close system');
     
     return message;
 }
