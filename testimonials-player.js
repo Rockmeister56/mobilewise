@@ -363,32 +363,8 @@ function showMoreTestimonials() {
     }, 200);
 }
 
-// ✅ FIXED: Use event delegation for dynamically created close button
-document.addEventListener('click', function(e) {
-    // Check if the clicked element OR any of its parents have the close button class
-    if (e.target.closest('.testimonial-close-btn') || 
-        e.target.closest('.close-testimonial') ||
-        e.target.closest('.video-close-btn')) {
-        closeTestimonialVideo();
-    }
-});
-
-// Also add this to handle the close button when the video player is created
-function setupTestimonialCloseButton() {
-    const closeBtn = document.querySelector('.testimonial-close-btn, .close-testimonial, .video-close-btn');
-    if (closeBtn) {
-        closeBtn.addEventListener('click', closeTestimonialVideo);
-    }
-}
-
-// Call this whenever you create a new video player
-// Add this to your playTestimonialVideo function:
-function playTestimonialVideo(testimonialType) {
-    // Your existing video creation code...
-    
-    // AFTER creating the video player, set up the close button
-    setTimeout(setupTestimonialCloseButton, 100);
-}
+// ✅ ADD THIS RIGHT HERE - Connect the close button to the new function
+document.querySelector('.testimonial-close-btn').addEventListener('click', closeTestimonialVideo);
 
 
 function showTestimonialNavigationOptions() {
