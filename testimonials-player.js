@@ -535,28 +535,19 @@ function returnToVoiceChat() {
 function triggerPostTestimonialSpeech() {
     console.log('🗣️ Playing post-testimonial speech');
     
+    // Use your existing speech system to say the specific phrase
     const speechText = "If we can get you the same results as our previous customers, would you be interested in that consultation?";
     
-    // Try multiple methods to ensure speech works
+    // Use whichever speech method your system uses:
     if (window.playVoiceResponse) {
-        console.log('🎯 Using playVoiceResponse');
         window.playVoiceResponse(speechText);
     } else if (window.speakResponse) {
-        console.log('🎯 Using speakResponse');
         window.speakResponse(speechText);
     } else if (window.ttsPlay) {
-        console.log('🎯 Using ttsPlay');
         window.ttsPlay(speechText);
-    } else if (window.britishTTS) {
-        console.log('🎯 Using britishTTS');
-        window.britishTTS(speechText);
     } else {
-        // Final fallback
-        console.log('🎯 Using browser TTS fallback');
+        // Fallback: use browser TTS
         const utterance = new SpeechSynthesisUtterance(speechText);
-        utterance.rate = 0.9;
-        utterance.pitch = 1.0;
-        utterance.volume = 1.0;
         speechSynthesis.speak(utterance);
     }
     
