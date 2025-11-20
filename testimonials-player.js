@@ -363,8 +363,15 @@ function showMoreTestimonials() {
     }, 200);
 }
 
-// ✅ ADD THIS RIGHT HERE - Connect the close button to the new function
-document.querySelector('.testimonial-close-btn').addEventListener('click', closeTestimonialVideo);
+// ✅ FIXED: Event delegation for close button - NO ERRORS
+document.addEventListener('click', function(e) {
+    if (e.target.textContent.includes('Close & Continue') || 
+        e.target.closest('button')?.textContent?.includes('Close & Continue')) {
+        closeTestimonialVideo();
+    }
+});
+
+console.log('✅ Close button handler ready - will work when button appears');
 
 
 function showTestimonialNavigationOptions() {
