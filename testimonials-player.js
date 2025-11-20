@@ -425,7 +425,7 @@ function showTestimonialNavigationOptions() {
                         </button>
                         
                         <button onclick="returnToVoiceChat()" class="nav-btn" style="
-                            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+                            background: linear-gradient(135deg, #7700ffff 0%, #001effff 100%);
                             color: white;
                             border: none;
                             padding: 15px 30px;
@@ -437,18 +437,6 @@ function showTestimonialNavigationOptions() {
                             🎤 Return to Voice Chat
                         </button>
                         
-                        <button onclick="closeTestimonialNav()" class="nav-btn" style="
-                            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
-                            color: white;
-                            border: none;
-                            padding: 15px 30px;
-                            border-radius: 10px;
-                            font-size: 18px;
-                            cursor: pointer;
-                            transition: all 0.3s ease;
-                        ">
-                            ❌ Skip All Testimonials
-                        </button>
                     </div>
                 </div>
             </div>
