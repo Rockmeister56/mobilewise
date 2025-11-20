@@ -363,8 +363,32 @@ function showMoreTestimonials() {
     }, 200);
 }
 
-// ✅ ADD THIS RIGHT HERE - Connect the close button to the new function
-document.querySelector('.testimonial-close-btn').addEventListener('click', closeTestimonialVideo);
+// ✅ FIXED: Use event delegation for dynamically created close button
+document.addEventListener('click', function(e) {
+    // Check if the clicked element OR any of its parents have the close button class
+    if (e.target.closest('.testimonial-close-btn') || 
+        e.target.closest('.close-testimonial') ||
+        e.target.closest('.video-close-btn')) {
+        closeTestimonialVideo();
+    }
+});
+
+// Also add this to handle the close button when the video player is created
+function setupTestimonialCloseButton() {
+    const closeBtn = document.querySelector('.testimonial-close-btn, .close-testimonial, .video-close-btn');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closeTestimonialVideo);
+    }
+}
+
+// Call this whenever you create a new video player
+// Add this to your playTestimonialVideo function:
+function playTestimonialVideo(testimonialType) {
+    // Your existing video creation code...
+    
+    // AFTER creating the video player, set up the close button
+    setTimeout(setupTestimonialCloseButton, 100);
+}
 
 
 function showTestimonialNavigationOptions() {
@@ -511,49 +535,35 @@ function returnToVoiceChat() {
 function triggerPostTestimonialSpeech() {
     console.log('🗣️ Playing post-testimonial speech');
     
-    // Use your existing speech system to say the specific phrase
     const speechText = "If we can get you the same results as our previous customers, would you be interested in that consultation?";
     
-    // Use whichever speech method your system uses:
+    // Try multiple methods to ensure speech works
     if (window.playVoiceResponse) {
+        console.log('🎯 Using playVoiceResponse');
         window.playVoiceResponse(speechText);
     } else if (window.speakResponse) {
+        console.log('🎯 Using speakResponse');
         window.speakResponse(speechText);
     } else if (window.ttsPlay) {
+        console.log('🎯 Using ttsPlay');
         window.ttsPlay(speechText);
+    } else if (window.britishTTS) {
+        console.log('🎯 Using britishTTS');
+        window.britishTTS(speechText);
     } else {
-        // Fallback: use browser TTS
+        // Final fallback
+        console.log('🎯 Using browser TTS fallback');
         const utterance = new SpeechSynthesisUtterance(speechText);
+        utterance.rate = 0.9;
+        utterance.pitch = 1.0;
+        utterance.volume = 1.0;
         speechSynthesis.speak(utterance);
     }
     
     console.log('💬 Said: "If we can get you the same results as our previous customers, would you be interested in that consultation?"');
 }
 
-function activateVoiceChatSystem() {
-    console.log('🎯 Activating voice chat system');
-    
-    // Reset any banner sequences that might interfere
-    if (window.currentBannerSequence) {
-        console.log('🔄 Resetting banner sequence');
-        window.currentBannerSequence = null;
-    }
-    
-    // Ensure the speak now functionality is available
-    if (window.activateVoiceChat) {
-        window.activateVoiceChat();
-    } else {
-        // Fallback activation
-        showMainInterface();
-        initializeVoiceRecognition();
-    }
-    
-    // Make sure the black overlay is gone
-    const blackOverlay = document.querySelector('.black-transparent-overlay');
-    if (blackOverlay) {
-        blackOverlay.style.display = 'none';
-    }
-}
+activateVoiceChatSystem
 
 function showMainInterface() {
     console.log('🔄 Showing main interface - CLEAN STATE');
