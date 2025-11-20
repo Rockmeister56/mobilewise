@@ -929,6 +929,9 @@ console.log('🔍 FINAL transcript to use:', finalTranscript);
 if (window.consultationOfferActive && finalTranscript.toLowerCase().includes('yes')) {
     console.log('🎯🎯🎯 CONSULTATION "YES" DETECTED - USING PRE-CLOSE SYSTEM');
     window.consultationOfferActive = false;
+
+     // 🚫 TEMPORARILY BLOCK ACTION CENTER FROM STOPPING SPEECH
+    window.suppressSpeechStop = true;
     
     // Use your proven pre-close system that already works
     const response = handlePreCloseResponse(finalTranscript, 'consultation');

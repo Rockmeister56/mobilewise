@@ -330,11 +330,15 @@ function closeTestimonialVideo() {
     
     // 🛡️ COMPLETE Deactivation of testimonial protection
     window.testimonialSessionActive = false;
-    window.testimonialProtectionActive = false; // Add this
+    window.testimonialProtectionActive = false;
     console.log('🛡️🛡️ DOUBLE Testimonial protection deactivated');
     
-    // 🎯 SHOW NAVIGATION OPTIONS SCREEN instead of closing everything
-    showTestimonialNavigationOptions();
+    // 🎯 ONLY show navigation options if we're NOT in action center/conversation mode
+    if (!window.actionCenterActive && !window.consultationOfferActive) {
+        showTestimonialNavigationOptions();
+    } else {
+        console.log('🛑 BLOCKED: Not showing navigation options - action center/consultation active');
+    }
 }
 
 function showMoreTestimonials() {
