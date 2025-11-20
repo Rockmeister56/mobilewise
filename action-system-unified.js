@@ -196,33 +196,41 @@ function handleActionButton(action) {
             break;
             
         case 'skip':
-    console.log('User chose to skip - cleaning up and continuing conversation');
+    console.log('User chose to skip - FULL CLEANUP');
     
-    // 1. Add your MUCH BETTER system message
+    // 1. IMMEDIATELY hide the Action Center
+    const actionCenters = document.querySelectorAll('.communication-relay-center, .action-panel, .action-center, [class*="action"]');
+    actionCenters.forEach(el => {
+        el.style.display = 'none';
+        el.remove(); // Remove from DOM completely
+    });
+    
+    // 2. Add system message
     if (window.addSystemMessage) {
         window.addSystemMessage("I appreciate you're not ready to connect with our helpful staff. How else can I help you today?");
     }
     
-    // 2. PROPER CLEANUP - Hide ALL action center elements
+    // 3. Clear ALL action center flags
+    window.actionCenterActive = false;
+    window.communicationRelayActive = false;
+    window.isProcessingAction = false; // Reset immediately
+    
+    // 4. PROPERLY reactivate voice chat (no undefined banner)
     setTimeout(() => {
-        document.querySelectorAll('.communication-relay-center, .action-panel, .action-center, [class*="action"]').forEach(el => {
-            el.style.display = 'none';
-        });
+        console.log('🎤 Properly reactivating voice chat after skip');
         
-        // 3. Clear action center flags
-        window.actionCenterActive = false;
-        window.communicationRelayActive = false;
-        
-        // 4. REACTIVATE VOICE CHAT
-        console.log('🎤 Reactivating voice chat after skip...');
+        // Use activateVoiceChat instead of showUniversalBanner
         if (window.activateVoiceChat) {
             window.activateVoiceChat();
-        } else if (window.showUniversalBanner) {
-            window.showUniversalBanner();
         } else if (window.startListening) {
             window.startListening();
+        } else {
+            // Fallback to a specific banner type
+            if (window.showUniversalBanner) {
+                window.showUniversalBanner('quick'); // Use a valid banner type
+            }
         }
-    }, 500);
+    }, 300);
     break;
     }
     
@@ -230,6 +238,17 @@ function handleActionButton(action) {
     setTimeout(() => {
         window.isProcessingAction = false;
     }, 1000);
+}
+
+// Add this function for emergency Action Center closing
+function emergencyCloseActionCenter() {
+    console.log('🚨 EMERGENCY ACTION CENTER CLOSE');
+    document.querySelectorAll('.communication-relay-center, .action-panel, .action-center').forEach(el => {
+        el.style.display = 'none';
+        el.remove();
+    });
+    window.actionCenterActive = false;
+    window.communicationRelayActive = false;
 }
 
 // ================================
