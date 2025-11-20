@@ -921,84 +921,17 @@ recognition.onend = function() {
             console.log('✅ Sending new message:', currentMessage);
 
             // 🎯 ADD THIS RIGHT AFTER LINE 853
-           console.log('🎯 Calling processUserResponse with:', finalTranscript);
+            console.log('🎯 Calling processUserResponse with:', finalTranscript);
 
 // 🎯 FIRST check if this is a consultation response
-// 🎯 FIRST check if this is a consultation response
-if (window.expectingConsultationResponse) {
-    console.log('🎯 CHECKING FOR CONSULTATION RESPONSE:', finalTranscript);
+if (window.consultationOfferActive && finalTranscript.toLowerCase().includes('yes')) {
+    console.log('🎯🎯🎯 CONSULTATION "YES" DETECTED - USING PRE-CLOSE SYSTEM');
+    window.consultationOfferActive = false;
     
-    const positiveResponses = ['yes', 'yeah', 'yep', 'sure', 'okay', 'ok', 'absolutely', 'definitely', 'of course', 'why not', 'let\'s do it', 'i\'m interested', 'interested', 'yes please', 'please'];
-    const transcriptLower = finalTranscript.toLowerCase().trim();
-    
-    if (positiveResponses.some(response => transcriptLower.includes(response))) {
-        console.log('🎯🎯🎯 POSITIVE CONSULTATION RESPONSE DETECTED - TRIGGERING ACTION PANEL');
-        
-        // Reset the flag
-        window.expectingConsultationResponse = false;
-        window.consultationQuestionActive = false;
-        
-        // 🚀 TRY ALL POSSIBLE ACTION SYSTEMS
-        setTimeout(() => {
-            console.log('🚀 ATTEMPTING TO TRIGGER ACTION SYSTEMS...');
-            
-            // Method 1: Communication Relay Center (most likely)
-            if (typeof window.showCommunicationRelayCenter === 'function') {
-                console.log('🚀 SUCCESS: Calling showCommunicationRelayCenter()');
-                window.showCommunicationRelayCenter();
-                return;
-            }
-            
-            // Method 2: Action Center
-            if (typeof window.showActionCenter === 'function') {
-                console.log('🚀 SUCCESS: Calling showActionCenter()');
-                window.showActionCenter();
-                return;
-            }
-            
-            // Method 3: Action Panel
-            if (typeof window.showActionPanel === 'function') {
-                console.log('🚀 SUCCESS: Calling showActionPanel()');
-                window.showActionPanel();
-                return;
-            }
-            
-            // Method 4: Banner Engine
-            if (window.universalBannerEngine && typeof window.universalBannerEngine.showBanner === 'function') {
-                console.log('🚀 SUCCESS: Showing set_appointment banner');
-                window.universalBannerEngine.showBanner('set_appointment');
-                return;
-            }
-            
-            // Method 5: Direct banner function
-            if (typeof window.showUniversalBanner === 'function') {
-                console.log('🚀 SUCCESS: Calling showUniversalBanner()');
-                window.showUniversalBanner();
-                return;
-            }
-            
-            // Method 6: Last resort - trigger click on action button
-            const actionButton = document.querySelector('[onclick*="showCommunicationRelayCenter"], [onclick*="showActionCenter"], [onclick*="showActionPanel"], .action-button, .communication-button');
-            if (actionButton) {
-                console.log('🚀 SUCCESS: Clicking action button');
-                actionButton.click();
-                return;
-            }
-            
-            console.log('❌ FAILED: No action system found! Available:', {
-                showCommunicationRelayCenter: typeof window.showCommunicationRelayCenter,
-                showActionCenter: typeof window.showActionCenter,
-                showActionPanel: typeof window.showActionPanel,
-                universalBannerEngine: !!window.universalBannerEngine,
-                showUniversalBanner: typeof window.showUniversalBanner
-            });
-            
-        }, 500);
-        
-        return; // STOP - don't process as normal conversation
-    } else {
-        console.log('🎯 Not a positive consultation response, continuing normally');
-    }
+    // Use your proven pre-close system that already works
+    const response = handlePreCloseResponse(finalTranscript, 'consultation');
+    console.log('✅ Action center triggered via pre-close system');
+    return; // STOP - don't process as normal conversation
 }
 
 // If not a consultation response, proceed normally
@@ -2958,7 +2891,6 @@ function handleConcernWithTestimonial(userText) {
     // ... your existing enhanced code ...
 }
 
-// 🎯 ADD THIS RIGHT AFTER YOUR EXISTING FUNCTION:
 function getResumeMessageForConcern(concernType) {
     const messages = {
         price: "As you can see, many clients found the investment well worth it. The ROI typically pays for itself within the first month. Would you like me to show you how we can achieve similar results for you?",
@@ -2967,7 +2899,13 @@ function getResumeMessageForConcern(concernType) {
         general: "Many clients had similar concerns initially, but were thrilled once they saw Bruce's results. Would you like me to show you how we can address your specific situation?"
     };
     
-    return messages[concernType] || messages.general;
+    const message = messages[concernType] || messages.general;
+    
+    // 🎯 SIMPLE FLAG: Next "yes" should use pre-close system
+    window.consultationOfferActive = true;
+    console.log('🎯 Consultation offer active - next "yes" will trigger action center');
+    
+    return message;
 }
 
 // 🎯 SIMPLE BANNER QUEUE PROCESSOR (if needed)
