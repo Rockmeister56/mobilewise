@@ -465,7 +465,7 @@ function showTestimonialNavigationOptions() {
 function returnToVoiceChat() {
     console.log('🎯 User chose: Return to voice chat');
 
-     // 🎯 CRITICAL: Set consultation response flag
+    // 🎯 CRITICAL: Set consultation response flag (ONCE)
     window.expectingConsultationResponse = true;
     window.consultationQuestionActive = true;
     console.log('🎯 Consultation response expected - next "yes" will trigger action panel');
@@ -473,13 +473,16 @@ function returnToVoiceChat() {
     // COMPLETELY deactivate testimonial protection
     window.testimonialSessionActive = false;
     window.testimonialProtectionActive = false;
-    
     console.log('🛡️🛡️ DOUBLE Testimonial protection deactivated');
     
-    // 🎯 CRITICAL: Set consultation response flag
-    window.expectingConsultationResponse = true;
-    window.consultationQuestionActive = true;
-    console.log('🎯 Consultation response expected - next user input should trigger action panel');
+    // Debug available action systems
+    console.log('🎯 Available action systems:', {
+        showCommunicationRelayCenter: !!window.showCommunicationRelayCenter,
+        showActionCenter: !!window.showActionCenter, 
+        showActionPanel: !!window.showActionPanel,
+        universalBannerEngine: !!window.universalBannerEngine,
+        showUniversalBanner: !!window.showUniversalBanner
+    });
     
     // Hide navigation screen
     const navScreen = document.getElementById('testimonial-nav-options');
@@ -590,10 +593,14 @@ function activateVoiceChatSystem() {
     // Ensure the speak now functionality is available
     if (window.activateVoiceChat) {
         window.activateVoiceChat();
+    } else if (window.startListening) {
+        // Use startListening instead of initializeVoiceRecognition
+        console.log('🎤 Starting voice listening');
+        window.startListening();
     } else {
         // Fallback activation
         showMainInterface();
-        initializeVoiceRecognition();
+        console.log('⚠️ No voice chat system found - showing main interface only');
     }
     
     // Make sure the black overlay is gone

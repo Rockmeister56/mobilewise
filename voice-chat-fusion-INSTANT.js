@@ -924,6 +924,7 @@ recognition.onend = function() {
            console.log('🎯 Calling processUserResponse with:', finalTranscript);
 
 // 🎯 FIRST check if this is a consultation response
+// 🎯 FIRST check if this is a consultation response
 if (window.expectingConsultationResponse) {
     console.log('🎯 CHECKING FOR CONSULTATION RESPONSE:', finalTranscript);
     
@@ -937,19 +938,62 @@ if (window.expectingConsultationResponse) {
         window.expectingConsultationResponse = false;
         window.consultationQuestionActive = false;
         
-        // Trigger action panel immediately
+        // 🚀 TRY ALL POSSIBLE ACTION SYSTEMS
         setTimeout(() => {
-            if (window.showActionPanel) {
-                console.log('🚀 Calling showActionPanel()');
-                window.showActionPanel();
-            } else if (window.triggerActionCenter) {
-                console.log('🚀 Calling triggerActionCenter()');
-                window.triggerActionCenter();
-            } else if (window.universalBannerEngine && window.universalBannerEngine.showBanner) {
-                console.log('🚀 Showing set_appointment banner');
-                window.universalBannerEngine.showBanner('set_appointment');
+            console.log('🚀 ATTEMPTING TO TRIGGER ACTION SYSTEMS...');
+            
+            // Method 1: Communication Relay Center (most likely)
+            if (typeof window.showCommunicationRelayCenter === 'function') {
+                console.log('🚀 SUCCESS: Calling showCommunicationRelayCenter()');
+                window.showCommunicationRelayCenter();
+                return;
             }
-        }, 800);
+            
+            // Method 2: Action Center
+            if (typeof window.showActionCenter === 'function') {
+                console.log('🚀 SUCCESS: Calling showActionCenter()');
+                window.showActionCenter();
+                return;
+            }
+            
+            // Method 3: Action Panel
+            if (typeof window.showActionPanel === 'function') {
+                console.log('🚀 SUCCESS: Calling showActionPanel()');
+                window.showActionPanel();
+                return;
+            }
+            
+            // Method 4: Banner Engine
+            if (window.universalBannerEngine && typeof window.universalBannerEngine.showBanner === 'function') {
+                console.log('🚀 SUCCESS: Showing set_appointment banner');
+                window.universalBannerEngine.showBanner('set_appointment');
+                return;
+            }
+            
+            // Method 5: Direct banner function
+            if (typeof window.showUniversalBanner === 'function') {
+                console.log('🚀 SUCCESS: Calling showUniversalBanner()');
+                window.showUniversalBanner();
+                return;
+            }
+            
+            // Method 6: Last resort - trigger click on action button
+            const actionButton = document.querySelector('[onclick*="showCommunicationRelayCenter"], [onclick*="showActionCenter"], [onclick*="showActionPanel"], .action-button, .communication-button');
+            if (actionButton) {
+                console.log('🚀 SUCCESS: Clicking action button');
+                actionButton.click();
+                return;
+            }
+            
+            console.log('❌ FAILED: No action system found! Available:', {
+                showCommunicationRelayCenter: typeof window.showCommunicationRelayCenter,
+                showActionCenter: typeof window.showActionCenter,
+                showActionPanel: typeof window.showActionPanel,
+                universalBannerEngine: !!window.universalBannerEngine,
+                showUniversalBanner: typeof window.showUniversalBanner
+            });
+            
+        }, 500);
         
         return; // STOP - don't process as normal conversation
     } else {
