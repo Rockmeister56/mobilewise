@@ -4442,38 +4442,59 @@ function toggleInputMode() {
     }
 }
 
-// Text mode function
 function switchToTextMode() {
-    console.log('📝 Switching to TEXT mode');
+    console.log('📝 SWITCHING TO TEXT MODE');
     window.voiceModeEnabled = false;
     
-    // 🚨 CRITICAL: Block voice system
-    window.suppressSpeakNowBanner = true;
-    
-    // Stop voice activity
+    // Nuclear voice shutdown
     if (window.stopListening) window.stopListening();
     if (window.speechSynthesis) window.speechSynthesis.cancel();
-    
-    // Remove voice banners
     document.querySelectorAll('.speak-now-banner, [class*="speakNow"]').forEach(el => el.remove());
+    window.suppressSpeakNowBanner = true;
+    window.bannerCooldown = true;
     
-    // Update button
-    const switchBtn = document.querySelector('button.quick-btn[onclick="toggleInputMode()"]');
-    if (switchBtn) switchBtn.textContent = '🎤 Switch to Voice';
-    
-    // Show message
-    if (window.addAIMessage) {
-        window.addAIMessage("✅ Switched to text mode. You can now type your questions.");
+    // Show text input
+    const userInput = document.getElementById('userInput');
+    if (userInput) {
+        userInput.style.display = 'block';
+        userInput.focus();
     }
     
-    // Focus text input if available
+    // 🎯 SIMPLE: Use the ID to find the button
+    const switchBtn = document.getElementById('modeToggleBtn');
+    if (switchBtn) {
+        switchBtn.textContent = '🎤 Switch to Voice';
+        console.log('✅ Button updated to Voice mode');
+    }
+    
+    if (window.addAIMessage) {
+        window.addAIMessage("✅ Switched to text mode. Type your questions below.");
+    }
+}
+
+function switchToVoiceMode() {
+    console.log('🎤 SWITCHING TO VOICE MODE');
+    window.voiceModeEnabled = true;
+    
+    // Hide text input
+    const userInput = document.getElementById('userInput');
+    if (userInput) userInput.style.display = 'none';
+    
+    // 🎯 SIMPLE: Use the ID to find the button
+    const switchBtn = document.getElementById('modeToggleBtn');
+    if (switchBtn) {
+        switchBtn.textContent = '📝 Switch to Text';
+        console.log('✅ Button updated to Text mode');
+    }
+    
+    if (window.addAIMessage) {
+        window.addAIMessage("✅ Switched to voice mode. Speak now...");
+    }
+    
     setTimeout(() => {
-        const textInput = document.getElementById('userInput') || document.getElementById('empireTextInput');
-        if (textInput) {
-            textInput.style.display = 'block';
-            textInput.focus();
-        }
-    }, 500);
+        window.suppressSpeakNowBanner = false;
+        if (window.showDirectSpeakNow) window.showDirectSpeakNow();
+    }, 1500);
 }
 
 // Voice mode function  
