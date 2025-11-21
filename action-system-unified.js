@@ -4,6 +4,100 @@
 // CLEANED VERSION - No restore code for old buttons
 // ================================
 
+// 🕵️‍♂️ ACTION CENTER FORENSIC TRACER
+console.log('🔍 ACTION CENTER TRACER LOADED');
+window.actionCenterTracker = {
+    centers: new Map(),
+    
+    trackCreation: function(id, creator, stack) {
+        console.log(`🎯 ACTION CENTER CREATED:`, {
+            id: id,
+            creator: creator,
+            timestamp: new Date().toISOString(),
+            stack: stack
+        });
+        this.centers.set(id, {
+            creator: creator,
+            created: new Date(),
+            element: document.getElementById(id)
+        });
+    },
+    
+    trackRemoval: function(id, remover) {
+        console.log(`🗑️ ACTION CENTER REMOVED:`, {
+            id: id,
+            remover: remover,
+            timestamp: new Date().toISOString(),
+            existed: this.centers.has(id)
+        });
+        this.centers.delete(id);
+    },
+    
+    listActive: function() {
+        console.log(`📊 ACTIVE ACTION CENTERS:`, Array.from(this.centers.keys()));
+        return Array.from(this.centers.keys());
+    }
+};
+
+// Override key functions to add tracking
+const originalShowCommActionCenter = window.showCommunicationActionCenter;
+window.showCommunicationActionCenter = function(mode) {
+    console.log('🔍 TRACED: showCommunicationActionCenter called with mode:', mode);
+    window.actionCenterTracker.trackCreation('communication-action-center', 'showCommunicationActionCenter', new Error().stack);
+    return originalShowCommActionCenter.apply(this, arguments);
+};
+
+const originalHideCommActionCenter = window.hideCommunicationActionCenter;
+window.hideCommunicationActionCenter = function() {
+    console.log('🔍 TRACED: hideCommunicationActionCenter called');
+    window.actionCenterTracker.trackRemoval('communication-action-center', 'hideCommunicationActionCenter');
+    return originalHideCommActionCenter.apply(this, arguments);
+};
+
+// Track the Relay Center functions too
+const originalShowCommRelayCenter = window.showCommunicationRelayCenter;
+if (originalShowCommRelayCenter) {
+    window.showCommunicationRelayCenter = function() {
+        console.log('🔍 TRACED: showCommunicationRelayCenter called');
+        window.actionCenterTracker.trackCreation('communication-relay-center', 'showCommunicationRelayCenter', new Error().stack);
+        return originalShowCommRelayCenter.apply(this, arguments);
+    };
+}
+
+const originalShowSilentRelayCenter = window.showSilentCommunicationRelayCenter;
+if (originalShowSilentRelayCenter) {
+    window.showSilentCommunicationRelayCenter = function() {
+        console.log('🔍 TRACED: showSilentCommunicationRelayCenter called');
+        window.actionCenterTracker.trackCreation('communication-relay-center-silent', 'showSilentCommunicationRelayCenter', new Error().stack);
+        return originalShowSilentRelayCenter.apply(this, arguments);
+    };
+}
+
+// 🚨 EMERGENCY COOLDOWN BYPASS FUNCTION
+window.emergencyCooldownBypass = function() {
+    console.log('🚨 EMERGENCY COOLDOWN BYPASS ACTIVATED');
+    
+    // Nuclear option - reset ALL cooldown and sequence flags
+    window.bannerCooldown = false;
+    window.suppressSpeakNowBanner = false;
+    window.isInSpeakSequence = false;
+    window.speakSequenceActive = false;
+    window.isProcessingAction = false;
+    
+    // Remove any stuck banners immediately
+    const stuckBanners = document.querySelectorAll('.speak-now-banner, [class*="speakNow"], #speakNowBanner');
+    console.log(`🧹 Removing ${stuckBanners.length} stuck banners`);
+    stuckBanners.forEach(banner => banner.remove());
+    
+    // Stop any active listening
+    if (window.stopListening && typeof window.stopListening === 'function') {
+        window.stopListening();
+    }
+    
+    console.log('✅ Cooldown system completely reset');
+    return true;
+};
+
 const EMAILJS_CONFIG = {
     serviceId: 'service_b9bppgb',
     publicKey: '7-9oxa3UC3uKxtqGM',
@@ -215,65 +309,98 @@ function handleActionButton(action) {
             break;
             
         case 'skip':
-    console.log('🎯 SKIP BUTTON CLICKED - DEBUGGING');
+    console.log('🕵️‍♂️ SKIP BUTTON - FORENSIC ANALYSIS + COOLDOWN BYPASS');
+    console.log('=======================================================');
     
-    // 🎯 TEMPORARY DEBUG - See what's actually in the DOM
-    console.log('🔍 DEBUG ACTION CENTER ELEMENTS:');
+    // 🚨 STEP 1: EMERGENCY COOLDOWN BYPASS
+    if (typeof window.emergencyCooldownBypass === 'function') {
+        console.log('🚨 ACTIVATING COOLDOWN BYPASS');
+        window.emergencyCooldownBypass();
+    } else {
+        console.log('⚠️ emergencyCooldownBypass not available - manual cooldown reset');
+        window.bannerCooldown = false;
+        window.suppressSpeakNowBanner = false;
+    }
     
-    // Check ALL possible elements that might be Action Centers
-    const allElements = document.querySelectorAll('*');
-    const actionLikeElements = [];
+    // 🕵️‍♂️ STEP 2: FORENSIC ANALYSIS - What Action Centers exist RIGHT NOW?
+    console.log('📊 CURRENT ACTION CENTERS IN DOM:');
+    const allCenters = [
+        '#communication-action-center',
+        '#communication-relay-center', 
+        '#communication-relay-center-silent'
+    ];
     
-    allElements.forEach(el => {
-        const className = el.className?.toString().toLowerCase() || '';
-        const id = el.id?.toLowerCase() || '';
-        
-        if (className.includes('action') || className.includes('communication') || 
-            className.includes('relay') || className.includes('center') ||
-            id.includes('action') || id.includes('communication') || id.includes('center')) {
-            
-            actionLikeElements.push({
-                tag: el.tagName,
-                id: el.id,
-                className: el.className,
-                visible: el.style.display !== 'none',
-                inViewport: el.getBoundingClientRect().width > 0
+    let foundCenters = [];
+    allCenters.forEach(selector => {
+        const element = document.querySelector(selector);
+        console.log(`${selector}:`, element ? '✅ FOUND' : '❌ NOT FOUND');
+        if (element) {
+            console.log('   Element details:', {
+                id: element.id,
+                className: element.className,
+                parent: element.parentElement?.id || element.parentElement?.className,
+                visible: element.offsetParent !== null,
+                inViewport: element.getBoundingClientRect().width > 0
             });
+            foundCenters.push(selector);
         }
     });
     
-    console.log('🎯 Found action-like elements:', actionLikeElements);
-    
-    // Also check what's actually visible
-    const visibleElements = Array.from(document.querySelectorAll('*'))
-        .filter(el => {
-            const rect = el.getBoundingClientRect();
-            return rect.width > 0 && rect.height > 0;
-        })
-        .map(el => ({
-            tag: el.tagName,
-            id: el.id,
-            className: el.className,
-            text: el.textContent?.substring(0, 50) || ''
-        }));
-    
-    console.log('👀 Top 5 visible elements:', visibleElements.slice(0, 5));
-    
-    // Continue with normal skip logic
-    hideCommunicationActionCenter();
-    
-    // Add system message
-    if (window.addSystemMessage) {
-        window.addSystemMessage("I appreciate you're not ready to connect with our helpful staff. How else can I help you today?");
+    // 2. What does our tracker say?
+    console.log('📊 TRACKER ACTIVE CENTERS:');
+    if (window.actionCenterTracker) {
+        window.actionCenterTracker.listActive();
     }
     
-    // PROPERLY restart voice chat
+    // 3. What functions are available?
+    console.log('🔧 AVAILABLE FUNCTIONS:');
+    console.log('   hideCommunicationActionCenter:', typeof hideCommunicationActionCenter);
+    console.log('   handleActionCenterCompletion:', typeof handleActionCenterCompletion);
+    console.log('   activateVoiceChat:', typeof window.activateVoiceChat);
+    console.log('   showDirectSpeakNow:', typeof window.showDirectSpeakNow);
+    
+    // 4. Try SIMPLE removal first
+    console.log('🧹 SIMPLE REMOVAL ATTEMPT:');
+    let removedCount = 0;
+    allCenters.forEach(selector => {
+        const elements = document.querySelectorAll(selector);
+        elements.forEach(el => {
+            console.log(`   Removing ${el.id}`);
+            el.remove();
+            removedCount++;
+        });
+    });
+    console.log(`✅ Removed ${removedCount} elements`);
+    
+    // 5. Clear flags
+    console.log('🔄 RESETTING FLAGS:');
+    window.isInLeadCapture = false;
+    window.currentCaptureType = null;
+    window.currentLeadData = null;
+    window.isProcessingAction = false;
+    window.disableSpeakNowBanner = false;
+    
+    // 6. Add message
+    if (window.addSystemMessage) {
+        window.addSystemMessage("I appreciate you're not ready to connect right now. How else can I help you today?");
+    }
+    
+    // 7. Wait and restart voice
     setTimeout(() => {
-        console.log('🎤 RESTARTING voice chat after skip');
-        if (window.activateVoiceChat) {
-            window.activateVoiceChat();
+        console.log('🎤 VOICE RESTART ATTEMPT:');
+        console.log('   Available functions:', {
+            activateVoiceChat: typeof window.activateVoiceChat,
+            showDirectSpeakNow: typeof window.showDirectSpeakNow,
+            startListening: typeof window.startListening
+        });
+        
+        if (typeof window.showDirectSpeakNow === 'function') {
+            console.log('✅ Starting showDirectSpeakNow()');
+            window.showDirectSpeakNow();
+        } else {
+            console.log('❌ No voice function available');
         }
-    }, 500);
+    }, 1000);
     
     break;
     }
