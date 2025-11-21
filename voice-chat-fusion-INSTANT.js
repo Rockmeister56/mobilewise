@@ -1525,11 +1525,11 @@ if (typeof window.voiceModeEnabled === 'undefined') {
 
 // 🚨 CRITICAL: OVERRIDE THE STRAY FUNCTION
 console.log('🚨 OVERRIDING STRAY switchToTextMode WITH FINAL VERSION');
-window.switchToTextMode = switchToTextMode; // Use our FINAL enhanced version
+window.switchToTextMode = switchToTextMode; // Use our FINAL enhanced version (with GREEN color)
 
 // ✅ GLOBAL EXPORTS
 window.toggleInputMode = toggleInputMode;
-window.switchToTextMode = switchToTextMode; // This ensures our version is used
+window.switchToTextMode = switchToTextMode; 
 window.switchToVoiceMode = switchToVoiceMode; 
 window.setupTextMessageHandler = setupTextMessageHandler;
 
