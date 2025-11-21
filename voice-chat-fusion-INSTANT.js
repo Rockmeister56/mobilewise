@@ -4585,25 +4585,31 @@ function showAvatarSorryMessage(duration = 6000) {
     
     // 🎯 ONE SIMPLE CLEANUP FUNCTION - NO COMPLEXITY
     function cleanup() {
-        console.log(`🎬 Avatar duration (${duration}ms) complete - removing and letting banner reappear`);
-        
-        // Remove the overlay
-        if (avatarOverlay.parentNode) {
-            avatarOverlay.remove();
-        }
-        
-        // Reset the flag IMMEDIATELY to allow future calls
-        window.avatarCurrentlyPlaying = false;
-        
-        // Go back to Speak Now after brief delay
-        setTimeout(() => {
-            console.log('✅ Avatar removed - going DIRECT to Speak Now');
-            showDirectSpeakNow();
-        }, 1000);
+    console.log(`🎬 Avatar duration (${duration}ms) complete - removing and letting banner reappear`);
+    
+    // Remove the overlay
+    if (avatarOverlay.parentNode) {
+        avatarOverlay.remove();
     }
     
-    // 🎯 ONE TIMER ONLY - SIMPLE AND CLEAN
-    setTimeout(cleanup, duration);
+    // Reset the flag IMMEDIATELY to allow future calls
+    window.avatarCurrentlyPlaying = false;
+    
+    // Go back to Speak Now after brief delay
+    setTimeout(() => {
+        // 🚨 CHECK IF SKIP BUTTON IS ACTIVE - PREVENT AUTO-RESTART
+        if (!window.suppressAvatarAutoRestart) {
+            console.log('✅ Avatar removed - going DIRECT to Speak Now');
+            showDirectSpeakNow();
+        } else {
+            console.log('🛑 Avatar auto-restart SUPPRESSED (skip button active)');
+            // Don't restart - let the skip button handle voice restart
+        }
+    }, 1000);
+}
+
+// 🎯 ONE TIMER ONLY - SIMPLE AND CLEAN
+setTimeout(cleanup, duration);
 }
 
 // Ensure global availability

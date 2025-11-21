@@ -4,100 +4,6 @@
 // CLEANED VERSION - No restore code for old buttons
 // ================================
 
-// 🕵️‍♂️ ACTION CENTER FORENSIC TRACER
-console.log('🔍 ACTION CENTER TRACER LOADED');
-window.actionCenterTracker = {
-    centers: new Map(),
-    
-    trackCreation: function(id, creator, stack) {
-        console.log(`🎯 ACTION CENTER CREATED:`, {
-            id: id,
-            creator: creator,
-            timestamp: new Date().toISOString(),
-            stack: stack
-        });
-        this.centers.set(id, {
-            creator: creator,
-            created: new Date(),
-            element: document.getElementById(id)
-        });
-    },
-    
-    trackRemoval: function(id, remover) {
-        console.log(`🗑️ ACTION CENTER REMOVED:`, {
-            id: id,
-            remover: remover,
-            timestamp: new Date().toISOString(),
-            existed: this.centers.has(id)
-        });
-        this.centers.delete(id);
-    },
-    
-    listActive: function() {
-        console.log(`📊 ACTIVE ACTION CENTERS:`, Array.from(this.centers.keys()));
-        return Array.from(this.centers.keys());
-    }
-};
-
-// Override key functions to add tracking
-const originalShowCommActionCenter = window.showCommunicationActionCenter;
-window.showCommunicationActionCenter = function(mode) {
-    console.log('🔍 TRACED: showCommunicationActionCenter called with mode:', mode);
-    window.actionCenterTracker.trackCreation('communication-action-center', 'showCommunicationActionCenter', new Error().stack);
-    return originalShowCommActionCenter.apply(this, arguments);
-};
-
-const originalHideCommActionCenter = window.hideCommunicationActionCenter;
-window.hideCommunicationActionCenter = function() {
-    console.log('🔍 TRACED: hideCommunicationActionCenter called');
-    window.actionCenterTracker.trackRemoval('communication-action-center', 'hideCommunicationActionCenter');
-    return originalHideCommActionCenter.apply(this, arguments);
-};
-
-// Track the Relay Center functions too
-const originalShowCommRelayCenter = window.showCommunicationRelayCenter;
-if (originalShowCommRelayCenter) {
-    window.showCommunicationRelayCenter = function() {
-        console.log('🔍 TRACED: showCommunicationRelayCenter called');
-        window.actionCenterTracker.trackCreation('communication-relay-center', 'showCommunicationRelayCenter', new Error().stack);
-        return originalShowCommRelayCenter.apply(this, arguments);
-    };
-}
-
-const originalShowSilentRelayCenter = window.showSilentCommunicationRelayCenter;
-if (originalShowSilentRelayCenter) {
-    window.showSilentCommunicationRelayCenter = function() {
-        console.log('🔍 TRACED: showSilentCommunicationRelayCenter called');
-        window.actionCenterTracker.trackCreation('communication-relay-center-silent', 'showSilentCommunicationRelayCenter', new Error().stack);
-        return originalShowSilentRelayCenter.apply(this, arguments);
-    };
-}
-
-// 🚨 EMERGENCY COOLDOWN BYPASS FUNCTION
-window.emergencyCooldownBypass = function() {
-    console.log('🚨 EMERGENCY COOLDOWN BYPASS ACTIVATED');
-    
-    // Nuclear option - reset ALL cooldown and sequence flags
-    window.bannerCooldown = false;
-    window.suppressSpeakNowBanner = false;
-    window.isInSpeakSequence = false;
-    window.speakSequenceActive = false;
-    window.isProcessingAction = false;
-    
-    // Remove any stuck banners immediately
-    const stuckBanners = document.querySelectorAll('.speak-now-banner, [class*="speakNow"], #speakNowBanner');
-    console.log(`🧹 Removing ${stuckBanners.length} stuck banners`);
-    stuckBanners.forEach(banner => banner.remove());
-    
-    // Stop any active listening
-    if (window.stopListening && typeof window.stopListening === 'function') {
-        window.stopListening();
-    }
-    
-    console.log('✅ Cooldown system completely reset');
-    return true;
-};
-
 const EMAILJS_CONFIG = {
     serviceId: 'service_b9bppgb',
     publicKey: '7-9oxa3UC3uKxtqGM',
@@ -204,38 +110,19 @@ window.trackLeadCaptureComplete = function() {
 };
 
 // ================================
-// HIDE ALL ACTION CENTERS - COMPLETE CLEANUP
+// HIDE ACTION CENTER - CLEANED VERSION
+// No restore code - old buttons stay hidden
 // ================================
 function hideCommunicationActionCenter() {
-    console.log('🗑️ HIDING ALL ACTION CENTERS');
-    
-    // Close ALL possible Action Center elements
-    const actionCenters = document.querySelectorAll(
-        '#communication-action-center, ' +
-        '.communication-relay-center, ' +
-        '.action-center, ' +
-        '.action-panel, ' +
-        '[class*="communication"], ' +
-        '[class*="action-center"], ' +
-        '[class*="action-panel"]'
-    );
-    
-    console.log(`🎯 Found ${actionCenters.length} action center elements to close`);
-    
-    actionCenters.forEach((center, index) => {
-        console.log(`🗑️ Removing action center ${index + 1}:`, center.className || center.id);
-        center.style.animation = 'slideOutToBottom 0.3s ease-in';
+    const actionCenter = document.getElementById('communication-action-center');
+    if (actionCenter) {
+        actionCenter.style.animation = 'slideOutToBottom 0.3s ease-in';
         setTimeout(() => {
-            center.remove();
+            actionCenter.remove();
+            console.log('✅ Communication Action Center removed');
+            // 🎯 NO RESTORE CODE - Old buttons stay hidden permanently
         }, 300);
-    });
-    
-    // Clear ALL flags
-    window.actionCenterActive = false;
-    window.communicationRelayActive = false;
-    window.isProcessingAction = false;
-    
-    console.log('✅ ALL Action Centers removed and flags cleared');
+    }
 }
 
 // ================================
@@ -309,99 +196,47 @@ function handleActionButton(action) {
             break;
             
         case 'skip':
-    console.log('🕵️‍♂️ SKIP BUTTON - FORENSIC ANALYSIS + COOLDOWN BYPASS');
-    console.log('=======================================================');
+    console.log('🎯 User chose to skip - BLOCKING avatar auto-restart');
     
-    // 🚨 STEP 1: EMERGENCY COOLDOWN BYPASS
-    if (typeof window.emergencyCooldownBypass === 'function') {
-        console.log('🚨 ACTIVATING COOLDOWN BYPASS');
-        window.emergencyCooldownBypass();
-    } else {
-        console.log('⚠️ emergencyCooldownBypass not available - manual cooldown reset');
-        window.bannerCooldown = false;
-        window.suppressSpeakNowBanner = false;
-    }
+    // 🚨 CRITICAL: Prevent avatar from auto-restarting Speak Now
+    window.suppressAvatarAutoRestart = true;
     
-    // 🕵️‍♂️ STEP 2: FORENSIC ANALYSIS - What Action Centers exist RIGHT NOW?
-    console.log('📊 CURRENT ACTION CENTERS IN DOM:');
-    const allCenters = [
-        '#communication-action-center',
-        '#communication-relay-center', 
-        '#communication-relay-center-silent'
-    ];
+    const skipMessage = "I appreciate you're not ready to get immediate help from our expert. What else can I help you with to meet your objectives?";
     
-    let foundCenters = [];
-    allCenters.forEach(selector => {
-        const element = document.querySelector(selector);
-        console.log(`${selector}:`, element ? '✅ FOUND' : '❌ NOT FOUND');
-        if (element) {
-            console.log('   Element details:', {
-                id: element.id,
-                className: element.className,
-                parent: element.parentElement?.id || element.parentElement?.className,
-                visible: element.offsetParent !== null,
-                inViewport: element.getBoundingClientRect().width > 0
-            });
-            foundCenters.push(selector);
-        }
-    });
-    
-    // 2. What does our tracker say?
-    console.log('📊 TRACKER ACTIVE CENTERS:');
-    if (window.actionCenterTracker) {
-        window.actionCenterTracker.listActive();
-    }
-    
-    // 3. What functions are available?
-    console.log('🔧 AVAILABLE FUNCTIONS:');
-    console.log('   hideCommunicationActionCenter:', typeof hideCommunicationActionCenter);
-    console.log('   handleActionCenterCompletion:', typeof handleActionCenterCompletion);
-    console.log('   activateVoiceChat:', typeof window.activateVoiceChat);
-    console.log('   showDirectSpeakNow:', typeof window.showDirectSpeakNow);
-    
-    // 4. Try SIMPLE removal first
-    console.log('🧹 SIMPLE REMOVAL ATTEMPT:');
-    let removedCount = 0;
-    allCenters.forEach(selector => {
-        const elements = document.querySelectorAll(selector);
-        elements.forEach(el => {
-            console.log(`   Removing ${el.id}`);
-            el.remove();
-            removedCount++;
-        });
-    });
-    console.log(`✅ Removed ${removedCount} elements`);
-    
-    // 5. Clear flags
-    console.log('🔄 RESETTING FLAGS:');
-    window.isInLeadCapture = false;
-    window.currentCaptureType = null;
-    window.currentLeadData = null;
-    window.isProcessingAction = false;
-    window.disableSpeakNowBanner = false;
-    
-    // 6. Add message
+    // Show message
     if (window.addSystemMessage) {
-        window.addSystemMessage("I appreciate you're not ready to connect right now. How else can I help you today?");
+        window.addSystemMessage(skipMessage);
+    } else if (window.addAIMessage) {
+        window.addAIMessage(skipMessage);
     }
     
-    // 7. Wait and restart voice
-    setTimeout(() => {
-        console.log('🎤 VOICE RESTART ATTEMPT:');
-        console.log('   Available functions:', {
-            activateVoiceChat: typeof window.activateVoiceChat,
-            showDirectSpeakNow: typeof window.showDirectSpeakNow,
-            startListening: typeof window.startListening
-        });
+    // Use the same pattern as other cases - wait for AI speech completion
+    if (window.speakText) {
+        window.speakText(skipMessage);
         
-        if (typeof window.showDirectSpeakNow === 'function') {
-            console.log('✅ Starting showDirectSpeakNow()');
-            window.showDirectSpeakNow();
-        } else {
-            console.log('❌ No voice function available');
-        }
-    }, 1000);
+        const checkSpeech = setInterval(() => {
+            if (!window.isSpeaking) {
+                clearInterval(checkSpeech);
+                console.log('✅ AI finished speaking - starting listening NOW');
+                
+                // 🎯 TRACKED BANNER SHOW
+                console.log('🎤 SKIP: Triggering Speak Now banner');
+                if (window.showDirectSpeakNow && typeof window.showDirectSpeakNow === 'function') {
+                    window.showDirectSpeakNow();
+                }
+            }
+        }, 100);
+
+        setTimeout(() => {
+            clearInterval(checkSpeech);
+        }, 10000);
+    }
     
+    // Re-enable avatar auto-restart after reasonable time
+    setTimeout(() => {
+        window.suppressAvatarAutoRestart = false;
+        console.log('✅ Avatar auto-restart re-enabled');
+    }, 15000);
     break;
     }
     
