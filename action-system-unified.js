@@ -215,9 +215,51 @@ function handleActionButton(action) {
             break;
             
         case 'skip':
-    console.log('🎯 SKIP BUTTON CLICKED - FULL CLEANUP');
+    console.log('🎯 SKIP BUTTON CLICKED - DEBUGGING');
     
-    // Use the UPDATED hide function that closes ALL action centers
+    // 🎯 TEMPORARY DEBUG - See what's actually in the DOM
+    console.log('🔍 DEBUG ACTION CENTER ELEMENTS:');
+    
+    // Check ALL possible elements that might be Action Centers
+    const allElements = document.querySelectorAll('*');
+    const actionLikeElements = [];
+    
+    allElements.forEach(el => {
+        const className = el.className?.toString().toLowerCase() || '';
+        const id = el.id?.toLowerCase() || '';
+        
+        if (className.includes('action') || className.includes('communication') || 
+            className.includes('relay') || className.includes('center') ||
+            id.includes('action') || id.includes('communication') || id.includes('center')) {
+            
+            actionLikeElements.push({
+                tag: el.tagName,
+                id: el.id,
+                className: el.className,
+                visible: el.style.display !== 'none',
+                inViewport: el.getBoundingClientRect().width > 0
+            });
+        }
+    });
+    
+    console.log('🎯 Found action-like elements:', actionLikeElements);
+    
+    // Also check what's actually visible
+    const visibleElements = Array.from(document.querySelectorAll('*'))
+        .filter(el => {
+            const rect = el.getBoundingClientRect();
+            return rect.width > 0 && rect.height > 0;
+        })
+        .map(el => ({
+            tag: el.tagName,
+            id: el.id,
+            className: el.className,
+            text: el.textContent?.substring(0, 50) || ''
+        }));
+    
+    console.log('👀 Top 5 visible elements:', visibleElements.slice(0, 5));
+    
+    // Continue with normal skip logic
     hideCommunicationActionCenter();
     
     // Add system message
