@@ -1358,6 +1358,97 @@ function sendMessage() {
 }
 
 // ===================================================
+// 🎵 TOGGLE DANCE SYSTEM - TEXT/VOICE MODE SWITCHING
+// ===================================================
+window.voiceModeEnabled = true; // Start in voice mode
+
+function toggleInputMode() {
+    console.log('🎵 Toggle dance! Current mode:', window.voiceModeEnabled ? 'VOICE' : 'TEXT');
+    
+    if (window.voiceModeEnabled) {
+        switchToTextMode();
+    } else {
+        switchToVoiceMode();
+    }
+}
+
+function switchToTextMode() {
+    console.log('📝 SWITCHING TO TEXT MODE');
+    window.voiceModeEnabled = false;
+    
+    // 🚨 Nuclear voice shutdown
+    emergencyStopVoice();
+    
+    // Show your existing text input
+    const userInput = document.getElementById('userInput');
+    if (userInput) {
+        userInput.style.display = 'block';
+        userInput.focus();
+        console.log('✅ Showing existing userInput');
+    }
+    
+    // Update toggle button
+    const switchBtn = document.querySelector('button.quick-btn[onclick="toggleInputMode()"]');
+    if (switchBtn) switchBtn.textContent = '🎤 Switch to Voice';
+    
+    // Show message
+    if (window.addAIMessage) {
+        window.addAIMessage("✅ Switched to text mode. Type your questions below.");
+    }
+}
+
+function switchToVoiceMode() {
+    console.log('🎤 SWITCHING TO VOICE MODE');
+    window.voiceModeEnabled = true;
+    
+    // Hide your existing text input
+    const userInput = document.getElementById('userInput');
+    if (userInput) {
+        userInput.style.display = 'none';
+    }
+    
+    // Update toggle button
+    const switchBtn = document.querySelector('button.quick-btn[onclick="toggleInputMode()"]');
+    if (switchBtn) switchBtn.textContent = '📝 Switch to Text';
+    
+    // Show message
+    if (window.addAIMessage) {
+        window.addAIMessage("✅ Switched to voice mode. Speak now...");
+    }
+    
+    // Restart voice after delay
+    setTimeout(() => {
+        window.suppressSpeakNowBanner = false;
+        window.bannerCooldown = false;
+        
+        if (window.showDirectSpeakNow) {
+            console.log('🎤 Restarting voice system...');
+            window.showDirectSpeakNow();
+        }
+    }, 1500);
+}
+
+// 🚨 EMERGENCY VOICE STOPPER
+function emergencyStopVoice() {
+    console.log('🚨 EMERGENCY VOICE STOP');
+    if (window.stopListening) window.stopListening();
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    
+    const voiceElements = document.querySelectorAll('.speak-now-banner, [class*="speakNow"]');
+    voiceElements.forEach(el => el.remove());
+    
+    window.suppressSpeakNowBanner = true;
+    window.bannerCooldown = true;
+    console.log('✅ EMERGENCY STOP COMPLETE');
+}
+
+// Make functions globally available
+window.toggleInputMode = toggleInputMode;
+window.switchToTextMode = switchToTextMode;
+window.switchToVoiceMode = switchToVoiceMode;
+window.emergencyStopVoice = emergencyStopVoice;
+
+// ===================================================
 // 🔥 PRE-WARM ENGINE (SILENT - NO BEEP)
 // ===================================================
 function preWarmSpeechEngine() {
