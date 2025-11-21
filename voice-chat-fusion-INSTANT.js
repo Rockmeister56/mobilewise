@@ -1377,31 +1377,46 @@ function toggleInputMode() {
 }
 
 function switchToTextMode() {
-    console.log('📝 SWITCHING TO TEXT MODE - ENHANCED');
+    console.log('📝 SWITCHING TO TEXT MODE - FINAL FIX');
+    window.voiceModeEnabled = false;
     
-    // 🎯 GENTLE voice shutdown (not nuclear)
+    // Stop voice
     if (window.stopListening) window.stopListening();
     if (window.speechSynthesis) window.speechSynthesis.cancel();
     
     // Remove current voice banners
     document.querySelectorAll('.speak-now-banner, [class*="speakNow"]').forEach(el => el.remove());
     
-    // Show your existing text input
+    // Show text input
     const userInput = document.getElementById('userInput');
     if (userInput) {
         userInput.style.display = 'block';
         userInput.focus();
         console.log('✅ Showing existing userInput');
+        
+        // 🎯 CRITICAL: Setup text message handling
+        setupTextMessageHandler();
     }
     
-    // 🎯 FIX: Better button selector with styling
-    const switchBtn = document.querySelector('button.quick-btn') || document.getElementById('modeToggleBtn');
+    // 🎯 FIXED: Better button finding - find by text content
+    const buttons = document.querySelectorAll('.quick-btn');
+    let switchBtn = null;
+    
+    buttons.forEach(btn => {
+        const text = btn.textContent.toLowerCase();
+        if (text.includes('switch') || text.includes('text') || text.includes('voice')) {
+            switchBtn = btn;
+        }
+    });
+    
     if (switchBtn) {
         switchBtn.textContent = '🎤 Switch to Voice';
-        switchBtn.style.background = '#ff6b6b'; // Red for voice mode
+        switchBtn.style.background = '#4CAF50'; // Green for voice mode
         switchBtn.style.color = 'white';
         switchBtn.style.fontWeight = 'bold';
-        console.log('✅ Button updated to Voice mode with color');
+        console.log('✅ Button updated to Voice mode');
+    } else {
+        console.log('❌ Could not find switch button');
     }
     
     // Show message
@@ -1409,27 +1424,37 @@ function switchToTextMode() {
         window.addAIMessage("✅ Switched to text mode. Type your questions below.");
     }
     
-    // 🎯 Set flags to block auto-voice
+    // Set flags to block auto-voice
     window.suppressSpeakNowBanner = true;
 }
 
 function switchToVoiceMode() {
-    console.log('🎤 SWITCHING TO VOICE MODE - ENHANCED');
+    console.log('🎤 SWITCHING TO VOICE MODE - FINAL FIX');
+    window.voiceModeEnabled = true;
     
-    // Hide your existing text input
+    // Hide text input
     const userInput = document.getElementById('userInput');
     if (userInput) {
         userInput.style.display = 'none';
     }
     
-    // 🎯 FIX: Better button selector with styling
-    const switchBtn = document.querySelector('button.quick-btn') || document.getElementById('modeToggleBtn');
+    // 🎯 FIXED: Better button finding - find by text content
+    const buttons = document.querySelectorAll('.quick-btn');
+    let switchBtn = null;
+    
+    buttons.forEach(btn => {
+        const text = btn.textContent.toLowerCase();
+        if (text.includes('switch') || text.includes('text') || text.includes('voice')) {
+            switchBtn = btn;
+        }
+    });
+    
     if (switchBtn) {
         switchBtn.textContent = '📝 Switch to Text';
-        switchBtn.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'; // Purple for text mode
+        switchBtn.style.background = '#2196F3'; // Blue for text mode
         switchBtn.style.color = 'white';
         switchBtn.style.fontWeight = 'bold';
-        console.log('✅ Button updated to Text mode with color');
+        console.log('✅ Button updated to Text mode');
     }
     
     // Show message
@@ -1437,7 +1462,7 @@ function switchToVoiceMode() {
         window.addAIMessage("✅ Switched to voice mode. Speak now...");
     }
     
-    // 🎯 GENTLE voice restart
+    // Gentle voice restart
     setTimeout(() => {
         window.suppressSpeakNowBanner = false;
         
@@ -1448,53 +1473,67 @@ function switchToVoiceMode() {
     }, 1000);
 }
 
-// 🎨 STYLE ALL BUTTONS FOR VISIBILITY
-function styleAllButtons() {
-    const buttons = document.querySelectorAll('.quick-btn, #modeToggleBtn');
-    buttons.forEach(btn => {
-        btn.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-        btn.style.color = 'white';
-        btn.style.border = '2px solid rgba(255,255,255,0.3)';
-        btn.style.boxShadow = '0 4px 15px rgba(0,0,0,0.2)';
-        btn.style.fontWeight = 'bold';
-        btn.style.fontSize = '14px';
-    });
-    console.log('🎨 All buttons styled for visibility');
+// 🎯 ADD THIS CRITICAL FUNCTION
+function setupTextMessageHandler() {
+    const userInput = document.getElementById('userInput');
+    if (userInput) {
+        // Remove any existing handlers first
+        userInput.removeEventListener('keypress', handleTextInput);
+        
+        // Add Enter key handler
+        userInput.addEventListener('keypress', handleTextInput);
+        
+        console.log('✅ Text message handler setup');
+    }
 }
 
-// 🚨 OVERRIDE ANY STRAY FUNCTIONS
-console.log('🚨 OVERRIDING STRAY FUNCTIONS WITH ENHANCED VERSIONS');
-
-// Override the stray switchToTextMode we found
-window.switchToTextMode = function() {
-    console.log('📝 ENHANCED switchToTextMode RUNNING!');
-    window.voiceModeEnabled = false;
-    
-    // Use our enhanced logic
-    if (window.stopListening) window.stopListening();
-    if (window.speechSynthesis) window.speechSynthesis.cancel();
-    
-    const btn = document.querySelector('button.quick-btn');
-    if (btn) {
-        btn.textContent = '🎤 Switch to Voice';
-        btn.style.background = '#ff6b6b';
+function handleTextInput(e) {
+    if (e.key === 'Enter') {
+        const userInput = document.getElementById('userInput');
+        if (!userInput) return;
+        
+        const message = userInput.value.trim();
+        if (!message) return;
+        
+        console.log('📝 Processing text message:', message);
+        
+        // Add to chat
+        if (window.addUserMessage) {
+            window.addUserMessage(message);
+        }
+        
+        // Clear input
+        userInput.value = '';
+        
+        // Process through AI system
+        if (window.processUserResponse) {
+            window.processUserResponse(message);
+        } else {
+            console.log('❌ No AI processing system available');
+        }
     }
-    
-    if (window.addAIMessage) {
-        window.addAIMessage("✅ Switched to text mode. Type your questions below.");
-    }
-};
+}
 
-// Make functions globally available
+// ===================================================
+// 🎵 TOGGLE DANCE SYSTEM - FINAL EXPORTS WITH OVERRIDE
+// ===================================================
+
+// ✅ INITIAL STATE
+if (typeof window.voiceModeEnabled === 'undefined') {
+    window.voiceModeEnabled = true; // Start in voice mode
+}
+
+// 🚨 CRITICAL: OVERRIDE THE STRAY FUNCTION
+console.log('🚨 OVERRIDING STRAY switchToTextMode WITH FINAL VERSION');
+window.switchToTextMode = switchToTextMode; // Use our FINAL enhanced version
+
+// ✅ GLOBAL EXPORTS
 window.toggleInputMode = toggleInputMode;
-window.switchToTextMode = switchToTextMode;
-window.switchToVoiceMode = switchToVoiceMode;
-window.styleAllButtons = styleAllButtons;
+window.switchToTextMode = switchToTextMode; // This ensures our version is used
+window.switchToVoiceMode = switchToVoiceMode; 
+window.setupTextMessageHandler = setupTextMessageHandler;
 
-// 🎨 Apply button styling on load
-setTimeout(styleAllButtons, 500);
-
-console.log('✅ ENHANCED TOGGLE SYSTEM LOADED - Ready for dancing! 🎵');
+console.log('✅ TOGGLE SYSTEM LOADED WITH OVERRIDE - Stray function defeated! 🎵');
 
 // ===================================================
 // 🔥 PRE-WARM ENGINE (SILENT - NO BEEP)
