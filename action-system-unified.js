@@ -110,19 +110,38 @@ window.trackLeadCaptureComplete = function() {
 };
 
 // ================================
-// HIDE ACTION CENTER - CLEANED VERSION
-// No restore code - old buttons stay hidden
+// HIDE ALL ACTION CENTERS - COMPLETE CLEANUP
 // ================================
 function hideCommunicationActionCenter() {
-    const actionCenter = document.getElementById('communication-action-center');
-    if (actionCenter) {
-        actionCenter.style.animation = 'slideOutToBottom 0.3s ease-in';
+    console.log('🗑️ HIDING ALL ACTION CENTERS');
+    
+    // Close ALL possible Action Center elements
+    const actionCenters = document.querySelectorAll(
+        '#communication-action-center, ' +
+        '.communication-relay-center, ' +
+        '.action-center, ' +
+        '.action-panel, ' +
+        '[class*="communication"], ' +
+        '[class*="action-center"], ' +
+        '[class*="action-panel"]'
+    );
+    
+    console.log(`🎯 Found ${actionCenters.length} action center elements to close`);
+    
+    actionCenters.forEach((center, index) => {
+        console.log(`🗑️ Removing action center ${index + 1}:`, center.className || center.id);
+        center.style.animation = 'slideOutToBottom 0.3s ease-in';
         setTimeout(() => {
-            actionCenter.remove();
-            console.log('✅ Communication Action Center removed');
-            // 🎯 NO RESTORE CODE - Old buttons stay hidden permanently
+            center.remove();
         }, 300);
-    }
+    });
+    
+    // Clear ALL flags
+    window.actionCenterActive = false;
+    window.communicationRelayActive = false;
+    window.isProcessingAction = false;
+    
+    console.log('✅ ALL Action Centers removed and flags cleared');
 }
 
 // ================================
@@ -196,41 +215,24 @@ function handleActionButton(action) {
             break;
             
         case 'skip':
-    console.log('User chose to skip - FULL CLEANUP');
+    console.log('🎯 SKIP BUTTON CLICKED - FULL CLEANUP');
     
-    // 1. IMMEDIATELY hide the Action Center
-    const actionCenters = document.querySelectorAll('.communication-relay-center, .action-panel, .action-center, [class*="action"]');
-    actionCenters.forEach(el => {
-        el.style.display = 'none';
-        el.remove(); // Remove from DOM completely
-    });
+    // Use the UPDATED hide function that closes ALL action centers
+    hideCommunicationActionCenter();
     
-    // 2. Add system message
+    // Add system message
     if (window.addSystemMessage) {
         window.addSystemMessage("I appreciate you're not ready to connect with our helpful staff. How else can I help you today?");
     }
     
-    // 3. Clear ALL action center flags
-    window.actionCenterActive = false;
-    window.communicationRelayActive = false;
-    window.isProcessingAction = false; // Reset immediately
-    
-    // 4. PROPERLY reactivate voice chat (no undefined banner)
+    // PROPERLY restart voice chat
     setTimeout(() => {
-        console.log('🎤 Properly reactivating voice chat after skip');
-        
-        // Use activateVoiceChat instead of showUniversalBanner
+        console.log('🎤 RESTARTING voice chat after skip');
         if (window.activateVoiceChat) {
             window.activateVoiceChat();
-        } else if (window.startListening) {
-            window.startListening();
-        } else {
-            // Fallback to a specific banner type
-            if (window.showUniversalBanner) {
-                window.showUniversalBanner('quick'); // Use a valid banner type
-            }
         }
-    }, 300);
+    }, 500);
+    
     break;
     }
     
@@ -238,17 +240,6 @@ function handleActionButton(action) {
     setTimeout(() => {
         window.isProcessingAction = false;
     }, 1000);
-}
-
-// Add this function for emergency Action Center closing
-function emergencyCloseActionCenter() {
-    console.log('🚨 EMERGENCY ACTION CENTER CLOSE');
-    document.querySelectorAll('.communication-relay-center, .action-panel, .action-center').forEach(el => {
-        el.style.display = 'none';
-        el.remove();
-    });
-    window.actionCenterActive = false;
-    window.communicationRelayActive = false;
 }
 
 // ================================
