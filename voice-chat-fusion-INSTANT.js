@@ -536,6 +536,36 @@ function showPostSorryListening() {
 }
 
 // ===================================================
+// 🤖 AI MESSAGE PROCESSING FUNCTION
+// ===================================================
+async function processUserMessage(message) {
+    console.log('🤖 Sending to AI:', message);
+    
+    // Show "AI is typing" indicator
+    const thinkingElement = document.createElement('div');
+    thinkingElement.className = 'message ai-message thinking';
+    thinkingElement.textContent = '...';
+    document.getElementById('chatMessages').appendChild(thinkingElement);
+    scrollChatToBottom();
+    
+    try {
+        // TODO: Replace this with your actual AI API call
+        // For now, using a simple echo for testing
+        setTimeout(() => {
+            // Remove thinking indicator
+            document.querySelector('.message.thinking')?.remove();
+            // Add AI response
+            addAIMessage("I received your message: \"" + message + "\". This is where the real AI response would go!");
+        }, 1500);
+        
+    } catch (error) {
+        console.error('❌ AI processing error:', error);
+        document.querySelector('.message.thinking')?.remove();
+        addAIMessage("Sorry, I'm having trouble connecting right now.");
+    }
+}
+
+// ===================================================
 // 🎤 MICROPHONE PERMISSION SYSTEM
 // ===================================================
 async function requestMicrophoneAccess() {
@@ -1275,6 +1305,9 @@ function addAIMessage(message) {
     
     chatMessages.appendChild(messageElement);
     scrollChatToBottom();
+
+    // 🚨 ADD THIS CRITICAL LINE - Connect to AI processing
+    processUserMessage(message);
 }
 
 function scrollChatToBottom() {
