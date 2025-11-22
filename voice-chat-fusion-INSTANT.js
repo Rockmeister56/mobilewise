@@ -30,6 +30,15 @@ if (window.actionButtonSystem) {
     };
 }
 
+// After line 29, add this:
+console.log('🔍 DEBUG - Strong intent result:', strongIntent);
+console.log('🔍 DEBUG - Message:', userMessage);
+if (strongIntent) {
+    console.log('🔄 Message handled by strong intent system');
+} else {
+    console.log('🔄 Message will use regular conversation flow');
+}
+
 // Add this at the VERY TOP of your JavaScript file (like line 1)
 if (typeof window.leadData === 'undefined' || !window.leadData) {
     window.leadData = { 
@@ -2828,15 +2837,6 @@ if (appointmentPatterns.some(pattern => lowerMessage.includes(pattern))) {
     
     // 🎯 STEP 2: STRONG INTENT DETECTION & 4-STEP SALES PROCESS
 const strongIntent = detectStrongIntent(userMessage);
-
-console.log('🔍 DEBUG - Strong intent result:', strongIntent);
-console.log('🔍 DEBUG - Message:', userMessage);
-if (strongIntent) {
-    console.log('🔄 Message handled by strong intent system');
-} else {
-    console.log('🔄 Message will use regular conversation flow');
-}
-
 if (strongIntent) {
     console.log('🎯 STRONG INTENT DETECTED:', strongIntent);
     return handleStrongIntentWithTrustBuilding(strongIntent, userMessage);
@@ -3352,44 +3352,60 @@ function getPreCloseQuestion(intent) {
 }
 
 function askQuickQuestion(questionText) {
-    console.log('🔄 ASK QUICK QUESTION CALLED:', questionText);
-    
     // 🆕 SMART DETECTION: Only redirect button-specific intents
     const isButtonIntent = questionText.includes('valuation') || 
                           questionText.includes('sell') || 
                           questionText.includes('buy') ||
                           questionText.includes('worth');
     
-    if (isButtonIntent) {
-        console.log('🎯 BUTTON INTENT DETECTED - using conversational flow');
-        console.log('   Button question:', questionText);
-    } else {
-        console.log('💬 REGULAR QUESTION - processing normally');
+    if (!isButtonIntent) {
+        console.log('💬 REGULAR CONVERSATION - letting original function handle it');
+        return; // Let the original askQuickQuestion handle regular chat
     }
     
-    // 🆕 NEW: Use conversational flow for ALL questions
+    console.log('🔄 BUTTON INTENT DETECTED - using conversational flow');
+    console.log('   Button question:', questionText);
+    
+    // 🆕 NEW: Use conversational flow like voice input
     if (typeof getAIResponse === 'function') {
         getAIResponse(questionText).then(aiResponse => {
-            console.log('✅ AI Response received:', aiResponse);
-            
             // Add AI response to chat
             if (typeof addAIMessage === 'function') {
                 addAIMessage(aiResponse);
-                console.log('✅ Response added to chat');
-            } else {
-                console.log('❌ addAIMessage not found');
             }
-            
             // Speak the response
-            if (typeof speakText === 'function' && window.voiceModeEnabled) {
+            if (typeof speakText === 'function') {
                 speakText(aiResponse);
             }
-        }).catch(error => {
-            console.log('❌ askQuickQuestion error:', error);
-        });
+            // 🆕 THEN go to Action Center after conversation
+            setTimeout(() => {
+                if (typeof openCommRelayCenter === 'function') {
+                    openCommRelayCenter();
+                    if (window.currentIntent && window.currentIntent.type === 'sell-practice' && window.currentIntent.strength === 'strong') {
+    // 🆕 ADD TEXT MODE CHECK:
+    if (!window.voiceModeEnabled) {
+        console.log('💬 TEXT MODE - Skipping auto Action Center');
+        // Let the conversation flow naturally
     } else {
-        console.log('❌ getAIResponse not found');
+        // Only auto-open for voice mode
+        openCommRelayCenter();
     }
+}
+                }
+            }, 3000); // Wait for conversation to finish
+        });
+    }
+}
+
+// Add this to the top of your file
+function getIntent() {
+    return window.currentIntent || { type: '', strength: '' };
+}
+
+// Then use it like this:
+const intent = getIntent();
+if (intent.type === 'sell-practice' && intent.strength === 'strong') {
+    // Your logic here
 }
 
 // ===================================================
@@ -3467,80 +3483,6 @@ function shouldTriggerLeadCapture(userInput) {
     ];
     
     return yesResponses.includes(input) && consultationStates.includes(conversationState);
-}
-
-// 🚨 CRITICAL FIX: Add the missing function
-function addAIResponse(response) {
-    console.log('💬 addAIResponse called with:', response);
-    
-    // Add the AI response to chat
-    if (window.addAIMessage && typeof window.addAIMessage === 'function') {
-        window.addAIMessage(response);
-        console.log('✅ AI response added to chat via addAIMessage');
-    } else {
-        console.error('❌ addAIMessage also not found!');
-        // Emergency fallback - create chat message manually
-        createFallbackAIMessage(response);
-    }
-    
-    // Speak the response if in voice mode
-    if (window.voiceModeEnabled && window.speakText) {
-        window.speakText(response);
-    }
-}
-
-// 🚨 CREATE THE MISSING getOpenAIResponse FUNCTION
-function getOpenAIResponse(userMessage, conversationHistory = []) {
-    console.log('🤖 getOpenAIResponse called:', userMessage);
-    
-    // Smart responses for common questions
-    const lowerMsg = userMessage.toLowerCase();
-    
-    // About Bruce/NCI
-    if (lowerMsg.includes('how long') && (lowerMsg.includes('bruce') || lowerMsg.includes('business') || lowerMsg.includes('nci'))) {
-        return "Bruce has been specializing in CPA practice transitions for over 15 years. New Clients Inc was founded to help accountants successfully buy and sell practices with a focus on cultural fit rather than just the highest bidder.";
-    }
-    
-    if (lowerMsg.includes('what') && lowerMsg.includes('do')) {
-        return "Bruce and New Clients Inc specialize in CPA practice transitions - helping accountants buy practices, sell practices, and get pre-qualified for practice ownership. We focus on finding the right fit for both buyers and sellers.";
-    }
-    
-    if (lowerMsg.includes('how much') || lowerMsg.includes('cost')) {
-        return "The investment varies based on your specific situation, but Bruce offers free consultations to discuss your goals and provide transparent pricing. Many clients find the return on investment pays for itself quickly.";
-    }
-    
-    if (lowerMsg.includes('where') || lowerMsg.includes('location')) {
-        return "Bruce works with accountants nationwide through virtual consultations. We've successfully helped clients in all 50 states with practice transitions, so location isn't a barrier.";
-    }
-    
-    if (lowerMsg.includes('process') || lowerMsg.includes('how does it work')) {
-        return "The process typically starts with a free consultation to understand your goals, then we help with valuation (for sellers) or pre-qualification (for buyers), and finally match you with the right opportunities. Bruce guides you through every step.";
-    }
-    
-    // Default intelligent response
-    return `I understand you're asking about "${userMessage}". Bruce has extensive experience with this and would be happy to provide specific guidance. Would you like me to connect you with him for a personalized consultation?`;
-}
-
-console.log('✅ getOpenAIResponse created! Test it:');
-console.log('getOpenAIResponse exists:', typeof getOpenAIResponse);
-
-console.log('🧪 Testing getOpenAIResponse:');
-const response = getOpenAIResponse("How long has Bruce been in business");
-console.log('✅ Response:', response);
-
-// Emergency fallback
-function createFallbackAIMessage(text) {
-    const chatContainer = document.getElementById('chat-container') || 
-                         document.querySelector('.chat-messages') ||
-                         document.body;
-    
-    const messageDiv = document.createElement('div');
-    messageDiv.className = 'ai-message';
-    messageDiv.textContent = text;
-    messageDiv.style.cssText = 'background: #f0f0f0; padding: 10px; margin: 5px; border-radius: 10px;';
-    
-    chatContainer.appendChild(messageDiv);
-    console.log('🆘 Emergency AI message created');
 }
 
 // ===================================================
