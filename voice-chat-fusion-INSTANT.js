@@ -1253,11 +1253,13 @@ function addUserMessage(message) {
     chatMessages.appendChild(messageElement);
     scrollChatToBottom();
     
-    // 🚨 CONSULTATION "YES" DETECTION - NEW CODE
+    // 🚨 CONSULTATION "YES" DETECTION - INTEGRATED CODE
     const isConsultationYes = window.lastAIResponse && 
                              (window.lastAIResponse.includes('consultation') ||
                               window.lastAIResponse.includes('connect you') ||
-                              window.lastAIResponse.includes('personalized guidance')) &&
+                              window.lastAIResponse.includes('personalized guidance') ||
+                              window.lastAIResponse.includes('schedule') ||
+                              window.lastAIResponse.includes('expert')) &&
                              message.toLowerCase().includes('yes');
     
     if (isConsultationYes) {
