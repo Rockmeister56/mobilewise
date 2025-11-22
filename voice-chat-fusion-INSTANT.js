@@ -2747,7 +2747,14 @@ function handleGeneralQuestion(message, userName) {
 // =============================================================================
 
 async function getAIResponse(userMessage, conversationHistory = []) {
-    console.log('🎯 GOLD STANDARD getAIResponse called:', userMessage);   
+    console.log('🎯 GOLD STANDARD getAIResponse called:', userMessage); 
+    
+    // 🆕 CRITICAL FIX: Skip name capture for obvious questions
+    const isQuestion = /^(how|what|when|where|why|who|is|are|do|does|can|could|will|would)/i.test(userMessage);
+    if (isQuestion && window.salesAI?.state === 'introduction') {
+        console.log('🎯 QUESTION DETECTED - Skipping name capture');
+        window.salesAI.state = 'investigation';
+    }
 
     // 🎯 STEP 0: CHECK FOR CONCERNS FIRST - NEW INTEGRATION
     if (detectConcernOrObjection(userMessage)) {
