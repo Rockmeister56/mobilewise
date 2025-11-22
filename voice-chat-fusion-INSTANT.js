@@ -3363,32 +3363,67 @@ function askQuickQuestion(questionText) {
     if (isButtonIntent) {
         console.log('🎯 BUTTON INTENT DETECTED - using conversational flow');
         console.log('   Button question:', questionText);
+        
+        // 🆕 NEW: Use conversational flow for button intents
+        if (typeof getAIResponse === 'function') {
+            getAIResponse(questionText).then(aiResponse => {
+                console.log('✅ AI Response received:', aiResponse);
+                
+                // Add AI response to chat
+                if (typeof addAIMessage === 'function') {
+                    addAIMessage(aiResponse);
+                    console.log('✅ Response added to chat');
+                } else {
+                    console.log('❌ addAIMessage not found');
+                }
+                
+                // Speak the response
+                if (typeof speakText === 'function' && window.voiceModeEnabled) {
+                    speakText(aiResponse);
+                }
+                
+                // 🆕 THEN go to Action Center after conversation (for button intents only)
+                setTimeout(() => {
+                    if (typeof openCommRelayCenter === 'function') {
+                        // 🆕 ADD TEXT MODE CHECK:
+                        if (!window.voiceModeEnabled) {
+                            console.log('💬 TEXT MODE - Skipping auto Action Center');
+                            // Let the conversation flow naturally
+                        } else {
+                            // Only auto-open for voice mode
+                            openCommRelayCenter();
+                        }
+                    }
+                }, 3000); // Wait for conversation to finish
+            }).catch(error => {
+                console.log('❌ askQuickQuestion error:', error);
+            });
+        }
     } else {
         console.log('💬 REGULAR QUESTION - processing normally');
-    }
-    
-    // 🆕 NEW: Use conversational flow for ALL questions
-    if (typeof getAIResponse === 'function') {
-        getAIResponse(questionText).then(aiResponse => {
-            console.log('✅ AI Response received:', aiResponse);
-            
-            // Add AI response to chat
-            if (typeof addAIMessage === 'function') {
-                addAIMessage(aiResponse);
-                console.log('✅ Response added to chat');
-            } else {
-                console.log('❌ addAIMessage not found');
-            }
-            
-            // Speak the response
-            if (typeof speakText === 'function' && window.voiceModeEnabled) {
-                speakText(aiResponse);
-            }
-        }).catch(error => {
-            console.log('❌ askQuickQuestion error:', error);
-        });
-    } else {
-        console.log('❌ getAIResponse not found');
+        
+        // 🆕 PROCESS REGULAR QUESTIONS TOO!
+        if (typeof getAIResponse === 'function') {
+            getAIResponse(questionText).then(aiResponse => {
+                console.log('✅ AI Response received:', aiResponse);
+                
+                // Add AI response to chat
+                if (typeof addAIMessage === 'function') {
+                    addAIMessage(aiResponse);
+                    console.log('✅ Response added to chat');
+                } else {
+                    console.log('❌ addAIMessage not found');
+                }
+                
+                // Speak the response
+                if (typeof speakText === 'function' && window.voiceModeEnabled) {
+                    speakText(aiResponse);
+                }
+                // 🚫 NO Action Center for regular questions
+            }).catch(error => {
+                console.log('❌ askQuickQuestion error:', error);
+            });
+        }
     }
 }
 
