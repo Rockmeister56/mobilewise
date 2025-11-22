@@ -30,6 +30,15 @@ if (window.actionButtonSystem) {
     };
 }
 
+// After line 29, add this:
+console.log('🔍 DEBUG - Strong intent result:', strongIntent);
+console.log('🔍 DEBUG - Message:', userMessage);
+if (strongIntent) {
+    console.log('🔄 Message handled by strong intent system');
+} else {
+    console.log('🔄 Message will use regular conversation flow');
+}
+
 // Add this at the VERY TOP of your JavaScript file (like line 1)
 if (typeof window.leadData === 'undefined' || !window.leadData) {
     window.leadData = { 
@@ -2859,17 +2868,27 @@ if (window.salesAI.state === 'introduction') {
     console.log('🎯 Handling introduction - capturing name...');
     
     // Simple name handling
-    if (!window.salesAI.userData.firstName) {
-        const name = userMessage.split(' ')[0];
-        if (name && name.length > 1) {
-            window.salesAI.userData.firstName = name;
-            window.salesAI.state = 'investigation';
-            const response = `Nice to meet you ${name}! What brings you to New Clients Inc today?`;
-            console.log('✅ Name captured, moving to investigation state');
-            return response;
-        } else {
-            return "Hi! I'm your practice transition assistant. What's your first name?";
-        }
+    // FIXED NAME CAPTURE LOGIC:
+if (!window.salesAI.userData.firstName) {
+    // Only accept reasonable names, not question words
+    const potentialName = userMessage.split(' ')[0];
+    const questionWords = ['how', 'what', 'when', 'where', 'why', 'who', 'which', 'can', 'could', 'would', 'should', 'is', 'are', 'do', 'does', 'did'];
+    
+    if (potentialName && 
+        potentialName.length > 1 && 
+        !questionWords.includes(potentialName.toLowerCase())) {
+        
+        window.salesAI.userData.firstName = potentialName;
+        window.salesAI.state = 'investigation';
+        
+        // Your existing welcome splash logic...
+        const response = `Nice to meet you ${potentialName}! What brings you to New Clients Inc today?`;
+        return response;
+    } else {
+        // This is probably NOT a name - ask for name properly
+        return "Hi! I'm your practice transition assistant. What's your first name?";
+    }
+
     }
 }
 
