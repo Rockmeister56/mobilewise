@@ -3540,8 +3540,9 @@ function getOpenAIResponse(userMessage, conversationHistory = []) {
 console.log('✅ getOpenAIResponse created! Test it:');
 console.log('getOpenAIResponse exists:', typeof getOpenAIResponse);
 
-// Quick test
-getOpenAIResponse("How long has Bruce been in business").then(console.log);
+console.log('🧪 Testing getOpenAIResponse:');
+const response = getOpenAIResponse("How long has Bruce been in business");
+console.log('✅ Response:', response);
 
 // Emergency fallback
 function createFallbackAIMessage(text) {
