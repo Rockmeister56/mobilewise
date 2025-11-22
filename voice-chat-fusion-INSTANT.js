@@ -3345,17 +3345,6 @@ function askQuickQuestion(questionText) {
     }
 }
 
-// Add this to the top of your file
-function getIntent() {
-    return window.currentIntent || { type: '', strength: '' };
-}
-
-// Then use it like this:
-const intent = getIntent();
-if (intent.type === 'sell-practice' && intent.strength === 'strong') {
-    // Your logic here
-}
-
 // ===================================================
 // 🎯 NAME CAPTURE HANDLER - RESUME PENDING INTENT
 // ===================================================
