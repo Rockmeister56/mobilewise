@@ -1295,9 +1295,31 @@ function addUserMessage(message) {
                              window.lastAIResponse.includes('Can I'));
     
     if (isLikelyResponse) {
-        console.log('🎯 SMART DETECTED: Response to AI question - Processing directly');
+        console.log('🎯 SMART DETECTED: Response to AI question - BLOCKING BANNER & Processing directly');
         console.log('   AI asked:', window.lastAIResponse);
         console.log('   User responded:', message);
+        
+        // 🚨 CRITICAL: STOP BANNER SYSTEM IMMEDIATELY
+        if (window.cleanupSpeakSequence) {
+            window.cleanupSpeakSequence();
+            console.log('✅ Speak Now banner cleaned up');
+        }
+        
+        if (window.directSpeakNowTimeout) {
+            clearTimeout(window.directSpeakNowTimeout);
+            window.directSpeakNowTimeout = null;
+            console.log('✅ Direct Speak Now timeout cancelled');
+        }
+        
+        // 🚨 BLOCK BANNER COOLDOWN SYSTEM
+        window.bannerCooldown = true;
+        window.speakSequenceActive = false;
+        
+        // 🚨 CANCEL ANY PENDING LISTENING
+        if (window.recognition && window.recognition.stop) {
+            window.recognition.stop();
+            console.log('✅ Speech recognition stopped');
+        }
         
         if (typeof processUserResponse === 'function') {
             processUserResponse(message);
@@ -1314,28 +1336,28 @@ function addUserMessage(message) {
     window.lastUserMessage = message;
 }
 
-// 🚨 ALSO ADD: Track AI responses for smart detection
-// In your AI response functions (getAIResponse, getOpenAIResponse, etc.)
-// Add this when the AI sends a response:
-
-function trackAIResponse(aiMessage) {
-    window.lastAIResponse = aiMessage;
-    console.log('🎯 Tracking AI response for hybrid detection:', aiMessage.substring(0, 50) + '...');
+// 🚨 ADD THIS SEPARATE BANNER BLOCKER
+function installBannerBlocker() {
+    console.log('🔧 Installing banner blocker for text responses...');
+    
+    const originalShowDirectSpeakNow = window.showDirectSpeakNow;
+    window.showDirectSpeakNow = function() {
+        // Check if we're in a text response situation
+        const isTextResponseMode = window.lastAIResponse && 
+                                  window.lastAIResponse.includes('?');
+        
+        if (isTextResponseMode && !window.voiceModeEnabled) {
+            console.log('🛑 BANNER BLOCKED: Text response mode active');
+            return; // BLOCK the banner
+        }
+        
+        console.log('🎤 VOICE MODE: Allowing banner');
+        return originalShowDirectSpeakNow.apply(this, arguments);
+    };
 }
 
-// Example usage in your AI functions:
-function getOpenAIResponse(userMessage, conversationHistory = []) {
-    console.log('🤖 getOpenAIResponse called:', userMessage);
-    
-    // ... your existing response logic ...
-    
-    const response = "Your response here...";
-    
-    // 🚨 TRACK THIS AI RESPONSE
-    trackAIResponse(response);
-    
-    return response;
-}
+// Run the blocker
+installBannerBlocker();
 
 function addAIMessage(message) {
     const chatMessages = document.getElementById('chatMessages');
