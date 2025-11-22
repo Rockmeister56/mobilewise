@@ -1,3 +1,35 @@
+// ===================================================
+// 🎯 MOBILE-WISE AI VOICE CHAT - COMPLETE INTEGRATION
+// Smart Button + Lead Capture + EmailJS + Banner System
+// ===================================================
+
+// 🚨 EMERGENCY FIX - Block Action Center in Text Mode
+console.log('🔧 Installing Text Mode Action Center Blocker...');
+
+// Override the Action Center opener with text mode protection
+const originalOpenCommRelayCenter = window.openCommRelayCenter;
+window.openCommRelayCenter = function() {
+    if (!window.voiceModeEnabled) {
+        console.log('🛑 TEXT MODE BLOCKED: Action Center opening prevented');
+        console.trace('🕵️ ACTION CENTER BLOCKED - Stack trace:');
+        return Promise.resolve(); // Block completely in text mode
+    }
+    console.log('🎤 VOICE MODE: Allowing Action Center opening');
+    return originalOpenCommRelayCenter.apply(this, arguments);
+};
+
+// Also override the specific function in action-button-system
+if (window.actionButtonSystem) {
+    const originalCreateActionCenter = window.actionButtonSystem.createCommRelayCenter;
+    window.actionButtonSystem.createCommRelayCenter = function() {
+        if (!window.voiceModeEnabled) {
+            console.log('🛑 TEXT MODE: Action Center creation blocked');
+            return;
+        }
+        return originalCreateActionCenter.apply(this, arguments);
+    };
+}
+
 // Add this at the VERY TOP of your JavaScript file (like line 1)
 if (typeof window.leadData === 'undefined' || !window.leadData) {
     window.leadData = { 
@@ -1253,28 +1285,6 @@ function addUserMessage(message) {
     chatMessages.appendChild(messageElement);
     scrollChatToBottom();
     
-    // 🚨 CONSULTATION "YES" DETECTION - INTEGRATED CODE
-    const isConsultationYes = window.lastAIResponse && 
-                             (window.lastAIResponse.includes('consultation') ||
-                              window.lastAIResponse.includes('connect you') ||
-                              window.lastAIResponse.includes('personalized guidance') ||
-                              window.lastAIResponse.includes('schedule') ||
-                              window.lastAIResponse.includes('expert')) &&
-                             message.toLowerCase().includes('yes');
-    
-    if (isConsultationYes) {
-        console.log('🎯 CONSULTATION "YES" DETECTED - Triggering Action Center');
-        console.log('   AI asked:', window.lastAIResponse);
-        console.log('   User responded:', message);
-        
-        // Use the pre-close system to trigger Action Center
-        if (typeof handlePreCloseResponse === 'function') {
-            const response = handlePreCloseResponse(message, 'consultation');
-            console.log('✅ Action Center triggered via pre-close system');
-            return; // STOP - don't process as normal conversation
-        }
-    }
-    
     // 🎯 SMART HYBRID SYSTEM: Detect if this is a response to AI's question
     const isLikelyResponse = window.lastAIResponse && 
                             (window.lastAIResponse.includes('?') || 
@@ -1418,48 +1428,6 @@ function toggleInputMode() {
 function switchToTextMode() {
     console.log('📝 SWITCHING TO TEXT MODE - FINAL FIX');
     window.voiceModeEnabled = false;
-
-        // 🚨 REMOVE ACTIVE BANNERS VISUALLY
-    document.querySelectorAll('.speak-now-banner, .black-transparent-overlay').forEach(banner => {
-        banner.remove();
-        console.log('✅ Removed active banner');
-    });
-
-    // 🚨 CRITICAL: CLEAN UP ACTIVE BANNER
-    if (window.cleanupSpeakSequence) {
-        window.cleanupSpeakSequence();
-        console.log('✅ Active banner cleaned up');
-    }
-    
-    // 🚨 STOP ANY VOICE LISTENING
-    if (window.stopListening) {
-        window.stopListening();
-        console.log('✅ Voice listening stopped');
-    }
-    
-    // 🚨 CANCEL ANY PENDING BANNER TIMEOUTS
-    if (window.directSpeakNowTimeout) {
-        clearTimeout(window.directSpeakNowTimeout);
-        window.directSpeakNowTimeout = null;
-        console.log('✅ Pending banner timeout cancelled');
-    }
-
-    // 🚨 CRITICAL: Set flag to block ALL future banners in text mode
-    window.suppressSpeakNowBanner = true;
-    window.bannerCooldown = true;
-    window.speakSequenceActive = false;
-
-    // Clean up any active banner
-    if (window.cleanupSpeakSequence) {
-        window.cleanupSpeakSequence();
-    }
-    
-    // 🚨 STOP ANY PENDING BANNER TIMEOUTS
-    if (window.directSpeakNowTimeout) {
-        clearTimeout(window.directSpeakNowTimeout);
-        window.directSpeakNowTimeout = null;
-        console.log('✅ Cancelled pending banner timeout');
-    }
     
     // Stop voice
     if (window.stopListening) window.stopListening();
@@ -1504,6 +1472,9 @@ function switchToTextMode() {
     if (window.addAIMessage) {
         window.addAIMessage("✅ Switched to text mode. Type your questions below.");
     }
+    
+    // Set flags to block auto-voice
+    window.suppressSpeakNowBanner = true;
 }
 
 function switchToVoiceMode() {
@@ -2120,12 +2091,6 @@ if (actionCenterShowing || leadCaptureActive) {
 if (tooSoonAfterClick || conversationEnded || thankYouActive) {
     console.log('🚫 BLOCKED: One or more blocking conditions active');
     return;
-}
-
-// 🚨 ADD MODE CHECK BEFORE BANNER TRIGGER
-if (!window.voiceModeEnabled) {
-    console.log('🛑 TEXT MODE: Banner sequence blocked - user responds via text');
-    return; // STOP - don't trigger banner in text mode
 }
 
 if (VOICE_CONFIG.debug) {
@@ -2803,7 +2768,6 @@ function handleGeneralQuestion(message, userName) {
 
 async function getAIResponse(userMessage, conversationHistory = []) {
     console.log('🎯 GOLD STANDARD getAIResponse called:', userMessage); 
-    console.trace('Stack trace for duplicate call');
     
     // 🆕 CRITICAL FIX: Skip name capture for obvious questions
     const isQuestion = /^(how|what|when|where|why|who|is|are|do|does|can|could|will|would)/i.test(userMessage);
@@ -3359,7 +3323,6 @@ console.log('✅ COMPLETE GOLD STANDARD getAIResponse WITH 4-STEP SALES PROCESS 
 
 function processUserResponse(userText) {
     console.log('🎯 processUserResponse called with:', userText);
-    console.trace('Stack trace for processUserResponse');
     
     // 🚨 CHECK IF ACTION SYSTEM IS IN LEAD CAPTURE MODE
     if (window.isInLeadCapture && window.processLeadResponse) {
@@ -3423,8 +3386,7 @@ function getPreCloseQuestion(intent) {
 }
 
 function askQuickQuestion(questionText) {
-     console.log('🔄🔄🔄 ASK QUICK QUESTION CALLED:', questionText);
-    console.trace('Stack trace for askQuickQuestion');
+    console.log('🔄 ASK QUICK QUESTION CALLED:', questionText);
     
     // 🆕 SMART DETECTION: Only redirect button-specific intents
     const isButtonIntent = questionText.includes('valuation') || 
@@ -3497,7 +3459,7 @@ function askQuickQuestion(questionText) {
             });
         }
     }
-} // 🚨 END OF FUNCTION - REMOVE EVERYTHING AFTER THIS LINE
+}
 
 // ===================================================
 // 🎯 NAME CAPTURE HANDLER - RESUME PENDING INTENT
@@ -3624,20 +3586,8 @@ function getOpenAIResponse(userMessage, conversationHistory = []) {
         return "The process typically starts with a free consultation to understand your goals, then we help with valuation (for sellers) or pre-qualification (for buyers), and finally match you with the right opportunities. Bruce guides you through every step.";
     }
     
-    // 🚨 FIX THE LOOP - Better default response
-    // Check if this is a simple response (like "yes", "no", "ok") vs a real question
-    const isSimpleResponse = lowerMsg === 'yes' || 
-                           lowerMsg === 'no' || 
-                           lowerMsg === 'ok' ||
-                           lowerMsg === 'thanks' ||
-                           lowerMsg.length < 10;
-    
-    if (isSimpleResponse) {
-        return "Got it! Is there anything else you'd like to know about Bruce's services or practice transition expertise?";
-    }
-    
-    // For actual questions that don't match above, provide helpful response WITHOUT immediate consultation offer
-    return "That's a great question about " + userMessage + ". Bruce has helped many accountants with similar situations through his practice transition services. What specific aspect are you most interested in learning about?";
+    // Default intelligent response
+    return `I understand you're asking about "${userMessage}". Bruce has extensive experience with this and would be happy to provide specific guidance. Would you like me to connect you with him for a personalized consultation?`;
 }
 
 console.log('✅ getOpenAIResponse created! Test it:');
@@ -5782,29 +5732,6 @@ window.startRealtimeListening = startRealtimeListening;
 if (typeof showUniversalBanner === 'function') {
     window.showUniversalBanner = showUniversalBanner;
 }
-
-// ============================================
-// 🚨 PERMANENT BANNER BLOCKER - TEXT MODE PROTECTION  
-// ============================================
-
-setTimeout(function installPermanentBannerBlocker() {
-    console.log('🔧 Installing PERMANENT banner blocker...');
-    
-    if (window.showDirectSpeakNow && !window.showDirectSpeakNow.toString().includes('BANNER BLOCKED')) {
-        const originalShowDirectSpeakNow = window.showDirectSpeakNow;
-        window.showDirectSpeakNow = function() {
-            if (!window.voiceModeEnabled) {
-                console.log('🛑 BANNER BLOCKED: Text mode active');
-                return;
-            }
-            console.log('🎤 BANNER ALLOWED: Voice mode active');
-            return originalShowDirectSpeakNow.apply(this, arguments);
-        };
-        console.log('✅ PERMANENT banner blocker installed!');
-    } else {
-        console.log('✅ Banner blocker already installed');
-    }
-}, 500);
 
 console.log('✅ Voice chat functions exported for Action System integration');
 
