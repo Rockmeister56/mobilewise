@@ -3,6 +3,33 @@
 // Smart Button + Lead Capture + EmailJS + Banner System
 // ===================================================
 
+// 🚨 EMERGENCY FIX - Block Action Center in Text Mode
+console.log('🔧 Installing Text Mode Action Center Blocker...');
+
+// Override the Action Center opener with text mode protection
+const originalOpenCommRelayCenter = window.openCommRelayCenter;
+window.openCommRelayCenter = function() {
+    if (!window.voiceModeEnabled) {
+        console.log('🛑 TEXT MODE BLOCKED: Action Center opening prevented');
+        console.trace('🕵️ ACTION CENTER BLOCKED - Stack trace:');
+        return Promise.resolve(); // Block completely in text mode
+    }
+    console.log('🎤 VOICE MODE: Allowing Action Center opening');
+    return originalOpenCommRelayCenter.apply(this, arguments);
+};
+
+// Also override the specific function in action-button-system
+if (window.actionButtonSystem) {
+    const originalCreateActionCenter = window.actionButtonSystem.createCommRelayCenter;
+    window.actionButtonSystem.createCommRelayCenter = function() {
+        if (!window.voiceModeEnabled) {
+            console.log('🛑 TEXT MODE: Action Center creation blocked');
+            return;
+        }
+        return originalCreateActionCenter.apply(this, arguments);
+    };
+}
+
 // Add this at the VERY TOP of your JavaScript file (like line 1)
 if (typeof window.leadData === 'undefined' || !window.leadData) {
     window.leadData = { 
@@ -2767,15 +2794,21 @@ const appointmentPatterns = [
 if (urgentPatterns.some(pattern => lowerMessage.includes(pattern))) {
     console.log('🚨 URGENT INTENT DETECTED - FAST TRACKING TO BRUCE');
     
-    // 🎯 TRIGGER ACTION CENTER IMMEDIATELY
+    // 🆕 CRITICAL FIX: Add text mode protection
+    if (!window.voiceModeEnabled) {
+        console.log('💬 TEXT MODE: Urgent intent detected but Action Center blocked');
+        return "I understand this is urgent! In text mode, please use the contact options available to connect with Bruce, the founder and CEO of NCI.";
+    }
+    
+    // 🎯 TRIGGER ACTION CENTER IMMEDIATELY (Voice Mode Only)
     setTimeout(() => {
         if (window.showCommunicationActionCenter) {
             window.showCommunicationActionCenter();
-            console.log('✅ Action Center triggered for urgent request');
+            console.log('✅ Action Center triggered for urgent request (VOICE MODE)');
         }
     }, 1000);
     
-    return "I understand this is urgent! Let me bring up all the ways to connect with Bruce,the founder and CEO of NCI immediately.";
+    return "I understand this is urgent! Let me bring up all the ways to connect with Bruce, the founder and CEO of NCI immediately.";
 }
 
 // Check for APPOINTMENT second
