@@ -3300,48 +3300,124 @@ function getPreCloseQuestion(intent) {
 }
 
 function askQuickQuestion(questionText) {
-    // 🆕 SMART DETECTION: Only redirect button-specific intents
-    const isButtonIntent = questionText.includes('valuation') || 
-                          questionText.includes('sell') || 
-                          questionText.includes('buy') ||
-                          questionText.includes('worth');
+    console.log('🎯 Quick button clicked:', questionText);
     
-    if (!isButtonIntent) {
-        console.log('💬 REGULAR CONVERSATION - letting original function handle it');
-        return; // Let the original askQuickQuestion handle regular chat
+    // 🎨 ADD USER MESSAGE TO CHAT (this was missing!)
+    if (typeof addUserMessage === 'function') {
+        addUserMessage(questionText);
     }
     
-    console.log('🔄 BUTTON INTENT DETECTED - using conversational flow');
-    console.log('   Button question:', questionText);
+    // 1️⃣ STOP ALL SPEECH IMMEDIATELY
+    if (typeof stopAllSpeech === 'function') {
+        stopAllSpeech();
+    }
+    if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+    }
     
-    // 🆕 NEW: Use conversational flow like voice input
-    if (typeof getAIResponse === 'function') {
-        getAIResponse(questionText).then(aiResponse => {
-            // Add AI response to chat
-            if (typeof addAIMessage === 'function') {
-                addAIMessage(aiResponse);
+    // 2️⃣ DETECT WHICH BUTTON WAS CLICKED
+    let buttonIntent = null;
+    let acknowledgment = null;
+    let targetState = null;
+    let scriptResponse = null;
+    
+    const buttonText = questionText.toLowerCase();
+    
+    if (buttonText.includes('valuation') || buttonText.includes('worth')) {
+        // PRACTICE VALUATION BUTTON
+        buttonIntent = 'valuation';
+        acknowledgment = "Fantastic! You want to know what your practice is worth.";
+        targetState = 'asking_valuation_consultation';
+        
+        scriptResponse = window.leadData && window.leadData.firstName ?
+            `Perfect ${window.leadData.firstName}! Bruce, the founder and CEO of NCI can provide a valuation. Most owners are surprised by the value. Interested?` :
+            "Perfect! Bruce,the founder and CEO of NCI can provide a valuation. Most owners are surprised. Interested?";
+            
+    } else if (buttonText.includes('sell')) {
+        // SELLING OPTIONS BUTTON
+        buttonIntent = 'selling';
+        acknowledgment = "Fantastic! You want to sell your practice.";
+        targetState = 'selling_size_question';
+        
+        scriptResponse = window.leadData && window.leadData.firstName ?
+            `Wow ${window.leadData.firstName}! That's a huge decision. How many clients are you serving?` :
+            "Wow! That's a huge decision. How many clients are you serving?";
+            
+    } else if (buttonText.includes('buy')) {
+        // BUYING OPTIONS BUTTON
+        buttonIntent = 'buying';
+        acknowledgment = "Fantastic! You want to buy a practice.";
+        targetState = 'buying_budget_question';
+        
+        scriptResponse = window.leadData && window.leadData.firstName ?
+            `Excellent, ${window.leadData.firstName}! Bruce,the founder and CEO of NCI has some fantastic opportunities available right now. Tell me, what's your budget range for acquiring a practice?` :
+            "Excellent! Bruce,the founder and CEO of NCI has some fantastic opportunities available. What's your budget range for acquiring a practice?";
+    }
+    
+    // 3️⃣ CHECK IF WE HAVE THEIR NAME
+    const firstName = window.leadData ? window.leadData.firstName : null;
+    
+    if (firstName) {
+        // ✅ HAS NAME - Jump directly to the conversation flow
+        console.log(`✅ Name exists (${firstName}) - jumping to ${targetState}`);
+        
+        conversationState = targetState;
+        
+        // 🎨 ADD AI MESSAGE TO CHAT
+        if (typeof addAIMessage === 'function') {
+            addAIMessage(scriptResponse);
+        }
+        
+        // Speak the response
+        setTimeout(() => {
+            speakText(scriptResponse);
+        }, 100);
+        
+        // Trigger expertise banner
+        setTimeout(() => {
+            if (typeof showUniversalBanner === 'function') {
+                showUniversalBanner('expertise');
             }
-            // Speak the response
-            if (typeof speakText === 'function') {
-                speakText(aiResponse);
-            }
-            // 🆕 THEN go to Action Center after conversation
-            setTimeout(() => {
-                if (typeof openCommRelayCenter === 'function') {
-                    openCommRelayCenter();
-                    if (window.currentIntent && window.currentIntent.type === 'sell-practice' && window.currentIntent.strength === 'strong') {
-    // 🆕 ADD TEXT MODE CHECK:
-    if (!window.voiceModeEnabled) {
-        console.log('💬 TEXT MODE - Skipping auto Action Center');
-        // Let the conversation flow naturally
+        }, 1500);
+        
     } else {
-        // Only auto-open for voice mode
-        openCommRelayCenter();
-    }
-}
-                }
-            }, 3000); // Wait for conversation to finish
-        });
+        // ❌ NO NAME YET - Acknowledge intent + Ask for name
+        console.log(`❌ No name yet - storing pendingIntent: ${buttonIntent}`);
+        
+        // Store the pending intent so we can resume after name capture
+        window.pendingIntent = buttonIntent;
+        window.pendingIntentState = targetState;
+        window.pendingIntentResponse = scriptResponse;
+        
+        // Set state to capture name
+        conversationState = 'getting_first_name';
+        
+        // Build full response
+        const fullResponse = acknowledgment + " Can I get your name first, please?";
+        
+        // 🎨 ADD AI MESSAGE TO CHAT
+        if (typeof addAIMessage === 'function') {
+            addAIMessage(fullResponse);
+        }
+        
+        // Speak acknowledgment + name request
+        setTimeout(() => {
+            speakText(fullResponse);
+        }, 100);
+        
+        // ✅ RESTART VOICE LISTENING AFTER SPEECH
+        setTimeout(() => {
+            if (typeof startListening === 'function') {
+                startListening();
+            }
+        }, 1000);
+        
+        // Show expertise banner immediately
+        setTimeout(() => {
+            if (typeof showUniversalBanner === 'function') {
+                showUniversalBanner('expertise');
+            }
+        }, 1500);
     }
 }
 
