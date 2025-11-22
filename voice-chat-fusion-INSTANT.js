@@ -3384,8 +3384,8 @@ function askQuickQuestion(questionText) {
                     console.log('❌ addAIMessage not found');
                 }
                 
-                // Speak the response
-                if (typeof speakText === 'function' && window.voiceModeEnabled) {
+                // 🚨 FIX 1: Remove voiceModeEnabled check - ALWAYS SPEAK
+                if (typeof speakText === 'function') {
                     speakText(aiResponse);
                 }
                 
@@ -3422,8 +3422,8 @@ function askQuickQuestion(questionText) {
                     console.log('❌ addAIMessage not found');
                 }
                 
-                // Speak the response
-                if (typeof speakText === 'function' && window.voiceModeEnabled) {
+                // 🚨 FIX 2: Remove voiceModeEnabled check - ALWAYS SPEAK
+                if (typeof speakText === 'function') {
                     speakText(aiResponse);
                 }
                 // 🚫 NO Action Center for regular questions
