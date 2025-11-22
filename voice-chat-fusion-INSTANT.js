@@ -1285,7 +1285,7 @@ function addUserMessage(message) {
     chatMessages.appendChild(messageElement);
     scrollChatToBottom();
     
-    // 🎯 SMART HYBRID SYSTEM: Detect if this is a response to AI's question
+    // 🚨 SMART HYBRID SYSTEM: Detect if this is a response to AI's question
     const isLikelyResponse = window.lastAIResponse && 
                             (window.lastAIResponse.includes('?') || 
                              window.lastAIResponse.includes('Would you') ||
@@ -1312,6 +1312,29 @@ function addUserMessage(message) {
     
     // Store for next detection
     window.lastUserMessage = message;
+}
+
+// 🚨 ALSO ADD: Track AI responses for smart detection
+// In your AI response functions (getAIResponse, getOpenAIResponse, etc.)
+// Add this when the AI sends a response:
+
+function trackAIResponse(aiMessage) {
+    window.lastAIResponse = aiMessage;
+    console.log('🎯 Tracking AI response for hybrid detection:', aiMessage.substring(0, 50) + '...');
+}
+
+// Example usage in your AI functions:
+function getOpenAIResponse(userMessage, conversationHistory = []) {
+    console.log('🤖 getOpenAIResponse called:', userMessage);
+    
+    // ... your existing response logic ...
+    
+    const response = "Your response here...";
+    
+    // 🚨 TRACK THIS AI RESPONSE
+    trackAIResponse(response);
+    
+    return response;
 }
 
 function addAIMessage(message) {
