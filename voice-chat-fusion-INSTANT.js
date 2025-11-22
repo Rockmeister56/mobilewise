@@ -536,41 +536,6 @@ function showPostSorryListening() {
 }
 
 // ===================================================
-// 🤖 AI MESSAGE PROCESSING FUNCTION  
-// ===================================================
-async function processUserMessage(message) {
-    // Prevent processing AI messages or empty messages
-    if (!message || message.startsWith('I received your message:')) {
-        return;
-    }
-    
-    console.log('🤖 Sending to AI:', message);
-    
-    // Show "AI is typing" indicator
-    const thinkingElement = document.createElement('div');
-    thinkingElement.className = 'message ai-message thinking';
-    thinkingElement.textContent = '...';
-    document.getElementById('chatMessages').appendChild(thinkingElement);
-    scrollChatToBottom();
-    
-    try {
-        // Remove the setTimeout echo and replace with actual AI call
-        const aiResponse = await getAIResponse(message); // Use your existing AI function
-        
-        // Remove thinking indicator
-        document.querySelector('.message.thinking')?.remove();
-        
-        // Add AI response WITHOUT triggering processUserMessage again
-        addAIMessage(aiResponse, true); // Add flag to indicate this is AI response
-        
-    } catch (error) {
-        console.error('❌ AI processing error:', error);
-        document.querySelector('.message.thinking')?.remove();
-        addAIMessage("Sorry, I'm having trouble connecting right now.", true);
-    }
-}
-
-// ===================================================
 // 🎤 MICROPHONE PERMISSION SYSTEM
 // ===================================================
 async function requestMicrophoneAccess() {
@@ -1284,6 +1249,9 @@ async function activateMicrophone() {
     }
 }
 
+// ===================================================
+// 💭 MESSAGE HANDLING SYSTEM
+// ===================================================
 function addUserMessage(message) {
     console.log('🔍 DEBUG: addUserMessage called with:', message);
     const chatMessages = document.getElementById('chatMessages');
@@ -1295,9 +1263,6 @@ function addUserMessage(message) {
     
     chatMessages.appendChild(messageElement);
     scrollChatToBottom();
-    
-    // Process user message (this should NOT trigger for AI messages)
-    processUserMessage(message);
 }
 
 function addAIMessage(message) {
@@ -1310,9 +1275,6 @@ function addAIMessage(message) {
     
     chatMessages.appendChild(messageElement);
     scrollChatToBottom();
-
-    // 🚨 ADD THIS CRITICAL LINE - Connect to AI processing
-    processUserMessage(message);
 }
 
 function scrollChatToBottom() {
