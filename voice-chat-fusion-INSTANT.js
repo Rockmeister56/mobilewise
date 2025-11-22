@@ -1358,97 +1358,6 @@ function sendMessage() {
 }
 
 // ===================================================
-// 🎵 TOGGLE DANCE SYSTEM - TEXT/VOICE MODE SWITCHING
-// ===================================================
-window.voiceModeEnabled = true; // Start in voice mode
-
-function toggleInputMode() {
-    console.log('🎵 Toggle dance! Current mode:', window.voiceModeEnabled ? 'VOICE' : 'TEXT');
-    
-    if (window.voiceModeEnabled) {
-        switchToTextMode();
-    } else {
-        switchToVoiceMode();
-    }
-}
-
-function switchToTextMode() {
-    console.log('📝 SWITCHING TO TEXT MODE');
-    window.voiceModeEnabled = false;
-    
-    // 🚨 Nuclear voice shutdown
-    emergencyStopVoice();
-    
-    // Show your existing text input
-    const userInput = document.getElementById('userInput');
-    if (userInput) {
-        userInput.style.display = 'block';
-        userInput.focus();
-        console.log('✅ Showing existing userInput');
-    }
-    
-    // Update toggle button
-    const switchBtn = document.querySelector('button.quick-btn[onclick="toggleInputMode()"]');
-    if (switchBtn) switchBtn.textContent = '🎤 Switch to Voice';
-    
-    // Show message
-    if (window.addAIMessage) {
-        window.addAIMessage("✅ Switched to text mode. Type your questions below.");
-    }
-}
-
-function switchToVoiceMode() {
-    console.log('🎤 SWITCHING TO VOICE MODE');
-    window.voiceModeEnabled = true;
-    
-    // Hide your existing text input
-    const userInput = document.getElementById('userInput');
-    if (userInput) {
-        userInput.style.display = 'none';
-    }
-    
-    // Update toggle button
-    const switchBtn = document.querySelector('button.quick-btn[onclick="toggleInputMode()"]');
-    if (switchBtn) switchBtn.textContent = '📝 Switch to Text';
-    
-    // Show message
-    if (window.addAIMessage) {
-        window.addAIMessage("✅ Switched to voice mode. Speak now...");
-    }
-    
-    // Restart voice after delay
-    setTimeout(() => {
-        window.suppressSpeakNowBanner = false;
-        window.bannerCooldown = false;
-        
-        if (window.showDirectSpeakNow) {
-            console.log('🎤 Restarting voice system...');
-            window.showDirectSpeakNow();
-        }
-    }, 1500);
-}
-
-// 🚨 EMERGENCY VOICE STOPPER
-function emergencyStopVoice() {
-    console.log('🚨 EMERGENCY VOICE STOP');
-    if (window.stopListening) window.stopListening();
-    if (window.speechSynthesis) window.speechSynthesis.cancel();
-    
-    const voiceElements = document.querySelectorAll('.speak-now-banner, [class*="speakNow"]');
-    voiceElements.forEach(el => el.remove());
-    
-    window.suppressSpeakNowBanner = true;
-    window.bannerCooldown = true;
-    console.log('✅ EMERGENCY STOP COMPLETE');
-}
-
-// Make functions globally available
-window.toggleInputMode = toggleInputMode;
-window.switchToTextMode = switchToTextMode;
-window.switchToVoiceMode = switchToVoiceMode;
-window.emergencyStopVoice = emergencyStopVoice;
-
-// ===================================================
 // 🔥 PRE-WARM ENGINE (SILENT - NO BEEP)
 // ===================================================
 function preWarmSpeechEngine() {
@@ -4426,183 +4335,38 @@ console.log('✅ Lead capture state cleaned up');
     isInLeadCapture = false;
 }
 
-// 🎵 TOGGLE DANCE FUNCTIONS 🎵
-
-// Initialize voice mode
-window.voiceModeEnabled = true;
-
-// Main toggle function
-function toggleInputMode() {
-    console.log('🎵 Toggle dance! Current mode:', window.voiceModeEnabled ? 'VOICE' : 'TEXT');
-    
-    if (window.voiceModeEnabled) {
-        switchToTextMode();
-    } else {
-        switchToVoiceMode();
-    }
-}
-
-// Text mode function
-function switchToTextMode() {
-    console.log('📝 Switching to TEXT mode');
-    window.voiceModeEnabled = false;
-    
-    // 🚨 CRITICAL: Block voice system
-    window.suppressSpeakNowBanner = true;
-    
-    // Stop voice activity
-    if (window.stopListening) window.stopListening();
-    if (window.speechSynthesis) window.speechSynthesis.cancel();
-    
-    // Remove voice banners
-    document.querySelectorAll('.speak-now-banner, [class*="speakNow"]').forEach(el => el.remove());
-    
-    // Update button
-    const switchBtn = document.querySelector('button.quick-btn[onclick="toggleInputMode()"]');
-    if (switchBtn) switchBtn.textContent = '🎤 Switch to Voice';
-    
-    // Show message
-    if (window.addAIMessage) {
-        window.addAIMessage("✅ Switched to text mode. You can now type your questions.");
-    }
-    
-    // Focus text input if available
-    setTimeout(() => {
-        const textInput = document.getElementById('userInput') || document.getElementById('empireTextInput');
-        if (textInput) {
-            textInput.style.display = 'block';
-            textInput.focus();
-        }
-    }, 500);
-}
-
-// Voice mode function  
-function switchToVoiceMode() {
-    console.log('🎤 Switching to VOICE mode');
-    window.voiceModeEnabled = true;
-    
-    // 🚨 CRITICAL: Unblock voice system
-    window.suppressSpeakNowBanner = false;
-    
-    // Update button
-    const switchBtn = document.querySelector('button.quick-btn[onclick="toggleInputMode()"]');
-    if (switchBtn) switchBtn.textContent = '📝 Switch to Text';
-    
-    // Show message
-    if (window.addAIMessage) {
-        window.addAIMessage("✅ Switched to voice mode. Speak now...");
-    }
-    
-    // Start voice system
-    setTimeout(() => {
-        if (window.showDirectSpeakNow) {
-            window.showDirectSpeakNow();
-        }
-    }, 1000);
-}
-
 // ===================================================
 // 📝 TEXT MODE SWITCHER
 // ===================================================
-// NEW FUNCTION: Switch to text mode - WITH VOICE LOCK
 function switchToTextMode() {
-    console.log('📝 SWITCHING TO TEXT MODE - NUCLEAR VOICE SHUTDOWN');
-    window.voiceModeEnabled = false;
+    console.log('🔄 Switching to text mode');
     
-    // 🚨 NUCLEAR OPTION: COMPLETE VOICE SYSTEM SHUTDOWN
-    if (window.stopListening) window.stopListening();
-    if (window.speechSynthesis) window.speechSynthesis.cancel();
-    
-    // 🚨 REMOVE ALL VOICE BANNERS WITH EXTREME PREJUDICE
-    const voiceElements = document.querySelectorAll(
-        '.speak-now-banner, [class*="speakNow"], #speakNowBanner, ' +
-        '.voice-overlay, .listening-overlay, .try-again-overlay'
-    );
-    console.log(`🧹 NUKING ${voiceElements.length} voice elements`);
-    voiceElements.forEach(el => {
-        el.remove();
-        console.log('💥 Removed:', el.className || el.id);
-    });
-    
-    // 🚨 DISABLE VOICE SYSTEM AT THE SOURCE
-    window.suppressSpeakNowBanner = true;
-    window.bannerCooldown = true;
-    window.isListening = false;
-    window.isRecording = false;
-    
-    // Update button
-    const switchBtn = document.querySelector('button.quick-btn[onclick="toggleInputMode()"]');
-    if (switchBtn) switchBtn.textContent = '🎤 Switch to Voice';
-    
-    // Show message
-    if (window.addAIMessage) {
-        window.addAIMessage("✅ Switched to text mode. You can now type your questions.");
+    if (currentAudio) {
+        window.speechSynthesis.cancel();
     }
     
-    console.log('✅ NUCLEAR VOICE SHUTDOWN COMPLETE');
-}
-
-// 🚨 EMERGENCY VOICE STOPPER
-function emergencyStopVoice() {
-    console.log('🚨 EMERGENCY VOICE STOP');
+    stopListening();
     
-    // Stop everything
-    if (window.recognition) {
-        try { window.recognition.stop(); } catch(e) {}
-        try { window.recognition.abort(); } catch(e) {}
+    if (persistentMicStream) {
+        persistentMicStream.getTracks().forEach(track => track.stop());
+        persistentMicStream = null;
     }
-    if (window.stopListening) window.stopListening();
-    if (window.speechSynthesis) window.speechSynthesis.cancel();
     
-    // Remove ALL voice-related elements
-    document.querySelectorAll('*').forEach(el => {
-        const className = el.className?.toString() || '';
-        const id = el.id || '';
-        if (className.includes('speak') || className.includes('voice') || 
-            className.includes('listen') || id.includes('speak') || 
-            id.includes('voice') || id.includes('listen')) {
-            el.remove();
-        }
-    });
+    isAudioMode = false;
+    micPermissionGranted = false;
     
-    // Block all voice triggers
-    window.suppressSpeakNowBanner = true;
-    window.bannerCooldown = true;
+    const micButton = document.getElementById('micButton');
+    const liveTranscript = document.getElementById('liveTranscript');
     
-    console.log('✅ EMERGENCY STOP COMPLETE');
-}
-
-// Call this in switchToTextMode:
-function switchToTextMode() {
-    emergencyStopVoice();
-    // ... rest of your code ...
-}
-
-// 🆕 ADD: Function to switch BACK to voice mode
-function switchToVoiceMode() {
-    console.log('🎤 SWITCHING TO VOICE MODE');
+    if (micButton) micButton.classList.remove('listening');
+    if (liveTranscript) {
+        liveTranscript.style.display = 'none';
+        restoreQuickButtons(); // Show quick buttons again
+    }
     
-    // Unlock voice system
-    window.voiceModeEnabled = true;
-    window.suppressSpeakNowBanner = false;
-    window.bannerCooldown = false;
+    addAIMessage("Switched to text mode. Type your message in the text box below.");
     
-    isAudioMode = true;
-    
-    addAIMessage("✅ Switched to voice mode. Click the microphone or speak now.");
-    
-    // Hide text input and show voice interface
-    setTimeout(() => {
-        const textInput = document.getElementById('empireTextInput') || document.getElementById('textInput');
-        if (textInput) {
-            textInput.style.display = 'none';
-        }
-        
-        // Start voice listening
-        if (window.showDirectSpeakNow) {
-            window.showDirectSpeakNow();
-        }
-    }, 1000);
+    console.log('✅ Switched to text mode successfully');
 }
 
 // ===================================================
