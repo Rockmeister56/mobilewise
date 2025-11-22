@@ -30,15 +30,6 @@ if (window.actionButtonSystem) {
     };
 }
 
-// After line 29, add this:
-console.log('🔍 DEBUG - Strong intent result:', strongIntent);
-console.log('🔍 DEBUG - Message:', userMessage);
-if (strongIntent) {
-    console.log('🔄 Message handled by strong intent system');
-} else {
-    console.log('🔄 Message will use regular conversation flow');
-}
-
 // Add this at the VERY TOP of your JavaScript file (like line 1)
 if (typeof window.leadData === 'undefined' || !window.leadData) {
     window.leadData = { 
@@ -2837,6 +2828,15 @@ if (appointmentPatterns.some(pattern => lowerMessage.includes(pattern))) {
     
     // 🎯 STEP 2: STRONG INTENT DETECTION & 4-STEP SALES PROCESS
 const strongIntent = detectStrongIntent(userMessage);
+
+console.log('🔍 DEBUG - Strong intent result:', strongIntent);
+console.log('🔍 DEBUG - Message:', userMessage);
+if (strongIntent) {
+    console.log('🔄 Message handled by strong intent system');
+} else {
+    console.log('🔄 Message will use regular conversation flow');
+}
+
 if (strongIntent) {
     console.log('🎯 STRONG INTENT DETECTED:', strongIntent);
     return handleStrongIntentWithTrustBuilding(strongIntent, userMessage);
