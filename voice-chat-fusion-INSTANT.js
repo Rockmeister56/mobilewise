@@ -1285,10 +1285,56 @@ function addUserMessage(message) {
     chatMessages.appendChild(messageElement);
     scrollChatToBottom();
     
-    // 🎯 THE MAGIC: Treat text input EXACTLY like quick questions!
-    if (typeof askQuickQuestion === 'function') {
-        askQuickQuestion(message); // This uses the proven system!
+    // 🚨 SMART HYBRID SYSTEM: Detect if this is a response to AI's question
+    const isLikelyResponse = window.lastAIResponse && 
+                            (window.lastAIResponse.includes('?') || 
+                             window.lastAIResponse.includes('Would you') ||
+                             window.lastAIResponse.includes('Do you want') ||
+                             window.lastAIResponse.includes('Are you interested') ||
+                             window.lastAIResponse.includes('Shall I') ||
+                             window.lastAIResponse.includes('Can I'));
+    
+    if (isLikelyResponse) {
+        console.log('🎯 SMART DETECTED: Response to AI question - Processing directly');
+        console.log('   AI asked:', window.lastAIResponse);
+        console.log('   User responded:', message);
+        
+        if (typeof processUserResponse === 'function') {
+            processUserResponse(message);
+        }
+    } else {
+        console.log('💬 NORMAL CONVERSATION - Using quick question flow');
+        // Normal conversation flow
+        if (typeof askQuickQuestion === 'function') {
+            askQuickQuestion(message);
+        }
     }
+    
+    // Store for next detection
+    window.lastUserMessage = message;
+}
+
+// 🚨 ALSO ADD: Track AI responses for smart detection
+// In your AI response functions (getAIResponse, getOpenAIResponse, etc.)
+// Add this when the AI sends a response:
+
+function trackAIResponse(aiMessage) {
+    window.lastAIResponse = aiMessage;
+    console.log('🎯 Tracking AI response for hybrid detection:', aiMessage.substring(0, 50) + '...');
+}
+
+// Example usage in your AI functions:
+function getOpenAIResponse(userMessage, conversationHistory = []) {
+    console.log('🤖 getOpenAIResponse called:', userMessage);
+    
+    // ... your existing response logic ...
+    
+    const response = "Your response here...";
+    
+    // 🚨 TRACK THIS AI RESPONSE
+    trackAIResponse(response);
+    
+    return response;
 }
 
 function addAIMessage(message) {
