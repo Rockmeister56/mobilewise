@@ -3302,6 +3302,45 @@ function getPreCloseQuestion(intent) {
 function askQuickQuestion(questionText) {
     console.log('🎯 Quick button clicked:', questionText);
     
+    // 🆕 NEW: DETECT IF THIS IS REGULAR CONVERSATION VS BUTTON CLICK
+    const isRegularConversation = !questionText.includes('valuation') && 
+                                 !questionText.includes('sell') && 
+                                 !questionText.includes('buy') &&
+                                 !questionText.includes('worth');
+    
+    if (isRegularConversation) {
+        console.log('💬 REGULAR CONVERSATION - routing to AI chat');
+        
+        // 🎨 ADD USER MESSAGE TO CHAT (this was missing!)
+        if (typeof addUserMessage === 'function') {
+            addUserMessage(questionText);
+        }
+        
+        // 1️⃣ STOP ALL SPEECH IMMEDIATELY
+        if (typeof stopAllSpeech === 'function') {
+            stopAllSpeech();
+        }
+        if (window.speechSynthesis) {
+            window.speechSynthesis.cancel();
+        }
+        
+        // 2️⃣ SEND TO REGULAR AI CHAT (like voice input)
+        if (typeof getAIResponse === 'function') {
+            getAIResponse(questionText).then(aiResponse => {
+                // Add AI response to chat
+                if (typeof addAIMessage === 'function') {
+                    addAIMessage(aiResponse);
+                }
+                // Speak the response
+                if (typeof speakText === 'function') {
+                    speakText(aiResponse);
+                }
+            });
+        }
+        
+        return; // STOP - don't process as button click
+    }
+    
     // 🎨 ADD USER MESSAGE TO CHAT (this was missing!)
     if (typeof addUserMessage === 'function') {
         addUserMessage(questionText);
