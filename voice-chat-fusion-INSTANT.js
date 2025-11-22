@@ -1253,6 +1253,26 @@ function addUserMessage(message) {
     chatMessages.appendChild(messageElement);
     scrollChatToBottom();
     
+    // 🚨 CONSULTATION "YES" DETECTION - NEW CODE
+    const isConsultationYes = window.lastAIResponse && 
+                             (window.lastAIResponse.includes('consultation') ||
+                              window.lastAIResponse.includes('connect you') ||
+                              window.lastAIResponse.includes('personalized guidance')) &&
+                             message.toLowerCase().includes('yes');
+    
+    if (isConsultationYes) {
+        console.log('🎯 CONSULTATION "YES" DETECTED - Triggering Action Center');
+        console.log('   AI asked:', window.lastAIResponse);
+        console.log('   User responded:', message);
+        
+        // Use the pre-close system to trigger Action Center
+        if (typeof handlePreCloseResponse === 'function') {
+            const response = handlePreCloseResponse(message, 'consultation');
+            console.log('✅ Action Center triggered via pre-close system');
+            return; // STOP - don't process as normal conversation
+        }
+    }
+    
     // 🎯 SMART HYBRID SYSTEM: Detect if this is a response to AI's question
     const isLikelyResponse = window.lastAIResponse && 
                             (window.lastAIResponse.includes('?') || 
