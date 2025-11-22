@@ -3223,11 +3223,18 @@ function handlePreCloseResponse(userResponse, intentType) {
     const yesPatterns = ['yes', 'yeah', 'sure', 'okay', 'ok', 'absolutely', 'definitely', 'let\'s do it', 'ready', 'go ahead'];
 
     if (yesPatterns.some(pattern => lowerResponse.includes(pattern))) {
-        // 🎯 CRITICAL FIX: Trigger Action Center for YES responses
+        console.log('🎯 PRE-CLOSE YES DETECTED - Triggering Action Center');
+        
+        // 🚨 CRITICAL FIX: Trigger Action Center for ALL YES responses
         setTimeout(() => {
             if (window.showCommunicationActionCenter) {
                 window.showCommunicationActionCenter();
-                console.log('✅ Action Center triggered for consultation YES response');
+                console.log('✅ Action Center triggered for pre-close YES response');
+            } else if (window.triggerLeadActionCenter) {
+                window.triggerLeadActionCenter();
+                console.log('✅ Action Center triggered via lead system');
+            } else {
+                console.error('❌ No Action Center function found');
             }
         }, 1000);
         
