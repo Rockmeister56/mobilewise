@@ -1397,6 +1397,12 @@ function switchToTextMode() {
     console.log('📝 SWITCHING TO TEXT MODE - FINAL FIX');
     window.voiceModeEnabled = false;
 
+        // 🚨 REMOVE ACTIVE BANNERS VISUALLY
+    document.querySelectorAll('.speak-now-banner, .black-transparent-overlay').forEach(banner => {
+        banner.remove();
+        console.log('✅ Removed active banner');
+    });
+
     // 🚨 CRITICAL: CLEAN UP ACTIVE BANNER
     if (window.cleanupSpeakSequence) {
         window.cleanupSpeakSequence();
