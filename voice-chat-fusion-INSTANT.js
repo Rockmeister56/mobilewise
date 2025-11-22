@@ -1249,6 +1249,9 @@ async function activateMicrophone() {
     }
 }
 
+// ===================================================
+// 💭 MESSAGE HANDLING SYSTEM
+// ===================================================
 function addUserMessage(message) {
     console.log('🔍 DEBUG: addUserMessage called with:', message);
     const chatMessages = document.getElementById('chatMessages');
@@ -1260,11 +1263,6 @@ function addUserMessage(message) {
     
     chatMessages.appendChild(messageElement);
     scrollChatToBottom();
-    
-    // 🎯 THE MAGIC: Treat text input EXACTLY like quick questions!
-    if (typeof askQuickQuestion === 'function') {
-        askQuickQuestion(message); // This uses the proven system!
-    }
 }
 
 function addAIMessage(message) {
@@ -1516,26 +1514,39 @@ function handleTextInput(e) {
     }
 }
 
-// ===================================================
-// 🎵 TOGGLE DANCE SYSTEM - FINAL EXPORTS WITH OVERRIDE
-// ===================================================
+// 🚨 OVERRIDE ANY STRAY FUNCTIONS
+console.log('🚨 OVERRIDING STRAY FUNCTIONS WITH ENHANCED VERSIONS');
 
-// ✅ INITIAL STATE
-if (typeof window.voiceModeEnabled === 'undefined') {
-    window.voiceModeEnabled = true; // Start in voice mode
-}
+// Override the stray switchToTextMode we found
+window.switchToTextMode = function() {
+    console.log('📝 ENHANCED switchToTextMode RUNNING!');
+    window.voiceModeEnabled = false;
+    
+    // Use our enhanced logic
+    if (window.stopListening) window.stopListening();
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    
+    const btn = document.querySelector('button.quick-btn');
+    if (btn) {
+        btn.textContent = '🎤 Switch to Voice';
+        btn.style.background = '#ff6b6b';
+    }
+    
+    if (window.addAIMessage) {
+        window.addAIMessage("✅ Switched to text mode. Type your questions below.");
+    }
+};
 
-// 🚨 CRITICAL: OVERRIDE THE STRAY FUNCTION
-console.log('🚨 OVERRIDING STRAY switchToTextMode WITH FINAL VERSION');
-window.switchToTextMode = switchToTextMode; // Use our FINAL enhanced version (with GREEN color)
-
-// ✅ GLOBAL EXPORTS
+// Make functions globally available
 window.toggleInputMode = toggleInputMode;
-window.switchToTextMode = switchToTextMode; 
-window.switchToVoiceMode = switchToVoiceMode; 
-window.setupTextMessageHandler = setupTextMessageHandler;
+window.switchToTextMode = switchToTextMode;
+window.switchToVoiceMode = switchToVoiceMode;
+window.styleAllButtons = styleAllButtons;
 
-console.log('✅ TOGGLE SYSTEM LOADED WITH OVERRIDE - Stray function defeated! 🎵');
+// 🎨 Apply button styling on load
+setTimeout(styleAllButtons, 500);
+
+console.log('✅ ENHANCED TOGGLE SYSTEM LOADED - Ready for dancing! 🎵');
 
 // ===================================================
 // 🔥 PRE-WARM ENGINE (SILENT - NO BEEP)
@@ -3302,45 +3313,6 @@ function getPreCloseQuestion(intent) {
 function askQuickQuestion(questionText) {
     console.log('🎯 Quick button clicked:', questionText);
     
-    // 🆕 NEW: DETECT IF THIS IS REGULAR CONVERSATION VS BUTTON CLICK
-    const isRegularConversation = !questionText.includes('valuation') && 
-                                 !questionText.includes('sell') && 
-                                 !questionText.includes('buy') &&
-                                 !questionText.includes('worth');
-    
-    if (isRegularConversation) {
-        console.log('💬 REGULAR CONVERSATION - routing to AI chat');
-        
-        // 🎨 ADD USER MESSAGE TO CHAT (this was missing!)
-        if (typeof addUserMessage === 'function') {
-            addUserMessage(questionText);
-        }
-        
-        // 1️⃣ STOP ALL SPEECH IMMEDIATELY
-        if (typeof stopAllSpeech === 'function') {
-            stopAllSpeech();
-        }
-        if (window.speechSynthesis) {
-            window.speechSynthesis.cancel();
-        }
-        
-        // 2️⃣ SEND TO REGULAR AI CHAT (like voice input)
-        if (typeof getAIResponse === 'function') {
-            getAIResponse(questionText).then(aiResponse => {
-                // Add AI response to chat
-                if (typeof addAIMessage === 'function') {
-                    addAIMessage(aiResponse);
-                }
-                // Speak the response
-                if (typeof speakText === 'function') {
-                    speakText(aiResponse);
-                }
-            });
-        }
-        
-        return; // STOP - don't process as button click
-    }
-    
     // 🎨 ADD USER MESSAGE TO CHAT (this was missing!)
     if (typeof addUserMessage === 'function') {
         addUserMessage(questionText);
@@ -4613,10 +4585,9 @@ function sendTextMessage() {
     const textInput = document.getElementById('empireTextInput') || document.getElementById('textInput');
     const message = textInput?.value.trim();
     
-     if (message) {
+    if (message) {
         addUserMessage(message);
-        // ❌ REMOVE THIS LINE - it's causing the interference!
-        // processUserResponse(message);
+        processUserResponse(message);
         textInput.value = '';
     }
 }
