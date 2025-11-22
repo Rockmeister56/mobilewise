@@ -2164,7 +2164,7 @@ window.initializeClickToCallCapture = initializeClickToCallCapture;
 window.initializeFreeBookCapture = initializeFreeBookCapture;
 window.initiateUrgentCall = initiateUrgentCall;
 window.initializePreQualifierCapture = initializePreQualifierCapture; // 🎯 NOW THIS WILL BE GOLD!
-window.askQuickQuestion = askQuickQuestion;
+// window.askQuickQuestion = askQuickQuestion;
 
 // ❌ COMMENT OUT OR DELETE THIS ENTIRE FUNCTION:
 /*
