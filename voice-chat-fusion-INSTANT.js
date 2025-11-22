@@ -3329,6 +3329,16 @@ function askQuickQuestion(questionText) {
             setTimeout(() => {
                 if (typeof openCommRelayCenter === 'function') {
                     openCommRelayCenter();
+                    if (intent.type === 'sell-practice' && intent.strength === 'strong') {
+    // 🆕 ADD TEXT MODE CHECK:
+    if (!window.voiceModeEnabled) {
+        console.log('💬 TEXT MODE - Skipping auto Action Center');
+        // Let the conversation flow naturally
+    } else {
+        // Only auto-open for voice mode
+        openCommRelayCenter();
+    }
+}
                 }
             }, 3000); // Wait for conversation to finish
         });
