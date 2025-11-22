@@ -5721,19 +5721,28 @@ if (typeof showUniversalBanner === 'function') {
     window.showUniversalBanner = showUniversalBanner;
 }
 
-// 🚨 GLOBAL BANNER BLOCKER
-// Simple version - add this at the bottom of your file
-setTimeout(() => {
-    console.log('🔧 Installing simple banner blocker...');
-    if (window.showDirectSpeakNow && !window.voiceModeEnabled) {
-        const original = window.showDirectSpeakNow;
+// ============================================
+// 🚨 PERMANENT BANNER BLOCKER - TEXT MODE PROTECTION  
+// ============================================
+
+setTimeout(function installPermanentBannerBlocker() {
+    console.log('🔧 Installing PERMANENT banner blocker...');
+    
+    if (window.showDirectSpeakNow && !window.showDirectSpeakNow.toString().includes('BANNER BLOCKED')) {
+        const originalShowDirectSpeakNow = window.showDirectSpeakNow;
         window.showDirectSpeakNow = function() {
-            console.log('🛑 BANNER BLOCKED: Text mode active');
-            return;
+            if (!window.voiceModeEnabled) {
+                console.log('🛑 BANNER BLOCKED: Text mode active');
+                return;
+            }
+            console.log('🎤 BANNER ALLOWED: Voice mode active');
+            return originalShowDirectSpeakNow.apply(this, arguments);
         };
-        console.log('✅ Simple banner blocker installed');
+        console.log('✅ PERMANENT banner blocker installed!');
+    } else {
+        console.log('✅ Banner blocker already installed');
     }
-}, 1000);
+}, 500);
 
 console.log('✅ Voice chat functions exported for Action System integration');
 
