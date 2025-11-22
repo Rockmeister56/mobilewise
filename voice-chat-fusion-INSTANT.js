@@ -1,35 +1,3 @@
-// ===================================================
-// 🎯 MOBILE-WISE AI VOICE CHAT - COMPLETE INTEGRATION
-// Smart Button + Lead Capture + EmailJS + Banner System
-// ===================================================
-
-// 🚨 EMERGENCY FIX - Block Action Center in Text Mode
-console.log('🔧 Installing Text Mode Action Center Blocker...');
-
-// Override the Action Center opener with text mode protection
-const originalOpenCommRelayCenter = window.openCommRelayCenter;
-window.openCommRelayCenter = function() {
-    if (!window.voiceModeEnabled) {
-        console.log('🛑 TEXT MODE BLOCKED: Action Center opening prevented');
-        console.trace('🕵️ ACTION CENTER BLOCKED - Stack trace:');
-        return Promise.resolve(); // Block completely in text mode
-    }
-    console.log('🎤 VOICE MODE: Allowing Action Center opening');
-    return originalOpenCommRelayCenter.apply(this, arguments);
-};
-
-// Also override the specific function in action-button-system
-if (window.actionButtonSystem) {
-    const originalCreateActionCenter = window.actionButtonSystem.createCommRelayCenter;
-    window.actionButtonSystem.createCommRelayCenter = function() {
-        if (!window.voiceModeEnabled) {
-            console.log('🛑 TEXT MODE: Action Center creation blocked');
-            return;
-        }
-        return originalCreateActionCenter.apply(this, arguments);
-    };
-}
-
 // Add this at the VERY TOP of your JavaScript file (like line 1)
 if (typeof window.leadData === 'undefined' || !window.leadData) {
     window.leadData = { 
@@ -1285,7 +1253,7 @@ function addUserMessage(message) {
     chatMessages.appendChild(messageElement);
     scrollChatToBottom();
     
-    // 🚨 SMART HYBRID SYSTEM: Detect if this is a response to AI's question
+    // 🎯 SMART HYBRID SYSTEM: Detect if this is a response to AI's question
     const isLikelyResponse = window.lastAIResponse && 
                             (window.lastAIResponse.includes('?') || 
                              window.lastAIResponse.includes('Would you') ||
@@ -1295,31 +1263,9 @@ function addUserMessage(message) {
                              window.lastAIResponse.includes('Can I'));
     
     if (isLikelyResponse) {
-        console.log('🎯 SMART DETECTED: Response to AI question - BLOCKING BANNER & Processing directly');
+        console.log('🎯 SMART DETECTED: Response to AI question - Processing directly');
         console.log('   AI asked:', window.lastAIResponse);
         console.log('   User responded:', message);
-        
-        // 🚨 CRITICAL: STOP BANNER SYSTEM IMMEDIATELY
-        if (window.cleanupSpeakSequence) {
-            window.cleanupSpeakSequence();
-            console.log('✅ Speak Now banner cleaned up');
-        }
-        
-        if (window.directSpeakNowTimeout) {
-            clearTimeout(window.directSpeakNowTimeout);
-            window.directSpeakNowTimeout = null;
-            console.log('✅ Direct Speak Now timeout cancelled');
-        }
-        
-        // 🚨 BLOCK BANNER COOLDOWN SYSTEM
-        window.bannerCooldown = true;
-        window.speakSequenceActive = false;
-        
-        // 🚨 CANCEL ANY PENDING LISTENING
-        if (window.recognition && window.recognition.stop) {
-            window.recognition.stop();
-            console.log('✅ Speech recognition stopped');
-        }
         
         if (typeof processUserResponse === 'function') {
             processUserResponse(message);
@@ -1335,29 +1281,6 @@ function addUserMessage(message) {
     // Store for next detection
     window.lastUserMessage = message;
 }
-
-// 🚨 ADD THIS SEPARATE BANNER BLOCKER
-function installBannerBlocker() {
-    console.log('🔧 Installing banner blocker for text responses...');
-    
-    const originalShowDirectSpeakNow = window.showDirectSpeakNow;
-    window.showDirectSpeakNow = function() {
-        // Check if we're in a text response situation
-        const isTextResponseMode = window.lastAIResponse && 
-                                  window.lastAIResponse.includes('?');
-        
-        if (isTextResponseMode && !window.voiceModeEnabled) {
-            console.log('🛑 BANNER BLOCKED: Text response mode active');
-            return; // BLOCK the banner
-        }
-        
-        console.log('🎤 VOICE MODE: Allowing banner');
-        return originalShowDirectSpeakNow.apply(this, arguments);
-    };
-}
-
-// Run the blocker
-installBannerBlocker();
 
 function addAIMessage(message) {
     const chatMessages = document.getElementById('chatMessages');
@@ -1473,6 +1396,23 @@ function toggleInputMode() {
 function switchToTextMode() {
     console.log('📝 SWITCHING TO TEXT MODE - FINAL FIX');
     window.voiceModeEnabled = false;
+
+    // 🚨 CRITICAL: Set flag to block ALL future banners in text mode
+    window.suppressSpeakNowBanner = true;
+    window.bannerCooldown = true;
+    window.speakSequenceActive = false;
+
+    // Clean up any active banner
+    if (window.cleanupSpeakSequence) {
+        window.cleanupSpeakSequence();
+    }
+    
+    // 🚨 STOP ANY PENDING BANNER TIMEOUTS
+    if (window.directSpeakNowTimeout) {
+        clearTimeout(window.directSpeakNowTimeout);
+        window.directSpeakNowTimeout = null;
+        console.log('✅ Cancelled pending banner timeout');
+    }
     
     // Stop voice
     if (window.stopListening) window.stopListening();
@@ -1517,9 +1457,6 @@ function switchToTextMode() {
     if (window.addAIMessage) {
         window.addAIMessage("✅ Switched to text mode. Type your questions below.");
     }
-    
-    // Set flags to block auto-voice
-    window.suppressSpeakNowBanner = true;
 }
 
 function switchToVoiceMode() {
@@ -2136,6 +2073,12 @@ if (actionCenterShowing || leadCaptureActive) {
 if (tooSoonAfterClick || conversationEnded || thankYouActive) {
     console.log('🚫 BLOCKED: One or more blocking conditions active');
     return;
+}
+
+// 🚨 ADD MODE CHECK BEFORE BANNER TRIGGER
+if (!window.voiceModeEnabled) {
+    console.log('🛑 TEXT MODE: Banner sequence blocked - user responds via text');
+    return; // STOP - don't trigger banner in text mode
 }
 
 if (VOICE_CONFIG.debug) {
@@ -5777,6 +5720,20 @@ window.startRealtimeListening = startRealtimeListening;
 if (typeof showUniversalBanner === 'function') {
     window.showUniversalBanner = showUniversalBanner;
 }
+
+// 🚨 GLOBAL BANNER BLOCKER
+// Simple version - add this at the bottom of your file
+setTimeout(() => {
+    console.log('🔧 Installing simple banner blocker...');
+    if (window.showDirectSpeakNow && !window.voiceModeEnabled) {
+        const original = window.showDirectSpeakNow;
+        window.showDirectSpeakNow = function() {
+            console.log('🛑 BANNER BLOCKED: Text mode active');
+            return;
+        };
+        console.log('✅ Simple banner blocker installed');
+    }
+}, 1000);
 
 console.log('✅ Voice chat functions exported for Action System integration');
 
