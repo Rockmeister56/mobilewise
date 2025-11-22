@@ -3621,8 +3621,20 @@ function getOpenAIResponse(userMessage, conversationHistory = []) {
         return "The process typically starts with a free consultation to understand your goals, then we help with valuation (for sellers) or pre-qualification (for buyers), and finally match you with the right opportunities. Bruce guides you through every step.";
     }
     
-    // Default intelligent response
-    return `I understand you're asking about "${userMessage}". Bruce has extensive experience with this and would be happy to provide specific guidance. Would you like me to connect you with him for a personalized consultation?`;
+    // 🚨 FIX THE LOOP - Better default response
+    // Check if this is a simple response (like "yes", "no", "ok") vs a real question
+    const isSimpleResponse = lowerMsg === 'yes' || 
+                           lowerMsg === 'no' || 
+                           lowerMsg === 'ok' ||
+                           lowerMsg === 'thanks' ||
+                           lowerMsg.length < 10;
+    
+    if (isSimpleResponse) {
+        return "Got it! Is there anything else you'd like to know about Bruce's services or practice transition expertise?";
+    }
+    
+    // For actual questions that don't match above, provide helpful response WITHOUT immediate consultation offer
+    return "That's a great question about " + userMessage + ". Bruce has helped many accountants with similar situations through his practice transition services. What specific aspect are you most interested in learning about?";
 }
 
 console.log('✅ getOpenAIResponse created! Test it:');
