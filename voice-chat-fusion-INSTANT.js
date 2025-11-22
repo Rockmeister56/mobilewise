@@ -3494,7 +3494,7 @@ function askQuickQuestion(questionText) {
             });
         }
     }
-}
+} // 🚨 END OF FUNCTION - REMOVE EVERYTHING AFTER THIS LINE
 
 // ===================================================
 // 🎯 NAME CAPTURE HANDLER - RESUME PENDING INTENT
