@@ -1397,6 +1397,25 @@ function switchToTextMode() {
     console.log('📝 SWITCHING TO TEXT MODE - FINAL FIX');
     window.voiceModeEnabled = false;
 
+    // 🚨 CRITICAL: CLEAN UP ACTIVE BANNER
+    if (window.cleanupSpeakSequence) {
+        window.cleanupSpeakSequence();
+        console.log('✅ Active banner cleaned up');
+    }
+    
+    // 🚨 STOP ANY VOICE LISTENING
+    if (window.stopListening) {
+        window.stopListening();
+        console.log('✅ Voice listening stopped');
+    }
+    
+    // 🚨 CANCEL ANY PENDING BANNER TIMEOUTS
+    if (window.directSpeakNowTimeout) {
+        clearTimeout(window.directSpeakNowTimeout);
+        window.directSpeakNowTimeout = null;
+        console.log('✅ Pending banner timeout cancelled');
+    }
+
     // 🚨 CRITICAL: Set flag to block ALL future banners in text mode
     window.suppressSpeakNowBanner = true;
     window.bannerCooldown = true;
