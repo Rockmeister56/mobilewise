@@ -1249,9 +1249,6 @@ async function activateMicrophone() {
     }
 }
 
-// ===================================================
-// 💭 MESSAGE HANDLING SYSTEM
-// ===================================================
 function addUserMessage(message) {
     console.log('🔍 DEBUG: addUserMessage called with:', message);
     const chatMessages = document.getElementById('chatMessages');
@@ -1263,6 +1260,11 @@ function addUserMessage(message) {
     
     chatMessages.appendChild(messageElement);
     scrollChatToBottom();
+    
+    // 🎯 THE MAGIC: Treat text input EXACTLY like quick questions!
+    if (typeof askQuickQuestion === 'function') {
+        askQuickQuestion(message); // This uses the proven system!
+    }
 }
 
 function addAIMessage(message) {
