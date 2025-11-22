@@ -851,8 +851,6 @@ recognition.onresult = function(event) {
     }
 };
 
-
-
            // 🔥 SET ONEND HANDLER - COMPLETE FIXED VERSION
 recognition.onend = function() {
     console.log('🎯🎯🎯 WHICH ONEND IS RUNNING? 🎯🎯🎯');
@@ -935,6 +933,8 @@ if (!finalTranscript && window.lastCapturedTranscript) {
         window.lastCapturedTranscript = ''; // Clear it
     }
 }
+
+console.log('🔍 FINAL transcript to use:', finalTranscript);
 
 console.log('🔍 FINAL transcript to use:', finalTranscript);
     
@@ -3384,8 +3384,8 @@ function askQuickQuestion(questionText) {
                     console.log('❌ addAIMessage not found');
                 }
                 
-                // 🚨 FIX 1: Remove voiceModeEnabled check - ALWAYS SPEAK
-                if (typeof speakText === 'function') {
+                // Speak the response
+                if (typeof speakText === 'function' && window.voiceModeEnabled) {
                     speakText(aiResponse);
                 }
                 
@@ -3422,8 +3422,8 @@ function askQuickQuestion(questionText) {
                     console.log('❌ addAIMessage not found');
                 }
                 
-                // 🚨 FIX 2: Remove voiceModeEnabled check - ALWAYS SPEAK
-                if (typeof speakText === 'function') {
+                // Speak the response
+                if (typeof speakText === 'function' && window.voiceModeEnabled) {
                     speakText(aiResponse);
                 }
                 // 🚫 NO Action Center for regular questions
