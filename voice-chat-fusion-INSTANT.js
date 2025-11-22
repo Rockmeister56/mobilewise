@@ -3329,7 +3329,7 @@ function askQuickQuestion(questionText) {
             setTimeout(() => {
                 if (typeof openCommRelayCenter === 'function') {
                     openCommRelayCenter();
-                    if (intent.type === 'sell-practice' && intent.strength === 'strong') {
+                    if (window.currentIntent && window.currentIntent.type === 'sell-practice' && window.currentIntent.strength === 'strong') {
     // 🆕 ADD TEXT MODE CHECK:
     if (!window.voiceModeEnabled) {
         console.log('💬 TEXT MODE - Skipping auto Action Center');
@@ -3343,6 +3343,17 @@ function askQuickQuestion(questionText) {
             }, 3000); // Wait for conversation to finish
         });
     }
+}
+
+// Add this to the top of your file
+function getIntent() {
+    return window.currentIntent || { type: '', strength: '' };
+}
+
+// Then use it like this:
+const intent = getIntent();
+if (intent.type === 'sell-practice' && intent.strength === 'strong') {
+    // Your logic here
 }
 
 // ===================================================
