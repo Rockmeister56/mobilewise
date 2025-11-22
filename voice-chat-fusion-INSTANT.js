@@ -2803,6 +2803,7 @@ function handleGeneralQuestion(message, userName) {
 
 async function getAIResponse(userMessage, conversationHistory = []) {
     console.log('🎯 GOLD STANDARD getAIResponse called:', userMessage); 
+    console.trace('Stack trace for duplicate call');
     
     // 🆕 CRITICAL FIX: Skip name capture for obvious questions
     const isQuestion = /^(how|what|when|where|why|who|is|are|do|does|can|could|will|would)/i.test(userMessage);
@@ -3358,6 +3359,7 @@ console.log('✅ COMPLETE GOLD STANDARD getAIResponse WITH 4-STEP SALES PROCESS 
 
 function processUserResponse(userText) {
     console.log('🎯 processUserResponse called with:', userText);
+    console.trace('Stack trace for processUserResponse');
     
     // 🚨 CHECK IF ACTION SYSTEM IS IN LEAD CAPTURE MODE
     if (window.isInLeadCapture && window.processLeadResponse) {
@@ -3421,7 +3423,8 @@ function getPreCloseQuestion(intent) {
 }
 
 function askQuickQuestion(questionText) {
-    console.log('🔄 ASK QUICK QUESTION CALLED:', questionText);
+     console.log('🔄🔄🔄 ASK QUICK QUESTION CALLED:', questionText);
+    console.trace('Stack trace for askQuickQuestion');
     
     // 🆕 SMART DETECTION: Only redirect button-specific intents
     const isButtonIntent = questionText.includes('valuation') || 
