@@ -3,7 +3,6 @@
 // Smart Button + Lead Capture + EmailJS + Banner System
 // ===================================================
 
-
 // Add this at the VERY TOP of your JavaScript file (like line 1)
 if (typeof window.leadData === 'undefined' || !window.leadData) {
     window.leadData = { 
@@ -5238,12 +5237,6 @@ function startNormalInterviewListening() {
     }
     
     setTimeout(() => {
-        // 🛡️ SAFETY CHECK: Prevent duplicate recognition starts
-        if (window.recognition && window.recognition.state === 'listening') {
-            console.log('✅ Recognition already active - skipping duplicate start');
-            return;
-        }
-        
         if (typeof startListening === 'function') {
             try {
                 startListening();
