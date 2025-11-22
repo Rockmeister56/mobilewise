@@ -2747,14 +2747,7 @@ function handleGeneralQuestion(message, userName) {
 // =============================================================================
 
 async function getAIResponse(userMessage, conversationHistory = []) {
-    console.log('🎯 GOLD STANDARD getAIResponse called:', userMessage); 
-    
-    // 🆕 CRITICAL FIX: Skip name capture for obvious questions
-    const isQuestion = /^(how|what|when|where|why|who|is|are|do|does|can|could|will|would)/i.test(userMessage);
-    if (isQuestion && window.salesAI?.state === 'introduction') {
-        console.log('🎯 QUESTION DETECTED - Skipping name capture');
-        window.salesAI.state = 'investigation';
-    }
+    console.log('🎯 GOLD STANDARD getAIResponse called:', userMessage);   
 
     // 🎯 STEP 0: CHECK FOR CONCERNS FIRST - NEW INTEGRATION
     if (detectConcernOrObjection(userMessage)) {
@@ -3370,67 +3363,32 @@ function askQuickQuestion(questionText) {
     if (isButtonIntent) {
         console.log('🎯 BUTTON INTENT DETECTED - using conversational flow');
         console.log('   Button question:', questionText);
-        
-        // 🆕 NEW: Use conversational flow for button intents
-        if (typeof getAIResponse === 'function') {
-            getAIResponse(questionText).then(aiResponse => {
-                console.log('✅ AI Response received:', aiResponse);
-                
-                // Add AI response to chat
-                if (typeof addAIMessage === 'function') {
-                    addAIMessage(aiResponse);
-                    console.log('✅ Response added to chat');
-                } else {
-                    console.log('❌ addAIMessage not found');
-                }
-                
-                // Speak the response
-                if (typeof speakText === 'function' && window.voiceModeEnabled) {
-                    speakText(aiResponse);
-                }
-                
-                // 🆕 THEN go to Action Center after conversation (for button intents only)
-                setTimeout(() => {
-                    if (typeof openCommRelayCenter === 'function') {
-                        // 🆕 ADD TEXT MODE CHECK:
-                        if (!window.voiceModeEnabled) {
-                            console.log('💬 TEXT MODE - Skipping auto Action Center');
-                            // Let the conversation flow naturally
-                        } else {
-                            // Only auto-open for voice mode
-                            openCommRelayCenter();
-                        }
-                    }
-                }, 3000); // Wait for conversation to finish
-            }).catch(error => {
-                console.log('❌ askQuickQuestion error:', error);
-            });
-        }
     } else {
         console.log('💬 REGULAR QUESTION - processing normally');
-        
-        // 🆕 PROCESS REGULAR QUESTIONS TOO!
-        if (typeof getAIResponse === 'function') {
-            getAIResponse(questionText).then(aiResponse => {
-                console.log('✅ AI Response received:', aiResponse);
-                
-                // Add AI response to chat
-                if (typeof addAIMessage === 'function') {
-                    addAIMessage(aiResponse);
-                    console.log('✅ Response added to chat');
-                } else {
-                    console.log('❌ addAIMessage not found');
-                }
-                
-                // Speak the response
-                if (typeof speakText === 'function' && window.voiceModeEnabled) {
-                    speakText(aiResponse);
-                }
-                // 🚫 NO Action Center for regular questions
-            }).catch(error => {
-                console.log('❌ askQuickQuestion error:', error);
-            });
-        }
+    }
+    
+    // 🆕 NEW: Use conversational flow for ALL questions
+    if (typeof getAIResponse === 'function') {
+        getAIResponse(questionText).then(aiResponse => {
+            console.log('✅ AI Response received:', aiResponse);
+            
+            // Add AI response to chat
+            if (typeof addAIMessage === 'function') {
+                addAIMessage(aiResponse);
+                console.log('✅ Response added to chat');
+            } else {
+                console.log('❌ addAIMessage not found');
+            }
+            
+            // Speak the response
+            if (typeof speakText === 'function' && window.voiceModeEnabled) {
+                speakText(aiResponse);
+            }
+        }).catch(error => {
+            console.log('❌ askQuickQuestion error:', error);
+        });
+    } else {
+        console.log('❌ getAIResponse not found');
     }
 }
 
