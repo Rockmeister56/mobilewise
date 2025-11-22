@@ -2166,30 +2166,23 @@ window.initiateUrgentCall = initiateUrgentCall;
 window.initializePreQualifierCapture = initializePreQualifierCapture; // 🎯 NOW THIS WILL BE GOLD!
 window.askQuickQuestion = askQuickQuestion;
 
+// ❌ COMMENT OUT OR DELETE THIS ENTIRE FUNCTION:
+/*
 function askQuickQuestion(questionText) {
-    // 🆕 SMART DETECTION: Only redirect button-specific intents
-    const isButtonIntent = questionText.includes('valuation') || 
-                          questionText.includes('sell') || 
-                          questionText.includes('buy') ||
-                          questionText.includes('worth');
+    console.log('🔄 REDIRECTING: askQuickQuestion → Communication Relay Center');
+    console.log('   Original question:', questionText);
     
-    if (!isButtonIntent) {
-        console.log('💬 REGULAR CONVERSATION - letting original function handle it');
-        return; // Let the original askQuickQuestion handle regular chat
-    }
-    
-    console.log('🔄 REDIRECTING BUTTON INTENT → Communication Relay Center');
-    console.log('   Button question:', questionText);
-    
-    // Only redirect ACTUAL button questions to Action Center
+    // Redirect to our new Communication Relay Center
     if (typeof openCommRelayCenter === 'function') {
         openCommRelayCenter();
     } else {
         console.error('❌ openCommRelayCenter not available');
+        // Fallback to original action center
         if (typeof showCommunicationActionCenter === 'function') {
             showCommunicationActionCenter();
         }
     }
 }
+*/
 
 console.log('✅ ACTION SYSTEM UNIFIED - Loaded successfully (FINAL CLEANED VERSION - No restore code)');
