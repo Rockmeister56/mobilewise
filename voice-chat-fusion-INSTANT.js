@@ -536,9 +536,14 @@ function showPostSorryListening() {
 }
 
 // ===================================================
-// 🤖 AI MESSAGE PROCESSING FUNCTION
+// 🤖 AI MESSAGE PROCESSING FUNCTION  
 // ===================================================
 async function processUserMessage(message) {
+    // Prevent processing AI messages or empty messages
+    if (!message || message.startsWith('I received your message:')) {
+        return;
+    }
+    
     console.log('🤖 Sending to AI:', message);
     
     // Show "AI is typing" indicator
@@ -549,19 +554,19 @@ async function processUserMessage(message) {
     scrollChatToBottom();
     
     try {
-        // TODO: Replace this with your actual AI API call
-        // For now, using a simple echo for testing
-        setTimeout(() => {
-            // Remove thinking indicator
-            document.querySelector('.message.thinking')?.remove();
-            // Add AI response
-            addAIMessage("I received your message: \"" + message + "\". This is where the real AI response would go!");
-        }, 1500);
+        // Remove the setTimeout echo and replace with actual AI call
+        const aiResponse = await getAIResponse(message); // Use your existing AI function
+        
+        // Remove thinking indicator
+        document.querySelector('.message.thinking')?.remove();
+        
+        // Add AI response WITHOUT triggering processUserMessage again
+        addAIMessage(aiResponse, true); // Add flag to indicate this is AI response
         
     } catch (error) {
         console.error('❌ AI processing error:', error);
         document.querySelector('.message.thinking')?.remove();
-        addAIMessage("Sorry, I'm having trouble connecting right now.");
+        addAIMessage("Sorry, I'm having trouble connecting right now.", true);
     }
 }
 
@@ -1279,9 +1284,6 @@ async function activateMicrophone() {
     }
 }
 
-// ===================================================
-// 💭 MESSAGE HANDLING SYSTEM
-// ===================================================
 function addUserMessage(message) {
     console.log('🔍 DEBUG: addUserMessage called with:', message);
     const chatMessages = document.getElementById('chatMessages');
@@ -1293,6 +1295,9 @@ function addUserMessage(message) {
     
     chatMessages.appendChild(messageElement);
     scrollChatToBottom();
+    
+    // Process user message (this should NOT trigger for AI messages)
+    processUserMessage(message);
 }
 
 function addAIMessage(message) {
