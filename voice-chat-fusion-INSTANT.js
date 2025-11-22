@@ -949,7 +949,10 @@ console.log('🔍 FINAL transcript to use:', finalTranscript);
             
             console.log('✅ Sending new message:', currentMessage);
 
-           // 🎯 FIRST check if this is a consultation response
+            // 🎯 ADD THIS RIGHT AFTER LINE 853
+            console.log('🎯 Calling processUserResponse with:', finalTranscript);
+
+// 🎯 FIRST check if this is a consultation response
 if (window.consultationOfferActive && finalTranscript.toLowerCase().includes('yes')) {
     console.log('🎯🎯🎯 CONSULTATION "YES" DETECTED - USING PRE-CLOSE SYSTEM');
     window.consultationOfferActive = false;
@@ -1285,56 +1288,10 @@ function addUserMessage(message) {
     chatMessages.appendChild(messageElement);
     scrollChatToBottom();
     
-    // 🚨 SMART HYBRID SYSTEM: Detect if this is a response to AI's question
-    const isLikelyResponse = window.lastAIResponse && 
-                            (window.lastAIResponse.includes('?') || 
-                             window.lastAIResponse.includes('Would you') ||
-                             window.lastAIResponse.includes('Do you want') ||
-                             window.lastAIResponse.includes('Are you interested') ||
-                             window.lastAIResponse.includes('Shall I') ||
-                             window.lastAIResponse.includes('Can I'));
-    
-    if (isLikelyResponse) {
-        console.log('🎯 SMART DETECTED: Response to AI question - Processing directly');
-        console.log('   AI asked:', window.lastAIResponse);
-        console.log('   User responded:', message);
-        
-        if (typeof processUserResponse === 'function') {
-            processUserResponse(message);
-        }
-    } else {
-        console.log('💬 NORMAL CONVERSATION - Using quick question flow');
-        // Normal conversation flow
-        if (typeof askQuickQuestion === 'function') {
-            askQuickQuestion(message);
-        }
+    // 🎯 THE MAGIC: Treat text input EXACTLY like quick questions!
+    if (typeof askQuickQuestion === 'function') {
+        askQuickQuestion(message); // This uses the proven system!
     }
-    
-    // Store for next detection
-    window.lastUserMessage = message;
-}
-
-// 🚨 ALSO ADD: Track AI responses for smart detection
-// In your AI response functions (getAIResponse, getOpenAIResponse, etc.)
-// Add this when the AI sends a response:
-
-function trackAIResponse(aiMessage) {
-    window.lastAIResponse = aiMessage;
-    console.log('🎯 Tracking AI response for hybrid detection:', aiMessage.substring(0, 50) + '...');
-}
-
-// Example usage in your AI functions:
-function getOpenAIResponse(userMessage, conversationHistory = []) {
-    console.log('🤖 getOpenAIResponse called:', userMessage);
-    
-    // ... your existing response logic ...
-    
-    const response = "Your response here...";
-    
-    // 🚨 TRACK THIS AI RESPONSE
-    trackAIResponse(response);
-    
-    return response;
 }
 
 function addAIMessage(message) {
@@ -3269,18 +3226,11 @@ function handlePreCloseResponse(userResponse, intentType) {
     const yesPatterns = ['yes', 'yeah', 'sure', 'okay', 'ok', 'absolutely', 'definitely', 'let\'s do it', 'ready', 'go ahead'];
 
     if (yesPatterns.some(pattern => lowerResponse.includes(pattern))) {
-        console.log('🎯 PRE-CLOSE YES DETECTED - Triggering Action Center');
-        
-        // 🚨 CRITICAL FIX: Trigger Action Center for ALL YES responses
+        // 🎯 CRITICAL FIX: Trigger Action Center for YES responses
         setTimeout(() => {
             if (window.showCommunicationActionCenter) {
                 window.showCommunicationActionCenter();
-                console.log('✅ Action Center triggered for pre-close YES response');
-            } else if (window.triggerLeadActionCenter) {
-                window.triggerLeadActionCenter();
-                console.log('✅ Action Center triggered via lead system');
-            } else {
-                console.error('❌ No Action Center function found');
+                console.log('✅ Action Center triggered for consultation YES response');
             }
         }, 1000);
         
