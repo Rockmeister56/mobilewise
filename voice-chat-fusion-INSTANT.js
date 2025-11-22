@@ -3352,60 +3352,44 @@ function getPreCloseQuestion(intent) {
 }
 
 function askQuickQuestion(questionText) {
+    console.log('🔄 ASK QUICK QUESTION CALLED:', questionText);
+    
     // 🆕 SMART DETECTION: Only redirect button-specific intents
     const isButtonIntent = questionText.includes('valuation') || 
                           questionText.includes('sell') || 
                           questionText.includes('buy') ||
                           questionText.includes('worth');
     
-    if (!isButtonIntent) {
-        console.log('💬 REGULAR CONVERSATION - letting original function handle it');
-        return; // Let the original askQuickQuestion handle regular chat
+    if (isButtonIntent) {
+        console.log('🎯 BUTTON INTENT DETECTED - using conversational flow');
+        console.log('   Button question:', questionText);
+    } else {
+        console.log('💬 REGULAR QUESTION - processing normally');
     }
     
-    console.log('🔄 BUTTON INTENT DETECTED - using conversational flow');
-    console.log('   Button question:', questionText);
-    
-    // 🆕 NEW: Use conversational flow like voice input
+    // 🆕 NEW: Use conversational flow for ALL questions
     if (typeof getAIResponse === 'function') {
         getAIResponse(questionText).then(aiResponse => {
+            console.log('✅ AI Response received:', aiResponse);
+            
             // Add AI response to chat
             if (typeof addAIMessage === 'function') {
                 addAIMessage(aiResponse);
+                console.log('✅ Response added to chat');
+            } else {
+                console.log('❌ addAIMessage not found');
             }
+            
             // Speak the response
-            if (typeof speakText === 'function') {
+            if (typeof speakText === 'function' && window.voiceModeEnabled) {
                 speakText(aiResponse);
             }
-            // 🆕 THEN go to Action Center after conversation
-            setTimeout(() => {
-                if (typeof openCommRelayCenter === 'function') {
-                    openCommRelayCenter();
-                    if (window.currentIntent && window.currentIntent.type === 'sell-practice' && window.currentIntent.strength === 'strong') {
-    // 🆕 ADD TEXT MODE CHECK:
-    if (!window.voiceModeEnabled) {
-        console.log('💬 TEXT MODE - Skipping auto Action Center');
-        // Let the conversation flow naturally
-    } else {
-        // Only auto-open for voice mode
-        openCommRelayCenter();
-    }
-}
-                }
-            }, 3000); // Wait for conversation to finish
+        }).catch(error => {
+            console.log('❌ askQuickQuestion error:', error);
         });
+    } else {
+        console.log('❌ getAIResponse not found');
     }
-}
-
-// Add this to the top of your file
-function getIntent() {
-    return window.currentIntent || { type: '', strength: '' };
-}
-
-// Then use it like this:
-const intent = getIntent();
-if (intent.type === 'sell-practice' && intent.strength === 'strong') {
-    // Your logic here
 }
 
 // ===================================================
