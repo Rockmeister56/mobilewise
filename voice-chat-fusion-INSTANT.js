@@ -4613,9 +4613,10 @@ function sendTextMessage() {
     const textInput = document.getElementById('empireTextInput') || document.getElementById('textInput');
     const message = textInput?.value.trim();
     
-    if (message) {
+     if (message) {
         addUserMessage(message);
-        processUserResponse(message);
+        // ❌ REMOVE THIS LINE - it's causing the interference!
+        // processUserResponse(message);
         textInput.value = '';
     }
 }
