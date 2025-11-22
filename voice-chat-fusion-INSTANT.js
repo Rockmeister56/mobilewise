@@ -851,6 +851,8 @@ recognition.onresult = function(event) {
     }
 };
 
+
+
            // 🔥 SET ONEND HANDLER - COMPLETE FIXED VERSION
 recognition.onend = function() {
     console.log('🎯🎯🎯 WHICH ONEND IS RUNNING? 🎯🎯🎯');
@@ -935,8 +937,6 @@ if (!finalTranscript && window.lastCapturedTranscript) {
 }
 
 console.log('🔍 FINAL transcript to use:', finalTranscript);
-
-console.log('🔍 FINAL transcript to use:', finalTranscript);
     
     if (finalTranscript && finalTranscript.trim().length > 0) {
         const currentMessage = finalTranscript.trim();
@@ -951,6 +951,29 @@ console.log('🔍 FINAL transcript to use:', finalTranscript);
 
             // 🎯 ADD THIS RIGHT AFTER LINE 853
             console.log('🎯 Calling processUserResponse with:', finalTranscript);
+
+// 🎯 SPECIAL HANDLING FOR "YES" RESPONSES TO CONSULTATION OFFERS
+if (window.consultationOfferActive && finalTranscript.toLowerCase().includes('yes')) {
+    console.log('🎯🎯🎯 CONSULTATION "YES" DETECTED - BYPASSING TIMEOUT CHECK');
+    console.log('✅ Processing YES despite timeout - triggering Action Center');
+    
+    // Clear the consultation flag
+    window.consultationOfferActive = false;
+    
+    // Use the proven pre-close system that already works
+    const response = handlePreCloseResponse(finalTranscript, 'consultation');
+    
+    // Clear the captured transcript to prevent double-processing
+    window.lastCapturedTranscript = '';
+    
+    return; // STOP - don't let normal flow process this again
+}
+// 🚨🚨🚨 END OF FIX 🚨🚨🚨
+
+// If not a consultation response, proceed normally
+if (typeof processUserResponse === 'function') {
+    processUserResponse(finalTranscript);
+}
 
 // 🎯 FIRST check if this is a consultation response
 if (window.consultationOfferActive && finalTranscript.toLowerCase().includes('yes')) {
