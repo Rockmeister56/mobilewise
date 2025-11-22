@@ -1377,46 +1377,31 @@ function toggleInputMode() {
 }
 
 function switchToTextMode() {
-    console.log('📝 SWITCHING TO TEXT MODE - FINAL FIX');
-    window.voiceModeEnabled = false;
+    console.log('📝 SWITCHING TO TEXT MODE - ENHANCED');
     
-    // Stop voice
+    // 🎯 GENTLE voice shutdown (not nuclear)
     if (window.stopListening) window.stopListening();
     if (window.speechSynthesis) window.speechSynthesis.cancel();
     
     // Remove current voice banners
     document.querySelectorAll('.speak-now-banner, [class*="speakNow"]').forEach(el => el.remove());
     
-    // Show text input
+    // Show your existing text input
     const userInput = document.getElementById('userInput');
     if (userInput) {
         userInput.style.display = 'block';
         userInput.focus();
         console.log('✅ Showing existing userInput');
-        
-        // 🎯 CRITICAL: Setup text message handling
-        setupTextMessageHandler();
     }
     
-    // 🎯 FIXED: Better button finding - find by text content
-    const buttons = document.querySelectorAll('.quick-btn');
-    let switchBtn = null;
-    
-    buttons.forEach(btn => {
-        const text = btn.textContent.toLowerCase();
-        if (text.includes('switch') || text.includes('text') || text.includes('voice')) {
-            switchBtn = btn;
-        }
-    });
-    
+    // 🎯 FIX: Better button selector with styling
+    const switchBtn = document.querySelector('button.quick-btn') || document.getElementById('modeToggleBtn');
     if (switchBtn) {
         switchBtn.textContent = '🎤 Switch to Voice';
-        switchBtn.style.background = '#4CAF50'; // Green for voice mode
+        switchBtn.style.background = '#ff6b6b'; // Red for voice mode
         switchBtn.style.color = 'white';
         switchBtn.style.fontWeight = 'bold';
-        console.log('✅ Button updated to Voice mode');
-    } else {
-        console.log('❌ Could not find switch button');
+        console.log('✅ Button updated to Voice mode with color');
     }
     
     // Show message
@@ -1424,37 +1409,27 @@ function switchToTextMode() {
         window.addAIMessage("✅ Switched to text mode. Type your questions below.");
     }
     
-    // Set flags to block auto-voice
+    // 🎯 Set flags to block auto-voice
     window.suppressSpeakNowBanner = true;
 }
 
 function switchToVoiceMode() {
-    console.log('🎤 SWITCHING TO VOICE MODE - FINAL FIX');
-    window.voiceModeEnabled = true;
+    console.log('🎤 SWITCHING TO VOICE MODE - ENHANCED');
     
-    // Hide text input
+    // Hide your existing text input
     const userInput = document.getElementById('userInput');
     if (userInput) {
         userInput.style.display = 'none';
     }
     
-    // 🎯 FIXED: Better button finding - find by text content
-    const buttons = document.querySelectorAll('.quick-btn');
-    let switchBtn = null;
-    
-    buttons.forEach(btn => {
-        const text = btn.textContent.toLowerCase();
-        if (text.includes('switch') || text.includes('text') || text.includes('voice')) {
-            switchBtn = btn;
-        }
-    });
-    
+    // 🎯 FIX: Better button selector with styling
+    const switchBtn = document.querySelector('button.quick-btn') || document.getElementById('modeToggleBtn');
     if (switchBtn) {
         switchBtn.textContent = '📝 Switch to Text';
-        switchBtn.style.background = '#2196F3'; // Blue for text mode
+        switchBtn.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'; // Purple for text mode
         switchBtn.style.color = 'white';
         switchBtn.style.fontWeight = 'bold';
-        console.log('✅ Button updated to Text mode');
+        console.log('✅ Button updated to Text mode with color');
     }
     
     // Show message
@@ -1462,7 +1437,7 @@ function switchToVoiceMode() {
         window.addAIMessage("✅ Switched to voice mode. Speak now...");
     }
     
-    // Gentle voice restart
+    // 🎯 GENTLE voice restart
     setTimeout(() => {
         window.suppressSpeakNowBanner = false;
         
@@ -1473,45 +1448,18 @@ function switchToVoiceMode() {
     }, 1000);
 }
 
-// 🎯 ADD THIS CRITICAL FUNCTION
-function setupTextMessageHandler() {
-    const userInput = document.getElementById('userInput');
-    if (userInput) {
-        // Remove any existing handlers first
-        userInput.removeEventListener('keypress', handleTextInput);
-        
-        // Add Enter key handler
-        userInput.addEventListener('keypress', handleTextInput);
-        
-        console.log('✅ Text message handler setup');
-    }
-}
-
-function handleTextInput(e) {
-    if (e.key === 'Enter') {
-        const userInput = document.getElementById('userInput');
-        if (!userInput) return;
-        
-        const message = userInput.value.trim();
-        if (!message) return;
-        
-        console.log('📝 Processing text message:', message);
-        
-        // Add to chat
-        if (window.addUserMessage) {
-            window.addUserMessage(message);
-        }
-        
-        // Clear input
-        userInput.value = '';
-        
-        // Process through AI system
-        if (window.processUserResponse) {
-            window.processUserResponse(message);
-        } else {
-            console.log('❌ No AI processing system available');
-        }
-    }
+// 🎨 STYLE ALL BUTTONS FOR VISIBILITY
+function styleAllButtons() {
+    const buttons = document.querySelectorAll('.quick-btn, #modeToggleBtn');
+    buttons.forEach(btn => {
+        btn.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+        btn.style.color = 'white';
+        btn.style.border = '2px solid rgba(255,255,255,0.3)';
+        btn.style.boxShadow = '0 4px 15px rgba(0,0,0,0.2)';
+        btn.style.fontWeight = 'bold';
+        btn.style.fontSize = '14px';
+    });
+    console.log('🎨 All buttons styled for visibility');
 }
 
 // 🚨 OVERRIDE ANY STRAY FUNCTIONS
