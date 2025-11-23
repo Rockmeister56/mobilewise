@@ -1,6 +1,6 @@
 /**
  * MOBILE-WISE AI FORMVISER
- * Communication Relay Center - ENHANCED VERSION
+ * Communication Center - ENHANCED VERSION
  * 
  * Uses existing Action Center styling but adds avatar introduction
  * Preserves original Action Center for AI-triggered calls
@@ -8,7 +8,7 @@
  * Created: 2025-10-31 - ENHANCEMENT VERSION
  */
 
-console.log('✅ Enhanced Communication Relay Center System loaded');
+console.log('✅ Enhanced Communication Center System loaded');
 
 // Single button configuration - ADD THIS
 const BUTTON_CONFIG = {
@@ -59,7 +59,7 @@ window.disableSpeakNowBanner = false;
         renderCommRelayButton();
 
         isInitialized = true;
-        console.log('✅ Communication Relay Center Button initialized');
+        console.log('✅ Communication Center Button initialized');
     }
 
  function triggerLeadActionCenter() {
@@ -93,7 +93,7 @@ window.disableSpeakNowBanner = false;
 
 // ADD THIS SIMPLE FUNCTION - COPY OF EXISTING BUT WITH DIFFERENT VIDEO
 function showSilentCommunicationRelayCenter() {
-    console.log('🎯 Creating SILENT Communication Relay Center...');
+    console.log('🎯 Creating SILENT Communication Center...');
     
     const actionCenter = document.createElement('div');
     actionCenter.id = 'communication-relay-center-silent';
@@ -122,18 +122,18 @@ function showSilentCommunicationRelayCenter() {
         }, 100);
     }
     
-    console.log('✅ SILENT Communication Relay Center displayed');
+    console.log('✅ SILENT Communication Center displayed');
 }
 
 // Export globally so lead system can call it
 window.triggerLeadActionCenter = triggerLeadActionCenter;
 
 /**
- * SHOW SILENT COMMUNICATION RELAY CENTER
+ * SHOW SILENT Communication Center
  * Same beautiful UI but with silent avatar video
  */
 function showSilentCommunicationRelayCenter() {
-    console.log('🎯 Creating SILENT Communication Relay Center...');
+    console.log('🎯 Creating SILENT Communication Center...');
     
     const actionCenter = document.createElement('div');
     actionCenter.id = 'communication-relay-center-silent';
@@ -164,7 +164,7 @@ function showSilentCommunicationRelayCenter() {
                     <source src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1762224530592.mp4" type="video/mp4">
                 </video>
                 <div>
-                    <h3 style="margin: 0 0 5px 0; font-size: 22px; font-weight: 600; color: white;">Communication Relay Center</h3>
+                    <h3 style="margin: 0 0 5px 0; font-size: 22px; font-weight: 600; color: white;">Communication Center</h3>
                     <p style="margin: 0; opacity: 0.8; font-size: 13px; font-weight: 300; letter-spacing: 0.5px;">Direct Connection to Bruce</p>
                 </div>
             </div>
@@ -212,13 +212,13 @@ function showSilentCommunicationRelayCenter() {
         }, 100);
     }
     
-    console.log('✅ SILENT Communication Relay Center displayed');
+    console.log('✅ SILENT Communication Center displayed');
 }
 
 // Export globally
 window.showSilentCommunicationRelayCenter = showSilentCommunicationRelayCenter;
     /**
- * SHOW COMMUNICATION RELAY CENTER - CLONED VERSION
+ * SHOW Communication Center - CLONED VERSION
  * Same layout as Action Center but with YOUR video avatar
  */
 function showCommunicationRelayCenter() {
@@ -267,7 +267,7 @@ function showCommunicationRelayCenter() {
                         font-size: 22px;
                         font-weight: 600;
                         color: white;
-                    ">Communication Relay Center</h3>
+                    ">Communication Center</h3>
                     <p style="
                         margin: 0;
                         opacity: 0.8;
@@ -321,7 +321,7 @@ function showCommunicationRelayCenter() {
         }, 100);
     }
     
-    console.log('✅ Communication Relay Center displayed with YOUR avatar');
+    console.log('✅ Communication Center displayed with YOUR avatar');
 }
 
    function addButtonStyles() {
@@ -343,7 +343,7 @@ function showCommunicationRelayCenter() {
             box-sizing: border-box !important;
         }
 
-        /* COMMUNICATION RELAY CENTER BUTTON - FULL WIDTH, LARGER TEXT & EMOJIS */
+        /* Communication Center BUTTON - FULL WIDTH, LARGER TEXT & EMOJIS */
         .comm-relay-btn {
             padding: 16px 15px !important;  /* More vertical padding */
             background: linear-gradient(135deg, 
@@ -628,15 +628,15 @@ function showCommunicationRelayCenter() {
     button.onclick = openCommRelayCenter;
     
     buttonContainer.appendChild(button);
-    console.log('🚀 FULL-WIDTH Communication Relay Center button rendered');
+    console.log('🚀 FULL-WIDTH Communication Center button rendered');
 }
 
     /**
-     * OPEN COMMUNICATION RELAY CENTER
+     * OPEN Communication Center
      * With enhanced avatar introduction
      */
    function openCommRelayCenter() {
-    console.log('🚀 Opening Communication Relay Center (CLONED VERSION)...');
+    console.log('🚀 Opening Communication Center (CLONED VERSION)...');
     
     // Stop voice activity
     if (typeof stopAllSpeech === 'function') stopAllSpeech();
@@ -644,7 +644,7 @@ function showCommunicationRelayCenter() {
     if (window.speechSynthesis) window.speechSynthesis.cancel();
     
     //if (typeof speakText === 'function') {
-    // speakText("Welcome to the Communication Relay Center. Please click how you want to connect and I'll be there to help.");
+    // speakText("Welcome to the Communication Center. Please click how you want to connect and I'll be there to help.");
      //}
     
     // 🎯 GO DIRECTLY TO ENHANCED ACTION CENTER
@@ -663,11 +663,11 @@ function playRelayCenterIntroduction() {
 }
 
 /**
- * SHOW COMMUNICATION RELAY CENTER - CLONED VERSION
+ * SHOW Communication Center - CLONED VERSION
  * Same as original Action Center but with your video avatar
  */
 function showCommunicationRelayCenter() {
-    console.log('🎯 Creating Communication Relay Center (CLONED VERSION)...');
+    console.log('🎯 Creating Communication Center (CLONED VERSION)...');
     
     // Create the same structure as original but with your video
     const actionCenter = document.createElement('div');
@@ -675,7 +675,7 @@ function showCommunicationRelayCenter() {
     
     // Use the EXACT same HTML as the original, just change:
     // 1. The video source to your avatar
-    // 2. The title to "Communication Relay Center"
+    // 2. The title to "Communication Center"
     actionCenter.innerHTML = `
         <div style="
             background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.9)),
@@ -718,7 +718,7 @@ function showCommunicationRelayCenter() {
                         font-size: 22px;
                         font-weight: 600;
                         color: white;
-                    ">Communication Relay Center</h3>
+                    ">Communication Center</h3>
                     <p style="
                         margin: 0;
                         opacity: 0.8;
@@ -868,14 +868,14 @@ function showCommunicationRelayCenter() {
         }, 100);
     }
     
-    console.log('✅ Communication Relay Center displayed with YOUR avatar and ALL buttons');
+    console.log('✅ Communication Center displayed with YOUR avatar and ALL buttons');
 }
 
 // Make sure to export it
 window.showCommunicationRelayCenter = showCommunicationRelayCenter;
 
 function openCommRelayCenter() {
-    console.log('🚀 Opening Communication Relay Center (CLONED VERSION)...');
+    console.log('🚀 Opening Communication Center (CLONED VERSION)...');
     
     // 🚫 CRITICAL: Set flag to prevent Speak Now banner
     window.disableSpeakNowBanner = true;
@@ -887,10 +887,10 @@ function openCommRelayCenter() {
     
     // ❌ REMOVE THIS VOICE LINE (so your video audio can play)
     if (typeof speakText === 'function') {
-    speakText("Welcome to the Communication Relay Center. Please click how you want to connect and I'll be there to help.");
+    speakText("Welcome to the Communication Center. Please click how you want to connect and I'll be there to help.");
     }
     
-    // 🎯 GO DIRECTLY TO COMMUNICATION RELAY CENTER
+    // 🎯 GO DIRECTLY TO Communication Center
     showCommunicationRelayCenter();
     
     // Re-enable Speak Now banner after a reasonable time
@@ -938,7 +938,7 @@ function openCommRelayCenter() {
         
         // Title for Relay Center
         const title = document.createElement('div');
-        title.textContent = '🚀 Communication Relay Center';
+        title.textContent = '🚀 Communication Center';
         title.style.cssText = `
             color: white;
             font-size: 24px;
@@ -996,7 +996,7 @@ function showEnhancedActionCenter() {
     if (typeof window.showCommunicationActionCenter === 'function') {
         
         // Add a special header message first
-        const enhancedMessage = "🚀 You're connected to the Communication Relay Center - Direct line to Bruce";
+        const enhancedMessage = "🚀 You're connected to the Communication Center - Direct line to Bruce";
         
         if (window.addAIMessage) {
             window.addAIMessage(enhancedMessage);
@@ -1032,7 +1032,7 @@ function showEnhancedActionCenter() {
     } else {
         console.error('❌ Original Action Center not found - falling back');
         // Fallback to basic contact info
-        alert('🚀 Communication Relay Center\n\nDirect connection to Bruce:\n📞 856-304-1035\n✉️ bizboost.expert@gmail.com');
+        alert('🚀 Communication Center\n\nDirect connection to Bruce:\n📞 856-304-1035\n✉️ bizboost.expert@gmail.com');
     }
 }
 
@@ -1050,5 +1050,5 @@ function showEnhancedActionCenter() {
         setTimeout(initializeCommRelayButton, 500);
     }
 
-    console.log('✅ Enhanced Communication Relay Center System loaded');
+    console.log('✅ Enhanced Communication Center System loaded');
 })();
