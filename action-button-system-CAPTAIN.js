@@ -497,13 +497,13 @@ function showCommunicationRelayCenter() {
 @media (max-width: 768px) {
     #communication-relay-center,
     #communication-relay-center-silent {
-        max-width: 120% !important;
+        max-width: 100% !important;
         padding: 10px 10px !important;
         margin: 15px 0 !important;
         min-height: auto !important;
         border-radius: 15px !important;
-        width: 98% !important; /* Much wider - almost full width */
-        margin-left: auto !important;
+        width: 120% !important; /* Much wider - almost full width */
+        margin-left: -4% !important;
         margin-right: auto !important;
     }
 
@@ -514,7 +514,7 @@ function showCommunicationRelayCenter() {
         align-items: flex-start !important; /* Avatar at top */
         text-align: left !important;
         gap: 12px !important;
-        margin-bottom: 15px !important;
+        margin-bottom: 20px !important;
         margin-top: 0 !important;
     }
         /* Target the button grid directly */
