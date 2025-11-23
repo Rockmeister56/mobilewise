@@ -502,7 +502,7 @@ function showCommunicationRelayCenter() {
         margin: 15px 0 !important;
         min-height: auto !important;
         border-radius: 15px !important;
-        width: 120% !important; /* Much wider - almost full width */
+        width: 140% !important; /* Much wider - almost full width */
         margin-left: -4% !important;
         margin-right: auto !important;
     }
@@ -530,7 +530,7 @@ function showCommunicationRelayCenter() {
 #communication-relay-center-silent .button-grid,
 #communication-relay-center > div > div:nth-of-type(2),
 #communication-relay-center-silent > div > div:nth-of-type(2) {
-    margin-top: 45px !important;
+    margin-top: 20px !important;
 }
 
     #communication-relay-center video,
