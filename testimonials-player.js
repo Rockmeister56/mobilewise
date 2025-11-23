@@ -734,6 +734,40 @@ function addTestimonialAnimations() {
                 from { transform: translateY(0); opacity: 1; }
                 to { transform: translateY(30px); opacity: 0; }
             }
+                /* Add to container section */
+#communication-relay-center,
+#communication-relay-center-silent,
+#testimonial-splash-screen > div {  /* ADD THIS */
+
+/* Add to header section */  
+#communication-relay-center > div > div:first-child,
+#communication-relay-center-silent > div > div:first-child,
+#testimonial-splash-screen > div > div:first-child {  /* ADD THIS */
+
+/* Add to video section */
+#communication-relay-center video,
+#communication-relay-center-silent video,
+#testimonial-splash-screen video {  /* ADD THIS */
+
+/* Add to title section */
+#communication-relay-center h3,
+#communication-relay-center-silent h3,
+#testimonial-splash-screen h3 {  /* ADD THIS */
+
+/* Add to subtitle section */
+#communication-relay-center p,
+#communication-relay-center-silent p,
+#testimonial-splash-screen p {  /* ADD THIS */
+
+/* Add to buttons section */
+#communication-relay-center button,
+#communication-relay-center-silent button,
+#testimonial-splash-screen button {  /* ADD THIS */
+
+/* Add to button grid section */
+#communication-relay-center > div > div:nth-child(2),
+#communication-relay-center-silent > div > div:nth-child(2),
+#testimonial-splash-screen > div > div:nth-child(2) {  /* ADD THIS */
         `;
         document.head.appendChild(style);
     }
