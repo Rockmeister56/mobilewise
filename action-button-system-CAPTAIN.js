@@ -497,8 +497,8 @@ function showCommunicationRelayCenter() {
 @media (max-width: 768px) {
     #communication-relay-center,
     #communication-relay-center-silent {
-        max-width: 100% !important;
-        padding: 15px 12px !important;
+        max-width: 120% !important;
+        padding: 10px 10px !important;
         margin: 15px 0 !important;
         min-height: auto !important;
         border-radius: 15px !important;
@@ -522,7 +522,7 @@ function showCommunicationRelayCenter() {
 #communication-relay-center-silent .button-grid,
 #communication-relay-center > div > div:nth-of-type(2),
 #communication-relay-center-silent > div > div:nth-of-type(2) {
-    margin-top: 25px !important;
+    margin-top: 35px !important;
 }
 
     #communication-relay-center video,
