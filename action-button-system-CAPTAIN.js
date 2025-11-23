@@ -530,13 +530,13 @@ function showCommunicationRelayCenter() {
 #communication-relay-center-silent .button-grid,
 #communication-relay-center > div > div:nth-of-type(2),
 #communication-relay-center-silent > div > div:nth-of-type(2) {
-    margin-top: 20px !important;
+    margin-top: 30px !important;
 }
 
     #communication-relay-center video,
     #communication-relay-center-silent video {
-        width: 60px !important; /* Smaller avatar */
-        height: 45px !important;
+        width: 80px !important; /* Smaller avatar */
+        height: 30px !important;
         margin-top: 0 !important; /* No top margin pushing down */
         flex-shrink: 0 !important;
     }
