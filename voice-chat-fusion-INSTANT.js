@@ -2228,6 +2228,153 @@ function detectAndStoreUserName(message) {
     }
 }
 
+function pauseSession() {
+    console.log('⏸️ PAUSE SESSION clicked');
+    
+    // Stop any current speech
+    if (typeof stopAllSpeech === 'function') {
+        stopAllSpeech();
+    }
+    
+    // If you have a specific pause function
+    if (typeof pauseVoiceSession === 'function') {
+        pauseVoiceSession();
+    }
+    
+    // Create overlay
+    const overlay = document.createElement('div');
+    overlay.id = 'pause-overlay';
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(5px);
+        z-index: 10000;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        animation: fadeIn 0.3s ease;
+    `;
+    
+    // Create overlay content
+    overlay.innerHTML = `
+        <div style="
+            background: linear-gradient(135deg, #1a2a6c, #2c3e50);
+            border: 2px solid #00ff1e;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            max-width: 400px;
+            width: 90%;
+            animation: slideIn 0.3s ease;
+        ">
+            <h3 style="color: #00ff1e; margin-bottom: 10px; font-size: 24px;">⏸️ Session Paused</h3>
+            <p style="color: white; margin-bottom: 30px; opacity: 0.8;">Your session has been paused. Ready to continue?</p>
+            
+            <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                <button onclick="resumeSession()" style="
+                    padding: 15px 30px;
+                    background: linear-gradient(135deg, #00ff1e, #00cc00);
+                    color: white;
+                    border: none;
+                    border-radius: 10px;
+                    font-weight: bold;
+                    cursor: pointer;
+                    font-size: 16px;
+                    transition: all 0.3s ease;
+                    min-width: 150px;
+                ">▶️ RESUME SESSION</button>
+                
+                <button onclick="exitSession()" style="
+                    padding: 15px 30px;
+                    background: linear-gradient(135deg, #ff4757, #ff3742);
+                    color: white;
+                    border: none;
+                    border-radius: 10px;
+                    font-weight: bold;
+                    cursor: pointer;
+                    font-size: 16px;
+                    transition: all 0.3s ease;
+                    min-width: 150px;
+                ">⏹️ EXIT SESSION</button>
+            </div>
+        </div>
+        
+        <style>
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            @keyframes slideIn {
+                from { 
+                    opacity: 0; 
+                    transform: translateY(-30px) scale(0.9);
+                }
+                to { 
+                    opacity: 1; 
+                    transform: translateY(0) scale(1);
+                }
+            }
+        </style>
+    `;
+    
+    document.body.appendChild(overlay);
+    
+    // Add click outside to close
+    overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) {
+            resumeSession();
+        }
+    });
+}
+
+// Resume Session Function
+function resumeSession() {
+    console.log('▶️ RESUME SESSION clicked');
+    
+    // Remove overlay
+    const overlay = document.getElementById('pause-overlay');
+    if (overlay) {
+        overlay.remove();
+    }
+    
+    // Add resume message to chat
+    const chatMessages = document.getElementById('chatMessages');
+    if (chatMessages) {
+        const resumeMessage = document.createElement('div');
+        resumeMessage.className = 'system-message';
+        resumeMessage.textContent = '▶️ Session resumed - click Speak Now to continue';
+        chatMessages.appendChild(resumeMessage);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+    
+    // Resume functionality if you have it
+    if (typeof resumeVoiceSession === 'function') {
+        resumeVoiceSession();
+    }
+}
+
+// Exit Session Function
+function exitSession() {
+    console.log('⏹️ EXIT SESSION clicked');
+    
+    // Remove overlay
+    const overlay = document.getElementById('pause-overlay');
+    if (overlay) {
+        overlay.remove();
+    }
+    
+    // Use your existing exit function
+    if (typeof exitToMainSite === 'function') {
+        exitToMainSite();
+    }
+}
+
 // ===================================================
 // 🎯 FIXED BRIDGE - NO NAMING CONFLICTS!
 // ===================================================

@@ -868,26 +868,19 @@
 }
 }
 
-/*
-@media (max-width: 768px) {
-    #bannerHeaderContainer img {
-        margin-left: -25px !important;
-    }
-    
-    #bannerHeaderContainer div[style*="MOBILE-WISE AI"] {
-        left: 5% !important;
-        transform: translateX(-50%) !important;
-    }
-    
-    #bannerHeaderContainer div:last-child {
-        right: 7px !important;
-    }
-
-    #universalBanner div:nth-child(2) {
-        left: 12% !important;
-    }
+/* Green border for PAUSE SESSION button */
+.quick-btn[onclick="pauseSession()"] {
+    border: 2px solid #00ff1e !important;
+    background: rgba(0, 255, 30, 0.1) !important;
+    color: #00ff1e !important;
+    transition: all 0.3s ease !important;
 }
-*/
+
+.quick-btn[onclick="pauseSession()"]:hover {
+    background: rgba(0, 255, 30, 0.2) !important;
+    box-shadow: 0 0 15px rgba(0, 255, 30, 0.4) !important;
+    transform: translateY(-2px) !important;
+}
 
     </style>
 </head>
@@ -1005,7 +998,7 @@
         justify-content: center;
         margin: 0;">
         
-        <button class="quick-btn" onclick="switchToTextMode()" style="
+        <button class="quick-btn" onclick="pauseSession()" style="
             padding: 12px 25px;
             background: rgba(255, 255, 255, 0.15);
             color: rgb(0, 255, 30);
