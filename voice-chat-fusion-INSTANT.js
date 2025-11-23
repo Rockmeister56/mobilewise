@@ -2333,7 +2333,7 @@ function pauseSession() {
     });
 }
 
-// Resume Session Function - Properly restarts voice system with AI welcome
+// Resume Session Function - Exact same flow as initial experience
 function resumeSession() {
     console.log('▶️ RESUME SESSION clicked');
     
@@ -2343,23 +2343,7 @@ function resumeSession() {
         overlay.remove();
     }
     
-    // Show the speak now banner
-    const speakNowButton = document.getElementById('speakNowButton');
-    if (speakNowButton) {
-        speakNowButton.style.display = 'flex';
-    }
-    
-    // Restart voice recognition if available
-    if (typeof startVoiceRecognition === 'function') {
-        startVoiceRecognition();
-    } else if (typeof activateMicrophone === 'function') {
-        // Fallback to microphone activation
-        setTimeout(() => {
-            activateMicrophone();
-        }, 500);
-    }
-    
-    // Add AI welcome back message
+    // Add AI welcome back message to chat
     const chatMessages = document.getElementById('chatMessages');
     if (chatMessages) {
         const welcomeBackMessage = document.createElement('div');
@@ -2375,14 +2359,53 @@ function resumeSession() {
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
     
-    // Optional: Auto-speak the welcome message
-    setTimeout(() => {
-        if (typeof speakText === 'function') {
-            speakText("Good to see you again! Is there anything else I can answer for you about practice valuation, buying, or selling? Or would you prefer a free consultation with one of our specialists?");
+    // Speak the welcome message and THEN show Speak Now banner
+    if (typeof speakText === 'function') {
+        // Store original onSpeechEnd function if it exists
+        const originalOnSpeechEnd = window.onSpeechEnd;
+        
+        // Override to show Speak Now banner when speech ends
+        window.onSpeechEnd = function() {
+            console.log('✅ AI finished speaking - showing Speak Now banner');
+            
+            // Show the Speak Now banner (just like initial flow)
+            const speakNowButton = document.getElementById('speakNowButton');
+            if (speakNowButton) {
+                speakNowButton.style.display = 'flex';
+            }
+            
+            // Restore original function if it existed
+            if (originalOnSpeechEnd) {
+                window.onSpeechEnd = originalOnSpeechEnd;
+            }
+            
+            // Restart voice recognition
+            if (typeof startVoiceRecognition === 'function') {
+                startVoiceRecognition();
+            } else if (typeof activateMicrophone === 'function') {
+                activateMicrophone();
+            }
+        };
+        
+        // Speak the welcome message
+        speakText("Good to see you again! Is there anything else I can answer for you about practice valuation, buying, or selling? Or would you prefer a free consultation with one of our specialists?");
+        
+    } else {
+        // Fallback: Show Speak Now banner immediately
+        const speakNowButton = document.getElementById('speakNowButton');
+        if (speakNowButton) {
+            speakNowButton.style.display = 'flex';
         }
-    }, 1000);
+        
+        // Restart voice system
+        if (typeof startVoiceRecognition === 'function') {
+            startVoiceRecognition();
+        } else if (typeof activateMicrophone === 'function') {
+            activateMicrophone();
+        }
+    }
     
-    console.log('✅ Session resumed - voice system reactivated');
+    console.log('✅ Session resumed - AI speaking welcome message');
 }
 
 // Exit Session Function
