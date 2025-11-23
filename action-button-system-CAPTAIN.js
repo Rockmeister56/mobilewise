@@ -517,12 +517,20 @@ function showCommunicationRelayCenter() {
         margin-bottom: 20px !important;
         margin-top: 0 !important;
     }
+
+    #communication-relay-center > div > div:first-child,
+#communication-relay-center-silent > div > div:first-child {
+    min-height: auto !important;
+    height: auto !important;
+    margin-bottom: 10px !important; /* Reduce space below header */
+    padding: 5px 0 !important; /* Reduce internal padding */
+}
         /* Target the button grid directly */
 #communication-relay-center .button-grid,
 #communication-relay-center-silent .button-grid,
 #communication-relay-center > div > div:nth-of-type(2),
 #communication-relay-center-silent > div > div:nth-of-type(2) {
-    margin-top: 35px !important;
+    margin-top: 45px !important;
 }
 
     #communication-relay-center video,
