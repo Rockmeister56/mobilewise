@@ -734,235 +734,78 @@ function addTestimonialAnimations() {
                 from { transform: translateY(0); opacity: 1; }
                 to { transform: translateY(30px); opacity: 0; }
             }
-                /* =========================================== */
-/* 🎯 MOBILE RESPONSIVE FIXES - ACTION CENTER & TESTIMONIALS */
-/* =========================================== */
-
+            /* ============ TESTIMONIALS MOBILE CSS ============ */
 @media (max-width: 768px) {
-    /* ================================
-       ACTION CENTER MOBILE FIXES  
-    ================================ */
-    #communication-relay-center,
-    #communication-relay-center-silent {
+    #testimonial-splash-screen > div {
         max-width: 100% !important;
-        padding: 20px 15px !important;
+        padding: 15px 12px !important;
         margin: 15px 0 !important;
         min-height: auto !important;
         border-radius: 15px !important;
+        width: 98% !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
     }
 
-    /* Switch to single column on mobile */
-    #communication-relay-center > div > div:nth-child(2),
-    #communication-relay-center-silent > div > div:nth-child(2) {
-        grid-template-columns: 1fr !important;
-        gap: 10px !important;
-    }
-
-    /* Make buttons smaller for mobile */
-    #communication-relay-center button,
-    #communication-relay-center-silent button {
-        height: 70px !important;
-        min-width: auto !important;
-        padding: 12px 15px !important;
-        font-size: 15px !important;
-        margin: 0 !important;
-    }
-
-    /* Adjust header for mobile */
-    #communication-relay-center > div > div:first-child,
-    #communication-relay-center-silent > div > div:first-child {
-        flex-direction: column !important;
-        text-align: center !important;
-        gap: 10px !important;
-        margin-bottom: 20px !important;
-    }
-
-    #communication-relay-center video,
-    #communication-relay-center-silent video {
-        width: 60px !important;
-        height: 60px !important;
-    }
-
-    #communication-relay-center h3,
-    #communication-relay-center-silent h3 {
-        font-size: 18px !important;
-    }
-
-    #communication-relay-center p,
-    #communication-relay-center-silent p {
-        font-size: 12px !important;
-    }
-
-    /* Adjust skip button */
-    #communication-relay-center > div > button:last-child,
-    #communication-relay-center-silent > div > button:last-child {
-        padding: 12px 15px !important;
-        font-size: 14px !important;
-    }
-
-    /* ================================
-       TESTIMONIALS MOBILE FIXES  
-    ================================ */
-    #testimonial-splash-screen > div {
-        max-width: 100% !important;
-        padding: 20px 15px !important;
-        margin: 15px 0 !important;
-        border-radius: 15px !important;
-    }
-
-    /* Switch testimonials to single column */
-    #testimonial-splash-screen .button-grid,
-    #testimonial-splash-screen > div > div:nth-child(2) {
-        grid-template-columns: 1fr !important;
-        gap: 10px !important;
-    }
-
-    /* Make testimonial buttons smaller */
-    #testimonial-splash-screen button {
-        height: 70px !important;
-        min-width: auto !important;
-        padding: 12px 15px !important;
-        font-size: 15px !important;
-        margin: 0 !important;
-    }
-
-    /* Adjust testimonial header */
+    /* Fix testimonial header */
     #testimonial-splash-screen > div > div:first-child {
-        flex-direction: column !important;
-        text-align: center !important;
-        gap: 10px !important;
-        margin-bottom: 20px !important;
+        display: flex !important;
+        align-items: flex-start !important;
+        text-align: left !important;
+        gap: 12px !important;
+        margin-bottom: 15px !important;
+        margin-top: 0 !important;
     }
 
     #testimonial-splash-screen video {
-        width: 60px !important;
-        height: 60px !important;
+        width: 45px !important;
+        height: 45px !important;
+        margin-top: 0 !important;
+        flex-shrink: 0 !important;
     }
 
     #testimonial-splash-screen h3 {
-        font-size: 18px !important;
+        font-size: 16px !important;
+        margin: 0 0 2px 0 !important;
+        line-height: 1.1 !important;
+        padding-top: 2px !important;
     }
 
     #testimonial-splash-screen p {
-        font-size: 12px !important;
+        font-size: 11px !important;
+        margin: 0 !important;
+        line-height: 1.1 !important;
     }
 
-    /* Adjust testimonial skip button */
-    #testimonial-splash-screen > div > button:last-child {
-        padding: 12px 15px !important;
-        font-size: 14px !important;
-    }
-
-    /* ================================
-       VIDEO PLAYER MOBILE FIXES  
-    ================================ */
-    #testimonial-video-player > div {
-        width: 95% !important;
-        height: auto !important;
-        max-height: 60vh !important;
-        aspect-ratio: 16/9 !important;
-    }
-
-    #testimonialVideo {
-        width: 100% !important;
-        height: 100% !important;
-    }
-
-    /* Navigation options mobile fix */
-    .testimonial-nav-overlay .nav-content {
-        width: 95% !important;
-        padding: 25px 20px !important;
-    }
-
-    .nav-buttons button {
-        padding: 12px 20px !important;
-        font-size: 16px !important;
-    }
-}
-
-/* ================================
-   EXTRA SMALL DEVICES (Phones)  
-=============================== */
-@media (max-width: 480px) {
-    /* Action Center extra small */
-    #communication-relay-center,
-    #communication-relay-center-silent {
-        padding: 15px 10px !important;
-    }
-
-    #communication-relay-center button,
-    #communication-relay-center-silent button {
-        height: 65px !important;
-        padding: 10px 12px !important;
-        font-size: 14px !important;
-    }
-
-    /* Make emojis smaller */
-    #communication-relay-center button div,
-    #communication-relay-center-silent button div {
-        width: 28px !important;
-        height: 28px !important;
-    }
-
-    #communication-relay-center button div span,
-    #communication-relay-center-silent button div span {
-        font-size: 20px !important;
-    }
-
-    /* Testimonials extra small */
-    #testimonial-splash-screen > div {
-        padding: 15px 10px !important;
-    }
-
+    /* Slimmer testimonial buttons */
     #testimonial-splash-screen button {
-        height: 65px !important;
-        padding: 10px 12px !important;
+        height: 55px !important;
+        min-width: auto !important;
+        padding: 8px 12px !important;
         font-size: 14px !important;
+        margin: 0 !important;
     }
 
+    /* Single column for testimonials */
+    #testimonial-splash-screen > div > div:nth-child(2) {
+        grid-template-columns: 1fr !important;
+        gap: 8px !important;
+        margin-top: 20px !important;
+    }
+
+    /* Smaller emojis */
     #testimonial-splash-screen button div {
         font-size: 24px !important;
     }
 
-    /* Video player extra small */
-    #testimonial-video-player > div {
-        width: 98% !important;
-        max-height: 50vh !important;
+    /* Slimmer skip button */
+    #testimonial-splash-screen > div > button:last-child {
+        height: 45px !important;
+        padding: 8px 15px !important;
+        font-size: 13px !important;
+        margin-top: 8px !important;
     }
-
-    /* Navigation extra small */
-    .testimonial-nav-overlay .nav-content {
-        padding: 20px 15px !important;
-    }
-
-    .nav-buttons button {
-        padding: 10px 15px !important;
-        font-size: 14px !important;
-    }
-}
-
-/* ================================
-   TALL MOBILE DEVICES (Height fixes)  
-=============================== */
-@media (max-height: 700px) {
-    #communication-relay-center,
-    #communication-relay-center-silent,
-    #testimonial-splash-screen > div {
-        padding: 15px 12px !important;
-        min-height: auto !important;
-    }
-
-    #communication-relay-center button,
-    #communication-relay-center-silent button,
-    #testimonial-splash-screen button {
-        height: 60px !important;
-        padding: 8px 12px !important;
-    }
-
-    #testimonial-video-player > div {
-        max-height: 55vh !important;
-    }
-}
+}    
         `;
         document.head.appendChild(style);
     }
