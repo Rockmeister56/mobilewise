@@ -493,6 +493,98 @@ function showCommunicationRelayCenter() {
                 font-size: 1.1em !important;
             }
         }
+            
+/* MOBILE ACTION CENTER FIXES */
+@media (max-width: 768px) {
+    #communication-relay-center,
+    #communication-relay-center-silent {
+        max-width: 100% !important;
+        padding: 20px 15px !important;
+        margin: 15px 0 !important;
+        min-height: auto !important;
+    }
+
+    /* Switch to single column on mobile */
+    #communication-relay-center .button-grid,
+    #communication-relay-center-silent .button-grid,
+    #communication-relay-center > div > div:nth-child(2),
+    #communication-relay-center-silent > div > div:nth-child(2) {
+        grid-template-columns: 1fr !important;
+        gap: 10px !important;
+    }
+
+    /* Make buttons smaller for mobile */
+    #communication-relay-center button,
+    #communication-relay-center-silent button {
+        height: 70px !important;
+        min-width: auto !important;
+        padding: 12px 15px !important;
+        font-size: 15px !important;
+    }
+
+    /* Adjust header for mobile */
+    #communication-relay-center .header,
+    #communication-relay-center-silent .header {
+        flex-direction: column !important;
+        text-align: center !important;
+        gap: 10px !important;
+        margin-bottom: 20px !important;
+    }
+
+    #communication-relay-center .header video,
+    #communication-relay-center-silent .header video {
+        width: 60px !important;
+        height: 60px !important;
+    }
+
+    #communication-relay-center .header h3,
+    #communication-relay-center-silent .header h3 {
+        font-size: 18px !important;
+    }
+
+    #communication-relay-center .header p,
+    #communication-relay-center-silent .header p {
+        font-size: 12px !important;
+    }
+
+    /* Adjust skip button */
+    #communication-relay-center .skip-button,
+    #communication-relay-center-silent .skip-button,
+    #communication-relay-center > div > button:last-child,
+    #communication-relay-center-silent > div > button:last-child {
+        padding: 12px 15px !important;
+        font-size: 14px !important;
+    }
+}
+
+/* Extra small devices */
+@media (max-width: 480px) {
+    #communication-relay-center,
+    #communication-relay-center-silent {
+        padding: 15px 10px !important;
+        border-radius: 15px !important;
+    }
+
+    #communication-relay-center button,
+    #communication-relay-center-silent button {
+        height: 65px !important;
+        padding: 10px 12px !important;
+        font-size: 14px !important;
+    }
+
+    /* Make emojis smaller on very small screens */
+    #communication-relay-center button div,
+    #communication-relay-center-silent button div {
+        width: 28px !important;
+        height: 28px !important;
+    }
+
+    #communication-relay-center button div span,
+    #communication-relay-center-silent button div span {
+        font-size: 20px !important;
+    }
+}
+
     `;
 
     document.head.appendChild(styleSheet);
