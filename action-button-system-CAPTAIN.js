@@ -165,7 +165,7 @@ function showSilentCommunicationRelayCenter() {
                 </video>
                 <div>
                     <h3 style="margin: 0 0 5px 0; font-size: 22px; font-weight: 600; color: white;">Communication Center</h3>
-                    <p style="margin: 0; opacity: 0.8; font-size: 13px; font-weight: 300; letter-spacing: 0.5px;">Direct Connection to Bruce</p>
+                    <p style="margin: 0; opacity: 0.8; font-size: 13px; font-weight: 300; letter-spacing: 0.5px;">AI Assisted Comm Support to Bruce</p>
                 </div>
             </div>
 
@@ -274,7 +274,7 @@ function showCommunicationRelayCenter() {
                         font-size: 13px;
                         font-weight: 300;
                         letter-spacing: 0.5px;
-                    ">Direct Connection to Bruce</p>
+                    ">AI Assisted Comm Support</p>
                 </div>
             </div>
 
@@ -725,7 +725,7 @@ function showCommunicationRelayCenter() {
                         font-size: 13px;
                         font-weight: 300;
                         letter-spacing: 0.5px;
-                    ">Direct Connection to Bruce</p>
+                    ">AI Assisted Comm Support</p>
                 </div>
             </div>
 
@@ -1032,7 +1032,7 @@ function showEnhancedActionCenter() {
     } else {
         console.error('❌ Original Action Center not found - falling back');
         // Fallback to basic contact info
-        alert('🚀 Communication Center\n\nDirect connection to Bruce:\n📞 856-304-1035\n✉️ bizboost.expert@gmail.com');
+        alert('🚀 Communication Center\n\nAI Assisted Comm Support to Bruce:\n📞 856-304-1035\n✉️ bizboost.expert@gmail.com');
     }
 }
 
