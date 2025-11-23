@@ -493,47 +493,90 @@ function showCommunicationRelayCenter() {
                 font-size: 1.1em !important;
             }
         }
-/* ============ MOBILE HEADER & CONTAINER ADJUSTMENTS ============ */
+/* ============ CORRECTED MOBILE STYLING ============ */
 @media (max-width: 768px) {
     #communication-relay-center,
     #communication-relay-center-silent {
         max-width: 100% !important;
-        padding: 20px 15px !important;
+        padding: 15px 12px !important;
         margin: 15px 0 !important;
         min-height: auto !important;
         border-radius: 15px !important;
-        width: 90% !important; /* 10% wider container */
+        width: 98% !important; /* Much wider - almost full width */
         margin-left: auto !important;
         margin-right: auto !important;
     }
 
-    /* Adjust header for mobile - smaller avatar */
+    /* Fix header - avatar at top, no forced spacing */
     #communication-relay-center > div > div:first-child,
     #communication-relay-center-silent > div > div:first-child {
-        flex-direction: column !important;
-        text-align: center !important;
-        gap: 10px !important;
-        margin-bottom: 20px !important;
+        display: flex !important;
+        align-items: flex-start !important; /* Avatar at top */
+        text-align: left !important;
+        gap: 12px !important;
+        margin-bottom: 15px !important;
+        margin-top: 0 !important;
     }
 
     #communication-relay-center video,
     #communication-relay-center-silent video {
-        width: 50px !important; /* 20% smaller (was 60px) */
-        height: 50px !important; /* 20% smaller (was 60px) */
+        width: 45px !important; /* Smaller avatar */
+        height: 45px !important;
+        margin-top: 0 !important; /* No top margin pushing down */
+        flex-shrink: 0 !important;
     }
 
     #communication-relay-center h3,
     #communication-relay-center-silent h3 {
-        font-size: 16px !important; /* Smaller font for header */
-        margin: 0 0 3px 0 !important; /* Tighter spacing */
-        line-height: 1.2 !important;
+        font-size: 16px !important;
+        margin: 0 0 2px 0 !important; /* Minimal spacing */
+        line-height: 1.1 !important;
+        padding-top: 2px !important; /* Small top padding instead of margin */
     }
 
     #communication-relay-center p,
     #communication-relay-center-silent p {
-        font-size: 11px !important; /* Smaller subtitle */
+        font-size: 11px !important;
         margin: 0 !important;
-        line-height: 1.2 !important;
+        line-height: 1.1 !important;
+    }
+
+    /* Slimmer buttons - 30% height reduction */
+    #communication-relay-center button,
+    #communication-relay-center-silent button {
+        height: 55px !important; /* 30% slimmer (was 84px) */
+        min-width: auto !important;
+        padding: 8px 12px !important;
+        font-size: 14px !important;
+        margin: 0 !important;
+    }
+
+    /* Single column layout */
+    #communication-relay-center > div > div:nth-child(2),
+    #communication-relay-center-silent > div > div:nth-child(2) {
+        grid-template-columns: 1fr !important;
+        gap: 8px !important;
+    }
+
+    /* Smaller emojis in buttons */
+    #communication-relay-center button div,
+    #communication-relay-center-silent button div {
+        width: 25px !important;
+        height: 25px !important;
+    }
+
+    #communication-relay-center button div span,
+    #communication-relay-center-silent button div span {
+        font-size: 18px !important;
+    }
+
+    /* Slimmer skip button */
+    #communication-relay-center > div > button:last-child,
+    #communication-relay-center-silent > div > button:last-child {
+        height: 45px !important;
+        padding: 8px 15px !important;
+        font-size: 13px !important;
+        margin-top: 8px !important;
     }
 }
 
@@ -541,14 +584,14 @@ function showCommunicationRelayCenter() {
 @media (max-width: 480px) {
     #communication-relay-center,
     #communication-relay-center-silent {
-        width: 95% !important; /* Even wider on small phones */
-        padding: 15px 12px !important;
+        width: 99% !important; /* Almost full width */
+        padding: 12px 10px !important;
     }
 
     #communication-relay-center video,
     #communication-relay-center-silent video {
-        width: 45px !important; /* Even smaller on tiny screens */
-        height: 45px !important;
+        width: 40px !important;
+        height: 40px !important;
     }
 
     #communication-relay-center h3,
@@ -556,9 +599,11 @@ function showCommunicationRelayCenter() {
         font-size: 15px !important;
     }
 
-    #communication-relay-center p,
-    #communication-relay-center-silent p {
-        font-size: 10px !important;
+    #communication-relay-center button,
+    #communication-relay-center-silent button {
+        height: 50px !important; /* Even slimmer */
+        padding: 6px 10px !important;
+        font-size: 13px !important;
     }
 }
         
