@@ -520,7 +520,7 @@ function showCommunicationRelayCenter() {
 
     #communication-relay-center video,
     #communication-relay-center-silent video {
-        width: 45px !important; /* Smaller avatar */
+        width: 60px !important; /* Smaller avatar */
         height: 45px !important;
         margin-top: 0 !important; /* No top margin pushing down */
         flex-shrink: 0 !important;
@@ -544,7 +544,7 @@ function showCommunicationRelayCenter() {
     /* Slimmer buttons - 30% height reduction */
     #communication-relay-center button,
     #communication-relay-center-silent button {
-        height: 55px !important; /* 30% slimmer (was 84px) */
+        height: 75px !important; /* 30% slimmer (was 84px) */
         min-width: auto !important;
         padding: 8px 12px !important;
         font-size: 14px !important;
