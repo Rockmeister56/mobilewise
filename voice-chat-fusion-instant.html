@@ -868,175 +868,26 @@
 }
 }
 
-/* 🎨 TRANSFORM EXISTING BUTTONS TO MATCH THE DESIGN */
-.quick-btn, #sendBtn, .input-area button {
-    padding: 1em 1.5em !important;
-    border: none !important;
-    border-radius: 8px !important;
-    font-weight: 600 !important;
-    letter-spacing: 2px !important;
-    text-transform: uppercase !important;
-    cursor: pointer !important;
-    transition: all 400ms !important;
-    font-size: 14px !important;
-    position: relative !important;
-    overflow: hidden !important;
-    outline: 2px solid !important;
-    margin: 0.25em 0 !important;
-    background: transparent !important;
-    color: #2c9caf !important;
-    outline-color: #2c9caf !important;
-}
+/*
+@media (max-width: 768px) {
+    #bannerHeaderContainer img {
+        margin-left: -25px !important;
+    }
+    
+    #bannerHeaderContainer div[style*="MOBILE-WISE AI"] {
+        left: 5% !important;
+        transform: translateX(-50%) !important;
+    }
+    
+    #bannerHeaderContainer div:last-child {
+        right: 7px !important;
+    }
 
-/* Communication Relay style buttons */
-.quick-btn:nth-child(1),
-.quick-btn:nth-child(2), 
-.quick-btn:nth-child(3) {
-    color: #2c9caf !important;
-    outline: 2px solid #2c9caf !important;
+    #universalBanner div:nth-child(2) {
+        left: 12% !important;
+    }
 }
-
-.quick-btn:nth-child(1)::before,
-.quick-btn:nth-child(2)::before,
-.quick-btn:nth-child(3)::before {
-    content: "" !important;
-    position: absolute !important;
-    left: -50px !important;
-    top: 0 !important;
-    width: 0 !important;
-    height: 100% !important;
-    background-color: #2c9caf !important;
-    transform: skewX(45deg) !important;
-    z-index: -1 !important;
-    transition: width 600ms !important;
-}
-
-.quick-btn:hover::before {
-    width: 250% !important;
-}
-
-.quick-btn:hover {
-    color: #ffffff !important;
-    transform: scale(1.05) !important;
-    box-shadow: 2px 3px 12px -2px #268391 !important;
-}
-
-/* Send Button - Pause Session Style */
-#sendBtn {
-    color: #f39c12 !important;
-    outline: 2px solid #f39c12 !important;
-}
-
-#sendBtn::before {
-    content: "" !important;
-    position: absolute !important;
-    left: -50px !important;
-    top: 0 !important;
-    width: 0 !important;
-    height: 100% !important;
-    background-color: #f39c12 !important;
-    transform: skewX(45deg) !important;
-    z-index: -1 !important;
-    transition: width 600ms !important;
-}
-
-#sendBtn:hover::before {
-    width: 250% !important;
-}
-
-#sendBtn:hover {
-    color: #ffffff !important;
-    transform: scale(1.05) !important;
-    box-shadow: 2px 3px 12px -2px #e67e22 !important;
-}
-
-/* Exit Button - End Session Style */
-.quick-btn[onclick*="exitToMainSite"] {
-    color: #e74c3c !important;
-    outline: 2px solid #e74c3c !important;
-}
-
-.quick-btn[onclick*="exitToMainSite"]::before {
-    content: "" !important;
-    position: absolute !important;
-    left: -50px !important;
-    top: 0 !important;
-    width: 0 !important;
-    height: 100% !important;
-    background-color: #e74c3c !important;
-    transform: skewX(45deg) !important;
-    z-index: -1 !important;
-    transition: width 600ms !important;
-}
-
-.quick-btn[onclick*="exitToMainSite"]:hover::before {
-    width: 250% !important;
-}
-
-.quick-btn[onclick*="exitToMainSite"]:hover {
-    color: #ffffff !important;
-    transform: scale(1.05) !important;
-    box-shadow: 2px 3px 12px -2px #c0392b !important;
-}
-
-/* 🎨 ENHANCED BUTTON STYLES - MATCHES YOUR DESIGN */
-.enhanced-btn {
-    position: relative;
-    overflow: hidden;
-    transition: all 400ms;
-}
-
-.enhanced-btn::before {
-    content: "";
-    position: absolute;
-    left: -50px;
-    top: 0;
-    width: 0;
-    height: 100%;
-    transform: skewX(45deg);
-    z-index: -1;
-    transition: width 600ms;
-}
-
-.enhanced-btn:hover::before {
-    width: 250%;
-}
-
-.enhanced-btn:hover {
-    color: #ffffff !important;
-    transform: scale(1.05);
-    box-shadow: 2px 3px 12px -2px;
-}
-
-/* Action Button (Blue) */
-.action-button::before {
-    background-color: #2c9caf;
-}
-
-.action-button:hover {
-    outline: 2px solid #70bdca !important;
-    box-shadow: 2px 3px 12px -2px #268391 !important;
-}
-
-/* Pause Button (Orange) */
-.pause-button::before {
-    background-color: #f39c12;
-}
-
-.pause-button:hover {
-    outline: 2px solid #f7b731 !important;
-    box-shadow: 2px 3px 12px -2px #e67e22 !important;
-}
-
-/* End Button (Red) */
-.end-button::before {
-    background-color: #e74c3c;
-}
-
-.end-button:hover {
-    outline: 2px solid #ff7979 !important;
-    box-shadow: 2px 3px 12px -2px #c0392b !important;
-}
+*/
 
     </style>
 </head>
@@ -1097,7 +948,7 @@
         </div>
         
         
-  <!-- 🎯 KEEP THE SPEAK NOW BUTTON (unchanged) -->
+   <!-- 🎯 COMPLETE BUTTONS SYSTEM - MOVED UP + BIGGER BUTTONS -->
 <div id="speakNowButton" style="
     width: 340px;
     height: 30px;
@@ -1119,7 +970,6 @@
     Speak Now
 </div>
 
-<!-- 🎯 ENHANCED BUTTONS SYSTEM - SAME FUNCTIONALITY, BETTER DESIGN -->
 <div id="quickButtonsContainer" style="
     position: fixed;
     bottom: 54px;
@@ -1129,34 +979,31 @@
     max-width: 610px;
     background: rgba(255, 255, 255, 0.1);
     border-radius: 15px;
-    padding: 20px;
+    padding: 10px;
     backdrop-filter: blur(10px);
     display: none;">
 
     <div id="speakNowSlot" style="display: none;"></div>
     
-    <!-- ENHANCED QUICK BUTTONS WITH NEW DESIGN -->
-    <div class="quick-questions" style="margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 12px;">
-        <button class="quick-btn enhanced-btn action-button" onclick="askQuickQuestion('How much is my practice worth?')" 
-                style="flex: 1; min-width: 140px;">Practice Valuation</button>
-        <button class="quick-btn enhanced-btn action-button" onclick="askQuickQuestion('I want to sell my practice')" 
-                style="flex: 1; min-width: 140px;">Selling Options</button>
-        <button class="quick-btn enhanced-btn action-button" onclick="askQuickQuestion('I want to buy a practice')" 
-                style="flex: 1; min-width: 140px;">Buying Options</button>
-    </div>
+    <!-- ORIGINAL SIMPLE QUICK BUTTONS -->
+<div class="quick-questions" style="margin-bottom: 12px;">
+    <button class="quick-btn" onclick="askQuickQuestion('How much is my practice worth?')">Practice Valuation</button>
+    <button class="quick-btn" onclick="askQuickQuestion('I want to sell my practice')">Selling Options</button>
+    <button class="quick-btn" onclick="askQuickQuestion('I want to buy a practice')">Buying Options</button>
+</div>
     
-    <!-- ENHANCED INPUT AREA -->
+    <!-- FULL WIDTH TEXT INPUT -->
     <div class="input-area" style="
         display: flex;
-        gap: 12px;
+        gap: 8px;
         align-items: center;
         width: 100%;
-        margin: 0 0 20px 0;">
+        margin: 0 0 12px 0;">
         
         <input type="text" id="userInput" placeholder="Type or click mic to speak..." style="
             flex: 1;
             width: 100%;
-            padding: 15px;
+            padding: 12px;
             border: none;
             border-radius: 25px;
             background: rgba(255, 255, 255, 0.9);
@@ -1164,61 +1011,45 @@
             font-size: 16px;
             outline: none;">
         
-        <button id="sendBtn" onclick="sendMessage()" class="enhanced-btn pause-button" style="
-            padding: 15px 25px;
-            color: #f39c12;
+        <button id="sendBtn" onclick="sendMessage()" style="
+            padding: 12px 20px;
+            background: linear-gradient(90deg, #ff7e5f, #feb47b);
+            color: white;
             border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            letter-spacing: 2px;
-            text-transform: uppercase;
+            border-radius: 25px;
+            font-weight: bold;
             cursor: pointer;
-            white-space: nowrap;
-            outline: 2px solid #f39c12;
-            background: transparent;
-            position: relative;
-            overflow: hidden;
-            transition: all 400ms;">Send</button>
+            white-space: nowrap;">Send</button>
     </div>
     
-    <!-- ENHANCED CONTROL BUTTONS -->
+    <!-- BIGGER CONTROL BUTTONS -->
     <div style="
         display: flex;
-        gap: 15px;
+        gap: 12px;
         justify-content: center;
         margin: 0;">
         
-        <button class="quick-btn enhanced-btn action-button" onclick="switchToTextMode()" style="
-            padding: 15px 25px;
-            color: #2c9caf;
+        <button class="quick-btn" onclick="switchToTextMode()" style="
+            padding: 12px 25px;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 20px;
             cursor: pointer;
+            font-size: 14px;
             font-weight: 600;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            min-width: 150px;
-            outline: 2px solid #2c9caf;
-            background: transparent;
-            position: relative;
-            overflow: hidden;
-            transition: all 400ms;">Switch to Text</button>
+            min-width: 120px;">Switch to Text</button>
         
-        <button class="quick-btn enhanced-btn end-button" onclick="exitToMainSite()" style="
-            padding: 15px 25px;
-            color: #e74c3c;
+        <button class="quick-btn" onclick="exitToMainSite()" style="
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #ff4757, #ff3742);
+            color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 20px;
             cursor: pointer;
+            font-size: 14px;
             font-weight: 600;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            min-width: 120px;
-            outline: 2px solid #e74c3c;
-            background: transparent;
-            position: relative;
-            overflow: hidden;
-            transition: all 400ms;">EXIT</button>
+            min-width: 80px;">EXIT</button>
     </div>
 </div>
         
