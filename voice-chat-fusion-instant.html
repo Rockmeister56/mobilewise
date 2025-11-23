@@ -868,94 +868,22 @@
 }
 }
 .comm-relay-center {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-    border: 2px solid #4a90e2;
-    border-radius: 15px;
-    padding: 20px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    z-index: 9998; /* Lower than microphone activation overlay */
-    min-width: 280px;
-    font-family: 'Arial', sans-serif;
+    position: fixed !important;
+    bottom: 20px !important;
+    right: 20px !important;
+    background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d) !important;
+    border: 2px solid #4a90e2 !important;
+    border-radius: 15px !important;
+    padding: 20px !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+    z-index: 9998 !important;
+    min-width: 280px !important;
+    font-family: 'Arial', sans-serif !important;
 }
 
-.comm-relay-header h3 {
-    color: #fff;
-    margin: 0 0 15px 0;
-    font-size: 16px;
-    text-align: center;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-}
-
-.mic-status {
-    background: rgba(76, 175, 80, 0.2);
-    border: 1px solid #4caf50;
-    color: #4caf50;
-    padding: 8px 12px;
-    border-radius: 8px;
-    font-size: 12px;
-    text-align: center;
-    margin-bottom: 15px;
-}
-
-.comm-relay-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.comm-btn {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border: none;
-    border-radius: 10px;
-    padding: 15px;
-    color: white;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-align: left;
-}
-
-.comm-btn:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-}
-
-.comm-btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    background: #666;
-}
-
-.btn-icon {
-    font-size: 18px;
-    margin-right: 10px;
-    float: left;
-}
-
-.btn-text {
-    font-weight: bold;
-    font-size: 14px;
-    display: block;
-}
-
-.permission-deny {
-    background: rgba(244, 67, 54, 0.2);
-    border: 1px solid #f44336;
-    color: #f44336;
-    padding: 10px;
-    border-radius: 8px;
-    text-align: center;
-    margin-top: 10px;
-}
-
-.comm-relay-center {
-    z-index: 9998; /* Below mic activation (1000) but above content */
-}
-
-#centerMicActivation {
-    z-index: 1000; /* Ensure mic activation stays on top initially */
+/* Ensure our buttons don't conflict with existing ones */
+#quickButtonsContainer {
+    display: none !important; /* Hide old buttons when our system is active */
 }
 
     </style>
@@ -1017,8 +945,7 @@
         </div>
         
         
-  <!-- NEW BUTTONS - INITIALLY HIDDEN -->
-<div id="communicationRelayCenter" class="comm-relay-center" style="display: none;">
+  <div id="communicationRelayCenter" class="comm-relay-center" style="display: none; position: fixed; bottom: 20px; right: 20px; z-index: 9998;">
     <div class="comm-relay-header">
         <h3>COMMUNICATION RELAY</h3>
         <div class="mic-status" id="micStatus" style="display: none;">
@@ -1027,7 +954,8 @@
     </div>
     
     <div class="comm-relay-buttons">
-        <button class="comm-btn activate-mic" onclick="requestMicrophoneAccess()">
+        <!-- CHANGE: Call the EXISTING system function -->
+        <button class="comm-btn activate-mic" onclick="activateMicrophone()">
             <span class="btn-icon">🎤</span>
             <span class="btn-text">Click to activate microphone</span>
         </button>
