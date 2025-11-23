@@ -867,46 +867,27 @@
     position: relative !important;
 }
 }
-.comm-relay-buttons {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 12px !important;
-}
 
-.comm-btn {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-    border: none !important;
-    border-radius: 10px !important;
-    padding: 15px !important;
-    color: white !important;
-    cursor: pointer !important;
-    transition: all 0.3s ease !important;
-    text-align: left !important;
-    width: 100% !important;
-}
+/*
+@media (max-width: 768px) {
+    #bannerHeaderContainer img {
+        margin-left: -25px !important;
+    }
+    
+    #bannerHeaderContainer div[style*="MOBILE-WISE AI"] {
+        left: 5% !important;
+        transform: translateX(-50%) !important;
+    }
+    
+    #bannerHeaderContainer div:last-child {
+        right: 7px !important;
+    }
 
-.comm-btn:hover:not(:disabled) {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3) !important;
+    #universalBanner div:nth-child(2) {
+        left: 12% !important;
+    }
 }
-
-.comm-btn:disabled {
-    opacity: 0.6 !important;
-    cursor: not-allowed !important;
-    background: #666 !important;
-}
-
-.btn-icon {
-    font-size: 18px !important;
-    margin-right: 10px !important;
-    float: left !important;
-}
-
-.btn-text {
-    font-weight: bold !important;
-    font-size: 14px !important;
-    display: block !important;
-}
+*/
 
     </style>
 </head>
@@ -967,34 +948,114 @@
         </div>
         
         
- <div id="communicationRelayCenter" class="comm-relay-center" style="display: none; position: fixed; bottom: 20px; right: 20px; z-index: 9998;">
-    <div class="comm-relay-header">
-        <h3>COMMUNICATION RELAY</h3>
-        <div class="mic-status" id="micStatus" style="display: none;">
-            🎤 Microphone Activated
-        </div>
-    </div>
-    
-    <div class="comm-relay-buttons">
-        <button class="comm-btn activate-mic" onclick="activateMicrophone()">
-            <span class="btn-icon">🎤</span>
-            <span class="btn-text">Click to activate microphone</span>
-        </button>
-        
-        <button class="comm-btn pause-session" id="pauseBtn" disabled>
-            <span class="btn-icon">⏸️</span>
-            <span class="btn-text">PAUSE SESSION</span>
-        </button>
-        
-        <button class="comm-btn end-session" id="endBtn" disabled>
-            <span class="btn-icon">⏹️</span>
-            <span class="btn-text">END SESSION</span>
-        </button>
-    </div>
-    
-    <!-- KEEP this one, REMOVE the one below -->
-    <div class="permission-status" id="permissionStatus"></div>
+   <!-- 🎯 COMPLETE BUTTONS SYSTEM - MOVED UP + BIGGER BUTTONS -->
+<div id="speakNowButton" style="
+    width: 340px;
+    height: 30px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(15px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 25px;
+    color: white;
+    font-weight: 600;
+    font-size: 16px;
+    text-align: center;
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
+    animation: speakNowWholeButtonGlow 2.5s ease-in-out infinite;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    margin: 10px auto;
+    cursor: pointer;">
+    Speak Now
 </div>
+
+<div id="quickButtonsContainer" style="
+    position: fixed;
+    bottom: 54px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 610px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 10px;
+    backdrop-filter: blur(10px);
+    display: none;">
+
+    <div id="speakNowSlot" style="display: none;"></div>
+    
+    <!-- ORIGINAL SIMPLE QUICK BUTTONS -->
+<div class="quick-questions" style="margin-bottom: 12px;">
+    <button class="quick-btn" onclick="askQuickQuestion('How much is my practice worth?')">Practice Valuation</button>
+    <button class="quick-btn" onclick="askQuickQuestion('I want to sell my practice')">Selling Options</button>
+    <button class="quick-btn" onclick="askQuickQuestion('I want to buy a practice')">Buying Options</button>
+</div>
+    
+    <!-- FULL WIDTH TEXT INPUT -->
+    <div class="input-area" style="
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        width: 100%;
+        margin: 0 0 12px 0;">
+        
+        <input type="text" id="userInput" placeholder="Type or click mic to speak..." style="
+            flex: 1;
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            font-size: 16px;
+            outline: none;">
+        
+        <button id="sendBtn" onclick="sendMessage()" style="
+            padding: 12px 20px;
+            background: linear-gradient(90deg, #ff7e5f, #feb47b);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            white-space: nowrap;">Send</button>
+    </div>
+    
+    <!-- BIGGER CONTROL BUTTONS -->
+    <div style="
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        margin: 0;">
+        
+        <button class="quick-btn" onclick="switchToTextMode()" style="
+            padding: 12px 25px;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            min-width: 120px;">Switch to Text</button>
+        
+        <button class="quick-btn" onclick="exitToMainSite()" style="
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #ff4757, #ff3742);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            min-width: 80px;">EXIT</button>
+    </div>
+</div>
+        
+        <!-- Permission Status -->
+        <div id="permissionStatus"></div>
+    </div>
 
     <!-- ===================================================
      🎯 DYNAMIC CONCERN-BASED TESTIMONIAL SYSTEM
@@ -1094,53 +1155,5 @@ console.log('🎯 Dynamic Concern Banner System loaded!');
 <script src="universal-banner-engine-v4-CAPTAIN-FINAL.js"></script>
 <script src="action-button-system-CAPTAIN.js"></script>
 <script src="banner-button-integration-SIMPLE.js"></script>
-
-<script>
-// Simple integration to stop the loop and make buttons work
-function initializeCommRelayButton() {
-    const buttonContainer = document.getElementById('communicationRelayCenter');
-    
-    if (buttonContainer) {
-        console.log('✅ FINALLY FOUND Communication Relay Center - STOPPING RETRIES');
-        return true;
-    }
-    console.log('❌ Communication Relay Center not found');
-    return false; // Stop retrying
-}
-
-// Override the existing function to stop the loop
-window.initializeCommRelayButton = initializeCommRelayButton;
-
-// Simple integration with existing microphone system
-function showMicActivatedStatus() {
-    console.log('✅ Microphone activated - showing new buttons');
-    
-    // Hide main mic activation
-    const micActivation = document.getElementById('centerMicActivation');
-    if (micActivation) micActivation.style.display = 'none';
-    
-    // Show our new buttons
-    const commRelayCenter = document.getElementById('communicationRelayCenter');
-    if (commRelayCenter) {
-        commRelayCenter.style.display = 'block';
-        console.log('🎯 Communication Relay Center now visible');
-    }
-    
-    // Update button states
-    const activateBtn = document.querySelector('.activate-mic');
-    const pauseBtn = document.getElementById('pauseBtn');
-    const endBtn = document.getElementById('endBtn');
-    
-    if (activateBtn) activateBtn.style.display = 'none';
-    if (pauseBtn) pauseBtn.disabled = false;
-    if (endBtn) endBtn.disabled = false;
-}
-
-// Initialize
-document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(initializeCommRelayButton, 1000);
-});
-</script>
-
 </body>
 </html>
