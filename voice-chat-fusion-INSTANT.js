@@ -2333,7 +2333,7 @@ function pauseSession() {
     });
 }
 
-// Resume Session Function
+// Resume Session Function - Properly restarts voice system with AI welcome
 function resumeSession() {
     console.log('▶️ RESUME SESSION clicked');
     
@@ -2343,20 +2343,46 @@ function resumeSession() {
         overlay.remove();
     }
     
-    // Add resume message to chat
+    // Show the speak now banner
+    const speakNowButton = document.getElementById('speakNowButton');
+    if (speakNowButton) {
+        speakNowButton.style.display = 'flex';
+    }
+    
+    // Restart voice recognition if available
+    if (typeof startVoiceRecognition === 'function') {
+        startVoiceRecognition();
+    } else if (typeof activateMicrophone === 'function') {
+        // Fallback to microphone activation
+        setTimeout(() => {
+            activateMicrophone();
+        }, 500);
+    }
+    
+    // Add AI welcome back message
     const chatMessages = document.getElementById('chatMessages');
     if (chatMessages) {
-        const resumeMessage = document.createElement('div');
-        resumeMessage.className = 'system-message';
-        resumeMessage.textContent = '▶️ Session resumed - click Speak Now to continue';
-        chatMessages.appendChild(resumeMessage);
+        const welcomeBackMessage = document.createElement('div');
+        welcomeBackMessage.className = 'ai-message';
+        welcomeBackMessage.innerHTML = `
+            <div style="padding: 15px; border-radius: 20px; background: rgba(255,255,255,0.1); margin: 10px 0;">
+                <strong>Good to see you again! 👋</strong><br><br>
+                Is there anything else I can answer for you about practice valuation, buying, or selling?<br><br>
+                Or would you prefer a <strong>free consultation</strong> with one of our specialists?
+            </div>
+        `;
+        chatMessages.appendChild(welcomeBackMessage);
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
     
-    // Resume functionality if you have it
-    if (typeof resumeVoiceSession === 'function') {
-        resumeVoiceSession();
-    }
+    // Optional: Auto-speak the welcome message
+    setTimeout(() => {
+        if (typeof speakText === 'function') {
+            speakText("Good to see you again! Is there anything else I can answer for you about practice valuation, buying, or selling? Or would you prefer a free consultation with one of our specialists?");
+        }
+    }, 1000);
+    
+    console.log('✅ Session resumed - voice system reactivated');
 }
 
 // Exit Session Function
