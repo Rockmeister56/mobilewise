@@ -493,8 +493,7 @@ function showCommunicationRelayCenter() {
                 font-size: 1.1em !important;
             }
         }
-            
-/* MOBILE ACTION CENTER FIXES */
+/* ============ MOBILE HEADER & CONTAINER ADJUSTMENTS ============ */
 @media (max-width: 768px) {
     #communication-relay-center,
     #communication-relay-center-silent {
@@ -502,58 +501,39 @@ function showCommunicationRelayCenter() {
         padding: 20px 15px !important;
         margin: 15px 0 !important;
         min-height: auto !important;
+        border-radius: 15px !important;
+        width: 90% !important; /* 10% wider container */
+        margin-left: auto !important;
+        margin-right: auto !important;
     }
 
-    /* Switch to single column on mobile */
-    #communication-relay-center .button-grid,
-    #communication-relay-center-silent .button-grid,
-    #communication-relay-center > div > div:nth-child(2),
-    #communication-relay-center-silent > div > div:nth-child(2) {
-        grid-template-columns: 1fr !important;
-        gap: 10px !important;
-    }
-
-    /* Make buttons smaller for mobile */
-    #communication-relay-center button,
-    #communication-relay-center-silent button {
-        height: 70px !important;
-        min-width: auto !important;
-        padding: 12px 15px !important;
-        font-size: 15px !important;
-    }
-
-    /* Adjust header for mobile */
-    #communication-relay-center .header,
-    #communication-relay-center-silent .header {
+    /* Adjust header for mobile - smaller avatar */
+    #communication-relay-center > div > div:first-child,
+    #communication-relay-center-silent > div > div:first-child {
         flex-direction: column !important;
         text-align: center !important;
         gap: 10px !important;
         margin-bottom: 20px !important;
     }
 
-    #communication-relay-center .header video,
-    #communication-relay-center-silent .header video {
-        width: 60px !important;
-        height: 60px !important;
+    #communication-relay-center video,
+    #communication-relay-center-silent video {
+        width: 50px !important; /* 20% smaller (was 60px) */
+        height: 50px !important; /* 20% smaller (was 60px) */
     }
 
-    #communication-relay-center .header h3,
-    #communication-relay-center-silent .header h3 {
-        font-size: 18px !important;
+    #communication-relay-center h3,
+    #communication-relay-center-silent h3 {
+        font-size: 16px !important; /* Smaller font for header */
+        margin: 0 0 3px 0 !important; /* Tighter spacing */
+        line-height: 1.2 !important;
     }
 
-    #communication-relay-center .header p,
-    #communication-relay-center-silent .header p {
-        font-size: 12px !important;
-    }
-
-    /* Adjust skip button */
-    #communication-relay-center .skip-button,
-    #communication-relay-center-silent .skip-button,
-    #communication-relay-center > div > button:last-child,
-    #communication-relay-center-silent > div > button:last-child {
-        padding: 12px 15px !important;
-        font-size: 14px !important;
+    #communication-relay-center p,
+    #communication-relay-center-silent p {
+        font-size: 11px !important; /* Smaller subtitle */
+        margin: 0 !important;
+        line-height: 1.2 !important;
     }
 }
 
@@ -561,30 +541,27 @@ function showCommunicationRelayCenter() {
 @media (max-width: 480px) {
     #communication-relay-center,
     #communication-relay-center-silent {
-        padding: 15px 10px !important;
-        border-radius: 15px !important;
+        width: 95% !important; /* Even wider on small phones */
+        padding: 15px 12px !important;
     }
 
-    #communication-relay-center button,
-    #communication-relay-center-silent button {
-        height: 65px !important;
-        padding: 10px 12px !important;
-        font-size: 14px !important;
+    #communication-relay-center video,
+    #communication-relay-center-silent video {
+        width: 45px !important; /* Even smaller on tiny screens */
+        height: 45px !important;
     }
 
-    /* Make emojis smaller on very small screens */
-    #communication-relay-center button div,
-    #communication-relay-center-silent button div {
-        width: 28px !important;
-        height: 28px !important;
+    #communication-relay-center h3,
+    #communication-relay-center-silent h3 {
+        font-size: 15px !important;
     }
 
-    #communication-relay-center button div span,
-    #communication-relay-center-silent button div span {
-        font-size: 20px !important;
+    #communication-relay-center p,
+    #communication-relay-center-silent p {
+        font-size: 10px !important;
     }
 }
-
+        
     `;
 
     document.head.appendChild(styleSheet);
