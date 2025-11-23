@@ -503,7 +503,7 @@ function showCommunicationRelayCenter() {
         min-height: auto !important;
         border-radius: 15px !important;
         width: 140% !important; /* Much wider - almost full width */
-        margin-left: -4% !important;
+        margin-left: 0% !important;
         margin-right: auto !important;
     }
 
@@ -517,6 +517,11 @@ function showCommunicationRelayCenter() {
         margin-bottom: 20px !important;
         margin-top: 0 !important;
     }
+        #communication-relay-center > div,
+#communication-relay-center-silent > div {
+    padding-top: 15px !important; /* Reduce top padding */
+    padding-bottom: 15px !important; /* Reduce bottom padding */
+}
 
     #communication-relay-center > div > div:first-child,
 #communication-relay-center-silent > div > div:first-child {
