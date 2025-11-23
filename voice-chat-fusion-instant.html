@@ -992,6 +992,12 @@
     <button class="quick-btn" onclick="askQuickQuestion('I want to buy a practice')">Buying Options</button>
 </div>
     
+   <!-- HIDDEN TEXT INPUT - system can still access it -->
+<div class="input-area" style="display: none;">
+    <input type="text" id="userInput" placeholder="Type or click mic to speak...">
+    <button id="sendBtn" onclick="sendMessage()">Send</button>
+</div>
+    
     <!-- BIGGER CONTROL BUTTONS -->
     <div style="
         display: flex;
