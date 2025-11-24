@@ -760,18 +760,6 @@ function emergencyStopAllSpeech() {
     });
 }
 
-// 🎯 AUTO-STOP AI SPEECH WHEN TESTIMONIAL STARTS
-const originalHandleTestimonialButton = window.handleTestimonialButton;
-window.handleTestimonialButton = function(testimonialType) {
-    console.log(`🎬🛑 AUTO-STOP: Stopping AI speech for ${testimonialType} testimonial`);
-    emergencyStopAllSpeech();
-    
-    // Wait a tiny moment to ensure speech is fully stopped, then play video
-    setTimeout(() => {
-        originalHandleTestimonialButton(testimonialType);
-    }, 50);
-};
-
 // ================================
 // 🎬 UPDATED HIDE TESTIMONIAL SPLASH
 // ================================
@@ -938,6 +926,7 @@ console.log('✅ AUTO-SPEECH-STOPPER installed - testimonials will automatically
 // ================================
 window.handleTestimonialButton = handleTestimonialButton;
 window.showTestimonialSplashScreen = showTestimonialSplashScreen;
+window.playTestimonialVideo = playTestimonialVideo; 
 window.handleTestimonialSkip = handleTestimonialSkip;
 window.hideTestimonialSplash = hideTestimonialSplash;
 window.avatarCurrentlyPlaying = false;
