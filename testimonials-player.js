@@ -84,17 +84,17 @@ function showTestimonialSplashScreen() {
                 </button>
 
                 <!-- Speed Results -->
-                <button onclick="handleTestimonialButton('speed')" style="
-                    display: flex; align-items: center; gap: 12px;
-                    background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(255, 255, 255, 0.2);
-                    color: white; padding: 18px 15px; border-radius: 10px; cursor: pointer;
-                    font-weight: 600; font-size: 17px; text-align: left; transition: all 0.3s ease;
-                    backdrop-filter: blur(10px); width: 100%; height: 84px;
-                " onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.borderColor='rgba(255, 255, 255, 0.3)'; this.style.transform='translateY(-2px)';" 
-                   onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.borderColor='rgba(255, 255, 255, 0.2)'; this.style.transform='translateY(0)';">
-                    <div style="font-size: 28px;">⚡</div>
-                    <span style="flex: 1;">Speed Results</span>
-                </button>
+<button onclick="handleTestimonialButton('speed')" style="
+    display: flex; align-items: center; gap: 12px;
+    background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white; padding: 18px 15px; border-radius: 10px; cursor: pointer;
+    font-weight: 600; font-size: 17px; text-align: left; transition: all 0.3s ease;
+    backdrop-filter: blur(10px); width: 100%; height: 84px;
+" onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.borderColor='rgba(255, 255, 255, 0.3)'; this.style.transform='translateY(-2px)';" 
+   onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.borderColor='rgba(255, 255, 255, 0.2)'; this.style.transform='translateY(0)';">
+    <div style="font-size: 28px;">⚡</div>
+    <span style="flex: 1;">Speed Results</span>
+</button>
 
                 <!-- Convinced Client -->
                 <button onclick="handleTestimonialButton('convinced')" style="
