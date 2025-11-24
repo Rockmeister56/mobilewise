@@ -292,11 +292,11 @@ setTimeout(() => {
         closeTestimonialVideo();
     }
 }, videoDuration);
- }
 
 // Call this if buttons stop working
 window.forceEnableTestimonialButtons = forceEnableTestimonialButtons;
 
+ }
 // ================================
 // 🎬 BUTTON HANDLERS - ADD THESE BACK
 // ================================
