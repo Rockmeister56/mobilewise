@@ -450,9 +450,6 @@ console.log('✅ Close button handler ready - will work when button appears');
 
 function showTestimonialNavigationOptions() {
     console.log('🎯 Showing testimonial navigation options');
-
-     // 🛡️ RE-ACTIVATE protection
-    activateTestimonialProtection();
     
     // Create or show navigation options screen
     let navScreen = document.getElementById('testimonial-nav-options');
