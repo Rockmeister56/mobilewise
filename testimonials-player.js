@@ -403,15 +403,15 @@ function playTestimonialVideo(testimonialType) {
         if (video) {
             let videoEnded = false; // LOCAL FLAG to prevent double calls
 
-            // Handle video end
-            video.addEventListener('ended', function() {
-                if (!videoEnded) {
-                    videoEnded = true;
-                    console.log('✅ Video ended naturally - safe close');
-                    window.avatarCurrentlyPlaying = false; // RESET FLAG
-                    
-                }
-            });
+          // ✅ FIXED VERSION - Add this to show navigation when video ends
+video.addEventListener('ended', function() {
+    if (!videoEnded) {
+        videoEnded = true;
+        console.log('✅ Video ended naturally - showing navigation');
+        window.avatarCurrentlyPlaying = false; // RESET FLAG
+        showTestimonialNavigationOptions(); // 🎯 ADD THIS LINE!
+    }
+});
 
             // Handle video errors
             video.addEventListener('error', function(e) {
@@ -503,6 +503,60 @@ function handleCloseTestimonial() {
     console.log('✅ TESTIMONIAL FULLY CLOSED - BACK TO CHAT');
 }
 
+// Add this to catch any video that might not have proper event listeners
+function setupUniversalVideoEndDetection() {
+    console.log('🎬 Setting up universal video end detection...');
+    
+    // Method 1: Check existing videos
+    document.querySelectorAll('video').forEach(video => {
+        if (!video.hasAttribute('data-testimonial-handler')) {
+            console.log('🎬 Found testimonial video, setting up end handler');
+            video.setAttribute('data-testimonial-handler', 'true');
+            video.addEventListener('ended', function() {
+                console.log('🎬 UNIVERSAL VIDEO END DETECTED - Showing navigation');
+                showTestimonialNavigationOptions();
+            });
+        }
+    });
+    
+    // Method 2: Observer for new videos
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            mutation.addedNodes.forEach(function(node) {
+                if (node.nodeType === 1 && node.tagName === 'VIDEO') {
+                    if (!node.hasAttribute('data-testimonial-handler')) {
+                        console.log('🎬 New video detected, setting up end handler');
+                        node.setAttribute('data-testimonial-handler', 'true');
+                        node.addEventListener('ended', function() {
+                            console.log('🎬 NEW VIDEO ENDED - Showing navigation');
+                            showTestimonialNavigationOptions();
+                        });
+                    }
+                }
+            });
+        });
+    });
+    
+    observer.observe(document.body, { childList: true, subtree: true });
+}
+
+// Call this in your initialize function
+function initializeTestimonialSystem() {
+    // ... existing code ...
+    setupUniversalVideoEndDetection(); // 🎯 ADD THIS LINE
+    console.log('✅ Testimonial system initialized with video end detection');
+}
+
+// Add this as a backup in case video end events don't fire
+const backupTimer = setTimeout(() => {
+    if (document.getElementById('testimonial-video-player') && !videoEnded) {
+        console.log('🕒 BACKUP TIMER: Video duration reached, showing navigation');
+        videoEnded = true;
+        window.avatarCurrentlyPlaying = false;
+        showTestimonialNavigationOptions();
+    }
+}, VIDEO_DURATIONS[testimonialType] + 2000); // Video duration + 2 seconds
+
 // ================================
 // 🎬 BUTTON HANDLERS - ADD THESE BACK
 // ================================
@@ -524,41 +578,6 @@ function handleTestimonialSkip() {
     // Just use the same function that already works!
     returnToVoiceChat();
 }
-
-// NEW CODE - Replace the close functionality:
-function closeTestimonialVideo() {
-    console.log('🎬 Closing testimonial video - showing navigation options');
-
-    // 🛑 CRITICAL: Reset the playing flag
-    window.avatarCurrentlyPlaying = false;
-    
-    // 🛡️ KEEP PROTECTION ACTIVE
-    window.testimonialSessionActive = true;
-    window.testimonialProtectionActive = true;
-    
-    // First, hide the video player
-    const videoPlayer = document.getElementById('testimonial-video-player');
-    const videoOverlay = document.getElementById('testimonial-video-overlay');
-    
-    if (videoPlayer) {
-        videoPlayer.style.display = 'none';
-        // Stop the video
-        const video = videoPlayer.querySelector('video');
-        if (video) {
-            video.pause();
-            video.currentTime = 0;
-        }
-    }
-    
-    if (videoOverlay) {
-        videoOverlay.style.display = 'none';
-    }
-    
-    // 🎯 ALWAYS show navigation options - no blocking conditions
-    showTestimonialNavigationOptions();
-    console.log('✅ Navigation options shown - testimonial protection remains active');
-}
-
 
 function showTestimonialNavigationOptions() {
     console.log('🎯 Showing testimonial navigation options');
