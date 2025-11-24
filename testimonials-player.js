@@ -151,18 +151,20 @@ if (chatContainer) {
 function playTestimonialVideo(testimonialType) {
     console.log(`🎬 Playing ${testimonialType} testimonial`);
     
-    // 🚫 PREVENT DOUBLE CALLS
-    if (window.avatarCurrentlyPlaying) {
+    // 🚫 PREVENT DOUBLE CALLS - STRONGER CHECK
+    if (window.avatarCurrentlyPlaying || window.testimonialVideoActive) {
         console.log('🚫 Video already playing - skipping');
         return;
     }
     
     window.avatarCurrentlyPlaying = true;
+    window.testimonialVideoActive = true; // NEW FLAG
     
     const videoUrl = TESTIMONIAL_VIDEOS[testimonialType];
     if (!videoUrl) {
         console.error('❌ Video URL not found for:', testimonialType);
         window.avatarCurrentlyPlaying = false;
+        window.testimonialVideoActive = false;
         return;
     }
     
@@ -239,76 +241,58 @@ function playTestimonialVideo(testimonialType) {
         </div>
     `;
     
-    document.body.appendChild(videoOverlay);
-    
-    // ✅ FIX: Wait for video element to be in DOM, then add event listeners
-    setTimeout(() => {
-        const video = document.getElementById('testimonialVideo');
-        if (video) {
-            // Handle video end
-            video.addEventListener('ended', function() {
-                console.log('✅ Video ended naturally');
-                closeTestimonialVideo();
-                
-                // Resume conversation after video ends
-                if (typeof window.handleTestimonialComplete === 'function') {
-                    window.handleTestimonialComplete();
-                }
-            });
+   document.body.appendChild(videoOverlay);
 
-            // Handle video errors
-            video.addEventListener('error', function(e) {
-                console.error('❌ Video error:', e);
-                closeTestimonialVideo();
-            });
-        } else {
-            console.error('❌ Video element not found for event listeners');
-        }
-    }, 100);
-    
-    // Click outside to close
-    videoOverlay.addEventListener('click', function(e) {
-        if (e.target === videoOverlay) {
-            closeTestimonialVideo();
-        }
-    });
-    
-    // Auto-close after video duration
-    setTimeout(() => {
-        if (document.getElementById('testimonial-video-player')) {
-            closeTestimonialVideo();
-            
-        }
-    }, videoDuration);
-     
-    // ✅ ADD THIS: Reset flag when video ends or errors
+// ✅ SAFE EVENT LISTENERS - PREVENT DOUBLE CALLS
+setTimeout(() => {
     const video = document.getElementById('testimonialVideo');
     if (video) {
-        video.addEventListener('ended', function() {
-            window.avatarCurrentlyPlaying = false; // RESET FLAG
-            console.log('✅ Video ended - avatarCurrentlyPlaying reset to false');
-        });
-        
-        video.addEventListener('error', function() {
-            window.avatarCurrentlyPlaying = false; // RESET FLAG  
-            console.log('✅ Video error - avatarCurrentlyPlaying reset to false');
-        });
-    }
-}
+        let videoEnded = false; // LOCAL FLAG to prevent double calls
 
-// 🎯 EMERGENCY BUTTON FIX
-function forceEnableTestimonialButtons() {
-    console.log('🔧 Force-enabling testimonial buttons');
-    window.avatarCurrentlyPlaying = false;
-    window.testimonialSessionActive = true;
-    
-    // Re-enable all testimonial buttons
-    document.querySelectorAll('#testimonial-splash-screen button').forEach(button => {
-        button.disabled = false;
-        button.style.opacity = '1';
-        button.style.cursor = 'pointer';
-    });
-}
+        // Handle video end
+        video.addEventListener('ended', function() {
+            if (!videoEnded) {
+                videoEnded = true;
+                console.log('✅ Video ended naturally - safe close');
+                window.avatarCurrentlyPlaying = false; // RESET FLAG
+                closeTestimonialVideo();
+            }
+        });
+
+        // Handle video errors
+        video.addEventListener('error', function(e) {
+            if (!videoEnded) {
+                videoEnded = true;
+                console.error('❌ Video error - safe close:', e);
+                window.avatarCurrentlyPlaying = false; // RESET FLAG
+                closeTestimonialVideo();
+            }
+        });
+    } else {
+        console.error('❌ Video element not found for event listeners');
+    }
+}, 100);
+
+// Click outside to close - WITH PROTECTION
+let overlayClicked = false;
+videoOverlay.addEventListener('click', function(e) {
+    if (e.target === videoOverlay && !overlayClicked) {
+        overlayClicked = true;
+        console.log('✅ Overlay clicked - safe close');
+        closeTestimonialVideo();
+    }
+});
+
+// Auto-close after video duration - WITH PROTECTION  
+let timeoutFired = false;
+setTimeout(() => {
+    if (document.getElementById('testimonial-video-player') && !timeoutFired) {
+        timeoutFired = true;
+        console.log('✅ Safety timeout - safe close');
+        closeTestimonialVideo();
+    }
+}, videoDuration);
+ }
 
 // Call this if buttons stop working
 window.forceEnableTestimonialButtons = forceEnableTestimonialButtons;
