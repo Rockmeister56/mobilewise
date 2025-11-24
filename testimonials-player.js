@@ -410,14 +410,13 @@ function handleTestimonialSkip() {
     returnToVoiceChat();
 }
 
-// NEW CODE - Replace the close functionality:
 function closeTestimonialVideo() {
     console.log('🎬 Closing testimonial video - showing navigation options');
 
-    // 🛑 CRITICAL: Reset the playing flag FIRST
+    // 🛑 CRITICAL: Reset the playing flag
     window.avatarCurrentlyPlaying = false;
     
-    // 🛡️ KEEP PROTECTION ACTIVE - DON'T DEACTIVATE IT!
+    // 🛡️ KEEP PROTECTION ACTIVE
     window.testimonialSessionActive = true;
     window.testimonialProtectionActive = true;
     
@@ -443,50 +442,6 @@ function closeTestimonialVideo() {
     showTestimonialNavigationOptions();
     console.log('✅ Navigation options shown - testimonial protection remains active');
 }
-
- // 🛡️ CRITICAL: Reset BOTH playing flags so new testimonials can play
-    window.avatarCurrentlyPlaying = false;
-    window.testimonialVideoActive = false; // ← ADD THIS LINE
-
-    // 🛡️ CRITICAL: Reset the playing flag so new testimonials can play
-    window.avatarCurrentlyPlaying = false; // ← ADD THIS LINE
-
-    // 🛡️ STRONG PROTECTION: Keep testimonial mode active
-    window.testimonialSessionActive = true;
-    window.testimonialProtectionActive = true;
-    window.disableSpeakNowBanner = true;
-    
-    // Hide navigation screen
-    const navScreen = document.getElementById('testimonial-nav-options');
-    if (navScreen) {
-        navScreen.style.display = 'none';
-    }
-    
-    // COMPLETELY deactivate protection temporarily
-    window.testimonialSessionActive = false;
-    window.testimonialProtectionActive = false;
-    
-    // Wait a moment, then show splash screen
-    setTimeout(() => {
-        // Show the testimonial splash screen again
-        showTestimonialSplashScreen();
-        
-        // Reactivate protection for the new session
-        setTimeout(() => {
-            window.testimonialSessionActive = true;
-            window.testimonialProtectionActive = true;
-        }, 100);
-    }, 200);
-
-// ✅ FIXED: Event delegation for close button - NO ERRORS
-document.addEventListener('click', function(e) {
-    if (e.target.textContent.includes('Close & Continue') || 
-        e.target.closest('button')?.textContent?.includes('Close & Continue')) {
-        closeTestimonialVideo();
-    }
-});
-
-console.log('✅ Close button handler ready - will work when button appears');
 
 
 function showTestimonialNavigationOptions() {
