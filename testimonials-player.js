@@ -296,6 +296,27 @@ function closeTestimonialVideo() {
 function playTestimonialVideo(testimonialType) {
     console.log(`🎬 Playing ${testimonialType} testimonial`);
     
+    // 🛡️ ULTRA-STRONG PROTECTION: Block ALL voice system timeouts
+    window.testimonialSessionActive = true;
+    window.testimonialProtectionActive = true;
+    window.disableSpeakNowBanner = true;
+    
+    // 🚫 CANCEL VOICE SYSTEM TIMERS
+    if (window.directSpeakNowTimeout) {
+        clearTimeout(window.directSpeakNowTimeout);
+        console.log('✅ Cancelled directSpeakNow timeout');
+    }
+    if (window.speakSequenceTimeout) {
+        clearTimeout(window.speakSequenceTimeout);
+        console.log('✅ Cancelled speakSequence timeout');
+    }
+    
+    // 🚫 BLOCK BANNER SYSTEM
+    if (window.bannerCooldown !== undefined) {
+        window.bannerCooldown = true; // Force banner cooldown
+        console.log('✅ Forced banner cooldown active');
+    }
+    
     // 🚫 PREVENT DOUBLE CALLS
     if (window.avatarCurrentlyPlaying) {
         console.log('🚫 Video already playing - skipping');
@@ -319,7 +340,7 @@ function playTestimonialVideo(testimonialType) {
         splashScreen.remove();
     }
     
-    // Create video overlay
+    // Create the 16:9 video container
     const videoOverlay = document.createElement('div');
     videoOverlay.id = 'testimonial-video-player';
     videoOverlay.style.cssText = `
@@ -334,6 +355,7 @@ function playTestimonialVideo(testimonialType) {
         justify-content: center;
         align-items: center;
         backdrop-filter: blur(10px);
+        animation: fadeInSplash 0.5s ease-in;
     `;
     
     videoOverlay.innerHTML = `
@@ -346,6 +368,7 @@ function playTestimonialVideo(testimonialType) {
             overflow: hidden;
             box-shadow: 0 20px 60px rgba(0,0,0,0.7);
             border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: slideInFromBottom 0.5s ease-out;
         ">
             <video id="testimonialVideo" autoplay style="
                 width: 100%;
@@ -354,8 +377,10 @@ function playTestimonialVideo(testimonialType) {
                 background: #000;
             ">
                 <source src="${videoUrl}" type="video/mp4">
+                Your browser does not support the video tag.
             </video>
             
+            <!-- Close Button -->
             <button onclick="closeTestimonialVideo()" style="
                 position: absolute;
                 bottom: 20px;
@@ -370,7 +395,11 @@ function playTestimonialVideo(testimonialType) {
                 font-weight: 600;
                 cursor: pointer;
                 backdrop-filter: blur(10px);
-            ">
+                transition: all 0.3s ease;
+                z-index: 10001;
+            " 
+            onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.borderColor='rgba(255, 255, 255, 0.3)'; this.style.transform='translateX(-50%) translateY(-2px)';" 
+            onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.borderColor='rgba(255, 255, 255, 0.2)'; this.style.transform='translateX(-50%) translateY(0)';">
                 ✕ Close & Continue
             </button>
         </div>
@@ -378,9 +407,52 @@ function playTestimonialVideo(testimonialType) {
     
     document.body.appendChild(videoOverlay);
     
-    // Auto-close after video duration
+    // ✅ SAFE EVENT LISTENERS - PREVENT DOUBLE CALLS
     setTimeout(() => {
-        if (document.getElementById('testimonial-video-player')) {
+        const video = document.getElementById('testimonialVideo');
+        if (video) {
+            let videoEnded = false; // LOCAL FLAG to prevent double calls
+
+            // Handle video end
+            video.addEventListener('ended', function() {
+                if (!videoEnded) {
+                    videoEnded = true;
+                    console.log('✅ Video ended naturally - safe close');
+                    window.avatarCurrentlyPlaying = false; // RESET FLAG
+                    closeTestimonialVideo();
+                }
+            });
+
+            // Handle video errors
+            video.addEventListener('error', function(e) {
+                if (!videoEnded) {
+                    videoEnded = true;
+                    console.error('❌ Video error - safe close:', e);
+                    window.avatarCurrentlyPlaying = false; // RESET FLAG
+                    closeTestimonialVideo();
+                }
+            });
+        } else {
+            console.error('❌ Video element not found for event listeners');
+        }
+    }, 100);
+
+    // Click outside to close - WITH PROTECTION
+    let overlayClicked = false;
+    videoOverlay.addEventListener('click', function(e) {
+        if (e.target === videoOverlay && !overlayClicked) {
+            overlayClicked = true;
+            console.log('✅ Overlay clicked - safe close');
+            closeTestimonialVideo();
+        }
+    });
+
+    // Auto-close after video duration - WITH PROTECTION  
+    let timeoutFired = false;
+    setTimeout(() => {
+        if (document.getElementById('testimonial-video-player') && !timeoutFired) {
+            timeoutFired = true;
+            console.log('✅ Safety timeout - safe close');
             closeTestimonialVideo();
         }
     }, videoDuration);
