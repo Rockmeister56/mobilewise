@@ -18,50 +18,13 @@ const VIDEO_DURATIONS = {
     excited: 20000
 };
 
-// 🚨 EMERGENCY VIDEO CLOSE
-function emergencyCloseAllTestimonials() {
-    console.log('🚨 EMERGENCY: Closing all testimonial elements');
-    
-    // Reset all flags
-    window.avatarCurrentlyPlaying = false;
-    window.testimonialSessionActive = false;
-    window.testimonialProtectionActive = false;
-    
-    // Remove all testimonial elements
-    const elements = [
-        'testimonial-video-player',
-        'testimonial-splash-screen', 
-        'testimonial-nav-options',
-        'testimonial-video-overlay'
-    ];
-    
-    elements.forEach(id => {
-        const element = document.getElementById(id);
-        if (element) element.remove();
-    });
-    
-    // Stop all videos
-    document.querySelectorAll('video').forEach(video => {
-        video.pause();
-        video.currentTime = 0;
-    });
-    
-    console.log('✅ EMERGENCY CLEANUP COMPLETE');
-}
-
-// Make it globally available
-window.emergencyCloseAllTestimonials = emergencyCloseAllTestimonials;
-
 // ================================
 // 🎬 SPLASH SCREEN (YOUR BEAUTIFUL CSS)
 // ================================
 function showTestimonialSplashScreen() {
     console.log('🎬 TESTIMONIAL SPLASH: Loading complete system');
 
-     // 🛡️ ADD THIS PROTECTION FUNCTION (define it first - see below)
-    activateTestimonialProtection();
-    
-    // 🛡️ SET PROTECTION FLAG - BLOCK SPEAK NOW
+     // 🛡️ SET PROTECTION FLAG - BLOCK SPEAK NOW
     window.testimonialSessionActive = true;
     console.log('🛡️ Testimonial protection activated - Speak Now blocked');
     
