@@ -409,7 +409,7 @@ function playTestimonialVideo(testimonialType) {
                     videoEnded = true;
                     console.log('✅ Video ended naturally - safe close');
                     window.avatarCurrentlyPlaying = false; // RESET FLAG
-                    closeTestimonialVideo();
+                    
                 }
             });
 
@@ -419,7 +419,6 @@ function playTestimonialVideo(testimonialType) {
                     videoEnded = true;
                     console.error('❌ Video error - safe close:', e);
                     window.avatarCurrentlyPlaying = false; // RESET FLAG
-                    closeTestimonialVideo();
                 }
             });
         } else {
@@ -433,7 +432,6 @@ function playTestimonialVideo(testimonialType) {
         if (e.target === videoOverlay && !overlayClicked) {
             overlayClicked = true;
             console.log('✅ Overlay clicked - safe close');
-            closeTestimonialVideo();
         }
     });
 
@@ -443,7 +441,6 @@ function playTestimonialVideo(testimonialType) {
         if (document.getElementById('testimonial-video-player') && !timeoutFired) {
             timeoutFired = true;
             console.log('✅ Safety timeout - safe close');
-            closeTestimonialVideo();
         }
     }, videoDuration);
 }
