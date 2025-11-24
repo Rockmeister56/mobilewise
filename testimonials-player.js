@@ -403,15 +403,15 @@ function playTestimonialVideo(testimonialType) {
         if (video) {
             let videoEnded = false; // LOCAL FLAG to prevent double calls
 
-          // ✅ FIXED VERSION - Add this to show navigation when video ends
-video.addEventListener('ended', function() {
-    if (!videoEnded) {
-        videoEnded = true;
-        console.log('✅ Video ended naturally - showing navigation');
-        window.avatarCurrentlyPlaying = false; // RESET FLAG
-        showTestimonialNavigationOptions(); // 🎯 ADD THIS LINE!
-    }
-});
+            // 🎯 FIXED: Video end now shows navigation
+            video.addEventListener('ended', function() {
+                if (!videoEnded) {
+                    videoEnded = true;
+                    console.log('✅ Video ended naturally - showing navigation');
+                    window.avatarCurrentlyPlaying = false; // RESET FLAG
+                    showTestimonialNavigationOptions(); // 🎯 THIS WAS MISSING!
+                }
+            });
 
             // Handle video errors
             video.addEventListener('error', function(e) {
@@ -419,8 +419,20 @@ video.addEventListener('ended', function() {
                     videoEnded = true;
                     console.error('❌ Video error - safe close:', e);
                     window.avatarCurrentlyPlaying = false; // RESET FLAG
+                    showTestimonialNavigationOptions(); // Show navigation even on error
                 }
             });
+            
+            // 🎯 BACKUP TIMER - FIXED SCOPE ISSUE
+            const backupTimer = setTimeout(() => {
+                if (document.getElementById('testimonial-video-player') && !videoEnded) {
+                    console.log('🕒 BACKUP TIMER: Video duration reached, showing navigation');
+                    videoEnded = true;
+                    window.avatarCurrentlyPlaying = false;
+                    showTestimonialNavigationOptions();
+                }
+            }, videoDuration + 2000); // Use the local variable + 2 seconds
+            
         } else {
             console.error('❌ Video element not found for event listeners');
         }
@@ -432,17 +444,9 @@ video.addEventListener('ended', function() {
         if (e.target === videoOverlay && !overlayClicked) {
             overlayClicked = true;
             console.log('✅ Overlay clicked - safe close');
+            closeTestimonialVideo();
         }
     });
-
-    // Auto-close after video duration - WITH PROTECTION  
-    let timeoutFired = false;
-    setTimeout(() => {
-        if (document.getElementById('testimonial-video-player') && !timeoutFired) {
-            timeoutFired = true;
-            console.log('✅ Safety timeout - safe close');
-        }
-    }, videoDuration);
 }
 
 function handleCloseTestimonial() {
@@ -555,6 +559,7 @@ const backupTimer = setTimeout(() => {
         window.avatarCurrentlyPlaying = false;
         showTestimonialNavigationOptions();
     }
+
 }, VIDEO_DURATIONS[testimonialType] + 2000); // Video duration + 2 seconds
 
 // ================================
