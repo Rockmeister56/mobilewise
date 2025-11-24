@@ -503,61 +503,6 @@ function handleCloseTestimonial() {
     console.log('✅ TESTIMONIAL FULLY CLOSED - BACK TO CHAT');
 }
 
-// Add this to catch any video that might not have proper event listeners
-function setupUniversalVideoEndDetection() {
-    console.log('🎬 Setting up universal video end detection...');
-    
-    // Method 1: Check existing videos
-    document.querySelectorAll('video').forEach(video => {
-        if (!video.hasAttribute('data-testimonial-handler')) {
-            console.log('🎬 Found testimonial video, setting up end handler');
-            video.setAttribute('data-testimonial-handler', 'true');
-            video.addEventListener('ended', function() {
-                console.log('🎬 UNIVERSAL VIDEO END DETECTED - Showing navigation');
-                showTestimonialNavigationOptions();
-            });
-        }
-    });
-    
-    // Method 2: Observer for new videos
-    const observer = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
-            mutation.addedNodes.forEach(function(node) {
-                if (node.nodeType === 1 && node.tagName === 'VIDEO') {
-                    if (!node.hasAttribute('data-testimonial-handler')) {
-                        console.log('🎬 New video detected, setting up end handler');
-                        node.setAttribute('data-testimonial-handler', 'true');
-                        node.addEventListener('ended', function() {
-                            console.log('🎬 NEW VIDEO ENDED - Showing navigation');
-                            showTestimonialNavigationOptions();
-                        });
-                    }
-                }
-            });
-        });
-    });
-    
-    observer.observe(document.body, { childList: true, subtree: true });
-}
-
-// Call this in your initialize function
-function initializeTestimonialSystem() {
-    // ... existing code ...
-    setupUniversalVideoEndDetection(); // 🎯 ADD THIS LINE
-    console.log('✅ Testimonial system initialized with video end detection');
-}
-
-// Add this as a backup in case video end events don't fire
-const backupTimer = setTimeout(() => {
-    if (document.getElementById('testimonial-video-player') && !videoEnded) {
-        console.log('🕒 BACKUP TIMER: Video duration reached, showing navigation');
-        videoEnded = true;
-        window.avatarCurrentlyPlaying = false;
-        showTestimonialNavigationOptions();
-    }
-
-}, VIDEO_DURATIONS[testimonialType] + 2000); // Video duration + 2 seconds
-
 // ================================
 // 🎬 BUTTON HANDLERS - ADD THESE BACK
 // ================================
