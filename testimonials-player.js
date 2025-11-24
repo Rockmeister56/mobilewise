@@ -649,9 +649,15 @@ function showTestimonialNavigationOptions() {
 }
 
 function returnToVoiceChat() {
-    console.log('🎯 User chose: Return to voice chat');
+    console.log('🎯🎯🎯 RETURN TO VOICE CHAT CLICKED 🎯🎯🎯');
 
-    // 🚫 CRITICAL: Clear the OLD transcript that causes testimonials to re-appear
+    // 1. STOP ALL SPEECH FIRST
+    if (window.stopAllSpeech) {
+        window.stopAllSpeech();
+        console.log('✅ All speech stopped');
+    }
+    
+    // 2. CRITICAL: Clear the OLD transcript that causes testimonials to re-appear
     window.lastCapturedTranscript = '';
     window.lastCapturedTime = 0;
     
@@ -661,50 +667,58 @@ function returnToVoiceChat() {
         userInput.value = '';
     }
     
-     console.log('🛑 Cleared old transcript to prevent testimonial re-trigger');
+    console.log('🛑 Cleared old transcript to prevent testimonial re-trigger');
     
-    // 🎯 Set consultation flag
+    // 3. Set consultation flag
     window.consultationOfferActive = true;
     console.log('🎯 Consultation offer active - next "yes" will trigger action center');
     
-    // COMPLETELY deactivate testimonial protection
+    // 4. COMPLETELY deactivate testimonial protection
     window.testimonialSessionActive = false;
     window.testimonialProtectionActive = false;
     console.log('🛡️🛡️ DOUBLE Testimonial protection deactivated');
     
-    // Hide navigation screen
-    const navScreen = document.getElementById('testimonial-nav-options');
-    if (navScreen) {
-        navScreen.style.display = 'none';
-        // 🎯 ADD THIS ONE LINE:
-        navScreen.remove(); // Completely remove it from DOM instead of just hiding
-        console.log('✅ Navigation overlay removed from DOM');
-    }
+    // 5. REMOVE (not just hide) ALL testimonial elements
+    const elementsToRemove = [
+        'testimonial-nav-options',
+        'testimonial-video-overlay', 
+        'testimonial-splash-screen',
+        'testimonial-splash',
+        'testimonial-video-container'
+    ];
     
-    // Hide any remaining testimonial elements
-    const videoOverlay = document.getElementById('testimonial-video-overlay');
-    const splashScreen = document.getElementById('testimonial-splash-screen');
+    elementsToRemove.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.remove();
+            console.log('✅ Removed:', id);
+        }
+    });
     
-    if (videoOverlay) videoOverlay.style.display = 'none';
-    if (splashScreen) splashScreen.style.display = 'none';
-    
-    // IMPORTANT: Clear any cooldowns that might block voice chat
+    // 6. Clear any cooldowns that might block voice chat
     if (window.cooldownActive !== undefined) {
         window.cooldownActive = false;
         console.log('🛡️ Cooldown cleared for voice chat');
     }
     
-    // Wait a moment for DOM to update, then trigger voice chat
+    // 7. PLAY THE CONSULTATION OFFER DIRECTLY
     setTimeout(() => {
-        console.log('🎤 Activating voice chat system...');
+        console.log('🗣️ Playing consultation offer...');
         
-        // Trigger the specific speech
-        triggerPostTestimonialSpeech();
-        
-        // Ensure voice chat system is fully activated
-        activateVoiceChatSystem();
-        
-    }, 300);
+        if (window.speakText) {
+            window.speakText("If we can get you the same results as our previous customers, would you be interested in that consultation?");
+            
+            // Start listening after speech
+            setTimeout(() => {
+                console.log('🎤 Starting voice listening...');
+                if (window.startListening) {
+                    window.startListening();
+                }
+            }, 3000);
+        }
+    }, 500);
+    
+    console.log('✅ SUCCESSFULLY RETURNED TO VOICE CHAT');
 }
 
 function showMoreTestimonials() {
