@@ -18,13 +18,50 @@ const VIDEO_DURATIONS = {
     excited: 20000
 };
 
+// 🚨 EMERGENCY VIDEO CLOSE
+function emergencyCloseAllTestimonials() {
+    console.log('🚨 EMERGENCY: Closing all testimonial elements');
+    
+    // Reset all flags
+    window.avatarCurrentlyPlaying = false;
+    window.testimonialSessionActive = false;
+    window.testimonialProtectionActive = false;
+    
+    // Remove all testimonial elements
+    const elements = [
+        'testimonial-video-player',
+        'testimonial-splash-screen', 
+        'testimonial-nav-options',
+        'testimonial-video-overlay'
+    ];
+    
+    elements.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) element.remove();
+    });
+    
+    // Stop all videos
+    document.querySelectorAll('video').forEach(video => {
+        video.pause();
+        video.currentTime = 0;
+    });
+    
+    console.log('✅ EMERGENCY CLEANUP COMPLETE');
+}
+
+// Make it globally available
+window.emergencyCloseAllTestimonials = emergencyCloseAllTestimonials;
+
 // ================================
 // 🎬 SPLASH SCREEN (YOUR BEAUTIFUL CSS)
 // ================================
 function showTestimonialSplashScreen() {
     console.log('🎬 TESTIMONIAL SPLASH: Loading complete system');
 
-     // 🛡️ SET PROTECTION FLAG - BLOCK SPEAK NOW
+     // 🛡️ ADD THIS PROTECTION FUNCTION (define it first - see below)
+    activateTestimonialProtection();
+    
+    // 🛡️ SET PROTECTION FLAG - BLOCK SPEAK NOW
     window.testimonialSessionActive = true;
     console.log('🛡️ Testimonial protection activated - Speak Now blocked');
     
@@ -342,7 +379,7 @@ function closeTestimonialVideo() {
     // 🛑 CRITICAL: Reset the playing flag FIRST
     window.avatarCurrentlyPlaying = false;
     
-    // 🛡️ STRONGER PROTECTION: Keep testimonial session active
+    // 🛡️ KEEP PROTECTION ACTIVE - DON'T DEACTIVATE IT!
     window.testimonialSessionActive = true;
     window.testimonialProtectionActive = true;
     
@@ -364,17 +401,9 @@ function closeTestimonialVideo() {
         videoOverlay.style.display = 'none';
     }
     
-    // 🛡️ COMPLETE Deactivation of testimonial protection
-    window.testimonialSessionActive = false;
-    window.testimonialProtectionActive = false;
-    console.log('🛡️🛡️ DOUBLE Testimonial protection deactivated');
-    
-    // 🎯 ONLY show navigation options if we're NOT in action center/conversation mode
-    if (!window.actionCenterActive && !window.consultationOfferActive) {
-        showTestimonialNavigationOptions();
-    } else {
-        console.log('🛑 BLOCKED: Not showing navigation options - action center/consultation active');
-    }
+    // 🎯 ALWAYS show navigation options - no blocking conditions
+    showTestimonialNavigationOptions();
+    console.log('✅ Navigation options shown - testimonial protection remains active');
 }
 
 function showMoreTestimonials() {
@@ -421,6 +450,9 @@ console.log('✅ Close button handler ready - will work when button appears');
 
 function showTestimonialNavigationOptions() {
     console.log('🎯 Showing testimonial navigation options');
+
+     // 🛡️ RE-ACTIVATE protection
+    activateTestimonialProtection();
     
     // Create or show navigation options screen
     let navScreen = document.getElementById('testimonial-nav-options');
