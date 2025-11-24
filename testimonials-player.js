@@ -400,6 +400,33 @@ function playTestimonialVideo(testimonialType) {
     }, videoDuration);
 }
 
+function showMoreTestimonials() {
+    console.log('🎯 User chose: Watch more testimonials');
+
+    // 🛡️ CRITICAL: Reset playing flags
+    window.avatarCurrentlyPlaying = false;
+    
+    // 🛡️ STRONG PROTECTION: Keep testimonial mode active
+    window.testimonialSessionActive = true;
+    window.testimonialProtectionActive = true;
+    window.disableSpeakNowBanner = true;
+    
+    // Hide navigation screen
+    const navScreen = document.getElementById('testimonial-nav-options');
+    if (navScreen) {
+        navScreen.style.display = 'none';
+    }
+    
+    // Wait a moment, then show splash screen
+    setTimeout(() => {
+        // Show the testimonial splash screen again
+        showTestimonialSplashScreen();
+    }, 200);
+}
+
+// Make sure it's exported globally
+window.showMoreTestimonials = showMoreTestimonials;
+
 // ================================
 // 🎬 BUTTON HANDLERS - ADD THESE BACK
 // ================================
