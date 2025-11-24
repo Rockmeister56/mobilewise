@@ -912,14 +912,18 @@ function emergencyStopAllSpeech() {
     });
 }
 
-// 🎯 OVERRIDE the existing function - AUTOMATIC SPEECH STOPPING
+// 🎯 AUTO-STOP AI SPEECH WHEN TESTIMONIAL STARTS
 const originalHandleTestimonialButton = window.handleTestimonialButton;
 window.handleTestimonialButton = function(testimonialType) {
     console.log(`🎬🛑 AUTO-STOP: Stopping AI speech for ${testimonialType} testimonial`);
     emergencyStopAllSpeech();
     
-    // Wait a tiny moment to ensure speech is fully stopped, then play video
+    // 🛑 CRITICAL: Reset the flag AFTER stopping speech but BEFORE playing video
     setTimeout(() => {
+        window.avatarCurrentlyPlaying = false;
+        console.log('✅ Auto-stop complete - avatarCurrentlyPlaying reset to false');
+        
+        // Now play the video
         originalHandleTestimonialButton(testimonialType);
     }, 50);
 };
