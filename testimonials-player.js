@@ -295,9 +295,6 @@ function playTestimonialVideo(testimonialType) {
 
 } // <-- THIS IS THE MISSING CLOSING BRACE FOR THE FUNCTION
 
-// Call this if buttons stop working
-window.forceEnableTestimonialButtons = forceEnableTestimonialButtons;
-
 // ================================
 // 🎬 BUTTON HANDLERS - ADD THESE BACK
 // ================================
@@ -728,6 +725,53 @@ function initializeTestimonialSystem() {
     console.log('✅ Testimonial system initialized');
 }
 
+// 🚨 EMERGENCY SPEECH STOPPER - Add this function
+function emergencyStopAllSpeech() {
+    console.log('🔇 EMERGENCY STOP - Killing all speech for testimonial');
+    
+    // 1. Cancel all browser speech synthesis
+    if (window.speechSynthesis) {
+        speechSynthesis.cancel();
+        console.log('✅ Browser TTS stopped');
+    }
+    
+    // 2. Stop any custom TTS systems
+    const stopFunctions = [
+        'stopAllSpeech', 'stopCurrentSpeech', 'stopVoiceResponse', 
+        'stopElevenLabsSpeech', 'stopBritishSpeech', 'stopTTS'
+    ];
+    
+    stopFunctions.forEach(funcName => {
+        if (window[funcName] && typeof window[funcName] === 'function') {
+            try {
+                window[funcName]();
+                console.log(`✅ ${funcName} stopped`);
+            } catch (e) {
+                // Function doesn't exist - that's fine
+            }
+        }
+    });
+    
+    // 3. Pause all audio/video elements (except testimonials)
+    document.querySelectorAll('audio, video').forEach(media => {
+        if (!media.paused && !media.closest('#testimonial-video-player')) {
+            media.pause();
+        }
+    });
+}
+
+// 🎯 AUTO-STOP AI SPEECH WHEN TESTIMONIAL STARTS
+const originalHandleTestimonialButton = window.handleTestimonialButton;
+window.handleTestimonialButton = function(testimonialType) {
+    console.log(`🎬🛑 AUTO-STOP: Stopping AI speech for ${testimonialType} testimonial`);
+    emergencyStopAllSpeech();
+    
+    // Wait a tiny moment to ensure speech is fully stopped, then play video
+    setTimeout(() => {
+        originalHandleTestimonialButton(testimonialType);
+    }, 50);
+};
+
 // ================================
 // 🎬 UPDATED HIDE TESTIMONIAL SPLASH
 // ================================
@@ -897,7 +941,6 @@ window.showTestimonialSplashScreen = showTestimonialSplashScreen;
 window.handleTestimonialSkip = handleTestimonialSkip;
 window.hideTestimonialSplash = hideTestimonialSplash;
 window.avatarCurrentlyPlaying = false;
-window.forceEnableTestimonialButtons = forceEnableTest
 
 // ✅ USE THIS - It's the safest approach:
 if (document.readyState === 'loading') {
