@@ -445,96 +445,62 @@ function playTestimonialVideo(testimonialType) {
     }, videoDuration);
 }
 
-// Add this function to handle the close/return to chat properly
 function handleCloseTestimonial() {
-    console.log('🎯 CLOSE TESTIMONIAL: Returning to voice chat');
+    console.log('🎯🎯🎯 HANDLE CLOSE TESTIMONIAL EXECUTING 🎯🎯🎯');
     
-    // Stop any ongoing speech
-    stopAllSpeech();
+    // 1. Stop all speech immediately
+    if (window.stopAllSpeech) {
+        window.stopAllSpeech();
+    }
     
-    // Clear testimonial protection
+    // 2. Remove testimonial protection
     window.testimonialPlaying = false;
-    window.consultationOfferActive = true; // Keep consultation offer active
+    window.consultationOfferActive = true;
     
-    // Remove navigation overlay
-    const navOverlay = document.getElementById('testimonial-navigation-overlay');
-    if (navOverlay) {
-        navOverlay.remove();
-    }
+    // 3. Remove ALL testimonial elements from DOM
+    const elementsToRemove = [
+        'testimonial-navigation-overlay',
+        'testimonial-splash', 
+        'testimonial-video-container',
+        'testimonial-player'
+    ];
     
-    // Remove testimonial splash if still present
-    const splash = document.getElementById('testimonial-splash');
-    if (splash) {
-        splash.remove();
-    }
+    elementsToRemove.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.remove();
+            console.log('✅ Removed:', id);
+        }
+    });
     
-    // Clear any old transcript to prevent re-trigger
-    const userInput = document.getElementById('userInput');
-    if (userInput) {
-        userInput.value = '';
-    }
-    window.lastCapturedTranscript = '';
+    // 4. Clear any overlay that might block clicks
+    const overlays = document.querySelectorAll('.testimonial-overlay, .video-overlay');
+    overlays.forEach(overlay => {
+        overlay.remove();
+    });
     
-    // Show the main chat interface
-    showChatInterface();
-    
-    // Play the consultation offer speech
-    console.log('🗣️ Playing consultation offer speech');
-    speakPostTestimonialOffer();
-}
-
-// Update the navigation option handler
-function setupNavigationOptions() {
-    // ... existing code ...
-    
-    // Update the "Return to voice chat" button handler
-    const returnButton = document.getElementById('return-to-chat');
-    if (returnButton) {
-        returnButton.onclick = function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            console.log('🎯 User chose: Return to voice chat');
-            handleCloseTestimonial();
-        };
-    }
-    
-    // ... rest of existing code ...
-}
-
-// Ensure chat interface is visible
-function showChatInterface() {
+    // 5. Show chat interface
     const chatContainer = document.querySelector('.chat-container');
     const inputArea = document.querySelector('.input-area');
-    
     if (chatContainer) chatContainer.style.display = 'block';
     if (inputArea) inputArea.style.display = 'block';
     
-    // Trigger any banner reset if needed
-    if (window.deployBanner) {
-        setTimeout(() => {
-            window.deployBanner('quickQuestions');
-        }, 500);
-    }
-}
-
-// Enhanced post-testimonial speech function
-function speakPostTestimonialOffer() {
-    const offerText = "If we can get you the same results as our previous customers, would you be interested in that consultation?";
+    // 6. Play the consultation offer
+    console.log('🗣️ Playing consultation offer...');
+    setTimeout(() => {
+        if (window.speakText) {
+            window.speakText("If we can get you the same results as our previous customers, would you be interested in that consultation?");
+            
+            // Start listening after speech
+            setTimeout(() => {
+                if (window.startListening) {
+                    window.startListening();
+                }
+            }, 3000);
+        }
+    }, 500);
     
-    console.log('💬 Said: "' + offerText + '"');
-    
-    // Use the main voice system to speak
-    if (window.speakText) {
-        window.speakText(offerText);
-        
-        // Start listening after a short delay
-        setTimeout(() => {
-            console.log('🎤 Starting voice listening after offer');
-            if (window.startListening) {
-                window.startListening();
-            }
-        }, 2000);
-    }
+    console.log('✅ TESTIMONIAL FULLY CLOSED - BACK TO CHAT');
 }
 
 // ================================
