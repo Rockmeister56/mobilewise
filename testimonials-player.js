@@ -277,9 +277,41 @@ function playTestimonialVideo(testimonialType) {
     setTimeout(() => {
         if (document.getElementById('testimonial-video-player')) {
             closeTestimonialVideo();
+            
         }
     }, videoDuration);
+     
+    // ✅ ADD THIS: Reset flag when video ends or errors
+    const video = document.getElementById('testimonialVideo');
+    if (video) {
+        video.addEventListener('ended', function() {
+            window.avatarCurrentlyPlaying = false; // RESET FLAG
+            console.log('✅ Video ended - avatarCurrentlyPlaying reset to false');
+        });
+        
+        video.addEventListener('error', function() {
+            window.avatarCurrentlyPlaying = false; // RESET FLAG  
+            console.log('✅ Video error - avatarCurrentlyPlaying reset to false');
+        });
+    }
 }
+
+// 🎯 EMERGENCY BUTTON FIX
+function forceEnableTestimonialButtons() {
+    console.log('🔧 Force-enabling testimonial buttons');
+    window.avatarCurrentlyPlaying = false;
+    window.testimonialSessionActive = true;
+    
+    // Re-enable all testimonial buttons
+    document.querySelectorAll('#testimonial-splash-screen button').forEach(button => {
+        button.disabled = false;
+        button.style.opacity = '1';
+        button.style.cursor = 'pointer';
+    });
+}
+
+// Call this if buttons stop working
+window.forceEnableTestimonialButtons = forceEnableTestimonialButtons;
 
 // ================================
 // 🎬 BUTTON HANDLERS - ADD THESE BACK
@@ -287,6 +319,13 @@ function playTestimonialVideo(testimonialType) {
 function handleTestimonialButton(testimonialType) {
     console.log(`🎬 Button clicked: ${testimonialType}`);
     playTestimonialVideo(testimonialType);
+
+    }
+
+        // 🛡️ Ensure buttons can be clicked
+    if (window.avatarCurrentlyPlaying) {
+        console.log('🔄 Force-resetting avatarCurrentlyPlaying flag');
+        window.avatarCurrentlyPlaying = false;
 }
 
 function handleTestimonialSkip() {
@@ -299,6 +338,13 @@ function handleTestimonialSkip() {
 // NEW CODE - Replace the close functionality:
 function closeTestimonialVideo() {
     console.log('🎬 Closing testimonial video - showing navigation options');
+
+    // 🛑 CRITICAL: Reset the playing flag FIRST
+    window.avatarCurrentlyPlaying = false;
+    
+    // 🛡️ STRONGER PROTECTION: Keep testimonial session active
+    window.testimonialSessionActive = true;
+    window.testimonialProtectionActive = true;
     
     // First, hide the video player
     const videoPlayer = document.getElementById('testimonial-video-player');
@@ -333,6 +379,11 @@ function closeTestimonialVideo() {
 
 function showMoreTestimonials() {
     console.log('🎯 User chose: Watch more testimonials');
+
+    // 🛡️ STRONG PROTECTION: Keep testimonial mode active
+    window.testimonialSessionActive = true;
+    window.testimonialProtectionActive = true;
+    window.disableSpeakNowBanner = true;
     
     // Hide navigation screen
     const navScreen = document.getElementById('testimonial-nav-options');
