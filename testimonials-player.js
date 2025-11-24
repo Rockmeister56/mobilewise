@@ -512,13 +512,21 @@ function showTestimonialNavigationOptions() {
 function returnToVoiceChat() {
     console.log('🎯🎯🎯 RETURN TO VOICE CHAT CLICKED 🎯🎯🎯');
 
-    // 1. STOP ALL SPEECH FIRST
+      // 1. STOP ALL SPEECH FIRST
     if (window.stopAllSpeech) {
         window.stopAllSpeech();
         console.log('✅ All speech stopped');
     }
     
-    // 2. CRITICAL: Clear the OLD transcript that causes testimonials to re-appear
+    // 2. 🎯 CRITICAL: RESET BANNER TO CONSULTATION MODE
+    if (window.deployBanner) {
+        setTimeout(() => {
+            console.log('🔄 Resetting banner to consultation mode...');
+            window.deployBanner('setAppointment'); // or 'preQualifier' or 'freeBook'
+        }, 1000);
+    }
+    
+    // 3. Clear the OLD transcript that causes testimonials to re-appear
     window.lastCapturedTranscript = '';
     window.lastCapturedTime = 0;
     
@@ -530,8 +538,10 @@ function returnToVoiceChat() {
     
     console.log('🛑 Cleared old transcript to prevent testimonial re-trigger');
     
-    // 3. Set consultation flag
+    // 4. Set consultation flag
     window.consultationOfferActive = true;
+    window.currentQuestionContext = 'consultation_offer'; // 🎯 ADD THIS
+    window.expectingConsultationResponse = true; // 🎯 ADD THIS
     console.log('🎯 Consultation offer active - next "yes" will trigger action center');
     
     // 4. COMPLETELY deactivate testimonial protection

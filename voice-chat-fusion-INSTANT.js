@@ -3510,30 +3510,8 @@ function resumePendingIntent() {
     }
 }
 
-
 // Make globally accessible
 // window.handleCTAButtonClick = handleCTAButtonClick; // Function handled by action-button-system-CAPTAIN.js
-
-// 🎯 ADD THIS FUNCTION AT THE END OF YOUR FILE:
-function shouldTriggerLeadCapture(userInput) {
-    const input = userInput.toLowerCase().trim();
-    
-    // User's affirmative responses
-    const yesResponses = [
-        'yes', 'yeah', 'yep', 'sure', 'ok', 'okay', 'absolutely', 
-        'definitely', 'of course', 'let\'s do it', 'sounds good',
-        'i would', 'i\'d like that', 'that sounds great', 'let\'s go'
-    ];
-    
-    // Check if we're in a consultation asking state
-    const consultationStates = [
-        'asking_selling_consultation',
-        'asking_buying_consultation', 
-        'asking_valuation_consultation'
-    ];
-    
-    return yesResponses.includes(input) && consultationStates.includes(conversationState);
-}
 
 // 🎯 ADD THIS FUNCTION AT THE END OF YOUR FILE:
 function shouldTriggerLeadCapture(userInput) {
