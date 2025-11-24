@@ -915,7 +915,7 @@ function emergencyStopAllSpeech() {
 // 🎯 AUTO-STOP AI SPEECH WHEN TESTIMONIAL STARTS
 const originalHandleTestimonialButton = window.handleTestimonialButton;
 window.handleTestimonialButton = function(testimonialType) {
-    console.log(`🎬🛑 AUTO-STOP: Stopping AI speech for ${testimonialType} testimonial`);
+    console.log(`🎬🛑 AUTO-STOP: Button clicked for ${testimonialType}`, new Error().stack);
     emergencyStopAllSpeech();
     
     // 🛑 CRITICAL: Reset the flag AFTER stopping speech but BEFORE playing video
