@@ -563,22 +563,17 @@ function returnToVoiceChat() {
         console.log('🛡️ Cooldown cleared for voice chat');
     }
     
-    // 7. PLAY THE CONSULTATION OFFER DIRECTLY
-    setTimeout(() => {
-        console.log('🗣️ Playing consultation offer...');
+   // 7. PLAY THE CONSULTATION OFFER DIRECTLY
+setTimeout(() => {
+    console.log('🗣️ Playing consultation offer...');
+    
+    if (window.speakText) {
+        window.speakText("If we can get you the same results as our previous customers, would you be interested in that consultation?");
         
-        if (window.speakText) {
-            window.speakText("If we can get you the same results as our previous customers, would you be interested in that consultation?");
-            
-            // Start listening after speech
-            setTimeout(() => {
-                console.log('🎤 Starting voice listening...');
-                if (window.startListening) {
-                    window.startListening();
-                }
-            }, 4000);
-        }
-    }, 500);
+        // 🎯 DON'T start listening manually - let the banner system do it!
+        console.log('🎤 Voice listening will auto-start via banner system');
+    }
+}, 500);
     
     console.log('✅ SUCCESSFULLY RETURNED TO VOICE CHAT');
 }
