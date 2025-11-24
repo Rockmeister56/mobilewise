@@ -18,6 +18,8 @@ const VIDEO_DURATIONS = {
     excited: 20000
 };
 
+window.avatarCurrentlyPlaying = false;
+
 // ================================
 // 🎬 SPLASH SCREEN (YOUR BEAUTIFUL CSS)
 // ================================
@@ -353,6 +355,9 @@ function closeTestimonialVideo() {
 
 function showMoreTestimonials() {
     console.log('🎯 User chose: Watch more testimonials');
+
+    // 🛡️ CRITICAL: Reset the playing flag so new testimonials can play
+    window.avatarCurrentlyPlaying = false; // ← ADD THIS LINE
 
     // 🛡️ STRONG PROTECTION: Keep testimonial mode active
     window.testimonialSessionActive = true;
