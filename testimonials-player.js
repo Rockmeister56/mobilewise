@@ -593,6 +593,12 @@ function returnToVoiceChat() {
 function showMoreTestimonials() {
     console.log('🎯 User chose: Watch more testimonials');
 
+    // 🛡️ CRITICAL: Cancel any pending decision panel timeouts
+    if (window.decisionPanelTimeout) {
+        clearTimeout(window.decisionPanelTimeout);
+        console.log('✅ Cancelled decision panel timeout');
+    }
+    
     // 🛡️ CRITICAL: Reset playing flags
     window.avatarCurrentlyPlaying = false;
     
