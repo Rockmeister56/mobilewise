@@ -293,6 +293,99 @@ function closeTestimonialVideo() {
 
 } // <-- THIS IS THE MISSING CLOSING BRACE FOR THE FUNCTION
 
+function playTestimonialVideo(testimonialType) {
+    console.log(`🎬 Playing ${testimonialType} testimonial`);
+    
+    // 🚫 PREVENT DOUBLE CALLS
+    if (window.avatarCurrentlyPlaying) {
+        console.log('🚫 Video already playing - skipping');
+        return;
+    }
+    
+    window.avatarCurrentlyPlaying = true;
+    
+    const videoUrl = TESTIMONIAL_VIDEOS[testimonialType];
+    if (!videoUrl) {
+        console.error('❌ Video URL not found for:', testimonialType);
+        window.avatarCurrentlyPlaying = false;
+        return;
+    }
+    
+    const videoDuration = VIDEO_DURATIONS[testimonialType] || 20000;
+    
+    // Remove splash screen first
+    const splashScreen = document.getElementById('testimonial-splash-screen');
+    if (splashScreen) {
+        splashScreen.remove();
+    }
+    
+    // Create video overlay
+    const videoOverlay = document.createElement('div');
+    videoOverlay.id = 'testimonial-video-player';
+    videoOverlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.85);
+        z-index: 9999;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        backdrop-filter: blur(10px);
+    `;
+    
+    videoOverlay.innerHTML = `
+        <div style="
+            position: relative;
+            width: 854px;
+            height: 480px;
+            background: #000;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        ">
+            <video id="testimonialVideo" autoplay style="
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+                background: #000;
+            ">
+                <source src="${videoUrl}" type="video/mp4">
+            </video>
+            
+            <button onclick="closeTestimonialVideo()" style="
+                position: absolute;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                padding: 12px 32px;
+                background: rgba(0, 0, 0, 0.6);
+                color: white;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                border-radius: 25px;
+                font-size: 14px;
+                font-weight: 600;
+                cursor: pointer;
+                backdrop-filter: blur(10px);
+            ">
+                ✕ Close & Continue
+            </button>
+        </div>
+    `;
+    
+    document.body.appendChild(videoOverlay);
+    
+    // Auto-close after video duration
+    setTimeout(() => {
+        if (document.getElementById('testimonial-video-player')) {
+            closeTestimonialVideo();
+        }
+    }, videoDuration);
+}
+
 // ================================
 // 🎬 BUTTON HANDLERS - ADD THESE BACK
 // ================================
