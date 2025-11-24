@@ -281,16 +281,6 @@ function closeTestimonialVideo() {
         }
     });
 
-    // Auto-close after video duration - WITH PROTECTION  
-    let timeoutFired = false;
-    setTimeout(() => {
-        if (document.getElementById('testimonial-video-player') && !timeoutFired) {
-            timeoutFired = true;
-            console.log('✅ Safety timeout - safe close');
-            closeTestimonialVideo();
-        }
-    }, videoDuration);
-
 } // <-- THIS IS THE MISSING CLOSING BRACE FOR THE FUNCTION
 
 function playTestimonialVideo(testimonialType) {
