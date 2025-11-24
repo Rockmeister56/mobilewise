@@ -828,6 +828,14 @@ recognition.onresult = function(event) {
 recognition.onend = function() {
     console.log('🎯🎯🎯 WHICH ONEND IS RUNNING? 🎯🎯🎯');
     console.log('🔚 Recognition ended');
+
+        // Check if we're coming from testimonial close
+    if (window.justClosedTestimonial) {
+        console.log('🔄 Testimonial close detected - normal end expected');
+        window.justClosedTestimonial = false;
+        hideVoiceOverlay();
+        return;
+    }
     
     // 🧪 DEBUG: Check overlay cleanup
     console.log('🧪 ONEND TEST 1: hideVoiceOverlay available:', typeof window.hideVoiceOverlay === 'function' ? '✅' : '❌');

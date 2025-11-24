@@ -445,6 +445,98 @@ function playTestimonialVideo(testimonialType) {
     }, videoDuration);
 }
 
+// Add this function to handle the close/return to chat properly
+function handleCloseTestimonial() {
+    console.log('🎯 CLOSE TESTIMONIAL: Returning to voice chat');
+    
+    // Stop any ongoing speech
+    stopAllSpeech();
+    
+    // Clear testimonial protection
+    window.testimonialPlaying = false;
+    window.consultationOfferActive = true; // Keep consultation offer active
+    
+    // Remove navigation overlay
+    const navOverlay = document.getElementById('testimonial-navigation-overlay');
+    if (navOverlay) {
+        navOverlay.remove();
+    }
+    
+    // Remove testimonial splash if still present
+    const splash = document.getElementById('testimonial-splash');
+    if (splash) {
+        splash.remove();
+    }
+    
+    // Clear any old transcript to prevent re-trigger
+    const userInput = document.getElementById('userInput');
+    if (userInput) {
+        userInput.value = '';
+    }
+    window.lastCapturedTranscript = '';
+    
+    // Show the main chat interface
+    showChatInterface();
+    
+    // Play the consultation offer speech
+    console.log('🗣️ Playing consultation offer speech');
+    speakPostTestimonialOffer();
+}
+
+// Update the navigation option handler
+function setupNavigationOptions() {
+    // ... existing code ...
+    
+    // Update the "Return to voice chat" button handler
+    const returnButton = document.getElementById('return-to-chat');
+    if (returnButton) {
+        returnButton.onclick = function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('🎯 User chose: Return to voice chat');
+            handleCloseTestimonial();
+        };
+    }
+    
+    // ... rest of existing code ...
+}
+
+// Ensure chat interface is visible
+function showChatInterface() {
+    const chatContainer = document.querySelector('.chat-container');
+    const inputArea = document.querySelector('.input-area');
+    
+    if (chatContainer) chatContainer.style.display = 'block';
+    if (inputArea) inputArea.style.display = 'block';
+    
+    // Trigger any banner reset if needed
+    if (window.deployBanner) {
+        setTimeout(() => {
+            window.deployBanner('quickQuestions');
+        }, 500);
+    }
+}
+
+// Enhanced post-testimonial speech function
+function speakPostTestimonialOffer() {
+    const offerText = "If we can get you the same results as our previous customers, would you be interested in that consultation?";
+    
+    console.log('💬 Said: "' + offerText + '"');
+    
+    // Use the main voice system to speak
+    if (window.speakText) {
+        window.speakText(offerText);
+        
+        // Start listening after a short delay
+        setTimeout(() => {
+            console.log('🎤 Starting voice listening after offer');
+            if (window.startListening) {
+                window.startListening();
+            }
+        }, 2000);
+    }
+}
+
 // ================================
 // 🎬 BUTTON HANDLERS - ADD THESE BACK
 // ================================
