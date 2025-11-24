@@ -537,6 +537,7 @@ function returnToVoiceChat() {
     // 4. COMPLETELY deactivate testimonial protection
     window.testimonialSessionActive = false;
     window.testimonialProtectionActive = false;
+    window.disableSpeakNowBanner = false; 
     console.log('🛡️🛡️ DOUBLE Testimonial protection deactivated');
     
     // 5. REMOVE (not just hide) ALL testimonial elements
@@ -575,7 +576,7 @@ function returnToVoiceChat() {
                 if (window.startListening) {
                     window.startListening();
                 }
-            }, 3000);
+            }, 4000);
         }
     }, 500);
     
