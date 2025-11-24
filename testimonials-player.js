@@ -26,9 +26,6 @@ window.avatarCurrentlyPlaying = false;
 function showTestimonialSplashScreen() {
     console.log('🎬 TESTIMONIAL SPLASH: Loading complete system');
 
-        try { // ← ADD THIS LINE
-        console.log('🎬 TESTIMONIAL SPLASH: Loading complete system');
-
      // 🛡️ SET PROTECTION FLAG - BLOCK SPEAK NOW
     window.testimonialSessionActive = true;
     console.log('🛡️ Testimonial protection activated - Speak Now blocked');
@@ -148,48 +145,22 @@ if (chatContainer) {
     chatContainer.appendChild(splashScreen);
     splashScreen.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
-  } catch (error) { // ← ADD THIS LINE
-        console.error('❌ ERROR in showTestimonialSplashScreen:', error); // ← ADD THIS LINE
-    } // ← ADD THIS LINE
 }
 
-function showMoreTestimonials() {
-    console.log('🎯 User chose: Watch more testimonials');
-
-    // 🛡️ CRITICAL: Reset playing flags
-    window.avatarCurrentlyPlaying = false;
+// ================================
+// 🎬 VIDEO PLAYER (16:9 CONTAINER) - FIXED VERSION
+// ================================
+function playTestimonialVideo(testimonialType) {
+    console.log(`🎬 Playing ${testimonialType} testimonial`);
     
-    // 🛡️ STRONG PROTECTION: Keep testimonial mode active
-    window.testimonialSessionActive = true;
-    window.testimonialProtectionActive = true;
-    window.disableSpeakNowBanner = true;
-    
-    // Hide navigation screen
-    const navScreen = document.getElementById('testimonial-nav-options');
-    if (navScreen) {
-        navScreen.style.display = 'none';
+    // 🚫 PREVENT DOUBLE CALLS - STRONGER CHECK
+    if (window.avatarCurrentlyPlaying || window.testimonialVideoActive) {
+        console.log('🚫 Video already playing - skipping');
+        return;
     }
     
-    // Wait a moment, then show splash screen
-    setTimeout(() => {
-        // Show the testimonial splash screen again
-        showTestimonialSplashScreen();
-    }, 200);
-}
-
-// Make sure it's exported globally
-window.showMoreTestimonials = showMoreTestimonials;
-
-function closeTestimonialVideo() {
-    console.log('🎬 Closing testimonial video - showing navigation options');
-
-    // 🛑 CRITICAL: Reset BOTH playing flags
-    window.avatarCurrentlyPlaying = false;
-    window.testimonialVideoActive = false; // ← ADD THIS LINE
-    
-    // 🛡️ KEEP PROTECTION ACTIVE
-    window.testimonialSessionActive = true;
-    window.testimonialProtectionActive = true;
+    window.avatarCurrentlyPlaying = true;
+    window.testimonialVideoActive = true; // NEW FLAG
     
     const videoUrl = TESTIMONIAL_VIDEOS[testimonialType];
     if (!videoUrl) {
@@ -326,104 +297,6 @@ function closeTestimonialVideo() {
 
 } // <-- THIS IS THE MISSING CLOSING BRACE FOR THE FUNCTION
 
-function playTestimonialVideo(testimonialType) {
-    console.log(`🎬 Playing ${testimonialType} testimonial`);
-    
-    // 🚫 PREVENT DOUBLE CALLS
-    if (window.avatarCurrentlyPlaying) {
-        console.log('🚫 Video already playing - skipping');
-        return;
-    }
-    
-    window.avatarCurrentlyPlaying = true;
-    
-    const videoUrl = TESTIMONIAL_VIDEOS[testimonialType];
-    if (!videoUrl) {
-        console.error('❌ Video URL not found for:', testimonialType);
-        window.avatarCurrentlyPlaying = false;
-        return;
-    }
-    
-    const videoDuration = VIDEO_DURATIONS[testimonialType] || 20000;
-    
-    // Remove splash screen first
-    const splashScreen = document.getElementById('testimonial-splash-screen');
-    if (splashScreen) {
-        splashScreen.remove();
-    }
-    
-    // Create video overlay
-    const videoOverlay = document.createElement('div');
-    videoOverlay.id = 'testimonial-video-player';
-    videoOverlay.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.85);
-        z-index: 9999;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        backdrop-filter: blur(10px);
-    `;
-    
-    videoOverlay.innerHTML = `
-        <div style="
-            position: relative;
-            width: 854px;
-            height: 480px;
-            background: #000;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.7);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        ">
-            <video id="testimonialVideo" autoplay style="
-                width: 100%;
-                height: 100%;
-                object-fit: contain;
-                background: #000;
-            ">
-                <source src="${videoUrl}" type="video/mp4">
-            </video>
-            
-            <button onclick="closeTestimonialVideo()" style="
-                position: absolute;
-                bottom: 20px;
-                left: 50%;
-                transform: translateX(-50%);
-                padding: 12px 32px;
-                background: rgba(0, 0, 0, 0.6);
-                color: white;
-                border: 1px solid rgba(255, 255, 255, 0.2);
-                border-radius: 25px;
-                font-size: 14px;
-                font-weight: 600;
-                cursor: pointer;
-                backdrop-filter: blur(10px);
-            ">
-                ✕ Close & Continue
-            </button>
-        </div>
-    `;
-    
-   document.body.appendChild(videoOverlay);
-
-// Auto-close after video duration - WITH DEBUG
-console.log(`🔍 Auto-close timeout set for: ${videoDuration}ms`);
-setTimeout(() => {
-    console.log('🔍 Auto-close timeout FIRED - checking if video player exists');
-    if (document.getElementById('testimonial-video-player')) {
-        console.log('🔍 Video player exists - closing');
-        closeTestimonialVideo();
-    } else {
-        console.log('🔍 Video player already gone - no action needed');
-    }
-}, videoDuration);
-}
-
 // ================================
 // 🎬 BUTTON HANDLERS - ADD THESE BACK
 // ================================
@@ -480,9 +353,8 @@ function closeTestimonialVideo() {
     console.log('✅ Navigation options shown - testimonial protection remains active');
 }
 
- // 🛡️ CRITICAL: Reset BOTH playing flags so new testimonials can play
-    window.avatarCurrentlyPlaying = false;
-    window.testimonialVideoActive = false; // ← ADD THIS LINE
+function showMoreTestimonials() {
+    console.log('🎯 User chose: Watch more testimonials');
 
     // 🛡️ CRITICAL: Reset the playing flag so new testimonials can play
     window.avatarCurrentlyPlaying = false; // ← ADD THIS LINE
@@ -513,6 +385,7 @@ function closeTestimonialVideo() {
             window.testimonialProtectionActive = true;
         }, 100);
     }, 200);
+}
 
 // ✅ FIXED: Event delegation for close button - NO ERRORS
 document.addEventListener('click', function(e) {
