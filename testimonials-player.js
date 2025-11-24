@@ -409,14 +409,19 @@ function playTestimonialVideo(testimonialType) {
         </div>
     `;
     
-    document.body.appendChild(videoOverlay);
-    
-    // Auto-close after video duration
-    setTimeout(() => {
-        if (document.getElementById('testimonial-video-player')) {
-            closeTestimonialVideo();
-        }
-    }, videoDuration);
+   document.body.appendChild(videoOverlay);
+
+// Auto-close after video duration - WITH DEBUG
+console.log(`🔍 Auto-close timeout set for: ${videoDuration}ms`);
+setTimeout(() => {
+    console.log('🔍 Auto-close timeout FIRED - checking if video player exists');
+    if (document.getElementById('testimonial-video-player')) {
+        console.log('🔍 Video player exists - closing');
+        closeTestimonialVideo();
+    } else {
+        console.log('🔍 Video player already gone - no action needed');
+    }
+}, videoDuration);
 }
 
 // ================================
