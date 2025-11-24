@@ -897,6 +897,7 @@ window.showTestimonialSplashScreen = showTestimonialSplashScreen;
 window.handleTestimonialSkip = handleTestimonialSkip;
 window.hideTestimonialSplash = hideTestimonialSplash;
 window.avatarCurrentlyPlaying = false;
+window.forceEnableTestimonialButtons = forceEnableTest
 
 // ✅ USE THIS - It's the safest approach:
 if (document.readyState === 'loading') {
