@@ -24,22 +24,26 @@ window.avatarCurrentlyPlaying = false;
 // 🎬 SPLASH SCREEN (YOUR BEAUTIFUL CSS)
 // ================================
 function showTestimonialSplashScreen() {
-    console.log('🎬 TESTIMONIAL SPLASH: Loading complete system');
-
-     // 🛡️ SET PROTECTION FLAG - BLOCK SPEAK NOW
-    window.testimonialSessionActive = true;
-    console.log('🛡️ Testimonial protection activated - Speak Now blocked');
+    console.log('🔍 showTestimonialSplashScreen STARTING');
     
-    // Stop any current listening first
-    if (window.stopListening && typeof window.stopListening === 'function') {
-        window.stopListening();
-    }
-    
-    const splashScreen = document.createElement('div');
-    splashScreen.id = 'testimonial-splash-screen';
-    splashScreen.style.animation = 'fadeInSplash 0.5s ease-in';
-    
-   splashScreen.innerHTML = `
+    try {
+        // 🛡️ SET PROTECTION FLAG - BLOCK SPEAK NOW
+        window.testimonialSessionActive = true;
+        console.log('🛡️ Testimonial protection activated - Speak Now blocked');
+        
+        // Stop any current listening first
+        if (window.stopListening && typeof window.stopListening === 'function') {
+            window.stopListening();
+        }
+        
+        console.log('🔍 Creating splash screen element...');
+        const splashScreen = document.createElement('div');
+        splashScreen.id = 'testimonial-splash-screen';
+        splashScreen.style.animation = 'fadeInSplash 0.5s ease-in';
+        
+        console.log('🔍 Setting inner HTML...');
+        // KEEP YOUR EXISTING HTML BLOCK HERE - just add debug around it
+        splashScreen.innerHTML = `
     <div style="
         background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.9)),
                     url('https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1762038349654_action-bg.jpg');
@@ -137,13 +141,23 @@ function showTestimonialSplashScreen() {
         </div>
     `;
     
-   const chatContainer = document.getElementById('chatMessages') || document.querySelector('.chat-messages');
-if (chatContainer) {
-    // Use the same positioning as action buttons - NO padding-top
-    splashScreen.style.marginTop = '20px'; // Natural spacing like action buttons
-    splashScreen.style.marginBottom = '20px';
-    chatContainer.appendChild(splashScreen);
-    splashScreen.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  console.log('🔍 Finding chat container...');
+        const chatContainer = document.getElementById('chatMessages') || document.querySelector('.chat-messages');
+        console.log('🔍 Chat container found:', !!chatContainer);
+        
+        if (chatContainer) {
+            console.log('🔍 Appending to chat container...');
+            splashScreen.style.marginTop = '20px';
+            splashScreen.style.marginBottom = '20px';
+            chatContainer.appendChild(splashScreen);
+            splashScreen.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            console.log('✅ Splash screen added to DOM');
+        } else {
+            console.log('❌ No chat container found');
+        }
+        
+    } catch (error) {
+        console.error('❌ ERROR in showTestimonialSplashScreen:', error);
 }
 }
 
