@@ -295,12 +295,10 @@ function closeTestimonialVideo() {
 
 function playTestimonialVideo(testimonialType) {
     console.log(`🎬 Playing ${testimonialType} testimonial`);
-    console.log(`🔍 DEBUG: avatarCurrentlyPlaying = ${window.avatarCurrentlyPlaying}`);
     
     // 🚫 PREVENT DOUBLE CALLS
     if (window.avatarCurrentlyPlaying) {
         console.log('🚫 Video already playing - skipping');
-        console.log(`🔍 DEBUG: Blocked because avatarCurrentlyPlaying = ${window.avatarCurrentlyPlaying}`);
         return;
     }
     
@@ -410,6 +408,7 @@ function handleTestimonialSkip() {
     returnToVoiceChat();
 }
 
+// NEW CODE - Replace the close functionality:
 function closeTestimonialVideo() {
     console.log('🎬 Closing testimonial video - showing navigation options');
 
