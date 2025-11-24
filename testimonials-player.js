@@ -150,138 +150,34 @@ if (chatContainer) {
 function closeTestimonialVideo() {
     console.log('🎬 Closing testimonial video - showing navigation options');
 
-    // 🛑 CRITICAL: Reset BOTH playing flags
+    // 🛑 CRITICAL: Reset playing flags
     window.avatarCurrentlyPlaying = false;
-    window.testimonialVideoActive = false; // ← ADD THIS LINE
+    if (window.testimonialVideoActive !== undefined) {
+        window.testimonialVideoActive = false;
+    }
     
     // 🛡️ KEEP PROTECTION ACTIVE
     window.testimonialSessionActive = true;
     window.testimonialProtectionActive = true;
     
-    const videoUrl = TESTIMONIAL_VIDEOS[testimonialType];
-    if (!videoUrl) {
-        console.error('❌ Video URL not found for:', testimonialType);
-        window.avatarCurrentlyPlaying = false;
-        window.testimonialVideoActive = false;
-        return;
-    }
-    
-    const videoDuration = VIDEO_DURATIONS[testimonialType] || 20000;
-    
-    // Remove splash screen first
-    const splashScreen = document.getElementById('testimonial-splash-screen');
-    if (splashScreen) {
-        splashScreen.remove();
-    }
-    
-    // Create the 16:9 video container (MATCHES YOUR SPLASH SCREEN STYLING)
-    const videoOverlay = document.createElement('div');
-    videoOverlay.id = 'testimonial-video-player';
-    videoOverlay.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.85);
-        z-index: 9999;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        backdrop-filter: blur(10px);
-        animation: fadeInSplash 0.5s ease-in;
-    `;
-    
-    videoOverlay.innerHTML = `
-        <div style="
-            position: relative;
-            width: 854px;
-            height: 480px;
-            background: #000;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.7);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            animation: slideInFromBottom 0.5s ease-out;
-        ">
-            <video id="testimonialVideo" autoplay style="
-                width: 100%;
-                height: 100%;
-                object-fit: contain;
-                background: #000;
-            ">
-                <source src="${videoUrl}" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
-            
-            <!-- Close Button - Matches Your Splash Screen Styling -->
-            <button onclick="closeTestimonialVideo()" style="
-                position: absolute;
-                bottom: 20px;
-                left: 50%;
-                transform: translateX(-50%);
-                padding: 12px 32px;
-                background: rgba(0, 0, 0, 0.6);
-                color: white;
-                border: 1px solid rgba(255, 255, 255, 0.2);
-                border-radius: 25px;
-                font-size: 14px;
-                font-weight: 600;
-                cursor: pointer;
-                backdrop-filter: blur(10px);
-                transition: all 0.3s ease;
-                z-index: 10001;
-            " 
-            onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.borderColor='rgba(255, 255, 255, 0.3)'; this.style.transform='translateX(-50%) translateY(-2px)';" 
-            onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.borderColor='rgba(255, 255, 255, 0.2)'; this.style.transform='translateX(-50%) translateY(0)';">
-                ✕ Close & Continue
-            </button>
-        </div>
-    `;
-    
-   document.body.appendChild(videoOverlay);
-
-    // ✅ SAFE EVENT LISTENERS - PREVENT DOUBLE CALLS
-    setTimeout(() => {
-        const video = document.getElementById('testimonialVideo');
+    // 🎯 SIMPLY REMOVE THE VIDEO PLAYER - NO NEW CREATION!
+    const videoPlayer = document.getElementById('testimonial-video-player');
+    if (videoPlayer) {
+        // Stop any playing video first
+        const video = videoPlayer.querySelector('video');
         if (video) {
-            let videoEnded = false; // LOCAL FLAG to prevent double calls
-
-            // Handle video end
-            video.addEventListener('ended', function() {
-                if (!videoEnded) {
-                    videoEnded = true;
-                    console.log('✅ Video ended naturally - safe close');
-                    window.avatarCurrentlyPlaying = false; // RESET FLAG
-                    closeTestimonialVideo();
-                }
-            });
-
-            // Handle video errors
-            video.addEventListener('error', function(e) {
-                if (!videoEnded) {
-                    videoEnded = true;
-                    console.error('❌ Video error - safe close:', e);
-                    window.avatarCurrentlyPlaying = false; // RESET FLAG
-                    closeTestimonialVideo();
-                }
-            });
-        } else {
-            console.error('❌ Video element not found for event listeners');
+            video.pause();
+            video.currentTime = 0;
         }
-    }, 100);
-
-    // Click outside to close - WITH PROTECTION
-    let overlayClicked = false;
-    videoOverlay.addEventListener('click', function(e) {
-        if (e.target === videoOverlay && !overlayClicked) {
-            overlayClicked = true;
-            console.log('✅ Overlay clicked - safe close');
-            closeTestimonialVideo();
-        }
-    });
-
-} // <-- THIS IS THE MISSING CLOSING BRACE FOR THE FUNCTION
+        // Remove the player
+        videoPlayer.remove();
+        console.log('✅ Video player removed');
+    }
+    
+    // 🎯 SHOW NAVIGATION OPTIONS
+    showTestimonialNavigationOptions();
+    console.log('✅ Navigation options shown');
+}
 
 function playTestimonialVideo(testimonialType) {
     console.log(`🎬 Playing ${testimonialType} testimonial`);
