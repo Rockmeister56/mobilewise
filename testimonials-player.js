@@ -243,60 +243,61 @@ function playTestimonialVideo(testimonialType) {
     
    document.body.appendChild(videoOverlay);
 
-// ✅ SAFE EVENT LISTENERS - PREVENT DOUBLE CALLS
-setTimeout(() => {
-    const video = document.getElementById('testimonialVideo');
-    if (video) {
-        let videoEnded = false; // LOCAL FLAG to prevent double calls
+    // ✅ SAFE EVENT LISTENERS - PREVENT DOUBLE CALLS
+    setTimeout(() => {
+        const video = document.getElementById('testimonialVideo');
+        if (video) {
+            let videoEnded = false; // LOCAL FLAG to prevent double calls
 
-        // Handle video end
-        video.addEventListener('ended', function() {
-            if (!videoEnded) {
-                videoEnded = true;
-                console.log('✅ Video ended naturally - safe close');
-                window.avatarCurrentlyPlaying = false; // RESET FLAG
-                closeTestimonialVideo();
-            }
-        });
+            // Handle video end
+            video.addEventListener('ended', function() {
+                if (!videoEnded) {
+                    videoEnded = true;
+                    console.log('✅ Video ended naturally - safe close');
+                    window.avatarCurrentlyPlaying = false; // RESET FLAG
+                    closeTestimonialVideo();
+                }
+            });
 
-        // Handle video errors
-        video.addEventListener('error', function(e) {
-            if (!videoEnded) {
-                videoEnded = true;
-                console.error('❌ Video error - safe close:', e);
-                window.avatarCurrentlyPlaying = false; // RESET FLAG
-                closeTestimonialVideo();
-            }
-        });
-    } else {
-        console.error('❌ Video element not found for event listeners');
-    }
-}, 100);
+            // Handle video errors
+            video.addEventListener('error', function(e) {
+                if (!videoEnded) {
+                    videoEnded = true;
+                    console.error('❌ Video error - safe close:', e);
+                    window.avatarCurrentlyPlaying = false; // RESET FLAG
+                    closeTestimonialVideo();
+                }
+            });
+        } else {
+            console.error('❌ Video element not found for event listeners');
+        }
+    }, 100);
 
-// Click outside to close - WITH PROTECTION
-let overlayClicked = false;
-videoOverlay.addEventListener('click', function(e) {
-    if (e.target === videoOverlay && !overlayClicked) {
-        overlayClicked = true;
-        console.log('✅ Overlay clicked - safe close');
-        closeTestimonialVideo();
-    }
-});
+    // Click outside to close - WITH PROTECTION
+    let overlayClicked = false;
+    videoOverlay.addEventListener('click', function(e) {
+        if (e.target === videoOverlay && !overlayClicked) {
+            overlayClicked = true;
+            console.log('✅ Overlay clicked - safe close');
+            closeTestimonialVideo();
+        }
+    });
 
-// Auto-close after video duration - WITH PROTECTION  
-let timeoutFired = false;
-setTimeout(() => {
-    if (document.getElementById('testimonial-video-player') && !timeoutFired) {
-        timeoutFired = true;
-        console.log('✅ Safety timeout - safe close');
-        closeTestimonialVideo();
-    }
-}, videoDuration);
+    // Auto-close after video duration - WITH PROTECTION  
+    let timeoutFired = false;
+    setTimeout(() => {
+        if (document.getElementById('testimonial-video-player') && !timeoutFired) {
+            timeoutFired = true;
+            console.log('✅ Safety timeout - safe close');
+            closeTestimonialVideo();
+        }
+    }, videoDuration);
+
+} // <-- THIS IS THE MISSING CLOSING BRACE FOR THE FUNCTION
 
 // Call this if buttons stop working
 window.forceEnableTestimonialButtons = forceEnableTestimonialButtons;
 
- }
 // ================================
 // 🎬 BUTTON HANDLERS - ADD THESE BACK
 // ================================
