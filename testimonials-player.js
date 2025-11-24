@@ -147,20 +147,16 @@ if (chatContainer) {
 }
 }
 
-// ================================
-// 🎬 VIDEO PLAYER (16:9 CONTAINER) - FIXED VERSION
-// ================================
-function playTestimonialVideo(testimonialType) {
-    console.log(`🎬 Playing ${testimonialType} testimonial`);
+function closeTestimonialVideo() {
+    console.log('🎬 Closing testimonial video - showing navigation options');
+
+    // 🛑 CRITICAL: Reset BOTH playing flags
+    window.avatarCurrentlyPlaying = false;
+    window.testimonialVideoActive = false; // ← ADD THIS LINE
     
-    // 🚫 PREVENT DOUBLE CALLS - STRONGER CHECK
-    if (window.avatarCurrentlyPlaying || window.testimonialVideoActive) {
-        console.log('🚫 Video already playing - skipping');
-        return;
-    }
-    
-    window.avatarCurrentlyPlaying = true;
-    window.testimonialVideoActive = true; // NEW FLAG
+    // 🛡️ KEEP PROTECTION ACTIVE
+    window.testimonialSessionActive = true;
+    window.testimonialProtectionActive = true;
     
     const videoUrl = TESTIMONIAL_VIDEOS[testimonialType];
     if (!videoUrl) {
@@ -353,8 +349,9 @@ function closeTestimonialVideo() {
     console.log('✅ Navigation options shown - testimonial protection remains active');
 }
 
-function showMoreTestimonials() {
-    console.log('🎯 User chose: Watch more testimonials');
+ // 🛡️ CRITICAL: Reset BOTH playing flags so new testimonials can play
+    window.avatarCurrentlyPlaying = false;
+    window.testimonialVideoActive = false; // ← ADD THIS LINE
 
     // 🛡️ CRITICAL: Reset the playing flag so new testimonials can play
     window.avatarCurrentlyPlaying = false; // ← ADD THIS LINE
@@ -912,18 +909,15 @@ function emergencyStopAllSpeech() {
     });
 }
 
-// 🎯 AUTO-STOP AI SPEECH WHEN TESTIMONIAL STARTS
+// 🎯 AUTO-STOP AI SPEECH WHEN TESTIMONIAL STARTS - CLEAN VERSION
 const originalHandleTestimonialButton = window.handleTestimonialButton;
 window.handleTestimonialButton = function(testimonialType) {
-    console.log(`🎬🛑 AUTO-STOP: Button clicked for ${testimonialType}`, new Error().stack);
+    console.log(`🎬🛑 AUTO-STOP: Stopping AI speech for ${testimonialType} testimonial`);
     emergencyStopAllSpeech();
     
-    // 🛑 CRITICAL: Reset the flag AFTER stopping speech but BEFORE playing video
+    // Wait a tiny moment to ensure speech is fully stopped, then play video
     setTimeout(() => {
-        window.avatarCurrentlyPlaying = false;
-        console.log('✅ Auto-stop complete - avatarCurrentlyPlaying reset to false');
-        
-        // Now play the video
+        window.avatarCurrentlyPlaying = false; // Reset flag
         originalHandleTestimonialButton(testimonialType);
     }, 50);
 };
