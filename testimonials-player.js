@@ -382,7 +382,6 @@ function closeTestimonialVideo() {
             window.testimonialProtectionActive = true;
         }, 100);
     }, 200);
-}
 
 // ✅ FIXED: Event delegation for close button - NO ERRORS
 document.addEventListener('click', function(e) {
