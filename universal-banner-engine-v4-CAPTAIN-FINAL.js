@@ -447,16 +447,17 @@ const BANNER_STYLES = `
     }
     
     /* BRANDING BANNER - LEFT JUSTIFIED LOGO */
-    .branding-banner {
-        justify-content: flex-start !important; /* LEFT-justified logo */
-        padding-left: 20px !important; /* Add left padding */
-    }
-    
-    .branding-banner img {
-        width: 100px !important; /* Larger logo for mobile */
-        height: auto !important;
-        margin-right: 0 !important;
-    }
+.branding-banner {
+    justify-content: flex-start !important; /* LEFT-justified logo */
+    padding-left: 20px !important; /* Add left padding */
+}
+
+.branding-banner img {
+    width: 100px !important; /* Larger logo size for better visibility */
+    height: auto !important;
+    margin-right: 0 !important;
+}
+
     
     /* STANDARD BANNER IMAGES */
     .banner-glow-container img:not(.branding-banner img) {
