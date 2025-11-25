@@ -423,9 +423,9 @@ const BANNER_STYLES = `
 @media (max-width: 850px) {
     /* BANNER CONTAINER POSITIONING */
     #bannerHeaderContainer {
-        top: 45px !important;
+        top: 60px !important;
         width: 99vw !important;
-        max-width: 99vw !important;
+        max-width: 95vw !important;
         margin: 0 auto;
     }
     
@@ -434,7 +434,7 @@ const BANNER_STYLES = `
         width: 100% !important;
         max-width: 100% !important;
         height: auto !important;
-        min-height: 120px !important;
+        min-height: 80px !important;
         padding: 12px 15px !important;
         margin: 0 auto;
     }
