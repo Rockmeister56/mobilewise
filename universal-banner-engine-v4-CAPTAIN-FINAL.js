@@ -423,8 +423,8 @@ const BANNER_STYLES = `
 @media (max-width: 850px) {
     /* BANNER CONTAINER POSITIONING */
     #bannerHeaderContainer {
-        top: 30px !important; /* Moved down 20px from original 10px */
-        width: 90vw !important; /* 10% wider than previous 95vw */
+        top: 40px !important; /* Moved down 20px from original 10px */
+        width: 97vw !important; /* 10% wider than previous 95vw */
         max-width: 90vw !important;
         margin: 0 auto;
     }
