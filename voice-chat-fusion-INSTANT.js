@@ -3410,6 +3410,37 @@ function processUserResponse(userText) {
         }
     }
     
+    // 🎯 NEW: CHECK FOR CONSULTATION "YES" RESPONSE (SAFE ADDITION)
+    if (window.consultationOfferActive) {
+        const userTextLower = userText.toLowerCase().trim();
+        const positiveResponses = [
+            'yes', 'yeah', 'yep', 'sure', 'okay', 'ok', 'absolutely', 'definitely',
+            'of course', 'why not', 'let\'s do it', 'i\'m interested', 'interested',
+            'yes please', 'please', 'go ahead', 'continue', 'proceed'
+        ];
+        
+        if (positiveResponses.some(response => userTextLower.includes(response))) {
+            console.log('🎯 CONSULTATION YES DETECTED - Triggering Action Center');
+            
+            // Reset the consultation flag
+            window.consultationOfferActive = false;
+            
+            // Trigger action center
+            setTimeout(() => {
+                if (window.triggerLeadActionCenter) {
+                    window.triggerLeadActionCenter();
+                    console.log('✅ Action Center triggered via consultation detection');
+                } else if (window.showActionPanel) {
+                    window.showActionPanel();
+                    console.log('✅ Action Panel triggered via consultation detection');
+                }
+            }, 500);
+            
+            // Stop normal processing
+            return;
+        }
+    }
+    
     // 🎯 STEP 0: CHECK FOR CONCERNS FIRST
     const concernDetected = detectConcernOrObjection(userText);
     if (concernDetected) {
