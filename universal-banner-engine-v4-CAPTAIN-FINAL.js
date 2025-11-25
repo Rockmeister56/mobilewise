@@ -418,8 +418,116 @@ const BANNER_STYLES = `
         font-size: 12px !important;
     }
 }
+
+/* ===== MOBILE RESPONSIVENESS ===== */
+@media (max-width: 850px) {
+    /* BANNER CONTAINER POSITIONING */
+    #bannerHeaderContainer {
+        top: 30px !important; /* Moved down 20px from original 10px */
+        width: 90vw !important; /* 10% wider than previous 95vw */
+        max-width: 90vw !important;
+        margin: 0 auto;
+    }
+    
+    /* BANNER CONTENT STYLING */
+    .banner-glow-container {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        min-height: 80px !important; /* Slightly taller for better visibility */
+        padding: 12px 15px !important;
+        margin: 0 auto;
+    }
+    
+    /* GLOW LAYER ADJUSTMENT */
+    .banner-glow-container::before {
+        width: calc(100% + 40px) !important; /* Adjusted for new width */
+        left: -20px !important;
+        top: -8px !important;
+    }
+    
+    /* BRANDING BANNER SPECIFIC MOBILE STYLES */
+    .branding-banner {
+        justify-content: flex-end !important; /* Right-justify logo */
+        padding-right: 20px !important;
+    }
+    
+    .branding-banner img {
+        width: 200px !important; /* Larger logo for mobile */
+        height: auto !important;
+        margin-right: 0 !important;
+    }
+    
+    /* STANDARD BANNER IMAGES */
+    .banner-glow-container img:not(.branding-banner img) {
+        width: 55px !important;
+        height: auto !important;
+        margin-right: 15px !important;
+    }
+    
+    /* TEXT SIZING */
+    .banner-glow-container div[style*="font-size: 20px"] {
+        font-size: 17px !important; /* Slightly larger for readability */
+        line-height: 1.2 !important;
+    }
+    
+    .banner-glow-container div[style*="font-size: 14px"] {
+        font-size: 13px !important;
+        line-height: 1.3 !important;
+    }
+    
+    /* SPECIFIC BANNER LAYOUT ADJUSTMENTS */
+    .banner-testimonial {
+        justify-content: space-around !important;
+        padding: 10px 15px !important;
+    }
+    
+    .banner-testimonial img:first-child {
+        width: 100px !important; /* Smaller 5-star icon */
+        margin-right: 5px !important;
+    }
+    
+    .banner-testimonial img.book-white-glow {
+        width: 50px !important;
+        margin-right: 10px !important;
+    }
+    
+    /* CENTER/RIGHT CONTENT SHIFT FOR TESTIMONIAL */
+    .banner-testimonial > div:last-child {
+        margin-left: -40px !important; /* Reduced shift for mobile */
+        justify-content: flex-start !important;
+    }
+}
+
+/* EXTRA SMALL DEVICES */
+@media (max-width: 480px) {
+    #bannerHeaderContainer {
+        top: 25px !important;
+        width: 92vw !important;
+        max-width: 92vw !important;
+    }
+    
+    .banner-glow-container {
+        min-height: 75px !important;
+        padding: 10px 12px !important;
+    }
+    
+    .branding-banner img {
+        width: 180px !important; /* Slightly smaller for very small screens */
+    }
+    
+    .banner-glow-container div[style*="font-size: 20px"] {
+        font-size: 16px !important;
+    }
+    
+    .banner-glow-container div[style*="font-size: 14px"] {
+        font-size: 12px !important;
+    }
+}
 </style>
     `;
+
+    
 
     // ===================================================================
     // 📦 CALLBACK SYSTEM
