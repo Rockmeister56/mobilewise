@@ -453,7 +453,7 @@ const BANNER_STYLES = `
     }
     
     .branding-banner img {
-        width: 200px !important; /* Larger logo for mobile */
+        width: 100px !important; /* Larger logo for mobile */
         height: auto !important;
         margin-right: 0 !important;
     }
