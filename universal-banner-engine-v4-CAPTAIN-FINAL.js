@@ -453,7 +453,7 @@ const BANNER_STYLES = `
 }
 
 .branding-banner img {
-    width: 50px !important; /* Larger logo size for better visibility */
+    width: 20px !important; /* Larger logo size for better visibility */
     height: auto !important;
     margin-right: 0 !important;
 }
@@ -461,7 +461,7 @@ const BANNER_STYLES = `
     
     /* STANDARD BANNER IMAGES */
     .banner-glow-container img:not(.branding-banner img) {
-        width: 55px !important;
+        width: 20px !important;
         height: auto !important;
         margin-right: 15px !important;
     }
