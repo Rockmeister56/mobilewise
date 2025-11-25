@@ -1755,6 +1755,9 @@ function sendClientConfirmationEmail(leadData, captureType) {
 emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templates.clientConfirmation, confirmationParams)
         .then(function(response) {
             console.log('✅ CLIENT CONFIRMATION EMAIL SENT!');
+
+            // 🎯 ADD THIS ONE LINE: Block banner during confirmation question
+    window.isInConfirmationDialog = true;
             
             if (window.showUniversalBanner) {
                 window.showUniversalBanner('emailSent');
@@ -1794,6 +1797,9 @@ emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templates.clientConfirmati
             
         }, function(error) {
             console.error('❌ CLIENT CONFIRMATION EMAIL FAILED:', error);
+
+             // 🎯 ADD THIS ONE LINE: Block banner during confirmation question
+    window.isInConfirmationDialog = true;
             
             // Simple error handling
             let failureMessage = "The confirmation email couldn't be sent, but Bruce will still contact you directly! Is there anything else I can help with?";

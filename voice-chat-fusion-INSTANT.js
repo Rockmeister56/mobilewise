@@ -1783,22 +1783,29 @@ class MobileWiseVoiceSystem {
     // 🎯 SPEECH COMPLETION HANDLER - WITH ELEVENLABS BANNER LOGIC
     // ✅ SMART BUTTON BLOCKING REMOVED FOR BANNER FUNCTIONALITY
    // ============================================================
-    handleSpeechComplete() {
-        voiceSystem.isSpeaking = false;
-        window.isSpeaking = false; // Backward compatibility
-        
-        // 🆕🎯 CRITICAL FIX: ADD ONLY THIS COOLDOWN RESET BLOCK
-        console.log('🎯 RESET: Clearing all banner cooldowns after AI speech');
-        window.directSpeakNowCooldown = false;
-        if (window.bannerCooldownTimer) {
-            clearTimeout(window.bannerCooldownTimer);
-            window.bannerCooldownTimer = null;
-        }
-        // 🆕 END OF COOLDOWN RESET BLOCK
-        
-        if (VOICE_CONFIG.debug) {
-            console.log("🔍 PERMANENT HANDLER: Speech completed - checking ElevenLabs banner logic (NO SMART BUTTON BLOCK)");
-        }
+ handleSpeechComplete() {
+    voiceSystem.isSpeaking = false;
+    window.isSpeaking = false; // Backward compatibility
+    
+    // 🎯 ADD THIS CHECK: Block banner during confirmation dialog
+    if (window.isInConfirmationDialog) {
+        console.log('🛑 BLOCKING BANNER - Confirmation dialog active');
+        return; // STOP HERE - don't trigger banner
+    }
+    
+    // 🆕🎯 CRITICAL FIX: ADD ONLY THIS COOLDOWN RESET BLOCK
+    console.log('🎯 RESET: Clearing all banner cooldowns after AI speech');
+    window.directSpeakNowCooldown = false;
+    if (window.bannerCooldownTimer) {
+        clearTimeout(window.bannerCooldownTimer);
+        window.bannerCooldownTimer = null;
+    }
+    // 🆕 END OF COOLDOWN RESET BLOCK
+    
+    if (VOICE_CONFIG.debug) {
+        console.log("🔍 PERMANENT HANDLER: Speech completed - checking ElevenLabs banner logic (NO SMART BUTTON BLOCK)");
+    }
+    
 // ============================================================
 // EXACT ELEVENLABS BLOCKING CONDITIONS CHECK
 // ============================================================
