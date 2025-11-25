@@ -5196,7 +5196,7 @@ window.showWelcomeSplash = function(userName) {
     welcomeContainer.id = 'minimal-welcome';
     welcomeContainer.style.cssText = `
         position: fixed;
-        top: -5px;
+        top: -1px;
         right: 20px;
         color: #024082ff;
         font-family: cursive, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -5217,7 +5217,7 @@ window.showWelcomeSplash = function(userName) {
              alt="Welcome" 
              style="height: ${logoHeight}; border-radius: 2px;"
              onerror="this.style.display='none'">
-        <span style="margin-left: 10px;">${userName}!</span>
+        <span style="margin-left: 7px;">${userName}!</span>
     `;
     
     document.body.appendChild(welcomeContainer);
