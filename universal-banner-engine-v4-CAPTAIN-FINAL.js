@@ -434,7 +434,7 @@ const BANNER_STYLES = `
         width: 100% !important;
         max-width: 100% !important;
         height: auto !important;
-        min-height: 80px !important;
+        min-height: 120px !important;
         padding: 12px 15px !important;
         margin: 0 auto;
     }
