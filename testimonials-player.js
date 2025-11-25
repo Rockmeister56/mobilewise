@@ -518,17 +518,16 @@ function returnToVoiceChat() {
         console.log('✅ All speech stopped');
     }
     
-    // 2. 🎯 SET THE CONVERSATION STATE TO MATCH NORMAL CONSULTATION FLOW
+    // 2. 🎯 SET THE EXACT SAME STATE AS NORMAL CONSULTATION FLOW
     if (window.salesAI) {
-        // Set to whatever state triggers the consultation response
-        window.salesAI.state = 'consultation_offer';
-        console.log('✅ Sales AI state set to consultation_offer');
+        window.salesAI.state = 'qualification'; // This triggers emergency Bruce detection
+        console.log('✅ Sales AI state set to qualification');
     }
     
-    // Also set any global conversation state
+    // Also set the global conversation state
     if (window.conversationState !== undefined) {
-        window.conversationState = 'consultation_offer';
-        console.log('✅ Global conversation state set');
+        window.conversationState = 'qualification';
+        console.log('✅ Global conversation state set to qualification');
     }
     
     // 3. Clear the OLD transcript that causes testimonials to re-appear
@@ -543,9 +542,9 @@ function returnToVoiceChat() {
     
     console.log('🛑 Cleared old transcript to prevent testimonial re-trigger');
     
-    // 4. Set consultation flag (but don't intercept the response)
+    // 4. Set consultation flag
     window.consultationOfferActive = true;
-    console.log('🎯 Consultation offer active - AI will handle "yes" response normally');
+    console.log('🎯 Consultation offer active - emergency Bruce detection enabled');
     
     // 5. COMPLETELY deactivate testimonial protection
     window.testimonialSessionActive = false;
