@@ -423,8 +423,8 @@ const BANNER_STYLES = `
 @media (max-width: 850px) {
     /* BANNER CONTAINER POSITIONING */
     #bannerHeaderContainer {
-        top: 45px !important; /* Moved down 35px from original 10px */
-        width: 99vw !important; /* Much wider - nearly full width */
+        top: 45px !important;
+        width: 99vw !important;
         max-width: 99vw !important;
         margin: 0 auto;
     }
@@ -446,18 +446,21 @@ const BANNER_STYLES = `
         top: -8px !important;
     }
     
-    /* BRANDING BANNER - LEFT JUSTIFIED LOGO */
-.branding-banner {
-    justify-content: flex-start !important; /* LEFT-justified logo */
-    padding-left: 20px !important; /* Add left padding */
-}
-
-.branding-banner img {
-    width: 50px !important; /* Larger logo size for better visibility */
-    height: auto !important;
-    margin-right: 0 !important;
-}
-
+    /* BRANDING BANNER - FORCE SMALLER LOGO */
+    .branding-banner {
+        justify-content: flex-start !important;
+        padding-left: 20px !important;
+        height: 60px !important; /* Force smaller container height */
+    }
+    
+    /* TARGET THE SPECIFIC BRANDING LOGO IMAGE */
+    .branding-banner img[src*="nci.PNG"],
+    .branding-banner img {
+        width: 120px !important; /* Much smaller logo */
+        height: auto !important;
+        max-width: 120px !important;
+        margin-right: 0 !important;
+    }
     
     /* STANDARD BANNER IMAGES */
     .banner-glow-container img:not(.branding-banner img) {
@@ -509,12 +512,15 @@ const BANNER_STYLES = `
     }
     
     .banner-glow-container {
-        min-height: 75px !important;
-        padding: 10px 12px !important;
+        min-height: 60px !important; /* Smaller height */
+        padding: 8px 12px !important;
     }
     
+    /* EVEN SMALLER LOGO ON TINY SCREENS */
+    .branding-banner img[src*="nci.PNG"],
     .branding-banner img {
-        width: 180px !important;
+        width: 100px !important;
+        max-width: 100px !important;
     }
     
     .banner-glow-container div[style*="font-size: 20px"] {
