@@ -423,19 +423,19 @@ const BANNER_STYLES = `
 @media (max-width: 850px) {
     /* BANNER CONTAINER POSITIONING */
     #bannerHeaderContainer {
-        top: 80px !important;
+        top: 45px !important;
         width: 99vw !important;
-        max-width: 95vw !important;
+        max-width: 99vw !important;
         margin: 0 auto;
     }
     
-    /* BANNER CONTENT STYLING */
+    /* BANNER CONTENT STYLING - 10% MORE HEIGHT */
     .banner-glow-container {
         width: 100% !important;
         max-width: 100% !important;
         height: auto !important;
-        min-height: 80px !important;
-        padding: 12px 15px !important;
+        min-height: 88px !important; /* Increased from 80px to 88px (+10%) */
+        padding: 15px 15px !important; /* Increased padding for more height */
         margin: 0 auto;
     }
     
@@ -443,20 +443,21 @@ const BANNER_STYLES = `
     .banner-glow-container::before {
         width: calc(100% + 40px) !important;
         left: -20px !important;
-        top: -8px !important;
+        top: -10px !important; /* Adjusted for taller banner */
+        height: calc(100% + 20px) !important; /* Taller glow layer */
     }
     
     /* BRANDING BANNER - FORCE SMALLER LOGO */
     .branding-banner {
         justify-content: flex-start !important;
         padding-left: 20px !important;
-        height: 60px !important; /* Force smaller container height */
+        height: 70px !important; /* Increased from 60px to 70px (+16%) */
     }
     
     /* TARGET THE SPECIFIC BRANDING LOGO IMAGE */
     .branding-banner img[src*="nci.PNG"],
     .branding-banner img {
-        width: 120px !important; /* Much smaller logo */
+        width: 120px !important;
         height: auto !important;
         max-width: 120px !important;
         margin-right: 0 !important;
@@ -483,7 +484,7 @@ const BANNER_STYLES = `
     /* SPECIFIC BANNER LAYOUT ADJUSTMENTS */
     .banner-testimonial {
         justify-content: space-around !important;
-        padding: 10px 15px !important;
+        padding: 12px 15px !important; /* Increased padding */
     }
     
     .banner-testimonial img:first-child {
@@ -512,8 +513,8 @@ const BANNER_STYLES = `
     }
     
     .banner-glow-container {
-        min-height: 60px !important; /* Smaller height */
-        padding: 8px 12px !important;
+        min-height: 77px !important; /* Increased from 60px to 77px */
+        padding: 10px 12px !important;
     }
     
     /* EVEN SMALLER LOGO ON TINY SCREENS */
@@ -521,6 +522,10 @@ const BANNER_STYLES = `
     .branding-banner img {
         width: 100px !important;
         max-width: 100px !important;
+    }
+    
+    .branding-banner {
+        height: 65px !important; /* Taller on small screens */
     }
     
     .banner-glow-container div[style*="font-size: 20px"] {
