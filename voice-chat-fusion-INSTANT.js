@@ -5196,7 +5196,7 @@ window.showWelcomeSplash = function(userName) {
     welcomeContainer.id = 'minimal-welcome';
     welcomeContainer.style.cssText = `
         position: fixed;
-        top: -10px;
+        top: -5px;
         right: 20px;
         color: #024082ff;
         font-family: cursive, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -5209,8 +5209,6 @@ window.showWelcomeSplash = function(userName) {
         align-items: center;
         gap: 7px;
         background: transparent;
-        #minimal-welcome span {
-    margin-left: 5px !important; /* Reduce from 15px to 8px */
 }
     `;
 
@@ -5219,7 +5217,7 @@ window.showWelcomeSplash = function(userName) {
              alt="Welcome" 
              style="height: ${logoHeight}; border-radius: 2px;"
              onerror="this.style.display='none'">
-        <span style="margin-left: 15px;">${userName}!</span>
+        <span style="margin-left: 10px;">${userName}!</span>
     `;
     
     document.body.appendChild(welcomeContainer);
