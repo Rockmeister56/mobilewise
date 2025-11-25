@@ -171,10 +171,10 @@ function showSilentCommunicationRelayCenter() {
 
             <!-- EXACT SAME BEAUTIFUL BUTTON GRID -->
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px;">
-                <!-- Request A Call -->
+                <!-- Request-A-Call -->
                 <button onclick="handleActionButton('click-to-call')" style="display: flex; align-items: center; gap: 12px; background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(255, 255, 255, 0.2); color: white; padding: 18px 15px; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 17px; text-align: left; transition: all 0.3s ease; backdrop-filter: blur(10px); width: 100%; height: 84px; min-width: 295px;" onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.borderColor='rgba(255, 255, 255, 0.3)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.borderColor='rgba(255, 255, 255, 0.2)'; this.style.transform='translateY(0)';">
                     <div style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;"><span style="font-size: 24px;">📞</span></div>
-                    <span style="flex: 1;">Request A Call</span>
+                    <span style="flex: 1;">Request-A-Call</span>
                 </button>
 
                 <!-- URGENT CALL -->
@@ -280,7 +280,7 @@ function showCommunicationRelayCenter() {
 
             <!-- SAME 2x2 Grid Layout as Original -->
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px;">
-                <!-- Request A Call -->
+                <!-- Request-A-Call -->
                 <button onclick="handleRelayCenterAction('click-to-call')" style="
                     display: flex;
                     align-items: center;
@@ -304,7 +304,7 @@ function showCommunicationRelayCenter() {
                     <div style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
                         <span style="font-size: 24px;">📞</span>
                     </div>
-                    <span style="flex: 1;">Request A Call</span>
+                    <span style="flex: 1;">Request-A-Call</span>
                 </button>
 
                 <!-- ... REST OF THE ORIGINAL ACTION CENTER BUTTONS ... -->
@@ -513,8 +513,8 @@ function showCommunicationRelayCenter() {
     }
         #communication-relay-center > div,
 #communication-relay-center-silent > div {
-    padding-top: 15px !important; /* Reduce top padding */
-    padding-bottom: 15px !important; /* Reduce bottom padding */
+    padding-top: 10px !important; /* Reduce top padding */
+    padding-bottom: 25px !important; /* Reduce bottom padding */
 }
 
     #communication-relay-center > div > div:first-child,
@@ -529,7 +529,7 @@ function showCommunicationRelayCenter() {
 #communication-relay-center-silent .button-grid,
 #communication-relay-center > div > div:nth-of-type(2),
 #communication-relay-center-silent > div > div:nth-of-type(2) {
-    margin-top: 30px !important;
+    margin-top: 25px !important;
 }
 
     #communication-relay-center video,
@@ -745,7 +745,7 @@ function showCommunicationRelayCenter() {
 
             <!-- EXACT SAME 2x2 Grid Layout with ALL 4 buttons -->
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px;">
-                <!-- Request A Call -->
+                <!-- Request-A-Call -->
                 <button onclick="handleActionButton('click-to-call')" style="
                     display: flex;
                     align-items: center;
@@ -768,7 +768,7 @@ function showCommunicationRelayCenter() {
                     <div style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
                         <span style="font-size: 24px;">📞</span>
                     </div>
-                    <span style="flex: 1;">Request A Call</span>
+                    <span style="flex: 1;">Request-A-Call</span>
                 </button>
 
                 <!-- URGENT CALL -->
