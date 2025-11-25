@@ -327,310 +327,205 @@ function showCommunicationRelayCenter() {
    function addButtonStyles() {
     if (document.getElementById('comm-relay-button-styles')) return;
 
-    const styleSheet = document.createElement('style');
-    styleSheet.id = 'comm-relay-button-styles';
-    styleSheet.textContent = `
-        /* Single button container - FULL WIDTH TO EDGES */
-        #comm-relay-button-container {
-            display: flex !important;
-            flex-direction: column !important;
-            justify-content: center;
-            align-items: center;
-            padding: 15px 5px !important;  /* Reduced side padding */
-            width: 100% !important;
-            position: relative !important;
-            min-height: 65px !important;
-            box-sizing: border-box !important;
-        }
-
-        /* Communication Center BUTTON - FULL WIDTH, LARGER TEXT & EMOJIS */
-        .comm-relay-btn {
-            padding: 16px 15px !important;  /* More vertical padding */
-            background: linear-gradient(135deg, 
-                rgba(255, 255, 255, 0.15) 0%, 
-                rgba(255, 255, 255, 0.25) 50%,
-                rgba(255, 255, 255, 0.15) 100%) !important;
-            color: white !important;
-            border: 2px solid rgba(255, 255, 255, 0.3) !important;
-            border-radius: 20px !important;
-            cursor: pointer !important;
-            font-size: 17px !important;  /* Larger text */
-            font-weight: 700 !important;
-            width: 100% !important;
-            max-width: none !important;  /* Remove max-width constraint */
-            text-align: center;
-            transition: all 0.3s ease !important;
-            position: relative !important;
-            text-transform: uppercase !important;
-            letter-spacing: 1px !important;
-            backdrop-filter: blur(15px) !important;
-            box-shadow: 
-                0 6px 25px rgba(0, 0, 0, 0.25),
-                0 0 0 1px rgba(255, 255, 255, 0.15),
-                0 0 20px rgba(34, 197, 94, 0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
-            overflow: hidden !important;
-            box-sizing: border-box !important;
-            margin: 0 !important;  /* Remove any margins */
-        }
-
-        /* Make emojis 30% larger */
-        .comm-relay-btn {
-            font-family: 'Segoe UI Emoji', 'Apple Color Emoji', sans-serif !important;
-        }
-
-        .comm-relay-btn::before {
-            content: "⚡";
-            font-size: 1.3em !important;  /* 30% larger emojis */
-            margin-right: 8px;
-        }
-
-        .comm-relay-btn::after {
-            content: " 📞 📅 🚨 🚀";
-            font-size: 1.3em !important;  /* 30% larger emojis */
-            margin-left: 8px;
-        }
-
-        /* Hover effects with INTENSE green glow */
-        .comm-relay-btn:hover {
-            background: linear-gradient(135deg, 
-                rgba(34, 197, 94, 0.4) 0%, 
-                rgba(34, 197, 94, 0.6) 50%,
-                rgba(34, 197, 94, 0.4) 100%) !important;
-            border-color: rgba(34, 197, 94, 0.8) !important;
-            transform: translateY(-2px) !important;
-            box-shadow: 
-                0 10px 35px rgba(34, 197, 94, 0.5),
-                0 0 30px rgba(34, 197, 94, 0.4),
-                0 0 40px rgba(34, 197, 94, 0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
-        }
-
-        /* Active state with even more glow */
-        .comm-relay-btn:active {
-            transform: translateY(0) !important;
-            box-shadow: 
-                0 8px 30px rgba(34, 197, 94, 0.6),
-                0 0 25px rgba(34, 197, 94, 0.5),
-                0 0 35px rgba(34, 197, 94, 0.4) !important;
-        }
-
-        /* Strong pulse animation */
-        .comm-relay-btn {
-            animation: intense-pulse 3s ease-in-out infinite;
-        }
-
-        @keyframes intense-pulse {
-            0%, 100% { 
-                box-shadow: 
-                    0 6px 25px rgba(0, 0, 0, 0.25),
-                    0 0 0 1px rgba(255, 255, 255, 0.15),
-                    0 0 20px rgba(34, 197, 94, 0.3),
-                    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
-            }
-            50% { 
-                box-shadow: 
-                    0 6px 25px rgba(0, 0, 0, 0.3),
-                    0 0 0 1px rgba(255, 255, 255, 0.2),
-                    0 0 30px rgba(34, 197, 94, 0.5),
-                    0 0 40px rgba(34, 197, 94, 0.3),
-                    inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
-            }
-        }
-
-        /* SPEAK NOW BANNER OVERLAY POSITIONING - FULL WIDTH */
-        #speak-sequence-button {
-            position: absolute !important;
-            top: 12px !important;
-            left: 5px !important;
-            width: calc(100% - 10px) !important;  /* Full width minus small padding */
-            height: calc(100% - 30px) !important;
-            z-index: 1000 !important;
-            margin: 0 !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-        }
-
-        /* Mobile responsive */
-        @media (max-width: 768px) {
-            .comm-relay-btn {
-                padding: 14px 12px !important;
-                font-size: 16px !important;  /* Still larger on mobile */
-                border-radius: 18px !important;
-                letter-spacing: 0.8px !important;
-            }
-            
-            #comm-relay-button-container {
-                padding: 12px 3px !important;  /* Even less side padding on mobile */
-                min-height: 60px !important;
-            }
-            
-            #speak-sequence-button {
-                top: 12px !important;
-                left: 3px !important;
-                width: calc(100% - 6px) !important;
-                height: calc(100% - 24px) !important;
-            }
-
-            /* Smaller emojis on very small screens */
-            .comm-relay-btn::before,
-            .comm-relay-btn::after {
-                font-size: 1.2em !important;
-            }
-        }
-
-        /* Small mobile devices */
-        @media (max-width: 480px) {
-            .comm-relay-btn {
-                padding: 12px 10px !important;
-                font-size: 15px !important;
-                letter-spacing: 0.6px !important;
-            }
-            
-            .comm-relay-btn::before,
-            .comm-relay-btn::after {
-                font-size: 1.1em !important;
-            }
-        }
-/* ============ CORRECTED MOBILE STYLING ============ */
-@media (max-width: 768px) {
-    #communication-relay-center,
-    #communication-relay-center-silent {
-        max-width: 100% !important;
-        padding: 10px 10px !important;
-        margin: 15px 0 !important;
-        min-height: auto !important;
-        border-radius: 15px !important;
-        width: 140% !important; /* Much wider - almost full width */
-        margin-left: 0% !important;
-        margin-right: auto !important;
-    }
-
-    /* Fix header - avatar at top, no forced spacing */
-    #communication-relay-center > div > div:first-child,
-    #communication-relay-center-silent > div > div:first-child {
+const styleSheet = document.createElement('style');
+styleSheet.id = 'comm-relay-button-styles';
+styleSheet.textContent = `
+    /* Single button container - FULL WIDTH TO EDGES */
+    #comm-relay-button-container {
         display: flex !important;
-        align-items: flex-start !important; /* Avatar at top */
-        text-align: left !important;
-        gap: 12px !important;
-        margin-bottom: 20px !important;
-        margin-top: 0 !important;
-    }
-        #communication-relay-center > div,
-#communication-relay-center-silent > div {
-    padding-top: 15px !important; /* Reduce top padding */
-    padding-bottom: 15px !important; /* Reduce bottom padding */
-}
-
-    #communication-relay-center > div > div:first-child,
-#communication-relay-center-silent > div > div:first-child {
-    min-height: auto !important;
-    height: auto !important;
-    margin-bottom: 10px !important; /* Reduce space below header */
-    padding: 5px 0 !important; /* Reduce internal padding */
-}
-        /* Target the button grid directly */
-#communication-relay-center .button-grid,
-#communication-relay-center-silent .button-grid,
-#communication-relay-center > div > div:nth-of-type(2),
-#communication-relay-center-silent > div > div:nth-of-type(2) {
-    margin-top: 30px !important;
-}
-
-    #communication-relay-center video,
-    #communication-relay-center-silent video {
-        width: 80px !important; /* Smaller avatar */
-        height: 30px !important;
-        margin-top: 0 !important; /* No top margin pushing down */
-        flex-shrink: 0 !important;
+        flex-direction: column !important;
+        justify-content: center;
+        align-items: center;
+        padding: 12px 5px !important;  /* Reduced padding */
+        width: 100% !important;
+        position: relative !important;
+        min-height: 55px !important;  /* 20% shorter */
+        box-sizing: border-box !important;
     }
 
-    #communication-relay-center h3,
-    #communication-relay-center-silent h3 {
-        font-size: 16px !important;
-        margin: 0 0 2px 0 !important; /* Minimal spacing */
-        line-height: 1.1 !important;
-        padding-top: 2px !important; /* Small top padding instead of margin */
-    }
-
-    #communication-relay-center p,
-    #communication-relay-center-silent p {
-        font-size: 11px !important;
+    /* Communication Center BUTTON - CLEAN, NO EMOJIS */
+    .comm-relay-btn {
+        padding: 12px 15px !important;  /* Reduced height */
+        background: linear-gradient(135deg, 
+            rgba(255, 255, 255, 0.15) 0%, 
+            rgba(255, 255, 255, 0.25) 50%,
+            rgba(255, 255, 255, 0.15) 100%) !important;
+        color: white !important;
+        border: 2px solid rgba(255, 255, 255, 0.3) !important;
+        border-radius: 16px !important;
+        cursor: pointer !important;
+        font-size: 16px !important;  /* Clean font size */
+        font-weight: 600 !important;
+        width: 100% !important;
+        max-width: none !important;
+        text-align: center;
+        transition: all 0.3s ease !important;
+        position: relative !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
+        backdrop-filter: blur(15px) !important;
+        box-shadow: 
+            0 4px 20px rgba(0, 0, 0, 0.25),
+            0 0 0 1px rgba(255, 255, 255, 0.15),
+            0 0 15px rgba(34, 197, 94, 0.3),
+            inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+        overflow: hidden !important;
+        box-sizing: border-box !important;
         margin: 0 !important;
-        line-height: 1.1 !important;
+        font-family: 'Segoe UI', system-ui, sans-serif !important; /* Clean font */
     }
 
-    /* Slimmer buttons - 30% height reduction */
-    #communication-relay-center button,
-    #communication-relay-center-silent button {
-        height: 75px !important; /* 30% slimmer (was 84px) */
-        min-width: auto !important;
-        padding: 8px 12px !important;
-        font-size: 14px !important;
+    /* REMOVED ALL EMOJI STYLES - Clean text only */
+
+    /* Hover effects - simplified */
+    .comm-relay-btn:hover {
+        background: linear-gradient(135deg, 
+            rgba(34, 197, 94, 0.4) 0%, 
+            rgba(34, 197, 94, 0.6) 50%,
+            rgba(34, 197, 94, 0.4) 100%) !important;
+        border-color: rgba(34, 197, 94, 0.8) !important;
+        transform: translateY(-1px) !important;
+        box-shadow: 
+            0 6px 25px rgba(34, 197, 94, 0.4),
+            0 0 20px rgba(34, 197, 94, 0.3) !important;
+    }
+
+    /* Active state - simplified */
+    .comm-relay-btn:active {
+        transform: translateY(0) !important;
+    }
+
+    /* REMOVED pulse animation - cleaner look */
+
+    /* SPEAK NOW BANNER OVERLAY POSITIONING */
+    #speak-sequence-button {
+        position: absolute !important;
+        top: 12px !important;
+        left: 5px !important;
+        width: calc(100% - 10px) !important;
+        height: calc(100% - 24px) !important; /* Adjusted for shorter button */
+        z-index: 1000 !important;
         margin: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
     }
 
-    /* Single column layout */
-    #communication-relay-center > div > div:nth-child(2),
-    #communication-relay-center-silent > div > div:nth-child(2) {
-        grid-template-columns: 1fr !important;
-        gap: 8px !important;
-    }
-
-    /* Smaller emojis in buttons */
-    #communication-relay-center button div,
-    #communication-relay-center-silent button div {
-        width: 25px !important;
-        height: 25px !important;
-    }
-
-    #communication-relay-center button div span,
-    #communication-relay-center-silent button div span {
-        font-size: 18px !important;
-    }
-
-    /* Slimmer skip button */
-    #communication-relay-center > div > button:last-child,
-    #communication-relay-center-silent > div > button:last-child {
-        height: 45px !important;
-        padding: 8px 15px !important;
-        font-size: 13px !important;
-        margin-top: 8px !important;
-    }
-}
-
-/* Extra small devices */
-@media (max-width: 480px) {
-    #communication-relay-center,
-    #communication-relay-center-silent {
-        width: 99% !important; /* Almost full width */
-        padding: 12px 10px !important;
-    }
-
-    #communication-relay-center video,
-    #communication-relay-center-silent video {
-        width: 40px !important;
-        height: 40px !important;
-    }
-
-    #communication-relay-center h3,
-    #communication-relay-center-silent h3 {
-        font-size: 15px !important;
-    }
-
-    #communication-relay-center button,
-    #communication-relay-center-silent button {
-        height: 50px !important; /* Even slimmer */
-        padding: 6px 10px !important;
-        font-size: 13px !important;
-    }
-}
+    /* Mobile responsive */
+    @media (max-width: 768px) {
+        .comm-relay-btn {
+            padding: 10px 12px !important;  /* Even shorter on mobile */
+            font-size: 15px !important;
+            border-radius: 14px !important;
+            letter-spacing: 0.4px !important;
+            min-height: 44px !important; /* Consistent height */
+        }
         
-    `;
+        #comm-relay-button-container {
+            padding: 10px 3px !important;
+            min-height: 50px !important; /* Shorter container */
+        }
+        
+        #speak-sequence-button {
+            top: 10px !important;
+            left: 3px !important;
+            width: calc(100% - 6px) !important;
+            height: calc(100% - 20px) !important;
+        }
+    }
 
-    document.head.appendChild(styleSheet);
-}
+    /* Small mobile devices */
+    @media (max-width: 480px) {
+        .comm-relay-btn {
+            padding: 8px 10px !important;
+            font-size: 14px !important;
+            letter-spacing: 0.3px !important;
+            min-height: 40px !important;
+        }
+        
+        #comm-relay-button-container {
+            padding: 8px 2px !important;
+            min-height: 45px !important;
+        }
+    }
+
+    /* Communication Center mobile styling - CLEANER */
+    @media (max-width: 768px) {
+        #communication-relay-center,
+        #communication-relay-center-silent {
+            max-width: 100% !important;
+            padding: 12px 10px !important;
+            margin: 10px 0 !important;
+            min-height: auto !important;
+            border-radius: 12px !important;
+            width: 98% !important; /* Slightly less wide */
+            margin-left: auto !important;
+            margin-right: auto !important;
+        }
+
+        /* Clean header */
+        #communication-relay-center > div > div:first-child,
+        #communication-relay-center-silent > div > div:first-child {
+            display: flex !important;
+            align-items: flex-start !important;
+            text-align: left !important;
+            gap: 10px !important;
+            margin-bottom: 15px !important;
+            margin-top: 0 !important;
+        }
+
+        #communication-relay-center > div,
+        #communication-relay-center-silent > div {
+            padding-top: 12px !important;
+            padding-bottom: 12px !important;
+        }
+
+        /* Slimmer buttons */
+        #communication-relay-center button,
+        #communication-relay-center-silent button {
+            height: 60px !important; /* Much slimmer */
+            min-width: auto !important;
+            padding: 6px 10px !important;
+            font-size: 13px !important;
+            margin: 0 !important;
+        }
+
+        /* Single column layout */
+        #communication-relay-center > div > div:nth-child(2),
+        #communication-relay-center-silent > div > div:nth-child(2) {
+            grid-template-columns: 1fr !important;
+            gap: 6px !important;
+            margin-top: 20px !important;
+        }
+
+        /* Clean skip button */
+        #communication-relay-center > div > button:last-child,
+        #communication-relay-center-silent > div > button:last-child {
+            height: 40px !important;
+            padding: 6px 12px !important;
+            font-size: 12px !important;
+            margin-top: 8px !important;
+        }
+    }
+
+    /* Extra small devices */
+    @media (max-width: 480px) {
+        #communication-relay-center,
+        #communication-relay-center-silent {
+            width: 96% !important;
+            padding: 10px 8px !important;
+        }
+
+        #communication-relay-center button,
+        #communication-relay-center-silent button {
+            height: 50px !important;
+            padding: 5px 8px !important;
+            font-size: 12px !important;
+        }
+    }
+`;
+
+document.head.appendChild(styleSheet);
 
    function renderCommRelayButton() {
     if (!buttonContainer) return;
