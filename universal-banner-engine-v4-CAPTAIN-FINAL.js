@@ -423,8 +423,8 @@ const BANNER_STYLES = `
 @media (max-width: 850px) {
     /* BANNER CONTAINER POSITIONING */
     #bannerHeaderContainer {
-        top: 45px !important; /* Moved down 20px from original 10px */
-        width: 99vw !important; /* 10% wider than previous 95vw */
+        top: 45px !important; /* Moved down 35px from original 10px */
+        width: 99vw !important; /* Much wider - nearly full width */
         max-width: 99vw !important;
         margin: 0 auto;
     }
@@ -434,22 +434,22 @@ const BANNER_STYLES = `
         width: 100% !important;
         max-width: 100% !important;
         height: auto !important;
-        min-height: 80px !important; /* Slightly taller for better visibility */
+        min-height: 80px !important;
         padding: 12px 15px !important;
         margin: 0 auto;
     }
     
     /* GLOW LAYER ADJUSTMENT */
     .banner-glow-container::before {
-        width: calc(100% + 40px) !important; /* Adjusted for new width */
+        width: calc(100% + 40px) !important;
         left: -20px !important;
         top: -8px !important;
     }
     
-    /* BRANDING BANNER SPECIFIC MOBILE STYLES */
+    /* BRANDING BANNER - LEFT JUSTIFIED LOGO */
     .branding-banner {
-        justify-content: flex-end !important; /* Right-justify logo */
-        padding-right: 20px !important;
+        justify-content: flex-start !important; /* LEFT-justified logo */
+        padding-left: 20px !important; /* Add left padding */
     }
     
     .branding-banner img {
@@ -467,7 +467,7 @@ const BANNER_STYLES = `
     
     /* TEXT SIZING */
     .banner-glow-container div[style*="font-size: 20px"] {
-        font-size: 17px !important; /* Slightly larger for readability */
+        font-size: 17px !important;
         line-height: 1.2 !important;
     }
     
@@ -483,7 +483,7 @@ const BANNER_STYLES = `
     }
     
     .banner-testimonial img:first-child {
-        width: 100px !important; /* Smaller 5-star icon */
+        width: 100px !important;
         margin-right: 5px !important;
     }
     
@@ -494,7 +494,7 @@ const BANNER_STYLES = `
     
     /* CENTER/RIGHT CONTENT SHIFT FOR TESTIMONIAL */
     .banner-testimonial > div:last-child {
-        margin-left: -40px !important; /* Reduced shift for mobile */
+        margin-left: -40px !important;
         justify-content: flex-start !important;
     }
 }
@@ -502,9 +502,9 @@ const BANNER_STYLES = `
 /* EXTRA SMALL DEVICES */
 @media (max-width: 480px) {
     #bannerHeaderContainer {
-        top: 25px !important;
-        width: 92vw !important;
-        max-width: 92vw !important;
+        top: 40px !important;
+        width: 98vw !important;
+        max-width: 98vw !important;
     }
     
     .banner-glow-container {
@@ -513,7 +513,7 @@ const BANNER_STYLES = `
     }
     
     .branding-banner img {
-        width: 180px !important; /* Slightly smaller for very small screens */
+        width: 180px !important;
     }
     
     .banner-glow-container div[style*="font-size: 20px"] {
