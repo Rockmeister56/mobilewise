@@ -5601,6 +5601,46 @@ if (typeof showUniversalBanner === 'function') {
     window.showUniversalBanner = showUniversalBanner;
 }
 
+// ===== WELCOME POSITIONING WATCHER =====
+(function() {
+    console.log('👀 Installing welcome positioning watcher...');
+    
+    const welcomeObserver = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            mutation.addedNodes.forEach((node) => {
+                if (node.nodeType === 1) {
+                    // Check for ultra minimal welcome elements
+                    const hasMinimal = node.id?.includes('minimal') || 
+                                     node.className?.toString().includes('minimal') ||
+                                     node.querySelector('[id*="minimal"], [class*="minimal"]');
+                    
+                    if (hasMinimal) {
+                        console.log('🎉 ULTRA-MINIMAL WELCOME DETECTED!', node);
+                        
+                        // Force positioning
+                        node.style.position = 'fixed';
+                        node.style.top = '45px';
+                        node.style.right = '20px';
+                        node.style.zIndex = '10001';
+                        node.style.display = 'flex';
+                        node.style.alignItems = 'center';
+                        node.style.gap = '10px';
+                    }
+                }
+            });
+        });
+    });
+
+    // Start observing when page loads
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            welcomeObserver.observe(document.body, { childList: true, subtree: true });
+        });
+    } else {
+        welcomeObserver.observe(document.body, { childList: true, subtree: true });
+    }
+})();
+
 console.log('✅ Voice chat functions exported for Action System integration');
 
     console.log('✅ Instant bubble CSS injected');
