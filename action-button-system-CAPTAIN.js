@@ -385,12 +385,6 @@ function showCommunicationRelayCenter() {
             margin-right: 8px;
         }
 
-        .comm-relay-btn::after {
-            content: " 📞 📅 🚨 🚀";
-            font-size: 1.3em !important;  /* 30% larger emojis */
-            margin-left: 8px;
-        }
-
         /* Hover effects with INTENSE green glow */
         .comm-relay-btn:hover {
             background: linear-gradient(135deg, 
@@ -642,7 +636,7 @@ function showCommunicationRelayCenter() {
     const button = document.createElement('button');
     button.id = BUTTON_CONFIG.id;
     button.className = 'comm-relay-btn';
-    button.textContent = 'COMMUNICATION-RELAY-CENTER';  // Text only - emojis added via CSS
+    button.textContent = 'COMMUNICATION-CENTER';  // Text only - emojis added via CSS
     
     // Attach click handler
     button.onclick = openCommRelayCenter;
