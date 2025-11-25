@@ -5194,47 +5194,45 @@ window.showWelcomeSplash = function(userName) {
     
     const welcomeContainer = document.createElement('div');
     welcomeContainer.id = 'minimal-welcome';
-  welcomeContainer.style.cssText = `
-    position: absolute;
-    top: -29px;
-    left: 12px;
-    color: #024082ff;
-    font-family: cursive, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    font-size: ${fontSize};
-    font-weight: 600;
-    z-index: 10000;
-    transition: opacity 0.7s ease;
-    opacity: 0;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-`;
+    welcomeContainer.style.cssText = `
+        position: fixed;
+        top: 45px;
+        right: 20px;
+        color: #024082ff;
+        font-family: cursive, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        font-size: ${fontSize};
+        font-weight: 600;
+        z-index: 10001;
+        transition: opacity 0.7s ease;
+        opacity: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: transparent;
+    `;
 
     welcomeContainer.innerHTML = `
         <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1763241555499_pngegg%20(13).png" 
              alt="Welcome" 
              style="height: ${logoHeight}; border-radius: 2px;"
              onerror="this.style.display='none'">
-        <span>${userName}!</span>
+        <span style="margin-left: 15px;">${userName}!</span>
     `;
     
-    const banner = document.querySelector('.speak-now-banner, .speak-now-container, .universal-banner');
-    if (banner) {
-        banner.appendChild(welcomeContainer);
-        
-        // Fade in
-        setTimeout(() => welcomeContainer.style.opacity = '1', 10);
-        
-        // Fade out and remove after 5 seconds
+    document.body.appendChild(welcomeContainer);
+    
+    // Fade in
+    setTimeout(() => welcomeContainer.style.opacity = '1', 10);
+    
+    // Fade out and remove after 30 seconds
+    setTimeout(() => {
+        welcomeContainer.style.opacity = '0';
         setTimeout(() => {
-            welcomeContainer.style.opacity = '0';
-            setTimeout(() => {
-                if (welcomeContainer.parentElement) {
-                    welcomeContainer.remove();
-                }
-            }, 500);
-        }, 30000);
-    }
+            if (welcomeContainer.parentElement) {
+                welcomeContainer.remove();
+            }
+        }, 500);
+    }, 30000);
     
     window.welcomeSplashShown = true;
     console.log('✅ Ultra-minimal welcome shown');
@@ -5600,46 +5598,6 @@ window.startRealtimeListening = startRealtimeListening;
 if (typeof showUniversalBanner === 'function') {
     window.showUniversalBanner = showUniversalBanner;
 }
-
-// ===== WELCOME POSITIONING WATCHER =====
-(function() {
-    console.log('👀 Installing welcome positioning watcher...');
-    
-    const welcomeObserver = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-            mutation.addedNodes.forEach((node) => {
-                if (node.nodeType === 1) {
-                    // Check for ultra minimal welcome elements
-                    const hasMinimal = node.id?.includes('minimal') || 
-                                     node.className?.toString().includes('minimal') ||
-                                     node.querySelector('[id*="minimal"], [class*="minimal"]');
-                    
-                    if (hasMinimal) {
-                        console.log('🎉 ULTRA-MINIMAL WELCOME DETECTED!', node);
-                        
-                        // Force positioning
-                        node.style.position = 'fixed';
-                        node.style.top = '45px';
-                        node.style.right = '20px';
-                        node.style.zIndex = '10001';
-                        node.style.display = 'flex';
-                        node.style.alignItems = 'center';
-                        node.style.gap = '10px';
-                    }
-                }
-            });
-        });
-    });
-
-    // Start observing when page loads
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => {
-            welcomeObserver.observe(document.body, { childList: true, subtree: true });
-        });
-    } else {
-        welcomeObserver.observe(document.body, { childList: true, subtree: true });
-    }
-})();
 
 console.log('✅ Voice chat functions exported for Action System integration');
 
