@@ -5196,7 +5196,7 @@ window.showWelcomeSplash = function(userName) {
     welcomeContainer.id = 'minimal-welcome';
     welcomeContainer.style.cssText = `
         position: fixed;
-        top: -20px;
+        top: -10px;
         right: 20px;
         color: #024082ff;
         font-family: cursive, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -5207,10 +5207,10 @@ window.showWelcomeSplash = function(userName) {
         opacity: 0;
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 7px;
         background: transparent;
         #minimal-welcome span {
-    margin-left: 8px !important; /* Reduce from 15px to 8px */
+    margin-left: 5px !important; /* Reduce from 15px to 8px */
 }
     `;
 
