@@ -5222,10 +5222,10 @@ window.showWelcomeSplash = function(userName) {
     
     document.body.appendChild(welcomeContainer);
     
-    // Fade in
+        // Fade in
     setTimeout(() => welcomeContainer.style.opacity = '1', 10);
     
-    // Fade out and remove after 30 seconds
+    // Fade out and remove after 10 seconds (was 30)
     setTimeout(() => {
         welcomeContainer.style.opacity = '0';
         setTimeout(() => {
@@ -5233,7 +5233,7 @@ window.showWelcomeSplash = function(userName) {
                 welcomeContainer.remove();
             }
         }, 500);
-    }, 30000);
+    }, 10000); // Changed from 30000 to 10000 (10 seconds)
     
     window.welcomeSplashShown = true;
     console.log('✅ Ultra-minimal welcome shown');
