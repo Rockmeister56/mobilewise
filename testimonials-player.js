@@ -512,18 +512,23 @@ function showTestimonialNavigationOptions() {
 function returnToVoiceChat() {
     console.log('🎯🎯🎯 RETURN TO VOICE CHAT CLICKED 🎯🎯🎯');
 
-      // 1. STOP ALL SPEECH FIRST
+    // 1. STOP ALL SPEECH FIRST
     if (window.stopAllSpeech) {
         window.stopAllSpeech();
         console.log('✅ All speech stopped');
     }
     
-    // 2. 🎯 CRITICAL: RESET BANNER TO CONSULTATION MODE
-    if (window.deployBanner) {
-        setTimeout(() => {
-            console.log('🔄 Resetting banner to consultation mode...');
-            window.deployBanner('setAppointment'); // or 'preQualifier' or 'freeBook'
-        }, 1000);
+    // 2. 🎯 SET THE CONVERSATION STATE TO MATCH NORMAL CONSULTATION FLOW
+    if (window.salesAI) {
+        // Set to whatever state triggers the consultation response
+        window.salesAI.state = 'consultation_offer';
+        console.log('✅ Sales AI state set to consultation_offer');
+    }
+    
+    // Also set any global conversation state
+    if (window.conversationState !== undefined) {
+        window.conversationState = 'consultation_offer';
+        console.log('✅ Global conversation state set');
     }
     
     // 3. Clear the OLD transcript that causes testimonials to re-appear
@@ -538,19 +543,17 @@ function returnToVoiceChat() {
     
     console.log('🛑 Cleared old transcript to prevent testimonial re-trigger');
     
-    // 4. Set consultation flag
+    // 4. Set consultation flag (but don't intercept the response)
     window.consultationOfferActive = true;
-    window.currentQuestionContext = 'consultation_offer'; // 🎯 ADD THIS
-    window.expectingConsultationResponse = true; // 🎯 ADD THIS
-    console.log('🎯 Consultation offer active - next "yes" will trigger action center');
+    console.log('🎯 Consultation offer active - AI will handle "yes" response normally');
     
-    // 4. COMPLETELY deactivate testimonial protection
+    // 5. COMPLETELY deactivate testimonial protection
     window.testimonialSessionActive = false;
     window.testimonialProtectionActive = false;
     window.disableSpeakNowBanner = false; 
     console.log('🛡️🛡️ DOUBLE Testimonial protection deactivated');
     
-    // 5. REMOVE (not just hide) ALL testimonial elements
+    // 6. REMOVE ALL testimonial elements
     const elementsToRemove = [
         'testimonial-nav-options',
         'testimonial-video-overlay', 
@@ -567,23 +570,22 @@ function returnToVoiceChat() {
         }
     });
     
-    // 6. Clear any cooldowns that might block voice chat
+    // 7. Clear any cooldowns that might block voice chat
     if (window.cooldownActive !== undefined) {
         window.cooldownActive = false;
         console.log('🛡️ Cooldown cleared for voice chat');
     }
     
-   // 7. PLAY THE CONSULTATION OFFER DIRECTLY
-setTimeout(() => {
-    console.log('🗣️ Playing consultation offer...');
-    
-    if (window.speakText) {
-        window.speakText("If we can get you the same results as our previous customers, would you be interested in that consultation?");
+    // 8. PLAY THE CONSULTATION OFFER
+    setTimeout(() => {
+        console.log('🗣️ Playing consultation offer...');
         
-        // 🎯 DON'T start listening manually - let the banner system do it!
-        console.log('🎤 Voice listening will auto-start via banner system');
-    }
-}, 500);
+        if (window.speakText) {
+            window.speakText("If we can get you the same results as our previous customers, would you be interested in that consultation?");
+            
+            console.log('🎤 Voice listening will auto-start via banner system');
+        }
+    }, 500);
     
     console.log('✅ SUCCESSFULLY RETURNED TO VOICE CHAT');
 }
