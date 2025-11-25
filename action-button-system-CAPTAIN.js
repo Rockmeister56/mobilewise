@@ -521,7 +521,7 @@ function showCommunicationRelayCenter() {
 #communication-relay-center-silent > div > div:first-child {
     min-height: auto !important;
     height: auto !important;
-    margin-bottom: 10px !important; /* Reduce space below header */
+    margin-bottom: 5px !important; /* Reduce space below header */
     padding: 5px 0 !important; /* Reduce internal padding */
 }
         /* Target the button grid directly */
@@ -529,14 +529,14 @@ function showCommunicationRelayCenter() {
 #communication-relay-center-silent .button-grid,
 #communication-relay-center > div > div:nth-of-type(2),
 #communication-relay-center-silent > div > div:nth-of-type(2) {
-    margin-top: 25px !important;
+    margin-top: 15px !important;
 }
 
     #communication-relay-center video,
     #communication-relay-center-silent video {
         width: 80px !important; /* Smaller avatar */
         height: 30px !important;
-        margin-top: 0 !important; /* No top margin pushing down */
+        margin-top: -20 !important; /* No top margin pushing down */
         flex-shrink: 0 !important;
     }
 
@@ -558,9 +558,9 @@ function showCommunicationRelayCenter() {
     /* Slimmer buttons - 30% height reduction */
     #communication-relay-center button,
     #communication-relay-center-silent button {
-        height: 75px !important; /* 30% slimmer (was 84px) */
+        height: 65px !important; /* 30% slimmer (was 84px) */
         min-width: auto !important;
-        padding: 8px 12px !important;
+        padding: 8px 10px !important;
         font-size: 14px !important;
         margin: 0 !important;
     }
