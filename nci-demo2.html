@@ -79,18 +79,18 @@
             transform: scale(1.05);
         }
         
-        /* Video window positioning - adjusted for your player1.png */
-        .video-window {
-            position: absolute;
-            top: 15%; /* Adjusted for your player1.png */
-            left: 10%; /* Adjusted for your player1.png */
-            width: 80%; /* Adjusted for your player1.png */
-            height: 70%; /* Adjusted for your player1.png */
-            z-index: 1;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        }
+       /* Video window positioning - reduced size */
+.video-window {
+    position: absolute;
+    top: 22%; /* Adjusted to center the smaller video */
+    left: 17%; /* Adjusted to center the smaller video */
+    width: 66%; /* Reduced from 80% to 66% (approx 17.5% smaller) */
+    height: 56%; /* Reduced from 70% to 56% (20% smaller) */
+    z-index: 1;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
     </style>
 </head>
 <body>
