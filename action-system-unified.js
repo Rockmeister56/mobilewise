@@ -1607,15 +1607,17 @@ function sendOriginalLeadEmail(data, type) {
     let internalTemplateParams = {};
     let qualificationLevel = '';
 
-    // Your existing internal email logic here...
+    // STANDARDIZE PARAMETER NAMES ACROSS ALL TEMPLATES
     if (type === 'consultation') {
         internalTemplateId = EMAILJS_CONFIG.templates.consultation;
         internalTemplateParams = {
             to_email: 'bizboost.expert@gmail.com',
-            from_name: data.name,
-            from_email: data.email,
+            name: data.name,           // CHANGED from from_name
+            email: data.email,         // CHANGED from from_email  
             phone: data.phone,
-            contact_time: data.contactTime,
+            contactTime: data.contactTime, // CHANGED from contact_time
+            inquiryType: 'CONSULTATION_REQUEST',
+            transcript: `Consultation request for ${data.contactTime}`,
             message: `FREE CONSULTATION REQUEST\n\nName: ${data.name}\nPhone: ${data.phone}\nEmail: ${data.email}\nBest Time: ${data.contactTime}`,
             timestamp: new Date().toLocaleString()
         };
@@ -1623,8 +1625,12 @@ function sendOriginalLeadEmail(data, type) {
         internalTemplateId = EMAILJS_CONFIG.templates.clickToCall;
         internalTemplateParams = {
             to_email: 'bizboost.expert@gmail.com',
-            from_name: data.name,
+            name: data.name,           // CHANGED from from_name
             phone: data.phone,
+            email: data.email || 'Not provided', // ADDED missing field
+            contactTime: 'ASAP',                // ADDED missing field
+            inquiryType: 'CALL_REQUEST',
+            transcript: data.reason || 'Call request',
             message: `CLICK-TO-CALL REQUEST\n\nName: ${data.name}\nPhone: ${data.phone}\nReason: ${data.reason}`,
             timestamp: new Date().toLocaleString()
         };
@@ -1632,7 +1638,12 @@ function sendOriginalLeadEmail(data, type) {
         internalTemplateId = EMAILJS_CONFIG.templates.freeBook;
         internalTemplateParams = {
             to_email: data.email,
-            from_name: data.name,
+            name: data.name,
+            phone: data.phone || 'Not provided',     // ADDED missing field
+            email: data.email,
+            contactTime: 'N/A',                     // ADDED missing field
+            inquiryType: 'FREE_BOOK_REQUEST',
+            transcript: `Free book request${data.wantsEvaluation ? ' + evaluation' : ''}`,
             book_image: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761797944987_book-promo.PNG',
             message: `Here's your free copy of "7 Secrets to Selling Your Practice"!${data.wantsEvaluation ? '\n\nInterested in evaluation - Phone: ' + data.phone : ''}`,
             timestamp: new Date().toLocaleString()
@@ -1676,6 +1687,9 @@ function sendOriginalLeadEmail(data, type) {
             name: data.name || 'Not provided',
             email: data.email || 'Not provided',
             phone: data.phone || 'Not provided',
+            contactTime: 'Within 24 hours',           // ADDED missing field
+            inquiryType: 'PRE_QUALIFICATION_REQUEST',
+            transcript: `Pre-qualification score: ${qualificationScore} (${qualificationLevel})`,
             qualification_score: qualificationScore.toString(),
             qualification_level: qualificationLevel,  
             qualifications: qualifications.join(', '),
@@ -1696,7 +1710,7 @@ function sendOriginalLeadEmail(data, type) {
     // Send internal notification
     emailjs.send(EMAILJS_CONFIG.serviceId, internalTemplateId, internalTemplateParams)
         .then(function(response) {
-            console.log('✅ INTERNAL NOTIFICATION SENT TO BRUCE!');
+            console.log('✅ INTERNAL NOTIFICATION SENT TO BRUCE!', internalTemplateParams);
             
             // 2. SECOND: Send CLIENT confirmation email
             sendClientConfirmationEmail(data, type);
