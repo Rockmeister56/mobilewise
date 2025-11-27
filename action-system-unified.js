@@ -1761,7 +1761,6 @@ function sendClientConfirmationEmail(leadData, captureType) {
         contactTime: leadData.contactTime || 'Within 24 hours',
         inquiryType: inquiryType,
         subject: emailSubject,
-        date: new Date().toLocaleString(),
         book_image: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761797944987_book-promo.PNG'
     };
     
