@@ -57,26 +57,26 @@
     transform-origin: center center; /* Scale from center */
 }
         
-       /* Restore video container to full height */
+ /* Adjusted video container */
 .ai-video-container {
     position: absolute;
-    top: 45px;
+    top: 45px; /* Move down 20 pixels */
     left: 0;
     width: 100%;
-    height: 100%; /* Restore full height */
+    height: 100%;
     border-radius: 15px;
     overflow: hidden;
     z-index: 1;
 }
 
-/* Keep the original video scaling */
+/* Adjusted video */
 .ai-video {
     width: 100%;
     height: 100%;
     object-fit: cover;
     border-radius: 15px;
-    transform: scale(0.8); /* Original scaling */
-    transform-origin: center center;
+    transform: scale(0.8); /* Scales video to 80% of original size */
+    transform-origin: center center; /* Keeps it centered */
 }
 
         
