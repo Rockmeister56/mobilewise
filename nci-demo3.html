@@ -57,14 +57,17 @@
     transform-origin: center center; /* Scale from center */
 }
 
-        /* VIDEO FROM NCI DEMO 2 - SIMPLE STRUCTURE */
-        .ai-video {
-            width: 100%;
-            height: auto;
-            border-radius: 15px;
-            position: relative;
-            z-index: 1;
-        }
+       .ai-video {
+    width: 100%;
+    height: auto;
+    border-radius: 15px;
+    position: relative;
+    z-index: 1;
+    top: 300px;
+    /* ADD THIS to reduce size by 5% */
+    transform: scale(0.95);
+    transform-origin: center center;
+}
 
         .video-frozen {
             filter: brightness(0.98);
