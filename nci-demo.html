@@ -35,25 +35,27 @@
             padding-bottom: 0px;
         }
         
-   .ai-button-wrapper {
-    background: transparent;
-    border: none;
-    width: 85vw;
-    max-width: 473px; /* Was 430px - increased by 10% */
-    height: auto;
-    position: relative;
-    display: block;
-}
-        
-        .ai-button-overlay {
-            width: 100%;
+        .ai-button-wrapper {
+            background: transparent;
+            border: none;
+            width: 85vw;
+            max-width: 430px;
             height: auto;
-            border-radius: 15px;
-            box-shadow: 0 8px 35px rgba(0,0,0,0.4);
             position: relative;
-            z-index: 2;
-            pointer-events: none;
+            display: block;
         }
+        
+     .ai-button-overlay {
+    width: 100%;
+    height: auto;
+    border-radius: 15px;
+    box-shadow: 0 8px 35px rgba(0,0,0,0.4);
+    position: relative;
+    z-index: 2;
+    pointer-events: none;
+    transform: scale(1.15); /* Scale the entire image by 15% */
+    transform-origin: center center; /* Scale from center */
+}
         
        /* Restore video container to full height */
 .ai-video-container {
