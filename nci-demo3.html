@@ -35,35 +35,29 @@
             padding-bottom: 0px;
         }
         
-        .ai-button-wrapper {
-            background: transparent;
-            border: none;
+        /* NO WRAPPER - JUST DIRECT ELEMENTS */
+        .ai-video {
             width: 85vw;
             max-width: 430px;
-            height: auto;
-            position: relative;
-            display: block;
-        }
-        
-        .ai-button-overlay {
-            width: 100%;
             height: auto;
             border-radius: 15px;
             box-shadow: 0 8px 35px rgba(0,0,0,0.4);
             position: relative;
-            z-index: 2;
-            pointer-events: none;
+            z-index: 1;
         }
         
-        /* NO CONTAINER - JUST THE VIDEO */
-        .ai-video {
+        .ai-button-overlay {
             position: absolute;
             top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            z-index: 1;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 85vw;
+            max-width: 430px;
+            height: auto;
+            border-radius: 15px;
+            box-shadow: 0 8px 35px rgba(0,0,0,0.4);
+            z-index: 2;
+            pointer-events: none;
         }
     </style>
 </head>
@@ -72,15 +66,13 @@
     
     <!-- AI Voice Assistant Button -->
     <div class="ai-button-container" id="aiButton">
-        <div class="ai-button-wrapper">
-            <!-- VIDEO WITHOUT CONTAINER -->
-            <video class="ai-video" autoplay muted playsinline id="avatarVideo">
-                <source src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1764286430873.mp4" type="video/mp4">
-            </video>
-            
-            <!-- PNG overlay with transparent video window area -->
-            <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1764351176797_player2.png" class="ai-button-overlay" alt="AI Voice Assistant">
-        </div>
+        <!-- VIDEO DIRECTLY IN CONTAINER - NO WRAPPERS -->
+        <video class="ai-video" autoplay muted playsinline id="avatarVideo">
+            <source src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1764286430873.mp4" type="video/mp4">
+        </video>
+        
+        <!-- PNG overlay positioned absolutely over video -->
+        <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1764351176797_player2.png" class="ai-button-overlay" alt="AI Voice Assistant">
     </div>
 
     <script>
