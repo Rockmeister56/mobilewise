@@ -57,19 +57,43 @@
             pointer-events: none; /* Allow clicks to pass through to video */
         }
         
-   /* SIMPLIFIED VIDEO STYLING - No cropping container */
-        .ai-video {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 70%;
-            height: 70%;
-            object-fit: cover;
-            z-index: 1;
-            /* Scale the video down if needed */
-            transform: scale(0.9);
-            transform-origin: center center;
+    /* Simpler approach - just scale the video */
+.ai-video-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 140%;
+    height: 100%;
+    border-radius: 15px;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.ai-video {
+    width: 140%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 15px;
+    transform: scale(0.8); /* Scales video to 80% of original size */
+    transform-origin: center center; /* Keeps it centered */
+}
+        
+        .ai-button:hover {
+            transform: scale(1.05);
         }
+        
+       /* Video window positioning - reduced size */
+.video-window {
+    position: absolute;
+    top: 22%; /* Adjusted to center the smaller video */
+    left: 17%; /* Adjusted to center the smaller video */
+    width: 90%; /* Reduced from 80% to 66% (approx 17.5% smaller) */
+    height: 70%; /* Reduced from 70% to 56% (20% smaller) */
+    z-index: 1;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
     </style>
 </head>
 <body>
