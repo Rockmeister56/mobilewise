@@ -57,15 +57,15 @@
     transform-origin: center center; /* Scale from center */
 }
         
- /* Adjusted video container */
+ /* FIXED video container - removed overflow: hidden */
 .ai-video-container {
     position: absolute;
-    top: 45px; /* Move down 20 pixels */
+    top: 45px;
     left: 0;
     width: 100%;
     height: 100%;
     border-radius: 15px;
-    overflow: hidden;
+    /* REMOVED: overflow: hidden; - this was cropping the video */
     z-index: 1;
 }
 
@@ -87,7 +87,7 @@
 /* Move text area down - 3px above Get AI Assistance button */
 .ai-text-container {
     position: absolute;
-    bottom: 70px; /* 3px above button + button height (40px) + 3px gap = 49px */
+    bottom: 70px;
     left: 0;
     width: 100%;
     text-align: center;
@@ -99,11 +99,11 @@
 .ai-text {
     background: rgba(0, 0, 0, 0.85); /* Dark background */
     color: white; /* White text */
-    padding: 10px 14px; /* Slightly smaller padding */
+    padding: 10px 14px;
     border-radius: 10px;
-    font-size: 13px; /* 15% smaller font */
+    font-size: 13px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-    min-height: 45px; /* 15% smaller height */
+    min-height: 45px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -127,26 +127,26 @@
         
 /* Make buttons 15% smaller */
 .ai-action-btn {
-    padding: 10px 14px; /* Reduced padding */
+    padding: 10px 14px;
     border: none;
     border-radius: 8px;
-    font-size: 13px; /* Smaller font */
+    font-size: 13px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
     text-align: center;
-    height: 40px; /* Fixed height for consistency */
+    height: 40px;
 }
         
 /* Precise positioning - 3px spacing as requested */
 .ai-action-buttons {
     position: absolute;
-    bottom: 3px; /* Just 3px above bottom footer */
+    bottom: 3px;
     left: 0;
     width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 3px; /* Only 3px between buttons */
+    gap: 3px;
     padding: 0 20px;
     z-index: 3;
 }
