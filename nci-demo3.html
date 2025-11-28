@@ -21,19 +21,18 @@
             position: relative;
         }
         
-        /* AI Button Styles */
-        .ai-button-container {
-            position: fixed;
-            bottom:0;
-            left: 0;
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            z-index: 1000;
-            transform: translateY(100%);
-            transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            padding-bottom: 100;
-        }
+      .ai-button-container {
+    position: fixed;
+    bottom: -40px; /* NEGATIVE value to move UP */
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    z-index: 1000;
+    transform: translateY(100%);
+    transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    padding-bottom: 50px; /* Added px units */
+}
         
         .ai-button-wrapper {
             background: transparent;
