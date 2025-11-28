@@ -160,6 +160,16 @@
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
             background: white;
         }
+        .play-icon {
+    margin-left: 8px;
+    animation: blinkPlay 2s infinite;
+    display: inline-block;
+}
+
+@keyframes blinkPlay {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0.3; }
+}
     </style>
 </head>
 <body>
@@ -179,14 +189,10 @@
             </div>
             
             <!-- Action Buttons -->
-            <button class="ai-action-btn ai-primary-btn" id="getAssistanceBtn">
-    Get AI Assistance
-    <span class="play-indicator">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
-            <path d="M8 5v14l11-7z"/>
-        </svg>
-    </span>
-</button>
+           <div class="ai-action-buttons">
+    <button class="ai-action-btn ai-primary-btn" id="getAssistanceBtn">
+        Get AI Assistance <span class="play-icon">▶</span>
+    </button>
                 <button class="ai-action-btn ai-secondary-btn" id="justBrowsingBtn">
                     Just Browsing
                 </button>
