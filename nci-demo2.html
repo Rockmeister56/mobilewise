@@ -56,23 +56,22 @@
             z-index: 2;
             pointer-events: none; /* Allow clicks to pass through to video */
         }
-        
-    /* Simpler approach - just scale the video */
+ /* Adjusted video container */
 .ai-video-container {
     position: absolute;
-    top: -10;
-    left: 30;
-    width: 120%;
-    height: 120%;
+    top: 20px; /* Move down 20 pixels */
+    left: 0;
+    width: 100%;
+    height: 100%;
     border-radius: 15px;
     overflow: hidden;
     z-index: 1;
 }
 
+/* Adjusted video */
 .ai-video {
-    top: 20;
-    width: 80%;
-    height: 80%;
+    width: 100%;
+    height: 100%;
     object-fit: cover;
     border-radius: 15px;
     transform: scale(0.8); /* Scales video to 80% of original size */
