@@ -82,10 +82,10 @@
             filter: brightness(0.98);
         }
         
-       /* Move text area UP - position it over the video but higher */
+/* Move text area down - 3px above Get AI Assistance button */
 .ai-text-container {
     position: absolute;
-    bottom: 200px; /* Position higher over the video */
+    bottom: 49px; /* 3px above button + button height (40px) + 3px gap = 49px */
     left: 0;
     width: 100%;
     text-align: center;
@@ -93,14 +93,15 @@
     padding: 0 20px;
 }
 
+/* Fix text colors - white text on dark background */
 .ai-text {
-    background: rgba(255, 255, 255, 0.95);
-    padding: 12px 16px;
+    background: rgba(0, 0, 0, 0.85); /* Dark background */
+    color: white; /* White text */
+    padding: 10px 14px; /* Slightly smaller padding */
     border-radius: 10px;
-    font-size: 14px;
-    color: #333;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    min-height: 50px;
+    font-size: 13px; /* 15% smaller font */
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    min-height: 45px; /* 15% smaller height */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -122,28 +123,29 @@
             51%, 100% { opacity: 0; }
         }
         
-        /* Action Buttons */
-     .ai-action-btn {
-    padding: 12px 16px;
+/* Make buttons 15% smaller */
+.ai-action-btn {
+    padding: 10px 14px; /* Reduced padding */
     border: none;
     border-radius: 8px;
-    font-size: 14px;
+    font-size: 13px; /* Smaller font */
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
     text-align: center;
+    height: 40px; /* Fixed height for consistency */
 }
         
-      /* Position buttons OVER the bottom part of the video */
+/* Precise positioning - 3px spacing as requested */
 .ai-action-buttons {
     position: absolute;
-    bottom: 50px; /* Position over the bottom 30px of video */
+    bottom: 3px; /* Just 3px above bottom footer */
     left: 0;
     width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    padding: 0 25px;
+    gap: 3px; /* Only 3px between buttons */
+    padding: 0 20px;
     z-index: 3;
 }
         
