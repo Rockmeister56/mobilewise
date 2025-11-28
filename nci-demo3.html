@@ -56,19 +56,6 @@
     transform-origin: center center; /* Scale from center */
 }
 
-.play-indicator {
-    position: absolute;
-    right: 20px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 0;
-    height: 0;
-    border-left: 8px solid white;
-    border-top: 6px solid transparent;
-    border-bottom: 6px solid transparent;
-    animation: blinkPlay 2s infinite;
-}
-
        .ai-video {
     width: 100%;
     height: auto;
@@ -192,10 +179,14 @@
             </div>
             
             <!-- Action Buttons -->
-            <div class="ai-action-buttons">
-                <button class="ai-action-btn ai-primary-btn" id="getAssistanceBtn">
-                    Get AI Assistance
-                </button>
+            <button class="ai-action-btn ai-primary-btn" id="getAssistanceBtn">
+    Get AI Assistance
+    <span class="play-indicator">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+            <path d="M8 5v14l11-7z"/>
+        </svg>
+    </span>
+</button>
                 <button class="ai-action-btn ai-secondary-btn" id="justBrowsingBtn">
                     Just Browsing
                 </button>
