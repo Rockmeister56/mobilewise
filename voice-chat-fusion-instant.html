@@ -970,21 +970,45 @@
     display: none !important;
 }
 
-/* TEMPORARY DEBUG - Add this to see boundaries */
-.ai-bubble {
-    border: 3px solid red !important;
-    background: rgba(255,0,0,0.1) !important;
-}
-
 .ai-message {
-    border: 2px solid blue !important;
-    background: rgba(0,0,255,0.1) !important;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 10px;
 }
 
-#chatMessages {
-    border: 2px solid green !important;
+.ai-avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 2px solid rgba(255, 255, 255, 0.8);
 }
 
+.ai-bubble {
+    /* Force text to use full width */
+    text-align: left !important;
+    display: block !important;
+    
+    /* Remove any text constraints */
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+    
+    /* Keep your width settings */
+    width: 100%;
+    max-width: calc(100% - 50px);
+    flex-shrink: 0;
+    
+    /* Rest of your styles */
+    padding: 12px 16px;
+    border-radius: 12px;
+    line-height: 1.4;
+    background: white;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    white-space: normal;
+}
 
 </style>
     </div>
