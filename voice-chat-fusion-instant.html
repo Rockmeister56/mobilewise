@@ -988,8 +988,12 @@
 
 .ai-bubble {
     max-width: 95%;
-    width: 95%;
-    flex-shrink: 0; /* This prevents flex from shrinking the bubble */
+    width: auto; /* Change from 60% to auto */
+    flex-shrink: 0;
+    
+    /* Add these to ensure proper content wrapping */
+    min-width: fit-content;
+    box-sizing: border-box;
 }
 
 </style>
