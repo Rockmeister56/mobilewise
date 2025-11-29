@@ -973,8 +973,8 @@
 .ai-message {
     display: flex;
     align-items: flex-start;
-    gap: 12px;
-    margin-bottom: 15px;
+    gap: 10px;
+    margin-bottom: 10px;
 }
 
 .ai-avatar {
@@ -988,7 +988,10 @@
 
 .ai-bubble {
     max-width: 80%;
+    width: 80%;
+    flex-shrink: 0; /* This prevents flex from shrinking the bubble */
 }
+
 </style>
     </div>
 </div>
