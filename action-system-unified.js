@@ -327,20 +327,20 @@ function initializeRequestCallCapture() {
     if (window.isInLeadCapture) return;
     
     window.isInLeadCapture = true;
-    window.currentCaptureType = 'requestCall'; // ✅ NEW TYPE
+    window.currentCaptureType = 'requestCall';
     window.currentLeadData = {
         name: '',
         phone: '',
         reason: '',
-        email: '', // ✅ INCLUDES EMAIL
-        captureType: 'requestCall', // ✅ NEW TYPE
+        // 🚫 REMOVED email field - we don't collect it for request call
+        captureType: 'requestCall',
         step: 0,
         tempAnswer: '',
         questions: [
-            "What's your full name?",
+            "Terrific, can I get your full name please?",
             "What's the best phone number to reach you?",
-            "What's this regarding - are you looking to buy, sell, or evaluate a practice?",
-            "What's your email address for confirmation?" // ✅ EXTRA QUESTION
+            "May I ask what this regarding?",
+            // 🚫 REMOVED email question - we don't ask for it
         ]
     };
     
@@ -679,13 +679,6 @@ function confirmAnswer(isCorrect) {
 }
 
 function saveConfirmedAnswer() {
-     // 🚨 CRITICAL SAFETY CHECK
-    if (!window.currentLeadData) {
-        console.error('❌ CRITICAL: currentLeadData is null!');
-        console.trace(); // This shows where it was called from
-        return;
-    }
-
     const data = window.currentLeadData;
     const step = data.step;
     
@@ -789,6 +782,61 @@ function completeLeadCapture() {
             showEmailConfirmationButtons(data, window.currentCaptureType);
         }
     }, 500);
+}
+
+// ================================
+// UNIVERSAL CLOSE SEQUENCE (WITH DECISION PANEL)
+// ================================
+function universalCloseSequence(serviceType) {
+    console.log('🎯 Universal close sequence for:', serviceType);
+    
+    const messages = {
+        requestCall: "Perfect! I've got your call request and our specialist will contact you shortly.",
+        consultation: "Your consultation has been scheduled and confirmation details are on the way.", 
+        preQualifier: "Your pre-qualification assessment is complete and we'll be in touch.",
+        freeBook: "Your free book request has been processed and download details are on the way.",
+        clickToCall: "Thank you! Our team will call you right away.",
+        default: "I've completed your request."
+    };
+    
+    const closeMessage = `${messages[serviceType] || messages.default}`;
+    
+    // 1. First, speak the completion message
+    if (window.addAIMessage) {
+        window.addAIMessage(closeMessage);
+    }
+    
+    if (window.speakText) {
+        window.speakText(closeMessage);
+    }
+    
+    // 2. Send internal notification for the lead
+    if (serviceType === 'requestCall') {
+        sendInternalNotification(window.currentLeadData, serviceType);
+    }
+    
+    // 3. After speech completes, show the decision panel
+    setTimeout(() => {
+        showDecisionPanel({
+            question: "Is there anything else I can help you with?",
+            yesText: "Yes, I have more questions",
+            skipText: "No, I'm all done", 
+            onYes: function() {
+                console.log("User wants to continue conversation");
+                if (window.showDirectSpeakNow) window.showDirectSpeakNow();
+            },
+            onSkip: function() {
+                console.log("User is done with conversation");
+                if (window.showThankYouSplash) window.showThankYouSplash();
+                
+                // Reset the capture system
+                window.isInLeadCapture = false;
+                window.currentLeadData = null;
+            }
+        });
+    }, 2000); // Wait 2 seconds for the speech to complete
+    
+    console.log('✅ Universal close sequence initiated');
 }
 
 // ================================
@@ -1359,13 +1407,41 @@ function emergencySpeechFix() {
     console.log('✅ Emergency speech fix applied - voice should capture instantly now');
 }
 
-function startCompleteLeadCapture() {
-    console.log('🎯 Starting complete lead capture...');
-    // Trigger the pre-qualifier button click
-    const preQualButton = document.querySelector('[data-action="pre-qualifier"]');
-    if (preQualButton) {
-        preQualButton.click();
+function completeLeadCapture() {
+    if (!window.currentLeadData) {
+        console.error('❌ currentLeadData is null in completeLeadCapture');
+        return;
     }
+    
+    const data = window.currentLeadData;
+    const captureType = data.captureType;
+    
+    console.log('✅ Completing lead capture for:', captureType);
+    
+    // 1. SEND INTERNAL NOTIFICATION (for all capture types)
+    sendInternalNotification(data, captureType);
+    
+    // 2. HANDLE CLIENT EMAILS (only for types that collect email)
+    if (captureType === 'consultation' || captureType === 'freeBook' || captureType === 'preQualifier') {
+        // These flows collect email, so send client confirmation
+        sendClientConfirmationEmail(data, captureType);
+    } else if (captureType === 'requestCall' || captureType === 'clickToCall') {
+        // These flows DON'T collect email, so use universal close
+        universalCloseSequence(captureType);
+    } else {
+        // Fallback for any other types
+        universalCloseSequence(captureType);
+    }
+    
+    // 3. TRACK THE SUCCESSFUL CAPTURE
+    console.log('🎯 Lead capture completed successfully:', {
+        type: captureType,
+        name: data.name,
+        phone: data.phone,
+        hasEmail: !!data.email
+    });
+    
+    // Note: Don't reset currentLeadData here - let universalCloseSequence handle that
 }
 
 // ================================
@@ -1710,10 +1786,6 @@ function sendOriginalLeadEmail(data, type) {
 
 // NEW: Separate function for CLIENT confirmation email
 function sendClientConfirmationEmail(leadData, captureType) {
-    if (!leadData) {
-        console.error('❌ CRITICAL: leadData is null in email function!');
-        return;
-    }
     console.log('📧 Sending CLIENT confirmation email...');
     
     const cleanEmail = String(leadData.email).trim().replace(/[^\w@.-]/g, '');
