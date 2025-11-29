@@ -4,6 +4,7 @@
 // CLEANED VERSION - No restore code for old buttons
 // ================================
 
+
 const EMAILJS_CONFIG = {
     serviceId: 'service_b9bppgb',
     publicKey: '7-9oxa3UC3uKxtqGM',
@@ -27,6 +28,7 @@ const EMAILJS_CONFIG = {
 window.isInLeadCapture = false;
 window.currentLeadData = null;
 window.currentCaptureType = null;
+window.lastCapturedName = null;
 
 // ================================
 // FORM VALIDATION

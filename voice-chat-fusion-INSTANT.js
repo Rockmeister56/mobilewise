@@ -2236,6 +2236,9 @@ function detectAndStoreUserName(message) {
         const formattedName = userName.charAt(0).toUpperCase() + userName.slice(1).toLowerCase();
         
         console.log('🎉 NAME CAPTURED FROM BUBBLE:', formattedName);
+
+         window.userFirstName = formattedName;
+        window.lastCapturedName = formattedName; // 🆕 BACKUP
         
         // 🎯 STORE FOR FUTURE USE
         window.userFirstName = formattedName;
