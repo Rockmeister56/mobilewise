@@ -302,8 +302,14 @@ function initializeClickToCallCapture() {
         ]
     };
     
-    console.log('🆕 Click-to-Call initialized with name:', window.userFirstName || 'Not provided');
-    console.log('🆕 Starting at step:', window.currentLeadData.step);
+    // 🆕 CRITICAL: MANUALLY SAVE THE NAME IF WE HAVE IT
+    if (window.userFirstName) {
+        console.log('✅ Pre-saving captured name:', window.userFirstName);
+        // Force the name to be saved in the correct field
+        window.currentLeadData.name = window.userFirstName;
+    }
+    
+    console.log('🆕 Click-to-Call initialized with name:', window.currentLeadData.name);
     
     setTimeout(() => {
         askLeadQuestion();
