@@ -1270,7 +1270,7 @@ function addAIMessage(message) {
     messageText.textContent = message;
     
     // TRY FORCING WIDTH
-    messageText.style.cssText = 'flex: 1; width: 100%; min-width: 0; white-space: normal; text-align: left; color: white; background: rgba(255,0,0,0.2);';
+    messageText.textContent = message;
     
     messageContainer.appendChild(avatar);
     messageContainer.appendChild(messageText);

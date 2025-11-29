@@ -970,11 +970,14 @@
     display: none !important;
 }
 
-.ai-message {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    margin-bottom: 10px;
+.ai-message > div:not(.ai-avatar) {
+    flex: 1;
+    min-width: 0;
+    white-space: normal;
+    text-align: left;
+    color: white;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .ai-avatar {
