@@ -28,6 +28,7 @@ const EMAILJS_CONFIG = {
 window.isInLeadCapture = false;
 window.currentLeadData = null;
 window.currentCaptureType = null;
+window.lastCapturedName = null;
 
 // ================================
 // FORM VALIDATION
@@ -311,6 +312,39 @@ function initializeClickToCallCapture() {
     }
     
     console.log('🆕 Click-to-Call initialized with name:', window.currentLeadData.name);
+    
+    setTimeout(() => {
+        askLeadQuestion();
+    }, 500);
+}
+
+// ================================
+// LEAD CAPTURE: REQUEST A CALL (NEW)
+// ================================
+function initializeRequestCallCapture() {
+    console.log('🚀 Starting REQUEST A CALL capture...');
+    
+    if (window.isInLeadCapture) return;
+    
+    window.isInLeadCapture = true;
+    window.currentCaptureType = 'requestCall'; // ✅ NEW TYPE
+    window.currentLeadData = {
+        name: '',
+        phone: '',
+        reason: '',
+        email: '', // ✅ INCLUDES EMAIL
+        captureType: 'requestCall', // ✅ NEW TYPE
+        step: 0,
+        tempAnswer: '',
+        questions: [
+            "What's your full name?",
+            "What's the best phone number to reach you?",
+            "What's this regarding - are you looking to buy, sell, or evaluate a practice?",
+            "What's your email address for confirmation?" // ✅ EXTRA QUESTION
+        ]
+    };
+    
+    console.log('🆕 Request a Call initialized');
     
     setTimeout(() => {
         askLeadQuestion();
@@ -651,9 +685,13 @@ function saveConfirmedAnswer() {
     if (data.captureType === 'consultation') {
         const fields = ['name', 'phone', 'email', 'contactTime'];
         data[fields[step]] = data.tempAnswer;
-    } else if (data.captureType === 'clickToCall' || data.captureType === 'requestCall') {
-        // 🎯 FIX: Added 'requestCall' to use the same field mapping as 'clickToCall'
+    } else if (data.captureType === 'clickToCall') {
+        // ✅ KEEP THIS for URGENT CALL - 3 fields (no email)
         const fields = ['name', 'phone', 'reason'];
+        data[fields[step]] = data.tempAnswer;
+    } else if (data.captureType === 'requestCall') {
+        // ✅ ADD THIS for REQUEST A CALL - 4 fields (WITH email)
+        const fields = ['name', 'phone', 'reason', 'email'];
         data[fields[step]] = data.tempAnswer;
     } else if (data.captureType === 'freeBook') {
         if (step === 0) data.name = data.tempAnswer;
@@ -661,7 +699,6 @@ function saveConfirmedAnswer() {
         else if (step === 2) {} // Already handled wantsEvaluation
         else if (step === 3) data.phone = data.tempAnswer;
     } else if (data.captureType === 'preQualifier') {
-        // 🆕 PRE-QUALIFIER DATA SAVING
         const fields = [
             'name', 'email', 'phone', 'experienceYears', 'licenseStatus',
             'acquisitionTimeline', 'budgetRange', 'geographicPreference',
@@ -1673,27 +1710,31 @@ function sendClientConfirmationEmail(leadData, captureType) {
     let inquiryType = '';
     let emailSubject = '';
     
-    switch(captureType) {
-        case 'preQualifier':
-            inquiryType = 'PRE-QUALIFICATION CONFIRMATION';
-            emailSubject = 'Pre-Qualification Confirmed + Free Book - New Clients Inc';
-            break;
-        case 'consultation':
-            inquiryType = 'CONSULTATION BOOKING CONFIRMATION';
-            emailSubject = 'Consultation Booked + Free Book - New Clients Inc';
-            break;
-        case 'freeBook':
-            inquiryType = 'FREE BOOK CONFIRMATION';
-            emailSubject = 'Your Free Book - New Clients Inc';
-            break;
-        case 'clickToCall':
-            inquiryType = 'CALL REQUEST CONFIRMATION';
-            emailSubject = 'Call Request Confirmed + Free Book - New Clients Inc';
-            break;
-        default:
-            inquiryType = 'REQUEST CONFIRMATION';
-            emailSubject = 'Confirmation - New Clients Inc';
-    }
+switch(captureType) {
+    case 'preQualifier':
+        inquiryType = 'PRE-QUALIFICATION CONFIRMATION';
+        emailSubject = 'Pre-Qualification Confirmed + Free Book - New Clients Inc';
+        break;
+    case 'consultation':
+        inquiryType = 'CONSULTATION BOOKING CONFIRMATION';
+        emailSubject = 'Consultation Booked + Free Book - New Clients Inc';
+        break;
+    case 'freeBook':
+        inquiryType = 'FREE BOOK CONFIRMATION';
+        emailSubject = 'Your Free Book - New Clients Inc';
+        break;
+    case 'clickToCall':
+        inquiryType = 'URGENT CALL CONFIRMATION';  // ✅ DIFFERENTIATE
+        emailSubject = 'Urgent Call Request - New Clients Inc';  // ✅ DIFFERENTIATE
+        break;
+    case 'requestCall':
+        inquiryType = 'CALL REQUEST CONFIRMATION';
+        emailSubject = 'Call Request Confirmed + Free Book - New Clients Inc';
+        break;
+    default:
+        inquiryType = 'REQUEST CONFIRMATION';
+        emailSubject = 'Confirmation - New Clients Inc';
+}
     
     const confirmationParams = {
         to_email: cleanEmail,
@@ -2122,6 +2163,7 @@ window.hideCommunicationActionCenter = hideCommunicationActionCenter;
 window.handleActionButton = handleActionButton;
 window.initializeConsultationCapture = initializeConsultationCapture;
 window.initializeClickToCallCapture = initializeClickToCallCapture;
+window.initializeRequestCallCapture = initializeRequestCallCapture;
 window.initializeFreeBookCapture = initializeFreeBookCapture;
 window.initiateUrgentCall = initiateUrgentCall;
 window.initializePreQualifierCapture = initializePreQualifierCapture; // 🎯 NOW THIS WILL BE GOLD!
