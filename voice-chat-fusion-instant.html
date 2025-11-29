@@ -987,8 +987,22 @@
 }
 
 .ai-bubble {
-    border: 2px solid red !important;
-    background: rgba(255,0,0,0.1) !important;
+    /* Make it expand horizontally to fill space */
+    width: 100%;
+    max-width: calc(100% - 50px); /* 50px less than full width */
+    
+    /* Ensure proper text flow */
+    white-space: normal;
+    text-align: left;
+    
+    /* Keep your existing styles */
+    padding: 12px 16px;
+    border-radius: 12px;
+    line-height: 1.4;
+    background: white;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    flex-shrink: 0;
 }
 
 </style>
