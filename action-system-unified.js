@@ -679,6 +679,13 @@ function confirmAnswer(isCorrect) {
 }
 
 function saveConfirmedAnswer() {
+     // 🚨 CRITICAL SAFETY CHECK
+    if (!window.currentLeadData) {
+        console.error('❌ CRITICAL: currentLeadData is null!');
+        console.trace(); // This shows where it was called from
+        return;
+    }
+
     const data = window.currentLeadData;
     const step = data.step;
     
@@ -1703,6 +1710,10 @@ function sendOriginalLeadEmail(data, type) {
 
 // NEW: Separate function for CLIENT confirmation email
 function sendClientConfirmationEmail(leadData, captureType) {
+    if (!leadData) {
+        console.error('❌ CRITICAL: leadData is null in email function!');
+        return;
+    }
     console.log('📧 Sending CLIENT confirmation email...');
     
     const cleanEmail = String(leadData.email).trim().replace(/[^\w@.-]/g, '');
