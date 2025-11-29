@@ -1254,6 +1254,10 @@ function addAIMessage(message) {
     const chatMessages = document.getElementById('chatMessages');
     if (!chatMessages) return;
     
+    // DEBUG: Check container widths
+    console.log('Chat messages width:', chatMessages.offsetWidth);
+    console.log('Chat messages parent width:', chatMessages.parentElement.offsetWidth);
+    
     const messageContainer = document.createElement('div');
     messageContainer.className = 'message ai-message';
     
@@ -1264,7 +1268,9 @@ function addAIMessage(message) {
     
     const messageText = document.createElement('div');
     messageText.textContent = message;
-    messageText.style.cssText = 'flex: 1; min-width: 0; white-space: nowrap; text-align: left; color: white; overflow: hidden; text-overflow: ellipsis;';
+    
+    // TRY FORCING WIDTH
+    messageText.style.cssText = 'flex: 1; width: 100%; min-width: 0; white-space: normal; text-align: left; color: white; background: rgba(255,0,0,0.2);';
     
     messageContainer.appendChild(avatar);
     messageContainer.appendChild(messageText);
