@@ -288,18 +288,22 @@ function initializeClickToCallCapture() {
     window.isInLeadCapture = true;
     window.currentCaptureType = 'clickToCall';
     window.currentLeadData = {
-        name: '',
+        name: window.userFirstName || '', // 🆕 USE THE ALREADY CAPTURED NAME!
         phone: '',
         reason: '',
         captureType: 'clickToCall',
-        step: 0,
+        step: window.userFirstName ? 1 : 0, // 🆕 SKIP NAME QUESTION IF WE HAVE IT
         tempAnswer: '',
         questions: [
-            "What's your full name?",
+            // 🆕 ONLY ASK NAME IF WE DON'T ALREADY HAVE IT
+            ...(window.userFirstName ? [] : ["What's your full name?"]),
             "What's the best phone number to reach you?",
             "What's this regarding - are you looking to buy, sell, or evaluate a practice?"
         ]
     };
+    
+    console.log('🆕 Click-to-Call initialized with name:', window.userFirstName || 'Not provided');
+    console.log('🆕 Starting at step:', window.currentLeadData.step);
     
     setTimeout(() => {
         askLeadQuestion();
