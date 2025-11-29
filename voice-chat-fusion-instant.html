@@ -990,8 +990,10 @@
 }
 
 .ai-bubble {
-    width: 100vw !important; /* Force full viewport width */
-    max-width: none !important;
+    max-width: 85%;
+    width: fit-content; /* Bubble will expand to fit text content */
+    flex-shrink: 0;
+    display: block; /* Override any flex child behavior */
 }
 
 /* NO .ai-bubble class needed - the text goes directly in the flex container */
