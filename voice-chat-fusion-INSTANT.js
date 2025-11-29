@@ -1254,26 +1254,20 @@ function addAIMessage(message) {
     const chatMessages = document.getElementById('chatMessages');
     if (!chatMessages) return;
     
-    // Create message container
     const messageContainer = document.createElement('div');
     messageContainer.className = 'message ai-message';
     
-    // Create avatar
     const avatar = document.createElement('img');
     avatar.src = 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1764374269507_avatar%20right.png';
     avatar.alt = 'AI Assistant';
     avatar.className = 'ai-avatar';
     
-    // Create message bubble
-    const messageBubble = document.createElement('div');
-    messageBubble.textContent = message;
-    messageBubble.className = 'ai-bubble';
+    const messageText = document.createElement('div');
+    messageText.textContent = message;
+    messageText.style.cssText = 'flex: 1; min-width: 0; white-space: normal; text-align: left; color: white;';
     
-    // Add avatar and bubble to container
     messageContainer.appendChild(avatar);
-    messageContainer.appendChild(messageBubble);
-    
-    // Add to chat
+    messageContainer.appendChild(messageText);
     chatMessages.appendChild(messageContainer);
     scrollChatToBottom();
 }
