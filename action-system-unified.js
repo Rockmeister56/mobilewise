@@ -28,7 +28,6 @@ const EMAILJS_CONFIG = {
 window.isInLeadCapture = false;
 window.currentLeadData = null;
 window.currentCaptureType = null;
-window.lastCapturedName = null;
 
 // ================================
 // FORM VALIDATION
@@ -652,7 +651,8 @@ function saveConfirmedAnswer() {
     if (data.captureType === 'consultation') {
         const fields = ['name', 'phone', 'email', 'contactTime'];
         data[fields[step]] = data.tempAnswer;
-    } else if (data.captureType === 'clickToCall') {
+    } else if (data.captureType === 'clickToCall' || data.captureType === 'requestCall') {
+        // 🎯 FIX: Added 'requestCall' to use the same field mapping as 'clickToCall'
         const fields = ['name', 'phone', 'reason'];
         data[fields[step]] = data.tempAnswer;
     } else if (data.captureType === 'freeBook') {
