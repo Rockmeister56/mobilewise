@@ -987,11 +987,17 @@
 }
 
 .ai-bubble {
-    /* Let it inherit existing bubble styles */
+    /* Remove max-width constraint and let text flow naturally */
     padding: 12px 16px;
     border-radius: 12px;
-    max-width: 70%;
     line-height: 1.4;
+    background: white;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    /* Allow text to flow horizontally like a real chat bubble */
+    white-space: normal;
+    word-wrap: break-word;
+    max-width: none; /* Remove any width restrictions */
 }
 </style>
     </div>
