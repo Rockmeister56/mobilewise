@@ -1254,11 +1254,27 @@ function addAIMessage(message) {
     const chatMessages = document.getElementById('chatMessages');
     if (!chatMessages) return;
     
-    const messageElement = document.createElement('div');
-    messageElement.className = 'message ai-message';
-    messageElement.textContent = message;
+    // Create message container
+    const messageContainer = document.createElement('div');
+    messageContainer.className = 'message ai-message';
     
-    chatMessages.appendChild(messageElement);
+    // Create avatar
+    const avatar = document.createElement('img');
+    avatar.src = 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1764374269507_avatar%20right.png';
+    avatar.alt = 'AI Assistant';
+    avatar.className = 'ai-avatar';
+    
+    // Create message bubble
+    const messageBubble = document.createElement('div');
+    messageBubble.textContent = message;
+    messageBubble.className = 'ai-bubble';
+    
+    // Add avatar and bubble to container
+    messageContainer.appendChild(avatar);
+    messageContainer.appendChild(messageBubble);
+    
+    // Add to chat
+    chatMessages.appendChild(messageContainer);
     scrollChatToBottom();
 }
 
@@ -5560,6 +5576,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .realtime-bubble {
             border: 2px solid #10b981 !important;
             animation: pulseBorder 1.5s infinite;
+
             background: rgba(16, 185, 129, 0.1) !important;
         }
         
