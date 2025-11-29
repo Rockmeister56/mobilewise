@@ -1264,7 +1264,7 @@ function addAIMessage(message) {
     
     const messageText = document.createElement('div');
     messageText.textContent = message;
-    messageText.style.cssText = 'flex: 1; min-width: 0; white-space: normal; text-align: left; color: white;';
+    messageText.style.cssText = 'flex: 1; min-width: 0; white-space: nowrap; text-align: left; color: white; overflow: hidden; text-overflow: ellipsis;';
     
     messageContainer.appendChild(avatar);
     messageContainer.appendChild(messageText);
