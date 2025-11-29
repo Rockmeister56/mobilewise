@@ -637,17 +637,18 @@ function saveConfirmedAnswer() {
     const data = window.currentLeadData;
     const step = data.step;
     
+       console.log('🔍 DEBUG saveConfirmedAnswer - step:', step);
+    console.log('🔍 DEBUG tempAnswer:', data.tempAnswer);
+    console.log('🔍 DEBUG current data:', data);
+    
     if (data.captureType === 'consultation') {
         const fields = ['name', 'phone', 'email', 'contactTime'];
+        console.log('🔍 DEBUG saving to field:', fields[step], 'value:', data.tempAnswer);
         data[fields[step]] = data.tempAnswer;
     } else if (data.captureType === 'clickToCall') {
         const fields = ['name', 'phone', 'reason'];
+        console.log('🔍 DEBUG saving to field:', fields[step], 'value:', data.tempAnswer);
         data[fields[step]] = data.tempAnswer;
-    } else if (data.captureType === 'freeBook') {
-        if (step === 0) data.name = data.tempAnswer;
-        else if (step === 1) data.email = data.tempAnswer;
-        else if (step === 2) {} // Already handled wantsEvaluation
-        else if (step === 3) data.phone = data.tempAnswer;
     } else if (data.captureType === 'preQualifier') {
         // 🆕 PRE-QUALIFIER DATA SAVING
         const fields = [
@@ -669,15 +670,15 @@ window.processLeadResponse = processLeadResponse;
 // COMPLETE LEAD CAPTURE & REQUEST EMAIL PERMISSION - FIXED VERSION
 // ================================
 function completeLeadCapture() {
-    console.log('🎯 Completing lead capture...');
-
-    // 🆕 NEW: EMERGENCY CLEANUP FIRST THING
-    if (typeof emergencyStuckBannerFix === 'function') {
-        emergencyStuckBannerFix();
-    }
+     console.log('🔍 DEBUG completeLeadCapture - name:', window.currentLeadData?.name);
+    console.log('🔍 DEBUG completeLeadCapture - full data:', window.currentLeadData);
     
     const data = window.currentLeadData;
-    const type = window.currentCaptureType;
+    const userEmail = data?.email || 'you';
+    const userName = data?.name || 'there'; // 🆕 ADD NAME FALLBACK
+    
+    // 🆕 USE THE NAME FALLBACK
+    const emailPermissionMessage = `Perfect ${userName}! Should I send a confirmation email to ${userEmail} with all your details and next steps?`;
     
     // 🎯 CRITICAL FIX: CLOSE ANY STUCK SPEAK NOW BANNER FIRST
     console.log('🧹 Closing any stuck Speak Now banner before email confirmation...');
@@ -699,9 +700,6 @@ function completeLeadCapture() {
     
     // Mark transition to email permission phase
     window.isInEmailPermissionPhase = true;
-    
-    // 🆕 NEW: Ask for email confirmation permission instead of sending immediately
-    const emailPermissionMessage = `Perfect! Should I send a confirmation email to ${data.email} with all your details and next steps?`;
     
     if (window.addAIMessage) {
         window.addAIMessage(emailPermissionMessage);
@@ -1301,76 +1299,6 @@ function emergencySpeechFix() {
     }, 500);
     
     console.log('✅ Emergency speech fix applied - voice should capture instantly now');
-}
-
-// ================================
-// COMPLETE LEAD CAPTURE & REQUEST EMAIL PERMISSION - FIXED VERSION
-// ================================
-function completeLeadCapture() {
-    console.log('🎯 Completing lead capture...');
-
-    // 🆕 NEW: EMERGENCY CLEANUP FIRST THING
-    if (typeof emergencyStuckBannerFix === 'function') {
-        emergencyStuckBannerFix();
-    }
-    
-    const data = window.currentLeadData;
-    const type = window.currentCaptureType;
-    
-    // 🎯 CRITICAL FIX: CLOSE ANY STUCK SPEAK NOW BANNER FIRST
-    console.log('🧹 Closing any stuck Speak Now banner before email confirmation...');
-    if (window.closeSpeakNowBanner && typeof window.closeSpeakNowBanner === 'function') {
-        window.closeSpeakNowBanner();
-    }
-    
-    // Also try the direct cleanup method
-    const speakNowBanner = document.querySelector('.speak-now-banner, [class*="speakNow"], #speakNowBanner');
-    if (speakNowBanner) {
-        speakNowBanner.remove();
-        console.log('✅ Removed stuck Speak Now banner');
-    }
-    
-    // Stop any active listening
-    if (window.stopListening && typeof window.stopListening === 'function') {
-        window.stopListening();
-    }
-    
-    // Mark transition to email permission phase
-    window.isInEmailPermissionPhase = true;
-    
-    // 🆕 NEW: Ask for email confirmation permission instead of sending immediately
-    const emailPermissionMessage = `Perfect! Should I send a confirmation email to ${data.email} with all your details and next steps?`;
-    
-    if (window.addAIMessage) {
-        window.addAIMessage(emailPermissionMessage);
-    }
-    
-    // 🎯 CRITICAL: Wait a moment for the message to appear BEFORE speaking
-    setTimeout(() => {
-        if (window.speakText) {
-            window.speakText(emailPermissionMessage);
-            
-            // Wait for speech to complete before showing buttons
-            const checkSpeech = setInterval(() => {
-                if (!window.isSpeaking) {
-                    clearInterval(checkSpeech);
-                    console.log('✅ AI finished speaking email question - showing buttons');
-                    
-                    // 🆕 NEW: Show confirmation buttons for email permission
-                    showEmailConfirmationButtons(data, type);
-                }
-            }, 100);
-            
-            // Safety timeout
-            setTimeout(() => {
-                clearInterval(checkSpeech);
-                showEmailConfirmationButtons(data, type);
-            }, 10000);
-        } else {
-            // No speech system - just show buttons
-            showEmailConfirmationButtons(data, type);
-        }
-    }, 500);
 }
 
 function startCompleteLeadCapture() {
