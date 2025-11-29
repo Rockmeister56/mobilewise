@@ -785,6 +785,23 @@ function completeLeadCapture() {
 }
 
 // ================================
+// PLACEHOLDER - INTERNAL NOTIFICATION
+// (Add this to action-system-unified.js)
+// ================================
+function sendInternalNotification(leadData, captureType) {
+    console.log('📧 INTERNAL NOTIFICATION (Placeholder):', {
+        type: captureType,
+        name: leadData.name,
+        phone: leadData.phone,
+        reason: leadData.reason
+    });
+    
+    // In your real code, this would send an email/internal notification
+    // For now, just log that it would have been sent
+    console.log('✅ Internal notification would be sent for:', captureType);
+}
+
+// ================================
 // UNIVERSAL CLOSE SEQUENCE (WITH DECISION PANEL)
 // ================================
 function universalCloseSequence(serviceType) {
