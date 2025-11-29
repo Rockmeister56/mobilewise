@@ -987,27 +987,23 @@
 }
 
 .ai-bubble {
-    /* Force text to use full width */
-    text-align: left !important;
-    display: block !important;
+    /* MAKE IT EXPAND HORIZONTALLY */
+    flex: 1;
+    min-width: 0; /* This is crucial for flex children */
     
-    /* Remove any text constraints */
-    word-break: normal !important;
-    overflow-wrap: normal !important;
+    /* TEXT STYLING */
+    text-align: left;
+    white-space: normal;
     
-    /* Keep your width settings */
-    width: 100%;
-    max-width: calc(100% - 50px);
-    flex-shrink: 0;
+    /* REMOVE WHITE BACKGROUND */
+    background: transparent;
     
-    /* Rest of your styles */
+    /* KEEP YOUR EXISTING STYLES */
     padding: 12px 16px;
     border-radius: 12px;
     line-height: 1.4;
-    background: white;
     border: 1px solid #e0e0e0;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    white-space: normal;
 }
 
 </style>
