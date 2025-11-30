@@ -906,74 +906,65 @@ function handleEmailConfirmation(sendEmail, captureType) {
     
     const data = window.currentLeadData;
     
-    if (sendEmail) {
-        // Send email
-        if (window.addAIMessage) {
-            window.addAIMessage("📧 Sending your confirmation email now...");
-        }
-        sendOriginalLeadEmail(data, captureType);
+    // 🎯 UNIVERSAL CLEANUP FOR BOTH PATHS
+    const showFinalDecisionPanel = function() {
+        console.log('🎯 Showing final decision panel');
         
-        // 🚀 AFTER EMAIL SENT - WAIT FOR AI TO SPEAK FIRST
-        setTimeout(() => {
-            console.log('📧 Email sent - waiting for AI to ask if more help needed');
-            
-            // Let AI speak FIRST: "Is there anything else I can help you with?"
-            
-            // 🕒 INCREASED TO 8 SECONDS to ensure AI finishes speaking AND auto-listening times out
-            setTimeout(() => {
-                console.log('🎯 AI finished speaking AND auto-listening timed out - showing decision panel');
-                
-                // 🚫 STOP any listening that might have started
-                if (window.stopListening) {
-                    window.stopListening();
-                }
-                
-                // 🚫 STOP any pending Speak Now banners
-                if (window.closeSpeakNowBanner) {
-                    window.closeSpeakNowBanner();
-                }
-                
-                 showDecisionPanel({
-                    question: "Is that everything I can help you with today?",
-                    yesText: "Yes, I Have More Questions",
-                    skipText: "No, I'm All Done",
-                    onYes: function() {
-                        console.log('🎸 USER CONTINUING - APPLYING EMERGENCY FIX');
-                        emergencySpeechFix();
-                        
-                        setTimeout(() => {
-                            const continueMessage = "Great! What else can I help you with?";
-                            speakWithElevenLabs(continueMessage, false);
-                        }, 1000);
-                    },
-                    onSkip: function() {
-                        console.log('🛑 USER FINISHED - COMPLETE SYSTEM SHUTDOWN');
-                        
-                        // 🚨 COMPLETE SHUTDOWN - NO MORE AI LOOPS!
-                        completeSystemShutdown();
-                    }
-                });
-                
-            }, 8000); // 🕒 INCREASED TO 8 SECONDS - ensures AI finishes + auto-listening times out
-        }, 1000); // Wait for email send to complete
-        
-    } else {
-        // Skip email - just continue conversation
-        if (window.addAIMessage) {
-            window.addAIMessage("No problem! Bruce will still contact you directly. Is there anything else I can help with?");
-        }
+        // Stop any listening/speech first
+        if (window.stopListening) window.stopListening();
+        if (window.stopAllSpeech) window.stopAllSpeech();
+        if (window.closeSpeakNowBanner) window.closeSpeakNowBanner();
         
         // Clear lead data
         window.isInLeadCapture = false;
         window.currentCaptureType = null;
         window.currentLeadData = null;
-        window.suppressSpeakNowBanner = false; // Reset suppression
         
-        // Wait then show Speak Now banner
+        // Show decision panel
+        if (window.showDecisionPanel) {
+            window.showDecisionPanel({
+                question: "Is there anything else I can help you with?",
+                yesText: "Yes, Continue", 
+                skipText: "No, Finish",
+                onYes: function() { 
+                    console.log("User wants to continue");
+                    if (window.showDirectSpeakNow) window.showDirectSpeakNow();
+                },
+                onSkip: function() { 
+                    console.log("User is finished");
+                    const userName = window.userFirstName || '';
+                    if (window.showThankYouSplash) {
+                        window.showThankYouSplash(userName, captureType);
+                    }
+                }
+            });
+        }
+    };
+    
+    if (sendEmail) {
+        // Send email path
+        if (window.addAIMessage) {
+            window.addAIMessage("📧 Sending your confirmation email now...");
+        }
+        
+        sendOriginalLeadEmail(data, captureType);
+        
+        // 🎯 REDUCED TIMING: Wait 3 seconds total (not 8+)
         setTimeout(() => {
-            if (window.showDirectSpeakNow) {
-                window.showDirectSpeakNow();
-            }
+            console.log('📧 Email process complete - showing decision panel');
+            showFinalDecisionPanel();
+        }, 3000);
+        
+    } else {
+        // Skip email path - FIXED: Now shows decision panel too
+        if (window.addAIMessage) {
+            window.addAIMessage("No problem! Bruce will still contact you directly.");
+        }
+        
+        // 🎯 Wait 2 seconds then show decision panel (not speak now banner)
+        setTimeout(() => {
+            console.log('⏭️ Email skipped - showing decision panel');
+            showFinalDecisionPanel();
         }, 2000);
     }
 }
@@ -1772,166 +1763,85 @@ switch(captureType) {
         subject: emailSubject,
         book_image: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761797944987_book-promo.PNG'
     };
-
-   } 
     
     // Send CLIENT confirmation using the confirmation template
 emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templates.clientConfirmation, confirmationParams)
-    .then(function(response) {
-        console.log('✅ CLIENT CONFIRMATION EMAIL SENT!');
+        .then(function(response) {
+            console.log('✅ CLIENT CONFIRMATION EMAIL SENT!');
 
-        // 🎯 Block banner during confirmation question
-        window.isInConfirmationDialog = true;
-        
-        if (window.showUniversalBanner) {
-            window.showUniversalBanner('emailSent');
-        }
-        
-        let successMessage = `Confirmation email sent to ${cleanEmail}! Is there anything else I can help you with?`;
-        
-        if (window.addAIMessage) {
-            window.addAIMessage(successMessage);
-        }
-        
-        // Clear lead data
-        window.isInLeadCapture = false;
-        window.currentCaptureType = null;
-        window.currentLeadData = null;
-        
-        if (window.speakText) {
-            window.speakText(successMessage);
+            // 🎯 ADD THIS ONE LINE: Block banner during confirmation question
+    window.isInConfirmationDialog = true;
             
-            // Wait for speech then show decision panel
-            const checkSpeech = setInterval(() => {
-                if (!window.isSpeaking) {
-                    clearInterval(checkSpeech);
-                    setTimeout(() => {
-                        // 🎯 SHOW DECISION PANEL INSTEAD OF EMPTY CALL
-                        if (window.showDecisionPanel) {
-                            window.showDecisionPanel({
-                                question: "Is there anything else I can help you with?",
-                                yesText: "Yes, Continue", 
-                                skipText: "No, Finish",
-                                onYes: function() { 
-                                    console.log("User wants to continue - show position panel");
-                                    if (window.showPositionPanel) {
-                                        window.showPositionPanel();
-                                    } else if (window.showDirectSpeakNow) {
-                                        window.showDirectSpeakNow();
-                                    }
-                                },
-                                onSkip: function() { 
-                                    console.log("User is finished");
-                                    const userName = window.userFirstName || '';
-                                    if (window.showThankYouSplash) {
-                                        window.showThankYouSplash(userName, 'consultation');
-                                    }
-                                }
-                            });
-                        }
-                    }, 1000);
-                }
-            }, 100);
-        } else {
-            setTimeout(() => {
-                // 🎯 SHOW DECISION PANEL IN FALLBACK CASE TOO
-                if (window.showDecisionPanel) {
-                    window.showDecisionPanel({
-                        question: "Is there anything else I can help you with?",
-                        yesText: "Yes, Continue", 
-                        skipText: "No, Finish",
-                        onYes: function() { 
-                            console.log("User wants to continue");
-                            if (window.showPositionPanel) {
-                                window.showPositionPanel();
-                            } else if (window.showDirectSpeakNow) {
-                                window.showDirectSpeakNow();
+            if (window.showUniversalBanner) {
+                window.showUniversalBanner('emailSent');
+            }
+            
+            let successMessage = `Confirmation email sent to ${cleanEmail}! Is there anything else I can help you with?`;
+            
+            if (window.addAIMessage) {
+                window.addAIMessage(successMessage);
+            }
+            
+            // Clear lead data
+            window.isInLeadCapture = false;
+            window.currentCaptureType = null;
+            window.currentLeadData = null;
+            
+            if (window.speakText) {
+                window.speakText(successMessage);
+                
+                // Wait for speech then show banner
+                const checkSpeech = setInterval(() => {
+                    if (!window.isSpeaking) {
+                        clearInterval(checkSpeech);
+                        setTimeout(() => {
+                            if (window.showDirectSpeakNow) {
                             }
-                        },
-                        onSkip: function() { 
-                            console.log("User is finished");
-                            const userName = window.userFirstName || '';
-                            if (window.showThankYouSplash) {
-                                window.showThankYouSplash(userName, 'consultation');
-                            }
-                        }
-                    });
-                }
-            }, 3000);
-        }
-    }, function(error) {
-        console.error('❌ CLIENT CONFIRMATION EMAIL FAILED:', error);
+                        }, 1000);
+                    }
+                }, 100);
+            } else {
+                setTimeout(() => {
+                    if (window.showDirectSpeakNow) {
+                        window.showDirectSpeakNow();
+                    }
+                }, 3000);
+            }
+            
+        }, function(error) {
+            console.error('❌ CLIENT CONFIRMATION EMAIL FAILED:', error);
 
-        // 🎯 Block banner during confirmation question
-        window.isInConfirmationDialog = true;
-        
-        // Simple error handling
-        let failureMessage = "The confirmation email couldn't be sent, but Bruce will still contact you directly! Is there anything else I can help with?";
-        
-        if (window.addAIMessage) {
-            window.addAIMessage(failureMessage);
-        }
-        
-        // Clear lead data
-        window.isInLeadCapture = false;
-        window.currentCaptureType = null;
-        window.currentLeadData = null;
-        
-        if (window.speakText) {
-            window.speakText(failureMessage);
-            setTimeout(() => {
-                // 🎯 SHOW DECISION PANEL IN ERROR CASE TOO
-                if (window.showDecisionPanel) {
-                    window.showDecisionPanel({
-                        question: "Is there anything else I can help you with?",
-                        yesText: "Yes, Continue", 
-                        skipText: "No, Finish",
-                        onYes: function() { 
-                            console.log("User wants to continue");
-                            if (window.showPositionPanel) {
-                                window.showPositionPanel();
-                            } else if (window.showDirectSpeakNow) {
-                                window.showDirectSpeakNow();
-                            }
-                        },
-                        onSkip: function() { 
-                            console.log("User is finished");
-                            const userName = window.userFirstName || '';
-                            if (window.showThankYouSplash) {
-                                window.showThankYouSplash(userName, 'consultation');
-                            }
-                        }
-                    });
-                }
-            }, 3000);
-        } else {
-            setTimeout(() => {
-                // 🎯 SHOW DECISION PANEL IN ERROR FALLBACK CASE TOO
-                if (window.showDecisionPanel) {
-                    window.showDecisionPanel({
-                        question: "Is there anything else I can help you with?",
-                        yesText: "Yes, Continue", 
-                        skipText: "No, Finish",
-                        onYes: function() { 
-                            console.log("User wants to continue");
-                            if (window.showPositionPanel) {
-                                window.showPositionPanel();
-                            } else if (window.showDirectSpeakNow) {
-                                window.showDirectSpeakNow();
-                            }
-                        },
-                        onSkip: function() { 
-                            console.log("User is finished");
-                            const userName = window.userFirstName || '';
-                            if (window.showThankYouSplash) {
-                                window.showThankYouSplash(userName, 'consultation');
-                            }
-                        }
-                    });
-                }
-            }, 2000);
-        }
-    });
+             // 🎯 ADD THIS ONE LINE: Block banner during confirmation question
+    window.isInConfirmationDialog = true;
+            
+            // Simple error handling
+            let failureMessage = "The confirmation email couldn't be sent, but Bruce will still contact you directly! Is there anything else I can help with?";
+            
+            if (window.addAIMessage) {
+                window.addAIMessage(failureMessage);
+            }
+            
+            // Clear lead data
+            window.isInLeadCapture = false;
+            window.currentCaptureType = null;
+            window.currentLeadData = null;
+            
+            if (window.speakText) {
+                window.speakText(failureMessage);
+                setTimeout(() => {
+                    if (window.showDirectSpeakNow) {
+                        window.showDirectSpeakNow();
+                    }
+                }, 3000);
+            } else {
+                setTimeout(() => {
+                    if (window.showDirectSpeakNow) {
+                        window.showDirectSpeakNow();
+                    }
+                }, 2000);
+            }
+        });
+}
     
 // Make functions globally accessible
 window.handleEmailConfirmation = handleEmailConfirmation;
