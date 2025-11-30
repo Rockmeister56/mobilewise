@@ -1786,68 +1786,76 @@ emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templates.clientConfirmati
             }
             
             let successMessage = `Confirmation email sent to ${cleanEmail}! Is there anything else I can help you with?`;
-            
-            if (window.addAIMessage) {
-                window.addAIMessage(successMessage);
-            }
-            
-            // Clear lead data
-            window.isInLeadCapture = false;
-            window.currentCaptureType = null;
-            window.currentLeadData = null;
-            
-            if (window.speakText) {
-                window.speakText(successMessage);
-                
-                // Wait for speech then show banner
-                const checkSpeech = setInterval(() => {
-                    if (!window.isSpeaking) {
-                        clearInterval(checkSpeech);
-                        setTimeout(() => {
-                            if (window.showDirectSpeakNow) {
-                            }
-                        }, 1000);
-                    }
-                }, 100);
-            } else {
-                setTimeout(() => {
-                    if (window.showDirectSpeakNow) {
-                        window.showDirectSpeakNow();
-                    }
-                }, 3000);
-            }
-            
-        }, function(error) {
-            console.error('❌ CLIENT CONFIRMATION EMAIL FAILED:', error);
 
-             // 🎯 ADD THIS ONE LINE: Block banner during confirmation question
-    window.isInConfirmationDialog = true;
-            
-            // Simple error handling
-            let failureMessage = "The confirmation email couldn't be sent, but Bruce will still contact you directly! Is there anything else I can help with?";
-            
-            if (window.addAIMessage) {
-                window.addAIMessage(failureMessage);
-            }
-            
-            // Clear lead data
-            window.isInLeadCapture = false;
-            window.currentCaptureType = null;
-            window.currentLeadData = null;
-            
-            if (window.speakText) {
-                window.speakText(failureMessage);
-                setTimeout(() => {
-                    if (window.showDirectSpeakNow) {
+if (window.addAIMessage) {
+    window.addAIMessage(successMessage);
+}
+
+// Clear lead data
+window.isInLeadCapture = false;
+window.currentCaptureType = null;
+window.currentLeadData = null;
+
+if (window.speakText) {
+    window.speakText(successMessage);
+    
+    // Wait for speech then show DECISION PANEL
+    const checkSpeech = setInterval(() => {
+        if (!window.isSpeaking) {
+            clearInterval(checkSpeech);
+            setTimeout(() => {
+                // 🎯 SHOW DECISION PANEL INSTEAD OF EMPTY CALL
+                if (window.showDecisionPanel) {
+                    window.showDecisionPanel({
+                        question: "Is there anything else I can help you with?",
+                        yesText: "Yes, Continue", 
+                        skipText: "No, Finish",
+                        onYes: function() { 
+                            console.log("User wants to continue - show position panel");
+                            if (window.showPositionPanel) {
+                                window.showPositionPanel();
+                            } else if (window.showDirectSpeakNow) {
+                                window.showDirectSpeakNow();
+                            }
+                        },
+                        onSkip: function() { 
+                            console.log("User is finished");
+                            const userName = window.userFirstName || '';
+                            if (window.showThankYouSplash) {
+                                window.showThankYouSplash(userName, 'consultation');
+                            }
+                        }
+                    });
+                }
+            }, 1000);
+        }
+    }, 100);
+} else {
+    setTimeout(() => {
+        // 🎯 SHOW DECISION PANEL IN FALLBACK CASE TOO
+        if (window.showDecisionPanel) {
+            window.showDecisionPanel({
+                question: "Is there anything else I can help you with?",
+                yesText: "Yes, Continue", 
+                skipText: "No, Finish",
+                onYes: function() { 
+                    console.log("User wants to continue");
+                    if (window.showPositionPanel) {
+                        window.showPositionPanel();
+                    } else if (window.showDirectSpeakNow) {
                         window.showDirectSpeakNow();
                     }
-                }, 3000);
-            } else {
-                setTimeout(() => {
-                    if (window.showDirectSpeakNow) {
-                        window.showDirectSpeakNow();
+                },
+                onSkip: function() { 
+                    console.log("User is finished");
+                    const userName = window.userFirstName || '';
+                    if (window.showThankYouSplash) {
+                        window.showThankYouSplash(userName, 'consultation');
                     }
-                }, 2000);
+                }
+            });
+        }
+    }, 3000);
             }
         });
 }
