@@ -300,7 +300,7 @@ function initializeClickToCallCapture() {
             // 🆕 ONLY ASK NAME IF WE DON'T ALREADY HAVE IT
             ...(window.userFirstName ? [] : ["What's your full name?"]),
             "What's the best phone number to reach you?",
-            "What's this regarding - are you looking to buy, sell, or evaluate a practice?"
+            "What's this regarding - are you looking to buy, sell, or evaluate a practice?",
         ]
     };
     
