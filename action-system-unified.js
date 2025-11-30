@@ -1111,14 +1111,6 @@ function cleanupDecisionPanel() {
 window.showDecisionPanel = showDecisionPanel;
 window.cleanupDecisionPanel = cleanupDecisionPanel;
 
-// 🆕 ADD THIS FUNCTION TOO:
-function enableAvatarAfterLeadCapture() {
-    if (window.originalShowAvatar) {
-        window.showAvatarSorryMessage = window.originalShowAvatar;
-        console.log('✅ Avatar re-enabled after lead capture');
-    }
-}
-
 /**
  * 🎯 UNIVERSAL CONFIRMATION SYSTEM
  * Handles both email confirmations AND decision panels
@@ -1442,6 +1434,20 @@ function showEmailConfirmationButtons(leadData, captureType) {
     }, 100);
 }
 
+
+
+// Make globally available
+window.showDecisionPanel = showDecisionPanel;
+window.cleanupDecisionPanel = cleanupDecisionPanel;
+
+
+// 🆕 ADD THIS FUNCTION TOO:
+function enableAvatarAfterLeadCapture() {
+    if (window.originalShowAvatar) {
+        window.showAvatarSorryMessage = window.originalShowAvatar;
+        console.log('✅ Avatar re-enabled after lead capture');
+    }
+}
 
 function sendOriginalLeadEmail(data, type) {
     console.log('📧 Sending ORIGINAL lead email (internal notification)...');
