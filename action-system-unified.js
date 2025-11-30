@@ -746,7 +746,7 @@ function completeLeadCapture() {
     window.isInEmailPermissionPhase = true;
     
     // 🆕 NEW: Ask for email confirmation permission instead of sending immediately
-    const emailPermissionMessage = `Perfect! Should I send a confirmation email to ${data.email} with all your details and next steps?`;
+    const emailPermissionMessage = `Perfect! Should I send a confirmation email to ${data.email} confirming all your details?`;
     
     if (window.addAIMessage) {
         window.addAIMessage(emailPermissionMessage);
@@ -1772,85 +1772,166 @@ switch(captureType) {
         subject: emailSubject,
         book_image: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761797944987_book-promo.PNG'
     };
+
+   } 
     
     // Send CLIENT confirmation using the confirmation template
 emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templates.clientConfirmation, confirmationParams)
-        .then(function(response) {
-            console.log('✅ CLIENT CONFIRMATION EMAIL SENT!');
+    .then(function(response) {
+        console.log('✅ CLIENT CONFIRMATION EMAIL SENT!');
 
-            // 🎯 ADD THIS ONE LINE: Block banner during confirmation question
-    window.isInConfirmationDialog = true;
+        // 🎯 Block banner during confirmation question
+        window.isInConfirmationDialog = true;
+        
+        if (window.showUniversalBanner) {
+            window.showUniversalBanner('emailSent');
+        }
+        
+        let successMessage = `Confirmation email sent to ${cleanEmail}! Is there anything else I can help you with?`;
+        
+        if (window.addAIMessage) {
+            window.addAIMessage(successMessage);
+        }
+        
+        // Clear lead data
+        window.isInLeadCapture = false;
+        window.currentCaptureType = null;
+        window.currentLeadData = null;
+        
+        if (window.speakText) {
+            window.speakText(successMessage);
             
-            if (window.showUniversalBanner) {
-                window.showUniversalBanner('emailSent');
-            }
-            
-            let successMessage = `Confirmation email sent to ${cleanEmail}! Is there anything else I can help you with?`;
-            
-            if (window.addAIMessage) {
-                window.addAIMessage(successMessage);
-            }
-            
-            // Clear lead data
-            window.isInLeadCapture = false;
-            window.currentCaptureType = null;
-            window.currentLeadData = null;
-            
-            if (window.speakText) {
-                window.speakText(successMessage);
-                
-                // Wait for speech then show banner
-                const checkSpeech = setInterval(() => {
-                    if (!window.isSpeaking) {
-                        clearInterval(checkSpeech);
-                        setTimeout(() => {
-                            if (window.showDirectSpeakNow) {
+            // Wait for speech then show decision panel
+            const checkSpeech = setInterval(() => {
+                if (!window.isSpeaking) {
+                    clearInterval(checkSpeech);
+                    setTimeout(() => {
+                        // 🎯 SHOW DECISION PANEL INSTEAD OF EMPTY CALL
+                        if (window.showDecisionPanel) {
+                            window.showDecisionPanel({
+                                question: "Is there anything else I can help you with?",
+                                yesText: "Yes, Continue", 
+                                skipText: "No, Finish",
+                                onYes: function() { 
+                                    console.log("User wants to continue - show position panel");
+                                    if (window.showPositionPanel) {
+                                        window.showPositionPanel();
+                                    } else if (window.showDirectSpeakNow) {
+                                        window.showDirectSpeakNow();
+                                    }
+                                },
+                                onSkip: function() { 
+                                    console.log("User is finished");
+                                    const userName = window.userFirstName || '';
+                                    if (window.showThankYouSplash) {
+                                        window.showThankYouSplash(userName, 'consultation');
+                                    }
+                                }
+                            });
+                        }
+                    }, 1000);
+                }
+            }, 100);
+        } else {
+            setTimeout(() => {
+                // 🎯 SHOW DECISION PANEL IN FALLBACK CASE TOO
+                if (window.showDecisionPanel) {
+                    window.showDecisionPanel({
+                        question: "Is there anything else I can help you with?",
+                        yesText: "Yes, Continue", 
+                        skipText: "No, Finish",
+                        onYes: function() { 
+                            console.log("User wants to continue");
+                            if (window.showPositionPanel) {
+                                window.showPositionPanel();
+                            } else if (window.showDirectSpeakNow) {
+                                window.showDirectSpeakNow();
                             }
-                        }, 1000);
-                    }
-                }, 100);
-            } else {
-                setTimeout(() => {
-                    if (window.showDirectSpeakNow) {
-                        window.showDirectSpeakNow();
-                    }
-                }, 3000);
-            }
-            
-        }, function(error) {
-            console.error('❌ CLIENT CONFIRMATION EMAIL FAILED:', error);
+                        },
+                        onSkip: function() { 
+                            console.log("User is finished");
+                            const userName = window.userFirstName || '';
+                            if (window.showThankYouSplash) {
+                                window.showThankYouSplash(userName, 'consultation');
+                            }
+                        }
+                    });
+                }
+            }, 3000);
+        }
+    }, function(error) {
+        console.error('❌ CLIENT CONFIRMATION EMAIL FAILED:', error);
 
-             // 🎯 ADD THIS ONE LINE: Block banner during confirmation question
-    window.isInConfirmationDialog = true;
-            
-            // Simple error handling
-            let failureMessage = "The confirmation email couldn't be sent, but Bruce will still contact you directly! Is there anything else I can help with?";
-            
-            if (window.addAIMessage) {
-                window.addAIMessage(failureMessage);
-            }
-            
-            // Clear lead data
-            window.isInLeadCapture = false;
-            window.currentCaptureType = null;
-            window.currentLeadData = null;
-            
-            if (window.speakText) {
-                window.speakText(failureMessage);
-                setTimeout(() => {
-                    if (window.showDirectSpeakNow) {
-                        window.showDirectSpeakNow();
-                    }
-                }, 3000);
-            } else {
-                setTimeout(() => {
-                    if (window.showDirectSpeakNow) {
-                        window.showDirectSpeakNow();
-                    }
-                }, 2000);
-            }
-        });
-}
+        // 🎯 Block banner during confirmation question
+        window.isInConfirmationDialog = true;
+        
+        // Simple error handling
+        let failureMessage = "The confirmation email couldn't be sent, but Bruce will still contact you directly! Is there anything else I can help with?";
+        
+        if (window.addAIMessage) {
+            window.addAIMessage(failureMessage);
+        }
+        
+        // Clear lead data
+        window.isInLeadCapture = false;
+        window.currentCaptureType = null;
+        window.currentLeadData = null;
+        
+        if (window.speakText) {
+            window.speakText(failureMessage);
+            setTimeout(() => {
+                // 🎯 SHOW DECISION PANEL IN ERROR CASE TOO
+                if (window.showDecisionPanel) {
+                    window.showDecisionPanel({
+                        question: "Is there anything else I can help you with?",
+                        yesText: "Yes, Continue", 
+                        skipText: "No, Finish",
+                        onYes: function() { 
+                            console.log("User wants to continue");
+                            if (window.showPositionPanel) {
+                                window.showPositionPanel();
+                            } else if (window.showDirectSpeakNow) {
+                                window.showDirectSpeakNow();
+                            }
+                        },
+                        onSkip: function() { 
+                            console.log("User is finished");
+                            const userName = window.userFirstName || '';
+                            if (window.showThankYouSplash) {
+                                window.showThankYouSplash(userName, 'consultation');
+                            }
+                        }
+                    });
+                }
+            }, 3000);
+        } else {
+            setTimeout(() => {
+                // 🎯 SHOW DECISION PANEL IN ERROR FALLBACK CASE TOO
+                if (window.showDecisionPanel) {
+                    window.showDecisionPanel({
+                        question: "Is there anything else I can help you with?",
+                        yesText: "Yes, Continue", 
+                        skipText: "No, Finish",
+                        onYes: function() { 
+                            console.log("User wants to continue");
+                            if (window.showPositionPanel) {
+                                window.showPositionPanel();
+                            } else if (window.showDirectSpeakNow) {
+                                window.showDirectSpeakNow();
+                            }
+                        },
+                        onSkip: function() { 
+                            console.log("User is finished");
+                            const userName = window.userFirstName || '';
+                            if (window.showThankYouSplash) {
+                                window.showThankYouSplash(userName, 'consultation');
+                            }
+                        }
+                    });
+                }
+            }, 2000);
+        }
+    });
     
 // Make functions globally accessible
 window.handleEmailConfirmation = handleEmailConfirmation;
