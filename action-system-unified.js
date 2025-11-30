@@ -280,20 +280,20 @@ function initializeConsultationCapture() {
 }
 
 // ================================
-// LEAD CAPTURE 2: CLICK-TO-CALL
+// LEAD CAPTURE 2: URGENT CALL
 // ================================
-function initializeClickToCallCapture() {
-    console.log('🚀 Starting Click-to-Call capture...');
+function initializeUrgentCallCapture() {
+    console.log('🚀 Starting URGENT CALL capture...');
     
     if (window.isInLeadCapture) return;
     
     window.isInLeadCapture = true;
-    window.currentCaptureType = 'clickToCall';
+    window.currentCaptureType = 'urgentCall';
     window.currentLeadData = {
         name: window.userFirstName || '', // 🆕 USE THE ALREADY CAPTURED NAME!
         phone: '',
         reason: '',
-        captureType: 'clickToCall',
+        captureType: 'urgentCall',
         step: window.userFirstName ? 1 : 0, // 🆕 SKIP NAME QUESTION IF WE HAVE IT
         tempAnswer: '',
         questions: [
@@ -311,7 +311,7 @@ function initializeClickToCallCapture() {
         window.currentLeadData.name = window.userFirstName;
     }
     
-    console.log('🆕 Click-to-Call initialized with name:', window.currentLeadData.name);
+    console.log('🆕 Urgent Call initialized with name:', window.currentLeadData.name);
     
     setTimeout(() => {
         askLeadQuestion();
@@ -327,24 +327,20 @@ function initializeRequestCallCapture() {
     if (window.isInLeadCapture) return;
     
     window.isInLeadCapture = true;
-    window.currentCaptureType = 'requestCall';
+    window.currentCaptureType = 'clickToCall'; // Uses clickToCall template
     window.currentLeadData = {
         name: '',
         phone: '',
         reason: '',
-        // 🚫 REMOVED email field - we don't collect it for request call
-        captureType: 'requestCall',
+        captureType: 'clickToCall', // Uses clickToCall template
         step: 0,
         tempAnswer: '',
         questions: [
             "Terrific, can I get your full name please?",
             "What's the best phone number to reach you?",
             "May I ask what this regarding?",
-            // 🚫 REMOVED email question - we don't ask for it
         ]
     };
-    
-    console.log('🆕 Request a Call initialized');
     
     setTimeout(() => {
         askLeadQuestion();
@@ -2015,6 +2011,12 @@ function handleActionCenterCompletion() {
     }, 2000);
 }
 
+// Keep the OLD function name for existing buttons
+function initializeClickToCallCapture() {
+    // Just call the NEW requestCall function (since requestCall now uses clickToCall template)
+    initializeRequestCallCapture();
+}
+
 // ================================
 // 🎬 CLOSE THANK YOU SPLASH FUNCTION
 // ================================
@@ -2062,6 +2064,7 @@ window.hideCommunicationActionCenter = hideCommunicationActionCenter;
 window.handleActionButton = handleActionButton;
 window.initializeConsultationCapture = initializeConsultationCapture;
 window.initializeClickToCallCapture = initializeClickToCallCapture;
+window.initializeUrgentCallCapture = initializeUrgentCallCapture;
 window.initializeRequestCallCapture = initializeRequestCallCapture;
 window.initializeFreeBookCapture = initializeFreeBookCapture;
 window.initiateUrgentCall = initiateUrgentCall;
