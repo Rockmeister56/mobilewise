@@ -1867,12 +1867,25 @@ function showThankYouSplash(name, captureType) {
     document.head.appendChild(style);
     document.body.appendChild(splashOverlay);
     
-    // ✅ PLAY OUTRO AUDIO
-    setTimeout(() => {
-        const audio = new Audio('https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/audio-intros/ai_intro_1758148837523.mp3');
-        audio.volume = 0.8;
-        audio.play().catch(e => console.log('Audio play failed:', e));
-    }, 500);
+    // ✅ PLAY OUTRO AUDIO (Mobile & Desktop Compatible)
+setTimeout(() => {
+    const audio = new Audio('https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/audio-intros/ai_intro_1758148837523.mp3');
+    audio.volume = 0.8;
+    
+    // Mobile-friendly audio play with user interaction context
+    const playPromise = audio.play();
+    
+    if (playPromise !== undefined) {
+        playPromise.catch(e => {
+            console.log('Audio play failed (mobile restriction):', e);
+            // On mobile, try to play after a user interaction
+            document.addEventListener('click', function tryPlayOnce() {
+                audio.play().catch(e => console.log('Mobile audio still blocked'));
+                document.removeEventListener('click', tryPlayOnce);
+            }, { once: true });
+        });
+    }
+}, 500);
     
     // ✅ AUTO-DISMISS AFTER 20 SECONDS
     setTimeout(() => {
@@ -1883,11 +1896,18 @@ function showThankYouSplash(name, captureType) {
 }
 
 function closeChatCompletely() {
-    console.log('🚪 Closing chat completely - returning to website');
+    console.log('🚪 Closing chat completely - redirecting to website');
+    
+    // Add a nice fade-out effect
+    document.body.style.opacity = '0.7';
+    document.body.style.transition = 'opacity 0.5s ease';
     
     // Remove thank you splash
     const splash = document.getElementById('thankYouSplash');
-    if (splash) splash.remove();
+    if (splash) {
+        splash.style.animation = 'fadeOutSplash 0.5s ease forwards';
+        setTimeout(() => splash.remove(), 500);
+    }
     
     // Remove ALL chat interface elements
     const chatElements = [
@@ -1898,20 +1918,33 @@ function closeChatCompletely() {
         '#chatMessages',
         '.speak-now-banner',
         '.universal-banner',
-        '.action-center'
+        '.action-center',
+        '.decision-panel',
+        '.confirmation-buttons'
     ];
     
     chatElements.forEach(selector => {
-        document.querySelectorAll(selector).forEach(el => el.remove());
+        document.querySelectorAll(selector).forEach(el => {
+            el.style.animation = 'fadeOutSplash 0.5s ease forwards';
+            setTimeout(() => el.remove(), 500);
+        });
     });
     
-    // If you want to redirect to main website URL:
-    // window.location.href = 'https://yourmainwebsite.com';
+    // ✅ REDIRECT TO BRUCE'S WEBSITE AFTER FADE-OUT
+    setTimeout(() => {
+        console.log('🔗 Redirecting to newclientele.com');
+        window.location.href = 'https://newclientele.com';
+    }, 1000);
     
-    // Or just hide everything and show original page content
-    document.body.style.overflow = 'auto'; // Restore scrolling
-    
-    console.log('✅ Chat completely closed - user returned to website');
+    // Add the fade-out animation to styles
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes fadeOutSplash { 
+            from { opacity: 1; transform: translate(-50%, -50%) scale(1); } 
+            to { opacity: 0; transform: translate(-50%, -50%) scale(0.8); } 
+        }
+    `;
+    document.head.appendChild(style);
 }
 
 // ================================
