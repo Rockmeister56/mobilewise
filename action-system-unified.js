@@ -799,7 +799,7 @@ function sendInternalNotification(leadData, captureType) {
             message: `New Consultation Request\n\nName: ${leadData.name}\nPhone: ${leadData.phone}\nEmail: ${leadData.email}\nBest Time: ${leadData.contactTime}`,
             timestamp: new Date().toLocaleString()
         };
-    } else if (captureType === 'requestCall') {
+    } else if (captureType === 'clickToCall') { // ✅ CHANGE THIS LINE!
         // ✅ REQUEST A CALL - This is the one that should work!
         internalTemplateId = EMAILJS_CONFIG.templates.clickToCall; 
         internalTemplateParams = {
@@ -824,7 +824,6 @@ function sendInternalNotification(leadData, captureType) {
             timestamp: new Date().toLocaleString()
         };
     }
-    // ⚠️ Note: clickToCall is intentionally left out - no email needed
     
     // Only send if we have a template
     if (internalTemplateId) {
