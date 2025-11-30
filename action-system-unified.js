@@ -1861,55 +1861,11 @@ function showThankYouSplash(name, captureType) {
 }
 
 function closeChatCompletely() {
-    console.log('🚪 Closing chat completely - redirecting to website');
-    
-    // Add a nice fade-out effect
-    document.body.style.opacity = '0.7';
-    document.body.style.transition = 'opacity 0.5s ease';
-    
-    // Remove thank you splash
-    const splash = document.getElementById('thankYouSplash');
-    if (splash) {
-        splash.style.animation = 'fadeOutSplash 0.5s ease forwards';
-        setTimeout(() => splash.remove(), 500);
-    }
-    
-    // Remove ALL chat interface elements
-    const chatElements = [
-        '.chat-container',
-        '#chatContainer', 
-        '.chat-interface',
-        '.chat-messages',
-        '#chatMessages',
-        '.speak-now-banner',
-        '.universal-banner',
-        '.action-center',
-        '.decision-panel',
-        '.confirmation-buttons'
-    ];
-    
-    chatElements.forEach(selector => {
-        document.querySelectorAll(selector).forEach(el => {
-            el.style.animation = 'fadeOutSplash 0.5s ease forwards';
-            setTimeout(() => el.remove(), 500);
-        });
-    });
-    
-    function closeChatCompletely() {
-    console.log('🚪 IMMEDIATE redirect to website');
+    console.log('🚪 IMMEDIATE redirect to newclientsinc.com');
+    // ✅ IMMEDIATE REDIRECT - No delays, no animations
     window.location.href = 'https://newclientsinc.com';
 }
     
-    // Add the fade-out animation to styles
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes fadeOutSplash { 
-            from { opacity: 1; transform: translate(-50%, -50%) scale(1); } 
-            to { opacity: 0; transform: translate(-50%, -50%) scale(0.8); } 
-        }
-    `;
-    document.head.appendChild(style);
-}
 
 // ================================
 // 🔄 RESTART CONVERSATION FUNCTION
