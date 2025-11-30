@@ -1867,30 +1867,34 @@ function showThankYouSplash(name, captureType) {
     document.head.appendChild(style);
     document.body.appendChild(splashOverlay);
     
-    // ✅ MOBILE-COMPATIBLE OUTRO AUDIO (IMMEDIATE PLAY)
-setTimeout(() => {
-    console.log('🎵 Attempting to play thank you audio...');
+    // ✅ NUCLEAR OPTION FOR MOBILE AUDIO
+function playThankYouAudio() {
+    console.log('🎵 NUCLEAR: Playing thank you audio');
     
     const audio = new Audio('https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/audio-intros/ai_intro_1758148837523.mp3');
     audio.volume = 0.8;
     
-    // Mobile-friendly: Play immediately and handle errors gracefully
-    const playPromise = audio.play();
-    
-    if (playPromise !== undefined) {
-        playPromise.then(() => {
-            console.log('✅ Audio playing successfully');
-        }).catch(error => {
-            console.log('❌ Audio blocked by browser:', error);
-            // Try again on user interaction
-            const tryAudioOnClick = () => {
-                audio.play().catch(e => console.log('Still blocked'));
-                document.removeEventListener('click', tryAudioOnClick);
-            };
-            document.addEventListener('click', tryAudioOnClick, { once: true });
+    // Multiple attempts strategy
+    const playAudio = () => {
+        audio.play().catch(e => {
+            console.log('Audio attempt failed:', e);
+            // Try one more time after short delay
+            setTimeout(() => {
+                audio.play().catch(e => console.log('Final audio attempt failed'));
+            }, 300);
         });
-    }
-}, 100); // ⏰ SHORT delay to ensure DOM is ready
+    };
+    
+    // Initial attempt
+    playAudio();
+    
+    // Also trigger on any user interaction as backup
+    document.addEventListener('click', playAudio, { once: true });
+    document.addEventListener('touchstart', playAudio, { once: true });
+}
+
+// Call this in your showThankYouSplash function:
+setTimeout(playThankYouAudio, 100);
     
     // ✅ AUTO-DISMISS AFTER 20 SECONDS
     setTimeout(() => {
