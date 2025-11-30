@@ -1774,28 +1774,6 @@ function showThankYouSplash(name, captureType) {
     
     console.log('🔍 FINAL NAME FOR THANK YOU:', displayName);
     
-    // ✅ NUCLEAR OPTION - KILL ALL SPEECH SYSTEMS
-    if (window.speechRecognition) {
-        try {
-            window.speechRecognition.stop();
-            window.speechRecognition.abort();
-            window.speechRecognition = null;
-        } catch (e) {
-            console.log('Speech recognition cleanup:', e);
-        }
-    }
-    
-    // ✅ STOP ALL LISTENING FLAGS
-    window.isListening = false;
-    window.isRecording = false;
-    
-    // ✅ CLEAR ALL TIMEOUTS
-    if (window.speechTimeout) clearTimeout(window.speechTimeout);
-    if (window.restartTimeout) clearTimeout(window.restartTimeout);
-    
-    // ✅ SET FINAL STATE
-    conversationState = 'splash_screen_active';
-    
     const splashOverlay = document.createElement('div');
     splashOverlay.id = 'thankYouSplash';
     splashOverlay.style.cssText = `
@@ -1867,34 +1845,12 @@ function showThankYouSplash(name, captureType) {
     document.head.appendChild(style);
     document.body.appendChild(splashOverlay);
     
-    // ✅ NUCLEAR OPTION FOR MOBILE AUDIO
-function playThankYouAudio() {
-    console.log('🎵 NUCLEAR: Playing thank you audio');
-    
-    const audio = new Audio('https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/audio-intros/ai_intro_1758148837523.mp3');
-    audio.volume = 0.8;
-    
-    // Multiple attempts strategy
-    const playAudio = () => {
-        audio.play().catch(e => {
-            console.log('Audio attempt failed:', e);
-            // Try one more time after short delay
-            setTimeout(() => {
-                audio.play().catch(e => console.log('Final audio attempt failed'));
-            }, 300);
-        });
-    };
-    
-    // Initial attempt
-    playAudio();
-    
-    // Also trigger on any user interaction as backup
-    document.addEventListener('click', playAudio, { once: true });
-    document.addEventListener('touchstart', playAudio, { once: true });
-}
-
-// Call this in your showThankYouSplash function:
-setTimeout(playThankYouAudio, 100);
+   // ✅ PLAY OUTRO AUDIO
+    setTimeout(() => {
+        const audio = new Audio('https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/audio-intros/ai_intro_1758148837523.mp3');
+        audio.volume = 0.8;
+        audio.play().catch(e => console.log('Audio play failed:', e));
+    }, 500);
     
     // ✅ AUTO-DISMISS AFTER 20 SECONDS
     setTimeout(() => {
