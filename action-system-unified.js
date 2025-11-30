@@ -1336,6 +1336,8 @@ function showEmailConfirmationButtons(leadData, captureType) {
     }, 100);
 }
 
+
+
 // ================================
 // UNIVERSAL DECISION PANEL (WORKS FOR ALL LEAD TYPES)
 // ================================
@@ -1472,15 +1474,127 @@ function showDecisionPanel(options) {
     console.log("✅ UNIVERSAL DECISION PANEL: Ready for all lead types");
 }
 
+// ================================
+// SHARED UTILITY FUNCTIONS (Both panels use these)
+// ================================
 function cleanupDecisionPanel() {
     const panels = document.querySelectorAll('.decision-panel');
     panels.forEach(panel => panel.remove());
 }
 
-// Make globally available
+// Make ALL functions globally available
+window.showEmailDecisionPanel = showEmailDecisionPanel;
 window.showDecisionPanel = showDecisionPanel;
 window.cleanupDecisionPanel = cleanupDecisionPanel;
 
+// ================================
+// EMAIL DECISION PANEL (For email confirmations)
+// ================================
+function showEmailDecisionPanel() {
+    console.log("📧 EMAIL DECISION PANEL: Showing email confirmation");
+    
+    // 🚫 Stop listening and speaking FIRST
+    if (window.stopAllSpeech) window.stopAllSpeech();
+    if (window.stopListening) window.stopListening();
+    if (window.closeSpeakNowBanner) window.closeSpeakNowBanner();
+    
+    // Remove any existing decision panel first
+    cleanupDecisionPanel();
+    
+    const decisionHTML = `
+        <div class="email-confirmation-buttons decision-panel" style="
+            text-align: center; 
+            margin: 20px 0; 
+            padding: 25px; 
+            background: rgba(255,255,255,0.1); 
+            border-radius: 15px;
+            border: 2px solid rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+        ">
+            <div style="
+                margin-bottom: 20px; 
+                color: white; 
+                font-size: 18px;
+                font-weight: bold;
+            ">
+                Would you like me to send a confirmation email?
+            </div>
+            <div style="
+                display: flex; 
+                justify-content: center; 
+                gap: 20px;
+                flex-wrap: wrap;
+            ">
+                <button onclick="window.handleEmailYes()" style="
+                    background: linear-gradient(135deg, #4CAF50, #8BC34A);
+                    color: white; 
+                    border: none; 
+                    padding: 15px 30px; 
+                    border-radius: 25px; 
+                    cursor: pointer;
+                    font-weight: bold;
+                    font-size: 16px;
+                    min-width: 140px;
+                    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+                    transition: all 0.3s ease;
+                " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(76, 175, 80, 0.4)';" 
+                   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(76, 175, 80, 0.3)';">
+                    Send Email
+                </button>
+                <button onclick="window.handleEmailNo()" style="
+                    background: linear-gradient(135deg, #757575, #9E9E9E);
+                    color: white; 
+                    border: none; 
+                    padding: 15px 30px; 
+                    border-radius: 25px; 
+                    cursor: pointer;
+                    font-weight: bold;
+                    font-size: 16px;
+                    min-width: 140px;
+                    box-shadow: 0 4px 15px rgba(117, 117, 117, 0.3);
+                    transition: all 0.3s ease;
+                " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(117, 117, 117, 0.4)';" 
+                   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(117, 117, 117, 0.3)';">
+                    No Thanks
+                </button>
+            </div>
+        </div>
+    `;
+    
+    const chatContainer = document.getElementById('chatMessages') || 
+                         document.querySelector('.chat-messages') ||
+                         document.querySelector('.chat-container') ||
+                         document.body;
+    
+    chatContainer.insertAdjacentHTML('beforeend', decisionHTML);
+    
+    // Auto-scroll to show the buttons
+    setTimeout(() => {
+        const panel = document.querySelector('.decision-panel');
+        if (panel) {
+            panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    }, 100);
+    
+    // Store callbacks globally
+    window.handleEmailYes = function() {
+        cleanupDecisionPanel();
+        console.log("✅ Email confirmation: YES - sending email");
+        // Trigger email sending logic here
+        if (window.sendConfirmationEmail) {
+            window.sendConfirmationEmail();
+        }
+    };
+    
+    window.handleEmailNo = function() {
+        cleanupDecisionPanel();
+        console.log("❌ Email confirmation: NO - skipping email");
+        // Continue to position panel or next step
+        if (window.showDirectSpeakNow) {
+            window.showDirectSpeakNow();
+        }
+    };
+}
 
 // 🆕 ADD THIS FUNCTION TOO:
 function enableAvatarAfterLeadCapture() {
@@ -1671,7 +1785,7 @@ emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templates.clientConfirmati
                 window.showUniversalBanner('emailSent');
             }
             
-            let successMessage = `Confirmation email sent to ${cleanEmail}! Bruce will contact you soon. Is there anything else I can help you with?`;
+            let successMessage = `Confirmation email sent to ${cleanEmail}! Is there anything else I can help you with?`;
             
             if (window.addAIMessage) {
                 window.addAIMessage(successMessage);
