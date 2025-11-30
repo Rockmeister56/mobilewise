@@ -851,7 +851,7 @@ function universalCloseSequence(serviceType) {
                 window.currentLeadData = null;
             }
         });
-    }, 2000); // Wait 2 seconds for the speech to complete
+    }, 4000); // Wait 2 seconds for the speech to complete
     
     console.log('✅ Universal close sequence initiated');
 }
@@ -1759,6 +1759,20 @@ function initializePreQualifierCapture() {
 // ================================
 function showThankYouSplash(name, captureType) {
     console.log('🎬 Deploying cinematic thank you splash screen with restart button...');
+
+    // ✅ BULLETPROOF NAME HANDLING
+    let displayName = name;
+    // Try all possible name sources
+    if (!displayName && window.currentLeadData?.name) {
+        displayName = window.currentLeadData.name;
+    }
+    if (!displayName && window.userFirstName) {
+        displayName = window.userFirstName;
+    }
+    // If still no name, use empty string
+    displayName = displayName || '';
+    
+    console.log('🔍 FINAL NAME FOR THANK YOU:', displayName);
     
     // ✅ NUCLEAR OPTION - KILL ALL SPEECH SYSTEMS
     if (window.speechRecognition) {
@@ -1815,30 +1829,32 @@ function showThankYouSplash(name, captureType) {
             </div>
             
             <div style="font-size: 48px; margin-bottom: 15px; text-shadow: 0 0 20px rgba(255,255,255,0.4);">🙏</div>
-            <h1 style="font-size: 32px; margin-bottom: 15px; font-weight: 300; letter-spacing: 1px; text-shadow: 0 2px 8px rgba(0,0,0,0.3);">Thank You, ${name}!</h1>
-            <p style="font-size: 18px; opacity: 0.9; margin-bottom: 8px; font-weight: 300;">Your consultation has been confirmed!</p>
-            <p style="font-size: 16px; margin-top: 15px; opacity: 0.8; font-weight: 300;">Bruce will contact you within 24 hours.</p>
+            <h1 style="font-size: 32px; margin-bottom: 15px; font-weight: 300; letter-spacing: 1px; text-shadow: 0 2px 8px rgba(0,0,0,0.3);">
+                ${displayName ? `Thank You, ${displayName}!` : 'Thank You!'}
+            </h1>
+            <p style="font-size: 18px; opacity: 0.9; margin-bottom: 8px; font-weight: 300;">Thank you for visiting!</p>
+            <p style="font-size: 16px; margin-top: 15px; opacity: 0.8; font-weight: 300;">Have a wonderful day!</p>
             <div style="margin-top: 25px; font-size: 14px; opacity: 0.7; letter-spacing: 1px;">Mobile-Wise AI</div>
             
             <!-- CLOSE CHAT BUTTON -->
-<button onclick="closeChatCompletely()" style="
-    margin-top: 30px;
-    background: linear-gradient(135deg, #ff6b6b, #ee5a24);
-    color: white;
-    border: none;
-    padding: 15px 35px;
-    border-radius: 50px;
-    cursor: pointer;
-    font-weight: bold;
-    font-size: 16px;
-    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
-    transition: all 0.3s ease;
-    min-width: 180px;
-    animation: slideInButton 1s ease-out 1s both;
-" onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 10px 30px rgba(255, 107, 107, 0.6)'" 
-   onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 6px 20px rgba(255, 107, 107, 0.4)'">
-    ❌ CLOSE CHAT & EXIT
-</button>
+            <button onclick="closeChatCompletely()" style="
+                margin-top: 30px;
+                background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+                color: white;
+                border: none;
+                padding: 15px 35px;
+                border-radius: 50px;
+                cursor: pointer;
+                font-weight: bold;
+                font-size: 16px;
+                box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+                transition: all 0.3s ease;
+                min-width: 180px;
+                animation: slideInButton 1s ease-out 1s both;
+            " onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 10px 30px rgba(255, 107, 107, 0.6)'" 
+               onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 6px 20px rgba(255, 107, 107, 0.4)'">
+                ❌ CLOSE CHAT & EXIT
+            </button>
         </div>
     `;
     
