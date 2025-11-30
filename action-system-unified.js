@@ -784,21 +784,64 @@ function completeLeadCapture() {
     }, 500);
 }
 
-// ================================
-// PLACEHOLDER - INTERNAL NOTIFICATION
-// (Add this to action-system-unified.js)
-// ================================
 function sendInternalNotification(leadData, captureType) {
-    console.log('📧 INTERNAL NOTIFICATION (Placeholder):', {
-        type: captureType,
-        name: leadData.name,
-        phone: leadData.phone,
-        reason: leadData.reason
-    });
+    console.log('📧 Sending REAL internal notification to Bruce...');
     
-    // In your real code, this would send an email/internal notification
-    // For now, just log that it would have been sent
-    console.log('✅ Internal notification would be sent for:', captureType);
+    let internalTemplateId = '';
+    let internalTemplateParams = {};
+    
+    if (captureType === 'consultation') {
+        // Book Consultation
+        internalTemplateId = EMAILJS_CONFIG.templates.consultation;
+        internalTemplateParams = {
+            to_email: 'bizboost.expert@gmail.com',
+            name: leadData.name,
+            phone: leadData.phone,
+            email: leadData.email,
+            contactTime: leadData.contactTime,
+            inquiryType: 'CONSULTATION_REQUEST',
+            message: `New Consultation Request\n\nName: ${leadData.name}\nPhone: ${leadData.phone}\nEmail: ${leadData.email}\nBest Time: ${leadData.contactTime}`,
+            timestamp: new Date().toLocaleString()
+        };
+    } else if (captureType === 'requestCall') {
+        // ✅ REQUEST A CALL - This is the one that should work!
+        internalTemplateId = EMAILJS_CONFIG.templates.clickToCall; 
+        internalTemplateParams = {
+            to_email: 'bizboost.expert@gmail.com',
+            name: leadData.name,
+            phone: leadData.phone,
+            reason: leadData.reason,
+            inquiryType: 'CALLBACK_REQUEST',
+            message: `📞 CALLBACK REQUEST\n\nName: ${leadData.name}\nPhone: ${leadData.phone}\nReason: ${leadData.reason}\n\nPlease call back within 24 hours.`,
+            timestamp: new Date().toLocaleString()
+        };
+    } else if (captureType === 'preQualifier') {
+        // Pre-Qualifier
+        internalTemplateId = EMAILJS_CONFIG.templates.preQualifier;
+        internalTemplateParams = {
+            to_email: 'bizboost.expert@gmail.com',
+            name: leadData.name,
+            phone: leadData.phone,
+            email: leadData.email,
+            inquiryType: 'PRE_QUALIFIER_REQUEST',
+            message: `Pre-Qualifier Request\n\nName: ${leadData.name}\nPhone: ${leadData.phone}\nEmail: ${leadData.email}`,
+            timestamp: new Date().toLocaleString()
+        };
+    }
+    // ⚠️ Note: clickToCall is intentionally left out - no email needed
+    
+    // Only send if we have a template
+    if (internalTemplateId) {
+        emailjs.send(EMAILJS_CONFIG.serviceId, internalTemplateId, internalTemplateParams)
+            .then(function(response) {
+                console.log('✅ INTERNAL NOTIFICATION EMAIL SENT to Bruce for:', captureType);
+            })
+            .catch(function(error) {
+                console.error('❌ INTERNAL NOTIFICATION EMAIL FAILED:', error);
+            });
+    } else {
+        console.log('❌ No email template for captureType:', captureType);
+    }
 }
 
 // ================================
