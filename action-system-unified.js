@@ -1845,12 +1845,25 @@ function showThankYouSplash(name, captureType) {
     document.head.appendChild(style);
     document.body.appendChild(splashOverlay);
     
-   // ✅ PLAY OUTRO AUDIO
-    setTimeout(() => {
-        const audio = new Audio('https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/audio-intros/ai_intro_1758148837523.mp3');
-        audio.volume = 0.8;
-        audio.play().catch(e => console.log('Audio play failed:', e));
-    }, 500);
+   // ✅ PLAY OUTRO AUDIO (Mobile & Desktop Compatible)
+setTimeout(() => {
+    const audio = new Audio('https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/audio-intros/ai_intro_1758148837523.mp3');
+    audio.volume = 0.8;
+    
+    // Mobile-friendly audio play with user interaction context
+    const playPromise = audio.play();
+    
+    if (playPromise !== undefined) {
+        playPromise.catch(e => {
+            console.log('Audio play failed (mobile restriction):', e);
+            // On mobile, try to play after a user interaction
+            document.addEventListener('click', function tryPlayOnce() {
+                audio.play().catch(e => console.log('Mobile audio still blocked'));
+                document.removeEventListener('click', tryPlayOnce);
+            }, { once: true });
+        });
+    }
+}, 500);
     
     // ✅ AUTO-DISMISS AFTER 20 SECONDS
     setTimeout(() => {
