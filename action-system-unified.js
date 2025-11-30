@@ -906,65 +906,74 @@ function handleEmailConfirmation(sendEmail, captureType) {
     
     const data = window.currentLeadData;
     
-    // 🎯 UNIVERSAL CLEANUP FOR BOTH PATHS
-    const showFinalDecisionPanel = function() {
-        console.log('🎯 Showing final decision panel');
+    if (sendEmail) {
+        // Send email
+        if (window.addAIMessage) {
+            window.addAIMessage("📧 Sending your confirmation email now...");
+        }
+        sendOriginalLeadEmail(data, captureType);
         
-        // Stop any listening/speech first
-        if (window.stopListening) window.stopListening();
-        if (window.stopAllSpeech) window.stopAllSpeech();
-        if (window.closeSpeakNowBanner) window.closeSpeakNowBanner();
+        // 🚀 AFTER EMAIL SENT - WAIT FOR AI TO SPEAK FIRST
+        setTimeout(() => {
+            console.log('📧 Email sent - waiting for AI to ask if more help needed');
+            
+            // Let AI speak FIRST: "Is there anything else I can help you with?"
+            
+            // 🕒 INCREASED TO 8 SECONDS to ensure AI finishes speaking AND auto-listening times out
+            setTimeout(() => {
+                console.log('🎯 AI finished speaking AND auto-listening timed out - showing decision panel');
+                
+                // 🚫 STOP any listening that might have started
+                if (window.stopListening) {
+                    window.stopListening();
+                }
+                
+                // 🚫 STOP any pending Speak Now banners
+                if (window.closeSpeakNowBanner) {
+                    window.closeSpeakNowBanner();
+                }
+                
+                 showDecisionPanel({
+                    question: "Is that everything I can help you with today?",
+                    yesText: "Yes, I Have More Questions",
+                    skipText: "No, I'm All Done",
+                    onYes: function() {
+                        console.log('🎸 USER CONTINUING - APPLYING EMERGENCY FIX');
+                        emergencySpeechFix();
+                        
+                        setTimeout(() => {
+                            const continueMessage = "Great! What else can I help you with?";
+                            speakWithElevenLabs(continueMessage, false);
+                        }, 1000);
+                    },
+                    onSkip: function() {
+                        console.log('🛑 USER FINISHED - COMPLETE SYSTEM SHUTDOWN');
+                        
+                        // 🚨 COMPLETE SHUTDOWN - NO MORE AI LOOPS!
+                        completeSystemShutdown();
+                    }
+                });
+                
+            }, 8000); // 🕒 INCREASED TO 8 SECONDS - ensures AI finishes + auto-listening times out
+        }, 1000); // Wait for email send to complete
+        
+    } else {
+        // Skip email - just continue conversation
+        if (window.addAIMessage) {
+            window.addAIMessage("No problem! Bruce will still contact you directly. Is there anything else I can help with?");
+        }
         
         // Clear lead data
         window.isInLeadCapture = false;
         window.currentCaptureType = null;
         window.currentLeadData = null;
+        window.suppressSpeakNowBanner = false; // Reset suppression
         
-        // Show decision panel
-        if (window.showDecisionPanel) {
-            window.showDecisionPanel({
-                question: "Is there anything else I can help you with?",
-                yesText: "Yes, Continue", 
-                skipText: "No, Finish",
-                onYes: function() { 
-                    console.log("User wants to continue");
-                    if (window.showDirectSpeakNow) window.showDirectSpeakNow();
-                },
-                onSkip: function() { 
-                    console.log("User is finished");
-                    const userName = window.userFirstName || '';
-                    if (window.showThankYouSplash) {
-                        window.showThankYouSplash(userName, captureType);
-                    }
-                }
-            });
-        }
-    };
-    
-    if (sendEmail) {
-        // Send email path
-        if (window.addAIMessage) {
-            window.addAIMessage("📧 Sending your confirmation email now...");
-        }
-        
-        sendOriginalLeadEmail(data, captureType);
-        
-        // 🎯 REDUCED TIMING: Wait 3 seconds total (not 8+)
+        // Wait then show Speak Now banner
         setTimeout(() => {
-            console.log('📧 Email process complete - showing decision panel');
-            showFinalDecisionPanel();
-        }, 3000);
-        
-    } else {
-        // Skip email path - FIXED: Now shows decision panel too
-        if (window.addAIMessage) {
-            window.addAIMessage("No problem! Bruce will still contact you directly.");
-        }
-        
-        // 🎯 Wait 2 seconds then show decision panel (not speak now banner)
-        setTimeout(() => {
-            console.log('⏭️ Email skipped - showing decision panel');
-            showFinalDecisionPanel();
+            if (window.showDirectSpeakNow) {
+                window.showDirectSpeakNow();
+            }
         }, 2000);
     }
 }
