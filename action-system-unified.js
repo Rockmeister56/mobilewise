@@ -1752,11 +1752,15 @@ function initializePreQualifierCapture() {
 }
 
 // ================================
-// 🎬 UNIVERSAL THANK YOU SPLASH SCREEN
+// 🎬 CINEMATIC THANK YOU SPLASH SCREEN WITH RESTART BUTTON
 // ================================
-function showThankYouSplash() {
-    console.log('🎬 Deploying universal thank you splash screen...');
+function showThankYouSplash(name, captureType) {
+    console.log('🎬 Deploying cinematic thank you splash screen with restart button...');
 
+    // ✅ GRACEFUL NAME HANDLING
+    const displayName = name || window.currentLeadData?.name || window.userFirstName || '';
+    const displayCaptureType = captureType || window.currentLeadData?.captureType || 'default';
+    
     // ✅ NUCLEAR OPTION - KILL ALL SPEECH SYSTEMS
     if (window.speechRecognition) {
         try {
@@ -1812,30 +1816,30 @@ function showThankYouSplash() {
             </div>
             
             <div style="font-size: 48px; margin-bottom: 15px; text-shadow: 0 0 20px rgba(255,255,255,0.4);">🙏</div>
-            <h1 style="font-size: 32px; margin-bottom: 15px; font-weight: 300; letter-spacing: 1px; text-shadow: 0 2px 8px rgba(0,0,0,0.3);">Thank You!</h1>
-            <p style="font-size: 18px; opacity: 0.9; margin-bottom: 8px; font-weight: 300;">Thank you for visiting!</p>
-            <p style="font-size: 16px; margin-top: 15px; opacity: 0.8; font-weight: 300;">Have a wonderful day!</p>
+            <h1 style="font-size: 32px; margin-bottom: 15px; font-weight: 300; letter-spacing: 1px; text-shadow: 0 2px 8px rgba(0,0,0,0.3);">Thank You, ${name}!</h1>
+            <p style="font-size: 18px; opacity: 0.9; margin-bottom: 8px; font-weight: 300;">Your consultation has been confirmed!</p>
+            <p style="font-size: 16px; margin-top: 15px; opacity: 0.8; font-weight: 300;">Bruce will contact you within 24 hours.</p>
             <div style="margin-top: 25px; font-size: 14px; opacity: 0.7; letter-spacing: 1px;">Mobile-Wise AI</div>
             
             <!-- CLOSE CHAT BUTTON -->
-            <button onclick="closeChatCompletely()" style="
-                margin-top: 30px;
-                background: linear-gradient(135deg, #ff6b6b, #ee5a24);
-                color: white;
-                border: none;
-                padding: 15px 35px;
-                border-radius: 50px;
-                cursor: pointer;
-                font-weight: bold;
-                font-size: 16px;
-                box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
-                transition: all 0.3s ease;
-                min-width: 180px;
-                animation: slideInButton 1s ease-out 1s both;
-            " onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 10px 30px rgba(255, 107, 107, 0.6)'" 
-               onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 6px 20px rgba(255, 107, 107, 0.4)'">
-                ❌ CLOSE CHAT & EXIT
-            </button>
+<button onclick="closeChatCompletely()" style="
+    margin-top: 30px;
+    background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+    color: white;
+    border: none;
+    padding: 15px 35px;
+    border-radius: 50px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 16px;
+    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+    transition: all 0.3s ease;
+    min-width: 180px;
+    animation: slideInButton 1s ease-out 1s both;
+" onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 10px 30px rgba(255, 107, 107, 0.6)'" 
+   onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 6px 20px rgba(255, 107, 107, 0.4)'">
+    ❌ CLOSE CHAT & EXIT
+</button>
         </div>
     `;
     
@@ -1848,19 +1852,20 @@ function showThankYouSplash() {
     document.head.appendChild(style);
     document.body.appendChild(splashOverlay);
     
-   // ✅ PLAY OUTRO AUDIO (Your original file)
-setTimeout(() => {
-    const audio = new Audio('https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/audio-intros/ai_intro_1758148837523.mp3');
-    audio.volume = 0.8;
-    audio.play().catch(e => console.log('Audio play failed:', e));
-}, 500);
-
-// ✅ AUTO-DISMISS AFTER 30 SECONDS
-setTimeout(() => {
-    if (document.getElementById('thankYouSplash')) {
-        restartConversation();
-    }
-}, 30000);
+    // ✅ PLAY OUTRO AUDIO
+    setTimeout(() => {
+        const audio = new Audio('https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/audio-intros/ai_intro_1758148837523.mp3');
+        audio.volume = 0.8;
+        audio.play().catch(e => console.log('Audio play failed:', e));
+    }, 500);
+    
+    // ✅ AUTO-DISMISS AFTER 20 SECONDS
+    setTimeout(() => {
+        if (document.getElementById('thankYouSplash')) {
+            restartConversation();
+        }
+    }, 30000);
+}
 
 function closeChatCompletely() {
     console.log('🚪 Closing chat completely - returning to website');
