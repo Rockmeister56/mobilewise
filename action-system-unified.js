@@ -1867,25 +1867,30 @@ function showThankYouSplash(name, captureType) {
     document.head.appendChild(style);
     document.body.appendChild(splashOverlay);
     
-    // ✅ PLAY OUTRO AUDIO (Mobile & Desktop Compatible)
+    // ✅ MOBILE-COMPATIBLE OUTRO AUDIO (IMMEDIATE PLAY)
 setTimeout(() => {
+    console.log('🎵 Attempting to play thank you audio...');
+    
     const audio = new Audio('https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/audio-intros/ai_intro_1758148837523.mp3');
     audio.volume = 0.8;
     
-    // Mobile-friendly audio play with user interaction context
+    // Mobile-friendly: Play immediately and handle errors gracefully
     const playPromise = audio.play();
     
     if (playPromise !== undefined) {
-        playPromise.catch(e => {
-            console.log('Audio play failed (mobile restriction):', e);
-            // On mobile, try to play after a user interaction
-            document.addEventListener('click', function tryPlayOnce() {
-                audio.play().catch(e => console.log('Mobile audio still blocked'));
-                document.removeEventListener('click', tryPlayOnce);
-            }, { once: true });
+        playPromise.then(() => {
+            console.log('✅ Audio playing successfully');
+        }).catch(error => {
+            console.log('❌ Audio blocked by browser:', error);
+            // Try again on user interaction
+            const tryAudioOnClick = () => {
+                audio.play().catch(e => console.log('Still blocked'));
+                document.removeEventListener('click', tryAudioOnClick);
+            };
+            document.addEventListener('click', tryAudioOnClick, { once: true });
         });
     }
-}, 500);
+}, 100); // ⏰ SHORT delay to ensure DOM is ready
     
     // ✅ AUTO-DISMISS AFTER 20 SECONDS
     setTimeout(() => {
@@ -1930,11 +1935,10 @@ function closeChatCompletely() {
         });
     });
     
-    // ✅ REDIRECT TO BRUCE'S WEBSITE AFTER FADE-OUT
-    setTimeout(() => {
-        console.log('🔗 Redirecting to newclientele.com');
-        window.location.href = 'https://newclientele.com';
-    }, 1000);
+    function closeChatCompletely() {
+    console.log('🚪 IMMEDIATE redirect to website');
+    window.location.href = 'https://newclientsinc.com';
+}
     
     // Add the fade-out animation to styles
     const style = document.createElement('style');
