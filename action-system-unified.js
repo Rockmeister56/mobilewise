@@ -1111,6 +1111,14 @@ function cleanupDecisionPanel() {
 window.showDecisionPanel = showDecisionPanel;
 window.cleanupDecisionPanel = cleanupDecisionPanel;
 
+// 🆕 ADD THIS FUNCTION TOO:
+function enableAvatarAfterLeadCapture() {
+    if (window.originalShowAvatar) {
+        window.showAvatarSorryMessage = window.originalShowAvatar;
+        console.log('✅ Avatar re-enabled after lead capture');
+    }
+}
+
 /**
  * 🎯 UNIVERSAL CONFIRMATION SYSTEM
  * Handles both email confirmations AND decision panels
@@ -1434,142 +1442,6 @@ function showEmailConfirmationButtons(leadData, captureType) {
     }, 100);
 }
 
-// ================================
-// IN-CHAT DECISION PANEL (MATCHES EMAIL CONFIRMATION EXACTLY)
-// ================================
-function showDecisionPanel(options) {
-    console.log("🎯 DECISION PANEL: Showing IN-CHAT decision");
-    
-    // 🚫 CRITICAL: Stop the Speak Now banner from showing
-    if (window.closeSpeakNowBanner) {
-        window.closeSpeakNowBanner();
-    }
-    
-    // Remove any existing decision panel first
-    cleanupDecisionPanel();
-    
-    const config = {
-        question: options.question || "What would you like to do next?",
-        yesText: options.yesText || "Continue", 
-        skipText: options.skipText || "Finish",
-        onYes: options.onYes || function() { 
-            console.log("Continue clicked");
-            if (window.showDirectSpeakNow) window.showDirectSpeakNow();
-        },
-        onSkip: options.onSkip || function() { 
-            console.log("Finish clicked");
-            if (window.showThankYouSplash) window.showThankYouSplash();
-        }
-    };
-    
-    // Create decision panel that MATCHES your email confirmation EXACTLY
-    const decisionHTML = `
-        <div class="email-confirmation-buttons decision-panel" style="
-            text-align: center; 
-            margin: 20px 0; 
-            padding: 25px; 
-            background: rgba(255,255,255,0.1); 
-            border-radius: 15px;
-            border: 2px solid rgba(255,255,255,0.2);
-            backdrop-filter: blur(10px);
-        ">
-            <div style="
-                margin-bottom: 20px; 
-                color: white; 
-                font-size: 18px;
-                font-weight: bold;
-            ">
-                ${config.question}
-            </div>
-            <div style="
-                display: flex; 
-                justify-content: center; 
-                gap: 20px;
-                flex-wrap: wrap;
-            ">
-                <button onclick="window.handleDecisionYes()" style="
-                    background: linear-gradient(135deg, #4CAF50, #8BC34A);
-                    color: white; 
-                    border: none; 
-                    padding: 15px 30px; 
-                    border-radius: 25px; 
-                    cursor: pointer;
-                    font-weight: bold;
-                    font-size: 16px;
-                    min-width: 140px;
-                    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
-                    transition: all 0.3s ease;
-                " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(76, 175, 80, 0.4)';" 
-                   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(76, 175, 80, 0.3)';">
-                    ${config.yesText}
-                </button>
-                <button onclick="window.handleDecisionSkip()" style="
-                    background: linear-gradient(135deg, #757575, #9E9E9E);
-                    color: white; 
-                    border: none; 
-                    padding: 15px 30px; 
-                    border-radius: 25px; 
-                    cursor: pointer;
-                    font-weight: bold;
-                    font-size: 16px;
-                    min-width: 140px;
-                    box-shadow: 0 4px 15px rgba(117, 117, 117, 0.3);
-                    transition: all 0.3s ease;
-                " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(117, 117, 117, 0.4)';" 
-                   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(117, 117, 117, 0.3)';">
-                    ${config.skipText}
-                </button>
-            </div>
-        </div>
-    `;
-    
-    // Add to the SAME container as email confirmation
-    const chatContainer = document.getElementById('chatMessages') || 
-                         document.querySelector('.chat-messages') ||
-                         document.querySelector('.chat-container') ||
-                         document.body;
-    
-    chatContainer.insertAdjacentHTML('beforeend', decisionHTML);
-    
-    // Auto-scroll to show the buttons (EXACTLY like email confirmation)
-    setTimeout(() => {
-        const panel = document.querySelector('.decision-panel');
-        if (panel) {
-            panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
-    }, 100);
-    
-    // Store callbacks globally
-    window.handleDecisionYes = function() {
-        cleanupDecisionPanel();
-        config.onYes();
-    };
-    
-    window.handleDecisionSkip = function() {
-        cleanupDecisionPanel();
-        config.onSkip();
-    };
-    
-    console.log("✅ DECISION PANEL: Matching email confirmation style displayed");
-}
-
-function cleanupDecisionPanel() {
-    const panels = document.querySelectorAll('.decision-panel');
-    panels.forEach(panel => panel.remove());
-}
-
-// Make globally available
-window.showDecisionPanel = showDecisionPanel;
-window.cleanupDecisionPanel = cleanupDecisionPanel;
-
-
-// 🆕 ADD THIS FUNCTION TOO:
-function enableAvatarAfterLeadCapture() {
-    if (window.originalShowAvatar) {
-        window.showAvatarSorryMessage = window.originalShowAvatar;
-        console.log('✅ Avatar re-enabled after lead capture');
-    }
-}
 
 function sendOriginalLeadEmail(data, type) {
     console.log('📧 Sending ORIGINAL lead email (internal notification)...');
