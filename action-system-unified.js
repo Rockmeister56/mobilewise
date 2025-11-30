@@ -300,7 +300,7 @@ function initializeClickToCallCapture() {
             // 🆕 ONLY ASK NAME IF WE DON'T ALREADY HAVE IT
             ...(window.userFirstName ? [] : ["What's your full name?"]),
             "What's the best phone number to reach you?",
-            "What's this regarding - are you looking to buy, sell, or evaluate a practice?",
+            "What's this regarding - are you looking to buy, sell, or evaluate a practice?"
         ]
     };
     
@@ -980,17 +980,14 @@ function completeSystemShutdown() {
 }
 
 // ================================
-// IN-CHAT DECISION PANEL (KEEP THIS ONE - UPDATED)
+// IN-CHAT DECISION PANEL (MATCHES EMAIL CONFIRMATION)
 // ================================
 function showDecisionPanel(options) {
-    console.log("🎯 DECISION PANEL: Matching email confirmation style EXACTLY");
+    console.log("🎯 DECISION PANEL: Showing IN-CHAT decision");
     
-    // 🚫 CRITICAL: Stop listening and speaking FIRST
-    if (window.stopAllSpeech) {
-        window.stopAllSpeech();
-    }
-    if (window.stopListening) {
-        window.stopListening();
+    // 🚫 CRITICAL: Stop the Speak Now banner from showing
+    if (window.closeSpeakNowBanner) {
+        window.closeSpeakNowBanner();
     }
     
     // Remove any existing decision panel first
@@ -1006,18 +1003,7 @@ function showDecisionPanel(options) {
         },
         onSkip: options.onSkip || function() { 
             console.log("Finish clicked");
-            
-            // ✅ FIX: PASS THE NAME PARAMETER
-            const userName = window.currentLeadData?.name || window.userFirstName || '';
-            const captureType = window.currentLeadData?.captureType || 'default';
-            
-            if (window.showThankYouSplash) {
-                window.showThankYouSplash(userName, captureType); // ✅ NOW WITH PARAMETERS!
-            }
-            
-            // Reset system
-            window.isInLeadCapture = false;
-            window.currentLeadData = null;
+            if (window.showThankYouSplash) window.showThankYouSplash();
         }
     };
     
@@ -1100,6 +1086,127 @@ function showDecisionPanel(options) {
     };
     
     console.log("✅ DECISION PANEL: Matching email confirmation style displayed");
+}
+
+function cleanupDecisionPanel() {
+    const panels = document.querySelectorAll('.decision-panel');
+    panels.forEach(panel => panel.remove());
+}
+
+// Make globally available
+window.showDecisionPanel = showDecisionPanel;
+window.cleanupDecisionPanel = cleanupDecisionPanel;
+
+// ================================
+// IN-CHAT DECISION PANEL (CLEAN VERSION)
+// ================================
+function showDecisionPanel(options) {
+    console.log("🎯 DECISION PANEL: Matching email confirmation style EXACTLY");
+    
+    // 🚫 CRITICAL: Stop listening and speaking FIRST
+    if (window.stopAllSpeech) {
+        window.stopAllSpeech();
+    }
+    if (window.stopListening) {
+        window.stopListening();
+    }
+    
+    // Remove any existing decision panel first
+    cleanupDecisionPanel();
+    
+    const config = {
+        question: options.question || "What would you like to do next?",
+        yesText: options.yesText || "Continue", 
+        skipText: options.skipText || "Finish",
+        onYes: options.onYes || function() { 
+            console.log("Continue clicked");
+            if (window.showDirectSpeakNow) window.showDirectSpeakNow();
+        },
+        onSkip: options.onSkip || function() { 
+            console.log("Finish clicked");
+            if (window.showThankYouSplash) window.showThankYouSplash();
+        }
+    };
+    
+    // Create decision panel that MATCHES your email confirmation EXACTLY
+    const decisionHTML = `
+        <div class="confirmation-buttons decision-panel" style="
+            text-align: center; 
+            margin: 15px 0; 
+            padding: 20px; 
+            background: rgba(255,255,255,0.1); 
+            border-radius: 15px;
+            border: 2px solid rgba(255,255,255,0.2);
+        ">
+            <div style="
+                margin-bottom: 15px; 
+                color: white; 
+                font-size: 18px;
+                font-weight: bold;
+            ">
+                ${config.question}
+            </div>
+            <div style="
+                display: flex; 
+                justify-content: center; 
+                gap: 20px;
+                flex-wrap: wrap;
+            ">
+                <button onclick="window.handleDecisionYes()" style="
+                    background: linear-gradient(135deg, #4CAF50, #8BC34A);
+                    color: white; 
+                    border: none; 
+                    padding: 15px 30px; 
+                    border-radius: 25px; 
+                    cursor: pointer;
+                    font-weight: bold;
+                    font-size: 16px;
+                    min-width: 120px;
+                    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+                ">
+                    ${config.yesText}
+                </button>
+                <button onclick="window.handleDecisionSkip()" style="
+                    background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+                    color: white; 
+                    border: none; 
+                    padding: 15px 30px; 
+                    border-radius: 25px; 
+                    cursor: pointer;
+                    font-weight: bold;
+                    font-size: 16px;
+                    min-width: 120px;
+                    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+                ">
+                    ${config.skipText}
+                </button>
+            </div>
+        </div>
+    `;
+    
+    // Add to the SAME container as email confirmation
+    const chatContainer = document.getElementById('chatMessages') || 
+                         document.querySelector('.chat-messages') ||
+                         document.querySelector('.chat-container') ||
+                         document.body;
+    
+    chatContainer.insertAdjacentHTML('beforeend', decisionHTML);
+    
+    // Scroll to show the decision panel
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+    
+    // Store callbacks globally
+    window.handleDecisionYes = function() {
+        cleanupDecisionPanel();
+        config.onYes();
+    };
+    
+    window.handleDecisionSkip = function() {
+        cleanupDecisionPanel();
+        config.onSkip();
+    };
+    
+    console.log("✅ DECISION PANEL: Matching email confirmation style displayed (AI stopped)");
 }
 
 function cleanupDecisionPanel() {
@@ -1434,7 +1541,129 @@ function showEmailConfirmationButtons(leadData, captureType) {
     }, 100);
 }
 
+// ================================
+// IN-CHAT DECISION PANEL (MATCHES EMAIL CONFIRMATION EXACTLY)
+// ================================
+function showDecisionPanel(options) {
+    console.log("🎯 DECISION PANEL: Showing IN-CHAT decision");
+    
+    // 🚫 CRITICAL: Stop the Speak Now banner from showing
+    if (window.closeSpeakNowBanner) {
+        window.closeSpeakNowBanner();
+    }
+    
+    // Remove any existing decision panel first
+    cleanupDecisionPanel();
+    
+    const config = {
+        question: options.question || "What would you like to do next?",
+        yesText: options.yesText || "Continue", 
+        skipText: options.skipText || "Finish",
+        onYes: options.onYes || function() { 
+            console.log("Continue clicked");
+            if (window.showDirectSpeakNow) window.showDirectSpeakNow();
+        },
+        onSkip: options.onSkip || function() { 
+            console.log("Finish clicked");
+            if (window.showThankYouSplash) window.showThankYouSplash();
+        }
+    };
+    
+    // Create decision panel that MATCHES your email confirmation EXACTLY
+    const decisionHTML = `
+        <div class="email-confirmation-buttons decision-panel" style="
+            text-align: center; 
+            margin: 20px 0; 
+            padding: 25px; 
+            background: rgba(255,255,255,0.1); 
+            border-radius: 15px;
+            border: 2px solid rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+        ">
+            <div style="
+                margin-bottom: 20px; 
+                color: white; 
+                font-size: 18px;
+                font-weight: bold;
+            ">
+                ${config.question}
+            </div>
+            <div style="
+                display: flex; 
+                justify-content: center; 
+                gap: 20px;
+                flex-wrap: wrap;
+            ">
+                <button onclick="window.handleDecisionYes()" style="
+                    background: linear-gradient(135deg, #4CAF50, #8BC34A);
+                    color: white; 
+                    border: none; 
+                    padding: 15px 30px; 
+                    border-radius: 25px; 
+                    cursor: pointer;
+                    font-weight: bold;
+                    font-size: 16px;
+                    min-width: 140px;
+                    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+                    transition: all 0.3s ease;
+                " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(76, 175, 80, 0.4)';" 
+                   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(76, 175, 80, 0.3)';">
+                    ${config.yesText}
+                </button>
+                <button onclick="window.handleDecisionSkip()" style="
+                    background: linear-gradient(135deg, #757575, #9E9E9E);
+                    color: white; 
+                    border: none; 
+                    padding: 15px 30px; 
+                    border-radius: 25px; 
+                    cursor: pointer;
+                    font-weight: bold;
+                    font-size: 16px;
+                    min-width: 140px;
+                    box-shadow: 0 4px 15px rgba(117, 117, 117, 0.3);
+                    transition: all 0.3s ease;
+                " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(117, 117, 117, 0.4)';" 
+                   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(117, 117, 117, 0.3)';">
+                    ${config.skipText}
+                </button>
+            </div>
+        </div>
+    `;
+    
+    // Add to the SAME container as email confirmation
+    const chatContainer = document.getElementById('chatMessages') || 
+                         document.querySelector('.chat-messages') ||
+                         document.querySelector('.chat-container') ||
+                         document.body;
+    
+    chatContainer.insertAdjacentHTML('beforeend', decisionHTML);
+    
+    // Auto-scroll to show the buttons (EXACTLY like email confirmation)
+    setTimeout(() => {
+        const panel = document.querySelector('.decision-panel');
+        if (panel) {
+            panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    }, 100);
+    
+    // Store callbacks globally
+    window.handleDecisionYes = function() {
+        cleanupDecisionPanel();
+        config.onYes();
+    };
+    
+    window.handleDecisionSkip = function() {
+        cleanupDecisionPanel();
+        config.onSkip();
+    };
+    
+    console.log("✅ DECISION PANEL: Matching email confirmation style displayed");
+}
 
+function cleanupDecisionPanel() {
+    const panels = document.querySelectorAll('.decision-panel');
+    panels.forEach(panel => panel.remove());
+}
 
 // Make globally available
 window.showDecisionPanel = showDecisionPanel;
@@ -1756,10 +1985,6 @@ function initializePreQualifierCapture() {
 // ================================
 function showThankYouSplash(name, captureType) {
     console.log('🎬 Deploying cinematic thank you splash screen with restart button...');
-
-    // ✅ GRACEFUL NAME HANDLING
-    const displayName = name || window.currentLeadData?.name || window.userFirstName || '';
-    const displayCaptureType = captureType || window.currentLeadData?.captureType || 'default';
     
     // ✅ NUCLEAR OPTION - KILL ALL SPEECH SYSTEMS
     if (window.speechRecognition) {
@@ -1783,49 +2008,72 @@ function showThankYouSplash(name, captureType) {
     // ✅ SET FINAL STATE
     conversationState = 'splash_screen_active';
     
+    const splashOverlay = document.createElement('div');
+    splashOverlay.id = 'thankYouSplash';
+    splashOverlay.style.cssText = `
+        position: fixed; 
+        top: 50%; 
+        left: 50%; 
+        transform: translate(-50%, -50%);
+        width: 90%; 
+        max-width: 600px;
+        height: auto;
+        min-height: 500px;
+        background: linear-gradient(135deg, #000428 0%, #004e92 50%, #000428 100%);
+        z-index: 99999; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center;
+        animation: fadeInSplash 0.8s ease-in;
+        border-radius: 20px;
+        box-shadow: 0 0 50px rgba(0, 78, 146, 0.6), inset 0 0 50px rgba(0, 78, 146, 0.3);
+        border: 2px solid rgba(74, 144, 226, 0.5);
+        overflow: hidden;
+    `;
+    
     splashOverlay.innerHTML = `
-    <div style="text-align: center; color: white; animation: slideInContent 1s ease-out 0.3s both; position: relative; padding: 40px 30px; width: 100%;">
-        <!-- Goodbye Avatar Video -->
-        <div style="margin-bottom: 20px;">
-            <video autoplay loop muted playsinline style="width: 120px; height: 120px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.3);">
-                <source src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1762224530592.mp4" type="video/mp4">
-            </video>
+        <div style="text-align: center; color: white; animation: slideInContent 1s ease-out 0.3s both; position: relative; padding: 40px 30px; width: 100%;">
+            <!-- Goodbye Avatar Video -->
+            <div style="margin-bottom: 20px;">
+                <video autoplay loop muted playsinline style="width: 120px; height: 120px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.3);">
+                    <source src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1762224530592.mp4" type="video/mp4">
+                </video>
+            </div>
+            
+            <div style="font-size: 48px; margin-bottom: 15px; text-shadow: 0 0 20px rgba(255,255,255,0.4);">🙏</div>
+            <h1 style="font-size: 32px; margin-bottom: 15px; font-weight: 300; letter-spacing: 1px; text-shadow: 0 2px 8px rgba(0,0,0,0.3);">Thank You, ${name}!</h1>
+            <p style="font-size: 18px; opacity: 0.9; margin-bottom: 8px; font-weight: 300;">Your consultation has been confirmed!</p>
+            <p style="font-size: 16px; margin-top: 15px; opacity: 0.8; font-weight: 300;">Bruce will contact you within 24 hours.</p>
+            <div style="margin-top: 25px; font-size: 14px; opacity: 0.7; letter-spacing: 1px;">Mobile-Wise AI</div>
+            
+            <!-- CLOSE CHAT BUTTON -->
+<button onclick="closeChatCompletely()" style="
+    margin-top: 30px;
+    background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+    color: white;
+    border: none;
+    padding: 15px 35px;
+    border-radius: 50px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 16px;
+    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+    transition: all 0.3s ease;
+    min-width: 180px;
+    animation: slideInButton 1s ease-out 1s both;
+" onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 10px 30px rgba(255, 107, 107, 0.6)'" 
+   onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 6px 20px rgba(255, 107, 107, 0.4)'">
+    ❌ CLOSE CHAT & EXIT
+</button>
         </div>
-        
-        <div style="font-size: 48px; margin-bottom: 15px; text-shadow: 0 0 20px rgba(255,255,255,0.4);">🙏</div>
-        <h1 style="font-size: 32px; margin-bottom: 15px; font-weight: 300; letter-spacing: 1px; text-shadow: 0 2px 8px rgba(0,0,0,0.3);">Thank You!</h1>
-        <p style="font-size: 18px; opacity: 0.9; margin-bottom: 8px; font-weight: 300;">Thank you for visiting!</p>
-        <p style="font-size: 16px; margin-top: 15px; opacity: 0.8; font-weight: 300;">Have a wonderful day!</p>
-        <div style="margin-top: 25px; font-size: 14px; opacity: 0.7; letter-spacing: 1px;">Mobile-Wise AI</div>
-        
-        <!-- CLOSE CHAT BUTTON -->
-        <button onclick="closeChatCompletely()" style="
-            margin-top: 30px;
-            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
-            color: white;
-            border: none;
-            padding: 15px 35px;
-            border-radius: 50px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 16px;
-            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
-            transition: all 0.3s ease;
-            min-width: 180px;
-            animation: slideInButton 1s ease-out 1s both;
-        " onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 10px 30px rgba(255, 107, 107, 0.6)'" 
-           onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 6px 20px rgba(255, 107, 107, 0.4)'">
-            ❌ CLOSE CHAT & EXIT
-        </button>
-    </div>
-`; // ← MAKE SURE THIS BACKTICK IS HERE
-
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes fadeInSplash { from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
-    @keyframes slideInContent { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes slideInButton { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-`;
+    `;
+    
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes fadeInSplash { from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+        @keyframes slideInContent { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideInButton { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    `;
     document.head.appendChild(style);
     document.body.appendChild(splashOverlay);
     
