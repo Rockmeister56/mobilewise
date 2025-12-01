@@ -1860,28 +1860,12 @@ const leadCaptureActive = window.isInLeadCapture === true;
 // 🎯 ONLY CHECK ACTION CENTER IF NOT IN LEAD CAPTURE
 const actionCenterShowing = !leadCaptureActive && !!actionCenterVisible;
 
+// Check blocking conditions (removed state check - banner appears after EVERY question)
 if (actionCenterShowing || leadCaptureActive) {
     if (VOICE_CONFIG.debug) {
         console.log('🚫 ROOT BLOCK: Action Center or Lead Capture active - no banner allowed');
     }
     return; // STOP HERE - Don't show banner
-}
-
-// 🛑 NEW: ADD TESTIMONIAL CHECKS HERE
-if (window.isInTestimonialMode || window.concernBannerActive || window.blockAutoListen || window.testimonialSessionActive) {
-    if (VOICE_CONFIG.debug) {
-        console.log('🚫 TESTIMONIAL BLOCK: Testimonial mode active - no banner allowed');
-    }
-    return; // STOP HERE - Don't show banner during testimonials
-}
-
-// 🛑 ALSO CHECK IF TESTIMONIAL ELEMENTS ARE VISIBLE
-const testimonialElements = document.querySelectorAll('[id*="testimonial"], [class*="testimonial"], #testimonial-splash-screen');
-if (testimonialElements.length > 0) {
-    if (VOICE_CONFIG.debug) {
-        console.log('🚫 TESTIMONIAL ELEMENTS BLOCK: Testimonial visible - no banner allowed');
-    }
-    return; // STOP HERE - Don't show banner when testimonials are on screen
 }
 
 // Then keep your original blocking conditions
@@ -3038,12 +3022,6 @@ for (let keyword of allKeywords) {
 window.handleConcernWithTestimonial = function(userText, concernType) {
     console.log(`🎯 handleConcernWithTestimonial called: "${userText}" (${concernType})`);
 
-    // 🛑 BLOCK SPEAK SEQUENCE IMMEDIATELY
-window.concernBannerActive = true;
-window.isInTestimonialMode = true;
-window.blockAutoListen = true; // 🆕 ADD THIS LINE
-window.suppressAutoListen = true; // 🆕 ADD THIS LINE
-
 // 🛑 STOP ACTIVE LISTENING & CLOSE BANNERS
 if (window.stopListening) window.stopListening();
 if (window.hideSpeakNowBanner) window.hideSpeakNowBanner();
@@ -3416,21 +3394,6 @@ const BANNER_MAPPING = {
 };
 
 function triggerBanner(intentType, step = 'default') {
-console.log('🔍 triggerBanner CALLED from:', new Error().stack.split('\n')[2]);
-
-    // 🛑 ADD TESTIMONIAL CHECK RIGHT AT THE START
-    if (window.isInTestimonialMode || window.concernBannerActive || window.blockAutoListen || window.testimonialSessionActive) {
-        console.log('🚫 BANNER BLOCKED: Testimonial mode active - not triggering', intentType);
-        return;
-    }
-    
-    // 🛑 ALSO CHECK IF TESTIMONIAL ELEMENTS ARE VISIBLE
-    const testimonialElements = document.querySelectorAll('[id*="testimonial"], [class*="testimonial"], #testimonial-splash-screen');
-    if (testimonialElements.length > 0) {
-        console.log('🚫 BANNER BLOCKED: Testimonial elements visible - not triggering', intentType);
-        return;
-    }
-
     const mapping = BANNER_MAPPING[intentType];
     if (!mapping) {
         console.log('❌ No banner mapping for:', intentType);

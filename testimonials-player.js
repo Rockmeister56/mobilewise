@@ -26,6 +26,12 @@ window.avatarCurrentlyPlaying = false;
 function showTestimonialSplashScreen() {
     console.log('🎬 TESTIMONIAL SPLASH: Loading complete system');
 
+        // 🛑 BLOCK SPEAK SEQUENCE IMMEDIATELY
+window.concernBannerActive = true;
+window.isInTestimonialMode = true;
+window.blockAutoListen = true; // 🆕 ADD THIS LINE
+window.suppressAutoListen = true; // 🆕 ADD THIS LINE
+
      // 🛡️ SET PROTECTION FLAG - BLOCK SPEAK NOW
     window.testimonialSessionActive = true;
     console.log('🛡️ Testimonial protection activated - Speak Now blocked');
