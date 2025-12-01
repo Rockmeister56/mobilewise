@@ -179,8 +179,89 @@ function closeTestimonialVideo() {
     console.log('✅ Navigation options shown');
 }
 
+// ================================
+// 🌀 UNIVERSAL TESTIMONIAL SPINNER
+// ================================
+function showTestimonialSpinner() {
+    // Remove any existing spinner first
+    const existingSpinner = document.getElementById('testimonial-spinner');
+    if (existingSpinner) {
+        existingSpinner.remove();
+    }
+    
+    const spinner = document.createElement('div');
+    spinner.id = 'testimonial-spinner';
+    spinner.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.9);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+        backdrop-filter: blur(5px);
+    `;
+    
+    spinner.innerHTML = `
+        <div style="
+            text-align: center;
+            color: white;
+        ">
+            <div style="
+                width: 60px;
+                height: 60px;
+                border: 4px solid rgba(255, 255, 255, 0.2);
+                border-radius: 50%;
+                border-top-color: #007AFF;
+                animation: testimonial-spin 1s linear infinite;
+                margin: 0 auto 20px;
+            "></div>
+            <div style="
+                font-size: 18px;
+                font-weight: 500;
+                opacity: 0.9;
+            ">Loading testimonial...</div>
+        </div>
+    `;
+    
+    document.body.appendChild(spinner);
+    
+    // Add CSS animation if not already present
+    if (!document.getElementById('testimonial-spinner-styles')) {
+        const style = document.createElement('style');
+        style.id = 'testimonial-spinner-styles';
+        style.textContent = `
+            @keyframes testimonial-spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+}
+
+function hideTestimonialSpinner() {
+    const spinner = document.getElementById('testimonial-spinner');
+    if (spinner) {
+        // Add fade out animation
+        spinner.style.opacity = '0';
+        spinner.style.transition = 'opacity 0.3s ease';
+        setTimeout(() => {
+            if (spinner.parentNode) {
+                spinner.remove();
+            }
+        }, 300);
+    }
+}
+
 function playTestimonialVideo(testimonialType) {
     console.log(`🎬 Playing ${testimonialType} testimonial`);
+
+    // 🌀 SHOW SPINNER IMMEDIATELY
+    showTestimonialSpinner();
     
     // 🛡️ ULTRA-STRONG PROTECTION: Block ALL voice system timeouts
     window.testimonialSessionActive = true;
@@ -215,6 +296,7 @@ function playTestimonialVideo(testimonialType) {
     if (!videoUrl) {
         console.error('❌ Video URL not found for:', testimonialType);
         window.avatarCurrentlyPlaying = false;
+        hideTestimonialSpinner(); // Hide spinner on error
         return;
     }
     
@@ -243,6 +325,8 @@ function playTestimonialVideo(testimonialType) {
         backdrop-filter: blur(10px);
         animation: fadeInSplash 0.5s ease-in;
     `;
+
+
     
     videoOverlay.innerHTML = `
         <div style="
@@ -292,6 +376,20 @@ function playTestimonialVideo(testimonialType) {
     `;
     
     document.body.appendChild(videoOverlay);
+
+     // 🌀 HIDE SPINNER when video is loaded
+    setTimeout(() => {
+        hideTestimonialSpinner();
+        
+        // Start video playback
+        const video = document.getElementById('testimonialVideo');
+        if (video) {
+            video.play().catch(e => {
+                console.error('❌ Video play failed:', e);
+                hideTestimonialSpinner();
+            });
+        }
+    }, 100);
     
     // ✅ SAFE EVENT LISTENERS - PREVENT DOUBLE CALLS
     setTimeout(() => {
@@ -332,6 +430,7 @@ video.addEventListener('ended', function() {
                     videoEnded = true;
                     console.error('❌ Video error - safe close:', e);
                     window.avatarCurrentlyPlaying = false; // RESET FLAG
+                    hideTestimonialSpinner(); // 🌀 HIDE SPINNER ON ERROR
                 }
             });
         } else {
@@ -1029,6 +1128,8 @@ window.showTestimonialSplashScreen = showTestimonialSplashScreen;
 window.playTestimonialVideo = playTestimonialVideo; 
 window.handleTestimonialSkip = handleTestimonialSkip;
 window.hideTestimonialSplash = hideTestimonialSplash;
+window.showTestimonialSpinner = showTestimonialSpinner;
+window.hideTestimonialSpinner = hideTestimonialSpinner;
 window.avatarCurrentlyPlaying = false;
 
 // ✅ USE THIS - It's the safest approach:
