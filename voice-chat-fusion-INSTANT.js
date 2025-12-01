@@ -4873,19 +4873,6 @@ async function showDirectSpeakNow() {
         return;
     }
     
-    // 🎯 NEW: Block Speak Now when Testimonials are active
-    if (window.isInTestimonialMode || window.concernBannerActive || window.blockAutoListen) {
-        console.log('🚫 Speak Now blocked - Testimonial mode active');
-        return;
-    }
-    
-    // 🎯 ALSO CHECK IF UNIVERSAL BANNER IS SHOWING TESTIMONIALS
-    const testimonialBanner = document.querySelector('[class*="testimonial"], [id*="testimonial"]');
-    if (testimonialBanner) {
-        console.log('🚫 Speak Now blocked - Testimonial banner visible');
-        return;
-    }
-    
     if (window.disableSpeakNowBanner) return;
 
     // 🎨 CREATE OVERLAY
