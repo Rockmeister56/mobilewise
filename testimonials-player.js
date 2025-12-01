@@ -182,6 +182,81 @@ function closeTestimonialVideo() {
 // ================================
 // 🌀 UNIVERSAL TESTIMONIAL SPINNER
 // ================================
+function showTestimonialSpinner() {
+    // Remove any existing spinner first
+    const existingSpinner = document.getElementById('testimonial-spinner');
+    if (existingSpinner) {
+        existingSpinner.remove();
+    }
+    
+    const spinner = document.createElement('div');
+    spinner.id = 'testimonial-spinner';
+    spinner.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.9);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+        backdrop-filter: blur(5px);
+    `;
+    
+    spinner.innerHTML = `
+        <div style="
+            text-align: center;
+            color: white;
+        ">
+            <div style="
+                width: 60px;
+                height: 60px;
+                border: 4px solid rgba(255, 255, 255, 0.2);
+                border-radius: 50%;
+                border-top-color: #007AFF;
+                animation: testimonial-spin 1s linear infinite;
+                margin: 0 auto 20px;
+            "></div>
+            <div style="
+                font-size: 18px;
+                font-weight: 500;
+                opacity: 0.9;
+            ">Loading testimonial...</div>
+        </div>
+    `;
+    
+    document.body.appendChild(spinner);
+    
+    // Add CSS animation if not already present
+    if (!document.getElementById('testimonial-spinner-styles')) {
+        const style = document.createElement('style');
+        style.id = 'testimonial-spinner-styles';
+        style.textContent = `
+            @keyframes testimonial-spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+}
+
+function hideTestimonialSpinner() {
+    const spinner = document.getElementById('testimonial-spinner');
+    if (spinner) {
+        // Add fade out animation
+        spinner.style.opacity = '0';
+        spinner.style.transition = 'opacity 0.3s ease';
+        setTimeout(() => {
+            if (spinner.parentNode) {
+                spinner.remove();
+            }
+        }, 300);
+    }
+}
+
 function playTestimonialVideo(testimonialType) {
     console.log(`🎬 Playing ${testimonialType} testimonial`);
 
@@ -233,65 +308,27 @@ function playTestimonialVideo(testimonialType) {
         splashScreen.remove();
     }
     
-    // Add the header titles
-    const testimonialTitles = {
-        skeptical: 'Skeptical Client Testimonial',
-        speed: 'Speed Results Testimonial', 
-        convinced: 'Convinced Client Testimonial',
-        excited: 'Excited Results Testimonial'
-    };
-    
-    // Create the video container WITH OVERLAY HEADER
-    const videoOverlay = document.createElement('div');
-    videoOverlay.id = 'testimonial-video-player';
-    videoOverlay.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.85);
-        z-index: 9999;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        backdrop-filter: blur(10px);
-        animation: fadeInSplash 0.5s ease-in;
-        padding: 20px;
-    `;
+// Create the video container WITH OVERLAY HEADER
+const videoOverlay = document.createElement('div');
+videoOverlay.id = 'testimonial-video-player';
+videoOverlay.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(10px);
+    animation: fadeInSplash 0.5s ease-in;
+    padding: 20px;
+`;
     
     videoOverlay.innerHTML = `
-        <!-- YOUR EXACT HEADER FROM SPLASH SCREEN -->
-        <div style="
-            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.9)),
-                        url('https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1762038349654_action-bg.jpg');
-            background-size: cover;
-            background-position: center;
-            background-blend-mode: overlay;
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 20px 25px;
-            margin-bottom: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            color: white;
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            max-width: 854px;
-            width: 100%;
-        ">
-            <div style="display: flex; align-items: center; margin-bottom: 5px; gap: 15px; margin-top: 5px;">
-                <video autoplay loop muted playsinline style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255, 255, 255, 0.2); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);">
-                    <source src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1764614255102.mp4" type="video/mp4">
-                </video>
-                <div>
-                    <h3 style="margin: 0 0 5px 0; font-size: 22px; font-weight: 600; color: white;">${testimonialTitles[testimonialType] || 'Client Testimonial'}</h3>
-                    <p style="margin: 0; opacity: 0.8; font-size: 13px; font-weight: 300; letter-spacing: 0.5px;">Real story from a satisfied client</p>
-                </div>
-            </div>
-        </div>
-        
-        <!-- VIDEO PLAYER -->
         <div style="
             position: relative;
             width: 854px;
@@ -340,7 +377,7 @@ function playTestimonialVideo(testimonialType) {
     
     document.body.appendChild(videoOverlay);
 
-    // 🌀 HIDE SPINNER when video is loaded
+     // 🌀 HIDE SPINNER when video is loaded
     setTimeout(() => {
         hideTestimonialSpinner();
         
@@ -360,29 +397,30 @@ function playTestimonialVideo(testimonialType) {
         if (video) {
             let videoEnded = false; // LOCAL FLAG to prevent double calls
 
-            // ✅ FIXED VERSION - Add this to show navigation when video ends
-            video.addEventListener('ended', function() {
-                if (!videoEnded) {
-                    videoEnded = true;
-                    console.log('✅ Video ended naturally - showing navigation');
-                    window.avatarCurrentlyPlaying = false; // RESET FLAG
-                    
-                    // 🎯 FIRST: Remove the video player
-                    const videoPlayer = document.getElementById('testimonial-video-player');
-                    if (videoPlayer) {
-                        // Stop the video first
-                        const video = videoPlayer.querySelector('video');
-                        if (video) {
-                            video.pause();
-                            video.currentTime = 0;
-                        }
-                        // Remove the player
-                        videoPlayer.remove();
-                        console.log('✅ Video player removed after natural end');
-                    }
-                    
-                    // 🎯 THEN: Show navigation options
-                    showTestimonialNavigationOptions();
+          // ✅ FIXED VERSION - Add this to show navigation when video ends
+// ✅ FIXED VERSION - Add this to show navigation when video ends
+video.addEventListener('ended', function() {
+    if (!videoEnded) {
+        videoEnded = true;
+        console.log('✅ Video ended naturally - showing navigation');
+        window.avatarCurrentlyPlaying = false; // RESET FLAG
+        
+        // 🎯 FIRST: Remove the video player
+        const videoPlayer = document.getElementById('testimonial-video-player');
+        if (videoPlayer) {
+            // Stop the video first
+            const video = videoPlayer.querySelector('video');
+            if (video) {
+                video.pause();
+                video.currentTime = 0;
+            }
+            // Remove the player
+            videoPlayer.remove();
+            console.log('✅ Video player removed after natural end');
+        }
+        
+        // 🎯 THEN: Show navigation options
+        showTestimonialNavigationOptions();
     }
 });
 
