@@ -1880,6 +1880,12 @@ if (VOICE_CONFIG.debug) {
 
 // It already contains the listening start logic internally
 if (typeof showDirectSpeakNow === 'function') {
+    // 🛑 ADD TESTIMONIAL CHECK HERE
+    if (window.testimonialSessionActive || window.isInTestimonialMode || window.concernBannerActive) {
+        console.log('🚫 TESTIMONIAL MODE: Skipping speak now banner - testimonials active');
+        return; // DON'T CALL showDirectSpeakNow!
+    }
+    
     showDirectSpeakNow();
     if (VOICE_CONFIG.debug) {
         console.log('✅ Banner triggered - listening will start via internal banner logic');
