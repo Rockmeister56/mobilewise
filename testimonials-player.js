@@ -329,51 +329,51 @@ videoOverlay.style.cssText = `
 `;
     
     videoOverlay.innerHTML = `
-        <div style="
-            position: relative;
-            width: 854px;
-            height: 480px;
+    <div style="
+        position: relative;
+        width: 854px;
+        height: 480px;
+        background: #000;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        animation: slideInFromBottom 0.5s ease-out;
+    ">
+        <video id="testimonialVideo" autoplay style="
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
             background: #000;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.7);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            animation: slideInFromBottom 0.5s ease-out;
         ">
-            <video id="testimonialVideo" autoplay style="
-                width: 100%;
-                height: 100%;
-                object-fit: contain;
-                background: #000;
-            ">
-                <source src="${videoUrl}" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
-            
-            <!-- Close Button -->
-            <button onclick="closeTestimonialVideo()" style="
-                position: absolute;
-                bottom: 20px;
-                left: 50%;
-                transform: translateX(-50%);
-                padding: 12px 32px;
-                background: rgba(0, 0, 0, 0.6);
-                color: white;
-                border: 1px solid rgba(255, 255, 255, 0.2);
-                border-radius: 25px;
-                font-size: 14px;
-                font-weight: 600;
-                cursor: pointer;
-                backdrop-filter: blur(10px);
-                transition: all 0.3s ease;
-                z-index: 10001;
-            " 
-            onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.borderColor='rgba(255, 255, 255, 0.3)'; this.style.transform='translateX(-50%) translateY(-2px)';" 
-            onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.borderColor='rgba(255, 255, 255, 0.2)'; this.style.transform='translateX(-50%) translateY(0)';">
-                ✕ Close & Continue
-            </button>
-        </div>
-    `;
+            <source src="${videoUrl}" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+        
+        <!-- Close Button -->
+        <button onclick="closeTestimonialVideo()" style="
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 32px;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            z-index: 10001;
+        " 
+        onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.borderColor='rgba(255, 255, 255, 0.3)'; this.style.transform='translateX(-50%) translateY(-2px)';" 
+        onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.borderColor='rgba(255, 255, 255, 0.2)'; this.style.transform='translateX(-50%) translateY(0)';">
+            ✕ Close & Continue
+        </button>
+    </div>
+`;
     
     document.body.appendChild(videoOverlay);
 
