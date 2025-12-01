@@ -3021,6 +3021,17 @@ for (let keyword of allKeywords) {
 // 🚨 UPDATED handleConcernWithTestimonial FUNCTION - MINIMAL CHANGES
 window.handleConcernWithTestimonial = function(userText, concernType) {
     console.log(`🎯 handleConcernWithTestimonial called: "${userText}" (${concernType})`);
+
+    // 🛑 BLOCK SPEAK SEQUENCE IMMEDIATELY
+window.concernBannerActive = true;
+window.isInTestimonialMode = true;
+window.blockAutoListen = true; // 🆕 ADD THIS LINE
+window.suppressAutoListen = true; // 🆕 ADD THIS LINE
+
+// 🛑 STOP ACTIVE LISTENING & CLOSE BANNERS
+if (window.stopListening) window.stopListening();
+if (window.hideSpeakNowBanner) window.hideSpeakNowBanner();
+if (window.cleanupSpeakSequence) window.cleanupSpeakSequence();
     
     // 🛑 BLOCK SPEAK SEQUENCE IMMEDIATELY
     window.concernBannerActive = true;
@@ -4859,6 +4870,19 @@ async function showDirectSpeakNow() {
     // 🎯 COORDINATION: Block Speak Now when Action Center is about to appear
     if (window.actionCenterPending) {
         console.log('🚫 Speak Now blocked - Action Center pending');
+        return;
+    }
+    
+    // 🎯 NEW: Block Speak Now when Testimonials are active
+    if (window.isInTestimonialMode || window.concernBannerActive || window.blockAutoListen) {
+        console.log('🚫 Speak Now blocked - Testimonial mode active');
+        return;
+    }
+    
+    // 🎯 ALSO CHECK IF UNIVERSAL BANNER IS SHOWING TESTIMONIALS
+    const testimonialBanner = document.querySelector('[class*="testimonial"], [id*="testimonial"]');
+    if (testimonialBanner) {
+        console.log('🚫 Speak Now blocked - Testimonial banner visible');
         return;
     }
     
