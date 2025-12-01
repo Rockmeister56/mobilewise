@@ -328,7 +328,44 @@ videoOverlay.style.cssText = `
     padding: 20px;
 `;
     
-    videoOverlay.innerHTML = `
+   const testimonialTitles = {
+    skeptical: 'Skeptical Client Testimonial',
+    speed: 'Speed Results Testimonial', 
+    convinced: 'Convinced Client Testimonial',
+    excited: 'Excited Results Testimonial'
+};
+
+videoOverlay.innerHTML = `
+    <!-- YOUR EXACT HEADER FROM SPLASH SCREEN -->
+    <div style="
+        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.9)),
+                    url('https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1762038349654_action-bg.jpg');
+        background-size: cover;
+        background-position: center;
+        background-blend-mode: overlay;
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 20px 25px;
+        margin-bottom: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        color: white;
+        font-family: 'Segoe UI', system-ui, sans-serif;
+        max-width: 854px;
+        width: 100%;
+    ">
+        <div style="display: flex; align-items: center; margin-bottom: 5px; gap: 15px; margin-top: 5px;">
+            <video autoplay loop muted playsinline style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255, 255, 255, 0.2); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);">
+                <source src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1764614255102.mp4" type="video/mp4">
+            </video>
+            <div>
+                <h3 style="margin: 0 0 5px 0; font-size: 22px; font-weight: 600; color: white;">${testimonialTitles[testimonialType] || 'Client Testimonial'}</h3>
+                <p style="margin: 0; opacity: 0.8; font-size: 13px; font-weight: 300; letter-spacing: 0.5px;">Real story from a satisfied client</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- VIDEO PLAYER -->
     <div style="
         position: relative;
         width: 854px;
