@@ -3400,6 +3400,21 @@ const BANNER_MAPPING = {
 };
 
 function triggerBanner(intentType, step = 'default') {
+console.log('🔍 triggerBanner CALLED from:', new Error().stack.split('\n')[2]);
+
+    // 🛑 ADD TESTIMONIAL CHECK RIGHT AT THE START
+    if (window.isInTestimonialMode || window.concernBannerActive || window.blockAutoListen || window.testimonialSessionActive) {
+        console.log('🚫 BANNER BLOCKED: Testimonial mode active - not triggering', intentType);
+        return;
+    }
+    
+    // 🛑 ALSO CHECK IF TESTIMONIAL ELEMENTS ARE VISIBLE
+    const testimonialElements = document.querySelectorAll('[id*="testimonial"], [class*="testimonial"], #testimonial-splash-screen');
+    if (testimonialElements.length > 0) {
+        console.log('🚫 BANNER BLOCKED: Testimonial elements visible - not triggering', intentType);
+        return;
+    }
+
     const mapping = BANNER_MAPPING[intentType];
     if (!mapping) {
         console.log('❌ No banner mapping for:', intentType);
