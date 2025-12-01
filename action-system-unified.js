@@ -812,18 +812,63 @@ function sendInternalNotification(leadData, captureType) {
             timestamp: new Date().toLocaleString()
         };
     } else if (captureType === 'preQualifier') {
-        // Pre-Qualifier
-        internalTemplateId = EMAILJS_CONFIG.templates.preQualifier;
-        internalTemplateParams = {
-            to_email: 'bizboost.expert@gmail.com',
-            name: leadData.name,
-            phone: leadData.phone,
-            email: leadData.email,
-            inquiryType: 'PRE_QUALIFIER_REQUEST',
-            message: `Pre-Qualifier Request\n\nName: ${leadData.name}\nPhone: ${leadData.phone}\nEmail: ${leadData.email}`,
-            timestamp: new Date().toLocaleString()
-        };
+    internalTemplateId = EMAILJS_CONFIG.templates.preQualifier;
+    
+    // Qualification scoring logic (copy from earlier function)
+    let qualificationScore = 0;
+    let qualifications = [];
+    
+    const experienceYears = parseInt(leadData.experienceYears) || 0;
+    if (experienceYears >= 3) {
+        qualificationScore += 25;
+        qualifications.push(`${experienceYears} years experience`);
     }
+    
+    if (leadData.licenseStatus && leadData.licenseStatus.toLowerCase().includes('cpa')) {
+        qualificationScore += 25;
+        qualifications.push('CPA licensed');
+    }
+    
+    if (leadData.acquisitionTimeline) {
+        const timeline = leadData.acquisitionTimeline.toLowerCase();
+        if (timeline.includes('immediate') || timeline.includes('3 month') || timeline.includes('6 month')) {
+            qualificationScore += 25;
+            qualifications.push('Ready for acquisition');
+        }
+    }
+    
+    if (leadData.budgetRange && leadData.budgetRange.trim() !== '') {
+        qualificationScore += 25;
+        qualifications.push(`Budget: ${leadData.budgetRange}`);
+    }
+    
+    const qualificationLevel = qualificationScore >= 75 ? 'HIGH' : 
+                              qualificationScore >= 50 ? 'MEDIUM' : 'BASIC';
+    
+    internalTemplateParams = {
+        to_email: 'bizboost.expert@gmail.com',
+        name: leadData.name,
+        email: leadData.email,
+        phone: leadData.phone,
+        contactTime: 'Within 24 hours',
+        inquiryType: 'PRE_QUALIFIER_REQUEST',
+        transcript: `Pre-qualification score: ${qualificationScore} (${qualificationLevel})`,
+        qualification_score: qualificationScore.toString(),
+        qualification_level: qualificationLevel,  
+        qualifications: qualifications.join(', '),
+        experience_years: leadData.experienceYears || 'Not specified',
+        license_status: leadData.licenseStatus || 'Not specified',
+        acquisition_timeline: leadData.acquisitionTimeline || 'Not specified',
+        budget_range: leadData.budgetRange || 'Not specified',
+        geographic_preference: leadData.geographicPreference || 'Not specified',
+        practice_size: leadData.practiceSize || 'Not specified',
+        specialization_interest: leadData.specializationInterest || 'Not specified',
+        financing_needed: leadData.financingNeeded || 'Not specified',
+        recommended_action: qualificationLevel === 'HIGH' ? 'Contact within 4 hours' : 
+                           qualificationLevel === 'MEDIUM' ? 'Contact within 24 hours' : 'Contact within 48 hours',
+        timestamp: new Date().toLocaleString()
+    };
+}
     
     // Only send if we have a template
     if (internalTemplateId) {
@@ -1735,51 +1780,158 @@ function sendClientConfirmationEmail(leadData, captureType) {
     
     let inquiryType = '';
     let emailSubject = '';
+    let confirmationParams = {}; // 🎯 MOVE THIS OUTSIDE SWITCH
     
-switch(captureType) {
-    case 'preQualifier':
-        inquiryType = 'PRE-QUALIFICATION CONFIRMATION';
-        emailSubject = 'Pre-Qualification Confirmed + Free Book - New Clients Inc';
-        break;
-    case 'consultation':
-        inquiryType = 'CONSULTATION BOOKING CONFIRMATION';
-        emailSubject = 'Consultation Booked + Free Book - New Clients Inc';
-        break;
-    case 'freeBook':
-        inquiryType = 'FREE BOOK CONFIRMATION';
-        emailSubject = 'Your Free Book - New Clients Inc';
-        break;
-    case 'clickToCall':
-        inquiryType = 'URGENT CALL CONFIRMATION';  // ✅ DIFFERENTIATE
-        emailSubject = 'Urgent Call Request - New Clients Inc';  // ✅ DIFFERENTIATE
-        break;
-    case 'requestCall':
-        inquiryType = 'CALL REQUEST CONFIRMATION';
-        emailSubject = 'Call Request Confirmed + Free Book - New Clients Inc';
-        break;
-    default:
-        inquiryType = 'REQUEST CONFIRMATION';
-        emailSubject = 'Confirmation - New Clients Inc';
-}
+    switch(captureType) {
+        case 'preQualifier':
+            inquiryType = 'PRE-QUALIFICATION CONFIRMATION';
+            emailSubject = 'Pre-Qualification Confirmed + Free Book - New Clients Inc';
+            
+            // 🎯 PRE-QUAL SCORING LOGIC
+            let qualificationScore = 0;
+            let qualifications = [];
+            
+            const experienceYears = parseInt(leadData.experienceYears) || 0;
+            if (experienceYears >= 3) {
+                qualificationScore += 25;
+                qualifications.push(`${experienceYears} years experience`);
+            }
+            
+            if (leadData.licenseStatus && leadData.licenseStatus.toLowerCase().includes('cpa')) {
+                qualificationScore += 25;
+                qualifications.push('CPA licensed');
+            }
+            
+            if (leadData.acquisitionTimeline) {
+                const timeline = leadData.acquisitionTimeline.toLowerCase();
+                if (timeline.includes('immediate') || timeline.includes('3 month') || timeline.includes('6 month')) {
+                    qualificationScore += 25;
+                    qualifications.push('Ready for acquisition');
+                }
+            }
+            
+            if (leadData.budgetRange && leadData.budgetRange.trim() !== '') {
+                qualificationScore += 25;
+                qualifications.push(`Budget: ${leadData.budgetRange}`);
+            }
+            
+            const qualificationLevel = qualificationScore >= 75 ? 'HIGH' : 
+                                      qualificationScore >= 50 ? 'MEDIUM' : 'BASIC';
+            
+            confirmationParams = {
+                to_email: cleanEmail,
+                name: leadData.name,
+                email: cleanEmail,
+                phone: leadData.phone || 'Not provided',
+                contactTime: leadData.contactTime || 'Within 24 hours',
+                inquiryType: inquiryType,
+                subject: emailSubject,
+                book_image: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761797944987_book-promo.PNG',
+                
+                // 🎯 PRE-QUAL SPECIFIC PARAMS
+                qualification_score: qualificationScore.toString(),
+                qualification_level: qualificationLevel,
+                recommended_action: qualificationLevel === 'HIGH' ? 'Contact within 4 hours' : 
+                                   qualificationLevel === 'MEDIUM' ? 'Contact within 24 hours' : 'Contact within 48 hours',
+                qualifications: qualifications.join(', '),
+                experience_years: leadData.experienceYears || 'Not specified',
+                license_status: leadData.licenseStatus || 'Not specified',
+                acquisition_timeline: leadData.acquisitionTimeline || 'Not specified',
+                budget_range: leadData.budgetRange || 'Not specified',
+                geographic_preference: leadData.geographicPreference || 'Not specified',
+                practice_size: leadData.practiceSize || 'Not specified',
+                specialization_interest: leadData.specializationInterest || 'Not specified',
+                financing_needed: leadData.financingNeeded || 'Not specified',
+                timestamp: new Date().toLocaleString(),
+                title: ''
+            };
+            break;
+            
+        case 'consultation':
+            inquiryType = 'CONSULTATION BOOKING CONFIRMATION';
+            emailSubject = 'Consultation Booked + Free Book - New Clients Inc';
+            confirmationParams = {
+                to_email: cleanEmail,
+                name: leadData.name,
+                email: cleanEmail,
+                phone: leadData.phone || 'Not provided',
+                contactTime: leadData.contactTime || 'Within 24 hours',
+                inquiryType: inquiryType,
+                subject: emailSubject,
+                book_image: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761797944987_book-promo.PNG'
+            };
+            break;
+            
+        case 'freeBook':
+            inquiryType = 'FREE BOOK CONFIRMATION';
+            emailSubject = 'Your Free Book - New Clients Inc';
+            confirmationParams = {
+                to_email: cleanEmail,
+                name: leadData.name,
+                email: cleanEmail,
+                phone: leadData.phone || 'Not provided',
+                contactTime: leadData.contactTime || 'Within 24 hours',
+                inquiryType: inquiryType,
+                subject: emailSubject,
+                book_image: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761797944987_book-promo.PNG'
+            };
+            break;
+            
+        case 'clickToCall':
+            inquiryType = 'URGENT CALL CONFIRMATION';
+            emailSubject = 'Urgent Call Request - New Clients Inc';
+            confirmationParams = {
+                to_email: cleanEmail,
+                name: leadData.name,
+                email: cleanEmail,
+                phone: leadData.phone || 'Not provided',
+                contactTime: leadData.contactTime || 'Within 24 hours',
+                inquiryType: inquiryType,
+                subject: emailSubject,
+                book_image: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761797944987_book-promo.PNG'
+            };
+            break;
+            
+        case 'requestCall':
+            inquiryType = 'CALL REQUEST CONFIRMATION';
+            emailSubject = 'Call Request Confirmed + Free Book - New Clients Inc';
+            confirmationParams = {
+                to_email: cleanEmail,
+                name: leadData.name,
+                email: cleanEmail,
+                phone: leadData.phone || 'Not provided',
+                contactTime: leadData.contactTime || 'Within 24 hours',
+                inquiryType: inquiryType,
+                subject: emailSubject,
+                book_image: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761797944987_book-promo.PNG'
+            };
+            break;
+            
+        default:
+            inquiryType = 'REQUEST CONFIRMATION';
+            emailSubject = 'Confirmation - New Clients Inc';
+            confirmationParams = {
+                to_email: cleanEmail,
+                name: leadData.name,
+                email: cleanEmail,
+                phone: leadData.phone || 'Not provided',
+                contactTime: leadData.contactTime || 'Within 24 hours',
+                inquiryType: inquiryType,
+                subject: emailSubject,
+                book_image: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761797944987_book-promo.PNG'
+            };
+    }
     
-    const confirmationParams = {
-        to_email: cleanEmail,
-        name: leadData.name,
-        email: cleanEmail,
-        phone: leadData.phone || 'Not provided',
-        contactTime: leadData.contactTime || 'Within 24 hours',
-        inquiryType: inquiryType,
-        subject: emailSubject,
-        book_image: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761797944987_book-promo.PNG'
-    };
+    // 🎯 ADD DEBUG LOG TO SEE WHAT'S BEING SENT
+    console.log('🔍 CLIENT EMAIL PARAMS FOR', captureType, ':', confirmationParams);
     
     // Send CLIENT confirmation using the confirmation template
-emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templates.clientConfirmation, confirmationParams)
+    emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templates.clientConfirmation, confirmationParams)
         .then(function(response) {
             console.log('✅ CLIENT CONFIRMATION EMAIL SENT!');
 
             // 🎯 ADD THIS ONE LINE: Block banner during confirmation question
-    window.isInConfirmationDialog = true;
+            window.isInConfirmationDialog = true;
             
             if (window.showUniversalBanner) {
                 window.showUniversalBanner('emailSent');
@@ -1787,82 +1939,117 @@ emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templates.clientConfirmati
             
             let successMessage = `Confirmation email sent to ${cleanEmail}! Is there anything else I can help you with?`;
 
-if (window.addAIMessage) {
-    window.addAIMessage(successMessage);
-}
+            if (window.addAIMessage) {
+                window.addAIMessage(successMessage);
+            }
 
-// Clear lead data
-window.isInLeadCapture = false;
-window.currentCaptureType = null;
-window.currentLeadData = null;
+            // Clear lead data
+            window.isInLeadCapture = false;
+            window.currentCaptureType = null;
+            window.currentLeadData = null;
 
-if (window.speakText) {
-    window.speakText(successMessage);
-    
-    // Wait for speech then show DECISION PANEL
-    const checkSpeech = setInterval(() => {
-        if (!window.isSpeaking) {
-            clearInterval(checkSpeech);
+            if (window.speakText) {
+                window.speakText(successMessage);
+                
+                // Wait for speech then show DECISION PANEL
+                const checkSpeech = setInterval(() => {
+                    if (!window.isSpeaking) {
+                        clearInterval(checkSpeech);
+                        setTimeout(() => {
+                            // 🎯 SHOW DECISION PANEL INSTEAD OF EMPTY CALL
+                            if (window.showDecisionPanel) {
+                                window.showDecisionPanel({
+                                    question: "Is there anything else I can help you with?",
+                                    yesText: "Yes, Continue", 
+                                    skipText: "No, Finish",
+                                    onYes: function() { 
+                                        console.log("User wants to continue - show position panel");
+                                        if (window.showPositionPanel) {
+                                            window.showPositionPanel();
+                                        } else if (window.showDirectSpeakNow) {
+                                            window.showDirectSpeakNow();
+                                        }
+                                    },
+                                    onSkip: function() { 
+                                        console.log("User is finished");
+                                        const userName = window.userFirstName || '';
+                                        if (window.showThankYouSplash) {
+                                            window.showThankYouSplash(userName, 'consultation');
+                                        }
+                                    }
+                                });
+                            }
+                        }, 1000);
+                    }
+                }, 100);
+            } else {
+                setTimeout(() => {
+                    // 🎯 SHOW DECISION PANEL IN FALLBACK CASE TOO
+                    if (window.showDecisionPanel) {
+                        window.showDecisionPanel({
+                            question: "Is there anything else I can help you with?",
+                            yesText: "Yes, Continue", 
+                            skipText: "No, Finish",
+                            onYes: function() { 
+                                console.log("User wants to continue");
+                                if (window.showPositionPanel) {
+                                    window.showPositionPanel();
+                                } else if (window.showDirectSpeakNow) {
+                                    window.showDirectSpeakNow();
+                                }
+                            },
+                            onSkip: function() { 
+                                console.log("User is finished");
+                                const userName = window.userFirstName || '';
+                                if (window.showThankYouSplash) {
+                                    window.showThankYouSplash(userName, 'consultation');
+                                }
+                            }
+                        });
+                    }
+                }, 3000);
+            }
+        }, function(error) {
+            console.error('❌ CLIENT CONFIRMATION EMAIL FAILED:', error);
+            
+            // 🎯 Handle email failure with decision panel too
+            let failureMessage = "The confirmation email couldn't be sent, but Bruce will still contact you directly! Is there anything else I can help with?";
+            
+            if (window.addAIMessage) {
+                window.addAIMessage(failureMessage);
+            }
+            
+            // Clear lead data
+            window.isInLeadCapture = false;
+            window.currentCaptureType = null;
+            window.currentLeadData = null;
+            
             setTimeout(() => {
-                // 🎯 SHOW DECISION PANEL INSTEAD OF EMPTY CALL
                 if (window.showDecisionPanel) {
                     window.showDecisionPanel({
                         question: "Is there anything else I can help you with?",
                         yesText: "Yes, Continue", 
                         skipText: "No, Finish",
                         onYes: function() { 
-                            console.log("User wants to continue - show position panel");
-                            if (window.showPositionPanel) {
-                                window.showPositionPanel();
-                            } else if (window.showDirectSpeakNow) {
-                                window.showDirectSpeakNow();
-                            }
+                            console.log("User wants to continue");
+                            if (window.showDirectSpeakNow) window.showDirectSpeakNow();
                         },
                         onSkip: function() { 
                             console.log("User is finished");
                             const userName = window.userFirstName || '';
                             if (window.showThankYouSplash) {
-                                window.showThankYouSplash(userName, 'consultation');
+                                window.showThankYouSplash(userName, captureType);
                             }
                         }
                     });
                 }
-            }, 1000);
-        }
-    }, 100);
-} else {
-    setTimeout(() => {
-        // 🎯 SHOW DECISION PANEL IN FALLBACK CASE TOO
-        if (window.showDecisionPanel) {
-            window.showDecisionPanel({
-                question: "Is there anything else I can help you with?",
-                yesText: "Yes, Continue", 
-                skipText: "No, Finish",
-                onYes: function() { 
-                    console.log("User wants to continue");
-                    if (window.showPositionPanel) {
-                        window.showPositionPanel();
-                    } else if (window.showDirectSpeakNow) {
-                        window.showDirectSpeakNow();
-                    }
-                },
-                onSkip: function() { 
-                    console.log("User is finished");
-                    const userName = window.userFirstName || '';
-                    if (window.showThankYouSplash) {
-                        window.showThankYouSplash(userName, 'consultation');
-                    }
-                }
-            });
-        }
-    }, 3000);
-            }
+            }, 2000);
         });
 }
-    
+
 // Make functions globally accessible
 window.handleEmailConfirmation = handleEmailConfirmation;
-window.sendOriginalLeadEmail = sendOriginalLeadEmail; // 🎯 END OF FUNCTION - NO MORE CODE AFTER THIS! 
+window.sendOriginalLeadEmail = sendOriginalLeadEmail;
 
 // ================================
 // LEAD CAPTURE 4: PRE-QUALIFIER INTERVIEW
