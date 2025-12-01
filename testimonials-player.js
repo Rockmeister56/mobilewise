@@ -300,12 +300,29 @@ function playTestimonialVideo(testimonialType) {
             let videoEnded = false; // LOCAL FLAG to prevent double calls
 
           // ✅ FIXED VERSION - Add this to show navigation when video ends
+// ✅ FIXED VERSION - Add this to show navigation when video ends
 video.addEventListener('ended', function() {
     if (!videoEnded) {
         videoEnded = true;
         console.log('✅ Video ended naturally - showing navigation');
         window.avatarCurrentlyPlaying = false; // RESET FLAG
-        showTestimonialNavigationOptions(); // 🎯 ADD THIS LINE!
+        
+        // 🎯 FIRST: Remove the video player
+        const videoPlayer = document.getElementById('testimonial-video-player');
+        if (videoPlayer) {
+            // Stop the video first
+            const video = videoPlayer.querySelector('video');
+            if (video) {
+                video.pause();
+                video.currentTime = 0;
+            }
+            // Remove the player
+            videoPlayer.remove();
+            console.log('✅ Video player removed after natural end');
+        }
+        
+        // 🎯 THEN: Show navigation options
+        showTestimonialNavigationOptions();
     }
 });
 
