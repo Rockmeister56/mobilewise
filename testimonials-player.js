@@ -26,19 +26,26 @@ window.avatarCurrentlyPlaying = false;
 function showTestimonialSplashScreen() {
     console.log('🎬 TESTIMONIAL SPLASH: Loading complete system');
 
-        // 🛑 BLOCK SPEAK SEQUENCE IMMEDIATELY
-window.concernBannerActive = true;
-window.isInTestimonialMode = true;
-window.blockAutoListen = true; // 🆕 ADD THIS LINE
-window.suppressAutoListen = true; // 🆕 ADD THIS LINE
-
-     // 🛡️ SET PROTECTION FLAG - BLOCK SPEAK NOW
+    // 🛡️ SET PROTECTION FLAG - BLOCK SPEAK NOW OVERLAY ONLY
     window.testimonialSessionActive = true;
-    console.log('🛡️ Testimonial protection activated - Speak Now blocked');
+    console.log('🛡️ Testimonial protection activated - Speak Now overlay blocked');
     
     // Stop any current listening first
     if (window.stopListening && typeof window.stopListening === 'function') {
         window.stopListening();
+    }
+    
+    // 🚫 SPECIFICALLY CLOSE THE SPEAK NOW OVERLAY IF IT'S ACTIVE
+    if (window.closeSpeakNowBanner && typeof window.closeSpeakNowBanner === 'function') {
+        window.closeSpeakNowBanner();
+        console.log('✅ Closed any active Speak Now overlay');
+    }
+    
+    // 🚫 ALSO REMOVE THE OVERLAY FROM DOM IF IT EXISTS
+    const speakNowOverlay = document.querySelector('.black-transparent-overlay, .speak-now-banner');
+    if (speakNowOverlay) {
+        speakNowOverlay.remove();
+        console.log('✅ Removed Speak Now overlay from DOM');
     }
     
     const splashScreen = document.createElement('div');
