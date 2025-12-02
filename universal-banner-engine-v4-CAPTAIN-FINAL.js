@@ -376,6 +376,15 @@ const BANNER_STYLES = `
 
 /* ===== MOBILE OVERRIDES (MINIMAL - ONLY WHEN ABSOLUTELY NECESSARY) ===== */
 @media (max-width: 850px) {
+    /* BANNER CONTAINER */
+    .banner-glow-container {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        min-height: 92px !important;
+        padding: 15px 15px !important;
+        margin: 0 auto;
+    }
     
     /* ADJUST GLOW LAYER FOR MOBILE */
     .banner-glow-container::before {
