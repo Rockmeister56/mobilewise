@@ -287,7 +287,7 @@ const BANNER_STYLES = `
     position: absolute;
     width: calc(100% + 50px);
     height: calc(100% + 20px);
-    top: -10px;
+    top: 20px;
     left: -25px;
     background: rgba(255, 255, 255, 0.1);
     border-radius: 12px;
@@ -413,7 +413,7 @@ const BANNER_STYLES = `
     /* BRANDING LOGO IMAGE */
     .branding-banner img[src*="nci.PNG"],
     .branding-banner img {
-        width: 100px !important;
+        width: 80px !important;
         height: auto !important;
         max-width: 100px !important;
         margin-right: 0 !important;
