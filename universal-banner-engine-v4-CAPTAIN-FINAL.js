@@ -366,10 +366,10 @@ const BANNER_STYLES = `
 }
 
 /* FORCE DESKTOP WIDTH */
-@media (min-width: 851px) {
+@media (min-width: 870px) {
     .banner-glow-container.banner-cta-full {
-        width: 760px !important; /* Or 836px if you increased it */
-        max-width: 760px !important;
+        width: 830px !important; /* Or 836px if you increased it */
+        max-width: 860px !important;
         margin: 0 auto !important;
     }
 }
