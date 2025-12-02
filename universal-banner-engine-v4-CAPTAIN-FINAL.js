@@ -434,7 +434,7 @@ const BANNER_STYLES = `
         width: 100% !important;
         max-width: 100% !important;
         height: auto !important;
-        min-height: 88px !important; /* Increased from 80px to 88px (+10%) */
+        min-height: 92px !important; /* Increased from 80px to 88px (+10%) */
         padding: 15px 15px !important; /* Increased padding for more height */
         margin: 0 auto;
     }
@@ -465,7 +465,7 @@ const BANNER_STYLES = `
     
     /* STANDARD BANNER IMAGES */
     .banner-glow-container img:not(.branding-banner img) {
-        width: 20px !important;
+        width: 30px !important;
         height: auto !important;
         margin-right: 15px !important;
     }
