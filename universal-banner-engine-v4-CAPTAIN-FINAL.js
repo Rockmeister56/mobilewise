@@ -370,44 +370,15 @@ const BANNER_STYLES = `
         margin: 0 auto;
     }
 
-/* ===== MOBILE RESPONSIVENESS ===== */
+/* ===== MOBILE RESPONSIVENESS (CONSOLIDATED) ===== */
 @media (max-width: 850px) {
-    .banner-glow-container {
-        width: 95vw !important;
-        max-width: 95vw !important;
-        height: auto !important;
-        min-height: 70px !important;
-        padding: 15px 10px !important;
-    }
-    
-    .banner-glow-container::before {
-        width: calc(100% + 30px);
-        left: -15px;
-    }
-    
-    .banner-glow-container img {
-        width: 50px !important;
-        height: auto !important;
-    }
-    
-    .banner-glow-container div[style*="font-size: 20px"] {
-        font-size: 16px !important;
-    }
-    
-    .banner-glow-container div[style*="font-size: 14px"] {
-        font-size: 12px !important;
-    }
-}
-
-/* ===== MOBILE RESPONSIVENESS ===== */
-    
-    /* BANNER CONTENT STYLING - 10% MORE HEIGHT */
+    /* BANNER CONTAINER */
     .banner-glow-container {
         width: 100% !important;
         max-width: 100% !important;
         height: auto !important;
-        min-height: 92px !important; /* Increased from 80px to 88px (+10%) */
-        padding: 15px 15px !important; /* Increased padding for more height */
+        min-height: 92px !important;
+        padding: 15px 15px !important;
         margin: 0 auto;
     }
     
@@ -415,18 +386,18 @@ const BANNER_STYLES = `
     .banner-glow-container::before {
         width: calc(100% + 40px) !important;
         left: -20px !important;
-        top: -10px !important; /* Adjusted for taller banner */
-        height: calc(100% + 20px) !important; /* Taller glow layer */
+        top: -10px !important;
+        height: calc(100% + 20px) !important;
     }
     
-    /* BRANDING BANNER - FORCE SMALLER LOGO */
+    /* BRANDING BANNER (Special treatment) */
     .branding-banner {
         justify-content: flex-start !important;
         padding-left: 20px !important;
-        height: 70px !important; /* Increased from 60px to 70px (+16%) */
+        height: 70px !important;
     }
     
-    /* TARGET THE SPECIFIC BRANDING LOGO IMAGE */
+    /* BRANDING LOGO IMAGE */
     .branding-banner img[src*="nci.PNG"],
     .branding-banner img {
         width: 120px !important;
@@ -435,11 +406,30 @@ const BANNER_STYLES = `
         margin-right: 0 !important;
     }
     
-    /* STANDARD BANNER IMAGES */
-    .banner-glow-container img:not(.branding-banner img) {
-        width: 30px !important;
+    /* STANDARD BANNER IMAGES (EMOJIS) - 20% BIGGER */
+    .banner-glow-container img:not(.branding-banner img):not(.book-white-glow) {
+        width: 36px !important; /* Increased from 30px to 36px (+20%) */
         height: auto !important;
         margin-right: 15px !important;
+    }
+    
+    /* SPECIAL: TESTIMONIAL BANNER STARS */
+    .banner-testimonial img.book-white-glow {
+        width: 300px !important; /* Mobile-appropriate size */
+        height: auto !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+    
+    /* TESTIMONIAL BANNER LAYOUT */
+    .banner-testimonial {
+        justify-content: space-around !important;
+        padding: 12px 15px !important;
+    }
+    
+    .banner-testimonial > div:last-child {
+        margin-left: -40px !important;
+        justify-content: flex-start !important;
     }
     
     /* TEXT SIZING */
@@ -452,44 +442,17 @@ const BANNER_STYLES = `
         font-size: 13px !important;
         line-height: 1.3 !important;
     }
-    
-    /* SPECIFIC BANNER LAYOUT ADJUSTMENTS */
-    .banner-testimonial {
-        justify-content: space-around !important;
-        padding: 12px 15px !important; /* Increased padding */
-    }
-    
-    .banner-testimonial img:first-child {
-        width: 100px !important;
-        margin-right: 5px !important;
-    }
-    
-    .banner-testimonial img.book-white-glow {
-        width: 50px !important;
-        margin-right: 10px !important;
-    }
-    
-    /* CENTER/RIGHT CONTENT SHIFT FOR TESTIMONIAL */
-    .banner-testimonial > div:last-child {
-        margin-left: -40px !important;
-        justify-content: flex-start !important;
-    }
 }
 
-/* EXTRA SMALL DEVICES */
+/* ===== EXTRA SMALL DEVICES ===== */
 @media (max-width: 480px) {
-    #bannerHeaderContainer {
-        top: 40px !important;
-        width: 98vw !important;
-        max-width: 98vw !important;
-    }
-    
+    /* BANNER CONTAINER */
     .banner-glow-container {
-        min-height: 77px !important; /* Increased from 60px to 77px */
+        min-height: 77px !important;
         padding: 10px 12px !important;
     }
     
-    /* EVEN SMALLER LOGO ON TINY SCREENS */
+    /* BRANDING LOGO (Smaller on tiny screens) */
     .branding-banner img[src*="nci.PNG"],
     .branding-banner img {
         width: 100px !important;
@@ -497,9 +460,20 @@ const BANNER_STYLES = `
     }
     
     .branding-banner {
-        height: 65px !important; /* Taller on small screens */
+        height: 65px !important;
     }
     
+    /* EMOJIS (Slightly smaller on tiny screens) */
+    .banner-glow-container img:not(.branding-banner img):not(.book-white-glow) {
+        width: 32px !important; /* Slightly smaller than 36px for tiny screens */
+    }
+    
+    /* TESTIMONIAL STARS (Smaller on tiny screens) */
+    .banner-testimonial img.book-white-glow {
+        width: 250px !important;
+    }
+    
+    /* TEXT SIZING (Smaller on tiny screens) */
     .banner-glow-container div[style*="font-size: 20px"] {
         font-size: 16px !important;
     }
