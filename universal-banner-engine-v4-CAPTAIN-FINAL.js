@@ -377,6 +377,15 @@ const BANNER_STYLES = `
     50% { text-shadow: 0 0 12px rgba(255,255,255,1); }
 }
 
+@media (max-width: 850px) {
+    /* BANNER CONTAINER POSITIONING */
+    #bannerHeaderContainer {
+        top: 45px !important;
+        width: 99vw !important;
+        max-width: 99vw !important;
+        margin: 0 auto;
+    }
+
 /* ===== MOBILE RESPONSIVENESS ===== */
 @media (max-width: 850px) {
     .banner-glow-container {
@@ -407,14 +416,6 @@ const BANNER_STYLES = `
 }
 
 /* ===== MOBILE RESPONSIVENESS ===== */
-@media (max-width: 850px) {
-    /* BANNER CONTAINER POSITIONING */
-    #bannerHeaderContainer {
-        top: 45px !important;
-        width: 99vw !important;
-        max-width: 99vw !important;
-        margin: 0 auto;
-    }
     
     /* BANNER CONTENT STYLING - 10% MORE HEIGHT */
     .banner-glow-container {
