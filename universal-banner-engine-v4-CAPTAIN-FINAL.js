@@ -365,13 +365,17 @@ const BANNER_STYLES = `
     50% { text-shadow: 0 0 12px rgba(255,255,255,1); }
 }
 
+/* FORCE DESKTOP WIDTH */
+@media (min-width: 851px) {
+    .banner-glow-container.banner-cta-full {
+        width: 760px !important; /* Or 836px if you increased it */
+        max-width: 760px !important;
+        margin: 0 auto !important;
+    }
+}
+
 /* ===== MOBILE OVERRIDES (MINIMAL - ONLY WHEN ABSOLUTELY NECESSARY) ===== */
 @media (max-width: 850px) {
-    /* MAKE BANNERS FULL WIDTH ON MOBILE */
-    .banner-glow-container {
-        width: 100% !important;
-        max-width: 100% !important;
-    }
     
     /* ADJUST GLOW LAYER FOR MOBILE */
     .banner-glow-container::before {
