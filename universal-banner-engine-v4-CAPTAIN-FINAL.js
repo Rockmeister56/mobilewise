@@ -402,8 +402,6 @@ const BANNER_STYLES = `
     
     /* BANNER CONTENT STYLING - 10% MORE HEIGHT */
     .banner-glow-container {
-        width: 100% !important;
-        max-width: 100% !important;
         height: auto !important;
         min-height: 92px !important; /* Increased from 80px to 88px (+10%) */
         padding: 15px 15px !important; /* Increased padding for more height */
