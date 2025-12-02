@@ -75,7 +75,14 @@
     testimonialSelector: {
         content: `
             <div class="banner-glow-container banner-testimonial" style="width: 760px; max-width: 760px; margin: 0 auto; height: 80px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #1e40af 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
-     <!-- CENTER/RIGHT: Reviews icon + Text (SHIFTED LEFT) -->
+    
+    <!-- LEFT: 5-STAR ICON (Stationary, no glow) -->
+    <div style="flex-shrink: 0;">
+        <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761252676241_5starpng.png" 
+             style="width: 130px; height: 95px; border-radius: 0px; margin-right: -10px;">
+    </div>
+    
+    <!-- CENTER/RIGHT: Reviews icon + Text (SHIFTED LEFT) -->
     <div style="display: flex; align-items: center; flex-grow: 1; justify-content: center; margin-left: -80px;">
         <!-- REVIEWS ICON (keeps glow) -->
         <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761252832996_reviews.png" 
@@ -104,7 +111,7 @@
     clickToCall: {
         content: `
            <div class="banner-glow-container banner-cta-full" style="margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #0f5ef0ff 0%, #000000ff 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
-             <div style="display: flex; align-items: center;">
+    <div style="display: flex; align-items: center;">
                     <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761252700290_click%20to%20call.png" 
                          class="book-white-glow"
                          style="width: 70px; height: 70px; border-radius: 0px; margin-right: 20px;">
@@ -286,6 +293,7 @@ const BANNER_STYLES = `
 .banner-glow-container {
     position: relative;
 }
+
 .banner-glow-container::before {
     content: '';
     position: absolute;
@@ -409,19 +417,9 @@ const BANNER_STYLES = `
     .banner-glow-container div[style*="font-size: 14px"] {
         font-size: 12px !important;
     }
-
-    /* ===== DESKTOP BANNER WIDTH ULTIMATE FIX ===== */
-@media (min-width: 851px) {
-    body #bannerHeaderContainer .banner-glow-container.banner-cta-full {
-        width: 836px !important;
-        max-width: 836px !important;
-        margin: 0 auto !important;
-        background: rgba(0,255,0,0.1) !important; /* Green tint to confirm it works */
-    }
 }
 
 /* ===== MOBILE RESPONSIVENESS ===== */
-
 @media (max-width: 850px) {
     /* BANNER CONTAINER POSITIONING */
     #bannerHeaderContainer {
@@ -538,9 +536,10 @@ const BANNER_STYLES = `
         font-size: 12px !important;
     }
 }
-
 </style>
     `;
+
+    
 
     // ===================================================================
     // 📦 CALLBACK SYSTEM
