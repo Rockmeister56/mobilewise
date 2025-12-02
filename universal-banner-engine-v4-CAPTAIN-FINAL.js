@@ -110,8 +110,8 @@
     // 4. REQUEST-A-CALL (CTA with highlighter)
     clickToCall: {
         content: `
-            <div class="banner-glow-container banner-cta-full" style="width: 760px; max-width: 760px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #0f5ef0ff 0%, #000000ff 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
-                <div style="display: flex; align-items: center;">
+           <div class="banner-glow-container banner-cta-full" style="margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #0f5ef0ff 0%, #000000ff 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+             <div style="display: flex; align-items: center;">
                     <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761252700290_click%20to%20call.png" 
                          class="book-white-glow"
                          style="width: 70px; height: 70px; border-radius: 0px; margin-right: 20px;">
@@ -292,6 +292,13 @@ const BANNER_STYLES = `
 /* ===== GLOW LAYER (::before pseudo-element) ===== */
 .banner-glow-container {
     position: relative;
+}
+
+/* ===== BANNER CONTAINER WIDTH (Desktop) ===== */
+.banner-glow-container.banner-cta-full {
+    width: 836px !important;
+    max-width: 836px !important;
+    margin: 0 auto;
 }
 
 .banner-glow-container::before {
