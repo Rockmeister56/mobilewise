@@ -293,7 +293,6 @@ const BANNER_STYLES = `
 .banner-glow-container {
     position: relative;
 }
-
 .banner-glow-container::before {
     content: '';
     position: absolute;
@@ -390,15 +389,6 @@ const BANNER_STYLES = `
     50% { text-shadow: 0 0 12px rgba(255,255,255,1); }
 }
 
-/* ===== DESKTOP BANNER WIDTH (Force Override) ===== */
-@media (min-width: 851px) {
-    .banner-glow-container.banner-cta-full {
-        width: 836px !important;
-        max-width: 836px !important;
-        margin: 0 auto;
-    }
-}
-
 /* ===== MOBILE RESPONSIVENESS ===== */
 @media (max-width: 850px) {
     .banner-glow-container {
@@ -426,6 +416,11 @@ const BANNER_STYLES = `
     .banner-glow-container div[style*="font-size: 14px"] {
         font-size: 12px !important;
     }
+        /* ===== BANNER CONTAINER WIDTH (Desktop) ===== */
+.banner-glow-container.banner-cta-full {
+    width: 836px !important;
+    max-width: 836px !important;
+    margin: 0 auto;
 }
 
 /* ===== MOBILE RESPONSIVENESS ===== */
