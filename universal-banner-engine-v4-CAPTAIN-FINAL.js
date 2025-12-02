@@ -381,7 +381,7 @@ const BANNER_STYLES = `
         width: 100% !important;
         max-width: 100% !important;
         height: auto !important;
-        min-height: 92px !important;
+        min-height: 80px !important;
         padding: 15px 15px !important;
         margin: 0 auto;
     }
@@ -407,7 +407,7 @@ const BANNER_STYLES = `
     .branding-banner {
         justify-content: flex-start !important;
         padding-left: 20px !important;
-        height: 70px !important;
+        height: 60px !important;
     }
     
     /* BRANDING LOGO IMAGE */
@@ -415,7 +415,7 @@ const BANNER_STYLES = `
     .branding-banner img {
         width: 100px !important;
         height: auto !important;
-        max-width: 120px !important;
+        max-width: 100px !important;
         margin-right: 0 !important;
     }
     
