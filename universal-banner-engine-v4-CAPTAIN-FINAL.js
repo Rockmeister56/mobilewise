@@ -120,7 +120,7 @@
                             Request-A-Call
                         </div>
                         <div style="font-size: 14px; opacity: 0.95;">
-                            Click icon to connect
+                            Receive a call-back in 5 minutes or less!
                         </div>
                     </div>
                 </div>
