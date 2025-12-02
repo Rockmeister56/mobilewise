@@ -822,50 +822,18 @@
     padding-top: 1px !important; /* Just breathing room for banners */
 }
 
-/* ===== MOBILE-WISE AI BANNER ABSOLUTE POSITIONING ===== */
-.lead-capture-banner,
-.consultation-banner,
-#leadCaptureBanner,
-#emailConfirmationBanner,
-#thankYouBanner,
-.email-confirmation-banner,
-.success-banner,
-.consultation-confirmed-banner {
-    position: absolute !important;
-    top: 2px !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    z-index: 9999 !important;
-    width: calc(100% - 20px) !important;
-    max-width: 400px !important;
-    margin: 0 !important;
-    box-sizing: border-box !important;
+/* ===== BRANDING BANNER SPECIAL GLOW (Blue) ===== */
+.branding-banner::before {
+    animation: brandingGlowPulse 2s ease-in-out infinite;
 }
 
-/* SPECIAL: Branding banner at very top */
-.branding-header-banner {
-    top: 0px !important;
-    z-index: 10000 !important;
-}
-
-/* BRUCE'S BANNER - Override mobile adjustments */
-.bruce-logo-container img {
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-}
-
-/* SPECIAL: Branding banner at very top */
-.branding-header-banner {
-    top: 0px !important; /* Higher than other banners */
-    z-index: 10000 !important; /* Above other banners */
-
-    /* Force banner to ignore ALL header styling */
-.bruce-logo-container {
-    text-align: center !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    position: relative !important;
-}
+@keyframes brandingGlowPulse {
+    0%, 100% { 
+        box-shadow: 0 0 15px rgba(0, 128, 255, 0.6);
+    }
+    50% { 
+        box-shadow: 0 0 30px rgba(0, 128, 255, 1);
+    }
 }
 
 /* Green border for PAUSE SESSION button */
