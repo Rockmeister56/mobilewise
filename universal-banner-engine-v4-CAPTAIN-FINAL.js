@@ -276,11 +276,12 @@
 
 const BANNER_STYLES = `
 <style>
-/* ===== GLOW LAYER (::before pseudo-element) ===== */
+/* ===== GLOW LAYER EFFECTS ONLY ===== */
 .banner-glow-container {
-    position: relative;
+    position: relative; /* Needed for glow effects */
 }
 
+/* GLOW BACKGROUND EFFECT */
 .banner-glow-container::before {
     content: '';
     position: absolute;
@@ -295,29 +296,21 @@ const BANNER_STYLES = `
 }
 
 @keyframes glowLayerPulse {
-    0%, 100% { 
-        box-shadow: 0 0 15px rgba(0, 255, 0, 0.6);
-    }
-    50% { 
-        box-shadow: 0 0 30px rgba(0, 217, 255, 0.8);
-    }
+    0%, 100% { box-shadow: 0 0 15px rgba(0, 255, 0, 0.6); }
+    50% { box-shadow: 0 0 30px rgba(0, 217, 255, 0.8); }
 }
 
-/* ===== BRANDING BANNER SPECIAL GLOW (Blue) ===== */
+/* BRANDING BANNER BLUE GLOW */
 .branding-banner::before {
     animation: brandingGlowPulse 2s ease-in-out infinite;
 }
 
 @keyframes brandingGlowPulse {
-    0%, 100% { 
-        box-shadow: 0 0 15px rgba(0, 128, 255, 0.6);
-    }
-    50% { 
-        box-shadow: 0 0 30px rgba(0, 128, 255, 1);
-    }
+    0%, 100% { box-shadow: 0 0 15px rgba(0, 128, 255, 0.6); }
+    50% { box-shadow: 0 0 30px rgba(0, 128, 255, 1); }
 }
 
-/* ===== CTA BANNERS - HIGHLIGHTER SWEEP (::after) ===== */
+/* CTA BANNERS - HIGHLIGHTER SWEEP */
 .banner-cta-full::after {
     content: '';
     position: absolute;
@@ -325,12 +318,7 @@ const BANNER_STYLES = `
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(
-        90deg,
-        transparent,
-        rgba(255, 255, 255, 0.4),
-        transparent
-    );
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
     animation: highlighterSweep 7s ease-in-out infinite;
     z-index: 1;
     border-radius: 8px;
@@ -338,19 +326,35 @@ const BANNER_STYLES = `
 }
 
 @keyframes highlighterSweep {
-    0%, 85% { left: -100%; opacity: 0; }     
-    86% { left: -100%; opacity: 1; }         
+    0%, 85% { left: -100%; opacity: 0; }
+    86% { left: -100%; opacity: 1; }
     97% { left: 100%; opacity: 1; }
     98% { left: 100%; opacity: 0; }
-    100% { left: -100%; opacity: 0; }        
+    100% { left: -100%; opacity: 0; }
 }
 
-/* ===== TESTIMONIAL BANNER - NO HIGHLIGHTER ===== */
+/* TESTIMONIAL BANNER - NO HIGHLIGHTER */
 .banner-testimonial::after {
     display: none;
 }
 
-/* ===== FREE TEXT GLOW ===== */
+/* ICON GLOW EFFECT */
+.book-white-glow {
+    animation: bookWhiteGlow 3s ease-in-out infinite;
+}
+
+@keyframes bookWhiteGlow {
+    0%, 100% { 
+        box-shadow: 0 0 0px rgba(255,255,255,0.5);
+        transform: scale(1.2);
+    }
+    50% { 
+        box-shadow: 0 0 0px rgba(255,255,255,0.9);
+        transform: scale(1.03);
+    }
+}
+
+/* FREE TEXT GLOW */
 .free-glow {
     text-shadow: 0 0 8px rgba(255,255,255,0.8);
     animation: freeTextGlow 2.5s ease-in-out infinite;
@@ -361,142 +365,54 @@ const BANNER_STYLES = `
     50% { text-shadow: 0 0 12px rgba(255,255,255,1); }
 }
 
-/* ===== MOBILE RESPONSIVENESS (ONLY BELOW 850px) ===== */
+/* ===== MOBILE OVERRIDES (MINIMAL - ONLY WHEN ABSOLUTELY NECESSARY) ===== */
 @media (max-width: 850px) {
-    /* BANNER CONTAINER POSITIONING */
-    #bannerHeaderContainer {
-        top: 45px !important;
-        width: 99vw !important;
-        max-width: 99vw !important;
-        margin: 0 auto;
-    }
-    
-    /* BANNER CONTAINER - MOBILE ONLY */
+    /* MAKE BANNERS FULL WIDTH ON MOBILE */
     .banner-glow-container {
         width: 100% !important;
         max-width: 100% !important;
-        height: auto !important;
-        min-height: 92px !important;
-        padding: 15px 15px !important;
-        margin: 0 auto;
     }
     
-    /* GLOW LAYER ADJUSTMENT - MOBILE ONLY */
+    /* ADJUST GLOW LAYER FOR MOBILE */
     .banner-glow-container::before {
         width: calc(100% + 40px) !important;
         left: -20px !important;
-        top: -10px !important;
-        height: calc(100% + 20px) !important;
     }
     
-    /* BRANDING BANNER - MOBILE ONLY */
-    .branding-banner {
-        justify-content: flex-start !important;
-        padding-left: 20px !important;
-        height: 70px !important;
-    }
-    
-    /* BRANDING LOGO IMAGE - MOBILE ONLY */
-    .branding-banner img[src*="nci.PNG"],
-    .branding-banner img {
-        width: 100px !important;
+    /* MAKE EMOJIS 20% BIGGER ON MOBILE */
+    .banner-glow-container img:not(.branding-banner img) {
+        width: 36px !important;
         height: auto !important;
-        max-width: 120px !important;
-        margin-right: 0 !important;
     }
     
-    /* STANDARD BANNER IMAGES (EMOJIS) - MOBILE ONLY */
-    .banner-glow-container img:not(.branding-banner img):not(.book-white-glow) {
-        width: 32px !important;
-        height: auto !important;
-        margin-right: 15px !important;
-    }
-    
-    /* TESTIMONIAL BANNER STARS - MOBILE ONLY */
+    /* SCALE DOWN TESTIMONIAL STARS ON MOBILE */
     .banner-testimonial img.book-white-glow {
         width: 300px !important;
         height: auto !important;
-        margin-left: 33px !important;
-        margin-right: 0 !important;
     }
     
-    /* TESTIMONIAL BANNER LAYOUT - MOBILE ONLY */
-    .banner-testimonial {
-        justify-content: space-around !important;
-        padding: 12px 15px !important;
-    }
-    
-    .banner-testimonial > div:last-child {
-        margin-left: 0px !important;
-        justify-content: flex-start !important;
-    }
-    
-    /* TEXT SIZING - MOBILE ONLY */
+    /* SMALLER TEXT ON MOBILE */
     .banner-glow-container div[style*="font-size: 20px"] {
         font-size: 17px !important;
-        line-height: 1.2 !important;
     }
     
     .banner-glow-container div[style*="font-size: 14px"] {
         font-size: 13px !important;
-        line-height: 1.3 !important;
     }
 }
 
-/* ===== EXTRA SMALL DEVICES ===== */
+/* EXTRA SMALL PHONES */
 @media (max-width: 480px) {
-    #bannerHeaderContainer {
-        top: 40px !important;
-        width: 98vw !important;
-        max-width: 98vw !important;
-    }
-    
-    .banner-glow-container {
-        min-height: 77px !important;
-        padding: 10px 12px !important;
-    }
-    
-    .branding-banner img[src*="nci.PNG"],
-    .branding-banner img {
-        width: 100px !important;
-        max-width: 100px !important;
-    }
-    
-    .branding-banner {
-        height: 65px !important;
-    }
-    
-    .banner-glow-container img:not(.branding-banner img):not(.book-white-glow) {
-        width: 32px !important;
-    }
-    
     .banner-testimonial img.book-white-glow {
         width: 250px !important;
     }
     
-    .banner-glow-container div[style*="font-size: 20px"] {
-        font-size: 16px !important;
-    }
-    
-    .banner-glow-container div[style*="font-size: 14px"] {
-        font-size: 12px !important;
-    }
-}
-
-/* ===== DESKTOP ONLY - FIX FOR BANNER WIDTH ===== */
-@media (min-width: 851px) {
-    /* REMOVE any width constraints on desktop - let HTML control it */
-    .banner-glow-container,
-    .banner-glow-container.banner-cta-full,
-    .banner-glow-container.banner-testimonial {
-        width: auto !important;
-        max-width: none !important;
+    .banner-glow-container img:not(.branding-banner img) {
+        width: 32px !important;
     }
 }
 </style>
 `;
-
-    
 
     // ===================================================================
     // 📦 CALLBACK SYSTEM
