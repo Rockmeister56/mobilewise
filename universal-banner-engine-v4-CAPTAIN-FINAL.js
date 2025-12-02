@@ -409,6 +409,15 @@ const BANNER_STYLES = `
     .banner-glow-container div[style*="font-size: 14px"] {
         font-size: 12px !important;
     }
+
+    /* ===== DESKTOP BANNER WIDTH ULTIMATE FIX ===== */
+@media (min-width: 851px) {
+    body #bannerHeaderContainer .banner-glow-container.banner-cta-full {
+        width: 836px !important;
+        max-width: 836px !important;
+        margin: 0 auto !important;
+        background: rgba(0,255,0,0.1) !important; /* Green tint to confirm it works */
+    }
 }
 
 /* ===== MOBILE RESPONSIVENESS ===== */
@@ -530,19 +539,8 @@ const BANNER_STYLES = `
     }
 }
 
-/* ===== DESKTOP BANNER WIDTH ULTIMATE FIX ===== */
-@media (min-width: 851px) {
-    body #bannerHeaderContainer .banner-glow-container.banner-cta-full {
-        width: 836px !important;
-        max-width: 836px !important;
-        margin: 0 auto !important;
-        background: rgba(0,255,0,0.1) !important; /* Green tint to confirm it works */
-    }
-}
 </style>
     `;
-
-    
 
     // ===================================================================
     // 📦 CALLBACK SYSTEM
