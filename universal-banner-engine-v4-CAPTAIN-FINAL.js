@@ -394,6 +394,28 @@ const BANNER_STYLES = `
         width: 300px !important;
         height: auto !important;
     }
+         /* BRANDING BANNER (Special treatment) */
+    .branding-banner {
+        justify-content: flex-start !important;
+        padding-left: 20px !important;
+        height: 70px !important;
+    }
+    
+    /* BRANDING LOGO IMAGE */
+    .branding-banner img[src*="nci.PNG"],
+    .branding-banner img {
+        width: 100px !important;
+        height: auto !important;
+        max-width: 120px !important;
+        margin-right: 0 !important;
+    }
+    
+    /* STANDARD BANNER IMAGES (EMOJIS) - 20% BIGGER */
+    .banner-glow-container img:not(.branding-banner img):not(.book-white-glow) {
+        width: 32px !important; /* Increased from 30px to 36px (+20%) */
+        height: auto !important;
+        margin-right: 15px !important;
+    }
     
     /* SMALLER TEXT ON MOBILE */
     .banner-glow-container div[style*="font-size: 20px"] {
