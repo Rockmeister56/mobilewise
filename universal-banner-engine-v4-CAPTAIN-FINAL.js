@@ -506,7 +506,8 @@ const BANNER_STYLES = `
     .banner-glow-container div[style*="font-size: 14px"] {
         font-size: 12px !important;
     }
-        
+}
+    
 /* ===== DESKTOP BANNER WIDTH (VERY END - OVERRIDES EVERYTHING) ===== */
 @media (min-width: 851px) {
     .banner-glow-container.banner-cta-full {
