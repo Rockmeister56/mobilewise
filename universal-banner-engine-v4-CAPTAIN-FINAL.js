@@ -285,9 +285,10 @@ const BANNER_STYLES = `
     margin-top: 40px !important;
 }
 
-.banner-glow-container.banner-cta-full {
-    width: 836px !important;
-    max-width: 836px !important;
+/* For ALL banners */
+.banner-glow-container { 
+    width: 900px !important; 
+    max-width: 900px !important; 
 }
 
 /* GLOW BACKGROUND EFFECT */
