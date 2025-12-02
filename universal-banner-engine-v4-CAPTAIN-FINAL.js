@@ -110,7 +110,7 @@
     // 4. REQUEST-A-CALL (CTA with highlighter)
     clickToCall: {
         content: `
-           <div class="banner-glow-container banner-cta-full" style="margin: 0 auto; height: 87px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #0f5ef0ff 0%, #000000ff 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+           <div class="banner-glow-container banner-cta-full" style="margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #0f5ef0ff 0%, #000000ff 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
              <div style="display: flex; align-items: center;">
                     <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761252700290_click%20to%20call.png" 
                          class="book-white-glow"
@@ -390,6 +390,44 @@ const BANNER_STYLES = `
     50% { text-shadow: 0 0 12px rgba(255,255,255,1); }
 }
 
+/* ===== DESKTOP BANNER WIDTH (Force Override) ===== */
+@media (min-width: 851px) {
+    .banner-glow-container.banner-cta-full {
+        width: 836px !important;
+        max-width: 836px !important;
+        margin: 0 auto;
+    }
+}
+
+/* ===== MOBILE RESPONSIVENESS ===== */
+@media (max-width: 850px) {
+    .banner-glow-container {
+        width: 95vw !important;
+        max-width: 95vw !important;
+        height: auto !important;
+        min-height: 70px !important;
+        padding: 15px 10px !important;
+    }
+    
+    .banner-glow-container::before {
+        width: calc(100% + 30px);
+        left: -15px;
+    }
+    
+    .banner-glow-container img {
+        width: 50px !important;
+        height: auto !important;
+    }
+    
+    .banner-glow-container div[style*="font-size: 20px"] {
+        font-size: 16px !important;
+    }
+    
+    .banner-glow-container div[style*="font-size: 14px"] {
+        font-size: 12px !important;
+    }
+}
+
 /* ===== MOBILE RESPONSIVENESS ===== */
 @media (max-width: 850px) {
     /* BANNER CONTAINER POSITIONING */
@@ -402,6 +440,8 @@ const BANNER_STYLES = `
     
     /* BANNER CONTENT STYLING - 10% MORE HEIGHT */
     .banner-glow-container {
+        width: 100% !important;
+        max-width: 100% !important;
         height: auto !important;
         min-height: 92px !important; /* Increased from 80px to 88px (+10%) */
         padding: 15px 15px !important; /* Increased padding for more height */
@@ -505,16 +545,6 @@ const BANNER_STYLES = `
         font-size: 12px !important;
     }
 }
-    
-/* ===== DESKTOP BANNER WIDTH (VERY END - OVERRIDES EVERYTHING) ===== */
-@media (min-width: 880px) {
-    .banner-glow-container.banner-cta-full {
-        width: 860px !important;
-        max-width: 860px !important;
-        margin: 0 auto !important;
-    }
-}
-
 </style>
     `;
 
