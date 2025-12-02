@@ -83,7 +83,7 @@
 }
 
 /* ✅ DESKTOP STYLES */
-@media (min-width: 769px) {
+@media (min-width: 780px) {
     .container {
         margin-top: 210px !important;  /* ✅ Changed from 100px */
         margin-left: auto !important;
@@ -182,11 +182,6 @@
         overflow-y: auto !important;
     }
     
-    .book-banner, #bruceBookBanner {
-        margin: 8px !important;
-        border-radius: 15px !important;
-    }
-    
     /* ✅ FORCE MOBILE CHAT TO TOP */
     #chatMessages {
         padding-top: 10px !important;
@@ -265,81 +260,6 @@
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.05); }
         }
-
-        /* ===================================================
-           🎤 MICROPHONE STATUS INDICATOR
-           ================================================== */
-        .mic-status {
-            text-align: center;
-            padding: 10px;
-            background: var(--success-gradient);
-            border-radius: 20px;
-            margin-bottom: 15px;
-            font-weight: bold;
-            animation: fadeInOut 3s ease-in-out;
-        }
-
-        @keyframes fadeInOut {
-            0%, 100% { opacity: 0; }
-            20%, 80% { opacity: 1; }
-        }
-
-        /* 🎤 PULSATING MIC BUTTON ANIMATION */
-#mainMicButton {
-    /* Keep your existing styles and ADD these */
-    animation: pulse-glow 2s ease-in-out infinite alternate;
-    box-shadow: 
-        0 0 20px rgba(0, 255, 136, 0.6),
-        0 0 40px rgba(0, 255, 136, 0.4),
-        0 0 60px rgba(0, 255, 136, 0.2);
-}
-
-/* Pulsating glow keyframes */
-@keyframes pulse-glow {
-    0% {
-        transform: scale(1);
-        box-shadow: 
-            0 0 20px rgba(0, 255, 136, 0.6),
-            0 0 40px rgba(0, 255, 136, 0.4),
-            0 0 60px rgba(0, 255, 136, 0.2);
-    }
-    100% {
-        transform: scale(1.05);
-        box-shadow: 
-            0 0 30px rgba(0, 255, 136, 0.8),
-            0 0 60px rgba(0, 255, 136, 0.6),
-            0 0 90px rgba(0, 255, 136, 0.4);
-    }
-}
-
-/* Enhanced hover effect */
-#mainMicButton:hover {
-    animation-duration: 0.5s;
-    transform: scale(1.1);
-}
-
-/* Click ripple effect */
-#mainMicButton:active {
-    animation: ripple 0.6s linear;
-}
-
-@keyframes ripple {
-    0% {
-        box-shadow: 
-            0 0 0 0 rgba(0, 255, 136, 0.7),
-            0 0 20px rgba(0, 255, 136, 0.6);
-    }
-    70% {
-        box-shadow: 
-            0 0 0 60px rgba(0, 255, 136, 0),
-            0 0 20px rgba(0, 255, 136, 0.6);
-    }
-    100% {
-        box-shadow: 
-            0 0 0 0 rgba(0, 255, 136, 0),
-            0 0 20px rgba(0, 255, 136, 0.6);
-    }
-}
 
         /* ===================================================
            💭 CHAT MESSAGES AREA
@@ -820,20 +740,6 @@
 .container {
     position: relative !important;
     padding-top: 1px !important; /* Just breathing room for banners */
-}
-
-/* ===== BRANDING BANNER SPECIAL GLOW (Blue) ===== */
-.branding-banner::before {
-    animation: brandingGlowPulse 2s ease-in-out infinite;
-}
-
-@keyframes brandingGlowPulse {
-    0%, 100% { 
-        box-shadow: 0 0 15px rgba(0, 128, 255, 0.6);
-    }
-    50% { 
-        box-shadow: 0 0 30px rgba(0, 128, 255, 1);
-    }
 }
 
 /* Green border for PAUSE SESSION button */

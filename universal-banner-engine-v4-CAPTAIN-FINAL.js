@@ -390,8 +390,8 @@ const BANNER_STYLES = `
         width: 100% !important;
         max-width: 100% !important;
         height: auto !important;
-        min-height: 80px !important;
-        padding: 15px 15px !important;
+        min-height: 70px !important;
+        padding: 5px 15px !important;
         margin: 0 auto;
     }
     
@@ -403,7 +403,7 @@ const BANNER_STYLES = `
     
     /* MAKE EMOJIS 20% BIGGER ON MOBILE */
     .banner-glow-container img:not(.branding-banner img) {
-        width: 36px !important;
+        width: 30px !important;
         height: auto !important;
     }
     
