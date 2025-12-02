@@ -110,7 +110,7 @@
     // 4. REQUEST-A-CALL (CTA with highlighter)
     clickToCall: {
         content: `
-           <div class="banner-glow-container banner-cta-full" style="margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #0f5ef0ff 0%, #000000ff 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+           <div class="banner-glow-container banner-cta-full" style="margin: 0 auto; height: 87px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #0f5ef0ff 0%, #000000ff 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
              <div style="display: flex; align-items: center;">
                     <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761252700290_click%20to%20call.png" 
                          class="book-white-glow"
