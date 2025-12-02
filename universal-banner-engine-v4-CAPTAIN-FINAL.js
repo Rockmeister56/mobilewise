@@ -75,14 +75,7 @@
     testimonialSelector: {
         content: `
             <div class="banner-glow-container banner-testimonial" style="width: 760px; max-width: 760px; margin: 0 auto; height: 80px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #1e40af 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
-    
-    <!-- LEFT: 5-STAR ICON (Stationary, no glow) -->
-    <div style="flex-shrink: 0;">
-        <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761252676241_5starpng.png" 
-             style="width: 130px; height: 95px; border-radius: 0px; margin-right: -10px;">
-    </div>
-    
-    <!-- CENTER/RIGHT: Reviews icon + Text (SHIFTED LEFT) -->
+     <!-- CENTER/RIGHT: Reviews icon + Text (SHIFTED LEFT) -->
     <div style="display: flex; align-items: center; flex-grow: 1; justify-content: center; margin-left: -80px;">
         <!-- REVIEWS ICON (keeps glow) -->
         <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761252832996_reviews.png" 
@@ -416,14 +409,28 @@ const BANNER_STYLES = `
     .banner-glow-container div[style*="font-size: 14px"] {
         font-size: 12px !important;
     }
-        /* ===== BANNER CONTAINER WIDTH (Desktop) ===== */
-.banner-glow-container.banner-cta-full {
-    width: 836px !important;
-    max-width: 836px !important;
-    margin: 0 auto;
 }
 
 /* ===== MOBILE RESPONSIVENESS ===== */
+
+@media (max-width: 850px) {
+    .banner-glow-container {
+        width: 95vw !important;
+        max-width: 95vw !important;
+        height: auto !important;
+        min-height: 70px !important;
+        padding: 15px 10px !important;
+    }
+    
+    .banner-glow-container::before {
+        width: calc(100% + 30px);
+        left: -15px;
+    }
+    
+    .banner-glow-container img {
+        width: 100px !important;
+        height: auto !important;
+    }
 @media (max-width: 850px) {
     /* BANNER CONTAINER POSITIONING */
     #bannerHeaderContainer {
@@ -538,6 +545,16 @@ const BANNER_STYLES = `
     
     .banner-glow-container div[style*="font-size: 14px"] {
         font-size: 12px !important;
+    }
+}
+
+/* ===== DESKTOP BANNER WIDTH ULTIMATE FIX ===== */
+@media (min-width: 851px) {
+    body #bannerHeaderContainer .banner-glow-container.banner-cta-full {
+        width: 836px !important;
+        max-width: 836px !important;
+        margin: 0 auto !important;
+        background: rgba(0,255,0,0.1) !important; /* Green tint to confirm it works */
     }
 }
 </style>
