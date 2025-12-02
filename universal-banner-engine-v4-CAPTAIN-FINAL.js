@@ -401,35 +401,6 @@ const BANNER_STYLES = `
 
 /* ===== MOBILE RESPONSIVENESS ===== */
 @media (max-width: 850px) {
-    .banner-glow-container {
-        width: 95vw !important;
-        max-width: 95vw !important;
-        height: auto !important;
-        min-height: 70px !important;
-        padding: 15px 10px !important;
-    }
-    
-    .banner-glow-container::before {
-        width: calc(100% + 30px);
-        left: -15px;
-    }
-    
-    .banner-glow-container img {
-        width: 50px !important;
-        height: auto !important;
-    }
-    
-    .banner-glow-container div[style*="font-size: 20px"] {
-        font-size: 16px !important;
-    }
-    
-    .banner-glow-container div[style*="font-size: 14px"] {
-        font-size: 12px !important;
-    }
-}
-
-/* ===== MOBILE RESPONSIVENESS ===== */
-@media (max-width: 850px) {
     /* BANNER CONTAINER POSITIONING */
     #bannerHeaderContainer {
         top: 45px !important;
