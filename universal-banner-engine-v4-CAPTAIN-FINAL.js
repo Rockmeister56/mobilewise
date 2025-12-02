@@ -426,17 +426,23 @@ const BANNER_STYLES = `
         justify-content: space-around !important;
         padding: 12px 15px !important;
     }
+
+    @media (max-width: 850px) {
+    .banner-testimonial {
+        justify-content: center !important;
+    }
+    
+    .banner-testimonial > div {
+        margin: 0 auto !important;
+        display: flex !important;
+        justify-content: center !important;
+    }
+}
     
     .banner-testimonial > div:last-child {
         margin-left: -40px !important;
         justify-content: flex-start !important;
     }
-
-    @media (max-width: 850px) {
-    .banner-testimonial {
-        padding-left: 40px !important; /* Adds space on left, pushes stars right */
-    }
-}
     
     /* TEXT SIZING */
     .banner-glow-container div[style*="font-size: 20px"] {
