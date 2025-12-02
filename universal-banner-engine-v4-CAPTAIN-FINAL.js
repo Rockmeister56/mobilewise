@@ -417,7 +417,7 @@ const BANNER_STYLES = `
     .banner-testimonial img.book-white-glow {
         width: 300px !important; /* Mobile-appropriate size */
         height: auto !important;
-        margin-left: 20px !important;
+        margin-left: 30px !important;
         margin-right: 0 !important;
     }
     
@@ -428,7 +428,7 @@ const BANNER_STYLES = `
     }
     
     .banner-testimonial > div:last-child {
-        margin-left: -10px !important;
+        margin-left: 0px !important;
         justify-content: flex-start !important;
     }
     
