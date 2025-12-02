@@ -81,7 +81,7 @@
         <!-- REVIEWS ICON (keeps glow) -->
         <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1764697820533_5star.png" 
              class="book-white-glow"
-             style="width: 100px; height: 100px; border-radius: 0px; margin-left: 5px;">
+             style="width: 500px; height: 70px; border-radius: 0px; margin-left: 5px;">
             </div>
             </div>
         </div>
