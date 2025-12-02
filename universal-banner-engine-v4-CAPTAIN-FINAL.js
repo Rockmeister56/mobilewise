@@ -350,22 +350,6 @@ const BANNER_STYLES = `
     display: none;
 }
 
-/* ===== ICON GLOW EFFECT ===== */
-.book-white-glow {
-    animation: bookWhiteGlow 3s ease-in-out infinite;
-}
-
-@keyframes bookWhiteGlow {
-    0%, 100% { 
-        box-shadow: 0 0 0px rgba(255,255,255,0.5);
-        transform: scale(1.2);
-    }
-    50% { 
-        box-shadow: 0 0 0px rgba(255,255,255,0.9);
-        transform: scale(1.03);
-    }
-}
-
 /* ===== FREE TEXT GLOW ===== */
 .free-glow {
     text-shadow: 0 0 8px rgba(255,255,255,0.8);
