@@ -361,6 +361,7 @@ const BANNER_STYLES = `
     50% { text-shadow: 0 0 12px rgba(255,255,255,1); }
 }
 
+/* ===== MOBILE RESPONSIVENESS (ONLY BELOW 850px) ===== */
 @media (max-width: 850px) {
     /* BANNER CONTAINER POSITIONING */
     #bannerHeaderContainer {
@@ -369,10 +370,8 @@ const BANNER_STYLES = `
         max-width: 99vw !important;
         margin: 0 auto;
     }
-
-/* ===== MOBILE RESPONSIVENESS (CONSOLIDATED) ===== */
-@media (max-width: 850px) {
-    /* BANNER CONTAINER */
+    
+    /* BANNER CONTAINER - MOBILE ONLY */
     .banner-glow-container {
         width: 100% !important;
         max-width: 100% !important;
@@ -382,7 +381,7 @@ const BANNER_STYLES = `
         margin: 0 auto;
     }
     
-    /* GLOW LAYER ADJUSTMENT */
+    /* GLOW LAYER ADJUSTMENT - MOBILE ONLY */
     .banner-glow-container::before {
         width: calc(100% + 40px) !important;
         left: -20px !important;
@@ -390,14 +389,14 @@ const BANNER_STYLES = `
         height: calc(100% + 20px) !important;
     }
     
-    /* BRANDING BANNER (Special treatment) */
+    /* BRANDING BANNER - MOBILE ONLY */
     .branding-banner {
         justify-content: flex-start !important;
         padding-left: 20px !important;
         height: 70px !important;
     }
     
-    /* BRANDING LOGO IMAGE */
+    /* BRANDING LOGO IMAGE - MOBILE ONLY */
     .branding-banner img[src*="nci.PNG"],
     .branding-banner img {
         width: 100px !important;
@@ -406,22 +405,22 @@ const BANNER_STYLES = `
         margin-right: 0 !important;
     }
     
-    /* STANDARD BANNER IMAGES (EMOJIS) - 20% BIGGER */
+    /* STANDARD BANNER IMAGES (EMOJIS) - MOBILE ONLY */
     .banner-glow-container img:not(.branding-banner img):not(.book-white-glow) {
-        width: 32px !important; /* Increased from 30px to 36px (+20%) */
+        width: 32px !important;
         height: auto !important;
         margin-right: 15px !important;
     }
     
-    /* SPECIAL: TESTIMONIAL BANNER STARS */
+    /* TESTIMONIAL BANNER STARS - MOBILE ONLY */
     .banner-testimonial img.book-white-glow {
-        width: 300px !important; /* Mobile-appropriate size */
+        width: 300px !important;
         height: auto !important;
         margin-left: 33px !important;
         margin-right: 0 !important;
     }
     
-    /* TESTIMONIAL BANNER LAYOUT */
+    /* TESTIMONIAL BANNER LAYOUT - MOBILE ONLY */
     .banner-testimonial {
         justify-content: space-around !important;
         padding: 12px 15px !important;
@@ -432,7 +431,7 @@ const BANNER_STYLES = `
         justify-content: flex-start !important;
     }
     
-    /* TEXT SIZING */
+    /* TEXT SIZING - MOBILE ONLY */
     .banner-glow-container div[style*="font-size: 20px"] {
         font-size: 17px !important;
         line-height: 1.2 !important;
@@ -446,13 +445,17 @@ const BANNER_STYLES = `
 
 /* ===== EXTRA SMALL DEVICES ===== */
 @media (max-width: 480px) {
-    /* BANNER CONTAINER */
+    #bannerHeaderContainer {
+        top: 40px !important;
+        width: 98vw !important;
+        max-width: 98vw !important;
+    }
+    
     .banner-glow-container {
         min-height: 77px !important;
         padding: 10px 12px !important;
     }
     
-    /* BRANDING LOGO (Smaller on tiny screens) */
     .branding-banner img[src*="nci.PNG"],
     .branding-banner img {
         width: 100px !important;
@@ -463,17 +466,14 @@ const BANNER_STYLES = `
         height: 65px !important;
     }
     
-    /* EMOJIS (Slightly smaller on tiny screens) */
     .banner-glow-container img:not(.branding-banner img):not(.book-white-glow) {
-        width: 32px !important; /* Slightly smaller than 36px for tiny screens */
+        width: 32px !important;
     }
     
-    /* TESTIMONIAL STARS (Smaller on tiny screens) */
     .banner-testimonial img.book-white-glow {
         width: 250px !important;
     }
     
-    /* TEXT SIZING (Smaller on tiny screens) */
     .banner-glow-container div[style*="font-size: 20px"] {
         font-size: 16px !important;
     }
@@ -482,8 +482,19 @@ const BANNER_STYLES = `
         font-size: 12px !important;
     }
 }
+
+/* ===== DESKTOP ONLY - FIX FOR BANNER WIDTH ===== */
+@media (min-width: 851px) {
+    /* REMOVE any width constraints on desktop - let HTML control it */
+    .banner-glow-container,
+    .banner-glow-container.banner-cta-full,
+    .banner-glow-container.banner-testimonial {
+        width: auto !important;
+        max-width: none !important;
+    }
+}
 </style>
-    `;
+`;
 
     
 
