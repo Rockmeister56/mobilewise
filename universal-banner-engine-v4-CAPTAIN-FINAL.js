@@ -400,7 +400,7 @@ const BANNER_STYLES = `
     /* BRANDING LOGO IMAGE */
     .branding-banner img[src*="nci.PNG"],
     .branding-banner img {
-        width: 120px !important;
+        width: 100px !important;
         height: auto !important;
         max-width: 120px !important;
         margin-right: 0 !important;
@@ -408,7 +408,7 @@ const BANNER_STYLES = `
     
     /* STANDARD BANNER IMAGES (EMOJIS) - 20% BIGGER */
     .banner-glow-container img:not(.branding-banner img):not(.book-white-glow) {
-        width: 36px !important; /* Increased from 30px to 36px (+20%) */
+        width: 32px !important; /* Increased from 30px to 36px (+20%) */
         height: auto !important;
         margin-right: 15px !important;
     }
