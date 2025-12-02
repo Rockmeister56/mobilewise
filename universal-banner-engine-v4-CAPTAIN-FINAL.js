@@ -417,7 +417,7 @@ const BANNER_STYLES = `
     .banner-testimonial img.book-white-glow {
         width: 300px !important; /* Mobile-appropriate size */
         height: auto !important;
-        margin-left: 30px !important;
+        margin-left: 33px !important;
         margin-right: 0 !important;
     }
     
