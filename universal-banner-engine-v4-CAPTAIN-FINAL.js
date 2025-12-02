@@ -285,8 +285,7 @@ const BANNER_STYLES = `
     margin-top: 40px !important;
 }
 
-/* For ALL banners */
-.banner-glow-container { 
+.banner-glow-container.branding-banner { 
     width: 900px !important; 
     max-width: 900px !important; 
 }
