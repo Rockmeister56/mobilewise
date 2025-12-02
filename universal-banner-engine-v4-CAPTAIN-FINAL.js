@@ -509,10 +509,10 @@ const BANNER_STYLES = `
 }
     
 /* ===== DESKTOP BANNER WIDTH (VERY END - OVERRIDES EVERYTHING) ===== */
-@media (min-width: 851px) {
+@media (min-width: 880px) {
     .banner-glow-container.banner-cta-full {
-        width: 836px !important;
-        max-width: 836px !important;
+        width: 860px !important;
+        max-width: 860px !important;
         margin: 0 auto !important;
     }
 }
