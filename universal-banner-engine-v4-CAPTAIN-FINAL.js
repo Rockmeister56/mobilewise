@@ -281,6 +281,12 @@ const BANNER_STYLES = `
     position: relative; /* Needed for glow effects */
 }
 
+/* TEMPORARY - Add to CSS to test */
+#bannerHeaderContainer {
+    border: 3px solid red !important;
+    margin-top: 40px !important;
+}
+
 /* GLOW BACKGROUND EFFECT */
 .banner-glow-container::before {
     content: '';
