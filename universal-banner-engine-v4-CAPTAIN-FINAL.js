@@ -431,6 +431,12 @@ const BANNER_STYLES = `
         margin-left: -40px !important;
         justify-content: flex-start !important;
     }
+
+    @media (max-width: 850px) {
+    .banner-testimonial {
+        padding-left: 40px !important; /* Adds space on left, pushes stars right */
+    }
+}
     
     /* TEXT SIZING */
     .banner-glow-container div[style*="font-size: 20px"] {
