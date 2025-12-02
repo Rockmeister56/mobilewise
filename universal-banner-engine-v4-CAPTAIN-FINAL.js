@@ -287,7 +287,7 @@ const BANNER_STYLES = `
     position: absolute;
     width: calc(100% + 50px);
     height: calc(100% + 20px);
-    top: 20px;
+    top: -30px;
     left: -25px;
     background: rgba(255, 255, 255, 0.1);
     border-radius: 12px;
