@@ -390,13 +390,21 @@ const BANNER_STYLES = `
     50% { text-shadow: 0 0 12px rgba(255,255,255,1); }
 }
 
-/* ===== DESKTOP BANNER WIDTH (Force Override) ===== */
-@media (min-width: 851px) {
-    .banner-glow-container.banner-cta-full {
-        width: 836px !important;
-        max-width: 836px !important;
-        margin: 0 auto;
-    }
+/* NUCLEAR OPTION - Force width */
+.banner-glow-container.banner-cta-full {
+    width: 836px !important;
+    max-width: 836px !important;
+    margin: 0 auto !important;
+    position: relative !important;
+    z-index: 9999 !important;
+}
+
+/* Override any parent constraints */
+body .banner-glow-container.banner-cta-full,
+html .banner-glow-container.banner-cta-full,
+* .banner-glow-container.banner-cta-full {
+    width: 836px !important;
+    max-width: 836px !important;
 }
 
 /* ===== MOBILE RESPONSIVENESS ===== */
