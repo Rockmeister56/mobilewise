@@ -297,7 +297,7 @@ const BANNER_STYLES = `
 .banner-glow-container::before {
     content: '';
     position: absolute;
-    width: calc(100% + 60px);
+    width: calc(100% + 50px);
     height: calc(100% + 20px);
     top: -10px;
     left: -25px;
@@ -305,13 +305,6 @@ const BANNER_STYLES = `
     border-radius: 12px;
     z-index: -1;
     animation: glowLayerPulse 2s ease-in-out infinite;
-}
-
-/* ===== BANNER CONTAINER WIDTH (Desktop) ===== */
-.banner-glow-container.banner-cta-full {
-    width: 836px !important;
-    max-width: 836px !important;
-    margin: 0 auto;
 }
 
 @keyframes glowLayerPulse {
@@ -395,6 +388,15 @@ const BANNER_STYLES = `
 @keyframes freeTextGlow {
     0%, 100% { text-shadow: 0 0 8px rgba(255,255,255,0.8); }
     50% { text-shadow: 0 0 12px rgba(255,255,255,1); }
+}
+
+/* ===== DESKTOP BANNER WIDTH (Force Override) ===== */
+@media (min-width: 851px) {
+    .banner-glow-container.banner-cta-full {
+        width: 836px !important;
+        max-width: 836px !important;
+        margin: 0 auto;
+    }
 }
 
 /* ===== MOBILE RESPONSIVENESS ===== */
