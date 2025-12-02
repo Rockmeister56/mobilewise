@@ -417,7 +417,7 @@ const BANNER_STYLES = `
     .banner-testimonial img.book-white-glow {
         width: 300px !important; /* Mobile-appropriate size */
         height: auto !important;
-        margin-left: 0 !important;
+        margin-left: 20px !important;
         margin-right: 0 !important;
     }
     
@@ -426,21 +426,9 @@ const BANNER_STYLES = `
         justify-content: space-around !important;
         padding: 12px 15px !important;
     }
-
-    @media (max-width: 850px) {
-    .banner-testimonial {
-        justify-content: center !important;
-    }
-    
-    .banner-testimonial > div {
-        margin: 0 auto !important;
-        display: flex !important;
-        justify-content: center !important;
-    }
-}
     
     .banner-testimonial > div:last-child {
-        margin-left: -40px !important;
+        margin-left: -10px !important;
         justify-content: flex-start !important;
     }
     
