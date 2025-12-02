@@ -107,7 +107,7 @@
         colorRight: '#1e40af'
     },
     
-    // 4. CLICK TO CALL (CTA with highlighter)
+    // 4. REQUEST-A-CALL (CTA with highlighter)
     clickToCall: {
         content: `
             <div class="banner-glow-container banner-cta-full" style="width: 760px; max-width: 760px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #0f5ef0ff 0%, #000000ff 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
@@ -117,7 +117,7 @@
                          style="width: 70px; height: 70px; border-radius: 0px; margin-right: 20px;">
                     <div style="color: white; text-align: left;">
                         <div style="font-size: 20px; font-weight: bold; margin-bottom: 5px;">
-                            CLICK to call
+                            Request-A-Call
                         </div>
                         <div style="font-size: 14px; opacity: 0.95;">
                             Click icon to connect
