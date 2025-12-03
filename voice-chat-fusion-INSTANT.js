@@ -3021,17 +3021,6 @@ for (let keyword of allKeywords) {
 // 🚨 UPDATED handleConcernWithTestimonial FUNCTION - MINIMAL CHANGES
 window.handleConcernWithTestimonial = function(userText, concernType) {
     console.log(`🎯 handleConcernWithTestimonial called: "${userText}" (${concernType})`);
-
-    // 🛑 BLOCK SPEAK SEQUENCE IMMEDIATELY
-window.concernBannerActive = true;
-window.isInTestimonialMode = true;
-window.blockAutoListen = true; // 🆕 ADD THIS LINE
-window.suppressAutoListen = true; // 🆕 ADD THIS LINE
-
-// 🛑 STOP ACTIVE LISTENING & CLOSE BANNERS
-if (window.stopListening) window.stopListening();
-if (window.hideSpeakNowBanner) window.hideSpeakNowBanner();
-if (window.cleanupSpeakSequence) window.cleanupSpeakSequence();
     
     // 🛑 BLOCK SPEAK SEQUENCE IMMEDIATELY
     window.concernBannerActive = true;
