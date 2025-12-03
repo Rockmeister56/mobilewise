@@ -156,6 +156,11 @@ function closeTestimonialVideo() {
         window.testimonialVideoActive = false;
     }
     
+    // 🚨 CLEAR BANNER-BLOCKING FLAGS
+    window.isTestimonialActive = false;
+    window.testimonialMode = false;
+    window.testimonialsPlaying = false;
+    
     // 🛡️ KEEP PROTECTION ACTIVE
     window.testimonialSessionActive = true;
     window.testimonialProtectionActive = true;
@@ -919,16 +924,44 @@ function closeTestimonialNav() {
     if (videoOverlay) videoOverlay.style.display = 'none';
     if (splashScreen) splashScreen.style.display = 'none';
     
-    // Ensure voice chat is available
+    // 🚨 CLEAR ALL BANNER-BLOCKING FLAGS
+    window.isTestimonialActive = false;
+    window.testimonialMode = false;
+    window.testimonialsPlaying = false;
     window.testimonialSessionActive = false;
     console.log('🛡️ Testimonial session completely closed');
-}
-
-// Helper function to show main interface
-function showMainInterface() {
-    console.log('🔄 Showing main interface');
-    // Add your main interface showing logic here
-    // This might include showing the universal banner, action center, etc.
+    
+    // 🎤 PLAY CONSULTATION OFFER WITH SPEAK NOW BANNER
+    setTimeout(() => {
+        console.log('🗣️ Playing consultation offer...');
+        
+        // Make SURE flags are cleared
+        window.isTestimonialActive = false;
+        window.testimonialMode = false;
+        
+        if (window.speakText) {
+            window.speakText("If we can get you the same results as our previous customers, would you be interested in that consultation?");
+            
+            // After speech, start listening and show banner
+            setTimeout(() => {
+                if (window.startListening) {
+                    window.startListening();
+                    
+                    // DOUBLE CHECK flags are cleared
+                    window.isTestimonialActive = false;
+                    window.testimonialMode = false;
+                    
+                    // Show the banner
+                    setTimeout(() => {
+                        if (typeof showDirectSpeakNow === 'function') {
+                            showDirectSpeakNow();
+                            console.log('✅ Speak now banner shown after testimonials');
+                        }
+                    }, 800);
+                }
+            }, 3000); // Wait for speech to finish
+        }
+    }, 500);
 }
 
 
