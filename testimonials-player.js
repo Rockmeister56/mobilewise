@@ -534,7 +534,7 @@ function handleCloseTestimonial() {
     if (chatContainer) chatContainer.style.display = 'block';
     if (inputArea) inputArea.style.display = 'block';
     
-    // In your consultation offer code, use LONGER delay:
+   // In your consultation offer code, use LONGER delay:
 setTimeout(() => {
     console.log('🗣️ Playing consultation offer...');
     
@@ -547,7 +547,41 @@ setTimeout(() => {
     if (window.speakText) {
         window.speakText(consultationText);
         
-        // 🆕 MUCH LONGER DELAY - let ALL automatic systems settle
+        // 🛡️ PATCH: EXTEND ALL NO-SPEECH TIMEOUTS FOR CONSULTATION
+        const originalSetTimeout = window.setTimeout;
+        window.setTimeout = function(callback, delay, ...args) {
+            // Check if this is a "Whoops" or no-speech timeout
+            const callbackStr = callback.toString().toLowerCase();
+            const isErrorTimeout = callbackStr.includes('woops') || 
+                                   callbackStr.includes('no-speech') ||
+                                   callbackStr.includes("didn't hear") ||
+                                   callbackStr.includes('missed that') ||
+                                   (delay < 10000 && callbackStr.includes('timeout'));
+            
+            // If it's an error timeout during consultation, make it MUCH longer
+            if (isErrorTimeout && window.consultationOfferActive) {
+                console.log('⏱️ Extending consultation error timeout from', delay, 'ms to 15000ms');
+                delay = 15000; // 15 seconds!
+            }
+            
+            return originalSetTimeout.call(this, callback, delay, ...args);
+        };
+        
+        // 🛡️ PATCH: BLOCK "WHOOPS" MESSAGES
+        const originalAddAIMessage = window.addAIMessage;
+        window.addAIMessage = function(message) {
+            // Block ALL "Whoops" errors during consultation
+            if (window.consultationOfferActive && 
+                message.toLowerCase().includes('woops')) {
+                console.log('🚫 BLOCKED "Whoops" message:', message.substring(0, 50));
+                return; // Don't show it!
+            }
+            return originalAddAIMessage.apply(this, arguments);
+        };
+        
+        console.log('✅ Patches installed for consultation offer');
+        
+        // 🆕 LONG DELAY - let ALL automatic systems settle
         setTimeout(() => {
             console.log('🎯 10-second delay complete - manually triggering banner');
             
@@ -562,14 +596,17 @@ setTimeout(() => {
                     console.log('✅ Manual banner shown after long delay');
                 }
                 
-                // Restore timeout
+                // 🛡️ RESTORE PATCHES AFTER 30 SECONDS
                 setTimeout(() => {
+                    window.setTimeout = originalSetTimeout;
+                    window.addAIMessage = originalAddAIMessage;
                     window.isInLeadCapture = wasInLeadCapture;
-                    console.log('🔄 Timeout restored');
-                }, 25000);
+                    console.log('🔄 All patches restored to normal');
+                }, 30000);
+                
             }, 1000); // Extra buffer
             
-        }, 10000); // ⚠️ INCREASED TO 10 SECONDS! Let everything settle
+        }, 10000); // ⚠️ 10 SECONDS! Let everything settle
     }
 }, 500);
     

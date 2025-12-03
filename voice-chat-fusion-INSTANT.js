@@ -5576,55 +5576,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 1000);
 });
 
-// ===== PATCH: BLOCK "WHOOPS" ERROR DURING CONSULTATION OFFERS =====
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('🛡️ Installing "Whoops" error blocker...');
-    
-    // 1. Hook into addAIMessage to block "Whoops" during consultation
-    const originalAddAIMessage = window.addAIMessage;
-    if (originalAddAIMessage) {
-        window.addAIMessage = function(message) {
-            // 🚫 BLOCK "Whoops" errors during consultation offers
-            if (window.consultationOfferActive && 
-                (message.toLowerCase().includes('woops') || 
-                 message.toLowerCase().includes('missed that') ||
-                 message.toLowerCase().includes("didn't hear"))) {
-                console.log('🚫 BLOCKED "Whoops" error during consultation:', message.substring(0, 50));
-                return; // Don't show the error!
-            }
-            
-            return originalAddAIMessage.apply(this, arguments);
-        };
-        console.log('✅ addAIMessage hook installed');
-    }
-    
-    // 2. Also extend no-speech timeout for consultation offers
-    const originalSetTimeout = window.setTimeout;
-    window.setTimeout = function(callback, delay, ...args) {
-        // If this is a no-speech timeout AND we're in consultation mode, extend it
-        const callbackStr = callback.toString().toLowerCase();
-        const isNoSpeechTimeout = callbackStr.includes('no-speech') || 
-                                  callbackStr.includes("didn't hear") ||
-                                  (delay < 5000 && callbackStr.includes('timeout'));
-        
-        if (isNoSpeechTimeout && window.consultationOfferActive) {
-            console.log('⏱️ Extending consultation timeout from', delay, 'ms to 15000ms');
-            delay = 15000; // 15 seconds for consultation responses
-        }
-        
-        return originalSetTimeout.call(this, callback, delay, ...args);
-    };
-    
-    console.log('✅ setTimeout hook installed');
-    
-    // 3. Auto-cleanup after 60 seconds
-    setTimeout(() => {
-        if (originalAddAIMessage) window.addAIMessage = originalAddAIMessage;
-        window.setTimeout = originalSetTimeout;
-        console.log('🔄 Restored original functions');
-    }, 60000);
-});
-
 
 // ===== INJECT INSTANT BUBBLE CSS =====
 (function() {
