@@ -534,7 +534,7 @@ function handleCloseTestimonial() {
     if (chatContainer) chatContainer.style.display = 'block';
     if (inputArea) inputArea.style.display = 'block';
     
-    // 8. PLAY THE CONSULTATION OFFER PROPERLY
+    // In your consultation offer code, use LONGER delay:
 setTimeout(() => {
     console.log('🗣️ Playing consultation offer...');
     
@@ -545,22 +545,11 @@ setTimeout(() => {
     }
     
     if (window.speakText) {
-        // 🛡️ TEMPORARILY DISABLE AUTO-BANNER
-        const originalHandleSpeechComplete = window.handleSpeechComplete;
-        window.handleSpeechComplete = function() {
-            console.log('🛡️ BLOCKED: Auto-banner disabled for testimonial return');
-            // Don't call showDirectSpeakNow() - we'll call it manually
-            return Promise.resolve(); // Just resolve, don't trigger banner
-        };
-        
         window.speakText(consultationText);
         
-        // 🎤 MANUALLY TRIGGER BANNER AFTER SPEECH
+        // 🆕 MUCH LONGER DELAY - let ALL automatic systems settle
         setTimeout(() => {
-            console.log('🎯 Speech complete - manually triggering banner');
-            
-            // Restore original handler
-            window.handleSpeechComplete = originalHandleSpeechComplete;
+            console.log('🎯 10-second delay complete - manually triggering banner');
             
             // Add timeout hack
             const wasInLeadCapture = window.isInLeadCapture;
@@ -570,7 +559,7 @@ setTimeout(() => {
             setTimeout(() => {
                 if (typeof showDirectSpeakNow === 'function') {
                     showDirectSpeakNow();
-                    console.log('✅ Manual banner shown');
+                    console.log('✅ Manual banner shown after long delay');
                 }
                 
                 // Restore timeout
@@ -578,9 +567,9 @@ setTimeout(() => {
                     window.isInLeadCapture = wasInLeadCapture;
                     console.log('🔄 Timeout restored');
                 }, 25000);
-            }, 800);
+            }, 1000); // Extra buffer
             
-        }, 7000); // Speech duration
+        }, 10000); // ⚠️ INCREASED TO 10 SECONDS! Let everything settle
     }
 }, 500);
     
