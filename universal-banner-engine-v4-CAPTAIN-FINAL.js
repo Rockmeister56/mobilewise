@@ -347,11 +347,6 @@ const BANNER_STYLES = `
     display: none;
 }
 
-/* ICON GLOW EFFECT */
-.book-white-glow {
-    animation: bookWhiteGlow 3s ease-in-out infinite;
-}
-
 @keyframes bookWhiteGlow {
     0%, 100% { 
         box-shadow: 0 0 0px rgba(255,255,255,0.5);
@@ -390,7 +385,7 @@ const BANNER_STYLES = `
         width: 100% !important;
         max-width: 100% !important;
         height: auto !important;
-        min-height: 50px !important;
+        min-height: 60px !important;
         padding: 3px 10px !important;
         margin: 0 auto;
     }
@@ -462,7 +457,7 @@ const BANNER_STYLES = `
     }
     
     .banner-glow-container img:not(.branding-banner img) {
-        width: 32px !important;
+        width: 40px !important;
     }
 }
 </style>
