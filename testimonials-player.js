@@ -834,8 +834,9 @@ function returnToVoiceChat() {
                     console.log('🧹 Cleared transcript captured during speech');
                 }
                 
-                if (window.startListening) {
-                    window.startListening();
+                // ⚠️ REMOVE THIS LINE - Voice chat system handles listening!
+                // if (window.startListening) {
+                //     window.startListening();
                     
                     // Show banner AFTER listening starts
                     setTimeout(() => {
@@ -845,9 +846,9 @@ function returnToVoiceChat() {
                             console.log('✅ Speak now banner shown AFTER speech complete');
                         }
                     }, 800);
-                }
+                // }
             }, speechDuration);
-        }
+        } // ✅ THIS CLOSES THE if (window.speakText) BLOCK
     }, 500);
     
     console.log('✅ SUCCESSFULLY RETURNED TO VOICE CHAT');
