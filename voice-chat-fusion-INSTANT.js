@@ -844,26 +844,6 @@ recognition.onend = function() {
         clearTimeout(window.directSpeakNowTimeout);
         window.directSpeakNowTimeout = null;
     }
-
-    // 🔥🚨🚨🚨 CRITICAL MISSING FIX: CANCEL THE DIRECT SPEAK NOW TIMEOUT 🚨🚨🚨
-if (window.directSpeakNowTimeout) {
-    console.log('🎯 Recognition ended - CANCELLING directSpeakNow timeout');
-    clearTimeout(window.directSpeakNowTimeout);
-    window.directSpeakNowTimeout = null;
-}
-
-// 🆕 ADD GRACE PERIOD CHECK - PREVENT IMMEDIATE "WHOOPS" ERRORS
-const recognitionStartTime = window.recognitionStartTime || 0;
-const currentTime = Date.now();
-const timeSinceStart = currentTime - recognitionStartTime;
-
-console.log('⏱️ Grace period check: Recognition started', timeSinceStart, 'ms ago');
-
-// If recognition just started (< 3 seconds ago), don't show "Whoops"
-if (timeSinceStart < 3000) {
-    console.log('⏱️ GRACE PERIOD ACTIVE: Skipping "Whoops" (recognition needs more time)');
-    return; // Exit early, don't show error!
-}
     
     console.log('🔍 DEBUG: playingSorryMessage =', window.playingSorryMessage);
     console.log('🔍 DEBUG: isSpeaking =', isSpeaking);
@@ -1062,9 +1042,6 @@ if (timeSinceStart < 3000) {
             console.error('❌ Recognition object is null - cannot set handlers');
             return;
         }
-        // 🆕 SET START TIME FOR GRACE PERIOD
-window.recognitionStartTime = Date.now();
-console.log('⏱️ Set recognition start time for grace period');
 
         // Continue with the rest of startListening...
         recognition.start();
@@ -4888,6 +4865,15 @@ window.updateVoiceTranscription = function(text) {
 };
 
 async function showDirectSpeakNow() {
+    console.log('🎯 DIRECT Speak Now - Black Transparent Overlay');
+
+     // 🛡️ CRITICAL FIX: PREVENT DUPLICATE CALLS
+    if (window.__speakNowBannerAlreadyActive) {
+        console.log('🚫 showDirectSpeakNow() BLOCKED - banner already active');
+        return; // Exit immediately, don't show duplicate
+    }
+    
+    window.__speakNowBannerAlreadyActive = true;
     console.log('🎯 DIRECT Speak Now - Black Transparent Overlay');
     
     // 🎯 COORDINATION: Block Speak Now when Action Center is about to appear
