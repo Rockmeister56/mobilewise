@@ -919,16 +919,36 @@ function closeTestimonialNav() {
     if (videoOverlay) videoOverlay.style.display = 'none';
     if (splashScreen) splashScreen.style.display = 'none';
     
-    // 🚨🚨🚨 CRITICAL: CLEAR ALL THREE FLAGS 🚨🚨🚨
-    window.testimonialSessionActive = false;
-    window.isInTestimonialMode = false;
-    window.concernBannerActive = false;
+    // 🚨 NUCLEAR OPTION: Clear EVERY POSSIBLE flag
+    console.log('🧹 CLEARING ALL TESTIMONIAL FLAGS:');
+    const testimonialFlags = [
+        'testimonialSessionActive',
+        'isInTestimonialMode', 
+        'concernBannerActive',
+        'isTestimonialActive',
+        'testimonialMode',
+        'testimonialsPlaying',
+        'testimonialActive',
+        'testimonialVideoActive',
+        'avatarCurrentlyPlaying'
+    ];
     
-    console.log('🛡️ Testimonial session completely closed - ALL flags cleared');
+    testimonialFlags.forEach(flag => {
+        window[flag] = false;
+        console.log(`  ✅ ${flag} = false`);
+    });
+    
+    console.log('🛡️ ALL testimonial flags cleared');
     
     // 🎤 PLAY CONSULTATION OFFER
     setTimeout(() => {
         console.log('🗣️ Playing consultation offer...');
+        
+        // 🔍 DEBUG CHECK RIGHT BEFORE SPEECH
+        console.log('🔍 PRE-SPEECH FLAG CHECK:');
+        console.log('  testimonialSessionActive:', window.testimonialSessionActive);
+        console.log('  isInTestimonialMode:', window.isInTestimonialMode);
+        console.log('  concernBannerActive:', window.concernBannerActive);
         
         if (window.speakText) {
             window.speakText("If we can get you the same results as our previous customers, would you be interested in that consultation?");
@@ -938,11 +958,20 @@ function closeTestimonialNav() {
                 if (window.startListening) {
                     window.startListening();
                     
+                    // 🔍 DEBUG CHECK RIGHT BEFORE BANNER
+                    console.log('🎯 PRE-BANNER FLAG CHECK:');
+                    console.log('  testimonialSessionActive:', window.testimonialSessionActive);
+                    console.log('  isInTestimonialMode:', window.isInTestimonialMode);
+                    console.log('  concernBannerActive:', window.concernBannerActive);
+                    
                     // Show the banner
                     setTimeout(() => {
+                        console.log('🎤 Attempting to call showDirectSpeakNow()...');
                         if (typeof showDirectSpeakNow === 'function') {
                             showDirectSpeakNow();
-                            console.log('✅ Speak now banner shown after testimonials');
+                            console.log('✅ showDirectSpeakNow() called');
+                        } else {
+                            console.log('❌ showDirectSpeakNow() not found!');
                         }
                     }, 800);
                 }
