@@ -409,7 +409,7 @@ body .banner-glow-container.banner-testimonial {
         width: 100% !important;
         max-width: 100% !important;
         height: auto !important;
-        min-height: 92px !important;
+        min-height: 70px !important;
         padding: 15px 15px !important;
         margin: 0 auto;
     }
@@ -449,7 +449,7 @@ body .banner-glow-container.banner-testimonial {
     .banner-testimonial img.book-white-glow {
         width: 260px !important; /* Mobile-appropriate size */
         height: auto !important;
-        margin-left: 72px !important;
+        margin-left: 70px !important;
         margin-right: 0 !important;
     }
     
