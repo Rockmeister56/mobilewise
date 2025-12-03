@@ -394,6 +394,16 @@ const BANNER_STYLES = `
         padding: 3px 10px !important;
         margin: 0 auto;
     }
+        @media (max-width: 850px) {
+    .banner-glow-container.branding-banner {
+        margin-top: -40px !important;
+        top: -20px !important;
+    }
+    
+    #bannerHeaderContainer {
+        margin-top: -50px !important;
+    }
+}
     
     /* ADJUST GLOW LAYER FOR MOBILE */
     .banner-glow-container::before {
