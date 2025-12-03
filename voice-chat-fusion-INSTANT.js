@@ -727,6 +727,33 @@ function suppressBrowserBeeps() {
 // 🎤 START LISTENING new function
 // ===================================================
 async function startListening() {
+    console.log("=== DEBUG START ===");
+    
+    // 1. Check what recognition IS
+    console.log("1. recognition exists?", !!recognition);
+    console.log("2. recognition.state?", recognition?.state || "N/A");
+    console.log("3. recognition instance:", recognition);
+    
+    // 2. SAFELY stop if it exists
+    if (recognition) {
+        console.log("4. Attempting to stop...");
+        try {
+            recognition.stop();
+            console.log("   ✅ stop() called");
+        } catch(e) { console.log("   ❌ stop failed:", e.message); }
+        
+        try {
+            recognition.abort();
+            console.log("   ✅ abort() called");
+        } catch(e) { console.log("   ❌ abort failed:", e.message); }
+        
+        // Wait 300ms
+        await new Promise(resolve => setTimeout(resolve, 300));
+        console.log("5. Waited 300ms");
+    }
+    
+    console.log("=== DEBUG END ===");
+    
     console.log("🎯 FORCE RESET startListening()");
     
     // ⚡️ ADD THIS BLOCK ⚡️
