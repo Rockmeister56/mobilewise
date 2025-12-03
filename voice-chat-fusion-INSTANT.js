@@ -727,7 +727,21 @@ function suppressBrowserBeeps() {
 // 🎤 START LISTENING new function
 // ===================================================
 async function startListening() {
-    console.log("🎯 startListening() called");
+    console.log("🎯 FORCE RESET startListening()");
+    
+    // ⚡️ ADD THIS BLOCK ⚡️
+    if (window.SpeechRecognition || window.webkitSpeechRecognition) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        
+        // Force create NEW instance
+        recognition = new SpeechRecognition();
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.lang = 'en-US';
+        recognition.maxAlternatives = 1;
+        
+        console.log('🔄 FORCED NEW recognition instance');
+    }
     
     // ✅ Check native recognition state (FIXED - added 'starting' state)
     if (recognition && (recognition.state === 'listening' || recognition.state === 'starting')) {
