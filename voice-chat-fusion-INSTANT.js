@@ -1795,11 +1795,7 @@ class MobileWiseVoiceSystem {
         });
     }
     
-    // ============================================================
-    // 🎯 SPEECH COMPLETION HANDLER - WITH ELEVENLABS BANNER LOGIC
-    // ✅ SMART BUTTON BLOCKING REMOVED FOR BANNER FUNCTIONALITY
-   // ============================================================
- handleSpeechComplete() {
+handleSpeechComplete() {
     voiceSystem.isSpeaking = false;
     window.isSpeaking = false; // Backward compatibility
     
@@ -1807,6 +1803,18 @@ class MobileWiseVoiceSystem {
     if (window.isInConfirmationDialog) {
         console.log('🛑 BLOCKING BANNER - Confirmation dialog active');
         return; // STOP HERE - don't trigger banner
+    }
+    
+    // 🛡️ NEW CHECK: Consultation offer active?
+    if (window.consultationOfferActive) {
+        console.log('⏱️ Consultation offer - DELAYING auto-banner by 5 seconds');
+        setTimeout(() => {
+            if (typeof showDirectSpeakNow === 'function') {
+                showDirectSpeakNow();
+                console.log('✅ Delayed consultation banner triggered');
+            }
+        }, 5000); // 5-second delay
+        return; // Exit early, don't trigger immediate banner
     }
     
     // 🆕🎯 CRITICAL FIX: ADD ONLY THIS COOLDOWN RESET BLOCK
@@ -4865,15 +4873,6 @@ window.updateVoiceTranscription = function(text) {
 };
 
 async function showDirectSpeakNow() {
-    console.log('🎯 DIRECT Speak Now - Black Transparent Overlay');
-
-     // 🛡️ CRITICAL FIX: PREVENT DUPLICATE CALLS
-    if (window.__speakNowBannerAlreadyActive) {
-        console.log('🚫 showDirectSpeakNow() BLOCKED - banner already active');
-        return; // Exit immediately, don't show duplicate
-    }
-    
-    window.__speakNowBannerAlreadyActive = true;
     console.log('🎯 DIRECT Speak Now - Black Transparent Overlay');
     
     // 🎯 COORDINATION: Block Speak Now when Action Center is about to appear
