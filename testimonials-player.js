@@ -1271,6 +1271,8 @@ console.log('✅ AUTO-SPEECH-STOPPER installed - testimonials will automatically
 // ================================
 // GLOBAL EXPORTS - TESTIMONIAL SYSTEM
 // ================================
+
+// 1. CORE TESTIMONIAL FUNCTIONS
 window.handleTestimonialButton = handleTestimonialButton;
 window.showTestimonialSplashScreen = showTestimonialSplashScreen;
 window.playTestimonialVideo = playTestimonialVideo; 
@@ -1278,7 +1280,19 @@ window.handleTestimonialSkip = handleTestimonialSkip;
 window.hideTestimonialSplash = hideTestimonialSplash;
 window.showTestimonialSpinner = showTestimonialSpinner;
 window.hideTestimonialSpinner = hideTestimonialSpinner;
+window.showTestimonialNavigationOptions = showTestimonialNavigationOptions;
+
+// 2. CLOSING/NAVIGATION FUNCTIONS
+window.closeTestimonialVideo = closeTestimonialVideo;
+window.closeTestimonialNav = closeTestimonialNav;
+window.returnToVoiceChat = returnToVoiceChat;
+
+// 3. SPEECH CONTROL (REQUIRED - called externally)
+window.stopAllSpeech = stopAllSpeech;
+
+// 4. STATE FLAGS
 window.avatarCurrentlyPlaying = false;
+window.consultationOfferActive = false;
 
 // ✅ USE THIS - It's the safest approach:
 if (document.readyState === 'loading') {
