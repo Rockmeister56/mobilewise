@@ -534,7 +534,7 @@ function handleCloseTestimonial() {
     if (chatContainer) chatContainer.style.display = 'block';
     if (inputArea) inputArea.style.display = 'block';
     
-    // 6. Play the consultation offer
+   // 6. Play the consultation offer
     console.log('🗣️ Playing consultation offer...');
 setTimeout(() => {
     if (window.speakText) {
