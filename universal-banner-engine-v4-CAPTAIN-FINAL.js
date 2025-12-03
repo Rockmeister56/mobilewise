@@ -409,7 +409,7 @@ body .banner-glow-container.banner-testimonial {
         width: 100% !important;
         max-width: 100% !important;
         height: auto !important;
-        min-height: 70px !important;
+        min-height: 75px !important;
         padding: 15px 15px !important;
         margin: 0 auto;
     }
@@ -432,10 +432,10 @@ body .banner-glow-container.banner-testimonial {
     /* BRANDING LOGO IMAGE */
     .branding-banner img[src*="nci.PNG"],
     .branding-banner img {
-        width: 120px !important;
+        width: 90px !important;
         height: auto !important;
-        max-width: 120px !important;
-        margin-right: 0 !important;
+        max-width: 90px !important;
+        margin-right: -10 !important;
     }
     
     /* STANDARD BANNER IMAGES (EMOJIS) - 20% BIGGER */
