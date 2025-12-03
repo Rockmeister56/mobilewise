@@ -727,48 +727,7 @@ function suppressBrowserBeeps() {
 // 🎤 START LISTENING new function
 // ===================================================
 async function startListening() {
-    console.log("=== DEBUG START ===");
-    
-    // 1. Check what recognition IS
-    console.log("1. recognition exists?", !!recognition);
-    console.log("2. recognition.state?", recognition?.state || "N/A");
-    console.log("3. recognition instance:", recognition);
-    
-    // 2. SAFELY stop if it exists
-    if (recognition) {
-        console.log("4. Attempting to stop...");
-        try {
-            recognition.stop();
-            console.log("   ✅ stop() called");
-        } catch(e) { console.log("   ❌ stop failed:", e.message); }
-        
-        try {
-            recognition.abort();
-            console.log("   ✅ abort() called");
-        } catch(e) { console.log("   ❌ abort failed:", e.message); }
-        
-        // Wait 300ms
-        await new Promise(resolve => setTimeout(resolve, 300));
-        console.log("5. Waited 300ms");
-    }
-    
-    console.log("=== DEBUG END ===");
-    
-    console.log("🎯 FORCE RESET startListening()");
-    
-    // ⚡️ ADD THIS BLOCK ⚡️
-    if (window.SpeechRecognition || window.webkitSpeechRecognition) {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        
-        // Force create NEW instance
-        recognition = new SpeechRecognition();
-        recognition.continuous = true;
-        recognition.interimResults = true;
-        recognition.lang = 'en-US';
-        recognition.maxAlternatives = 1;
-        
-        console.log('🔄 FORCED NEW recognition instance');
-    }
+    console.log("🎯 startListening() called");
     
     // ✅ Check native recognition state (FIXED - added 'starting' state)
     if (recognition && (recognition.state === 'listening' || recognition.state === 'starting')) {
@@ -1274,26 +1233,24 @@ function scrollChatToBottom() {
 }
 
 // ================================
-// 🛑 STOP LISTENING FUNCTION
+// 🛑 STOP LISTENING FUNCTION (MISSING!)
 // ================================
 function stopListening() {
+    window.isCurrentlyListening = false;
     console.log('🛑 stopListening() called');
     
-    // Use the SAME recognition instance as startListening
-    if (recognition) {
+    if (window.speechRecognition) {
         try {
-            recognition.stop();
-            recognition.abort();
+            window.speechRecognition.stop();
+            window.speechRecognition.abort();
             console.log('✅ Speech recognition stopped');
         } catch (e) {
             console.log('Speech recognition stop error:', e);
         }
     }
     
-    // ❌ REMOVE ALL CUSTOM FLAGS - Let browser track state
-    // No: window.isCurrentlyListening = false;
-    // No: window.isListening = false;
-    // No: window.isRecording = false;
+    window.isListening = false;
+    window.isRecording = false;
 }
 
 // Make globally accessible
