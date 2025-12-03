@@ -413,12 +413,12 @@ body .banner-glow-container.banner-testimonial {
     }
         @media (max-width: 850px) {
     .banner-glow-container.branding-banner {
-        margin-top: 30px !important;
+        margin-top: 40px !important;
         top: -20px !important;
     }
     
     #bannerHeaderContainer {
-        margin-top: 30px !important;
+        margin-top: 40px !important;
     }
 }
     
