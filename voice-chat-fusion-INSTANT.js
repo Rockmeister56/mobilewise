@@ -63,8 +63,6 @@ let speakSequenceCleanupTimer = null;
 window.isInLeadCapture = false;
 window.currentLeadData = null;
 window.currentCaptureType = null;
-window.recognitionActive = false;
-window.recognitionInstance = null;
 
 // Lead data storage
 if (!window.leadData) {
@@ -727,27 +725,12 @@ function suppressBrowserBeeps() {
 // 🎤 START LISTENING new function
 // ===================================================
 async function startListening() {
-    // 🎯 ADD THIS BLOCK AT THE TOP
-    if (recognition) {
-        try {
-            recognition.stop();
-            recognition.abort();
-            await new Promise(resolve => setTimeout(resolve, 100));
-        } catch(e) {
-            // Ignore errors
-        }
-    }
-    
-    console.log("🎯 startListening() called");
-    
-    // ✅ Check native recognition state (FIXED - added 'starting' state)
-    if (recognition && (recognition.state === 'listening' || recognition.state === 'starting')) {
-        console.log('🚫 Recognition already running (state: ' + recognition.state + ') - skipping start');
+    window.isCurrentlyListening = true;
+    // ✅ PREVENT MULTIPLE STARTS
+    if (recognition && recognition.state === 'started') {
+        console.log('🚫 Recognition already running - skipping start');
         return;
     }
-    
-    // ❌ KEEP THIS COMMENTED OUT - We're not using custom flags
-    // window.isCurrentlyListening = true;
     
     // Smart button gate-keeper (keep this)
     const smartButton = document.getElementById('smartButton');
@@ -756,9 +739,7 @@ async function startListening() {
         return;
     }
     
-    // 🎯 REMOVE THIS DUPLICATE LINE (you have it above already)
-    // console.log('🎯 startListening() called');
-    
+    console.log('🎯 startListening() called');
     if (!checkSpeechSupport()) return;
     if (isSpeaking) return;
     
