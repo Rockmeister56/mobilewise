@@ -447,9 +447,9 @@ body .banner-glow-container.banner-testimonial {
 
  /* SPECIAL: TESTIMONIAL BANNER STARS */
     .banner-testimonial img.book-white-glow {
-        width: 270px !important; /* Mobile-appropriate size */
+        width: 260px !important; /* Mobile-appropriate size */
         height: auto !important;
-        margin-left: 40px !important;
+        margin-left: 55px !important;
         margin-right: 0 !important;
     }
     
