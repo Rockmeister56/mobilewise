@@ -534,23 +534,33 @@ function handleCloseTestimonial() {
     if (chatContainer) chatContainer.style.display = 'block';
     if (inputArea) inputArea.style.display = 'block';
     
-   // 6. Play the consultation offer
-    console.log('🗣️ Playing consultation offer...');
+    // 6. Play the consultation offer
+console.log('🗣️ Playing consultation offer...');
 setTimeout(() => {
     if (window.speakText) {
         window.speakText("If we can get you the same results as our previous customers, would you be interested in that consultation?");
         
-        // Start listening after speech
+        // Wait for speech to finish
         setTimeout(() => {
-            if (window.startListening) {
-                window.startListening();
+            console.log('🎯 Speech complete - Showing banner');
+            
+            // 🆕 NO MORE startListening() HERE - showDirectSpeakNow() will handle it!
+            // 🆕 ADD TIMEOUT HACK
+            const wasInLeadCapture = window.isInLeadCapture;
+            window.isInLeadCapture = true; // Force 20-second timeout
+            
+            // ✅ JUST CALL showDirectSpeakNow() - IT STARTS LISTENING
+            setTimeout(() => {
+                showDirectSpeakNow(); 
+                console.log('✅ showDirectSpeakNow() called - will handle listening');
                 
-                // ✅ SHOW THE "SPEAK NOW" BANNER
+                // Restore timeout after 25 seconds
                 setTimeout(() => {
-                    showDirectSpeakNow(); // ← THIS IS THE FIX!
-                    console.log('✅ showDirectSpeakNow() called - user should see Speak Now banner');
-                }, 800); // Give listening a moment to initialize
-            }
+                    window.isInLeadCapture = wasInLeadCapture;
+                    console.log('🔄 Timeout restored to normal');
+                }, 25000);
+                
+            }, 800);
         }, 7000); // Wait for speech to finish
     }
 }, 500);
