@@ -805,28 +805,6 @@ function returnToVoiceChat() {
         window.cooldownActive = false;
         console.log('🛡️ Cooldown cleared for voice chat');
     }
-
-    // Add this to your returnToVoiceChat() function BEFORE speakText():
-const originalHandleSpeechComplete = window.handleSpeechComplete;
-window.handleSpeechComplete = function() {
-    console.log('🎤 handleSpeechComplete() called');
-    
-    // 🛑 BLOCK AUTO-BANNER FOR CONSULTATION OFFERS
-    if (window.consultationOfferActive) {
-        console.log('🚫 BLOCKED: Auto-banner during consultation offer');
-        return Promise.resolve(); // Don't trigger banner!
-    }
-    
-    return originalHandleSpeechComplete.apply(this, arguments);
-};
-
-console.log('✅ Installed consultation banner blocker');
-
-// Restore after 30 seconds
-setTimeout(() => {
-    window.handleSpeechComplete = originalHandleSpeechComplete;
-    console.log('🔄 Restored original handleSpeechComplete');
-}, 30000);
     
     // 8. PLAY THE CONSULTATION OFFER PROPERLY
     setTimeout(() => {
