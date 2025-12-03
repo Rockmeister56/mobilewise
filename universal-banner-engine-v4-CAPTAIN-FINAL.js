@@ -444,20 +444,12 @@ body .banner-glow-container.banner-testimonial {
         height: auto !important;
         margin-right: 15px !important;
     }
-        
-    /* SPECIAL: TESTIMONIAL BANNER STARS */
-.banner-testimonial img.book-white-glow {
-    width: 300px !important; /* Mobile-appropriate size */
-    height: auto !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-}
 
  /* SPECIAL: TESTIMONIAL BANNER STARS */
     .banner-testimonial img.book-white-glow {
-        width: 300px !important; /* Mobile-appropriate size */
+        width: 270px !important; /* Mobile-appropriate size */
         height: auto !important;
-        margin-left: 35px !important;
+        margin-left: 40px !important;
         margin-right: 0 !important;
     }
     
