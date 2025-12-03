@@ -2230,25 +2230,22 @@ function detectAndStoreUserName(message) {
     ];
     
     for (let pattern of namePatterns) {
-        const match = message.match(pattern);
-        if (match && match[1]) {
-            const userName = match[1].trim();
-            const formattedName = userName.charAt(0).toUpperCase() + userName.slice(1).toLowerCase();
-            
-            console.log('🎉 NAME CAPTURED FROM BUBBLE:', formattedName);
-            
-            // 🎯 STORE FOR FUTURE USE
-            window.userFirstName = formattedName;
-            
-            // 🎯 SHOW WELCOME SPLASH SCREEN
-            showWelcomeSplashScreen(formattedName);
-            
-            // 🎯 HIGHLIGHT THE NAME BUBBLE
-            highlightNameBubble(formattedName);
-            
-            break;
-        }
+    const match = message.match(pattern);
+    if (match && match[1]) {
+        const userName = match[1].trim();
+        const formattedName = userName.charAt(0).toUpperCase() + userName.slice(1).toLowerCase();
+        
+        console.log('🎉 NAME CAPTURED FROM BUBBLE:', formattedName);
+
+         window.userFirstName = formattedName;
+        window.lastCapturedName = formattedName; // 🆕 BACKUP
+        
+        // 🎯 STORE FOR FUTURE USE
+        window.userFirstName = formattedName;
+        
+        break;
     }
+}
 }
 
 function pauseSession() {
@@ -3024,6 +3021,17 @@ for (let keyword of allKeywords) {
 // 🚨 UPDATED handleConcernWithTestimonial FUNCTION - MINIMAL CHANGES
 window.handleConcernWithTestimonial = function(userText, concernType) {
     console.log(`🎯 handleConcernWithTestimonial called: "${userText}" (${concernType})`);
+
+    // 🛑 BLOCK SPEAK SEQUENCE IMMEDIATELY
+window.concernBannerActive = true;
+window.isInTestimonialMode = true;
+window.blockAutoListen = true; // 🆕 ADD THIS LINE
+window.suppressAutoListen = true; // 🆕 ADD THIS LINE
+
+// 🛑 STOP ACTIVE LISTENING & CLOSE BANNERS
+if (window.stopListening) window.stopListening();
+if (window.hideSpeakNowBanner) window.hideSpeakNowBanner();
+if (window.cleanupSpeakSequence) window.cleanupSpeakSequence();
     
     // 🛑 BLOCK SPEAK SEQUENCE IMMEDIATELY
     window.concernBannerActive = true;
