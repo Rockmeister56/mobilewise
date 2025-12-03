@@ -466,6 +466,12 @@ body .banner-glow-container.banner-testimonial {
         justify-content: space-around !important;
         padding: 12px 15px !important;
     }
+
+    @media (max-width: 850px) {
+    .banner-testimonial {
+        padding-left: 70px !important; /* Adds space on left, pushes stars right */
+    }
+}
     
     .banner-testimonial > div:last-child {
         margin-left: -40px !important;
