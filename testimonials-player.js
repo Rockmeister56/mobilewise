@@ -823,7 +823,7 @@ function returnToVoiceChat() {
             window.speakText(consultationText);
             
             // C. WAIT FOR SPEECH TO COMPLETE (5-6 seconds for that sentence)
-            const speechDuration = 6000; // 6 seconds buffer
+            const speechDuration = 10000; // 6 seconds buffer
             
             setTimeout(() => {
                 console.log('🎯 Speech should be complete - Starting listening');
