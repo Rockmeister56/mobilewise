@@ -1803,20 +1803,6 @@ class MobileWiseVoiceSystem {
  handleSpeechComplete() {
     voiceSystem.isSpeaking = false;
     window.isSpeaking = false; // Backward compatibility
-
-        // 🛡️ COOLDOWN: Prevent multiple calls
-    if (window.__handleSpeechCompleteCooldown) {
-        console.log('🚫 handleSpeechComplete() cooldown active - skipping');
-        return Promise.resolve();
-    }
-    
-    window.__handleSpeechCompleteCooldown = true;
-    console.log('🎤 handleSpeechComplete() called');
-    
-    // Auto-reset after 2 seconds
-    setTimeout(() => {
-        window.__handleSpeechCompleteCooldown = false;
-    }, 2000);
     
     // 🎯 ADD THIS CHECK: Block banner during confirmation dialog
     if (window.isInConfirmationDialog) {
@@ -4881,6 +4867,19 @@ window.updateVoiceTranscription = function(text) {
 
 async function showDirectSpeakNow() {
     console.log('🎯 DIRECT Speak Now - Black Transparent Overlay');
+     // 🛡️ SIMPLE COOLDOWN FLAG - PREVENT DUPLICATE CALLS
+    if (window.__speakNowCooldown) {
+        console.log('🚫 showDirectSpeakNow() cooldown active - skipping duplicate');
+        return;
+    }
+    
+    window.__speakNowCooldown = true;
+    console.log('🎯 DIRECT Speak Now - Black Transparent Overlay');
+    
+    // Auto-reset after 3 seconds
+    setTimeout(() => {
+        window.__speakNowCooldown = false;
+    }, 3000);
     
     // 🎯 COORDINATION: Block Speak Now when Action Center is about to appear
     if (window.actionCenterPending) {
