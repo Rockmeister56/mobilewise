@@ -242,20 +242,8 @@ function restoreQuickButtons() {
 function startRealtimeListening() {
     console.log('⚡⚡⚡ REDIRECTING TO showDirectSpeakNow() ⚡⚡⚡');
     
-    // 🛡️ PREVENT DUPLICATE CALLS
-    if (window.__alreadyCallingShowDirectSpeakNow) {
-        console.log('🚫 BLOCKED: showDirectSpeakNow() already in progress');
-        return;
-    }
-    
-    window.__alreadyCallingShowDirectSpeakNow = true;
-    
-    // Clear flag after 3 seconds
-    setTimeout(() => {
-        window.__alreadyCallingShowDirectSpeakNow = false;
-    }, 3000);
-    
-    // 🎯 USE THE PERFECT "SPEAK NOW!" BANNER
+    // 🎯 USE THE PERFECT "SPEAK NOW!" BANNER INSTEAD OF TRANSPARENT BUBBLE
+    // This is the banner with animated waveform bars that Captain loves
     showDirectSpeakNow();
 }
 
@@ -1892,12 +1880,6 @@ if (VOICE_CONFIG.debug) {
 
 // It already contains the listening start logic internally
 if (typeof showDirectSpeakNow === 'function') {
-    // 🛑 ADD TESTIMONIAL CHECK HERE
-    if (window.testimonialSessionActive || window.isInTestimonialMode || window.concernBannerActive) {
-        console.log('🚫 TESTIMONIAL MODE: Skipping speak now banner - testimonials active');
-        return; // DON'T CALL showDirectSpeakNow!
-    }
-    
     showDirectSpeakNow();
     if (VOICE_CONFIG.debug) {
         console.log('✅ Banner triggered - listening will start via internal banner logic');
@@ -2248,22 +2230,25 @@ function detectAndStoreUserName(message) {
     ];
     
     for (let pattern of namePatterns) {
-    const match = message.match(pattern);
-    if (match && match[1]) {
-        const userName = match[1].trim();
-        const formattedName = userName.charAt(0).toUpperCase() + userName.slice(1).toLowerCase();
-        
-        console.log('🎉 NAME CAPTURED FROM BUBBLE:', formattedName);
-
-         window.userFirstName = formattedName;
-        window.lastCapturedName = formattedName; // 🆕 BACKUP
-        
-        // 🎯 STORE FOR FUTURE USE
-        window.userFirstName = formattedName;
-        
-        break;
+        const match = message.match(pattern);
+        if (match && match[1]) {
+            const userName = match[1].trim();
+            const formattedName = userName.charAt(0).toUpperCase() + userName.slice(1).toLowerCase();
+            
+            console.log('🎉 NAME CAPTURED FROM BUBBLE:', formattedName);
+            
+            // 🎯 STORE FOR FUTURE USE
+            window.userFirstName = formattedName;
+            
+            // 🎯 SHOW WELCOME SPLASH SCREEN
+            showWelcomeSplashScreen(formattedName);
+            
+            // 🎯 HIGHLIGHT THE NAME BUBBLE
+            highlightNameBubble(formattedName);
+            
+            break;
+        }
     }
-}
 }
 
 function pauseSession() {
@@ -3039,11 +3024,6 @@ for (let keyword of allKeywords) {
 // 🚨 UPDATED handleConcernWithTestimonial FUNCTION - MINIMAL CHANGES
 window.handleConcernWithTestimonial = function(userText, concernType) {
     console.log(`🎯 handleConcernWithTestimonial called: "${userText}" (${concernType})`);
-
-// 🛑 STOP ACTIVE LISTENING & CLOSE BANNERS
-if (window.stopListening) window.stopListening();
-if (window.hideSpeakNowBanner) window.hideSpeakNowBanner();
-if (window.cleanupSpeakSequence) window.cleanupSpeakSequence();
     
     // 🛑 BLOCK SPEAK SEQUENCE IMMEDIATELY
     window.concernBannerActive = true;
