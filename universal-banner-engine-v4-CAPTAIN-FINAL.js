@@ -449,7 +449,7 @@ body .banner-glow-container.banner-testimonial {
     .banner-testimonial img.book-white-glow {
         width: 260px !important; /* Mobile-appropriate size */
         height: auto !important;
-        margin-left: 55px !important;
+        margin-left: 70px !important;
         margin-right: 0 !important;
     }
     
