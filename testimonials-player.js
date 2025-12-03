@@ -551,7 +551,7 @@ setTimeout(() => {
                     console.log('✅ showDirectSpeakNow() called - user should see Speak Now banner');
                 }, 800); // Give listening a moment to initialize
             }
-        }, 3000); // Wait for speech to finish
+        }, 5000); // Wait for speech to finish
     }
 }, 500);
     
