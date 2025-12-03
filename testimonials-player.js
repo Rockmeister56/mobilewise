@@ -536,18 +536,24 @@ function handleCloseTestimonial() {
     
     // 6. Play the consultation offer
     console.log('🗣️ Playing consultation offer...');
-    setTimeout(() => {
-        if (window.speakText) {
-            window.speakText("If we can get you the same results as our previous customers, would you be interested in that consultation?");
-            
-            // Start listening after speech
-            setTimeout(() => {
-                if (window.startListening) {
-                    window.startListening();
-                }
-            }, 3000);
-        }
-    }, 500);
+setTimeout(() => {
+    if (window.speakText) {
+        window.speakText("If we can get you the same results as our previous customers, would you be interested in that consultation?");
+        
+        // Start listening after speech
+        setTimeout(() => {
+            if (window.startListening) {
+                window.startListening();
+                
+                // ✅ SHOW THE "SPEAK NOW" BANNER
+                setTimeout(() => {
+                    showDirectSpeakNow(); // ← THIS IS THE FIX!
+                    console.log('✅ showDirectSpeakNow() called - user should see Speak Now banner');
+                }, 800); // Give listening a moment to initialize
+            }
+        }, 3000); // Wait for speech to finish
+    }
+}, 500);
     
     console.log('✅ TESTIMONIAL FULLY CLOSED - BACK TO CHAT');
 }
