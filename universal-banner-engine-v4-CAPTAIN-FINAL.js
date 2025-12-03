@@ -415,7 +415,7 @@ const BANNER_STYLES = `
          /* BRANDING BANNER (Special treatment) */
     .branding-banner {
         justify-content: flex-start !important;
-        padding-left: 30px !important;
+        padding-left: 20px !important;
         height: 70px !important;
     }
     
@@ -425,7 +425,7 @@ const BANNER_STYLES = `
         width: 80px !important;
         height: auto !important;
         max-width: 100px !important;
-        margin-right: 0 !important;
+        margin-right: -10 !important;
     }
     
     /* STANDARD BANNER IMAGES (EMOJIS) - 20% BIGGER */
