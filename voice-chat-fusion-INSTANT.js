@@ -242,20 +242,20 @@ function restoreQuickButtons() {
 function startRealtimeListening() {
     console.log('⚡⚡⚡ REDIRECTING TO showDirectSpeakNow() ⚡⚡⚡');
     
-    // 🛡️ PREVENT DUPLICATE CALLS
-    if (window.__alreadyCallingShowDirectSpeakNow) {
-        console.log('🚫 BLOCKED: showDirectSpeakNow() already in progress');
-        return;
+    // 🛡️ CHECK: Are we in consultation offer mode?
+    if (window.consultationOfferActive || window.conversationState === 'qualification') {
+        console.log('🎯 CONSULTATION MODE: Using special handling');
+        
+        // Delay slightly to ensure speech is finished
+        setTimeout(() => {
+            console.log('✅ Consultation delay complete - showing banner');
+            showDirectSpeakNow();
+        }, 1000); // 1 second delay for consultation
+        
+        return; // Exit early
     }
     
-    window.__alreadyCallingShowDirectSpeakNow = true;
-    
-    // Clear flag after 3 seconds
-    setTimeout(() => {
-        window.__alreadyCallingShowDirectSpeakNow = false;
-    }, 3000);
-    
-    // 🎯 USE THE PERFECT "SPEAK NOW!" BANNER
+    // 🎯 NORMAL MODE: Use the perfect "SPEAK NOW!" banner
     showDirectSpeakNow();
 }
 
