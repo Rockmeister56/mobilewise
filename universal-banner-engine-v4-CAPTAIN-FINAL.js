@@ -457,13 +457,8 @@ body .banner-glow-container.banner-testimonial {
     .banner-testimonial img.book-white-glow {
         width: 300px !important; /* Mobile-appropriate size */
         height: auto !important;
-        margin-left: 0 !important;
-        margin-right: 0 !important;
-    }
-
-     @media (max-width: 850px) {
-    .banner-testimonial .book-white-glow {
         margin-left: 30px !important;
+        margin-right: 0 !important;
     }
     
     /* TESTIMONIAL BANNER LAYOUT */
