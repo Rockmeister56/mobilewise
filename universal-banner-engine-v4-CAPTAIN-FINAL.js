@@ -396,12 +396,12 @@ const BANNER_STYLES = `
     }
         @media (max-width: 850px) {
     .banner-glow-container.branding-banner {
-        margin-top: 40px !important;
+        margin-top: 30px !important;
         top: -20px !important;
     }
     
     #bannerHeaderContainer {
-        margin-top: 40px !important;
+        margin-top: 30px !important;
     }
 }
     
