@@ -540,28 +540,20 @@ setTimeout(() => {
     if (window.speakText) {
         window.speakText("If we can get you the same results as our previous customers, would you be interested in that consultation?");
         
-        // Wait for speech to finish
+        // 🆕 NO MORE showDirectSpeakNow() HERE!
+        // 🆕 The speech system will AUTOMATICALLY call it when speech ends
+        // 🆕 Just set the timeout hack
+        
+        const wasInLeadCapture = window.isInLeadCapture;
+        window.isInLeadCapture = true; // Force 20-second timeout
+        
+        console.log('✅ Consultation offer playing - banner will auto-show when speech ends');
+        
+        // Restore timeout after 30 seconds
         setTimeout(() => {
-            console.log('🎯 Speech complete - Showing banner');
-            
-            // 🆕 NO MORE startListening() HERE - showDirectSpeakNow() will handle it!
-            // 🆕 ADD TIMEOUT HACK
-            const wasInLeadCapture = window.isInLeadCapture;
-            window.isInLeadCapture = true; // Force 20-second timeout
-            
-            // ✅ JUST CALL showDirectSpeakNow() - IT STARTS LISTENING
-            setTimeout(() => {
-                showDirectSpeakNow(); 
-                console.log('✅ showDirectSpeakNow() called - will handle listening');
-                
-                // Restore timeout after 25 seconds
-                setTimeout(() => {
-                    window.isInLeadCapture = wasInLeadCapture;
-                    console.log('🔄 Timeout restored to normal');
-                }, 25000);
-                
-            }, 800);
-        }, 7000); // Wait for speech to finish
+            window.isInLeadCapture = wasInLeadCapture;
+            console.log('🔄 Timeout restored to normal');
+        }, 30000);
     }
 }, 500);
     
