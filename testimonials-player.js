@@ -534,26 +534,53 @@ function handleCloseTestimonial() {
     if (chatContainer) chatContainer.style.display = 'block';
     if (inputArea) inputArea.style.display = 'block';
     
-    // 6. Play the consultation offer
-console.log('🗣️ Playing consultation offer...');
+    // 8. PLAY THE CONSULTATION OFFER PROPERLY
 setTimeout(() => {
+    console.log('🗣️ Playing consultation offer...');
+    
+    const consultationText = "If we can get you the same results as our previous customers, would you be interested in that consultation?";
+    
+    if (window.addAIMessage) {
+        window.addAIMessage(consultationText);
+    }
+    
     if (window.speakText) {
-        window.speakText("If we can get you the same results as our previous customers, would you be interested in that consultation?");
+        // 🛡️ TEMPORARILY DISABLE AUTO-BANNER
+        const originalHandleSpeechComplete = window.handleSpeechComplete;
+        window.handleSpeechComplete = function() {
+            console.log('🛡️ BLOCKED: Auto-banner disabled for testimonial return');
+            // Don't call showDirectSpeakNow() - we'll call it manually
+            return Promise.resolve(); // Just resolve, don't trigger banner
+        };
         
-        // 🆕 NO MORE showDirectSpeakNow() HERE!
-        // 🆕 The speech system will AUTOMATICALLY call it when speech ends
-        // 🆕 Just set the timeout hack
+        window.speakText(consultationText);
         
-        const wasInLeadCapture = window.isInLeadCapture;
-        window.isInLeadCapture = true; // Force 20-second timeout
-        
-        console.log('✅ Consultation offer playing - banner will auto-show when speech ends');
-        
-        // Restore timeout after 30 seconds
+        // 🎤 MANUALLY TRIGGER BANNER AFTER SPEECH
         setTimeout(() => {
-            window.isInLeadCapture = wasInLeadCapture;
-            console.log('🔄 Timeout restored to normal');
-        }, 30000);
+            console.log('🎯 Speech complete - manually triggering banner');
+            
+            // Restore original handler
+            window.handleSpeechComplete = originalHandleSpeechComplete;
+            
+            // Add timeout hack
+            const wasInLeadCapture = window.isInLeadCapture;
+            window.isInLeadCapture = true; // 20-second timeout
+            
+            // Show banner
+            setTimeout(() => {
+                if (typeof showDirectSpeakNow === 'function') {
+                    showDirectSpeakNow();
+                    console.log('✅ Manual banner shown');
+                }
+                
+                // Restore timeout
+                setTimeout(() => {
+                    window.isInLeadCapture = wasInLeadCapture;
+                    console.log('🔄 Timeout restored');
+                }, 25000);
+            }, 800);
+            
+        }, 7000); // Speech duration
     }
 }, 500);
     
