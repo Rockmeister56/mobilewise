@@ -751,33 +751,47 @@ function returnToVoiceChat() {
         console.log('🛡️ Cooldown cleared for voice chat');
     }
     
-    // 8. PLAY THE CONSULTATION OFFER
+    // 8. PLAY THE CONSULTATION OFFER PROPERLY
     setTimeout(() => {
         console.log('🗣️ Playing consultation offer...');
         
-        // 🔍 DEBUG CHECK
-        console.log('🔍 PRE-SPEECH FLAG CHECK:');
-        console.log('  isInTestimonialMode:', window.isInTestimonialMode);
-        console.log('  concernBannerActive:', window.concernBannerActive);
+        const consultationText = "If we can get you the same results as our previous customers, would you be interested in that consultation?";
         
+        // A. FIRST add message to chat bubble (VISIBLE)
+        if (window.addAIMessage && typeof window.addAIMessage === 'function') {
+            window.addAIMessage(consultationText);
+            console.log('✅ AI message added to chat bubble');
+        }
+        
+        // B. THEN speak it (AUDIBLE)
         if (window.speakText) {
-            window.speakText("If we can get you the same results as our previous customers, would you be interested in that consultation?");
+            window.speakText(consultationText);
             
-            // 9. 🎤 TRIGGER BANNER AFTER SPEECH
+            // C. WAIT FOR SPEECH TO COMPLETE (5-6 seconds for that sentence)
+            const speechDuration = 6000; // 6 seconds buffer
+            
             setTimeout(() => {
+                console.log('🎯 Speech should be complete - Starting listening');
+                
+                // Clear any partial transcript from during speech
+                if (window.lastCapturedTranscript) {
+                    window.lastCapturedTranscript = '';
+                    console.log('🧹 Cleared transcript captured during speech');
+                }
+                
                 if (window.startListening) {
                     window.startListening();
                     
-                    // Show the banner
+                    // Show banner AFTER listening starts
                     setTimeout(() => {
                         console.log('🎤 Calling showDirectSpeakNow()...');
                         if (typeof showDirectSpeakNow === 'function') {
                             showDirectSpeakNow();
-                            console.log('✅ Speak now banner shown');
+                            console.log('✅ Speak now banner shown AFTER speech complete');
                         }
-                    }, 1000);
+                    }, 800);
                 }
-            }, 3000);
+            }, speechDuration);
         }
     }, 500);
     
