@@ -390,7 +390,7 @@ const BANNER_STYLES = `
         width: 100% !important;
         max-width: 100% !important;
         height: auto !important;
-        min-height: 25px !important;
+        min-height: 50px !important;
         padding: 3px 10px !important;
         margin: 0 auto;
     }
@@ -415,7 +415,7 @@ const BANNER_STYLES = `
          /* BRANDING BANNER (Special treatment) */
     .branding-banner {
         justify-content: flex-start !important;
-        padding-left: 10px !important;
+        padding-left: 30px !important;
         height: 70px !important;
     }
     
