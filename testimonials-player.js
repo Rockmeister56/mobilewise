@@ -726,6 +726,9 @@ function showTestimonialNavigationOptions() {
 function returnToVoiceChat() {
     console.log('🎯🎯🎯 RETURN TO VOICE CHAT CLICKED 🎯🎯🎯');
 
+    const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+    console.log(`📱 Device: ${isMobile ? 'Mobile' : 'Desktop'}`);
+
     // 1. STOP ALL SPEECH FIRST
     if (window.stopAllSpeech) {
         window.stopAllSpeech();
@@ -823,7 +826,7 @@ function returnToVoiceChat() {
             window.speakText(consultationText);
             
             // C. WAIT FOR SPEECH TO COMPLETE (5-6 seconds for that sentence)
-            const speechDuration = 10000; // 6 seconds buffer
+            const speechDuration = isMobile ? 12000 : 8000;
             
             setTimeout(() => {
                 console.log('🎯 Speech should be complete - Starting listening');
