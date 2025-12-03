@@ -242,7 +242,6 @@ function restoreQuickButtons() {
 function startRealtimeListening() {
     console.log('⚡⚡⚡ REDIRECTING TO showDirectSpeakNow() ⚡⚡⚡');
     
-    
     // 🎯 NORMAL MODE: Use the perfect "SPEAK NOW!" banner
     showDirectSpeakNow();
 }
@@ -1795,7 +1794,11 @@ class MobileWiseVoiceSystem {
         });
     }
     
-handleSpeechComplete() {
+    // ============================================================
+    // 🎯 SPEECH COMPLETION HANDLER - WITH ELEVENLABS BANNER LOGIC
+    // ✅ SMART BUTTON BLOCKING REMOVED FOR BANNER FUNCTIONALITY
+   // ============================================================
+ handleSpeechComplete() {
     voiceSystem.isSpeaking = false;
     window.isSpeaking = false; // Backward compatibility
     
@@ -1803,18 +1806,6 @@ handleSpeechComplete() {
     if (window.isInConfirmationDialog) {
         console.log('🛑 BLOCKING BANNER - Confirmation dialog active');
         return; // STOP HERE - don't trigger banner
-    }
-    
-    // 🛡️ NEW CHECK: Consultation offer active?
-    if (window.consultationOfferActive) {
-        console.log('⏱️ Consultation offer - DELAYING auto-banner by 5 seconds');
-        setTimeout(() => {
-            if (typeof showDirectSpeakNow === 'function') {
-                showDirectSpeakNow();
-                console.log('✅ Delayed consultation banner triggered');
-            }
-        }, 5000); // 5-second delay
-        return; // Exit early, don't trigger immediate banner
     }
     
     // 🆕🎯 CRITICAL FIX: ADD ONLY THIS COOLDOWN RESET BLOCK
