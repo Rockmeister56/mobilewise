@@ -5373,8 +5373,16 @@ function checkContactInterviewMode() {
     return indicators.some(indicator => indicator === true);
 }
 
-// 🎯 NORMAL INTERVIEW LISTENING 
 function startNormalInterviewListening() {
+    console.log('🔊 startNormalInterviewListening() called');
+    
+    // ⚠️ ADD THIS LOCK - ONLY CHANGE NEEDED
+    if (window.normalInterviewLock) {
+        console.log('🔒 Already starting - skipping duplicate');
+        return;
+    }
+    window.normalInterviewLock = true;
+    
     const userInput = document.getElementById('userInput');
     if (userInput) {
         userInput.value = '';
@@ -5390,18 +5398,9 @@ function startNormalInterviewListening() {
                 console.error('❌ Normal startListening() error:', error);
             }
         }
+        // Unlock
+        window.normalInterviewLock = false;
     }, 50);
-    
-    setTimeout(() => {
-        if (typeof forceStartListening === 'function' && !isListening) {
-            try {
-                console.log('🔄 Normal backup: calling forceStartListening()');
-                forceStartListening();
-            } catch (error) {
-                console.error('❌ Normal forceStartListening() error:', error);
-            }
-        }
-    }, 150);
 }
 
 // 🎯 CONTACT INTERVIEW LISTENING 
