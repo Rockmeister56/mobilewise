@@ -390,14 +390,14 @@ const BANNER_STYLES = `
         width: 100% !important;
         max-width: 100% !important;
         height: auto !important;
-        min-height: 50px !important;
+        min-height: 25px !important;
         padding: 3px 10px !important;
         margin: 0 auto;
     }
     
     /* ADJUST GLOW LAYER FOR MOBILE */
     .banner-glow-container::before {
-        width: calc(100% + 50px) !important;
+        width: calc(100% + 70px) !important;
         left: -20px !important;
     }
     
