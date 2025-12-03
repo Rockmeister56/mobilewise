@@ -156,11 +156,6 @@ function closeTestimonialVideo() {
         window.testimonialVideoActive = false;
     }
     
-    // 🚨 CLEAR BANNER-BLOCKING FLAGS
-    window.isTestimonialActive = false;
-    window.testimonialMode = false;
-    window.testimonialsPlaying = false;
-    
     // 🛡️ KEEP PROTECTION ACTIVE
     window.testimonialSessionActive = true;
     window.testimonialProtectionActive = true;
@@ -924,20 +919,16 @@ function closeTestimonialNav() {
     if (videoOverlay) videoOverlay.style.display = 'none';
     if (splashScreen) splashScreen.style.display = 'none';
     
-    // 🚨 CLEAR ALL BANNER-BLOCKING FLAGS
-    window.isTestimonialActive = false;
-    window.testimonialMode = false;
-    window.testimonialsPlaying = false;
+    // 🚨🚨🚨 CRITICAL: CLEAR ALL THREE FLAGS 🚨🚨🚨
     window.testimonialSessionActive = false;
-    console.log('🛡️ Testimonial session completely closed');
+    window.isInTestimonialMode = false;
+    window.concernBannerActive = false;
     
-    // 🎤 PLAY CONSULTATION OFFER WITH SPEAK NOW BANNER
+    console.log('🛡️ Testimonial session completely closed - ALL flags cleared');
+    
+    // 🎤 PLAY CONSULTATION OFFER
     setTimeout(() => {
         console.log('🗣️ Playing consultation offer...');
-        
-        // Make SURE flags are cleared
-        window.isTestimonialActive = false;
-        window.testimonialMode = false;
         
         if (window.speakText) {
             window.speakText("If we can get you the same results as our previous customers, would you be interested in that consultation?");
@@ -947,10 +938,6 @@ function closeTestimonialNav() {
                 if (window.startListening) {
                     window.startListening();
                     
-                    // DOUBLE CHECK flags are cleared
-                    window.isTestimonialActive = false;
-                    window.testimonialMode = false;
-                    
                     // Show the banner
                     setTimeout(() => {
                         if (typeof showDirectSpeakNow === 'function') {
@@ -959,7 +946,7 @@ function closeTestimonialNav() {
                         }
                     }, 800);
                 }
-            }, 3000); // Wait for speech to finish
+            }, 3000);
         }
     }, 500);
 }
