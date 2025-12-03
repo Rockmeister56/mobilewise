@@ -63,6 +63,8 @@ let speakSequenceCleanupTimer = null;
 window.isInLeadCapture = false;
 window.currentLeadData = null;
 window.currentCaptureType = null;
+window.recognitionActive = false;
+window.recognitionInstance = null;
 
 // Lead data storage
 if (!window.leadData) {
@@ -725,12 +727,16 @@ function suppressBrowserBeeps() {
 // 🎤 START LISTENING new function
 // ===================================================
 async function startListening() {
-    window.isCurrentlyListening = true;
-    // ✅ PREVENT MULTIPLE STARTS
-    if (recognition && recognition.state === 'started') {
-        console.log('🚫 Recognition already running - skipping start');
+    console.log("🎯 startListening() called");
+    
+    // ✅ Check native recognition state (FIXED - added 'starting' state)
+    if (recognition && (recognition.state === 'listening' || recognition.state === 'starting')) {
+        console.log('🚫 Recognition already running (state: ' + recognition.state + ') - skipping start');
         return;
     }
+    
+    // ❌ REMOVE THIS LINE - We're not using custom flags in Option A
+    // window.isCurrentlyListening = true;
     
     // Smart button gate-keeper (keep this)
     const smartButton = document.getElementById('smartButton');
@@ -1227,24 +1233,26 @@ function scrollChatToBottom() {
 }
 
 // ================================
-// 🛑 STOP LISTENING FUNCTION (MISSING!)
+// 🛑 STOP LISTENING FUNCTION
 // ================================
 function stopListening() {
-    window.isCurrentlyListening = false;
     console.log('🛑 stopListening() called');
     
-    if (window.speechRecognition) {
+    // Use the SAME recognition instance as startListening
+    if (recognition) {
         try {
-            window.speechRecognition.stop();
-            window.speechRecognition.abort();
+            recognition.stop();
+            recognition.abort();
             console.log('✅ Speech recognition stopped');
         } catch (e) {
             console.log('Speech recognition stop error:', e);
         }
     }
     
-    window.isListening = false;
-    window.isRecording = false;
+    // ❌ REMOVE ALL CUSTOM FLAGS - Let browser track state
+    // No: window.isCurrentlyListening = false;
+    // No: window.isListening = false;
+    // No: window.isRecording = false;
 }
 
 // Make globally accessible
