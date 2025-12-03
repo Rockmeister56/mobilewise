@@ -414,7 +414,7 @@ body .banner-glow-container.banner-testimonial {
         margin: 0 auto;
     }
          #bannerHeaderContainer {
-        margin-top: 40px !important;
+        margin-top: 30px !important;
     }
     
     /* GLOW LAYER ADJUSTMENT */
