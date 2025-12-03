@@ -727,6 +727,17 @@ function suppressBrowserBeeps() {
 // 🎤 START LISTENING new function
 // ===================================================
 async function startListening() {
+    // 🎯 ADD THIS BLOCK AT THE TOP
+    if (recognition) {
+        try {
+            recognition.stop();
+            recognition.abort();
+            await new Promise(resolve => setTimeout(resolve, 100));
+        } catch(e) {
+            // Ignore errors
+        }
+    }
+    
     console.log("🎯 startListening() called");
     
     // ✅ Check native recognition state (FIXED - added 'starting' state)
@@ -735,7 +746,7 @@ async function startListening() {
         return;
     }
     
-    // ❌ REMOVE THIS LINE - We're not using custom flags in Option A
+    // ❌ KEEP THIS COMMENTED OUT - We're not using custom flags
     // window.isCurrentlyListening = true;
     
     // Smart button gate-keeper (keep this)
@@ -745,7 +756,9 @@ async function startListening() {
         return;
     }
     
-    console.log('🎯 startListening() called');
+    // 🎯 REMOVE THIS DUPLICATE LINE (you have it above already)
+    // console.log('🎯 startListening() called');
+    
     if (!checkSpeechSupport()) return;
     if (isSpeaking) return;
     
