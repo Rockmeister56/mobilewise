@@ -74,7 +74,7 @@
     // 3. GENUINE CLIENT REVIEWS (Testimonials)
     testimonialSelector: {
         content: `
-            <div class="banner-glow-container banner-testimonial" style="width:850px; max-width: 850px; margin: 0 auto; height: 75px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #1e40af 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+            <div class="banner-glow-container banner-testimonial" style="width:850px; max-width: 850px; margin: 0 auto; height: 60px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #1e40af 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
     
     <!-- CENTER/RIGHT: Reviews icon + Text (SHIFTED LEFT) -->
     <div style="display: flex; align-items: center; flex-grow: 1; justify-content: center; margin-left: -80px;">
@@ -404,23 +404,47 @@ body .banner-glow-container.banner-testimonial {
 
 /* ===== MOBILE OVERRIDES (MINIMAL - ONLY WHEN ABSOLUTELY NECESSARY) ===== */
 @media (max-width: 850px) {
-    /* FORCE ALL BANNERS FULL WIDTH ON MOBILE */
-    body .banner-glow-container,
-    html body .banner-glow-container,
-    #bannerHeaderContainer .banner-glow-container {
+    /* BANNER CONTAINER */
+    .banner-glow-container {
         width: 100% !important;
         max-width: 100% !important;
-    }
-        @media (max-width: 850px) {
-    .banner-glow-container.branding-banner {
-        margin-top: 40px !important;
-        top: -20px !important;
+        height: auto !important;
+        min-height: 92px !important;
+        padding: 15px 15px !important;
+        margin: 0 auto;
     }
     
-    #bannerHeaderContainer {
-        margin-top: 40px !important;
+    /* GLOW LAYER ADJUSTMENT */
+    .banner-glow-container::before {
+        width: calc(100% + 40px) !important;
+        left: -20px !important;
+        top: -10px !important;
+        height: calc(100% + 20px) !important;
     }
-}
+    
+    /* BRANDING BANNER (Special treatment) */
+    .branding-banner {
+        justify-content: flex-start !important;
+        padding-left: 20px !important;
+        height: 70px !important;
+    }
+    
+    /* BRANDING LOGO IMAGE */
+    .branding-banner img[src*="nci.PNG"],
+    .branding-banner img {
+        width: 120px !important;
+        height: auto !important;
+        max-width: 120px !important;
+        margin-right: 0 !important;
+    }
+    
+    /* STANDARD BANNER IMAGES (EMOJIS) - 20% BIGGER */
+    .banner-glow-container img:not(.branding-banner img):not(.book-white-glow) {
+        width: 36px !important; /* Increased from 30px to 36px (+20%) */
+        height: auto !important;
+        margin-right: 15px !important;
+    }
+        
     /* SPECIAL: TESTIMONIAL BANNER STARS */
 .banner-testimonial img.book-white-glow {
     width: 300px !important; /* Mobile-appropriate size */
@@ -429,74 +453,73 @@ body .banner-glow-container.banner-testimonial {
     margin-right: 0 !important;
 }
 
-/* TESTIMONIAL BANNER LAYOUT */
-.banner-testimonial {
-    justify-content: space-around !important;
-    padding: 12px 15px !important;
-}
-    
-    /* ADJUST GLOW LAYER FOR MOBILE */
-    .banner-glow-container::before {
-        width: calc(100% + 70px) !important;
-        left: -20px !important;
-    }
-    
-    /* MAKE EMOJIS 20% BIGGER ON MOBILE */
-    .banner-glow-container img:not(.branding-banner img) {
-        width: 30px !important;
-        height: auto !important;
-    }
-    
-    /* SCALE DOWN TESTIMONIAL STARS ON MOBILE */
+ /* SPECIAL: TESTIMONIAL BANNER STARS */
     .banner-testimonial img.book-white-glow {
-        width: 300px !important;
+        width: 300px !important; /* Mobile-appropriate size */
         height: auto !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
     }
-         /* BRANDING BANNER (Special treatment) */
-    .branding-banner {
+    
+    /* TESTIMONIAL BANNER LAYOUT */
+    .banner-testimonial {
+        justify-content: space-around !important;
+        padding: 12px 15px !important;
+    }
+    
+    .banner-testimonial > div:last-child {
+        margin-left: -40px !important;
         justify-content: flex-start !important;
-        padding-left: 10px !important;
-        height: 65px !important;
     }
     
-    /* BRANDING LOGO IMAGE */
-    .branding-banner img[src*="nci.PNG"],
-    .branding-banner img {
-        width: 90px !important;
-        height: auto !important;
-        max-width: 100px !important;
-        margin-right: -10 !important;
-    }
-    
-    /* STANDARD BANNER IMAGES (EMOJIS) - 20% BIGGER */
-    .banner-glow-container img:not(.branding-banner img):not(.book-white-glow) {
-        width: 32px !important; /* Increased from 30px to 36px (+20%) */
-        height: auto !important;
-        margin-right: 15px !important;
-    }
-    
-    /* SMALLER TEXT ON MOBILE */
+    /* TEXT SIZING */
     .banner-glow-container div[style*="font-size: 20px"] {
         font-size: 17px !important;
+        line-height: 1.2 !important;
     }
     
     .banner-glow-container div[style*="font-size: 14px"] {
         font-size: 13px !important;
+        line-height: 1.3 !important;
     }
 }
 
-/* EXTRA SMALL PHONES */
+/* ===== EXTRA SMALL DEVICES ===== */
 @media (max-width: 480px) {
+    /* BANNER CONTAINER */
+    .banner-glow-container {
+        min-height: 77px !important;
+        padding: 10px 12px !important;
+    }
+    
+    /* BRANDING LOGO (Smaller on tiny screens) */
+    .branding-banner img[src*="nci.PNG"],
+    .branding-banner img {
+        width: 100px !important;
+        max-width: 100px !important;
+    }
+    
+    .branding-banner {
+        height: 65px !important;
+    }
+    
+    /* EMOJIS (Slightly smaller on tiny screens) */
+    .banner-glow-container img:not(.branding-banner img):not(.book-white-glow) {
+        width: 32px !important; /* Slightly smaller than 36px for tiny screens */
+    }
+    
+    /* TESTIMONIAL STARS (Smaller on tiny screens) */
     .banner-testimonial img.book-white-glow {
         width: 250px !important;
     }
-
-    .banner-testimonial img.book-white-glow {
-    width: 250px !important; /* Even smaller on tiny screens */
-}
     
-    .banner-glow-container img:not(.branding-banner img) {
-        width: 40px !important;
+    /* TEXT SIZING (Smaller on tiny screens) */
+    .banner-glow-container div[style*="font-size: 20px"] {
+        font-size: 16px !important;
+    }
+    
+    .banner-glow-container div[style*="font-size: 14px"] {
+        font-size: 12px !important;
     }
 }
 </style>
