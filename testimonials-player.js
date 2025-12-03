@@ -805,20 +805,8 @@ function returnToVoiceChat() {
         window.cooldownActive = false;
         console.log('🛡️ Cooldown cleared for voice chat');
     }
-    
-    // 8. PLAY THE CONSULTATION OFFER PROPERLY
-    setTimeout(() => {
-        console.log('🗣️ Playing consultation offer...');
-        
-        const consultationText = "If we can get you the same results as our previous customers, would you be interested in that consultation?";
-        
-        // A. FIRST add message to chat bubble (VISIBLE)
-        if (window.addAIMessage && typeof window.addAIMessage === 'function') {
-            window.addAIMessage(consultationText);
-            console.log('✅ AI message added to chat bubble');
-        }
 
-        // Add this to your returnToVoiceChat() function BEFORE speakText():
+    // Add this to your returnToVoiceChat() function BEFORE speakText():
 const originalHandleSpeechComplete = window.handleSpeechComplete;
 window.handleSpeechComplete = function() {
     console.log('🎤 handleSpeechComplete() called');
@@ -839,6 +827,18 @@ setTimeout(() => {
     window.handleSpeechComplete = originalHandleSpeechComplete;
     console.log('🔄 Restored original handleSpeechComplete');
 }, 30000);
+    
+    // 8. PLAY THE CONSULTATION OFFER PROPERLY
+    setTimeout(() => {
+        console.log('🗣️ Playing consultation offer...');
+        
+        const consultationText = "If we can get you the same results as our previous customers, would you be interested in that consultation?";
+        
+        // A. FIRST add message to chat bubble (VISIBLE)
+        if (window.addAIMessage && typeof window.addAIMessage === 'function') {
+            window.addAIMessage(consultationText);
+            console.log('✅ AI message added to chat bubble');
+        }
         
         // B. THEN speak it (AUDIBLE)
         if (window.speakText) {
