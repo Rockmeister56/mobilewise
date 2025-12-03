@@ -1736,20 +1736,22 @@ class MobileWiseVoiceSystem {
             utterance.pitch = 1.05;  // Kept same
             utterance.volume = 0.85; // Kept same
             
-            utterance.onend = () => {
-                this.handleSpeechComplete();
-                resolve();
-            };
-            
-           utterance.onerror = (error) => {
-    // Suppress "interrupted" errors - they're expected when user clicks buttons
-    if (error.error === 'interrupted') {
-        console.log('🔇 Speech interrupted (user action)');
-        resolve(); // Resolve instead of reject for clean interruption
+           utterance.onend = () => {
+    // 🛡️ CHECK IF ALREADY HANDLED
+    if (window.__speechAlreadyCompleted) {
+        console.log('🚫 Speech completion already handled - skipping');
+        resolve();
         return;
     }
-    console.error('🚫 British voice error:', error);
-    reject(error);
+    
+    window.__speechAlreadyCompleted = true;
+    this.handleSpeechComplete();
+    resolve();
+    
+    // Reset after 1 second
+    setTimeout(() => {
+        window.__speechAlreadyCompleted = false;
+    }, 1000);
 };
             
             this.synthesis.speak(utterance);
@@ -1801,6 +1803,20 @@ class MobileWiseVoiceSystem {
  handleSpeechComplete() {
     voiceSystem.isSpeaking = false;
     window.isSpeaking = false; // Backward compatibility
+
+        // 🛡️ COOLDOWN: Prevent multiple calls
+    if (window.__handleSpeechCompleteCooldown) {
+        console.log('🚫 handleSpeechComplete() cooldown active - skipping');
+        return Promise.resolve();
+    }
+    
+    window.__handleSpeechCompleteCooldown = true;
+    console.log('🎤 handleSpeechComplete() called');
+    
+    // Auto-reset after 2 seconds
+    setTimeout(() => {
+        window.__handleSpeechCompleteCooldown = false;
+    }, 2000);
     
     // 🎯 ADD THIS CHECK: Block banner during confirmation dialog
     if (window.isInConfirmationDialog) {
