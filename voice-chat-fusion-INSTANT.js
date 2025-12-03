@@ -1716,31 +1716,55 @@ class MobileWiseVoiceSystem {
         });
     }
     
-    // ===========================================
-    // BRITISH VOICE PROVIDER
-    // ===========================================
-    async speakWithBritish(text) {
-        if (!voiceSystem.selectedBritishVoice) {
-            throw new Error("No British voice available");
-        }
-
-        window.isSpeaking = true; 
+    // 8. PLAY THE CONSULTATION OFFER PROPERLY
+setTimeout(() => {
+    console.log('🗣️ Playing consultation offer...');
+    
+    const consultationText = "If we can get you the same results as our previous customers, would you be interested in that consultation?";
+    
+    if (window.addAIMessage) {
+        window.addAIMessage(consultationText);
+    }
+    
+    if (window.speakText) {
+        // 🛡️ TEMPORARILY DISABLE AUTO-BANNER
+        const originalHandleSpeechComplete = window.handleSpeechComplete;
+        window.handleSpeechComplete = function() {
+            console.log('🛡️ BLOCKED: Auto-banner disabled for testimonial return');
+            // Don't call showDirectSpeakNow() - we'll call it manually
+            return Promise.resolve(); // Just resolve, don't trigger banner
+        };
         
-        this.synthesis.cancel();
+        window.speakText(consultationText);
         
-        return new Promise((resolve, reject) => {
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.voice = voiceSystem.selectedBritishVoice;
+        // 🎤 MANUALLY TRIGGER BANNER AFTER SPEECH
+        setTimeout(() => {
+            console.log('🎯 Speech complete - manually triggering banner');
             
-            // Optimized settings for British voice
-            utterance.rate = 1.0;    // ✅ Increased from 0.85 (15% faster)
-            utterance.pitch = 1.05;  // Kept same
-            utterance.volume = 0.85; // Kept same
+            // Restore original handler
+            window.handleSpeechComplete = originalHandleSpeechComplete;
             
-            utterance.onend = () => {
-                this.handleSpeechComplete();
-                resolve();
-            };
+            // Add timeout hack
+            const wasInLeadCapture = window.isInLeadCapture;
+            window.isInLeadCapture = true; // 20-second timeout
+            
+            // Show banner
+            setTimeout(() => {
+                if (typeof showDirectSpeakNow === 'function') {
+                    showDirectSpeakNow();
+                    console.log('✅ Manual banner shown');
+                }
+                
+                // Restore timeout
+                setTimeout(() => {
+                    window.isInLeadCapture = wasInLeadCapture;
+                    console.log('🔄 Timeout restored');
+                }, 25000);
+            }, 800);
+            
+        }, 7000); // Speech duration
+    }
+}, 500);
             
            utterance.onerror = (error) => {
     // Suppress "interrupted" errors - they're expected when user clicks buttons
