@@ -74,7 +74,7 @@
     // 3. GENUINE CLIENT REVIEWS (Testimonials)
     testimonialSelector: {
         content: `
-            <div class="banner-glow-container banner-testimonial" style="width:850px; max-width: 850px; margin: 0 auto; height: 100px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #1e40af 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+            <div class="banner-glow-container banner-testimonial" style="width:850px; max-width: 850px; margin: 0 auto; height: 75px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #1e40af 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
     
     <!-- CENTER/RIGHT: Reviews icon + Text (SHIFTED LEFT) -->
     <div style="display: flex; align-items: center; flex-grow: 1; justify-content: center; margin-left: -80px;">
@@ -421,6 +421,19 @@ body .banner-glow-container.banner-testimonial {
         margin-top: 40px !important;
     }
 }
+    /* SPECIAL: TESTIMONIAL BANNER STARS */
+.banner-testimonial img.book-white-glow {
+    width: 300px !important; /* Mobile-appropriate size */
+    height: auto !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+/* TESTIMONIAL BANNER LAYOUT */
+.banner-testimonial {
+    justify-content: space-around !important;
+    padding: 12px 15px !important;
+}
     
     /* ADJUST GLOW LAYER FOR MOBILE */
     .banner-glow-container::before {
@@ -477,6 +490,10 @@ body .banner-glow-container.banner-testimonial {
     .banner-testimonial img.book-white-glow {
         width: 250px !important;
     }
+
+    .banner-testimonial img.book-white-glow {
+    width: 250px !important; /* Even smaller on tiny screens */
+}
     
     .banner-glow-container img:not(.branding-banner img) {
         width: 40px !important;
