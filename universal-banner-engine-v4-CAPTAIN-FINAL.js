@@ -460,6 +460,11 @@ body .banner-glow-container.banner-testimonial {
         margin-left: 0 !important;
         margin-right: 0 !important;
     }
+
+     @media (max-width: 850px) {
+    .banner-testimonial .book-white-glow {
+        margin-left: 30px !important;
+    }
     
     /* TESTIMONIAL BANNER LAYOUT */
     .banner-testimonial {
@@ -467,10 +472,6 @@ body .banner-glow-container.banner-testimonial {
         padding: 12px 15px !important;
     }
 
-    @media (max-width: 850px) {
-    .banner-testimonial {
-        padding-left: 70px !important; /* Adds space on left, pushes stars right */
-    }
 }
     
     .banner-testimonial > div:last-child {
