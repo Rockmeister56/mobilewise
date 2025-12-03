@@ -74,7 +74,7 @@
     // 3. GENUINE CLIENT REVIEWS (Testimonials)
     testimonialSelector: {
         content: `
-            <div class="banner-glow-container banner-testimonial" style="width:850px; max-width: 850px; margin: 0 auto; height: 80px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #1e40af 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+            <div class="banner-glow-container banner-testimonial" style="width:850px; max-width: 850px; margin: 0 auto; height: 100px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #1e40af 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
     
     <!-- CENTER/RIGHT: Reviews icon + Text (SHIFTED LEFT) -->
     <div style="display: flex; align-items: center; flex-grow: 1; justify-content: center; margin-left: -80px;">
@@ -276,21 +276,45 @@
 
 const BANNER_STYLES = `
 <style>
-/* ===== GLOW LAYER EFFECTS ONLY ===== */
-.banner-glow-container {
-    position: relative; /* Needed for glow effects */
+/* ===== BANNER WIDTH - ULTIMATE OVERRIDE ===== */
+/* MUST BE MORE SPECIFIC THAN ANY OTHER RULES */
+
+/* 1. BRANDING BANNER (The white top banner) */
+body .banner-glow-container.branding-banner,
+html body .banner-glow-container.branding-banner,
+#bannerHeaderContainer .banner-glow-container.branding-banner {
+    width: 900px !important;
+    max-width: 900px !important;
+    margin: 0 auto !important;
 }
 
+/* 2. CTA BANNERS (Request-A-Call, etc.) */
+body .banner-glow-container.banner-cta-full,
+html body .banner-glow-container.banner-cta-full {
+    width: 836px !important;
+    max-width: 836px !important;
+    margin: 0 auto !important;
+}
+
+/* 3. TESTIMONIAL BANNER */
+body .banner-glow-container.banner-testimonial {
+    width: 836px !important;
+    max-width: 836px !important;
+    margin: 0 auto !important;
+}
+
+/* ===== POSITIONING ===== */
 #bannerHeaderContainer {
     margin-top: 40px !important;
+    text-align: center !important;
+    width: 100% !important;
 }
 
-.banner-glow-container.branding-banner { 
-    width: 900px !important; 
-    max-width: 900px !important; 
+/* ===== GLOW LAYER EFFECTS ===== */
+.banner-glow-container {
+    position: relative !important;
 }
 
-/* GLOW BACKGROUND EFFECT */
 .banner-glow-container::before {
     content: '';
     position: absolute;
@@ -380,14 +404,12 @@ const BANNER_STYLES = `
 
 /* ===== MOBILE OVERRIDES (MINIMAL - ONLY WHEN ABSOLUTELY NECESSARY) ===== */
 @media (max-width: 850px) {
-    /* BANNER CONTAINER */
-    .banner-glow-container {
+    /* FORCE ALL BANNERS FULL WIDTH ON MOBILE */
+    body .banner-glow-container,
+    html body .banner-glow-container,
+    #bannerHeaderContainer .banner-glow-container {
         width: 100% !important;
         max-width: 100% !important;
-        height: auto !important;
-        min-height: 60px !important;
-        padding: 3px 10px !important;
-        margin: 0 auto;
     }
         @media (max-width: 850px) {
     .banner-glow-container.branding-banner {
