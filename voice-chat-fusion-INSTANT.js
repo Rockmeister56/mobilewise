@@ -242,8 +242,20 @@ function restoreQuickButtons() {
 function startRealtimeListening() {
     console.log('⚡⚡⚡ REDIRECTING TO showDirectSpeakNow() ⚡⚡⚡');
     
-    // 🎯 USE THE PERFECT "SPEAK NOW!" BANNER INSTEAD OF TRANSPARENT BUBBLE
-    // This is the banner with animated waveform bars that Captain loves
+    // 🛡️ PREVENT DUPLICATE CALLS
+    if (window.__alreadyCallingShowDirectSpeakNow) {
+        console.log('🚫 BLOCKED: showDirectSpeakNow() already in progress');
+        return;
+    }
+    
+    window.__alreadyCallingShowDirectSpeakNow = true;
+    
+    // Clear flag after 3 seconds
+    setTimeout(() => {
+        window.__alreadyCallingShowDirectSpeakNow = false;
+    }, 3000);
+    
+    // 🎯 USE THE PERFECT "SPEAK NOW!" BANNER
     showDirectSpeakNow();
 }
 
