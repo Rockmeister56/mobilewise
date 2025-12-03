@@ -415,8 +415,8 @@ const BANNER_STYLES = `
          /* BRANDING BANNER (Special treatment) */
     .branding-banner {
         justify-content: flex-start !important;
-        padding-left: 20px !important;
-        height: 60px !important;
+        padding-left: 10px !important;
+        height: 40px !important;
     }
     
     /* BRANDING LOGO IMAGE */
