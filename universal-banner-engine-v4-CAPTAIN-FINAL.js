@@ -74,7 +74,7 @@
     // 3. GENUINE CLIENT REVIEWS (Testimonials)
     testimonialSelector: {
         content: `
-            <div class="banner-glow-container banner-testimonial" style="width: 760px; max-width: 760px; margin: 0 auto; height: 80px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #1e40af 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+            <div class="banner-glow-container banner-testimonial" style="width:850px; max-width: 850px; margin: 0 auto; height: 80px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #1e40af 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
     
     <!-- CENTER/RIGHT: Reviews icon + Text (SHIFTED LEFT) -->
     <div style="display: flex; align-items: center; flex-grow: 1; justify-content: center; margin-left: -80px;">
