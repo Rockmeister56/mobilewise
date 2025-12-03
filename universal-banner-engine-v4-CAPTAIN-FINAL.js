@@ -413,6 +413,9 @@ body .banner-glow-container.banner-testimonial {
         padding: 15px 15px !important;
         margin: 0 auto;
     }
+         #bannerHeaderContainer {
+        margin-top: 40px !important;
+    }
     
     /* GLOW LAYER ADJUSTMENT */
     .banner-glow-container::before {
