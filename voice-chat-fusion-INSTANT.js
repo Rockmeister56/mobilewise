@@ -256,7 +256,7 @@ function startRealtimeListening() {
     }
     
     // 🎯 NORMAL MODE: Use the perfect "SPEAK NOW!" banner
-    showDirectSpeakNow();
+    // showDirectSpeakNow();
 }
 
 // ===== SCHEDULE AUTO-RESTART AFTER AI SPEAKS =====
