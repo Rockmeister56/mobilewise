@@ -1421,11 +1421,11 @@ console.log('🔍 ROOT CAUSE DEBUG - isMobileDevice FIXED:', {
 // ===========================================
 const VOICE_CONFIG = {
     // MAIN CONTROL - Change this to switch voice systems
-    provider: 'british',  // 'british' | 'elevenlabs' | 'browser'
+    provider: 'elevenlabs',  // 'british' | 'elevenlabs' | 'browser'
     
     // ELEVENLABS CONFIG (when enabled)
     elevenlabs: {
-        enabled: false,  // ← SET TO TRUE when you have credits
+        enabled: TRUE,  // ← SET TO TRUE when you have credits
         apiKey: 'sk_9e7fa2741be74e8cc4af95744fe078712c1e8201cdcada93',
         voiceId: 'zGjIP4SZlMnY9m93k97r',
         model: 'eleven_turbo_v2'
@@ -1433,7 +1433,7 @@ const VOICE_CONFIG = {
     
     // BRITISH VOICE CONFIG
     british: {
-        enabled: true,   // ← FREE, always available
+        enabled: false,   // ← FREE, always available
         priority: ['Microsoft Hazel - English (Great Britain)', 'Kate', 'Serena', 'Google UK English Female']
     },
     
