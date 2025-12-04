@@ -229,10 +229,10 @@
                          style="width: 70px; height: 70px; border-radius: 0px; margin-right: 20px;">
                     <div style="color: white; text-align: left;">
                         <div style="font-size: 20px; font-weight: bold; margin-bottom: 5px;">
-                            GET- pre-qualified
+                            GET Pre-Qualified
                         </div>
                         <div style="font-size: 14px; opacity: 0.95;">
-                            No forms! Just answer a few simple questions
+                            See if you Qualify to Purchase a Practice 
                         </div>
                     </div>
                 </div>
