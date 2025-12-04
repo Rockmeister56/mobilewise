@@ -1254,27 +1254,11 @@ function addAIMessage(message) {
     const chatMessages = document.getElementById('chatMessages');
     if (!chatMessages) return;
     
-    // DEBUG: Check container widths
-    console.log('Chat messages width:', chatMessages.offsetWidth);
-    console.log('Chat messages parent width:', chatMessages.parentElement.offsetWidth);
+    const messageElement = document.createElement('div');
+    messageElement.className = 'message ai-message';
+    messageElement.textContent = message;
     
-    const messageContainer = document.createElement('div');
-    messageContainer.className = 'message ai-message';
-    
-    const avatar = document.createElement('img');
-    avatar.src = 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1764374269507_avatar%20right.png';
-    avatar.alt = 'AI Assistant';
-    avatar.className = 'ai-avatar';
-    
-    const messageText = document.createElement('div');
-    messageText.textContent = message;
-    
-    // TRY FORCING WIDTH
-    messageText.textContent = message;
-    
-    messageContainer.appendChild(avatar);
-    messageContainer.appendChild(messageText);
-    chatMessages.appendChild(messageContainer);
+    chatMessages.appendChild(messageElement);
     scrollChatToBottom();
 }
 
@@ -2230,22 +2214,25 @@ function detectAndStoreUserName(message) {
     ];
     
     for (let pattern of namePatterns) {
-    const match = message.match(pattern);
-    if (match && match[1]) {
-        const userName = match[1].trim();
-        const formattedName = userName.charAt(0).toUpperCase() + userName.slice(1).toLowerCase();
-        
-        console.log('🎉 NAME CAPTURED FROM BUBBLE:', formattedName);
-
-         window.userFirstName = formattedName;
-        window.lastCapturedName = formattedName; // 🆕 BACKUP
-        
-        // 🎯 STORE FOR FUTURE USE
-        window.userFirstName = formattedName;
-        
-        break;
+        const match = message.match(pattern);
+        if (match && match[1]) {
+            const userName = match[1].trim();
+            const formattedName = userName.charAt(0).toUpperCase() + userName.slice(1).toLowerCase();
+            
+            console.log('🎉 NAME CAPTURED FROM BUBBLE:', formattedName);
+            
+            // 🎯 STORE FOR FUTURE USE
+            window.userFirstName = formattedName;
+            
+            // 🎯 SHOW WELCOME SPLASH SCREEN
+            showWelcomeSplashScreen(formattedName);
+            
+            // 🎯 HIGHLIGHT THE NAME BUBBLE
+            highlightNameBubble(formattedName);
+            
+            break;
+        }
     }
-}
 }
 
 function pauseSession() {
@@ -5573,7 +5560,6 @@ document.addEventListener('DOMContentLoaded', function() {
         .realtime-bubble {
             border: 2px solid #10b981 !important;
             animation: pulseBorder 1.5s infinite;
-
             background: rgba(16, 185, 129, 0.1) !important;
         }
         
