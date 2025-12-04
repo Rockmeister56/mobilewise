@@ -222,9 +222,9 @@
     // 9. GET PRE-QUALIFIED (CTA with highlighter)
     preQualifier: {
         content: `
-            <div class="banner-glow-container banner-cta-full" style="width: 760px; max-width: 760px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #6b21a8 0%, #7c3aed 50%, #6b21a8 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+            <div class="banner-glow-container banner-cta-full" style="width: 760px; max-width: 760px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #0f5ef0ff 0%, #000000ff 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
                 <div style="display: flex; align-items: center;">
-                    <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761253934863_prequalify.png" 
+                    <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761335872173_expertise.png" 
                          class="book-white-glow"
                          style="width: 70px; height: 70px; border-radius: 0px; margin-right: 20px;">
                     <div style="color: white; text-align: left;">
