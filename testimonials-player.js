@@ -809,7 +809,7 @@ function returnToVoiceChat() {
         console.log('🛡️ Cooldown cleared for voice chat');
     }
     
-   // 8. PLAY THE CONSULTATION OFFER PROPERLY
+    // 8. PLAY THE CONSULTATION OFFER PROPERLY
 setTimeout(() => {
     console.log('🗣️ Playing consultation offer...');
     
@@ -823,23 +823,13 @@ setTimeout(() => {
     
     // B. THEN speak it (AUDIBLE)
     if (window.speakText) {
-        // ✅ CRITICAL: Set speaking flag BEFORE starting speech
-        window.isSpeaking = true;
-        console.log('🎤 Setting window.isSpeaking = true');
-        
         window.speakText(consultationText);
         
-        // C. WAIT FOR SPEECH TO COMPLETE - MOBILE AWARE
-        const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
-        const speechDuration = isMobile ? 12000 : 8000; // 12s mobile, 8s desktop
-        console.log(`📱 ${isMobile ? 'Mobile' : 'Desktop'}: Waiting ${speechDuration}ms for speech`);
+        // C. WAIT FOR SPEECH TO COMPLETE
+        const speechDuration = 10000; // 10 seconds buffer
         
         setTimeout(() => {
-            console.log('🎯 Speech should be complete');
-            
-            // ✅ Clear speaking flag
-            window.isSpeaking = false;
-            console.log('🔇 Setting window.isSpeaking = false');
+            console.log('🎯 Speech complete - Main system will handle banners');
             
             // Clear any partial transcript from during speech
             if (window.lastCapturedTranscript) {
@@ -847,22 +837,9 @@ setTimeout(() => {
                 console.log('🧹 Cleared transcript captured during speech');
             }
             
-            // Show banner with mobile-aware delay
-            const bannerDelay = isMobile ? 1500 : 800;
-            console.log(`⏱️ Banner delay: ${bannerDelay}ms`);
-            
-            setTimeout(() => {
-                console.log('🎤 Calling showDirectSpeakNow()...');
-                if (typeof showDirectSpeakNow === 'function') {
-                    // ✅ Final check - don't show if somehow still speaking
-                    if (!window.isSpeaking) {
-                        showDirectSpeakNow();
-                        console.log('✅ Speak now banner shown');
-                    } else {
-                        console.log('⚠️ AI still speaking - banner skipped');
-                    }
-                }
-            }, bannerDelay);
+            // ⚠️ DON'T show banner here - Main voice chat system handles it
+            // The main system automatically shows banners after AI speaks
+            console.log('✅ Consultation offer complete - returning to main flow');
         }, speechDuration);
     } // ✅ THIS CLOSES THE if (window.speakText) BLOCK
 }, 500);
