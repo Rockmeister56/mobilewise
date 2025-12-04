@@ -809,66 +809,65 @@ function returnToVoiceChat() {
         console.log('🛡️ Cooldown cleared for voice chat');
     }
     
-    // C. WAIT FOR SPEECH TO COMPLETE
-const speechDuration = 10000; // 10 seconds buffer
-
+   // 8. PLAY THE CONSULTATION OFFER PROPERLY
 setTimeout(() => {
-    console.log('🎯 Speech should be complete - CLEANING UP');
+    console.log('🗣️ Playing consultation offer...');
     
-    // ✅ CRITICAL CLEANUP - Add these lines:
+    const consultationText = "If we can get you the same results as our previous customers, would you be interested in that consultation?";
     
-    // 1. Clear any old speech timeouts
-    if (window.speechTimeout) {
-        clearTimeout(window.speechTimeout);
-        window.speechTimeout = null;
-        console.log('🧹 Cleared old speech timeout');
+    // A. FIRST add message to chat bubble (VISIBLE)
+    if (window.addAIMessage && typeof window.addAIMessage === 'function') {
+        window.addAIMessage(consultationText);
+        console.log('✅ AI message added to chat bubble');
     }
     
-    // 2. Reset listening flags (IMPORTANT!)
-    window.isCurrentlyListening = false;
-    window.isListening = false;
-    window.isRecording = false;
-    console.log('✅ Reset all listening flags to false');
-    
-    // 3. Clear any partial transcript
-    if (window.lastCapturedTranscript) {
-        window.lastCapturedTranscript = '';
-        console.log('🧹 Cleared transcript captured during speech');
-    }
-    
-    // 4. Clear any banner timeouts that might interfere
-    if (window.bannerTimeout) {
-        clearTimeout(window.bannerTimeout);
-        window.bannerTimeout = null;
-    }
-    
-    // 5. Ensure speech state is clean
-    window.isSpeaking = false;
-    
-    console.log('🧹 System cleaned up - ready for banner');
-    
-    // Show banner with proper timing
-    setTimeout(() => {
-        console.log('🎤 Calling showDirectSpeakNow()...');
+    // B. THEN speak it (AUDIBLE)
+    if (window.speakText) {
+        // ✅ CRITICAL: Set speaking flag BEFORE starting speech
+        window.isSpeaking = true;
+        console.log('🎤 Setting window.isSpeaking = true');
         
-        // ✅ ONE MORE SAFETY CHECK
-        if (window.isSpeaking) {
-            console.log('⚠️ AI still speaking - delaying banner further');
+        window.speakText(consultationText);
+        
+        // C. WAIT FOR SPEECH TO COMPLETE - MOBILE AWARE
+        const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+        const speechDuration = isMobile ? 12000 : 8000; // 12s mobile, 8s desktop
+        console.log(`📱 ${isMobile ? 'Mobile' : 'Desktop'}: Waiting ${speechDuration}ms for speech`);
+        
+        setTimeout(() => {
+            console.log('🎯 Speech should be complete');
+            
+            // ✅ Clear speaking flag
+            window.isSpeaking = false;
+            console.log('🔇 Setting window.isSpeaking = false');
+            
+            // Clear any partial transcript from during speech
+            if (window.lastCapturedTranscript) {
+                window.lastCapturedTranscript = '';
+                console.log('🧹 Cleared transcript captured during speech');
+            }
+            
+            // Show banner with mobile-aware delay
+            const bannerDelay = isMobile ? 1500 : 800;
+            console.log(`⏱️ Banner delay: ${bannerDelay}ms`);
+            
             setTimeout(() => {
-                if (typeof showDirectSpeakNow === 'function' && !window.isSpeaking) {
-                    showDirectSpeakNow();
-                    console.log('✅ Speak now banner shown (delayed)');
+                console.log('🎤 Calling showDirectSpeakNow()...');
+                if (typeof showDirectSpeakNow === 'function') {
+                    // ✅ Final check - don't show if somehow still speaking
+                    if (!window.isSpeaking) {
+                        showDirectSpeakNow();
+                        console.log('✅ Speak now banner shown');
+                    } else {
+                        console.log('⚠️ AI still speaking - banner skipped');
+                    }
                 }
-            }, 2000);
-            return;
-        }
-        
-        if (typeof showDirectSpeakNow === 'function' && !window.isSpeaking) {
-            showDirectSpeakNow();
-            console.log('✅ Speak now banner shown AFTER speech complete');
-        }
-    }, 800);
-}, speechDuration);
+            }, bannerDelay);
+        }, speechDuration);
+    } // ✅ THIS CLOSES THE if (window.speakText) BLOCK
+}, 500);
+    
+    console.log('✅ SUCCESSFULLY RETURNED TO VOICE CHAT');
 }
 
 function showMoreTestimonials() {
