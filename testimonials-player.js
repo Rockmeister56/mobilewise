@@ -2,6 +2,9 @@
 // 🎬 COMPLETE TESTIMONIAL SYSTEM (SPLASH + VIDEO PLAYERS)
 // ===================================================
 
+// TEMPORARY: Just to stop the error so you can test ElevenLabs
+if (typeof stopAllSpeech === 'undefined') window.stopAllSpeech = function() {};
+
 // Video URLs - UPDATE THESE WITH YOUR ACTUAL VIDEO LINKS
 const TESTIMONIAL_VIDEOS = {
     skeptical: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982717330.mp4',
