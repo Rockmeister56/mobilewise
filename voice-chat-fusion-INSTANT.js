@@ -4,6 +4,42 @@
 // ===================================================
 
 // ===========================================
+// GLOBAL SPEECH CONTROL FUNCTION
+// ===========================================
+
+function stopAllSpeech() {
+    console.log('🛑 stopAllSpeech() called');
+    
+    // 1. Stop browser speech synthesis
+    if (window.speechSynthesis && window.speechSynthesis.speaking) {
+        window.speechSynthesis.cancel();
+        console.log('✅ Browser speech stopped');
+    }
+    
+    // 2. Stop any ElevenLabs audio
+    const allAudio = document.querySelectorAll('audio');
+    allAudio.forEach(audio => {
+        audio.pause();
+        audio.currentTime = 0;
+    });
+    
+    // 3. Stop voice system if it exists
+    if (window.voiceSystemInstance && typeof window.voiceSystemInstance.stop === 'function') {
+        window.voiceSystemInstance.stop();
+    }
+    
+    // 4. Reset speaking state
+    if (window.isSpeaking !== undefined) {
+        window.isSpeaking = false;
+    }
+    
+    return true;
+}
+
+// Make it globally available
+window.stopAllSpeech = stopAllSpeech;
+
+// ===========================================
 // ELEVENLABS CONFIGURATION
 // ===========================================
 const ELEVENLABS_API_KEY = 'sk_145cc0fe5aeb1c2ae4ebf3193dcee721ae8a4f755ed9e5d8';
