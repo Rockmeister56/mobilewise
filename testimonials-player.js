@@ -1281,8 +1281,50 @@ window.closeTestimonialVideo = closeTestimonialVideo;
 window.closeTestimonialNav = closeTestimonialNav;
 window.returnToVoiceChat = returnToVoiceChat;
 
-// 3. SPEECH CONTROL (REQUIRED - called externally)
-window.stopAllSpeech = stopAllSpeech;
+function stopAllSpeech() {
+    console.log('🔇 Testimonials: Stopping ALL speech systems...');
+    
+    // 1. Stop browser speech synthesis
+    if (window.speechSynthesis && window.speechSynthesis.speaking) {
+        window.speechSynthesis.cancel();
+        console.log('✅ Browser TTS stopped');
+    }
+    
+    // 2. Stop any ElevenLabs audio playback
+    document.querySelectorAll('audio').forEach(audio => {
+        audio.pause();
+        audio.currentTime = 0;
+    });
+    
+    // 3. Try to stop other voice systems if they exist
+    const otherStopFunctions = [
+        'stopCurrentSpeech', 'stopVoiceResponse', 
+        'stopElevenLabsSpeech', 'stopBritishSpeech', 'stopTTS'
+    ];
+    
+    otherStopFunctions.forEach(funcName => {
+        if (window[funcName] && typeof window[funcName] === 'function') {
+            try {
+                window[funcName]();
+                console.log(`✅ Also called ${funcName}`);
+            } catch (e) {
+                console.log(`⚠️ ${funcName} failed (expected):`, e.message);
+            }
+        }
+    });
+    
+    // 4. Reset speaking states
+    if (window.isSpeaking !== undefined) window.isSpeaking = false;
+    if (window.voiceSystem && window.voiceSystem.isSpeaking !== undefined) {
+        window.voiceSystem.isSpeaking = false;
+    }
+    
+    console.log('✅ All speech systems stopped for testimonials');
+    return true;
+}
+
+// In testimonials-player.js, COMMENT OUT or REMOVE line 1285:
+window.stopAllSpeech = stopAllSpeech;  // ← REMOVE THIS LINE
 
 // 4. STATE FLAGS
 window.avatarCurrentlyPlaying = false;
