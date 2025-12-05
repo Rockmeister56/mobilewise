@@ -7,38 +7,6 @@
 // GLOBAL SPEECH CONTROL FUNCTION
 // ===========================================
 
-function stopAllSpeech() {
-    console.log('🛑 stopAllSpeech() called');
-    
-    // 1. Stop browser speech synthesis
-    if (window.speechSynthesis && window.speechSynthesis.speaking) {
-        window.speechSynthesis.cancel();
-        console.log('✅ Browser speech stopped');
-    }
-    
-    // 2. Stop any ElevenLabs audio
-    const allAudio = document.querySelectorAll('audio');
-    allAudio.forEach(audio => {
-        audio.pause();
-        audio.currentTime = 0;
-    });
-    
-    // 3. Stop voice system if it exists
-    if (window.voiceSystemInstance && typeof window.voiceSystemInstance.stop === 'function') {
-        window.voiceSystemInstance.stop();
-    }
-    
-    // 4. Reset speaking state
-    if (window.isSpeaking !== undefined) {
-        window.isSpeaking = false;
-    }
-    
-    return true;
-}
-
-// Make it globally available
-window.stopAllSpeech = stopAllSpeech;
-
 // ===========================================
 // ELEVENLABS CONFIGURATION
 // ===========================================
@@ -5632,9 +5600,6 @@ document.addEventListener('DOMContentLoaded', function() {
     document.head.appendChild(style);
 // 🆕 EXPORT FUNCTIONS FOR ACTION SYSTEM INTEGRATION
 // These allow the action-system-unified-FINAL.js to integrate with voice chat
-
-// ⭐ ADD THIS BACK - The testimonials system needs it!
-window.stopAllSpeech = stopAllSpeech;  // ← THIS IS THE MISSING LINE
 
 // Export addAIMessage
 window.addAIMessage = addAIMessage;
