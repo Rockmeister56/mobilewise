@@ -21,19 +21,18 @@
             position: relative;
         }
         
-        /* AI Button Styles */
-        .ai-button-container {
-            position: fixed;
-            bottom:0;
-            left: 0;
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            z-index: 1000;
-            transform: translateY(100%);
-            transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            padding-bottom: 10px;
-        }
+      .ai-button-container {
+    position: fixed;
+    bottom: -50px; /* NEGATIVE value to move UP */
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    z-index: 1000;
+    transform: translateY(100%);
+    transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    padding-bottom: 50px; /* Added px units */
+}
         
         .ai-button-wrapper {
             background: transparent;
@@ -56,30 +55,19 @@
     transform: scale(1.15); /* Scale the entire image by 15% */
     transform-origin: center center; /* Scale from center */
 }
-        
- /* FIXED video container - removed overflow: hidden */
-.ai-video-container {
-    position: absolute;
-    top: 45px;
-    left: 0;
+
+       .ai-video {
     width: 100%;
-    height: 100%;
+    height: auto;
     border-radius: 15px;
-    /* REMOVED: overflow: hidden; - this was cropping the video */
+    position: relative;
     z-index: 1;
+    top: 215px;
+    /* ADD THIS to reduce size by 5% */
+    transform: scale(0.90);
+    transform-origin: center center;
 }
 
-/* Adjusted video */
-.ai-video {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 15px;
-    transform: scale(0.8); /* Scales video to 80% of original size */
-    transform-origin: center center; /* Keeps it centered */
-}
-
-        
         .video-frozen {
             filter: brightness(0.98);
         }
@@ -87,7 +75,7 @@
 /* Move text area down - 3px above Get AI Assistance button */
 .ai-text-container {
     position: absolute;
-    bottom: 70px;
+    bottom: 84px;
     left: 0;
     width: 100%;
     text-align: center;
@@ -101,9 +89,9 @@
     color: white; /* White text */
     padding: 10px 14px;
     border-radius: 10px;
-    font-size: 13px;
+    font-size: 15px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-    min-height: 45px;
+    min-height: 60px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -130,7 +118,7 @@
     padding: 10px 14px;
     border: none;
     border-radius: 8px;
-    font-size: 13px;
+    font-size: 16px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -172,6 +160,16 @@
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
             background: white;
         }
+        .play-icon {
+    margin-left: 8px;
+    animation: blinkPlay 2s infinite;
+    display: inline-block;
+}
+
+@keyframes blinkPlay {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0.3; }
+}
     </style>
 </head>
 <body>
@@ -180,12 +178,10 @@
     <!-- AI Voice Assistant Button -->
     <div class="ai-button-container" id="aiButton">
         <div class="ai-button-wrapper">
-            <!-- Video container -->
-            <div class="ai-video-container">
-                <video class="ai-video" autoplay muted playsinline id="avatarVideo">
-                    <source src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1764286430873.mp4" type="video/mp4">
-                </video>
-            </div>
+            <!-- VIDEO FROM NCI DEMO 2 - NO CONTAINER, SIMPLE VIDEO TAG -->
+            <video class="ai-video" autoplay muted playsinline id="avatarVideo">
+                <source src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1764286430873.mp4" type="video/mp4">
+            </video>
             
             <!-- Animated Text Area -->
             <div class="ai-text-container">
@@ -193,17 +189,18 @@
             </div>
             
             <!-- Action Buttons -->
-            <div class="ai-action-buttons">
-                <button class="ai-action-btn ai-primary-btn" id="getAssistanceBtn">
-                    Get AI Assistance
-                </button>
+           <div class="ai-action-buttons">
+    <button class="ai-action-btn ai-primary-btn" id="getAssistanceBtn">
+        Get AI Assistance <span class="play-icon">▶</span>
+    </button>
                 <button class="ai-action-btn ai-secondary-btn" id="justBrowsingBtn">
-                    Just Browsing
-                </button>
+    Just Browsing 👉
+</button>
+
             </div>
             
             <!-- PNG overlay with transparent video window area -->
-            <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1764351176797_player2.png" class="ai-button-overlay" alt="AI Voice Assistant">
+            <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1764359060407_player3.png" class="ai-button-overlay" alt="AI Voice Assistant">
         </div>
     </div>
 
@@ -249,7 +246,7 @@
                     
                     // Start typing animation after button appears
                     setTimeout(() => {
-                        typeText(aiMessage, "Hi! I'm Botimia your AI assistant, ready to help with all your questions.");
+                        typeText(aiMessage, "Hi! I'm Botimia your Personal AI Assistant. How can I help you?");
                     }, 500);
                     
                 }, 1000);
@@ -273,17 +270,6 @@
                 aiButton.style.transform = 'translateY(100%)';
                 // Optional: Set a flag to not show again for this session
                 sessionStorage.setItem('userBrowsing', 'true');
-            });
-            
-            // Optional: Add video interaction
-            const video = document.querySelector('.ai-video');
-            const buttonWrapper = document.querySelector('.ai-button-wrapper');
-            
-            // Play video on hover (if it's not already playing)
-            buttonWrapper.addEventListener('mouseenter', function() {
-                if (video.paused && video.currentTime > 0) {
-                    video.play();
-                }
             });
         });
     </script>
