@@ -36,6 +36,9 @@ function stopAllSpeech() {
     return true;
 }
 
+// Make it globally available
+window.stopAllSpeech = stopAllSpeech;
+
 // ===========================================
 // ELEVENLABS CONFIGURATION
 // ===========================================
@@ -1274,7 +1277,7 @@ async function activateMicrophone() {
 }
 
 // ===================================================
-// 💭 MESSAGE HANDLING SYSTEM
+// 💭 MESSAGE HANDLING SYSTEM - USE THIS VERSION
 // ===================================================
 function addUserMessage(message) {
     console.log('🔍 DEBUG: addUserMessage called with:', message);
@@ -1306,9 +1309,6 @@ function addAIMessage(message) {
     avatar.className = 'ai-avatar';
     
     const messageText = document.createElement('div');
-    messageText.textContent = message;
-    
-    // TRY FORCING WIDTH
     messageText.textContent = message;
     
     messageContainer.appendChild(avatar);
@@ -1993,10 +1993,6 @@ window.switchToBrowser = function() {
     VOICE_CONFIG.provider = 'browser';
     console.log("✅ Switched to Browser Voice");
     window.speakText("I'm now using the standard browser voice system.");
-};
-
-window.stopAllSpeech = function() {
-    window.mobileWiseVoice.stop();
 };
 
 window.getVoiceStatus = function() {
@@ -5636,6 +5632,9 @@ document.addEventListener('DOMContentLoaded', function() {
     document.head.appendChild(style);
 // 🆕 EXPORT FUNCTIONS FOR ACTION SYSTEM INTEGRATION
 // These allow the action-system-unified-FINAL.js to integrate with voice chat
+
+// ⭐ ADD THIS BACK - The testimonials system needs it!
+window.stopAllSpeech = stopAllSpeech;  // ← THIS IS THE MISSING LINE
 
 // Export addAIMessage
 window.addAIMessage = addAIMessage;
