@@ -36,9 +36,6 @@ function stopAllSpeech() {
     return true;
 }
 
-// Make it globally available
-window.stopAllSpeech = stopAllSpeech;
-
 // ===========================================
 // ELEVENLABS CONFIGURATION
 // ===========================================
