@@ -1432,7 +1432,7 @@ const VOICE_CONFIG = {
     // ELEVENLABS CONFIG (when enabled)
     elevenlabs: {
         enabled: true,  // ← SET TO TRUE when you have credits
-        apiKey: 'sk_9e7fa2741be74e8cc4af95744fe078712c1e8201cdcada93',
+        apiKey: '1a8fa6a0ee104377d7d1089b442e9604bc4c026c4b6992faa46588e716919a0e',
         voiceId: 'zGjIP4SZlMnY9m93k97r',
         model: 'eleven_turbo_v2'
     },
