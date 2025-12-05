@@ -1032,6 +1032,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
+// Add this to your main script file (or at the bottom of your HTML)
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🎤 Initializing voice system...');
+    window.voiceSystemInstance = new MobileWiseVoiceSystem();
+});
 </script>
 </body>
 </html>
