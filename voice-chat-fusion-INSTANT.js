@@ -6,7 +6,7 @@
 // ===========================================
 // ELEVENLABS CONFIGURATION
 // ===========================================
-const ELEVENLABS_API_KEY = '1a8fa6a0ee104377d7d1089b442e9604bc4c026c4b6992faa46588e716919a0e';
+const ELEVENLABS_API_KEY = 'sk_145cc0fe5aeb1c2ae4ebf3193dcee721ae8a4f755ed9e5d8';
 const VOICE_ID = 'zGjIP4SZlMnY9m93k97r';
 
 // Add this at the VERY TOP of your JavaScript file (like line 1)
@@ -1432,7 +1432,7 @@ const VOICE_CONFIG = {
     // ELEVENLABS CONFIG (when enabled)
     elevenlabs: {
         enabled: true,  // ← SET TO TRUE when you have credits
-        apiKey: '1a8fa6a0ee104377d7d1089b442e9604bc4c026c4b6992faa46588e716919a0e',
+        apiKey: 'sk_145cc0fe5aeb1c2ae4ebf3193dcee721ae8a4f755ed9e5d8',
         voiceId: 'zGjIP4SZlMnY9m93k97r',
         model: 'eleven_turbo_v2'
     },
