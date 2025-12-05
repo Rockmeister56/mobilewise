@@ -6,7 +6,7 @@
 // ===========================================
 // ELEVENLABS CONFIGURATION
 // ===========================================
-const ELEVENLABS_API_KEY = 'sk_9e7fa2741be74e8cc4af95744fe078712c1e8201cdcada93';
+const ELEVENLABS_API_KEY = '1a8fa6a0ee104377d7d1089b442e9604bc4c026c4b6992faa46588e716919a0e';
 const VOICE_ID = 'zGjIP4SZlMnY9m93k97r';
 
 // Add this at the VERY TOP of your JavaScript file (like line 1)
