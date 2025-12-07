@@ -63,43 +63,6 @@
             background: #000;
         }
 
-        /* Video container with overlay */
-        .video-container {
-            position: relative;
-            width: 100%;
-            height: 100%;
-        }
-
-        /* Overlay button */
-        .overlay-button {
-            position: absolute;
-            bottom: 60px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: linear-gradient(135deg, #4CAF50, #2E7D32);
-            color: white;
-            border: none;
-            padding: 18px 40px;
-            font-size: 1.3rem;
-            font-weight: bold;
-            border-radius: 50px;
-            cursor: pointer;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            transition: all 0.3s ease;
-            z-index: 100;
-            display: none;
-        }
-
-        .overlay-button:hover {
-            background: linear-gradient(135deg, #66BB6A, #388E3C);
-            transform: translateX(-50%) scale(1.05);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7);
-        }
-
-        .overlay-button:active {
-            transform: translateX(-50%) scale(0.98);
-        }
-
         /* Loader Spinner */
         .loader {
             display: none;
@@ -138,49 +101,25 @@
             color: #fff;
         }
 
+        /* Redirect message */
+        .redirect-message {
+            display: none;
+            font-size: 1.5rem;
+            text-align: center;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
         /* Mobile-specific (9:16) */
         @media (max-aspect-ratio: 9/16) {
             .scene img, video {
                 object-fit: cover;
             }
-            .overlay-button {
-                bottom: 40px;
-                padding: 16px 30px;
-                font-size: 1.1rem;
-                width: 80%;
-                max-width: 300px;
-            }
         }
-
-        /* SKIP DEMO BUTTON - Add to your existing CSS */
-.skip-demo-button {
-    position: fixed;
-    bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(255, 71, 87, 0.9);
-    color: white;
-    border: none;
-    padding: 14px 32px;
-    font-size: 1.1rem;
-    font-weight: bold;
-    border-radius: 50px;
-    cursor: pointer;
-    z-index: 1000;
-    opacity: 0;
-    transition: opacity 0.5s ease, background 0.3s ease;
-    backdrop-filter: blur(10px);
-    border: 2px solid rgba(255, 255, 255, 0.2);
-}
-
-.skip-demo-button.visible {
-    opacity: 1;
-}
-
-.skip-demo-button:hover {
-    background: rgba(255, 107, 107, 0.95);
-    transform: translateX(-50%) scale(1.05);
-}
     </style>
 </head>
 <body>
@@ -191,7 +130,7 @@
         <p>Loading AI Demo...</p>
     </div>
 
-   <!-- Scene 1: Intro Question (5 seconds) -->
+    <!-- Scene 1: Intro Question (5 seconds) -->
     <div id="scene1" class="scene active">
         <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1765090138536_scene.jpg" 
              alt="Want 3x the Sales Leads by Supercharging your Website with AI?">
@@ -206,25 +145,26 @@
 
     <!-- Scene 3: Video Player -->
     <div id="scene3" class="scene">
-        <div class="video-container">
-            <video id="demoVideo" controls>
-                <source src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1765097444051.mp4" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
-            <button class="overlay-button" id="goToDemoBtn">
-                🚀 Launch Live AI Demo
-            </button>
-        </div>
+        <video id="demoVideo" controls>
+            <source src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1765097444051.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+
+    <!-- Scene 4: Redirect Message -->
+    <div id="scene4" class="scene redirect-message">
+        <h2>🎬 Demo Complete!</h2>
+        <p>Redirecting to live AI assistant...</p>
     </div>
 
     <script>
         const scene1 = document.getElementById('scene1');
         const scene2 = document.getElementById('scene2');
         const scene3 = document.getElementById('scene3');
+        const scene4 = document.getElementById('scene4');
         const video = document.getElementById('demoVideo');
         const loader = document.getElementById('loader');
         const clickToPlay = document.getElementById('clickToPlay');
-        const goToDemoBtn = document.getElementById('goToDemoBtn');
 
         // Step 1: Show Scene 1 for 5 seconds
         setTimeout(() => {
@@ -260,32 +200,30 @@
             }, 3000);
         });
 
-        // Step 3: When video ends, freeze frame and show button
+       
+        // Step 3: When video ends, show redirect message
         video.addEventListener('ended', () => {
-            console.log("Video ended - showing demo button");
+            console.log("Video ended - showing redirect message");
+            scene3.classList.remove('active');
+            scene4.classList.add('active');  // This will now work since display is not none
             
-            // Freeze video on last frame
-            video.pause();
-            
-            // Remove video controls to prevent interaction
-            video.removeAttribute('controls');
-            
-            // Show the overlay button
-            goToDemoBtn.style.display = 'block';
-            
-            // Optional: Auto-redirect after 10 seconds as fallback
+            // Redirect after 2 seconds
             setTimeout(() => {
-                if (goToDemoBtn.style.display === 'block') {
-                    console.log("Auto-redirecting after 10 seconds...");
-                    window.location.href = 'https://smartaivoicebot.netlify.app/nci-demo3';
-                }
-            }, 10000); // 10-second fallback
+                console.log("Redirecting to demo...");
+                window.location.href = 'https://smartaivoicebot.netlify.app/nci-demo3';
+            }, 2000);
         });
-               
+
+        // Also make the entire scene2 clickable as a backup
+        scene2.addEventListener('click', function(e) {
+            if (e.target === scene2) {
+                clickToPlay.click();
+            }
+        });
+
+        // Debug: Check if event listeners are attached
+        console.log("Event listeners attached");
+        console.log("Scene4 display style:", window.getComputedStyle(scene4).display);
     </script>
-    <!-- SKIP TO DEMO BUTTON -->
-<button class="skip-demo-button" id="skipToDemoBtn">
-    ⚡ Skip to Live Demo
-</button>
 </body>
 </html>
