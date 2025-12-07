@@ -5670,6 +5670,20 @@ if (typeof showUniversalBanner === 'function') {
     window.showUniversalBanner = showUniversalBanner;
 }
 
+// Call this after DOM loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Your existing initialization...
+    
+    // Add mobile voice setup
+    initializeMobileVoiceSystem();
+    
+    // Or call individually:
+    if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        setupMobileAudioPermissions();
+        setupMobileElevenLabs();
+    }
+});
+
 console.log('✅ Voice chat functions exported for Action System integration');
 
     console.log('✅ Instant bubble CSS injected');
