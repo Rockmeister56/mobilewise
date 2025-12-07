@@ -199,25 +199,24 @@
                 }
             }, 3000);
         });
-
        
-// Step 3: When video ends, redirect with noreferrer
+// Step 3: When video ends, clear session and redirect
 video.addEventListener('ended', () => {
-    console.log("Video ended - redirecting with noreferrer...");
+    console.log("Video ended - clearing session and redirecting...");
     scene3.classList.remove('active');
     scene4.classList.add('active');
     
     setTimeout(() => {
-        // Create link with noreferrer to hide referrer
-        const link = document.createElement('a');
-        link.href = 'https://smartaivoicebot.netlify.app/nci-demo3';
-        link.target = '_self';
-        link.rel = 'noreferrer noopener'; // THIS IS KEY - hides referrer
-        link.style.display = 'none';
+        // Clear ALL session storage that might hide the button
+        sessionStorage.clear();
         
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        // Use window.open with no referrer policy
+        window.open('https://smartaivoicebot.netlify.app/nci-demo3', '_blank', 'noopener,noreferrer');
+        
+        // Optional: Close intro tab
+        setTimeout(() => {
+            window.close();
+        }, 500);
         
     }, 2000);
 });
