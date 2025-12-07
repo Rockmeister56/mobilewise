@@ -201,34 +201,22 @@
         });
 
        
-      // Step 3: When video ends, show redirect message
-video.addEventListener('ended', () => {
+      video.addEventListener('ended', () => {
     console.log("Video ended - showing redirect message");
     scene3.classList.remove('active');
-    scene4.classList.add('active');  // This will now work since display is not none
+    scene4.classList.add('active');
     
-    // Redirect after 2 seconds using invisible link click
     setTimeout(() => {
-        console.log("Redirecting to demo via invisible link click...");
+        console.log("Performing hard redirect...");
         
-        // Create an invisible link that mimics a real user click
-        const invisibleLink = document.createElement('a');
-        invisibleLink.href = 'https://smartaivoicebot.netlify.app/nci-demo3';
-        invisibleLink.target = '_self';
-        invisibleLink.style.display = 'none';
-        invisibleLink.rel = 'noopener noreferrer';
-        invisibleLink.referrerPolicy = 'no-referrer';
+        // Force a completely fresh load
+        const url = 'https://smartaivoicebot.netlify.app/nci-demo3';
         
-        // Add it to the page
-        document.body.appendChild(invisibleLink);
+        // Method 1: Replace location with timestamp to bust cache
+        window.location.replace(url + '?t=' + Date.now());
         
-        // Simulate a click (triggers same behavior as real user click)
-        invisibleLink.click();
-        
-        // Clean up
-        setTimeout(() => {
-            document.body.removeChild(invisibleLink);
-        }, 100);
+        // If that doesn't work, try:
+        // window.location.href = url + '?_=' + Date.now();
         
     }, 2000);
 });
