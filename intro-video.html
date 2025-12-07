@@ -260,28 +260,47 @@
             }, 3000);
         });
 
-        // Step 3: When video ends, freeze frame and show button
-        video.addEventListener('ended', () => {
-            console.log("Video ended - showing demo button");
-            
-            // Freeze video on last frame
-            video.pause();
-            
-            // Remove video controls to prevent interaction
-            video.removeAttribute('controls');
-            
-            // Show the overlay button
-            goToDemoBtn.style.display = 'block';
-            
-            // Optional: Auto-redirect after 10 seconds as fallback
-            setTimeout(() => {
-                if (goToDemoBtn.style.display === 'block') {
-                    console.log("Auto-redirecting after 10 seconds...");
-                    window.location.href = 'https://smartaivoicebot.netlify.app/nci-demo3';
-                }
-            }, 10000); // 10-second fallback
-        });
-               
+    // ===== SKIP DEMO BUTTON FUNCTIONALITY =====
+const skipButton = document.getElementById('skipToDemoBtn');
+
+// Show button when video starts playing
+video.addEventListener('play', () => {
+    skipButton.classList.add('visible');
+});
+
+// Hide button on Scene 1 and Scene 2
+scene1.addEventListener('transitionend', () => {
+    if (!scene1.classList.contains('active')) {
+        skipButton.classList.remove('visible');
+    }
+});
+
+scene2.addEventListener('transitionend', () => {
+    if (!scene2.classList.contains('active')) {
+        skipButton.classList.remove('visible');
+    }
+});
+
+// Skip button click → go to demo
+skipButton.addEventListener('click', () => {
+    window.location.href = 'https://smartaivoicebot.netlify.app/nci-demo3';
+});
+
+// When video ends, freeze and change button text
+video.addEventListener('ended', () => {
+    video.pause();
+    video.removeAttribute('controls');
+    skipButton.textContent = "🚀 Launch Live AI Demo Now";
+    skipButton.style.background = "rgba(76, 175, 80, 0.9)";
+    
+    // Optional auto-redirect after 5 seconds
+    setTimeout(() => {
+        if (scene3.classList.contains('active')) {
+            window.location.href = 'https://smartaivoicebot.netlify.app/nci-demo3';
+        }
+    }, 5000);
+});
+
     </script>
     <!-- SKIP TO DEMO BUTTON -->
 <button class="skip-demo-button" id="skipToDemoBtn">
