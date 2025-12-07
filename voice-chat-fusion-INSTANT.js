@@ -607,6 +607,88 @@ function setupMobileAudioPermissions() {
     }, { once: true });
 }
 
+function setupMobileElevenLabs() {
+    console.log('🎤 Setting up mobile-friendly ElevenLabs...');
+    
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    if (!isMobile) return;
+    
+    // Override or enhance the speakWithElevenLabs method
+    if (window.voiceSystemInstance && window.voiceSystemInstance.speakWithElevenLabs) {
+        const originalSpeak = window.voiceSystemInstance.speakWithElevenLabs;
+        
+        window.voiceSystemInstance.speakWithElevenLabs = async function(text, options = {}) {
+            console.log('📱 Mobile-friendly ElevenLabs speaking...');
+            
+            // Add mobile-specific options
+            const mobileOptions = {
+                ...options,
+                requireUserGesture: true,
+                showContinuePrompt: true,
+                promptDelay: 1000
+            };
+            
+            // Ensure mobile permissions are ready
+            if (!window.mobileAudioReady) {
+                console.log('📱 Waiting for mobile audio permissions...');
+                await waitForMobilePermission();
+            }
+            
+            // Call original with mobile options
+            const result = await originalSpeak.call(this, text, mobileOptions);
+            
+            // Schedule mobile continuation
+            if (mobileOptions.showContinuePrompt) {
+                setTimeout(() => {
+                    showMobileContinuePrompt();
+                }, mobileOptions.promptDelay);
+            }
+            
+            return result;
+        };
+    }
+}
+
+function waitForMobilePermission() {
+    return new Promise((resolve) => {
+        if (window.mobileAudioReady) {
+            resolve();
+            return;
+        }
+        
+        console.log('📱 Showing mobile permission prompt...');
+        const prompt = document.createElement('div');
+        prompt.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #3b82f6;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            z-index: 99999;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        `;
+        prompt.innerHTML = `
+            <h3>🎤 Tap to Enable Voice</h3>
+            <p>Mobile browsers require a tap to start audio</p>
+            <button style="margin-top: 10px; padding: 10px 20px; background: white; color: #3b82f6; border: none; border-radius: 5px;">
+                Tap Here
+            </button>
+        `;
+        
+        prompt.querySelector('button').onclick = () => {
+            window.mobileAudioReady = true;
+            prompt.remove();
+            resolve();
+        };
+        
+        document.body.appendChild(prompt);
+    });
+}
+
 // ===================================================
 // 🎤 MICROPHONE PERMISSION SYSTEM
 // ===================================================
