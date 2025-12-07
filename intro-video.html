@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Wise AI - Demo Intro</title>
+    <style>
+        body {
+            margin: 0;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+        }
+        video {
+            max-width: 100%;
+            max-height: 100vh;
+        }
+        .redirect-notice {
+            display: none;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <video id="introVideo" controls autoplay>
+        <source src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1765075895775.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+    <div class="redirect-notice" id="redirectMessage">
+        <h2>Redirecting to live demo...</h2>
+        <p>If you are not redirected automatically, <a href="https://smattaivoicebot.netlify.app/nci-demo3">click here</a>.</p>
+    </div>
+
+    <script>
+        const video = document.getElementById('introVideo');
+        const redirectMessage = document.getElementById('redirectMessage');
+
+        video.addEventListener('ended', function() {
+            video.style.display = 'none';
+            redirectMessage.style.display = 'block';
+            setTimeout(() => {
+                window.location.href = 'https://smattaivoicebot.netlify.app/nci-demo3';
+            }, 2000); // 2-second delay before redirect
+        });
+    </script>
+</body>
+</html>
