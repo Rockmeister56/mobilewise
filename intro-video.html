@@ -17,6 +17,9 @@
             color: white;
             height: 100vh;
             overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         /* Container for all scenes */
@@ -26,14 +29,21 @@
             left: 0;
             width: 100%;
             height: 100%;
-            display: none;
+            display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
+            text-align: center;
+            padding: 20px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 1s ease;
         }
 
         /* Active scene */
         .scene.active {
-            display: flex;
+            opacity: 1;
+            pointer-events: all;
         }
 
         /* Full-screen image styling */
@@ -41,47 +51,53 @@
             width: 100%;
             height: 100%;
             object-fit: contain;
+            max-height: 100vh;
             cursor: pointer;
         }
 
-        /* Video container */
-        .video-container {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            background: #000;
-        }
-
-        /* Video */
+        /* Video styling */
         video {
             width: 100%;
             height: 100%;
             object-fit: contain;
+            background: #000;
         }
 
-        /* Skip/Demo Button - ALWAYS VISIBLE during video */
-        .demo-button {
-            position: fixed;
-            bottom: 30px;
+        /* Video container with overlay */
+        .video-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Overlay button */
+        .overlay-button {
+            position: absolute;
+            bottom: 60px;
             left: 50%;
             transform: translateX(-50%);
-            background: linear-gradient(135deg, #FF6B6B, #FF4757);
+            background: linear-gradient(135deg, #4CAF50, #2E7D32);
             color: white;
             border: none;
-            padding: 16px 36px;
-            font-size: 1.2rem;
+            padding: 18px 40px;
+            font-size: 1.3rem;
             font-weight: bold;
             border-radius: 50px;
             cursor: pointer;
-            box-shadow: 0 8px 25px rgba(255, 71, 87, 0.4);
-            z-index: 1000;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
             transition: all 0.3s ease;
+            z-index: 100;
+            display: none;
         }
 
-        .demo-button:hover {
-            background: linear-gradient(135deg, #FF8787, #FF6B6B);
+        .overlay-button:hover {
+            background: linear-gradient(135deg, #66BB6A, #388E3C);
             transform: translateX(-50%) scale(1.05);
-            box-shadow: 0 12px 35px rgba(255, 71, 87, 0.6);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7);
+        }
+
+        .overlay-button:active {
+            transform: translateX(-50%) scale(0.98);
         }
 
         /* Loader Spinner */
@@ -122,19 +138,49 @@
             color: #fff;
         }
 
-        /* Mobile (9:16) */
+        /* Mobile-specific (9:16) */
         @media (max-aspect-ratio: 9/16) {
             .scene img, video {
                 object-fit: cover;
             }
-            .demo-button {
-                bottom: 20px;
-                padding: 14px 28px;
+            .overlay-button {
+                bottom: 40px;
+                padding: 16px 30px;
                 font-size: 1.1rem;
-                width: 85%;
-                max-width: 280px;
+                width: 80%;
+                max-width: 300px;
             }
         }
+
+        /* SKIP DEMO BUTTON - Add to your existing CSS */
+.skip-demo-button {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255, 71, 87, 0.9);
+    color: white;
+    border: none;
+    padding: 14px 32px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    border-radius: 50px;
+    cursor: pointer;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.5s ease, background 0.3s ease;
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.skip-demo-button.visible {
+    opacity: 1;
+}
+
+.skip-demo-button:hover {
+    background: rgba(255, 107, 107, 0.95);
+    transform: translateX(-50%) scale(1.05);
+}
     </style>
 </head>
 <body>
@@ -145,7 +191,7 @@
         <p>Loading AI Demo...</p>
     </div>
 
-    <!-- Scene 1: Intro Question (5 seconds) -->
+   <!-- Scene 1: Intro Question (5 seconds) -->
     <div id="scene1" class="scene active">
         <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1765090138536_scene.jpg" 
              alt="Want 3x the Sales Leads by Supercharging your Website with AI?">
@@ -165,85 +211,81 @@
                 <source src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1765075895775.mp4" type="video/mp4">
                 Your browser does not support the video tag.
             </video>
+            <button class="overlay-button" id="goToDemoBtn">
+                🚀 Launch Live AI Demo
+            </button>
         </div>
-        <!-- Button is OUTSIDE the video container, always visible -->
-        <button class="demo-button" id="skipButton">
-            ⚡ Skip to Live Demo
-        </button>
     </div>
 
     <script>
-        // Get elements
         const scene1 = document.getElementById('scene1');
         const scene2 = document.getElementById('scene2');
         const scene3 = document.getElementById('scene3');
         const video = document.getElementById('demoVideo');
         const loader = document.getElementById('loader');
         const clickToPlay = document.getElementById('clickToPlay');
-        const skipButton = document.getElementById('skipButton');
+        const goToDemoBtn = document.getElementById('goToDemoBtn');
 
-        // 1. Show Scene 1 for 5 seconds, then auto-go to Scene 2
+        // Step 1: Show Scene 1 for 5 seconds
         setTimeout(() => {
             scene1.classList.remove('active');
             scene2.classList.add('active');
         }, 5000);
 
-        // 2. Click Scene 2 to load video
-        clickToPlay.addEventListener('click', loadAndPlayVideo);
-        scene2.addEventListener('click', (e) => {
-            if (e.target === scene2) loadAndPlayVideo();
-        });
-
-        function loadAndPlayVideo() {
+        // Step 2: Clicking Scene 2 shows loader and loads video
+        clickToPlay.addEventListener('click', function() {
+            // Show loader
             loader.classList.add('active');
+            
+            // Hide Scene 2
             scene2.classList.remove('active');
             
+            // Preload video
             video.load();
             
-            video.oncanplay = () => {
+            // When video is ready to play, hide loader and show video
+            video.addEventListener('canplay', function() {
                 loader.classList.remove('active');
                 scene3.classList.add('active');
-                video.play().catch(e => {
-                    console.log("Autoplay blocked, user must click play");
-                });
-            };
+                video.play();
+            }, { once: true });
             
-            // Fallback
+            // Fallback in case video takes too long
             setTimeout(() => {
                 if (loader.classList.contains('active')) {
                     loader.classList.remove('active');
                     scene3.classList.add('active');
+                    video.play().catch(e => console.log("Autoplay prevented:", e));
                 }
             }, 3000);
-        }
-
-        // 3. When video ends, freeze it and change button text
-        video.addEventListener('ended', () => {
-            console.log("Video ended - freezing frame");
-            video.pause();
-            video.removeAttribute('controls'); // Hide native controls
-            skipButton.textContent = "🎬 Launch Live AI Demo";
-            skipButton.style.background = "linear-gradient(135deg, #4CAF50, #2E7D32)";
-            
-            // Auto-redirect after 8 seconds as backup
-            setTimeout(() => {
-                if (document.getElementById('scene3').classList.contains('active')) {
-                    console.log("Auto-redirecting after 8 seconds...");
-                    redirectToDemo();
-                }
-            }, 8000);
         });
 
-        // 4. Skip button ALWAYS works
-        skipButton.addEventListener('click', redirectToDemo);
-
-        function redirectToDemo() {
-            console.log("Redirecting to demo...");
-            window.location.href = 'https://smartaivoicebot.netlify.app/nci-demo3';
-        }
-
-        // Debug info
-        console.log("Page loaded successfully");
+        // Step 3: When video ends, freeze frame and show button
+        video.addEventListener('ended', () => {
+            console.log("Video ended - showing demo button");
+            
+            // Freeze video on last frame
+            video.pause();
+            
+            // Remove video controls to prevent interaction
+            video.removeAttribute('controls');
+            
+            // Show the overlay button
+            goToDemoBtn.style.display = 'block';
+            
+            // Optional: Auto-redirect after 10 seconds as fallback
+            setTimeout(() => {
+                if (goToDemoBtn.style.display === 'block') {
+                    console.log("Auto-redirecting after 10 seconds...");
+                    window.location.href = 'https://smartaivoicebot.netlify.app/nci-demo3';
+                }
+            }, 10000); // 10-second fallback
+        });
+               
     </script>
+    <!-- SKIP TO DEMO BUTTON -->
+<button class="skip-demo-button" id="skipToDemoBtn">
+    ⚡ Skip to Live Demo
+</button>
 </body>
 </html>
