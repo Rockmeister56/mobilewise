@@ -201,48 +201,25 @@
         });
 
        
-// Step 3: When video ends, show redirect message
+// Step 3: When video ends, redirect with noreferrer
 video.addEventListener('ended', () => {
-    console.log("Video ended - showing redirect message");
+    console.log("Video ended - redirecting with noreferrer...");
     scene3.classList.remove('active');
-    
-    // Replace scene4 content with clickable message
-    scene4.innerHTML = `
-        <div style="text-align: center; padding: 20px;">
-            <h2>🎬 Demo Complete!</h2>
-            <p style="font-size: 1.2rem; margin: 20px 0;">Ready to experience the live AI?</p>
-            
-            <a href="https://smartaivoicebot.netlify.app/nci-demo3" 
-               target="_self"
-               id="directDemoLink"
-               style="
-                    display: inline-block;
-                    background: linear-gradient(135deg, #4CAF50, #2E7D32);
-                    color: white;
-                    text-decoration: none;
-                    padding: 18px 45px;
-                    font-size: 1.3rem;
-                    font-weight: bold;
-                    border-radius: 50px;
-                    margin: 20px 0;
-                    cursor: pointer;
-                    box-shadow: 0 10px 25px rgba(76, 175, 80, 0.4);
-               ">
-                🚀 Click to Launch Live Demo
-            </a>
-            
-            <p style="font-size: 0.9rem; opacity: 0.7; margin-top: 30px;">
-                The demo will open in this window
-            </p>
-        </div>
-    `;
-    
     scene4.classList.add('active');
     
-    // Optional: Auto-click the link after 5 seconds
     setTimeout(() => {
-        document.getElementById('directDemoLink').click();
-    }, 5000);
+        // Create link with noreferrer to hide referrer
+        const link = document.createElement('a');
+        link.href = 'https://smartaivoicebot.netlify.app/nci-demo3';
+        link.target = '_self';
+        link.rel = 'noreferrer noopener'; // THIS IS KEY - hides referrer
+        link.style.display = 'none';
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+    }, 2000);
 });
         // Debug: Check if event listeners are attached
         console.log("Event listeners attached");
