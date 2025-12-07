@@ -577,6 +577,36 @@ function showPostSorryListening() {
     console.log('✅ POST-SORRY: Function completed - no cleanup timer set');
 }
 
+function setupMobileAudioPermissions() {
+    console.log('🎤 Setting up mobile audio permissions bridge...');
+    
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    if (!isMobile) return;
+    
+    // Mobile browsers need user interaction before audio can play
+    // Create a global permission handler
+    window.mobileAudioReady = false;
+    
+    document.addEventListener('click', function() {
+        if (!window.mobileAudioReady) {
+            window.mobileAudioReady = true;
+            console.log('📱 Mobile audio permissions unlocked via click');
+            
+            // Warm up audio context silently
+            const silentAudio = new Audio();
+            silentAudio.src = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEAQB8AAEAfAAABAAgAZGF0YQ';
+            silentAudio.play().catch(() => {});
+        }
+    }, { once: true });
+    
+    document.addEventListener('touchstart', function() {
+        if (!window.mobileAudioReady) {
+            window.mobileAudioReady = true;
+            console.log('📱 Mobile audio permissions unlocked via touch');
+        }
+    }, { once: true });
+}
+
 // ===================================================
 // 🎤 MICROPHONE PERMISSION SYSTEM
 // ===================================================
@@ -1704,12 +1734,6 @@ class MobileWiseVoiceSystem {
         if (!VOICE_CONFIG.elevenlabs.enabled) {
             throw new Error("ElevenLabs not enabled");
         }
-
-        // Add this at the start:
-const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-if (isMobile && VOICE_CONFIG.debug) {
-    console.log('📱 Mobile device - using mobile-optimized flow');
-}
 
         window.isSpeaking = true;
         
