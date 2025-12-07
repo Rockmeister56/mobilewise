@@ -201,22 +201,23 @@
         });
 
        
-     // Step 3: When video ends, show redirect message
+// Step 3: When video ends, show redirect message
 video.addEventListener('ended', () => {
     console.log("Video ended - showing redirect message");
     scene3.classList.remove('active');
     scene4.classList.add('active');  // This will now work since display is not none
     
-    // Redirect after 2 seconds with cache busting
+    // Redirect after 2 seconds
     setTimeout(() => {
-        console.log("Performing hard redirect with cache clearing...");
+        console.log("Opening demo in new tab...");
         
-        // Add timestamp to URL to force fresh load
-        const timestamp = Date.now();
-        const url = `https://smartaivoicebot.netlify.app/nci-demo3?t=${timestamp}&ref=intro_video`;
+        // Open in new tab - this ALWAYS works like a fresh click
+        window.open('https://smartaivoicebot.netlify.app/nci-demo3', '_blank', 'noopener,noreferrer');
         
-        // Force hard redirect (replaces history)
-        window.location.replace(url);
+        // Optional: Close current tab after 1 second
+        setTimeout(() => {
+            // window.close(); // Uncomment if you want to close the intro tab
+        }, 1000);
         
     }, 2000);
 });
