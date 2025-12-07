@@ -201,45 +201,29 @@
         });
 
        
-      // Step 3: When video ends, show redirect message
-video.addEventListener('ended', () => {
-    console.log("Video ended - showing redirect message");
-    scene3.classList.remove('active');
-    scene4.classList.add('active');  // This will now work since display is not none
-    
-    // Redirect after 2 seconds using invisible link click
-    setTimeout(() => {
-        console.log("Redirecting to demo via invisible link click...");
-        
-        // Create an invisible link that mimics a real user click
-        const invisibleLink = document.createElement('a');
-        invisibleLink.href = 'https://smartaivoicebot.netlify.app/nci-demo3';
-        invisibleLink.target = '_self';
-        invisibleLink.style.display = 'none';
-        invisibleLink.rel = 'noopener noreferrer';
-        invisibleLink.referrerPolicy = 'no-referrer';
-        
-        // Add it to the page
-        document.body.appendChild(invisibleLink);
-        
-        // Simulate a click (triggers same behavior as real user click)
-        invisibleLink.click();
-        
-        // Clean up
-        setTimeout(() => {
-            document.body.removeChild(invisibleLink);
-        }, 100);
-        
-    }, 2000);
-});
+        // Step 3: When video ends, show redirect message
+        video.addEventListener('ended', () => {
+            console.log("Video ended - showing redirect message");
+            scene3.classList.remove('active');
+            scene4.classList.add('active');  // This will now work since display is not none
+            
+            // Redirect after 2 seconds
+            setTimeout(() => {
+                console.log("Redirecting to demo...");
+                window.location.href = 'https://smartaivoicebot.netlify.app/nci-demo3';
+            }, 2000);
+        });
 
-// Also make the entire scene2 clickable as a backup
-scene2.addEventListener('click', function(e) {
-    if (e.target === scene2) {
-        clickToPlay.click();
-    }
-});
+        // Also make the entire scene2 clickable as a backup
+        scene2.addEventListener('click', function(e) {
+            if (e.target === scene2) {
+                clickToPlay.click();
+            }
+        });
 
-// Debug: Check if event listeners are attached
-console.log("Event listeners attached");
-console.log("Scene4 display style:", window.getComputedStyle(scene4).display);
+        // Debug: Check if event listeners are attached
+        console.log("Event listeners attached");
+        console.log("Scene4 display style:", window.getComputedStyle(scene4).display);
+    </script>
+</body>
+</html>
