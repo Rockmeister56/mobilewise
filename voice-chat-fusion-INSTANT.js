@@ -607,6 +607,44 @@ function setupMobileAudioPermissions() {
     }, { once: true });
 }
 
+function setupMobileVoiceContinuity() {
+    console.log('🎤 Setting up mobile voice continuity...');
+    
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    if (!isMobile) return;
+    
+    // Track audio playback state for mobile
+    window.mobileAudioState = {
+        isPlaying: false,
+        lastPlayTime: 0,
+        requiresUserGesture: true
+    };
+    
+    // Intercept audio play attempts
+    const originalPlay = HTMLAudioElement.prototype.play;
+    HTMLAudioElement.prototype.play = function() {
+        if (isMobile) {
+            window.mobileAudioState.isPlaying = true;
+            window.mobileAudioState.lastPlayTime = Date.now();
+            console.log('📱 Audio playback detected - mobile state updated');
+        }
+        return originalPlay.apply(this, arguments);
+    };
+    
+    // Listen for audio ended events
+    document.addEventListener('ended', function(e) {
+        if (e.target.tagName === 'AUDIO' && isMobile) {
+            window.mobileAudioState.isPlaying = false;
+            console.log('📱 Audio ended - microphone may need gesture to restart');
+            
+            // Schedule mobile continuation prompt
+            setTimeout(() => {
+                showMobileContinuePrompt();
+            }, 800);
+        }
+    }, true);
+}
+
 function setupMobileElevenLabs() {
     console.log('🎤 Setting up mobile-friendly ElevenLabs...');
     
