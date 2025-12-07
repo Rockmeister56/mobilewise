@@ -3,50 +3,151 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mobile Wise AI - Demo Intro</title>
+    <title>Mobile Wise AI - Supercharged Demo</title>
     <style>
-        body {
+        * {
             margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
             background: #000;
+            color: white;
+            height: 100vh;
+            overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            font-family: Arial, sans-serif;
         }
-        video {
-            max-width: 100%;
-            max-height: 100vh;
-        }
-        .redirect-notice {
-            display: none;
-            color: white;
+
+        /* Container for all scenes */
+        .scene {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
             text-align: center;
             padding: 20px;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+
+        /* Active scene */
+        .scene.active {
+            opacity: 1;
+        }
+
+        /* Full-screen image styling */
+        .scene img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            max-height: 100vh;
+        }
+
+        /* Scene 2 - make the whole image clickable */
+        #scene2 {
+            cursor: pointer;
+        }
+
+        /* Video styling */
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: #000;
+        }
+
+        /* Redirect message */
+        .redirect-message {
+            display: none;
+            font-size: 1.5rem;
+            text-align: center;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Mobile-specific (9:16) */
+        @media (max-aspect-ratio: 9/16) {
+            .scene img, video {
+                object-fit: cover;
+            }
         }
     </style>
 </head>
 <body>
-    <video id="introVideo" controls autoplay>
-        <source src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1765075895775.mp4" type="video/mp4">
-        Your browser does not support the video tag.
-    </video>
-    <div class="redirect-notice" id="redirectMessage">
-        <h2>Redirecting to live demo...</h2>
-        <p>If you are not redirected automatically, <a href="https://smattaivoicebot.netlify.app/nci-demo3">click here</a>.</p>
+
+    <!-- Scene 1: Intro Question (5 seconds) -->
+    <div id="scene1" class="scene active">
+        <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1765086816409_scene.jpg" 
+             alt="Want 3x the Sales Leads by Supercharging your Website with AI?">
+    </div>
+
+    <!-- Scene 2: Click to Play CTA -->
+    <div id="scene2" class="scene">
+        <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1765087437779_scene2.jpg" 
+             alt="CLICK HERE FOR A TEST DRIVE - Super Charged AI">
+    </div>
+
+    <!-- Scene 3: Video Player -->
+    <div id="scene3" class="scene">
+        <video id="demoVideo" controls>
+            <source src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1765075895775.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+
+    <!-- Scene 4: Redirect Message -->
+    <div id="scene4" class="scene redirect-message">
+        <h2>🎬 Demo Complete!</h2>
+        <p>Redirecting to live AI assistant...</p>
     </div>
 
     <script>
-        const video = document.getElementById('introVideo');
-        const redirectMessage = document.getElementById('redirectMessage');
+        const scene1 = document.getElementById('scene1');
+        const scene2 = document.getElementById('scene2');
+        const scene3 = document.getElementById('scene3');
+        const scene4 = document.getElementById('scene4');
+        const video = document.getElementById('demoVideo');
 
-        video.addEventListener('ended', function() {
-            video.style.display = 'none';
-            redirectMessage.style.display = 'block';
-            setTimeout(() => {
-                window.location.href = 'https://smattaivoicebot.netlify.app/nci-demo3';
-            }, 2000); // 2-second delay before redirect
+        // Step 1: Show Scene 1 for 5 seconds
+        setTimeout(() => {
+            scene1.classList.remove('active');
+            scene2.classList.add('active');
+        }, 5000);
+
+        // Step 2: Clicking Scene 2 starts the video
+        scene2.addEventListener('click', () => {
+            scene2.classList.remove('active');
+            scene3.classList.add('active');
+            video.play();
         });
+
+        // Step 3: When video ends, show redirect message
+        video.addEventListener('ended', () => {
+            scene3.classList.remove('active');
+            scene4.classList.add('active');
+            scene4.style.display = 'block';
+
+            // Redirect after 2 seconds
+            setTimeout(() => {
+                window.location.href = 'https://smartaivoicebot.netlify.app/nci-demo3';
+            }, 2000);
+        });
+
+        // Optional: Tap/click anywhere on Scene2 to proceed
+        // (already handled via click event on #scene2)
     </script>
 </body>
 </html>
