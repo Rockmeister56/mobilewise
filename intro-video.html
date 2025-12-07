@@ -101,9 +101,8 @@
             color: #fff;
         }
 
-        /* Redirect message */
+        /* Redirect message - REMOVED display: none */
         .redirect-message {
-            display: none;
             font-size: 1.5rem;
             text-align: center;
             animation: pulse 1.5s infinite;
@@ -130,7 +129,7 @@
         <p>Loading AI Demo...</p>
     </div>
 
-    <!-- Scene 1: Intro Question (5 seconds) -->
+   <!-- Scene 1: Intro Question (5 seconds) -->
     <div id="scene1" class="scene active">
         <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1765090138536_scene.jpg" 
              alt="Want 3x the Sales Leads by Supercharging your Website with AI?">
@@ -200,7 +199,6 @@
             }, 3000);
         });
 
-       
         // Step 3: When video ends, show redirect message
         video.addEventListener('ended', () => {
             console.log("Video ended - showing redirect message");
