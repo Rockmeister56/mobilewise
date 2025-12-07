@@ -1696,156 +1696,71 @@ class MobileWiseVoiceSystem {
         }
     }
     
+    
     // ===========================================
     // ELEVENLABS VOICE PROVIDER
     // ===========================================
     async speakWithElevenLabs(text) {
-    if (!VOICE_CONFIG.elevenlabs.enabled) {
-        throw new Error("ElevenLabs not enabled");
-    }
-
-    window.isSpeaking = true;
-    
-    const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE_CONFIG.elevenlabs.voiceId}`, {
-        method: 'POST',
-        headers: {
-            'Accept': 'audio/mpeg',
-            'Content-Type': 'application/json',
-            'xi-api-key': VOICE_CONFIG.elevenlabs.apiKey
-        },
-        body: JSON.stringify({
-            text: text,
-            model_id: VOICE_CONFIG.elevenlabs.model,
-            voice_settings: {
-                stability: 0.5,
-                similarity_boost: 0.5,
-                style: 0.0,
-                use_speaker_boost: true
-            }
-        })
-    });
-    
-    if (!response.ok) {
-        throw new Error(`ElevenLabs API error: ${response.status}`);
-    }
-    
-    const audioBlob = await response.blob();
-    const audioUrl = URL.createObjectURL(audioBlob);
-    
-    return new Promise((resolve, reject) => {
-        const audio = new Audio();
-        audio.preload = 'auto';
-        
-        // 🆕 MOBILE FIX: Handle mobile playback restrictions
-        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-        
-        if (isMobile) {
-            console.log('📱 Mobile device detected - special audio handling');
-            // Mobile browsers require user gesture for audio playback
-            // We need to handle this differently
+        if (!VOICE_CONFIG.elevenlabs.enabled) {
+            throw new Error("ElevenLabs not enabled");
         }
+
+        // Add this at the start:
+const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+if (isMobile && VOICE_CONFIG.debug) {
+    console.log('📱 Mobile device - using mobile-optimized flow');
+}
+
+        window.isSpeaking = true;
         
-        // 🆕 BETTER: Use play() with error handling
-        audio.oncanplaythrough = () => {
-            audio.play().then(() => {
-                console.log('✅ Audio playing successfully');
-            }).catch(error => {
-                console.error('❌ Audio play failed:', error);
-                
-                // 🆕 MOBILE FIX: Handle autoplay restrictions
-                if (isMobile && error.name === 'NotAllowedError') {
-                    console.log('📱 Mobile autoplay blocked - showing play button');
-                    showMobilePlayButton(audio);
+        const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE_CONFIG.elevenlabs.voiceId}`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'audio/mpeg',
+                'Content-Type': 'application/json',
+                'xi-api-key': VOICE_CONFIG.elevenlabs.apiKey
+            },
+            body: JSON.stringify({
+                text: text,
+                model_id: VOICE_CONFIG.elevenlabs.model,
+                voice_settings: {
+                    stability: 0.5,
+                    similarity_boost: 0.5,
+                    style: 0.0,
+                    use_speaker_boost: true
                 }
-                
-                reject(error);
-            });
-        };
+            })
+        });
         
-        audio.onended = () => {
-            console.log('⏹️ Audio ended');
-            
-            // 🆕 MOBILE FIX: Handle microphone restart after audio
-            if (isMobile) {
-                console.log('📱 Mobile: Audio ended, preparing for mic restart');
-                this.handleMobileSpeechComplete();
-            } else {
-                this.handleSpeechComplete();
-            }
-            
-            URL.revokeObjectURL(audioUrl);
-            resolve();
-        };
-        
-        audio.onerror = (error) => {
-            console.error('🚫 ElevenLabs audio error:', error);
-            reject(error);
-        };
-        
-        audio.src = audioUrl;
-    });
-}
-
-// 🆕 ADD THIS MOBILE-SPECIFIC HANDLER
-handleMobileSpeechComplete() {
-    console.log('📱 Mobile speech complete handler');
-    
-    // Reset speaking state
-    voiceSystem.isSpeaking = false;
-    window.isSpeaking = false;
-    
-    // Mobile needs special handling for microphone restart
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-    if (isMobile) {
-        console.log('📱 Preparing mobile listening restart...');
-        
-        // Show visual cue since mobile blocks automatic mic restart
-        setTimeout(() => {
-            this.showMobileContinuePrompt();
-        }, 300);
-    }
-}
-
-// 🆕 ADD THIS MOBILE CONTINUE PROMPT
-showMobileContinuePrompt() {
-    const prompt = document.createElement('div');
-    prompt.style.cssText = `
-        position: fixed;
-        bottom: 100px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: #3b82f6;
-        color: white;
-        padding: 15px 30px;
-        border-radius: 30px;
-        font-size: 18px;
-        z-index: 99999;
-        cursor: pointer;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-        text-align: center;
-    `;
-    prompt.innerHTML = '🎤 Tap to Continue Speaking';
-    prompt.onclick = () => {
-        console.log('📱 Mobile continue tapped - restarting listening');
-        prompt.remove();
-        
-        // Restart listening after user gesture
-        setTimeout(() => {
-            if (typeof startListening === 'function') {
-                startListening();
-            }
-        }, 100);
-    };
-    
-    document.body.appendChild(prompt);
-    
-    // Auto-remove after 10 seconds
-    setTimeout(() => {
-        if (prompt.parentNode) {
-            prompt.remove();
+        if (!response.ok) {
+            throw new Error(`ElevenLabs API error: ${response.status}`);
         }
-    }, 10000);
-}
+        
+        const audioBlob = await response.blob();
+        const audioUrl = URL.createObjectURL(audioBlob);
+        
+        return new Promise((resolve, reject) => {
+            const audio = new Audio();
+            audio.preload = 'auto';
+            
+            audio.oncanplaythrough = () => {
+                audio.play();
+            };
+            
+            audio.onended = () => {
+                this.handleSpeechComplete();
+                URL.revokeObjectURL(audioUrl);
+                resolve();
+            };
+            
+            audio.onerror = (error) => {
+                console.error('🚫 ElevenLabs audio error:', error);
+                reject(error);
+            };
+            
+            audio.src = audioUrl;
+        });
+    }
     
     // ===========================================
     // BRITISH VOICE PROVIDER
