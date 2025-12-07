@@ -201,48 +201,36 @@
         });
 
        
-// Step 3: When video ends, show redirect message
+      // Step 3: When video ends, show redirect message
 video.addEventListener('ended', () => {
     console.log("Video ended - showing redirect message");
     scene3.classList.remove('active');
+    scene4.classList.add('active');  // This will now work since display is not none
     
-    // Replace scene4 content with clickable message
-    scene4.innerHTML = `
-        <div style="text-align: center; padding: 20px;">
-            <h2>🎬 Demo Complete!</h2>
-            <p style="font-size: 1.2rem; margin: 20px 0;">Ready to experience the live AI?</p>
-            
-            <a href="https://smartaivoicebot.netlify.app/nci-demo3" 
-               target="_self"
-               id="directDemoLink"
-               style="
-                    display: inline-block;
-                    background: linear-gradient(135deg, #4CAF50, #2E7D32);
-                    color: white;
-                    text-decoration: none;
-                    padding: 18px 45px;
-                    font-size: 1.3rem;
-                    font-weight: bold;
-                    border-radius: 50px;
-                    margin: 20px 0;
-                    cursor: pointer;
-                    box-shadow: 0 10px 25px rgba(76, 175, 80, 0.4);
-               ">
-                🚀 Click to Launch Live Demo
-            </a>
-            
-            <p style="font-size: 0.9rem; opacity: 0.7; margin-top: 30px;">
-                The demo will open in this window
-            </p>
-        </div>
-    `;
-    
-    scene4.classList.add('active');
-    
-    // Optional: Auto-click the link after 5 seconds
+    // Redirect after 2 seconds using invisible link click
     setTimeout(() => {
-        document.getElementById('directDemoLink').click();
-    }, 5000);
+        console.log("Redirecting to demo via invisible link click...");
+        
+        // Create an invisible link that mimics a real user click
+        const invisibleLink = document.createElement('a');
+        invisibleLink.href = 'https://smartaivoicebot.netlify.app/nci-demo3';
+        invisibleLink.target = '_self';
+        invisibleLink.style.display = 'none';
+        invisibleLink.rel = 'noopener noreferrer';
+        invisibleLink.referrerPolicy = 'no-referrer';
+        
+        // Add it to the page
+        document.body.appendChild(invisibleLink);
+        
+        // Simulate a click (triggers same behavior as real user click)
+        invisibleLink.click();
+        
+        // Clean up
+        setTimeout(() => {
+            document.body.removeChild(invisibleLink);
+        }, 100);
+        
+    }, 2000);
 });
 
 // Also make the entire scene2 clickable as a backup
