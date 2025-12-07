@@ -1212,15 +1212,6 @@ document.addEventListener('DOMContentLoaded', function() {
 // ===================================================
 async function activateMicrophone() {
     console.log('🎤 Activating microphone...');
-
-        // 🎯 DEBUG: Log current state
-    console.log('🔍 DEBUG - Voice System State:');
-    console.log('- window.speakText exists:', typeof window.speakText === 'function');
-    console.log('- voiceManager exists:', typeof voiceManager !== 'undefined');
-    console.log('- speakResponse exists:', typeof speakResponse === 'function');
-    console.log('- VOICE_CONFIG provider:', VOICE_CONFIG?.provider);
-    console.log('- ElevenLabs enabled:', VOICE_CONFIG?.elevenlabs?.enabled);
-    console.log('- isMobileDevice:', isMobileDevice())
     
     if (!window.isSecureContext) {
         addAIMessage("Microphone access requires HTTPS. Please ensure you're on a secure connection.");
@@ -1244,7 +1235,7 @@ async function activateMicrophone() {
             document.getElementById('quickButtonsContainer').style.display = 'block';
 
            setTimeout(() => {
-    // Initialize conversation system
+    // Initialize conversation system - BULLETPROOF VERSION
     if (typeof conversationState === 'undefined') {
         window.conversationState = 'getting_first_name';
     } else {
@@ -1252,7 +1243,7 @@ async function activateMicrophone() {
         window.waitingForName = true;
     }
     
-    // Initialize leadData
+        // Initialize leadData if it doesn't exist
     if (typeof leadData === 'undefined' || !leadData) {
         window.leadData = { firstName: '' };
     }
@@ -1260,47 +1251,10 @@ async function activateMicrophone() {
     const greeting = "Hi there! I'm Boteemia your personal AI Voice assistant, may I get your first name please?";
     addAIMessage(greeting);
     
-    // 🎯 CRITICAL FIX: Force ElevenLabs usage with proper timing
+    // Add delay before speaking to ensure audio system is ready
     setTimeout(() => {
-        console.log('🔊 Attempting to speak with ElevenLabs...');
-        
-        // Check if our voice system is available
-        if (typeof window.speakText === 'function') {
-            console.log('✅ Using window.speakText (should use ElevenLabs)');
-            window.speakText(greeting);
-        } 
-        // Fallback to voiceManager
-        else if (typeof voiceManager !== 'undefined' && voiceManager.speak) {
-            console.log('✅ Using voiceManager.speak');
-            voiceManager.speak(greeting);
-        }
-        // Fallback to speakResponse
-        else if (typeof speakResponse === 'function') {
-            console.log('⚠️ Using speakResponse (might fallback to TTS)');
-            speakResponse(greeting);
-        }
-        // Ultimate fallback
-        else {
-            console.log('🚨 Using direct browser TTS');
-            const utterance = new SpeechSynthesisUtterance(greeting);
-            speechSynthesis.speak(utterance);
-        }
-        
-        // 🎯 CRITICAL: Start listening AFTER voice speaks (especially for mobile)
-        setTimeout(() => {
-            console.log('🎤 Starting speech recognition after voice...');
-            if (typeof startListening === 'function') {
-                startListening();
-            } else if (window.speechRecognition && window.isListening) {
-                try {
-                    window.speechRecognition.start();
-                } catch (e) {
-                    console.log('⚠️ Could not start speech recognition:', e.message);
-                }
-            }
-        }, 1000); // Wait 1 second after voice starts
-        
-    }, 800); // Initial delay
+        speakResponse(greeting);
+    }, 800); // 800ms delay ensures everything is initialized
     
 }, 1400);
         }
