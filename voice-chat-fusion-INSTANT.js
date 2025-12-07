@@ -577,154 +577,22 @@ function showPostSorryListening() {
     console.log('✅ POST-SORRY: Function completed - no cleanup timer set');
 }
 
-function setupMobileAudioPermissions() {
-    console.log('🎤 Setting up mobile audio permissions bridge...');
+function initializeMobileVoiceSystem() {
+    console.log('🚀 Initializing mobile voice system...');
     
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     if (!isMobile) return;
     
-    // Mobile browsers need user interaction before audio can play
-    // Create a global permission handler
-    window.mobileAudioReady = false;
+    // Apply existing stability functions
+    applyMobileStability();
+    setupMobileTouchEvents();
     
-    document.addEventListener('click', function() {
-        if (!window.mobileAudioReady) {
-            window.mobileAudioReady = true;
-            console.log('📱 Mobile audio permissions unlocked via click');
-            
-            // Warm up audio context silently
-            const silentAudio = new Audio();
-            silentAudio.src = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEAQB8AAEAfAAABAAgAZGF0YQ';
-            silentAudio.play().catch(() => {});
-        }
-    }, { once: true });
+    // Add ElevenLabs-specific mobile functions
+    setupMobileAudioPermissions();
+    setupMobileVoiceContinuity();
+    setupMobileElevenLabs();
     
-    document.addEventListener('touchstart', function() {
-        if (!window.mobileAudioReady) {
-            window.mobileAudioReady = true;
-            console.log('📱 Mobile audio permissions unlocked via touch');
-        }
-    }, { once: true });
-}
-
-function setupMobileVoiceContinuity() {
-    console.log('🎤 Setting up mobile voice continuity...');
-    
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-    if (!isMobile) return;
-    
-    // Track audio playback state for mobile
-    window.mobileAudioState = {
-        isPlaying: false,
-        lastPlayTime: 0,
-        requiresUserGesture: true
-    };
-    
-    // Intercept audio play attempts
-    const originalPlay = HTMLAudioElement.prototype.play;
-    HTMLAudioElement.prototype.play = function() {
-        if (isMobile) {
-            window.mobileAudioState.isPlaying = true;
-            window.mobileAudioState.lastPlayTime = Date.now();
-            console.log('📱 Audio playback detected - mobile state updated');
-        }
-        return originalPlay.apply(this, arguments);
-    };
-    
-    // Listen for audio ended events
-    document.addEventListener('ended', function(e) {
-        if (e.target.tagName === 'AUDIO' && isMobile) {
-            window.mobileAudioState.isPlaying = false;
-            console.log('📱 Audio ended - microphone may need gesture to restart');
-            
-            // Schedule mobile continuation prompt
-            setTimeout(() => {
-                showMobileContinuePrompt();
-            }, 800);
-        }
-    }, true);
-}
-
-function setupMobileElevenLabs() {
-    console.log('🎤 Setting up mobile-friendly ElevenLabs...');
-    
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-    if (!isMobile) return;
-    
-    // Override or enhance the speakWithElevenLabs method
-    if (window.voiceSystemInstance && window.voiceSystemInstance.speakWithElevenLabs) {
-        const originalSpeak = window.voiceSystemInstance.speakWithElevenLabs;
-        
-        window.voiceSystemInstance.speakWithElevenLabs = async function(text, options = {}) {
-            console.log('📱 Mobile-friendly ElevenLabs speaking...');
-            
-            // Add mobile-specific options
-            const mobileOptions = {
-                ...options,
-                requireUserGesture: true,
-                showContinuePrompt: true,
-                promptDelay: 1000
-            };
-            
-            // Ensure mobile permissions are ready
-            if (!window.mobileAudioReady) {
-                console.log('📱 Waiting for mobile audio permissions...');
-                await waitForMobilePermission();
-            }
-            
-            // Call original with mobile options
-            const result = await originalSpeak.call(this, text, mobileOptions);
-            
-            // Schedule mobile continuation
-            if (mobileOptions.showContinuePrompt) {
-                setTimeout(() => {
-                    showMobileContinuePrompt();
-                }, mobileOptions.promptDelay);
-            }
-            
-            return result;
-        };
-    }
-}
-
-function waitForMobilePermission() {
-    return new Promise((resolve) => {
-        if (window.mobileAudioReady) {
-            resolve();
-            return;
-        }
-        
-        console.log('📱 Showing mobile permission prompt...');
-        const prompt = document.createElement('div');
-        prompt.style.cssText = `
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: #3b82f6;
-            color: white;
-            padding: 20px;
-            border-radius: 10px;
-            z-index: 99999;
-            text-align: center;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-        `;
-        prompt.innerHTML = `
-            <h3>🎤 Tap to Enable Voice</h3>
-            <p>Mobile browsers require a tap to start audio</p>
-            <button style="margin-top: 10px; padding: 10px 20px; background: white; color: #3b82f6; border: none; border-radius: 5px;">
-                Tap Here
-            </button>
-        `;
-        
-        prompt.querySelector('button').onclick = () => {
-            window.mobileAudioReady = true;
-            prompt.remove();
-            resolve();
-        };
-        
-        document.body.appendChild(prompt);
-    });
+    console.log('✅ Mobile voice system ready for ElevenLabs');
 }
 
 // ===================================================
