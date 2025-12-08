@@ -634,39 +634,52 @@
             });
         });
 
-        // ===== SIMPLE VIDEO TRANSITION TO DEMO =====
-        introVideo.addEventListener('ended', () => {
-            if (isTransitioning) return;
-            isTransitioning = true;
+  // ===== SMOOTH VIDEO FADE-OUT TRANSITION =====
+introVideo.addEventListener('ended', () => {
+    if (isTransitioning) return;
+    isTransitioning = true;
+    
+    console.log('🎬 Video ended, starting fade out');
+    
+    // 1. Fade out the video itself over 1 second
+    introVideo.style.transition = 'opacity 1s ease';
+    introVideo.style.opacity = '0';
+    
+    // 2. Also fade out the entire video container
+    videoIntro.style.transition = 'opacity 1s ease';
+    videoIntro.style.opacity = '0';
+    
+    // 3. After video fades out, fade to black
+    setTimeout(() => {
+        // Show black overlay (fade in)
+        fadeOverlay.style.transition = 'opacity 0.8s ease';
+        fadeOverlay.style.opacity = '1';
+        
+        // 4. After black screen, switch to demo
+        setTimeout(() => {
+            // Hide video intro completely
+            videoIntro.style.display = 'none';
             
-            console.log('🎬 Video ended, starting transition');
+            // Show NCI demo
+            nciDemo.style.display = 'block';
             
-            // 1. Fade to black (using overlay)
-            fadeOverlay.style.opacity = '1';
-            
-            // 2. After black screen, switch to demo
+            // Fade in from black
             setTimeout(() => {
-                // Hide video intro
-                videoIntro.style.display = 'none';
+                fadeOverlay.style.opacity = '0';
+                nciDemo.classList.add('visible');
                 
-                // Show NCI demo
-                nciDemo.style.display = 'block';
-                
-                // Fade in from black
+                // Start NCI demo after transition
                 setTimeout(() => {
-                    fadeOverlay.style.opacity = '0';
-                    nciDemo.classList.add('visible');
-                    
-                    // Start NCI demo after transition
-                    setTimeout(() => {
-                        startNCIDemo();
-                        isTransitioning = false;
-                    }, 300);
-                    
+                    startNCIDemo();
+                    isTransitioning = false;
                 }, 300);
                 
-            }, 800); // Hold black screen briefly
-        });
+            }, 300);
+            
+        }, 800); // Hold black screen briefly
+        
+    }, 1000); // Wait for video fade to complete
+});
 
         // ===== AUDIO FADE FUNCTION =====
         function fadeOutAudio(audioElement, duration) {
