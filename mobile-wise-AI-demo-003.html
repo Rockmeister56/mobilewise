@@ -649,34 +649,44 @@ introVideo.addEventListener('ended', () => {
     videoIntro.style.transition = 'opacity 1s ease';
     videoIntro.style.opacity = '0';
     
-    // 3. After video fades out, fade to black
+    // ===== SMOOTH VIDEO FADE-OUT TRANSITION (FIXED) =====
+introVideo.addEventListener('ended', () => {
+    if (isTransitioning) return;
+    isTransitioning = true;
+    
+    console.log('🎬 Video ended, starting fade out');
+    
+    // 1. TEMPORARILY add fade transition to video
+    introVideo.style.transition = 'opacity 1s ease';
+    introVideo.style.opacity = '0';
+    
+    // 2. Also fade out the video container
+    videoIntro.style.transition = 'opacity 1s ease';
+    videoIntro.style.opacity = '0';
+    
+    // 3. After fade completes, remove the transition style
     setTimeout(() => {
-        // Show black overlay (fade in)
+        // Remove the inline transition so it doesn't affect other uses
+        introVideo.style.transition = '';
+        introVideo.style.opacity = ''; // Reset opacity
+        
+        // Show black overlay
         fadeOverlay.style.transition = 'opacity 0.8s ease';
         fadeOverlay.style.opacity = '1';
         
-        // 4. After black screen, switch to demo
+        // 4. Switch to demo
         setTimeout(() => {
-            // Hide video intro completely
             videoIntro.style.display = 'none';
-            
-            // Show NCI demo
             nciDemo.style.display = 'block';
+            nciDemo.classList.add('visible');
             
-            // Fade in from black
+            // Start demo
             setTimeout(() => {
-                fadeOverlay.style.opacity = '0';
-                nciDemo.classList.add('visible');
-                
-                // Start NCI demo after transition
-                setTimeout(() => {
-                    startNCIDemo();
-                    isTransitioning = false;
-                }, 300);
-                
+                startNCIDemo();
+                isTransitioning = false;
             }, 300);
             
-        }, 100); // Hold black screen briefly
+        }, 800);
         
     }, 1000); // Wait for video fade to complete
 });
