@@ -237,7 +237,7 @@
             
             // Check if user just finished a chat session
             const justFinishedChat = sessionStorage.getItem('justFinishedChat');
-            const comingFromChat = document.referrer.includes('smartaivoicebot');
+           const comingFromChat = document.referrer.includes('smartaivoicebot/voice-chat');
             
             // Show button UNLESS they just finished a chat session
             if (!justFinishedChat && !comingFromChat) {
