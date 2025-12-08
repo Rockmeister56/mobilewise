@@ -654,44 +654,63 @@
             }, fadeInterval);
         }
 
-        // ===== VIDEO END HANDLER =====
-        introVideo.addEventListener('ended', () => {
-            if (isTransitioning) return;
-            isTransitioning = true;
+        // ===== VIDEO END HANDLER WITH TRANSITION =====
+introVideo.addEventListener('ended', () => {
+    if (isTransitioning) return;
+    isTransitioning = true;
+    
+    console.log('🎬 Video ended, starting morph transition');
+    
+    // Step 1: Freeze video on last frame and create screenshot
+    const videoCanvas = document.createElement('canvas');
+    videoCanvas.width = introVideo.videoWidth;
+    videoCanvas.height = introVideo.videoHeight;
+    const ctx = videoCanvas.getContext('2d');
+    ctx.drawImage(introVideo, 0, 0);
+    
+    // Set morph overlay to video screenshot
+    morphOverlay.style.backgroundImage = `url(${videoCanvas.toDataURL()})`;
+    morphOverlay.style.backgroundSize = 'cover';
+    morphOverlay.style.backgroundPosition = 'center';
+    
+    // Step 2: Start morph animation
+    setTimeout(() => {
+        morphOverlay.classList.add('morphing');
+        
+        // Step 3: Continue morph to fade
+        setTimeout(() => {
+            morphOverlay.classList.add('fading');
             
-            console.log('🎬 Video ended, starting morph transition');
-            
-            // Step 1: Prepare morph video (last 2 seconds)
-            morphVideo.currentTime = Math.max(0, introVideo.duration - 2);
-            morphVideo.style.width = '100%';
-            morphVideo.style.height = '100%';
-            morphVideo.style.objectFit = 'cover';
-            
-            // Step 2: Start morph animation
+            // Step 4: Show NCI demo with fade in
             setTimeout(() => {
-                morphOverlay.classList.add('morphing');
+                morphOverlay.style.display = 'none';
+                videoIntro.style.display = 'none';
                 
-                // Step 3: Continue morph to fade
-                setTimeout(() => {
-                    morphOverlay.classList.add('fading');
-                    
-                    // Step 4: Show NCI demo
-                    setTimeout(() => {
-                        morphOverlay.style.display = 'none';
-                        videoIntro.style.display = 'none';
+                // Fade in NCI demo background
+                nciDemo.style.opacity = '0';
+                nciDemo.style.display = 'block';
+                
+                let opacity = 0;
+                const fadeIn = setInterval(() => {
+                    opacity += 0.05;
+                    nciDemo.style.opacity = opacity;
+                    if (opacity >= 1) {
+                        clearInterval(fadeIn);
                         nciDemo.classList.add('visible');
                         
                         // Step 5: Start NCI demo
                         setTimeout(() => {
                             startNCIDemo();
-                        }, 500);
-                        
-                    }, 800); // Fade duration
-                    
-                }, 800); // Morph to small size duration
+                        }, 300);
+                    }
+                }, 30);
                 
-            }, 300); // Initial delay
-        });
+            }, 800); // Fade duration
+            
+        }, 1200); // Morph to small size duration
+        
+    }, 300); // Initial delay
+});
 
         // ===== NCI DEMO FUNCTIONALITY =====
         function startNCIDemo() {

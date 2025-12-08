@@ -2820,7 +2820,56 @@ function handleGeneralQuestion(message, userName) {
 // =============================================================================
 
 async function getAIResponse(userMessage, conversationHistory = []) {
-    console.log('🎯 GOLD STANDARD getAIResponse called:', userMessage);   
+    console.log('🎯 GOLD STANDARD getAIResponse called:', userMessage);
+    
+    // 🎯 CRITICAL: ELEVENLABS BRIDGE FIX
+    // Ensure we're using the correct voice system
+    if (!window._elevenLabsBridgeCreated) {
+        console.log('🔗 Creating ElevenLabs bridge...');
+        
+        // Store original function if it exists
+        const originalSpeakWithElevenLabs = window.speakWithElevenLabs;
+        
+        // Create unified bridge that uses VOICE_CONFIG system
+        window.speakWithElevenLabs = async function(text, shouldPlay = true) {
+            console.log('🎯 Bridge: speakWithElevenLabs called');
+            
+            // Check if VOICE_CONFIG system is available
+            if (window.mobileWiseVoice && window.mobileWiseVoice.speak) {
+                console.log('✅ Using mobileWiseVoice.speak()');
+                return window.mobileWiseVoice.speak(text);
+            }
+            
+            // Check if voiceManager exists
+            else if (window.voiceManager && window.voiceManager.speak) {
+                console.log('✅ Using voiceManager.speak()');
+                return window.voiceManager.speak(text);
+            }
+            
+            // Fallback to original function
+            else if (originalSpeakWithElevenLabs) {
+                console.log('⚠️ Using original speakWithElevenLabs');
+                return originalSpeakWithElevenLabs(text, shouldPlay);
+            }
+            
+            // Ultimate fallback to window.speakText
+            else if (window.speakText) {
+                console.log('🔄 Using window.speakText fallback');
+                return window.speakText(text);
+            }
+            
+            // Last resort: browser TTS
+            else {
+                console.error('🚨 No voice system found, using browser TTS');
+                const utterance = new SpeechSynthesisUtterance(text);
+                speechSynthesis.speak(utterance);
+                return Promise.resolve();
+            }
+        };
+        
+        window._elevenLabsBridgeCreated = true;
+        console.log('✅ ElevenLabs bridge created');
+    }
 
     // 🎯 STEP 0: CHECK FOR CONCERNS FIRST - NEW INTEGRATION
 if (detectConcernOrObjection(userMessage)) {
