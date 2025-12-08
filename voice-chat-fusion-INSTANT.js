@@ -1697,64 +1697,104 @@ class MobileWiseVoiceSystem {
     }
     
     
-    // ===========================================
-    // ELEVENLABS VOICE PROVIDER
-    // ===========================================
-    async speakWithElevenLabs(text) {
-        if (!VOICE_CONFIG.elevenlabs.enabled) {
-            throw new Error("ElevenLabs not enabled");
-        }
+// ===========================================
+// ELEVENLABS VOICE PROVIDER - FIXED WITH MOBILE SUPPORT
+// ===========================================
+async speakWithElevenLabs(text, shouldPlay = true) {  // 🎯 ADD SECOND PARAMETER
+           // Quick silent play to unlock audio
+        const silentUnlock = new Audio();
+        silentUnlock.src = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEAQB8AAEAfAAABAAgAZGF0YQ';
+        silentUnlock.volume = 0;
+        silentUnlock.play().catch(() => {});
+    
+    // 🎯 Handle the 'false' flag
+    if (shouldPlay === false) {
+        console.log('🔇 ElevenLabs: Playback suppressed (shouldPlay=false)');
+        return Promise.resolve(); // Return resolved promise
+    }
+    
+    if (!VOICE_CONFIG.elevenlabs.enabled) {
+        throw new Error("ElevenLabs not enabled");
+    }
 
-        window.isSpeaking = true;
+    window.isSpeaking = true;
+    
+    const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE_CONFIG.elevenlabs.voiceId}`, {
+        method: 'POST',
+        headers: {
+            'Accept': 'audio/mpeg',
+            'Content-Type': 'application/json',
+            'xi-api-key': VOICE_CONFIG.elevenlabs.apiKey
+        },
+        body: JSON.stringify({
+            text: text,
+            model_id: VOICE_CONFIG.elevenlabs.model,
+            voice_settings: {
+                stability: 0.5,
+                similarity_boost: 0.5,
+                style: 0.0,
+                use_speaker_boost: true
+            }
+        })
+    });
+    
+    if (!response.ok) {
+        throw new Error(`ElevenLabs API error: ${response.status}`);
+    }
+    
+    const audioBlob = await response.blob();
+    const audioUrl = URL.createObjectURL(audioBlob);
+    
+    return new Promise((resolve, reject) => {
+        const audio = new Audio();
+        audio.preload = 'auto';
         
-        const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE_CONFIG.elevenlabs.voiceId}`, {
-            method: 'POST',
-            headers: {
-                'Accept': 'audio/mpeg',
-                'Content-Type': 'application/json',
-                'xi-api-key': VOICE_CONFIG.elevenlabs.apiKey
-            },
-            body: JSON.stringify({
-                text: text,
-                model_id: VOICE_CONFIG.elevenlabs.model,
-                voice_settings: {
-                    stability: 0.5,
-                    similarity_boost: 0.5,
-                    style: 0.0,
-                    use_speaker_boost: true
-                }
-            })
-        });
-        
-        if (!response.ok) {
-            throw new Error(`ElevenLabs API error: ${response.status}`);
-        }
-        
-        const audioBlob = await response.blob();
-        const audioUrl = URL.createObjectURL(audioBlob);
-        
-        return new Promise((resolve, reject) => {
-            const audio = new Audio();
-            audio.preload = 'auto';
+        // 🎯 MOBILE OPTIMIZATION
+        if (isMobileDevice()) {
+            audio.setAttribute('playsinline', '');
+            audio.setAttribute('webkit-playsinline', '');
             
+            // Mobile play strategy
+            setTimeout(() => {
+                audio.play().catch(e => {
+                    console.log('📱 Mobile play attempt failed:', e.message);
+                    // Try muted play to unlock
+                    audio.muted = true;
+                    audio.play().then(() => {
+                        setTimeout(() => {
+                            audio.muted = false;
+                            audio.play().then(() => {
+                                console.log('✅ Mobile: Audio unlocked and playing');
+                            });
+                        }, 100);
+                    }).catch(e2 => {
+                        console.error('📱 Even muted play failed:', e2);
+                        reject(e2);
+                    });
+                });
+            }, 100);
+            
+        } else {
+            // Desktop: Normal flow
             audio.oncanplaythrough = () => {
                 audio.play();
             };
-            
-            audio.onended = () => {
-                this.handleSpeechComplete();
-                URL.revokeObjectURL(audioUrl);
-                resolve();
-            };
-            
-            audio.onerror = (error) => {
-                console.error('🚫 ElevenLabs audio error:', error);
-                reject(error);
-            };
-            
-            audio.src = audioUrl;
-        });
-    }
+        }
+        
+        audio.onended = () => {
+            this.handleSpeechComplete();
+            URL.revokeObjectURL(audioUrl);
+            resolve();
+        };
+        
+        audio.onerror = (error) => {
+            console.error('🚫 ElevenLabs audio error:', error);
+            reject(error);
+        };
+        
+        audio.src = audioUrl;
+    });
+}
     
     // ===========================================
     // BRITISH VOICE PROVIDER
@@ -2869,7 +2909,11 @@ if (strongIntent) {
     if (window.salesAI.state === 'pre_close') {
         console.log('🎯 Processing pre-close response...');
         const preCloseResponse = handlePreCloseResponse(userMessage, window.salesAI.userData.intent);
-         // speakWithElevenLabs(preCloseResponse, false);
+           speakWithElevenLabs(preCloseResponse);  // Let it speak!
+// OR if you want to be extra safe:
+if (typeof speakWithElevenLabs === 'function') {
+    speakWithElevenLabs(preCloseResponse);
+}
         
         if (preCloseResponse.includes("Perfect! Let me get you connected")) {
     // User said YES - trigger SILENT Communication Relay Center
