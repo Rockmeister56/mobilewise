@@ -700,27 +700,162 @@ function checkSpeechSupport() {
     return true;
 }
 
+// ===================================================
+// 📱 MOBILE AUDIO WAKE-UP FUNCTION
+// ===================================================
+function mobileAudioWakeUp() {
+    if (!isMobileDevice()) return;
+    
+    console.log('📱 Mobile audio wake-up triggered');
+    
+    // Play a silent audio clip to wake up audio context
+    const wakeUpAudio = new Audio();
+    wakeUpAudio.src = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEAQB8AAEAfAAABAAgAZGF0YQ';
+    wakeUpAudio.volume = 0;
+    
+    wakeUpAudio.play().then(() => {
+        console.log('✅ Mobile audio context awakened');
+        wakeUpAudio.pause();
+    }).catch(error => {
+        console.log('⚠️ Mobile audio wake-up failed:', error);
+    });
+    
+    // Also wake up speech synthesis
+    if (window.speechSynthesis) {
+        const wakeUpUtterance = new SpeechSynthesisUtterance('');
+        wakeUpUtterance.volume = 0;
+        window.speechSynthesis.speak(wakeUpUtterance);
+        setTimeout(() => window.speechSynthesis.cancel(), 10);
+    }
+}
+
+// ===================================================
+// 🎤 MOBILE-OPTIMIZED SPEECH RECOGNITION
+// ===================================================
 function initializeSpeechRecognition() {
-    if (!checkSpeechSupport()) return false;
-
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    recognition = new SpeechRecognition();
+    console.log('🎤 Initializing speech recognition (mobile optimized)...');
     
-    recognition.continuous = false;
-    recognition.interimResults = true;
-    recognition.lang = 'en-US';
-
-    // 🚫 CRITICAL: DISABLE BROWSER BEEP
-    recognition.onsoundstart = null;
-    recognition.onaudiostart = null;
-    recognition.onstart = null;
-
-    console.log('✅ Speech recognition initialized');
+    // Check if already initialized
+    if (window.speechRecognition) {
+        console.log('✅ Speech recognition already initialized');
+        return;
+    }
     
-    // ✅ CALL BEFORE RETURN
-    suppressBrowserBeeps();
-    
-    return true;
+    try {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            console.error('❌ Speech recognition not supported');
+            addAIMessage("Speech recognition is not supported in your browser.");
+            return;
+        }
+        
+        window.speechRecognition = new SpeechRecognition();
+        const recognition = window.speechRecognition;
+        
+        // 🎯 MOBILE-SPECIFIC SETTINGS (different from desktop)
+        if (isMobileDevice()) {
+            console.log('📱 Applying mobile-optimized speech settings');
+            recognition.continuous = false;  // ⚠️ FALSE on mobile to prevent freezing
+            recognition.interimResults = false; // ⚠️ FALSE on mobile for better accuracy
+            recognition.maxAlternatives = 1;
+            recognition.lang = 'en-US';
+        } else {
+            // Desktop settings
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.maxAlternatives = 3;
+            recognition.lang = 'en-US';
+        }
+        
+        // 🎯 COMMON SETTINGS
+        recognition.onresult = (event) => {
+            console.log('🎤 Speech recognition result received');
+            
+            const transcript = event.results[event.results.length - 1][0].transcript;
+            const confidence = event.results[event.results.length - 1][0].confidence;
+            
+            console.log(`🎤 Heard: "${transcript}" (Confidence: ${confidence})`);
+            
+            // Process the transcript
+            processVoiceInput(transcript, confidence);
+            
+            // 🎯 CRITICAL FOR MOBILE: Restart listening AFTER processing
+            if (isMobileDevice() && window.isListening) {
+                setTimeout(() => {
+                    try {
+                        if (window.speechRecognition && window.isListening) {
+                            console.log('🔄 Mobile: Restarting speech recognition');
+                            window.speechRecognition.start();
+                        }
+                    } catch (error) {
+                        console.log('⚠️ Mobile restart error:', error.message);
+                    }
+                }, 500); // Small delay for mobile stability
+            }
+        };
+        
+        recognition.onerror = (event) => {
+            console.error('❌ Speech recognition error:', event.error);
+            
+            // 🎯 MOBILE-SPECIFIC ERROR HANDLING
+            if (isMobileDevice()) {
+                if (event.error === 'no-speech') {
+                    console.log('📱 Mobile: No speech detected, restarting...');
+                    setTimeout(() => {
+                        if (window.isListening) {
+                            try {
+                                window.speechRecognition.start();
+                            } catch (e) {
+                                console.log('⚠️ Mobile restart after no-speech error:', e.message);
+                            }
+                        }
+                    }, 1000);
+                } else if (event.error === 'network') {
+                    console.log('📱 Mobile: Network error, trying again...');
+                    setTimeout(() => {
+                        if (window.isListening) {
+                            startListening();
+                        }
+                    }, 2000);
+                }
+            }
+        };
+        
+        recognition.onend = () => {
+            console.log('🔚 Speech recognition ended');
+            
+            // 🎯 CRITICAL: Only auto-restart on mobile if we're still listening
+            if (isMobileDevice() && window.isListening && !window.isSpeaking) {
+                console.log('📱 Mobile: Auto-restarting recognition...');
+                setTimeout(() => {
+                    try {
+                        if (window.speechRecognition && window.isListening) {
+                            window.speechRecognition.start();
+                        }
+                    } catch (error) {
+                        console.log('⚠️ Mobile auto-restart error:', error.message);
+                    }
+                }, 100);
+            }
+        };
+        
+        // 🎯 SPECIAL MOBILE EVENT FOR BETTER RESPONSIVENESS
+        if (isMobileDevice()) {
+            recognition.onaudiostart = () => {
+                console.log('📱 Mobile: Audio input detected');
+            };
+            
+            recognition.onsoundstart = () => {
+                console.log('📱 Mobile: Sound detected');
+            };
+        }
+        
+        console.log('✅ Speech recognition initialized for', isMobileDevice() ? 'MOBILE' : 'DESKTOP');
+        
+    } catch (error) {
+        console.error('❌ Failed to initialize speech recognition:', error);
+        addAIMessage("Failed to initialize speech recognition. Please try again.");
+    }
 }
 
 function getApologyResponse() {
@@ -2820,56 +2955,7 @@ function handleGeneralQuestion(message, userName) {
 // =============================================================================
 
 async function getAIResponse(userMessage, conversationHistory = []) {
-    console.log('🎯 GOLD STANDARD getAIResponse called:', userMessage);
-    
-    // 🎯 CRITICAL: ELEVENLABS BRIDGE FIX
-    // Ensure we're using the correct voice system
-    if (!window._elevenLabsBridgeCreated) {
-        console.log('🔗 Creating ElevenLabs bridge...');
-        
-        // Store original function if it exists
-        const originalSpeakWithElevenLabs = window.speakWithElevenLabs;
-        
-        // Create unified bridge that uses VOICE_CONFIG system
-        window.speakWithElevenLabs = async function(text, shouldPlay = true) {
-            console.log('🎯 Bridge: speakWithElevenLabs called');
-            
-            // Check if VOICE_CONFIG system is available
-            if (window.mobileWiseVoice && window.mobileWiseVoice.speak) {
-                console.log('✅ Using mobileWiseVoice.speak()');
-                return window.mobileWiseVoice.speak(text);
-            }
-            
-            // Check if voiceManager exists
-            else if (window.voiceManager && window.voiceManager.speak) {
-                console.log('✅ Using voiceManager.speak()');
-                return window.voiceManager.speak(text);
-            }
-            
-            // Fallback to original function
-            else if (originalSpeakWithElevenLabs) {
-                console.log('⚠️ Using original speakWithElevenLabs');
-                return originalSpeakWithElevenLabs(text, shouldPlay);
-            }
-            
-            // Ultimate fallback to window.speakText
-            else if (window.speakText) {
-                console.log('🔄 Using window.speakText fallback');
-                return window.speakText(text);
-            }
-            
-            // Last resort: browser TTS
-            else {
-                console.error('🚨 No voice system found, using browser TTS');
-                const utterance = new SpeechSynthesisUtterance(text);
-                speechSynthesis.speak(utterance);
-                return Promise.resolve();
-            }
-        };
-        
-        window._elevenLabsBridgeCreated = true;
-        console.log('✅ ElevenLabs bridge created');
-    }
+    console.log('🎯 GOLD STANDARD getAIResponse called:', userMessage);   
 
     // 🎯 STEP 0: CHECK FOR CONCERNS FIRST - NEW INTEGRATION
 if (detectConcernOrObjection(userMessage)) {
