@@ -398,6 +398,17 @@
             0%, 50% { opacity: 1; }
             51%, 100% { opacity: 0; }
         }
+
+        /* Add this to your CSS */
+.video-fading {
+    opacity: 0 !important;
+    transition: opacity 1s ease !important;
+}
+
+.container-fading {
+    opacity: 0 !important;
+    transition: opacity 1s ease !important;
+}
     </style>
 </head>
 <body>
@@ -634,47 +645,27 @@
             });
         });
 
- // ===== SMOOTH VIDEO FADE-OUT TRANSITION =====
-introVideo.addEventListener('ended', () => {
+       introVideo.addEventListener('ended', () => {
     if (isTransitioning) return;
     isTransitioning = true;
     
-    console.log('🎬 Video ended, starting fade out');
+    console.log('🎬 Video ended, starting CSS fade');
     
-    // 1. Fade out the video itself over 1 second
-    introVideo.style.transition = 'opacity 1s ease';
-    introVideo.style.opacity = '0';
+    // 1. Use CSS classes instead of inline styles
+    introVideo.classList.add('video-fading');
+    videoIntro.classList.add('container-fading');
     
-    // 2. Also fade out the entire video container
-    videoIntro.style.transition = 'opacity 1s ease';
-    videoIntro.style.opacity = '0';
-    
-    // ===== SMOOTH VIDEO FADE-OUT TRANSITION (FIXED) =====
-introVideo.addEventListener('ended', () => {
-    if (isTransitioning) return;
-    isTransitioning = true;
-    
-    console.log('🎬 Video ended, starting fade out');
-    
-    // 1. TEMPORARILY add fade transition to video
-    introVideo.style.transition = 'opacity 1s ease';
-    introVideo.style.opacity = '0';
-    
-    // 2. Also fade out the video container
-    videoIntro.style.transition = 'opacity 1s ease';
-    videoIntro.style.opacity = '0';
-    
-    // 3. After fade completes, remove the transition style
+    // 2. After fade, proceed
     setTimeout(() => {
-        // Remove the inline transition so it doesn't affect other uses
-        introVideo.style.transition = '';
-        introVideo.style.opacity = ''; // Reset opacity
+        // Remove classes (clean up)
+        introVideo.classList.remove('video-fading');
+        videoIntro.classList.remove('container-fading');
         
         // Show black overlay
         fadeOverlay.style.transition = 'opacity 0.8s ease';
         fadeOverlay.style.opacity = '1';
         
-        // 4. Switch to demo
+        // 3. Switch to demo
         setTimeout(() => {
             videoIntro.style.display = 'none';
             nciDemo.style.display = 'block';
@@ -688,7 +679,7 @@ introVideo.addEventListener('ended', () => {
             
         }, 800);
         
-    }, 1000); // Wait for video fade to complete
+    }, 1000);
 });
 
         // ===== AUDIO FADE FUNCTION =====
