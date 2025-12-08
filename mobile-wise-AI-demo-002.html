@@ -36,7 +36,7 @@
             flex-direction: column;
             text-align: center;
             padding: 20px;
-            transition: opacity 0.8s ease;
+            transition: opacity 0.3s ease; /* Faster fade */
         }
 
         .audio-title {
@@ -564,32 +564,35 @@
             }, 1500);
         });
 
-        // ===== AUDIO ACTIVATION =====
-        enableAudioBtn.addEventListener('click', () => {
-            console.log('🔊 Audio enabled by user');
-            audioEnabled = true;
+        // In your audio button click handler, replace with this:
+enableAudioBtn.addEventListener('click', () => {
+    console.log('🔊 Audio enabled by user');
+    audioEnabled = true;
+    
+    // Immediately show Scene 1 (don't wait for spinner)
+    audioActivation.style.opacity = '0';
+    setTimeout(() => {
+        audioActivation.style.display = 'none';
+        
+        // Show Scene 1 immediately
+        scene1.classList.add('active');
+        console.log('✅ Scene 1 shown immediately');
+        
+        // Play audio in background
+        introAudio.play().then(() => {
+            console.log('✅ Intro audio playing');
             
-            // Fade out audio activation
-            audioActivation.style.opacity = '0';
-            setTimeout(() => {
-                audioActivation.style.display = 'none';
-                
-                // Play intro audio
-                introAudio.play().then(() => {
-                    console.log('✅ Intro audio playing');
-                    
-                    // Start video experience after audio begins
-                    setTimeout(startExperience, 500);
-                    
-                }).catch(error => {
-                    console.warn('⚠️ Audio play failed:', error);
-                    // Continue without audio
-                    startExperience();
-                });
-                
-            }, 500);
+            // Start the experience timing AFTER audio begins
+            setTimeout(startExperience, 500);
+            
+        }).catch(error => {
+            console.warn('⚠️ Audio play failed:', error);
+            // Start experience anyway
+            startExperience();
         });
-
+        
+    }, 300);
+});
         skipAudioBtn.addEventListener('click', () => {
             console.log('🔇 Audio skipped by user');
             audioEnabled = false;
@@ -654,44 +657,45 @@
             }, fadeInterval);
         }
 
-        // ===== VIDEO END HANDLER =====
-        introVideo.addEventListener('ended', () => {
-            if (isTransitioning) return;
-            isTransitioning = true;
+        // ===== SIMPLE CROSSFADE TRANSITION =====
+introVideo.addEventListener('ended', () => {
+    if (isTransitioning) return;
+    isTransitioning = true;
+    
+    console.log('🎬 Video ended, starting crossfade');
+    
+    // Step 1: Fade out video intro (1 second)
+    videoIntro.style.opacity = '0';
+    videoIntro.style.transition = 'opacity 1s ease';
+    
+    // Step 2: After video fades out, show NCI demo
+    setTimeout(() => {
+        videoIntro.style.display = 'none';
+        
+        // Show NCI demo with fade in
+        nciDemo.style.opacity = '0';
+        nciDemo.style.display = 'block';
+        
+        // Fade in NCI demo (1 second)
+        setTimeout(() => {
+            nciDemo.style.transition = 'opacity 1s ease';
+            nciDemo.style.opacity = '1';
             
-            console.log('🎬 Video ended, starting morph transition');
-            
-            // Step 1: Prepare morph video (last 2 seconds)
-            morphVideo.currentTime = Math.max(0, introVideo.duration - 2);
-            morphVideo.style.width = '100%';
-            morphVideo.style.height = '100%';
-            morphVideo.style.objectFit = 'cover';
-            
-            // Step 2: Start morph animation
+            // Mark as visible
             setTimeout(() => {
-                morphOverlay.classList.add('morphing');
+                nciDemo.classList.add('visible');
                 
-                // Step 3: Continue morph to fade
+                // Start NCI demo
                 setTimeout(() => {
-                    morphOverlay.classList.add('fading');
-                    
-                    // Step 4: Show NCI demo
-                    setTimeout(() => {
-                        morphOverlay.style.display = 'none';
-                        videoIntro.style.display = 'none';
-                        nciDemo.classList.add('visible');
-                        
-                        // Step 5: Start NCI demo
-                        setTimeout(() => {
-                            startNCIDemo();
-                        }, 500);
-                        
-                    }, 800); // Fade duration
-                    
-                }, 800); // Morph to small size duration
+                    startNCIDemo();
+                }, 500);
                 
-            }, 300); // Initial delay
-        });
+            }, 1000); // After fade in completes
+            
+        }, 100); // Small delay before starting fade in
+        
+    }, 1000); // Wait for video fade out
+});
 
         // ===== NCI DEMO FUNCTIONALITY =====
         function startNCIDemo() {
