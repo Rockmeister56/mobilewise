@@ -3,6 +3,13 @@
 // Smart Button + Lead Capture + EmailJS + Banner System
 // ===================================================
 
+// Ensure ElevenLabs is being used
+console.log('🔊 Voice System Check:');
+console.log('- speakText available:', typeof window.speakText === 'function');
+console.log('- speakResponse available:', typeof speakResponse === 'function');
+console.log('- VOICE_CONFIG provider:', window.VOICE_CONFIG?.provider);
+console.log('- ElevenLabs enabled:', window.VOICE_CONFIG?.elevenlabs?.enabled);
+
 // ===========================================
 // ELEVENLABS CONFIGURATION
 // ===========================================
@@ -1347,6 +1354,11 @@ document.addEventListener('DOMContentLoaded', function() {
 // ===================================================
 async function activateMicrophone() {
     console.log('🎤 Activating microphone...');
+
+    // 🎯 CRITICAL: Wake up mobile audio first
+    if (isMobileDevice()) {
+        mobileAudioWakeUp();
+    }
     
     if (!window.isSecureContext) {
         addAIMessage("Microphone access requires HTTPS. Please ensure you're on a secure connection.");
@@ -1369,30 +1381,65 @@ async function activateMicrophone() {
 
             document.getElementById('quickButtonsContainer').style.display = 'block';
 
-           setTimeout(() => {
-    // Initialize conversation system - BULLETPROOF VERSION
-    if (typeof conversationState === 'undefined') {
-        window.conversationState = 'getting_first_name';
-    } else {
-        conversationState = 'getting_first_name';
-        window.waitingForName = true;
-    }
-    
-        // Initialize leadData if it doesn't exist
-    if (typeof leadData === 'undefined' || !leadData) {
-        window.leadData = { firstName: '' };
-    }
-    
-    const greeting = "Hi there! I'm Boteemia your personal AI Voice assistant, may I get your first name please?";
-    addAIMessage(greeting);
-    
-    // Add delay before speaking to ensure audio system is ready
-    setTimeout(() => {
-        speakResponse(greeting);
-    }, 800); // 800ms delay ensures everything is initialized
-    
-}, 1400);
-        }
+            setTimeout(() => {
+                // Initialize conversation system
+                if (typeof conversationState === 'undefined') {
+                    window.conversationState = 'getting_first_name';
+                } else {
+                    conversationState = 'getting_first_name';
+                    window.waitingForName = true;
+                }
+                
+                // Initialize leadData
+                if (typeof leadData === 'undefined' || !leadData) {
+                    window.leadData = { firstName: '' };
+                }
+                
+                const greeting = "Hi there! I'm Boteemia your personal AI Voice assistant, may I get your first name please?";
+                addAIMessage(greeting);
+                
+                // Delay before speaking
+                setTimeout(() => {
+                    console.log('🔊 Speaking greeting...');
+                    
+                    // 🎯 CRITICAL FIX: Use the correct voice system
+                    if (typeof window.speakText === 'function') {
+                        console.log('✅ Using window.speakText (ElevenLabs)');
+                        window.speakText(greeting).then(() => {
+                            console.log('✅ Greeting spoken successfully');
+                            // Start listening AFTER voice finishes
+                            setTimeout(() => {
+                                if (typeof startListening === 'function') {
+                                    startListening();
+                                }
+                            }, 500);
+                        }).catch(error => {
+                            console.error('❌ speakText failed:', error);
+                            fallbackToStartListening();
+                        });
+                    } 
+                    else if (typeof speakResponse === 'function') {
+                        console.log('⚠️ Using speakResponse (fallback)');
+                        speakResponse(greeting);
+                        // Fallback timer for listening
+                        setTimeout(() => {
+                            if (typeof startListening === 'function') {
+                                startListening();
+                            }
+                        }, 2000);
+                    }
+                    else {
+                        console.error('🚨 No voice function found!');
+                        // Still try to listen
+                        if (typeof startListening === 'function') {
+                            startListening();
+                        }
+                    }
+                    
+                }, isMobileDevice() ? 1500 : 800); // Mobile gets more delay
+                
+            }, 1400);
+        } // <-- THIS WAS MISSING: closes the "if (permissionGranted)" block
 
     } catch (error) {
         console.log('❌ Microphone access failed:', error);
@@ -1409,7 +1456,18 @@ async function activateMicrophone() {
         addAIMessage(errorMessage);
         //switchToTextMode(); // 🚨 REMOVE THIS LINE
     }
+} // <-- Closes the activateMicrophone function
+
+// Fallback function (OUTSIDE activateMicrophone)
+function fallbackToStartListening() {
+    console.log('🔄 Fallback: Starting listening manually');
+    if (typeof startListening === 'function') {
+        setTimeout(() => {
+            startListening();
+        }, 1000);
+    }
 }
+
 
 // ===================================================
 // 💭 MESSAGE HANDLING SYSTEM - USE THIS VERSION
