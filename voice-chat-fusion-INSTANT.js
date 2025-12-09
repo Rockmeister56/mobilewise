@@ -1603,46 +1603,76 @@ async function speakWithElevenLabs(message) {
         
         // 🎯 KEEP ALL YOUR ORIGINAL BLOCKING LOGIC
         audio.onended = function() {
-            console.log('🔍 ElevenLabs: Speech complete handler');
-            window.isSpeaking = false;
-            
-            // 🎯 ADDED: Block during confirmation dialog
-            if (window.isInConfirmationDialog) {
-                console.log('🛑 BLOCKING BANNER - Confirmation dialog active');
-                URL.revokeObjectURL(audioUrl);
-                return;
-            }
-            
-            // 🚫 BLOCK if we recently mentioned clicking
-            const clickMentionTime = window.lastClickMentionTime || 0;
-            const timeSinceClickMention = Date.now() - clickMentionTime;
-            
-            if (timeSinceClickMention < 10000) {
-                console.log('🔇 SPEAK NOW BLOCKED: Recent click mention');
-                return;
-            }
-            
-            // 🚫 DON'T TRIGGER "Speak Now" if Thank You Splash Screen exists
-            if (document.getElementById('thankYouSplash')) {
-                console.log('🔇 SPEAK NOW BLOCKED: Thank you splash screen active');
-                return;
-            }
-            
-            // 🚫 DON'T TRIGGER "Speak Now" if conversation is specifically ended
-            const conversationState = window.conversationState || 'ready';
-            if (conversationState === 'ended' || conversationState === 'splash_screen_active') {
-                console.log('🔇 SPEAK NOW BLOCKED: Conversation ended');
-                return;
-            }
-            
-            console.log('✅ No blocking conditions - calling showHybridReadySequence()');
-            if (window.showHybridReadySequence) {
-                showHybridReadySequence();
-            }
-            
-            // Clean up
-            URL.revokeObjectURL(audioUrl);
-        };
+    console.log('🔍 ElevenLabs: Speech complete handler');
+    window.isSpeaking = false;
+    
+    // 🎯 BLOCKING CONDITIONS
+    if (window.isInConfirmationDialog) {
+        console.log('🛑 BLOCKING BANNER - Confirmation dialog active');
+        URL.revokeObjectURL(audioUrl);
+        return;
+    }
+    
+    // Click mention blocking
+    const clickMentionTime = window.lastClickMentionTime || 0;
+    const timeSinceClickMention = Date.now() - clickMentionTime;
+    if (timeSinceClickMention < 10000) {
+        console.log('🔇 SPEAK NOW BLOCKED: Recent click mention');
+        return;
+    }
+    
+    // Thank you splash blocking
+    if (document.getElementById('thankYouSplash')) {
+        console.log('🔇 SPEAK NOW BLOCKED: Thank you splash screen active');
+        return;
+    }
+    
+    // Conversation ended blocking
+    const conversationState = window.conversationState || 'ready';
+    if (conversationState === 'ended' || conversationState === 'splash_screen_active') {
+        console.log('🔇 SPEAK NOW BLOCKED: Conversation ended');
+        return;
+    }
+    
+    // 🆕 ACTION CENTER & LEAD CAPTURE BLOCKING
+    const actionCenterElement = document.getElementById('communication-action-center');
+    const actionCenterVisible = actionCenterElement && 
+                               actionCenterElement.style.display !== 'none' && 
+                               actionCenterElement.offsetWidth > 0 && 
+                               actionCenterElement.offsetHeight > 0;
+    const leadCaptureActive = window.isInLeadCapture === true;
+    const actionCenterShowing = !leadCaptureActive && !!actionCenterVisible;
+    
+    if (actionCenterShowing || leadCaptureActive) {
+        console.log('🚫 ROOT BLOCK: Action Center or Lead Capture active');
+        return;
+    }
+    
+    // 🆕 CONCERN/TESTIMONIAL BLOCKING
+    if (window.concernBannerActive || window.isInTestimonialMode) {
+        console.log('🔇 SPEAK NOW BLOCKED: Concern/Testimonial mode active');
+        return;
+    }
+    
+    console.log('✅ No blocking conditions - calling showDirectSpeakNow()');
+    
+    // 🎯 CRITICAL: CALL THE BANNER FUNCTION
+    if (typeof showDirectSpeakNow === 'function') {
+        setTimeout(() => {
+            showDirectSpeakNow();
+        }, 300); // Small delay for better UX
+    } else {
+        console.warn('⚠️ showDirectSpeakNow not found');
+        if (window.startRealtimeListening) {
+            setTimeout(() => {
+                window.startRealtimeListening();
+            }, 800);
+        }
+    }
+    
+    // Clean up
+    URL.revokeObjectURL(audioUrl);
+};
         
         audio.onerror = function(error) {
             console.error('🚫 ElevenLabs: Audio playback error:', error);
@@ -1719,20 +1749,60 @@ window.speakWithBritish = function(text) {
             utterance.volume = 0.85;
             
             utterance.onend = () => {
-                window.isSpeaking = false;
-                console.log('✅ British voice: Speech complete');
-                
-                // Trigger "Speak Now" sequence if not blocked
-                if (!window.concernBannerActive && !window.isInTestimonialMode) {
-                    setTimeout(() => {
-                        if (window.showHybridReadySequence) {
-                            window.showHybridReadySequence();
-                        }
-                    }, 300);
-                }
-                
-                resolve();
-            };
+    window.isSpeaking = false;
+    console.log('✅ British voice: Speech complete');
+    
+    // 🎯 SAME BLOCKING LOGIC AS ABOVE
+    if (!window.concernBannerActive && !window.isInTestimonialMode) {
+        // Check all blocking conditions
+        const clickMentionTime = window.lastClickMentionTime || 0;
+        const timeSinceClickMention = Date.now() - clickMentionTime;
+        const thankYouSplash = document.getElementById('thankYouSplash');
+        const conversationState = window.conversationState || 'ready';
+        const actionCenterElement = document.getElementById('communication-action-center');
+        const actionCenterVisible = actionCenterElement && 
+                                   actionCenterElement.style.display !== 'none' && 
+                                   actionCenterElement.offsetWidth > 0 && 
+                                   actionCenterElement.offsetHeight > 0;
+        const leadCaptureActive = window.isInLeadCapture === true;
+        const actionCenterShowing = !leadCaptureActive && !!actionCenterVisible;
+        
+        if (timeSinceClickMention < 10000) {
+            console.log('🔇 SPEAK NOW BLOCKED: Recent click mention');
+            resolve();
+            return;
+        }
+        if (thankYouSplash) {
+            console.log('🔇 SPEAK NOW BLOCKED: Thank you splash active');
+            resolve();
+            return;
+        }
+        if (conversationState === 'ended' || conversationState === 'splash_screen_active') {
+            console.log('🔇 SPEAK NOW BLOCKED: Conversation ended');
+            resolve();
+            return;
+        }
+        if (window.isInConfirmationDialog) {
+            console.log('🛑 BLOCKING BANNER - Confirmation dialog active');
+            resolve();
+            return;
+        }
+        if (actionCenterShowing || leadCaptureActive) {
+            console.log('🚫 ROOT BLOCK: Action Center or Lead Capture active');
+            resolve();
+            return;
+        }
+        
+        // 🎯 TRIGGER BANNER
+        setTimeout(() => {
+            if (typeof showDirectSpeakNow === 'function') {
+                showDirectSpeakNow();
+            }
+        }, 300);
+    }
+    
+    resolve();
+};
             
             utterance.onerror = (error) => {
                 if (error.error === 'interrupted') {
