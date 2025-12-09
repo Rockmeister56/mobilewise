@@ -1684,15 +1684,29 @@ window.speakWithBritish = function(text) {
             
             const utterance = new SpeechSynthesisUtterance(text);
             
-            // Select best British voice
-            const voices = window.speechSynthesis.getVoices();
-            const britishVoicePriority = [
-                'Google UK English Female',
-                'Google UK English Male',
-                'Microsoft Hazel - English (Great Britain)',
-                'Microsoft Susan - English (Great Britain)',
-                'Daniel', 'Kate', 'Serena', 'Oliver'
-            ];
+           // In your speakWithBritish() function, find this array:
+const britishVoicePriority = [
+    'Microsoft Libby Online (Natural) - English (United Kingdom)',
+    'Microsoft Ryan Online (Natural) - English (United Kingdom)', 
+    'Microsoft Sonia Online (Natural) - English (United Kingdom)',
+    'Microsoft Thomas Online (Natural) - English (United Kingdom)',
+    'Microsoft Hazel - English (Great Britain)',
+    'Microsoft Susan - English (Great Britain)',
+    'Google UK English Female',
+    'Google UK English Male',
+    'Daniel', 'Kate', 'Serena', 'Oliver'
+];
+    
+    // Standard Microsoft Voices
+    'Microsoft Hazel - English (Great Britain)',
+    'Microsoft Susan - English (Great Britain)',
+    
+    // Google Voices
+    'Google UK English Female',
+    'Google UK English Male',
+    
+    // MacOS Voices
+    'Daniel', 'Kate', 'Serena', 'Oliver'
             
             // Find best voice
             for (const voiceName of britishVoicePriority) {
