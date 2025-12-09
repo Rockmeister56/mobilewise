@@ -462,16 +462,35 @@ const speechEngine = new SpeechEngineManager();
 console.log('🚀 Speech Engine Manager initialized');
 
 function quickMobileAudioFix() {
+    // 🎯 PERMANENT FIX: Allows ElevenLabs but still blocks other audio
     if (/Mobi|Android/i.test(navigator.userAgent)) {
-        const originalPlay = HTMLAudioElement.prototype.play;
+        console.log('📱 Installing SMART mobile audio gate (ElevenLabs safe)...');
+        
+        // Save original if not saved
+        if (!HTMLAudioElement.prototype.originalPlay) {
+            HTMLAudioElement.prototype.originalPlay = HTMLAudioElement.prototype.play;
+        }
+        
         HTMLAudioElement.prototype.play = function() {
-            if (isListening) {
-                console.log('🔇 Mobile: Blocked audio during speech session');
-                return Promise.reject(new DOMException('Audio blocked during speech'));
+            const src = this.src || '';
+            
+            // ALWAYS allow ElevenLabs audio
+            if (src.includes('elevenlabs.io') || src.includes('api.elevenlabs')) {
+                console.log('🎤 Allowing ElevenLabs audio on mobile');
+                return HTMLAudioElement.prototype.originalPlay.call(this);
             }
-            return originalPlay.call(this);
+            
+            // Block other audio only when listening
+            if (isListening) {
+                console.log('🔇 Blocked non-ElevenLabs audio during speech');
+                return Promise.reject(new DOMException('Audio blocked - speech active'));
+            }
+            
+            // Allow when not listening
+            return HTMLAudioElement.prototype.originalPlay.call(this);
         };
-        console.log('✅ Mobile audio gate installed');
+        
+        console.log('✅ Smart audio gate installed');
     }
 }
 
