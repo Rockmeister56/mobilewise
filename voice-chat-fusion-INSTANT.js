@@ -3,6 +3,78 @@
 // Smart Button + Lead Capture + EmailJS + Banner System
 // ===================================================
 
+// ===================================================
+// 🎤 ELEVENLABS MOBILE DEBUGGER
+// ===================================================
+function debugElevenLabsMobile() {
+    console.log("🔍 === ELEVENLABS MOBILE DEBUG ====");
+    
+    // 1. Check current voice provider
+    console.log("1. Current provider:", VOICE_CONFIG ? VOICE_CONFIG.provider : "VOICE_CONFIG not found");
+    console.log("2. ElevenLabs enabled:", VOICE_CONFIG?.elevenlabs?.enabled);
+    
+    // 2. Check API key
+    console.log("3. API Key exists:", VOICE_CONFIG?.elevenlabs?.apiKey ? "✅ Yes" : "❌ No");
+    console.log("4. Voice ID:", VOICE_CONFIG?.elevenlabs?.voiceId);
+    
+    // 3. Check if mobile detection is causing issues
+    console.log("5. Is mobile:", /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent));
+    console.log("6. User agent:", navigator.userAgent.substring(0, 100));
+    
+    // 4. Check speakText function
+    console.log("7. speakText function:", typeof window.speakText === 'function' ? "✅ Exists" : "❌ Missing");
+    
+    // 5. Check if provider is switching
+    if (typeof getVoiceStatus === 'function') {
+        console.log("8. Voice status:");
+        getVoiceStatus();
+    }
+    
+    console.log("🔍 === END DEBUG ====");
+}
+
+// Also add this to track voice usage
+let voiceUsageLog = [];
+const originalSpeakText = window.speakText;
+
+window.speakText = function(text, options = {}) {
+    console.log("🎤 SPEAKTEXT CALLED:");
+    console.log("  - Text length:", text.length);
+    console.log("  - Provider:", VOICE_CONFIG?.provider);
+    console.log("  - Options:", options);
+    console.log("  - Is mobile:", /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent));
+    
+    // Log for debugging
+    voiceUsageLog.push({
+        time: new Date().toISOString(),
+        text: text.substring(0, 50) + "...",
+        provider: VOICE_CONFIG?.provider,
+        isMobile: /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent),
+        options: options
+    });
+    
+    // Keep only last 10 entries
+    if (voiceUsageLog.length > 10) {
+        voiceUsageLog = voiceUsageLog.slice(-10);
+    }
+    
+    // Call original function
+    return originalSpeakText.call(this, text, options);
+};
+
+// Function to check voice log
+function checkVoiceLog() {
+    console.log("📊 === VOICE USAGE LOG ===");
+    voiceUsageLog.forEach((entry, i) => {
+        console.log(`${i + 1}. ${entry.time} - ${entry.provider} - Mobile: ${entry.isMobile}`);
+        console.log(`   "${entry.text}"`);
+    });
+    console.log("📊 === END LOG ===");
+}
+
+// Run on page load
+setTimeout(debugElevenLabsMobile, 2000);
+
 // ===========================================
 // ELEVENLABS CONFIGURATION
 // ===========================================
