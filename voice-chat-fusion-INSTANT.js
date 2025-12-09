@@ -5127,6 +5127,10 @@ window.updateVoiceTranscription = function(text) {
 };
 
 async function showDirectSpeakNow() {
+    console.log('🔍 DEBUG: showDirectSpeakNow called');
+    console.log('- disableSpeakNowBanner:', window.disableSpeakNowBanner);
+    console.log('- actionCenterPending:', window.actionCenterPending);
+    console.log('- disableDirectTimeout:', window.disableDirectTimeout);
     console.log('🎯 DIRECT Speak Now - Black Transparent Overlay');
     
     // 🎯 COORDINATION: Block Speak Now when Action Center is about to appear
@@ -5184,9 +5188,12 @@ async function showDirectSpeakNow() {
                 showAvatarSorryMessage();
             }
         }, listeningTimeout);
+        
+        // 🆕 MAKE GLOBAL - MOVED INSIDE THE IF BLOCK
+        window.hideVoiceOverlay = hideVoiceOverlay;
+    } // <-- MISSING BRACKET WAS HERE
     
-    // 🆕 MAKE GLOBAL
-    window.hideVoiceOverlay = hideVoiceOverlay;
+    console.log('✅ DIRECT Speak Now activated');
 }
 
 // 🆕 GLOBAL TRANSCRIPTION FUNCTION
@@ -5674,7 +5681,6 @@ window.cleanupSpeakSequence = cleanupSpeakSequence;
         
         console.log('🧹 DIRECT: Speech sequence completed successfully');
     };
-}
 
 console.log('🎯 DIRECT Speak Now function loaded - No Get Ready phase!');
 
