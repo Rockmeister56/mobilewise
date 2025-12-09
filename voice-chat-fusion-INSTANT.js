@@ -1563,20 +1563,38 @@ async function speakWithElevenLabs(message) {
         console.log('🎤 ElevenLabs: Starting speech synthesis...');
         window.isSpeaking = true;
         
-        // 🎯 MOBILE FIX: Initialize audio context on mobile
+        // 🎯 CRITICAL MOBILE FIX: REINITIALIZE audio context for EVERY speech
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        if (isMobile && !window.audioContextInitialized) {
-            console.log('📱 Mobile detected - initializing audio context...');
+        
+        if (isMobile) {
+            console.log('📱 Mobile: Ensuring audio context before EACH speech...');
             try {
+                // Create NEW silent audio for EVERY speech
                 const silentAudio = new Audio();
                 silentAudio.src = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEAQB8AAEAfAAABAAgAZGF0YQ';
                 silentAudio.volume = 0;
+                
+                // Play it immediately
                 await silentAudio.play();
+                
+                // Mark context as initialized
                 window.audioContextInitialized = true;
-                console.log('✅ Mobile audio context established');
+                console.log('✅ Mobile audio context refreshed for this speech');
+                
+                // 🆕 CRITICAL: Add a small delay for mobile
+                await new Promise(resolve => setTimeout(resolve, 100));
+                
             } catch (e) {
-                console.log('⚠️ Could not pre-initialize audio');
+                console.log('⚠️ Could not refresh audio context:', e.message);
+                // Try to continue anyway
             }
+        }
+        
+        // 🎯 ALSO ADD: User interaction context for mobile
+        if (isMobile) {
+            // Store that user has interacted (speech is user-initiated via conversation)
+            window.lastUserInteractionTime = Date.now();
+            console.log('📱 Mobile user interaction timestamp updated');
         }
         
         // Start API call
@@ -1854,14 +1872,46 @@ window.speakWithBritish = function(text) {
 // MAIN SPEAK FUNCTION - USE THIS EVERYWHERE
 // ===========================================
 window.speakText = async function(text) {
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    console.log(`🔊 speakText called: "${text.substring(0, 30)}..."`);
+    console.log(`   Platform: ${isMobile ? '📱 MOBILE' : '🖥️ DESKTOP'}`);
+    
     // Clean emojis before speaking
     const cleanText = cleanEmojisFromSpeech ? cleanEmojisFromSpeech(text) : text;
+    
+    // 🎯 MOBILE PRE-WARM: Ensure audio context exists
+    if (isMobile) {
+        console.log('📱 Mobile: Pre-warming audio context...');
+        try {
+            const silentAudio = new Audio();
+            silentAudio.src = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEAQB8AAEAfAAABAAgAZGF0YQ';
+            silentAudio.volume = 0;
+            await silentAudio.play();
+            console.log('✅ Mobile audio context pre-warmed');
+        } catch (e) {
+            console.log('⚠️ Mobile pre-warm failed (may need user interaction):', e.message);
+        }
+    }
     
     // Always try ElevenLabs first
     try {
         await speakWithElevenLabs(cleanText);
     } catch (error) {
         console.log('🔄 ElevenLabs failed, falling back to British');
+        
+        // 🎯 MOBILE: Re-warm for British fallback
+        if (isMobile) {
+            try {
+                const silentAudio = new Audio();
+                silentAudio.src = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEAQB8AAEAfAAABAAgAZGF0YQ';
+                silentAudio.volume = 0;
+                await silentAudio.play();
+            } catch (e) {
+                console.log('⚠️ Could not re-warm for British fallback');
+            }
+        }
+        
         await window.speakWithBritish(cleanText);
     }
 };
