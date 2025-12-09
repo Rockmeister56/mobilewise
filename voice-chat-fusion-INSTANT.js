@@ -2722,6 +2722,12 @@ function handleGeneralQuestion(message, userName) {
 // =============================================================================
 
 async function getAIResponse(userMessage, conversationHistory = []) {
+console.log('📱 MOBILE DEBUG in getAIResponse():');
+console.log('Platform:', /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop');
+console.log('Calling speakText with:', response.substring(0, 50));
+
+// Make sure you're calling it correctly:
+window.speakText(response); // This should work
     console.log('🎯 GOLD STANDARD getAIResponse called:', userMessage);   
 
     // 🎯 STEP 0: CHECK FOR CONCERNS FIRST - NEW INTEGRATION
