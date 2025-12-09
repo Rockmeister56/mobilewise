@@ -1743,6 +1743,8 @@ class MobileWiseVoiceSystem {
             }
         }
     }
+
+
     
     
 // ===========================================
@@ -2047,6 +2049,53 @@ return; // Stop the original execution chain
 // INITIALIZE SYSTEM
 // ===========================================
 window.mobileWiseVoice = new MobileWiseVoiceSystem();
+
+// ===========================================
+// 🔥 MOBILE ELEVENLABS FIX - ADD THIS RIGHT AFTER mobileWiseVoice IS CREATED
+// ===========================================
+
+// Wait for mobileWiseVoice to be ready
+setTimeout(() => {
+    if (window.mobileWiseVoice && window.mobileWiseVoice.speak) {
+        console.log("🔧 Applying mobile ElevenLabs fix...");
+        
+        // Save original speak method
+        const originalSpeak = window.mobileWiseVoice.speak.bind(window.mobileWiseVoice);
+        
+        // Override with mobile fix
+        window.mobileWiseVoice.speak = async function(text, options = {}) {
+            const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+            
+            // 🔥 CRITICAL FIX: Force ElevenLabs on mobile
+            if (isMobile) {
+                console.log("📱 MOBILE DETECTED - Forcing ElevenLabs");
+                
+                // Save original provider
+                const originalProvider = VOICE_CONFIG.provider;
+                const originalElevenLabsEnabled = VOICE_CONFIG.elevenlabs.enabled;
+                
+                // Force ElevenLabs
+                VOICE_CONFIG.provider = 'elevenlabs';
+                VOICE_CONFIG.elevenlabs.enabled = true;
+                
+                try {
+                    // Speak with ElevenLabs
+                    return await originalSpeak(text, options);
+                } finally {
+                    // Optional: Restore original settings
+                    // VOICE_CONFIG.provider = originalProvider;
+                    // VOICE_CONFIG.elevenlabs.enabled = originalElevenLabsEnabled;
+                }
+            }
+            
+            // Desktop - use as normal
+            return originalSpeak(text, options);
+        };
+        
+        console.log("✅ Mobile ElevenLabs fix applied");
+        console.log("   Provider will be forced to 'elevenlabs' on mobile devices");
+    }
+}, 1000);
 
 // ===========================================
 // CONSOLIDATED API - Replaces ALL existing voice functions
