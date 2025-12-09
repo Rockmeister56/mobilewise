@@ -1674,8 +1674,8 @@ const VOICE_CONFIG = {
     // ELEVENLABS CONFIG (when enabled)
     elevenlabs: {
         enabled: true,  // ← SET TO TRUE when you have credits
-        apiKey: 'sk_145cc0fe5aeb1c2ae4ebf3193dcee721ae8a4f755ed9e5d8',
-        voiceId: 'WZlYpi1yf6zJhNWXih74',
+        apiKey: ELEVENLABS_API_KEY,  // Reference the constant
+        voiceId: VOICE_ID,           // Reference the constant
         model: 'eleven_turbo_v2'
     },
     
@@ -5127,10 +5127,6 @@ window.updateVoiceTranscription = function(text) {
 };
 
 async function showDirectSpeakNow() {
-    console.log('🔍 DEBUG: showDirectSpeakNow called');
-    console.log('- disableSpeakNowBanner:', window.disableSpeakNowBanner);
-    console.log('- actionCenterPending:', window.actionCenterPending);
-    console.log('- disableDirectTimeout:', window.disableDirectTimeout);
     console.log('🎯 DIRECT Speak Now - Black Transparent Overlay');
     
     // 🎯 COORDINATION: Block Speak Now when Action Center is about to appear
