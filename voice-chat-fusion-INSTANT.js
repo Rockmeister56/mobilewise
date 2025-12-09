@@ -2938,14 +2938,30 @@ function handleGeneralQuestion(message, userName) {
 async function getAIResponse(userMessage, conversationHistory = []) {
     console.log('🎯 GOLD STANDARD getAIResponse called:', userMessage);   
 
+    // 🎯 HELPER FUNCTION: Speak AND return
+    function speakAndReturn(text) {
+        console.log('🎯 Speaking response:', text.substring(0, 50) + '...');
+        
+        // Speak the response
+        setTimeout(() => {
+            if (typeof speakWithElevenLabs === 'function') {
+                speakWithElevenLabs(text);
+            } else if (typeof window.speakText === 'function') {
+                window.speakText(text);
+            }
+        }, 100);
+        
+        return text;
+    }
+
     // 🎯 STEP 0: CHECK FOR CONCERNS FIRST - NEW INTEGRATION
-if (detectConcernOrObjection(userMessage)) {
-    console.log('🚨 Concern detected - handling with testimonial');
-    const concernType = window.detectedConcernType || 'general';
-    console.log(`🎯 Calling handleConcernWithTestimonial with type: ${concernType}`);
-    handleConcernWithTestimonial(userMessage, concernType);
-    return; // Stop the sales process for concerns
-}
+    if (detectConcernOrObjection(userMessage)) {
+        console.log('🚨 Concern detected - handling with testimonial');
+        const concernType = window.detectedConcernType || 'general';
+        console.log(`🎯 Calling handleConcernWithTestimonial with type: ${concernType}`);
+        handleConcernWithTestimonial(userMessage, concernType);
+        return; // Stop the sales process for concerns
+    }
 
     // Initialize Sales AI if not exists
     if (!window.salesAI) {
@@ -2961,8 +2977,8 @@ if (detectConcernOrObjection(userMessage)) {
                 return questions[this.userData.intent] || "What specifically are you looking to accomplish?";
             }
         };
-    console.log('🔄 SalesAI initialized');
-}
+        console.log('🔄 SalesAI initialized');
+    }
 
     const lowerMessage = userMessage.toLowerCase();
 
@@ -2974,76 +2990,79 @@ if (detectConcernOrObjection(userMessage)) {
     }
     
     // 🎯 MACARONI BUNDLE: Urgent + Appointment Intents - HIGH PRIORITY
-const urgentPatterns = ['urgent', 'asap', 'right now', 'immediately', 'emergency', 'call me now', 'need help now'];
-const appointmentPatterns = [
-    'appointment', 'meeting', 'schedule', 'book', 'reserve', 'set up',
-    'consult', 'consultation', 'call', 'talk to bruce', 'meet with bruce',
-    'free consultation', 'free consult', 'book a meeting'
-];
+    const urgentPatterns = ['urgent', 'asap', 'right now', 'immediately', 'emergency', 'call me now', 'need help now'];
+    const appointmentPatterns = [
+        'appointment', 'meeting', 'schedule', 'book', 'reserve', 'set up',
+        'consult', 'consultation', 'call', 'talk to bruce', 'meet with bruce',
+        'free consultation', 'free consult', 'book a meeting'
+    ];
 
-// Check for URGENT first (highest priority)
-if (urgentPatterns.some(pattern => lowerMessage.includes(pattern))) {
-    console.log('🚨 URGENT INTENT DETECTED - FAST TRACKING TO BRUCE');
-    
-// 🎯 TRIGGER ACTION CENTER IMMEDIATELY
-setTimeout(() => {
-    if (window.triggerLeadActionCenter) {
-        window.triggerLeadActionCenter(); // ✅ SILENT VERSION
-        console.log('✅ SILENT Communication Relay Center triggered for urgent request');
-    } else {
-        console.error('❌ triggerLeadActionCenter not found - urgent system broken');
+    // Check for URGENT first (highest priority)
+    if (urgentPatterns.some(pattern => lowerMessage.includes(pattern))) {
+        console.log('🚨 URGENT INTENT DETECTED - FAST TRACKING TO BRUCE');
+        
+        // 🎯 TRIGGER ACTION CENTER IMMEDIATELY
+        setTimeout(() => {
+            if (window.triggerLeadActionCenter) {
+                window.triggerLeadActionCenter(); // ✅ SILENT VERSION
+                console.log('✅ SILENT Communication Relay Center triggered for urgent request');
+            } else {
+                console.error('❌ triggerLeadActionCenter not found - urgent system broken');
+            }
+        }, 1000);
+
+        return speakAndReturn("I understand this is urgent! Let me bring up all the ways to connect with Bruce, the founder and CEO of NCI immediately.");
     }
-}, 1000);
 
-return "I understand this is urgent! Let me bring up all the ways to connect with Bruce, the founder and CEO of NCI immediately.";
-}
-
-// Check for APPOINTMENT second
-if (appointmentPatterns.some(pattern => lowerMessage.includes(pattern))) {
-    console.log('🎯 APPOINTMENT INTENT DETECTED - Triggering Action Center');
-    
-   setTimeout(() => {
-    if (window.triggerLeadActionCenter) {
-        window.triggerLeadActionCenter(); // ✅ SILENT VERSION
-        console.log('✅ SILENT Action Center triggered for appointment request');
-    } else {
-        console.error('❌ triggerLeadActionCenter not found - appointment system broken');
-        }
-    }, 1000);
-    
-    return "Perfect! I'd love to help you schedule that. Let me bring up all the ways to connect with Bruce,the founder and CEO of NCI for your appointment.";
-}
+    // Check for APPOINTMENT second
+    if (appointmentPatterns.some(pattern => lowerMessage.includes(pattern))) {
+        console.log('🎯 APPOINTMENT INTENT DETECTED - Triggering Action Center');
+        
+        setTimeout(() => {
+            if (window.triggerLeadActionCenter) {
+                window.triggerLeadActionCenter(); // ✅ SILENT VERSION
+                console.log('✅ SILENT Action Center triggered for appointment request');
+            } else {
+                console.error('❌ triggerLeadActionCenter not found - appointment system broken');
+            }
+        }, 1000);
+        
+        return speakAndReturn("Perfect! I'd love to help you schedule that. Let me bring up all the ways to connect with Bruce,the founder and CEO of NCI for your appointment.");
+    }
     
     // 🎯 STEP 2: STRONG INTENT DETECTION & 4-STEP SALES PROCESS
-const strongIntent = detectStrongIntent(userMessage);
-if (strongIntent) {
-    console.log('🎯 STRONG INTENT DETECTED:', strongIntent);
-    return handleStrongIntentWithTrustBuilding(strongIntent, userMessage);
-}
+    const strongIntent = detectStrongIntent(userMessage);
+    if (strongIntent) {
+        console.log('🎯 STRONG INTENT DETECTED:', strongIntent);
+        const response = handleStrongIntentWithTrustBuilding(strongIntent, userMessage);
+        return speakAndReturn(response);
+    }
     
     // 🎯 STEP 3: PRE-CLOSE HANDLING
     if (window.salesAI.state === 'pre_close') {
         console.log('🎯 Processing pre-close response...');
         const preCloseResponse = handlePreCloseResponse(userMessage, window.salesAI.userData.intent);
-           speakWithElevenLabs(preCloseResponse);  // Let it speak!
-// OR if you want to be extra safe:
-if (typeof speakWithElevenLabs === 'function') {
-    speakWithElevenLabs(preCloseResponse);
-}
+        
+        // Speak the response
+        setTimeout(() => {
+            if (typeof speakWithElevenLabs === 'function') {
+                speakWithElevenLabs(preCloseResponse);
+            }
+        }, 100);
         
         if (preCloseResponse.includes("Perfect! Let me get you connected")) {
-    // User said YES - trigger SILENT Communication Relay Center
-    window.salesAI.state = 'lead_capture';
-    console.log('✅ User said YES - triggering SILENT Communication Relay Center');
-    
-    setTimeout(() => {
-        if (window.triggerLeadActionCenter) {
-            window.triggerLeadActionCenter(); // ✅ SILENT VERSION
-            console.log('✅ SILENT Action Center triggered for pre-close YES response');
-        } else {
-            console.error('❌ triggerLeadActionCenter not found - pre-close system broken');
-        }
-    }, 1000);
+            // User said YES - trigger SILENT Communication Relay Center
+            window.salesAI.state = 'lead_capture';
+            console.log('✅ User said YES - triggering SILENT Communication Relay Center');
+            
+            setTimeout(() => {
+                if (window.triggerLeadActionCenter) {
+                    window.triggerLeadActionCenter(); // ✅ SILENT VERSION
+                    console.log('✅ SILENT Action Center triggered for pre-close YES response');
+                } else {
+                    console.error('❌ triggerLeadActionCenter not found - pre-close system broken');
+                }
+            }, 1000);
 
         } else {
             // User said SKIP - return to investigation
@@ -3055,63 +3074,61 @@ if (typeof speakWithElevenLabs === 'function') {
     }
 
     // 🎯 INTRODUCTION HANDLING - NAME CAPTURE
-if (window.salesAI.state === 'introduction') {
-    console.log('🎯 Handling introduction - capturing name...');
-    
-    // Simple name handling
-if (!window.salesAI.userData.firstName) {
-    const name = userMessage.split(' ')[0];
-    if (name && name.length > 1) {
-        window.salesAI.userData.firstName = name;
-        window.salesAI.state = 'investigation';
-
-        // 🎉 FIXED: Check salesAI for the name
-    const userName = window.salesAI?.userData?.firstName;
-    if (userName && userName.length > 0 && !window.welcomeSplashShown) {
-        console.log('🎉 Triggering welcome splash for:', userName);
-        setTimeout(() => {
-            if (window.showWelcomeSplash) {
-                window.showWelcomeSplash(userName);
-            }
-        }, 100);
-    }
+    if (window.salesAI.state === 'introduction') {
+        console.log('🎯 Handling introduction - capturing name...');
         
-        const response = `Nice to meet you ${name}! What brings you to New Clients Inc today?`;
-        console.log('✅ Name captured, moving to investigation state');
-        return response;
-    } else {
-        return "Hi! I'm your practice transition assistant. What's your first name?";
+        // Simple name handling
+        if (!window.salesAI.userData.firstName) {
+            const name = userMessage.split(' ')[0];
+            if (name && name.length > 1) {
+                window.salesAI.userData.firstName = name;
+                window.salesAI.state = 'investigation';
+
+                // 🎉 FIXED: Check salesAI for the name
+                const userName = window.salesAI?.userData?.firstName;
+                if (userName && userName.length > 0 && !window.welcomeSplashShown) {
+                    console.log('🎉 Triggering welcome splash for:', userName);
+                    setTimeout(() => {
+                        if (window.showWelcomeSplash) {
+                            window.showWelcomeSplash(userName);
+                        }
+                    }, 100);
+                }
+                
+                return speakAndReturn(`Nice to meet you ${name}! What brings you to New Clients Inc today?`);
+            } else {
+                return speakAndReturn("Hi! I'm your practice transition assistant. What's your first name?");
+            }
         }
     }
-}
 
-console.log('🔄 No strong intent - using original system logic');
+    console.log('🔄 No strong intent - using original system logic');
     
     // 🧠 STEP 5: FALLBACK TO ORIGINAL LOGIC
-console.log('🔄 No strong intent - using original system logic');
-if (typeof getOpenAIResponse === 'function') {
-    return await getOpenAIResponse(userMessage, conversationHistory);
-} else {
-    const fallbackResponse = "I appreciate your message! That's something Bruce,the founder and CEO of NCI would be perfect to help with. Would you like me to connect you with him for a free consultation?";
+    console.log('🔄 No strong intent - using original system logic');
+    if (typeof getOpenAIResponse === 'function') {
+        const response = await getOpenAIResponse(userMessage, conversationHistory);
+        return speakAndReturn(response);
+    } else {
+        const fallbackResponse = "I appreciate your message! That's something Bruce,the founder and CEO of NCI would be perfect to help with. Would you like me to connect you with him for a free consultation?";
 
-    // 🎯 BRUCE PRE-CLOSE QUESTION SET: 
-window.lastPreCloseQuestion = fallbackResponse;
-window.lastPreCloseIntent = 'bruce_consultation';
-window.conversationState = 'qualification';
-console.log('🎯 BRUCE PRE-CLOSE QUESTION SET:', fallbackResponse);
+        // 🎯 BRUCE PRE-CLOSE QUESTION SET: 
+        window.lastPreCloseQuestion = fallbackResponse;
+        window.lastPreCloseIntent = 'bruce_consultation';
+        window.conversationState = 'qualification';
+        console.log('🎯 BRUCE PRE-CLOSE QUESTION SET:', fallbackResponse);
 
-// 🚀 CRITICAL FIX: Show Free Consultation Banner
-setTimeout(() => {
-    // 1. TRIGGER FREE CONSULTATION BANNER
-    if (typeof showUniversalBanner === 'function') {
-        showUniversalBanner('setAppointment');
-        console.log('✅ Free Consultation Banner triggered');
+        // 🚀 CRITICAL FIX: Show Free Consultation Banner
+        setTimeout(() => {
+            // 1. TRIGGER FREE CONSULTATION BANNER
+            if (typeof showUniversalBanner === 'function') {
+                showUniversalBanner('setAppointment');
+                console.log('✅ Free Consultation Banner triggered');
+            }
+        }, 50); // Wait for question to start speaking
+
+        return speakAndReturn(fallbackResponse);
     }
-}, 50); // Wait for question to start speaking
-
-// speakWithElevenLabs(fallbackResponse, false);
-return fallbackResponse;
-}
 }
 
 // Add this emergency Bruce detection in getAIResponse
@@ -3120,26 +3137,85 @@ window.getAIResponse = function(userMessage) {
     const lowerMessage = userMessage.toLowerCase();
     
     // 🎯 EMERGENCY BRUCE DETECTION
-if ((lowerMessage.includes('yes') || lowerMessage.includes('yeah') || lowerMessage.includes('sure')) &&
-    window.lastPreCloseIntent === 'bruce_consultation') {
+    if ((lowerMessage.includes('yes') || lowerMessage.includes('yeah') || lowerMessage.includes('sure')) &&
+        window.lastPreCloseIntent === 'bruce_consultation') {
+        
+        console.log('🎯 EMERGENCY BRUCE YES DETECTED - Triggering Action Center IMMEDIATELY');
+        
+        // Clear the context
+        window.lastPreCloseIntent = null;
+        window.lastPreCloseQuestion = null;
+        
+        // 🚀 CRITICAL: Trigger Action Center IMMEDIATELY (no delays)
+        if (window.triggerLeadActionCenter) {
+            window.triggerLeadActionCenter();
+            console.log('✅ Action Center triggered IMMEDIATELY via emergency detection');
+        }
+        
+        // Return instruction speech that plays AFTER Action Center is visible
+        const response = "Great! I can make that painless with my assistance after clicking one of our communication relay buttons on your screen";
+        
+        // Speak the response
+        setTimeout(() => {
+            if (typeof speakWithElevenLabs === 'function') {
+                speakWithElevenLabs(response);
+            }
+        }, 100);
+        
+        return response;
+    }
+
+    return originalGetAIResponse.apply(this, arguments);
+};
+
+// ============================================================================
+// 🎯 SPEECH WRAPPER FUNCTIONS - CRITICAL FOR MOBILE VOICE
+// ============================================================================
+
+// 🎯 MAIN WRAPPER: Speaks AND returns text (use this everywhere in getAIResponse!)
+function speakAndReturn(text) {
+    console.log('🎯 Speaking response:', text.substring(0, 50) + '...');
     
-    console.log('🎯 EMERGENCY BRUCE YES DETECTED - Triggering Action Center IMMEDIATELY');
-    
-    // Clear the context
-    window.lastPreCloseIntent = null;
-    window.lastPreCloseQuestion = null;
-    
-    // 🚀 CRITICAL: Trigger Action Center IMMEDIATELY (no delays)
-    if (window.triggerLeadActionCenter) {
-        window.triggerLeadActionCenter();
-        console.log('✅ Action Center triggered IMMEDIATELY via emergency detection');
+    // CRITICAL: Stop any previous speech immediately
+    if (window.stopAllSpeech && typeof window.stopAllSpeech === 'function') {
+        window.stopAllSpeech();
     }
     
-    // Return instruction speech that plays AFTER Action Center is visible
-    return "Great! I can make that painless with my assistance after clicking one of our communication relay buttons on your screen";
+    // Small delay to ensure cleanup
+    setTimeout(() => {
+        // Try ElevenLabs first, fallback to built-in TTS
+        if (typeof speakWithElevenLabs === 'function') {
+            speakWithElevenLabs(text);
+        } else if (typeof window.speakText === 'function') {
+            window.speakText(text);
+        } else {
+            console.warn('⚠️ No speech function available');
+        }
+    }, 150);
+    
+    return text;
 }
 
-return originalGetAIResponse.apply(this, arguments);
+// 🎯 EMERGENCY SPEECH STOPPER (call this before any new speech)
+window.stopAllSpeech = function() {
+    console.log('🛑 Stopping all speech');
+    
+    // Stop ElevenLabs if active
+    if (window.elevenLabsAudio && window.elevenLabsAudio.pause) {
+        window.elevenLabsAudio.pause();
+        window.elevenLabsAudio.currentTime = 0;
+    }
+    
+    // Stop built-in speech
+    if (window.speechSynthesis && window.speechSynthesis.speaking) {
+        window.speechSynthesis.cancel();
+    }
+    
+    // Stop any ongoing audio elements
+    document.querySelectorAll('audio').forEach(audio => {
+        audio.pause();
+        audio.currentTime = 0;
+    });
 };
 
 // 🎯 CONCERN DETECTION: Check for objections/negative sentiment
@@ -3214,7 +3290,8 @@ for (let keyword of allKeywords) {
     
     return false;
 }
-// 🚨 UPDATED handleConcernWithTestimonial FUNCTION - MINIMAL CHANGES
+
+// 🚨 UPDATED handleConcernWithTestimonial FUNCTION WITH SPEECH WRAPPER
 window.handleConcernWithTestimonial = function(userText, concernType) {
     console.log(`🎯 handleConcernWithTestimonial called: "${userText}" (${concernType})`);
     
@@ -3273,13 +3350,17 @@ window.handleConcernWithTestimonial = function(userText, concernType) {
     }, 100); // Small delay to ensure chat message appears first
     
     // 3. START SPEAKING (testimonials are already visible)
-    if (window.speakText && typeof window.speakText === 'function') {
-        // Small delay to let testimonials render first
-        setTimeout(() => {
+    // 🎯 UPDATED: Use speech wrapper instead of direct speakText
+    setTimeout(() => {
+        if (window.stopAllSpeech) window.stopAllSpeech();
+        
+        if (typeof speakWithElevenLabs === 'function') {
+            speakWithElevenLabs(acknowledgment);
+        } else if (window.speakText && typeof window.speakText === 'function') {
             window.speakText(acknowledgment);
-            console.log('✅ AI speaking acknowledgment (testimonials already visible)');
-        }, 300);
-    }
+        }
+        console.log('✅ AI speaking acknowledgment (testimonials already visible)');
+    }, 300);
     
     // Store the concern
     window.lastDetectedConcern = {
@@ -3288,12 +3369,6 @@ window.handleConcernWithTestimonial = function(userText, concernType) {
         timestamp: Date.now()
     };
 };
-
-
-// 🎯 ENHANCED CONCERN HANDLER - USING TESTIMONIAL DATA (YOUR EXISTING)
-function handleConcernWithTestimonial(userText) {
-    // ... your existing enhanced code ...
-}
 
 // 🎯 ADD THIS RIGHT AFTER YOUR EXISTING FUNCTION:
 function getResumeMessageForConcern(concernType) {
@@ -3306,6 +3381,158 @@ function getResumeMessageForConcern(concernType) {
     
     return messages[concernType] || messages.general;
 }
+
+// ============================================================================
+// 🎯 HOW TO UPDATE YOUR getAIResponse() FUNCTION:
+// ============================================================================
+
+/*
+HERE'S HOW TO FIX YOUR getAIResponse() FUNCTION:
+
+1. Add these 2 functions AT THE TOP of getAIResponse():
+   - speakAndReturn() 
+   - window.stopAllSpeech
+
+2. Replace EVERY return statement like this:
+
+   BEFORE: return "Hello, what's your name?";
+   
+   AFTER:  return speakAndReturn("Hello, what's your name?");
+
+3. Do this for ALL 7 places mentioned earlier:
+   - After name capture
+   - Name fallback  
+   - Urgent intent
+   - Appointment intent
+   - OpenAI response
+   - Final fallback
+   - Emergency Bruce detection
+*/
+
+// ============================================================================
+// 🎯 EXAMPLE OF UPDATED getAIResponse() SECTION:
+// ============================================================================
+
+/*
+// 🎯 EXAMPLE - Name capture section:
+
+if (!window.userName) {
+    const name = extractName(userMessage);
+    if (name) {
+        window.userName = name;
+        window.conversationState = 'investigation';
+        window.conversationHistory.push({ role: 'user', content: userMessage });
+        window.conversationHistory.push({ role: 'assistant', content: `Nice to meet you ${name}! What brings you to New Clients Inc today?` });
+        
+        // 🎯 FIXED: Using speakAndReturn wrapper
+        return speakAndReturn(`Nice to meet you ${name}! What brings you to New Clients Inc today?`);
+    } else {
+        window.conversationHistory.push({ role: 'user', content: userMessage });
+        window.conversationHistory.push({ role: 'assistant', content: "Hi! I'm your practice transition assistant. What's your first name?" });
+        
+        // 🎯 FIXED: Using speakAndReturn wrapper  
+        return speakAndReturn("Hi! I'm your practice transition assistant. What's your first name?");
+    }
+}
+*/
+
+// ============================================================================
+// 🎯 ADDITIONAL SPEECH HELPER FUNCTIONS:
+// ============================================================================
+
+// 🎯 Call this when you need to interrupt speech
+window.interruptSpeech = function() {
+    if (window.stopAllSpeech) window.stopAllSpeech();
+    
+    // Also stop any active listening
+    if (window.stopListening && typeof window.stopListening === 'function') {
+        window.stopListening();
+    }
+};
+
+// 🎯 Call this for testimonials/resume messages
+window.speakResumeMessage = function(concernType) {
+    const message = getResumeMessageForConcern(concernType);
+    
+    // Use the speech wrapper
+    if (window.stopAllSpeech) window.stopAllSpeech();
+    
+    setTimeout(() => {
+        if (typeof speakWithElevenLabs === 'function') {
+            speakWithElevenLabs(message);
+        } else if (window.speakText && typeof window.speakText === 'function') {
+            window.speakText(message);
+        }
+    }, 150);
+    
+    return message;
+};
+
+// 🎯 Enhanced concern handler with speech integration
+window.enhancedHandleConcern = function(userText) {
+    console.log(`🎯 Enhanced concern handler with speech: "${userText}"`);
+    
+    // Use the existing handler but ensure speech works
+    if (window.handleConcernWithTestimonial) {
+        window.handleConcernWithTestimonial(userText, window.detectedConcernType);
+    }
+    
+    return ""; // Empty response since testimonials handle speaking
+};
+
+// ============================================================================
+// 🎯 SPEECH WRAPPER FUNCTIONS - ADD TO TOP OF THIS SECTION
+// ============================================================================
+
+// 🎯 MAIN WRAPPER: Speaks AND returns text (use this everywhere!)
+function speakAndReturn(text) {
+    console.log('🎯 Speaking response:', text.substring(0, 50) + '...');
+    
+    // CRITICAL: Stop any previous speech immediately
+    if (window.stopAllSpeech && typeof window.stopAllSpeech === 'function') {
+        window.stopAllSpeech();
+    }
+    
+    // Small delay to ensure cleanup
+    setTimeout(() => {
+        // Try ElevenLabs first, fallback to built-in TTS
+        if (typeof speakWithElevenLabs === 'function') {
+            speakWithElevenLabs(text);
+        } else if (typeof window.speakText === 'function') {
+            window.speakText(text);
+        } else {
+            console.warn('⚠️ No speech function available');
+        }
+    }, 150);
+    
+    return text;
+}
+
+// 🎯 EMERGENCY SPEECH STOPPER (call this before any new speech)
+window.stopAllSpeech = function() {
+    console.log('🛑 Stopping all speech');
+    
+    // Stop ElevenLabs if active
+    if (window.elevenLabsAudio && window.elevenLabsAudio.pause) {
+        window.elevenLabsAudio.pause();
+        window.elevenLabsAudio.currentTime = 0;
+    }
+    
+    // Stop built-in speech
+    if (window.speechSynthesis && window.speechSynthesis.speaking) {
+        window.speechSynthesis.cancel();
+    }
+    
+    // Stop any ongoing audio elements
+    document.querySelectorAll('audio').forEach(audio => {
+        audio.pause();
+        audio.currentTime = 0;
+    });
+};
+
+// ============================================================================
+// 🎯 UPDATED FUNCTIONS WITH SPEECH WRAPPERS
+// ============================================================================
 
 // 🎯 SIMPLE BANNER QUEUE PROCESSOR (if needed)
 function processBannerQueue() {
@@ -3493,19 +3720,23 @@ function handlePreQualifyIntent(message, userName) {
     switch(salesAI.state) {
         case 'investigation':
             salesAI.state = 'building_trust_prequal';
-            return `${userName}, getting properly pre-qualified is such an important first step in practice ownership. What's motivating you to explore practice ownership right now?`;
+            // 🎯 FIXED: Using speakAndReturn wrapper
+            return speakAndReturn(`${userName}, getting properly pre-qualified is such an important first step in practice ownership. What's motivating you to explore practice ownership right now?`);
             
         case 'building_trust_prequal':
             salesAI.state = 'understanding_prequal_goals';
-            return `That's a great starting point. Are you looking for your first practice, or are you thinking about expanding your current operations with an additional location?`;
+            // 🎯 FIXED: Using speakAndReturn wrapper
+            return speakAndReturn(`That's a great starting point. Are you looking for your first practice, or are you thinking about expanding your current operations with an additional location?`);
             
         case 'understanding_prequal_goals':
             salesAI.state = 'pre_close';
-            return `If we could help you get pre-qualified and show you exactly what practice options fit your budget and goals, would you be interested in a free pre-qualification consultation with Bruce?`;
+            // 🎯 FIXED: Using speakAndReturn wrapper
+            return speakAndReturn(`If we could help you get pre-qualified and show you exactly what practice options fit your budget and goals, would you be interested in a free pre-qualification consultation with Bruce?`);
             
         default:
             salesAI.state = 'pre_close';
-            return getPreCloseQuestion({type: 'pre-qualification'});
+            // 🎯 FIXED: Using speakAndReturn wrapper
+            return speakAndReturn(getPreCloseQuestion({type: 'pre-qualification'}));
     }
 }
 
@@ -3521,7 +3752,10 @@ function buildRapportResponse(intentType, userName = '') {
         'pre-qualification': `${namePart}Getting properly pre-qualified is so important for practice ownership. Many first-time buyers are surprised to learn how achievable their dream practice can be. Bruce, the founder and CEO of NCI, has a unique approach that looks beyond just the numbers - he considers your goals, growth potential, and the right practice fit for you. He helped me understand the real opportunities in practice ownership. What's motivating your interest in getting pre-qualified right now?`
     };
     
-    return responses[intentType] || `${namePart}I'd love to help you with that. Could you tell me more about what you're looking to accomplish?`;
+    const response = responses[intentType] || `${namePart}I'd love to help you with that. Could you tell me more about what you're looking to accomplish?`;
+    
+    // 🎯 FIXED: Using speakAndReturn wrapper
+    return speakAndReturn(response);
 }
 
 // FILE 2 HAS buildPreCloseQuestion - ADDING IT (IT WAS MISSING FROM FILE 1)
@@ -3529,9 +3763,15 @@ function buildPreCloseQuestion(intentType, userName = '') {
     const name = userName ? `${userName}, ` : '';
     const path = NCI_CONFIG.salesPaths[intentType];
 
-    if (!path) return `${name}Would you be interested in a free consultation with Bruce,the founder and CEO of NCI?`;
+    if (!path) {
+        const response = `${name}Would you be interested in a free consultation with Bruce,the founder and CEO of NCI?`;
+        // 🎯 FIXED: Using speakAndReturn wrapper
+        return speakAndReturn(response);
+    }
 
-    return `${name}If we could ${path.result} in ${path.timeFrame}, would you be interested in a ${path.offer}?`;
+    const response = `${name}If we could ${path.result} in ${path.timeFrame}, would you be interested in a ${path.offer}?`;
+    // 🎯 FIXED: Using speakAndReturn wrapper
+    return speakAndReturn(response);
 }
 
 function handlePreCloseResponse(userResponse, intentType) {
@@ -3556,15 +3796,20 @@ function handlePreCloseResponse(userResponse, intentType) {
         }
         
         // This speech will play AFTER Action Center appears
-        return "Simply click the book consultation button or whatever you prefer and I'll help you set up a consultation with Bruce";
+        // 🎯 FIXED: Using speakAndReturn wrapper
+        return speakAndReturn("Simply click the book consultation button or whatever you prefer and I'll help you set up a consultation with Bruce");
     }
     
     if (noPatterns.some(pattern => lowerResponse.includes(pattern))) {
-        return "I completely understand wanting to take your time with such an important decision. What specific questions or concerns would be most helpful for you to have answered right now?";
+        const response = "I completely understand wanting to take your time with such an important decision. What specific questions or concerns would be most helpful for you to have answered right now?";
+        // 🎯 FIXED: Using speakAndReturn wrapper
+        return speakAndReturn(response);
     }
     
     // Ambiguous response
-    return "Thanks for sharing that. To make sure I connect you with the right resources, would now be a good time for Bruce,the founder and CEO of NCI to give you a quick call, or would you prefer to get some initial information first?";
+    const response = "Thanks for sharing that. To make sure I connect you with the right resources, would now be a good time for Bruce,the founder and CEO of NCI to give you a quick call, or would you prefer to get some initial information first?";
+    // 🎯 FIXED: Using speakAndReturn wrapper
+    return speakAndReturn(response);
 }
 
 // FILE 2 HAS BANNER_MAPPING AND triggerBanner - ADDING THEM (THEY WERE MISSING FROM FILE 1)
@@ -3658,12 +3903,13 @@ function processUserResponse(userText) {
         console.log('🎯 AI RESPONSE:', responseText);
         
         // Add AI message to chat
-        addAIMessage(responseText);
-        
-        // Speak the response
-        if (typeof speakWithElevenLabs === 'function') {
-            speakWithElevenLabs(responseText);
+        if (window.addAIMessage && typeof window.addAIMessage === 'function') {
+            window.addAIMessage(responseText);
         }
+        
+        // 🎯 FIXED: The response is already spoken by speakAndReturn wrapper
+        // No need to call speakWithElevenLabs again
+        console.log('✅ Speech handled by speakAndReturn wrapper');
     }, 800);
 }
 
@@ -3671,29 +3917,72 @@ function getPreCloseQuestion(intent) {
     const userName = salesAI.userData.firstName || '';
     const namePart = userName ? `${userName}, ` : '';
     
+    let response = '';
+    
     switch(intent.type) {
         case 'sell-practice':
-            return `${namePart}If we could get your practice sold for 20-30% more than going alone in 3 months or less, would you be interested in a valuation consultation with Bruce,the founder and CEO of NCI?`;
+            response = `${namePart}If we could get your practice sold for 20-30% more than going alone in 3 months or less, would you be interested in a valuation consultation with Bruce,the founder and CEO of NCI?`;
+            break;
             
         case 'buy-practice':
-            return `${namePart}If we could help you find the perfect practice to acquire with financing options, would you be interested in a free acquisition consultation?`;
+            response = `${namePart}If we could help you find the perfect practice to acquire with financing options, would you be interested in a free acquisition consultation?`;
+            break;
             
         case 'pre-qualification':  // ← ADD THIS CASE
-            return `${namePart}If we could help you get pre-qualified and find the right practice opportunity that fits your goals and budget, would you be interested in a free pre-qualification consultation with Bruce, the founder and CEO of NCI?`;
+            response = `${namePart}If we could help you get pre-qualified and find the right practice opportunity that fits your goals and budget, would you be interested in a free pre-qualification consultation with Bruce, the founder and CEO of NCI?`;
+            break;
             
         case 'marketing-help':
-            return `${namePart}If we could help you get 5-10 new qualified clients in the next 90 days, would you be interested in a free marketing strategy session?`;
+            response = `${namePart}If we could help you get 5-10 new qualified clients in the next 90 days, would you be interested in a free marketing strategy session?`;
+            break;
             
         case 'growth-help':
-            return `${namePart}If we could help you increase your practice revenue by 25-50% in the next year, would you be interested in a free growth consultation?`;
+            response = `${namePart}If we could help you increase your practice revenue by 25-50% in the next year, would you be interested in a free growth consultation?`;
+            break;
             
         case 'general-question':
-            return `${namePart}Would you like to schedule a quick call with one of our specialists to discuss this further?`;
+            response = `${namePart}Would you like to schedule a quick call with one of our specialists to discuss this further?`;
+            break;
             
         default:
-            return `${namePart}Would you be interested in a free consultation to explore how we can help you?`;
+            response = `${namePart}Would you be interested in a free consultation to explore how we can help you?`;
     }
+    
+    // 🎯 FIXED: Using speakAndReturn wrapper
+    return speakAndReturn(response);
 }
+
+// ============================================================================
+// 🎯 SPEECH INTEGRATION FUNCTIONS
+// ============================================================================
+
+// 🎯 Call this when you need to interrupt speech
+window.interruptSpeech = function() {
+    if (window.stopAllSpeech) window.stopAllSpeech();
+    
+    // Also stop any active listening
+    if (window.stopListening && typeof window.stopListening === 'function') {
+        window.stopListening();
+    }
+};
+
+// 🎯 Call this for testimonials/resume messages
+window.speakResumeMessage = function(concernType) {
+    const message = getResumeMessageForConcern(concernType);
+    
+    // Use the speech wrapper
+    if (window.stopAllSpeech) window.stopAllSpeech();
+    
+    setTimeout(() => {
+        if (typeof speakWithElevenLabs === 'function') {
+            speakWithElevenLabs(message);
+        } else if (window.speakText && typeof window.speakText === 'function') {
+            window.speakText(message);
+        }
+    }, 150);
+    
+    return message;
+};
 
 // ===================================================
 // 🎯 NAME CAPTURE HANDLER - RESUME PENDING INTENT
