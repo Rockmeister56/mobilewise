@@ -3,6 +3,31 @@
 // Smart Button + Lead Capture + EmailJS + Banner System
 // ===================================================
 
+// TEST FUNCTION: Check if banner triggers
+window.testBannerTrigger = function() {
+    console.log('🧪 Testing banner trigger...');
+    
+    // Simulate speech completion
+    window.isSpeaking = false;
+    
+    // Clear any blocking states for test
+    window.lastClickMentionTime = 0;
+    window.concernBannerActive = false;
+    window.isInTestimonialMode = false;
+    window.isInConfirmationDialog = false;
+    window.isInLeadCapture = false;
+    
+    console.log('Triggering showDirectSpeakNow...');
+    if (typeof showDirectSpeakNow === 'function') {
+        showDirectSpeakNow();
+        console.log('✅ showDirectSpeakNow called successfully');
+    } else {
+        console.error('❌ showDirectSpeakNow not found!');
+    }
+};
+
+// Run test: testBannerTrigger()
+
 // ===========================================
 // GLOBAL SPEECH CONTROL FUNCTION - UPDATED
 // ===========================================
