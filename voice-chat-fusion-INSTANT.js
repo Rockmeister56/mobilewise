@@ -4,76 +4,52 @@
 // ===================================================
 
 // ===================================================
-// 🎤 ELEVENLABS MOBILE DEBUGGER
+// 🎤 TTS TO ELEVENLABS BRIDGE - INTERCEPT BROWSER TTS
 // ===================================================
-function debugElevenLabsMobile() {
-    console.log("🔍 === ELEVENLABS MOBILE DEBUG ====");
+function installTTSBridge() {
+    console.log("🌉 Installing TTS-to-ElevenLabs Bridge...");
     
-    // 1. Check current voice provider
-    console.log("1. Current provider:", VOICE_CONFIG ? VOICE_CONFIG.provider : "VOICE_CONFIG not found");
-    console.log("2. ElevenLabs enabled:", VOICE_CONFIG?.elevenlabs?.enabled);
+    // 1. Save original speechSynthesis.speak
+    const originalSpeak = window.speechSynthesis.speak;
     
-    // 2. Check API key
-    console.log("3. API Key exists:", VOICE_CONFIG?.elevenlabs?.apiKey ? "✅ Yes" : "❌ No");
-    console.log("4. Voice ID:", VOICE_CONFIG?.elevenlabs?.voiceId);
+    // 2. Intercept ALL TTS calls
+    window.speechSynthesis.speak = function(utterance) {
+        console.log("🚨 TTS INTERCEPTED! Attempting to speak via TTS:");
+        console.log("   - Text:", utterance.text?.substring(0, 100) + "...");
+        console.log("   - Current provider:", VOICE_CONFIG?.provider);
+        console.log("   - Is mobile:", /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent));
+        
+        // 🔥 BRIDGE: Redirect to ElevenLabs if possible
+        if (VOICE_CONFIG?.provider !== 'elevenlabs' && 
+            VOICE_CONFIG?.elevenlabs?.enabled &&
+            typeof window.speakText === 'function') {
+            
+            console.log("🌉 BRIDGE ACTIVATED: Redirecting to ElevenLabs!");
+            
+            // Force switch to ElevenLabs
+            VOICE_CONFIG.provider = 'elevenlabs';
+            
+            // Use ElevenLabs instead
+            window.speakText(utterance.text);
+            
+            // Return a fake SpeechSynthesisUtterance that does nothing
+            const fakeUtterance = new SpeechSynthesisUtterance('');
+            fakeUtterance.onend = () => {
+                if (utterance.onend) utterance.onend();
+            };
+            return originalSpeak.call(this, fakeUtterance);
+        }
+        
+        // If bridge can't work, use original TTS
+        console.log("🌉 Bridge not available - using original TTS");
+        return originalSpeak.call(this, utterance);
+    };
     
-    // 3. Check if mobile detection is causing issues
-    console.log("5. Is mobile:", /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent));
-    console.log("6. User agent:", navigator.userAgent.substring(0, 100));
-    
-    // 4. Check speakText function
-    console.log("7. speakText function:", typeof window.speakText === 'function' ? "✅ Exists" : "❌ Missing");
-    
-    // 5. Check if provider is switching
-    if (typeof getVoiceStatus === 'function') {
-        console.log("8. Voice status:");
-        getVoiceStatus();
-    }
-    
-    console.log("🔍 === END DEBUG ====");
+    console.log("✅ TTS Bridge installed - All TTS calls will be intercepted");
 }
 
-// Also add this to track voice usage
-let voiceUsageLog = [];
-const originalSpeakText = window.speakText;
-
-window.speakText = function(text, options = {}) {
-    console.log("🎤 SPEAKTEXT CALLED:");
-    console.log("  - Text length:", text.length);
-    console.log("  - Provider:", VOICE_CONFIG?.provider);
-    console.log("  - Options:", options);
-    console.log("  - Is mobile:", /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent));
-    
-    // Log for debugging
-    voiceUsageLog.push({
-        time: new Date().toISOString(),
-        text: text.substring(0, 50) + "...",
-        provider: VOICE_CONFIG?.provider,
-        isMobile: /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent),
-        options: options
-    });
-    
-    // Keep only last 10 entries
-    if (voiceUsageLog.length > 10) {
-        voiceUsageLog = voiceUsageLog.slice(-10);
-    }
-    
-    // Call original function
-    return originalSpeakText.call(this, text, options);
-};
-
-// Function to check voice log
-function checkVoiceLog() {
-    console.log("📊 === VOICE USAGE LOG ===");
-    voiceUsageLog.forEach((entry, i) => {
-        console.log(`${i + 1}. ${entry.time} - ${entry.provider} - Mobile: ${entry.isMobile}`);
-        console.log(`   "${entry.text}"`);
-    });
-    console.log("📊 === END LOG ===");
-}
-
-// Run on page load
-setTimeout(debugElevenLabsMobile, 2000);
+// Call this early in your initialization
+installTTSBridge();
 
 // ===========================================
 // ELEVENLABS CONFIGURATION
