@@ -74,7 +74,7 @@
         }
 
   .container {
-    max-width: 810px;
+    max-width: 850px;
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
     border-radius: 10px;
@@ -83,7 +83,7 @@
 }
 
 /* ✅ DESKTOP STYLES */
-@media (min-width: 769px) {
+@media (min-width: 780px) {
     .container {
         margin-top: 210px !important;  /* ✅ Changed from 100px */
         margin-left: auto !important;
@@ -182,11 +182,6 @@
         overflow-y: auto !important;
     }
     
-    .book-banner, #bruceBookBanner {
-        margin: 8px !important;
-        border-radius: 15px !important;
-    }
-    
     /* ✅ FORCE MOBILE CHAT TO TOP */
     #chatMessages {
         padding-top: 10px !important;
@@ -267,81 +262,6 @@
         }
 
         /* ===================================================
-           🎤 MICROPHONE STATUS INDICATOR
-           ================================================== */
-        .mic-status {
-            text-align: center;
-            padding: 10px;
-            background: var(--success-gradient);
-            border-radius: 20px;
-            margin-bottom: 15px;
-            font-weight: bold;
-            animation: fadeInOut 3s ease-in-out;
-        }
-
-        @keyframes fadeInOut {
-            0%, 100% { opacity: 0; }
-            20%, 80% { opacity: 1; }
-        }
-
-        /* 🎤 PULSATING MIC BUTTON ANIMATION */
-#mainMicButton {
-    /* Keep your existing styles and ADD these */
-    animation: pulse-glow 2s ease-in-out infinite alternate;
-    box-shadow: 
-        0 0 20px rgba(0, 255, 136, 0.6),
-        0 0 40px rgba(0, 255, 136, 0.4),
-        0 0 60px rgba(0, 255, 136, 0.2);
-}
-
-/* Pulsating glow keyframes */
-@keyframes pulse-glow {
-    0% {
-        transform: scale(1);
-        box-shadow: 
-            0 0 20px rgba(0, 255, 136, 0.6),
-            0 0 40px rgba(0, 255, 136, 0.4),
-            0 0 60px rgba(0, 255, 136, 0.2);
-    }
-    100% {
-        transform: scale(1.05);
-        box-shadow: 
-            0 0 30px rgba(0, 255, 136, 0.8),
-            0 0 60px rgba(0, 255, 136, 0.6),
-            0 0 90px rgba(0, 255, 136, 0.4);
-    }
-}
-
-/* Enhanced hover effect */
-#mainMicButton:hover {
-    animation-duration: 0.5s;
-    transform: scale(1.1);
-}
-
-/* Click ripple effect */
-#mainMicButton:active {
-    animation: ripple 0.6s linear;
-}
-
-@keyframes ripple {
-    0% {
-        box-shadow: 
-            0 0 0 0 rgba(0, 255, 136, 0.7),
-            0 0 20px rgba(0, 255, 136, 0.6);
-    }
-    70% {
-        box-shadow: 
-            0 0 0 60px rgba(0, 255, 136, 0),
-            0 0 20px rgba(0, 255, 136, 0.6);
-    }
-    100% {
-        box-shadow: 
-            0 0 0 0 rgba(0, 255, 136, 0),
-            0 0 20px rgba(0, 255, 136, 0.6);
-    }
-}
-
-        /* ===================================================
            💭 CHAT MESSAGES AREA
            ================================================== */
         .chat-messages {
@@ -366,9 +286,9 @@
 .chat-messages,
 .messages-container,
 #chat-area {
-    height: 40vh !important; /* Reduced from 45vh */
-    max-height: 35vh !important;
-    margin-bottom: -30px !important; /* More space below chat */
+    height: 45vh !important; /* Reduced from 45vh */
+    max-height: 45vh !important;
+    margin-bottom: -18px !important; /* More space below chat */
     overflow-y: auto !important;
     padding-bottom: 15px !important; /* Internal spacing */
 }
@@ -382,7 +302,7 @@
 
 .text-input-container,
 .input-section {
-    margin-top: 20px !important; /* Push text area down */
+    margin-top: 40px !important; /* Push text area down */
     clear: both !important; /* Prevent overlap */
 }
 
@@ -547,7 +467,7 @@
             font-size: 0.9rem;
             transition: all 0.2s ease;
             flex: 1;
-            min-width: 140px;
+            min-width: 100px;
         }
 
         .quick-btn:hover {
@@ -579,7 +499,7 @@
         height: 62vh !important; /* Perfect balance */
         max-height: 62vh !important;
         overflow-y: auto !important;
-        margin-bottom: -40px; /* Space for buttons */
+        margin-bottom: -30px; /* Space for buttons */
     }
     
     /* INPUT CONTROLS */
@@ -602,8 +522,8 @@
     
     /* STOP BUTTON SPACE */
     .stop-button-area {
-        height: 50px;
-        margin-top: 10px;
+        height: 25px;
+        margin-top: 5px;
     }
     
     /* CONTAINER FIX */
@@ -652,7 +572,7 @@
     .quick-btn {
         font-size: 0.75rem; /* Smaller text */
         padding: 6px 10px; /* Smaller padding */
-        min-width: 100px; /* Smaller minimum width */
+        min-width: 80px; /* Smaller minimum width */
     }
     
     /* Make buttons more compact */
@@ -822,72 +742,28 @@
     padding-top: 1px !important; /* Just breathing room for banners */
 }
 
-/* ===== MOBILE-WISE AI BANNER ABSOLUTE POSITIONING ===== */
-.lead-capture-banner,
-.consultation-banner,
-#leadCaptureBanner,
-#emailConfirmationBanner,
-#thankYouBanner,
-.email-confirmation-banner,
-.success-banner,
-.consultation-confirmed-banner {
-    position: absolute !important;
-    top: 2px !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    z-index: 9999 !important;
-    width: calc(100% - 20px) !important;
-    max-width: 400px !important;
-    margin: 0 !important;
-    box-sizing: border-box !important;
-}
-
-/* SPECIAL: Branding banner at very top */
-.branding-header-banner {
-    top: 0px !important;
-    z-index: 10000 !important;
-}
-
-/* BRUCE'S BANNER - Override mobile adjustments */
-.bruce-logo-container img {
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-}
-
-/* SPECIAL: Branding banner at very top */
-.branding-header-banner {
-    top: 0px !important; /* Higher than other banners */
-    z-index: 10000 !important; /* Above other banners */
-
-    /* Force banner to ignore ALL header styling */
-.bruce-logo-container {
-    text-align: center !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    position: relative !important;
-}
-}
-
-/*
-@media (max-width: 768px) {
-    #bannerHeaderContainer img {
-        margin-left: -25px !important;
-    }
+/* Green border for PAUSE SESSION button */
+.quick-btn[onclick="pauseSession()"] {
+    border: 2px solid #00ff1e !important;
+    background: rgba(0, 255, 30, 0.1) !important;
+    color: #00ff1e !important;
+    transition: all 0.3s ease !important;
     
-    #bannerHeaderContainer div[style*="MOBILE-WISE AI"] {
-        left: 5% !important;
-        transform: translateX(-50%) !important;
-    }
-    
-    #bannerHeaderContainer div:last-child {
-        right: 7px !important;
-    }
+    /* Simple size control */
+    padding: 8px 12px !important;
+    height: 38px !important;
+    font-size: 12px !important;
 
-    #universalBanner div:nth-child(2) {
-        left: 12% !important;
-    }
+        /* Width control - choose one */
+    min-width: 110px !important;       /* Minimum width */
 }
-*/
+
+.quick-btn[onclick="pauseSession()"]:hover {
+    background: rgba(0, 255, 30, 0.2) !important;
+    box-shadow: 0 0 15px rgba(0, 255, 30, 0.4) !important;
+    transform: translateY(-2px) !important;
+}
+
 
     </style>
 </head>
@@ -935,6 +811,76 @@
         right: 10px !important; /* Adjust slogan position on mobile */
     }
 }
+/* Classic Spinner - Double Size */
+.voice-preloader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex; /* CHANGE TO FLEX IMMEDIATELY */
+    justify-content: center;
+    align-items: center;
+    z-index: 9999; /* SUPER HIGH Z-INDEX */
+    flex-direction: column;
+    color: white;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.voice-spinner {
+    width: 100px;
+    height: 100px;
+    border: 6px solid #f3f3f3;
+    border-top: 6px solid #3498db;
+    border-radius: 50%;
+    animation: voiceSpin 1s linear infinite;
+    margin-bottom: 20px;
+}
+
+.voice-loading-text {
+    font-size: 18px;
+    font-weight: 500;
+}
+
+@keyframes voiceSpin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* HIDE SPLASH SCREEN IMMEDIATELY */
+#centerMicActivation {
+    display: none !important;
+}
+
+.ai-message > div:not(.ai-avatar) {
+    flex: 1;
+    min-width: 0;
+    white-space: normal;
+    text-align: left;
+    color: white;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.ai-avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 2px solid rgba(255, 255, 255, 0.8);
+}
+
+.ai-bubble {
+    max-width: 850%;
+    width: fit-content; /* Bubble will expand to fit text content */
+    flex-shrink: 0;
+    display: block; /* Override any flex child behavior */
+}
+
+/* NO .ai-bubble class needed - the text goes directly in the flex container */
+
 </style>
     </div>
 </div>
@@ -992,35 +938,11 @@
     <button class="quick-btn" onclick="askQuickQuestion('I want to buy a practice')">Buying Options</button>
 </div>
     
-    <!-- FULL WIDTH TEXT INPUT -->
-    <div class="input-area" style="
-        display: flex;
-        gap: 8px;
-        align-items: center;
-        width: 100%;
-        margin: 0 0 12px 0;">
-        
-        <input type="text" id="userInput" placeholder="Type or click mic to speak..." style="
-            flex: 1;
-            width: 100%;
-            padding: 12px;
-            border: none;
-            border-radius: 25px;
-            background: rgba(255, 255, 255, 0.9);
-            color: #333;
-            font-size: 16px;
-            outline: none;">
-        
-        <button id="sendBtn" onclick="sendMessage()" style="
-            padding: 12px 20px;
-            background: linear-gradient(90deg, #ff7e5f, #feb47b);
-            color: white;
-            border: none;
-            border-radius: 25px;
-            font-weight: bold;
-            cursor: pointer;
-            white-space: nowrap;">Send</button>
-    </div>
+   <!-- HIDDEN TEXT INPUT - system can still access it -->
+<div class="input-area" style="display: none;">
+    <input type="text" id="userInput" placeholder="Type or click mic to speak...">
+    <button id="sendBtn" onclick="sendMessage()">Send</button>
+</div>
     
     <!-- BIGGER CONTROL BUTTONS -->
     <div style="
@@ -1029,23 +951,23 @@
         justify-content: center;
         margin: 0;">
         
-        <button class="quick-btn" onclick="switchToTextMode()" style="
+        <button class="quick-btn" onclick="pauseSession()" style="
             padding: 12px 25px;
             background: rgba(255, 255, 255, 0.15);
-            color: white;
+            color: rgb(0, 255, 30);
             border: none;
-            border-radius: 20px;
+            border-radius: 15px;
             cursor: pointer;
             font-size: 14px;
             font-weight: 600;
-            min-width: 120px;">Switch to Text</button>
+            min-width: 80px;">PAUSE SESSION</button>
         
         <button class="quick-btn" onclick="exitToMainSite()" style="
             padding: 12px 25px;
             background: linear-gradient(135deg, #ff4757, #ff3742);
             color: white;
             border: none;
-            border-radius: 20px;
+            border-radius: 15px;
             cursor: pointer;
             font-size: 14px;
             font-weight: 600;
@@ -1057,103 +979,66 @@
         <div id="permissionStatus"></div>
     </div>
 
-    <!-- ===================================================
-     🎯 DYNAMIC CONCERN-BASED TESTIMONIAL SYSTEM
-     ================================================== -->
-<script>
-// Concern configuration
-const concernConfig = {
-    price: {
-        title: 'See What Others Say About Value',
-        icon: '💰',
-        reviews: [
-            { text: "Worth every penny. The ROI was visible within the first month.", author: "John D." },
-            { text: "Best investment we made this year. Price seemed high at first but value is clear.", author: "Sarah M." },
-            { text: "The results justified the cost ten times over.", author: "Mike T." }
-        ]
-    },
-    time: {
-        title: 'Hear From Busy Professionals',
-        icon: '⏰',
-        reviews: [
-            { text: "Process was incredibly quick. Done in minutes, not hours.", author: "Emily R." },
-            { text: "As a busy executive, I appreciated how streamlined everything was.", author: "David L." },
-            { text: "Fit perfectly into my packed schedule.", author: "Lisa K." }
-        ]
-    },
-    trust: {
-        title: 'Real Client Experiences',
-        icon: '🤝',
-        reviews: [
-            { text: "Results exceeded my expectations. They delivered exactly what they promised.", author: "Tom B." },
-            { text: "I was skeptical at first, but they proved me wrong in the best way.", author: "Jessica W." },
-            { text: "Couldn't be happier with the outcome. Wish I'd done this sooner.", author: "Robert C." }
-        ]
-    },
-    general: {
-        title: 'What Our Clients Say',
-        icon: '⭐',
-        reviews: [
-            { text: "Professional service exceeded expectations.", author: "Christopher N." },
-            { text: "Highly recommend to anyone considering this.", author: "Amanda G." },
-            { text: "Results speak for themselves. Very satisfied.", author: "Daniel P." }
-        ]
-    }
-};
-
-// Show dynamic banner
-function showDynamicConcernBanner(concernType) {
-    window.concernBannerActive = true;
-    
-    const config = concernConfig[concernType] || concernConfig.general;
-    const existingBanner = document.getElementById('dynamic-concern-banner');
-    if (existingBanner) existingBanner.remove();
-    
-    const bannerHTML = `
-        <div id="dynamic-concern-banner" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 16px; padding: 24px; margin: 20px auto; max-width: 90%; box-shadow: 0 8px 32px rgba(0,0,0,0.2); animation: slideInBanner 0.5s ease-out; position: relative; z-index: 999;">
-            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
-                <span style="font-size: 32px;">${config.icon}</span>
-                <h3 style="color: white; margin: 0; font-size: 20px; font-weight: 600;">${config.title}</h3>
-            </div>
-            <div style="background: rgba(255,255,255,0.95); border-radius: 12px; padding: 20px; margin-bottom: 16px;">
-                ${config.reviews.map((r, i) => `
-                    <div style="${i > 0 ? 'margin-top: 16px; padding-top: 16px; border-top: 1px solid #e5e7eb;' : ''}">
-                        <p style="color: #1f2937; font-size: 15px; line-height: 1.6; margin: 0 0 8px 0; font-style: italic;">"${r.text}"</p>
-                        <p style="color: #6b7280; font-size: 14px; margin: 0; font-weight: 500;">— ${r.author}</p>
-                    </div>
-                `).join('')}
-            </div>
-            <button onclick="skipConcernBanner()" style="background: white; color: #667eea; border: none; padding: 12px 24px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; width: 100%; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">Skip to Form →</button>
-        </div>
-        <style>@keyframes slideInBanner { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); }}</style>
-    `;
-    
-    const chatContainer = document.getElementById('chatMessages');
-    if (chatContainer) {
-        const bannerElement = document.createElement('div');
-        bannerElement.innerHTML = bannerHTML;
-        chatContainer.appendChild(bannerElement);
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-    }
-}
-
-// Skip button handler
-window.skipConcernBanner = function() {
-    const banner = document.getElementById('dynamic-concern-banner');
-    if (banner) {
-        banner.remove();
-        window.concernBannerActive = false;
-    }
-};
-
-console.log('🎯 Dynamic Concern Banner System loaded!');
 </script>                           
-<script src="testimonials-data.js"></script>       
+
+<!-- Spinner HTML - PUT THIS AT THE VERY TOP of body -->
+<div id="voicePreloader" class="voice-preloader">
+    <div class="voice-spinner"></div>
+    <div class="voice-loading-text">Initializing Voice Assistant...</div>
+</div>
+
+<script>
+// Auto-trigger function for voice activation - RUN IMMEDIATELY
+document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    if (urlParams.get('autoStartVoice') === 'true') {
+        // Spinner is already visible (display: flex in CSS)
+        // Splash screen is already hidden (!important in CSS)
+        
+        // Auto-click mic button after very brief delay
+        setTimeout(() => {
+            const micButton = document.getElementById('mainMicButton');
+            if (micButton) {
+                micButton.click();
+                
+                // Hide preloader when voice is ready
+                setTimeout(() => {
+                    document.getElementById('voicePreloader').style.display = 'none';
+                }, 2500); // Slightly shorter timeout
+            } else {
+                // Fallback: hide spinner after 3 seconds if mic not found
+                setTimeout(() => {
+                    document.getElementById('voicePreloader').style.display = 'none';
+                }, 3000);
+            }
+        }, 100); // Much shorter delay
+        
+        // Clean up URL
+        window.history.replaceState({}, '', window.location.pathname);
+    } else {
+        // If NOT auto-start, hide spinner and show splash screen
+        document.getElementById('voicePreloader').style.display = 'none';
+        const micActivation = document.getElementById('centerMicActivation');
+        if (micActivation) {
+            micActivation.style.display = 'block';
+        }
+    }
+});
+</script>
+
+<!-- 1. Testimonials FIRST -->
+<script src="testimonials-data.js"></script>
 <script src="testimonials-player.js"></script>
-<script src="voice-chat-fusion-INSTANT.js"></script>
+
+<!-- 2. Action System SECOND -->
 <script src="action-system-unified.js"></script>
+
+<!-- 3. Everything ELSE (any order) -->
 <script src="universal-banner-engine-v4-CAPTAIN-FINAL.js"></script>
 <script src="action-button-system-CAPTAIN.js"></script>
 <script src="banner-button-integration-SIMPLE.js"></script>
+<script src="voice-chat-fusion-INSTANT.js"></script>
+
 </body>
 </html>
