@@ -1235,6 +1235,52 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
+
+// Show dynamic banner
+function showDynamicConcernBanner(concernType) {
+    window.concernBannerActive = true;
+    
+    const config = concernConfig[concernType] || concernConfig.general;
+    const existingBanner = document.getElementById('dynamic-concern-banner');
+    if (existingBanner) existingBanner.remove();
+    
+    const bannerHTML = `
+        <div id="dynamic-concern-banner" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 16px; padding: 24px; margin: 20px auto; max-width: 90%; box-shadow: 0 8px 32px rgba(0,0,0,0.2); animation: slideInBanner 0.5s ease-out; position: relative; z-index: 999;">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                <span style="font-size: 32px;">${config.icon}</span>
+                <h3 style="color: white; margin: 0; font-size: 20px; font-weight: 600;">${config.title}</h3>
+            </div>
+            <div style="background: rgba(255,255,255,0.95); border-radius: 12px; padding: 20px; margin-bottom: 16px;">
+                ${config.reviews.map((r, i) => `
+                    <div style="${i > 0 ? 'margin-top: 16px; padding-top: 16px; border-top: 1px solid #e5e7eb;' : ''}">
+                        <p style="color: #1f2937; font-size: 15px; line-height: 1.6; margin: 0 0 8px 0; font-style: italic;">"${r.text}"</p>
+                        <p style="color: #6b7280; font-size: 14px; margin: 0; font-weight: 500;">— ${r.author}</p>
+                    </div>
+                `).join('')}
+            </div>
+            <button onclick="skipConcernBanner()" style="background: white; color: #667eea; border: none; padding: 12px 24px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; width: 100%; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">Skip to Form →</button>
+        </div>
+        <style>@keyframes slideInBanner { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); }}</style>
+    `;
+    
+    const chatContainer = document.getElementById('chatMessages');
+    if (chatContainer) {
+        const bannerElement = document.createElement('div');
+        bannerElement.innerHTML = bannerHTML;
+        chatContainer.appendChild(bannerElement);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+}
+
+// Skip button handler
+window.skipConcernBanner = function() {
+    const banner = document.getElementById('dynamic-concern-banner');
+    if (banner) {
+        banner.remove();
+        window.concernBannerActive = false;
+    }
+};
+
 </script>
 
 <!-- 1. Testimonials FIRST -->
