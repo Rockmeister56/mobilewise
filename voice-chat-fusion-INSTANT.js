@@ -3,6 +3,108 @@
 // Smart Button + Lead Capture + EmailJS + Banner System
 // ===================================================
 
+// =============================================================================
+// 🎯 ONE BEST FIX: Create Emergency Microphone Button
+// =============================================================================
+
+console.log('🚨 CREATING EMERGENCY MICROPHONE BUTTON...');
+
+// 1. Create a floating microphone button
+const emergencyMicBtn = document.createElement('button');
+emergencyMicBtn.innerHTML = '🎤 EMERGENCY MIC';
+emergencyMicBtn.style.cssText = `
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 999999;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 15px 30px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    transition: all 0.3s ease;
+`;
+
+// 2. Add hover effect
+emergencyMicBtn.onmouseover = function() {
+    this.style.transform = 'scale(1.1)';
+    this.style.boxShadow = '0 15px 40px rgba(0,0,0,0.4)';
+};
+emergencyMicBtn.onmouseout = function() {
+    this.style.transform = 'scale(1)';
+    this.style.boxShadow = '0 10px 30px rgba(0,0,0,0.3)';
+};
+
+// 3. Make it click to start voice chat
+emergencyMicBtn.onclick = function() {
+    console.log('🎤 EMERGENCY MICROPHONE CLICKED');
+    
+    // Start listening
+    if (window.startListening && typeof window.startListening === 'function') {
+        window.startListening();
+        console.log('✅ Voice chat started!');
+        
+        // Change button text
+        this.innerHTML = '🎤 LISTENING...';
+        this.style.background = 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)';
+        
+        // Reset after 10 seconds
+        setTimeout(() => {
+            this.innerHTML = '🎤 EMERGENCY MIC';
+            this.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+        }, 10000);
+    } else {
+        console.error('❌ startListening function not found');
+        this.innerHTML = '❌ ERROR';
+        this.style.background = '#ff0000';
+    }
+};
+
+// 4. Add to page
+document.body.appendChild(emergencyMicBtn);
+
+// 5. Also try to trigger the original video popup
+console.log('🎯 ALSO TRYING TO TRIGGER ORIGINAL VIDEO POPUP...');
+
+// Try common video popup triggers
+setTimeout(() => {
+    // Try to find and show any hidden video/mic elements
+    const videoButtons = document.querySelectorAll('[class*="video"], [class*="mic"], [class*="popup"], [class*="modal"]');
+    console.log(`Found ${videoButtons.length} possible video/popup elements`);
+    
+    // Click any that might be the mic button
+    videoButtons.forEach((btn, i) => {
+        console.log(`Element ${i}:`, btn.className);
+        // If it looks like a button with mic/video text
+        if (btn.textContent && (btn.textContent.toLowerCase().includes('mic') || 
+                                btn.textContent.toLowerCase().includes('video') ||
+                                btn.textContent.toLowerCase().includes('start'))) {
+            console.log('🎯 Found possible mic button:', btn.textContent);
+            btn.click();
+        }
+    });
+    
+    // Also try to trigger any popup that might exist
+    if (window.showVideoPopup && typeof window.showVideoPopup === 'function') {
+        window.showVideoPopup();
+        console.log('✅ Triggered showVideoPopup()');
+    }
+    
+    if (window.openChat && typeof window.openChat === 'function') {
+        window.openChat();
+        console.log('✅ Triggered openChat()');
+    }
+}, 1000);
+
+console.log('✅ EMERGENCY MICROPHONE BUTTON CREATED!');
+console.log('🎤 Look for the PURPLE "EMERGENCY MIC" button at the bottom-right of your screen.');
+console.log('👉 CLICK IT to start voice chat!');
+console.log('\n🎯 Then say "Rock" when asked for your name.');
+
 // TEST FUNCTION: Check if banner triggers
 window.testBannerTrigger = function() {
     console.log('🧪 Testing banner trigger...');
