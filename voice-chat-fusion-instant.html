@@ -1027,10 +1027,14 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<!-- action-system-unified.js FIRST - it's the core dependency -->
+<!-- 1. Testimonials FIRST -->
+<script src="testimonials-data.js"></script>
+<script src="testimonials-player.js"></script>
+
+<!-- 2. Action System SECOND -->
 <script src="action-system-unified.js"></script>
 
-<!-- Then everything that depends on it -->
+<!-- 3. Everything ELSE (any order) -->
 <script src="universal-banner-engine-v4-CAPTAIN-FINAL.js"></script>
 <script src="action-button-system-CAPTAIN.js"></script>
 <script src="banner-button-integration-SIMPLE.js"></script>
