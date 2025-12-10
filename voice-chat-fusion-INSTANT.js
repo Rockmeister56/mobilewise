@@ -3,78 +3,88 @@
 // Smart Button + Lead Capture + EmailJS + Banner System
 // ===================================================
 
-// SAFE TEST BUTTON - NO ERRORS
-function createTestButton() {
-    // Create button
+// COMPLETE CONVERSATION STARTER BUTTON
+function createRockConversationButton() {
     const testBtn = document.createElement('button');
-    testBtn.textContent = '🔧 TEST BUTTON';
+    testBtn.textContent = '🎤 START ROCK CONVERSATION';
     testBtn.style.cssText = `
         position: fixed;
-        top: 10px;
+        top: 50px;
         right: 10px;
-        background: red;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
-        padding: 10px 15px;
+        padding: 15px 20px;
         border: none;
-        border-radius: 5px;
+        border-radius: 10px;
         font-weight: bold;
+        font-size: 16px;
         z-index: 99999;
         cursor: pointer;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
     `;
     
-    // SAFE click handler - no undefined function errors
     testBtn.onclick = function() {
-        console.log('=== TEST BUTTON CLICKED ===');
+        console.log('🎤 STARTING ROCK CONVERSATION...');
         
-        // 1. Check what functions exist
-        console.log('Functions available:');
-        console.log('handleActionButton:', typeof handleActionButton);
-        console.log('showCommunicationActionCenter:', typeof showCommunicationActionCenter);
-        
-        // 2. Try to call handleActionButton safely
-        if (typeof handleActionButton === 'function') {
-            console.log('Calling handleActionButton("click-to-call")...');
-            try {
-                handleActionButton('click-to-call');
-                console.log('✅ Successfully called!');
-            } catch (e) {
-                console.error('❌ Error calling handleActionButton:', e.message);
-            }
-        } else {
-            console.log('❌ handleActionButton is not a function');
-            
-            // 3. Try to find it
-            console.log('Searching for similar functions...');
-            const funcs = Object.keys(window).filter(key => 
-                typeof window[key] === 'function' && 
-                key.toLowerCase().includes('action')
-            );
-            console.log('Action-related functions:', funcs);
+        // 1. First, make sure voice system is active
+        if (typeof startListening === 'function') {
+            console.log('✅ Starting voice listening...');
+            startListening();
         }
         
-        // 4. Check if action system script loaded
-        const script = document.querySelector('script[src*="action-system-unified.js"]');
-        console.log('Action script in DOM?', !!script);
+        // 2. Trigger the exact "Hello my name is Rock" flow
+        setTimeout(() => {
+            console.log('🗣️ Simulating user saying: "Hello my name is Rock"');
+            
+            // This is what happens when user speaks
+            if (typeof processVoiceInput === 'function') {
+                // Simulate voice recognition result
+                const mockTranscript = "hello my name is rock";
+                processVoiceInput(mockTranscript);
+            } else if (typeof handleUserMessage === 'function') {
+                // Alternative function
+                handleUserMessage("hello my name is rock");
+            }
+            
+            // Also trigger AI response
+            setTimeout(() => {
+                console.log('🤖 Triggering AI response...');
+                
+                // Look for AI response functions
+                if (typeof respondToUser === 'function') {
+                    respondToUser("hello my name is rock");
+                } else if (typeof generateAIResponse === 'function') {
+                    generateAIResponse("hello my name is rock");
+                } else {
+                    // Fallback: try to click the mic button to trigger AI
+                    const micBtn = document.querySelector('[id*="mic"], [class*="mic"], button');
+                    if (micBtn) {
+                        console.log('Clicking mic button as fallback...');
+                        micBtn.click();
+                    }
+                }
+            }, 1000);
+        }, 500);
         
-        // 5. Try to force load if missing
-        if (!script && typeof handleActionButton === 'undefined') {
-            console.log('Attempting to load action system...');
-            const newScript = document.createElement('script');
-            newScript.src = 'action-system-unified.js';
-            newScript.onload = () => console.log('✅ Script loaded');
-            newScript.onerror = () => console.error('❌ Script failed to load');
-            document.head.appendChild(newScript);
+        // 3. Force the action system to load
+        console.log('🔧 Ensuring action system is loaded...');
+        const actionScript = document.querySelector('script[src*="action-system-unified.js"]');
+        if (!actionScript) {
+            console.log('Loading action system...');
+            const script = document.createElement('script');
+            script.src = 'action-system-unified.js';
+            script.onload = () => console.log('✅ Action system loaded!');
+            document.head.appendChild(script);
         }
     };
     
-    // Add to page
     document.body.appendChild(testBtn);
-    console.log('✅ TEST BUTTON ADDED (top-right corner)');
-    console.log('Click it when Communication Relay Center is open');
+    console.log('✅ ROCK CONVERSATION BUTTON ADDED');
+    console.log('Click it to start the full conversation flow!');
 }
 
 // Run it
-createTestButton();
+createRockConversationButton();
 
 // Add this at the VERY TOP of your JavaScript file (like line 1)
 if (typeof window.leadData === 'undefined' || !window.leadData) {
