@@ -3,19 +3,78 @@
 // Smart Button + Lead Capture + EmailJS + Banner System
 // ===================================================
 
-// Example: In voice-chat-fusion.js
-function addTestButton() {
+// SAFE TEST BUTTON - NO ERRORS
+function createTestButton() {
+    // Create button
     const testBtn = document.createElement('button');
-    testBtn.textContent = 'Test Mic (Bypass Demo)';
-    testBtn.style.cssText = 'position:fixed;top:10px;right:10px;z-index:9999;';
-    testBtn.onclick = () => {
-        // DIRECT initialization - no sessionStorage flags, no URL params
-        initializeVoiceChat(); // Your main initialization function
-        startMicrophone(); // Direct mic access
+    testBtn.textContent = '🔧 TEST BUTTON';
+    testBtn.style.cssText = `
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        background: red;
+        color: white;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 5px;
+        font-weight: bold;
+        z-index: 99999;
+        cursor: pointer;
+    `;
+    
+    // SAFE click handler - no undefined function errors
+    testBtn.onclick = function() {
+        console.log('=== TEST BUTTON CLICKED ===');
+        
+        // 1. Check what functions exist
+        console.log('Functions available:');
+        console.log('handleActionButton:', typeof handleActionButton);
+        console.log('showCommunicationActionCenter:', typeof showCommunicationActionCenter);
+        
+        // 2. Try to call handleActionButton safely
+        if (typeof handleActionButton === 'function') {
+            console.log('Calling handleActionButton("click-to-call")...');
+            try {
+                handleActionButton('click-to-call');
+                console.log('✅ Successfully called!');
+            } catch (e) {
+                console.error('❌ Error calling handleActionButton:', e.message);
+            }
+        } else {
+            console.log('❌ handleActionButton is not a function');
+            
+            // 3. Try to find it
+            console.log('Searching for similar functions...');
+            const funcs = Object.keys(window).filter(key => 
+                typeof window[key] === 'function' && 
+                key.toLowerCase().includes('action')
+            );
+            console.log('Action-related functions:', funcs);
+        }
+        
+        // 4. Check if action system script loaded
+        const script = document.querySelector('script[src*="action-system-unified.js"]');
+        console.log('Action script in DOM?', !!script);
+        
+        // 5. Try to force load if missing
+        if (!script && typeof handleActionButton === 'undefined') {
+            console.log('Attempting to load action system...');
+            const newScript = document.createElement('script');
+            newScript.src = 'action-system-unified.js';
+            newScript.onload = () => console.log('✅ Script loaded');
+            newScript.onerror = () => console.error('❌ Script failed to load');
+            document.head.appendChild(newScript);
+        }
     };
+    
+    // Add to page
     document.body.appendChild(testBtn);
+    console.log('✅ TEST BUTTON ADDED (top-right corner)');
+    console.log('Click it when Communication Relay Center is open');
 }
-addTestButton();
+
+// Run it
+createTestButton();
 
 // Add this at the VERY TOP of your JavaScript file (like line 1)
 if (typeof window.leadData === 'undefined' || !window.leadData) {
