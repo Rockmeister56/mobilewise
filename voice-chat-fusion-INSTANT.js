@@ -2717,6 +2717,143 @@ function handleGeneralQuestion(message, userName) {
     return `Would you like to schedule a quick call with one of our specialists to discuss this further?`;
 }
 
+// ADD THIS FUNCTION RIGHT BEFORE getAIResponse
+function detectConcernOrObjection(userText) {
+    console.log('🔍 Checking for concerns in:', userText);
+    
+    // Common sales objections/concerns
+    const concerns = [
+        { pattern: /\b(expensive|price|cost|too much|how much)\b/i, type: 'price' },
+        { pattern: /\b(scam|trust|legitimate|real|fake)\b/i, type: 'trust' },
+        { pattern: /\b(time|busy|not now|later)\b/i, type: 'time' },
+        { pattern: /\b(complicated|hard|difficult|complex)\b/i, type: 'complexity' },
+        { pattern: /\b(work|effective|results|does it work)\b/i, type: 'effectiveness' }
+    ];
+    
+    const lowerText = userText.toLowerCase();
+    
+    for (const concern of concerns) {
+        if (concern.pattern.test(lowerText)) {
+            console.log(`🚨 Concern detected: ${concern.type}`);
+            window.detectedConcernType = concern.type;
+            return true;
+        }
+    }
+    
+    window.detectedConcernType = null;
+    return false;
+}
+
+// ALSO ADD detectStrongIntent RIGHT AFTER IT
+function detectStrongIntent(userText) {
+    console.log('🎯 detectStrongIntent checking:', userText);
+    
+    // Define strong intents that should trigger immediate actions
+    const strongIntents = [
+        { pattern: /\b(buy|purchase|order|get started)\b/i, type: 'buying_intent' },
+        { pattern: /\b(call me|contact me|schedule|meeting)\b/i, type: 'contact_intent' },
+        { pattern: /\b(how much|price|pricing|cost)\b/i, type: 'pricing_intent' },
+        { pattern: /\b(features|what does it do|capabilities)\b/i, type: 'features_intent' }
+    ];
+    
+    const lowerText = userText.toLowerCase().trim();
+    
+    for (const intent of strongIntents) {
+        if (intent.pattern.test(lowerText)) {
+            console.log(`🎯 STRONG INTENT DETECTED: ${intent.type}`);
+            return { detected: true, type: intent.type };
+        }
+    }
+    
+    return { detected: false, type: null };
+}
+
+// THEN YOUR EXISTING getAIResponse FUNCTION CONTINUES...
+async function getAIResponse(userMessage) {
+    // This function calls detectConcernOrObjection and detectStrongIntent
+    // ... rest of your code ...
+}
+
+// DEFINE THE MISSING detectStrongIntent FUNCTION
+function detectStrongIntent(userText) {
+    console.log('🎯 detectStrongIntent checking:', userText);
+    
+    // Define strong intents that should trigger immediate actions
+    const strongIntents = [
+        // Buying/sales intents
+        { 
+            pattern: /\b(buy|purchase|order|get started|sign up|subscribe|take my money|ready to buy)\b/i, 
+            type: 'buying_intent',
+            action: 'handleBuyingIntent'
+        },
+        // Contact/scheduling intents
+        { 
+            pattern: /\b(call me|contact me|schedule|meeting|appointment|demo|talk to someone)\b/i, 
+            type: 'contact_intent',
+            action: 'handleContactIntent'
+        },
+        // Pricing intents
+        { 
+            pattern: /\b(how much|price|pricing|cost|quote|rates|fee|subscription cost)\b/i, 
+            type: 'pricing_intent',
+            action: 'handlePricingIntent'
+        },
+        // Feature inquiries
+        { 
+            pattern: /\b(features|what does it do|capabilities|how it works|show me)\b/i, 
+            type: 'features_intent',
+            action: 'handleFeaturesIntent'
+        }
+    ];
+    
+    const lowerText = userText.toLowerCase().trim();
+    
+    for (const intent of strongIntents) {
+        if (intent.pattern.test(lowerText)) {
+            console.log(`🎯 STRONG INTENT DETECTED: ${intent.type}`);
+            return {
+                detected: true,
+                type: intent.type,
+                action: intent.action
+            };
+        }
+    }
+    
+    return { detected: false, type: null, action: null };
+}
+
+// Also define the handler functions if they don't exist
+if (typeof window.handleBuyingIntent === 'undefined') {
+    window.handleBuyingIntent = function(userText, intentType) {
+        console.log(`🛒 Handling buying intent: ${userText}`);
+        // For now, return a response - you can customize this
+        return "I can help you with that! Let me connect you with our sales team, or would you like to proceed with our self-service checkout?";
+    };
+}
+
+if (typeof window.handleContactIntent === 'undefined') {
+    window.handleContactIntent = function(userText, intentType) {
+        console.log(`📞 Handling contact intent: ${userText}`);
+        return "I'd be happy to schedule a call! What's the best time for you, and could you share your email or phone number?";
+    };
+}
+
+if (typeof window.handlePricingIntent === 'undefined') {
+    window.handlePricingIntent = function(userText, intentType) {
+        console.log(`💰 Handling pricing intent: ${userText}`);
+        return "Our pricing starts at $97/month for the basic plan. What's your budget range, and how many team members will be using it?";
+    };
+}
+
+if (typeof window.handleFeaturesIntent === 'undefined') {
+    window.handleFeaturesIntent = function(userText, intentType) {
+        console.log(`⚡ Handling features intent: ${userText}`);
+        return "Our platform includes AI-powered lead generation, automated follow-ups, CRM integration, and analytics dashboard. Which features are you most interested in?";
+    };
+}
+
+console.log('✅ detectStrongIntent and handlers defined!');
+
 // =============================================================================
 // 🎯 GOLD STANDARD getAIResponse - 4-STEP SALES PROCESS - CLEAN VERSION
 // =============================================================================
