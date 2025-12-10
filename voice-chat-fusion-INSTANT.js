@@ -3,6 +3,20 @@
 // Smart Button + Lead Capture + EmailJS + Banner System
 // ===================================================
 
+// Example: In voice-chat-fusion.js
+function addTestButton() {
+    const testBtn = document.createElement('button');
+    testBtn.textContent = 'Test Mic (Bypass Demo)';
+    testBtn.style.cssText = 'position:fixed;top:10px;right:10px;z-index:9999;';
+    testBtn.onclick = () => {
+        // DIRECT initialization - no sessionStorage flags, no URL params
+        initializeVoiceChat(); // Your main initialization function
+        startMicrophone(); // Direct mic access
+    };
+    document.body.appendChild(testBtn);
+}
+addTestButton();
+
 // Add this at the VERY TOP of your JavaScript file (like line 1)
 if (typeof window.leadData === 'undefined' || !window.leadData) {
     window.leadData = { 
