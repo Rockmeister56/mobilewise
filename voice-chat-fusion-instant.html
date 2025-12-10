@@ -9,150 +9,151 @@
     <title>VoiceChat Direct</title>
     <link rel="stylesheet" href="communication-action-center.css">
     <style>
-    /* ===================================================
-       🎨 MOBILE-WISE AI FORMVISER - CUSTOMIZABLE COLORS
-       ================================================== */
-    :root {
-        /* 🏢 DEFAULT THEME COLORS - EASILY CUSTOMIZABLE */
-        --primary-gradient: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
-        --accent-gradient: linear-gradient(90deg, #ff7e5f, #feb47b);
-        --cta-gradient: linear-gradient(90deg, #2196F3, #21CBF3);
-        --success-gradient: linear-gradient(90deg, #4CAF50, #8BC34A);
-        
-        /* 🎯 CLIENT CUSTOMIZABLE VARIABLES */
-        --client-primary: #1a2a6c;
-        --client-secondary: #b21f1f;
-        --client-accent: #fdbb2d;
-        --client-cta: #2196F3;
-        --client-success: #4CAF50;
-    }
+        /* ===================================================
+           🎨 MOBILE-WISE AI FORMVISER - CUSTOMIZABLE COLORS
+           ================================================== */
+        :root {
+            /* 🏢 DEFAULT THEME COLORS - EASILY CUSTOMIZABLE */
+            --primary-gradient: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            --accent-gradient: linear-gradient(90deg, #ff7e5f, #feb47b);
+            --cta-gradient: linear-gradient(90deg, #2196F3, #21CBF3);
+            --success-gradient: linear-gradient(90deg, #4CAF50, #8BC34A);
+            
+            /* 🎯 CLIENT CUSTOMIZABLE VARIABLES */
+            --client-primary: #1a2a6c;
+            --client-secondary: #b21f1f;
+            --client-accent: #fdbb2d;
+            --client-cta: #2196F3;
+            --client-success: #4CAF50;
+        }
 
-    /* 🏢 THEME VARIATIONS FOR DIFFERENT CLIENTS */
-    .law-firm-theme {
-        --client-primary: #1B4332;
-        --client-secondary: #D4AF37;
-        --client-accent: #2F4F4F;
-        --primary-gradient: linear-gradient(135deg, #1B4332, #D4AF37, #2F4F4F);
-    }
+        /* 🏢 THEME VARIATIONS FOR DIFFERENT CLENTS */
+        .law-firm-theme {
+            --client-primary: #1B4332;
+            --client-secondary: #D4AF37;
+            --client-accent: #2F4F4F;
+            --primary-gradient: linear-gradient(135deg, #1B4332, #D4AF37, #2F4F4F);
+        }
 
-    .medical-theme {
-        --client-primary: #003366;
-        --client-secondary: #00A86B;
-        --client-accent: #FFFFFF;
-        --primary-gradient: linear-gradient(135deg, #003366, #00A86B, #87CEEB);
-    }
+        .medical-theme {
+            --client-primary: #003366;
+            --client-secondary: #00A86B;
+            --client-accent: #FFFFFF;
+            --primary-gradient: linear-gradient(135deg, #003366, #00A86B, #87CEEB);
+        }
 
-    .financial-theme {
-        --client-primary: #0F2027;
-        --client-secondary: #203A43;
-        --client-accent: #2C5364;
-        --primary-gradient: linear-gradient(135deg, #0F2027, #203A43, #2C5364);
-    }
+        .financial-theme {
+            --client-primary: #0F2027;
+            --client-secondary: #203A43;
+            --client-accent: #2C5364;
+            --primary-gradient: linear-gradient(135deg, #0F2027, #203A43, #2C5364);
+        }
 
-    .deep-blue-theme {
-        --client-primary: #052c99;        /* Deep midnight blue-black */
-        --client-secondary: #1E3A5F;      /* Rich steel blue */
-        --client-accent: #2b5adb;         /* Bright electric blue */
-        --primary-gradient: linear-gradient(135deg, #0A1428, #1048c0, #003674, #1a49ae);
-    }
+        .deep-blue-theme {
+    --client-primary: #052c99;        /* Deep midnight blue-black */
+    --client-secondary: #1E3A5F;      /* Rich steel blue */
+    --client-accent: #2b5adb;         /* Bright electric blue */
+    --primary-gradient: linear-gradient(135deg, #0A1428, #1048c0, #003674, #1a49ae);
+}
 
-    /* ===================================================
-       📱 CORE STYLING
-       ================================================== */
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
+        /* ===================================================
+           📱 CORE STYLING
+           ================================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
-    body {
-        background: var(--primary-gradient);
-        color: white;
-        min-height: 110vh;
-        padding: 10px;
-    }
+        body {
+            background: var(--primary-gradient);
+            color: white;
+            min-height: 110vh;
+            padding: 10px;
+        }
 
+  .container {
+    max-width: 810px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 10px;
+    padding: 10px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* ✅ DESKTOP STYLES */
+@media (min-width: 769px) {
     .container {
-        max-width: 850px; /* Current has 850px, Backup has 810px - using Current */
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(10px);
-        border-radius: 10px;
-        padding: 10px;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        margin-top: 210px !important;  /* ✅ Changed from 100px */
+        margin-left: auto !important;
+        margin-right: auto !important;
+        position: relative;
+        width: auto;
+        height: auto;
     }
+}
 
-    /* ✅ DESKTOP STYLES */
-    @media (min-width: 780px) { /* Current has 780px, Backup has 769px - using Current */
-        .container {
-            margin-top: 210px !important;
-            margin-left: auto !important;
-            margin-right: auto !important;
-            position: relative;
-            width: auto;
-            height: auto;
-        }
+@media (min-width: 769px) {
+    /* Fix container positioning on desktop */
+    #quickButtonsContainer {
+        position: relative !important;
+        bottom: auto !important;
+        left: auto !important;
+        transform: none !important;
+        width: 100% !important;
+        max-width: none !important;
+        margin: 20px 0 !important;
+        background: rgba(255, 255, 255, 0.1) !important;
     }
+    
+    /* Fix speak now button on desktop */
+    #liveTranscript {
+        position: relative !important;
+        bottom: auto !important;
+        left: auto !important;
+        transform: none !important;
+        margin: 15px 0 !important;
+        width: auto !important;
+    }
+    
+    /* Desktop chat area adjustment */
+    #chatMessages {
+        height: 50vh !important;
+        max-height: 50vh !important;
+        margin-bottom: 20px !important;
+    }
+    
+    /* Center the mic activation on desktop */
+    #centerMicActivation {
+        position: fixed !important;
+        top:  53% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+    }
+}
 
-    @media (min-width: 780px) { /* Using Current's 780px breakpoint */
-        /* Fix container positioning on desktop */
-        #quickButtonsContainer {
-            position: relative !important;
-            bottom: auto !important;
-            left: auto !important;
-            transform: none !important;
-            width: 100% !important;
-            max-width: none !important;
-            margin: 20px 0 !important;
-            background: rgba(255, 255, 255, 0.1) !important;
-        }
-        
-        /* Fix speak now button on desktop */
-        #liveTranscript {
-            position: relative !important;
-            bottom: auto !important;
-            left: auto !important;
-            transform: none !important;
-            margin: 15px 0 !important;
-            width: auto !important;
-        }
-        
-        /* Desktop chat area adjustment - Using Current's 50vh */
-        #chatMessages {
-            height: 50vh !important;
-            max-height: 50vh !important;
-            margin-bottom: 20px !important;
-        }
-        
-        /* Center the mic activation on desktop */
-        #centerMicActivation {
-            position: fixed !important;
-            top:  53% !important;
-            left: 50% !important;
-            transform: translate(-50%, -50%) !important;
-        }
+   
+/* 🖥️ DESKTOP ONLY - SPEAK NOW SIZING */
+@media (min-width: 769px) {
+    #liveTranscript {
+        width: 750px !important;
+        height: 40px !important;
+        margin: -5px auto 25px auto !important;
     }
+}
 
-    /* 🖥️ DESKTOP ONLY - SPEAK NOW SIZING */
-    @media (min-width: 780px) { /* Using Current's 780px */
-        #liveTranscript {
-            width: 750px !important;
-            height: 40px !important;
-            margin: -5px auto 25px auto !important;
-        }
+/* 📱 MOBILE ONLY - SPEAK NOW POSITIONING */
+@media (max-width: 768px) {
+    #liveTranscript {
+        position: fixed !important;
+        bottom: 200px !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        width: 340px !important;
+        height: 30px !important;
     }
-
-    /* 📱 MOBILE ONLY - SPEAK NOW POSITIONING */
-    @media (max-width: 779px) { /* Adjusted to match 780px breakpoint */
-        #liveTranscript {
-            position: fixed !important;
-            bottom: 200px !important;
-            left: 50% !important;
-            transform: translateX(-50%) !important;
-            width: 340px !important;
-            height: 30px !important;
-        }
-    }
+}
     
     /* 🎯 CONTAINER - MOVE DOWN A BIT */
     #quickButtonsContainer {
@@ -162,820 +163,733 @@
         transform: none !important;
         width: 100% !important;
         max-width: none !important;
-        margin: 0px 0 !important;
+        margin: 0px 0 !important;           /* Increased top margin to push down */
         background: rgba(255, 255, 255, 0.1) !important;
     }
 
-    /* ✅ MOBILE STYLES */
-    @media (max-width: 779px) { /* Adjusted to match 780px breakpoint */
-        .container {
-            position: fixed !important;
-            top: -10 !important;
-            left: 0 !important;
-            right: 0 !important;
-            width: 100% !important;
-            height: 100vh !important;
-            margin: 0 !important;
-            border-radius: 0 !important;
-            max-width: none !important;
-            overflow-y: auto !important;
+/* ✅ MOBILE STYLES */
+@media (max-width: 768px) {
+    .container {
+        position: fixed !important;
+        top: -10 !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        height: 100vh !important;
+        margin: 0 !important;
+        border-radius: 0 !important;
+        max-width: none !important;
+        overflow-y: auto !important;
+    }
+    
+    .book-banner, #bruceBookBanner {
+        margin: 8px !important;
+        border-radius: 15px !important;
+    }
+    
+    /* ✅ FORCE MOBILE CHAT TO TOP */
+    #chatMessages {
+        padding-top: 10px !important;
+        margin-top: 0 !important;
+    }
+    
+    /* ✅ MOBILE BUTTON POSITIONING */
+    .bottom-buttons {
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+    }
+}
+
+@media (min-width: 769px) {
+    /* Desktop specific - keep your center alignment BUT accommodate banners */
+    .chat-container {
+        position: fixed !important;
+        top: calc(50% + 40px) !important; /* Offset for banner space */
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        max-height: calc(100vh - 160px) !important; /* Breathing room top/bottom */
+        overflow-y: auto !important;
+        /* Your existing desktop styles */
+    }
+}
+
+        /* ===================================================
+           📍 HEADER STYLING
+           ================================================== */
+        header {
+            text-align: left;
+            margin-bottom: 10px;
         }
-        
-        /* Bruce Book Banner - FROM BACKUP */
-        .book-banner, #bruceBookBanner {
-            margin: 8px !important;
-            border-radius: 15px !important;
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-weight: bold;
         }
-        
-        /* ✅ FORCE MOBILE CHAT TO TOP */
-        #chatMessages {
-            padding-top: 10px !important;
-            margin-top: 0 !important;
+
+        .subtitle {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin-bottom: 10px;
         }
-        
-        /* ✅ MOBILE BUTTON POSITIONING */
-        .bottom-buttons {
-            position: fixed !important;
-            bottom: 0 !important;
-            left: 0 !important;
-            right: 0 !important;
+
+        /* ===================================================
+           🔵 SMART CTA BUTTON (TOP POSITIONING)
+           ================================================== */
+        .smart-button {
+            position: sticky;
+            top: 10px;
+            z-index: 1000;
+            width: 100%;
+            padding: 15px;
+            background: var(--cta-gradient);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 16px;
+            animation: pulse-attention 1.5s infinite;
+            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.4);
         }
-    }
 
-    @media (min-width: 780px) { /* Using Current's 780px */
-        /* Desktop specific - keep your center alignment BUT accommodate banners */
-        .chat-container {
-            position: fixed !important;
-            top: calc(50% + 40px) !important; /* Offset for banner space */
-            left: 50% !important;
-            transform: translate(-50%, -50%) !important;
-            max-height: calc(100vh - 160px) !important; /* Breathing room top/bottom */
-            overflow-y: auto !important;
-            /* Your existing desktop styles */
+        @keyframes pulse-attention {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
         }
-    }
 
-    /* ===================================================
-       📍 HEADER STYLING
-       ================================================== */
-    header {
-        text-align: left;
-        margin-bottom: 10px;
-    }
+        /* ===================================================
+           🎤 MICROPHONE STATUS INDICATOR
+           ================================================== */
+        .mic-status {
+            text-align: center;
+            padding: 10px;
+            background: var(--success-gradient);
+            border-radius: 20px;
+            margin-bottom: 15px;
+            font-weight: bold;
+            animation: fadeInOut 3s ease-in-out;
+        }
 
-    h1 {
-        font-size: 2.2rem;
-        margin-bottom: 10px;
-        background: var(--accent-gradient);
-        -webkit-background-clip: text;
-        background-clip: text;
-        color: transparent;
-        font-weight: bold;
-    }
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0; }
+            20%, 80% { opacity: 1; }
+        }
 
-    .subtitle {
-        font-size: 1rem;
-        opacity: 0.9;
-        margin-bottom: 10px;
-    }
+        /* 🎤 PULSATING MIC BUTTON ANIMATION */
+#mainMicButton {
+    /* Keep your existing styles and ADD these */
+    animation: pulse-glow 2s ease-in-out infinite alternate;
+    box-shadow: 
+        0 0 20px rgba(0, 255, 136, 0.6),
+        0 0 40px rgba(0, 255, 136, 0.4),
+        0 0 60px rgba(0, 255, 136, 0.2);
+}
 
-    /* ===================================================
-       🔵 SMART CTA BUTTON (TOP POSITIONING)
-       ================================================== */
-    .smart-button {
-        position: sticky;
-        top: 10px;
-        z-index: 1000;
-        width: 100%;
-        padding: 15px;
-        background: var(--cta-gradient);
-        color: white;
-        border: none;
-        border-radius: 25px;
-        cursor: pointer;
-        font-weight: bold;
-        margin-bottom: 15px;
-        text-align: center;
-        font-size: 16px;
-        animation: pulse-attention 1.5s infinite;
-        box-shadow: 0 4px 15px rgba(33, 150, 243, 0.4);
-    }
-
-    @keyframes pulse-attention {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.05); }
-    }
-
-    /* ===================================================
-       🎤 MICROPHONE STATUS INDICATOR - FROM BACKUP
-       ================================================== */
-    .mic-status {
-        text-align: center;
-        padding: 10px;
-        background: var(--success-gradient);
-        border-radius: 20px;
-        margin-bottom: 15px;
-        font-weight: bold;
-        animation: fadeInOut 3s ease-in-out;
-    }
-
-    @keyframes fadeInOut {
-        0%, 100% { opacity: 0; }
-        20%, 80% { opacity: 1; }
-    }
-
-    /* 🎤 PULSATING MIC BUTTON ANIMATION - FROM BACKUP */
-    #mainMicButton {
-        /* Keep your existing styles and ADD these */
-        animation: pulse-glow 2s ease-in-out infinite alternate;
+/* Pulsating glow keyframes */
+@keyframes pulse-glow {
+    0% {
+        transform: scale(1);
         box-shadow: 
             0 0 20px rgba(0, 255, 136, 0.6),
             0 0 40px rgba(0, 255, 136, 0.4),
             0 0 60px rgba(0, 255, 136, 0.2);
     }
-
-    /* Pulsating glow keyframes - FROM BACKUP */
-    @keyframes pulse-glow {
-        0% {
-            transform: scale(1);
-            box-shadow: 
-                0 0 20px rgba(0, 255, 136, 0.6),
-                0 0 40px rgba(0, 255, 136, 0.4),
-                0 0 60px rgba(0, 255, 136, 0.2);
-        }
-        100% {
-            transform: scale(1.05);
-            box-shadow: 
-                0 0 30px rgba(0, 255, 136, 0.8),
-                0 0 60px rgba(0, 255, 136, 0.6),
-                0 0 90px rgba(0, 255, 136, 0.4);
-        }
+    100% {
+        transform: scale(1.05);
+        box-shadow: 
+            0 0 30px rgba(0, 255, 136, 0.8),
+            0 0 60px rgba(0, 255, 136, 0.6),
+            0 0 90px rgba(0, 255, 136, 0.4);
     }
+}
 
-    /* Enhanced hover effect - FROM BACKUP */
-    #mainMicButton:hover {
-        animation-duration: 0.5s;
-        transform: scale(1.1);
-    }
+/* Enhanced hover effect */
+#mainMicButton:hover {
+    animation-duration: 0.5s;
+    transform: scale(1.1);
+}
 
-    /* Click ripple effect - FROM BACKUP */
-    #mainMicButton:active {
-        animation: ripple 0.6s linear;
-    }
+/* Click ripple effect */
+#mainMicButton:active {
+    animation: ripple 0.6s linear;
+}
 
-    @keyframes ripple {
-        0% {
-            box-shadow: 
-                0 0 0 0 rgba(0, 255, 136, 0.7),
-                0 0 20px rgba(0, 255, 136, 0.6);
-        }
-        70% {
-            box-shadow: 
-                0 0 0 60px rgba(0, 255, 136, 0),
-                0 0 20px rgba(0, 255, 136, 0.6);
-        }
-        100% {
-            box-shadow: 
-                0 0 0 0 rgba(0, 255, 136, 0),
-                0 0 20px rgba(0, 255, 136, 0.6);
-        }
+@keyframes ripple {
+    0% {
+        box-shadow: 
+            0 0 0 0 rgba(0, 255, 136, 0.7),
+            0 0 20px rgba(0, 255, 136, 0.6);
     }
+    70% {
+        box-shadow: 
+            0 0 0 60px rgba(0, 255, 136, 0),
+            0 0 20px rgba(0, 255, 136, 0.6);
+    }
+    100% {
+        box-shadow: 
+            0 0 0 0 rgba(0, 255, 136, 0),
+            0 0 20px rgba(0, 255, 136, 0.6);
+    }
+}
 
-    /* ===================================================
-       💭 CHAT MESSAGES AREA
-       ================================================== */
-    .chat-messages {
-        height: 45vh; /* Using Current's value */
-        overflow-y: auto;
-        padding: 15px;
-        margin-bottom: 15px;
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 12px;
-        scroll-behavior: smooth;
-    }
-
-    .message {
-        padding: 12px 16px;
-        margin: 10px 0;
-        border-radius: 20px;
-        max-width: 80%;
-        animation: fadeIn 0.3s ease;
-    }
-
-    /* 🎯 SEPARATE CHAT AREA FROM BUTTON AREAS - Using Current's values */
-    .chat-messages,
-    .messages-container,
-    #chat-area {
-        height: 45vh !important; /* Current has 45vh, Backup has 40vh */
-        max-height: 45vh !important; /* Current has this, Backup has 35vh */
-        margin-bottom: -18px !important; /* Current has -18px, Backup has -30px */
-        overflow-y: auto !important;
-        padding-bottom: 15px !important;
-    }
-
-    /* 🎯 ENSURE BUTTON AREAS DON'T OVERLAP */
-    .quick-buttons {
-        margin-top: 15px !important;
-        margin-bottom: 15px !important;
-        clear: both !important;
-    }
-
-    .text-input-container,
-    .input-section {
-        margin-top: 40px !important; /* Current has 40px, Backup has 20px */
-        clear: both !important;
-    }
-
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    .ai-message {
-        background: rgba(255, 255, 255, 0.2);
-        border-top-left-radius: 5px;
-        align-self: flex-start;
-    }
-
-    .user-message {
-        background: var(--accent-gradient);
-        border-top-right-radius: 5px;
-        align-self: flex-end;
-        margin-left: auto;
-    }
-
-    .system-message {
-        background: rgba(255, 255, 255, 0.1);
-        text-align: center;
-        font-style: italic;
-        margin: 15px auto;
-        max-width: 90%;
-    }
-
-    /* Custom scrollbar */
-    .chat-messages::-webkit-scrollbar {
-        width: 6px;
-    }
-
-    .chat-messages::-webkit-scrollbar-track {
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 3px;
-    }
-
-    .chat-messages::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.3);
-        border-radius: 3px;
-    }
-
-    /* ===================================================
-       📝 LIVE TRANSCRIPT AREA (REPLACES FAKE VISUALIZER)
-       ================================================== */
-    .live-transcript-area {
-        height: 60px;
-        margin-bottom: 15px;
-        border-radius: 15px;
-        background: rgba(255, 255, 255, 0.1);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: 2px solid rgba(76, 175, 80, 0.3);
-    }
-
-    .transcript-text {
-        color: #4CAF50;
-        font-size: 16px;
-        font-weight: 500;
-        text-align: center;
-        padding: 0 15px;
-        animation: listeningPulse 1.5s infinite;
-    }
-
-    @keyframes listeningPulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.6; }
-    }
-
-    /* ===================================================
-       💬 INPUT AREA WITH MICROPHONE
-       ================================================== */
-    .input-area {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 15px;
-    }
-
-    .mic-btn {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        background: var(--accent-gradient);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: 1.5rem;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        flex-shrink: 0;
-    }
-
-    .mic-btn.listening {
-        background: var(--success-gradient);
-        animation: pulse 1.5s infinite;
-    }
-
-    @keyframes pulse {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.1); }
-        100% { transform: scale(1); }
-    }
-
-    input {
-        flex: 1;
-        padding: 15px;
-        border: none;
-        border-radius: 25px;
-        font-size: 1rem;
-        background: rgba(255, 255, 255, 0.1);
-        color: white;
-        outline: none;
-    }
-
-    input::placeholder {
-        color: rgba(255, 255, 255, 0.7);
-    }
-
-    input:focus {
-        background: rgba(255, 255, 255, 0.15);
-        box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
-    }
-
-    button {
-        padding: 15px 25px;
-        background: var(--accent-gradient);
-        color: white;
-        border: none;
-        border-radius: 25px;
-        cursor: pointer;
-        font-weight: bold;
-        transition: all 0.2s ease;
-        flex-shrink: 0;
-    }
-
-    button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    }
-
-    /* ===================================================
-       🔘 QUICK ACTION BUTTONS
-       ================================================== */
-    .quick-questions {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        margin-bottom: 15px;
-    }
-
-    .quick-btn {
-        padding: 10px 15px;
-        background: rgba(255, 255, 255, 0.15);
-        color: white;
-        border: none;
-        border-radius: 20px;
-        cursor: pointer;
-        font-size: 0.9rem;
-        transition: all 0.2s ease;
-        flex: 1;
-        min-width: 140px; /* Backup has 140px, Current doesn't specify */
-    }
-
-    .quick-btn:hover {
-        background: rgba(255, 255, 255, 0.25);
-        transform: translateY(-2px);
-    }
-
-    @keyframes pulse {
-        0% { opacity: 1; }
-        50% { opacity: 0.7; }
-        100% { opacity: 1; }
-    }
-    
-    /* ===================================================
-       📱 MOBILE OPTIMIZATION - CLEAN VERSION
-       ================================================== */
-    @media (max-width: 600px) {
-        body {
-            padding: 10px;
-            min-height: 100vh;
-        }
-        
-        /* SINGLE CHAT AREA HEIGHT RULE - Using Current's 62vh */
-        .chat-messages,
-        .messages-container,
-        #chat-area,
-        .conversation-area {
-            height: 62vh !important;
-            max-height: 62vh !important;
-            overflow-y: auto !important;
-            margin-bottom: -30px !important; /* Current has -30px */
-        }
-        
-        /* INPUT CONTROLS */
-        .text-input,
-        input[type="text"],
-        .message-input,
-        #user-input {
-            width: 85% !important;
-            max-width: 85% !important;
-        }
-        
-        /* QUICK BUTTONS AREA */
-        .quick-buttons {
+        /* ===================================================
+           💭 CHAT MESSAGES AREA
+           ================================================== */
+        .chat-messages {
+            height: 45vh;
+            overflow-y: auto;
+            padding: 15px;
             margin-bottom: 15px;
-            height: auto;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            scroll-behavior: smooth;
+        }
+
+        .message {
+            padding: 12px 16px;
+            margin: 10px 0;
+            border-radius: 20px;
+            max-width: 80%;
+            animation: fadeIn 0.3s ease;
+        }
+
+        /* 🎯 SEPARATE CHAT AREA FROM BUTTON AREAS */
+.chat-messages,
+.messages-container,
+#chat-area {
+    height: 40vh !important; /* Reduced from 45vh */
+    max-height: 35vh !important;
+    margin-bottom: -30px !important; /* More space below chat */
+    overflow-y: auto !important;
+    padding-bottom: 15px !important; /* Internal spacing */
+}
+
+/* 🎯 ENSURE BUTTON AREAS DON'T OVERLAP */
+.quick-buttons {
+    margin-top: 15px !important;
+    margin-bottom: 15px !important;
+    clear: both !important; /* Prevent overlap */
+}
+
+.text-input-container,
+.input-section {
+    margin-top: 20px !important; /* Push text area down */
+    clear: both !important; /* Prevent overlap */
+}
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .ai-message {
+            background: rgba(255, 255, 255, 0.2);
+            border-top-left-radius: 5px;
+            align-self: flex-start;
+        }
+
+        .user-message {
+            background: var(--accent-gradient);
+            border-top-right-radius: 5px;
+            align-self: flex-end;
+            margin-left: auto;
+        }
+
+        .system-message {
+            background: rgba(255, 255, 255, 0.1);
+            text-align: center;
+            font-style: italic;
+            margin: 15px auto;
+            max-width: 90%;
+        }
+
+        /* Custom scrollbar */
+        .chat-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chat-messages::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+
+        /* ===================================================
+           📝 LIVE TRANSCRIPT AREA (REPLACES FAKE VISUALIZER)
+           ================================================== */
+        .live-transcript-area {
+            height: 60px;
+            margin-bottom: 15px;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid rgba(76, 175, 80, 0.3);
+        }
+
+        .transcript-text {
+            color: #4CAF50;
+            font-size: 16px;
+            font-weight: 500;
+            text-align: center;
+            padding: 0 15px;
+            animation: listeningPulse 1.5s infinite;
+        }
+
+        @keyframes listeningPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        /* ===================================================
+           💬 INPUT AREA WITH MICROPHONE
+           ================================================== */
+        .input-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .mic-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--accent-gradient);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .mic-btn.listening {
+            background: var(--success-gradient);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        input {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            outline: none;
+        }
+
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        input:focus {
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+        }
+
+        button {
+            padding: 15px 25px;
+            background: var(--accent-gradient);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        /* ===================================================
+           🔘 QUICK ACTION BUTTONS
+           ================================================== */
+        .quick-questions {
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
+            gap: 10px;
+            margin-bottom: 15px;
         }
+
+        .quick-btn {
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            flex: 1;
+            min-width: 140px;
+        }
+
+        .quick-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+        }
+
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
         
-        /* STOP BUTTON SPACE - Using Current's 25px */
-        .stop-button-area {
-            height: 25px !important; /* Current has 25px, Backup has 50px */
-            margin-top: 5px !important; /* Current has 5px, Backup has 10px */
-        }
-        
-        /* CONTAINER FIX */
-        .container {
-            height: auto;
-            padding: 10px;
-        }
+/* ===================================================
+   📱 MOBILE OPTIMIZATION - CLEAN VERSION
+   ================================================== */
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+        min-height: 100vh;
     }
     
-    /* Mobile adjustments - Combined */
-    @media (max-width: 779px) { /* Using 780px breakpoint */
-        h1 {
-            font-size: 1.6rem;
-            margin-bottom: 5px;
-        }
-        
-        .subtitle {
-            font-size: 0.9rem;
-            margin-bottom: 5px;
-        }
-        
-        /* Compact spacing for mobile */
-        .smart-button {
-            margin-bottom: 10px;
-            padding: 12px;
-            font-size: 14px;
-        }
-        
-        .mic-status {
-            margin-bottom: 10px;
-            padding: 8px;
-        }
-        
-        .live-transcript-area {
-            height: 45px;
-            margin-bottom: 10px;
-        }
-        
-        .input-area {
-            margin-bottom: 10px;
-        }
-        
-        .quick-questions {
-            margin-bottom: 10px;
-            gap: 8px;
-        }
-        
-        .quick-btn {
-            font-size: 0.75rem;
-            padding: 6px 10px;
-            min-width: 100px; /* Backup has 100px */
-        }
-        
-        /* Make buttons more compact */
-        .mic-btn {
-            width: 40px;
-            height: 40px;
-            font-size: 1.2rem;
-        }
-        
-        button {
-            padding: 10px 18px;
-            font-size: 0.9rem;
-        }
-        
-        input {
-            padding: 12px;
-            font-size: 16px; /* Prevents zoom on iOS */
-        }
+    /* SINGLE CHAT AREA HEIGHT RULE */
+    .chat-messages,
+    .messages-container,
+    #chat-area,
+    .conversation-area {
+        height: 62vh !important; /* Perfect balance */
+        max-height: 62vh !important;
+        overflow-y: auto !important;
+        margin-bottom: -40px; /* Space for buttons */
     }
-
-    /* Extra small mobile devices */
-    @media (max-width: 400px) {
-        body {
-            padding: 5px;
-        }
-        
-        .container {
-            padding: 8px;
-            height: calc(100vh - 10px);
-        }
-        
-        .chat-messages {
-            height: 55vh;
-        }
-        
-        h1 {
-            font-size: 1.4rem;
-        }
-        
-        .quick-btn {
-            font-size: 0.7rem;
-            padding: 5px 8px;
-            min-width: 90px;
-        }
+    
+    /* INPUT CONTROLS */
+    .text-input,
+    input[type="text"],
+    .message-input,
+    #user-input {
+        width: 85% !important;
+        max-width: 85% !important;
     }
-
-    /* Landscape mobile orientation */
-    @media (max-width: 900px) and (orientation: landscape) {
-        .container {
-            height: calc(100vh - 10px);
-        }
-        
-        .chat-messages {
-            height: 40vh;
-        }
-        
-        header {
-            margin-bottom: 5px;
-        }
-        
-        h1 {
-            font-size: 1.5rem;
-        }
-        
-        .subtitle {
-            font-size: 0.8rem;
-        }
+    
+    /* QUICK BUTTONS AREA */
+    .quick-buttons {
+        margin-bottom: 15px;
+        height: auto;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
     }
-
-    /* 🎯 LIVE TRANSCRIPT VISIBILITY FIX */
+    
+    /* STOP BUTTON SPACE */
+    .stop-button-area {
+        height: 50px;
+        margin-top: 10px;
+    }
+    
+    /* CONTAINER FIX */
+    .container {
+        height: auto; /* Let it flow naturally */
+        padding: 10px;
+    }
+}
+    
+    h1 {
+        font-size: 1.6rem; /* Slightly smaller to save space */
+        margin-bottom: 5px;
+    }
+    
+    .subtitle {
+        font-size: 0.9rem;
+        margin-bottom: 5px;
+    }
+    
+    /* Compact spacing for mobile */
+    .smart-button {
+        margin-bottom: 10px; /* Reduced margin */
+        padding: 12px; /* Slightly smaller padding */
+        font-size: 14px;
+    }
+    
+    .mic-status {
+        margin-bottom: 10px; /* Reduced margin */
+        padding: 8px;
+    }
+    
     .live-transcript-area {
-        background: rgba(0, 0, 0, 0.5) !important;
-        backdrop-filter: blur(5px);
-        border: 2px solid #00ff88 !important;
-        border-radius: 25px !important;
-        padding: 15px 20px !important;
-        margin: 10px auto !important;
-        max-width: 80% !important;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
+        height: 45px; /* Slightly smaller */
+        margin-bottom: 10px;
+    }
+    
+    .input-area {
+        margin-bottom: 10px; /* Reduced margin */
+    }
+    
+    .quick-questions {
+        margin-bottom: 10px; /* Reduced margin */
+        gap: 8px; /* Smaller gap */
+    }
+    
+    .quick-btn {
+        font-size: 0.75rem; /* Smaller text */
+        padding: 6px 10px; /* Smaller padding */
+        min-width: 100px; /* Smaller minimum width */
+    }
+    
+    /* Make buttons more compact */
+    .mic-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+    }
+    
+    button {
+        padding: 10px 18px; /* Smaller button padding */
+        font-size: 0.9rem;
+    }
+    
+    input {
+        padding: 12px; /* Smaller input padding */
+        font-size: 16px; /* Prevents zoom on iOS */
     }
 
-    .transcript-text {
-        color: #00ff88 !important;
-        font-weight: bold !important;
-        text-align: center !important;
-        text-shadow: 0 0 5px rgba(0, 255, 136, 0.5) !important;
-        font-size: 16px !important;
+/* Extra small mobile devices */
+@media (max-width: 400px) {
+    body {
+        padding: 5px; /* Even less padding on very small screens */
     }
-
-    #liveTranscript {
-        position: fixed !important;
-        bottom: 170px !important;
-        left: 50% !important;
-        transform: translateX(-50%) !important;
+    
+    .container {
+        padding: 8px;
+        height: calc(100vh - 10px);
     }
-
-    /* 🎯 HOVER EFFECT FOR BETTER UX */
-    .listening-button:hover,
-    #listeningButton:hover {
-        background: rgba(0, 0, 0, 0.9) !important;
-        color: #ffffff !important;
-        border-color: #ffffff !important;
+    
+    .chat-messages {
+        height: 55vh; /* Even more space for chat on tiny screens */
     }
-
-    /* Add this CSS to give text area more space */
-    @media (max-width: 600px) {
-        /* Hide the mic button */
-        #micButton,
-        .mic-button,
-        [class*="mic"] {
-            display: none !important;
-        }
-        
-        /* Expand text input to full width */
-        .text-input,
-        input[type="text"],
-        .message-input,
-        #user-input {
-            width: 95% !important;
-            max-width: 95% !important;
-        }
-        
-        /* Give input container more space */
-        .input-container,
-        .text-area-container {
-            padding-left: 5px;
-        }
+    
+    h1 {
+        font-size: 1.4rem;
     }
-
-    @keyframes overlay-pulse {
-        0%, 100% { opacity: 0; }
-        50% { opacity: 1; }
+    
+    .quick-btn {
+        font-size: 0.7rem;
+        padding: 5px 8px;
+        min-width: 90px;
     }
+}
 
-    /* ===================================================
+/* Landscape mobile orientation */
+@media (max-width: 900px) and (orientation: landscape) {
+    .container {
+        height: calc(100vh - 10px);
+    }
+    
+    .chat-messages {
+        height: 40vh; /* Smaller in landscape to fit controls */
+    }
+    
+    header {
+        margin-bottom: 5px;
+    }
+    
+    h1 {
+        font-size: 1.5rem;
+    }
+    
+    .subtitle {
+        font-size: 0.8rem;
+    }
+}
+
+/* 🎯 LIVE TRANSCRIPT VISIBILITY FIX */
+.live-transcript-area {
+    background: rgba(0, 0, 0, 0.5) !important; /* 50% opacity - 20% more transparent */
+    backdrop-filter: blur(5px); /* Optional blur effect */
+    border: 2px solid #00ff88 !important; /* Green border */
+    border-radius: 25px !important;
+    padding: 15px 20px !important;
+    margin: 10px auto !important;
+    max-width: 80% !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
+}
+
+.transcript-text {
+    color: #00ff88 !important; /* Bright green text */
+    font-weight: bold !important;
+    text-align: center !important;
+    text-shadow: 0 0 5px rgba(0, 255, 136, 0.5) !important; /* Green glow */
+    font-size: 16px !important;
+}
+
+#liveTranscript {
+    position: fixed !important;
+    bottom: 170px !important;  /* Moved up from 120px */
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    /* Rest of existing styling stays same */
+}
+
+/* 🎯 HOVER EFFECT FOR BETTER UX */
+.listening-button:hover,
+#listeningButton:hover {
+    background: rgba(0, 0, 0, 0.9) !important;
+    color: #ffffff !important;
+    border-color: #ffffff !important;
+}
+
+/* Add this CSS to give text area more space */
+@media (max-width: 600px) {
+    /* Hide the mic button */
+    #micButton,
+    .mic-button,
+    [class*="mic"] {
+        display: none !important;
+    }
+    
+    /* Expand text input to full width */
+    .text-input,
+    input[type="text"],
+    .message-input,
+    #user-input {
+        width: 95% !important; /* Increased from 85% */
+        max-width: 95% !important;
+    }
+    
+    /* Give input container more space */
+    .input-container,
+    .text-area-container {
+        padding-left: 5px; /* Remove left padding for mic button */
+    }
+}
+
+@keyframes overlay-pulse {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 1; }
+}
+
+   /* ===================================================
          speak now button animation
     ================================================== */
-    @keyframes speakNowWholeButtonGlow {
-        0%, 100% { 
-            background: rgba(255, 255, 255, 0.15);
-            border-color: rgba(255, 255, 255, 0.3);
+@keyframes speakNowWholeButtonGlow {
+    0%, 100% { 
+        background: rgba(255, 255, 255, 0.15);
+        border-color: rgba(255, 255, 255, 0.3);
+    }
+    50% { 
+        background: rgba(20, 209, 89, 0.74);
+        border-color: rgba(34, 197, 94, 0.6);
+    }
+}
+
+        /* ===================================================
+           🔧 UTILITY CLASSES
+           ================================================== */
+        .hidden {
+            display: none !important;
         }
-        50% { 
-            background: rgba(20, 209, 89, 0.74);
-            border-color: rgba(34, 197, 94, 0.6);
+
+        .fadeIn {
+            animation: fadeIn 0.3s ease;
         }
-    }
 
-    /* ===================================================
-       🔧 UTILITY CLASSES
-       ================================================== */
-    .hidden {
-        display: none !important;
-    }
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
 
-    .fadeIn {
-        animation: fadeIn 0.3s ease;
-    }
+/* Container - NO min-height forcing */
+.container {
+    position: relative !important;
+    padding-top: 1px !important; /* Just breathing room for banners */
+}
 
-    .pulse-animation {
-        animation: pulse 2s infinite;
-    }
+/* ===== MOBILE-WISE AI BANNER ABSOLUTE POSITIONING ===== */
+.lead-capture-banner,
+.consultation-banner,
+#leadCaptureBanner,
+#emailConfirmationBanner,
+#thankYouBanner,
+.email-confirmation-banner,
+.success-banner,
+.consultation-confirmed-banner {
+    position: absolute !important;
+    top: 2px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    z-index: 9999 !important;
+    width: calc(100% - 20px) !important;
+    max-width: 400px !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+}
 
-    /* Container - NO min-height forcing */
-    .container {
-        position: relative !important;
-        padding-top: 1px !important;
-    }
+/* SPECIAL: Branding banner at very top */
+.branding-header-banner {
+    top: 0px !important;
+    z-index: 10000 !important;
+}
 
-    /* ===== MOBILE-WISE AI BANNER ABSOLUTE POSITIONING ===== */
-    /* CRITICAL SECTION FROM BACKUP - ADDED BACK */
-    .lead-capture-banner,
-    .consultation-banner,
-    #leadCaptureBanner,
-    #emailConfirmationBanner,
-    #thankYouBanner,
-    .email-confirmation-banner,
-    .success-banner,
-    .consultation-confirmed-banner,
-    #action-center,
-    .communication-center,
-    .communication-relay-center {
-        position: absolute !important;
-        top: 2px !important;
-        left: 50% !important;
+/* BRUCE'S BANNER - Override mobile adjustments */
+.bruce-logo-container img {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+/* SPECIAL: Branding banner at very top */
+.branding-header-banner {
+    top: 0px !important; /* Higher than other banners */
+    z-index: 10000 !important; /* Above other banners */
+
+    /* Force banner to ignore ALL header styling */
+.bruce-logo-container {
+    text-align: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    position: relative !important;
+}
+}
+
+/*
+@media (max-width: 768px) {
+    #bannerHeaderContainer img {
+        margin-left: -25px !important;
+    }
+    
+    #bannerHeaderContainer div[style*="MOBILE-WISE AI"] {
+        left: 5% !important;
         transform: translateX(-50%) !important;
-        z-index: 9999 !important;
-        width: calc(100% - 20px) !important;
-        max-width: 400px !important;
-        margin: 0 !important;
-        box-sizing: border-box !important;
+    }
+    
+    #bannerHeaderContainer div:last-child {
+        right: 7px !important;
     }
 
-    /* SPECIAL: Branding banner at very top - FROM BACKUP */
-    .branding-header-banner {
-        top: 0px !important;
-        z-index: 10000 !important;
+    #universalBanner div:nth-child(2) {
+        left: 12% !important;
     }
+}
+*/
 
-    /* BRUCE'S BANNER - Override mobile adjustments - FROM BACKUP */
-    .bruce-logo-container img {
-        margin-left: 0 !important;
-        margin-right: 0 !important;
-    }
-
-    /* Force banner to ignore ALL header styling - FROM BACKUP */
-    .bruce-logo-container {
-        text-align: center !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        position: relative !important;
-    }
-
-    /* ===================================================
-       NEW FROM CURRENT CSS - AI AVATAR & BUBBLE STYLES
-       ================================================== */
-    .ai-message > div:not(.ai-avatar) {
-        flex: 1;
-        min-width: 0;
-        white-space: normal;
-        text-align: left;
-        color: white;
-        word-wrap: break-word;
-        overflow-wrap: break-word;
-    }
-
-    .ai-avatar {
-        width: 45px;
-        height: 45px;
-        border-radius: 50%;
-        object-fit: cover;
-        flex-shrink: 0;
-        border: 2px solid rgba(255, 255, 255, 0.8);
-    }
-
-    .ai-bubble {
-        max-width: 850%;
-        width: fit-content;
-        flex-shrink: 0;
-        display: block;
-    }
-
-    /* ===================================================
-       NEW FROM CURRENT CSS - VOICE PRELOADER
-       ================================================== */
-    .voice-preloader {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.85);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 9999;
-        flex-direction: column;
-        color: white;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-
-    .voice-spinner {
-        width: 100px;
-        height: 100px;
-        border: 6px solid #f3f3f3;
-        border-top: 6px solid #3498db;
-        border-radius: 50%;
-        animation: voiceSpin 1s linear infinite;
-        margin-bottom: 20px;
-    }
-
-    .voice-loading-text {
-        font-size: 18px;
-        font-weight: 500;
-    }
-
-    @keyframes voiceSpin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-
-    /* HIDE SPLASH SCREEN IMMEDIATELY - FROM CURRENT */
-    #centerMicActivation {
-        display: none !important;
-    }
-
-    /* ===================================================
-       NEW FROM CURRENT CSS - PAUSE SESSION BUTTON
-       ================================================== */
-    /* Green border for PAUSE SESSION button - FROM CURRENT */
-    .quick-btn[onclick="pauseSession()"] {
-        border: 2px solid #00ff1e !important;
-        background: rgba(0, 255, 30, 0.1) !important;
-        color: #00ff1e !important;
-        transition: all 0.3s ease !important;
-        
-        /* Simple size control */
-        padding: 8px 12px !important;
-        height: 38px !important;
-        font-size: 12px !important;
-
-        /* Width control */
-        min-width: 110px !important;
-    }
-
-    .quick-btn[onclick="pauseSession()"]:hover {
-        background: rgba(0, 255, 30, 0.2) !important;
-        box-shadow: 0 0 15px rgba(0, 255, 30, 0.4) !important;
-        transform: translateY(-2px) !important;
-    }
-
-    /* Mobile positioning controls - FROM CURRENT */
-    @media (max-width: 768px) {
-        .mobile-logo-adjust {
-            left: 10px !important;
-        }
-        
-        .mobile-slogan-adjust {
-            right: 10px !important;
-        }
-    }
-</style>
+    </style>
 </head>
 <body>
     <div class="container">
@@ -1021,76 +935,6 @@
         right: 10px !important; /* Adjust slogan position on mobile */
     }
 }
-/* Classic Spinner - Double Size */
-.voice-preloader {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.85);
-    display: flex; /* CHANGE TO FLEX IMMEDIATELY */
-    justify-content: center;
-    align-items: center;
-    z-index: 9999; /* SUPER HIGH Z-INDEX */
-    flex-direction: column;
-    color: white;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-.voice-spinner {
-    width: 100px;
-    height: 100px;
-    border: 6px solid #f3f3f3;
-    border-top: 6px solid #3498db;
-    border-radius: 50%;
-    animation: voiceSpin 1s linear infinite;
-    margin-bottom: 20px;
-}
-
-.voice-loading-text {
-    font-size: 18px;
-    font-weight: 500;
-}
-
-@keyframes voiceSpin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-/* HIDE SPLASH SCREEN IMMEDIATELY */
-#centerMicActivation {
-    display: none !important;
-}
-
-.ai-message > div:not(.ai-avatar) {
-    flex: 1;
-    min-width: 0;
-    white-space: normal;
-    text-align: left;
-    color: white;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-}
-
-.ai-avatar {
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    object-fit: cover;
-    flex-shrink: 0;
-    border: 2px solid rgba(255, 255, 255, 0.8);
-}
-
-.ai-bubble {
-    max-width: 850%;
-    width: fit-content; /* Bubble will expand to fit text content */
-    flex-shrink: 0;
-    display: block; /* Override any flex child behavior */
-}
-
-/* NO .ai-bubble class needed - the text goes directly in the flex container */
-
 </style>
     </div>
 </div>
@@ -1148,11 +992,35 @@
     <button class="quick-btn" onclick="askQuickQuestion('I want to buy a practice')">Buying Options</button>
 </div>
     
-   <!-- HIDDEN TEXT INPUT - system can still access it -->
-<div class="input-area" style="display: none;">
-    <input type="text" id="userInput" placeholder="Type or click mic to speak...">
-    <button id="sendBtn" onclick="sendMessage()">Send</button>
-</div>
+    <!-- FULL WIDTH TEXT INPUT -->
+    <div class="input-area" style="
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        width: 100%;
+        margin: 0 0 12px 0;">
+        
+        <input type="text" id="userInput" placeholder="Type or click mic to speak..." style="
+            flex: 1;
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            font-size: 16px;
+            outline: none;">
+        
+        <button id="sendBtn" onclick="sendMessage()" style="
+            padding: 12px 20px;
+            background: linear-gradient(90deg, #ff7e5f, #feb47b);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            white-space: nowrap;">Send</button>
+    </div>
     
     <!-- BIGGER CONTROL BUTTONS -->
     <div style="
@@ -1161,23 +1029,23 @@
         justify-content: center;
         margin: 0;">
         
-        <button class="quick-btn" onclick="pauseSession()" style="
+        <button class="quick-btn" onclick="switchToTextMode()" style="
             padding: 12px 25px;
             background: rgba(255, 255, 255, 0.15);
-            color: rgb(0, 255, 30);
+            color: white;
             border: none;
-            border-radius: 15px;
+            border-radius: 20px;
             cursor: pointer;
             font-size: 14px;
             font-weight: 600;
-            min-width: 80px;">PAUSE SESSION</button>
+            min-width: 120px;">Switch to Text</button>
         
         <button class="quick-btn" onclick="exitToMainSite()" style="
             padding: 12px 25px;
             background: linear-gradient(135deg, #ff4757, #ff3742);
             color: white;
             border: none;
-            border-radius: 15px;
+            border-radius: 20px;
             cursor: pointer;
             font-size: 14px;
             font-weight: 600;
@@ -1189,52 +1057,49 @@
         <div id="permissionStatus"></div>
     </div>
 
-</script>                           
-
-<!-- Spinner HTML - PUT THIS AT THE VERY TOP of body -->
-<div id="voicePreloader" class="voice-preloader">
-    <div class="voice-spinner"></div>
-    <div class="voice-loading-text">Initializing Voice Assistant...</div>
-</div>
-
+    <!-- ===================================================
+     🎯 DYNAMIC CONCERN-BASED TESTIMONIAL SYSTEM
+     ================================================== -->
 <script>
-// Auto-trigger function for voice activation - RUN IMMEDIATELY
-document.addEventListener('DOMContentLoaded', function() {
-    const urlParams = new URLSearchParams(window.location.search);
-    
-    if (urlParams.get('autoStartVoice') === 'true') {
-        // Spinner is already visible (display: flex in CSS)
-        // Splash screen is already hidden (!important in CSS)
-        
-        // Auto-click mic button after very brief delay
-        setTimeout(() => {
-            const micButton = document.getElementById('mainMicButton');
-            if (micButton) {
-                micButton.click();
-                
-                // Hide preloader when voice is ready
-                setTimeout(() => {
-                    document.getElementById('voicePreloader').style.display = 'none';
-                }, 2500); // Slightly shorter timeout
-            } else {
-                // Fallback: hide spinner after 3 seconds if mic not found
-                setTimeout(() => {
-                    document.getElementById('voicePreloader').style.display = 'none';
-                }, 3000);
-            }
-        }, 100); // Much shorter delay
-        
-        // Clean up URL
-        window.history.replaceState({}, '', window.location.pathname);
-    } else {
-        // If NOT auto-start, hide spinner and show splash screen
-        document.getElementById('voicePreloader').style.display = 'none';
-        const micActivation = document.getElementById('centerMicActivation');
-        if (micActivation) {
-            micActivation.style.display = 'block';
-        }
+// Concern configuration
+const concernConfig = {
+    price: {
+        title: 'See What Others Say About Value',
+        icon: '💰',
+        reviews: [
+            { text: "Worth every penny. The ROI was visible within the first month.", author: "John D." },
+            { text: "Best investment we made this year. Price seemed high at first but value is clear.", author: "Sarah M." },
+            { text: "The results justified the cost ten times over.", author: "Mike T." }
+        ]
+    },
+    time: {
+        title: 'Hear From Busy Professionals',
+        icon: '⏰',
+        reviews: [
+            { text: "Process was incredibly quick. Done in minutes, not hours.", author: "Emily R." },
+            { text: "As a busy executive, I appreciated how streamlined everything was.", author: "David L." },
+            { text: "Fit perfectly into my packed schedule.", author: "Lisa K." }
+        ]
+    },
+    trust: {
+        title: 'Real Client Experiences',
+        icon: '🤝',
+        reviews: [
+            { text: "Results exceeded my expectations. They delivered exactly what they promised.", author: "Tom B." },
+            { text: "I was skeptical at first, but they proved me wrong in the best way.", author: "Jessica W." },
+            { text: "Couldn't be happier with the outcome. Wish I'd done this sooner.", author: "Robert C." }
+        ]
+    },
+    general: {
+        title: 'What Our Clients Say',
+        icon: '⭐',
+        reviews: [
+            { text: "Professional service exceeded expectations.", author: "Christopher N." },
+            { text: "Highly recommend to anyone considering this.", author: "Amanda G." },
+            { text: "Results speak for themselves. Very satisfied.", author: "Daniel P." }
+        ]
     }
-});
+};
 
 // Show dynamic banner
 function showDynamicConcernBanner(concernType) {
@@ -1281,20 +1146,14 @@ window.skipConcernBanner = function() {
     }
 };
 
-</script>
-
-<!-- 1. Testimonials FIRST -->
-<script src="testimonials-data.js"></script>
+console.log('🎯 Dynamic Concern Banner System loaded!');
+</script>                           
+<script src="testimonials-data.js"></script>       
 <script src="testimonials-player.js"></script>
-
-<!-- 2. Action System SECOND -->
+<script src="voice-chat-fusion-INSTANT.js"></script>
 <script src="action-system-unified.js"></script>
-
-<!-- 3. Everything ELSE (any order) -->
 <script src="universal-banner-engine-v4-CAPTAIN-FINAL.js"></script>
 <script src="action-button-system-CAPTAIN.js"></script>
 <script src="banner-button-integration-SIMPLE.js"></script>
-<script src="voice-chat-fusion-INSTANT.js"></script>
-
 </body>
 </html>
