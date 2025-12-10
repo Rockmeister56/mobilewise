@@ -3,172 +3,11 @@
 // Smart Button + Lead Capture + EmailJS + Banner System
 // ===================================================
 
-// =============================================================================
-// 🎯 ONE BEST FIX: Create Emergency Microphone Button
-// =============================================================================
-
-console.log('🚨 CREATING EMERGENCY MICROPHONE BUTTON...');
-
-// 1. Create a floating microphone button
-const emergencyMicBtn = document.createElement('button');
-emergencyMicBtn.innerHTML = '🎤 EMERGENCY MIC';
-emergencyMicBtn.style.cssText = `
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    z-index: 999999;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border: none;
-    border-radius: 50px;
-    padding: 15px 30px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    transition: all 0.3s ease;
-`;
-
-// 2. Add hover effect
-emergencyMicBtn.onmouseover = function() {
-    this.style.transform = 'scale(1.1)';
-    this.style.boxShadow = '0 15px 40px rgba(0,0,0,0.4)';
-};
-emergencyMicBtn.onmouseout = function() {
-    this.style.transform = 'scale(1)';
-    this.style.boxShadow = '0 10px 30px rgba(0,0,0,0.3)';
-};
-
-// 3. Make it click to start voice chat
-emergencyMicBtn.onclick = function() {
-    console.log('🎤 EMERGENCY MICROPHONE CLICKED');
-    
-    // Start listening
-    if (window.startListening && typeof window.startListening === 'function') {
-        window.startListening();
-        console.log('✅ Voice chat started!');
-        
-        // Change button text
-        this.innerHTML = '🎤 LISTENING...';
-        this.style.background = 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)';
-        
-        // Reset after 10 seconds
-        setTimeout(() => {
-            this.innerHTML = '🎤 EMERGENCY MIC';
-            this.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-        }, 10000);
-    } else {
-        console.error('❌ startListening function not found');
-        this.innerHTML = '❌ ERROR';
-        this.style.background = '#ff0000';
-    }
-};
-
-// 4. Add to page
-document.body.appendChild(emergencyMicBtn);
-
-// 5. Also try to trigger the original video popup
-console.log('🎯 ALSO TRYING TO TRIGGER ORIGINAL VIDEO POPUP...');
-
-// Try common video popup triggers
-setTimeout(() => {
-    // Try to find and show any hidden video/mic elements
-    const videoButtons = document.querySelectorAll('[class*="video"], [class*="mic"], [class*="popup"], [class*="modal"]');
-    console.log(`Found ${videoButtons.length} possible video/popup elements`);
-    
-    // Click any that might be the mic button
-    videoButtons.forEach((btn, i) => {
-        console.log(`Element ${i}:`, btn.className);
-        // If it looks like a button with mic/video text
-        if (btn.textContent && (btn.textContent.toLowerCase().includes('mic') || 
-                                btn.textContent.toLowerCase().includes('video') ||
-                                btn.textContent.toLowerCase().includes('start'))) {
-            console.log('🎯 Found possible mic button:', btn.textContent);
-            btn.click();
-        }
-    });
-    
-    // Also try to trigger any popup that might exist
-    if (window.showVideoPopup && typeof window.showVideoPopup === 'function') {
-        window.showVideoPopup();
-        console.log('✅ Triggered showVideoPopup()');
-    }
-    
-    if (window.openChat && typeof window.openChat === 'function') {
-        window.openChat();
-        console.log('✅ Triggered openChat()');
-    }
-}, 1000);
-
-console.log('✅ EMERGENCY MICROPHONE BUTTON CREATED!');
-console.log('🎤 Look for the PURPLE "EMERGENCY MIC" button at the bottom-right of your screen.');
-console.log('👉 CLICK IT to start voice chat!');
-console.log('\n🎯 Then say "Rock" when asked for your name.');
-
-// TEST FUNCTION: Check if banner triggers
-window.testBannerTrigger = function() {
-    console.log('🧪 Testing banner trigger...');
-    
-    // Simulate speech completion
-    window.isSpeaking = false;
-    
-    // Clear any blocking states for test
-    window.lastClickMentionTime = 0;
-    window.concernBannerActive = false;
-    window.isInTestimonialMode = false;
-    window.isInConfirmationDialog = false;
-    window.isInLeadCapture = false;
-    
-    console.log('Triggering showDirectSpeakNow...');
-    if (typeof showDirectSpeakNow === 'function') {
-        showDirectSpeakNow();
-        console.log('✅ showDirectSpeakNow called successfully');
-    } else {
-        console.error('❌ showDirectSpeakNow not found!');
-    }
-};
-
-// Run test: testBannerTrigger()
-
 // ===========================================
-// GLOBAL SPEECH CONTROL FUNCTION - UPDATED
+// ELEVENLABS CONFIGURATION
 // ===========================================
-
-function stopAllSpeech() {
-    console.log('🛑 stopAllSpeech() called');
-    
-    // 1. Stop browser speech synthesis
-    if (window.speechSynthesis && window.speechSynthesis.speaking) {
-        window.speechSynthesis.cancel();
-        console.log('✅ Browser speech stopped');
-    }
-    
-    // 2. Stop any ElevenLabs audio
-    const allAudio = document.querySelectorAll('audio');
-    allAudio.forEach(audio => {
-        audio.pause();
-        audio.currentTime = 0;
-    });
-    
-    // 🆕 3. Also stop any ongoing listening
-    if (window.stopListening && typeof window.stopListening === 'function') {
-        window.stopListening();
-    }
-    
-    // 🆕 4. Also hide speak now banner if visible
-    if (window.hideSpeakNowBanner && typeof window.hideSpeakNowBanner === 'function') {
-        window.hideSpeakNowBanner();
-    }
-    
-    // 5. Reset speaking state
-    window.isSpeaking = false;
-    
-    console.log('✅ All speech and listening stopped');
-    return true;
-}
-
-// Make it globally available
-window.stopAllSpeech = stopAllSpeech;
+const ELEVENLABS_API_KEY = 'sk_145cc0fe5aeb1c2ae4ebf3193dcee721ae8a4f755ed9e5d8';
+const VOICE_ID = 'WZlYpi1yf6zJhNWXih74';
 
 // Add this at the VERY TOP of your JavaScript file (like line 1)
 if (typeof window.leadData === 'undefined' || !window.leadData) {
@@ -1221,49 +1060,6 @@ recognition.onend = function() {
     }
 }
 
-// RE-DEFINE processUserResponse (it got lost somehow)
-window.processUserResponse = function(userText) {
-    console.log('🎯 processUserResponse RE-DEFINED with:', userText);
-    
-    // Add user message to chat
-    if (window.addUserMessage && typeof window.addUserMessage === 'function') {
-        window.addUserMessage(userText);
-    }
-    
-    // Check for name capture (introduction state)
-    if (window.salesAI && window.salesAI.state === 'introduction' && !window.salesAI.userData.firstName) {
-        console.log('✅ Capturing name:', userText);
-        window.salesAI.userData.firstName = userText;
-        window.salesAI.state = 'investigation';
-        console.log('🔄 State changed to: investigation');
-    }
-    
-    // Call getAIResponse directly
-    console.log('🎯 Calling getAIResponse...');
-    getAIResponse(userText).then(response => {
-        console.log('✅ getAIResponse returned:', response);
-        
-        // Add AI message to chat
-        if (window.addAIMessage && typeof window.addAIMessage === 'function') {
-            window.addAIMessage(response);
-        }
-        
-        // Speak the response
-        if (window.speakResponse && typeof window.speakResponse === 'function') {
-            window.speakResponse(response);
-        }
-        
-    }).catch(error => {
-        console.error('❌ getAIResponse error:', error);
-        // Fallback response
-        const fallback = "I apologize, I'm having trouble processing that. Could you please repeat?";
-        if (window.addAIMessage) window.addAIMessage(fallback);
-        if (window.speakResponse) window.speakResponse(fallback);
-    });
-};
-
-console.log('✅ processUserResponse redefined! Type:', typeof window.processUserResponse);
-
 // ===================================================
 // 🔍 FORCE START LISTENING - FIXED (DUPLICATE HANDLER REMOVED)
 // ===================================================
@@ -1445,21 +1241,10 @@ async function activateMicrophone() {
 }
 
 // ===================================================
-// 💭 MESSAGE HANDLING SYSTEM - USE THIS VERSION
+// 💭 MESSAGE HANDLING SYSTEM
 // ===================================================
 function addUserMessage(message) {
     console.log('🔍 DEBUG: addUserMessage called with:', message);
-    
-    // 🚨 ADD JUST THIS LINE: Prevent duplicate calls within 500ms
-    if (window._lastUserMessage === message && Date.now() - (window._lastUserMessageTime || 0) < 500) {
-        console.log('🚫 Skipping duplicate addUserMessage');
-        return; // Exit early, don't create bubble
-    }
-    
-    // 🚨 ADD JUST THIS LINE: Track the last message
-    window._lastUserMessage = message;
-    window._lastUserMessageTime = Date.now();
-    
     const chatMessages = document.getElementById('chatMessages');
     if (!chatMessages) return;
     
@@ -1475,24 +1260,11 @@ function addAIMessage(message) {
     const chatMessages = document.getElementById('chatMessages');
     if (!chatMessages) return;
     
-    // DEBUG: Check container widths
-    console.log('Chat messages width:', chatMessages.offsetWidth);
-    console.log('Chat messages parent width:', chatMessages.parentElement.offsetWidth);
+    const messageElement = document.createElement('div');
+    messageElement.className = 'message ai-message';
+    messageElement.textContent = message;
     
-    const messageContainer = document.createElement('div');
-    messageContainer.className = 'message ai-message';
-    
-    const avatar = document.createElement('img');
-    avatar.src = 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1764374269507_avatar%20right.png';
-    avatar.alt = 'AI Assistant';
-    avatar.className = 'ai-avatar';
-    
-    const messageText = document.createElement('div');
-    messageText.textContent = message;
-    
-    messageContainer.appendChild(avatar);
-    messageContainer.appendChild(messageText);
-    chatMessages.appendChild(messageContainer);
+    chatMessages.appendChild(messageElement);
     scrollChatToBottom();
 }
 
@@ -1503,112 +1275,57 @@ function scrollChatToBottom() {
     }
 }
 
-// ===========================================
-// 🛑 STOP LISTENING FUNCTION - IMPROVED
-// ===========================================
+// ================================
+// 🛑 STOP LISTENING FUNCTION (MISSING!)
+// ================================
 function stopListening() {
-    console.log('🛑 stopListening() called - comprehensive cleanup');
-    
-    // Set all listening states to false
     window.isCurrentlyListening = false;
-    window.isListening = false;
-    window.isRecording = false;
+    console.log('🛑 stopListening() called');
     
-    // Stop speech recognition if active
     if (window.speechRecognition) {
         try {
             window.speechRecognition.stop();
             window.speechRecognition.abort();
             console.log('✅ Speech recognition stopped');
         } catch (e) {
-            console.log('Speech recognition stop error (expected if not running):', e.message);
+            console.log('Speech recognition stop error:', e);
         }
     }
     
-    // 🆕 ALSO STOP ANY SPEECH PLAYBACK
-    if (window.isSpeaking) {
-        console.log('🛑 Also stopping speech playback');
-        if (window.stopAllSpeech && typeof window.stopAllSpeech === 'function') {
-            window.stopAllSpeech();
-        }
-    }
-    
-    // 🆕 HIDE SPEAK NOW BANNER IF VISIBLE
-    if (window.hideSpeakNowBanner && typeof window.hideSpeakNowBanner === 'function') {
-        window.hideSpeakNowBanner();
-    }
-    
-    // 🆕 RESET CONVERSATION STATE IF NEEDED
-    if (window.conversationState === 'listening') {
-        window.conversationState = 'ready';
-    }
+    window.isListening = false;
+    window.isRecording = false;
 }
 
 // Make globally accessible
 window.stopListening = stopListening;
 
-// ===========================================
-// 🎨 CLEAN EMOJIS FROM SPEECH - IMPROVED
-// ===========================================
+// Add this function to clean emojis from speech text
 function cleanEmojisFromSpeech(text) {
-    if (!text || typeof text !== 'string') return text || '';
+    if (!text) return text;
     
-    console.log('🎨 Cleaning emojis from text:', text.substring(0, 50) + '...');
-    
-    // EXTENSIVE EMOJI PATTERNS - Remove ALL emojis, not just specific ones
+    // Remove common emojis that might appear in text but shouldn't be spoken
     const emojiPatterns = [
-        // Common UI/status emojis
-        /✅/g, /❌/g, /⚠️/g, /🚨/g, /🔔/g, /📢/g,
-        // Communication emojis
-        /📧/g, /📞/g, /📱/g, /💬/g, /🗨️/g,
-        // Time/date emojis
-        /📅/g, /⏰/g, /⏱️/g, /⏳/g, /⌛/g,
-        // Action emojis
-        /⏭️/g, /🔄/g, /🎬/g, /🚀/g, /🛡️/g,
-        // People/gesture emojis
-        /🙏/g, /👋/g, /👍/g, /👌/g, /🤝/g,
-        // Object emojis
-        /🎤/g, /🎯/g, /🏠/g, /🆕/g, /🔑/g,
-        // Arrows
-        /⬅️/g, /➡️/g, /⬆️/g, /⬇️/g, /↔️/g,
-        // General emoji ranges (catches ALL emojis)
-        /[\u{1F600}-\u{1F64F}]/gu, // Emoticons
-        /[\u{1F300}-\u{1F5FF}]/gu, // Misc Symbols and Pictographs
-        /[\u{1F680}-\u{1F6FF}]/gu, // Transport and Map Symbols
-        /[\u{2600}-\u{26FF}]/gu,   // Misc Symbols
-        /[\u{2700}-\u{27BF}]/gu    // Dingbats
+        /✅/g, /📧/g, /📞/g, /📅/g, /🚨/g, /⏭️/g, /🔄/g, /🙏/g,
+        /🎯/g, /🚀/g, /🛡️/g, /🎤/g, /🎬/g, /🆕/g
     ];
     
     let cleanedText = text;
-    
-    // Remove all emoji patterns
     emojiPatterns.forEach(pattern => {
         cleanedText = cleanedText.replace(pattern, '');
     });
     
-    // Clean up formatting artifacts
-    cleanedText = cleanedText
-        .replace(/\s+/g, ' ')           // Multiple spaces to single space
-        .replace(/^\s+|\s+$/g, '')      // Trim start/end
-        .replace(/,\s*,/g, ',')         // Remove duplicate commas
-        .replace(/\.\s*\./g, '.')       // Remove duplicate periods
-        .replace(/\s*,\s*/g, ', ')      // Normalize comma spacing
-        .replace(/\s*\.\s*/g, '. ')     // Normalize period spacing
-        .trim();
+    // Clean up any double spaces caused by emoji removal
+    cleanedText = cleanedText.replace(/\s+/g, ' ').trim();
     
-    // Log if changes were made
     if (cleanedText !== text) {
-        console.log('🎨 Cleaned emojis from speech:', 
-                   'Original:', text.substring(0, 30) + '...',
-                   'Cleaned:', cleanedText.substring(0, 30) + '...');
+        console.log('🎨 Cleaned emojis from speech:', text, '→', cleanedText);
     }
     
     return cleanedText;
 }
 
-// Make globally accessible
+// Make it globally accessible
 window.cleanEmojisFromSpeech = cleanEmojisFromSpeech;
-
 
 // ===================================================
 // 💬 TEXT INPUT SYSTEM
@@ -1706,64 +1423,250 @@ console.log('🔍 ROOT CAUSE DEBUG - isMobileDevice FIXED:', {
 });
 
 // ===========================================
-// ELEVENLABS CONFIG
+// VOICE SYSTEM CONFIGURATION
 // ===========================================
-const ELEVENLABS_API_KEY = 'sk_9e7fa2741be74e8cc4af95744fe078712c1e8201cdcada93';
-const VOICE_ID = 'zGjIP4SZlMnY9m93k97r';
+const VOICE_CONFIG = {
+    // MAIN CONTROL - Change this to switch voice systems
+    provider: 'british',  // 'british' | 'elevenlabs' | 'browser'
+    
+   // ELEVENLABS CONFIG (when enabled)
+    elevenlabs: {
+        enabled: true,  // ← SET TO TRUE when you have credits
+        apiKey: ELEVENLABS_API_KEY,  // Reference the constant
+        voiceId: VOICE_ID,           // Reference the constant
+        model: 'eleven_turbo_v2'
+    },
+    
+    // BRITISH VOICE CONFIG
+    british: {
+        enabled: true,   // ← FREE, always available
+        priority: ['Microsoft Hazel - English (Great Britain)', 'Kate', 'Serena', 'Google UK English Female']
+    },
+    
+    // FALLBACK BROWSER CONFIG
+    browser: {
+        enabled: true,   // ← Basic fallback
+        rate: 0.9,
+        pitch: 1.0,
+        volume: 0.8
+    },
+    
+    // DEBUG & CONTROL
+    debug: true,
+    autoFallback: true  // Automatically fallback if primary fails
+};
 
 // ===========================================
-// ORIGINAL ELEVENLABS FUNCTION WITH MOBILE FIX
+// GLOBAL VOICE STATE
 // ===========================================
-async function speakWithElevenLabs(message) {
-    try {
-        console.log('🎤 ElevenLabs: Starting speech synthesis...');
-        window.isSpeaking = true;
+let voiceSystem = {
+    isSpeaking: false,
+    currentProvider: null,
+    selectedBritishVoice: null,
+    isInitialized: false
+};
+
+// ===========================================
+// CONSOLIDATED VOICE SYSTEM CLASS
+// ===========================================
+class MobileWiseVoiceSystem {
+    constructor() {
+        this.synthesis = window.speechSynthesis;
+        this.voices = [];
         
-        // 🎯 CRITICAL MOBILE FIX: REINITIALIZE audio context for EVERY speech
-        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        if (VOICE_CONFIG.debug) {
+            console.log("🎤 Mobile-Wise Consolidated Voice System initializing...");
+        }
         
-        if (isMobile) {
-            console.log('📱 Mobile: Ensuring audio context before EACH speech...');
-            try {
-                // Create NEW silent audio for EVERY speech
-                const silentAudio = new Audio();
-                silentAudio.src = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEAQB8AAEAfAAABAAgAZGF0YQ';
-                silentAudio.volume = 0;
-                
-                // Play it immediately
-                await silentAudio.play();
-                
-                // Mark context as initialized
-                window.audioContextInitialized = true;
-                console.log('✅ Mobile audio context refreshed for this speech');
-                
-                // 🆕 CRITICAL: Add a small delay for mobile
-                await new Promise(resolve => setTimeout(resolve, 100));
-                
-            } catch (e) {
-                console.log('⚠️ Could not refresh audio context:', e.message);
-                // Try to continue anyway
+        this.initializeSystem();
+    }
+    
+    // Initialize all voice systems
+    async initializeSystem() {
+        // Initialize browser voices first
+        await this.initializeBrowserVoices();
+        
+        // Select best British voice if enabled
+        if (VOICE_CONFIG.british.enabled) {
+            this.selectBritishVoice();
+        }
+        
+        voiceSystem.isInitialized = true;
+        voiceSystem.currentProvider = VOICE_CONFIG.provider;
+        
+        if (VOICE_CONFIG.debug) {
+            console.log(`✅ Voice system ready - Provider: ${VOICE_CONFIG.provider}`);
+            this.logSystemStatus();
+        }
+    }
+    
+    // Initialize browser voices with proper loading
+    initializeBrowserVoices() {
+        return new Promise((resolve) => {
+            const loadVoices = () => {
+                this.voices = this.synthesis.getVoices();
+                if (this.voices.length > 0) {
+                    resolve();
+                } else {
+                    setTimeout(loadVoices, 100);
+                }
+            };
+            
+            this.synthesis.addEventListener('voiceschanged', loadVoices);
+            loadVoices();
+        });
+    }
+    
+    // Select best British voice
+    selectBritishVoice() {
+    console.log("🇬🇧 Enhanced British voice search...");
+    
+    // UPDATED PRIORITY - Google UK voices first!
+    const britishVoicePriority = [
+        // MOBILE/DESKTOP GOOGLE BRITISH VOICES (highest priority)
+        'Google UK English Female',        // ← Your mobile has this!
+        'Google UK English Male',          // ← Your mobile has this!
+        
+        // DESKTOP MICROSOFT BRITISH VOICES
+        'Microsoft Hazel - English (Great Britain)',
+        'Microsoft Susan - English (Great Britain)',
+        
+        // MACOS BRITISH VOICES
+        'Daniel', 'Kate', 'Serena', 'Oliver',
+        
+        // OTHER BRITISH PATTERNS
+        'British English Female', 'British English Male',
+        'English (United Kingdom)', 'English (UK)'
+    ];
+    
+    // STEP 1: Look for exact name matches first
+    for (const voiceName of britishVoicePriority) {
+        const voice = this.voices.find(v => v.name === voiceName);
+        if (voice) {
+            voiceSystem.selectedBritishVoice = voice;
+            console.log(`🇬🇧 EXACT MATCH: ${voice.name} (${voice.lang})`);
+            return;
+        }
+    }
+    
+    // STEP 2: Look for partial name matches with GB language
+    for (const voiceName of britishVoicePriority) {
+        const voice = this.voices.find(v => 
+            v.name.includes(voiceName) && 
+            (v.lang.includes('gb') || v.lang.includes('uk') || v.lang === 'en-GB')
+        );
+        if (voice) {
+            voiceSystem.selectedBritishVoice = voice;
+            console.log(`🇬🇧 PARTIAL MATCH: ${voice.name} (${voice.lang})`);
+            return;
+        }
+    }
+    
+    // STEP 3: Any voice with GB/UK language code
+    const gbVoice = this.voices.find(v => 
+        v.lang === 'en-GB' || v.lang.includes('gb') || v.lang.includes('uk')
+    );
+    
+    if (gbVoice) {
+        voiceSystem.selectedBritishVoice = gbVoice;
+        console.log(`🇬🇧 LANGUAGE MATCH: ${gbVoice.name} (${gbVoice.lang})`);
+        return;
+    }
+    
+    // STEP 4: Premium American female voices (fallback)
+    const premiumFemaleVoices = [
+        'Microsoft Zira - English (United States)',
+        'Google US English',
+        'Samantha', 'Victoria'
+    ];
+    
+    for (const voiceName of premiumFemaleVoices) {
+        const voice = this.voices.find(v => v.name.includes(voiceName));
+        if (voice) {
+            voiceSystem.selectedBritishVoice = voice;
+            console.log(`🔄 PREMIUM FALLBACK: ${voice.name} (${voice.lang})`);
+            return;
+        }
+    }
+    
+    // STEP 5: Any English voice
+    const anyEnglish = this.voices.find(v => v.lang.startsWith('en'));
+    if (anyEnglish) {
+        voiceSystem.selectedBritishVoice = anyEnglish;
+        console.log(`⚠️ FALLBACK: ${anyEnglish.name} (${anyEnglish.lang})`);
+    }
+}
+    
+    // ===========================================
+    // MASTER SPEAK FUNCTION - Replaces ALL others
+    // ===========================================
+    async speak(text, options = {}) {
+        if (!text || text.trim() === '') {
+            console.warn("⚠️ Empty text provided to voice system");
+            return;
+        }
+        
+        // Set speaking state
+        voiceSystem.isSpeaking = true;
+        window.isSpeaking = true; // For backward compatibility
+        
+        if (VOICE_CONFIG.debug) {
+            console.log(`🎤 Speaking with ${VOICE_CONFIG.provider}: "${text.substring(0, 50)}..."`);
+        }
+        
+        try {
+            // Route to correct voice provider
+            switch (VOICE_CONFIG.provider) {
+                case 'elevenlabs':
+                    if (VOICE_CONFIG.elevenlabs.enabled) {
+                        await this.speakWithElevenLabs(text);
+                    } else {
+                        console.warn("⚠️ ElevenLabs disabled, falling back to British");
+                        await this.speakWithBritish(text);
+                    }
+                    break;
+                    
+                case 'british':
+                    await this.speakWithBritish(text);
+                    break;
+                    
+                case 'browser':
+                default:
+                    await this.speakWithBrowser(text);
+                    break;
+            }
+            
+        } catch (error) {
+            console.error(`❌ ${VOICE_CONFIG.provider} voice failed:`, error);
+            
+            // Auto-fallback if enabled
+            if (VOICE_CONFIG.autoFallback && VOICE_CONFIG.provider !== 'browser') {
+                console.log("🔄 Auto-fallback to browser voice");
+                await this.speakWithBrowser(text);
             }
         }
-        
-        // 🎯 ALSO ADD: User interaction context for mobile
-        if (isMobile) {
-            // Store that user has interacted (speech is user-initiated via conversation)
-            window.lastUserInteractionTime = Date.now();
-            console.log('📱 Mobile user interaction timestamp updated');
+    }
+    
+    // ===========================================
+    // ELEVENLABS VOICE PROVIDER
+    // ===========================================
+    async speakWithElevenLabs(text) {
+        if (!VOICE_CONFIG.elevenlabs.enabled) {
+            throw new Error("ElevenLabs not enabled");
         }
+
+        window.isSpeaking = true;
         
-        // Start API call
-        const audioPromise = fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}`, {
+        const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE_CONFIG.elevenlabs.voiceId}`, {
             method: 'POST',
             headers: {
                 'Accept': 'audio/mpeg',
                 'Content-Type': 'application/json',
-                'xi-api-key': ELEVENLABS_API_KEY
+                'xi-api-key': VOICE_CONFIG.elevenlabs.apiKey
             },
             body: JSON.stringify({
-                text: message,
-                model_id: 'eleven_turbo_v2',
+                text: text,
+                model_id: VOICE_CONFIG.elevenlabs.model,
                 voice_settings: {
                     stability: 0.5,
                     similarity_boost: 0.5,
@@ -1772,349 +1675,302 @@ async function speakWithElevenLabs(message) {
                 }
             })
         });
-
-        console.log('🔄 ElevenLabs: Processing audio...');
-        
-        const response = await audioPromise;
         
         if (!response.ok) {
             throw new Error(`ElevenLabs API error: ${response.status}`);
         }
-
+        
         const audioBlob = await response.blob();
         const audioUrl = URL.createObjectURL(audioBlob);
         
-        // Preload audio
-        const audio = new Audio();
-        audio.preload = 'auto';
-        
-        // 🎯 MOBILE: Add playsinline for mobile video
-        if (isMobile) {
-            audio.setAttribute('playsinline', '');
-            audio.setAttribute('webkit-playsinline', '');
-        }
-        
-        // Set up event handlers BEFORE setting src
-        audio.oncanplaythrough = function() {
-            console.log('🎤 ElevenLabs: Audio ready - starting playback');
-            audio.play();
-        };
-        
-        // 🎯 KEEP ALL YOUR ORIGINAL BLOCKING LOGIC
-        audio.onended = function() {
-    console.log('🔍 ElevenLabs: Speech complete handler');
-    window.isSpeaking = false;
-    
-    // 🎯 BLOCKING CONDITIONS
-    if (window.isInConfirmationDialog) {
-        console.log('🛑 BLOCKING BANNER - Confirmation dialog active');
-        URL.revokeObjectURL(audioUrl);
-        return;
-    }
-    
-    // Click mention blocking
-    const clickMentionTime = window.lastClickMentionTime || 0;
-    const timeSinceClickMention = Date.now() - clickMentionTime;
-    if (timeSinceClickMention < 10000) {
-        console.log('🔇 SPEAK NOW BLOCKED: Recent click mention');
-        return;
-    }
-    
-    // Thank you splash blocking
-    if (document.getElementById('thankYouSplash')) {
-        console.log('🔇 SPEAK NOW BLOCKED: Thank you splash screen active');
-        return;
-    }
-    
-    // Conversation ended blocking
-    const conversationState = window.conversationState || 'ready';
-    if (conversationState === 'ended' || conversationState === 'splash_screen_active') {
-        console.log('🔇 SPEAK NOW BLOCKED: Conversation ended');
-        return;
-    }
-    
-    // 🆕 ACTION CENTER & LEAD CAPTURE BLOCKING
-    const actionCenterElement = document.getElementById('communication-action-center');
-    const actionCenterVisible = actionCenterElement && 
-                               actionCenterElement.style.display !== 'none' && 
-                               actionCenterElement.offsetWidth > 0 && 
-                               actionCenterElement.offsetHeight > 0;
-    const leadCaptureActive = window.isInLeadCapture === true;
-    const actionCenterShowing = !leadCaptureActive && !!actionCenterVisible;
-    
-    if (actionCenterShowing || leadCaptureActive) {
-        console.log('🚫 ROOT BLOCK: Action Center or Lead Capture active');
-        return;
-    }
-    
-    // 🆕 CONCERN/TESTIMONIAL BLOCKING
-    if (window.concernBannerActive || window.isInTestimonialMode) {
-        console.log('🔇 SPEAK NOW BLOCKED: Concern/Testimonial mode active');
-        return;
-    }
-    
-    console.log('✅ No blocking conditions - calling showDirectSpeakNow()');
-    
-    // 🎯 CRITICAL: CALL THE BANNER FUNCTION
-    if (typeof showDirectSpeakNow === 'function') {
-        setTimeout(() => {
-            showDirectSpeakNow();
-        }, 300); // Small delay for better UX
-    } else {
-        console.warn('⚠️ showDirectSpeakNow not found');
-        if (window.startRealtimeListening) {
-            setTimeout(() => {
-                window.startRealtimeListening();
-            }, 800);
-        }
-    }
-    
-    // Clean up
-    URL.revokeObjectURL(audioUrl);
-};
-        
-        audio.onerror = function(error) {
-            console.error('🚫 ElevenLabs: Audio playback error:', error);
-            window.isSpeaking = false;
+        return new Promise((resolve, reject) => {
+            const audio = new Audio();
+            audio.preload = 'auto';
             
-            // Fallback to British voice
-            if (window.speakWithBritish) {
-                console.log('🔄 Falling back to British voice');
-                window.speakWithBritish(message);
-            }
-        };
-        
-        // Set source (triggers loading)
-        audio.src = audioUrl;
-        
-    } catch (error) {
-        console.error('🚫 ElevenLabs: Speech synthesis error:', error);
-        window.isSpeaking = false;
-        
-        // Fallback to British voice
-        if (window.speakWithBritish) {
-            window.speakWithBritish(message);
-        }
-    }
-}
-
-// ===========================================
-// BRITISH VOICE FALLBACK (KEEP GOOD VERSION)
-// ===========================================
-window.speakWithBritish = function(text) {
-    return new Promise((resolve, reject) => {
-        try {
-            window.isSpeaking = true;
-            
-            // Cancel any ongoing speech
-            if (window.speechSynthesis && window.speechSynthesis.speaking) {
-                window.speechSynthesis.cancel();
-            }
-            
-            const utterance = new SpeechSynthesisUtterance(text);
-            
-            // 🎯 REPLACE JUST THIS ARRAY:
-            const britishVoicePriority = [
-                // Microsoft Premium Online Voices (you have these!)
-                'Microsoft Libby Online (Natural) - English (United Kingdom)',
-                'Microsoft Ryan Online (Natural) - English (United Kingdom)', 
-                'Microsoft Sonia Online (Natural) - English (United Kingdom)',
-                'Microsoft Thomas Online (Natural) - English (United Kingdom)',
-                
-                // Standard Microsoft Voices
-                'Microsoft Hazel - English (Great Britain)',
-                'Microsoft Susan - English (Great Britain)',
-                
-                // Google Voices
-                'Google UK English Female',
-                'Google UK English Male',
-                
-                // MacOS Voices
-                'Daniel', 'Kate', 'Serena', 'Oliver'
-            ];
-            
-            // Find best voice - KEEP THIS CODE AS IS
-            const voices = window.speechSynthesis.getVoices();
-            for (const voiceName of britishVoicePriority) {
-                const voice = voices.find(v => v.name === voiceName);
-                if (voice) {
-                    utterance.voice = voice;
-                    break;
-                }
-            }
-            
-            utterance.rate = 1.0;
-            utterance.pitch = 1.05;
-            utterance.volume = 0.85;
-            
-            utterance.onend = () => {
-    window.isSpeaking = false;
-    console.log('✅ British voice: Speech complete');
-    
-    // 🎯 SAME BLOCKING LOGIC AS ABOVE
-    if (!window.concernBannerActive && !window.isInTestimonialMode) {
-        // Check all blocking conditions
-        const clickMentionTime = window.lastClickMentionTime || 0;
-        const timeSinceClickMention = Date.now() - clickMentionTime;
-        const thankYouSplash = document.getElementById('thankYouSplash');
-        const conversationState = window.conversationState || 'ready';
-        const actionCenterElement = document.getElementById('communication-action-center');
-        const actionCenterVisible = actionCenterElement && 
-                                   actionCenterElement.style.display !== 'none' && 
-                                   actionCenterElement.offsetWidth > 0 && 
-                                   actionCenterElement.offsetHeight > 0;
-        const leadCaptureActive = window.isInLeadCapture === true;
-        const actionCenterShowing = !leadCaptureActive && !!actionCenterVisible;
-        
-        if (timeSinceClickMention < 10000) {
-            console.log('🔇 SPEAK NOW BLOCKED: Recent click mention');
-            resolve();
-            return;
-        }
-        if (thankYouSplash) {
-            console.log('🔇 SPEAK NOW BLOCKED: Thank you splash active');
-            resolve();
-            return;
-        }
-        if (conversationState === 'ended' || conversationState === 'splash_screen_active') {
-            console.log('🔇 SPEAK NOW BLOCKED: Conversation ended');
-            resolve();
-            return;
-        }
-        if (window.isInConfirmationDialog) {
-            console.log('🛑 BLOCKING BANNER - Confirmation dialog active');
-            resolve();
-            return;
-        }
-        if (actionCenterShowing || leadCaptureActive) {
-            console.log('🚫 ROOT BLOCK: Action Center or Lead Capture active');
-            resolve();
-            return;
-        }
-        
-        // 🎯 TRIGGER BANNER
-        setTimeout(() => {
-            if (typeof showDirectSpeakNow === 'function') {
-                showDirectSpeakNow();
-            }
-        }, 300);
-    }
-    
-    resolve();
-};
-            
-            utterance.onerror = (error) => {
-                if (error.error === 'interrupted') {
-                    console.log('🔇 British voice interrupted');
-                    resolve(); // Clean interruption
-                } else {
-                    console.error('🚫 British voice error:', error);
-                    reject(error);
-                }
-                window.isSpeaking = false;
+            audio.oncanplaythrough = () => {
+                audio.play();
             };
             
-            window.speechSynthesis.speak(utterance);
+            audio.onended = () => {
+                this.handleSpeechComplete();
+                URL.revokeObjectURL(audioUrl);
+                resolve();
+            };
             
-        } catch (error) {
-            console.error('🚫 British voice initialization error:', error);
-            window.isSpeaking = false;
-            reject(error);
-        }
-    });
-};
-
-// ===========================================
-// MAIN SPEAK FUNCTION - USE THIS EVERYWHERE
-// ===========================================
-window.speakText = async function(text) {
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    
-    console.log(`🔊 speakText called: "${text.substring(0, 30)}..."`);
-    console.log(`   Platform: ${isMobile ? '📱 MOBILE' : '🖥️ DESKTOP'}`);
-    
-    // Clean emojis before speaking
-    const cleanText = cleanEmojisFromSpeech ? cleanEmojisFromSpeech(text) : text;
-    
-    // 🎯 MOBILE PRE-WARM: Ensure audio context exists
-    if (isMobile) {
-        console.log('📱 Mobile: Pre-warming audio context...');
-        try {
-            const silentAudio = new Audio();
-            silentAudio.src = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEAQB8AAEAfAAABAAgAZGF0YQ';
-            silentAudio.volume = 0;
-            await silentAudio.play();
-            console.log('✅ Mobile audio context pre-warmed');
-        } catch (e) {
-            console.log('⚠️ Mobile pre-warm failed (may need user interaction):', e.message);
-        }
+            audio.onerror = (error) => {
+                console.error('🚫 ElevenLabs audio error:', error);
+                reject(error);
+            };
+            
+            audio.src = audioUrl;
+        });
     }
     
-    // Always try ElevenLabs first
-    try {
-        await speakWithElevenLabs(cleanText);
-    } catch (error) {
-        console.log('🔄 ElevenLabs failed, falling back to British');
+    // ===========================================
+    // BRITISH VOICE PROVIDER
+    // ===========================================
+    async speakWithBritish(text) {
+        if (!voiceSystem.selectedBritishVoice) {
+            throw new Error("No British voice available");
+        }
+
+        window.isSpeaking = true; 
         
-        // 🎯 MOBILE: Re-warm for British fallback
-        if (isMobile) {
-            try {
-                const silentAudio = new Audio();
-                silentAudio.src = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEAQB8AAEAfAAABAAgAZGF0YQ';
-                silentAudio.volume = 0;
-                await silentAudio.play();
-            } catch (e) {
-                console.log('⚠️ Could not re-warm for British fallback');
+        this.synthesis.cancel();
+        
+        return new Promise((resolve, reject) => {
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.voice = voiceSystem.selectedBritishVoice;
+            
+            // Optimized settings for British voice
+            utterance.rate = 1.0;    // ✅ Increased from 0.85 (15% faster)
+            utterance.pitch = 1.05;  // Kept same
+            utterance.volume = 0.85; // Kept same
+            
+            utterance.onend = () => {
+                this.handleSpeechComplete();
+                resolve();
+            };
+            
+           utterance.onerror = (error) => {
+    // Suppress "interrupted" errors - they're expected when user clicks buttons
+    if (error.error === 'interrupted') {
+        console.log('🔇 Speech interrupted (user action)');
+        resolve(); // Resolve instead of reject for clean interruption
+        return;
+    }
+    console.error('🚫 British voice error:', error);
+    reject(error);
+};
+            
+            this.synthesis.speak(utterance);
+            
+            // Mobile wake-up fix
+            setTimeout(() => {
+                if (this.synthesis.paused) this.synthesis.resume();
+            }, 100);
+        });
+    }
+    
+    // ===========================================
+    // BROWSER VOICE PROVIDER (FALLBACK)
+    // ===========================================
+    async speakWithBrowser(text) {
+        this.synthesis.cancel();
+        
+        return new Promise((resolve, reject) => {
+            const utterance = new SpeechSynthesisUtterance(text);
+            
+            // Use best available voice or default
+            if (this.voices.length > 0) {
+                const englishVoice = this.voices.find(v => v.lang.startsWith('en'));
+                if (englishVoice) utterance.voice = englishVoice;
             }
-        }
-        
-        await window.speakWithBritish(cleanText);
+            
+            utterance.rate = VOICE_CONFIG.browser.rate;
+            utterance.pitch = VOICE_CONFIG.browser.pitch;
+            utterance.volume = VOICE_CONFIG.browser.volume;
+            
+            utterance.onend = () => {
+                this.handleSpeechComplete();
+                resolve();
+            };
+            
+            utterance.onerror = (error) => {
+                console.error('🚫 Browser voice error:', error);
+                reject(error);
+            };
+            
+            this.synthesis.speak(utterance);
+        });
     }
-};
+    
+    // ============================================================
+    // 🎯 SPEECH COMPLETION HANDLER - WITH ELEVENLABS BANNER LOGIC
+    // ✅ SMART BUTTON BLOCKING REMOVED FOR BANNER FUNCTIONALITY
+   // ============================================================
+ handleSpeechComplete() {
+    voiceSystem.isSpeaking = false;
+    window.isSpeaking = false; // Backward compatibility
+    
+    // 🎯 ADD THIS CHECK: Block banner during confirmation dialog
+    if (window.isInConfirmationDialog) {
+        console.log('🛑 BLOCKING BANNER - Confirmation dialog active');
+        return; // STOP HERE - don't trigger banner
+    }
+    
+    // 🆕🎯 CRITICAL FIX: ADD ONLY THIS COOLDOWN RESET BLOCK
+    console.log('🎯 RESET: Clearing all banner cooldowns after AI speech');
+    window.directSpeakNowCooldown = false;
+    if (window.bannerCooldownTimer) {
+        clearTimeout(window.bannerCooldownTimer);
+        window.bannerCooldownTimer = null;
+    }
+    // 🆕 END OF COOLDOWN RESET BLOCK
+    
+    if (VOICE_CONFIG.debug) {
+        console.log("🔍 PERMANENT HANDLER: Speech completed - checking ElevenLabs banner logic (NO SMART BUTTON BLOCK)");
+    }
+    
+// ============================================================
+// EXACT ELEVENLABS BLOCKING CONDITIONS CHECK
+// ============================================================
+const now = Date.now();
+const clickMentionTime = window.lastClickMentionTime || 0;
+const timeSinceClickMention = now - clickMentionTime;
+const conversationState = window.conversationState || 'ready';
+const thankYouSplashVisible = document.querySelector('.thank-you-splash:not([style*="display: none"])');
+
+// 🆕 CHECK IF COMMUNICATION ACTION CENTER IS VISIBLE
+const actionCenterElement = document.getElementById('communication-action-center');
+const actionCenterVisible = actionCenterElement && 
+                           actionCenterElement.style.display !== 'none' && 
+                           actionCenterElement.offsetWidth > 0 && 
+                           actionCenterElement.offsetHeight > 0;
+
+// 🐛 DEBUG: ElevenLabs blocking conditions check
+if (VOICE_CONFIG.debug) {
+    console.log('🐛 DEBUG: ElevenLabs blocking conditions check (SMART BUTTON BYPASSED):');
+    console.log(`                - Time since click mention: ${timeSinceClickMention}ms (block if < 3000ms)`);
+    console.log(`                - Conversation state: ${conversationState} (block if 'speaking')`);
+    console.log('                - Thank you splash visible:', !!thankYouSplashVisible);
+    console.log('                - Smart Button Check: PERMANENTLY BYPASSED ✅');
+    console.log('                - Lead Capture Active:', !!window.isInLeadCapture);
+    console.log('                - Action Center Visible:', !!actionCenterVisible);
+}
+
+// Original blocking conditions
+const tooSoonAfterClick = timeSinceClickMention < 3000;
+const conversationEnded = conversationState === 'speaking';
+const thankYouActive = !!thankYouSplashVisible;
+
+// 🆕 NEW BLOCKING CONDITIONS
+const leadCaptureActive = window.isInLeadCapture === true;
+
+// 🎯 ONLY CHECK ACTION CENTER IF NOT IN LEAD CAPTURE
+const actionCenterShowing = !leadCaptureActive && !!actionCenterVisible;
+
+// Check blocking conditions (removed state check - banner appears after EVERY question)
+if (actionCenterShowing || leadCaptureActive) {
+    if (VOICE_CONFIG.debug) {
+        console.log('🚫 ROOT BLOCK: Action Center or Lead Capture active - no banner allowed');
+    }
+    return; // STOP HERE - Don't show banner
+}
+
+// Then keep your original blocking conditions
+if (tooSoonAfterClick || conversationEnded || thankYouActive) {
+    console.log('🚫 BLOCKED: One or more blocking conditions active');
+    return;
+}
+
+if (VOICE_CONFIG.debug) {
+    console.log('🎯 CLEAN CHAIN BYPASS: Triggering banner sequence only');
+}
+
+// It already contains the listening start logic internally
+if (typeof showDirectSpeakNow === 'function') {
+    showDirectSpeakNow();
+    if (VOICE_CONFIG.debug) {
+        console.log('✅ Banner triggered - listening will start via internal banner logic');
+    }
+} else {
+    console.warn('⚠️ showDirectSpeakNow not found - using fallback chain');
+    startRealtimeListening();
+}
+
+// NO setTimeout, NO duplicate startListening calls
+return; // Stop the original execution chain
+    }
+    
+    // Stop all speech
+    stop() {
+        this.synthesis.cancel();
+        voiceSystem.isSpeaking = false;
+        window.isSpeaking = false;
+        if (VOICE_CONFIG.debug) {
+            console.log("🛑 All speech stopped");
+        }
+    }
+    
+    // Log current system status
+    logSystemStatus() {
+        console.log("🎤 Voice System Status:");
+        console.log(`  Provider: ${VOICE_CONFIG.provider}`);
+        console.log(`  British Voice: ${voiceSystem.selectedBritishVoice?.name || 'None'}`);
+        console.log(`  ElevenLabs: ${VOICE_CONFIG.elevenlabs.enabled ? 'Enabled' : 'Disabled'}`);
+        console.log(`  Total Voices: ${this.voices.length}`);
+        console.log(`  ElevenLabs Banner Logic: ✅ INTEGRATED`);
+        console.log(`  Smart Button Blocking: ❌ REMOVED (for banner functionality)`);
+    }
+}
 
 // ===========================================
-// BACKWARD COMPATIBILITY
+// INITIALIZE SYSTEM
 // ===========================================
+window.mobileWiseVoice = new MobileWiseVoiceSystem();
+
+// ===========================================
+// CONSOLIDATED API - Replaces ALL existing voice functions
+// ===========================================
+
+// MAIN FUNCTION - Use this everywhere
+window.speakText = async function(text) {
+    // 🎯 CLEAN EMOJIS BEFORE SPEAKING
+    const cleanText = cleanEmojisFromSpeech(text);
+    return window.mobileWiseVoice.speak(text);
+};
+
+// BACKWARD COMPATIBILITY - Replace your existing functions
 window.speakResponse = window.speakText;
 window.speakResponseOriginal = window.speakText;
+window.speakWithElevenLabs = window.speakText;
 
-// ===========================================
-// STOP FUNCTION
-// ===========================================
+// CONTROL FUNCTIONS
+window.switchToElevenLabs = function() {
+    VOICE_CONFIG.provider = 'elevenlabs';
+    VOICE_CONFIG.elevenlabs.enabled = true;
+    console.log("✅ Switched to ElevenLabs Premium");
+    window.speakText("I'm now using premium ElevenLabs voices.");
+};
+
+window.switchToBritish = function() {
+    VOICE_CONFIG.provider = 'british';
+    console.log("✅ Switched to British Female Voice");
+    window.speakText("Good day! I'm now using the British female voice system.");
+};
+
+window.switchToBrowser = function() {
+    VOICE_CONFIG.provider = 'browser';
+    console.log("✅ Switched to Browser Voice");
+    window.speakText("I'm now using the standard browser voice system.");
+};
+
 window.stopAllSpeech = function() {
-    console.log('🛑 Stopping all speech');
-    
-    // Stop any audio elements
-    document.querySelectorAll('audio').forEach(audio => {
-        audio.pause();
-        audio.currentTime = 0;
-    });
-    
-    // Stop speech synthesis
-    if (window.speechSynthesis && window.speechSynthesis.speaking) {
-        window.speechSynthesis.cancel();
-    }
-    
-    window.isSpeaking = false;
+    window.mobileWiseVoice.stop();
+};
+
+window.getVoiceStatus = function() {
+    window.mobileWiseVoice.logSystemStatus();
 };
 
 // ===========================================
-// INITIALIZATION
+// AUTO-INITIALIZATION
 // ===========================================
-// Load voices when page loads
-if (typeof window !== 'undefined') {
-    window.addEventListener('load', function() {
-        // Load speech synthesis voices
-        if ('speechSynthesis' in window) {
-            setTimeout(() => {
-                window.speechSynthesis.getVoices();
-            }, 100);
-        }
-        
-        console.log('✅ Clean Voice System loaded');
-        console.log('📱 Mobile:', /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ? 'Yes' : 'No');
-    });
+if (VOICE_CONFIG.debug) {
+    console.log("✅ Consolidated Mobile-Wise Voice System loaded! (SMART BUTTON BLOCKING REMOVED)");
+    console.log("🎯 Commands: switchToBritish(), switchToElevenLabs(), getVoiceStatus(), stopAllSpeech()");
+    console.log(`🎤 Current provider: ${VOICE_CONFIG.provider}`);
+    console.log("🚀 ElevenLabs Banner Logic: PERMANENTLY INTEGRATED");
+    console.log("🎯 Smart Button Blocking: PERMANENTLY REMOVED");
 }
+
+// Auto-show status after initialization
+setTimeout(() => {
+    if (VOICE_CONFIG.debug && voiceSystem.isInitialized) {
+        window.getVoiceStatus();
+    }
+}, 3000);
 
 // ===========================================
 // 📧 EMAIL CONFIGURATION FIX
@@ -2873,57 +2729,6 @@ function handleGeneralQuestion(message, userName) {
     return `Would you like to schedule a quick call with one of our specialists to discuss this further?`;
 }
 
-// ADD THIS FUNCTION RIGHT BEFORE getAIResponse
-function detectConcernOrObjection(userText) {
-    console.log('🔍 Checking for concerns in:', userText);
-    
-    // Common sales objections/concerns
-    const concerns = [
-        { pattern: /\b(expensive|price|cost|too much|how much)\b/i, type: 'price' },
-        { pattern: /\b(scam|trust|legitimate|real|fake)\b/i, type: 'trust' },
-        { pattern: /\b(time|busy|not now|later)\b/i, type: 'time' },
-        { pattern: /\b(complicated|hard|difficult|complex)\b/i, type: 'complexity' },
-        { pattern: /\b(work|effective|results|does it work)\b/i, type: 'effectiveness' }
-    ];
-    
-    const lowerText = userText.toLowerCase();
-    
-    for (const concern of concerns) {
-        if (concern.pattern.test(lowerText)) {
-            console.log(`🚨 Concern detected: ${concern.type}`);
-            window.detectedConcernType = concern.type;
-            return true;
-        }
-    }
-    
-    window.detectedConcernType = null;
-    return false;
-}
-
-// ALSO ADD detectStrongIntent RIGHT AFTER IT
-function detectStrongIntent(userText) {
-    console.log('🎯 detectStrongIntent checking:', userText);
-    
-    // Define strong intents that should trigger immediate actions
-    const strongIntents = [
-        { pattern: /\b(buy|purchase|order|get started)\b/i, type: 'buying_intent' },
-        { pattern: /\b(call me|contact me|schedule|meeting)\b/i, type: 'contact_intent' },
-        { pattern: /\b(how much|price|pricing|cost)\b/i, type: 'pricing_intent' },
-        { pattern: /\b(features|what does it do|capabilities)\b/i, type: 'features_intent' }
-    ];
-    
-    const lowerText = userText.toLowerCase().trim();
-    
-    for (const intent of strongIntents) {
-        if (intent.pattern.test(lowerText)) {
-            console.log(`🎯 STRONG INTENT DETECTED: ${intent.type}`);
-            return { detected: true, type: intent.type };
-        }
-    }
-    
-    return { detected: false, type: null };
-}
-
 // =============================================================================
 // 🎯 GOLD STANDARD getAIResponse - 4-STEP SALES PROCESS
 // =============================================================================
@@ -3018,11 +2823,7 @@ if (strongIntent) {
     if (window.salesAI.state === 'pre_close') {
         console.log('🎯 Processing pre-close response...');
         const preCloseResponse = handlePreCloseResponse(userMessage, window.salesAI.userData.intent);
-           speakWithElevenLabs(preCloseResponse);  // Let it speak!
-// OR if you want to be extra safe:
-if (typeof speakWithElevenLabs === 'function') {
-    speakWithElevenLabs(preCloseResponse);
-}
+        speakWithElevenLabs(preCloseResponse, false);
         
         if (preCloseResponse.includes("Perfect! Let me get you connected")) {
     // User said YES - trigger SILENT Communication Relay Center
@@ -3102,7 +2903,7 @@ setTimeout(() => {
     }
 }, 50); // Wait for question to start speaking
 
-// speakWithElevenLabs(fallbackResponse, false);
+speakWithElevenLabs(fallbackResponse, false);
 return fallbackResponse;
 }
 }
@@ -3134,6 +2935,9 @@ if ((lowerMessage.includes('yes') || lowerMessage.includes('yeah') || lowerMessa
 
 return originalGetAIResponse.apply(this, arguments);
 };
+
+/// 🎯 CONCERN DETECTION SYSTEM - FIXED VERSION
+// =============================================================================
 
 // 🎯 CONCERN DETECTION: Check for objections/negative sentiment
 function detectConcernOrObjection(userText) {
@@ -3742,6 +3546,45 @@ function shouldTriggerLeadCapture(userInput) {
     
     return yesResponses.includes(input) && consultationStates.includes(conversationState);
 }
+
+// ===================================================
+// 🎨 WHOLE BUTTON COLOR GLOW ANIMATION - UPDATED
+// ===================================================
+if (!document.getElementById('speakNowWholeButtonGlowAnimation')) {
+    const speakNowGlowStyle = document.createElement('style');
+    speakNowGlowStyle.id = 'speakNowWholeButtonGlowAnimation';
+    speakNowGlowStyle.textContent = `
+        @keyframes speakNowWholeButtonGlow {
+            0%, 100% { 
+                background: rgba(255, 255, 255, 0.15);
+                border-color: rgba(255, 255, 255, 0.3);
+                box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
+            }
+            50% { 
+                background: rgba(20, 209, 89, 0.74);
+                border-color: rgba(34, 197, 94, 0.6);
+                box-shadow: 0 8px 30px rgba(34, 197, 94, 0.3);
+            }
+        }
+    `;
+    document.head.appendChild(speakNowGlowStyle);
+}
+
+// 🎨 HEADER SLIDE ANIMATION
+const headerBannerStyle = document.createElement('style');
+headerBannerStyle.textContent = `
+    @keyframes slideDownHeader {
+        from { 
+            transform: translateY(-20px);
+            opacity: 0;
+        }
+        to { 
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+`;
+document.head.appendChild(headerBannerStyle);
 
 // ===================================================
 // 🎨 ELECTRIC BLUE GLOW ANIMATION FOR SMART BANNER
