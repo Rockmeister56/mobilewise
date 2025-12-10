@@ -1449,6 +1449,17 @@ async function activateMicrophone() {
 // ===================================================
 function addUserMessage(message) {
     console.log('🔍 DEBUG: addUserMessage called with:', message);
+    
+    // 🚨 ADD JUST THIS LINE: Prevent duplicate calls within 500ms
+    if (window._lastUserMessage === message && Date.now() - (window._lastUserMessageTime || 0) < 500) {
+        console.log('🚫 Skipping duplicate addUserMessage');
+        return; // Exit early, don't create bubble
+    }
+    
+    // 🚨 ADD JUST THIS LINE: Track the last message
+    window._lastUserMessage = message;
+    window._lastUserMessageTime = Date.now();
+    
     const chatMessages = document.getElementById('chatMessages');
     if (!chatMessages) return;
     
