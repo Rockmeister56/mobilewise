@@ -3,88 +3,11 @@
 // Smart Button + Lead Capture + EmailJS + Banner System
 // ===================================================
 
-// COMPLETE CONVERSATION STARTER BUTTON
-function createRockConversationButton() {
-    const testBtn = document.createElement('button');
-    testBtn.textContent = '🎤 START ROCK CONVERSATION';
-    testBtn.style.cssText = `
-        position: fixed;
-        top: 50px;
-        right: 10px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 15px 20px;
-        border: none;
-        border-radius: 10px;
-        font-weight: bold;
-        font-size: 16px;
-        z-index: 99999;
-        cursor: pointer;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-    `;
-    
-    testBtn.onclick = function() {
-        console.log('🎤 STARTING ROCK CONVERSATION...');
-        
-        // 1. First, make sure voice system is active
-        if (typeof startListening === 'function') {
-            console.log('✅ Starting voice listening...');
-            startListening();
-        }
-        
-        // 2. Trigger the exact "Hello my name is Rock" flow
-        setTimeout(() => {
-            console.log('🗣️ Simulating user saying: "Hello my name is Rock"');
-            
-            // This is what happens when user speaks
-            if (typeof processVoiceInput === 'function') {
-                // Simulate voice recognition result
-                const mockTranscript = "hello my name is rock";
-                processVoiceInput(mockTranscript);
-            } else if (typeof handleUserMessage === 'function') {
-                // Alternative function
-                handleUserMessage("hello my name is rock");
-            }
-            
-            // Also trigger AI response
-            setTimeout(() => {
-                console.log('🤖 Triggering AI response...');
-                
-                // Look for AI response functions
-                if (typeof respondToUser === 'function') {
-                    respondToUser("hello my name is rock");
-                } else if (typeof generateAIResponse === 'function') {
-                    generateAIResponse("hello my name is rock");
-                } else {
-                    // Fallback: try to click the mic button to trigger AI
-                    const micBtn = document.querySelector('[id*="mic"], [class*="mic"], button');
-                    if (micBtn) {
-                        console.log('Clicking mic button as fallback...');
-                        micBtn.click();
-                    }
-                }
-            }, 1000);
-        }, 500);
-        
-        // 3. Force the action system to load
-        console.log('🔧 Ensuring action system is loaded...');
-        const actionScript = document.querySelector('script[src*="action-system-unified.js"]');
-        if (!actionScript) {
-            console.log('Loading action system...');
-            const script = document.createElement('script');
-            script.src = 'action-system-unified.js';
-            script.onload = () => console.log('✅ Action system loaded!');
-            document.head.appendChild(script);
-        }
-    };
-    
-    document.body.appendChild(testBtn);
-    console.log('✅ ROCK CONVERSATION BUTTON ADDED');
-    console.log('Click it to start the full conversation flow!');
-}
-
-// Run it
-createRockConversationButton();
+// ===========================================
+// ELEVENLABS CONFIGURATION
+// ===========================================
+const ELEVENLABS_API_KEY = 'sk_145cc0fe5aeb1c2ae4ebf3193dcee721ae8a4f755ed9e5d8';
+const VOICE_ID = 'WZlYpi1yf6zJhNWXih74';
 
 // Add this at the VERY TOP of your JavaScript file (like line 1)
 if (typeof window.leadData === 'undefined' || !window.leadData) {
@@ -1337,27 +1260,11 @@ function addAIMessage(message) {
     const chatMessages = document.getElementById('chatMessages');
     if (!chatMessages) return;
     
-    // DEBUG: Check container widths
-    console.log('Chat messages width:', chatMessages.offsetWidth);
-    console.log('Chat messages parent width:', chatMessages.parentElement.offsetWidth);
+    const messageElement = document.createElement('div');
+    messageElement.className = 'message ai-message';
+    messageElement.textContent = message;
     
-    const messageContainer = document.createElement('div');
-    messageContainer.className = 'message ai-message';
-    
-    const avatar = document.createElement('img');
-    avatar.src = 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1764374269507_avatar%20right.png';
-    avatar.alt = 'AI Assistant';
-    avatar.className = 'ai-avatar';
-    
-    const messageText = document.createElement('div');
-    messageText.textContent = message;
-    
-    // TRY FORCING WIDTH
-    messageText.textContent = message;
-    
-    messageContainer.appendChild(avatar);
-    messageContainer.appendChild(messageText);
-    chatMessages.appendChild(messageContainer);
+    chatMessages.appendChild(messageElement);
     scrollChatToBottom();
 }
 
@@ -1522,11 +1429,11 @@ const VOICE_CONFIG = {
     // MAIN CONTROL - Change this to switch voice systems
     provider: 'british',  // 'british' | 'elevenlabs' | 'browser'
     
-    // ELEVENLABS CONFIG (when enabled)
+   // ELEVENLABS CONFIG (when enabled)
     elevenlabs: {
-        enabled: false,  // ← SET TO TRUE when you have credits
-        apiKey: 'sk_9e7fa2741be74e8cc4af95744fe078712c1e8201cdcada93',
-        voiceId: 'zGjIP4SZlMnY9m93k97r',
+        enabled: true,  // ← SET TO TRUE when you have credits
+        apiKey: ELEVENLABS_API_KEY,  // Reference the constant
+        voiceId: VOICE_ID,           // Reference the constant
         model: 'eleven_turbo_v2'
     },
     
@@ -2313,22 +2220,25 @@ function detectAndStoreUserName(message) {
     ];
     
     for (let pattern of namePatterns) {
-    const match = message.match(pattern);
-    if (match && match[1]) {
-        const userName = match[1].trim();
-        const formattedName = userName.charAt(0).toUpperCase() + userName.slice(1).toLowerCase();
-        
-        console.log('🎉 NAME CAPTURED FROM BUBBLE:', formattedName);
-
-         window.userFirstName = formattedName;
-        window.lastCapturedName = formattedName; // 🆕 BACKUP
-        
-        // 🎯 STORE FOR FUTURE USE
-        window.userFirstName = formattedName;
-        
-        break;
+        const match = message.match(pattern);
+        if (match && match[1]) {
+            const userName = match[1].trim();
+            const formattedName = userName.charAt(0).toUpperCase() + userName.slice(1).toLowerCase();
+            
+            console.log('🎉 NAME CAPTURED FROM BUBBLE:', formattedName);
+            
+            // 🎯 STORE FOR FUTURE USE
+            window.userFirstName = formattedName;
+            
+            // 🎯 SHOW WELCOME SPLASH SCREEN
+            showWelcomeSplashScreen(formattedName);
+            
+            // 🎯 HIGHLIGHT THE NAME BUBBLE
+            highlightNameBubble(formattedName);
+            
+            break;
+        }
     }
-}
 }
 
 function pauseSession() {
@@ -5656,7 +5566,6 @@ document.addEventListener('DOMContentLoaded', function() {
         .realtime-bubble {
             border: 2px solid #10b981 !important;
             animation: pulseBorder 1.5s infinite;
-
             background: rgba(16, 185, 129, 0.1) !important;
         }
         
