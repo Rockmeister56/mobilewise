@@ -4,8 +4,6 @@
 // CLEANED VERSION - No restore code for old buttons
 // ================================
 
-console.log('🎯 ACTION SYSTEM UNIFIED - Loading (FINAL CLEANED VERSION)...');
-
 const EMAILJS_CONFIG = {
     serviceId: 'service_b9bppgb',
     publicKey: '7-9oxa3UC3uKxtqGM',
@@ -55,216 +53,61 @@ function formatEmailFromSpeech(speechText) {
 }
 
 // ================================
-// COMMUNICATION ACTION CENTER - 5 BUTTON LAYOUT
+// ENHANCED ORIGINAL ACTION CENTER
 // ================================
-function showCommunicationActionCenter() {
+function showCommunicationActionCenter(mode = 'default') {
+    console.log('🎯 Showing Enhanced Action Center - Mode:', mode);
+    
+    // Remove any existing action center
+    hideCommunicationActionCenter();
+    
     const actionCenter = document.createElement('div');
     actionCenter.id = 'communication-action-center';
-    actionCenter.innerHTML = `
-        <div style="
-            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.9)),
-                        url('https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1762038349654_action-bg.jpg');
-            background-size: cover;
-            background-position: center;
-            background-blend-mode: overlay;
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 30px 25px 30px 25px;
-            margin: 20px 0;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            color: white;
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            max-width: 750px;
-            min-height: 450px;
-        ">
-            <!-- Header with Video Avatar -->
-            <div style="
-                display: flex;
-                align-items: center;
-                margin-bottom: 25px;
-                gap: 15px;
-                margin-top: 5px;
-            ">
-                <video autoplay loop muted playsinline style="
-                    width: 80px;
-                    height: 80px;
-                    border-radius: 50%;
-                    object-fit: cover;
-                    border: 2px solid rgba(255, 255, 255, 0.2);
-                    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-                ">
-                    <source src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1762037335280.mp4" type="video/mp4">
-                </video>
-                <div>
-                    <h3 style="
-                        margin: 0 0 5px 0;
-                        font-size: 22px;
-                        font-weight: 600;
-                        color: white;
-                    ">Communication Action Center</h3>
-                    <p style="
-                        margin: 0;
-                        opacity: 0.8;
-                        font-size: 13px;
-                        font-weight: 300;
-                        letter-spacing: 0.5px;
-                    ">AI-Powered Solutions</p>
-                </div>
-            </div>
-
-            <!-- 2x2 Grid Layout - EXACTLY like your current design -->
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px;">
-                <!-- Request A Call -->
-                <button onclick="handleActionButton('click-to-call')" style="
-                    display: flex;
-                    align-items: center;
-                    gap: 12px;
-                    background: rgba(0, 0, 0, 0.6);
-                    border: 1px solid rgba(255, 255, 255, 0.2);
-                    color: white;
-                    padding: 18px 15px;
-                    border-radius: 10px;
-                    cursor: pointer;
-                    font-weight: 600;
-                    font-size: 17px;
-                    text-align: left;
-                    transition: all 0.3s ease;
-                    backdrop-filter: blur(10px);
-                    width: 100%;
-                    height: 84px;
-                    min-width: 295px;
-                " onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.borderColor='rgba(255, 255, 255, 0.3)'; this.style.transform='translateY(-2px)';" 
-                   onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.borderColor='rgba(255, 255, 255, 0.2)'; this.style.transform='translateY(0)';">
-                    <!-- Phone Icon - Using data URI to avoid CORS -->
-                    <div style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
-                        <span style="font-size: 24px;">📞</span>
-                    </div>
-                    <span style="flex: 1;">Request A Call</span>
-                </button>
-
-                <!-- URGENT CALL -->
-                <button onclick="handleActionButton('urgent-call')" style="
-                    display: flex;
-                    align-items: center;
-                    gap: 12px;
-                    background: rgba(0, 0, 0, 0.6);
-                    border: 1px solid rgba(255, 255, 255, 0.2);
-                    color: white;
-                    padding: 18px 15px;
-                    border-radius: 10px;
-                    cursor: pointer;
-                    font-weight: 600;
-                    font-size: 17px;
-                    text-align: left;
-                    transition: all 0.3s ease;
-                    backdrop-filter: blur(10px);
-                    width: 100%;
-                    height: 84px;
-                    min-width: 295px;
-                " onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.borderColor='rgba(255, 255, 255, 0.3)'; this.style.transform='translateY(-2px)';" 
-                   onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.borderColor='rgba(255, 255, 255, 0.2)'; this.style.transform='translateY(0)';">
-                    <div style="font-size: 28px;">🚨</div>
-                    <span style="flex: 1;">URGENT CALL</span>
-                </button>
-
-                <!-- BOOK Consultation -->
-                <button onclick="handleActionButton('free-consultation')" style="
-                    display: flex;
-                    align-items: center;
-                    gap: 12px;
-                    background: rgba(0, 0, 0, 0.6);
-                    border: 1px solid rgba(255, 255, 255, 0.2);
-                    color: white;
-                    padding: 18px 15px;
-                    border-radius: 10px;
-                    cursor: pointer;
-                    font-weight: 600;
-                    font-size: 17px;
-                    text-align: left;
-                    transition: all 0.3s ease;
-                    backdrop-filter: blur(10px);
-                    width: 100%;
-                    height: 84px;
-                    min-width: 295px;
-                " onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.borderColor='rgba(255, 255, 255, 0.3)'; this.style.transform='translateY(-2px)';" 
-                   onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.borderColor='rgba(255, 255, 255, 0.2)'; this.style.transform='translateY(0)';">
-                    <!-- Calendar Icon -->
-                    <div style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
-                        <span style="font-size: 24px;">📅</span>
-                    </div>
-                    <span style="flex: 1;">BOOK Consultation</span>
-                </button>
-
-                <!-- Pre-Qualifier -->
-                <button onclick="handleActionButton('pre-qualifier')" style="
-                    display: flex;
-                    align-items: center;
-                    gap: 12px;
-                    background: rgba(0, 0, 0, 0.6);
-                    border: 1px solid rgba(255, 255, 255, 0.2);
-                    color: white;
-                    padding: 18px 15px;
-                    border-radius: 10px;
-                    cursor: pointer;
-                    font-weight: 600;
-                    font-size: 17px;
-                    text-align: left;
-                    transition: all 0.3s ease;
-                    backdrop-filter: blur(10px);
-                    width: 100%;
-                    height: 84px;
-                    min-width: 295px;
-                " onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.borderColor='rgba(255, 255, 255, 0.3)'; this.style.transform='translateY(-2px)';" 
-                   onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.borderColor='rgba(255, 255, 255, 0.2)'; this.style.transform='translateY(0)';">
-                    <!-- Checkmark Icon -->
-                    <div style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
-                        <span style="font-size: 24px;">✅</span>
-                    </div>
-                    <span style="flex: 1;">Pre-Qualification</span>
-                </button>
-            </div>
-
-            <!-- Skip for Now - Full Width -->
-            <button onclick="handleActionButton('skip')" style="
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                background: rgba(0, 0, 0, 0.6);
-                color: rgba(255, 255, 255, 0.8);
-                border: 1px solid rgba(255, 255, 255, 0.2);
-                padding: 15px 20px;
-                border-radius: 10px;
-                cursor: pointer;
-                font-size: 16px;
-                font-weight: 500;
-                transition: all 0.3s ease;
-                width: 100%;
-                justify-content: center;
-                margin-top: 5px;
-            " onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.color='white';" 
-               onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.color='rgba(255, 255, 255, 0.8)';">
-                <!-- Skip Icon -->
-                <div style="width: 20px; height: 20px; display: flex; align-items: center; justify-content: center;">
-                    <span style="font-size: 16px;">⏭️</span>
-                </div>
-                <span>Skip for Now</span>
-            </button>
-        </div>
-    `;
     
+    // 🎯 DIFFERENT MODES, SAME CONTAINER
+    if (mode === 'avatar') {
+        // Your talking avatar version
+        actionCenter.innerHTML = `
+            <div style="...avatar styling...">
+                <!-- Your avatar video -->
+                <video autoplay loop muted playsinline>
+                    <source src="your-avatar-video.mp4" type="video/mp4">
+                </video>
+                <!-- Avatar-specific buttons -->
+                ${getAvatarButtons()}
+            </div>
+        `;
+    } else if (mode === 'corporate') {
+        // Original 5-button corporate design
+        actionCenter.innerHTML = `
+            <div style="...corporate styling...">
+                <!-- Corporate header -->
+                ${getCorporateButtons()}
+            </div>
+        `;
+    } else {
+    
+    }
+    
+    // Add to page
     const chatContainer = document.getElementById('chatMessages') || document.querySelector('.chat-messages');
     if (chatContainer) {
         chatContainer.appendChild(actionCenter);
-        
-        // Auto-scroll to show the action center
-        setTimeout(() => {
-            actionCenter.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }, 100);
     }
     
-    console.log('✅ Communication Action Center displayed with emojis');
+    console.log('✅ Enhanced Action Center displayed - Mode:', mode);
 }
+
+// ================================
+// LEAD CAPTURE TRACKING
+// ================================
+window.trackLeadCaptureStart = function() {
+    console.log('🎯 LEAD CAPTURE: Starting lead capture process');
+};
+
+window.trackLeadCaptureComplete = function() {
+    console.log('🎯 LEAD CAPTURE: Lead capture completed');
+};
 
 // ================================
 // HIDE ACTION CENTER - CLEANED VERSION
@@ -279,39 +122,6 @@ function hideCommunicationActionCenter() {
             console.log('✅ Communication Action Center removed');
             // 🎯 NO RESTORE CODE - Old buttons stay hidden permanently
         }, 300);
-    }
-}
-
-// ================================
-// ACTION BUTTON ROUTER
-// ================================
-function handleActionButton(action) {
-    console.log('🎯 Action button clicked:', action);
-    
-    hideCommunicationActionCenter();
-    
-    switch(action) {
-        case 'click-to-call':
-            initializeClickToCallCapture();
-            break;
-        case 'urgent-call':
-            initiateUrgentCall();
-            break;
-        case 'free-consultation':
-            initializeConsultationCapture();
-            break;
-            case 'pre-qualifier':
-            initializePreQualifierCapture();
-            break;
-        case 'free-book':
-            initializeFreeBookCapture();
-            break;
-        case 'skip':
-            console.log('User chose to skip');
-            if (window.addSystemMessage) {
-                window.addSystemMessage("No problem! Feel free to ask me anything else about your practice.");
-            }
-            break;
     }
 }
 
@@ -335,6 +145,105 @@ function initiateUrgentCall() {
             window.addAIMessage("Is there anything else I can help you with while you wait?");
         }
     }, 2000);
+}
+
+function handleActionButton(action) {
+    console.log('🎯 Action button clicked:', action);
+    
+    // 🛑 CHECK IF WE'RE ALREADY PROCESSING
+    if (window.isProcessingAction) {
+        console.log('🛑 Action already in progress - skipping');
+        return;
+    }
+    
+    window.isProcessingAction = true;
+    
+    hideCommunicationActionCenter();
+    
+    // 🆕 CALL COMPLETION HANDLER
+    if (typeof handleActionCenterCompletion === 'function') {
+        handleActionCenterCompletion();
+    }
+    
+    switch(action) {
+        case 'click-to-call':
+            // 🆕 SHOW CLICK TO CALL BANNER (with anti-loop protection)
+            if (typeof showUniversalBanner === 'function') {
+                showUniversalBanner('clickToCall', { autoTriggerActionCenter: false });
+            }
+            initializeClickToCallCapture();
+            break;
+            
+        case 'urgent-call':
+            if (typeof showUniversalBanner === 'function') {
+                showUniversalBanner('urgent', { autoTriggerActionCenter: false });
+            }
+            initiateUrgentCall();
+            break;
+            
+        case 'free-consultation':
+            if (typeof showUniversalBanner === 'function') {
+                showUniversalBanner('setAppointment', { autoTriggerActionCenter: false });
+            }
+            initializeConsultationCapture();
+            break;
+            
+        case 'pre-qualifier':
+            if (typeof showUniversalBanner === 'function') {
+                showUniversalBanner('preQualifier', { autoTriggerActionCenter: false });
+            }
+            initializePreQualifierCapture();
+            break;
+            
+        case 'skip':
+    console.log('🎯 User chose to skip - BLOCKING avatar auto-restart');
+    
+    // 🚨 CRITICAL: Prevent avatar from auto-restarting Speak Now
+    window.suppressAvatarAutoRestart = true;
+    
+    const skipMessage = "I appreciate you're not ready to get immediate help from our expert. What else can I help you with to meet your objectives?";
+    
+    // Show message
+    if (window.addSystemMessage) {
+        window.addSystemMessage(skipMessage);
+    } else if (window.addAIMessage) {
+        window.addAIMessage(skipMessage);
+    }
+    
+    // Use the same pattern as other cases - wait for AI speech completion
+    if (window.speakText) {
+        window.speakText(skipMessage);
+        
+        const checkSpeech = setInterval(() => {
+            if (!window.isSpeaking) {
+                clearInterval(checkSpeech);
+                console.log('✅ AI finished speaking - starting listening NOW');
+                
+                // 🎯 TRACKED BANNER SHOW
+                console.log('🎤 SKIP: Triggering Speak Now banner');
+                if (window.showDirectSpeakNow && typeof window.showDirectSpeakNow === 'function') {
+                    window.showDirectSpeakNow();
+                }
+            }
+        }, 100);
+
+        setTimeout(() => {
+            clearInterval(checkSpeech);
+        }, 10000);
+    }
+    
+    // Re-enable avatar auto-restart after reasonable time
+    setTimeout(() => {
+        window.suppressAvatarAutoRestart = false;
+        console.log('✅ Avatar auto-restart re-enabled');
+    }, 15000);
+    break;
+    }
+    
+    // Reset processing flag after a delay
+    setTimeout(() => {
+        window.isProcessingAction = false;
+    }, 1000);
 }
 
 // ================================
@@ -449,11 +358,12 @@ function disableAvatarDuringLeadCapture() {
 // UNIVERSAL LEAD QUESTION ASKER
 // ================================
 function askLeadQuestion() {
-    window.lastProcessedTranscript = null; // 🔄 Reset for new question
+    window.trackLeadCaptureStart(); // 🎯 TRACK THIS!
+    
+    window.lastProcessedTranscript = null;
     if (!window.isInLeadCapture || !window.currentLeadData) return;
     
     const data = window.currentLeadData;
-    
     console.log('🎯 Asking question for step:', data.step);
     
     if (data.step < data.questions.length) {
@@ -467,47 +377,40 @@ function askLeadQuestion() {
         if (window.speakText) {
             window.speakText(question);
             
-            // 🎯 SMART TIMING: Wait for speech to actually finish BEFORE showing banner
             const checkSpeech = setInterval(() => {
                 if (!window.isSpeaking) {
                     clearInterval(checkSpeech);
                     console.log('✅ AI finished speaking - starting listening NOW');
                     
-                    // 🎤 NOW SHOW SPEAK NOW BANNER (after speech finishes)
+                    // 🎯 TRACKED BANNER SHOW
                     console.log('🎤 LEAD CAPTURE: Triggering Speak Now banner for step', data.step);
                     if (window.showDirectSpeakNow && typeof window.showDirectSpeakNow === 'function') {
                         window.showDirectSpeakNow();
-                        console.log('✅ Speak Now banner triggered via showDirectSpeakNow()');
-                    }
-                    
-                    // 🚀 NOW WITH CONFLICT PROTECTION
-                    if (isInLeadCapture && window.startRealtimeListening && !window.isCurrentlyListening) {
-                        window.startRealtimeListening();
                     }
                 }
             }, 100);
 
-            // Safety timeout (10 seconds max)
             setTimeout(() => {
                 clearInterval(checkSpeech);
-                if (isInLeadCapture && window.startRealtimeListening && !window.isCurrentlyListening) {
-                    console.log('⏰ Safety timeout - starting listening');
-                    window.startRealtimeListening();
-                }
             }, 10000);
         }
     } else {
         completeLeadCapture();
     }
 }
-
 // ================================
-// PROCESS USER RESPONSE
+// PROCESS USER RESPONSE - FIXED VERSION
 // ================================
 function processLeadResponse(userInput) {
     if (!window.isInLeadCapture || !window.currentLeadData) return false;
     
     console.log('🎯 Processing lead response:', userInput);
+
+     // 🎯 CRITICAL FIX: CLOSE BANNER WHEN PROCESSING RESPONSE
+    if (typeof closeSpeakNowBanner === 'function') {
+        console.log('🎯 LEAD CAPTURE: Closing banner before processing');
+        closeSpeakNowBanner();
+    }
     
     const data = window.currentLeadData;
     let processedInput = userInput;
@@ -519,7 +422,21 @@ function processLeadResponse(userInput) {
         processedInput = formatEmailFromSpeech(userInput);
     }
     
-    // Handle yes/no for evaluation question in FREE BOOK flow
+    // 🆕 CRITICAL FIX: Only handle "NO" as conversation-ender for the FINAL question
+    // For pre-qualifier flow, check if this is the LAST question (step 10)
+    if (data.captureType === 'preQualifier' && data.step === 10) {
+        // This is the FINAL question - "Will you need financing assistance for this acquisition?"
+        const lowerInput = userInput.toLowerCase();
+        if (lowerInput.includes('no') || lowerInput.includes('nope') || lowerInput.includes('not')) {
+            // This is the FINAL "no" that should end the conversation
+            console.log('🎯 Final "NO" detected - ending pre-qualification flow');
+            data.tempAnswer = 'No';
+            showConfirmationButtons('No');
+            return true;
+        }
+    }
+    
+    // 🆕 Handle yes/no for evaluation question in FREE BOOK flow (step 2)
     if (data.captureType === 'freeBook' && data.step === 2) {
         const lowerInput = userInput.toLowerCase();
         if (lowerInput.includes('yes') || lowerInput.includes('yeah') || lowerInput.includes('sure')) {
@@ -528,6 +445,17 @@ function processLeadResponse(userInput) {
         } else if (lowerInput.includes('no') || lowerInput.includes('nope') || lowerInput.includes('not')) {
             data.wantsEvaluation = false;
             processedInput = 'No';
+        }
+    }
+    
+    // 🆕 Handle CPA license question in PRE-QUALIFIER (step 4) - "NO" should continue flow
+    if (data.captureType === 'preQualifier' && data.step === 4) {
+        // This is the CPA license question - "NO" should NOT end conversation
+        const lowerInput = userInput.toLowerCase();
+        if (lowerInput.includes('yes') || lowerInput.includes('licensed') || lowerInput.includes('cpa')) {
+            processedInput = 'Yes';
+        } else if (lowerInput.includes('no') || lowerInput.includes('not') || lowerInput.includes('pursuing')) {
+            processedInput = 'No'; // This continues to next question
         }
     }
     
@@ -629,6 +557,12 @@ function removeLastUserMessage() {
 // ================================
 function confirmAnswer(isCorrect) {
     console.log('🎯 User clicked:', isCorrect ? 'Correct' : 'Redo');
+
+        // 🎯 CRITICAL FIX: CLOSE BANNER ON CONFIRMATION
+    if (typeof closeSpeakNowBanner === 'function') {
+        console.log('🎯 CONFIRMATION: Closing banner');
+        closeSpeakNowBanner();
+    }
     
     // Remove the confirmation buttons
     const buttonContainer = document.querySelector('.confirmation-buttons');
@@ -802,92 +736,1450 @@ function completeLeadCapture() {
 }
 
 // ================================
-// 🆕 EMERGENCY STUCK BANNER 
+// EMAIL CONFIRMATION BUTTONS - SIMPLE VERSION
 // ================================
-function emergencyStuckBannerFix() {
-    console.log('🚨 EMERGENCY: Fixing stuck banner...');
+function handleEmailConfirmation(sendEmail, captureType) {
+    console.log('🎯 Email confirmation:', sendEmail ? 'SENDING' : 'SKIPPING');
     
-    // Stop listening
+    // Remove confirmation buttons
+    const buttonContainer = document.querySelector('.email-confirmation-buttons');
+    if (buttonContainer) buttonContainer.remove();
+    
+    const data = window.currentLeadData;
+    
+    if (sendEmail) {
+        // Send email
+        if (window.addAIMessage) {
+            window.addAIMessage("📧 Sending your confirmation email now...");
+        }
+        sendOriginalLeadEmail(data, captureType);
+        
+        // 🚀 AFTER EMAIL SENT - WAIT FOR AI TO SPEAK FIRST
+        setTimeout(() => {
+            console.log('📧 Email sent - waiting for AI to ask if more help needed');
+            
+            // Let AI speak FIRST: "Is there anything else I can help you with?"
+            
+            // 🕒 INCREASED TO 8 SECONDS to ensure AI finishes speaking AND auto-listening times out
+            setTimeout(() => {
+                console.log('🎯 AI finished speaking AND auto-listening timed out - showing decision panel');
+                
+                // 🚫 STOP any listening that might have started
+                if (window.stopListening) {
+                    window.stopListening();
+                }
+                
+                // 🚫 STOP any pending Speak Now banners
+                if (window.closeSpeakNowBanner) {
+                    window.closeSpeakNowBanner();
+                }
+                
+                 showDecisionPanel({
+                    question: "Is that everything I can help you with today?",
+                    yesText: "Yes, I Have More Questions",
+                    skipText: "No, I'm All Done",
+                    onYes: function() {
+                        console.log('🎸 USER CONTINUING - APPLYING EMERGENCY FIX');
+                        emergencySpeechFix();
+                        
+                        setTimeout(() => {
+                            const continueMessage = "Great! What else can I help you with?";
+                            speakWithElevenLabs(continueMessage, false);
+                        }, 1000);
+                    },
+                    onSkip: function() {
+                        console.log('🛑 USER FINISHED - COMPLETE SYSTEM SHUTDOWN');
+                        
+                        // 🚨 COMPLETE SHUTDOWN - NO MORE AI LOOPS!
+                        completeSystemShutdown();
+                    }
+                });
+                
+            }, 8000); // 🕒 INCREASED TO 8 SECONDS - ensures AI finishes + auto-listening times out
+        }, 1000); // Wait for email send to complete
+        
+    } else {
+        // Skip email - just continue conversation
+        if (window.addAIMessage) {
+            window.addAIMessage("No problem! Bruce will still contact you directly. Is there anything else I can help with?");
+        }
+        
+        // Clear lead data
+        window.isInLeadCapture = false;
+        window.currentCaptureType = null;
+        window.currentLeadData = null;
+        window.suppressSpeakNowBanner = false; // Reset suppression
+        
+        // Wait then show Speak Now banner
+        setTimeout(() => {
+            if (window.showDirectSpeakNow) {
+                window.showDirectSpeakNow();
+            }
+        }, 2000);
+    }
+}
+
+// 🚨 COMPLETE SYSTEM SHUTDOWN FUNCTION
+function completeSystemShutdown() {
+    console.log('🛑 COMPLETE SYSTEM SHUTDOWN - Stopping all AI activity');
+    
+    // 1. STOP ALL AI SPEECH IMMEDIATELY
+    if (window.stopAllSpeech && typeof window.stopAllSpeech === 'function') {
+        window.stopAllSpeech();
+    }
+    
+    // 2. STOP ALL LISTENING
     if (window.stopListening && typeof window.stopListening === 'function') {
         window.stopListening();
     }
     
-    // Clear timeouts
-    if (window.directSafetyTimeout) {
-        clearTimeout(window.directSafetyTimeout);
-        window.directSafetyTimeout = null;
-    }
-    
-    // Remove banner
+    // 3. REMOVE ALL BANNERS
     const banners = document.querySelectorAll('.speak-now-banner, [class*="speakNow"], #speakNowBanner');
     banners.forEach(banner => banner.remove());
     
-    // Reset states
-    window.isListening = false;
-    window.isRecording = false;
-    window.speakSequenceActive = false;
+    // 4. RESET ALL CONVERSATION FLAGS
+    window.isInLeadCapture = false;
+    window.currentCaptureType = null;
+    window.currentLeadData = null;
+    window.bannerCooldown = false;
+    window.suppressSpeakNowBanner = true; // 🚫 PREVENT FUTURE BANNERS
     
-    console.log('✅ Emergency cleanup complete');
+    // 5. CLEAR ANY PENDING TIMEOUTS
+    const highestTimeoutId = setTimeout(() => {}, 0);
+    for (let i = 0; i < highestTimeoutId; i++) {
+        clearTimeout(i);
+    }
+    
+    // 6. SHOW THANK YOU SCREEN
+    if (typeof showThankYouSplash === 'function') {
+        showThankYouSplash();
+    }
+    
+    console.log('✅ SYSTEM COMPLETELY SHUT DOWN - No more AI loops');
 }
 
-// Make it globally accessible
-window.emergencyStuckBannerFix = emergencyStuckBannerFix;
+// ================================
+// IN-CHAT DECISION PANEL (MATCHES EMAIL CONFIRMATION)
+// ================================
+function showDecisionPanel(options) {
+    console.log("🎯 DECISION PANEL: Showing IN-CHAT decision");
+    
+    // 🚫 CRITICAL: Stop the Speak Now banner from showing
+    if (window.closeSpeakNowBanner) {
+        window.closeSpeakNowBanner();
+    }
+    
+    // Remove any existing decision panel first
+    cleanupDecisionPanel();
+    
+    const config = {
+        question: options.question || "What would you like to do next?",
+        yesText: options.yesText || "Continue", 
+        skipText: options.skipText || "Finish",
+        onYes: options.onYes || function() { 
+            console.log("Continue clicked");
+            if (window.showDirectSpeakNow) window.showDirectSpeakNow();
+        },
+        onSkip: options.onSkip || function() { 
+            console.log("Finish clicked");
+            if (window.showThankYouSplash) window.showThankYouSplash();
+        }
+    };
+    
+    // Create decision panel that MATCHES your email confirmation EXACTLY
+    const decisionHTML = `
+        <div class="confirmation-buttons decision-panel" style="
+            text-align: center; 
+            margin: 15px 0; 
+            padding: 20px; 
+            background: rgba(255,255,255,0.1); 
+            border-radius: 15px;
+            border: 2px solid rgba(255,255,255,0.2);
+        ">
+            <div style="
+                margin-bottom: 15px; 
+                color: white; 
+                font-size: 18px;
+                font-weight: bold;
+            ">
+                ${config.question}
+            </div>
+            <div style="
+                display: flex; 
+                justify-content: center; 
+                gap: 20px;
+                flex-wrap: wrap;
+            ">
+                <button onclick="window.handleDecisionYes()" style="
+                    background: linear-gradient(135deg, #4CAF50, #8BC34A);
+                    color: white; 
+                    border: none; 
+                    padding: 15px 30px; 
+                    border-radius: 25px; 
+                    cursor: pointer;
+                    font-weight: bold;
+                    font-size: 16px;
+                    min-width: 120px;
+                    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+                ">
+                    ${config.yesText}
+                </button>
+                <button onclick="window.handleDecisionSkip()" style="
+                    background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+                    color: white; 
+                    border: none; 
+                    padding: 15px 30px; 
+                    border-radius: 25px; 
+                    cursor: pointer;
+                    font-weight: bold;
+                    font-size: 16px;
+                    min-width: 120px;
+                    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+                ">
+                    ${config.skipText}
+                </button>
+            </div>
+        </div>
+    `;
+    
+    // Add to the SAME container as email confirmation
+    const chatContainer = document.getElementById('chatMessages') || 
+                         document.querySelector('.chat-messages') ||
+                         document.querySelector('.chat-container') ||
+                         document.body;
+    
+    chatContainer.insertAdjacentHTML('beforeend', decisionHTML);
+    
+    // Scroll to show the decision panel
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+    
+    // Store callbacks globally
+    window.handleDecisionYes = function() {
+        cleanupDecisionPanel();
+        config.onYes();
+    };
+    
+    window.handleDecisionSkip = function() {
+        cleanupDecisionPanel();
+        config.onSkip();
+    };
+    
+    console.log("✅ DECISION PANEL: Matching email confirmation style displayed");
+}
+
+function cleanupDecisionPanel() {
+    const panels = document.querySelectorAll('.decision-panel');
+    panels.forEach(panel => panel.remove());
+}
+
+// Make globally available
+window.showDecisionPanel = showDecisionPanel;
+window.cleanupDecisionPanel = cleanupDecisionPanel;
 
 // ================================
-// 🆕 EMERGENCY BANNER  
+// IN-CHAT DECISION PANEL (CLEAN VERSION)
 // ================================
-function emergencyBannerCleanup() {
-    console.log('🚨 EMERGENCY: Cleaning up all stuck banners...');
+function showDecisionPanel(options) {
+    console.log("🎯 DECISION PANEL: Matching email confirmation style EXACTLY");
     
-    // Close Speak Now banner
+    // 🚫 CRITICAL: Stop listening and speaking FIRST
+    if (window.stopAllSpeech) {
+        window.stopAllSpeech();
+    }
+    if (window.stopListening) {
+        window.stopListening();
+    }
+    
+    // Remove any existing decision panel first
+    cleanupDecisionPanel();
+    
+    const config = {
+        question: options.question || "What would you like to do next?",
+        yesText: options.yesText || "Continue", 
+        skipText: options.skipText || "Finish",
+        onYes: options.onYes || function() { 
+            console.log("Continue clicked");
+            if (window.showDirectSpeakNow) window.showDirectSpeakNow();
+        },
+        onSkip: options.onSkip || function() { 
+            console.log("Finish clicked");
+            if (window.showThankYouSplash) window.showThankYouSplash();
+        }
+    };
+    
+    // Create decision panel that MATCHES your email confirmation EXACTLY
+    const decisionHTML = `
+        <div class="confirmation-buttons decision-panel" style="
+            text-align: center; 
+            margin: 15px 0; 
+            padding: 20px; 
+            background: rgba(255,255,255,0.1); 
+            border-radius: 15px;
+            border: 2px solid rgba(255,255,255,0.2);
+        ">
+            <div style="
+                margin-bottom: 15px; 
+                color: white; 
+                font-size: 18px;
+                font-weight: bold;
+            ">
+                ${config.question}
+            </div>
+            <div style="
+                display: flex; 
+                justify-content: center; 
+                gap: 20px;
+                flex-wrap: wrap;
+            ">
+                <button onclick="window.handleDecisionYes()" style="
+                    background: linear-gradient(135deg, #4CAF50, #8BC34A);
+                    color: white; 
+                    border: none; 
+                    padding: 15px 30px; 
+                    border-radius: 25px; 
+                    cursor: pointer;
+                    font-weight: bold;
+                    font-size: 16px;
+                    min-width: 120px;
+                    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+                ">
+                    ${config.yesText}
+                </button>
+                <button onclick="window.handleDecisionSkip()" style="
+                    background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+                    color: white; 
+                    border: none; 
+                    padding: 15px 30px; 
+                    border-radius: 25px; 
+                    cursor: pointer;
+                    font-weight: bold;
+                    font-size: 16px;
+                    min-width: 120px;
+                    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+                ">
+                    ${config.skipText}
+                </button>
+            </div>
+        </div>
+    `;
+    
+    // Add to the SAME container as email confirmation
+    const chatContainer = document.getElementById('chatMessages') || 
+                         document.querySelector('.chat-messages') ||
+                         document.querySelector('.chat-container') ||
+                         document.body;
+    
+    chatContainer.insertAdjacentHTML('beforeend', decisionHTML);
+    
+    // Scroll to show the decision panel
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+    
+    // Store callbacks globally
+    window.handleDecisionYes = function() {
+        cleanupDecisionPanel();
+        config.onYes();
+    };
+    
+    window.handleDecisionSkip = function() {
+        cleanupDecisionPanel();
+        config.onSkip();
+    };
+    
+    console.log("✅ DECISION PANEL: Matching email confirmation style displayed (AI stopped)");
+}
+
+function cleanupDecisionPanel() {
+    const panels = document.querySelectorAll('.decision-panel');
+    panels.forEach(panel => panel.remove());
+}
+
+// Make globally available
+window.showDecisionPanel = showDecisionPanel;
+window.cleanupDecisionPanel = cleanupDecisionPanel;
+
+/**
+ * 🎯 UNIVERSAL CONFIRMATION SYSTEM
+ * Handles both email confirmations AND decision panels
+ */
+function showUniversalConfirmation(options) {
+    console.log("🎯 UNIVERSAL CONFIRMATION: Showing", options);
+    
+    // Close any existing banners first
+    if (window.closeSpeakNowBanner) {
+        window.closeSpeakNowBanner();
+    }
+    
+    const config = {
+        type: options.type || 'decision', // 'email' or 'decision'
+        title: options.title || "🎉 Success!",
+        message: options.message || "Your request has been processed.",
+        question: options.question || "What would you like to do next?",
+        primaryText: options.primaryText || "Continue",
+        secondaryText: options.secondaryText || "Finish",
+        onPrimary: options.onPrimary || function() { 
+            console.log("Primary action clicked");
+            if (window.showDirectSpeakNow) window.showDirectSpeakNow();
+        },
+        onSecondary: options.onSecondary || function() { 
+            console.log("Secondary action clicked");
+            if (window.showThankYouSplash) window.showThankYouSplash();
+        },
+        data: options.data || {} // For thank you screen
+    };
+    
+    let confirmationHTML = '';
+    
+    if (config.type === 'email') {
+        // EMAIL CONFIRMATION STYLE
+        confirmationHTML = `
+            <div id="universal-confirmation" style="
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                padding: 40px;
+                border-radius: 20px;
+                box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+                z-index: 10000;
+                text-align: center;
+                min-width: 400px;
+                color: white;
+                border: 4px solid #fff;
+            ">
+                <div style="font-size: 60px; margin-bottom: 20px;">📧</div>
+                <h3 style="margin: 0 0 15px 0; font-size: 28px;">${config.title}</h3>
+                <p style="margin: 0 0 10px 0; font-size: 16px; line-height: 1.5; opacity: 0.9;">
+                    ${config.message}
+                </p>
+                <p style="margin: 0 0 30px 0; font-size: 18px; line-height: 1.5; font-weight: bold; background: rgba(255,255,255,0.2); padding: 15px; border-radius: 10px;">
+                    ${config.question}
+                </p>
+                <div style="display: flex; gap: 15px; justify-content: center;">
+                    <button onclick="window.handleUniversalPrimary()" style="
+                        background: rgba(255,255,255,0.2);
+                        color: white;
+                        border: 2px solid white;
+                        padding: 15px 30px;
+                        border-radius: 10px;
+                        cursor: pointer;
+                        font-weight: bold;
+                        font-size: 16px;
+                        flex: 1;
+                        backdrop-filter: blur(10px);
+                    ">${config.primaryText}</button>
+                    <button onclick="window.handleUniversalSecondary()" style="
+                        background: white;
+                        color: #667eea;
+                        border: 2px solid white;
+                        padding: 15px 30px;
+                        border-radius: 10px;
+                        cursor: pointer;
+                        font-weight: bold;
+                        font-size: 16px;
+                        flex: 1;
+                    ">${config.secondaryText}</button>
+                </div>
+            </div>
+        `;
+    } else {
+        // DECISION PANEL STYLE
+        confirmationHTML = `
+            <div id="universal-confirmation" style="
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: white;
+                padding: 40px;
+                border-radius: 20px;
+                box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+                z-index: 10000;
+                text-align: center;
+                min-width: 400px;
+                border: 4px solid #2ecc71;
+            ">
+                <div style="font-size: 60px; margin-bottom: 20px;">🎯</div>
+                <h3 style="margin: 0 0 15px 0; color: #2c3e50; font-size: 28px;">${config.title}</h3>
+                ${config.message ? `<p style="margin: 0 0 10px 0; color: #555; line-height: 1.5; font-size: 16px;">${config.message}</p>` : ''}
+                <p style="margin: 0 0 25px 0; color: #2c3e50; line-height: 1.5; font-size: 18px; font-weight: bold;">
+                    ${config.question}
+                </p>
+                <div style="display: flex; gap: 15px; justify-content: center;">
+                    <button onclick="window.handleUniversalPrimary()" style="
+                        background: #2ecc71;
+                        color: white;
+                        border: none;
+                        padding: 15px 30px;
+                        border-radius: 10px;
+                        cursor: pointer;
+                        font-weight: bold;
+                        font-size: 16px;
+                        flex: 1;
+                    ">${config.primaryText}</button>
+                    <button onclick="window.handleUniversalSecondary()" style="
+                        background: #3498db;
+                        color: white;
+                        border: none;
+                        padding: 15px 30px;
+                        border-radius: 10px;
+                        cursor: pointer;
+                        font-weight: bold;
+                        font-size: 16px;
+                        flex: 1;
+                    ">${config.secondaryText}</button>
+                </div>
+            </div>
+        `;
+    }
+    
+    // Add overlay
+    confirmationHTML += `
+        <div id="universal-confirmation-overlay" style="
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 9999;
+        "></div>
+    `;
+    
+    // Add to page
+    document.body.insertAdjacentHTML('beforeend', confirmationHTML);
+    
+    // Store callbacks globally
+    window.handleUniversalPrimary = function() {
+        cleanupUniversalConfirmation();
+        config.onPrimary();
+    };
+    
+    window.handleUniversalSecondary = function() {
+        cleanupUniversalConfirmation();
+        config.onSecondary();
+    };
+    
+    console.log("✅ UNIVERSAL CONFIRMATION: Displayed successfully");
+}
+
+function cleanupUniversalConfirmation() {
+    const confirmation = document.getElementById('universal-confirmation');
+    const overlay = document.getElementById('universal-confirmation-overlay');
+    if (confirmation) confirmation.remove();
+    if (overlay) overlay.remove();
+}
+
+// Make globally available
+window.showUniversalConfirmation = showUniversalConfirmation;
+window.cleanupUniversalConfirmation = cleanupUniversalConfirmation;
+
+// 🚨 EMERGENCY FIX - REMOVE COOLDOWN INTERFERENCE
+function emergencySpeechFix() {
+    console.log('🚨 EMERGENCY SPEECH FIX - Removing cooldown interference');
+    
+    // COMPLETELY DISABLE COOLDOWN SYSTEM
+    window.bannerCooldown = false;
+    window.suppressSpeakNowBanner = false;
+    window.isInLeadCapture = false;
+    
+    // STOP ALL ACTIVE LISTENING FIRST
+    if (window.stopListening && typeof window.stopListening === 'function') {
+        window.stopListening();
+    }
+    
+    // REMOVE ANY ACTIVE BANNERS
+    const banners = document.querySelectorAll('.speak-now-banner, [class*="speakNow"], #speakNowBanner');
+    banners.forEach(banner => banner.remove());
+    
+    // WAIT 500ms FOR CLEAN RESET
+    setTimeout(() => {
+        // START FRESH LISTENING SESSION
+        if (window.startListening && typeof window.startListening === 'function') {
+            window.startListening();
+        }
+    }, 500);
+    
+    console.log('✅ Emergency speech fix applied - voice should capture instantly now');
+}
+
+// ================================
+// COMPLETE LEAD CAPTURE & REQUEST EMAIL PERMISSION - FIXED VERSION
+// ================================
+function completeLeadCapture() {
+    console.log('🎯 Completing lead capture...');
+
+    // 🆕 NEW: EMERGENCY CLEANUP FIRST THING
+    if (typeof emergencyStuckBannerFix === 'function') {
+        emergencyStuckBannerFix();
+    }
+    
+    const data = window.currentLeadData;
+    const type = window.currentCaptureType;
+    
+    // 🎯 CRITICAL FIX: CLOSE ANY STUCK SPEAK NOW BANNER FIRST
+    console.log('🧹 Closing any stuck Speak Now banner before email confirmation...');
     if (window.closeSpeakNowBanner && typeof window.closeSpeakNowBanner === 'function') {
         window.closeSpeakNowBanner();
     }
     
-    // Remove any Speak Now banner elements
-    const stuckBanners = document.querySelectorAll('.speak-now-banner, [class*="speakNow"], #speakNowBanner, .speak-now-container');
-    stuckBanners.forEach(banner => {
-        banner.remove();
-        console.log('✅ Removed stuck banner:', banner.className || banner.id);
-    });
+    // Also try the direct cleanup method
+    const speakNowBanner = document.querySelector('.speak-now-banner, [class*="speakNow"], #speakNowBanner');
+    if (speakNowBanner) {
+        speakNowBanner.remove();
+        console.log('✅ Removed stuck Speak Now banner');
+    }
     
-    // Remove confirmation buttons if any
-    const confirmationButtons = document.querySelectorAll('.confirmation-buttons, .email-confirmation-buttons');
-    confirmationButtons.forEach(buttons => {
-        buttons.remove();
-        console.log('✅ Removed old confirmation buttons');
-    });
-    
-    // Stop any listening
+    // Stop any active listening
     if (window.stopListening && typeof window.stopListening === 'function') {
         window.stopListening();
     }
     
-    // Reset states
-    window.isListening = false;
-    window.isRecording = false;
-    window.speakSequenceActive = false;
+    // Mark transition to email permission phase
+    window.isInEmailPermissionPhase = true;
+    
+    // 🆕 NEW: Ask for email confirmation permission instead of sending immediately
+    const emailPermissionMessage = `Perfect! Should I send a confirmation email to ${data.email} with all your details and next steps?`;
+    
+    if (window.addAIMessage) {
+        window.addAIMessage(emailPermissionMessage);
+    }
+    
+    // 🎯 CRITICAL: Wait a moment for the message to appear BEFORE speaking
+    setTimeout(() => {
+        if (window.speakText) {
+            window.speakText(emailPermissionMessage);
+            
+            // Wait for speech to complete before showing buttons
+            const checkSpeech = setInterval(() => {
+                if (!window.isSpeaking) {
+                    clearInterval(checkSpeech);
+                    console.log('✅ AI finished speaking email question - showing buttons');
+                    
+                    // 🆕 NEW: Show confirmation buttons for email permission
+                    showEmailConfirmationButtons(data, type);
+                }
+            }, 100);
+            
+            // Safety timeout
+            setTimeout(() => {
+                clearInterval(checkSpeech);
+                showEmailConfirmationButtons(data, type);
+            }, 10000);
+        } else {
+            // No speech system - just show buttons
+            showEmailConfirmationButtons(data, type);
+        }
+    }, 500);
 }
 
-// Make it globally accessible
-window.emergencyBannerCleanup = emergencyBannerCleanup;
+function startCompleteLeadCapture() {
+    console.log('🎯 Starting complete lead capture...');
+    // Trigger the pre-qualifier button click
+    const preQualButton = document.querySelector('[data-action="pre-qualifier"]');
+    if (preQualButton) {
+        preQualButton.click();
+    }
+}
 
 // ================================
-// EMAIL CONFIRMATION BUTTONS - SIMPLE VERSION
+// 🆕 NEW: EMAIL CONFIRMATION BUTTONS
 // ================================
 function showEmailConfirmationButtons(leadData, captureType) {
-    const chatMessages = document.getElementById('chatMessages') || document.querySelector('.chat-messages');
+    const chatMessages = document.getElementById('chatMessages') ||
+                         document.querySelector('.chat-messages');
+    
     if (!chatMessages) return;
-
-     // 🎯 CRITICAL: Emergency cleanup first
-    emergencyBannerCleanup();
     
     const buttonContainer = document.createElement('div');
     buttonContainer.className = 'email-confirmation-buttons';
     buttonContainer.innerHTML = `
-        <div style="text-align: center; margin: 20px 0; padding: 25px; background: rgba(255,255,255,0.1); border-radius: 15px; border: 2px solid rgba(255,255,255,0.2);">
-            <div style="margin-bottom: 20px; color: white; font-size: 18px; font-weight: bold;">
+        <div style="
+            text-align: center; 
+            margin: 20px 0; 
+            padding: 25px; 
+            background: rgba(255,255,255,0.1); 
+            border-radius: 15px;
+            border: 2px solid rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+        ">
+            <div style="
+                margin-bottom: 20px; 
+                color: white; 
+                font-size: 18px;
+                font-weight: bold;
+            ">
                 Send confirmation email to:<br>
                 <span style="color: #4CAF50; font-size: 16px;">${leadData.email}</span>
             </div>
-            <div style="display: flex; justify-content:
+            <div style="
+                display: flex; 
+                justify-content: center; 
+                gap: 20px;
+                flex-wrap: wrap;
+            ">
+                <button onclick="handleEmailConfirmation(true, '${captureType}')" style="
+                    background: linear-gradient(135deg, #4CAF50, #8BC34A);
+                    color: white; 
+                    border: none; 
+                    padding: 15px 30px; 
+                    border-radius: 25px; 
+                    cursor: pointer;
+                    font-weight: bold;
+                    font-size: 16px;
+                    min-width: 140px;
+                    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+                    transition: all 0.3s ease;
+                " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(76, 175, 80, 0.4)';" 
+                   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(76, 175, 80, 0.3)';">
+                    ✅ Yes, Send Email
+                </button>
+                <button onclick="handleEmailConfirmation(false, '${captureType}')" style="
+                    background: linear-gradient(135deg, #757575, #9E9E9E);
+                    color: white; 
+                    border: none; 
+                    padding: 15px 30px; 
+                    border-radius: 25px; 
+                    cursor: pointer;
+                    font-weight: bold;
+                    font-size: 16px;
+                    min-width: 140px;
+                    box-shadow: 0 4px 15px rgba(117, 117, 117, 0.3);
+                    transition: all 0.3s ease;
+                " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(117, 117, 117, 0.4)';" 
+                   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(117, 117, 117, 0.3)';">
+                    ⏭️ Skip Email
+                </button>
+            </div>
+        </div>
+    `;
+    
+    chatMessages.appendChild(buttonContainer);
+    
+    // Auto-scroll to show the buttons
+    setTimeout(() => {
+        buttonContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 100);
+}
+
+// ================================
+// IN-CHAT DECISION PANEL (MATCHES EMAIL CONFIRMATION EXACTLY)
+// ================================
+function showDecisionPanel(options) {
+    console.log("🎯 DECISION PANEL: Showing IN-CHAT decision");
+    
+    // 🚫 CRITICAL: Stop the Speak Now banner from showing
+    if (window.closeSpeakNowBanner) {
+        window.closeSpeakNowBanner();
+    }
+    
+    // Remove any existing decision panel first
+    cleanupDecisionPanel();
+    
+    const config = {
+        question: options.question || "What would you like to do next?",
+        yesText: options.yesText || "Continue", 
+        skipText: options.skipText || "Finish",
+        onYes: options.onYes || function() { 
+            console.log("Continue clicked");
+            if (window.showDirectSpeakNow) window.showDirectSpeakNow();
+        },
+        onSkip: options.onSkip || function() { 
+            console.log("Finish clicked");
+            if (window.showThankYouSplash) window.showThankYouSplash();
+        }
+    };
+    
+    // Create decision panel that MATCHES your email confirmation EXACTLY
+    const decisionHTML = `
+        <div class="email-confirmation-buttons decision-panel" style="
+            text-align: center; 
+            margin: 20px 0; 
+            padding: 25px; 
+            background: rgba(255,255,255,0.1); 
+            border-radius: 15px;
+            border: 2px solid rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+        ">
+            <div style="
+                margin-bottom: 20px; 
+                color: white; 
+                font-size: 18px;
+                font-weight: bold;
+            ">
+                ${config.question}
+            </div>
+            <div style="
+                display: flex; 
+                justify-content: center; 
+                gap: 20px;
+                flex-wrap: wrap;
+            ">
+                <button onclick="window.handleDecisionYes()" style="
+                    background: linear-gradient(135deg, #4CAF50, #8BC34A);
+                    color: white; 
+                    border: none; 
+                    padding: 15px 30px; 
+                    border-radius: 25px; 
+                    cursor: pointer;
+                    font-weight: bold;
+                    font-size: 16px;
+                    min-width: 140px;
+                    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+                    transition: all 0.3s ease;
+                " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(76, 175, 80, 0.4)';" 
+                   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(76, 175, 80, 0.3)';">
+                    ${config.yesText}
+                </button>
+                <button onclick="window.handleDecisionSkip()" style="
+                    background: linear-gradient(135deg, #757575, #9E9E9E);
+                    color: white; 
+                    border: none; 
+                    padding: 15px 30px; 
+                    border-radius: 25px; 
+                    cursor: pointer;
+                    font-weight: bold;
+                    font-size: 16px;
+                    min-width: 140px;
+                    box-shadow: 0 4px 15px rgba(117, 117, 117, 0.3);
+                    transition: all 0.3s ease;
+                " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(117, 117, 117, 0.4)';" 
+                   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(117, 117, 117, 0.3)';">
+                    ${config.skipText}
+                </button>
+            </div>
+        </div>
+    `;
+    
+    // Add to the SAME container as email confirmation
+    const chatContainer = document.getElementById('chatMessages') || 
+                         document.querySelector('.chat-messages') ||
+                         document.querySelector('.chat-container') ||
+                         document.body;
+    
+    chatContainer.insertAdjacentHTML('beforeend', decisionHTML);
+    
+    // Auto-scroll to show the buttons (EXACTLY like email confirmation)
+    setTimeout(() => {
+        const panel = document.querySelector('.decision-panel');
+        if (panel) {
+            panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    }, 100);
+    
+    // Store callbacks globally
+    window.handleDecisionYes = function() {
+        cleanupDecisionPanel();
+        config.onYes();
+    };
+    
+    window.handleDecisionSkip = function() {
+        cleanupDecisionPanel();
+        config.onSkip();
+    };
+    
+    console.log("✅ DECISION PANEL: Matching email confirmation style displayed");
+}
+
+function cleanupDecisionPanel() {
+    const panels = document.querySelectorAll('.decision-panel');
+    panels.forEach(panel => panel.remove());
+}
+
+// Make globally available
+window.showDecisionPanel = showDecisionPanel;
+window.cleanupDecisionPanel = cleanupDecisionPanel;
+
+
+// 🆕 ADD THIS FUNCTION TOO:
+function enableAvatarAfterLeadCapture() {
+    if (window.originalShowAvatar) {
+        window.showAvatarSorryMessage = window.originalShowAvatar;
+        console.log('✅ Avatar re-enabled after lead capture');
+    }
+}
+
+function sendOriginalLeadEmail(data, type) {
+    console.log('📧 Sending ORIGINAL lead email (internal notification)...');
+    
+    // 1. FIRST: Send INTERNAL notification to Bruce using your existing templates
+    let internalTemplateId = '';
+    let internalTemplateParams = {};
+    let qualificationLevel = '';
+
+    // Your existing internal email logic here...
+    if (type === 'consultation') {
+        internalTemplateId = EMAILJS_CONFIG.templates.consultation;
+        internalTemplateParams = {
+            to_email: 'bizboost.expert@gmail.com',
+            from_name: data.name,
+            from_email: data.email,
+            phone: data.phone,
+            contact_time: data.contactTime,
+            message: `FREE CONSULTATION REQUEST\n\nName: ${data.name}\nPhone: ${data.phone}\nEmail: ${data.email}\nBest Time: ${data.contactTime}`,
+            timestamp: new Date().toLocaleString()
+        };
+    } else if (type === 'clickToCall') {
+        internalTemplateId = EMAILJS_CONFIG.templates.clickToCall;
+        internalTemplateParams = {
+            to_email: 'bizboost.expert@gmail.com',
+            from_name: data.name,
+            phone: data.phone,
+            message: `CLICK-TO-CALL REQUEST\n\nName: ${data.name}\nPhone: ${data.phone}\nReason: ${data.reason}`,
+            timestamp: new Date().toLocaleString()
+        };
+    } else if (type === 'freeBook') {
+        internalTemplateId = EMAILJS_CONFIG.templates.freeBook;
+        internalTemplateParams = {
+            to_email: data.email,
+            from_name: data.name,
+            book_image: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761797944987_book-promo.PNG',
+            message: `Here's your free copy of "7 Secrets to Selling Your Practice"!${data.wantsEvaluation ? '\n\nInterested in evaluation - Phone: ' + data.phone : ''}`,
+            timestamp: new Date().toLocaleString()
+        };
+    } else if (type === 'preQualifier') {
+        internalTemplateId = EMAILJS_CONFIG.templates.preQualifier;
+        
+        // Qualification scoring logic
+        let qualificationScore = 0;
+        let qualifications = [];
+        
+        const experienceYears = parseInt(data.experienceYears) || 0;
+        if (experienceYears >= 3) {
+            qualificationScore += 25;
+            qualifications.push(`${experienceYears} years experience`);
+        }
+        
+        if (data.licenseStatus && data.licenseStatus.toLowerCase().includes('cpa')) {
+            qualificationScore += 25;
+            qualifications.push('CPA licensed');
+        }
+        
+        if (data.acquisitionTimeline) {
+            const timeline = data.acquisitionTimeline.toLowerCase();
+            if (timeline.includes('immediate') || timeline.includes('3 month') || timeline.includes('6 month')) {
+                qualificationScore += 25;
+                qualifications.push('Ready for acquisition');
+            }
+        }
+        
+        if (data.budgetRange && data.budgetRange.trim() !== '') {
+            qualificationScore += 25;
+            qualifications.push(`Budget: ${data.budgetRange}`);
+        }
+        
+        qualificationLevel = qualificationScore >= 75 ? 'HIGH' : 
+                            qualificationScore >= 50 ? 'MEDIUM' : 'BASIC';
+        
+        internalTemplateParams = {
+            to_email: 'bizboost.expert@gmail.com',
+            name: data.name || 'Not provided',
+            email: data.email || 'Not provided',
+            phone: data.phone || 'Not provided',
+            qualification_score: qualificationScore.toString(),
+            qualification_level: qualificationLevel,  
+            qualifications: qualifications.join(', '),
+            experience_years: data.experienceYears || 'Not specified',
+            license_status: data.licenseStatus || 'Not specified',
+            acquisition_timeline: data.acquisitionTimeline || 'Not specified',
+            budget_range: data.budgetRange || 'Not specified',
+            geographic_preference: data.geographicPreference || 'Not specified',
+            practice_size: data.practiceSize || 'Not specified',
+            specialization_interest: data.specializationInterest || 'Not specified',
+            financing_needed: data.financingNeeded || 'Not specified',
+            recommended_action: qualificationLevel === 'HIGH' ? 'Contact within 4 hours' : 
+                               qualificationLevel === 'MEDIUM' ? 'Contact within 24 hours' : 'Contact within 48 hours',
+            timestamp: new Date().toLocaleString()
+        };
+    }
+    
+    // Send internal notification
+    emailjs.send(EMAILJS_CONFIG.serviceId, internalTemplateId, internalTemplateParams)
+        .then(function(response) {
+            console.log('✅ INTERNAL NOTIFICATION SENT TO BRUCE!');
+            
+            // 2. SECOND: Send CLIENT confirmation email
+            sendClientConfirmationEmail(data, type);
+            
+        }, function(error) {
+            console.error('❌ INTERNAL EMAIL FAILED:', error);
+            // Still try to send client confirmation even if internal fails
+            sendClientConfirmationEmail(data, type);
+        });
+}
+
+// NEW: Separate function for CLIENT confirmation email
+function sendClientConfirmationEmail(leadData, captureType) {
+    console.log('📧 Sending CLIENT confirmation email...');
+    
+    const cleanEmail = String(leadData.email).trim().replace(/[^\w@.-]/g, '');
+    
+    let inquiryType = '';
+    let emailSubject = '';
+    
+    switch(captureType) {
+        case 'preQualifier':
+            inquiryType = 'PRE-QUALIFICATION CONFIRMATION';
+            emailSubject = 'Pre-Qualification Confirmed + Free Book - New Clients Inc';
+            break;
+        case 'consultation':
+            inquiryType = 'CONSULTATION BOOKING CONFIRMATION';
+            emailSubject = 'Consultation Booked + Free Book - New Clients Inc';
+            break;
+        case 'freeBook':
+            inquiryType = 'FREE BOOK CONFIRMATION';
+            emailSubject = 'Your Free Book - New Clients Inc';
+            break;
+        case 'clickToCall':
+            inquiryType = 'CALL REQUEST CONFIRMATION';
+            emailSubject = 'Call Request Confirmed + Free Book - New Clients Inc';
+            break;
+        default:
+            inquiryType = 'REQUEST CONFIRMATION';
+            emailSubject = 'Confirmation - New Clients Inc';
+    }
+    
+    const confirmationParams = {
+        to_email: cleanEmail,
+        name: leadData.name,
+        email: cleanEmail,
+        phone: leadData.phone || 'Not provided',
+        contactTime: leadData.contactTime || 'Within 24 hours',
+        inquiryType: inquiryType,
+        subject: emailSubject,
+        timestamp: new Date().toLocaleString(),
+        book_image: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761797944987_book-promo.PNG'
+    };
+    
+    // Send CLIENT confirmation using the confirmation template
+emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templates.clientConfirmation, confirmationParams)
+        .then(function(response) {
+            console.log('✅ CLIENT CONFIRMATION EMAIL SENT!');
+            
+            if (window.showUniversalBanner) {
+                window.showUniversalBanner('emailSent');
+            }
+            
+            let successMessage = `Confirmation email sent to ${cleanEmail}! Bruce will contact you soon. Is there anything else I can help you with?`;
+            
+            if (window.addAIMessage) {
+                window.addAIMessage(successMessage);
+            }
+            
+            // Clear lead data
+            window.isInLeadCapture = false;
+            window.currentCaptureType = null;
+            window.currentLeadData = null;
+            
+            if (window.speakText) {
+                window.speakText(successMessage);
+                
+                // Wait for speech then show banner
+                const checkSpeech = setInterval(() => {
+                    if (!window.isSpeaking) {
+                        clearInterval(checkSpeech);
+                        setTimeout(() => {
+                            if (window.showDirectSpeakNow) {
+                            }
+                        }, 1000);
+                    }
+                }, 100);
+            } else {
+                setTimeout(() => {
+                    if (window.showDirectSpeakNow) {
+                        window.showDirectSpeakNow();
+                    }
+                }, 3000);
+            }
+            
+        }, function(error) {
+            console.error('❌ CLIENT CONFIRMATION EMAIL FAILED:', error);
+            
+            // Simple error handling
+            let failureMessage = "The confirmation email couldn't be sent, but Bruce will still contact you directly! Is there anything else I can help with?";
+            
+            if (window.addAIMessage) {
+                window.addAIMessage(failureMessage);
+            }
+            
+            // Clear lead data
+            window.isInLeadCapture = false;
+            window.currentCaptureType = null;
+            window.currentLeadData = null;
+            
+            if (window.speakText) {
+                window.speakText(failureMessage);
+                setTimeout(() => {
+                    if (window.showDirectSpeakNow) {
+                        window.showDirectSpeakNow();
+                    }
+                }, 3000);
+            } else {
+                setTimeout(() => {
+                    if (window.showDirectSpeakNow) {
+                        window.showDirectSpeakNow();
+                    }
+                }, 2000);
+            }
+        });
+}
+    
+// Make functions globally accessible
+window.handleEmailConfirmation = handleEmailConfirmation;
+window.sendOriginalLeadEmail = sendOriginalLeadEmail; // 🎯 END OF FUNCTION - NO MORE CODE AFTER THIS! 
+
+// ================================
+// LEAD CAPTURE 4: PRE-QUALIFIER INTERVIEW
+// ================================
+function initializePreQualifierCapture() {
+    console.log('🚀 Starting PRE-QUALIFIER capture...');
+    
+    if (window.directSafetyTimeout) {
+        clearTimeout(window.directSafetyTimeout);
+        console.log('🛡️ Lead capture: Safety timeout cleared');
+    }
+    
+    if (window.isInLeadCapture) return;
+    
+    window.isInLeadCapture = true;
+    window.currentCaptureType = 'preQualifier';
+    window.currentLeadData = {
+        name: '',
+        email: '',
+        phone: '',
+        experienceYears: '',
+        licenseStatus: '',
+        acquisitionTimeline: '',
+        budgetRange: '',
+        geographicPreference: '',
+        practiceSize: '',
+        specializationInterest: '',
+        financingNeeded: '',
+        captureType: 'preQualifier',
+        step: 0,
+        tempAnswer: '',
+        questions: [
+            "Let's start with your full name, please.",
+            "What's the best email to send your pre-qualification results to?",
+            "What's your phone number for follow-up?",
+            "How many years of accounting experience do you have?",
+            "Are you currently CPA-licensed or pursuing certification?",
+            "What's your ideal timeline for acquiring a practice?",
+            "What's your target budget range for this acquisition?",
+            "Which geographic areas are you considering for the practice?",
+            "What size practice are you looking for in terms of annual revenue?",
+            "Do you have a preference for any specific accounting specialties?",
+            "Will you need financing assistance for this acquisition?"
+        ]
+    };
+    
+    setTimeout(() => {
+        askLeadQuestion();
+    }, 500);
+}
+
+// ================================
+// 🎬 CINEMATIC THANK YOU SPLASH SCREEN WITH RESTART BUTTON
+// ================================
+function showThankYouSplash(name, captureType) {
+    console.log('🎬 Deploying cinematic thank you splash screen with restart button...');
+    
+    // ✅ NUCLEAR OPTION - KILL ALL SPEECH SYSTEMS
+    if (window.speechRecognition) {
+        try {
+            window.speechRecognition.stop();
+            window.speechRecognition.abort();
+            window.speechRecognition = null;
+        } catch (e) {
+            console.log('Speech recognition cleanup:', e);
+        }
+    }
+    
+    // ✅ STOP ALL LISTENING FLAGS
+    window.isListening = false;
+    window.isRecording = false;
+    
+    // ✅ CLEAR ALL TIMEOUTS
+    if (window.speechTimeout) clearTimeout(window.speechTimeout);
+    if (window.restartTimeout) clearTimeout(window.restartTimeout);
+    
+    // ✅ SET FINAL STATE
+    conversationState = 'splash_screen_active';
+    
+    const splashOverlay = document.createElement('div');
+    splashOverlay.id = 'thankYouSplash';
+    splashOverlay.style.cssText = `
+        position: fixed; 
+        top: 50%; 
+        left: 50%; 
+        transform: translate(-50%, -50%);
+        width: 90%; 
+        max-width: 600px;
+        height: auto;
+        min-height: 500px;
+        background: linear-gradient(135deg, #000428 0%, #004e92 50%, #000428 100%);
+        z-index: 99999; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center;
+        animation: fadeInSplash 0.8s ease-in;
+        border-radius: 20px;
+        box-shadow: 0 0 50px rgba(0, 78, 146, 0.6), inset 0 0 50px rgba(0, 78, 146, 0.3);
+        border: 2px solid rgba(74, 144, 226, 0.5);
+        overflow: hidden;
+    `;
+    
+    splashOverlay.innerHTML = `
+        <div style="text-align: center; color: white; animation: slideInContent 1s ease-out 0.3s both; position: relative; padding: 40px 30px; width: 100%;">
+            <!-- Goodbye Avatar Video -->
+            <div style="margin-bottom: 20px;">
+                <video autoplay loop muted playsinline style="width: 120px; height: 120px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.3);">
+                    <source src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1762224530592.mp4" type="video/mp4">
+                </video>
+            </div>
+            
+            <div style="font-size: 48px; margin-bottom: 15px; text-shadow: 0 0 20px rgba(255,255,255,0.4);">🙏</div>
+            <h1 style="font-size: 32px; margin-bottom: 15px; font-weight: 300; letter-spacing: 1px; text-shadow: 0 2px 8px rgba(0,0,0,0.3);">Thank You, ${name}!</h1>
+            <p style="font-size: 18px; opacity: 0.9; margin-bottom: 8px; font-weight: 300;">Your consultation has been confirmed!</p>
+            <p style="font-size: 16px; margin-top: 15px; opacity: 0.8; font-weight: 300;">Bruce will contact you within 24 hours.</p>
+            <div style="margin-top: 25px; font-size: 14px; opacity: 0.7; letter-spacing: 1px;">Mobile-Wise AI</div>
+            
+            <!-- CLOSE CHAT BUTTON -->
+<button onclick="closeChatCompletely()" style="
+    margin-top: 30px;
+    background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+    color: white;
+    border: none;
+    padding: 15px 35px;
+    border-radius: 50px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 16px;
+    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+    transition: all 0.3s ease;
+    min-width: 180px;
+    animation: slideInButton 1s ease-out 1s both;
+" onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 10px 30px rgba(255, 107, 107, 0.6)'" 
+   onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 6px 20px rgba(255, 107, 107, 0.4)'">
+    ❌ CLOSE CHAT & EXIT
+</button>
+        </div>
+    `;
+    
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes fadeInSplash { from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+        @keyframes slideInContent { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideInButton { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    `;
+    document.head.appendChild(style);
+    document.body.appendChild(splashOverlay);
+    
+    // ✅ PLAY OUTRO AUDIO
+    setTimeout(() => {
+        const audio = new Audio('https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/audio-intros/ai_intro_1758148837523.mp3');
+        audio.volume = 0.8;
+        audio.play().catch(e => console.log('Audio play failed:', e));
+    }, 500);
+    
+    // ✅ AUTO-DISMISS AFTER 20 SECONDS
+    setTimeout(() => {
+        if (document.getElementById('thankYouSplash')) {
+            restartConversation();
+        }
+    }, 30000);
+}
+
+function closeChatCompletely() {
+    console.log('🚪 Closing chat completely - returning to website');
+    
+    // Remove thank you splash
+    const splash = document.getElementById('thankYouSplash');
+    if (splash) splash.remove();
+    
+    // Remove ALL chat interface elements
+    const chatElements = [
+        '.chat-container',
+        '#chatContainer', 
+        '.chat-interface',
+        '.chat-messages',
+        '#chatMessages',
+        '.speak-now-banner',
+        '.universal-banner',
+        '.action-center'
+    ];
+    
+    chatElements.forEach(selector => {
+        document.querySelectorAll(selector).forEach(el => el.remove());
+    });
+    
+    // If you want to redirect to main website URL:
+    // window.location.href = 'https://yourmainwebsite.com';
+    
+    // Or just hide everything and show original page content
+    document.body.style.overflow = 'auto'; // Restore scrolling
+    
+    console.log('✅ Chat completely closed - user returned to website');
+}
+
+// ================================
+// 🔄 RESTART CONVERSATION FUNCTION
+// ================================
+function restartConversation() {
+    console.log('🔄 Restarting conversation...');
+    
+    // Remove splash screen
+    const splash = document.getElementById('thankYouSplash');
+    if (splash) splash.remove();
+    
+    // Reset conversation state
+    conversationState = 'initial';
+    window.waitingForName = false;
+    window.waitingForIntent = false;
+    window.waitingForBookResponse = false;
+    window.waitingForConsultationResponse = false;
+    window.qualificationState = '';
+    window.userName = '';
+    window.userIntent = '';
+    window.isInLeadCapture = false; // 🆕 ADD THIS!
+    window.currentLeadData = null; // 🆕 ADD THIS!
+    
+    // Show branding banner
+    if (typeof showUniversalBanner === 'function') {
+        showUniversalBanner('branding');
+    }
+    
+    // Reset action buttons to quick mode
+    if (typeof window.actionButtonSystem === 'object') {
+        window.actionButtonSystem.renderButtons('quick');
+    }
+    
+    // Start fresh conversation
+    setTimeout(() => {
+        const greeting = "What else can I help you with today?";
+        speakWithElevenLabs(greeting, false);
+        
+        // Show speak now banner after greeting - FIXED VERSION
+        setTimeout(() => {
+            if (typeof showDirectSpeakNow === 'function') {
+                console.log('🎤 Restart: Showing Direct Speak Now banner');
+                showDirectSpeakNow();
+            } else if (typeof startRealtimeListening === 'function') {
+                console.log('🎤 Restart: Starting listening directly');
+                startRealtimeListening();
+            } else if (typeof showUniversalBanner === 'function') {
+                console.log('🎤 Restart: Falling back to branding banner');
+                showUniversalBanner('branding');
+            }
+        }, 2000);
+    }, 1000);
+}
+
+/**
+ * HANDLE ACTION CENTER COMPLETION
+ * Re-enables Speak Now banner when user makes a selection or closes
+ */
+function handleActionCenterCompletion() {
+    console.log('✅ Action Center completed - re-enabling Speak Now banner');
+    
+    // Re-enable Speak Now banner
+    window.disableSpeakNowBanner = false;
+    
+    // 🚀 DELAY SPEAK NOW OVERLAY UNTIL AFTER AI SPEECH COMPLETES
+    setTimeout(() => {
+        if (typeof showDirectSpeakNow === 'function' && !window.disableSpeakNowBanner) {
+            // Wait for AI speech to complete first
+            if (window.speechSynthesis && window.speechSynthesis.speaking) {
+                const speechEndHandler = function() {
+                    window.speechSynthesis.removeEventListener('end', speechEndHandler);
+                    setTimeout(() => {
+                        console.log('🎤 Speak Now overlay triggered AFTER AI speech completed');
+                        showDirectSpeakNow();
+                    }, 500);
+                };
+                window.speechSynthesis.addEventListener('end', speechEndHandler);
+                
+                // 🗑️ DELETE THIS SAFETY TIMEOUT - IT'S CAUSING THE PROBLEM!
+                // Safety timeout
+                // setTimeout(() => {
+                //     window.speechSynthesis.removeEventListener('end', speechEndHandler);
+                //     console.log('🎤 Speak Now overlay triggered via safety timeout');
+                // }, 5000);
+                
+            } else {
+                console.log('🎤 Speak Now overlay triggered (no AI speech detected)');
+                // showDirectSpeakNow();
+            }
+        }
+    }, 2000);
+}
+
+// ================================
+// 🎬 CLOSE THANK YOU SPLASH FUNCTION
+// ================================
+function closeThankYouSplash() {
+    const splash = document.getElementById('thank-you-splash');
+    if (splash) {
+        splash.style.animation = 'fadeOutScale 0.5s ease-in';
+        setTimeout(() => {
+            splash.remove();
+            console.log('✅ Thank you splash closed');
+        }, 500);
+    }
+}
+
+// Make sure this CSS animation exists
+function ensureSplashAnimations() {
+    if (!document.getElementById('splash-animations')) {
+        const style = document.createElement('style');
+        style.id = 'splash-animations';
+        style.textContent = `
+            @keyframes fadeOutScale {
+                from { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+                to { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+}
+
+// Call this when your script loads
+ensureSplashAnimations();
+
+// Initialize animations when the script loads
+addTestimonialAnimations();
+
+// Make globally accessible
+window.showThankYouSplash = showThankYouSplash;
+window.closeThankYouSplash = closeThankYouSplash;
+
+// ================================
+// GLOBAL EXPORTS
+// ================================
+window.showCommunicationActionCenter = showCommunicationActionCenter;
+window.hideCommunicationActionCenter = hideCommunicationActionCenter;
+window.handleActionButton = handleActionButton;
+window.initializeConsultationCapture = initializeConsultationCapture;
+window.initializeClickToCallCapture = initializeClickToCallCapture;
+window.initializeFreeBookCapture = initializeFreeBookCapture;
+window.initiateUrgentCall = initiateUrgentCall;
+window.initializePreQualifierCapture = initializePreQualifierCapture; // 🎯 NOW THIS WILL BE GOLD!
+window.askQuickQuestion = askQuickQuestion;
+
+function askQuickQuestion(questionText) {
+    console.log('🔄 REDIRECTING: askQuickQuestion → Communication Relay Center');
+    console.log('   Original question:', questionText);
+    
+    // Redirect to our new Communication Relay Center
+    if (typeof openCommRelayCenter === 'function') {
+        openCommRelayCenter();
+    } else {
+        console.error('❌ openCommRelayCenter not available');
+        // Fallback to original action center
+        if (typeof showCommunicationActionCenter === 'function') {
+            showCommunicationActionCenter();
+        }
+    }
+}
+
+console.log('✅ ACTION SYSTEM UNIFIED - Loaded successfully (FINAL CLEANED VERSION - No restore code)');
