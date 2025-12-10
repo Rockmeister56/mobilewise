@@ -4,6 +4,101 @@
 // CLEANED VERSION - No restore code for old buttons
 // ================================
 
+// ===================================================
+// 🚨 DIAGNOSTIC BYPASS BUTTON - TEMPORARY DEBUGGING
+// ===================================================
+function addDiagnosticBypassButton() {
+    console.log('🛠️ Adding diagnostic bypass button...');
+    
+    // Create a floating debug button
+    const debugBtn = document.createElement('button');
+    debugBtn.id = 'debug-bypass-btn';
+    debugBtn.innerHTML = '🚨 DEBUG: Direct Request-a-Call';
+    debugBtn.style.cssText = `
+        position: fixed;
+        top: 100px;
+        right: 20px;
+        z-index: 99999;
+        background: linear-gradient(135deg, #ff0000, #ff6b6b);
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 25px;
+        font-weight: bold;
+        font-size: 14px;
+        cursor: pointer;
+        box-shadow: 0 4px 20px rgba(255, 0, 0, 0.4);
+        transition: all 0.3s;
+    `;
+    
+    debugBtn.onmouseover = function() {
+        this.style.transform = 'translateY(-2px)';
+        this.style.boxShadow = '0 6px 25px rgba(255, 0, 0, 0.6)';
+    };
+    
+    debugBtn.onmouseout = function() {
+        this.style.transform = 'translateY(0)';
+        this.style.boxShadow = '0 4px 20px rgba(255, 0, 0, 0.4)';
+    };
+    
+    debugBtn.onclick = function() {
+        console.log('🚨🚨🚨 DIAGNOSTIC BYPASS TRIGGERED 🚨🚨🚨');
+        
+        // STEP 1: Bypass ALL checks
+        console.log('🎯 STEP 1: Bypassing all checks...');
+        window.isProcessingAction = false;
+        window.consultationOfferActive = false;
+        window.disableSpeakNowBanner = false;
+        window.testimonialSessionActive = false;
+        
+        // STEP 2: Directly call what should happen
+        console.log('🎯 STEP 2: Directly calling initializeRequestCallCapture...');
+        if (window.initializeRequestCallCapture) {
+            window.initializeRequestCallCapture();
+        } else {
+            console.error('❌ initializeRequestCallCapture not found!');
+        }
+        
+        // STEP 3: After 600ms, manually trigger what the timeout should do
+        setTimeout(() => {
+            console.log('🎯 STEP 3: Manually triggering askLeadQuestion...');
+            
+            if (window.askLeadQuestion) {
+                console.log('🔍 Calling askLeadQuestion directly...');
+                window.askLeadQuestion();
+            } else {
+                console.error('❌ askLeadQuestion not found!');
+                
+                // Ultimate fallback
+                console.log('🎯 ULTIMATE FALLBACK: Direct speech and bubble...');
+                if (window.addAIMessage && window.speakWithBritish) {
+                    window.addAIMessage("DIAGNOSTIC: Terrific, can I get your full name please?");
+                    window.speakWithBritish("DIAGNOSTIC: Terrific, can I get your full name please?", false);
+                }
+            }
+        }, 600);
+        
+        console.log('✅ Diagnostic bypass complete');
+    };
+    
+    document.body.appendChild(debugBtn);
+    console.log('✅ Diagnostic bypass button added (top-right of screen)');
+}
+
+// Add button when page loads
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', addDiagnosticBypassButton);
+} else {
+    setTimeout(addDiagnosticBypassButton, 1000);
+}
+
+// Also add a console command for quick testing
+window.debugRequestCall = function() {
+    console.log('🔧 Console debug command triggered');
+    document.getElementById('debug-bypass-btn')?.click();
+};
+console.log('✅ Console command available: debugRequestCall()');
+
 
 const EMAILJS_CONFIG = {
     serviceId: 'service_b9bppgb',
