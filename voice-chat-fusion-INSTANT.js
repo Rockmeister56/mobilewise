@@ -889,27 +889,25 @@ recognition.onend = function() {
         console.log('🧪 ONEND TEST 5.1: Input field empty or not available');
     }
 
-   // SOURCE 3: Check global backup
-console.log('🧪 ONEND TEST 6: Checking global backup');
-console.log('🧪 ONEND TEST 6.1: lastCapturedTranscript:', window.lastCapturedTranscript || 'NOT SET');
-console.log('🧪 ONEND TEST 6.2: lastCapturedTime:', window.lastCapturedTime || 'NOT SET');
-
-if (!finalTranscript && window.lastCapturedTranscript) {
-    const timeSinceCapture = Date.now() - (window.lastCapturedTime || 0);
-    console.log('🧪 ONEND TEST 6.3: Time since capture:', timeSinceCapture + 'ms');
-    if (timeSinceCapture < 5000) {
-        finalTranscript = window.lastCapturedTranscript;
-        console.log('🔍 SOURCE 3 (global backup):', finalTranscript);
-    } else {
-        console.log('🛑 IGNORING old transcript (>5000ms):', window.lastCapturedTranscript);
-        // DON'T use old transcript - leave finalTranscript empty
-        window.lastCapturedTranscript = ''; // Clear it
+    // SOURCE 3: Check global backup
+    console.log('🧪 ONEND TEST 6: Checking global backup');
+    console.log('🧪 ONEND TEST 6.1: lastCapturedTranscript:', window.lastCapturedTranscript || 'NOT SET');
+    console.log('🧪 ONEND TEST 6.2: lastCapturedTime:', window.lastCapturedTime || 'NOT SET');
+    
+    if (!finalTranscript && window.lastCapturedTranscript) {
+        const timeSinceCapture = Date.now() - (window.lastCapturedTime || 0);
+        console.log('🧪 ONEND TEST 6.3: Time since capture:', timeSinceCapture + 'ms');
+        if (timeSinceCapture < 5000) {
+            finalTranscript = window.lastCapturedTranscript;
+            console.log('🔍 SOURCE 3 (global backup):', finalTranscript);
+        } else {
+            console.log('🧪 ONEND TEST 6.3: Global backup too old (>5000ms)');
+            finalTranscript = window.lastCapturedTranscript;
+            console.log('🔍 SOURCE 3 (global backup):', finalTranscript);
+        }
     }
-}
 
-console.log('🔍 FINAL transcript to use:', finalTranscript);
-
-console.log('🔍 FINAL transcript to use:', finalTranscript);
+    console.log('🔍 FINAL transcript to use:', finalTranscript);
     
     if (finalTranscript && finalTranscript.trim().length > 0) {
         const currentMessage = finalTranscript.trim();
@@ -924,22 +922,9 @@ console.log('🔍 FINAL transcript to use:', finalTranscript);
 
             // 🎯 ADD THIS RIGHT AFTER LINE 853
             console.log('🎯 Calling processUserResponse with:', finalTranscript);
-
-// 🎯 FIRST check if this is a consultation response
-if (window.consultationOfferActive && finalTranscript.toLowerCase().includes('yes')) {
-    console.log('🎯🎯🎯 CONSULTATION "YES" DETECTED - USING PRE-CLOSE SYSTEM');
-    window.consultationOfferActive = false;
-    
-    // Use your proven pre-close system that already works
-    const response = handlePreCloseResponse(finalTranscript, 'consultation');
-    console.log('✅ Action center triggered via pre-close system');
-    return; // STOP - don't process as normal conversation
-}
-
-// If not a consultation response, proceed normally
-if (typeof processUserResponse === 'function') {
-    processUserResponse(finalTranscript);
-}
+            if (typeof processUserResponse === 'function') {
+                processUserResponse(finalTranscript);
+            }
 
             if (window.speakNowTimeout) {
                 clearTimeout(window.speakNowTimeout);
@@ -1269,11 +1254,27 @@ function addAIMessage(message) {
     const chatMessages = document.getElementById('chatMessages');
     if (!chatMessages) return;
     
-    const messageElement = document.createElement('div');
-    messageElement.className = 'message ai-message';
-    messageElement.textContent = message;
+    // DEBUG: Check container widths
+    console.log('Chat messages width:', chatMessages.offsetWidth);
+    console.log('Chat messages parent width:', chatMessages.parentElement.offsetWidth);
     
-    chatMessages.appendChild(messageElement);
+    const messageContainer = document.createElement('div');
+    messageContainer.className = 'message ai-message';
+    
+    const avatar = document.createElement('img');
+    avatar.src = 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1764374269507_avatar%20right.png';
+    avatar.alt = 'AI Assistant';
+    avatar.className = 'ai-avatar';
+    
+    const messageText = document.createElement('div');
+    messageText.textContent = message;
+    
+    // TRY FORCING WIDTH
+    messageText.textContent = message;
+    
+    messageContainer.appendChild(avatar);
+    messageContainer.appendChild(messageText);
+    chatMessages.appendChild(messageContainer);
     scrollChatToBottom();
 }
 
@@ -1356,184 +1357,6 @@ function sendMessage() {
     userInput.value = '';
     
 }
-
-// ===================================================
-// 🎵 TOGGLE DANCE SYSTEM - TEXT/VOICE MODE SWITCHING - REVISED
-// ===================================================
-window.voiceModeEnabled = true; // Start in voice mode
-
-function toggleInputMode() {
-    console.log('🎵 Toggle dance! Current mode:', window.voiceModeEnabled ? 'VOICE' : 'TEXT');
-    
-    // 🎯 FIX: Flip the flag FIRST
-    window.voiceModeEnabled = !window.voiceModeEnabled;
-    console.log('✅ voiceModeEnabled flipped to:', window.voiceModeEnabled);
-    
-    if (!window.voiceModeEnabled) { // Now false = text mode
-        switchToTextMode();
-    } else { // Now true = voice mode
-        switchToVoiceMode();
-    }
-}
-
-function switchToTextMode() {
-    console.log('📝 SWITCHING TO TEXT MODE - FINAL FIX');
-    window.voiceModeEnabled = false;
-    
-    // Stop voice
-    if (window.stopListening) window.stopListening();
-    if (window.speechSynthesis) window.speechSynthesis.cancel();
-    
-    // Remove current voice banners
-    document.querySelectorAll('.speak-now-banner, [class*="speakNow"]').forEach(el => el.remove());
-    
-    // Show text input
-    const userInput = document.getElementById('userInput');
-    if (userInput) {
-        userInput.style.display = 'block';
-        userInput.focus();
-        console.log('✅ Showing existing userInput');
-        
-        // 🎯 CRITICAL: Setup text message handling
-        setupTextMessageHandler();
-    }
-    
-    // 🎯 FIXED: Better button finding - find by text content
-    const buttons = document.querySelectorAll('.quick-btn');
-    let switchBtn = null;
-    
-    buttons.forEach(btn => {
-        const text = btn.textContent.toLowerCase();
-        if (text.includes('switch') || text.includes('text') || text.includes('voice')) {
-            switchBtn = btn;
-        }
-    });
-    
-    if (switchBtn) {
-        switchBtn.textContent = '🎤 Switch to Voice';
-        switchBtn.style.background = '#4CAF50'; // Green for voice mode
-        switchBtn.style.color = 'white';
-        switchBtn.style.fontWeight = 'bold';
-        console.log('✅ Button updated to Voice mode');
-    } else {
-        console.log('❌ Could not find switch button');
-    }
-    
-    // Show message
-    if (window.addAIMessage) {
-        window.addAIMessage("✅ Switched to text mode. Type your questions below.");
-    }
-    
-    // Set flags to block auto-voice
-    window.suppressSpeakNowBanner = true;
-}
-
-function switchToVoiceMode() {
-    console.log('🎤 SWITCHING TO VOICE MODE - FINAL FIX');
-    window.voiceModeEnabled = true;
-    
-    // Hide text input
-    const userInput = document.getElementById('userInput');
-    if (userInput) {
-        userInput.style.display = 'none';
-    }
-    
-    // 🎯 FIXED: Better button finding - find by text content
-    const buttons = document.querySelectorAll('.quick-btn');
-    let switchBtn = null;
-    
-    buttons.forEach(btn => {
-        const text = btn.textContent.toLowerCase();
-        if (text.includes('switch') || text.includes('text') || text.includes('voice')) {
-            switchBtn = btn;
-        }
-    });
-    
-    if (switchBtn) {
-        switchBtn.textContent = '📝 Switch to Text';
-        switchBtn.style.background = '#2196F3'; // Blue for text mode
-        switchBtn.style.color = 'white';
-        switchBtn.style.fontWeight = 'bold';
-        console.log('✅ Button updated to Text mode');
-    }
-    
-    // Show message
-    if (window.addAIMessage) {
-        window.addAIMessage("✅ Switched to voice mode. Speak now...");
-    }
-    
-    // Gentle voice restart
-    setTimeout(() => {
-        window.suppressSpeakNowBanner = false;
-        
-        if (window.showDirectSpeakNow) {
-            console.log('🎤 Restarting voice system...');
-            window.showDirectSpeakNow();
-        }
-    }, 1000);
-}
-
-// 🎯 ADD THIS CRITICAL FUNCTION
-function setupTextMessageHandler() {
-    const userInput = document.getElementById('userInput');
-    if (userInput) {
-        // Remove any existing handlers first
-        userInput.removeEventListener('keypress', handleTextInput);
-        
-        // Add Enter key handler
-        userInput.addEventListener('keypress', handleTextInput);
-        
-        console.log('✅ Text message handler setup');
-    }
-}
-
-function handleTextInput(e) {
-    if (e.key === 'Enter') {
-        const userInput = document.getElementById('userInput');
-        if (!userInput) return;
-        
-        const message = userInput.value.trim();
-        if (!message) return;
-        
-        console.log('📝 Processing text message:', message);
-        
-        // Add to chat
-        if (window.addUserMessage) {
-            window.addUserMessage(message);
-        }
-        
-        // Clear input
-        userInput.value = '';
-        
-        // Process through AI system
-        if (window.processUserResponse) {
-            window.processUserResponse(message);
-        } else {
-            console.log('❌ No AI processing system available');
-        }
-    }
-}
-
-// ===================================================
-// 🎵 TOGGLE DANCE SYSTEM - FINAL EXPORTS WITH OVERRIDE
-// ===================================================
-
-// ✅ INITIAL STATE
-if (typeof window.voiceModeEnabled === 'undefined') {
-    window.voiceModeEnabled = true; // Start in voice mode
-}
-
-// 🚨 CRITICAL: OVERRIDE THE STRAY FUNCTION
-console.log('🚨 OVERRIDING STRAY switchToTextMode WITH FINAL VERSION');
-window.switchToTextMode = switchToTextMode; // Use our FINAL enhanced version (with GREEN color)
-
-// ✅ GLOBAL EXPORTS
-window.toggleInputMode = toggleInputMode;
-window.switchToTextMode = switchToTextMode; 
-window.switchToVoiceMode = switchToVoiceMode; 
-window.setupTextMessageHandler = setupTextMessageHandler;
-
-console.log('✅ TOGGLE SYSTEM LOADED WITH OVERRIDE - Stray function defeated! 🎵');
 
 // ===================================================
 // 🔥 PRE-WARM ENGINE (SILENT - NO BEEP)
@@ -1976,22 +1799,29 @@ class MobileWiseVoiceSystem {
     // 🎯 SPEECH COMPLETION HANDLER - WITH ELEVENLABS BANNER LOGIC
     // ✅ SMART BUTTON BLOCKING REMOVED FOR BANNER FUNCTIONALITY
    // ============================================================
-    handleSpeechComplete() {
-        voiceSystem.isSpeaking = false;
-        window.isSpeaking = false; // Backward compatibility
-        
-        // 🆕🎯 CRITICAL FIX: ADD ONLY THIS COOLDOWN RESET BLOCK
-        console.log('🎯 RESET: Clearing all banner cooldowns after AI speech');
-        window.directSpeakNowCooldown = false;
-        if (window.bannerCooldownTimer) {
-            clearTimeout(window.bannerCooldownTimer);
-            window.bannerCooldownTimer = null;
-        }
-        // 🆕 END OF COOLDOWN RESET BLOCK
-        
-        if (VOICE_CONFIG.debug) {
-            console.log("🔍 PERMANENT HANDLER: Speech completed - checking ElevenLabs banner logic (NO SMART BUTTON BLOCK)");
-        }
+ handleSpeechComplete() {
+    voiceSystem.isSpeaking = false;
+    window.isSpeaking = false; // Backward compatibility
+    
+    // 🎯 ADD THIS CHECK: Block banner during confirmation dialog
+    if (window.isInConfirmationDialog) {
+        console.log('🛑 BLOCKING BANNER - Confirmation dialog active');
+        return; // STOP HERE - don't trigger banner
+    }
+    
+    // 🆕🎯 CRITICAL FIX: ADD ONLY THIS COOLDOWN RESET BLOCK
+    console.log('🎯 RESET: Clearing all banner cooldowns after AI speech');
+    window.directSpeakNowCooldown = false;
+    if (window.bannerCooldownTimer) {
+        clearTimeout(window.bannerCooldownTimer);
+        window.bannerCooldownTimer = null;
+    }
+    // 🆕 END OF COOLDOWN RESET BLOCK
+    
+    if (VOICE_CONFIG.debug) {
+        console.log("🔍 PERMANENT HANDLER: Speech completed - checking ElevenLabs banner logic (NO SMART BUTTON BLOCK)");
+    }
+    
 // ============================================================
 // EXACT ELEVENLABS BLOCKING CONDITIONS CHECK
 // ============================================================
@@ -2400,24 +2230,217 @@ function detectAndStoreUserName(message) {
     ];
     
     for (let pattern of namePatterns) {
-        const match = message.match(pattern);
-        if (match && match[1]) {
-            const userName = match[1].trim();
-            const formattedName = userName.charAt(0).toUpperCase() + userName.slice(1).toLowerCase();
+    const match = message.match(pattern);
+    if (match && match[1]) {
+        const userName = match[1].trim();
+        const formattedName = userName.charAt(0).toUpperCase() + userName.slice(1).toLowerCase();
+        
+        console.log('🎉 NAME CAPTURED FROM BUBBLE:', formattedName);
+
+         window.userFirstName = formattedName;
+        window.lastCapturedName = formattedName; // 🆕 BACKUP
+        
+        // 🎯 STORE FOR FUTURE USE
+        window.userFirstName = formattedName;
+        
+        break;
+    }
+}
+}
+
+function pauseSession() {
+    console.log('⏸️ PAUSE SESSION clicked');
+    
+    // Stop any current speech
+    if (typeof stopAllSpeech === 'function') {
+        stopAllSpeech();
+    }
+    
+    // If you have a specific pause function
+    if (typeof pauseVoiceSession === 'function') {
+        pauseVoiceSession();
+    }
+    
+    // Create overlay
+    const overlay = document.createElement('div');
+    overlay.id = 'pause-overlay';
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(5px);
+        z-index: 10000;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        animation: fadeIn 0.3s ease;
+    `;
+    
+    // Create overlay content
+    overlay.innerHTML = `
+        <div style="
+            background: linear-gradient(135deg, #1a2a6c, #2c3e50);
+            border: 2px solid #00ff1e;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            max-width: 400px;
+            width: 90%;
+            animation: slideIn 0.3s ease;
+        ">
+            <h3 style="color: #00ff1e; margin-bottom: 10px; font-size: 24px;">⏸️ Session Paused</h3>
+            <p style="color: white; margin-bottom: 30px; opacity: 0.8;">Your session has been paused. Ready to continue?</p>
             
-            console.log('🎉 NAME CAPTURED FROM BUBBLE:', formattedName);
-            
-            // 🎯 STORE FOR FUTURE USE
-            window.userFirstName = formattedName;
-            
-            // 🎯 SHOW WELCOME SPLASH SCREEN
-            showWelcomeSplashScreen(formattedName);
-            
-            // 🎯 HIGHLIGHT THE NAME BUBBLE
-            highlightNameBubble(formattedName);
-            
-            break;
+            <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                <button onclick="resumeSession()" style="
+                    padding: 15px 30px;
+                    background: linear-gradient(135deg, #00ff1e, #00cc00);
+                    color: white;
+                    border: none;
+                    border-radius: 10px;
+                    font-weight: bold;
+                    cursor: pointer;
+                    font-size: 16px;
+                    transition: all 0.3s ease;
+                    min-width: 150px;
+                ">▶️ RESUME SESSION</button>
+                
+                <button onclick="exitSession()" style="
+                    padding: 15px 30px;
+                    background: linear-gradient(135deg, #ff4757, #ff3742);
+                    color: white;
+                    border: none;
+                    border-radius: 10px;
+                    font-weight: bold;
+                    cursor: pointer;
+                    font-size: 16px;
+                    transition: all 0.3s ease;
+                    min-width: 150px;
+                ">⏹️ EXIT SESSION</button>
+            </div>
+        </div>
+        
+        <style>
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            @keyframes slideIn {
+                from { 
+                    opacity: 0; 
+                    transform: translateY(-30px) scale(0.9);
+                }
+                to { 
+                    opacity: 1; 
+                    transform: translateY(0) scale(1);
+                }
+            }
+        </style>
+    `;
+    
+    document.body.appendChild(overlay);
+    
+    // Add click outside to close
+    overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) {
+            resumeSession();
         }
+    });
+}
+
+// Resume Session Function - Exact same flow as initial experience
+function resumeSession() {
+    console.log('▶️ RESUME SESSION clicked');
+    
+    // Remove overlay
+    const overlay = document.getElementById('pause-overlay');
+    if (overlay) {
+        overlay.remove();
+    }
+    
+    // Add AI welcome back message to chat
+    const chatMessages = document.getElementById('chatMessages');
+    if (chatMessages) {
+        const welcomeBackMessage = document.createElement('div');
+        welcomeBackMessage.className = 'ai-message';
+        welcomeBackMessage.innerHTML = `
+            <div style="padding: 15px; border-radius: 20px; background: rgba(255,255,255,0.1); margin: 10px 0;">
+                <strong>Good to see you again! 👋</strong><br><br>
+                Is there anything else I can answer for you about practice valuation, buying, or selling?<br><br>
+                Or would you prefer a <strong>free consultation</strong> with one of our specialists?
+            </div>
+        `;
+        chatMessages.appendChild(welcomeBackMessage);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+    
+    // Speak the welcome message and THEN show Speak Now banner
+    if (typeof speakText === 'function') {
+        // Store original onSpeechEnd function if it exists
+        const originalOnSpeechEnd = window.onSpeechEnd;
+        
+        // Override to show Speak Now banner when speech ends
+        window.onSpeechEnd = function() {
+            console.log('✅ AI finished speaking - showing Speak Now banner');
+            
+            // Show the Speak Now banner (just like initial flow)
+            const speakNowButton = document.getElementById('speakNowButton');
+            if (speakNowButton) {
+                speakNowButton.style.display = 'flex';
+            }
+            
+            // Restore original function if it existed
+            if (originalOnSpeechEnd) {
+                window.onSpeechEnd = originalOnSpeechEnd;
+            }
+            
+            // Restart voice recognition
+            if (typeof startVoiceRecognition === 'function') {
+                startVoiceRecognition();
+            } else if (typeof activateMicrophone === 'function') {
+                activateMicrophone();
+            }
+        };
+        
+        // Speak the welcome message
+        speakText("Good to see you again! Is there anything else I can answer for you about practice valuation, buying, or selling? Or would you prefer a free consultation with one of our specialists?");
+        
+    } else {
+        // Fallback: Show Speak Now banner immediately
+        const speakNowButton = document.getElementById('speakNowButton');
+        if (speakNowButton) {
+            speakNowButton.style.display = 'flex';
+        }
+        
+        // Restart voice system
+        if (typeof startVoiceRecognition === 'function') {
+            startVoiceRecognition();
+        } else if (typeof activateMicrophone === 'function') {
+            activateMicrophone();
+        }
+    }
+    
+    console.log('✅ Session resumed - AI speaking welcome message');
+}
+
+// Exit Session Function
+function exitSession() {
+    console.log('⏹️ EXIT SESSION clicked');
+    
+    // Remove overlay
+    const overlay = document.getElementById('pause-overlay');
+    if (overlay) {
+        overlay.remove();
+    }
+    
+    // Use your existing exit function
+    if (typeof exitToMainSite === 'function') {
+        exitToMainSite();
     }
 }
 
@@ -2721,11 +2744,13 @@ async function getAIResponse(userMessage, conversationHistory = []) {
     console.log('🎯 GOLD STANDARD getAIResponse called:', userMessage);   
 
     // 🎯 STEP 0: CHECK FOR CONCERNS FIRST - NEW INTEGRATION
-    if (detectConcernOrObjection(userMessage)) {
-        console.log('🚨 Concern detected - handling with testimonial');
-        handleConcernWithTestimonial(userMessage);
-        return; // Stop the sales process for concerns
-    }
+if (detectConcernOrObjection(userMessage)) {
+    console.log('🚨 Concern detected - handling with testimonial');
+    const concernType = window.detectedConcernType || 'general';
+    console.log(`🎯 Calling handleConcernWithTestimonial with type: ${concernType}`);
+    handleConcernWithTestimonial(userMessage, concernType);
+    return; // Stop the sales process for concerns
+}
 
     // Initialize Sales AI if not exists
     if (!window.salesAI) {
@@ -2765,26 +2790,29 @@ const appointmentPatterns = [
 if (urgentPatterns.some(pattern => lowerMessage.includes(pattern))) {
     console.log('🚨 URGENT INTENT DETECTED - FAST TRACKING TO BRUCE');
     
-    // 🎯 TRIGGER ACTION CENTER IMMEDIATELY
-    setTimeout(() => {
-        if (window.showCommunicationActionCenter) {
-            window.showCommunicationActionCenter();
-            console.log('✅ Action Center triggered for urgent request');
-        }
-    }, 1000);
-    
-    return "I understand this is urgent! Let me bring up all the ways to connect with Bruce,the founder and CEO of NCI immediately.";
+// 🎯 TRIGGER ACTION CENTER IMMEDIATELY
+setTimeout(() => {
+    if (window.triggerLeadActionCenter) {
+        window.triggerLeadActionCenter(); // ✅ SILENT VERSION
+        console.log('✅ SILENT Communication Relay Center triggered for urgent request');
+    } else {
+        console.error('❌ triggerLeadActionCenter not found - urgent system broken');
+    }
+}, 1000);
+
+return "I understand this is urgent! Let me bring up all the ways to connect with Bruce, the founder and CEO of NCI immediately.";
 }
 
 // Check for APPOINTMENT second
 if (appointmentPatterns.some(pattern => lowerMessage.includes(pattern))) {
     console.log('🎯 APPOINTMENT INTENT DETECTED - Triggering Action Center');
     
-    // 🎯 TRIGGER ACTION CENTER IMMEDIATELY
-    setTimeout(() => {
-        if (window.showCommunicationActionCenter) {
-            window.showCommunicationActionCenter();
-            console.log('✅ Action Center triggered for appointment request');
+   setTimeout(() => {
+    if (window.triggerLeadActionCenter) {
+        window.triggerLeadActionCenter(); // ✅ SILENT VERSION
+        console.log('✅ SILENT Action Center triggered for appointment request');
+    } else {
+        console.error('❌ triggerLeadActionCenter not found - appointment system broken');
         }
     }, 1000);
     
@@ -2805,10 +2833,18 @@ if (strongIntent) {
         speakWithElevenLabs(preCloseResponse, false);
         
         if (preCloseResponse.includes("Perfect! Let me get you connected")) {
-    // User said YES - trigger appointment banner
+    // User said YES - trigger SILENT Communication Relay Center
     window.salesAI.state = 'lead_capture';
-    console.log('✅ User said YES - triggering appointment banner');
-    triggerBanner('setAppointment');
+    console.log('✅ User said YES - triggering SILENT Communication Relay Center');
+    
+    setTimeout(() => {
+        if (window.triggerLeadActionCenter) {
+            window.triggerLeadActionCenter(); // ✅ SILENT VERSION
+            console.log('✅ SILENT Action Center triggered for pre-close YES response');
+        } else {
+            console.error('❌ triggerLeadActionCenter not found - pre-close system broken');
+        }
+    }, 1000);
 
         } else {
             // User said SKIP - return to investigation
@@ -2824,16 +2860,28 @@ if (window.salesAI.state === 'introduction') {
     console.log('🎯 Handling introduction - capturing name...');
     
     // Simple name handling
-    if (!window.salesAI.userData.firstName) {
-        const name = userMessage.split(' ')[0];
-        if (name && name.length > 1) {
-            window.salesAI.userData.firstName = name;
-            window.salesAI.state = 'investigation';
-            const response = `Nice to meet you ${name}! What brings you to New Clients Inc today?`;
-            console.log('✅ Name captured, moving to investigation state');
-            return response;
-        } else {
-            return "Hi! I'm your practice transition assistant. What's your first name?";
+if (!window.salesAI.userData.firstName) {
+    const name = userMessage.split(' ')[0];
+    if (name && name.length > 1) {
+        window.salesAI.userData.firstName = name;
+        window.salesAI.state = 'investigation';
+
+        // 🎉 FIXED: Check salesAI for the name
+    const userName = window.salesAI?.userData?.firstName;
+    if (userName && userName.length > 0 && !window.welcomeSplashShown) {
+        console.log('🎉 Triggering welcome splash for:', userName);
+        setTimeout(() => {
+            if (window.showWelcomeSplash) {
+                window.showWelcomeSplash(userName);
+            }
+        }, 100);
+    }
+        
+        const response = `Nice to meet you ${name}! What brings you to New Clients Inc today?`;
+        console.log('✅ Name captured, moving to investigation state');
+        return response;
+    } else {
+        return "Hi! I'm your practice transition assistant. What's your first name?";
         }
     }
 }
@@ -2841,15 +2889,59 @@ if (window.salesAI.state === 'introduction') {
 console.log('🔄 No strong intent - using original system logic');
     
     // 🧠 STEP 5: FALLBACK TO ORIGINAL LOGIC
-    console.log('🔄 No strong intent - using original system logic');
-    if (typeof getOpenAIResponse === 'function') {
-        return await getOpenAIResponse(userMessage, conversationHistory);
-    } else {
-        const fallbackResponse = "I appreciate your message! That's something Bruce,the founder and CEO of NCI would be perfect to help with. Would you like me to connect you with him for a free consultation?";
-        speakWithElevenLabs(fallbackResponse, false);
-        return fallbackResponse;
+console.log('🔄 No strong intent - using original system logic');
+if (typeof getOpenAIResponse === 'function') {
+    return await getOpenAIResponse(userMessage, conversationHistory);
+} else {
+    const fallbackResponse = "I appreciate your message! That's something Bruce,the founder and CEO of NCI would be perfect to help with. Would you like me to connect you with him for a free consultation?";
+
+    // 🎯 BRUCE PRE-CLOSE QUESTION SET: 
+window.lastPreCloseQuestion = fallbackResponse;
+window.lastPreCloseIntent = 'bruce_consultation';
+window.conversationState = 'qualification';
+console.log('🎯 BRUCE PRE-CLOSE QUESTION SET:', fallbackResponse);
+
+// 🚀 CRITICAL FIX: Show Free Consultation Banner
+setTimeout(() => {
+    // 1. TRIGGER FREE CONSULTATION BANNER
+    if (typeof showUniversalBanner === 'function') {
+        showUniversalBanner('setAppointment');
+        console.log('✅ Free Consultation Banner triggered');
     }
+}, 50); // Wait for question to start speaking
+
+speakWithElevenLabs(fallbackResponse, false);
+return fallbackResponse;
 }
+}
+
+// Add this emergency Bruce detection in getAIResponse
+const originalGetAIResponse = window.getAIResponse;
+window.getAIResponse = function(userMessage) {
+    const lowerMessage = userMessage.toLowerCase();
+    
+    // 🎯 EMERGENCY BRUCE DETECTION
+if ((lowerMessage.includes('yes') || lowerMessage.includes('yeah') || lowerMessage.includes('sure')) &&
+    window.lastPreCloseIntent === 'bruce_consultation') {
+    
+    console.log('🎯 EMERGENCY BRUCE YES DETECTED - Triggering Action Center IMMEDIATELY');
+    
+    // Clear the context
+    window.lastPreCloseIntent = null;
+    window.lastPreCloseQuestion = null;
+    
+    // 🚀 CRITICAL: Trigger Action Center IMMEDIATELY (no delays)
+    if (window.triggerLeadActionCenter) {
+        window.triggerLeadActionCenter();
+        console.log('✅ Action Center triggered IMMEDIATELY via emergency detection');
+    }
+    
+    // Return instruction speech that plays AFTER Action Center is visible
+    return "Great! I can make that painless with my assistance after clicking one of our communication relay buttons on your screen";
+}
+
+return originalGetAIResponse.apply(this, arguments);
+};
 
 /// 🎯 CONCERN DETECTION SYSTEM - FIXED VERSION
 // =============================================================================
@@ -2902,14 +2994,14 @@ function detectConcernOrObjection(userText) {
         'hard to believe', 'complicated', 'difficult'
     ];
     
-    // Check if any negative keywords present
-    const allKeywords = [...priceKeywords, ...timeKeywords, ...trustKeywords, ...negativeKeywords];
-    
-    for (let keyword of allKeywords) {
+   // Check if any negative keywords present
+const allKeywords = [...priceKeywords, ...timeKeywords, ...trustKeywords, ...negativeKeywords];
+
+for (let keyword of allKeywords) {
         if (text.includes(keyword)) {
             console.log(`🚨 CONCERN DETECTED: "${keyword}" in user input`);
             
-            // Determine concern type
+            // 🎯 CRITICAL: SET THE CONCERN TYPE
             if (priceKeywords.some(k => text.includes(k))) {
                 window.detectedConcernType = 'price';
             } else if (timeKeywords.some(k => text.includes(k))) {
@@ -2926,67 +3018,155 @@ function detectConcernOrObjection(userText) {
     
     return false;
 }
-
-// 🎯 HANDLE CONCERN WITH TESTIMONIAL - WITH USER TEXT ECHO
-function handleConcernWithTestimonial(userText) {
+// 🚨 UPDATED handleConcernWithTestimonial FUNCTION - MINIMAL CHANGES
+window.handleConcernWithTestimonial = function(userText, concernType) {
+    console.log(`🎯 handleConcernWithTestimonial called: "${userText}" (${concernType})`);
+    
     // 🛑 BLOCK SPEAK SEQUENCE IMMEDIATELY
     window.concernBannerActive = true;
-    console.log('🚫 FLAG SET: concernBannerActive = true');
+    window.isInTestimonialMode = true; // 🆕 ADD THIS ONE LINE
     
-    const concernType = window.detectedConcernType || 'general';
+   // 🛑 STOP ACTIVE LISTENING & CLOSE BANNERS - USING CORRECT FUNCTIONS!
+    if (window.stopListening) window.stopListening();
+    if (window.hideSpeakNowBanner) window.hideSpeakNowBanner(); // 🆕 CORRECT FUNCTION!
+    if (window.cleanupSpeakSequence) window.cleanupSpeakSequence(); // 🆕 DIRECT CLEANUP!
     
-    console.log(`🎯 Handling ${concernType} concern - triggering testimonial banner`);
+    // 🎯 TRIGGER UNIVERSAL BANNER ENGINE (TOP BANNER)
+    if (window.showUniversalBanner) {
+        window.showUniversalBanner('testimonialSelector');
+    }
     
-    // Empathetic acknowledgment that INCLUDES the user's exact words
+    // 🎯 USE THE PASSED CONCERN TYPE OR DETECT IT
+    const finalConcernType = concernType || window.detectedConcernType || 'general';
+    
+    console.log(`🎯 Handling ${finalConcernType} concern - showing testimonial response`);
+    
+    // [YOUR ACKNOWLEDGMENT LOGIC]
     let acknowledgment = '';
-    
-    switch(concernType) {
+    switch(finalConcernType) {
         case 'price':
-            acknowledgment = `I completely understand your concern regarding "${userText}". Many of our clients felt the same way initially. If you'd like to hear what they experienced, click a review below. Or click Skip to continue our conversation.`;
+            acknowledgment = `I completely understand your concern regarding pricing. Many of our clients felt the same way initially. If you'd like to hear what they experienced, click a review below. Or click Skip to continue our conversation.`;
             break;
-            
         case 'time':
-            acknowledgment = `I hear you on "${userText}". Several of our clients had similar thoughts before working with Bruce,the founder and CEO of NCI. Feel free to click a review to hear their experience, or hit Skip and we'll keep talking.`;
+            acknowledgment = `I hear you on the timing. Several of our clients had similar thoughts before working with Bruce, the founder and CEO of NCI. Feel free to click a review to hear their experience, or hit Skip and we'll keep talking.`;
             break;
-            
         case 'trust':
-            acknowledgment = `That's a fair concern about "${userText}". You're not alone - other practice owners felt the same way at first. You're welcome to check out their reviews below, or click Skip to move forward.`;
+            acknowledgment = `That's a fair concern. You're not alone - other practice owners felt the same way at first. You're welcome to check out their reviews below, or click Skip to move forward.`;
             break;
-            
         case 'general':
-            acknowledgment = `I appreciate you sharing that about "${userText}". Some of valued clients of Bruce,the founder and CEO of NCI started with similar hesitations. If you're curious what happened for them, click a review. Otherwise, click Skip and let's continue.`;
+            acknowledgment = `I appreciate you sharing that. Some of valued clients of Bruce, the founder and CEO of NCI started with similar hesitations. If you're curious what happened for them, click a review. Otherwise, click Skip and let's continue.`;
             break;
     }
     
-    // Add AI message
-    addAIMessage(acknowledgment);
+    // 🎯 CRITICAL FIX: SHOW TESTIMONIALS IMMEDIATELY (BEFORE/AFTER VOICE)
     
-    // Speak the acknowledgment
-    setTimeout(() => {
-        if (typeof speakResponse === 'function') {
-            speakResponse(acknowledgment);
-        }
-    }, 100);
+    // 1. Add AI message to chat FIRST
+    if (window.addAIMessage && typeof window.addAIMessage === 'function') {
+        window.addAIMessage(acknowledgment);
+        console.log('✅ AI message added to chat');
+    }
     
-    // Show testimonial banner after speaking
+    // 2. SHOW TESTIMONIALS IMMEDIATELY (NO WAITING!)
     setTimeout(() => {
-        console.log('🎯 Triggering testimonial banner');
-        if (typeof showTestimonialBanner === 'function') {
-            showTestimonialBanner(concernType);
+        if (window.showTestimonialSplashScreen && typeof window.showTestimonialSplashScreen === 'function') {
+            window.showTestimonialSplashScreen();
+            console.log('✅ Testimonial splash screen launched IMMEDIATELY');
         } else {
-            console.error('❌ showTestimonialBanner function not found');
+            console.error('❌ showTestimonialSplashScreen not available');
         }
-    }, 3000);
+    }, 100); // Small delay to ensure chat message appears first
+    
+    // 3. START SPEAKING (testimonials are already visible)
+    if (window.speakText && typeof window.speakText === 'function') {
+        // Small delay to let testimonials render first
+        setTimeout(() => {
+            window.speakText(acknowledgment);
+            console.log('✅ AI speaking acknowledgment (testimonials already visible)');
+        }, 300);
+    }
     
     // Store the concern
     window.lastDetectedConcern = {
         text: userText,
-        type: concernType,
+        type: finalConcernType,
         timestamp: Date.now()
     };
+};
+
+
+// 🎯 ENHANCED CONCERN HANDLER - USING TESTIMONIAL DATA (YOUR EXISTING)
+function handleConcernWithTestimonial(userText) {
+    // ... your existing enhanced code ...
 }
 
-console.log('✅ COMPLETE GOLD STANDARD getAIResponse WITH 4-STEP SALES PROCESS & CONCERN DETECTION LOADED!');
+// 🎯 ADD THIS RIGHT AFTER YOUR EXISTING FUNCTION:
+function getResumeMessageForConcern(concernType) {
+    const messages = {
+        price: "As you can see, many clients found the investment well worth it. The ROI typically pays for itself within the first month. Would you like me to show you how we can achieve similar results for you?",
+        time: "Like those clients, we understand you're busy. That's why Bruce has streamlined the process to deliver fast results without taking much of your time. Ready to see how quickly we can help you?",
+        trust: "I understand the skepticism - many successful clients felt the same way initially. But as you can see, Bruce's results speak for themselves. Would you like me to show you exactly how this works?",
+        general: "Many clients had similar concerns initially, but were thrilled once they saw Bruce's results. Would you like me to show you how we can address your specific situation?"
+    };
+    
+    return messages[concernType] || messages.general;
+}
+
+// 🎯 SIMPLE BANNER QUEUE PROCESSOR (if needed)
+function processBannerQueue() {
+    // This is a placeholder - your Universal Engine handles its own queue
+    console.log('🔄 Banner queue processing (if needed)');
+}
+
+// 🎯 HELPER: GET RELEVANT TESTIMONIALS FOR CONCERN TYPE
+function getTestimonialsForConcern(concernType) {
+    // Check if testimonial data is available
+    if (typeof window.testimonialVideos === 'undefined') {
+        console.error('❌ testimonial-data.js not loaded - using fallback');
+        return getFallbackTestimonials(concernType);
+    }
+    
+    // Get testimonials for this specific concern
+    const testimonials = window.testimonialVideos[concernType];
+    
+    if (!testimonials) {
+        console.warn(`❌ No testimonials found for ${concernType} - using skeptical as fallback`);
+        return window.testimonialVideos['skeptical'] || getFallbackTestimonials(concernType);
+    }
+    
+    return testimonials;
+}
+
+// 🎯 FALLBACK IF TESTIMONIAL DATA NOT AVAILABLE
+function getFallbackTestimonials(concernType) {
+    const fallbackTestimonials = {
+        'price': {
+            title: "Proving the Value",
+            videos: [
+                {name: "Fallback Client", url: "fallback-price.mp4", duration: 12000}
+            ]
+        },
+        'time': {
+            title: "Time Well Spent", 
+            videos: [
+                {name: "Fallback Client", url: "fallback-time.mp4", duration: 12000}
+            ]
+        },
+        'trust': {
+            title: "Building Trust",
+            videos: [
+                {name: "Fallback Client", url: "fallback-trust.mp4", duration: 12000}
+            ]
+        },
+        'general': {
+            title: "Success Stories",
+            videos: [
+                {name: "Fallback Client", url: "fallback-general.mp4", duration: 12000}
+            ]
+        }
+    };
+    
+    return fallbackTestimonials[concernType] || fallbackTestimonials['general'];
+}
 
 // =============================================================================
 // 🛠️ NOW ADDING ALL SUPPORTING FUNCTIONS FROM BOTH FILES
@@ -3163,25 +3343,29 @@ function handlePreCloseResponse(userResponse, intentType) {
     
     // YES responses
     const yesPatterns = ['yes', 'yeah', 'sure', 'okay', 'ok', 'absolutely', 'definitely', 'let\'s do it', 'ready', 'go ahead'];
+    
+    // NO responses  
+    const noPatterns = ['no', 'not yet', 'maybe later', 'not now', 'no thanks', 'nah', 'wait', 'hold on'];
 
     if (yesPatterns.some(pattern => lowerResponse.includes(pattern))) {
-        // 🎯 CRITICAL FIX: Trigger Action Center for YES responses
-        setTimeout(() => {
-            if (window.showCommunicationActionCenter) {
-                window.showCommunicationActionCenter();
-                console.log('✅ Action Center triggered for consultation YES response');
-            }
-        }, 1000);
+        // 🎯 CRITICAL FIX: Trigger Action Center IMMEDIATELY, then speak instructions
+        console.log('🎯 BRUCE CONSULTATION ACCEPTED - Triggering Action Center immediately');
         
-        return "Perfect! Let me bring up all the ways to connect with Bruce,the founder and CEO of NCI directly. He's the expert who can give you personalized guidance!";
+        // Trigger Action Center RIGHT AWAY
+        if (window.triggerLeadActionCenter) {
+            window.triggerLeadActionCenter(); // ✅ SILENT VERSION
+            console.log('✅ Action Center triggered immediately');
+        } else {
+            console.error('❌ triggerLeadActionCenter not found');
+        }
+        
+        // This speech will play AFTER Action Center appears
+        return "Simply click the book consultation button or whatever you prefer and I'll help you set up a consultation with Bruce";
     }
     
     if (noPatterns.some(pattern => lowerResponse.includes(pattern))) {
         return "I completely understand wanting to take your time with such an important decision. What specific questions or concerns would be most helpful for you to have answered right now?";
     }
-    
-    // NO responses  
-    const noPatterns = ['no', 'not yet', 'maybe later', 'not now', 'no thanks', 'nah', 'wait', 'hold on'];
     
     // Ambiguous response
     return "Thanks for sharing that. To make sure I connect you with the right resources, would now be a good time for Bruce,the founder and CEO of NCI to give you a quick call, or would you prefer to get some initial information first?";
@@ -3247,9 +3431,27 @@ function processUserResponse(userText) {
     }
     
     // 🎯 STEP 0: CHECK FOR CONCERNS FIRST
-    if (detectConcernOrObjection(userText)) {
+    const concernDetected = detectConcernOrObjection(userText);
+    if (concernDetected) {
         console.log('🚨 Concern detected - handling with testimonial');
-        handleConcernWithTestimonial(userText);
+        
+        // 🎯 CRITICAL FIX: PASS THE CONCERN TYPE!
+        // Get the concern type that was detected
+        let concernType = window.detectedConcernType || 'general';
+        
+        // If concern type wasn't set, detect it from text
+        if (!window.detectedConcernType) {
+            if (userText.toLowerCase().includes('expensive') || userText.toLowerCase().includes('cost') || userText.toLowerCase().includes('price')) {
+                concernType = 'price';
+            } else if (userText.toLowerCase().includes('time') || userText.toLowerCase().includes('long') || userText.toLowerCase().includes('soon')) {
+                concernType = 'time';
+            } else if (userText.toLowerCase().includes('trust') || userText.toLowerCase().includes('believe') || userText.toLowerCase().includes('sure')) {
+                concernType = 'trust';
+            }
+        }
+        
+        console.log(`🎯 Calling handleConcernWithTestimonial with type: ${concernType}`);
+        handleConcernWithTestimonial(userText, window.detectedConcernType);
         return; // Stop the sales process for concerns
     }
 
@@ -3297,128 +3499,6 @@ function getPreCloseQuestion(intent) {
     }
 }
 
-function askQuickQuestion(questionText) {
-    console.log('🎯 Quick button clicked:', questionText);
-    
-    // 🎨 ADD USER MESSAGE TO CHAT (this was missing!)
-    if (typeof addUserMessage === 'function') {
-        addUserMessage(questionText);
-    }
-    
-    // 1️⃣ STOP ALL SPEECH IMMEDIATELY
-    if (typeof stopAllSpeech === 'function') {
-        stopAllSpeech();
-    }
-    if (window.speechSynthesis) {
-        window.speechSynthesis.cancel();
-    }
-    
-    // 2️⃣ DETECT WHICH BUTTON WAS CLICKED
-    let buttonIntent = null;
-    let acknowledgment = null;
-    let targetState = null;
-    let scriptResponse = null;
-    
-    const buttonText = questionText.toLowerCase();
-    
-    if (buttonText.includes('valuation') || buttonText.includes('worth')) {
-        // PRACTICE VALUATION BUTTON
-        buttonIntent = 'valuation';
-        acknowledgment = "Fantastic! You want to know what your practice is worth.";
-        targetState = 'asking_valuation_consultation';
-        
-        scriptResponse = window.leadData && window.leadData.firstName ?
-            `Perfect ${window.leadData.firstName}! Bruce, the founder and CEO of NCI can provide a valuation. Most owners are surprised by the value. Interested?` :
-            "Perfect! Bruce,the founder and CEO of NCI can provide a valuation. Most owners are surprised. Interested?";
-            
-    } else if (buttonText.includes('sell')) {
-        // SELLING OPTIONS BUTTON
-        buttonIntent = 'selling';
-        acknowledgment = "Fantastic! You want to sell your practice.";
-        targetState = 'selling_size_question';
-        
-        scriptResponse = window.leadData && window.leadData.firstName ?
-            `Wow ${window.leadData.firstName}! That's a huge decision. How many clients are you serving?` :
-            "Wow! That's a huge decision. How many clients are you serving?";
-            
-    } else if (buttonText.includes('buy')) {
-        // BUYING OPTIONS BUTTON
-        buttonIntent = 'buying';
-        acknowledgment = "Fantastic! You want to buy a practice.";
-        targetState = 'buying_budget_question';
-        
-        scriptResponse = window.leadData && window.leadData.firstName ?
-            `Excellent, ${window.leadData.firstName}! Bruce,the founder and CEO of NCI has some fantastic opportunities available right now. Tell me, what's your budget range for acquiring a practice?` :
-            "Excellent! Bruce,the founder and CEO of NCI has some fantastic opportunities available. What's your budget range for acquiring a practice?";
-    }
-    
-    // 3️⃣ CHECK IF WE HAVE THEIR NAME
-    const firstName = window.leadData ? window.leadData.firstName : null;
-    
-    if (firstName) {
-        // ✅ HAS NAME - Jump directly to the conversation flow
-        console.log(`✅ Name exists (${firstName}) - jumping to ${targetState}`);
-        
-        conversationState = targetState;
-        
-        // 🎨 ADD AI MESSAGE TO CHAT
-        if (typeof addAIMessage === 'function') {
-            addAIMessage(scriptResponse);
-        }
-        
-        // Speak the response
-        setTimeout(() => {
-            speakText(scriptResponse);
-        }, 100);
-        
-        // Trigger expertise banner
-        setTimeout(() => {
-            if (typeof showUniversalBanner === 'function') {
-                showUniversalBanner('expertise');
-            }
-        }, 1500);
-        
-    } else {
-        // ❌ NO NAME YET - Acknowledge intent + Ask for name
-        console.log(`❌ No name yet - storing pendingIntent: ${buttonIntent}`);
-        
-        // Store the pending intent so we can resume after name capture
-        window.pendingIntent = buttonIntent;
-        window.pendingIntentState = targetState;
-        window.pendingIntentResponse = scriptResponse;
-        
-        // Set state to capture name
-        conversationState = 'getting_first_name';
-        
-        // Build full response
-        const fullResponse = acknowledgment + " Can I get your name first, please?";
-        
-        // 🎨 ADD AI MESSAGE TO CHAT
-        if (typeof addAIMessage === 'function') {
-            addAIMessage(fullResponse);
-        }
-        
-        // Speak acknowledgment + name request
-        setTimeout(() => {
-            speakText(fullResponse);
-        }, 100);
-        
-        // ✅ RESTART VOICE LISTENING AFTER SPEECH
-        setTimeout(() => {
-            if (typeof startListening === 'function') {
-                startListening();
-            }
-        }, 1000);
-        
-        // Show expertise banner immediately
-        setTimeout(() => {
-            if (typeof showUniversalBanner === 'function') {
-                showUniversalBanner('expertise');
-            }
-        }, 1500);
-    }
-}
-
 // ===================================================
 // 🎯 NAME CAPTURE HANDLER - RESUME PENDING INTENT
 // ===================================================
@@ -3450,30 +3530,8 @@ function resumePendingIntent() {
     }
 }
 
-
 // Make globally accessible
 // window.handleCTAButtonClick = handleCTAButtonClick; // Function handled by action-button-system-CAPTAIN.js
-
-// 🎯 ADD THIS FUNCTION AT THE END OF YOUR FILE:
-function shouldTriggerLeadCapture(userInput) {
-    const input = userInput.toLowerCase().trim();
-    
-    // User's affirmative responses
-    const yesResponses = [
-        'yes', 'yeah', 'yep', 'sure', 'ok', 'okay', 'absolutely', 
-        'definitely', 'of course', 'let\'s do it', 'sounds good',
-        'i would', 'i\'d like that', 'that sounds great', 'let\'s go'
-    ];
-    
-    // Check if we're in a consultation asking state
-    const consultationStates = [
-        'asking_selling_consultation',
-        'asking_buying_consultation', 
-        'asking_valuation_consultation'
-    ];
-    
-    return yesResponses.includes(input) && consultationStates.includes(conversationState);
-}
 
 // 🎯 ADD THIS FUNCTION AT THE END OF YOUR FILE:
 function shouldTriggerLeadCapture(userInput) {
@@ -4440,81 +4498,39 @@ console.log('✅ Lead capture state cleaned up');
     isInLeadCapture = false;
 }
 
-// 🎵 TOGGLE DANCE FUNCTIONS 🎵
-
-// Initialize voice mode
-window.voiceModeEnabled = true;
-
-// Main toggle function
-function toggleInputMode() {
-    console.log('🎵 Toggle dance! Current mode:', window.voiceModeEnabled ? 'VOICE' : 'TEXT');
+// ===================================================
+// 📝 TEXT MODE SWITCHER
+// ===================================================
+function switchToTextMode() {
+    console.log('🔄 Switching to text mode');
     
-    if (window.voiceModeEnabled) {
-        switchToTextMode();
-    } else {
-        switchToVoiceMode();
+    if (currentAudio) {
+        window.speechSynthesis.cancel();
     }
+    
+    stopListening();
+    
+    if (persistentMicStream) {
+        persistentMicStream.getTracks().forEach(track => track.stop());
+        persistentMicStream = null;
+    }
+    
+    isAudioMode = false;
+    micPermissionGranted = false;
+    
+    const micButton = document.getElementById('micButton');
+    const liveTranscript = document.getElementById('liveTranscript');
+    
+    if (micButton) micButton.classList.remove('listening');
+    if (liveTranscript) {
+        liveTranscript.style.display = 'none';
+        restoreQuickButtons(); // Show quick buttons again
+    }
+    
+    addAIMessage("Switched to text mode. Type your message in the text box below.");
+    
+    console.log('✅ Switched to text mode successfully');
 }
-
-// 🚨 REPLACE THE BROKEN switchToTextMode FUNCTION
-window.switchToTextMode = function() {
-    console.log('📝 SWITCHING TO TEXT MODE - FIXED VERSION');
-    
-    // 🚨 CRITICAL: Update the flag
-    window.voiceModeEnabled = false;
-    console.log('✅ voiceModeEnabled set to:', window.voiceModeEnabled);
-    
-    // Stop voice
-    if (window.stopListening) window.stopListening();
-    if (window.speechSynthesis) window.speechSynthesis.cancel();
-    
-    // Remove voice banners
-    document.querySelectorAll('.speak-now-banner, [class*="speakNow"]').forEach(el => el.remove());
-    
-    // 🚨 CRITICAL: Update the button
-    const btn = document.getElementById('modeToggleBtn');
-    if (btn) {
-        btn.textContent = '🎤 Switch to Voice';
-        console.log('✅ Button updated to:', btn.textContent);
-    }
-    
-    // Show message
-    if (window.addAIMessage) {
-        window.addAIMessage("✅ Switched to text mode. Type your questions below.");
-    }
-    
-    console.log('✅ TEXT MODE ACTIVATED');
-};
-
-// Also fix switchToVoiceMode
-window.switchToVoiceMode = function() {
-    console.log('🎤 SWITCHING TO VOICE MODE - FIXED VERSION');
-    
-    // 🚨 CRITICAL: Update the flag
-    window.voiceModeEnabled = true;
-    console.log('✅ voiceModeEnabled set to:', window.voiceModeEnabled);
-    
-    // Update button
-    const btn = document.getElementById('modeToggleBtn');
-    if (btn) {
-        btn.textContent = '📝 Switch to Text';
-        console.log('✅ Button updated to:', btn.textContent);
-    }
-    
-    // Show message
-    if (window.addAIMessage) {
-        window.addAIMessage("✅ Switched to voice mode. Speak now...");
-    }
-    
-    // Restart voice
-    setTimeout(() => {
-        if (window.showDirectSpeakNow) {
-            window.showDirectSpeakNow();
-        }
-    }, 1500);
-};
-
-console.log('✅ BROKEN FUNCTIONS REPLACED');
 
 // ===================================================
 // 🚀 INITIALIZATION SYSTEM
@@ -4732,31 +4748,25 @@ function showAvatarSorryMessage(duration = 6000) {
     
     // 🎯 ONE SIMPLE CLEANUP FUNCTION - NO COMPLEXITY
     function cleanup() {
-    console.log(`🎬 Avatar duration (${duration}ms) complete - removing and letting banner reappear`);
-    
-    // Remove the overlay
-    if (avatarOverlay.parentNode) {
-        avatarOverlay.remove();
-    }
-    
-    // Reset the flag IMMEDIATELY to allow future calls
-    window.avatarCurrentlyPlaying = false;
-    
-    // Go back to Speak Now after brief delay
-    setTimeout(() => {
-        // 🚨 CHECK IF SKIP BUTTON IS ACTIVE - PREVENT AUTO-RESTART
-        if (!window.suppressAvatarAutoRestart) {
+        console.log(`🎬 Avatar duration (${duration}ms) complete - removing and letting banner reappear`);
+        
+        // Remove the overlay
+        if (avatarOverlay.parentNode) {
+            avatarOverlay.remove();
+        }
+        
+        // Reset the flag IMMEDIATELY to allow future calls
+        window.avatarCurrentlyPlaying = false;
+        
+        // Go back to Speak Now after brief delay
+        setTimeout(() => {
             console.log('✅ Avatar removed - going DIRECT to Speak Now');
             showDirectSpeakNow();
-        } else {
-            console.log('🛑 Avatar auto-restart SUPPRESSED (skip button active)');
-            // Don't restart - let the skip button handle voice restart
-        }
-    }, 1000);
-}
-
-// 🎯 ONE TIMER ONLY - SIMPLE AND CLEAN
-setTimeout(cleanup, duration);
+        }, 1000);
+    }
+    
+    // 🎯 ONE TIMER ONLY - SIMPLE AND CLEAN
+    setTimeout(cleanup, duration);
 }
 
 // Ensure global availability
@@ -4845,12 +4855,6 @@ window.updateVoiceTranscription = function(text) {
 
 async function showDirectSpeakNow() {
     console.log('🎯 DIRECT Speak Now - Black Transparent Overlay');
-
-     // 🛡️ CHECK IF TESTIMONIAL SESSION IS ACTIVE
-    if (window.testimonialSessionActive) {
-        console.log('🛡️ Speak Now blocked - testimonial session active');
-        return; // Don't show speak now during testimonials
-    }
     
     // 🎯 COORDINATION: Block Speak Now when Action Center is about to appear
     if (window.actionCenterPending) {
@@ -5203,47 +5207,46 @@ window.showWelcomeSplash = function(userName) {
     
     const welcomeContainer = document.createElement('div');
     welcomeContainer.id = 'minimal-welcome';
-  welcomeContainer.style.cssText = `
-    position: absolute;
-    top: -29px;
-    left: 12px;
-    color: #024082ff;
-    font-family: cursive, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    font-size: ${fontSize};
-    font-weight: 600;
-    z-index: 10000;
-    transition: opacity 0.7s ease;
-    opacity: 0;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-`;
+    welcomeContainer.style.cssText = `
+        position: fixed;
+        top:  7px;
+        right: 20px;
+        color: #024082ff;
+        font-family: cursive, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        font-size: ${fontSize};
+        font-weight: 600;
+        z-index: 10001;
+        transition: opacity 0.7s ease;
+        opacity: 0;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        background: transparent;
+}
+    `;
 
     welcomeContainer.innerHTML = `
         <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1763241555499_pngegg%20(13).png" 
              alt="Welcome" 
              style="height: ${logoHeight}; border-radius: 2px;"
              onerror="this.style.display='none'">
-        <span>${userName}!</span>
+        <span style="margin-left: 7px;">${userName}!</span>
     `;
     
-    const banner = document.querySelector('.speak-now-banner, .speak-now-container, .universal-banner');
-    if (banner) {
-        banner.appendChild(welcomeContainer);
-        
+    document.body.appendChild(welcomeContainer);
+    
         // Fade in
-        setTimeout(() => welcomeContainer.style.opacity = '1', 10);
-        
-        // Fade out and remove after 5 seconds
+    setTimeout(() => welcomeContainer.style.opacity = '1', 10);
+    
+    // Fade out and remove after 10 seconds (was 30)
+    setTimeout(() => {
+        welcomeContainer.style.opacity = '0';
         setTimeout(() => {
-            welcomeContainer.style.opacity = '0';
-            setTimeout(() => {
-                if (welcomeContainer.parentElement) {
-                    welcomeContainer.remove();
-                }
-            }, 500);
-        }, 30000);
-    }
+            if (welcomeContainer.parentElement) {
+                welcomeContainer.remove();
+            }
+        }, 500);
+    }, 10000); // Changed from 30000 to 10000 (10 seconds)
     
     window.welcomeSplashShown = true;
     console.log('✅ Ultra-minimal welcome shown');
@@ -5427,12 +5430,6 @@ function startNormalInterviewListening() {
     }
     
     setTimeout(() => {
-        // 🛡️ SAFETY CHECK: Prevent duplicate recognition starts
-        if (window.recognition && window.recognition.state === 'listening') {
-            console.log('✅ Recognition already active - skipping duplicate start');
-            return;
-        }
-        
         if (typeof startListening === 'function') {
             try {
                 startListening();
@@ -5576,6 +5573,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .realtime-bubble {
             border: 2px solid #10b981 !important;
             animation: pulseBorder 1.5s infinite;
+
             background: rgba(16, 185, 129, 0.1) !important;
         }
         
