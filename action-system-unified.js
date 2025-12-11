@@ -10,67 +10,73 @@
 
 console.log('🔧 INSTALLING CLEAN ACTION SYSTEM FIXES...');
 
-// 🚨 CRITICAL FIX #1: Create processLeadResponse for voice-chat-fusion compatibility
 window.processLeadResponse = function(answer) {
-    console.log('🎯 processLeadResponse called (voice-chat-fusion compatibility):', answer);
+    console.log('🎯 processLeadResponse called (compatibility layer):', answer);
     
     // Route to our actual function
     if (window.processLeadAnswer) {
-        return window.processLeadAnswer(answer);
+        const result = window.processLeadAnswer(answer);
+        console.log('🔍 processLeadAnswer returned:', result);
+        
+        // 🚨 CRITICAL: Convert any truthy value to true
+        if (result) {
+            console.log('✅ Lead capture handled successfully');
+            return true; // Voice-chat-fusion expects true
+        } else {
+            console.log('❌ processLeadAnswer returned falsy - lead capture failed');
+            return false;
+        }
     }
     
-    console.error('❌ processLeadAnswer not found - creating emergency handler');
-    
-    // Emergency fallback
-    if (window.isInLeadCapture && window.currentLeadData) {
-        console.log('🆘 EMERGENCY: Processing lead answer:', answer);
-        // Basic handling - you'll replace this with your actual logic
-        return true; // Return truthy to block fallthrough
-    }
-    
+    console.error('❌ processLeadAnswer not found!');
     return false;
 };
 
+
 // 🚨 CRITICAL FIX #2: Create processLeadAnswer if missing
-if (!window.processLeadAnswer) {
-    console.log('🔧 Creating processLeadAnswer function');
-    window.processLeadAnswer = function(answer) {
-        console.log('🎯 processLeadAnswer called:', answer);
+window.processLeadAnswer = function(answer) {
+    console.log('🎯 processLeadAnswer called:', answer);
+    
+    if (!window.isInLeadCapture || !window.currentLeadData) {
+        console.error('❌ Not in lead capture mode!');
+        return false; // Falsy = not handled
+    }
+    
+    const leadData = window.currentLeadData;
+    const step = leadData.step || 0;
+    const questions = leadData.questions || [];
+    
+    console.log(`📝 Processing lead answer for step ${step}:`, answer);
+    
+    // Store answer
+    leadData.answers = leadData.answers || [];
+    leadData.answers[step] = answer;
+    
+    // Move to next step
+    leadData.step = step + 1;
+    
+    if (leadData.step < questions.length) {
+        // Ask next question
+        setTimeout(() => {
+            if (window.askLeadQuestion) {
+                window.askLeadQuestion();
+            }
+        }, 1000);
+        console.log('✅ Answer stored, moving to next question');
+        return true; // 🚨 TRUTHY = handled successfully
+    } else {
+        // Lead capture complete
+        console.log('✅ LEAD CAPTURE COMPLETE!', leadData);
+        window.isInLeadCapture = false;
         
-        if (!window.isInLeadCapture || !window.currentLeadData) {
-            console.error('❌ Not in lead capture mode!');
-            return false;
+        // Show completion message
+        if (window.addAIMessage) {
+            window.addAIMessage("Thank you! We'll contact you shortly.");
         }
         
-        // Your actual lead answer handling logic goes here
-        const leadData = window.currentLeadData;
-        const step = leadData.step || 0;
-        
-        console.log(`📝 Processing lead answer for step ${step}:`, answer);
-        
-        // Store answer
-        leadData.answers = leadData.answers || [];
-        leadData.answers[step] = answer;
-        
-        // Move to next question or complete
-        leadData.step = step + 1;
-        
-        if (leadData.step < (leadData.questions || []).length) {
-            // Ask next question
-            setTimeout(() => {
-                if (window.askLeadQuestion) {
-                    window.askLeadQuestion();
-                }
-            }, 1000);
-            return true;
-        } else {
-            // Lead capture complete
-            console.log('✅ LEAD CAPTURE COMPLETE!', leadData);
-            window.isInLeadCapture = false;
-            return true;
-        }
-    };
-}
+        return true; // 🚨 TRUTHY = handled successfully
+    }
+};
 
 console.log('✅ CLEAN FIXES INSTALLED:', {
     processLeadResponse: typeof window.processLeadResponse,
