@@ -4,37 +4,78 @@
 // CLEANED VERSION - No restore code for old buttons
 // ================================
 
-// 🚨🚨🚨 EMERGENCY: BLOCK TESTIMONIAL HIJACKING 🚨🚨🚨
-console.log('🚨 EMERGENCY: Blocking testimonial hijacking...');
+// ===================================================
+// 🎯 CLEAN ACTION SYSTEM - LEAD CAPTURE FIXES ONLY
+// ===================================================
 
-// 1. TAKE CONTROL of processUserResponse IMMEDIATELY
-if (window.processUserResponse) {
-    console.log('⚠️ Testimonials already hijacked processUserResponse! Saving...');
-    window._originalProcessUserResponse = window.processUserResponse;
-}
+console.log('🔧 INSTALLING CLEAN ACTION SYSTEM FIXES...');
 
-window.processUserResponse = function(userText) {
-    console.log('🎯 ACTION SYSTEM CONTROLLED processUserResponse:', userText);
+// 🚨 CRITICAL FIX #1: Create processLeadResponse for voice-chat-fusion compatibility
+window.processLeadResponse = function(answer) {
+    console.log('🎯 processLeadResponse called (voice-chat-fusion compatibility):', answer);
     
-    // 🚨 PRIORITY 1: LEAD CAPTURE
+    // Route to our actual function
+    if (window.processLeadAnswer) {
+        return window.processLeadAnswer(answer);
+    }
+    
+    console.error('❌ processLeadAnswer not found - creating emergency handler');
+    
+    // Emergency fallback
     if (window.isInLeadCapture && window.currentLeadData) {
-        console.log('🎯 LEAD CAPTURE ACTIVE - routing to processLeadAnswer');
-        if (window.processLeadAnswer) {
-            return window.processLeadAnswer(userText);
-        }
+        console.log('🆘 EMERGENCY: Processing lead answer:', answer);
+        // Basic handling - you'll replace this with your actual logic
+        return true; // Return truthy to block fallthrough
     }
     
-    // 🚨 PRIORITY 2: NORMAL FLOW
-    if (window._originalProcessUserResponse) {
-        console.log('📢 Normal flow - using original handler');
-        return window._originalProcessUserResponse(userText);
-    }
-    
-    console.warn('⚠️ No handler available');
     return false;
 };
 
-console.log('✅ EMERGENCY: processUserResponse secured by Action System');
+// 🚨 CRITICAL FIX #2: Create processLeadAnswer if missing
+if (!window.processLeadAnswer) {
+    console.log('🔧 Creating processLeadAnswer function');
+    window.processLeadAnswer = function(answer) {
+        console.log('🎯 processLeadAnswer called:', answer);
+        
+        if (!window.isInLeadCapture || !window.currentLeadData) {
+            console.error('❌ Not in lead capture mode!');
+            return false;
+        }
+        
+        // Your actual lead answer handling logic goes here
+        const leadData = window.currentLeadData;
+        const step = leadData.step || 0;
+        
+        console.log(`📝 Processing lead answer for step ${step}:`, answer);
+        
+        // Store answer
+        leadData.answers = leadData.answers || [];
+        leadData.answers[step] = answer;
+        
+        // Move to next question or complete
+        leadData.step = step + 1;
+        
+        if (leadData.step < (leadData.questions || []).length) {
+            // Ask next question
+            setTimeout(() => {
+                if (window.askLeadQuestion) {
+                    window.askLeadQuestion();
+                }
+            }, 1000);
+            return true;
+        } else {
+            // Lead capture complete
+            console.log('✅ LEAD CAPTURE COMPLETE!', leadData);
+            window.isInLeadCapture = false;
+            return true;
+        }
+    };
+}
+
+console.log('✅ CLEAN FIXES INSTALLED:', {
+    processLeadResponse: typeof window.processLeadResponse,
+    processLeadAnswer: typeof window.processLeadAnswer
+});
 
 const EMAILJS_CONFIG = {
     serviceId: 'service_b9bppgb',
