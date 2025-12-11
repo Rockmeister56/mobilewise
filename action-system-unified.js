@@ -15,7 +15,12 @@ function processLeadResponse(userInput) {
     const leadData = window.currentLeadData;
     
     // 🚨 FIX: Use window.isInLeadCapture
-    if (!window.isInLeadCapture || !leadData) return false;
+    if (!window.isInLeadCapture || !leadData) {
+        console.error('❌ Not in lead capture mode!');
+        console.log('   isInLeadCapture:', window.isInLeadCapture);
+        console.log('   currentLeadData:', window.currentLeadData);
+        return false;
+    }
     
     console.log('🎯 Processing lead response:', userInput);
     
