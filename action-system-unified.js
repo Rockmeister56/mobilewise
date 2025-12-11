@@ -4,32 +4,37 @@
 // CLEANED VERSION - No restore code for old buttons
 // ================================
 
-// 🚨 EMERGENCY TEST - Add to TOP of action-system-unified.js
-console.log('🚨 ACTION-SYSTEM-UNIFIED.JS IS LOADING!');
-alert('ACTION SYSTEM JS IS LOADING - TEST CONFIRMATION');
+// 🚨🚨🚨 EMERGENCY: BLOCK TESTIMONIAL HIJACKING 🚨🚨🚨
+console.log('🚨 EMERGENCY: Blocking testimonial hijacking...');
 
-// Create an unmistakable test
-window.EMERGENCY_TEST_FLAG = 'ACTION_SYSTEM_ACTIVE_' + Math.random();
-console.log('🎯 EMERGENCY TEST FLAG SET:', window.EMERGENCY_TEST_FLAG);
+// 1. TAKE CONTROL of processUserResponse IMMEDIATELY
+if (window.processUserResponse) {
+    console.log('⚠️ Testimonials already hijacked processUserResponse! Saving...');
+    window._originalProcessUserResponse = window.processUserResponse;
+}
 
-// Test if we can override handleActionButton
-const originalHandleActionButton = window.handleActionButton;
-console.log('🔍 Original handleActionButton exists?', !!originalHandleActionButton);
-
-window.handleActionButton = function(action) {
-    console.log('🚨 OVERRIDDEN handleActionButton called! Action:', action);
-    alert('ACTION SYSTEM HANDLER FIRED: ' + action);
+window.processUserResponse = function(userText) {
+    console.log('🎯 ACTION SYSTEM CONTROLLED processUserResponse:', userText);
     
-    // If there's an original, call it
-    if (originalHandleActionButton) {
-        return originalHandleActionButton.apply(this, arguments);
+    // 🚨 PRIORITY 1: LEAD CAPTURE
+    if (window.isInLeadCapture && window.currentLeadData) {
+        console.log('🎯 LEAD CAPTURE ACTIVE - routing to processLeadAnswer');
+        if (window.processLeadAnswer) {
+            return window.processLeadAnswer(userText);
+        }
     }
     
-    // Otherwise, just log
-    console.log('No original handler found');
+    // 🚨 PRIORITY 2: NORMAL FLOW
+    if (window._originalProcessUserResponse) {
+        console.log('📢 Normal flow - using original handler');
+        return window._originalProcessUserResponse(userText);
+    }
+    
+    console.warn('⚠️ No handler available');
+    return false;
 };
 
-console.log('✅ Emergency overrides installed');
+console.log('✅ EMERGENCY: processUserResponse secured by Action System');
 
 const EMAILJS_CONFIG = {
     serviceId: 'service_b9bppgb',
