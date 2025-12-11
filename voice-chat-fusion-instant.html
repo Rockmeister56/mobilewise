@@ -1018,6 +1018,23 @@
     display: block; /* Override any flex child behavior */
 }
 
+/* Green border for PAUSE SESSION button */
+.quick-btn[onclick="pauseSession()"] {
+    border: 2px solid #00ff1e !important;
+    background: rgba(0, 255, 30, 0.1) !important;
+    color: #00ff1e !important;
+    transition: all 0.3s ease !important;
+    
+    /* Simple size control */
+    padding: 8px 12px !important;
+    height: 38px !important;
+    font-size: 12px !important;
+
+        /* Width control - choose one */
+    min-width: 110px !important;       /* Minimum width */
+}
+
+
 /* NO .ai-bubble class needed - the text goes directly in the flex container */
 </style>
     </div>
