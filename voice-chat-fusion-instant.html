@@ -992,35 +992,42 @@
     <button class="quick-btn" onclick="askQuickQuestion('I want to buy a practice')">Buying Options</button>
 </div>
     
-    <!-- FULL WIDTH TEXT INPUT -->
-    <div class="input-area" style="
+ <!-- HIDDEN TEXT INPUT - system can still access it -->
+<div class="input-area" style="display: none;">
+    <input type="text" id="userInput" placeholder="Type or click mic to speak...">
+    <button id="sendBtn" onclick="sendMessage()">Send</button>
+</div>
+    
+    <!-- BIGGER CONTROL BUTTONS -->
+    <div style="
         display: flex;
-        gap: 8px;
-        align-items: center;
-        width: 100%;
-        margin: 0 0 12px 0;">
+        gap: 12px;
+        justify-content: center;
+        margin: 0;">
         
-        <input type="text" id="userInput" placeholder="Type or click mic to speak..." style="
-            flex: 1;
-            width: 100%;
-            padding: 12px;
+        <button class="quick-btn" onclick="pauseSession()" style="
+            padding: 12px 25px;
+            background: rgba(255, 255, 255, 0.15);
+            color: rgb(0, 255, 30);
             border: none;
-            border-radius: 25px;
-            background: rgba(255, 255, 255, 0.9);
-            color: #333;
-            font-size: 16px;
-            outline: none;">
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            min-width: 80px;">PAUSE SESSION</button>
         
-        <button id="sendBtn" onclick="sendMessage()" style="
-            padding: 12px 20px;
-            background: linear-gradient(90deg, #ff7e5f, #feb47b);
+        <button class="quick-btn" onclick="exitToMainSite()" style="
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #ff4757, #ff3742);
             color: white;
             border: none;
-            border-radius: 25px;
-            font-weight: bold;
+            border-radius: 15px;
             cursor: pointer;
-            white-space: nowrap;">Send</button>
+            font-size: 14px;
+            font-weight: 600;
+            min-width: 80px;">EXIT</button>
     </div>
+</div>
     
     <!-- BIGGER CONTROL BUTTONS -->
     <div style="
