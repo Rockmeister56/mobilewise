@@ -234,6 +234,55 @@ function hideCommunicationActionCenter() {
     }
 }
 
+// ===================================================
+// 🛡️ LEAD CAPTURE STATE MANAGER (PREVENTS STUCK STATES)
+// ===================================================
+
+window.leadCaptureManager = {
+    // Start a new capture
+    start: function(captureType, questions) {
+        console.log('🛡️ Lead Capture Manager: Starting', captureType);
+        
+        // Clear any stuck state
+        this.cleanup();
+        
+        // Set up new capture
+        window.isInLeadCapture = true;
+        window.currentCaptureType = captureType;
+        window.currentLeadData = {
+            captureType: captureType,
+            step: 0,
+            questions: questions,
+            answers: []
+        };
+        
+        console.log('✅ Capture started:', captureType);
+        return true;
+    },
+    
+    // Clear stuck/invalid states
+    cleanup: function() {
+        if (window.isInLeadCapture && !window.currentLeadData) {
+            console.log('🛡️ Cleaning up stuck lead capture');
+            window.isInLeadCapture = false;
+            window.currentCaptureType = null;
+            return true;
+        }
+        return false;
+    },
+    
+    // Complete capture
+    complete: function() {
+        console.log('🛡️ Lead Capture Manager: Completing capture');
+        window.isInLeadCapture = false;
+        window.currentCaptureType = null;
+        window.currentLeadData = null;
+    }
+};
+
+// Auto-cleanup every 30 seconds
+setInterval(() => window.leadCaptureManager.cleanup(), 30000);
+
 // ================================
 // URGENT CALL - DIRECT DIAL
 // ================================
