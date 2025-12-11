@@ -474,33 +474,19 @@ function initializeUrgentCallCapture() {
     }, 500);
 }
 
+
 // ================================
-// LEAD CAPTURE: REQUEST A CALL (NEW)
+// 🎯 CLICK TO CALL (Button redirect - KEEP THIS!)
 // ================================
-function initializeRequestCallCapture() {
-    console.log('🚀 Starting REQUEST A CALL capture...');
+function initializeClickToCallCapture() {
+    console.log('🔗 Button clicked: Redirecting to initializeRequestCallCapture');
     
-    if (window.isInLeadCapture) return;
-    
-    window.isInLeadCapture = true;
-    window.currentCaptureType = 'clickToCall'; // Uses clickToCall template
-    window.currentLeadData = {
-        name: '',
-        phone: '',
-        reason: '',
-        captureType: 'clickToCall', // Uses clickToCall template
-        step: 0,
-        tempAnswer: '',
-        questions: [
-            "Terrific, can I get your full name please?",
-            "What's the best phone number to reach you?",
-            "May I ask what this regarding?",
-        ]
-    };
-    
-    setTimeout(() => {
-        askLeadQuestion();
-    }, 500);
+    // JUST call the existing function - NO NEW DIALOGUE!
+    if (typeof initializeRequestCallCapture === 'function') {
+        initializeRequestCallCapture();
+    } else {
+        console.error('❌ initializeRequestCallCapture not found!');
+    }
 }
 
 // ================================
