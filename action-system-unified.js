@@ -4,91 +4,6 @@
 // CLEANED VERSION - No restore code for old buttons
 // ================================
 
-// ===================================================
-// 🎯 CLEAN ACTION SYSTEM - LEAD CAPTURE FIXES ONLY
-// ===================================================
-
-console.log('🔧 INSTALLING CLEAN ACTION SYSTEM FIXES...');
-
-function processLeadResponse(userInput) {
-    // 🚨 FIX 1: Get leadData from window
-    const leadData = window.currentLeadData;
-    
-    // 🚨 FIX 2: Use window.isInLeadCapture
-    if (!window.isInLeadCapture || !leadData) {
-        console.error('❌ Not in lead capture mode!');
-        return false;
-    }
-    
-    console.log('🎯 Processing lead response:', userInput);
-    
-    let processedInput = userInput;
-    
-    // ✅ NEW: Format email addresses when asking for email (step 2)
-    if (leadData.step === 2) {
-        processedInput = formatEmailFromSpeech(userInput);
-        console.log('📧 Formatted email:', processedInput);
-    }
-    
-    // Store the processed input
-    leadData.tempAnswer = processedInput;
-    
-    // Show visual confirmation buttons
-    showConfirmationButtons(processedInput);
-    
-    return true; // 🚨 CRITICAL: Return true
-}
-
-
-// 🚨 CRITICAL FIX #2: Create processLeadAnswer if missing
-window.processLeadAnswer = function(answer) {
-    console.log('🎯 processLeadAnswer called:', answer);
-    
-    if (!window.isInLeadCapture || !window.currentLeadData) {
-        console.error('❌ Not in lead capture mode!');
-        return false; // Falsy = not handled
-    }
-    
-    const leadData = window.currentLeadData;
-    const step = leadData.step || 0;
-    const questions = leadData.questions || [];
-    
-    console.log(`📝 Processing lead answer for step ${step}:`, answer);
-    
-    // Store answer
-    leadData.answers = leadData.answers || [];
-    leadData.answers[step] = answer;
-    
-    // Move to next step
-    leadData.step = step + 1;
-    
-    if (leadData.step < questions.length) {
-        // Ask next question
-        setTimeout(() => {
-            if (window.askLeadQuestion) {
-                window.askLeadQuestion();
-            }
-        }, 1000);
-        console.log('✅ Answer stored, moving to next question');
-        return true; // 🚨 TRUTHY = handled successfully
-    } else {
-        // Lead capture complete
-        console.log('✅ LEAD CAPTURE COMPLETE!', leadData);
-        window.isInLeadCapture = false;
-        
-        // Show completion message
-        if (window.addAIMessage) {
-            window.addAIMessage("Thank you! We'll contact you shortly.");
-        }
-        
-        return true; // 🚨 TRUTHY = handled successfully
-    }
-};
-
-console.log('✅ CLEAN FIXES INSTALLED:', {
-    processLeadResponse: typeof window.processLeadResponse,
-    processLeadAnswer: typeof window.processLeadAnswer
-});
 
 const EMAILJS_CONFIG = {
     serviceId: 'service_b9bppgb',
@@ -196,35 +111,6 @@ window.trackLeadCaptureComplete = function() {
     console.log('🎯 LEAD CAPTURE: Lead capture completed');
 };
 
-
-function initializeRequestCallCapture() {
-    console.log('🚀 Starting REQUEST A CALL capture...');
-    
-    // 🛡️ FIXED PROTECTION: Clear stuck states first
-    if (window.isInLeadCapture && !window.currentLeadData) {
-        console.log('🔄 Clearing stuck state before starting new capture');
-        window.isInLeadCapture = false;
-        window.currentCaptureType = null;
-    }
-    
-    // Original protection (but now it won't get stuck)
-    if (window.isInLeadCapture && window.currentCaptureType === 'clickToCall') {
-        console.log('🔄 Already in click-to-call - restarting');
-        if (window.currentLeadData) {
-            window.currentLeadData.step = 0;
-            setTimeout(() => askLeadQuestion(), 500);
-        }
-        return;
-    }
-    
-    // Normal setup...
-    window.isInLeadCapture = true;
-    window.currentCaptureType = 'clickToCall';
-    window.currentLeadData = { /* ... */ };
-    
-    setTimeout(() => askLeadQuestion(), 500);
-}
-
 // ================================
 // HIDE ACTION CENTER - CLEANED VERSION
 // No restore code - old buttons stay hidden
@@ -240,55 +126,6 @@ function hideCommunicationActionCenter() {
         }, 300);
     }
 }
-
-// ===================================================
-// 🛡️ LEAD CAPTURE STATE MANAGER (PREVENTS STUCK STATES)
-// ===================================================
-
-window.leadCaptureManager = {
-    // Start a new capture
-    start: function(captureType, questions) {
-        console.log('🛡️ Lead Capture Manager: Starting', captureType);
-        
-        // Clear any stuck state
-        this.cleanup();
-        
-        // Set up new capture
-        window.isInLeadCapture = true;
-        window.currentCaptureType = captureType;
-        window.currentLeadData = {
-            captureType: captureType,
-            step: 0,
-            questions: questions,
-            answers: []
-        };
-        
-        console.log('✅ Capture started:', captureType);
-        return true;
-    },
-    
-    // Clear stuck/invalid states
-    cleanup: function() {
-        if (window.isInLeadCapture && !window.currentLeadData) {
-            console.log('🛡️ Cleaning up stuck lead capture');
-            window.isInLeadCapture = false;
-            window.currentCaptureType = null;
-            return true;
-        }
-        return false;
-    },
-    
-    // Complete capture
-    complete: function() {
-        console.log('🛡️ Lead Capture Manager: Completing capture');
-        window.isInLeadCapture = false;
-        window.currentCaptureType = null;
-        window.currentLeadData = null;
-    }
-};
-
-// Auto-cleanup every 30 seconds
-setInterval(() => window.leadCaptureManager.cleanup(), 30000);
 
 // ================================
 // URGENT CALL - DIRECT DIAL
@@ -313,7 +150,7 @@ function initiateUrgentCall() {
 }
 
 function handleActionButton(action) {
-    console.log('🎯 PROTECTED Action button clicked:', action);
+    console.log('🎯 Action button clicked:', action);
     
     // 🛑 CHECK IF WE'RE ALREADY PROCESSING
     if (window.isProcessingAction) {
@@ -481,19 +318,33 @@ function initializeUrgentCallCapture() {
     }, 500);
 }
 
-
 // ================================
-// 🎯 CLICK TO CALL (Button redirect - KEEP THIS!)
+// LEAD CAPTURE: REQUEST A CALL (NEW)
 // ================================
-function initializeClickToCallCapture() {
-    console.log('🔗 Button clicked: Redirecting to initializeRequestCallCapture');
+function initializeRequestCallCapture() {
+    console.log('🚀 Starting REQUEST A CALL capture...');
     
-    // JUST call the existing function - NO NEW DIALOGUE!
-    if (typeof initializeRequestCallCapture === 'function') {
-        initializeRequestCallCapture();
-    } else {
-        console.error('❌ initializeRequestCallCapture not found!');
-    }
+    if (window.isInLeadCapture) return;
+    
+    window.isInLeadCapture = true;
+    window.currentCaptureType = 'clickToCall'; // Uses clickToCall template
+    window.currentLeadData = {
+        name: '',
+        phone: '',
+        reason: '',
+        captureType: 'clickToCall', // Uses clickToCall template
+        step: 0,
+        tempAnswer: '',
+        questions: [
+            "Terrific, can I get your full name please?",
+            "What's the best phone number to reach you?",
+            "May I ask what this regarding?",
+        ]
+    };
+    
+    setTimeout(() => {
+        askLeadQuestion();
+    }, 500);
 }
 
 // ================================
@@ -2468,6 +2319,12 @@ function handleActionCenterCompletion() {
     }, 2000);
 }
 
+// Keep the OLD function name for existing buttons
+function initializeClickToCallCapture() {
+    // Just call the NEW requestCall function (since requestCall now uses clickToCall template)
+    initializeRequestCallCapture();
+}
+
 // ================================
 // 🎬 CLOSE THANK YOU SPLASH FUNCTION
 // ================================
@@ -2501,7 +2358,7 @@ function ensureSplashAnimations() {
 ensureSplashAnimations();
 
 // Initialize animations when the script loads
-// addTestimonialAnimations();
+addTestimonialAnimations();
 
 // Make globally accessible
 window.showThankYouSplash = showThankYouSplash;
