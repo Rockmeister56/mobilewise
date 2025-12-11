@@ -10,27 +10,31 @@
 
 console.log('🔧 INSTALLING CLEAN ACTION SYSTEM FIXES...');
 
-window.processLeadResponse = function(answer) {
-    console.log('🎯 processLeadResponse called (compatibility layer):', answer);
+function processLeadResponse(userInput) {
+    // 🚨 FIX: Get leadData from window
+    const leadData = window.currentLeadData;
     
-    // Route to our actual function
-    if (window.processLeadAnswer) {
-        const result = window.processLeadAnswer(answer);
-        console.log('🔍 processLeadAnswer returned:', result);
-        
-        // 🚨 CRITICAL: Convert any truthy value to true
-        if (result) {
-            console.log('✅ Lead capture handled successfully');
-            return true; // Voice-chat-fusion expects true
-        } else {
-            console.log('❌ processLeadAnswer returned falsy - lead capture failed');
-            return false;
-        }
+    // 🚨 FIX: Use window.isInLeadCapture
+    if (!window.isInLeadCapture || !leadData) return false;
+    
+    console.log('🎯 Processing lead response:', userInput);
+    
+    let processedInput = userInput;
+    
+    // ✅ NEW: Format email addresses when asking for email (step 2)
+    if (leadData.step === 2) {
+        processedInput = formatEmailFromSpeech(userInput);
+        console.log('📧 Formatted email:', processedInput);
     }
     
-    console.error('❌ processLeadAnswer not found!');
-    return false;
-};
+    // Store the processed input
+    leadData.tempAnswer = processedInput;
+    
+    // Show visual confirmation buttons
+    showConfirmationButtons(processedInput);
+    
+    return true;
+}
 
 
 // 🚨 CRITICAL FIX #2: Create processLeadAnswer if missing
