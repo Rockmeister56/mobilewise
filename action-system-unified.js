@@ -5,100 +5,168 @@
 // ================================
 
 // ===================================================
-// 🚨 DIAGNOSTIC BYPASS BUTTON - TEMPORARY DEBUGGING
+// 🛡️ TESTIMONIAL CONFLICT RESOLUTION SYSTEM
 // ===================================================
-function addDiagnosticBypassButton() {
-    console.log('🛠️ Adding diagnostic bypass button...');
+
+(function() {
+    'use strict';
     
-    // Create a floating debug button
-    const debugBtn = document.createElement('button');
-    debugBtn.id = 'debug-bypass-btn';
-    debugBtn.innerHTML = '🚨 DEBUG: Direct Request-a-Call';
-    debugBtn.style.cssText = `
-        position: fixed;
-        top: 100px;
-        right: 20px;
-        z-index: 99999;
-        background: linear-gradient(135deg, #ff0000, #ff6b6b);
-        color: white;
-        border: none;
-        padding: 12px 20px;
-        border-radius: 25px;
-        font-weight: bold;
-        font-size: 14px;
-        cursor: pointer;
-        box-shadow: 0 4px 20px rgba(255, 0, 0, 0.4);
-        transition: all 0.3s;
-    `;
+    console.log('🛡️ Installing Testimonial Conflict Resolution...');
     
-    debugBtn.onmouseover = function() {
-        this.style.transform = 'translateY(-2px)';
-        this.style.boxShadow = '0 6px 25px rgba(255, 0, 0, 0.6)';
+    // 1. PROTECT GLOBAL STATE from testimonial pollution
+    window._originalState = window._originalState || {};
+    
+    // Save original values before testimonials can pollute them
+    const criticalVars = [
+        'isInLeadCapture', 'currentLeadData', 'leadData',
+        'disableSpeakNowBanner', 'isProcessingAction',
+        'consultationOfferActive', 'testimonialSessionActive'
+    ];
+    
+    criticalVars.forEach(varName => {
+        window._originalState[varName] = window[varName];
+    });
+    
+    // 2. RESTORE FUNCTION when Communication Center activates
+    window.restoreCommCenterState = function() {
+        console.log('🔄 Restoring Communication Center state...');
+        criticalVars.forEach(varName => {
+            if (window._originalState[varName] !== undefined) {
+                window[varName] = window._originalState[varName];
+            }
+        });
+        window.isInLeadCapture = true; // Force lead capture mode
+        window.disableSpeakNowBanner = false; // Ensure banners work
+        console.log('✅ Communication Center state restored');
     };
     
-    debugBtn.onmouseout = function() {
-        this.style.transform = 'translateY(0)';
-        this.style.boxShadow = '0 4px 20px rgba(255, 0, 0, 0.4)';
-    };
-    
-    debugBtn.onclick = function() {
-        console.log('🚨🚨🚨 DIAGNOSTIC BYPASS TRIGGERED 🚨🚨🚨');
+    // 3. PROTECTED askLeadQuestion (TESTIMONIAL-PROOF)
+    window.askLeadQuestion = function() {
+        console.log('🎯 PROTECTED askLeadQuestion called');
         
-        // STEP 1: Bypass ALL checks
-        console.log('🎯 STEP 1: Bypassing all checks...');
-        window.isProcessingAction = false;
-        window.consultationOfferActive = false;
-        window.disableSpeakNowBanner = false;
-        window.testimonialSessionActive = false;
-        
-        // STEP 2: Directly call what should happen
-        console.log('🎯 STEP 2: Directly calling initializeRequestCallCapture...');
-        if (window.initializeRequestCallCapture) {
-            window.initializeRequestCallCapture();
-        } else {
-            console.error('❌ initializeRequestCallCapture not found!');
+        // 🛡️ AUTO-RESTORE state if testimonials broke it
+        if (!window.isInLeadCapture && window.currentLeadData) {
+            console.warn('⚠️ Testimonials broke isInLeadCapture - fixing...');
+            window.isInLeadCapture = true;
         }
         
-        // STEP 3: After 600ms, manually trigger what the timeout should do
-        setTimeout(() => {
-            console.log('🎯 STEP 3: Manually triggering askLeadQuestion...');
-            
-            if (window.askLeadQuestion) {
-                console.log('🔍 Calling askLeadQuestion directly...');
-                window.askLeadQuestion();
-            } else {
-                console.error('❌ askLeadQuestion not found!');
-                
-                // Ultimate fallback
-                console.log('🎯 ULTIMATE FALLBACK: Direct speech and bubble...');
-                if (window.addAIMessage && window.speakWithBritish) {
-                    window.addAIMessage("DIAGNOSTIC: Terrific, can I get your full name please?");
-                    window.speakWithBritish("DIAGNOSTIC: Terrific, can I get your full name please?", false);
-                }
-            }
-        }, 600);
+        // 🛡️ ENSURE required data exists
+        if (!window.currentLeadData) {
+            console.error('❌ Testimonials cleared lead data - recreating');
+            window.currentLeadData = {
+                step: 0,
+                questions: ["Terrific, can I get your full name please?"],
+                captureType: window.currentCaptureType || 'clickToCall'
+            };
+        }
         
-        console.log('✅ Diagnostic bypass complete');
+        const leadData = window.currentLeadData;
+        const step = leadData.step || 0;
+        const questions = leadData.questions || [];
+        
+        if (step >= questions.length) {
+            console.log('✅ All questions asked');
+            return;
+        }
+        
+        const question = questions[step];
+        console.log(`🎯 Asking question ${step + 1}: "${question}"`);
+        
+        // Show bubble
+        if (window.addAIMessage) {
+            window.addAIMessage(question);
+            console.log('✅ Chat bubble shown');
+        }
+        
+        // Speak
+        if (window.speakWithBritish) {
+            window.speakWithBritish(question, false);
+            console.log('✅ Speech started');
+            
+            // Show banner AFTER speech
+            setTimeout(() => {
+                console.log('🎤 Showing Speak Now banner...');
+                if (window.showDirectSpeakNow) {
+                    window.showDirectSpeakNow();
+                }
+            }, 2000);
+        }
+        
+        // Increment step
+        leadData.step = step + 1;
+        
+        return true;
     };
     
-    document.body.appendChild(debugBtn);
-    console.log('✅ Diagnostic bypass button added (top-right of screen)');
-}
-
-// Add button when page loads
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', addDiagnosticBypassButton);
-} else {
-    setTimeout(addDiagnosticBypassButton, 1000);
-}
-
-// Also add a console command for quick testing
-window.debugRequestCall = function() {
-    console.log('🔧 Console debug command triggered');
-    document.getElementById('debug-bypass-btn')?.click();
-};
-console.log('✅ Console command available: debugRequestCall()');
-
+    // 4. PROTECTED RESPONSE HANDLER (TESTIMONIAL-PROOF)
+    window.processLeadAnswer = function(answer) {
+        console.log('🎯 PROTECTED processLeadAnswer:', answer);
+        
+        // 🛡️ Ensure we're still in lead capture
+        if (!window.isInLeadCapture && window.currentLeadData) {
+            console.warn('⚠️ Testimonials interrupted - restoring...');
+            window.isInLeadCapture = true;
+        }
+        
+        if (!window.isInLeadCapture || !window.currentLeadData) {
+            console.error('❌ Testimonials broke lead capture');
+            return false;
+        }
+        
+        const leadData = window.currentLeadData;
+        const step = (leadData.step || 1) - 1;
+        
+        console.log(`📊 Processing step ${step} answer`);
+        
+        // Store answer
+        if (step === 0) leadData.name = answer;
+        else if (step === 1) leadData.phone = answer;
+        else if (step === 2) {
+            leadData.reason = answer;
+            console.log('🎯 LEAD CAPTURE COMPLETE!', leadData);
+            window.isInLeadCapture = false;
+            return true;
+        }
+        
+        // Ask next question
+        setTimeout(() => {
+            console.log('⏱️ Asking next question...');
+            window.askLeadQuestion();
+        }, 1000);
+        
+        return true;
+    };
+    
+    // 5. INTERCEPTOR that BLOCKS testimonial interference
+    if (window.processUserResponse) {
+        const originalProcess = window.processUserResponse;
+        window.processUserResponse = function(userInput) {
+            console.log('🔍 PROTECTED INTERCEPTOR: User said:', userInput);
+            
+            // 🛡️ CRITICAL: If testimonials set flags, IGNORE THEM
+            const isReallyInLeadCapture = window.currentLeadData && 
+                                         (window.isInLeadCapture || 
+                                          window.currentCaptureType);
+            
+            if (isReallyInLeadCapture) {
+                console.log('🎯 LEAD CAPTURE ACTIVE - blocking testimonial interference');
+                
+                // Stop any listening
+                if (window.stopListening) window.stopListening();
+                
+                // Route to OUR protected handler
+                if (window.processLeadAnswer) {
+                    return window.processLeadAnswer(userInput);
+                }
+            }
+            
+            // Normal flow (not lead capture)
+            return originalProcess.apply(this, arguments);
+        };
+    }
+    
+    console.log('✅ Testimonial Conflict Resolution System installed');
+})();
 
 const EMAILJS_CONFIG = {
     serviceId: 'service_b9bppgb',
@@ -245,7 +313,12 @@ function initiateUrgentCall() {
 }
 
 function handleActionButton(action) {
-    console.log('🎯 Action button clicked:', action);
+    console.log('🎯 PROTECTED Action button clicked:', action);
+    
+    // 🛡️ RESTORE state before proceeding
+    if (window.restoreCommCenterState) {
+        window.restoreCommCenterState();
+    }
     
     // 🛑 CHECK IF WE'RE ALREADY PROCESSING
     if (window.isProcessingAction) {
