@@ -4,169 +4,32 @@
 // CLEANED VERSION - No restore code for old buttons
 // ================================
 
-// ===================================================
-// 🛡️ TESTIMONIAL CONFLICT RESOLUTION SYSTEM
-// ===================================================
+// 🚨 EMERGENCY TEST - Add to TOP of action-system-unified.js
+console.log('🚨 ACTION-SYSTEM-UNIFIED.JS IS LOADING!');
+alert('ACTION SYSTEM JS IS LOADING - TEST CONFIRMATION');
 
-(function() {
-    'use strict';
+// Create an unmistakable test
+window.EMERGENCY_TEST_FLAG = 'ACTION_SYSTEM_ACTIVE_' + Math.random();
+console.log('🎯 EMERGENCY TEST FLAG SET:', window.EMERGENCY_TEST_FLAG);
+
+// Test if we can override handleActionButton
+const originalHandleActionButton = window.handleActionButton;
+console.log('🔍 Original handleActionButton exists?', !!originalHandleActionButton);
+
+window.handleActionButton = function(action) {
+    console.log('🚨 OVERRIDDEN handleActionButton called! Action:', action);
+    alert('ACTION SYSTEM HANDLER FIRED: ' + action);
     
-    console.log('🛡️ Installing Testimonial Conflict Resolution...');
-    
-    // 1. PROTECT GLOBAL STATE from testimonial pollution
-    window._originalState = window._originalState || {};
-    
-    // Save original values before testimonials can pollute them
-    const criticalVars = [
-        'isInLeadCapture', 'currentLeadData', 'leadData',
-        'disableSpeakNowBanner', 'isProcessingAction',
-        'consultationOfferActive', 'testimonialSessionActive'
-    ];
-    
-    criticalVars.forEach(varName => {
-        window._originalState[varName] = window[varName];
-    });
-    
-    // 2. RESTORE FUNCTION when Communication Center activates
-    window.restoreCommCenterState = function() {
-        console.log('🔄 Restoring Communication Center state...');
-        criticalVars.forEach(varName => {
-            if (window._originalState[varName] !== undefined) {
-                window[varName] = window._originalState[varName];
-            }
-        });
-        window.isInLeadCapture = true; // Force lead capture mode
-        window.disableSpeakNowBanner = false; // Ensure banners work
-        console.log('✅ Communication Center state restored');
-    };
-    
-    // 3. PROTECTED askLeadQuestion (TESTIMONIAL-PROOF)
-    window.askLeadQuestion = function() {
-        console.log('🎯 PROTECTED askLeadQuestion called');
-        
-        // 🛡️ AUTO-RESTORE state if testimonials broke it
-        if (!window.isInLeadCapture && window.currentLeadData) {
-            console.warn('⚠️ Testimonials broke isInLeadCapture - fixing...');
-            window.isInLeadCapture = true;
-        }
-        
-        // 🛡️ ENSURE required data exists
-        if (!window.currentLeadData) {
-            console.error('❌ Testimonials cleared lead data - recreating');
-            window.currentLeadData = {
-                step: 0,
-                questions: ["Terrific, can I get your full name please?"],
-                captureType: window.currentCaptureType || 'clickToCall'
-            };
-        }
-        
-        const leadData = window.currentLeadData;
-        const step = leadData.step || 0;
-        const questions = leadData.questions || [];
-        
-        if (step >= questions.length) {
-            console.log('✅ All questions asked');
-            return;
-        }
-        
-        const question = questions[step];
-        console.log(`🎯 Asking question ${step + 1}: "${question}"`);
-        
-        // Show bubble
-        if (window.addAIMessage) {
-            window.addAIMessage(question);
-            console.log('✅ Chat bubble shown');
-        }
-        
-        // Speak
-        if (window.speakWithBritish) {
-            window.speakWithBritish(question, false);
-            console.log('✅ Speech started');
-            
-            // Show banner AFTER speech
-            setTimeout(() => {
-                console.log('🎤 Showing Speak Now banner...');
-                if (window.showDirectSpeakNow) {
-                    window.showDirectSpeakNow();
-                }
-            }, 2000);
-        }
-        
-        // Increment step
-        leadData.step = step + 1;
-        
-        return true;
-    };
-    
-    // 4. PROTECTED RESPONSE HANDLER (TESTIMONIAL-PROOF)
-    window.processLeadAnswer = function(answer) {
-        console.log('🎯 PROTECTED processLeadAnswer:', answer);
-        
-        // 🛡️ Ensure we're still in lead capture
-        if (!window.isInLeadCapture && window.currentLeadData) {
-            console.warn('⚠️ Testimonials interrupted - restoring...');
-            window.isInLeadCapture = true;
-        }
-        
-        if (!window.isInLeadCapture || !window.currentLeadData) {
-            console.error('❌ Testimonials broke lead capture');
-            return false;
-        }
-        
-        const leadData = window.currentLeadData;
-        const step = (leadData.step || 1) - 1;
-        
-        console.log(`📊 Processing step ${step} answer`);
-        
-        // Store answer
-        if (step === 0) leadData.name = answer;
-        else if (step === 1) leadData.phone = answer;
-        else if (step === 2) {
-            leadData.reason = answer;
-            console.log('🎯 LEAD CAPTURE COMPLETE!', leadData);
-            window.isInLeadCapture = false;
-            return true;
-        }
-        
-        // Ask next question
-        setTimeout(() => {
-            console.log('⏱️ Asking next question...');
-            window.askLeadQuestion();
-        }, 1000);
-        
-        return true;
-    };
-    
-    // 5. INTERCEPTOR that BLOCKS testimonial interference
-    if (window.processUserResponse) {
-        const originalProcess = window.processUserResponse;
-        window.processUserResponse = function(userInput) {
-            console.log('🔍 PROTECTED INTERCEPTOR: User said:', userInput);
-            
-            // 🛡️ CRITICAL: If testimonials set flags, IGNORE THEM
-            const isReallyInLeadCapture = window.currentLeadData && 
-                                         (window.isInLeadCapture || 
-                                          window.currentCaptureType);
-            
-            if (isReallyInLeadCapture) {
-                console.log('🎯 LEAD CAPTURE ACTIVE - blocking testimonial interference');
-                
-                // Stop any listening
-                if (window.stopListening) window.stopListening();
-                
-                // Route to OUR protected handler
-                if (window.processLeadAnswer) {
-                    return window.processLeadAnswer(userInput);
-                }
-            }
-            
-            // Normal flow (not lead capture)
-            return originalProcess.apply(this, arguments);
-        };
+    // If there's an original, call it
+    if (originalHandleActionButton) {
+        return originalHandleActionButton.apply(this, arguments);
     }
     
-    console.log('✅ Testimonial Conflict Resolution System installed');
-})();
+    // Otherwise, just log
+    console.log('No original handler found');
+};
+
+console.log('✅ Emergency overrides installed');
 
 const EMAILJS_CONFIG = {
     serviceId: 'service_b9bppgb',
@@ -314,11 +177,6 @@ function initiateUrgentCall() {
 
 function handleActionButton(action) {
     console.log('🎯 PROTECTED Action button clicked:', action);
-    
-    // 🛡️ RESTORE state before proceeding
-    if (window.restoreCommCenterState) {
-        window.restoreCommCenterState();
-    }
     
     // 🛑 CHECK IF WE'RE ALREADY PROCESSING
     if (window.isProcessingAction) {
