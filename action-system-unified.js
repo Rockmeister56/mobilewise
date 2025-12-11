@@ -189,6 +189,19 @@ window.trackLeadCaptureComplete = function() {
     console.log('🎯 LEAD CAPTURE: Lead capture completed');
 };
 
+function initializeRequestCallCapture() {
+    console.log('🚀 Starting REQUEST A CALL capture...');
+    
+    // If already in SAME capture type, restart it
+    if (window.isInLeadCapture && window.currentCaptureType === 'clickToCall') {
+        console.log('🔄 Restarting existing click-to-call capture');
+        window.currentLeadData.step = 0; // Start from first question
+    }
+    
+    window.isInLeadCapture = true;
+    // ... rest stays exactly the same
+}
+
 // ================================
 // HIDE ACTION CENTER - CLEANED VERSION
 // No restore code - old buttons stay hidden
@@ -2395,12 +2408,6 @@ function handleActionCenterCompletion() {
             }
         }
     }, 2000);
-}
-
-// Keep the OLD function name for existing buttons
-function initializeClickToCallCapture() {
-    // Just call the NEW requestCall function (since requestCall now uses clickToCall template)
-    initializeRequestCallCapture();
 }
 
 // ================================
