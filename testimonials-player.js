@@ -547,62 +547,63 @@ setTimeout(() => {
     if (window.speakText) {
         window.speakText(consultationText);
         
-        // 🛡️ PATCH: EXTEND ALL NO-SPEECH TIMEOUTS FOR CONSULTATION
-        const originalSetTimeout = window.setTimeout;
-        window.setTimeout = function(callback, delay, ...args) {
-            // Check if this is a "Whoops" or no-speech timeout
-            const callbackStr = callback.toString().toLowerCase();
-            const isErrorTimeout = callbackStr.includes('woops') || 
-                                   callbackStr.includes('no-speech') ||
-                                   callbackStr.includes("didn't hear") ||
-                                   callbackStr.includes('missed that') ||
-                                   (delay < 10000 && callbackStr.includes('timeout'));
-            
-            // If it's an error timeout during consultation, make it MUCH longer
-            if (isErrorTimeout && window.consultationOfferActive) {
-                console.log('⏱️ Extending consultation error timeout from', delay, 'ms to 15000ms');
-                delay = 15000; // 15 seconds!
-            }
-            
-            return originalSetTimeout.call(this, callback, delay, ...args);
-        };
+        // Add timeout hack
+const wasInLeadCapture = window.isInLeadCapture;
+window.testimonialExtendedTimeout = true; // 🚨 USE SEPARATE FLAG, NOT isInLeadCapture
+console.log('🛡️ Testimonials: Setting extended timeout flag (NOT touching isInLeadCapture)');
+
+// 🛡️ PATCH: EXTEND ALL NO-SPEECH TIMEOUTS FOR CONSULTATION
+const originalSetTimeout = window.setTimeout;
+window.setTimeout = function(callback, delay, ...args) {
+    // Check if this is a "Whoops" or no-speech timeout
+    const callbackStr = callback.toString().toLowerCase();
+    const isErrorTimeout = callbackStr.includes('woops') || 
+                           callbackStr.includes('no-speech') ||
+                           callbackStr.includes("didn't hear") ||
+                           callbackStr.includes('missed that') ||
+                           (delay < 10000 && callbackStr.includes('timeout'));
+    
+    // If it's an error timeout during consultation OR testimonial extended timeout, make it longer
+    if (isErrorTimeout && (window.consultationOfferActive || window.testimonialExtendedTimeout)) {
+        console.log('⏱️ Extending error timeout from', delay, 'ms to 15000ms (testimonial extended timeout active)');
+        delay = 15000; // 15 seconds!
+    }
+    
+    return originalSetTimeout.call(this, callback, delay, ...args);
+};
+
+// 🛡️ PATCH: BLOCK "WHOOPS" MESSAGES
+const originalAddAIMessage = window.addAIMessage;
+window.addAIMessage = function(message) {
+    // Block ALL "Whoops" errors during consultation OR testimonial timeout
+    if ((window.consultationOfferActive || window.testimonialExtendedTimeout) && 
+        message.toLowerCase().includes('woops')) {
+        console.log('🚫 BLOCKED "Whoops" message:', message.substring(0, 50));
+        return; // Don't show it!
+    }
+    return originalAddAIMessage.apply(this, arguments);
+};
+
+console.log('✅ Patches installed for consultation offer');
+
+// 🆕 LONG DELAY - let ALL automatic systems settle
+setTimeout(() => {
+    console.log('🎯 10-second delay complete - manually triggering banner');
+    
+    // Show banner
+    setTimeout(() => {
+        if (typeof showDirectSpeakNow === 'function') {
+            showDirectSpeakNow();
+            console.log('✅ Manual banner shown after long delay');
+        }
         
-        // 🛡️ PATCH: BLOCK "WHOOPS" MESSAGES
-        const originalAddAIMessage = window.addAIMessage;
-        window.addAIMessage = function(message) {
-            // Block ALL "Whoops" errors during consultation
-            if (window.consultationOfferActive && 
-                message.toLowerCase().includes('woops')) {
-                console.log('🚫 BLOCKED "Whoops" message:', message.substring(0, 50));
-                return; // Don't show it!
-            }
-            return originalAddAIMessage.apply(this, arguments);
-        };
-        
-        console.log('✅ Patches installed for consultation offer');
-        
-        // 🆕 LONG DELAY - let ALL automatic systems settle
+        // 🛡️ RESTORE PATCHES AFTER 30 SECONDS
         setTimeout(() => {
-            console.log('🎯 10-second delay complete - manually triggering banner');
-            
-            // Add timeout hack
-            const wasInLeadCapture = window.isInLeadCapture;
-            window.isInLeadCapture = true; // 20-second timeout
-            
-            // Show banner
-            setTimeout(() => {
-                if (typeof showDirectSpeakNow === 'function') {
-                    showDirectSpeakNow();
-                    console.log('✅ Manual banner shown after long delay');
-                }
-                
-                // 🛡️ RESTORE PATCHES AFTER 30 SECONDS
-                setTimeout(() => {
-                    window.setTimeout = originalSetTimeout;
-                    window.addAIMessage = originalAddAIMessage;
-                    window.isInLeadCapture = wasInLeadCapture;
-                    console.log('🔄 All patches restored to normal');
-                }, 30000);
+            window.setTimeout = originalSetTimeout;
+            window.addAIMessage = originalAddAIMessage;
+            window.testimonialExtendedTimeout = false; // 🚨 CLEAN UP OUR FLAG
+            console.log('🔄 All patches restored to normal - testimonial timeout flag cleared');
+        }, 30000);
                 
             }, 1000); // Extra buffer
             

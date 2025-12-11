@@ -189,17 +189,33 @@ window.trackLeadCaptureComplete = function() {
     console.log('🎯 LEAD CAPTURE: Lead capture completed');
 };
 
+
 function initializeRequestCallCapture() {
     console.log('🚀 Starting REQUEST A CALL capture...');
     
-    // If already in SAME capture type, restart it
-    if (window.isInLeadCapture && window.currentCaptureType === 'clickToCall') {
-        console.log('🔄 Restarting existing click-to-call capture');
-        window.currentLeadData.step = 0; // Start from first question
+    // 🛡️ FIXED PROTECTION: Clear stuck states first
+    if (window.isInLeadCapture && !window.currentLeadData) {
+        console.log('🔄 Clearing stuck state before starting new capture');
+        window.isInLeadCapture = false;
+        window.currentCaptureType = null;
     }
     
+    // Original protection (but now it won't get stuck)
+    if (window.isInLeadCapture && window.currentCaptureType === 'clickToCall') {
+        console.log('🔄 Already in click-to-call - restarting');
+        if (window.currentLeadData) {
+            window.currentLeadData.step = 0;
+            setTimeout(() => askLeadQuestion(), 500);
+        }
+        return;
+    }
+    
+    // Normal setup...
     window.isInLeadCapture = true;
-    // ... rest stays exactly the same
+    window.currentCaptureType = 'clickToCall';
+    window.currentLeadData = { /* ... */ };
+    
+    setTimeout(() => askLeadQuestion(), 500);
 }
 
 // ================================
