@@ -11,14 +11,12 @@
 console.log('🔧 INSTALLING CLEAN ACTION SYSTEM FIXES...');
 
 function processLeadResponse(userInput) {
-    // 🚨 FIX: Get leadData from window
+    // 🚨 FIX 1: Get leadData from window
     const leadData = window.currentLeadData;
     
-    // 🚨 FIX: Use window.isInLeadCapture
+    // 🚨 FIX 2: Use window.isInLeadCapture
     if (!window.isInLeadCapture || !leadData) {
         console.error('❌ Not in lead capture mode!');
-        console.log('   isInLeadCapture:', window.isInLeadCapture);
-        console.log('   currentLeadData:', window.currentLeadData);
         return false;
     }
     
@@ -38,7 +36,7 @@ function processLeadResponse(userInput) {
     // Show visual confirmation buttons
     showConfirmationButtons(processedInput);
     
-    return true;
+    return true; // 🚨 CRITICAL: Return true
 }
 
 
