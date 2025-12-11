@@ -866,28 +866,24 @@
     padding: 0 !important;
     position: relative !important;
 }
+
+/* Green border for PAUSE SESSION button */
+.quick-btn[onclick="pauseSession()"] {
+    border: 2px solid #00ff1e !important;
+    background: rgba(0, 255, 30, 0.1) !important;
+    color: #00ff1e !important;
+    transition: all 0.3s ease !important;
+    
+    /* Simple size control */
+    padding: 8px 12px !important;
+    height: 38px !important;
+    font-size: 12px !important;
+
+        /* Width control - choose one */
+    min-width: 110px !important;       /* Minimum width */
 }
 
-/*
-@media (max-width: 768px) {
-    #bannerHeaderContainer img {
-        margin-left: -25px !important;
-    }
-    
-    #bannerHeaderContainer div[style*="MOBILE-WISE AI"] {
-        left: 5% !important;
-        transform: translateX(-50%) !important;
-    }
-    
-    #bannerHeaderContainer div:last-child {
-        right: 7px !important;
-    }
-
-    #universalBanner div:nth-child(2) {
-        left: 12% !important;
-    }
 }
-*/
 
     </style>
 </head>
@@ -925,22 +921,8 @@
         Click to activate microphone
        
        <style>
-@media (max-width: 768px) {
-    /* Mobile positioning controls */
-    .mobile-logo-adjust {
-        left: 10px !important; /* Adjust logo position on mobile */
-    }
-    
-    .mobile-slogan-adjust {
-        right: 10px !important; /* Adjust slogan position on mobile */
-    }
-}
 
-<div style="margin-top: 15px; font-size: 0.9em; color: #ccc;">
-        Click to activate microphone
-       
-       <style>
-@media (max-width: 768px) {
+        @media (max-width: 768px) {
     /* Mobile positioning controls */
     .mobile-logo-adjust {
         left: 10px !important; /* Adjust logo position on mobile */
@@ -987,11 +969,6 @@
     100% { transform: rotate(360deg); }
 }
 
-/* HIDE SPLASH SCREEN IMMEDIATELY */
-#centerMicActivation {
-    display: none !important;
-}
-
 .ai-message > div:not(.ai-avatar) {
     flex: 1;
     min-width: 0;
@@ -1016,22 +993,6 @@
     width: fit-content; /* Bubble will expand to fit text content */
     flex-shrink: 0;
     display: block; /* Override any flex child behavior */
-}
-
-/* Green border for PAUSE SESSION button */
-.quick-btn[onclick="pauseSession()"] {
-    border: 2px solid #00ff1e !important;
-    background: rgba(0, 255, 30, 0.1) !important;
-    color: #00ff1e !important;
-    transition: all 0.3s ease !important;
-    
-    /* Simple size control */
-    padding: 8px 12px !important;
-    height: 38px !important;
-    font-size: 12px !important;
-
-        /* Width control - choose one */
-    min-width: 110px !important;       /* Minimum width */
 }
 
 
