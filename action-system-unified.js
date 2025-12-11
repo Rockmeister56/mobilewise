@@ -2389,7 +2389,7 @@ function ensureSplashAnimations() {
 ensureSplashAnimations();
 
 // Initialize animations when the script loads
-addTestimonialAnimations();
+// addTestimonialAnimations();
 
 // Make globally accessible
 window.showThankYouSplash = showThankYouSplash;
