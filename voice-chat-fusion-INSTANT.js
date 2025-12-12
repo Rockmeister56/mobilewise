@@ -93,42 +93,9 @@ if (typeof window.isSpeaking === 'undefined') {
     window.isSpeaking = false;
 }
 
-// ===========================================
-// GLOBAL SPEECH STOP CONTROL FUNCTION
-// ===========================================
-
-function stopAllSpeech() {
-    console.log('🛑 stopAllSpeech() called');
-    
-    // 1. Stop browser speech synthesis
-    if (window.speechSynthesis && window.speechSynthesis.speaking) {
-        window.speechSynthesis.cancel();
-        console.log('✅ Browser speech stopped');
-    }
-    
-    // 2. Stop any ElevenLabs audio
-    const allAudio = document.querySelectorAll('audio');
-    allAudio.forEach(audio => {
-        audio.pause();
-        audio.currentTime = 0;
-    });
-    
-    // 3. Stop voice system if it exists
-    if (window.voiceSystemInstance && typeof window.voiceSystemInstance.stop === 'function') {
-        window.voiceSystemInstance.stop();
-    }
-    
-    // 4. Reset speaking state
-    if (window.isSpeaking !== undefined) {
-        window.isSpeaking = false;
-    }
-    
-    return true;
-}
-
-// Make it globally available
-window.stopAllSpeech = stopAllSpeech;
-
+// ═══════════════════════════════════════════════════════════
+// MOBILE STABILITY FUNCTIONS
+// ═══════════════════════════════════════════════════════════
 
 
 // ===================================================
@@ -1254,7 +1221,7 @@ async function activateMicrophone() {
     }, 800); // 800ms delay ensures everything is initialized
     
 }, 1400);
-        }        
+        }
 
     } catch (error) {
         console.log('❌ Microphone access failed:', error);
@@ -1476,13 +1443,13 @@ console.log('🔍 ROOT CAUSE DEBUG - isMobileDevice FIXED:', {
 // ===========================================
 const VOICE_CONFIG = {
     // MAIN CONTROL - Change this to switch voice systems
-    provider: 'elevenlabs',  // 'british' | 'elevenlabs' | 'browser'
+    provider: 'british',  // 'british' | 'elevenlabs' | 'browser'
     
     // ELEVENLABS CONFIG (when enabled)
     elevenlabs: {
-        enabled: true,  // ← SET TO TRUE when you have credits
-        apiKey: ELEVENLABS_API_KEY,  // Reference the constant
-        voiceId: VOICE_ID,           // Reference the constant
+        enabled: false,  // ← SET TO TRUE when you have credits
+        apiKey: 'sk_9e7fa2741be74e8cc4af95744fe078712c1e8201cdcada93',
+        voiceId: 'zGjIP4SZlMnY9m93k97r',
         model: 'eleven_turbo_v2'
     },
     
