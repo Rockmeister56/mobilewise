@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>11 Labs Mobile Test</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+            background: #1a1a2e; 
+            color: white; 
+            min-height: 100vh; 
+        }
+        .container { max-width: 600px; margin: 0 auto; }
+        h1 { color: #64b5f6; margin-bottom: 20px; }
+        button {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+            transition: all 0.3s;
+        }
+        button:hover { background: #1976D2; transform: translateY(-2px); }
+        button:disabled { background: #666; cursor: not-allowed; }
+        .log { 
+            background: #2d3047; 
+            padding: 15px; 
+            border-radius: 8px; 
+            margin-top: 20px; 
+            max-height: 300px; 
+            overflow-y: auto; 
+            font-family: monospace; 
+            font-size: 14px; 
+        }
+        .log-entry { 
+            margin: 5px 0; 
+            padding: 5px; 
+            border-left: 3px solid #64b5f6; 
+        }
+        .success { border-left-color: #4CAF50; }
+        .error { border-left-color: #f44336; }
+        .warning { border-left-color: #ff9800; }
+        .test-case { 
+            background: #252947; 
+            padding: 15px; 
+            border-radius: 8px; 
+            margin: 15px 0; 
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎤 11 Labs Mobile Audio Test</h1>
+        
+        <div class="test-case">
+            <h3>Test 1: Initial Audio (Should Work)</h3>
+            <button onclick="playInitialAudio()">Play Initial Greeting</button>
+            <p><small>Simulates the first click/mic activation</small></p>
+        </div>
+        
+        <div class="test-case">
+            <h3>Test 2: Sequential Audio (Mobile Problem)</h3>
+            <button onclick="playSequentialAudio()">Play Sequential Response</button>
+            <p><small>Simulates AI responding after user input</small></p>
+        </div>
+        
+        <div class="test-case">
+            <h3>Test 3: With User Interaction (Mobile Fix)</h3>
+            <button onclick="playWithInteraction()">Play After "User Response"</button>
+            <p><small>Tests mobile workaround with user gesture</small></p>
+        </div>
+        
+        <div class="test-case">
+            <h3>Test 4: Direct 11 Labs Call</h3>
+            <button onclick="testDirectElevenLabs('Testing direct 11 Labs call on mobile.')">
+                Direct 11 Labs Test
+            </button>
+        </div>
+        
+        <h3>📝 Test Log:</h3>
+        <div id="testLog" class="log"></div>
+        
+        <div style="margin-top: 30px; padding: 15px; background: #1e3a5f; border-radius: 8px;">
+            <h3>🔍 Mobile Diagnosis:</h3>
+            <p id="mobileDiagnosis">Running diagnostics...</p>
+            <button onclick="runMobileDiagnostics()" style="background: #9c27b0;">Run Mobile Diagnostics</button>
+        </div>
+    </div>
+
+    <script>
+        // ===========================================
+        // ELEVENLABS CONFIGURATION (YOUR KEYS)
+        // ===========================================
+        const ELEVENLABS_API_KEY = 'sk_145cc0fe5aeb1c2ae4ebf3193dcee721ae8a4f755ed9e5d8';
+        const VOICE_ID = 'WZlYpi1yf6zJhNWXih74';
+        
+        let testCount = 0;
+        let audioContext = null;
+        
+        // ===========================================
+        // LOGGING UTILITY
+        // ===========================================
+        function log(message, type = 'info') {
+            testCount++;
+            const logDiv = document.getElementById('testLog');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.innerHTML = `<strong>${testCount}.</strong> ${message}`;
+            logDiv.appendChild(entry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+        
+        // ===========================================
+        // ELEVENLABS FUNCTION (FROM YOUR SYSTEM)
+        // ===========================================
+        async function playElevenLabsAudio(text, description = '') {
+            log(`Playing: "${text}" ${description}`);
+            
+            try {
+                const response = await fetch(
+                    `https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'audio/mpeg',
+                            'Content-Type': 'application/json',
+                            'xi-api-key': ELEVENLABS_API_KEY
+                        },
+                        body: JSON.stringify({
+                            text: text,
+                            model_id: 'eleven_monolingual_v1',
+                            voice_settings: {
+                                stability: 0.5,
+                                similarity_boost: 0.75
+                            }
+                        })
+                    }
+                );
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const audioBlob = await response.blob();
+                const audioUrl = URL.createObjectURL(audioBlob);
+                const audio = new Audio(audioUrl);
+                
+                // CRITICAL: Mobile requires user gesture for audio context
+                if (!audioContext) {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    log('AudioContext created', 'success');
+                }
+                
+                // Resume audio context (required for mobile)
+                if (audioContext.state === 'suspended') {
+                    await audioContext.resume();
+                    log('AudioContext resumed (was suspended)', 'warning');
+                }
+                
+                audio.play();
+                
+                audio.onended = () => {
+                    log(`Audio finished: "${text}"`, 'success');
+                    URL.revokeObjectURL(audioUrl);
+                };
+                
+                audio.onerror = (e) => {
+                    log(`Audio error: ${e.message}`, 'error');
+                };
+                
+                return audio;
+                
+            } catch (error) {
+                log(`Failed to play audio: ${error.message}`, 'error');
+                return null;
+            }
+        }
+        
+        // ===========================================
+        // TEST FUNCTIONS
+        // ===========================================
+        
+        // Test 1: Initial Audio (should work)
+        function playInitialAudio() {
+            log('=== TEST 1: Initial Audio ===', 'warning');
+            playElevenLabsAudio(
+                "Hi, I'm Bruce's AI assistant. What's your name?",
+                "(Simulating initial mic activation)"
+            );
+        }
+        
+        // Test 2: Sequential Audio (mobile problem)
+        function playSequentialAudio() {
+            log('=== TEST 2: Sequential Audio ===', 'warning');
+            
+            // Simulate what happens in your system:
+            // 1. User responds (this would be via mic/click)
+            log('Simulating user response: "My name is Rock"', 'info');
+            
+            // 2. AI responds WITHOUT new user gesture (mobile blocks this!)
+            setTimeout(() => {
+                playElevenLabsAudio(
+                    "Nice to meet you, Rock! How can I help you today?",
+                    "(Simulating AI response after user input - MOBILE MAY BLOCK)"
+                );
+            }, 1000);
+        }
+        
+        // Test 3: With User Interaction (mobile fix)
+        function playWithInteraction() {
+            log('=== TEST 3: With User Interaction ===', 'warning');
+            
+            // Create a button that user MUST click for second audio
+            const interactionDiv = document.createElement('div');
+            interactionDiv.innerHTML = `
+                <p style="margin: 10px 0;">Click to simulate user acknowledging AI response:</p>
+                <button onclick="triggerSecondAudio()" 
+                        style="background: #4CAF50; padding: 10px 20px;">
+                    Acknowledge & Continue
+                </button>
+            `;
+            
+            // Find where to insert
+            const testCase = document.querySelectorAll('.test-case')[2];
+            const existingButton = testCase.querySelector('button[onclick="playWithInteraction()"]');
+            testCase.insertBefore(interactionDiv, existingButton.nextSibling);
+            
+            // Hide this button
+            existingButton.style.display = 'none';
+            
+            log('User interaction required for second audio...', 'info');
+        }
+        
+        function triggerSecondAudio() {
+            playElevenLabsAudio(
+                "This should work on mobile because you clicked a button!",
+                "(Mobile-friendly with user gesture)"
+            );
+        }
+        
+        // Test 4: Direct call
+        window.testDirectElevenLabs = function(text) {
+            playElevenLabsAudio(text || "Direct test from console");
+        };
+        
+        // ===========================================
+        // MOBILE DIAGNOSTICS
+        // ===========================================
+        function runMobileDiagnostics() {
+            log('=== MOBILE DIAGNOSTICS ===', 'warning');
+            
+            const diagnosis = document.getElementById('mobileDiagnosis');
+            let findings = [];
+            
+            // 1. Check if mobile
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            findings.push(`📱 Device: ${isMobile ? 'Mobile' : 'Desktop'}`);
+            
+            // 2. Check autoplay policy
+            const audio = new Audio();
+            audio.volume = 0;
+            const canAutoplay = audio.play().then(() => {
+                findings.push('✅ Audio autoplay allowed');
+            }).catch(e => {
+                findings.push(`❌ Audio autoplay blocked: ${e.message}`);
+            });
+            
+            // 3. Check AudioContext
+            if (window.AudioContext || window.webkitAudioContext) {
+                findings.push('✅ AudioContext supported');
+            } else {
+                findings.push('❌ AudioContext not supported');
+            }
+            
+            // 4. Check if we're in a user gesture
+            findings.push('👆 User gesture required for subsequent audio on mobile');
+            
+            // Display findings
+            diagnosis.innerHTML = findings.map(f => `<div style="margin: 5px 0;">${f}</div>`).join('');
+            
+            // Add recommendation
+            setTimeout(() => {
+                diagnosis.innerHTML += `
+                    <div style="margin-top: 15px; padding: 10px; background: #2d3047; border-radius: 5px;">
+                        <strong>🎯 MOBILE FIX STRATEGY:</strong><br>
+                        1. Store audio after first play<br>
+                        2. Queue subsequent audio<br>
+                        3. Trigger queued audio on NEXT user click<br>
+                        4. OR use invisible button user "clicks" programmatically
+                    </div>
+                `;
+            }, 500);
+        }
+        
+        // ===========================================
+        // INITIALIZE
+        // ===========================================
+        document.addEventListener('DOMContentLoaded', () => {
+            log('Test page loaded. Ready for mobile testing.', 'success');
+            runMobileDiagnostics();
+            
+            // Create global test function for console
+            window.runTest = function(testNumber) {
+                switch(testNumber) {
+                    case 1: playInitialAudio(); break;
+                    case 2: playSequentialAudio(); break;
+                    case 3: playWithInteraction(); break;
+                    case 4: testDirectElevenLabs('Console test'); break;
+                    default: log('Use test number 1-4');
+                }
+            };
+        });
+    </script>
+</body>
+</html>
