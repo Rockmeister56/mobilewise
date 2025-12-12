@@ -294,14 +294,18 @@
         enableAudioBtn.addEventListener('click', startWithAudio);
         skipAudioBtn.addEventListener('click', startWithoutAudio);
 
-        function startWithAudio() {
+         function startWithAudio() {
             console.log('🎵 Starting WITH audio');
             audioEnabled = true;
             audioActivation.style.opacity = '0';
             setTimeout(() => {
                 audioActivation.style.display = 'none';
                 showScene(1);
-                introAudio.play().catch(e => console.log('Audio:', e));
+                
+                // ADD THIS DELAY - 500ms after preloader hides
+                setTimeout(() => {
+                    introAudio.play().catch(e => console.log('Audio:', e));
+                }, 500); // ← Changed from immediate to 500ms delay
                 
                 // Scene 1 → Scene 2 after 5 seconds
                 sceneTimer = setTimeout(() => {
