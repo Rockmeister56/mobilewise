@@ -214,6 +214,28 @@ async function startListening(onReadyCallback = null) {
         return;
     }
 
+    if (recognitionPreWarmed && recognition) {
+    console.log('⚡ Using pre-warmed engine (instant start)');
+    
+    // 🛡️ CHECK: Is it already started?
+    if (recognition.state === 'started' || recognition.state === 'listening') {
+        console.log('🔊 Already listening - skipping pre-warmed start');
+        if (onReadyCallback) setTimeout(() => onReadyCallback(), 50);
+        return;
+    }
+    
+    setupFreshHandlers(recognition);
+    
+    try {
+        recognition.start();
+        if (onReadyCallback) onReadyCallback();
+        return;
+    } catch (e) {
+        console.log('🔄 Pre-warmed engine failed:', e.message);
+        // Fall through
+    }
+}
+
     // 🚀 ULTRA-FAST START: If pre-warmed, skip initialization
     if (recognitionPreWarmed && recognition) {
         console.log('⚡ Using pre-warmed engine (instant start)');
