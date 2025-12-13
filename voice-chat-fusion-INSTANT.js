@@ -1075,6 +1075,109 @@ function initializeSpeechRecognition() {
     return true;
 }
 
+function silenceMobileBeeps() {
+    if (!/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) return;
+    
+    console.log('🔇 Applying mobile beep silence...');
+    
+    // FIX: Check window.recognition, not just recognition
+    const rec = window.recognition || recognition;
+    if (!rec) {
+        console.warn('⚠️ Cannot silence beeps: recognition not available');
+        return;
+    }
+    
+    // Method 1: Replace handlers with empty functions
+    rec.onsoundstart = function() {
+        console.log('🔇 Mobile beep blocked: onsoundstart');
+        return false;
+    };
+    
+    rec.onaudiostart = function() {
+        console.log('🔇 Mobile beep blocked: onaudiostart');
+        return false;
+    };
+    
+    rec.onstart = function() {
+        console.log('🔇 Mobile beep blocked: onstart');
+        return false;
+    };
+    
+    // Also mute any audio context
+    if (window.AudioContext) {
+        try {
+            const ctx = new AudioContext();
+            if (ctx.createGain) {
+                const gainNode = ctx.createGain();
+                gainNode.gain.setValueAtTime(0, ctx.currentTime);
+                console.log('🔇 Audio context muted');
+            }
+        } catch (e) {
+            console.warn('Could not mute audio context:', e);
+        }
+    }
+    
+    console.log('✅ Mobile beeps silenced');
+}
+
+function configureMobileSpeech() {
+    const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+    if (!isMobile) return;
+    
+    // FIX: Check window.recognition
+    const rec = window.recognition || recognition;
+    if (!rec) {
+        console.warn('⚠️ Cannot configure mobile speech: recognition not available');
+        return;
+    }
+    
+    console.log('📱 Applying mobile speech optimization...');
+    
+    // Save original handler FIRST
+    const originalOnResult = rec.onresult;
+    
+    // Mobile-optimized result handler
+    const mobileOnResult = function(event) {
+        console.log('📱 MOBILE SPEECH DETECTED');
+        
+        // First call original handler if it exists
+        if (originalOnResult && typeof originalOnResult === 'function') {
+            originalOnResult.call(this, event);
+        }
+        
+        if (!event.results || event.results.length === 0) {
+            console.log('📱 No mobile results');
+            return;
+        }
+        
+        // Process for mobile
+        let transcript = '';
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+            if (event.results[i] && event.results[i][0]) {
+                transcript += event.results[i][0].transcript;
+                console.log(`📱 Result ${i}: "${event.results[i][0].transcript}"`);
+            }
+        }
+        
+        transcript = transcript.trim();
+        if (transcript.length > 0) {
+            console.log('📱 FINAL TRANSCRIPT:', transcript);
+            window.lastCapturedTranscript = transcript;
+            window.lastCapturedTime = Date.now();
+        }
+    };
+    
+    // Mobile-specific settings
+    rec.continuous = true;
+    rec.interimResults = true;
+    rec.maxAlternatives = 3;
+    
+    // Replace the handler
+    rec.onresult = mobileOnResult;
+    
+    console.log('✅ Mobile speech optimized');
+}
+
 function getApologyResponse() {
     const sorryMessages = [
         "I'm sorry, I didn't catch that. Can you repeat your answer?",
