@@ -4908,31 +4908,33 @@ function directCleanup() {
 }
 
 // ===================================================
-// 🛡️ PERMANENT COOLDOWN BYPASS SYSTEM
+// 🛡️ PERMANENT COOLDOWN BYPASS SYSTEM - FIXED (NO SPAM)
 // ===================================================
 if (!window.bannerCooldownBypassInstalled) {
     console.log('💣 INSTALLING PERMANENT COOLDOWN BYPASS...');
 
-    // 1. THE WINNING FIX: Permanently disable bannerCooldown
-     Object.defineProperty(window, 'bannerCooldown', {
+    // 1. THE WINNING FIX: Permanently disable bannerCooldown (SILENT VERSION)
+    Object.defineProperty(window, 'bannerCooldown', {
         get: function() { 
-            console.log('🛡️ COOLDOWN BYPASS: Always returning false');
+            // 🚫 REMOVED: console.log('🛡️ COOLDOWN BYPASS: Always returning false');
             return false; 
         },
         set: function(value) { 
-            console.log('🛡️ COOLDOWN BLOCKED: Attempt to set to', value);
+            // Optional: keep this for debugging if needed
+            // console.log('🛡️ COOLDOWN BLOCKED: Attempt to set to', value);
             return false;
         }
     });
 
-    // 2. Also block speakSequenceBlocked permanently
+    // 2. Also block speakSequenceBlocked permanently (SILENT VERSION)
     Object.defineProperty(window, 'speakSequenceBlocked', {
         get: function() { 
-            console.log('🛡️ SEQUENCE BLOCKED: Always returning false');
+            // 🚫 REMOVED: console.log('🛡️ SEQUENCE BLOCKED: Always returning false');
             return false; 
         },
         set: function(value) { 
-            console.log('🛡️ SEQUENCE BLOCKED: Attempt to set to', value);
+            // Optional: keep this for debugging if needed
+            // console.log('🛡️ SEQUENCE BLOCKED: Attempt to set to', value);
             return false;
         }
     });
@@ -4940,7 +4942,7 @@ if (!window.bannerCooldownBypassInstalled) {
     window.bannerCooldownBypassInstalled = true;
     console.log('✅ PERMANENT COOLDOWN BYPASS INSTALLED!');
 } else {
-    console.log('✅ Cooldown bypass already active - skipping reinstallation');
+    // 🚫 REMOVED: console.log('✅ Cooldown bypass already active - skipping reinstallation');
 }
 
 window.lastBannerAction = 0;
