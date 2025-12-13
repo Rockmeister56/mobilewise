@@ -364,7 +364,7 @@ async function startListening(onReadyCallback = null) {
 }
 
 // ===================================================
-// 🛠️ MISSING FUNCTION DEFINITIONS
+// 🛠️ MISSING FUNCTION DEFINITIONS - COMPLETE FIXED VERSION
 // ===================================================
 
 // 🚨 ADD THIS FUNCTION - Called by pre-warmed engine
@@ -378,28 +378,65 @@ function setupFreshHandlers(recognition) {
     recognition.onend = null;
     recognition.onerror = null;
     
-    // Set fresh handlers (same as in startListening)
+    // 🎯 WORKING ONRESULT HANDLER - THIS WAS THE FIX!
     recognition.onresult = function(event) {
-        console.log('🎯 PRE-WARMED: ONRESULT FIRED');
-        // ... same handler content as above ...
+        console.log('🎯 ONRESULT: Processing speech');
+        
+        if (!event.results || event.results.length === 0) {
+            console.log('❌ No results in event');
+            return;
+        }
+        
+        // Extract transcript
+        let transcript = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+            if (event.results[i][0]) {
+                transcript += event.results[i][0].transcript;
+            }
+        }
+        
+        transcript = transcript.trim();
+        console.log('✅ Transcript:', transcript);
+        
+        if (transcript.length > 0) {
+            // Save globally
+            window.lastCapturedTranscript = transcript;
+            window.lastCapturedTime = Date.now();
+            
+            // Update UI
+            const userInput = document.getElementById('userInput');
+            if (userInput) {
+                userInput.value = transcript;
+            }
+            
+            // Cancel timeouts
+            if (window.directSpeakNowTimeout) {
+                clearTimeout(window.directSpeakNowTimeout);
+                window.directSpeakNowTimeout = null;
+            }
+            
+            if (window.speakNowTimeout) {
+                clearTimeout(window.speakNowTimeout);
+                window.speakNowTimeout = null;
+            }
+        }
     };
     
     recognition.onstart = function() {
-        console.log('⚡ PRE-WARMED: Engine started');
+        console.log('⚡ Engine started');
     };
     
-    // Keep other handlers minimal for speed
     recognition.onaudiostart = function() {
-        console.log('🎤 PRE-WARMED: Microphone active');
+        console.log('🎤 Microphone active');
     };
     
     recognition.onend = function() {
-        console.log('🔚 PRE-WARMED: Recognition ended');
+        console.log('🔚 Recognition ended');
         window.isCurrentlyListening = false;
     };
     
     recognition.onerror = function(event) {
-        console.log('❌ PRE-WARMED: Error:', event.error);
+        console.log('❌ Error:', event.error);
         window.isCurrentlyListening = false;
     };
 }
