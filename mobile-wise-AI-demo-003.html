@@ -177,17 +177,16 @@
     display: block;
 }
 
-/* 1. BRING THE VIDEO DOWN: Remove the 'top' property and center it */
 .ai-video {
     width: 100%;
     height: auto;
     border-radius: 15px;
     position: relative;
     z-index: 1;
-    /* REMOVE this line: top: 215px; */
-    /* Center the video vertically within its container */
-    display: block;
-    margin: 0 auto;
+    /* REMOVE THE OLD 'top: 215px' LINE */
+    /* ADJUST THESE TWO VALUES TO CONTROL VIDEO POSITION: */
+    margin-top: -30px; /* 👈 NEGATIVE value brings video UP, POSITIVE brings it DOWN */
+    transform: translateY(30px) scale(0.90); /* 👈 Use translateY for fine adjustment */
 }
 
 /* 2. BRING THE TEXT UP: Adjust the 'bottom' position */
