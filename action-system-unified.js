@@ -790,7 +790,7 @@ function sendInternalNotification(leadData, captureType) {
         // Book Consultation
         internalTemplateId = EMAILJS_CONFIG.templates.consultation;
         internalTemplateParams = {
-            to_email: 'bizboost.expert@gmail.com',
+            to_email: 'bruce@newclientsinc.com',
             name: leadData.name,
             phone: leadData.phone,
             email: leadData.email,
@@ -803,7 +803,7 @@ function sendInternalNotification(leadData, captureType) {
         // ✅ REQUEST A CALL - This is the one that should work!
         internalTemplateId = EMAILJS_CONFIG.templates.clickToCall; 
         internalTemplateParams = {
-            to_email: 'bizboost.expert@gmail.com',
+            to_email: 'bruce@newclientsinc.com',
             name: leadData.name,
             phone: leadData.phone,
             reason: leadData.reason,
@@ -846,7 +846,7 @@ function sendInternalNotification(leadData, captureType) {
                               qualificationScore >= 50 ? 'MEDIUM' : 'BASIC';
     
     internalTemplateParams = {
-        to_email: 'bizboost.expert@gmail.com',
+        to_email: 'bruce@newclientsinc.com',
         name: leadData.name,
         email: leadData.email,
         phone: leadData.phone,
@@ -1661,7 +1661,7 @@ function sendOriginalLeadEmail(data, type) {
     if (type === 'consultation') {
         internalTemplateId = EMAILJS_CONFIG.templates.consultation;
         internalTemplateParams = {
-            to_email: 'bizboost.expert@gmail.com',
+            to_email: 'bruce@newclientsinc.com',
             name: data.name,           // CHANGED from from_name
             email: data.email,         // CHANGED from from_email  
             phone: data.phone,
@@ -1674,7 +1674,7 @@ function sendOriginalLeadEmail(data, type) {
     } else if (type === 'clickToCall') {
         internalTemplateId = EMAILJS_CONFIG.templates.clickToCall;
         internalTemplateParams = {
-            to_email: 'bizboost.expert@gmail.com',
+            to_email: 'bruce@newclientsinc.com',
             name: data.name,           // CHANGED from from_name
             phone: data.phone,
             email: data.email || 'Not provided', // ADDED missing field
@@ -1733,7 +1733,7 @@ function sendOriginalLeadEmail(data, type) {
                             qualificationScore >= 50 ? 'MEDIUM' : 'BASIC';
         
         internalTemplateParams = {
-            to_email: 'bizboost.expert@gmail.com',
+            to_email: 'bruce@newclientsinc.com',
             name: data.name || 'Not provided',
             email: data.email || 'Not provided',
             phone: data.phone || 'Not provided',
