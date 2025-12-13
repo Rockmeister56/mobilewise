@@ -152,53 +152,14 @@
             .audio-buttons { flex-direction: column; gap: 15px; }
             .audio-btn { min-width: 180px; padding: 16px 30px; }
         }
-
-        /* ===== NCI BUTTON STYLES ===== */
-.ai-button-container {
-    position: fixed;
-    bottom: -50px;
-    left: 0;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    z-index: 1000;
-    transform: translateY(100%);
-    padding-bottom: 50px;
-    transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-.ai-button-wrapper {
-    background: transparent;
-    border: none;
-    width: 85vw;
-    max-width: 430px;
-    height: auto;
-    position: relative;
-    display: block;
-}
-
 .ai-video {
-    width: 100%;
-    height: auto;
-    border-radius: 15px;
+    width: 100%; 
+    height: auto; 
+    border-radius: 15px; 
     position: relative;
-    z-index: 1;
-    /* REMOVE THE OLD 'top: 215px' LINE */
-    /* ADJUST THESE TWO VALUES TO CONTROL VIDEO POSITION: */
-    margin-top: -30px; /* 👈 NEGATIVE value brings video UP, POSITIVE brings it DOWN */
-    transform: translateY(30px) scale(0.90); /* 👈 Use translateY for fine adjustment */
-}
-
-/* 2. BRING THE TEXT UP: Adjust the 'bottom' position */
-.ai-text-container {
-    position: absolute;
-    /* INCREASE this value to move the text higher */
-    bottom: 120px; /* Changed from 84px */
-    left: 0;
-    width: 100%;
-    text-align: center;
-    z-index: 3;
-    padding: 0 20px;
+    z-index: 1; 
+    top: 215px;  /* ← CHANGE THIS LINE */
+    transform: scale(0.90);
 }
     </style>
 </head>
