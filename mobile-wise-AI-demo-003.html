@@ -152,6 +152,55 @@
             .audio-buttons { flex-direction: column; gap: 15px; }
             .audio-btn { min-width: 180px; padding: 16px 30px; }
         }
+
+        /* ===== NCI BUTTON STYLES ===== */
+.ai-button-container {
+    position: fixed;
+    bottom: -50px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    z-index: 1000;
+    transform: translateY(100%);
+    padding-bottom: 50px;
+    transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.ai-button-wrapper {
+    background: transparent;
+    border: none;
+    width: 85vw;
+    max-width: 430px;
+    height: auto;
+    position: relative;
+    display: block;
+}
+
+/* 1. BRING THE VIDEO DOWN: Remove the 'top' property and center it */
+.ai-video {
+    width: 100%;
+    height: auto;
+    border-radius: 15px;
+    position: relative;
+    z-index: 1;
+    /* REMOVE this line: top: 215px; */
+    /* Center the video vertically within its container */
+    display: block;
+    margin: 0 auto;
+}
+
+/* 2. BRING THE TEXT UP: Adjust the 'bottom' position */
+.ai-text-container {
+    position: absolute;
+    /* INCREASE this value to move the text higher */
+    bottom: 120px; /* Changed from 84px */
+    left: 0;
+    width: 100%;
+    text-align: center;
+    z-index: 3;
+    padding: 0 20px;
+}
     </style>
 </head>
 <body>
