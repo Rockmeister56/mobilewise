@@ -207,6 +207,13 @@ document.addEventListener('visibilitychange', function() {
 // 🎤 ACTUAL START LISTENING FUNCTION - COMPLETE FIXED VERSION
 // ===================================================
 async function startListening(onReadyCallback = null) {
+    // 🛡️ CRITICAL: Prevent double-starts
+    if (window.isCurrentlyListening === true) {
+        console.log('🚫 Already listening - skipping duplicate start');
+        if (onReadyCallback) setTimeout(() => onReadyCallback(), 50);
+        return;
+    }
+
     // 🚀 ULTRA-FAST START: If pre-warmed, skip initialization
     if (recognitionPreWarmed && recognition) {
         console.log('⚡ Using pre-warmed engine (instant start)');
