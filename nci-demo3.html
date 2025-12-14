@@ -272,64 +272,7 @@
                 sessionStorage.setItem('userBrowsing', 'true');
             });
         });
-
-        // ===================================================
-// 📱 MOBILE PERMISSION HANDLING FOR VIDEO BUTTON
-// ===================================================
-
-// Track if we've asked for permission
-let mobilePermissionRequested = false;
-
-// Get the button from your video button overlay
-const getAssistanceBtn = document.getElementById('getAssistanceBtn');
-
-if (getAssistanceBtn) {
-    // Replace the existing click handler with mobile-aware version
-    getAssistanceBtn.addEventListener('click', async function(e) {
-        console.log('🎤 Get AI Assistance clicked');
         
-        // Check if mobile
-        const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
-        
-        if (isMobile && !mobilePermissionRequested) {
-            console.log('📱 First mobile click - requesting permission');
-            
-            // Show "preparing" message
-            const aiMessage = document.getElementById('aiMessage');
-            if (aiMessage) {
-                aiMessage.textContent = "Preparing voice assistant...";
-            }
-            
-            // This will trigger browser permission popup
-            // The FIRST startListening() after user click shows permission dialog
-            try {
-                // Start listening (triggers permission popup)
-                startListening(() => {
-                    console.log('✅ Mobile permission granted!');
-                    mobilePermissionRequested = true;
-                    
-                    // Now open the chat (your existing functionality)
-                    sessionStorage.setItem('startingChat', 'true');
-                    window.open('https://smartaivoicebot.netlify.app/voice-chat-fusion-instant?autoStartVoice=true', '_blank');
-                });
-                
-            } catch (error) {
-                console.log('❌ Mobile permission error:', error);
-                // Fallback: Just open the chat (desktop behavior)
-                sessionStorage.setItem('startingChat', 'true');
-                window.open('https://smartaivoicebot.netlify.app/voice-chat-fusion-instant?autoStartVoice=true', '_blank');
-            }
-            
-        } else {
-            // Desktop or already has permission - normal behavior
-            console.log('🖥️ Desktop or already permitted - normal flow');
-            sessionStorage.setItem('startingChat', 'true');
-            window.open('https://smartaivoicebot.netlify.app/voice-chat-fusion-instant?autoStartVoice=true', '_blank');
-        }
-    });
-    
-    console.log('✅ Mobile permission handler attached to Get AI Assistance button');
-}
     </script>
 </body>
 </html>
