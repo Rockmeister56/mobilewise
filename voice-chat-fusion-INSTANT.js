@@ -3,6 +3,97 @@
 // Smart Button + Lead Capture + EmailJS + Banner System
 // ===================================================
 
+// ===================================================
+// 📱 MOBILE PERMISSION BRIDGE SYSTEM - FIXED VERSION
+// ===================================================
+
+console.log('=== BRIDGE SYSTEM STARTING ===');
+console.log('Full URL:', window.location.href);
+
+// Check parameters
+const urlParams = new URLSearchParams(window.location.search);
+const shouldAutoStart = urlParams.get('autoStartVoice') === 'true';
+const hasPermission = urlParams.get('micPermissionGranted') === 'true';
+const hasGesture = urlParams.get('gestureInitiated') === 'true';
+
+console.log('Bridge Parameters:', { shouldAutoStart, hasPermission, hasGesture });
+
+// CRITICAL FIX: Check ALL conditions correctly
+if (shouldAutoStart && hasPermission && hasGesture) {
+    console.log('🚀🚀🚀 BRIDGE: AUTO-START CONDITIONS MET! 🚀🚀🚀');
+    
+    // Set flag IMMEDIATELY
+    window.externalPreGrantedPermission = true;
+    window.bridgeShouldAutoStart = true;
+    
+    // Prevent normal activation
+    window.micPermissionGranted = true;
+    window.isAudioMode = true;
+    
+    console.log('✅ Bridge flags set, ready for auto-start');
+    
+    // Wait for DOM and then auto-start
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', bridgeAutoStart);
+    } else {
+        bridgeAutoStart();
+    }
+    
+    function bridgeAutoStart() {
+        console.log('🎯 Bridge: Starting auto-activation');
+        
+        // Hide initial UI
+        const centerMic = document.getElementById('centerMicActivation');
+        if (centerMic) centerMic.style.display = 'none';
+        
+        // Set conversation state
+        window.conversationState = 'getting_first_name';
+        window.waitingForName = true;
+        
+        // Skip normal activation
+        console.log('⏩ Bridge: Skipping normal activation flow');
+        
+        // Start the greeting after a short delay
+        setTimeout(() => {
+            if (typeof speakResponse === 'function') {
+                const greeting = "Hi there! I'm Boteemia your personal AI Voice assistant, may I get your first name please?";
+                console.log('🎤 Bridge: Speaking greeting');
+                speakResponse(greeting);
+            }
+        }, 1000);
+    }
+    
+} else {
+    console.log('🔗 Bridge: Normal mode (no auto-start)');
+}
+
+console.log('=== BRIDGE SYSTEM COMPLETE ===');
+
+// TEMPORARY DEBUG: Add this at the VERY TOP of your voice chat file
+console.log('=== STARTING VOICE CHAT ===');
+console.log('Full URL:', window.location.href);
+
+// Override showDirectSpeakNow temporarily to see who's calling it
+const originalShowDirectSpeakNow = window.showDirectSpeakNow;
+window.showDirectSpeakNow = function(...args) {
+    console.log('🎯🎯🎯 BANNER TRIGGERED! 🎯🎯🎯');
+    console.log('Called from:', new Error().stack);
+    console.log('Arguments:', args);
+    
+    // Check if we already have a banner
+    const existingBanner = document.querySelector('.speak-now-banner, .black-overlay-banner, [id*="speak"], .direct-speak-now');
+    console.log('Existing banner?', !!existingBanner);
+    
+    if (existingBanner) {
+        console.log('🛑 DUPLICATE BANNER BLOCKED!');
+        return; // Don't show another one
+    }
+    
+    return originalShowDirectSpeakNow.apply(this, args);
+};
+
+console.log('✅ Debug override installed');
+
 // ===========================================
 // ELEVENLABS CONFIGURATION
 // ===========================================
