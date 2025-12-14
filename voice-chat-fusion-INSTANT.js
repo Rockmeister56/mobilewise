@@ -1243,173 +1243,43 @@ function initializeSpeechRecognition() {
     return true;
 }
 
-// 🚀 STRONGER BEEP BLOCKER FIX
-console.clear();
-console.log('🚀 FIXING BEEP BLOCKER');
-console.log('=====================\n');
-
-// Replace the current silenceMobileBeeps() with this stronger version
+// 🎯 SIMPLE FIX: Update your existing silenceMobileBeeps()
 function silenceMobileBeeps() {
-    if (!/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
-        console.log('📱 Not mobile, skipping beep silence');
-        return;
-    }
+    if (!/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) return;
     
-    console.log('🔇 Applying STRONG mobile beep silence...');
+    console.log('🔇 Applying mobile beep silence (AI safe)...');
     
-    // 1. MUTE AudioContext COMPLETELY
-    if (typeof AudioContext !== 'undefined') {
-        const originalCreateGain = AudioContext.prototype.createGain;
-        AudioContext.prototype.createGain = function() {
-            const gainNode = originalCreateGain.call(this);
-            gainNode.gain.value = 0; // 🔥 ZERO GAIN = COMPLETE SILENCE
-            console.log('🔇 AudioContext MUTED (gain = 0)');
-            return gainNode;
-        };
-        console.log('✅ AudioContext muted');
-    }
-    
-    // 2. BLOCK OscillatorNode completely
-    if (typeof OscillatorNode !== 'undefined') {
-        const originalStart = OscillatorNode.prototype.start;
-        OscillatorNode.prototype.start = function() {
-            console.log('🔇 Oscillator BLOCKED (not starting)');
-            return; // 🔥 DON'T START AT ALL
-        };
-        console.log('✅ OscillatorNode blocked');
-    }
-    
-    // 3. BLOCK HTMLAudioElement beeps
-    const originalPlay = HTMLAudioElement.prototype.play;
-    HTMLAudioElement.prototype.play = function() {
-        // Block ANY short audio (likely beeps)
-        if (this.duration < 2 || !this.src || this.src.includes('beep')) {
-            console.log('🔇 Audio beep BLOCKED');
-            return Promise.reject(new Error('beep blocked'));
-        }
-        return originalPlay.call(this);
-    };
-    console.log('✅ HTMLAudioElement beeps blocked');
-    
-    // 4. SILENCE recognition beeps (original functionality)
+    // ONLY do the recognition handler part (skip AudioContext/Oscillator)
     const recognition = window.recognition || (typeof recognition !== 'undefined' ? recognition : null);
+    
     if (recognition) {
-        // Store original handlers
+        // Store original
         const originalOnStart = recognition.onstart;
         const originalAudioStart = recognition.onaudiostart;
         const originalSoundStart = recognition.onsoundstart;
         
-        // Replace with silent handlers
+        // Replace with empty functions
         recognition.onstart = function() {
-            console.log('🔇 Recognition start SILENCED');
+            console.log('🔇 Recognition start silenced');
             if (originalOnStart) return originalOnStart.call(this);
         };
         
         recognition.onaudiostart = function() {
-            console.log('🔇 Audio start SILENCED');
+            console.log('🔇 Audio start silenced');
             if (originalAudioStart) return originalAudioStart.call(this);
         };
         
         recognition.onsoundstart = function() {
-            console.log('🔇 Sound start SILENCED');
+            console.log('🔇 Sound start silenced');
             if (originalSoundStart) return originalSoundStart.call(this);
         };
         
-        console.log('✅ Recognition beeps silenced');
+        console.log('✅ Recognition beeps silenced (AI voice preserved)');
     }
     
-    console.log('✅ STRONG beep blocking applied');
+    // DON'T modify AudioContext or Oscillator - too aggressive!
+    console.log('✅ AI voice will work normally');
 }
-
-// Test the fix immediately
-console.log('🧪 Testing the fix...\n');
-
-// Run the fixed function
-silenceMobileBeeps();
-
-// Verify it worked
-setTimeout(() => {
-    console.log('\n🎯 VERIFICATION TESTS:');
-    console.log('=====================');
-    
-    try {
-        // Test AudioContext
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const gainNode = audioContext.createGain();
-        console.log(`1. AudioContext gain: ${gainNode.gain.value} (should be 0)`);
-        console.log(`   Result: ${gainNode.gain.value === 0 ? '✅ MUTED' : '❌ STILL NOT MUTED'}`);
-        
-        // Test Oscillator
-        if (typeof OscillatorNode !== 'undefined') {
-            const oscillator = audioContext.createOscillator();
-            console.log('2. Oscillator test: Should say "BLOCKED" above');
-        }
-        
-        audioContext.close();
-        
-        // Test HTMLAudio
-        const testAudio = new Audio();
-        testAudio.duration = 0.5; // Short beep-like
-        testAudio.play()
-            .then(() => console.log('3. HTMLAudio: ❌ NOT BLOCKED'))
-            .catch(e => {
-                if (e.message.includes('beep blocked')) {
-                    console.log('3. HTMLAudio: ✅ BLOCKED');
-                } else {
-                    console.log(`3. HTMLAudio: ⚠️ ${e.message}`);
-                }
-            });
-            
-    } catch(e) {
-        console.log(`❌ Verification failed: ${e.message}`);
-    }
-    
-    console.log('\n📱 MOBILE TEST:');
-    console.log('==============');
-    console.log('Now trigger Speak Now banner on mobile.');
-    console.log('You should hear:');
-    console.log('• ✅ NO beeps (silence)');
-    console.log('• ✅ Speech recognition still works');
-    console.log('• ✅ Banner shows your speech');
-    
-}, 500);
-
-// Add a test button
-const testBtn = document.createElement('button');
-testBtn.textContent = '🔇 Test Beep Block';
-testBtn.style.cssText = `
-    position: fixed;
-    bottom: 20px;
-    left: 20px;
-    padding: 15px;
-    background: #2196F3;
-    color: white;
-    border: none;
-    border-radius: 10px;
-    font-weight: bold;
-    cursor: pointer;
-    z-index: 99999;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-`;
-
-testBtn.onclick = function() {
-    console.log('\n🎤 Testing beep blocking...');
-    console.log('1. Applied strong beep block');
-    console.log('2. Now trigger Speak Now banner');
-    console.log('3. Report what you hear');
-    
-    // Ensure our fix is applied
-    silenceMobileBeeps();
-    
-    // Trigger banner
-    if (typeof showDirectSpeakNow === 'function') {
-        showDirectSpeakNow();
-    }
-};
-
-document.body.appendChild(testBtn);
-console.log('\n✅ Test button added to bottom-left');
-console.log('📱 Click it, then trigger banner on MOBILE');
 
 function configureMobileSpeech() {
     const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
