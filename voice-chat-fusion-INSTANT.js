@@ -4,11 +4,10 @@
 // ===================================================
 
 // ===================================================
-// 📱 MOBILE PERMISSION BRIDGE SYSTEM - FIXED VERSION
+// 📱 MOBILE PERMISSION BRIDGE SYSTEM
 // ===================================================
 
 console.log('=== BRIDGE SYSTEM STARTING ===');
-console.log('Full URL:', window.location.href);
 
 // Check parameters
 const urlParams = new URLSearchParams(window.location.search);
@@ -18,7 +17,6 @@ const hasGesture = urlParams.get('gestureInitiated') === 'true';
 
 console.log('Bridge Parameters:', { shouldAutoStart, hasPermission, hasGesture });
 
-// CRITICAL FIX: Check ALL conditions correctly
 if (shouldAutoStart && hasPermission && hasGesture) {
     console.log('🚀🚀🚀 BRIDGE: AUTO-START CONDITIONS MET! 🚀🚀🚀');
     
@@ -68,31 +66,6 @@ if (shouldAutoStart && hasPermission && hasGesture) {
 }
 
 console.log('=== BRIDGE SYSTEM COMPLETE ===');
-
-// TEMPORARY DEBUG: Add this at the VERY TOP of your voice chat file
-console.log('=== STARTING VOICE CHAT ===');
-console.log('Full URL:', window.location.href);
-
-// Override showDirectSpeakNow temporarily to see who's calling it
-const originalShowDirectSpeakNow = window.showDirectSpeakNow;
-window.showDirectSpeakNow = function(...args) {
-    console.log('🎯🎯🎯 BANNER TRIGGERED! 🎯🎯🎯');
-    console.log('Called from:', new Error().stack);
-    console.log('Arguments:', args);
-    
-    // Check if we already have a banner
-    const existingBanner = document.querySelector('.speak-now-banner, .black-overlay-banner, [id*="speak"], .direct-speak-now');
-    console.log('Existing banner?', !!existingBanner);
-    
-    if (existingBanner) {
-        console.log('🛑 DUPLICATE BANNER BLOCKED!');
-        return; // Don't show another one
-    }
-    
-    return originalShowDirectSpeakNow.apply(this, args);
-};
-
-console.log('✅ Debug override installed');
 
 // ===========================================
 // ELEVENLABS CONFIGURATION
