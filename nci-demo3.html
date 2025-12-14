@@ -255,15 +255,71 @@
                 sessionStorage.removeItem('justFinishedChat');
             }
             
-            // Get AI Assistance Button - with preloader and auto-voice
-            getAssistanceBtn.addEventListener('click', function() {
-                // Set flag that they're starting a chat session
-                sessionStorage.setItem('startingChat', 'true');
-                
-                // Redirect with auto-start parameter
-                const url = 'https://smartaivoicebot.netlify.app/voice-chat-fusion-instant?autoStartVoice=true';
-                window.open(url, '_blank');
-            });
+            // Get AI Assistance Button - with mobile permission handling
+getAssistanceBtn.addEventListener('click', async function() {
+    // Set flag that they're starting a chat session
+    sessionStorage.setItem('startingChat', 'true');
+    
+    // Update button to show we're preparing
+    const originalText = getAssistanceBtn.innerHTML;
+    getAssistanceBtn.innerHTML = '🎤 Preparing microphone...';
+    getAssistanceBtn.disabled = true;
+    
+    try {
+        // FIRST: Get microphone permission on THIS page via user gesture
+        // This is crucial for mobile browsers
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+            audio: {
+                echoCancellation: true,
+                noiseSuppression: true,
+                autoGainControl: true
+            } 
+        });
+        
+        // Permission granted - stop the stream immediately (we just needed permission)
+        stream.getTracks().forEach(track => track.stop());
+        
+        // Store that permission was granted
+        localStorage.setItem('micPermissionGranted', 'true');
+        
+        // Generate unique timestamp to prevent caching
+        const timestamp = Date.now();
+        
+        // Generic URL with permission bridge parameters
+        const url = `https://smartaivoicebot.netlify.app/voice-chat-fusion-instant?autoStartVoice=true&micPermissionGranted=true&gestureInitiated=true&timestamp=${timestamp}`;
+        
+        // Update button to show success
+        getAssistanceBtn.innerHTML = '✅ Opening voice chat...';
+        
+        // Brief delay for user feedback
+        await new Promise(resolve => setTimeout(resolve, 800));
+        
+        // Open voice chat
+        window.open(url, '_blank');
+        
+        // Reset button after delay
+        setTimeout(() => {
+            getAssistanceBtn.innerHTML = originalText;
+            getAssistanceBtn.disabled = false;
+        }, 1500);
+        
+    } catch (error) {
+        console.error("Microphone permission denied:", error);
+        
+        // Update button to show error
+        getAssistanceBtn.innerHTML = '⚠️ Mic access needed';
+        
+        // Still open voice chat but it will know mic wasn't granted
+        const url = `https://smartaivoicebot.netlify.app/voice-chat-fusion-instant?autoStartVoice=true&micPermissionGranted=false&gestureInitiated=true`;
+        window.open(url, '_blank');
+        
+        // Reset button after 3 seconds
+        setTimeout(() => {
+            getAssistanceBtn.innerHTML = originalText;
+            getAssistanceBtn.disabled = false;
+        }, 3000);
+    }
+});
             
             // Just Browsing Button - hides the AI interface
             justBrowsingBtn.addEventListener('click', function() {
@@ -272,7 +328,7 @@
                 sessionStorage.setItem('userBrowsing', 'true');
             });
         });
-        
+
     </script>
 </body>
 </html>
