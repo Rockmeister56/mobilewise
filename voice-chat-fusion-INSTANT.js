@@ -1227,13 +1227,12 @@ function configureMobileSpeech() {
         if (originalOnError && typeof originalOnError === 'function') {
             originalOnError.call(this, event);
         }
-    };
+    };  
+    // Replace the handler
+    rec.onresult = mobileOnResult;
     
     console.log('✅ Mobile speech optimized (with cutoff prevention)');
 } // <-- This closes the main function
-    
-    // Replace the handler
-    rec.onresult = mobileOnResult;
     
     // 🎯 ALSO IMPROVE ERROR HANDLING FOR MOBILE
     const originalOnError = rec.onerror;
