@@ -1130,9 +1130,12 @@ function configureMobileSpeech() {
     // SAVE ORIGINAL HANDLER
     const originalOnResult = rec.onresult;
     
-    // 🎯 MOBILE RESULT HANDLER (PASTE YOUR CODE HERE!)
+    // 🎯 MOBILE RESULT HANDLER
     const mobileOnResult = function(event) {
         console.log('📱 MOBILE SPEECH DETECTED');
+        
+        // 🎯 CAPTURE 'rec' FOR USE INSIDE THIS FUNCTION
+        const currentRec = rec || window.recognition || recognition;
         
         // Log timing to debug cutoff issues
         if (!window.lastSpeechTime) window.lastSpeechTime = Date.now();
@@ -1155,7 +1158,7 @@ function configureMobileSpeech() {
             return;
         }
         
-        // 🎯 IMPROVED PROCESSING FOR MOBILE
+        // PROCESS RESULTS
         let finalTranscript = '';
         let interimTranscript = '';
         
@@ -1179,13 +1182,12 @@ function configureMobileSpeech() {
             window.lastCapturedTranscript = finalTranscript.trim();
             window.lastCapturedTime = Date.now();
             
-            // 🎯 CHECK FOR CUTOFF
+            // CHECK FOR CUTOFF
             const wordCount = finalTranscript.trim().split(/\s+/).length;
             console.log(`   📊 Word count: ${wordCount}`);
             
             if (wordCount < 3 && finalTranscript.toLowerCase().includes('testing')) {
                 console.log('⚠️ WARNING: Speech may have been cut off early');
-                console.log('💡 Mobile might need even longer timeout or different settings');
             }
         }
         
@@ -1194,16 +1196,17 @@ function configureMobileSpeech() {
             console.log('📱 INTERIM (still listening):', interimTranscript.trim());
         }
         
-        // 🎯 AUTO-EXTEND TIMEOUT WHEN SPEECH IS DETECTED
+        // AUTO-EXTEND TIMEOUT WHEN SPEECH IS DETECTED
         if ((finalTranscript || interimTranscript) && window.directSpeakNowTimeout) {
             console.log('🔄 Speech detected - extending timeout...');
             clearTimeout(window.directSpeakNowTimeout);
             
             // Give extra 5 seconds after speech
             window.directSpeakNowTimeout = setTimeout(() => {
-                if (rec && rec.stop) {
+                // 🎯 USE currentRec INSTEAD OF rec
+                if (currentRec && currentRec.stop) {
                     console.log('📱 Extended timeout reached - stopping');
-                    rec.stop();
+                    currentRec.stop();
                 }
             }, 5000);
         }
@@ -1212,7 +1215,7 @@ function configureMobileSpeech() {
     // REPLACE THE HANDLER
     rec.onresult = mobileOnResult;
     
-    // ERROR HANDLER
+    // 🎯 ALSO IMPROVE ERROR HANDLING FOR MOBILE
     const originalOnError = rec.onerror;
     rec.onerror = function(event) {
         console.log('📱 MOBILE ERROR:', event.error);
@@ -1227,12 +1230,10 @@ function configureMobileSpeech() {
         if (originalOnError && typeof originalOnError === 'function') {
             originalOnError.call(this, event);
         }
-    };  
-    // Replace the handler
-    rec.onresult = mobileOnResult;
+    };
     
     console.log('✅ Mobile speech optimized (with cutoff prevention)');
-}; // <-- This closes the main function
+}// <-- This closes the main function
     
     // 🎯 ALSO IMPROVE ERROR HANDLING FOR MOBILE
     const originalOnError = rec.onerror;
