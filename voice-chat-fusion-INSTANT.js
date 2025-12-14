@@ -1214,7 +1214,7 @@ function configureMobileSpeech() {
  }
     
     // REPLACE THE HANDLER
-rec.onresult = mobileOnResult;
+// rec.onresult = mobileOnResult;
 
 // 🎯 ALSO IMPROVE ERROR HANDLING FOR MOBILE
 const originalOnError = rec.onerror;
