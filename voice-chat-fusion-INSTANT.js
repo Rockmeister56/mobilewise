@@ -1211,49 +1211,30 @@ function configureMobileSpeech() {
             }, 5000);
         }
     };
+ }
     
     // REPLACE THE HANDLER
-    rec.onresult = mobileOnResult;
+rec.onresult = mobileOnResult;
+
+// 🎯 ALSO IMPROVE ERROR HANDLING FOR MOBILE
+const originalOnError = rec.onerror;
+rec.onerror = function(event) {
+    console.log('📱 MOBILE ERROR:', event.error);
     
-    // 🎯 ALSO IMPROVE ERROR HANDLING FOR MOBILE
-    const originalOnError = rec.onerror;
-    rec.onerror = function(event) {
-        console.log('📱 MOBILE ERROR:', event.error);
-        
-        if (event.error === 'no-speech') {
-            console.log('💡 Mobile: No speech detected');
-            console.log('   - Try speaking louder');
-            console.log('   - Ensure microphone is not blocked');
-            console.log('   - Mobile may need clearer enunciation');
-        }
-        
-        if (originalOnError && typeof originalOnError === 'function') {
-            originalOnError.call(this, event);
-        }
-    };
+    if (event.error === 'no-speech') {
+        console.log('💡 Mobile: No speech detected');
+        console.log('   - Try speaking louder');
+        console.log('   - Ensure microphone is not blocked');
+        console.log('   - Mobile may need clearer enunciation');
+    }
     
-    console.log('✅ Mobile speech optimized (with cutoff prevention)');
-}// <-- This closes the main function
-    
-    // 🎯 ALSO IMPROVE ERROR HANDLING FOR MOBILE
-    const originalOnError = rec.onerror;
-    rec.onerror = function(event) {
-        console.log('📱 MOBILE ERROR:', event.error);
-        
-        if (event.error === 'no-speech') {
-            console.log('💡 Mobile: No speech detected');
-            console.log('   - Try speaking louder');
-            console.log('   - Ensure microphone is not blocked');
-            console.log('   - Mobile may need clearer enunciation');
-        }
-        
-        if (originalOnError && typeof originalOnError === 'function') {
-            originalOnError.call(this, event);
-        }
-    };
-    
-    console.log('✅ Mobile speech optimized (with cutoff prevention)');
- // <-- THIS WAS MISSING - FUNCTION CLOSING BRACE
+    if (originalOnError && typeof originalOnError === 'function') {
+        originalOnError.call(this, event);
+    }
+};
+
+console.log('✅ Mobile speech optimized (with cutoff prevention)');
+  
 
 function getApologyResponse() {
     const sorryMessages = [
@@ -1263,7 +1244,7 @@ function getApologyResponse() {
         "Let me try listening again. Please speak your answer now."
     ];
 
-        // 🎯 RESET THE CLEANUP TIMER WHEN SORRY MESSAGE STARTS
+    // 🎯 RESET THE CLEANUP TIMER WHEN SORRY MESSAGE STARTS
     if (window.lastSequenceStart) {
         console.log('⏰ Resetting cleanup timer for sorry message');
         window.lastSequenceStart = Date.now();
