@@ -3,6 +3,211 @@
 // Smart Button + Lead Capture + EmailJS + Banner System
 // ===================================================
 
+// ===================================================
+// 📱 MOBILE PERMISSION BRIDGE SYSTEM
+// Generic solution for all markets
+// ===================================================
+
+// 1. URL Parameter Helper (only add if not already exists)
+if (typeof getUrlParams !== 'function') {
+    function getUrlParams() {
+        const params = {};
+        const queryString = window.location.search.substring(1);
+        const pairs = queryString.split('&');
+        
+        for (const pair of pairs) {
+            const [key, value] = pair.split('=');
+            if (key) {
+                params[decodeURIComponent(key)] = decodeURIComponent(value || '');
+            }
+        }
+        return params;
+    }
+}
+
+// 2. Global variable to track permission bridge status
+let permissionBridgeStatus = {
+    cameFromExternal: false,
+    permissionGrantedViaGesture: false,
+    shouldAutoStart: false,
+    timestamp: null
+};
+
+// 3. Check URL parameters on page load
+function checkPermissionBridge() {
+    try {
+        const urlParams = getUrlParams();
+        
+        permissionBridgeStatus = {
+            cameFromExternal: urlParams.autoStartVoice === 'true',
+            permissionGrantedViaGesture: urlParams.micPermissionGranted === 'true' && 
+                                        urlParams.gestureInitiated === 'true',
+            shouldAutoStart: urlParams.autoStartVoice === 'true',
+            timestamp: urlParams.timestamp || Date.now()
+        };
+        
+        console.log('🔗 Permission Bridge Status:', permissionBridgeStatus);
+        
+        // If permission was already granted via external button, set a flag
+        if (permissionBridgeStatus.permissionGrantedViaGesture) {
+            console.log('✅ Microphone permission already granted via external user gesture');
+            window.externalPreGrantedPermission = true;
+        }
+        
+        return permissionBridgeStatus;
+    } catch (error) {
+        console.error('Error checking permission bridge parameters:', error);
+        return permissionBridgeStatus;
+    }
+}
+
+// 4. Modified requestMicrophoneAccess() wrapper
+async function requestMicrophoneAccessWithBridge() {
+    console.log('🎤 Bridge-Aware Microphone Request');
+    
+    if (window.externalPreGrantedPermission) {
+        console.log('✅ Bridge: Skipping permission dialog - already granted');
+        
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ 
+                audio: {
+                    echoCancellation: true,
+                    noiseSuppression: true,
+                    autoGainControl: true
+                } 
+            });
+            
+            stream.getTracks().forEach(track => track.stop());
+            showMicActivatedStatus();
+            
+            if (permissionBridgeStatus.shouldAutoStart) {
+                console.log('🎯 Bridge: Auto-starting voice chat');
+                setTimeout(() => {
+                    if (typeof startListening === 'function') {
+                        startListening();
+                    }
+                }, 1000);
+            }
+            
+            return true;
+        } catch (error) {
+            console.error('Bridge: Failed to get microphone stream:', error);
+            return await requestMicrophoneAccess();
+        }
+    }
+    
+    console.log('🔄 Bridge: Using normal permission flow');
+    return await requestMicrophoneAccess();
+}
+
+// 5. Modified activateMicrophone() wrapper for bridge
+async function activateMicrophoneWithBridge() {
+    console.log('🎤 Bridge-Aware Microphone Activation');
+    
+    checkPermissionBridge();
+    
+    if (permissionBridgeStatus.shouldAutoStart && permissionBridgeStatus.permissionGrantedViaGesture) {
+        console.log('🚀 Bridge: Auto-activating microphone');
+        
+        const centerMic = document.getElementById('centerMicActivation');
+        if (centerMic) centerMic.style.display = 'none';
+        
+        console.log('⏩ Bridge: Skipping intro jingle for faster startup');
+        
+        window.micPermissionGranted = true;
+        window.isAudioMode = true;
+        
+        const micButton = document.getElementById('micButton');
+        if (micButton) micButton.classList.add('listening');
+        
+        const quickButtons = document.getElementById('quickButtonsContainer');
+        if (quickButtons) quickButtons.style.display = 'block';
+        
+        if (typeof initializeSpeechRecognition === 'function') {
+            initializeSpeechRecognition();
+        }
+        
+        setTimeout(() => {
+            if (typeof conversationState === 'undefined') {
+                window.conversationState = 'getting_first_name';
+            } else {
+                conversationState = 'getting_first_name';
+                window.waitingForName = true;
+            }
+            
+            if (typeof leadData === 'undefined' || !leadData) {
+                window.leadData = { firstName: '' };
+            }
+            
+            const greeting = "Hi there! I'm Boteemia your personal AI Voice assistant, may I get your first name please?";
+            
+            if (!window.externalPureVoiceMode && typeof addAIMessage === 'function') {
+                addAIMessage(greeting);
+            }
+            
+            if (typeof speakResponse === 'function') {
+                speakResponse(greeting);
+            }
+            
+            setTimeout(() => {
+                if (typeof startListening === 'function') {
+                    startListening();
+                }
+            }, 1500);
+            
+        }, 800);
+        
+        return true;
+    }
+    
+    console.log('🔄 Bridge: Using normal activation flow');
+    return await activateMicrophone();
+}
+
+// 6. Update existing event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    const bridgeStatus = checkPermissionBridge();
+    
+    const mainMicButton = document.getElementById('mainMicButton');
+    if (mainMicButton) {
+        mainMicButton.replaceWith(mainMicButton.cloneNode(true));
+        
+        const newMicButton = document.getElementById('mainMicButton');
+        newMicButton.addEventListener('click', async function() {
+            if (!bridgeStatus.shouldAutoStart && typeof playIntroJingle === 'function') {
+                playIntroJingle();
+            }
+            
+            const centerMic = document.getElementById('centerMicActivation');
+            if (centerMic) centerMic.style.display = 'none';
+            
+            await activateMicrophoneWithBridge();
+        });
+    }
+    
+    if (bridgeStatus.shouldAutoStart) {
+        console.log('🚀 Bridge: Auto-start requested');
+        setTimeout(() => {
+            activateMicrophoneWithBridge();
+        }, 500);
+    }
+});
+
+// 7. Clean bridge-specific session data
+function cleanupBridgeState() {
+    delete window.externalPreGrantedPermission;
+    delete window.externalPureVoiceMode;
+    
+    if (window.history.replaceState && !window.location.search.includes('debug')) {
+        const cleanUrl = window.location.pathname + window.location.hash;
+        window.history.replaceState(null, '', cleanUrl);
+    }
+}
+
+window.addEventListener('beforeunload', cleanupBridgeState);
+
+console.log('✅ Mobile Permission Bridge System Loaded');
+
 // TEMPORARY DEBUG: Add this at the VERY TOP of your voice chat file
 console.log('=== STARTING VOICE CHAT ===');
 console.log('Full URL:', window.location.href);
@@ -774,212 +979,6 @@ function clearRestartTimers() {
         countdownEl.textContent = '';
     }
 }
-
-// ===================================================
-// 📱 MOBILE PERMISSION BRIDGE SYSTEM
-// Generic solution for all markets
-// ===================================================
-
-// 1. URL Parameter Helper (only add if not already exists)
-if (typeof getUrlParams !== 'function') {
-    function getUrlParams() {
-        const params = {};
-        const queryString = window.location.search.substring(1);
-        const pairs = queryString.split('&');
-        
-        for (const pair of pairs) {
-            const [key, value] = pair.split('=');
-            if (key) {
-                params[decodeURIComponent(key)] = decodeURIComponent(value || '');
-            }
-        }
-        return params;
-    }
-}
-
-// 2. Global variable to track permission bridge status
-let permissionBridgeStatus = {
-    cameFromExternal: false,
-    permissionGrantedViaGesture: false,
-    shouldAutoStart: false,
-    timestamp: null
-};
-
-// 3. Check URL parameters on page load
-function checkPermissionBridge() {
-    try {
-        const urlParams = getUrlParams();
-        
-        permissionBridgeStatus = {
-            cameFromExternal: urlParams.autoStartVoice === 'true',
-            permissionGrantedViaGesture: urlParams.micPermissionGranted === 'true' && 
-                                        urlParams.gestureInitiated === 'true',
-            shouldAutoStart: urlParams.autoStartVoice === 'true',
-            timestamp: urlParams.timestamp || Date.now()
-        };
-        
-        console.log('🔗 Permission Bridge Status:', permissionBridgeStatus);
-        
-        // If permission was already granted via external button, set a flag
-        if (permissionBridgeStatus.permissionGrantedViaGesture) {
-            console.log('✅ Microphone permission already granted via external user gesture');
-            window.externalPreGrantedPermission = true;
-        }
-        
-        return permissionBridgeStatus;
-    } catch (error) {
-        console.error('Error checking permission bridge parameters:', error);
-        return permissionBridgeStatus;
-    }
-}
-
-// 4. Modified requestMicrophoneAccess() wrapper
-async function requestMicrophoneAccessWithBridge() {
-    console.log('🎤 Bridge-Aware Microphone Request');
-    
-    if (window.externalPreGrantedPermission) {
-        console.log('✅ Bridge: Skipping permission dialog - already granted');
-        
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ 
-                audio: {
-                    echoCancellation: true,
-                    noiseSuppression: true,
-                    autoGainControl: true
-                } 
-            });
-            
-            stream.getTracks().forEach(track => track.stop());
-            showMicActivatedStatus();
-            
-            if (permissionBridgeStatus.shouldAutoStart) {
-                console.log('🎯 Bridge: Auto-starting voice chat');
-                setTimeout(() => {
-                    if (typeof startListening === 'function') {
-                        startListening();
-                    }
-                }, 1000);
-            }
-            
-            return true;
-        } catch (error) {
-            console.error('Bridge: Failed to get microphone stream:', error);
-            return await requestMicrophoneAccess();
-        }
-    }
-    
-    console.log('🔄 Bridge: Using normal permission flow');
-    return await requestMicrophoneAccess();
-}
-
-// 5. Modified activateMicrophone() wrapper for bridge
-async function activateMicrophoneWithBridge() {
-    console.log('🎤 Bridge-Aware Microphone Activation');
-    
-    checkPermissionBridge();
-    
-    if (permissionBridgeStatus.shouldAutoStart && permissionBridgeStatus.permissionGrantedViaGesture) {
-        console.log('🚀 Bridge: Auto-activating microphone');
-        
-        const centerMic = document.getElementById('centerMicActivation');
-        if (centerMic) centerMic.style.display = 'none';
-        
-        console.log('⏩ Bridge: Skipping intro jingle for faster startup');
-        
-        window.micPermissionGranted = true;
-        window.isAudioMode = true;
-        
-        const micButton = document.getElementById('micButton');
-        if (micButton) micButton.classList.add('listening');
-        
-        const quickButtons = document.getElementById('quickButtonsContainer');
-        if (quickButtons) quickButtons.style.display = 'block';
-        
-        if (typeof initializeSpeechRecognition === 'function') {
-            initializeSpeechRecognition();
-        }
-        
-        setTimeout(() => {
-            if (typeof conversationState === 'undefined') {
-                window.conversationState = 'getting_first_name';
-            } else {
-                conversationState = 'getting_first_name';
-                window.waitingForName = true;
-            }
-            
-            if (typeof leadData === 'undefined' || !leadData) {
-                window.leadData = { firstName: '' };
-            }
-            
-            const greeting = "Hi there! I'm Boteemia your personal AI Voice assistant, may I get your first name please?";
-            
-            if (!window.externalPureVoiceMode && typeof addAIMessage === 'function') {
-                addAIMessage(greeting);
-            }
-            
-            if (typeof speakResponse === 'function') {
-                speakResponse(greeting);
-            }
-            
-            setTimeout(() => {
-                if (typeof startListening === 'function') {
-                    startListening();
-                }
-            }, 1500);
-            
-        }, 800);
-        
-        return true;
-    }
-    
-    console.log('🔄 Bridge: Using normal activation flow');
-    return await activateMicrophone();
-}
-
-// 6. Update existing event listeners
-document.addEventListener('DOMContentLoaded', function() {
-    const bridgeStatus = checkPermissionBridge();
-    
-    const mainMicButton = document.getElementById('mainMicButton');
-    if (mainMicButton) {
-        mainMicButton.replaceWith(mainMicButton.cloneNode(true));
-        
-        const newMicButton = document.getElementById('mainMicButton');
-        newMicButton.addEventListener('click', async function() {
-            if (!bridgeStatus.shouldAutoStart && typeof playIntroJingle === 'function') {
-                playIntroJingle();
-            }
-            
-            const centerMic = document.getElementById('centerMicActivation');
-            if (centerMic) centerMic.style.display = 'none';
-            
-            await activateMicrophoneWithBridge();
-        });
-    }
-    
-    if (bridgeStatus.shouldAutoStart) {
-        console.log('🚀 Bridge: Auto-start requested');
-        setTimeout(() => {
-            activateMicrophoneWithBridge();
-        }, 500);
-    }
-});
-
-// 7. Clean bridge-specific session data
-function cleanupBridgeState() {
-    delete window.externalPreGrantedPermission;
-    delete window.externalPureVoiceMode;
-    
-    if (window.history.replaceState && !window.location.search.includes('debug')) {
-        const cleanUrl = window.location.pathname + window.location.hash;
-        window.history.replaceState(null, '', cleanUrl);
-    }
-}
-
-window.addEventListener('beforeunload', cleanupBridgeState);
-
-console.log('✅ Mobile Permission Bridge System Loaded');
-
 
 // ===== CREATE INSTANT LISTENING BUBBLE =====
 // ❌ DEPRECATED - Using showDirectSpeakNow() instead
