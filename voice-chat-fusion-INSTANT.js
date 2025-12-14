@@ -3,6 +3,31 @@
 // Smart Button + Lead Capture + EmailJS + Banner System
 // ===================================================
 
+// TEMPORARY DEBUG: Add this at the VERY TOP of your voice chat file
+console.log('=== STARTING VOICE CHAT ===');
+console.log('Full URL:', window.location.href);
+
+// Override showDirectSpeakNow temporarily to see who's calling it
+const originalShowDirectSpeakNow = window.showDirectSpeakNow;
+window.showDirectSpeakNow = function(...args) {
+    console.log('🎯🎯🎯 BANNER TRIGGERED! 🎯🎯🎯');
+    console.log('Called from:', new Error().stack);
+    console.log('Arguments:', args);
+    
+    // Check if we already have a banner
+    const existingBanner = document.querySelector('.speak-now-banner, .black-overlay-banner, [id*="speak"], .direct-speak-now');
+    console.log('Existing banner?', !!existingBanner);
+    
+    if (existingBanner) {
+        console.log('🛑 DUPLICATE BANNER BLOCKED!');
+        return; // Don't show another one
+    }
+    
+    return originalShowDirectSpeakNow.apply(this, args);
+};
+
+console.log('✅ Debug override installed');
+
 // ===========================================
 // ELEVENLABS CONFIGURATION
 // ===========================================
