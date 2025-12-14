@@ -238,14 +238,29 @@ async function startListening() {
          if (isMobile) {
             console.log('📱 Mobile detected - applying optimizations...');
 
-        // 🔥 ADD THIS: Block OUR beep on mobile only
+      // 🔥 EMERGENCY BEEP KILLER
     if (isMobile && recognition) {
-        console.log('📱 Mobile detected - silencing OUR beep');
+        console.log('🔫 KILLING ALL BEEP HANDLERS');
         
-        // Silence OUR beep handlers
-        recognition.onstart = function() {
-            console.log('🔇 OUR beep silenced (system beep will play)');
-        };
+        // Method 1: Replace handlers with NOTHING
+        recognition.onstart = recognition.onaudiostart = recognition.onsoundstart = null;
+        
+        // Method 2: Or replace with empty functions
+        recognition.onstart = function() {};
+        recognition.onaudiostart = function() {};
+        recognition.onsoundstart = function() {};
+        
+        // Method 3: Nuclear option - mute ALL audio for 1 second
+        if (typeof AudioContext !== 'undefined') {
+            setTimeout(() => {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const gainNode = audioContext.createGain();
+                gainNode.gain.value = 0;
+                gainNode.connect(audioContext.destination);
+                setTimeout(() => audioContext.close(), 1000);
+            }, 0);
+        }
+    }
         
         recognition.onaudiostart = function() {
             console.log('🔇 OUR audio start silenced');
