@@ -1106,18 +1106,58 @@ function configureMobileSpeech() {
         return;
     }
     
-    console.log('📱 Applying mobile speech optimization...');
+    console.log('📱 Applying IMPROVED mobile speech optimization...');
+    
+    // 🎯 CRITICAL MOBILE SETTINGS TO PREVENT CUTOFF:
+    
+    // 1. Continuous mode (essential for mobile)
+    rec.continuous = true;
+    
+    // 2. Interim results (helps with longer speech)
+    rec.interimResults = true;
+    
+    // 3. More alternatives (better accuracy on mobile)
+    rec.maxAlternatives = 5; // Increased from 3
+    
+    // 4. Disable auto-endpoint detection if possible
+    console.log('   ⚙️ Settings: continuous=true, interimResults=true, maxAlternatives=5');
+    
+    // 🎯 LONGER TIMEOUT FOR MOBILE (PREVENTS CUTOFF)
+    if (window.directSpeakNowTimeout) {
+        clearTimeout(window.directSpeakNowTimeout);
+    }
+    
+    // 15 seconds for mobile (was 10 seconds)
+    window.directSpeakNowTimeout = setTimeout(() => {
+        if (rec && rec.stop) {
+            console.log('📱 Mobile timeout (15s) - stopping');
+            rec.stop();
+        }
+    }, 15000);
+    
+    console.log('   ⏱️ Timeout: 15 seconds (mobile extended)');
     
     // Save original handler FIRST
     const originalOnResult = rec.onresult;
     
-    // Mobile-optimized result handler
+    // 🎯 IMPROVED MOBILE RESULT HANDLER
     const mobileOnResult = function(event) {
         console.log('📱 MOBILE SPEECH DETECTED');
         
+        // Log timing to debug cutoff issues
+        if (!window.lastSpeechTime) window.lastSpeechTime = Date.now();
+        const timeSinceLast = Date.now() - window.lastSpeechTime;
+        window.lastSpeechTime = Date.now();
+        
+        console.log(`   ⏰ Time since last result: ${timeSinceLast}ms`);
+        
         // First call original handler if it exists
         if (originalOnResult && typeof originalOnResult === 'function') {
-            originalOnResult.call(this, event);
+            try {
+                originalOnResult.call(this, event);
+            } catch (e) {
+                console.log('⚠️ Original handler error:', e.message);
+            }
         }
         
         if (!event.results || event.results.length === 0) {
@@ -1125,32 +1165,81 @@ function configureMobileSpeech() {
             return;
         }
         
-        // Process for mobile
-        let transcript = '';
+        // 🎯 IMPROVED PROCESSING FOR MOBILE
+        let finalTranscript = '';
+        let interimTranscript = '';
+        
         for (let i = event.resultIndex; i < event.results.length; ++i) {
             if (event.results[i] && event.results[i][0]) {
-                transcript += event.results[i][0].transcript;
-                console.log(`📱 Result ${i}: "${event.results[i][0].transcript}"`);
+                const result = event.results[i][0];
+                
+                if (event.results[i].isFinal) {
+                    finalTranscript += result.transcript + ' ';
+                    console.log(`📱 Final result ${i}: "${result.transcript}" (confidence: ${result.confidence})`);
+                } else {
+                    interimTranscript += result.transcript + ' ';
+                    console.log(`📱 Interim result ${i}: "${result.transcript}"`);
+                }
             }
         }
         
-        transcript = transcript.trim();
-        if (transcript.length > 0) {
-            console.log('📱 FINAL TRANSCRIPT:', transcript);
-            window.lastCapturedTranscript = transcript;
+        // Process final transcript
+        if (finalTranscript.trim().length > 0) {
+            console.log('📱 FINAL TRANSCRIPT:', finalTranscript.trim());
+            window.lastCapturedTranscript = finalTranscript.trim();
             window.lastCapturedTime = Date.now();
+            
+            // 🎯 CHECK FOR CUTOFF
+            const wordCount = finalTranscript.trim().split(/\s+/).length;
+            console.log(`   📊 Word count: ${wordCount}`);
+            
+            if (wordCount < 3 && finalTranscript.toLowerCase().includes('testing')) {
+                console.log('⚠️ WARNING: Speech may have been cut off early');
+                console.log('💡 Mobile might need even longer timeout or different settings');
+            }
+        }
+        
+        // Also log interim if we have it
+        if (interimTranscript.trim().length > 0 && !finalTranscript) {
+            console.log('📱 INTERIM (still listening):', interimTranscript.trim());
+        }
+        
+        // 🎯 AUTO-EXTEND TIMEOUT WHEN SPEECH IS DETECTED
+        if ((finalTranscript || interimTranscript) && window.directSpeakNowTimeout) {
+            console.log('🔄 Speech detected - extending timeout...');
+            clearTimeout(window.directSpeakNowTimeout);
+            
+            // Give extra 5 seconds after speech
+            window.directSpeakNowTimeout = setTimeout(() => {
+                if (rec && rec.stop) {
+                    console.log('📱 Extended timeout reached - stopping');
+                    rec.stop();
+                }
+            }, 5000);
         }
     };
-    
-    // Mobile-specific settings
-    rec.continuous = true;
-    rec.interimResults = true;
-    rec.maxAlternatives = 3;
     
     // Replace the handler
     rec.onresult = mobileOnResult;
     
-    console.log('✅ Mobile speech optimized');
+    // 🎯 ALSO IMPROVE ERROR HANDLING FOR MOBILE
+    const originalOnError = rec.onerror;
+    rec.onerror = function(event) {
+        console.log('📱 MOBILE ERROR:', event.error);
+        
+        if (event.error === 'no-speech') {
+            console.log('💡 Mobile: No speech detected');
+            console.log('   - Try speaking louder');
+            console.log('   - Ensure microphone is not blocked');
+            console.log('   - Mobile may need clearer enunciation');
+        }
+        
+        if (originalOnError && typeof originalOnError === 'function') {
+            originalOnError.call(this, event);
+        }
+    };
+    
+    console.log('✅ Mobile speech optimized (with cutoff prevention)');
 }
 
 function getApologyResponse() {
