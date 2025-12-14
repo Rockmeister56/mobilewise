@@ -1105,7 +1105,7 @@ function configureMobileSpeech() {
         return;
     }
     
-    console.log('📱 Applying IMPROVED mobile speech optimization...');
+    console.log('📱 Applying mobile speech optimization...');
     
     // MOBILE SETTINGS
     rec.continuous = true;
@@ -1114,7 +1114,7 @@ function configureMobileSpeech() {
     
     console.log('   ⚙️ Settings: continuous=true, interimResults=true, maxAlternatives=5');
     
-    // LONGER TIMEOUT
+    // LONGER TIMEOUT FOR MOBILE
     if (window.directSpeakNowTimeout) {
         clearTimeout(window.directSpeakNowTimeout);
     }
@@ -1127,24 +1127,15 @@ function configureMobileSpeech() {
     
     console.log('   ⏱️ Timeout: 15 seconds (mobile extended)');
     
-    // SAVE ORIGINAL HANDLER
+    // SAVE ORIGINAL HANDLERS
     const originalOnResult = rec.onresult;
+    const originalOnError = rec.onerror;
     
-    // 🎯 MOBILE RESULT HANDLER
-    const mobileOnResult = function(event) {
+    // MOBILE RESULT HANDLER
+    rec.onresult = function(event) {
         console.log('📱 MOBILE SPEECH DETECTED');
         
-        // 🎯 CAPTURE 'rec' FOR USE INSIDE THIS FUNCTION
-        const currentRec = rec || window.recognition || recognition;
-        
-        // Log timing to debug cutoff issues
-        if (!window.lastSpeechTime) window.lastSpeechTime = Date.now();
-        const timeSinceLast = Date.now() - window.lastSpeechTime;
-        window.lastSpeechTime = Date.now();
-        
-        console.log(`   ⏰ Time since last result: ${timeSinceLast}ms`);
-        
-        // First call original handler if it exists
+        // Call original handler first
         if (originalOnResult && typeof originalOnResult === 'function') {
             try {
                 originalOnResult.call(this, event);
@@ -1158,7 +1149,7 @@ function configureMobileSpeech() {
             return;
         }
         
-        // PROCESS RESULTS
+        // Process results
         let finalTranscript = '';
         let interimTranscript = '';
         
@@ -1168,72 +1159,60 @@ function configureMobileSpeech() {
                 
                 if (event.results[i].isFinal) {
                     finalTranscript += result.transcript + ' ';
-                    console.log(`📱 Final result ${i}: "${result.transcript}" (confidence: ${result.confidence})`);
+                    console.log(`📱 Final: "${result.transcript}"`);
                 } else {
                     interimTranscript += result.transcript + ' ';
-                    console.log(`📱 Interim result ${i}: "${result.transcript}"`);
+                    console.log(`📱 Interim: "${result.transcript}"`);
                 }
             }
         }
         
-        // Process final transcript
+        // Store final transcript
         if (finalTranscript.trim().length > 0) {
-            console.log('📱 FINAL TRANSCRIPT:', finalTranscript.trim());
+            console.log('📱 FINAL:', finalTranscript.trim());
             window.lastCapturedTranscript = finalTranscript.trim();
             window.lastCapturedTime = Date.now();
             
-            // CHECK FOR CUTOFF
+            // Check for cutoff
             const wordCount = finalTranscript.trim().split(/\s+/).length;
             console.log(`   📊 Word count: ${wordCount}`);
-            
-            if (wordCount < 3 && finalTranscript.toLowerCase().includes('testing')) {
-                console.log('⚠️ WARNING: Speech may have been cut off early');
-            }
         }
         
-        // Also log interim if we have it
+        // Log interim
         if (interimTranscript.trim().length > 0 && !finalTranscript) {
-            console.log('📱 INTERIM (still listening):', interimTranscript.trim());
+            console.log('📱 Still listening:', interimTranscript.trim());
         }
         
-        // AUTO-EXTEND TIMEOUT WHEN SPEECH IS DETECTED
+        // Auto-extend timeout
         if ((finalTranscript || interimTranscript) && window.directSpeakNowTimeout) {
             console.log('🔄 Speech detected - extending timeout...');
             clearTimeout(window.directSpeakNowTimeout);
-            
-            // Give extra 5 seconds after speech
             window.directSpeakNowTimeout = setTimeout(() => {
-                // 🎯 USE currentRec INSTEAD OF rec
-                if (currentRec && currentRec.stop) {
+                if (rec && rec.stop) {
                     console.log('📱 Extended timeout reached - stopping');
-                    currentRec.stop();
+                    rec.stop();
                 }
             }, 5000);
         }
     };
- }
     
-    // REPLACE THE HANDLER
-// rec.onresult = mobileOnResult;
-
-// 🎯 ALSO IMPROVE ERROR HANDLING FOR MOBILE
-const originalOnError = rec.onerror;
-rec.onerror = function(event) {
-    console.log('📱 MOBILE ERROR:', event.error);
+    // MOBILE ERROR HANDLER
+    rec.onerror = function(event) {
+        console.log('📱 MOBILE ERROR:', event.error);
+        
+        if (event.error === 'no-speech') {
+            console.log('💡 Mobile: No speech detected');
+            console.log('   - Try speaking louder');
+            console.log('   - Ensure microphone is not blocked');
+        }
+        
+        if (originalOnError && typeof originalOnError === 'function') {
+            originalOnError.call(this, event);
+        }
+    };
     
-    if (event.error === 'no-speech') {
-        console.log('💡 Mobile: No speech detected');
-        console.log('   - Try speaking louder');
-        console.log('   - Ensure microphone is not blocked');
-        console.log('   - Mobile may need clearer enunciation');
-    }
-    
-    if (originalOnError && typeof originalOnError === 'function') {
-        originalOnError.call(this, event);
-    }
-};
-
-console.log('✅ Mobile speech optimized (with cutoff prevention)');
+    console.log('✅ Mobile speech optimized');
+}
   
 
 function getApologyResponse() {
@@ -1254,14 +1233,6 @@ function getApologyResponse() {
     setTimeout(() => { lastMessageWasApology = false; }, 5000);
     
     return sorryMessages[Math.floor(Math.random() * sorryMessages.length)];
-}
-
-function suppressBrowserBeeps() {
-    if (!recognition) return;
-    
-    recognition.onsoundstart = function() { /* SILENCE */ };
-    recognition.onaudiostart = function() { /* SILENCE */ };
-    recognition.onspeechstart = function() { /* SILENCE */ };
 }
 
 // 🎯 ADD THIS HELPER FUNCTION TO CHECK WHAT'S BLOCKING:
