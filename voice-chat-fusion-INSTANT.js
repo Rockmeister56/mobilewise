@@ -350,9 +350,7 @@ async function startListening() {
                 }
             };
 
-            // ============================================
-// 🔥 ONEND HANDLER - FIXED VERSION (No duplicate sends)
-// ============================================
+             // 🔥 SET ONEND HANDLER - COMPLETE FIXED VERSION
 recognition.onend = function() {
     console.log('🎯🎯🎯 WHICH ONEND IS RUNNING? 🎯🎯🎯');
     console.log('🔚 Recognition ended');
@@ -446,16 +444,12 @@ recognition.onend = function() {
             window.lastProcessedMessage !== currentMessage || 
             timeSinceLastMessage > 3000) {
             
-            console.log('✅ Processing message in onend:', currentMessage);
+            console.log('✅ Sending new message:', currentMessage);
 
-            // 🎯 CALL processUserResponse - it will handle sendMessage internally
+            // 🎯 ADD THIS RIGHT AFTER LINE 853
             console.log('🎯 Calling processUserResponse with:', finalTranscript);
             if (typeof processUserResponse === 'function') {
                 processUserResponse(finalTranscript);
-            } else {
-                // Fallback if processUserResponse doesn't exist
-                console.log('⚠️ processUserResponse not found, using sendMessage directly');
-                sendMessage(currentMessage);
             }
 
             if (window.speakNowTimeout) {
@@ -481,13 +475,9 @@ recognition.onend = function() {
                 cleanupSpeakSequence();
             }
             
-            // Update tracking
             window.lastMessageTime = now;
             window.lastProcessedMessage = currentMessage;
-            // 🚨 sendMessage(currentMessage); // REMOVED - processUserResponse already calls it!
-            
-        } else {
-            console.log('🔄 Skipping duplicate message in onend:', currentMessage);
+            sendMessage(currentMessage);
         }
     } else {
         console.log('🔄 No speech detected via onend - showing try again overlay');
@@ -515,64 +505,78 @@ recognition.onend = function() {
     }
 };
             
-            // ============================================
-            // 🔥 ERROR HANDLER - KEEP YOUR WORKING VERSION
-            // ============================================
+             // 🔥 SET ONERROR HANDLER
             recognition.onerror = function(event) {
-                console.error('❌ Speech recognition error:', event.error);
-                
-                // Reset listening state
-                window.isCurrentlyListening = false;
-                
-                // Don't auto-restart on certain errors
-                if (event.error === 'aborted' || event.error === 'not-allowed') {
-                    console.log('🛑 Not restarting on', event.error, 'error');
-                    return;
+                console.log('🔊 Speech error:', event.error);
+
+                if (speakSequenceCleanupTimer) {
+                    clearTimeout(speakSequenceCleanupTimer);
+                    speakSequenceCleanupTimer = null;
+                    console.log('🕐 CANCELLED cleanup timer in error handler');
                 }
-                
-                // Auto-restart for other errors (with delay)
-                setTimeout(() => {
-                    if (!isSpeaking) {
-                        console.log('🔄 Auto-restarting recognition after error');
-                        startListening();
+
+                if (typeof handleSpeechRecognitionError === 'function') {
+                    console.log('🎯 CALLING handleSpeechRecognitionError for:', event.error);
+                    handleSpeechRecognitionError(event.error);
+                    return;
+                } else {
+                    console.log('❌ handleSpeechRecognitionError function not found - using fallback');
+                }
+
+                if (event.error === 'no-speech') {
+                    const transcriptText = document.getElementById('transcriptText');
+                    const isDefinitelyMobile = window.innerWidth <= 768 || window.innerHeight <= 1024;
+
+                    if (isDefinitelyMobile) {
+                        console.log('📱📱📱 MOBILE: Using visual feedback system');
+
+                        if (window.noSpeechTimeout) {
+                            clearTimeout(window.noSpeechTimeout);
+                        }
+
+                        if (transcriptText) {
+                            transcriptText.textContent = 'I didn\'t hear anything...';
+                            transcriptText.style.color = '#ff6b6b';
+
+                            window.noSpeechTimeout = setTimeout(() => {
+                                if (transcriptText) {
+                                    transcriptText.textContent = 'Please speak now';
+                                    transcriptText.style.color = '#ffffff';
+                                }
+
+                                if (isAudioMode && !isSpeaking) {
+                                    console.log('🔄 Mobile: Restarting via hybrid system');
+                                    isListening = false;
+                                    setTimeout(() => {
+                                        startRealtimeListening();
+                                    }, 800);
+                                }
+                            }, 1500);
+                        }
                     }
-                }, 1000);
+                } else if (event.error === 'audio-capture') {
+                    console.log('🎤 No microphone detected');
+                    addAIMessage("I can't detect your microphone. Please check your audio settings.");
+                } else if (event.error === 'not-allowed') {
+                    console.log('🔒 Permission denied');
+                    addAIMessage("Microphone permission was denied. Please allow microphone access to continue.");
+                }
             };
             
-            // ============================================
-            // 🔥 START THE RECOGNITION
-            // ============================================
-            try {
-                recognition.start();
-                console.log('✅ Recognition started successfully');
-                
-                // Add mobile timeout optimization
-                if (isMobile) {
-                    setTimeout(() => {
-                        if (recognition && recognition.state === 'started') {
-                            console.log('⏱️ Mobile timeout - stopping recognition');
-                            recognition.stop();
-                        }
-                    }, 15000); // 15 second timeout for mobile
-                }
-                
-            } catch(startError) {
-                console.error('💥 Failed to start recognition:', startError);
-                
-                // Try force restart for mobile
-                if (isMobile && typeof forceStartListening === 'function') {
-                    console.log('📱 Mobile start failed, trying force start...');
-                    setTimeout(forceStartListening, 500);
-                }
-            }
-            
+            console.log('✅ All recognition handlers installed successfully');
         } else {
-            console.error('❌ Recognition not available');
+            console.error('❌ Recognition object is null - cannot set handlers');
+            return;
         }
-        
+
+        // Continue with the rest of startListening...
+        recognition.start();
+        isListening = true;
+
     } catch (error) {
-        console.error('💥 Error in startListening:', error);
-        window.isCurrentlyListening = false;
+        console.error('❌ Error starting speech recognition:', error);
+        addAIMessage("Woops, I missed that please try again.");
+        //switchToTextMode(); // 🚨 REMOVE THIS LINE
     }
 }
 
