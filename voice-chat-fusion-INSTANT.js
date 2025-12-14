@@ -1099,7 +1099,6 @@ function configureMobileSpeech() {
     const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
     if (!isMobile) return;
     
-    // FIX: Check window.recognition
     const rec = window.recognition || recognition;
     if (!rec) {
         console.warn('⚠️ Cannot configure mobile speech: recognition not available');
@@ -1108,26 +1107,17 @@ function configureMobileSpeech() {
     
     console.log('📱 Applying IMPROVED mobile speech optimization...');
     
-    // 🎯 CRITICAL MOBILE SETTINGS TO PREVENT CUTOFF:
-    
-    // 1. Continuous mode (essential for mobile)
+    // MOBILE SETTINGS
     rec.continuous = true;
-    
-    // 2. Interim results (helps with longer speech)
     rec.interimResults = true;
+    rec.maxAlternatives = 5;
     
-    // 3. More alternatives (better accuracy on mobile)
-    rec.maxAlternatives = 5; // Increased from 3
-    
-    // 4. Disable auto-endpoint detection if possible
     console.log('   ⚙️ Settings: continuous=true, interimResults=true, maxAlternatives=5');
     
-    // 🎯 LONGER TIMEOUT FOR MOBILE (PREVENTS CUTOFF)
+    // LONGER TIMEOUT
     if (window.directSpeakNowTimeout) {
         clearTimeout(window.directSpeakNowTimeout);
     }
-    
-    // 15 seconds for mobile (was 10 seconds)
     window.directSpeakNowTimeout = setTimeout(() => {
         if (rec && rec.stop) {
             console.log('📱 Mobile timeout (15s) - stopping');
@@ -1137,10 +1127,10 @@ function configureMobileSpeech() {
     
     console.log('   ⏱️ Timeout: 15 seconds (mobile extended)');
     
-    // Save original handler FIRST
+    // SAVE ORIGINAL HANDLER
     const originalOnResult = rec.onresult;
     
-    // 🎯 IMPROVED MOBILE RESULT HANDLER
+    // 🎯 MOBILE RESULT HANDLER (PASTE YOUR CODE HERE!)
     const mobileOnResult = function(event) {
         console.log('📱 MOBILE SPEECH DETECTED');
         
@@ -1219,6 +1209,29 @@ function configureMobileSpeech() {
         }
     };
     
+    // REPLACE THE HANDLER
+    rec.onresult = mobileOnResult;
+    
+    // ERROR HANDLER
+    const originalOnError = rec.onerror;
+    rec.onerror = function(event) {
+        console.log('📱 MOBILE ERROR:', event.error);
+        
+        if (event.error === 'no-speech') {
+            console.log('💡 Mobile: No speech detected');
+            console.log('   - Try speaking louder');
+            console.log('   - Ensure microphone is not blocked');
+            console.log('   - Mobile may need clearer enunciation');
+        }
+        
+        if (originalOnError && typeof originalOnError === 'function') {
+            originalOnError.call(this, event);
+        }
+    };
+    
+    console.log('✅ Mobile speech optimized (with cutoff prevention)');
+} // <-- This closes the main function
+    
     // Replace the handler
     rec.onresult = mobileOnResult;
     
@@ -1240,7 +1253,7 @@ function configureMobileSpeech() {
     };
     
     console.log('✅ Mobile speech optimized (with cutoff prevention)');
-}
+ // <-- THIS WAS MISSING - FUNCTION CLOSING BRACE
 
 function getApologyResponse() {
     const sorryMessages = [
@@ -5896,4 +5909,3 @@ function runAllTests() {
 window.runAllTests = runAllTests;
 
 console.log('🎯 ALL SYSTEMS INITIALIZED AND READY');
-
