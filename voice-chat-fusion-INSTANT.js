@@ -1232,7 +1232,7 @@ function configureMobileSpeech() {
     rec.onresult = mobileOnResult;
     
     console.log('✅ Mobile speech optimized (with cutoff prevention)');
-} // <-- This closes the main function
+}; // <-- This closes the main function
     
     // 🎯 ALSO IMPROVE ERROR HANDLING FOR MOBILE
     const originalOnError = rec.onerror;
