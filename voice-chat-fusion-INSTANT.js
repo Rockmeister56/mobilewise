@@ -47,6 +47,7 @@ let lastMessageWasApology = false;
 let isInLeadCapture = false;
 let speechDetected = false;
 let lastProcessedTranscript = null;
+let microphonePermissionGranted = false;
 let currentAIResponse = '';
 window.leadData = window.leadData || {
     firstName: '',
@@ -220,16 +221,12 @@ async function startListening(onReadyCallback = null) {
         if (typeof silenceMobileBeeps === 'function') {
             console.log('   🔇 Applying mobile beep silence...');
             silenceMobileBeeps();
-        } else {
-            console.log('   ⚠️ silenceMobileBeeps not available');
         }
         
         // 2. Apply mobile speech configuration
         if (typeof configureMobileSpeech === 'function') {
             console.log('   ⚙️ Applying mobile speech settings...');
             configureMobileSpeech();
-        } else {
-            console.log('   ⚠️ configureMobileSpeech not available');
         }
         
         // 3. Ensure recognition exists with mobile settings
@@ -265,28 +262,28 @@ async function startListening(onReadyCallback = null) {
         }
     }
     
-    // 🛡️ MICROPHONE PERMISSION CHECK
-    if (!microphonePermissionGranted) {
-        console.log('🔒 Checking microphone permission...');
-        
+    // 🛡️ SIMPLIFIED PERMISSION CHECK (without the missing variable)
+    console.log('🔒 Checking microphone access...');
+    
+    // Check if we can access microphone
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
         try {
-            const granted = isMobile ? 
-                await requestMobileMicrophone() : 
-                await requestMicrophoneAccess(true);
-            
-            if (!granted) {
-                console.log('❌ Microphone permission denied');
-                if (onReadyCallback) onReadyCallback();
-                return;
-            }
-            
-            microphonePermissionGranted = true;
-            console.log('✅ Microphone permission granted');
-            
+            // Quick test to see if microphone is accessible
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            console.log('✅ Microphone is accessible');
+            stream.getTracks().forEach(track => track.stop());
         } catch (error) {
-            console.log('❌ Permission check failed:', error.message);
-            if (onReadyCallback) onReadyCallback();
-            return;
+            console.log('❌ Microphone access error:', error.name);
+            
+            if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+                console.log('💡 Microphone permission denied by user');
+                
+                // On mobile, we might want to show a prompt
+                if (isMobile) {
+                    console.log('📱 On mobile, permission will be requested when recognition starts');
+                    // The recognition.start() will trigger permission dialog
+                }
+            }
         }
     }
     
@@ -330,7 +327,6 @@ async function startListening(onReadyCallback = null) {
             console.log('💡 Microphone not capturing audio');
         } else if (event.error === 'not-allowed') {
             console.log('💡 Microphone access denied');
-            microphonePermissionGranted = false;
         }
     };
     
