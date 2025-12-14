@@ -234,14 +234,27 @@ async function startListening() {
     try {
         // 🎯 MOBILE-SPECIFIC PRE-WARMING (Optimization added)
         const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
-        
-        if (isMobile) {
+
+         if (isMobile) {
             console.log('📱 Mobile detected - applying optimizations...');
-            
-            // Apply mobile beep silence (but DON'T break banner text)
-            if (typeof silenceMobileBeeps === 'function') {
-                silenceMobileBeeps();
-            }
+
+        // 🔥 ADD THIS: Block OUR beep on mobile only
+    if (isMobile && recognition) {
+        console.log('📱 Mobile detected - silencing OUR beep');
+        
+        // Silence OUR beep handlers
+        recognition.onstart = function() {
+            console.log('🔇 OUR beep silenced (system beep will play)');
+        };
+        
+        recognition.onaudiostart = function() {
+            console.log('🔇 OUR audio start silenced');
+        };
+        
+        recognition.onsoundstart = function() {
+            console.log('🔇 OUR sound start silenced');
+        };
+    }
             
             // Apply mobile speech settings (but DON'T break banner text)
             if (typeof configureMobileSpeech === 'function') {
@@ -1243,43 +1256,233 @@ function initializeSpeechRecognition() {
     return true;
 }
 
-// 🎯 SIMPLE FIX: Update your existing silenceMobileBeeps()
-function silenceMobileBeeps() {
-    if (!/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) return;
+// 🎯 CLEAN SOLUTION: Block OUR beep on mobile only
+console.clear();
+console.log('🎯 CLEAN SOLUTION: One Beep Strategy');
+console.log('====================================\n');
+
+console.log('📋 STRATEGY:');
+console.log('===========');
+console.log('• DESKTOP: Keep our beep (browser has none)');
+console.log('• MOBILE: Block our beep (system has one)');
+console.log('• RESULT: Only ONE beep everywhere!');
+
+function blockOurBeepOnMobileOnly() {
+    const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
     
-    console.log('🔇 Applying mobile beep silence (AI safe)...');
-    
-    // ONLY do the recognition handler part (skip AudioContext/Oscillator)
-    const recognition = window.recognition || (typeof recognition !== 'undefined' ? recognition : null);
-    
-    if (recognition) {
-        // Store original
-        const originalOnStart = recognition.onstart;
-        const originalAudioStart = recognition.onaudiostart;
-        const originalSoundStart = recognition.onsoundstart;
-        
-        // Replace with empty functions
-        recognition.onstart = function() {
-            console.log('🔇 Recognition start silenced');
-            if (originalOnStart) return originalOnStart.call(this);
-        };
-        
-        recognition.onaudiostart = function() {
-            console.log('🔇 Audio start silenced');
-            if (originalAudioStart) return originalAudioStart.call(this);
-        };
-        
-        recognition.onsoundstart = function() {
-            console.log('🔇 Sound start silenced');
-            if (originalSoundStart) return originalSoundStart.call(this);
-        };
-        
-        console.log('✅ Recognition beeps silenced (AI voice preserved)');
+    if (!isMobile) {
+        console.log('💻 Desktop: Keeping our beep (browser has none)');
+        return; // Do nothing on desktop
     }
     
-    // DON'T modify AudioContext or Oscillator - too aggressive!
-    console.log('✅ AI voice will work normally');
+    console.log('📱 Mobile: Blocking OUR beep only...');
+    
+    // 1. Block OUR recognition beep handlers
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+        const originalConstructor = SpeechRecognition;
+        
+        window.SpeechRecognition = function() {
+            const recognition = new originalConstructor();
+            
+            // Intercept start to silence OUR beep
+            const originalStart = recognition.start;
+            recognition.start = function() {
+                console.log('🔇 Silencing OUR beep on mobile...');
+                
+                // Replace OUR beep handlers with silent ones
+                recognition.onstart = function() {
+                    console.log('✅ OUR beep silenced (system beep will play)');
+                };
+                
+                recognition.onaudiostart = function() {
+                    console.log('✅ OUR audio start silenced');
+                };
+                
+                recognition.onsoundstart = function() {
+                    console.log('✅ OUR sound start silenced');
+                };
+                
+                // Start recognition (system beep will play)
+                return originalStart.call(this);
+            };
+            
+            return recognition;
+        };
+        
+        window.SpeechRecognition.prototype = originalConstructor.prototype;
+        console.log('✅ OUR beep will be silenced on mobile');
+    }
 }
+
+// Apply the fix
+blockOurBeepOnMobileOnly();
+
+// Test what device we're on
+console.log('\n📱 DEVICE DETECTION:');
+console.log('==================');
+console.log('User Agent:', navigator.userAgent.substring(0, 50) + '...');
+console.log('Is Mobile:', /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent));
+console.log('Strategy:', /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? 'Block OUR beep' : 'Keep OUR beep');
+
+// Create test buttons
+const desktopTestBtn = document.createElement('button');
+desktopTestBtn.textContent = '💻 Test Desktop Mode';
+desktopTestBtn.style.cssText = `
+    position: fixed;
+    bottom: 140px;
+    left: 20px;
+    padding: 15px;
+    background: #2196F3;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 99999;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+`;
+
+desktopTestBtn.onclick = function() {
+    console.log('\n💻 DESKTOP TEST:');
+    console.log('===============');
+    console.log('Should hear: OUR beep only');
+    console.log('(Browser has no system beep)');
+    
+    // Temporarily force desktop mode for testing
+    const originalUA = navigator.userAgent;
+    Object.defineProperty(navigator, 'userAgent', {
+        value: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        writable: true
+    });
+    
+    if (typeof showDirectSpeakNow === 'function') {
+        showDirectSpeakNow();
+    }
+    
+    // Restore
+    setTimeout(() => {
+        Object.defineProperty(navigator, 'userAgent', {
+            value: originalUA,
+            writable: true
+        });
+    }, 1000);
+};
+
+const mobileTestBtn = document.createElement('button');
+mobileTestBtn.textContent = '📱 Test Mobile Mode';
+mobileTestBtn.style.cssText = `
+    position: fixed;
+    bottom: 80px;
+    left: 20px;
+    padding: 15px;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 99999;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+`;
+
+mobileTestBtn.onclick = function() {
+    console.log('\n📱 MOBILE TEST:');
+    console.log('==============');
+    console.log('Should hear: SYSTEM beep only (OURs blocked)');
+    console.log('(Mobile has system beep + our blocked beep)');
+    
+    // Temporarily force mobile mode for testing
+    const originalUA = navigator.userAgent;
+    Object.defineProperty(navigator, 'userAgent', {
+        value: 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15',
+        writable: true
+    });
+    
+    // Re-apply mobile blocking
+    blockOurBeepOnMobileOnly();
+    
+    if (typeof showDirectSpeakNow === 'function') {
+        showDirectSpeakNow();
+    }
+    
+    // Restore
+    setTimeout(() => {
+        Object.defineProperty(navigator, 'userAgent', {
+            value: originalUA,
+            writable: true
+        });
+    }, 1000);
+};
+
+const realTestBtn = document.createElement('button');
+realTestBtn.textContent = '🎤 Test Current Device';
+realTestBtn.style.cssText = `
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    padding: 15px;
+    background: #FF9800;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 99999;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+`;
+
+realTestBtn.onclick = function() {
+    console.log('\n🎯 REAL DEVICE TEST:');
+    console.log('==================');
+    console.log('Device:', /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop');
+    console.log('Strategy:', /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? 'Block OUR beep' : 'Keep OUR beep');
+    console.log('Expected: ONE beep only');
+    
+    if (typeof showDirectSpeakNow === 'function') {
+        showDirectSpeakNow();
+    }
+};
+
+document.body.appendChild(desktopTestBtn);
+document.body.appendChild(mobileTestBtn);
+document.body.appendChild(realTestBtn);
+
+console.log('\n✅ Test buttons added');
+console.log('\n🎯 IMPLEMENTATION:');
+console.log('=================');
+console.log('Add this to your startListening() function:');
+console.log(`
+// At the BEGINNING of startListening():
+const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+
+if (isMobile) {
+    // Block OUR beep handlers on mobile
+    if (recognition) {
+        recognition.onstart = function() {
+            console.log('🔇 OUR beep silenced (mobile)');
+        };
+        recognition.onaudiostart = function() {
+            console.log('🔇 OUR audio start silenced');
+        };
+        recognition.onsoundstart = function() {
+            console.log('🔇 OUR sound start silenced');
+        };
+    }
+}
+`);
+
+console.log('\n📱 MOBILE RESULT:');
+console.log('===============');
+console.log('• System beep: ✅ Plays (can\'t block)');
+console.log('• Our beep: 🔇 Silenced');
+console.log('• Total beeps: 1 ✅');
+
+console.log('\n💻 DESKTOP RESULT:');
+console.log('===============');
+console.log('• System beep: ❌ None (browser has none)');
+console.log('• Our beep: ✅ Plays');
+console.log('• Total beeps: 1 ✅');
 
 function configureMobileSpeech() {
     const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
