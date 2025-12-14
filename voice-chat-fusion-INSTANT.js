@@ -701,6 +701,56 @@ function forceStartListening() {
 };
 
 // ===================================================
+// END BRIDGE SYSTEM CODE
+// ===================================================
+
+// ===================================================
+// ⚡ INSTANT VOICE BUBBLE SYSTEM - AUTO-RESTART
+// Bypasses hybrid sequence for instant listening
+// ===================================================
+
+// Auto-restart configuration
+const AUTO_RESTART_DELAY = 500; // 1.5 seconds after AI response
+let isAutoRestartEnabled = true;
+// restartTimeout already declared at line 39 - reusing existing variable
+let countdownInterval = null;
+
+// ===== NUCLEAR AUDIO SHUTDOWN =====
+function nuclearAudioShutdown() {
+    console.log('💣 NUCLEAR: Shutting down all audio sources');
+    
+    // Stop all HTML5 media elements
+    document.querySelectorAll('video, audio').forEach(media => {
+        media.pause();
+        media.currentTime = 0;
+        media.muted = true;
+    });
+    
+    // Stop speech synthesis
+    window.speechSynthesis.cancel();
+    
+    console.log('✅ Audio channels cleared for instant recognition');
+}
+
+// ===== CLEAR RESTART TIMERS =====
+function clearRestartTimers() {
+    if (restartTimeout) {
+        clearTimeout(restartTimeout);
+        restartTimeout = null;
+    }
+    if (countdownInterval) {
+        clearInterval(countdownInterval);
+        countdownInterval = null;
+    }
+    
+    // Clear countdown display if it exists
+    const countdownEl = document.getElementById('restartCountdown');
+    if (countdownEl) {
+        countdownEl.textContent = '';
+    }
+}
+
+// ===================================================
 // 📱 MOBILE PERMISSION BRIDGE SYSTEM
 // Generic solution for all markets
 // ===================================================
@@ -904,55 +954,7 @@ function cleanupBridgeState() {
 window.addEventListener('beforeunload', cleanupBridgeState);
 
 console.log('✅ Mobile Permission Bridge System Loaded');
-// ===================================================
-// END BRIDGE SYSTEM CODE
-// ===================================================
 
-// ===================================================
-// ⚡ INSTANT VOICE BUBBLE SYSTEM - AUTO-RESTART
-// Bypasses hybrid sequence for instant listening
-// ===================================================
-
-// Auto-restart configuration
-const AUTO_RESTART_DELAY = 500; // 1.5 seconds after AI response
-let isAutoRestartEnabled = true;
-// restartTimeout already declared at line 39 - reusing existing variable
-let countdownInterval = null;
-
-// ===== NUCLEAR AUDIO SHUTDOWN =====
-function nuclearAudioShutdown() {
-    console.log('💣 NUCLEAR: Shutting down all audio sources');
-    
-    // Stop all HTML5 media elements
-    document.querySelectorAll('video, audio').forEach(media => {
-        media.pause();
-        media.currentTime = 0;
-        media.muted = true;
-    });
-    
-    // Stop speech synthesis
-    window.speechSynthesis.cancel();
-    
-    console.log('✅ Audio channels cleared for instant recognition');
-}
-
-// ===== CLEAR RESTART TIMERS =====
-function clearRestartTimers() {
-    if (restartTimeout) {
-        clearTimeout(restartTimeout);
-        restartTimeout = null;
-    }
-    if (countdownInterval) {
-        clearInterval(countdownInterval);
-        countdownInterval = null;
-    }
-    
-    // Clear countdown display if it exists
-    const countdownEl = document.getElementById('restartCountdown');
-    if (countdownEl) {
-        countdownEl.textContent = '';
-    }
-}
 
 // ===== CREATE INSTANT LISTENING BUBBLE =====
 // ❌ DEPRECATED - Using showDirectSpeakNow() instead
