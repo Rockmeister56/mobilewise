@@ -4860,39 +4860,6 @@ function setupMobileTouchEvents() {
     }, { passive: false });
 }
 
-function playMobileErrorBeep() {
-    try {
-        // Create audio context for mobile-compatible beep
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-        
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        
-        oscillator.frequency.value = 300;
-        oscillator.type = 'sine';
-        
-        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
-        
-        oscillator.start(audioContext.currentTime);
-        oscillator.stop(audioContext.currentTime + 0.3);
-        
-        console.log('📱 Mobile error beep played');
-    } catch (error) {
-        console.log('📱 Mobile beep failed, using fallback:', error);
-        // Fallback: try using a simple beep if Web Audio API fails
-        try {
-            const beep = new Audio('data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU');
-            beep.volume = 0.1;
-            beep.play();
-        } catch (fallbackError) {
-            console.log('📱 Fallback beep also failed');
-        }
-    }
-}
-
 function showAvatarSorryMessage(duration = 6000) {
     console.log(`🎬 Showing avatar for ${duration}ms - WILL restart recognition when done`);
     
