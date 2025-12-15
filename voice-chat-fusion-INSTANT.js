@@ -4,7 +4,7 @@
 // ===================================================
 
 // ===================================================
-// 📱 MOBILE PERMISSION BRIDGE SYSTEM - COMPLETE VERSION
+// 📱 MOBILE PERMISSION BRIDGE SYSTEM - SIMPLIFIED
 // ===================================================
 
 console.log('=== BRIDGE SYSTEM STARTING ===');
@@ -26,9 +26,12 @@ if (shouldAutoStart && hasPermission && hasGesture) {
     window.micPermissionGranted = true;
     window.isAudioMode = true;
     
-    console.log('✅ Bridge flags set, ready for auto-start');
+    console.log('✅ Bridge flags set');
     
-    // Wait for DOM and then auto-start
+    // 🆕 SIMPLIFIED: Just trigger activateMicrophone
+    // It will see window.externalPreGrantedPermission and handle it properly
+    
+    // Wait for DOM and then trigger activation
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', bridgeAutoStart);
     } else {
@@ -36,9 +39,9 @@ if (shouldAutoStart && hasPermission && hasGesture) {
     }
     
     function bridgeAutoStart() {
-        console.log('🎯 Bridge: Starting auto-activation');
+        console.log('🎯 Bridge: Triggering activateMicrophone');
         
-        // Hide initial UI
+        // Hide initial UI (Bridge still does this)
         const centerMic = document.getElementById('centerMicActivation');
         if (centerMic) centerMic.style.display = 'none';
         
@@ -46,53 +49,25 @@ if (shouldAutoStart && hasPermission && hasGesture) {
         window.conversationState = 'getting_first_name';
         window.waitingForName = true;
         
-        // Initialize lead data if needed
+        // Initialize lead data
         if (typeof leadData === 'undefined' || !leadData) {
             window.leadData = { firstName: '' };
         }
         
-        // Show quick buttons
-        const quickButtons = document.getElementById('quickButtonsContainer');
-        if (quickButtons) {
-            quickButtons.style.display = 'block';
-        }
+        console.log('⏩ Bridge: Using activateMicrophone for introduction');
         
-        // Update mic button if it exists
-        const micButton = document.getElementById('micButton');
-        if (micButton) {
-            micButton.classList.add('listening');
-        }
-        
-        console.log('⏩ Bridge: Skipping normal activation flow');
-        
-        // Start the greeting after a short delay
+        // 🆕 CRITICAL: Call activateMicrophone after a delay
+        // It will see bridge flags and handle appropriately
         setTimeout(() => {
-            const greeting = "Hi there! I'm Boteemia your personal AI Voice assistant, may I get your first name please?";
-            
-            // 🆕 CRITICAL: Add message to chat FIRST (THIS SHOWS THE BUBBLE!)
-            if (typeof addAIMessage === 'function') {
-                console.log('💬 Bridge: Adding message to chat');
-                addAIMessage(greeting);
+            if (typeof activateMicrophone === 'function') {
+                activateMicrophone();
             } else {
-                console.log('⚠️ addAIMessage function not available');
+                console.error('❌ activateMicrophone function not found!');
+                // Fallback to old bridge behavior
+                const greeting = "Hi there! I'm Boteemia your personal AI Voice assistant, may I get your first name please?";
+                if (typeof addAIMessage === 'function') addAIMessage(greeting);
+                if (typeof speakResponse === 'function') speakResponse(greeting);
             }
-            
-            // Wait for UI to update, then speak
-            setTimeout(() => {
-                if (typeof speakResponse === 'function') {
-                    console.log('🎤 Bridge: Speaking greeting');
-                    speakResponse(greeting);
-                    
-                    // Auto-start listening after speech
-                    setTimeout(() => {
-                        if (typeof startListening === 'function') {
-                            console.log('🎯 Bridge: Auto-starting listening');
-                            startListening();
-                        }
-                    }, 2000); // Wait for speech to complete
-                }
-            }, 500); // Small delay for UI to update
-            
         }, 1000);
     }
     
@@ -1511,76 +1486,78 @@ document.addEventListener('DOMContentLoaded', function() {
 // 🎤 MICROPHONE ACTIVATION SYSTEM
 // ===================================================
 async function activateMicrophone() {
-    // 🆕 CHECK BRIDGE SYSTEM FIRST
-    if (window.externalPreGrantedPermission) {
-        console.log('✅ Using Bridge System pre-granted permission');
-        window.micPermissionGranted = true;
-        return true;
-    }
-   
-    console.log('🎤 Activating microphone...');
+    console.log('🎤 activateMicrophone() called');
     
-    if (!window.isSecureContext) {
-        addAIMessage("Microphone access requires HTTPS. Please ensure you're on a secure connection.");
-        return;
-    }
-
-    try {
-        const permissionGranted = await requestMicrophoneAccess();
+    // 🆕 CHECK BRIDGE STATUS
+    const isBridgeMode = window.externalPreGrantedPermission;
+    
+    if (isBridgeMode) {
+        console.log('✅ Bridge mode detected');
+        window.micPermissionGranted = true;
+        isAudioMode = true;
+    } else {
+        // Normal permission flow
+        console.log('🔐 Normal permission flow');
         
-        if (permissionGranted) {
-            micPermissionGranted = true;
-            isAudioMode = true;
+        if (!window.isSecureContext) {
+            addAIMessage("Microphone access requires HTTPS.");
+            return;
+        }
 
-            const micButton = document.getElementById('micButton');
-            if (micButton) {
-                micButton.classList.add('listening');
+        try {
+            const permissionGranted = await requestMicrophoneAccess();
+            if (!permissionGranted) return;
+            
+            window.micPermissionGranted = true;
+            isAudioMode = true;
+        } catch (error) {
+            console.log('❌ Microphone access failed:', error);
+            // Error handling...
+            return;
+        }
+    }
+    
+    // 🎯 COMMON SETUP (both modes)
+    console.log('🎛️ Setting up audio UI...');
+    
+    const micButton = document.getElementById('micButton');
+    if (micButton) {
+        micButton.classList.add('listening');
+    }
+    
+    initializeSpeechRecognition();
+    
+    const quickButtons = document.getElementById('quickButtonsContainer');
+    if (quickButtons) {
+        quickButtons.style.display = 'block';
+    }
+    
+    // 🎯 ONLY DO INTRODUCTION IF NOT BRIDGE MODE
+    // (Bridge will handle its own introduction timing)
+    if (!isBridgeMode) {
+        console.log('💬 Starting normal conversation...');
+        setTimeout(() => {
+            window.conversationState = 'getting_first_name';
+            window.waitingForName = true;
+            
+            if (typeof leadData === 'undefined' || !leadData) {
+                window.leadData = { firstName: '' };
             }
             
-            initializeSpeechRecognition();
-
-            document.getElementById('quickButtonsContainer').style.display = 'block';
-
-           setTimeout(() => {
-    // Initialize conversation system - BULLETPROOF VERSION
-    if (typeof conversationState === 'undefined') {
-        window.conversationState = 'getting_first_name';
+            const greeting = "Hi there! I'm Boteemia your personal AI Voice assistant, may I get your first name please?";
+            addAIMessage(greeting);
+            
+            setTimeout(() => {
+                speakResponse(greeting);
+            }, 800);
+        }, 1400);
     } else {
-        conversationState = 'getting_first_name';
-        window.waitingForName = true;
+        console.log('✅ Bridge will handle introduction');
+        // Bridge will call addAIMessage and speakResponse itself
+        // with proper timing control
     }
     
-        // Initialize leadData if it doesn't exist
-    if (typeof leadData === 'undefined' || !leadData) {
-        window.leadData = { firstName: '' };
-    }
-    
-    const greeting = "Hi there! I'm Boteemia your personal AI Voice assistant, may I get your first name please?";
-    addAIMessage(greeting);
-    
-    // Add delay before speaking to ensure audio system is ready
-    setTimeout(() => {
-        speakResponse(greeting);
-    }, 800); // 800ms delay ensures everything is initialized
-    
-}, 1400);
-        }
-
-    } catch (error) {
-        console.log('❌ Microphone access failed:', error);
-        
-        let errorMessage = "Microphone access was denied. ";
-        if (error.name === 'NotAllowedError') {
-            errorMessage += "Please check your browser permissions and allow microphone access.";
-        } else if (error.name === 'NotFoundError') {
-            errorMessage += "No microphone found. Please check your device settings.";
-        } else {
-            errorMessage += "Please try again or use text input.";
-        }
-
-        addAIMessage(errorMessage);
-        //switchToTextMode(); // 🚨 REMOVE THIS LINE
-    }
+    return true;
 }
 
 // ===================================================
