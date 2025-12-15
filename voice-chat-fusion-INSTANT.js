@@ -1757,7 +1757,7 @@ console.log('🔍 ROOT CAUSE DEBUG - isMobileDevice FIXED:', {
 // ===========================================
 const VOICE_CONFIG = {
     // MAIN CONTROL - Change this to switch voice systems
-    provider: 'british',  // 'british' | 'elevenlabs' | 'browser'
+    provider: 'elevenlabs',  // 'british' | 'elevenlabs' | 'browser'
     
     // ELEVENLABS CONFIG (when enabled)
     elevenlabs: {
