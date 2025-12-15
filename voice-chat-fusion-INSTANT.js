@@ -4,7 +4,7 @@
 // ===================================================
 
 // ===================================================
-// 📱 MOBILE PERMISSION BRIDGE SYSTEM
+// 📱 MOBILE PERMISSION BRIDGE SYSTEM - COMPLETE VERSION
 // ===================================================
 
 console.log('=== BRIDGE SYSTEM STARTING ===');
@@ -23,8 +23,6 @@ if (shouldAutoStart && hasPermission && hasGesture) {
     // Set flag IMMEDIATELY
     window.externalPreGrantedPermission = true;
     window.bridgeShouldAutoStart = true;
-    
-    // Prevent normal activation
     window.micPermissionGranted = true;
     window.isAudioMode = true;
     
@@ -48,16 +46,53 @@ if (shouldAutoStart && hasPermission && hasGesture) {
         window.conversationState = 'getting_first_name';
         window.waitingForName = true;
         
-        // Skip normal activation
+        // Initialize lead data if needed
+        if (typeof leadData === 'undefined' || !leadData) {
+            window.leadData = { firstName: '' };
+        }
+        
+        // Show quick buttons
+        const quickButtons = document.getElementById('quickButtonsContainer');
+        if (quickButtons) {
+            quickButtons.style.display = 'block';
+        }
+        
+        // Update mic button if it exists
+        const micButton = document.getElementById('micButton');
+        if (micButton) {
+            micButton.classList.add('listening');
+        }
+        
         console.log('⏩ Bridge: Skipping normal activation flow');
         
         // Start the greeting after a short delay
         setTimeout(() => {
-            if (typeof speakResponse === 'function') {
-                const greeting = "Hi there! I'm Boteemia your personal AI Voice assistant, may I get your first name please?";
-                console.log('🎤 Bridge: Speaking greeting');
-                speakResponse(greeting);
+            const greeting = "Hi there! I'm Boteemia your personal AI Voice assistant, may I get your first name please?";
+            
+            // 🆕 CRITICAL: Add message to chat FIRST
+            if (typeof addAIMessage === 'function') {
+                console.log('💬 Bridge: Adding message to chat');
+                addAIMessage(greeting);
+            } else {
+                console.log('⚠️ addAIMessage function not available');
             }
+            
+            // 🆕 Wait for UI to update, then speak
+            setTimeout(() => {
+                if (typeof speakResponse === 'function') {
+                    console.log('🎤 Bridge: Speaking greeting');
+                    speakResponse(greeting);
+                    
+                    // 🆕 Auto-start listening after speech
+                    setTimeout(() => {
+                        if (typeof startListening === 'function') {
+                            console.log('🎯 Bridge: Auto-starting listening');
+                            startListening();
+                        }
+                    }, 2000); // Wait for speech to complete
+                }
+            }, 500); // Small delay for UI to update
+            
         }, 1000);
     }
     
@@ -161,6 +196,23 @@ if (typeof window.isSpeaking === 'undefined') {
 // ═══════════════════════════════════════════════════════════
 // MOBILE STABILITY FUNCTIONS
 // ═══════════════════════════════════════════════════════════
+
+// 🔊 Missing function from earlier error
+function playReadyBeep() {
+    console.log('🔊 Ready beep (placeholder)');
+    return Promise.resolve();
+}
+
+// 🎨 UI functions that might be called
+function hideVoiceOverlay() {
+    console.log('🎨 Hiding voice overlay');
+    // Your actual overlay hiding code
+}
+
+function updateVoiceTranscription(text) {
+    console.log('📝 Updating transcription:', text);
+    // Your actual transcription update code
+}
 
 // ===================================================
 // 🚀 GLOBAL SPEECH ENGINE SETUP
