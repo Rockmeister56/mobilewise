@@ -366,7 +366,22 @@ async function ensureMicrophonePermission() {
         return true;
     }
     
-    // Request permission
+    // 🆕 ADD THIS: Check if permission is already granted by browser
+    try {
+        const permissionStatus = await navigator.permissions.query({ name: 'microphone' });
+        console.log('🔍 Current browser permission state:', permissionStatus.state);
+        
+        if (permissionStatus.state === 'granted') {
+            console.log('✅ Browser already has microphone permission');
+            window.micPermissionGranted = true;
+            return true;
+        }
+    } catch (error) {
+        console.log('🔍 Cannot query permission state:', error.message);
+        // Continue to request permission
+    }
+    
+    // Request permission (only if not already granted)
     console.log('🎤 Requesting microphone access...');
     try {
         if (typeof requestMicrophoneAccess === 'function') {
