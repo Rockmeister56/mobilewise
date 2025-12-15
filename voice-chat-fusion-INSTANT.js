@@ -4,7 +4,7 @@
 // ===================================================
 
 // ===================================================
-// 📱 MOBILE PERMISSION BRIDGE SYSTEM - SIMPLIFIED
+// 📱 MOBILE PERMISSION BRIDGE SYSTEM - FIXED VERSION
 // ===================================================
 
 console.log('=== BRIDGE SYSTEM STARTING ===');
@@ -17,6 +17,14 @@ const hasGesture = urlParams.get('gestureInitiated') === 'true';
 
 console.log('Bridge Parameters:', { shouldAutoStart, hasPermission, hasGesture });
 
+// 🆕 CRITICAL FIX: Clear Bridge flags if no parameters
+if (!shouldAutoStart && window.externalPreGrantedPermission) {
+    console.log('🔄 Clearing stale Bridge flags (no URL parameters)');
+    window.externalPreGrantedPermission = false;
+    window.bridgeShouldAutoStart = false;
+    // Keep micPermissionGranted if user already granted permission
+}
+
 if (shouldAutoStart && hasPermission && hasGesture) {
     console.log('🚀🚀🚀 BRIDGE: AUTO-START CONDITIONS MET! 🚀🚀🚀');
     
@@ -28,9 +36,6 @@ if (shouldAutoStart && hasPermission && hasGesture) {
     
     console.log('✅ Bridge flags set');
     
-    // 🆕 SIMPLIFIED: Just trigger activateMicrophone
-    // It will see window.externalPreGrantedPermission and handle it properly
-    
     // Wait for DOM and then trigger activation
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', bridgeAutoStart);
@@ -41,7 +46,7 @@ if (shouldAutoStart && hasPermission && hasGesture) {
     function bridgeAutoStart() {
         console.log('🎯 Bridge: Triggering activateMicrophone');
         
-        // Hide initial UI (Bridge still does this)
+        // Hide initial UI
         const centerMic = document.getElementById('centerMicActivation');
         if (centerMic) centerMic.style.display = 'none';
         
@@ -56,17 +61,12 @@ if (shouldAutoStart && hasPermission && hasGesture) {
         
         console.log('⏩ Bridge: Using activateMicrophone for introduction');
         
-        // 🆕 CRITICAL: Call activateMicrophone after a delay
-        // It will see bridge flags and handle appropriately
+        // Call activateMicrophone after a delay
         setTimeout(() => {
             if (typeof activateMicrophone === 'function') {
                 activateMicrophone();
             } else {
                 console.error('❌ activateMicrophone function not found!');
-                // Fallback to old bridge behavior
-                const greeting = "Hi there! I'm Boteemia your personal AI Voice assistant, may I get your first name please?";
-                if (typeof addAIMessage === 'function') addAIMessage(greeting);
-                if (typeof speakResponse === 'function') speakResponse(greeting);
             }
         }, 1000);
     }
@@ -1488,11 +1488,19 @@ document.addEventListener('DOMContentLoaded', function() {
 async function activateMicrophone() {
     console.log('🎤 activateMicrophone() called');
     
-    // 🆕 CHECK BRIDGE STATUS
-    const isBridgeMode = window.externalPreGrantedPermission;
+    // 🆕 BETTER BRIDGE CHECK: Check URL parameters too
+    const urlParams = new URLSearchParams(window.location.search);
+    const isBridgeMode = window.externalPreGrantedPermission && 
+                        urlParams.get('autoStartVoice') === 'true';
+    
+    console.log('Bridge status:', {
+        flag: window.externalPreGrantedPermission,
+        urlParam: urlParams.get('autoStartVoice'),
+        isBridgeMode: isBridgeMode
+    });
     
     if (isBridgeMode) {
-        console.log('✅ Bridge mode detected');
+        console.log('✅ Bridge mode ACTIVE - using pre-granted permission');
         window.micPermissionGranted = true;
         isAudioMode = true;
     } else {
@@ -1512,7 +1520,6 @@ async function activateMicrophone() {
             isAudioMode = true;
         } catch (error) {
             console.log('❌ Microphone access failed:', error);
-            // Error handling...
             return;
         }
     }
@@ -1532,8 +1539,7 @@ async function activateMicrophone() {
         quickButtons.style.display = 'block';
     }
     
-    // 🎯 ONLY DO INTRODUCTION IF NOT BRIDGE MODE
-    // (Bridge will handle its own introduction timing)
+    // 🎯 ONLY DO INTRODUCTION IF NOT IN ACTIVE BRIDGE MODE
     if (!isBridgeMode) {
         console.log('💬 Starting normal conversation...');
         setTimeout(() => {
@@ -1552,9 +1558,8 @@ async function activateMicrophone() {
             }, 800);
         }, 1400);
     } else {
-        console.log('✅ Bridge will handle introduction');
-        // Bridge will call addAIMessage and speakResponse itself
-        // with proper timing control
+        console.log('✅ Bridge will handle introduction with proper timing');
+        // Bridge will handle introduction in bridgeAutoStart()
     }
     
     return true;
