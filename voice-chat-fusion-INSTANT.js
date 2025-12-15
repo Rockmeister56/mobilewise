@@ -264,15 +264,15 @@ document.addEventListener('visibilitychange', function() {
 });
 
 // ===================================================
-// 🎤 CLEAN START LISTENING FUNCTION
+// 🎤 COMPLETE START LISTENING FUNCTION (FIXED)
 // ===================================================
 
-let recognitionHandlersSet = false; // Track if handlers are already set
+let recognitionHandlersSet = false;
 
 async function startListening() {
     console.log('🎤 startListening() called');
     
-    // 1. CHECK PERMISSION FIRST (Mobile-compliant)
+    // 1. CHECK PERMISSION FIRST
     if (!await ensureMicrophonePermission()) {
         console.log('❌ Cannot start - microphone permission denied');
         return;
@@ -292,6 +292,13 @@ async function startListening() {
     
     if (isSpeaking) {
         console.log('🔇 AI is speaking - cannot listen now');
+        return;
+    }
+    
+    // Smart button gate-keeper (from original - important!)
+    const smartButton = document.getElementById('smartButton');
+    if (smartButton && smartButton.style.display !== 'none') {
+        console.log('🚫 Smart button active - BLOCKING startListening()');
         return;
     }
     
@@ -330,12 +337,17 @@ async function startListening() {
         } else if (error.name === 'NotFoundError') {
             console.log('🎤 No microphone found');
             addAIMessage("No microphone detected. Please check your audio device.");
+        } else if (error.name === 'InvalidStateError') {
+            console.log('🔄 Recognition in invalid state - will retry');
+            setTimeout(() => {
+                startListening();
+            }, 1000);
         }
     }
 }
 
 // ===================================================
-// 🔧 SUPPORT FUNCTIONS
+// 🔧 UPDATED SUPPORT FUNCTIONS (WITH CRITICAL FEATURES)
 // ===================================================
 
 async function ensureMicrophonePermission() {
@@ -344,6 +356,7 @@ async function ensureMicrophonePermission() {
     // Check if permission already granted via Bridge
     if (window.externalPreGrantedPermission) {
         console.log('✅ Permission already granted via Bridge System');
+        window.micPermissionGranted = true;
         return true;
     }
     
@@ -364,7 +377,13 @@ async function ensureMicrophonePermission() {
             }
         } else {
             // Fallback: Direct getUserMedia call
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const stream = await navigator.mediaDevices.getUserMedia({ 
+                audio: {
+                    echoCancellation: true,
+                    noiseSuppression: true,
+                    autoGainControl: true
+                } 
+            });
             stream.getTracks().forEach(track => track.stop());
             window.micPermissionGranted = true;
             return true;
@@ -383,95 +402,216 @@ function setupRecognitionHandlers() {
         return;
     }
     
-    // ONRESULT: Handle speech transcription
+    // ONRESULT: Handle speech transcription (COMPLETE VERSION)
     recognition.onresult = function(event) {
-        console.log('🎯 Speech detected');
-        
+        console.log('🎯 ONRESULT FIRED');
+        console.log('  - Results count:', event.results.length);
+        console.log('  - Result index:', event.resultIndex);
+
         // Extract transcript
-        const transcript = Array.from(event.results)
+        let transcript = Array.from(event.results)
             .map(result => result[0])
             .map(result => result.transcript)
             .join('')
             .replace(/\.+$/, '');
         
-        console.log('📝 Transcript:', transcript);
+        console.log('✅ Transcript captured:', transcript);
+        
+        // 🆕 CRITICAL: Update banner text
+        const transcriptText = document.getElementById('transcriptText');
+        if (transcriptText) {
+            transcriptText.textContent = transcript || 'Speak Now';
+        }
+        
+        // 🆕 CRITICAL: Update voice transcription
+        if (window.updateVoiceTranscription) {
+            window.updateVoiceTranscription(transcript);
+            console.log('🧪 Called updateVoiceTranscription with:', transcript);
+        }
+        
+        console.log('  - Length:', transcript.length);
+        console.log('  - Is final:', event.results[event.results.length - 1]?.isFinal);
         
         // Update input field
         const userInput = document.getElementById('userInput');
         if (userInput) {
             userInput.value = transcript;
+            console.log('✅ Updated userInput field:', userInput.value);
+            
+            // Store for backup
+            window.lastCapturedTranscript = transcript;
+            window.lastCapturedTime = Date.now();
+            console.log('✅ Stored in window.lastCapturedTranscript');
+        } else {
+            console.error('❌ userInput field NOT FOUND!');
         }
         
-        // Store for backup
-        window.lastCapturedTranscript = transcript;
-        window.lastCapturedTime = Date.now();
+        // 🆕 CRITICAL: Cancel timeouts when speech is detected
+        if (transcript.trim().length > 0 && window.directSpeakNowTimeout) {
+            console.log('🎯 Speech detected - CANCELLING directSpeakNow timeout');
+            clearTimeout(window.directSpeakNowTimeout);
+            window.directSpeakNowTimeout = null;
+        }
         
-        // Call transcription update if available
-        if (typeof updateVoiceTranscription === 'function') {
-            updateVoiceTranscription(transcript);
+        if (transcript.trim().length > 0 && window.speakNowTimeout) {
+            console.log('🎯 Speech detected - cancelling nuclear timeout');
+            clearTimeout(window.speakNowTimeout);
+            window.speakNowTimeout = null;
+        }
+        
+        // 🆕 CRITICAL: Lead capture auto-send (from original)
+        if (isInLeadCapture) {
+            clearTimeout(window.leadCaptureTimeout);
+            window.leadCaptureTimeout = setTimeout(() => {
+                if (transcript.trim().length > 1 && userInput && userInput.value === transcript) {
+                    console.log('🎯 Lead capture auto-send:', transcript);
+                    sendMessage();
+                }
+            }, 5000);
         }
     };
     
-    // ONEND: Handle recognition end
+    // ONEND: Handle recognition end (COMPLETE VERSION)
     recognition.onend = function() {
         console.log('🔚 Recognition ended');
         isListening = false;
         window.isCurrentlyListening = false;
         
-        // Get final transcript
+        // Hide overlay if available
+        if (window.hideVoiceOverlay) {
+            window.hideVoiceOverlay();
+        }
+        
+        // Get final transcript from multiple sources
+        let finalTranscript = '';
         const userInput = document.getElementById('userInput');
-        const finalTranscript = userInput ? userInput.value.trim() : 
-                                window.lastCapturedTranscript || '';
         
-        console.log('📄 Final transcript:', finalTranscript);
+        // Source 1: Input field
+        if (userInput && userInput.value.trim().length > 0) {
+            finalTranscript = userInput.value.trim();
+            console.log('🔍 SOURCE (input field):', finalTranscript);
+        }
         
-        // Process if we have speech
-        if (finalTranscript && finalTranscript.length > 0) {
-            console.log('✅ Processing speech:', finalTranscript);
+        // Source 2: Global backup
+        if (!finalTranscript && window.lastCapturedTranscript) {
+            finalTranscript = window.lastCapturedTranscript;
+            console.log('🔍 SOURCE (global backup):', finalTranscript);
+        }
+        
+        console.log('📄 FINAL transcript:', finalTranscript);
+        
+        if (finalTranscript && finalTranscript.trim().length > 0) {
+            const currentMessage = finalTranscript.trim();
+            const now = Date.now();
+            const timeSinceLastMessage = now - (window.lastMessageTime || 0);
             
-            // Call processUserResponse if available
-            if (typeof processUserResponse === 'function') {
-                processUserResponse(finalTranscript);
-            }
-            
-            // Send message
-            if (typeof sendMessage === 'function') {
-                sendMessage(finalTranscript);
+            if (!window.lastProcessedMessage || 
+                window.lastProcessedMessage !== currentMessage || 
+                timeSinceLastMessage > 3000) {
+                
+                console.log('✅ Sending message:', currentMessage);
+                
+                // 🆕 CRITICAL: Call processUserResponse
+                if (typeof processUserResponse === 'function') {
+                    processUserResponse(finalTranscript);
+                }
+                
+                // Cancel timeouts
+                if (window.speakNowTimeout) {
+                    clearTimeout(window.speakNowTimeout);
+                    window.speakNowTimeout = null;
+                }
+                
+                // Stop any TTS
+                if (window.speechSynthesis && window.speechSynthesis.speaking) {
+                    window.speechSynthesis.cancel();
+                }
+                
+                // Close banners
+                if (typeof speakSequenceActive !== 'undefined' && speakSequenceActive) {
+                    console.log('🎯 Closing Speak Now banner');
+                    window.playingSorryMessage = false;
+                    
+                    if (typeof cleanupSpeakSequence === 'function') {
+                        cleanupSpeakSequence();
+                    }
+                }
+                
+                // 🆕 CRITICAL: Send the message
+                window.lastMessageTime = now;
+                window.lastProcessedMessage = currentMessage;
+                
+                if (typeof sendMessage === 'function') {
+                    sendMessage(currentMessage);
+                }
             }
         } else {
             console.log('🔄 No speech detected');
-        }
-        
-        // Hide overlay if available
-        if (typeof hideVoiceOverlay === 'function') {
-            hideVoiceOverlay();
+            
+            // Show try again overlay
+            if (!isSpeaking && typeof showAvatarSorryMessage === 'function') {
+                setTimeout(() => {
+                    showAvatarSorryMessage();
+                }, 2000);
+            }
         }
     };
     
-    // ONERROR: Handle errors
+    // ONERROR: Handle errors (COMPLETE VERSION)
     recognition.onerror = function(event) {
         console.error('🔊 Recognition error:', event.error);
         isListening = false;
         window.isCurrentlyListening = false;
         
+        // Cancel timers
+        if (window.speakSequenceCleanupTimer) {
+            clearTimeout(window.speakSequenceCleanupTimer);
+            window.speakSequenceCleanupTimer = null;
+        }
+        
+        // Use error handler if available
+        if (typeof handleSpeechRecognitionError === 'function') {
+            handleSpeechRecognitionError(event.error);
+            return;
+        }
+        
+        // Default error handling
         switch (event.error) {
             case 'no-speech':
                 console.log('🔇 No speech detected');
+                // Mobile visual feedback
+                if (window.innerWidth <= 768) {
+                    const transcriptText = document.getElementById('transcriptText');
+                    if (transcriptText) {
+                        transcriptText.textContent = "I didn't hear anything...";
+                        transcriptText.style.color = '#ff6b6b';
+                        
+                        setTimeout(() => {
+                            transcriptText.textContent = 'Please speak now';
+                            transcriptText.style.color = '#ffffff';
+                        }, 1500);
+                    }
+                }
                 break;
+                
             case 'audio-capture':
-                console.log('🎤 No microphone');
-                addAIMessage("I can't detect your microphone.");
+                console.log('🎤 No microphone detected');
+                addAIMessage("I can't detect your microphone. Please check your audio settings.");
                 break;
+                
             case 'not-allowed':
                 console.log('🔒 Permission denied');
-                addAIMessage("Microphone access was denied.");
+                addAIMessage("Microphone permission was denied. Please allow microphone access to continue.");
                 window.micPermissionGranted = false;
+                window.externalPreGrantedPermission = false;
                 break;
+                
             default:
                 console.log('⚠️ Unknown error:', event.error);
+                addAIMessage("There was an error with voice recognition. Please try again.");
         }
     };
-};
+}
 
 // ===================================================
 // 🎤 FORCE START LISTENING - CLEAN VERSION
@@ -547,94 +687,6 @@ async function forceStartListening() {
             window.externalPreGrantedPermission = false;
         }
     }
-}
-
-// ===================================================
-// 🛠️ MISSING FUNCTION DEFINITIONS - COMPLETE FIXED VERSION
-// ===================================================
-
-// 🚨 ADD THIS FUNCTION - Called by pre-warmed engine
-function setupFreshHandlers(recognition) {
-    console.log('🔄 Setting up fresh handlers for pre-warmed engine');
-    
-    // Clear all old handlers
-    recognition.onresult = null;
-    recognition.onstart = null;
-    recognition.onaudiostart = null;
-    recognition.onend = null;
-    recognition.onerror = null;
-    
-    // 🎯 WORKING ONRESULT HANDLER - THIS WAS THE FIX!
-    recognition.onresult = function(event) {
-        console.log('🎯 ONRESULT: Processing speech');
-        
-        if (!event.results || event.results.length === 0) {
-            console.log('❌ No results in event');
-            return;
-        }
-        
-        // Extract transcript
-        let transcript = '';
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-            if (event.results[i][0]) {
-                transcript += event.results[i][0].transcript;
-            }
-        }
-        
-        transcript = transcript.trim();
-        console.log('✅ Transcript:', transcript);
-        
-        if (transcript.length > 0) {
-            // Save globally
-            window.lastCapturedTranscript = transcript;
-            window.lastCapturedTime = Date.now();
-            
-            // Update UI
-            const userInput = document.getElementById('userInput');
-            if (userInput) {
-                userInput.value = transcript;
-            }
-            
-            // Cancel timeouts
-            if (window.directSpeakNowTimeout) {
-                clearTimeout(window.directSpeakNowTimeout);
-                window.directSpeakNowTimeout = null;
-            }
-            
-            if (window.speakNowTimeout) {
-                clearTimeout(window.speakNowTimeout);
-                window.speakNowTimeout = null;
-            }
-        }
-    };
-    
-    recognition.onstart = function() {
-        console.log('⚡ Engine started');
-    };
-    
-    recognition.onaudiostart = function() {
-        console.log('🎤 Microphone active');
-    };
-    
-    recognition.onend = function() {
-        console.log('🔚 Recognition ended');
-        window.isCurrentlyListening = false;
-    };
-    
-    recognition.onerror = function(event) {
-        console.log('❌ Error:', event.error);
-        window.isCurrentlyListening = false;
-    };
-}
-
-// 🚨 ADD THIS FUNCTION - Checks speech support
-function checkSpeechSupport() {
-    return 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window;
-}
-
-// 🚨 ADD THIS FUNCTION - Checks if mobile
-function isMobileDevice() {
-    return /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
 }
 
 // ===================================================
