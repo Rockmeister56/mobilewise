@@ -1761,7 +1761,7 @@ const VOICE_CONFIG = {
     
     // ELEVENLABS CONFIG (when enabled)
     elevenlabs: {
-        enabled: false,  // ← SET TO TRUE when you have credits
+        enabled: true,  // ← SET TO TRUE when you have credits
         apiKey: ELEVENLABS_API_KEY,  // Reference the constant
         voiceId: VOICE_ID,           // Reference the constant
         model: 'eleven_turbo_v2'
@@ -1769,7 +1769,7 @@ const VOICE_CONFIG = {
     
     // BRITISH VOICE CONFIG
     british: {
-        enabled: true,   // ← FREE, always available
+        enabled: false,   // ← FREE, always available
         priority: ['Microsoft Hazel - English (Great Britain)', 'Kate', 'Serena', 'Google UK English Female']
     },
     
