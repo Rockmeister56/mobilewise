@@ -1528,6 +1528,12 @@ window.activateMicrophone = function(...args) {
 };
 
 console.log('✅ activateMicrophone debug installed');
+ // 🛡️ MINIMAL FIX - Add only these 4 lines
+    if (window._activatingMicrophone) return false;
+    window._activatingMicrophone = true;
+    setTimeout(() => { window._activatingMicrophone = false; }, 2000);
+
+
     console.log('🎤 activateMicrophone() called');
     
     // 🆕 BETTER BRIDGE CHECK: Check URL parameters too
