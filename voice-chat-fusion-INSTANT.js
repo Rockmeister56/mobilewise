@@ -69,7 +69,7 @@ if (shouldAutoStart && hasPermission && hasGesture) {
         setTimeout(() => {
             const greeting = "Hi there! I'm Boteemia your personal AI Voice assistant, may I get your first name please?";
             
-            // 🆕 CRITICAL: Add message to chat FIRST
+            // 🆕 CRITICAL: Add message to chat FIRST (THIS SHOWS THE BUBBLE!)
             if (typeof addAIMessage === 'function') {
                 console.log('💬 Bridge: Adding message to chat');
                 addAIMessage(greeting);
@@ -77,13 +77,13 @@ if (shouldAutoStart && hasPermission && hasGesture) {
                 console.log('⚠️ addAIMessage function not available');
             }
             
-            // 🆕 Wait for UI to update, then speak
+            // Wait for UI to update, then speak
             setTimeout(() => {
                 if (typeof speakResponse === 'function') {
                     console.log('🎤 Bridge: Speaking greeting');
                     speakResponse(greeting);
                     
-                    // 🆕 Auto-start listening after speech
+                    // Auto-start listening after speech
                     setTimeout(() => {
                         if (typeof startListening === 'function') {
                             console.log('🎯 Bridge: Auto-starting listening');
