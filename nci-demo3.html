@@ -140,6 +140,27 @@
 }
 
 
+/* DESKTOP-ONLY adjustments for demo page (without video) */
+@media (min-width: 768px) and (hover: hover) {
+    /* Move AI video down 30px on desktop only */
+    .ai-video {
+        top: 245px !important; /* 215px + 30px = 245px */
+        transform: scale(0.85) !important; /* Slightly smaller if needed */
+    }
+    
+    /* Move text up 10px on desktop only */
+    .ai-text-container {
+        bottom: 94px !important; /* 84px + 10px = 94px (moves up) */
+    }
+    
+    /* Optional: Adjust scale for better desktop viewing */
+    .ai-video-container {
+        transform: scale(0.95);
+        transform-origin: center top;
+    }
+}
+
+
         
         .ai-primary-btn {
             background: linear-gradient(135deg, #002fff 0%, #060a1c 100%);
