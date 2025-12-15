@@ -3,57 +3,6 @@
 // Smart Button + Lead Capture + EmailJS + Banner System
 // ===================================================
 
-// TEMPORARY DEBUG CODE - REMOVE AFTER FIXING
-document.addEventListener('DOMContentLoaded', function() {
-  // Check if debug button exists (we just added it in HTML)
-  const debugBtn = document.getElementById('debugTestBtn');
-  
-  if (debugBtn) {
-    debugBtn.addEventListener('click', function() {
-      console.log('=== DEBUG MODE ACTIVATED ===');
-      
-      // Add your specific test code here
-      // Example: Track AI response handling
-      const originalResponseHandler = window.handleAIResponse; // Adjust to your actual function name
-      if (originalResponseHandler) {
-        let callCount = 0;
-        window.handleAIResponse = function(...args) {
-          callCount++;
-          console.log(`AI Response Handler called #${callCount} at:`, new Date().getTime());
-          console.trace('Stack trace for AI response');
-          return originalResponseHandler.apply(this, args);
-        };
-      }
-      
-      // Track bubble creation
-      const originalCreateElement = document.createElement;
-      let bubbleElements = [];
-      
-      document.createElement = function(tagName) {
-        const element = originalCreateElement.call(this, tagName);
-        const stack = new Error().stack;
-        
-        // Look for AI/bubble related calls in stack
-        if (stack.includes('bubble') || stack.includes('message') || 
-            stack.includes('Response') || stack.includes('AI') || 
-            stack.includes('append') || stack.includes('add')) {
-          console.log(`🔵 Creating element: ${tagName}`);
-          console.log('Stack:', stack.split('\n').slice(0, 5).join('\n'));
-          bubbleElements.push({
-            element: element,
-            time: Date.now(),
-            tagName: tagName
-          });
-        }
-        return element;
-      };
-      
-      console.log('Debugging ready. Now click the real microphone button.');
-    });
-  }
-});
-// END TEMPORARY DEBUG CODE
-
 // ===================================================
 // 📱 MOBILE PERMISSION BRIDGE SYSTEM - FIXED VERSION
 // ===================================================
