@@ -3,6 +3,31 @@
 // Smart Button + Lead Capture + EmailJS + Banner System
 // ===================================================
 
+// SIMPLE EMERGENCY MIC BUTTON
+const btn = document.createElement('button');
+btn.textContent = '🎤 TEST';
+btn.style = `
+    position: fixed; 
+    top: 10px; 
+    left: 10px; 
+    z-index: 999999; 
+    padding: 10px; 
+    background: red; 
+    color: white; 
+    border: none; 
+    cursor: pointer;
+`;
+btn.onclick = () => {
+    console.log('Testing microphone...');
+    if (window.activateMicrophone) {
+        window.activateMicrophone();
+    } else {
+        alert('activateMicrophone not found');
+    }
+};
+document.body.appendChild(btn);
+console.log('Emergency mic button added');
+
 // ===================================================
 // 📱 MOBILE PERMISSION BRIDGE SYSTEM - FIXED VERSION
 // ===================================================
