@@ -3740,13 +3740,18 @@ console.log('✅ COMPLETE GOLD STANDARD getAIResponse WITH 4-STEP SALES PROCESS 
 function processUserResponse(userText) {
     console.log('🎯 processUserResponse called with:', userText);
     
-    // 🚨 CHECK IF ACTION SYSTEM IS IN LEAD CAPTURE MODE
-    if (window.isInLeadCapture && window.processLeadResponse) {
+    // 🛑 CHECK IF LEAD CAPTURE IS ACTIVE
+    if (window.isInLeadCapture && window.currentLeadData) {
         console.log('🎯 Lead capture active - routing to Action System');
-        const handled = window.processLeadResponse(userText);
-        if (handled) {
-            console.log('✅ Lead capture handled - not processing as normal chat');
-            return; // Exit early - don't process as conversation
+        // Route to lead capture system
+        if (typeof processLeadResponse === 'function') {
+            return processLeadResponse(userText);
+        }
+    } else {
+        console.log('🎯 Normal conversation - routing to getAIResponse');
+        // Route to normal AI conversation
+        if (typeof getAIResponse === 'function') {
+            return getAIResponse(userText);
         }
     }
     
