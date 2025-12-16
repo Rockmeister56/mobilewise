@@ -68,16 +68,11 @@ window.disableSpeakNowBanner = false;
  function triggerLeadActionCenter() {
     console.log('🚀 Triggering Lead Action Center (Silent Version)...');
 
-    // 🛑 ADD THIS: Prevent duplicate triggers
-    if (window.actionCenterTriggered) {
-        console.log('🛑 Action Center already triggered - skipping duplicate');
+      // 🛑 PREVENT DUPLICATE TRIGGERS
+    if (window._actionCenterRecentlyTriggered) {
+        console.log('🛑 Action Center recently triggered - skipping duplicate');
         return;
     }
-    
-    window.actionCenterTriggered = true;
-    setTimeout(() => {
-        window.actionCenterTriggered = false; // Reset after 10 seconds
-    }, 10000);
     
     // 🚫 CRITICAL: Prevent Speak Now banner
     window.disableSpeakNowBanner = true;
@@ -105,7 +100,18 @@ window.disableSpeakNowBanner = false;
     }, 30000);
 }
 
-// ADD THIS SIMPLE FUNCTION - COPY OF EXISTING BUT WITH DIFFERENT VIDEO
+// ============================================================================
+// COMMUNICATION RELAY CENTER SYSTEM - CLEAN VERSION
+// ============================================================================
+
+// Global state tracking
+let isActionCenterVisible = false;
+let isCommunicationCenterVisible = false;
+
+// ============================================================================
+// 🎯 1. SHOW SILENT COMMUNICATION RELAY CENTER
+// For lead capture/urgent requests - NO SPEECH INTERRUPTION
+// ============================================================================
 function showSilentCommunicationRelayCenter() {
     // 🛑 PREVENT DUPLICATE CALLS
     if (isActionCenterVisible) {
@@ -114,65 +120,9 @@ function showSilentCommunicationRelayCenter() {
     }
     
     console.log('🎯 Creating SILENT Communication Center...');
+    
+    // Mark as visible
     isActionCenterVisible = true;
-    
-    // Clear any existing timeout
-    if (actionCenterTimeout) {
-        clearTimeout(actionCenterTimeout);
-        actionCenterTimeout = null;
-    }
-
-    // Add a cleanup function
-function hideSilentCommunicationRelayCenter() {
-    isActionCenterVisible = false;
-    if (actionCenterTimeout) {
-        clearTimeout(actionCenterTimeout);
-        actionCenterTimeout = null;
-    }
-    console.log('✅ Action Center hidden');
-}
-
-    console.log('🎯 Creating SILENT Communication Center...');
-    
-    const actionCenter = document.createElement('div');
-    actionCenter.id = 'communication-relay-center-silent';
-    
-    // USE THE EXACT SAME HTML BUT WITH DIFFERENT VIDEO URL
-    actionCenter.innerHTML = `
-        <div style="[SAME BEAUTIFUL STYLING]">
-            <!-- Header with SILENT AVATAR VIDEO -->
-            <div style="[SAME HEADER STYLING]">
-                <video autoplay muted playsinline style="[SAME VIDEO STYLING]">
-                    <!-- 🎯 DIFFERENT VIDEO FOR SILENT VERSION -->
-                    <source src="YOUR_SILENT_AVATAR_VIDEO_URL_HERE" type="video/mp4">
-                </video>
-                [SAME TITLE AND SUBTITLE]
-            </div>
-            [SAME BEAUTIFUL BUTTON GRID]
-        </div>
-    `;
-    
-    // SAME CONTAINER LOGIC
-    const chatContainer = document.getElementById('chatMessages') || document.querySelector('.chat-messages');
-    if (chatContainer) {
-        chatContainer.appendChild(actionCenter);
-        setTimeout(() => {
-            actionCenter.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }, 100);
-    }
-    
-    console.log('✅ SILENT Communication Center displayed');
-}
-
-// Export globally so lead system can call it
-window.triggerLeadActionCenter = triggerLeadActionCenter;
-
-/**
- * SHOW SILENT Communication Center
- * Same beautiful UI but with silent avatar video
- */
-function showSilentCommunicationRelayCenter() {
-    console.log('🎯 Creating SILENT Communication Center...');
     
     const actionCenter = document.createElement('div');
     actionCenter.id = 'communication-relay-center-silent';
@@ -254,15 +204,22 @@ function showSilentCommunicationRelayCenter() {
     console.log('✅ SILENT Communication Center displayed');
 }
 
-// Export globally
-window.showSilentCommunicationRelayCenter = showSilentCommunicationRelayCenter;
-    /**
- * SHOW Communication Center - CLONED VERSION
- * Same layout as Action Center but with YOUR video avatar
- */
+// ============================================================================
+// 🎯 2. SHOW COMMUNICATION RELAY CENTER (WITH YOUR AVATAR)
+// For main button clicks - HAS SPEECH
+// ============================================================================
 function showCommunicationRelayCenter() {
+    // 🛑 PREVENT DUPLICATE CALLS
+    if (isCommunicationCenterVisible) {
+        console.log('🛑 Communication Center already visible - skipping duplicate');
+        return;
+    }
+    
+    isCommunicationCenterVisible = true;
+    
     const actionCenter = document.createElement('div');
-    actionCenter.id = 'communication-relay-center'; // Different ID
+    actionCenter.id = 'communication-relay-center';
+    
     actionCenter.innerHTML = `
         <div style="
             background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.9)),
@@ -282,76 +239,59 @@ function showCommunicationRelayCenter() {
             min-height: 450px;
         ">
             <!-- Header with YOUR Video Avatar -->
-            <div style="
-                display: flex;
-                align-items: center;
-                margin-bottom: 25px;
-                gap: 15px;
-                margin-top: 5px;
-            ">
+            <div style="display: flex; align-items: center; margin-bottom: 25px; gap: 15px; margin-top: 5px;">
                 <!-- YOUR VIDEO AVATAR WITH AUDIO -->
                 <video autoplay muted playsinline style="
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-">
-    <source src="${BUTTON_CONFIG.avatarVideoUrl}" type="video/mp4">
-</video>
+                    width: 80px;
+                    height: 80px;
+                    border-radius: 50%;
+                    object-fit: cover;
+                    border: 2px solid rgba(255, 255, 255, 0.2);
+                    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+                ">
+                    <source src="${BUTTON_CONFIG.avatarVideoUrl}" type="video/mp4">
+                </video>
                 <div>
-                    <h3 style="
-                        margin: 0 0 5px 0;
-                        font-size: 22px;
-                        font-weight: 600;
-                        color: white;
-                    ">Communication Center</h3>
-                    <p style="
-                        margin: 0;
-                        opacity: 0.8;
-                        font-size: 13px;
-                        font-weight: 300;
-                        letter-spacing: 0.5px;
-                    ">AI Assisted Comm Support</p>
+                    <h3 style="margin: 0 0 5px 0; font-size: 22px; font-weight: 600; color: white;">Communication Center</h3>
+                    <p style="margin: 0; opacity: 0.8; font-size: 13px; font-weight: 300; letter-spacing: 0.5px;">AI Assisted Comm Support</p>
                 </div>
             </div>
 
             <!-- SAME 2x2 Grid Layout as Original -->
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px;">
                 <!-- Request-A-Call -->
-                <button onclick="handleRelayCenterAction('click-to-call')" style="
-                    display: flex;
-                    align-items: center;
-                    gap: 12px;
-                    background: rgba(0, 0, 0, 0.6);
-                    border: 1px solid rgba(255, 255, 255, 0.2);
-                    color: white;
-                    padding: 18px 15px;
-                    border-radius: 10px;
-                    cursor: pointer;
-                    font-weight: 600;
-                    font-size: 17px;
-                    text-align: left;
-                    transition: all 0.3s ease;
-                    backdrop-filter: blur(10px);
-                    width: 100%;
-                    height: 84px;
-                    min-width: 295px;
-                " onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.borderColor='rgba(255, 255, 255, 0.3)'; this.style.transform='translateY(-2px)';" 
-                   onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.borderColor='rgba(255, 255, 255, 0.2)'; this.style.transform='translateY(0)';">
-                    <div style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
-                        <span style="font-size: 24px;">📞</span>
-                    </div>
+                <button onclick="handleActionButton('click-to-call')" style="display: flex; align-items: center; gap: 12px; background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(255, 255, 255, 0.2); color: white; padding: 18px 15px; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 17px; text-align: left; transition: all 0.3s ease; backdrop-filter: blur(10px); width: 100%; height: 84px; min-width: 295px;" onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.borderColor='rgba(255, 255, 255, 0.3)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.borderColor='rgba(255, 255, 255, 0.2)'; this.style.transform='translateY(0)';">
+                    <div style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;"><span style="font-size: 24px;">📞</span></div>
                     <span style="flex: 1;">Request-A-Call</span>
                 </button>
 
-                <!-- ... REST OF THE ORIGINAL ACTION CENTER BUTTONS ... -->
+                <!-- URGENT CALL -->
+                <button onclick="handleActionButton('urgent-call')" style="display: flex; align-items: center; gap: 12px; background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(255, 255, 255, 0.2); color: white; padding: 18px 15px; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 17px; text-align: left; transition: all 0.3s ease; backdrop-filter: blur(10px); width: 100%; height: 84px; min-width: 295px;" onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.borderColor='rgba(255, 255, 255, 0.3)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.borderColor='rgba(255, 255, 255, 0.2)'; this.style.transform='translateY(0)';">
+                    <div style="font-size: 28px;">🚨</div>
+                    <span style="flex: 1;">URGENT CALL</span>
+                </button>
+
+                <!-- BOOK Consultation -->
+                <button onclick="handleActionButton('free-consultation')" style="display: flex; align-items: center; gap: 12px; background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(255, 255, 255, 0.2); color: white; padding: 18px 15px; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 17px; text-align: left; transition: all 0.3s ease; backdrop-filter: blur(10px); width: 100%; height: 84px; min-width: 295px;" onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.borderColor='rgba(255, 255, 255, 0.3)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.borderColor='rgba(255, 255, 255, 0.2)'; this.style.transform='translateY(0)';">
+                    <div style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;"><span style="font-size: 24px;">📅</span></div>
+                    <span style="flex: 1;">BOOK Consultation</span>
+                </button>
+
+                <!-- Pre-Qualifier -->
+                <button onclick="handleActionButton('pre-qualifier')" style="display: flex; align-items: center; gap: 12px; background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(255, 255, 255, 0.2); color: white; padding: 18px 15px; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 17px; text-align: left; transition: all 0.3s ease; backdrop-filter: blur(10px); width: 100%; height: 84px; min-width: 295px;" onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.borderColor='rgba(255, 255, 255, 0.3)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.borderColor='rgba(255, 255, 255, 0.2)'; this.style.transform='translateY(0)';">
+                    <div style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;"><span style="font-size: 24px;">✅</span></div>
+                    <span style="flex: 1;">Pre-Qualification</span>
+                </button>
             </div>
+
+            <!-- Skip for Now -->
+            <button onclick="handleActionButton('skip')" style="display: flex; align-items: center; gap: 10px; background: rgba(0, 0, 0, 0.6); color: rgba(255, 255, 255, 0.8); border: 1px solid rgba(255, 255, 255, 0.2); padding: 15px 20px; border-radius: 10px; cursor: pointer; font-size: 16px; font-weight: 500; transition: all 0.3s ease; width: 100%; justify-content: center; margin-top: 5px;" onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.color='white';" onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.color='rgba(255, 255, 255, 0.8)';">
+                <div style="width: 20px; height: 20px; display: flex; align-items: center; justify-content: center;"><span style="font-size: 16px;">⏭️</span></div>
+                <span>Skip for Now</span>
+            </button>
         </div>
     `;
     
-    // Same container logic as original
     const chatContainer = document.getElementById('chatMessages') || document.querySelector('.chat-messages');
     if (chatContainer) {
         chatContainer.appendChild(actionCenter);
@@ -362,6 +302,35 @@ function showCommunicationRelayCenter() {
     
     console.log('✅ Communication Center displayed with YOUR avatar');
 }
+
+
+// ============================================================================
+// 🎯 4. CLEANUP FUNCTIONS
+// ============================================================================
+function hideCommunicationActionCenter() {
+    const actionCenter = document.getElementById('communication-action-center');
+    if (actionCenter) {
+        actionCenter.remove();
+        isActionCenterVisible = false;
+        console.log('✅ Communication Action Center hidden');
+    }
+}
+
+function cleanupCommunicationCenters() {
+    // Remove both types of centers
+    const silentCenter = document.getElementById('communication-relay-center-silent');
+    const regularCenter = document.getElementById('communication-relay-center');
+    
+    if (silentCenter) silentCenter.remove();
+    if (regularCenter) regularCenter.remove();
+    
+    isActionCenterVisible = false;
+    isCommunicationCenterVisible = false;
+    
+    console.log('✅ All Communication Centers cleaned up');
+}
+
+console.log('✅ Enhanced Communication Center System loaded');
 
    function addButtonStyles() {
     if (document.getElementById('comm-relay-button-styles')) return;
