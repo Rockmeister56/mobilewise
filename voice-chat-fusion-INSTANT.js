@@ -3230,6 +3230,8 @@ setTimeout(() => {
     }
 }, 50); // Wait for question to start speaking
 
+speakWithElevenLabs(fallbackResponse, false);
+return fallbackResponse;
 }
 }
 
@@ -3782,6 +3784,10 @@ function processUserResponse(userText) {
         // Add AI message to chat
         addAIMessage(responseText);
         
+        // Speak the response
+        if (typeof speakWithElevenLabs === 'function') {
+            speakWithElevenLabs(responseText);
+        }
     }, 800);
 }
 
