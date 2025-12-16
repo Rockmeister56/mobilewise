@@ -790,7 +790,7 @@ function sendInternalNotification(leadData, captureType) {
         // Book Consultation
         internalTemplateId = EMAILJS_CONFIG.templates.consultation;
         internalTemplateParams = {
-            to_email: 'bruce@newclientsinc.com',
+            to_email: 'duncansfury@gmail.com',
             name: leadData.name,
             phone: leadData.phone,
             email: leadData.email,
@@ -803,7 +803,7 @@ function sendInternalNotification(leadData, captureType) {
         // ✅ REQUEST A CALL - This is the one that should work!
         internalTemplateId = EMAILJS_CONFIG.templates.clickToCall; 
         internalTemplateParams = {
-            to_email: 'bruce@newclientsinc.com',
+            to_email: 'duncansfury@gmail.com',
             name: leadData.name,
             phone: leadData.phone,
             reason: leadData.reason,
@@ -846,7 +846,7 @@ function sendInternalNotification(leadData, captureType) {
                               qualificationScore >= 50 ? 'MEDIUM' : 'BASIC';
     
     internalTemplateParams = {
-        to_email: 'bruce@newclientsinc.com',
+        to_email: 'duncansfury@gmail.com',
         name: leadData.name,
         email: leadData.email,
         phone: leadData.phone,
@@ -885,7 +885,7 @@ function sendInternalNotification(leadData, captureType) {
 }
 
 // ================================
-// UNIVERSAL CLOSE SEQUENCE (WITH DECISION PANEL) - FIXED VERSION
+// UNIVERSAL CLOSE SEQUENCE (WITH DECISION PANEL)
 // ================================
 function universalCloseSequence(serviceType) {
     console.log('🎯 Universal close sequence for:', serviceType);
@@ -906,85 +906,35 @@ function universalCloseSequence(serviceType) {
         window.addAIMessage(closeMessage);
     }
     
+    if (window.speakText) {
+        window.speakText(closeMessage);
+    }
+    
     // 2. Send internal notification for the lead
     if (serviceType === 'requestCall') {
         sendInternalNotification(window.currentLeadData, serviceType);
     }
     
-    // 3. SPEAK with callback to know when she's done
-    if (window.speakText) {
-        window.speakText(closeMessage, function() {
-            // 🎯 THIS IS WHERE SHE SHOULD ASK THE QUESTION
-            console.log('✅ Close message spoken, now asking if user needs more help');
-            
-            // Add the question to chat BEFORE showing panel
-            const followUpQuestion = "Is there anything else I can help you with?";
-            if (window.addAIMessage) {
-                window.addAIMessage(followUpQuestion);
-            }
-            
-            // Wait a moment, then speak the question
-            setTimeout(() => {
-                if (window.speakText) {
-                    window.speakText(followUpQuestion, function() {
-                        // NOW show decision panel AFTER she asks the question
-                        showDecisionPanel({
-                            question: followUpQuestion,
-                            yesText: "Yes, I have more questions",
-                            skipText: "No, I'm all done", 
-                            onYes: function() {
-                                console.log("User wants to continue conversation");
-                                // 🛑 CRITICAL FIX: Exit lead capture mode
-                                window.isInLeadCapture = false;
-                                window.currentLeadData = null;
-                                window.quickLeadData = null;
-                                
-                                console.log('✅ LEAD CAPTURE EXITED - Returning to normal AI conversation');
-                                
-                                // Now trigger Speak Now banner
-                                if (window.showDirectSpeakNow) {
-                                    setTimeout(() => {
-                                        window.showDirectSpeakNow();
-                                    }, 500);
-                                }
-                            },
-                            onSkip: function() {
-                                console.log("User is done with conversation");
-                                if (window.showThankYouSplash) window.showThankYouSplash();
-                                
-                                // Reset the capture system
-                                window.isInLeadCapture = false;
-                                window.currentLeadData = null;
-                            }
-                        });
-                    });
-                }
-            }, 800); // Small pause between sentences
-        });
-    } else {
-        // Fallback if no speakText
+    // 3. After speech completes, show the decision panel
+    setTimeout(() => {
         showDecisionPanel({
             question: "Is there anything else I can help you with?",
             yesText: "Yes, I have more questions",
             skipText: "No, I'm all done", 
             onYes: function() {
                 console.log("User wants to continue conversation");
-                // 🛑 CRITICAL FIX
-                window.isInLeadCapture = false;
-                window.currentLeadData = null;
-                window.quickLeadData = null;
-                
                 if (window.showDirectSpeakNow) window.showDirectSpeakNow();
             },
             onSkip: function() {
                 console.log("User is done with conversation");
                 if (window.showThankYouSplash) window.showThankYouSplash();
                 
+                // Reset the capture system
                 window.isInLeadCapture = false;
                 window.currentLeadData = null;
             }
         });
-    }
+    }, 4000); // Wait 2 seconds for the speech to complete
     
     console.log('✅ Universal close sequence initiated');
 }
@@ -1711,7 +1661,7 @@ function sendOriginalLeadEmail(data, type) {
     if (type === 'consultation') {
         internalTemplateId = EMAILJS_CONFIG.templates.consultation;
         internalTemplateParams = {
-            to_email: 'bruce@newclientsinc.com',
+            to_email: 'duncansfury@gmail.com',
             name: data.name,           // CHANGED from from_name
             email: data.email,         // CHANGED from from_email  
             phone: data.phone,
@@ -1724,7 +1674,7 @@ function sendOriginalLeadEmail(data, type) {
     } else if (type === 'clickToCall') {
         internalTemplateId = EMAILJS_CONFIG.templates.clickToCall;
         internalTemplateParams = {
-            to_email: 'bruce@newclientsinc.com',
+            to_email: 'duncansfury@gmail.com',
             name: data.name,           // CHANGED from from_name
             phone: data.phone,
             email: data.email || 'Not provided', // ADDED missing field
@@ -1783,7 +1733,7 @@ function sendOriginalLeadEmail(data, type) {
                             qualificationScore >= 50 ? 'MEDIUM' : 'BASIC';
         
         internalTemplateParams = {
-            to_email: 'bruce@newclientsinc.com',
+            to_email: 'duncansfury@gmail.com',
             name: data.name || 'Not provided',
             email: data.email || 'Not provided',
             phone: data.phone || 'Not provided',
