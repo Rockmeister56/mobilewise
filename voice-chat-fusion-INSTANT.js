@@ -3150,7 +3150,7 @@ if (strongIntent) {
     if (window.salesAI.state === 'pre_close') {
         console.log('🎯 Processing pre-close response...');
         const preCloseResponse = handlePreCloseResponse(userMessage, window.salesAI.userData.intent);
-        // speakWithElevenLabs(preCloseResponse, false);
+        //speakWithElevenLabs(preCloseResponse, false);
         
         if (preCloseResponse.includes("Perfect! Let me get you connected")) {
     // User said YES - trigger SILENT Communication Relay Center
@@ -3229,8 +3229,6 @@ setTimeout(() => {
         console.log('✅ Free Consultation Banner triggered');
     }
 }, 50); // Wait for question to start speaking
-
-speakWithElevenLabs(fallbackResponse, false);
 return fallbackResponse;
 }
 }
