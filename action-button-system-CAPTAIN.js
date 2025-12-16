@@ -67,6 +67,17 @@ window.disableSpeakNowBanner = false;
 
  function triggerLeadActionCenter() {
     console.log('🚀 Triggering Lead Action Center (Silent Version)...');
+
+    // 🛑 ADD THIS: Prevent duplicate triggers
+    if (window.actionCenterTriggered) {
+        console.log('🛑 Action Center already triggered - skipping duplicate');
+        return;
+    }
+    
+    window.actionCenterTriggered = true;
+    setTimeout(() => {
+        window.actionCenterTriggered = false; // Reset after 10 seconds
+    }, 10000);
     
     // 🚫 CRITICAL: Prevent Speak Now banner
     window.disableSpeakNowBanner = true;
