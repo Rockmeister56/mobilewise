@@ -6,6 +6,7 @@
  * Preserves original Action Center for AI-triggered calls
  * 
  * Created: 2025-10-31 - ENHANCEMENT VERSION
+ * 
  */
 
 console.log('✅ Enhanced Communication Center System loaded');
@@ -20,6 +21,8 @@ const BUTTON_CONFIG = {
 
 let buttonContainer = null;
 let isInitialized = false;
+let isActionCenterVisible = false;
+let actionCenterTimeout = null;
 
 (function() {
     'use strict';
@@ -93,6 +96,31 @@ window.disableSpeakNowBanner = false;
 
 // ADD THIS SIMPLE FUNCTION - COPY OF EXISTING BUT WITH DIFFERENT VIDEO
 function showSilentCommunicationRelayCenter() {
+    // 🛑 PREVENT DUPLICATE CALLS
+    if (isActionCenterVisible) {
+        console.log('🛑 Action Center already visible - skipping duplicate');
+        return;
+    }
+    
+    console.log('🎯 Creating SILENT Communication Center...');
+    isActionCenterVisible = true;
+    
+    // Clear any existing timeout
+    if (actionCenterTimeout) {
+        clearTimeout(actionCenterTimeout);
+        actionCenterTimeout = null;
+    }
+
+    // Add a cleanup function
+function hideSilentCommunicationRelayCenter() {
+    isActionCenterVisible = false;
+    if (actionCenterTimeout) {
+        clearTimeout(actionCenterTimeout);
+        actionCenterTimeout = null;
+    }
+    console.log('✅ Action Center hidden');
+}
+
     console.log('🎯 Creating SILENT Communication Center...');
     
     const actionCenter = document.createElement('div');
