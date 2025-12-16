@@ -225,6 +225,32 @@ window.showSilentCommunicationRelayCenter = showSilentCommunicationRelayCenter;
  * Same layout as Action Center but with YOUR video avatar
  */
 
+    // ============================================================================
+// 🎯 4. CLEANUP FUNCTIONS
+// ============================================================================
+function hideCommunicationActionCenter() {
+    const actionCenter = document.getElementById('communication-action-center');
+    if (actionCenter) {
+        actionCenter.remove();
+        isActionCenterVisible = false;
+        console.log('✅ Communication Action Center hidden');
+    }
+}
+
+function cleanupCommunicationCenters() {
+    // Remove both types of centers
+    const silentCenter = document.getElementById('communication-relay-center-silent');
+    const regularCenter = document.getElementById('communication-relay-center');
+    
+    if (silentCenter) silentCenter.remove();
+    if (regularCenter) regularCenter.remove();
+    
+    isActionCenterVisible = false;
+    isCommunicationCenterVisible = false;
+    
+    console.log('✅ All Communication Centers cleaned up');
+}
+
    function addButtonStyles() {
     if (document.getElementById('comm-relay-button-styles')) return;
 
@@ -957,6 +983,17 @@ function showEnhancedActionCenter() {
     window.showEnhancedActionCenter = showEnhancedActionCenter;
     window.handleActionCenterCompletion = handleActionCenterCompletion; // 🆕 NEW
     window.playRelayCenterIntroduction = playRelayCenterIntroduction;   // 🆕 NEW
+    
+    // ============================================================================
+   // 🎯 5. GLOBAL EXPORTS
+   // ============================================================================
+   window.showSilentCommunicationRelayCenter = showSilentCommunicationRelayCenter;
+   window.showCommunicationRelayCenter = showCommunicationRelayCenter;
+   window.triggerLeadActionCenter = triggerLeadActionCenter;
+   window.hideCommunicationActionCenter = hideCommunicationActionCenter;
+   window.cleanupCommunicationCenters = cleanupCommunicationCenters;
+
+   console.log('✅ Enhanced Communication Center System loaded');
 
     // Initialize on DOM ready
     if (document.readyState === 'loading') {
