@@ -4,6 +4,7 @@
 // CLEANED VERSION - No restore code for old buttons
 // ================================
 
+console.log('🎯 ACTION SYSTEM UNIFIED - Loading (FINAL CLEANED VERSION)...');
 
 const EMAILJS_CONFIG = {
     serviceId: 'service_b9bppgb',
@@ -15,6 +16,10 @@ const EMAILJS_CONFIG = {
         clientConfirmation: 'template_8kx812d'   // NEW: Client confirmation email with free book
     }
 };
+
+function getDefaultButtons() {
+    return getCorporateButtons(); // Use existing corporate buttons
+}
 
 // Initialize EmailJS
 (function() {
@@ -28,7 +33,6 @@ const EMAILJS_CONFIG = {
 window.isInLeadCapture = false;
 window.currentLeadData = null;
 window.currentCaptureType = null;
-window.lastCapturedName = null;
 
 // ================================
 // FORM VALIDATION
@@ -52,45 +56,6 @@ function formatEmailFromSpeech(speechText) {
         .replace(/,/g, '');
     console.log('📧 Email conversion:', speechText, '→', formattedEmail);
     return formattedEmail;
-}
-
-// 🚨 ADD THIS FUNCTION AT THE TOP OF YOUR action-system-unified.js FILE
-function muteAllSpeechTemporarily() {
-    console.log('🔇 MUTING ALL SPEECH IMMEDIATELY');
-    
-    // 1. STOP ElevenLabs - THIS IS WHAT ACTUALLY WORKS
-    if (window.elevenLabsPlayer && window.elevenLabsPlayer.stop) {
-        console.log('🔇 Stopping ElevenLabs player');
-        window.elevenLabsPlayer.stop();
-        
-        // Also set volume to 0 as backup
-        if (window.elevenLabsPlayer.volume !== undefined) {
-            window.elevenLabsPlayer.volume = 0;
-        }
-    }
-    
-    // 2. CANCEL Web Speech API
-    if (window.speechSynthesis && window.speechSynthesis.speaking) {
-        console.log('🔇 Cancelling Web Speech API');
-        window.speechSynthesis.cancel();
-    }
-    
-    // 3. PAUSE all HTML5 audio/video elements
-    document.querySelectorAll('audio, video').forEach(media => {
-        media.pause();
-        media.currentTime = 0;
-    });
-    
-    // 4. SET FLAGS to prevent immediate restart
-    window.isSpeaking = false;
-    window.speechJustStopped = Date.now();
-
-     // 🚨 THIS IS THE CRITICAL LINE:
-    window.speechJustStopped = Date.now();
-    window.isSpeaking = false;
-    
-    console.log('✅ All speech muted/stopped');
-    return true;
 }
 
 // ================================
@@ -127,7 +92,12 @@ function showCommunicationActionCenter(mode = 'default') {
             </div>
         `;
     } else {
-    
+        // Default mode
+        actionCenter.innerHTML = `
+            <div style="...default styling...">
+                ${getDefaultButtons()}
+            </div>
+        `;
     }
     
     // Add to page
@@ -138,17 +108,6 @@ function showCommunicationActionCenter(mode = 'default') {
     
     console.log('✅ Enhanced Action Center displayed - Mode:', mode);
 }
-
-// ================================
-// LEAD CAPTURE TRACKING
-// ================================
-window.trackLeadCaptureStart = function() {
-    console.log('🎯 LEAD CAPTURE: Starting lead capture process');
-};
-
-window.trackLeadCaptureComplete = function() {
-    console.log('🎯 LEAD CAPTURE: Lead capture completed');
-};
 
 // ================================
 // HIDE ACTION CENTER - CLEANED VERSION
@@ -190,29 +149,6 @@ function initiateUrgentCall() {
 
 function handleActionButton(action) {
     console.log('🎯 Action button clicked:', action);
-    
-    // 🚨 MUTE SPEECH SMOOTHLY (300ms fade)
-    if (typeof muteAllSpeechTemporarily === 'function') {
-        muteAllSpeechTemporarily(300);
-    } else {
-        // Fallback: Stop speech immediately
-        if (typeof window.stopAllSpeech === 'function') {
-            window.stopAllSpeech();
-            console.log('🔇 Speech stopped via stopAllSpeech()');
-        } else {
-            if (window.speechSynthesis && window.speechSynthesis.speaking) {
-                window.speechSynthesis.cancel();
-                console.log('🔇 Web Speech API stopped');
-            }
-            if (window.elevenLabsPlayer && window.elevenLabsPlayer.stop) {
-                window.elevenLabsPlayer.stop();
-                console.log('🔇 ElevenLabs stopped');
-            }
-        }
-    }
-    
-    // Clear speech flags
-    window.isSpeaking = false;
     
     // 🛑 CHECK IF WE'RE ALREADY PROCESSING
     if (window.isProcessingAction) {
@@ -260,47 +196,10 @@ function handleActionButton(action) {
             break;
             
         case 'skip':
-            console.log('🎯 User chose to skip - BLOCKING avatar auto-restart');
-            
-            // 🚨 CRITICAL: Prevent avatar from auto-restarting Speak Now
-            window.suppressAvatarAutoRestart = true;
-            
-            const skipMessage = "I appreciate you're not ready to get immediate help from our expert. What else can I help you with to meet your objectives?";
-            
-            // Show message
+            console.log('User chose to skip');
             if (window.addSystemMessage) {
-                window.addSystemMessage(skipMessage);
-            } else if (window.addAIMessage) {
-                window.addAIMessage(skipMessage);
+                window.addSystemMessage("No problem! Feel free to ask me anything else about your practice.");
             }
-            
-            // Use the same pattern as other cases - wait for AI speech completion
-            if (window.speakText) {
-                window.speakText(skipMessage);
-                
-                const checkSpeech = setInterval(() => {
-                    if (!window.isSpeaking) {
-                        clearInterval(checkSpeech);
-                        console.log('✅ AI finished speaking - starting listening NOW');
-                        
-                        // 🎯 TRACKED BANNER SHOW
-                        console.log('🎤 SKIP: Triggering Speak Now banner');
-                        if (window.showDirectSpeakNow && typeof window.showDirectSpeakNow === 'function') {
-                            window.showDirectSpeakNow();
-                        }
-                    }
-                }, 100);
-
-                setTimeout(() => {
-                    clearInterval(checkSpeech);
-                }, 10000);
-            }
-            
-            // Re-enable avatar auto-restart after reasonable time
-            setTimeout(() => {
-                window.suppressAvatarAutoRestart = false;
-                console.log('✅ Avatar auto-restart re-enabled');
-            }, 15000);
             break;
     }
     
@@ -308,39 +207,6 @@ function handleActionButton(action) {
     setTimeout(() => {
         window.isProcessingAction = false;
     }, 1000);
-}
-
-// 🚨 ADD THIS FUNCTION TO YOUR action-system-unified.js FILE:
-function muteAllSpeechTemporarily(duration = 300) {
-    console.log(`🔇 Muting all speech for ${duration}ms`);
-    
-    // 1. Mute ElevenLabs if it exists
-    if (window.elevenLabsPlayer) {
-        // Store original volume
-        if (!window.elevenLabsPlayer._originalVolume) {
-            window.elevenLabsPlayer._originalVolume = window.elevenLabsPlayer.volume || 1;
-        }
-        
-        // Quick fade to almost silent (not 0, some browsers stop at 0)
-        window.elevenLabsPlayer.volume = 0.01;
-        window.elevenLabsPlayer._mutedAt = Date.now();
-        
-        // Restore after duration
-        setTimeout(() => {
-            if (window.elevenLabsPlayer && window.elevenLabsPlayer._originalVolume) {
-                window.elevenLabsPlayer.volume = window.elevenLabsPlayer._originalVolume;
-                console.log('🔊 ElevenLabs volume restored');
-            }
-        }, duration);
-    }
-    
-    // 2. Mute Web Speech API (cancel it since no volume control)
-    if (window.speechSynthesis && window.speechSynthesis.speaking) {
-        window.speechSynthesis.cancel();
-    }
-    
-    // 3. Set global mute flag
-    window.speechMutedUntil = Date.now() + duration;
 }
 
 // ================================
@@ -375,65 +241,26 @@ function initializeConsultationCapture() {
 }
 
 // ================================
-// LEAD CAPTURE 2: URGENT CALL
+// LEAD CAPTURE 2: CLICK-TO-CALL
 // ================================
-function initializeUrgentCallCapture() {
-    console.log('🚀 Starting URGENT CALL capture...');
+function initializeClickToCallCapture() {
+    console.log('🚀 Starting Click-to-Call capture...');
     
     if (window.isInLeadCapture) return;
     
     window.isInLeadCapture = true;
-    window.currentCaptureType = 'urgentCall';
-    window.currentLeadData = {
-        name: window.userFirstName || '', // 🆕 USE THE ALREADY CAPTURED NAME!
-        phone: '',
-        reason: '',
-        captureType: 'urgentCall',
-        step: window.userFirstName ? 1 : 0, // 🆕 SKIP NAME QUESTION IF WE HAVE IT
-        tempAnswer: '',
-        questions: [
-            // 🆕 ONLY ASK NAME IF WE DON'T ALREADY HAVE IT
-            ...(window.userFirstName ? [] : ["What's your full name?"]),
-            "What's the best phone number to reach you?",
-            "What's this regarding - are you looking to buy, sell, or evaluate a practice?"
-        ]
-    };
-    
-    // 🆕 CRITICAL: MANUALLY SAVE THE NAME IF WE HAVE IT
-    if (window.userFirstName) {
-        console.log('✅ Pre-saving captured name:', window.userFirstName);
-        // Force the name to be saved in the correct field
-        window.currentLeadData.name = window.userFirstName;
-    }
-    
-    console.log('🆕 Urgent Call initialized with name:', window.currentLeadData.name);
-    
-    setTimeout(() => {
-        askLeadQuestion();
-    }, 500);
-}
-
-// ================================
-// LEAD CAPTURE: REQUEST A CALL (NEW)
-// ================================
-function initializeRequestCallCapture() {
-    console.log('🚀 Starting REQUEST A CALL capture...');
-    
-    if (window.isInLeadCapture) return;
-    
-    window.isInLeadCapture = true;
-    window.currentCaptureType = 'clickToCall'; // Uses clickToCall template
+    window.currentCaptureType = 'clickToCall';
     window.currentLeadData = {
         name: '',
         phone: '',
         reason: '',
-        captureType: 'clickToCall', // Uses clickToCall template
+        captureType: 'clickToCall',
         step: 0,
         tempAnswer: '',
         questions: [
-            "Terrific, can I get your full name please?",
+            "What's your full name?",
             "What's the best phone number to reach you?",
-            "May I ask what this regarding?",
+            "What's this regarding - are you looking to buy, sell, or evaluate a practice?"
         ]
     };
     
@@ -494,12 +321,11 @@ function disableAvatarDuringLeadCapture() {
 // UNIVERSAL LEAD QUESTION ASKER
 // ================================
 function askLeadQuestion() {
-    window.trackLeadCaptureStart(); // 🎯 TRACK THIS!
-    
-    window.lastProcessedTranscript = null;
+    window.lastProcessedTranscript = null; // 🔄 Reset for new question
     if (!window.isInLeadCapture || !window.currentLeadData) return;
     
     const data = window.currentLeadData;
+    
     console.log('🎯 Asking question for step:', data.step);
     
     if (data.step < data.questions.length) {
@@ -511,43 +337,41 @@ function askLeadQuestion() {
         }
         
         if (window.speakText) {
-            // 🚨🚨🚨 ADD THIS CHECK BEFORE SPEAKING 🚨🚨🚨
-            function speakWhenClear() {
-                if (window.isSpeaking || (window.speechJustStopped && (Date.now() - window.speechJustStopped) < 500)) {
-                    console.log('⏳ Waiting for speech to clear...');
-                    setTimeout(speakWhenClear, 100);
-                    return;
-                }
-                
-                console.log('✅ Speech clear, now speaking:', question.substring(0, 50));
-                window.speakText(question);
-                
-                const checkSpeech = setInterval(() => {
-                    if (!window.isSpeaking) {
-                        clearInterval(checkSpeech);
-                        console.log('✅ AI finished speaking - starting listening NOW');
-                        
-                        // 🎯 TRACKED BANNER SHOW
-                        console.log('🎤 LEAD CAPTURE: Triggering Speak Now banner for step', data.step);
-                        if (window.showDirectSpeakNow && typeof window.showDirectSpeakNow === 'function') {
-                            window.showDirectSpeakNow();
-                        }
-                    }
-                }, 100);
-
-                setTimeout(() => {
-                    clearInterval(checkSpeech);
-                }, 10000);
-            }
+            window.speakText(question);
             
-            // Start the check
-            speakWhenClear();
+            // 🎯 SMART TIMING: Wait for speech to actually finish BEFORE showing banner
+            const checkSpeech = setInterval(() => {
+                if (!window.isSpeaking) {
+                    clearInterval(checkSpeech);
+                    console.log('✅ AI finished speaking - starting listening NOW');
+                    
+                    // 🎤 NOW SHOW SPEAK NOW BANNER (after speech finishes)
+                    console.log('🎤 LEAD CAPTURE: Triggering Speak Now banner for step', data.step);
+                    if (window.showDirectSpeakNow && typeof window.showDirectSpeakNow === 'function') {
+                        window.showDirectSpeakNow();
+                        console.log('✅ Speak Now banner triggered via showDirectSpeakNow()');
+                    }
+                    
+                    // 🚀 NOW WITH CONFLICT PROTECTION
+                    if (isInLeadCapture && window.startRealtimeListening && !window.isCurrentlyListening) {
+                        window.startRealtimeListening();
+                    }
+                }
+            }, 100);
+
+            // Safety timeout (10 seconds max)
+            setTimeout(() => {
+                clearInterval(checkSpeech);
+                if (isInLeadCapture && window.startRealtimeListening && !window.isCurrentlyListening) {
+                    console.log('⏰ Safety timeout - starting listening');
+                    window.startRealtimeListening();
+                }
+            }, 10000);
         }
     } else {
         completeLeadCapture();
     }
 }
-
 // ================================
 // PROCESS USER RESPONSE - FIXED VERSION
 // ================================
@@ -791,12 +615,7 @@ function saveConfirmedAnswer() {
         const fields = ['name', 'phone', 'email', 'contactTime'];
         data[fields[step]] = data.tempAnswer;
     } else if (data.captureType === 'clickToCall') {
-        // ✅ KEEP THIS for URGENT CALL - 3 fields (no email)
         const fields = ['name', 'phone', 'reason'];
-        data[fields[step]] = data.tempAnswer;
-    } else if (data.captureType === 'requestCall') {
-        // ✅ ADD THIS for REQUEST A CALL - 4 fields (WITH email)
-        const fields = ['name', 'phone', 'reason', 'email'];
         data[fields[step]] = data.tempAnswer;
     } else if (data.captureType === 'freeBook') {
         if (step === 0) data.name = data.tempAnswer;
@@ -804,6 +623,7 @@ function saveConfirmedAnswer() {
         else if (step === 2) {} // Already handled wantsEvaluation
         else if (step === 3) data.phone = data.tempAnswer;
     } else if (data.captureType === 'preQualifier') {
+        // 🆕 PRE-QUALIFIER DATA SAVING
         const fields = [
             'name', 'email', 'phone', 'experienceYears', 'licenseStatus',
             'acquisitionTimeline', 'budgetRange', 'geographicPreference',
@@ -855,7 +675,7 @@ function completeLeadCapture() {
     window.isInEmailPermissionPhase = true;
     
     // 🆕 NEW: Ask for email confirmation permission instead of sending immediately
-    const emailPermissionMessage = `Perfect! Should I send a confirmation email to ${data.email} confirming all your details?`;
+    const emailPermissionMessage = `Perfect! Should I send a confirmation email to ${data.email} with all your details and next steps?`;
     
     if (window.addAIMessage) {
         window.addAIMessage(emailPermissionMessage);
@@ -866,231 +686,64 @@ function completeLeadCapture() {
         if (window.speakText) {
             window.speakText(emailPermissionMessage);
             
-           // Wait for speech to complete before showing buttons
+            // Wait for speech to complete before showing buttons
             const checkSpeech = setInterval(() => {
                 if (!window.isSpeaking) {
                     clearInterval(checkSpeech);
                     console.log('✅ AI finished speaking email question - showing buttons');
                     
                     // 🆕 NEW: Show confirmation buttons for email permission
-                    showEmailConfirmationButtons(data, window.currentCaptureType);
+                    showEmailConfirmationButtons(data, type);
                 }
             }, 100);
             
             // Safety timeout
             setTimeout(() => {
                 clearInterval(checkSpeech);
-                showEmailConfirmationButtons(data, window.currentCaptureType);
+                showEmailConfirmationButtons(data, type);
             }, 10000);
         } else {
             // No speech system - just show buttons
-            showEmailConfirmationButtons(data, window.currentCaptureType);
+            showEmailConfirmationButtons(data, type);
         }
     }, 500);
 }
 
-function sendInternalNotification(leadData, captureType) {
-    // 🎯 GENERIC: Don't mention specific names
-    console.log('📧 Sending internal notification to team...');
-    
-    let internalTemplateId = '';
-    let internalTemplateParams = {};
-    let toEmail = ''; // Should come from config
-    
-    // Get email from config or use default
-    if (window.EMAILJS_CONFIG && window.EMAILJS_CONFIG.internalEmail) {
-        toEmail = window.EMAILJS_CONFIG.internalEmail;
-    } else {
-        toEmail = 'team@example.com'; // Generic fallback
-    }
-    
-    if (captureType === 'consultation') {
-        // Book Consultation
-        internalTemplateId = EMAILJS_CONFIG.templates.consultation;
-        internalTemplateParams = {
-            to_email: toEmail,
-            name: leadData.name,
-            phone: leadData.phone,
-            email: leadData.email,
-            contactTime: leadData.contactTime,
-            inquiryType: 'CONSULTATION_REQUEST',
-            message: `New Consultation Request\n\nName: ${leadData.name}\nPhone: ${leadData.phone}\nEmail: ${leadData.email}\nBest Time: ${leadData.contactTime}`,
-            timestamp: new Date().toLocaleString()
-        };
-    } else if (captureType === 'clickToCall') {
-        // Request A Call
-        internalTemplateId = EMAILJS_CONFIG.templates.clickToCall; 
-        internalTemplateParams = {
-            to_email: toEmail,
-            name: leadData.name,
-            phone: leadData.phone,
-            reason: leadData.reason,
-            inquiryType: 'CALLBACK_REQUEST',
-            message: `📞 Callback Request\n\nName: ${leadData.name}\nPhone: ${leadData.phone}\nReason: ${leadData.reason}\n\nPlease follow up within 24 hours.`,
-            timestamp: new Date().toLocaleString()
-        };
-    } else if (captureType === 'preQualifier') {
-        internalTemplateId = EMAILJS_CONFIG.templates.preQualifier;
-        
-        // Qualification scoring logic
-        let qualificationScore = 0;
-        let qualifications = [];
-        
-        const experienceYears = parseInt(leadData.experienceYears) || 0;
-        if (experienceYears >= 3) {
-            qualificationScore += 25;
-            qualifications.push(`${experienceYears} years experience`);
-        }
-        
-        if (leadData.licenseStatus && leadData.licenseStatus.toLowerCase().includes('cpa')) {
-            qualificationScore += 25;
-            qualifications.push('CPA licensed');
-        }
-        
-        if (leadData.acquisitionTimeline) {
-            const timeline = leadData.acquisitionTimeline.toLowerCase();
-            if (timeline.includes('immediate') || timeline.includes('3 month') || timeline.includes('6 month')) {
-                qualificationScore += 25;
-                qualifications.push('Ready for acquisition');
-            }
-        }
-        
-        if (leadData.budgetRange && leadData.budgetRange.trim() !== '') {
-            qualificationScore += 25;
-            qualifications.push(`Budget: ${leadData.budgetRange}`);
-        }
-        
-        const qualificationLevel = qualificationScore >= 75 ? 'HIGH' : 
-                                  qualificationScore >= 50 ? 'MEDIUM' : 'BASIC';
-        
-        internalTemplateParams = {
-            to_email: toEmail,
-            name: leadData.name,
-            email: leadData.email,
-            phone: leadData.phone,
-            contactTime: 'Within 24 hours',
-            inquiryType: 'PRE_QUALIFIER_REQUEST',
-            transcript: `Pre-qualification score: ${qualificationScore} (${qualificationLevel})`,
-            qualification_score: qualificationScore.toString(),
-            qualification_level: qualificationLevel,  
-            qualifications: qualifications.join(', '),
-            experience_years: leadData.experienceYears || 'Not specified',
-            license_status: leadData.licenseStatus || 'Not specified',
-            acquisition_timeline: leadData.acquisitionTimeline || 'Not specified',
-            budget_range: leadData.budgetRange || 'Not specified',
-            geographic_preference: leadData.geographicPreference || 'Not specified',
-            practice_size: leadData.practiceSize || 'Not specified',
-            specialization_interest: leadData.specializationInterest || 'Not specified',
-            financing_needed: leadData.financingNeeded || 'Not specified',
-            recommended_action: qualificationLevel === 'HIGH' ? 'Contact within 4 hours' : 
-                               qualificationLevel === 'MEDIUM' ? 'Contact within 24 hours' : 'Contact within 48 hours',
-            timestamp: new Date().toLocaleString()
-        };
-    }
-    
-    // Only send if we have a template
-    if (internalTemplateId) {
-        emailjs.send(EMAILJS_CONFIG.serviceId, internalTemplateId, internalTemplateParams)
-            .then(function(response) {
-                console.log('✅ Internal notification email sent for:', captureType);
-            })
-            .catch(function(error) {
-                console.error('❌ Internal notification email failed:', error);
-            });
-    } else {
-        console.log('❌ No email template for captureType:', captureType);
-    }
-}
-
-// ================================
-// UNIVERSAL CLOSE SEQUENCE (WITH DECISION PANEL)
-// ================================
-function universalCloseSequence(serviceType) {
-    console.log('🎯 Universal close sequence for:', serviceType);
-    
-    const messages = {
-        requestCall: "Perfect! I've got your call request and our specialist will contact you shortly.",
-        consultation: "Your consultation has been scheduled and confirmation details are on the way.", 
-        preQualifier: "Your pre-qualification assessment is complete and we'll be in touch.",
-        freeBook: "Your free book request has been processed and download details are on the way.",
-        clickToCall: "Thank you! Our team will call you right away.",
-        default: "I've completed your request."
-    };
-    
-    const closeMessage = `${messages[serviceType] || messages.default}`;
-    
-    // 1. Add completion message to chat
-    if (window.addAIMessage) {
-        window.addAIMessage(closeMessage);
-    }
-    
-    // 2. Send internal notification (for all relevant types)
-    if (serviceType === 'requestCall' || serviceType === 'clickToCall' || 
-        serviceType === 'consultation' || serviceType === 'preQualifier') {
-        sendInternalNotification(window.currentLeadData, serviceType);
-    }
-    
-    // 3. Speak completion message
-    if (window.speakText) {
-        window.speakText(closeMessage);
-    }
-    
-    // 🎯 TIMER 1: Wait for completion message to be spoken (~3 seconds)
-    setTimeout(() => {
-        // 4. Add follow-up question to chat
-        const followUpQuestion = "Is there anything else I can help you with?";
-        if (window.addAIMessage) {
-            window.addAIMessage(followUpQuestion);
-        }
-        
-        // 5. Speak the follow-up question
-        if (window.speakText) {
-            window.speakText(followUpQuestion);
-        }
-        
-        // 🎯 TIMER 2: Wait for question to be spoken (~3 seconds)
-        setTimeout(() => {
-            // 6. Show decision panel
-            showDecisionPanel({
-                question: followUpQuestion,
-                yesText: "Yes, I have more questions",
-                skipText: "No, I'm all done", 
-                onYes: function() {
-                    console.log("User wants to continue conversation");
-                    
-                    // 🛑 CRITICAL: Exit lead capture mode!
-                    window.isInLeadCapture = false;
-                    window.currentLeadData = null;
-                    window.quickLeadData = null;
-                    
-                    console.log('✅ LEAD CAPTURE EXITED - Returning to normal AI conversation');
-                    
-                    // Trigger Speak Now banner
-                    if (window.showDirectSpeakNow) {
-                        setTimeout(() => {
-                            window.showDirectSpeakNow();
-                        }, 500);
-                    }
-                },
-                onSkip: function() {
-                    console.log("User is done with conversation");
-                    if (window.showThankYouSplash) window.showThankYouSplash();
-                    
-                    // Reset the capture system
-                    window.isInLeadCapture = false;
-                    window.currentLeadData = null;
-                    window.quickLeadData = null;
-                }
-            });
-        }, 3000); // Wait for question to be spoken
-        
-    }, 3000); // Wait for completion message to be spoken
-    
-    console.log('✅ Universal close sequence initiated');
-}
-
 // ================================
 // EMAIL CONFIRMATION BUTTONS - SIMPLE VERSION
+// ================================
+function showEmailConfirmationButtons(leadData, captureType) {
+    const chatMessages = document.getElementById('chatMessages') || document.querySelector('.chat-messages');
+    if (!chatMessages) return;
+
+     // 🎯 CRITICAL: Emergency cleanup first
+    emergencyBannerCleanup();
+    
+    const buttonContainer = document.createElement('div');
+    buttonContainer.className = 'email-confirmation-buttons';
+    buttonContainer.innerHTML = `
+        <div style="text-align: center; margin: 20px 0; padding: 25px; background: rgba(255,255,255,0.1); border-radius: 15px; border: 2px solid rgba(255,255,255,0.2);">
+            <div style="margin-bottom: 20px; color: white; font-size: 18px; font-weight: bold;">
+                Send confirmation email to:<br>
+                <span style="color: #4CAF50; font-size: 16px;">${leadData.email}</span>
+            </div>
+            <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
+                <button onclick="handleEmailConfirmation(true, '${captureType}')" style="background: linear-gradient(135deg, #4CAF50, #8BC34A); color: white; border: none; padding: 15px 30px; border-radius: 25px; cursor: pointer; font-weight: bold; font-size: 16px; min-width: 140px;">
+                    ✅ Yes, Send Email
+                </button>
+                <button onclick="handleEmailConfirmation(false, '${captureType}')" style="background: linear-gradient(135deg, #757575, #9E9E9E); color: white; border: none; padding: 15px 30px; border-radius: 25px; cursor: pointer; font-weight: bold; font-size: 16px; min-width: 140px;">
+                    ⏭️ Skip Email
+                </button>
+            </div>
+        </div>
+    `;
+    
+    chatMessages.appendChild(buttonContainer);
+    buttonContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ================================
+// HANDLE EMAIL CONFIRMATION - SIMPLE VERSION
 // ================================
 function handleEmailConfirmation(sendEmail, captureType) {
     console.log('🎯 Email confirmation:', sendEmail ? 'SENDING' : 'SKIPPING');
@@ -1107,51 +760,6 @@ function handleEmailConfirmation(sendEmail, captureType) {
             window.addAIMessage("📧 Sending your confirmation email now...");
         }
         sendOriginalLeadEmail(data, captureType);
-        
-        // 🚀 AFTER EMAIL SENT - WAIT FOR AI TO SPEAK FIRST
-        setTimeout(() => {
-            console.log('📧 Email sent - waiting for AI to ask if more help needed');
-            
-            // Let AI speak FIRST: "Is there anything else I can help you with?"
-            
-            // 🕒 INCREASED TO 8 SECONDS to ensure AI finishes speaking AND auto-listening times out
-            setTimeout(() => {
-                console.log('🎯 AI finished speaking AND auto-listening timed out - showing decision panel');
-                
-                // 🚫 STOP any listening that might have started
-                if (window.stopListening) {
-                    window.stopListening();
-                }
-                
-                // 🚫 STOP any pending Speak Now banners
-                if (window.closeSpeakNowBanner) {
-                    window.closeSpeakNowBanner();
-                }
-                
-                 showDecisionPanel({
-                    question: "Is that everything I can help you with today?",
-                    yesText: "Yes, I Have More Questions",
-                    skipText: "No, I'm All Done",
-                    onYes: function() {
-                        console.log('🎸 USER CONTINUING - APPLYING EMERGENCY FIX');
-                        emergencySpeechFix();
-                        
-                        setTimeout(() => {
-                            const continueMessage = "Great! What else can I help you with?";
-                            speakWithElevenLabs(continueMessage, false);
-                        }, 1000);
-                    },
-                    onSkip: function() {
-                        console.log('🛑 USER FINISHED - COMPLETE SYSTEM SHUTDOWN');
-                        
-                        // 🚨 COMPLETE SHUTDOWN - NO MORE AI LOOPS!
-                        completeSystemShutdown();
-                    }
-                });
-                
-            }, 8000); // 🕒 INCREASED TO 8 SECONDS - ensures AI finishes + auto-listening times out
-        }, 1000); // Wait for email send to complete
-        
     } else {
         // Skip email - just continue conversation
         if (window.addAIMessage) {
@@ -1162,7 +770,6 @@ function handleEmailConfirmation(sendEmail, captureType) {
         window.isInLeadCapture = false;
         window.currentCaptureType = null;
         window.currentLeadData = null;
-        window.suppressSpeakNowBanner = false; // Reset suppression
         
         // Wait then show Speak Now banner
         setTimeout(() => {
@@ -1173,282 +780,83 @@ function handleEmailConfirmation(sendEmail, captureType) {
     }
 }
 
-// 🚨 COMPLETE SYSTEM SHUTDOWN FUNCTION
-function completeSystemShutdown() {
-    console.log('🛑 COMPLETE SYSTEM SHUTDOWN - Stopping all AI activity');
-    
-    // 1. STOP ALL AI SPEECH IMMEDIATELY
-    if (window.stopAllSpeech && typeof window.stopAllSpeech === 'function') {
-        window.stopAllSpeech();
-    }
-    
-    // 2. STOP ALL LISTENING
-    if (window.stopListening && typeof window.stopListening === 'function') {
-        window.stopListening();
-    }
-    
-    // 3. REMOVE ALL BANNERS
-    const banners = document.querySelectorAll('.speak-now-banner, [class*="speakNow"], #speakNowBanner');
-    banners.forEach(banner => banner.remove());
-    
-    // 4. RESET ALL CONVERSATION FLAGS
-    window.isInLeadCapture = false;
-    window.currentCaptureType = null;
-    window.currentLeadData = null;
-    window.bannerCooldown = false;
-    window.suppressSpeakNowBanner = true; // 🚫 PREVENT FUTURE BANNERS
-    
-    // 5. CLEAR ANY PENDING TIMEOUTS
-    const highestTimeoutId = setTimeout(() => {}, 0);
-    for (let i = 0; i < highestTimeoutId; i++) {
-        clearTimeout(i);
-    }
-    
-    // 6. SHOW THANK YOU SCREEN
-    if (typeof showThankYouSplash === 'function') {
-        showThankYouSplash();
-    }
-    
-    console.log('✅ SYSTEM COMPLETELY SHUT DOWN - No more AI loops');
-}
-
-function showUniversalConfirmation(options) {
-    console.log("🎯 UNIVERSAL CONFIRMATION: Showing", options);
-    
-    // Close any existing banners first
-    if (window.closeSpeakNowBanner) {
-        window.closeSpeakNowBanner();
-    }
-    
-    const config = {
-        type: options.type || 'decision', // 'email' or 'decision'
-        title: options.title || "🎉 Success!",
-        message: options.message || "Your request has been processed.",
-        question: options.question || "What would you like to do next?",
-        primaryText: options.primaryText || "Continue",
-        secondaryText: options.secondaryText || "Finish",
-        onPrimary: options.onPrimary || function() { 
-            console.log("Primary action clicked");
-            if (window.showDirectSpeakNow) window.showDirectSpeakNow();
-        },
-        onSecondary: options.onSecondary || function() { 
-            console.log("Secondary action clicked");
-            if (window.showThankYouSplash) window.showThankYouSplash();
-        },
-        data: options.data || {} // For thank you screen
-    };
-    
-    let confirmationHTML = '';
-    
-    if (config.type === 'email') {
-        // EMAIL CONFIRMATION STYLE
-        confirmationHTML = `
-            <div id="universal-confirmation" style="
-                position: fixed;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                padding: 40px;
-                border-radius: 20px;
-                box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-                z-index: 10000;
-                text-align: center;
-                min-width: 400px;
-                color: white;
-                border: 4px solid #fff;
-            ">
-                <div style="font-size: 60px; margin-bottom: 20px;">📧</div>
-                <h3 style="margin: 0 0 15px 0; font-size: 28px;">${config.title}</h3>
-                <p style="margin: 0 0 10px 0; font-size: 16px; line-height: 1.5; opacity: 0.9;">
-                    ${config.message}
-                </p>
-                <p style="margin: 0 0 30px 0; font-size: 18px; line-height: 1.5; font-weight: bold; background: rgba(255,255,255,0.2); padding: 15px; border-radius: 10px;">
-                    ${config.question}
-                </p>
-                <div style="display: flex; gap: 15px; justify-content: center;">
-                    <button onclick="window.handleUniversalPrimary()" style="
-                        background: rgba(255,255,255,0.2);
-                        color: white;
-                        border: 2px solid white;
-                        padding: 15px 30px;
-                        border-radius: 10px;
-                        cursor: pointer;
-                        font-weight: bold;
-                        font-size: 16px;
-                        flex: 1;
-                        backdrop-filter: blur(10px);
-                    ">${config.primaryText}</button>
-                    <button onclick="window.handleUniversalSecondary()" style="
-                        background: white;
-                        color: #667eea;
-                        border: 2px solid white;
-                        padding: 15px 30px;
-                        border-radius: 10px;
-                        cursor: pointer;
-                        font-weight: bold;
-                        font-size: 16px;
-                        flex: 1;
-                    ">${config.secondaryText}</button>
-                </div>
-            </div>
-        `;
-    } else {
-        // DECISION PANEL STYLE
-        confirmationHTML = `
-            <div id="universal-confirmation" style="
-                position: fixed;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                background: white;
-                padding: 40px;
-                border-radius: 20px;
-                box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-                z-index: 10000;
-                text-align: center;
-                min-width: 400px;
-                border: 4px solid #2ecc71;
-            ">
-                <div style="font-size: 60px; margin-bottom: 20px;">🎯</div>
-                <h3 style="margin: 0 0 15px 0; color: #2c3e50; font-size: 28px;">${config.title}</h3>
-                ${config.message ? `<p style="margin: 0 0 10px 0; color: #555; line-height: 1.5; font-size: 16px;">${config.message}</p>` : ''}
-                <p style="margin: 0 0 25px 0; color: #2c3e50; line-height: 1.5; font-size: 18px; font-weight: bold;">
-                    ${config.question}
-                </p>
-                <div style="display: flex; gap: 15px; justify-content: center;">
-                    <button onclick="window.handleUniversalPrimary()" style="
-                        background: #2ecc71;
-                        color: white;
-                        border: none;
-                        padding: 15px 30px;
-                        border-radius: 10px;
-                        cursor: pointer;
-                        font-weight: bold;
-                        font-size: 16px;
-                        flex: 1;
-                    ">${config.primaryText}</button>
-                    <button onclick="window.handleUniversalSecondary()" style="
-                        background: #3498db;
-                        color: white;
-                        border: none;
-                        padding: 15px 30px;
-                        border-radius: 10px;
-                        cursor: pointer;
-                        font-weight: bold;
-                        font-size: 16px;
-                        flex: 1;
-                    ">${config.secondaryText}</button>
-                </div>
-            </div>
-        `;
-    }
-    
-    // Add overlay
-    confirmationHTML += `
-        <div id="universal-confirmation-overlay" style="
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.7);
-            z-index: 9999;
-        "></div>
-    `;
-    
-    // Add to page
-    document.body.insertAdjacentHTML('beforeend', confirmationHTML);
-    
-    // Store callbacks globally
-    window.handleUniversalPrimary = function() {
-        cleanupUniversalConfirmation();
-        config.onPrimary();
-    };
-    
-    window.handleUniversalSecondary = function() {
-        cleanupUniversalConfirmation();
-        config.onSecondary();
-    };
-    
-    console.log("✅ UNIVERSAL CONFIRMATION: Displayed successfully");
-}
-
-function cleanupUniversalConfirmation() {
-    const confirmation = document.getElementById('universal-confirmation');
-    const overlay = document.getElementById('universal-confirmation-overlay');
-    if (confirmation) confirmation.remove();
-    if (overlay) overlay.remove();
-}
-
-// Make globally available
-window.showUniversalConfirmation = showUniversalConfirmation;
-window.cleanupUniversalConfirmation = cleanupUniversalConfirmation;
-
-// 🚨 EMERGENCY FIX - REMOVE COOLDOWN INTERFERENCE
-function emergencySpeechFix() {
-    console.log('🚨 EMERGENCY SPEECH FIX - Removing cooldown interference');
-    
-    // COMPLETELY DISABLE COOLDOWN SYSTEM
-    window.bannerCooldown = false;
-    window.suppressSpeakNowBanner = false;
-    window.isInLeadCapture = false;
-    
-    // STOP ALL ACTIVE LISTENING FIRST
-    if (window.stopListening && typeof window.stopListening === 'function') {
-        window.stopListening();
-    }
-    
-    // REMOVE ANY ACTIVE BANNERS
-    const banners = document.querySelectorAll('.speak-now-banner, [class*="speakNow"], #speakNowBanner');
-    banners.forEach(banner => banner.remove());
-    
-    // WAIT 500ms FOR CLEAN RESET
-    setTimeout(() => {
-        // START FRESH LISTENING SESSION
-        if (window.startListening && typeof window.startListening === 'function') {
-            window.startListening();
-        }
-    }, 500);
-    
-    console.log('✅ Emergency speech fix applied - voice should capture instantly now');
-}
-
+// ================================
+// COMPLETE LEAD CAPTURE & REQUEST EMAIL PERMISSION - FIXED VERSION
+// ================================
 function completeLeadCapture() {
-    if (!window.currentLeadData) {
-        console.error('❌ currentLeadData is null in completeLeadCapture');
-        return;
+    console.log('🎯 Completing lead capture...');
+
+    // 🆕 NEW: EMERGENCY CLEANUP FIRST THING
+    if (typeof emergencyStuckBannerFix === 'function') {
+        emergencyStuckBannerFix();
     }
     
     const data = window.currentLeadData;
-    const captureType = data.captureType;
+    const type = window.currentCaptureType;
     
-    console.log('✅ Completing lead capture for:', captureType);
-    
-    // 1. SEND INTERNAL NOTIFICATION (for all capture types)
-    sendInternalNotification(data, captureType);
-    
-    // 2. HANDLE CLIENT EMAILS (only for types that collect email)
-    if (captureType === 'consultation' || captureType === 'freeBook' || captureType === 'preQualifier') {
-        // These flows collect email, so send client confirmation
-        sendClientConfirmationEmail(data, captureType);
-    } else if (captureType === 'requestCall' || captureType === 'clickToCall') {
-        // These flows DON'T collect email, so use universal close
-        universalCloseSequence(captureType);
-    } else {
-        // Fallback for any other types
-        universalCloseSequence(captureType);
+    // 🎯 CRITICAL FIX: CLOSE ANY STUCK SPEAK NOW BANNER FIRST
+    console.log('🧹 Closing any stuck Speak Now banner before email confirmation...');
+    if (window.closeSpeakNowBanner && typeof window.closeSpeakNowBanner === 'function') {
+        window.closeSpeakNowBanner();
     }
     
-    // 3. TRACK THE SUCCESSFUL CAPTURE
-    console.log('🎯 Lead capture completed successfully:', {
-        type: captureType,
-        name: data.name,
-        phone: data.phone,
-        hasEmail: !!data.email
-    });
+    // Also try the direct cleanup method
+    const speakNowBanner = document.querySelector('.speak-now-banner, [class*="speakNow"], #speakNowBanner');
+    if (speakNowBanner) {
+        speakNowBanner.remove();
+        console.log('✅ Removed stuck Speak Now banner');
+    }
     
-    // Note: Don't reset currentLeadData here - let universalCloseSequence handle that
+    // Stop any active listening
+    if (window.stopListening && typeof window.stopListening === 'function') {
+        window.stopListening();
+    }
+    
+    // Mark transition to email permission phase
+    window.isInEmailPermissionPhase = true;
+    
+    // 🆕 NEW: Ask for email confirmation permission instead of sending immediately
+    const emailPermissionMessage = `Perfect! Should I send a confirmation email to ${data.email} with all your details and next steps?`;
+    
+    if (window.addAIMessage) {
+        window.addAIMessage(emailPermissionMessage);
+    }
+    
+    // 🎯 CRITICAL: Wait a moment for the message to appear BEFORE speaking
+    setTimeout(() => {
+        if (window.speakText) {
+            window.speakText(emailPermissionMessage);
+            
+            // Wait for speech to complete before showing buttons
+            const checkSpeech = setInterval(() => {
+                if (!window.isSpeaking) {
+                    clearInterval(checkSpeech);
+                    console.log('✅ AI finished speaking email question - showing buttons');
+                    
+                    // 🆕 NEW: Show confirmation buttons for email permission
+                    showEmailConfirmationButtons(data, type);
+                }
+            }, 100);
+            
+            // Safety timeout
+            setTimeout(() => {
+                clearInterval(checkSpeech);
+                showEmailConfirmationButtons(data, type);
+            }, 10000);
+        } else {
+            // No speech system - just show buttons
+            showEmailConfirmationButtons(data, type);
+        }
+    }, 500);
+}
+
+function startCompleteLeadCapture() {
+    console.log('🎯 Starting complete lead capture...');
+    // Trigger the pre-qualifier button click
+    const preQualButton = document.querySelector('[data-action="pre-qualifier"]');
+    if (preQualButton) {
+        preQualButton.click();
+    }
 }
 
 // ================================
@@ -1531,264 +939,40 @@ function showEmailConfirmationButtons(leadData, captureType) {
     }, 100);
 }
 
-
-
 // ================================
-// UNIVERSAL DECISION PANEL (WORKS FOR ALL LEAD TYPES)
+// 🆕 NEW: HANDLE EMAIL CONFIRMATION RESPONSE
 // ================================
-function showDecisionPanel(options) {
-    console.log("🎯 UNIVERSAL DECISION PANEL: Showing for all lead types");
+function handleEmailConfirmation(sendEmail, captureType) {
+    console.log('🎯 Email confirmation:', sendEmail ? 'SENDING' : 'SKIPPING');
     
-    // 🚫 CRITICAL: Stop listening and speaking FIRST
-    if (window.stopAllSpeech) {
-        window.stopAllSpeech();
-    }
-    if (window.stopListening) {
-        window.stopListening();
-    }
-    if (window.closeSpeakNowBanner) {
-        window.closeSpeakNowBanner();
+    // 🆕 RE-ENABLE AVATAR
+    enableAvatarAfterLeadCapture();
+    
+    // Remove confirmation buttons
+    const buttonContainer = document.querySelector('.email-confirmation-buttons');
+    if (buttonContainer) {
+        buttonContainer.remove();
     }
     
-    // Remove any existing decision panel first
-    cleanupDecisionPanel();
+    const data = window.currentLeadData;
     
-    const config = {
-        question: options.question || "What would you like to do next?",
-        yesText: options.yesText || "Continue", 
-        skipText: options.skipText || "Finish",
-        onYes: options.onYes || function() { 
-            console.log("Continue clicked");
-            if (window.showDirectSpeakNow) window.showDirectSpeakNow();
-        },
-        onSkip: options.onSkip || function() { 
-            console.log("Finish clicked");
-            
-            // ✅ UNIVERSAL: Get name from ANY source and pass to thank you
-            const userName = window.currentLeadData?.name || window.userFirstName || '';
-            const captureType = window.currentLeadData?.captureType || 'default';
-            
-            if (window.showThankYouSplash) {
-                window.showThankYouSplash(userName, captureType);
-            }
-            
-            // Reset system
-            window.isInLeadCapture = false;
-            window.currentLeadData = null;
+    if (sendEmail) {
+        // User wants email - send it using your ORIGINAL email logic
+        sendOriginalLeadEmail(data, captureType);
+    } else {
+        // User skipped email - show thank you splash directly
+        if (window.addAIMessage) {
+            window.addAIMessage("No problem! Bruce will still contact you directly. Is there anything else I can help with?");
         }
-    };
-    
-    // Create decision panel that MATCHES your email confirmation EXACTLY
-    const decisionHTML = `
-        <div class="email-confirmation-buttons decision-panel" style="
-            text-align: center; 
-            margin: 20px 0; 
-            padding: 25px; 
-            background: rgba(255,255,255,0.1); 
-            border-radius: 15px;
-            border: 2px solid rgba(255,255,255,0.2);
-            backdrop-filter: blur(10px);
-        ">
-            <div style="
-                margin-bottom: 20px; 
-                color: white; 
-                font-size: 18px;
-                font-weight: bold;
-            ">
-                ${config.question}
-            </div>
-            <div style="
-                display: flex; 
-                justify-content: center; 
-                gap: 20px;
-                flex-wrap: wrap;
-            ">
-                <button onclick="window.handleDecisionYes()" style="
-                    background: linear-gradient(135deg, #4CAF50, #8BC34A);
-                    color: white; 
-                    border: none; 
-                    padding: 15px 30px; 
-                    border-radius: 25px; 
-                    cursor: pointer;
-                    font-weight: bold;
-                    font-size: 16px;
-                    min-width: 140px;
-                    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
-                    transition: all 0.3s ease;
-                " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(76, 175, 80, 0.4)';" 
-                   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(76, 175, 80, 0.3)';">
-                    ${config.yesText}
-                </button>
-                <button onclick="window.handleDecisionSkip()" style="
-                    background: linear-gradient(135deg, #757575, #9E9E9E);
-                    color: white; 
-                    border: none; 
-                    padding: 15px 30px; 
-                    border-radius: 25px; 
-                    cursor: pointer;
-                    font-weight: bold;
-                    font-size: 16px;
-                    min-width: 140px;
-                    box-shadow: 0 4px 15px rgba(117, 117, 117, 0.3);
-                    transition: all 0.3s ease;
-                " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(117, 117, 117, 0.4)';" 
-                   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(117, 117, 117, 0.3)';">
-                    ${config.skipText}
-                </button>
-            </div>
-        </div>
-    `;
-    
-    // Add to the SAME container as email confirmation
-    const chatContainer = document.getElementById('chatMessages') || 
-                         document.querySelector('.chat-messages') ||
-                         document.querySelector('.chat-container') ||
-                         document.body;
-    
-    chatContainer.insertAdjacentHTML('beforeend', decisionHTML);
-    
-    // Auto-scroll to show the buttons (EXACTLY like email confirmation)
-    setTimeout(() => {
-        const panel = document.querySelector('.decision-panel');
-        if (panel) {
-            panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
-    }, 100);
-    
-    // Store callbacks globally
-    window.handleDecisionYes = function() {
-        cleanupDecisionPanel();
-        config.onYes();
-    };
-    
-    window.handleDecisionSkip = function() {
-        cleanupDecisionPanel();
-        config.onSkip();
-    };
-    
-    console.log("✅ UNIVERSAL DECISION PANEL: Ready for all lead types");
-}
-
-// ================================
-// SHARED UTILITY FUNCTIONS (Both panels use these)
-// ================================
-function cleanupDecisionPanel() {
-    const panels = document.querySelectorAll('.decision-panel');
-    panels.forEach(panel => panel.remove());
-}
-
-// Make ALL functions globally available
-window.showEmailDecisionPanel = showEmailDecisionPanel;
-window.showDecisionPanel = showDecisionPanel;
-window.cleanupDecisionPanel = cleanupDecisionPanel;
-
-// ================================
-// EMAIL DECISION PANEL (For email confirmations)
-// ================================
-function showEmailDecisionPanel() {
-    console.log("📧 EMAIL DECISION PANEL: Showing email confirmation");
-    
-    // 🚫 Stop listening and speaking FIRST
-    if (window.stopAllSpeech) window.stopAllSpeech();
-    if (window.stopListening) window.stopListening();
-    if (window.closeSpeakNowBanner) window.closeSpeakNowBanner();
-    
-    // Remove any existing decision panel first
-    cleanupDecisionPanel();
-    
-    const decisionHTML = `
-        <div class="email-confirmation-buttons decision-panel" style="
-            text-align: center; 
-            margin: 20px 0; 
-            padding: 25px; 
-            background: rgba(255,255,255,0.1); 
-            border-radius: 15px;
-            border: 2px solid rgba(255,255,255,0.2);
-            backdrop-filter: blur(10px);
-        ">
-            <div style="
-                margin-bottom: 20px; 
-                color: white; 
-                font-size: 18px;
-                font-weight: bold;
-            ">
-                Would you like me to send a confirmation email?
-            </div>
-            <div style="
-                display: flex; 
-                justify-content: center; 
-                gap: 20px;
-                flex-wrap: wrap;
-            ">
-                <button onclick="window.handleEmailYes()" style="
-                    background: linear-gradient(135deg, #4CAF50, #8BC34A);
-                    color: white; 
-                    border: none; 
-                    padding: 15px 30px; 
-                    border-radius: 25px; 
-                    cursor: pointer;
-                    font-weight: bold;
-                    font-size: 16px;
-                    min-width: 140px;
-                    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
-                    transition: all 0.3s ease;
-                " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(76, 175, 80, 0.4)';" 
-                   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(76, 175, 80, 0.3)';">
-                    Send Email
-                </button>
-                <button onclick="window.handleEmailNo()" style="
-                    background: linear-gradient(135deg, #757575, #9E9E9E);
-                    color: white; 
-                    border: none; 
-                    padding: 15px 30px; 
-                    border-radius: 25px; 
-                    cursor: pointer;
-                    font-weight: bold;
-                    font-size: 16px;
-                    min-width: 140px;
-                    box-shadow: 0 4px 15px rgba(117, 117, 117, 0.3);
-                    transition: all 0.3s ease;
-                " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(117, 117, 117, 0.4)';" 
-                   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(117, 117, 117, 0.3)';">
-                    No Thanks
-                </button>
-            </div>
-        </div>
-    `;
-    
-    const chatContainer = document.getElementById('chatMessages') || 
-                         document.querySelector('.chat-messages') ||
-                         document.querySelector('.chat-container') ||
-                         document.body;
-    
-    chatContainer.insertAdjacentHTML('beforeend', decisionHTML);
-    
-    // Auto-scroll to show the buttons
-    setTimeout(() => {
-        const panel = document.querySelector('.decision-panel');
-        if (panel) {
-            panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
-    }, 100);
-    
-    // Store callbacks globally
-    window.handleEmailYes = function() {
-        cleanupDecisionPanel();
-        console.log("✅ Email confirmation: YES - sending email");
-        // Trigger email sending logic here
-        if (window.sendConfirmationEmail) {
-            window.sendConfirmationEmail();
-        }
-    };
-    
-    window.handleEmailNo = function() {
-        cleanupDecisionPanel();
-        console.log("❌ Email confirmation: NO - skipping email");
-        // Continue to position panel or next step
-        if (window.showDirectSpeakNow) {
-            window.showDirectSpeakNow();
-        }
-    };
+        
+        // Show thank you splash after brief delay
+        setTimeout(() => {
+            showThankYouSplash(data.name, captureType);
+        }, 1500);
+        
+        // Clear the lead data
+        window.currentLeadData = null;
+    }
 }
 
 // 🆕 ADD THIS FUNCTION TOO:
@@ -1807,30 +991,24 @@ function sendOriginalLeadEmail(data, type) {
     let internalTemplateParams = {};
     let qualificationLevel = '';
 
-    // STANDARDIZE PARAMETER NAMES ACROSS ALL TEMPLATES
+    // Your existing internal email logic here...
     if (type === 'consultation') {
         internalTemplateId = EMAILJS_CONFIG.templates.consultation;
         internalTemplateParams = {
-            to_email: 'duncansfury@gmail.com',
-            name: data.name,           // CHANGED from from_name
-            email: data.email,         // CHANGED from from_email  
+            to_email: 'bizboost.expert@gmail.com',
+            from_name: data.name,
+            from_email: data.email,
             phone: data.phone,
-            contactTime: data.contactTime, // CHANGED from contact_time
-            inquiryType: 'CONSULTATION_REQUEST',
-            transcript: `Consultation request for ${data.contactTime}`,
+            contact_time: data.contactTime,
             message: `FREE CONSULTATION REQUEST\n\nName: ${data.name}\nPhone: ${data.phone}\nEmail: ${data.email}\nBest Time: ${data.contactTime}`,
             timestamp: new Date().toLocaleString()
         };
     } else if (type === 'clickToCall') {
         internalTemplateId = EMAILJS_CONFIG.templates.clickToCall;
         internalTemplateParams = {
-            to_email: 'duncansfury@gmail.com',
-            name: data.name,           // CHANGED from from_name
+            to_email: 'bizboost.expert@gmail.com',
+            from_name: data.name,
             phone: data.phone,
-            email: data.email || 'Not provided', // ADDED missing field
-            contactTime: 'ASAP',                // ADDED missing field
-            inquiryType: 'CALL_REQUEST',
-            transcript: data.reason || 'Call request',
             message: `CLICK-TO-CALL REQUEST\n\nName: ${data.name}\nPhone: ${data.phone}\nReason: ${data.reason}`,
             timestamp: new Date().toLocaleString()
         };
@@ -1838,12 +1016,7 @@ function sendOriginalLeadEmail(data, type) {
         internalTemplateId = EMAILJS_CONFIG.templates.freeBook;
         internalTemplateParams = {
             to_email: data.email,
-            name: data.name,
-            phone: data.phone || 'Not provided',     // ADDED missing field
-            email: data.email,
-            contactTime: 'N/A',                     // ADDED missing field
-            inquiryType: 'FREE_BOOK_REQUEST',
-            transcript: `Free book request${data.wantsEvaluation ? ' + evaluation' : ''}`,
+            from_name: data.name,
             book_image: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761797944987_book-promo.PNG',
             message: `Here's your free copy of "7 Secrets to Selling Your Practice"!${data.wantsEvaluation ? '\n\nInterested in evaluation - Phone: ' + data.phone : ''}`,
             timestamp: new Date().toLocaleString()
@@ -1883,13 +1056,10 @@ function sendOriginalLeadEmail(data, type) {
                             qualificationScore >= 50 ? 'MEDIUM' : 'BASIC';
         
         internalTemplateParams = {
-            to_email: 'duncansfury@gmail.com',
+            to_email: 'bizboost.expert@gmail.com',
             name: data.name || 'Not provided',
             email: data.email || 'Not provided',
             phone: data.phone || 'Not provided',
-            contactTime: 'Within 24 hours',           // ADDED missing field
-            inquiryType: 'PRE_QUALIFICATION_REQUEST',
-            transcript: `Pre-qualification score: ${qualificationScore} (${qualificationLevel})`,
             qualification_score: qualificationScore.toString(),
             qualification_level: qualificationLevel,  
             qualifications: qualifications.join(', '),
@@ -1910,7 +1080,7 @@ function sendOriginalLeadEmail(data, type) {
     // Send internal notification
     emailjs.send(EMAILJS_CONFIG.serviceId, internalTemplateId, internalTemplateParams)
         .then(function(response) {
-            console.log('✅ INTERNAL NOTIFICATION SENT TO BRUCE!', internalTemplateParams);
+            console.log('✅ INTERNAL NOTIFICATION SENT TO BRUCE!');
             
             // 2. SECOND: Send CLIENT confirmation email
             sendClientConfirmationEmail(data, type);
@@ -1930,239 +1100,87 @@ function sendClientConfirmationEmail(leadData, captureType) {
     
     let inquiryType = '';
     let emailSubject = '';
-    let confirmationParams = {}; // 🎯 MOVE THIS OUTSIDE SWITCH
     
     switch(captureType) {
         case 'preQualifier':
             inquiryType = 'PRE-QUALIFICATION CONFIRMATION';
             emailSubject = 'Pre-Qualification Confirmed + Free Book - New Clients Inc';
-            
-            // 🎯 PRE-QUAL SCORING LOGIC
-            let qualificationScore = 0;
-            let qualifications = [];
-            
-            const experienceYears = parseInt(leadData.experienceYears) || 0;
-            if (experienceYears >= 3) {
-                qualificationScore += 25;
-                qualifications.push(`${experienceYears} years experience`);
-            }
-            
-            if (leadData.licenseStatus && leadData.licenseStatus.toLowerCase().includes('cpa')) {
-                qualificationScore += 25;
-                qualifications.push('CPA licensed');
-            }
-            
-            if (leadData.acquisitionTimeline) {
-                const timeline = leadData.acquisitionTimeline.toLowerCase();
-                if (timeline.includes('immediate') || timeline.includes('3 month') || timeline.includes('6 month')) {
-                    qualificationScore += 25;
-                    qualifications.push('Ready for acquisition');
-                }
-            }
-            
-            if (leadData.budgetRange && leadData.budgetRange.trim() !== '') {
-                qualificationScore += 25;
-                qualifications.push(`Budget: ${leadData.budgetRange}`);
-            }
-            
-            const qualificationLevel = qualificationScore >= 75 ? 'HIGH' : 
-                                      qualificationScore >= 50 ? 'MEDIUM' : 'BASIC';
-            
-            confirmationParams = {
-                to_email: cleanEmail,
-                name: leadData.name,
-                email: cleanEmail,
-                phone: leadData.phone || 'Not provided',
-                contactTime: leadData.contactTime || 'Within 24 hours',
-                inquiryType: inquiryType,
-                subject: emailSubject,
-                book_image: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761797944987_book-promo.PNG',
-                
-                // 🎯 PRE-QUAL SPECIFIC PARAMS
-                qualification_score: qualificationScore.toString(),
-                qualification_level: qualificationLevel,
-                recommended_action: qualificationLevel === 'HIGH' ? 'Contact within 4 hours' : 
-                                   qualificationLevel === 'MEDIUM' ? 'Contact within 24 hours' : 'Contact within 48 hours',
-                qualifications: qualifications.join(', '),
-                experience_years: leadData.experienceYears || 'Not specified',
-                license_status: leadData.licenseStatus || 'Not specified',
-                acquisition_timeline: leadData.acquisitionTimeline || 'Not specified',
-                budget_range: leadData.budgetRange || 'Not specified',
-                geographic_preference: leadData.geographicPreference || 'Not specified',
-                practice_size: leadData.practiceSize || 'Not specified',
-                specialization_interest: leadData.specializationInterest || 'Not specified',
-                financing_needed: leadData.financingNeeded || 'Not specified',
-                timestamp: new Date().toLocaleString(),
-                title: ''
-            };
             break;
-            
         case 'consultation':
             inquiryType = 'CONSULTATION BOOKING CONFIRMATION';
             emailSubject = 'Consultation Booked + Free Book - New Clients Inc';
-            confirmationParams = {
-                to_email: cleanEmail,
-                name: leadData.name,
-                email: cleanEmail,
-                phone: leadData.phone || 'Not provided',
-                contactTime: leadData.contactTime || 'Within 24 hours',
-                inquiryType: inquiryType,
-                subject: emailSubject,
-                book_image: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761797944987_book-promo.PNG'
-            };
             break;
-            
         case 'freeBook':
             inquiryType = 'FREE BOOK CONFIRMATION';
             emailSubject = 'Your Free Book - New Clients Inc';
-            confirmationParams = {
-                to_email: cleanEmail,
-                name: leadData.name,
-                email: cleanEmail,
-                phone: leadData.phone || 'Not provided',
-                contactTime: leadData.contactTime || 'Within 24 hours',
-                inquiryType: inquiryType,
-                subject: emailSubject,
-                book_image: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761797944987_book-promo.PNG'
-            };
             break;
-            
         case 'clickToCall':
-            inquiryType = 'URGENT CALL CONFIRMATION';
-            emailSubject = 'Urgent Call Request - New Clients Inc';
-            confirmationParams = {
-                to_email: cleanEmail,
-                name: leadData.name,
-                email: cleanEmail,
-                phone: leadData.phone || 'Not provided',
-                contactTime: leadData.contactTime || 'Within 24 hours',
-                inquiryType: inquiryType,
-                subject: emailSubject,
-                book_image: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761797944987_book-promo.PNG'
-            };
-            break;
-            
-        case 'requestCall':
             inquiryType = 'CALL REQUEST CONFIRMATION';
             emailSubject = 'Call Request Confirmed + Free Book - New Clients Inc';
-            confirmationParams = {
-                to_email: cleanEmail,
-                name: leadData.name,
-                email: cleanEmail,
-                phone: leadData.phone || 'Not provided',
-                contactTime: leadData.contactTime || 'Within 24 hours',
-                inquiryType: inquiryType,
-                subject: emailSubject,
-                book_image: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761797944987_book-promo.PNG'
-            };
             break;
-            
         default:
             inquiryType = 'REQUEST CONFIRMATION';
             emailSubject = 'Confirmation - New Clients Inc';
-            confirmationParams = {
-                to_email: cleanEmail,
-                name: leadData.name,
-                email: cleanEmail,
-                phone: leadData.phone || 'Not provided',
-                contactTime: leadData.contactTime || 'Within 24 hours',
-                inquiryType: inquiryType,
-                subject: emailSubject,
-                book_image: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761797944987_book-promo.PNG'
-            };
     }
     
-    // 🎯 ADD DEBUG LOG TO SEE WHAT'S BEING SENT
-    console.log('🔍 CLIENT EMAIL PARAMS FOR', captureType, ':', confirmationParams);
+    const confirmationParams = {
+        to_email: cleanEmail,
+        name: leadData.name,
+        email: cleanEmail,
+        phone: leadData.phone || 'Not provided',
+        contactTime: leadData.contactTime || 'Within 24 hours',
+        inquiryType: inquiryType,
+        subject: emailSubject,
+        timestamp: new Date().toLocaleString(),
+        book_image: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1761797944987_book-promo.PNG'
+    };
     
     // Send CLIENT confirmation using the confirmation template
-    emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templates.clientConfirmation, confirmationParams)
+emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templates.clientConfirmation, confirmationParams)
         .then(function(response) {
             console.log('✅ CLIENT CONFIRMATION EMAIL SENT!');
-
-            // 🎯 ADD THIS ONE LINE: Block banner during confirmation question
-            window.isInConfirmationDialog = true;
             
             if (window.showUniversalBanner) {
                 window.showUniversalBanner('emailSent');
             }
             
-            let successMessage = `Confirmation email sent to ${cleanEmail}! Is there anything else I can help you with?`;
-
+            let successMessage = `Confirmation email sent to ${cleanEmail}! Bruce will contact you soon. Is there anything else I can help you with?`;
+            
             if (window.addAIMessage) {
                 window.addAIMessage(successMessage);
             }
-
+            
             // Clear lead data
             window.isInLeadCapture = false;
             window.currentCaptureType = null;
             window.currentLeadData = null;
-
+            
             if (window.speakText) {
                 window.speakText(successMessage);
                 
-                // Wait for speech then show DECISION PANEL
+                // Wait for speech then show banner
                 const checkSpeech = setInterval(() => {
                     if (!window.isSpeaking) {
                         clearInterval(checkSpeech);
                         setTimeout(() => {
-                            // 🎯 SHOW DECISION PANEL INSTEAD OF EMPTY CALL
-                            if (window.showDecisionPanel) {
-                                window.showDecisionPanel({
-                                    question: "Is there anything else I can help you with?",
-                                    yesText: "Yes, Continue", 
-                                    skipText: "No, Finish",
-                                    onYes: function() { 
-                                        console.log("User wants to continue - show position panel");
-                                        if (window.showPositionPanel) {
-                                            window.showPositionPanel();
-                                        } else if (window.showDirectSpeakNow) {
-                                            window.showDirectSpeakNow();
-                                        }
-                                    },
-                                    onSkip: function() { 
-                                        console.log("User is finished");
-                                        const userName = window.userFirstName || '';
-                                        if (window.showThankYouSplash) {
-                                            window.showThankYouSplash(userName, 'consultation');
-                                        }
-                                    }
-                                });
+                            if (window.showDirectSpeakNow) {
+                                window.showDirectSpeakNow();
                             }
                         }, 1000);
                     }
                 }, 100);
             } else {
                 setTimeout(() => {
-                    // 🎯 SHOW DECISION PANEL IN FALLBACK CASE TOO
-                    if (window.showDecisionPanel) {
-                        window.showDecisionPanel({
-                            question: "Is there anything else I can help you with?",
-                            yesText: "Yes, Continue", 
-                            skipText: "No, Finish",
-                            onYes: function() { 
-                                console.log("User wants to continue");
-                                if (window.showPositionPanel) {
-                                    window.showPositionPanel();
-                                } else if (window.showDirectSpeakNow) {
-                                    window.showDirectSpeakNow();
-                                }
-                            },
-                            onSkip: function() { 
-                                console.log("User is finished");
-                                const userName = window.userFirstName || '';
-                                if (window.showThankYouSplash) {
-                                    window.showThankYouSplash(userName, 'consultation');
-                                }
-                            }
-                        });
+                    if (window.showDirectSpeakNow) {
+                        window.showDirectSpeakNow();
                     }
                 }, 3000);
             }
+            
         }, function(error) {
             console.error('❌ CLIENT CONFIRMATION EMAIL FAILED:', error);
             
-            // 🎯 Handle email failure with decision panel too
+            // Simple error handling
             let failureMessage = "The confirmation email couldn't be sent, but Bruce will still contact you directly! Is there anything else I can help with?";
             
             if (window.addAIMessage) {
@@ -2174,32 +1192,26 @@ function sendClientConfirmationEmail(leadData, captureType) {
             window.currentCaptureType = null;
             window.currentLeadData = null;
             
-            setTimeout(() => {
-                if (window.showDecisionPanel) {
-                    window.showDecisionPanel({
-                        question: "Is there anything else I can help you with?",
-                        yesText: "Yes, Continue", 
-                        skipText: "No, Finish",
-                        onYes: function() { 
-                            console.log("User wants to continue");
-                            if (window.showDirectSpeakNow) window.showDirectSpeakNow();
-                        },
-                        onSkip: function() { 
-                            console.log("User is finished");
-                            const userName = window.userFirstName || '';
-                            if (window.showThankYouSplash) {
-                                window.showThankYouSplash(userName, captureType);
-                            }
-                        }
-                    });
-                }
-            }, 2000);
+            if (window.speakText) {
+                window.speakText(failureMessage);
+                setTimeout(() => {
+                    if (window.showDirectSpeakNow) {
+                        window.showDirectSpeakNow();
+                    }
+                }, 3000);
+            } else {
+                setTimeout(() => {
+                    if (window.showDirectSpeakNow) {
+                        window.showDirectSpeakNow();
+                    }
+                }, 2000);
+            }
         });
 }
-
+    
 // Make functions globally accessible
 window.handleEmailConfirmation = handleEmailConfirmation;
-window.sendOriginalLeadEmail = sendOriginalLeadEmail;
+window.sendOriginalLeadEmail = sendOriginalLeadEmail; // 🎯 END OF FUNCTION - NO MORE CODE AFTER THIS! 
 
 // ================================
 // LEAD CAPTURE 4: PRE-QUALIFIER INTERVIEW
@@ -2256,20 +1268,28 @@ function initializePreQualifierCapture() {
 // ================================
 function showThankYouSplash(name, captureType) {
     console.log('🎬 Deploying cinematic thank you splash screen with restart button...');
-
-    // ✅ BULLETPROOF NAME HANDLING
-    let displayName = name;
-    // Try all possible name sources
-    if (!displayName && window.currentLeadData?.name) {
-        displayName = window.currentLeadData.name;
-    }
-    if (!displayName && window.userFirstName) {
-        displayName = window.userFirstName;
-    }
-    // If still no name, use empty string
-    displayName = displayName || '';
     
-    console.log('🔍 FINAL NAME FOR THANK YOU:', displayName);
+    // ✅ NUCLEAR OPTION - KILL ALL SPEECH SYSTEMS
+    if (window.speechRecognition) {
+        try {
+            window.speechRecognition.stop();
+            window.speechRecognition.abort();
+            window.speechRecognition = null;
+        } catch (e) {
+            console.log('Speech recognition cleanup:', e);
+        }
+    }
+    
+    // ✅ STOP ALL LISTENING FLAGS
+    window.isListening = false;
+    window.isRecording = false;
+    
+    // ✅ CLEAR ALL TIMEOUTS
+    if (window.speechTimeout) clearTimeout(window.speechTimeout);
+    if (window.restartTimeout) clearTimeout(window.restartTimeout);
+    
+    // ✅ SET FINAL STATE
+    conversationState = 'splash_screen_active';
     
     const splashOverlay = document.createElement('div');
     splashOverlay.id = 'thankYouSplash';
@@ -2304,17 +1324,15 @@ function showThankYouSplash(name, captureType) {
             </div>
             
             <div style="font-size: 48px; margin-bottom: 15px; text-shadow: 0 0 20px rgba(255,255,255,0.4);">🙏</div>
-            <h1 style="font-size: 32px; margin-bottom: 15px; font-weight: 300; letter-spacing: 1px; text-shadow: 0 2px 8px rgba(0,0,0,0.3);">
-                ${displayName ? `Thank You, ${displayName}!` : 'Thank You!'}
-            </h1>
-            <p style="font-size: 18px; opacity: 0.9; margin-bottom: 8px; font-weight: 300;">Thank you for visiting!</p>
-            <p style="font-size: 16px; margin-top: 15px; opacity: 0.8; font-weight: 300;">Have a wonderful day!</p>
+            <h1 style="font-size: 32px; margin-bottom: 15px; font-weight: 300; letter-spacing: 1px; text-shadow: 0 2px 8px rgba(0,0,0,0.3);">Thank You, ${name}!</h1>
+            <p style="font-size: 18px; opacity: 0.9; margin-bottom: 8px; font-weight: 300;">Your consultation has been confirmed!</p>
+            <p style="font-size: 16px; margin-top: 15px; opacity: 0.8; font-weight: 300;">Bruce will contact you within 24 hours.</p>
             <div style="margin-top: 25px; font-size: 14px; opacity: 0.7; letter-spacing: 1px;">Mobile-Wise AI</div>
             
-            <!-- CLOSE CHAT BUTTON -->
-            <button onclick="closeChatCompletely()" style="
+            <!-- RESTART BUTTON -->
+            <button onclick="restartConversation()" style="
                 margin-top: 30px;
-                background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+                background: linear-gradient(135deg, #00b4db, #0083b0);
                 color: white;
                 border: none;
                 padding: 15px 35px;
@@ -2322,13 +1340,13 @@ function showThankYouSplash(name, captureType) {
                 cursor: pointer;
                 font-weight: bold;
                 font-size: 16px;
-                box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+                box-shadow: 0 6px 20px rgba(0, 180, 219, 0.4);
                 transition: all 0.3s ease;
                 min-width: 180px;
                 animation: slideInButton 1s ease-out 1s both;
-            " onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 10px 30px rgba(255, 107, 107, 0.6)'" 
-               onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 6px 20px rgba(255, 107, 107, 0.4)'">
-                ❌ CLOSE CHAT & EXIT
+            " onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 10px 30px rgba(0, 180, 219, 0.6)'" 
+               onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 6px 20px rgba(0, 180, 219, 0.4)'">
+                🔄 BACK TO AI CHAT
             </button>
         </div>
     `;
@@ -2342,40 +1360,20 @@ function showThankYouSplash(name, captureType) {
     document.head.appendChild(style);
     document.body.appendChild(splashOverlay);
     
-   // ✅ PLAY OUTRO AUDIO (Mobile & Desktop Compatible)
-setTimeout(() => {
-    const audio = new Audio('https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/audio-intros/ai_intro_1758148837523.mp3');
-    audio.volume = 0.8;
-    
-    // Mobile-friendly audio play with user interaction context
-    const playPromise = audio.play();
-    
-    if (playPromise !== undefined) {
-        playPromise.catch(e => {
-            console.log('Audio play failed (mobile restriction):', e);
-            // On mobile, try to play after a user interaction
-            document.addEventListener('click', function tryPlayOnce() {
-                audio.play().catch(e => console.log('Mobile audio still blocked'));
-                document.removeEventListener('click', tryPlayOnce);
-            }, { once: true });
-        });
-    }
-}, 500);
+    // ✅ PLAY OUTRO AUDIO
+    setTimeout(() => {
+        const audio = new Audio('https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/audio-intros/ai_intro_1758148837523.mp3');
+        audio.volume = 0.8;
+        audio.play().catch(e => console.log('Audio play failed:', e));
+    }, 500);
     
     // ✅ AUTO-DISMISS AFTER 20 SECONDS
     setTimeout(() => {
         if (document.getElementById('thankYouSplash')) {
             restartConversation();
         }
-    }, 30000);
+    }, 20000);
 }
-
-function closeChatCompletely() {
-    console.log('🚪 IMMEDIATE redirect to newclientsinc.com');
-    // ✅ IMMEDIATE REDIRECT - No delays, no animations
-    window.location.href = 'https://newclientsinc.com';
-}
-    
 
 // ================================
 // 🔄 RESTART CONVERSATION FUNCTION
@@ -2440,39 +1438,181 @@ function handleActionCenterCompletion() {
     // Re-enable Speak Now banner
     window.disableSpeakNowBanner = false;
     
-    // 🚀 DELAY SPEAK NOW OVERLAY UNTIL AFTER AI SPEECH COMPLETES
+    // Optional: Auto-show Speak Now banner after selection
     setTimeout(() => {
         if (typeof showDirectSpeakNow === 'function' && !window.disableSpeakNowBanner) {
-            // Wait for AI speech to complete first
-            if (window.speechSynthesis && window.speechSynthesis.speaking) {
-                const speechEndHandler = function() {
-                    window.speechSynthesis.removeEventListener('end', speechEndHandler);
-                    setTimeout(() => {
-                        console.log('🎤 Speak Now overlay triggered AFTER AI speech completed');
-                        showDirectSpeakNow();
-                    }, 500);
-                };
-                window.speechSynthesis.addEventListener('end', speechEndHandler);
-                
-                // 🗑️ DELETE THIS SAFETY TIMEOUT - IT'S CAUSING THE PROBLEM!
-                // Safety timeout
-                // setTimeout(() => {
-                //     window.speechSynthesis.removeEventListener('end', speechEndHandler);
-                //     console.log('🎤 Speak Now overlay triggered via safety timeout');
-                // }, 5000);
-                
-            } else {
-                console.log('🎤 Speak Now overlay triggered (no AI speech detected)');
-                // showDirectSpeakNow();
-            }
+            console.log('🔄 Auto-showing Speak Now banner after Action Center');
+            showDirectSpeakNow();
         }
     }, 2000);
 }
 
-// Keep the OLD function name for existing buttons
-function initializeClickToCallCapture() {
-    // Just call the NEW requestCall function (since requestCall now uses clickToCall template)
-    initializeRequestCallCapture();
+// ================================
+// 🎬 UPDATED TESTIMONIAL HANDLER - SPLASH SCREEN CONTROLS VIDEO PLAYBACK
+// ================================
+function handleTestimonialButton(testimonialType) {
+    console.log('🎬 Testimonial selected:', testimonialType);
+    
+    // First hide the splash screen
+    hideTestimonialSplash();
+    
+    // Wait for splash to fully hide, THEN show video
+    setTimeout(() => {
+        // Call the video player - NOW CONTROLLED BY SPLASH SCREEN
+        if (typeof window.showTestimonialVideo === 'function') {
+            window.showTestimonialVideo(testimonialType);
+        } else {
+            console.error('❌ Video player function not found');
+            // Fallback: restart conversation if video fails
+            restartConversation();
+        }
+    }, 400); // Matches the 300ms hide animation + 100ms buffer
+}
+
+// ================================
+// 🎬 ENHANCED TESTIMONIAL SPLASH SCREEN WITH BETTER TIMING
+// ================================
+function showTestimonialSplashScreen() {
+    console.log('🎬 Deploying testimonial splash screen...');
+    
+    // Stop any current listening first
+    if (window.stopListening && typeof window.stopListening === 'function') {
+        window.stopListening();
+    }
+    
+    const splashScreen = document.createElement('div');
+    splashScreen.id = 'testimonial-splash-screen';
+    splashScreen.style.animation = 'fadeInSplash 0.5s ease-in';
+    
+    splashScreen.innerHTML = `
+        <div style="
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.9)),
+                        url('https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1762038349654_action-bg.jpg');
+            background-size: cover;
+            background-position: center;
+            background-blend-mode: overlay;
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px 25px;
+            margin: 20px 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            color: white;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            max-width: 750px;
+            animation: slideInFromBottom 0.5s ease-out;
+        ">
+            <!-- Header with Video Avatar -->
+            <div style="display: flex; align-items: center; margin-bottom: 25px; gap: 15px;">
+                <video autoplay loop muted playsinline style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255, 255, 255, 0.2);">
+                    <source src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1762037335280.mp4" type="video/mp4">
+                </video>
+                <div>
+                    <h3 style="margin: 0 0 5px 0; font-size: 22px; font-weight: 600;">Client Testimonials</h3>
+                    <p style="margin: 0; opacity: 0.8; font-size: 13px; font-weight: 300;">Real stories from satisfied clients</p>
+                </div>
+            </div>
+
+            <!-- Testimonial Buttons Grid -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px;">
+                <!-- Skeptical Client -->
+                <button onclick="handleTestimonialButton('skeptical')" style="
+                    display: flex; align-items: center; gap: 12px;
+                    background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(255, 255, 255, 0.2);
+                    color: white; padding: 18px 15px; border-radius: 10px; cursor: pointer;
+                    font-weight: 600; font-size: 17px; text-align: left; transition: all 0.3s ease;
+                    backdrop-filter: blur(10px); width: 100%; height: 84px;
+                " onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.borderColor='rgba(255, 255, 255, 0.3)'; this.style.transform='translateY(-2px)';" 
+                   onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.borderColor='rgba(255, 255, 255, 0.2)'; this.style.transform='translateY(0)';">
+                    <div style="font-size: 28px;">🤔</div>
+                    <span style="flex: 1;">Skeptical Client</span>
+                </button>
+
+                <!-- Speed Results -->
+                <button onclick="handleTestimonialButton('speed')" style="
+                    display: flex; align-items: center; gap: 12px;
+                    background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(255, 255, 255, 0.2);
+                    color: white; padding: 18px 15px; border-radius: 10px; cursor: pointer;
+                    font-weight: 600; font-size: 17px; text-align: left; transition: all 0.3s ease;
+                    backdrop-filter: blur(10px); width: 100%; height: 84px;
+                " onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.borderColor='rgba(255, 255, 255, 0.3)'; this.style.transform='translateY(-2px)';" 
+                   onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.borderColor='rgba(255, 255, 255, 0.2)'; this.style.transform='translateY(0)';">
+                    <div style="font-size: 28px;">⚡</div>
+                    <span style="flex: 1;">Speed Results</span>
+                </button>
+            </div>
+
+            <!-- Skip Button -->
+            <button onclick="handleTestimonialSkip()" style="
+                display: flex; align-items: center; gap: 10px;
+                background: rgba(0, 0, 0, 0.6); color: rgba(255, 255, 255, 0.8);
+                border: 1px solid rgba(255, 255, 255, 0.2); padding: 15px 20px;
+                border-radius: 10px; cursor: pointer; font-size: 16px; font-weight: 500;
+                transition: all 0.3s ease; width: 100%; justify-content: center; margin-top: 5px;
+            " onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.color='white';" 
+               onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.color='rgba(255, 255, 255, 0.8)';">
+                <span>⏭️ Skip Testimonials</span>
+            </button>
+        </div>
+    `;
+    
+    const chatContainer = document.getElementById('chatMessages') || document.querySelector('.chat-messages');
+    if (chatContainer) {
+        chatContainer.appendChild(splashScreen);
+        splashScreen.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+}
+
+// ================================
+// 🎬 NEW: HANDLE TESTIMONIAL SKIP
+// ================================
+function handleTestimonialSkip() {
+    console.log('🎬 User skipped testimonials');
+    hideTestimonialSplash();
+    
+    // Wait for splash to hide, then restart conversation
+    setTimeout(() => {
+        restartConversation();
+    }, 400);
+}
+
+// ================================
+// 🎬 UPDATED HIDE TESTIMONIAL SPLASH
+// ================================
+function hideTestimonialSplash() {
+    const splash = document.getElementById('testimonial-splash-screen');
+    if (splash) {
+        splash.style.animation = 'slideOutToBottom 0.3s ease-in';
+        setTimeout(() => {
+            if (splash.parentNode) {
+                splash.remove();
+                console.log('✅ Testimonial splash screen removed');
+            }
+        }, 300);
+    }
+}
+
+// Add these CSS animations if not already present
+function addTestimonialAnimations() {
+    if (!document.getElementById('testimonial-animations')) {
+        const style = document.createElement('style');
+        style.id = 'testimonial-animations';
+        style.textContent = `
+            @keyframes fadeInSplash {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            @keyframes slideInFromBottom {
+                from { transform: translateY(30px); opacity: 0; }
+                to { transform: translateY(0); opacity: 1; }
+            }
+            @keyframes slideOutToBottom {
+                from { transform: translateY(0); opacity: 1; }
+                to { transform: translateY(30px); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
 }
 
 // ================================
@@ -2522,11 +1662,25 @@ window.hideCommunicationActionCenter = hideCommunicationActionCenter;
 window.handleActionButton = handleActionButton;
 window.initializeConsultationCapture = initializeConsultationCapture;
 window.initializeClickToCallCapture = initializeClickToCallCapture;
-window.initializeUrgentCallCapture = initializeUrgentCallCapture;
-window.initializeRequestCallCapture = initializeRequestCallCapture;
 window.initializeFreeBookCapture = initializeFreeBookCapture;
 window.initiateUrgentCall = initiateUrgentCall;
 window.initializePreQualifierCapture = initializePreQualifierCapture; // 🎯 NOW THIS WILL BE GOLD!
+window.askQuickQuestion = askQuickQuestion;
 
+function askQuickQuestion(questionText) {
+    console.log('🔄 REDIRECTING: askQuickQuestion → Communication Relay Center');
+    console.log('   Original question:', questionText);
+    
+    // Redirect to our new Communication Relay Center
+    if (typeof openCommRelayCenter === 'function') {
+        openCommRelayCenter();
+    } else {
+        console.error('❌ openCommRelayCenter not available');
+        // Fallback to original action center
+        if (typeof showCommunicationActionCenter === 'function') {
+            showCommunicationActionCenter();
+        }
+    }
+}
 
 console.log('✅ ACTION SYSTEM UNIFIED - Loaded successfully (FINAL CLEANED VERSION - No restore code)');
