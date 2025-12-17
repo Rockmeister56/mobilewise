@@ -290,6 +290,62 @@ document.addEventListener('visibilitychange', function() {
     }
 });
 
+// ===== INJECT INSTANT BUBBLE CSS =====
+(function() {
+    const style = document.createElement('style');
+    style.textContent = `
+        .realtime-bubble {
+            border: 2px solid #10b981 !important;
+            animation: pulseBorder 1.5s infinite;
+            background: rgba(16, 185, 129, 0.1) !important;
+        }
+        
+        @keyframes pulseBorder {
+            0%, 100% { border-color: #10b981; }
+            50% { border-color: #34d399; }
+        }
+        
+        .typing-indicator::after {
+            content: '...';
+            animation: blink 1.5s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+    `;
+    document.head.appendChild(style);
+    console.log('✅ Instant bubble CSS injected');
+})(); // <-- THIS CLOSES THE IIFE (Immediately Invoked Function Expression)
+
+// 🆕 EXPORT FUNCTIONS FOR ACTION SYSTEM INTEGRATION
+// These allow the action-system-unified-FINAL.js to integrate with voice chat
+
+// Export addAIMessage
+if (typeof addAIMessage === 'function') {
+    window.addAIMessage = addAIMessage;
+}
+
+// Export speakText/speakResponse (use whichever function name you have)
+if (typeof speakResponse === 'function') {
+    window.speakText = speakResponse;
+} else if (typeof speakMessage === 'function') {
+    window.speakText = speakMessage;
+}
+
+// Export listening restart function
+if (typeof startRealtimeListening === 'function') {
+    window.startRealtimeListening = startRealtimeListening;
+}
+
+// Export banner system (if available)
+if (typeof showUniversalBanner === 'function') {
+    window.showUniversalBanner = showUniversalBanner;
+}
+
+console.log('✅ Voice chat functions exported for Action System integration');
+
 // ===================================================
 // 🎤 COMPLETE START LISTENING FUNCTION (FIXED)
 // ===================================================
@@ -5891,132 +5947,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 1000);
 });
 
-
-// ===== INJECT INSTANT BUBBLE CSS =====
-(function() {
-    const style = document.createElement('style');
-    style.textContent = `
-        .realtime-bubble {
-            border: 2px solid #10b981 !important;
-            animation: pulseBorder 1.5s infinite;
-            background: rgba(16, 185, 129, 0.1) !important;
-        }
-        
-        @keyframes pulseBorder {
-            0%, 100% { border-color: #10b981; }
-            50% { border-color: #34d399; }
-        }
-        
-        .typing-indicator::after {
-            content: '...';
-            animation: blink 1.5s infinite;
-        }
-        
-        @keyframes blink {
-            0%, 50% { opacity: 1; }
-            51%, 100% { opacity: 0.3; }
-        }
-    `;
-    document.head.appendChild(style);
-    console.log('✅ Instant bubble CSS injected');
-})(); // <-- THIS CLOSES THE IIFE (Immediately Invoked Function Expression)
-
-// 🆕 EXPORT FUNCTIONS FOR ACTION SYSTEM INTEGRATION
-// These allow the action-system-unified-FINAL.js to integrate with voice chat
-
-// Export addAIMessage
-if (typeof addAIMessage === 'function') {
-    window.addAIMessage = addAIMessage;
-}
-
-// Export speakText/speakResponse (use whichever function name you have)
-if (typeof speakResponse === 'function') {
-    window.speakText = speakResponse;
-} else if (typeof speakMessage === 'function') {
-    window.speakText = speakMessage;
-}
-
-// Export listening restart function
-if (typeof startRealtimeListening === 'function') {
-    window.startRealtimeListening = startRealtimeListening;
-}
-
-// Export banner system (if available)
-if (typeof showUniversalBanner === 'function') {
-    window.showUniversalBanner = showUniversalBanner;
-}
-
 console.log('✅ Voice chat functions exported for Action System integration');
-
-// ===================================================
-// 🧪 TEST SUITE - ADD AT BOTTOM OF FILE
-// ===================================================
-
-// Test 1: Automatic pre-warm test (runs on page load)
-setTimeout(() => {
-    console.log('🧪 ========== TEST SUITE STARTING ==========');
-    
-    // Test pre-warm system
-    console.log('🧪 TEST 1: Checking pre-warm status...');
-    console.log('  - recognitionPreWarmed:', recognitionPreWarmed);
-    console.log('  - preWarmAttempted:', preWarmAttempted);
-    console.log('  - recognition exists:', !!recognition);
-    
-    if (recognition) {
-        console.log('  - recognition state:', recognition.state || 'not started');
-        console.log('  - recognition lang:', recognition.lang);
-    }
-    
-    console.log('🧪 TEST 2: Speech support check...');
-    if (typeof checkSpeechSupport === 'function') {
-        console.log('  - checkSpeechSupport():', checkSpeechSupport());
-    } else {
-        console.log('  - ❌ checkSpeechSupport() not found');
-    }
-    
-    console.log('🧪 TEST 3: Mobile detection...');
-    if (typeof isMobileDevice === 'function') {
-        console.log('  - isMobileDevice():', isMobileDevice());
-    } else {
-        console.log('  - ❌ isMobileDevice() not found');
-    }
-    
-    console.log('🧪 ========== TEST SUITE COMPLETE ==========');
-}, 2000); // Wait 2 seconds after page load
-
-// ===================================================
-// 🎯 COMPREHENSIVE TEST DASHBOARD
-// ===================================================
-function runAllTests() {
-    console.log('🚀 ===== MOBILE-WISE AI VOICE TEST DASHBOARD =====');
-    
-    const tests = [
-        { name: 'Speech Support', func: () => typeof checkSpeechSupport === 'function' ? checkSpeechSupport() : 'Function missing' },
-        { name: 'Mobile Detection', func: () => typeof isMobileDevice === 'function' ? isMobileDevice() : 'Function missing' },
-        { name: 'Pre-Warm Status', func: () => recognitionPreWarmed },
-        { name: 'Recognition Instance', func: () => !!recognition },
-        { name: 'Global Variables', func: () => {
-            return `isListening:${isListening}, isSpeaking:${isSpeaking}, isAudioMode:${isAudioMode}`;
-        }}
-    ];
-    
-    tests.forEach(test => {
-        try {
-            const result = test.func();
-            console.log(`✅ ${test.name}:`, result);
-        } catch (e) {
-            console.log(`❌ ${test.name}: ERROR -`, e.message);
-        }
-    });
-    
-    console.log('📱 User Agent:', navigator.userAgent);
-    console.log('🖥️ Screen:', window.innerWidth, 'x', window.innerHeight);
-    console.log('🔊 Audio Context:', !!window.AudioContext || !!window.webkitAudioContext);
-    console.log('🎤 Speech Recognition:', !!window.SpeechRecognition || !!window.webkitSpeechRecognition);
-    console.log('🚀 ===== TEST DASHBOARD COMPLETE =====');
-}
-
-// Make it globally accessible
-window.runAllTests = runAllTests;
 
 console.log('🎯 ALL SYSTEMS INITIALIZED AND READY');
