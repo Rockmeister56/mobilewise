@@ -781,16 +781,25 @@ function completeLeadCapture() {
 }
 
 function sendInternalNotification(leadData, captureType) {
-    console.log('📧 Sending REAL internal notification to Bruce...');
+    // 🎯 GENERIC: Don't mention specific names
+    console.log('📧 Sending internal notification to team...');
     
     let internalTemplateId = '';
     let internalTemplateParams = {};
+    let toEmail = ''; // Should come from config
+    
+    // Get email from config or use default
+    if (window.EMAILJS_CONFIG && window.EMAILJS_CONFIG.internalEmail) {
+        toEmail = window.EMAILJS_CONFIG.internalEmail;
+    } else {
+        toEmail = 'team@example.com'; // Generic fallback
+    }
     
     if (captureType === 'consultation') {
         // Book Consultation
         internalTemplateId = EMAILJS_CONFIG.templates.consultation;
         internalTemplateParams = {
-            to_email: 'duncansfury@gmail.com',
+            to_email: toEmail,
             name: leadData.name,
             phone: leadData.phone,
             email: leadData.email,
@@ -799,85 +808,85 @@ function sendInternalNotification(leadData, captureType) {
             message: `New Consultation Request\n\nName: ${leadData.name}\nPhone: ${leadData.phone}\nEmail: ${leadData.email}\nBest Time: ${leadData.contactTime}`,
             timestamp: new Date().toLocaleString()
         };
-    } else if (captureType === 'clickToCall') { // ✅ CHANGE THIS LINE!
-        // ✅ REQUEST A CALL - This is the one that should work!
+    } else if (captureType === 'clickToCall') {
+        // Request A Call
         internalTemplateId = EMAILJS_CONFIG.templates.clickToCall; 
         internalTemplateParams = {
-            to_email: 'duncansfury@gmail.com',
+            to_email: toEmail,
             name: leadData.name,
             phone: leadData.phone,
             reason: leadData.reason,
             inquiryType: 'CALLBACK_REQUEST',
-            message: `📞 CALLBACK REQUEST\n\nName: ${leadData.name}\nPhone: ${leadData.phone}\nReason: ${leadData.reason}\n\nPlease call back within 24 hours.`,
+            message: `📞 Callback Request\n\nName: ${leadData.name}\nPhone: ${leadData.phone}\nReason: ${leadData.reason}\n\nPlease follow up within 24 hours.`,
             timestamp: new Date().toLocaleString()
         };
     } else if (captureType === 'preQualifier') {
-    internalTemplateId = EMAILJS_CONFIG.templates.preQualifier;
-    
-    // Qualification scoring logic (copy from earlier function)
-    let qualificationScore = 0;
-    let qualifications = [];
-    
-    const experienceYears = parseInt(leadData.experienceYears) || 0;
-    if (experienceYears >= 3) {
-        qualificationScore += 25;
-        qualifications.push(`${experienceYears} years experience`);
-    }
-    
-    if (leadData.licenseStatus && leadData.licenseStatus.toLowerCase().includes('cpa')) {
-        qualificationScore += 25;
-        qualifications.push('CPA licensed');
-    }
-    
-    if (leadData.acquisitionTimeline) {
-        const timeline = leadData.acquisitionTimeline.toLowerCase();
-        if (timeline.includes('immediate') || timeline.includes('3 month') || timeline.includes('6 month')) {
+        internalTemplateId = EMAILJS_CONFIG.templates.preQualifier;
+        
+        // Qualification scoring logic
+        let qualificationScore = 0;
+        let qualifications = [];
+        
+        const experienceYears = parseInt(leadData.experienceYears) || 0;
+        if (experienceYears >= 3) {
             qualificationScore += 25;
-            qualifications.push('Ready for acquisition');
+            qualifications.push(`${experienceYears} years experience`);
         }
+        
+        if (leadData.licenseStatus && leadData.licenseStatus.toLowerCase().includes('cpa')) {
+            qualificationScore += 25;
+            qualifications.push('CPA licensed');
+        }
+        
+        if (leadData.acquisitionTimeline) {
+            const timeline = leadData.acquisitionTimeline.toLowerCase();
+            if (timeline.includes('immediate') || timeline.includes('3 month') || timeline.includes('6 month')) {
+                qualificationScore += 25;
+                qualifications.push('Ready for acquisition');
+            }
+        }
+        
+        if (leadData.budgetRange && leadData.budgetRange.trim() !== '') {
+            qualificationScore += 25;
+            qualifications.push(`Budget: ${leadData.budgetRange}`);
+        }
+        
+        const qualificationLevel = qualificationScore >= 75 ? 'HIGH' : 
+                                  qualificationScore >= 50 ? 'MEDIUM' : 'BASIC';
+        
+        internalTemplateParams = {
+            to_email: toEmail,
+            name: leadData.name,
+            email: leadData.email,
+            phone: leadData.phone,
+            contactTime: 'Within 24 hours',
+            inquiryType: 'PRE_QUALIFIER_REQUEST',
+            transcript: `Pre-qualification score: ${qualificationScore} (${qualificationLevel})`,
+            qualification_score: qualificationScore.toString(),
+            qualification_level: qualificationLevel,  
+            qualifications: qualifications.join(', '),
+            experience_years: leadData.experienceYears || 'Not specified',
+            license_status: leadData.licenseStatus || 'Not specified',
+            acquisition_timeline: leadData.acquisitionTimeline || 'Not specified',
+            budget_range: leadData.budgetRange || 'Not specified',
+            geographic_preference: leadData.geographicPreference || 'Not specified',
+            practice_size: leadData.practiceSize || 'Not specified',
+            specialization_interest: leadData.specializationInterest || 'Not specified',
+            financing_needed: leadData.financingNeeded || 'Not specified',
+            recommended_action: qualificationLevel === 'HIGH' ? 'Contact within 4 hours' : 
+                               qualificationLevel === 'MEDIUM' ? 'Contact within 24 hours' : 'Contact within 48 hours',
+            timestamp: new Date().toLocaleString()
+        };
     }
-    
-    if (leadData.budgetRange && leadData.budgetRange.trim() !== '') {
-        qualificationScore += 25;
-        qualifications.push(`Budget: ${leadData.budgetRange}`);
-    }
-    
-    const qualificationLevel = qualificationScore >= 75 ? 'HIGH' : 
-                              qualificationScore >= 50 ? 'MEDIUM' : 'BASIC';
-    
-    internalTemplateParams = {
-        to_email: 'duncansfury@gmail.com',
-        name: leadData.name,
-        email: leadData.email,
-        phone: leadData.phone,
-        contactTime: 'Within 24 hours',
-        inquiryType: 'PRE_QUALIFIER_REQUEST',
-        transcript: `Pre-qualification score: ${qualificationScore} (${qualificationLevel})`,
-        qualification_score: qualificationScore.toString(),
-        qualification_level: qualificationLevel,  
-        qualifications: qualifications.join(', '),
-        experience_years: leadData.experienceYears || 'Not specified',
-        license_status: leadData.licenseStatus || 'Not specified',
-        acquisition_timeline: leadData.acquisitionTimeline || 'Not specified',
-        budget_range: leadData.budgetRange || 'Not specified',
-        geographic_preference: leadData.geographicPreference || 'Not specified',
-        practice_size: leadData.practiceSize || 'Not specified',
-        specialization_interest: leadData.specializationInterest || 'Not specified',
-        financing_needed: leadData.financingNeeded || 'Not specified',
-        recommended_action: qualificationLevel === 'HIGH' ? 'Contact within 4 hours' : 
-                           qualificationLevel === 'MEDIUM' ? 'Contact within 24 hours' : 'Contact within 48 hours',
-        timestamp: new Date().toLocaleString()
-    };
-}
     
     // Only send if we have a template
     if (internalTemplateId) {
         emailjs.send(EMAILJS_CONFIG.serviceId, internalTemplateId, internalTemplateParams)
             .then(function(response) {
-                console.log('✅ INTERNAL NOTIFICATION EMAIL SENT to Bruce for:', captureType);
+                console.log('✅ Internal notification email sent for:', captureType);
             })
             .catch(function(error) {
-                console.error('❌ INTERNAL NOTIFICATION EMAIL FAILED:', error);
+                console.error('❌ Internal notification email failed:', error);
             });
     } else {
         console.log('❌ No email template for captureType:', captureType);
@@ -901,40 +910,72 @@ function universalCloseSequence(serviceType) {
     
     const closeMessage = `${messages[serviceType] || messages.default}`;
     
-    // 1. First, speak the completion message
+    // 1. Add completion message to chat
     if (window.addAIMessage) {
         window.addAIMessage(closeMessage);
     }
     
+    // 2. Send internal notification (for all relevant types)
+    if (serviceType === 'requestCall' || serviceType === 'clickToCall' || 
+        serviceType === 'consultation' || serviceType === 'preQualifier') {
+        sendInternalNotification(window.currentLeadData, serviceType);
+    }
+    
+    // 3. Speak completion message
     if (window.speakText) {
         window.speakText(closeMessage);
     }
     
-    // 2. Send internal notification for the lead
-    if (serviceType === 'requestCall') {
-        sendInternalNotification(window.currentLeadData, serviceType);
-    }
-    
-    // 3. After speech completes, show the decision panel
+    // 🎯 TIMER 1: Wait for completion message to be spoken (~3 seconds)
     setTimeout(() => {
-        showDecisionPanel({
-            question: "Is there anything else I can help you with?",
-            yesText: "Yes, I have more questions",
-            skipText: "No, I'm all done", 
-            onYes: function() {
-                console.log("User wants to continue conversation");
-                if (window.showDirectSpeakNow) window.showDirectSpeakNow();
-            },
-            onSkip: function() {
-                console.log("User is done with conversation");
-                if (window.showThankYouSplash) window.showThankYouSplash();
-                
-                // Reset the capture system
-                window.isInLeadCapture = false;
-                window.currentLeadData = null;
-            }
-        });
-    }, 4000); // Wait 2 seconds for the speech to complete
+        // 4. Add follow-up question to chat
+        const followUpQuestion = "Is there anything else I can help you with?";
+        if (window.addAIMessage) {
+            window.addAIMessage(followUpQuestion);
+        }
+        
+        // 5. Speak the follow-up question
+        if (window.speakText) {
+            window.speakText(followUpQuestion);
+        }
+        
+        // 🎯 TIMER 2: Wait for question to be spoken (~3 seconds)
+        setTimeout(() => {
+            // 6. Show decision panel
+            showDecisionPanel({
+                question: followUpQuestion,
+                yesText: "Yes, I have more questions",
+                skipText: "No, I'm all done", 
+                onYes: function() {
+                    console.log("User wants to continue conversation");
+                    
+                    // 🛑 CRITICAL: Exit lead capture mode!
+                    window.isInLeadCapture = false;
+                    window.currentLeadData = null;
+                    window.quickLeadData = null;
+                    
+                    console.log('✅ LEAD CAPTURE EXITED - Returning to normal AI conversation');
+                    
+                    // Trigger Speak Now banner
+                    if (window.showDirectSpeakNow) {
+                        setTimeout(() => {
+                            window.showDirectSpeakNow();
+                        }, 500);
+                    }
+                },
+                onSkip: function() {
+                    console.log("User is done with conversation");
+                    if (window.showThankYouSplash) window.showThankYouSplash();
+                    
+                    // Reset the capture system
+                    window.isInLeadCapture = false;
+                    window.currentLeadData = null;
+                    window.quickLeadData = null;
+                }
+            });
+        }, 3000); // Wait for question to be spoken
+        
+    }, 3000); // Wait for completion message to be spoken
     
     console.log('✅ Universal close sequence initiated');
 }
