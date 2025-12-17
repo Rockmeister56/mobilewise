@@ -1547,7 +1547,6 @@ const originalActivateMicrophone = window.activateMicrophone;
 
 window.activateMicrophone = function(...args) {
     activateCallCount++;
-    console.log(`🎤 activateMicrophone() called #${activateCallCount} at ${Date.now()}`);
     console.trace('Stack trace for activateMicrophone');
     
     if (activateCallCount > 1) {
