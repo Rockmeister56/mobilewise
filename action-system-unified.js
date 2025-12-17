@@ -151,6 +151,32 @@ function initiateUrgentCall() {
 
 function handleActionButton(action) {
     console.log('🎯 Action button clicked:', action);
+
+    // 🚨🚨🚨 ADD THIS CRITICAL SPEECH STOPPING CODE 🚨🚨🚨
+    // STOP ALL SPEECH IMMEDIATELY WHEN ACTION BUTTON IS CLICKED
+    if (typeof window.stopAllSpeech === 'function') {
+        window.stopAllSpeech();
+        console.log('🔇 Speech stopped via stopAllSpeech()');
+    } else {
+        // Fallback speech stopping
+        if (window.speechSynthesis && window.speechSynthesis.speaking) {
+            window.speechSynthesis.cancel();
+            console.log('🔇 Web Speech API stopped');
+        }
+        if (window.elevenLabsPlayer && window.elevenLabsPlayer.stop) {
+            window.elevenLabsPlayer.stop();
+            console.log('🔇 ElevenLabs stopped');
+        }
+    }
+    // Also clear any speech flags
+    window.isSpeaking = false;
+    // 🚨🚨🚨 END OF CRITICAL ADDITION 🚨🚨🚨
+    
+    // 🛑 CHECK IF WE'RE ALREADY PROCESSING
+    if (window.isProcessingAction) {
+        console.log('🛑 Action already in progress - skipping');
+        return;
+    }
     
     // 🛑 CHECK IF WE'RE ALREADY PROCESSING
     if (window.isProcessingAction) {
@@ -2395,6 +2421,26 @@ function ensureSplashAnimations() {
     }
 }
 
+// Add this to your action-system-unified.js file:
+function patchActionButtons() {
+    const buttons = document.querySelectorAll('.action-btn, [data-action]');
+    buttons.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            // Stop speech on ANY action-related button click
+            if (typeof window.stopAllSpeech === 'function') {
+                window.stopAllSpeech();
+            }
+            // Let the original handler still work
+        }, true); // Use capture phase to stop speech BEFORE other handlers
+    });
+    console.log('✅ Action button speech stop patch applied');
+}
+
+// Run it now and also when new buttons might be added
+patchActionButtons();
+setTimeout(patchActionButtons, 1000); // Run again after a second
+setTimeout(patchActionButtons, 3000); // Run again after 3 seconds
+
 // Call this when your script loads
 ensureSplashAnimations();
 
@@ -2418,25 +2464,7 @@ window.initializeRequestCallCapture = initializeRequestCallCapture;
 window.initializeFreeBookCapture = initializeFreeBookCapture;
 window.initiateUrgentCall = initiateUrgentCall;
 window.initializePreQualifierCapture = initializePreQualifierCapture; // 🎯 NOW THIS WILL BE GOLD!
-// window.askQuickQuestion = askQuickQuestion;
 
-// ❌ COMMENT OUT OR DELETE THIS ENTIRE FUNCTION:
-/*
-function askQuickQuestion(questionText) {
-    console.log('🔄 REDIRECTING: askQuickQuestion → Communication Relay Center');
-    console.log('   Original question:', questionText);
-    
-    // Redirect to our new Communication Relay Center
-    if (typeof openCommRelayCenter === 'function') {
-        openCommRelayCenter();
-    } else {
-        console.error('❌ openCommRelayCenter not available');
-        // Fallback to original action center
-        if (typeof showCommunicationActionCenter === 'function') {
-            showCommunicationActionCenter();
-        }
-    }
-}
-*/
+
 
 console.log('✅ ACTION SYSTEM UNIFIED - Loaded successfully (FINAL CLEANED VERSION - No restore code)');
