@@ -3221,13 +3221,14 @@ window.lastPreCloseIntent = 'bruce_consultation';
 window.conversationState = 'qualification';
 console.log('🎯 BRUCE PRE-CLOSE QUESTION SET:', fallbackResponse);
 
-// 🚫 REMOVE THIS BANNER TRIGGER - Let the wrapper handle it
-// setTimeout(() => {
-//     if (typeof showUniversalBanner === 'function') {
-//         showUniversalBanner('setAppointment');
-//         console.log('✅ Free Consultation Banner triggered');
-//     }
-// }, 50);
+// 🚀 CRITICAL FIX: Show Free Consultation Banner
+setTimeout(() => {
+    // 1. TRIGGER FREE CONSULTATION BANNER
+    if (typeof showUniversalBanner === 'function') {
+        showUniversalBanner('setAppointment');
+        console.log('✅ Free Consultation Banner triggered');
+    }
+}, 50); // Wait for question to start speaking
 return fallbackResponse;
 }
 }
