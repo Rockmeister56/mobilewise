@@ -30,6 +30,39 @@ window.currentLeadData = null;
 window.currentCaptureType = null;
 window.lastCapturedName = null;
 
+// EMERGENCY PATCH: Stop speech on ANY action button click
+(function() {
+    console.log('🚨 Installing emergency speech stop patch...');
+    
+    // Store original console.log to intercept button clicks
+    const originalLog = console.log;
+    console.log = function(...args) {
+        // Check if this is an action button click log
+        if (args[0] && args[0].includes('🎯 Action button clicked:')) {
+            console.log('🔍 Intercepted action button log:', args);
+            
+            // STOP SPEECH HERE!
+            if (typeof window.stopAllSpeech === 'function') {
+                window.stopAllSpeech();
+                console.log('🔇 Emergency patch: Speech stopped');
+            } else {
+                // Fallback
+                if (window.speechSynthesis && window.speechSynthesis.speaking) {
+                    window.speechSynthesis.cancel();
+                }
+                if (window.elevenLabsPlayer && window.elevenLabsPlayer.stop) {
+                    window.elevenLabsPlayer.stop();
+                }
+            }
+        }
+        
+        // Call original console.log
+        return originalLog.apply(console, args);
+    };
+    
+    console.log('✅ Emergency speech stop patch installed');
+})();
+
 // ================================
 // FORM VALIDATION
 // ================================
@@ -2420,26 +2453,6 @@ function ensureSplashAnimations() {
         document.head.appendChild(style);
     }
 }
-
-// Add this to your action-system-unified.js file:
-function patchActionButtons() {
-    const buttons = document.querySelectorAll('.action-btn, [data-action]');
-    buttons.forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            // Stop speech on ANY action-related button click
-            if (typeof window.stopAllSpeech === 'function') {
-                window.stopAllSpeech();
-            }
-            // Let the original handler still work
-        }, true); // Use capture phase to stop speech BEFORE other handlers
-    });
-    console.log('✅ Action button speech stop patch applied');
-}
-
-// Run it now and also when new buttons might be added
-patchActionButtons();
-setTimeout(patchActionButtons, 1000); // Run again after a second
-setTimeout(patchActionButtons, 3000); // Run again after 3 seconds
 
 // Call this when your script loads
 ensureSplashAnimations();
