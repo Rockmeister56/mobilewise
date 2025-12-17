@@ -138,63 +138,38 @@ function formatEmailFromSpeech(speechText) {
 
 // 🚨 ADD THIS FUNCTION AT THE TOP OF YOUR action-system-unified.js FILE
 function muteAllSpeechTemporarily() {
-    console.log('🔇 MUTING ALL SPEECH IMMEDIATELY');
+    console.log('🔇 MUTING ALL SPEECH');
     
-    // 🚨 NUCLEAR OPTION 1: Find ALL ElevenLabs audio elements
-    const audioElements = document.querySelectorAll('audio');
-    console.log(`🔍 Found ${audioElements.length} audio elements`);
-    
-    audioElements.forEach((audio, i) => {
-        console.log(`🔇 Stopping audio ${i}:`, {
-            src: audio.src.substring(0, 100),
-            paused: audio.paused,
-            currentTime: audio.currentTime
-        });
-        audio.pause();
-        audio.currentTime = 0;
-        audio.volume = 0;
-    });
-    
-    // 🚨 NUCLEAR OPTION 2: Stop ElevenLabs player if it exists
+    // 1. STOP ElevenLabs player (most important)
     if (window.elevenLabsPlayer) {
-        console.log('🔇 Stopping ElevenLabs player object');
+        console.log('🔇 Stopping ElevenLabs player');
         if (window.elevenLabsPlayer.stop) {
             window.elevenLabsPlayer.stop();
         }
         if (window.elevenLabsPlayer.volume !== undefined) {
             window.elevenLabsPlayer.volume = 0;
         }
-        
-        // Try to find the internal audio element
-        if (window.elevenLabsPlayer._audio) {
-            window.elevenLabsPlayer._audio.pause();
-            window.elevenLabsPlayer._audio.currentTime = 0;
-        }
     }
     
-    // 🚨 NUCLEAR OPTION 3: Stop Web Speech API
+    // 2. STOP Web Speech API (backup)
     if (window.speechSynthesis && window.speechSynthesis.speaking) {
         console.log('🔇 Cancelling Web Speech API');
         window.speechSynthesis.cancel();
     }
     
-    // 🚨 NUCLEAR OPTION 4: Remove ALL audio elements from DOM temporarily
-    setTimeout(() => {
-        const allAudio = document.querySelectorAll('audio');
-        allAudio.forEach(audio => {
-            if (!audio.hasAttribute('data-keep')) {
-                audio.remove();
-                console.log('🗑️ Removed audio element from DOM');
-            }
-        });
-    }, 50);
+    // 3. STOP any HTML5 audio elements (extra backup)
+    document.querySelectorAll('audio').forEach(audio => {
+        audio.pause();
+        audio.currentTime = 0;
+        audio.volume = 0;
+    });
     
-    // Set flags
+    // 4. SET FLAGS (this is what actually prevents new speech!)
     window.isSpeaking = false;
     window.speechJustStopped = Date.now();
-    window.speechMutedUntil = Date.now() + 500;
+    window.speechMutedUntil = Date.now() + 1500; // 1.5 seconds
     
-    console.log('✅ All speech nuclear muted');
+    console.log('✅ Speech muted for 1500ms');
     return true;
 }
 
@@ -616,10 +591,26 @@ function askLeadQuestion() {
         }
         
         if (window.speakText) {
-            // 🚨🚨🚨 ADD THIS CHECK BEFORE SPEAKING 🚨🚨🚨
+            // 🚨🚨🚨 UPDATED CHECK 🚨🚨🚨
             function speakWhenClear() {
-                if (window.isSpeaking || (window.speechJustStopped && (Date.now() - window.speechJustStopped) < 1000)) {
-                    console.log('⏳ Waiting for speech to clear...');
+                // Check 1: Is speech currently muted?
+                if (window.speechMutedUntil && Date.now() < window.speechMutedUntil) {
+                    const waitTime = window.speechMutedUntil - Date.now();
+                    console.log(`⏸️ Speech muted - waiting ${waitTime}ms`);
+                    setTimeout(speakWhenClear, waitTime + 50);
+                    return;
+                }
+                
+                // Check 2: Was speech recently stopped?
+                if (window.speechJustStopped && (Date.now() - window.speechJustStopped) < 1000) {
+                    console.log('⏳ Speech recently stopped, waiting...');
+                    setTimeout(speakWhenClear, 150);
+                    return;
+                }
+                
+                // Check 3: Is AI currently speaking?
+                if (window.isSpeaking) {
+                    console.log('⏳ AI still speaking, waiting...');
                     setTimeout(speakWhenClear, 150);
                     return;
                 }
