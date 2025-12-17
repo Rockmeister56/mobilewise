@@ -18,8 +18,6 @@ const BUTTON_CONFIG = {
     avatarVideoUrl: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1763021413143.mp4'
 };
 
-let buttonContainer = null;
-let isInitialized = false;
 
 (function() {
     'use strict';
