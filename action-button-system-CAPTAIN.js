@@ -6,7 +6,6 @@
  * Preserves original Action Center for AI-triggered calls
  * 
  * Created: 2025-10-31 - ENHANCEMENT VERSION
- * 
  */
 
 console.log('✅ Enhanced Communication Center System loaded');
@@ -21,8 +20,6 @@ const BUTTON_CONFIG = {
 
 let buttonContainer = null;
 let isInitialized = false;
-let isActionCenterVisible = false;
-let actionCenterTimeout = null;
 
 (function() {
     'use strict';
