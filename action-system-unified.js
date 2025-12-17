@@ -54,41 +54,6 @@ function formatEmailFromSpeech(speechText) {
     return formattedEmail;
 }
 
-// 🚨 ADD THIS FUNCTION AT THE TOP OF YOUR action-system-unified.js FILE
-function muteAllSpeechTemporarily() {
-    console.log('🔇 MUTING ALL SPEECH IMMEDIATELY');
-    
-    // 1. STOP ElevenLabs - THIS IS WHAT ACTUALLY WORKS
-    if (window.elevenLabsPlayer && window.elevenLabsPlayer.stop) {
-        console.log('🔇 Stopping ElevenLabs player');
-        window.elevenLabsPlayer.stop();
-        
-        // Also set volume to 0 as backup
-        if (window.elevenLabsPlayer.volume !== undefined) {
-            window.elevenLabsPlayer.volume = 0;
-        }
-    }
-    
-    // 2. CANCEL Web Speech API
-    if (window.speechSynthesis && window.speechSynthesis.speaking) {
-        console.log('🔇 Cancelling Web Speech API');
-        window.speechSynthesis.cancel();
-    }
-    
-    // 3. PAUSE all HTML5 audio/video elements
-    document.querySelectorAll('audio, video').forEach(media => {
-        media.pause();
-        media.currentTime = 0;
-    });
-    
-    // 4. SET FLAGS to prevent immediate restart
-    window.isSpeaking = false;
-    window.speechJustStopped = Date.now();
-    
-    console.log('✅ All speech muted/stopped');
-    return true;
-}
-
 // ================================
 // ENHANCED ORIGINAL ACTION CENTER
 // ================================
@@ -186,29 +151,17 @@ function initiateUrgentCall() {
 
 function handleActionButton(action) {
     console.log('🎯 Action button clicked:', action);
-    
-    // 🚨 MUTE SPEECH SMOOTHLY (300ms fade)
-    if (typeof muteAllSpeechTemporarily === 'function') {
-        muteAllSpeechTemporarily(300);
-    } else {
-        // Fallback: Stop speech immediately
-        if (typeof window.stopAllSpeech === 'function') {
-            window.stopAllSpeech();
-            console.log('🔇 Speech stopped via stopAllSpeech()');
-        } else {
-            if (window.speechSynthesis && window.speechSynthesis.speaking) {
-                window.speechSynthesis.cancel();
-                console.log('🔇 Web Speech API stopped');
-            }
-            if (window.elevenLabsPlayer && window.elevenLabsPlayer.stop) {
-                window.elevenLabsPlayer.stop();
-                console.log('🔇 ElevenLabs stopped');
-            }
-        }
-    }
-    
-    // Clear speech flags
+
+  
+    // Also clear any speech flags
     window.isSpeaking = false;
+    // 🚨🚨🚨 END OF CRITICAL ADDITION 🚨🚨🚨
+    
+    // 🛑 CHECK IF WE'RE ALREADY PROCESSING
+    if (window.isProcessingAction) {
+        console.log('🛑 Action already in progress - skipping');
+        return;
+    }
     
     // 🛑 CHECK IF WE'RE ALREADY PROCESSING
     if (window.isProcessingAction) {
@@ -256,87 +209,54 @@ function handleActionButton(action) {
             break;
             
         case 'skip':
-            console.log('🎯 User chose to skip - BLOCKING avatar auto-restart');
-            
-            // 🚨 CRITICAL: Prevent avatar from auto-restarting Speak Now
-            window.suppressAvatarAutoRestart = true;
-            
-            const skipMessage = "I appreciate you're not ready to get immediate help from our expert. What else can I help you with to meet your objectives?";
-            
-            // Show message
-            if (window.addSystemMessage) {
-                window.addSystemMessage(skipMessage);
-            } else if (window.addAIMessage) {
-                window.addAIMessage(skipMessage);
-            }
-            
-            // Use the same pattern as other cases - wait for AI speech completion
-            if (window.speakText) {
-                window.speakText(skipMessage);
+    console.log('🎯 User chose to skip - BLOCKING avatar auto-restart');
+    
+    // 🚨 CRITICAL: Prevent avatar from auto-restarting Speak Now
+    window.suppressAvatarAutoRestart = true;
+    
+    const skipMessage = "I appreciate you're not ready to get immediate help from our expert. What else can I help you with to meet your objectives?";
+    
+    // Show message
+    if (window.addSystemMessage) {
+        window.addSystemMessage(skipMessage);
+    } else if (window.addAIMessage) {
+        window.addAIMessage(skipMessage);
+    }
+    
+    // Use the same pattern as other cases - wait for AI speech completion
+    if (window.speakText) {
+        window.speakText(skipMessage);
+        
+        const checkSpeech = setInterval(() => {
+            if (!window.isSpeaking) {
+                clearInterval(checkSpeech);
+                console.log('✅ AI finished speaking - starting listening NOW');
                 
-                const checkSpeech = setInterval(() => {
-                    if (!window.isSpeaking) {
-                        clearInterval(checkSpeech);
-                        console.log('✅ AI finished speaking - starting listening NOW');
-                        
-                        // 🎯 TRACKED BANNER SHOW
-                        console.log('🎤 SKIP: Triggering Speak Now banner');
-                        if (window.showDirectSpeakNow && typeof window.showDirectSpeakNow === 'function') {
-                            window.showDirectSpeakNow();
-                        }
-                    }
-                }, 100);
-
-                setTimeout(() => {
-                    clearInterval(checkSpeech);
-                }, 10000);
+                // 🎯 TRACKED BANNER SHOW
+                console.log('🎤 SKIP: Triggering Speak Now banner');
+                if (window.showDirectSpeakNow && typeof window.showDirectSpeakNow === 'function') {
+                    window.showDirectSpeakNow();
+                }
             }
-            
-            // Re-enable avatar auto-restart after reasonable time
-            setTimeout(() => {
-                window.suppressAvatarAutoRestart = false;
-                console.log('✅ Avatar auto-restart re-enabled');
-            }, 15000);
-            break;
+        }, 100);
+
+        setTimeout(() => {
+            clearInterval(checkSpeech);
+        }, 10000);
+    }
+    
+    // Re-enable avatar auto-restart after reasonable time
+    setTimeout(() => {
+        window.suppressAvatarAutoRestart = false;
+        console.log('✅ Avatar auto-restart re-enabled');
+    }, 15000);
+    break;
     }
     
     // Reset processing flag after a delay
     setTimeout(() => {
         window.isProcessingAction = false;
     }, 1000);
-}
-
-// 🚨 ADD THIS FUNCTION TO YOUR action-system-unified.js FILE:
-function muteAllSpeechTemporarily(duration = 300) {
-    console.log(`🔇 Muting all speech for ${duration}ms`);
-    
-    // 1. Mute ElevenLabs if it exists
-    if (window.elevenLabsPlayer) {
-        // Store original volume
-        if (!window.elevenLabsPlayer._originalVolume) {
-            window.elevenLabsPlayer._originalVolume = window.elevenLabsPlayer.volume || 1;
-        }
-        
-        // Quick fade to almost silent (not 0, some browsers stop at 0)
-        window.elevenLabsPlayer.volume = 0.01;
-        window.elevenLabsPlayer._mutedAt = Date.now();
-        
-        // Restore after duration
-        setTimeout(() => {
-            if (window.elevenLabsPlayer && window.elevenLabsPlayer._originalVolume) {
-                window.elevenLabsPlayer.volume = window.elevenLabsPlayer._originalVolume;
-                console.log('🔊 ElevenLabs volume restored');
-            }
-        }, duration);
-    }
-    
-    // 2. Mute Web Speech API (cancel it since no volume control)
-    if (window.speechSynthesis && window.speechSynthesis.speaking) {
-        window.speechSynthesis.cancel();
-    }
-    
-    // 3. Set global mute flag
-    window.speechMutedUntil = Date.now() + duration;
 }
 
 // ================================
@@ -530,7 +450,6 @@ function askLeadQuestion() {
         completeLeadCapture();
     }
 }
-
 // ================================
 // PROCESS USER RESPONSE - FIXED VERSION
 // ================================
