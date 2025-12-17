@@ -30,39 +30,6 @@ window.currentLeadData = null;
 window.currentCaptureType = null;
 window.lastCapturedName = null;
 
-// EMERGENCY PATCH: Stop speech on ANY action button click
-(function() {
-    console.log('🚨 Installing emergency speech stop patch...');
-    
-    // Store original console.log to intercept button clicks
-    const originalLog = console.log;
-    console.log = function(...args) {
-        // Check if this is an action button click log
-        if (args[0] && args[0].includes('🎯 Action button clicked:')) {
-            console.log('🔍 Intercepted action button log:', args);
-            
-            // STOP SPEECH HERE!
-            if (typeof window.stopAllSpeech === 'function') {
-                window.stopAllSpeech();
-                console.log('🔇 Emergency patch: Speech stopped');
-            } else {
-                // Fallback
-                if (window.speechSynthesis && window.speechSynthesis.speaking) {
-                    window.speechSynthesis.cancel();
-                }
-                if (window.elevenLabsPlayer && window.elevenLabsPlayer.stop) {
-                    window.elevenLabsPlayer.stop();
-                }
-            }
-        }
-        
-        // Call original console.log
-        return originalLog.apply(console, args);
-    };
-    
-    console.log('✅ Emergency speech stop patch installed');
-})();
-
 // ================================
 // FORM VALIDATION
 // ================================
@@ -184,32 +151,29 @@ function initiateUrgentCall() {
 
 function handleActionButton(action) {
     console.log('🎯 Action button clicked:', action);
-
-    // 🚨🚨🚨 ADD THIS CRITICAL SPEECH STOPPING CODE 🚨🚨🚨
-    // STOP ALL SPEECH IMMEDIATELY WHEN ACTION BUTTON IS CLICKED
-    if (typeof window.stopAllSpeech === 'function') {
-        window.stopAllSpeech();
-        console.log('🔇 Speech stopped via stopAllSpeech()');
-    } else {
-        // Fallback speech stopping
-        if (window.speechSynthesis && window.speechSynthesis.speaking) {
-            window.speechSynthesis.cancel();
-            console.log('🔇 Web Speech API stopped');
-        }
-        if (window.elevenLabsPlayer && window.elevenLabsPlayer.stop) {
-            window.elevenLabsPlayer.stop();
-            console.log('🔇 ElevenLabs stopped');
-        }
-    }
-    // Also clear any speech flags
-    window.isSpeaking = false;
-    // 🚨🚨🚨 END OF CRITICAL ADDITION 🚨🚨🚨
     
-    // 🛑 CHECK IF WE'RE ALREADY PROCESSING
-    if (window.isProcessingAction) {
-        console.log('🛑 Action already in progress - skipping');
-        return;
+    // 🚨 MUTE SPEECH SMOOTHLY (300ms fade)
+    if (typeof muteAllSpeechTemporarily === 'function') {
+        muteAllSpeechTemporarily(300);
+    } else {
+        // Fallback: Stop speech immediately
+        if (typeof window.stopAllSpeech === 'function') {
+            window.stopAllSpeech();
+            console.log('🔇 Speech stopped via stopAllSpeech()');
+        } else {
+            if (window.speechSynthesis && window.speechSynthesis.speaking) {
+                window.speechSynthesis.cancel();
+                console.log('🔇 Web Speech API stopped');
+            }
+            if (window.elevenLabsPlayer && window.elevenLabsPlayer.stop) {
+                window.elevenLabsPlayer.stop();
+                console.log('🔇 ElevenLabs stopped');
+            }
+        }
     }
+    
+    // Clear speech flags
+    window.isSpeaking = false;
     
     // 🛑 CHECK IF WE'RE ALREADY PROCESSING
     if (window.isProcessingAction) {
@@ -257,54 +221,87 @@ function handleActionButton(action) {
             break;
             
         case 'skip':
-    console.log('🎯 User chose to skip - BLOCKING avatar auto-restart');
-    
-    // 🚨 CRITICAL: Prevent avatar from auto-restarting Speak Now
-    window.suppressAvatarAutoRestart = true;
-    
-    const skipMessage = "I appreciate you're not ready to get immediate help from our expert. What else can I help you with to meet your objectives?";
-    
-    // Show message
-    if (window.addSystemMessage) {
-        window.addSystemMessage(skipMessage);
-    } else if (window.addAIMessage) {
-        window.addAIMessage(skipMessage);
-    }
-    
-    // Use the same pattern as other cases - wait for AI speech completion
-    if (window.speakText) {
-        window.speakText(skipMessage);
-        
-        const checkSpeech = setInterval(() => {
-            if (!window.isSpeaking) {
-                clearInterval(checkSpeech);
-                console.log('✅ AI finished speaking - starting listening NOW');
-                
-                // 🎯 TRACKED BANNER SHOW
-                console.log('🎤 SKIP: Triggering Speak Now banner');
-                if (window.showDirectSpeakNow && typeof window.showDirectSpeakNow === 'function') {
-                    window.showDirectSpeakNow();
-                }
+            console.log('🎯 User chose to skip - BLOCKING avatar auto-restart');
+            
+            // 🚨 CRITICAL: Prevent avatar from auto-restarting Speak Now
+            window.suppressAvatarAutoRestart = true;
+            
+            const skipMessage = "I appreciate you're not ready to get immediate help from our expert. What else can I help you with to meet your objectives?";
+            
+            // Show message
+            if (window.addSystemMessage) {
+                window.addSystemMessage(skipMessage);
+            } else if (window.addAIMessage) {
+                window.addAIMessage(skipMessage);
             }
-        }, 100);
+            
+            // Use the same pattern as other cases - wait for AI speech completion
+            if (window.speakText) {
+                window.speakText(skipMessage);
+                
+                const checkSpeech = setInterval(() => {
+                    if (!window.isSpeaking) {
+                        clearInterval(checkSpeech);
+                        console.log('✅ AI finished speaking - starting listening NOW');
+                        
+                        // 🎯 TRACKED BANNER SHOW
+                        console.log('🎤 SKIP: Triggering Speak Now banner');
+                        if (window.showDirectSpeakNow && typeof window.showDirectSpeakNow === 'function') {
+                            window.showDirectSpeakNow();
+                        }
+                    }
+                }, 100);
 
-        setTimeout(() => {
-            clearInterval(checkSpeech);
-        }, 10000);
-    }
-    
-    // Re-enable avatar auto-restart after reasonable time
-    setTimeout(() => {
-        window.suppressAvatarAutoRestart = false;
-        console.log('✅ Avatar auto-restart re-enabled');
-    }, 15000);
-    break;
+                setTimeout(() => {
+                    clearInterval(checkSpeech);
+                }, 10000);
+            }
+            
+            // Re-enable avatar auto-restart after reasonable time
+            setTimeout(() => {
+                window.suppressAvatarAutoRestart = false;
+                console.log('✅ Avatar auto-restart re-enabled');
+            }, 15000);
+            break;
     }
     
     // Reset processing flag after a delay
     setTimeout(() => {
         window.isProcessingAction = false;
     }, 1000);
+}
+
+// 🚨 ADD THIS FUNCTION TO YOUR action-system-unified.js FILE:
+function muteAllSpeechTemporarily(duration = 300) {
+    console.log(`🔇 Muting all speech for ${duration}ms`);
+    
+    // 1. Mute ElevenLabs if it exists
+    if (window.elevenLabsPlayer) {
+        // Store original volume
+        if (!window.elevenLabsPlayer._originalVolume) {
+            window.elevenLabsPlayer._originalVolume = window.elevenLabsPlayer.volume || 1;
+        }
+        
+        // Quick fade to almost silent (not 0, some browsers stop at 0)
+        window.elevenLabsPlayer.volume = 0.01;
+        window.elevenLabsPlayer._mutedAt = Date.now();
+        
+        // Restore after duration
+        setTimeout(() => {
+            if (window.elevenLabsPlayer && window.elevenLabsPlayer._originalVolume) {
+                window.elevenLabsPlayer.volume = window.elevenLabsPlayer._originalVolume;
+                console.log('🔊 ElevenLabs volume restored');
+            }
+        }, duration);
+    }
+    
+    // 2. Mute Web Speech API (cancel it since no volume control)
+    if (window.speechSynthesis && window.speechSynthesis.speaking) {
+        window.speechSynthesis.cancel();
+    }
+    
+    // 3. Set global mute flag
+    window.speechMutedUntil = Date.now() + duration;
 }
 
 // ================================
@@ -2477,7 +2474,6 @@ window.initializeRequestCallCapture = initializeRequestCallCapture;
 window.initializeFreeBookCapture = initializeFreeBookCapture;
 window.initiateUrgentCall = initiateUrgentCall;
 window.initializePreQualifierCapture = initializePreQualifierCapture; // 🎯 NOW THIS WILL BE GOLD!
-
 
 
 console.log('✅ ACTION SYSTEM UNIFIED - Loaded successfully (FINAL CLEANED VERSION - No restore code)');
