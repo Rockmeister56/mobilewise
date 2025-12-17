@@ -4,6 +4,29 @@
 // CLEANED VERSION - No restore code for old buttons
 // ================================
 
+// 🚨 RESTORE: Simple speech stopper that USED TO WORK
+function stopCurrentSpeech() {
+    console.log('🔇 STOPPING current speech (restored function)');
+    
+    // 1. Stop ElevenLabs (this used to work!)
+    if (window.elevenLabsPlayer && window.elevenLabsPlayer.stop) {
+        console.log('🔇 Calling elevenLabsPlayer.stop()');
+        window.elevenLabsPlayer.stop();
+    }
+    
+    // 2. Stop Web Speech API
+    if (window.speechSynthesis && window.speechSynthesis.speaking) {
+        console.log('🔇 Cancelling speechSynthesis');
+        window.speechSynthesis.cancel();
+    }
+    
+    // 3. Update flag
+    window.isSpeaking = false;
+    
+    console.log('✅ Speech stopped');
+    return true;
+}
+
 
 const EMAILJS_CONFIG = {
     serviceId: 'service_b9bppgb',
@@ -152,16 +175,8 @@ function initiateUrgentCall() {
 function handleActionButton(action) {
     console.log('🎯 Action button clicked:', action);
 
-  
-    // Also clear any speech flags
-    window.isSpeaking = false;
-    // 🚨🚨🚨 END OF CRITICAL ADDITION 🚨🚨🚨
-    
-    // 🛑 CHECK IF WE'RE ALREADY PROCESSING
-    if (window.isProcessingAction) {
-        console.log('🛑 Action already in progress - skipping');
-        return;
-    }
+      // 🚨 ADD THIS ONE LINE:
+    stopCurrentSpeech();
     
     // 🛑 CHECK IF WE'RE ALREADY PROCESSING
     if (window.isProcessingAction) {
@@ -427,35 +442,29 @@ function askLeadQuestion() {
         }
         
         if (window.speakText) {
-            // 🚨 ADD THIS 2-SECOND DELAY BEFORE SPEAKING
-            console.log('⏳ Waiting 2 seconds before speaking...');
-            setTimeout(() => {
-                console.log('✅ 2 seconds passed, now speaking');
-                window.speakText(question);
-                
-                const checkSpeech = setInterval(() => {
-                    if (!window.isSpeaking) {
-                        clearInterval(checkSpeech);
-                        console.log('✅ AI finished speaking - starting listening NOW');
-                        
-                        // 🎯 TRACKED BANNER SHOW
-                        console.log('🎤 LEAD CAPTURE: Triggering Speak Now banner for step', data.step);
-                        if (window.showDirectSpeakNow && typeof window.showDirectSpeakNow === 'function') {
-                            window.showDirectSpeakNow();
-                        }
-                    }
-                }, 100);
-
-                setTimeout(() => {
+            window.speakText(question);
+            
+            const checkSpeech = setInterval(() => {
+                if (!window.isSpeaking) {
                     clearInterval(checkSpeech);
-                }, 10000);
-            }, 2000); // 2000ms = 2 seconds
+                    console.log('✅ AI finished speaking - starting listening NOW');
+                    
+                    // 🎯 TRACKED BANNER SHOW
+                    console.log('🎤 LEAD CAPTURE: Triggering Speak Now banner for step', data.step);
+                    if (window.showDirectSpeakNow && typeof window.showDirectSpeakNow === 'function') {
+                        window.showDirectSpeakNow();
+                    }
+                }
+            }, 100);
+
+            setTimeout(() => {
+                clearInterval(checkSpeech);
+            }, 10000);
         }
     } else {
         completeLeadCapture();
     }
 }
-
 // ================================
 // PROCESS USER RESPONSE - FIXED VERSION
 // ================================
