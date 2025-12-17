@@ -4,6 +4,50 @@
 // CLEANED VERSION - No restore code for old buttons
 // ================================
 
+// 🚨 NUCLEAR OPTION: Intercept ALL action button clicks
+document.addEventListener('click', function(e) {
+    const actionBtn = e.target.closest('[data-action]');
+    if (actionBtn) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const action = actionBtn.getAttribute('data-action');
+        console.log('🚨 INTERCEPTED action button click:', action);
+        
+        // STOP SPEECH NUCLEAR OPTION
+        console.log('💣 NUCLEAR SPEECH STOP');
+        
+        // 1. Stop ElevenLabs
+        if (window.elevenLabsPlayer && window.elevenLabsPlayer.stop) {
+            window.elevenLabsPlayer.stop();
+            window.elevenLabsPlayer.volume = 0;
+        }
+        
+        // 2. Cancel Web Speech
+        if (window.speechSynthesis) {
+            window.speechSynthesis.cancel();
+        }
+        
+        // 3. Pause ALL audio/video
+        document.querySelectorAll('audio, video').forEach(media => {
+            media.pause();
+            media.currentTime = 0;
+        });
+        
+        // 4. Clear speech flags
+        window.isSpeaking = false;
+        window.speechJustStopped = Date.now();
+        
+        console.log('✅ Speech nuked for action:', action);
+        
+        // Let the original handler run after a delay
+        setTimeout(() => {
+            console.log('🔄 Letting original handler run');
+            // The original click handler will run now
+        }, 50);
+    }
+}, true); // CAPTURE PHASE - intercepts BEFORE other handlers
+
 
 const EMAILJS_CONFIG = {
     serviceId: 'service_b9bppgb',
