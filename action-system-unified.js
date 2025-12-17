@@ -54,6 +54,45 @@ function formatEmailFromSpeech(speechText) {
     return formattedEmail;
 }
 
+// 🚨 ADD THIS FUNCTION AT THE TOP OF YOUR action-system-unified.js FILE
+function muteAllSpeechTemporarily() {
+    console.log('🔇 MUTING ALL SPEECH IMMEDIATELY');
+    
+    // 1. STOP ElevenLabs - THIS IS WHAT ACTUALLY WORKS
+    if (window.elevenLabsPlayer && window.elevenLabsPlayer.stop) {
+        console.log('🔇 Stopping ElevenLabs player');
+        window.elevenLabsPlayer.stop();
+        
+        // Also set volume to 0 as backup
+        if (window.elevenLabsPlayer.volume !== undefined) {
+            window.elevenLabsPlayer.volume = 0;
+        }
+    }
+    
+    // 2. CANCEL Web Speech API
+    if (window.speechSynthesis && window.speechSynthesis.speaking) {
+        console.log('🔇 Cancelling Web Speech API');
+        window.speechSynthesis.cancel();
+    }
+    
+    // 3. PAUSE all HTML5 audio/video elements
+    document.querySelectorAll('audio, video').forEach(media => {
+        media.pause();
+        media.currentTime = 0;
+    });
+    
+    // 4. SET FLAGS to prevent immediate restart
+    window.isSpeaking = false;
+    window.speechJustStopped = Date.now();
+
+     // 🚨 THIS IS THE CRITICAL LINE:
+    window.speechJustStopped = Date.now();
+    window.isSpeaking = false;
+    
+    console.log('✅ All speech muted/stopped');
+    return true;
+}
+
 // ================================
 // ENHANCED ORIGINAL ACTION CENTER
 // ================================
@@ -472,29 +511,43 @@ function askLeadQuestion() {
         }
         
         if (window.speakText) {
-            window.speakText(question);
-            
-            const checkSpeech = setInterval(() => {
-                if (!window.isSpeaking) {
-                    clearInterval(checkSpeech);
-                    console.log('✅ AI finished speaking - starting listening NOW');
-                    
-                    // 🎯 TRACKED BANNER SHOW
-                    console.log('🎤 LEAD CAPTURE: Triggering Speak Now banner for step', data.step);
-                    if (window.showDirectSpeakNow && typeof window.showDirectSpeakNow === 'function') {
-                        window.showDirectSpeakNow();
-                    }
+            // 🚨🚨🚨 ADD THIS CHECK BEFORE SPEAKING 🚨🚨🚨
+            function speakWhenClear() {
+                if (window.isSpeaking || (window.speechJustStopped && (Date.now() - window.speechJustStopped) < 500)) {
+                    console.log('⏳ Waiting for speech to clear...');
+                    setTimeout(speakWhenClear, 100);
+                    return;
                 }
-            }, 100);
+                
+                console.log('✅ Speech clear, now speaking:', question.substring(0, 50));
+                window.speakText(question);
+                
+                const checkSpeech = setInterval(() => {
+                    if (!window.isSpeaking) {
+                        clearInterval(checkSpeech);
+                        console.log('✅ AI finished speaking - starting listening NOW');
+                        
+                        // 🎯 TRACKED BANNER SHOW
+                        console.log('🎤 LEAD CAPTURE: Triggering Speak Now banner for step', data.step);
+                        if (window.showDirectSpeakNow && typeof window.showDirectSpeakNow === 'function') {
+                            window.showDirectSpeakNow();
+                        }
+                    }
+                }, 100);
 
-            setTimeout(() => {
-                clearInterval(checkSpeech);
-            }, 10000);
+                setTimeout(() => {
+                    clearInterval(checkSpeech);
+                }, 10000);
+            }
+            
+            // Start the check
+            speakWhenClear();
         }
     } else {
         completeLeadCapture();
     }
 }
+
 // ================================
 // PROCESS USER RESPONSE - FIXED VERSION
 // ================================
