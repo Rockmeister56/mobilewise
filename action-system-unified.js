@@ -427,29 +427,35 @@ function askLeadQuestion() {
         }
         
         if (window.speakText) {
-            window.speakText(question);
-            
-            const checkSpeech = setInterval(() => {
-                if (!window.isSpeaking) {
-                    clearInterval(checkSpeech);
-                    console.log('✅ AI finished speaking - starting listening NOW');
-                    
-                    // 🎯 TRACKED BANNER SHOW
-                    console.log('🎤 LEAD CAPTURE: Triggering Speak Now banner for step', data.step);
-                    if (window.showDirectSpeakNow && typeof window.showDirectSpeakNow === 'function') {
-                        window.showDirectSpeakNow();
-                    }
-                }
-            }, 100);
-
+            // 🚨 ADD THIS 2-SECOND DELAY BEFORE SPEAKING
+            console.log('⏳ Waiting 2 seconds before speaking...');
             setTimeout(() => {
-                clearInterval(checkSpeech);
-            }, 10000);
+                console.log('✅ 2 seconds passed, now speaking');
+                window.speakText(question);
+                
+                const checkSpeech = setInterval(() => {
+                    if (!window.isSpeaking) {
+                        clearInterval(checkSpeech);
+                        console.log('✅ AI finished speaking - starting listening NOW');
+                        
+                        // 🎯 TRACKED BANNER SHOW
+                        console.log('🎤 LEAD CAPTURE: Triggering Speak Now banner for step', data.step);
+                        if (window.showDirectSpeakNow && typeof window.showDirectSpeakNow === 'function') {
+                            window.showDirectSpeakNow();
+                        }
+                    }
+                }, 100);
+
+                setTimeout(() => {
+                    clearInterval(checkSpeech);
+                }, 10000);
+            }, 2000); // 2000ms = 2 seconds
         }
     } else {
         completeLeadCapture();
     }
 }
+
 // ================================
 // PROCESS USER RESPONSE - FIXED VERSION
 // ================================
