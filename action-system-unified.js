@@ -4,50 +4,88 @@
 // CLEANED VERSION - No restore code for old buttons
 // ================================
 
-// 🚨 NUCLEAR OPTION: Intercept ALL action button clicks
-document.addEventListener('click', function(e) {
-    const actionBtn = e.target.closest('[data-action]');
-    if (actionBtn) {
-        e.preventDefault();
-        e.stopPropagation();
+// ============================================
+// 🚨 ELEVENLABS PATCH - FORCE SPEECH STOPPING
+// ============================================
+console.log('🚨 Installing ElevenLabs force-stop patch...');
+
+// Patch 1: Make ElevenLabs stop() actually work
+if (window.elevenLabsPlayer && window.elevenLabsPlayer.stop) {
+    const originalStop = window.elevenLabsPlayer.stop;
+    window.elevenLabsPlayer.stop = function() {
+        console.log('🔇 FORCE-STOPPING ElevenLabs');
         
-        const action = actionBtn.getAttribute('data-action');
-        console.log('🚨 INTERCEPTED action button click:', action);
-        
-        // STOP SPEECH NUCLEAR OPTION
-        console.log('💣 NUCLEAR SPEECH STOP');
-        
-        // 1. Stop ElevenLabs
-        if (window.elevenLabsPlayer && window.elevenLabsPlayer.stop) {
-            window.elevenLabsPlayer.stop();
-            window.elevenLabsPlayer.volume = 0;
+        // 1. Call original stop
+        if (originalStop) {
+            try {
+                originalStop.call(this);
+            } catch (e) {
+                console.log('⚠️ Original stop failed:', e);
+            }
         }
         
-        // 2. Cancel Web Speech
-        if (window.speechSynthesis) {
-            window.speechSynthesis.cancel();
-        }
-        
-        // 3. Pause ALL audio/video
-        document.querySelectorAll('audio, video').forEach(media => {
-            media.pause();
-            media.currentTime = 0;
+        // 2. Force-stop all audio elements
+        const allAudio = document.querySelectorAll('audio');
+        allAudio.forEach(audio => {
+            audio.pause();
+            audio.currentTime = 0;
+            audio.volume = 0;
         });
         
-        // 4. Clear speech flags
-        window.isSpeaking = false;
-        window.speechJustStopped = Date.now();
+        // 3. Clear any internal buffers
+        if (this._audio) {
+            this._audio.pause();
+            this._audio.currentTime = 0;
+        }
         
-        console.log('✅ Speech nuked for action:', action);
-        
-        // Let the original handler run after a delay
-        setTimeout(() => {
-            console.log('🔄 Letting original handler run');
-            // The original click handler will run now
-        }, 50);
-    }
-}, true); // CAPTURE PHASE - intercepts BEFORE other handlers
+        return true;
+    };
+    console.log('✅ ElevenLabs stop() patched');
+}
 
+// Patch 2: Intercept audio element creation
+const originalAppendChild = Element.prototype.appendChild;
+Element.prototype.appendChild = function(child) {
+    // Check if adding an audio element
+    if (child.nodeName === 'AUDIO') {
+        console.log('🔍 Audio element being added to DOM');
+        
+        // Add a kill switch
+        const originalPlay = child.play;
+        child.play = function() {
+            console.log('▶️ Audio play attempted');
+            
+            // Check if we're in mute period
+            if (window.speechMutedUntil && Date.now() < window.speechMutedUntil) {
+                console.log('🚫 BLOCKING: Still in mute period');
+                return Promise.reject(new Error('Blocked during mute period'));
+            }
+            
+            return originalPlay.call(this);
+        };
+    }
+    
+    return originalAppendChild.call(this, child);
+};
+
+// Patch 3: Monitor all audio events
+document.addEventListener('play', function(e) {
+    if (e.target.nodeName === 'AUDIO') {
+        console.log('🎵 Audio play event detected');
+        
+        // Check mute flag
+        if (window.speechMutedUntil && Date.now() < window.speechMutedUntil) {
+            console.log('🚫 BLOCKING play event');
+            e.target.pause();
+            e.target.currentTime = 0;
+            e.preventDefault();
+            e.stopImmediatePropagation();
+        }
+    }
+}, true); // Capture phase to intercept early
+
+console.log('✅ ElevenLabs patches installed');
+// ============================================
 
 const EMAILJS_CONFIG = {
     serviceId: 'service_b9bppgb',
@@ -102,38 +140,61 @@ function formatEmailFromSpeech(speechText) {
 function muteAllSpeechTemporarily() {
     console.log('🔇 MUTING ALL SPEECH IMMEDIATELY');
     
-    // 1. STOP ElevenLabs - THIS IS WHAT ACTUALLY WORKS
-    if (window.elevenLabsPlayer && window.elevenLabsPlayer.stop) {
-        console.log('🔇 Stopping ElevenLabs player');
-        window.elevenLabsPlayer.stop();
-        
-        // Also set volume to 0 as backup
+    // 🚨 NUCLEAR OPTION 1: Find ALL ElevenLabs audio elements
+    const audioElements = document.querySelectorAll('audio');
+    console.log(`🔍 Found ${audioElements.length} audio elements`);
+    
+    audioElements.forEach((audio, i) => {
+        console.log(`🔇 Stopping audio ${i}:`, {
+            src: audio.src.substring(0, 100),
+            paused: audio.paused,
+            currentTime: audio.currentTime
+        });
+        audio.pause();
+        audio.currentTime = 0;
+        audio.volume = 0;
+    });
+    
+    // 🚨 NUCLEAR OPTION 2: Stop ElevenLabs player if it exists
+    if (window.elevenLabsPlayer) {
+        console.log('🔇 Stopping ElevenLabs player object');
+        if (window.elevenLabsPlayer.stop) {
+            window.elevenLabsPlayer.stop();
+        }
         if (window.elevenLabsPlayer.volume !== undefined) {
             window.elevenLabsPlayer.volume = 0;
         }
+        
+        // Try to find the internal audio element
+        if (window.elevenLabsPlayer._audio) {
+            window.elevenLabsPlayer._audio.pause();
+            window.elevenLabsPlayer._audio.currentTime = 0;
+        }
     }
     
-    // 2. CANCEL Web Speech API
+    // 🚨 NUCLEAR OPTION 3: Stop Web Speech API
     if (window.speechSynthesis && window.speechSynthesis.speaking) {
         console.log('🔇 Cancelling Web Speech API');
         window.speechSynthesis.cancel();
     }
     
-    // 3. PAUSE all HTML5 audio/video elements
-    document.querySelectorAll('audio, video').forEach(media => {
-        media.pause();
-        media.currentTime = 0;
-    });
+    // 🚨 NUCLEAR OPTION 4: Remove ALL audio elements from DOM temporarily
+    setTimeout(() => {
+        const allAudio = document.querySelectorAll('audio');
+        allAudio.forEach(audio => {
+            if (!audio.hasAttribute('data-keep')) {
+                audio.remove();
+                console.log('🗑️ Removed audio element from DOM');
+            }
+        });
+    }, 50);
     
-    // 4. SET FLAGS to prevent immediate restart
+    // Set flags
     window.isSpeaking = false;
     window.speechJustStopped = Date.now();
-
-     // 🚨 THIS IS THE CRITICAL LINE:
-    window.speechJustStopped = Date.now();
-    window.isSpeaking = false;
+    window.speechMutedUntil = Date.now() + 500;
     
-    console.log('✅ All speech muted/stopped');
+    console.log('✅ All speech nuclear muted');
     return true;
 }
 
@@ -557,9 +618,9 @@ function askLeadQuestion() {
         if (window.speakText) {
             // 🚨🚨🚨 ADD THIS CHECK BEFORE SPEAKING 🚨🚨🚨
             function speakWhenClear() {
-                if (window.isSpeaking || (window.speechJustStopped && (Date.now() - window.speechJustStopped) < 500)) {
+                if (window.isSpeaking || (window.speechJustStopped && (Date.now() - window.speechJustStopped) < 1000)) {
                     console.log('⏳ Waiting for speech to clear...');
-                    setTimeout(speakWhenClear, 100);
+                    setTimeout(speakWhenClear, 150);
                     return;
                 }
                 
