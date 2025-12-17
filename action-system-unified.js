@@ -4,88 +4,6 @@
 // CLEANED VERSION - No restore code for old buttons
 // ================================
 
-// ============================================
-// 🚨 ELEVENLABS PATCH - FORCE SPEECH STOPPING
-// ============================================
-console.log('🚨 Installing ElevenLabs force-stop patch...');
-
-// Patch 1: Make ElevenLabs stop() actually work
-if (window.elevenLabsPlayer && window.elevenLabsPlayer.stop) {
-    const originalStop = window.elevenLabsPlayer.stop;
-    window.elevenLabsPlayer.stop = function() {
-        console.log('🔇 FORCE-STOPPING ElevenLabs');
-        
-        // 1. Call original stop
-        if (originalStop) {
-            try {
-                originalStop.call(this);
-            } catch (e) {
-                console.log('⚠️ Original stop failed:', e);
-            }
-        }
-        
-        // 2. Force-stop all audio elements
-        const allAudio = document.querySelectorAll('audio');
-        allAudio.forEach(audio => {
-            audio.pause();
-            audio.currentTime = 0;
-            audio.volume = 0;
-        });
-        
-        // 3. Clear any internal buffers
-        if (this._audio) {
-            this._audio.pause();
-            this._audio.currentTime = 0;
-        }
-        
-        return true;
-    };
-    console.log('✅ ElevenLabs stop() patched');
-}
-
-// Patch 2: Intercept audio element creation
-const originalAppendChild = Element.prototype.appendChild;
-Element.prototype.appendChild = function(child) {
-    // Check if adding an audio element
-    if (child.nodeName === 'AUDIO') {
-        console.log('🔍 Audio element being added to DOM');
-        
-        // Add a kill switch
-        const originalPlay = child.play;
-        child.play = function() {
-            console.log('▶️ Audio play attempted');
-            
-            // Check if we're in mute period
-            if (window.speechMutedUntil && Date.now() < window.speechMutedUntil) {
-                console.log('🚫 BLOCKING: Still in mute period');
-                return Promise.reject(new Error('Blocked during mute period'));
-            }
-            
-            return originalPlay.call(this);
-        };
-    }
-    
-    return originalAppendChild.call(this, child);
-};
-
-// Patch 3: Monitor all audio events
-document.addEventListener('play', function(e) {
-    if (e.target.nodeName === 'AUDIO') {
-        console.log('🎵 Audio play event detected');
-        
-        // Check mute flag
-        if (window.speechMutedUntil && Date.now() < window.speechMutedUntil) {
-            console.log('🚫 BLOCKING play event');
-            e.target.pause();
-            e.target.currentTime = 0;
-            e.preventDefault();
-            e.stopImmediatePropagation();
-        }
-    }
-}, true); // Capture phase to intercept early
-
-console.log('✅ ElevenLabs patches installed');
-// ============================================
 
 const EMAILJS_CONFIG = {
     serviceId: 'service_b9bppgb',
@@ -138,38 +56,36 @@ function formatEmailFromSpeech(speechText) {
 
 // 🚨 ADD THIS FUNCTION AT THE TOP OF YOUR action-system-unified.js FILE
 function muteAllSpeechTemporarily() {
-    console.log('🔇 MUTING ALL SPEECH');
+    console.log('🔇 MUTING ALL SPEECH IMMEDIATELY');
     
-    // 1. STOP ElevenLabs player (most important)
-    if (window.elevenLabsPlayer) {
+    // 1. STOP ElevenLabs - THIS IS WHAT ACTUALLY WORKS
+    if (window.elevenLabsPlayer && window.elevenLabsPlayer.stop) {
         console.log('🔇 Stopping ElevenLabs player');
-        if (window.elevenLabsPlayer.stop) {
-            window.elevenLabsPlayer.stop();
-        }
+        window.elevenLabsPlayer.stop();
+        
+        // Also set volume to 0 as backup
         if (window.elevenLabsPlayer.volume !== undefined) {
             window.elevenLabsPlayer.volume = 0;
         }
     }
     
-    // 2. STOP Web Speech API (backup)
+    // 2. CANCEL Web Speech API
     if (window.speechSynthesis && window.speechSynthesis.speaking) {
         console.log('🔇 Cancelling Web Speech API');
         window.speechSynthesis.cancel();
     }
     
-    // 3. STOP any HTML5 audio elements (extra backup)
-    document.querySelectorAll('audio').forEach(audio => {
-        audio.pause();
-        audio.currentTime = 0;
-        audio.volume = 0;
+    // 3. PAUSE all HTML5 audio/video elements
+    document.querySelectorAll('audio, video').forEach(media => {
+        media.pause();
+        media.currentTime = 0;
     });
     
-    // 4. SET FLAGS (this is what actually prevents new speech!)
+    // 4. SET FLAGS to prevent immediate restart
     window.isSpeaking = false;
     window.speechJustStopped = Date.now();
-    window.speechMutedUntil = Date.now() + 1500; // 1.5 seconds
     
-    console.log('✅ Speech muted for 1500ms');
+    console.log('✅ All speech muted/stopped');
     return true;
 }
 
@@ -591,53 +507,24 @@ function askLeadQuestion() {
         }
         
         if (window.speakText) {
-            // 🚨🚨🚨 UPDATED CHECK 🚨🚨🚨
-            function speakWhenClear() {
-                // Check 1: Is speech currently muted?
-                if (window.speechMutedUntil && Date.now() < window.speechMutedUntil) {
-                    const waitTime = window.speechMutedUntil - Date.now();
-                    console.log(`⏸️ Speech muted - waiting ${waitTime}ms`);
-                    setTimeout(speakWhenClear, waitTime + 50);
-                    return;
-                }
-                
-                // Check 2: Was speech recently stopped?
-                if (window.speechJustStopped && (Date.now() - window.speechJustStopped) < 1000) {
-                    console.log('⏳ Speech recently stopped, waiting...');
-                    setTimeout(speakWhenClear, 150);
-                    return;
-                }
-                
-                // Check 3: Is AI currently speaking?
-                if (window.isSpeaking) {
-                    console.log('⏳ AI still speaking, waiting...');
-                    setTimeout(speakWhenClear, 150);
-                    return;
-                }
-                
-                console.log('✅ Speech clear, now speaking:', question.substring(0, 50));
-                window.speakText(question);
-                
-                const checkSpeech = setInterval(() => {
-                    if (!window.isSpeaking) {
-                        clearInterval(checkSpeech);
-                        console.log('✅ AI finished speaking - starting listening NOW');
-                        
-                        // 🎯 TRACKED BANNER SHOW
-                        console.log('🎤 LEAD CAPTURE: Triggering Speak Now banner for step', data.step);
-                        if (window.showDirectSpeakNow && typeof window.showDirectSpeakNow === 'function') {
-                            window.showDirectSpeakNow();
-                        }
-                    }
-                }, 100);
-
-                setTimeout(() => {
-                    clearInterval(checkSpeech);
-                }, 10000);
-            }
+            window.speakText(question);
             
-            // Start the check
-            speakWhenClear();
+            const checkSpeech = setInterval(() => {
+                if (!window.isSpeaking) {
+                    clearInterval(checkSpeech);
+                    console.log('✅ AI finished speaking - starting listening NOW');
+                    
+                    // 🎯 TRACKED BANNER SHOW
+                    console.log('🎤 LEAD CAPTURE: Triggering Speak Now banner for step', data.step);
+                    if (window.showDirectSpeakNow && typeof window.showDirectSpeakNow === 'function') {
+                        window.showDirectSpeakNow();
+                    }
+                }
+            }, 100);
+
+            setTimeout(() => {
+                clearInterval(checkSpeech);
+            }, 10000);
         }
     } else {
         completeLeadCapture();
