@@ -146,7 +146,15 @@ function hideCommunicationActionCenter() {
             actionCenter.remove();
             console.log('✅ Communication Action Center removed');
             // 🎯 NO RESTORE CODE - Old buttons stay hidden permanently
+            
+            // 🚨 CRITICAL: Clear the flag so it can be triggered again
+            window.communicationCenterActive = false;
+            console.log('✅ Communication Center flag cleared');
         }, 300);
+    } else {
+        // If no action center found, still clear the flag
+        window.communicationCenterActive = false;
+        console.log('✅ Communication Center flag cleared (no center found)');
     }
 }
 

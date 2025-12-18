@@ -139,6 +139,13 @@ window.leadData = window.leadData || {
 };
 let leadData = window.leadData;
 
+// ============================================
+// 🚨 GLOBAL STATE FLAGS - ADD THIS AT VERY TOP
+// ============================================
+
+// Prevent duplicate Communication Center triggers
+window.communicationCenterActive = false;
+
 // Global flag to prevent multiple instances
 let speakSequenceActive = false;
 let speakSequenceButton = null;
@@ -3137,12 +3144,24 @@ if (urgentPatterns.some(pattern => lowerMessage.includes(pattern))) {
     console.log('🚨 URGENT INTENT DETECTED - FAST TRACKING TO BRUCE');
     
 // 🎯 TRIGGER ACTION CENTER IMMEDIATELY
+// 🛑 CHECK IF ALREADY ACTIVE FIRST
+if (window.communicationCenterActive) {
+    console.log('🛑 Communication Center already active - skipping duplicate trigger');
+    return "Let me connect you with Bruce now...";
+}
+
+// 🚨 SET FLAG TO PREVENT DUPLICATES
+window.communicationCenterActive = true;
+console.log('🚨 Setting communicationCenterActive = true');
+
 setTimeout(() => {
     if (window.triggerLeadActionCenter) {
         window.triggerLeadActionCenter(); // ✅ SILENT VERSION
         console.log('✅ SILENT Communication Relay Center triggered for urgent request');
     } else {
         console.error('❌ triggerLeadActionCenter not found - urgent system broken');
+        // RESET FLAG ON ERROR
+        window.communicationCenterActive = false;
     }
 }, 1000);
 
