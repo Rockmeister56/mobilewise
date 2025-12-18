@@ -152,7 +152,7 @@ function handleActionButton(action) {
     console.log('🎯 Action button clicked:', action);
 
       // 🚨 ADD THIS ONE LINE:
-    stopCurrentSpeech();
+    window.stopCurrentSpeech();
     
     // 🛑 CHECK IF WE'RE ALREADY PROCESSING
     if (window.isProcessingAction) {
