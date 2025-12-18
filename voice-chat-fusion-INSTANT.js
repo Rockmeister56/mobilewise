@@ -3,6 +3,54 @@
 // Smart Button + Lead Capture + EmailJS + Banner System
 // ===================================================
 
+// ================================
+// 🛑 GLOBAL AUDIO STOPPER
+// ================================
+
+window.stopCurrentSpeech = function() {
+    console.log('🔇 GLOBAL STOP: Stopping AI speech from voice-chat-fusion');
+    
+    // 1. Stop ALL ElevenLabs audio elements
+    document.querySelectorAll('audio').forEach(audio => {
+        if (!audio.paused) {
+            console.log('🔇 Stopping audio element');
+            audio.pause();
+            audio.currentTime = 0;
+            
+            // Try to completely remove it
+            try {
+                if (audio.parentNode) {
+                    audio.parentNode.removeChild(audio);
+                }
+            } catch(e) {}
+        }
+    });
+    
+    // 2. Stop browser TTS
+    if (window.speechSynthesis && window.speechSynthesis.speaking) {
+        window.speechSynthesis.cancel();
+        console.log('✅ Browser TTS stopped');
+    }
+    
+    // 3. Stop any ElevenLabs player instance
+    if (window.elevenLabsPlayer && window.elevenLabsPlayer.stop) {
+        try {
+            window.elevenLabsPlayer.stop();
+            console.log('✅ elevenLabsPlayer.stop() called');
+        } catch(e) {
+            console.log('⚠️ elevenLabsPlayer.stop() failed:', e.message);
+        }
+    }
+    
+    // 4. Update global speaking flag
+    window.isSpeaking = false;
+    
+    console.log('✅ GLOBAL audio stopped');
+    return true;
+};
+
+console.log('✅ GLOBAL stopCurrentSpeech() loaded in voice-chat-fusion');
+
 // ===================================================
 // 📱 MOBILE PERMISSION BRIDGE SYSTEM - FIXED VERSION
 // ===================================================
@@ -289,62 +337,6 @@ document.addEventListener('visibilitychange', function() {
         setTimeout(preWarmSpeechEngine, 500);
     }
 });
-
-// ===== INJECT INSTANT BUBBLE CSS =====
-(function() {
-    const style = document.createElement('style');
-    style.textContent = `
-        .realtime-bubble {
-            border: 2px solid #10b981 !important;
-            animation: pulseBorder 1.5s infinite;
-            background: rgba(16, 185, 129, 0.1) !important;
-        }
-        
-        @keyframes pulseBorder {
-            0%, 100% { border-color: #10b981; }
-            50% { border-color: #34d399; }
-        }
-        
-        .typing-indicator::after {
-            content: '...';
-            animation: blink 1.5s infinite;
-        }
-        
-        @keyframes blink {
-            0%, 50% { opacity: 1; }
-            51%, 100% { opacity: 0.3; }
-        }
-    `;
-    document.head.appendChild(style);
-    console.log('✅ Instant bubble CSS injected');
-})(); // <-- THIS CLOSES THE IIFE (Immediately Invoked Function Expression)
-
-// 🆕 EXPORT FUNCTIONS FOR ACTION SYSTEM INTEGRATION
-// These allow the action-system-unified-FINAL.js to integrate with voice chat
-
-// Export addAIMessage
-if (typeof addAIMessage === 'function') {
-    window.addAIMessage = addAIMessage;
-}
-
-// Export speakText/speakResponse (use whichever function name you have)
-if (typeof speakResponse === 'function') {
-    window.speakText = speakResponse;
-} else if (typeof speakMessage === 'function') {
-    window.speakText = speakMessage;
-}
-
-// Export listening restart function
-if (typeof startRealtimeListening === 'function') {
-    window.startRealtimeListening = startRealtimeListening;
-}
-
-// Export banner system (if available)
-if (typeof showUniversalBanner === 'function') {
-    window.showUniversalBanner = showUniversalBanner;
-}
-
-console.log('✅ Voice chat functions exported for Action System integration');
 
 // ===================================================
 // 🎤 COMPLETE START LISTENING FUNCTION (FIXED)
@@ -1547,6 +1539,7 @@ const originalActivateMicrophone = window.activateMicrophone;
 
 window.activateMicrophone = function(...args) {
     activateCallCount++;
+    console.log(`🎤 activateMicrophone() called #${activateCallCount} at ${Date.now()}`);
     console.trace('Stack trace for activateMicrophone');
     
     if (activateCallCount > 1) {
