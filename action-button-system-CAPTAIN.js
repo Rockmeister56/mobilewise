@@ -63,23 +63,43 @@ window.disableSpeakNowBanner = false;
  function triggerLeadActionCenter() {
     console.log('🚀 Triggering Lead Action Center (Silent Version)...');
     
-    // 🚫 CRITICAL: Prevent Speak Now banner
+    // 🚫 BLOCK ALL BANNERS IMMEDIATELY
     window.disableSpeakNowBanner = true;
+    window.bannerCooldown = true;
     
-    // 🎯 WAIT for AI to finish speaking BEFORE showing Action Center
-    const checkSpeechCompletion = setInterval(() => {
-        if (!window.speechSynthesis.speaking) {
-            clearInterval(checkSpeechCompletion);
-            console.log('✅ AI finished speaking - now showing Action Center');
-            showSilentCommunicationRelayCenter();
-        }
-    }, 500); // Check every 500ms
+    // 🔇 STOP ALL AUDIO
+    console.log('🔇 Force-stopping all audio systems');
     
-    // Re-enable Speak Now banner after reasonable time
+    // 1. Stop audio elements (ElevenLabs)
+    document.querySelectorAll('audio').forEach(audio => {
+        audio.pause();
+        audio.currentTime = 0;
+        audio.volume = 0;
+    });
+    
+    // 2. Stop browser TTS
+    if (window.speechSynthesis) {
+        speechSynthesis.cancel();
+    }
+    
+    // 3. Call our dedicated stop function
+    if (window.stopAIAudioFromVoiceChat) {
+        window.stopAIAudioFromVoiceChat();
+    }
+    
+    // ⏳ WAIT for audio to fully stop
     setTimeout(() => {
-        window.disableSpeakNowBanner = false;
-        console.log('✅ Speak Now banner re-enabled');
-    }, 30000);
+        console.log('✅ Audio systems stopped, showing Communication Center');
+        showSilentCommunicationRelayCenter();
+        
+        // 🛡️ Keep banners blocked a bit longer
+        setTimeout(() => {
+            window.disableSpeakNowBanner = false;
+            window.bannerCooldown = false;
+            console.log('✅ Banners re-enabled');
+        }, 2000);
+        
+    }, 800); // 800ms delay
 }
 
 // ADD THIS SIMPLE FUNCTION - COPY OF EXISTING BUT WITH DIFFERENT VIDEO
