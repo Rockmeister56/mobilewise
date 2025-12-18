@@ -7,37 +7,6 @@
 // 🎤 VOICE-CHAT-FUSION AUDIO CONTROLLER (USE THIS)
 // ============================================
 
-// Function that stops OUR audio
-window.stopCurrentSpeechFromVoiceChat = function() {
-    console.log('🔇 VOICE-CHAT-FUSION: Stopping our audio');
-    
-    // Find and stop all audio elements WE created
-    document.querySelectorAll('audio').forEach(audio => {
-        if (!audio.paused) {
-            console.log('🔇 Stopping our audio element');
-            audio.pause();
-            audio.currentTime = 0;
-        }
-    });
-    
-    // Stop browser TTS
-    if (window.speechSynthesis) {
-        speechSynthesis.cancel();
-    }
-    
-    window.isSpeaking = false;
-    console.log('✅ Voice-chat-fusion audio stopped');
-    return true;
-};
-
-// Listen for stop events from other files
-document.addEventListener('stop-ai-audio', function() {
-    console.log('🔇 VOICE-CHAT-FUSION: Received stop event');
-    window.stopCurrentSpeechFromVoiceChat();
-});
-
-console.log('✅ Voice-chat-fusion audio controller loaded');
-
 // ===================================================
 // 📱 MOBILE PERMISSION BRIDGE SYSTEM - FIXED VERSION
 // ===================================================
@@ -1476,6 +1445,28 @@ function diagnoseBlocing() {
 // 🎯 CALL THIS FUNCTION WHEN SECOND SPEAK NOW APPEARS:
 // Add this line right after the second "Speak Now" banner shows:
 // diagnoseBlocing();
+
+function stopAIAudioFromVoiceChat() {
+    console.log('🔇 Stopping AI audio from voice-chat-fusion');
+    
+    // Stop all audio elements (ElevenLabs uses these)
+    document.querySelectorAll('audio').forEach(audio => {
+        if (!audio.paused) {
+            console.log('🔇 Stopping audio element');
+            audio.pause();
+            audio.currentTime = 0;
+        }
+    });
+    
+    // Stop browser TTS
+    if (window.speechSynthesis) {
+        speechSynthesis.cancel();
+    }
+    
+    window.isSpeaking = false;
+    console.log('✅ AI audio stopped');
+    return true;
+}
 
 // ===================================================
 // 📧 EMAIL FORMATTING FUNCTION - FIXED
@@ -5925,6 +5916,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }, 1000);
 });
+
+// EXPORT it at bottom
+window.stopAIAudioFromVoiceChat = stopAIAudioFromVoiceChat;
 
 console.log('✅ Voice chat functions exported for Action System integration');
 

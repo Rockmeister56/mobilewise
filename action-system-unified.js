@@ -194,8 +194,16 @@ function initiateUrgentCall() {
 function handleActionButton(action) {
     console.log('🎯 Action button clicked:', action);
 
-      // 🚨 ADD THIS ONE LINE:
-    window.stopCurrentSpeech();
+    // 🛑 CALL THE GLOBAL FUNCTION
+    if (window.stopAIAudioFromVoiceChat && typeof window.stopAIAudioFromVoiceChat === 'function') {
+        window.stopAIAudioFromVoiceChat();
+    } else {
+        console.log('⚠️ Global function not found - emergency stop');
+        document.querySelectorAll('audio').forEach(a => {
+            a.pause();
+            a.currentTime = 0;
+        });
+    }
     
     // 🛑 CHECK IF WE'RE ALREADY PROCESSING
     if (window.isProcessingAction) {
@@ -2449,6 +2457,7 @@ addTestimonialAnimations();
 // Make globally accessible
 window.showThankYouSplash = showThankYouSplash;
 window.closeThankYouSplash = closeThankYouSplash;
+window.stopAIAudioFromVoiceChat = stopAIAudioFromVoiceChat;
 
 // ================================
 // GLOBAL EXPORTS
