@@ -221,36 +221,92 @@ function initiateUrgentCall() {
     }, 2000);
 }
 
-    function askLeadQuestion() {
-    window.trackLeadCaptureStart();
+    function handleActionButton(action) {
+    console.log('🎯 Action button clicked:', action);
     
-    window.lastProcessedTranscript = null;
-    if (!window.isInLeadCapture || !window.currentLeadData) return;
+    // 🛑 1. STOP CURRENT AUDIO
+    if (window.stopAIAudioFromVoiceChat) {
+        console.log('🔇 Stopping current AI audio');
+        window.stopAIAudioFromVoiceChat();
+    }
     
-    const data = window.currentLeadData;
-    console.log('🎯 Asking question for step:', data.step);
+    // ⏳ 2. WAIT 800ms for audio to fully stop
+    setTimeout(() => {
+        console.log('✅ Audio cleared, processing button action');
+
+    }
+  
+        // 🛑 CHECK IF WE'RE ALREADY PROCESSING
+        if (window.isProcessingAction) {
+            console.log('🛑 Action already in progress - skipping');
+            return;
+    }
     
-    if (data.step < data.questions.length) {
-        const question = data.questions[data.step];
-        console.log('🎯 Question:', question);
-        
-        if (window.addAIMessage) {
-            window.addAIMessage(question);
-        }
-        
-        // ⏳ ADD 300ms DELAY
-        setTimeout(() => {
-            if (window.speakText) {
-                window.speakText(question);
+    window.isProcessingAction = true;
+    
+    hideCommunicationActionCenter();
+    
+    // 🆕 CALL COMPLETION HANDLER
+    if (typeof handleActionCenterCompletion === 'function') {
+        handleActionCenterCompletion();
+    }
+    
+    switch(action) {
+        case 'click-to-call':
+            // 🆕 SHOW CLICK TO CALL BANNER (with anti-loop protection)
+            if (typeof showUniversalBanner === 'function') {
+                showUniversalBanner('clickToCall', { autoTriggerActionCenter: false });
             }
-        }, 300);
+            initializeClickToCallCapture();
+            break;
+            
+        case 'urgent-call':
+            if (typeof showUniversalBanner === 'function') {
+                showUniversalBanner('urgent', { autoTriggerActionCenter: false });
+            }
+            initiateUrgentCall();
+            break;
+            
+        case 'free-consultation':
+            if (typeof showUniversalBanner === 'function') {
+                showUniversalBanner('setAppointment', { autoTriggerActionCenter: false });
+            }
+            initializeConsultationCapture();
+            break;
+            
+        case 'pre-qualifier':
+            if (typeof showUniversalBanner === 'function') {
+                showUniversalBanner('preQualifier', { autoTriggerActionCenter: false });
+            }
+            initializePreQualifierCapture();
+            break;
+            
+        case 'skip':
+    console.log('🎯 User chose to skip - BLOCKING avatar auto-restart');
+    
+    // 🚨 CRITICAL: Prevent avatar from auto-restarting Speak Now
+    window.suppressAvatarAutoRestart = true;
+    
+    const skipMessage = "I appreciate you're not ready to get immediate help from our expert. What else can I help you with to meet your objectives?";
+    
+    // Show message
+    if (window.addSystemMessage) {
+        window.addSystemMessage(skipMessage);
+    } else if (window.addAIMessage) {
+        window.addAIMessage(skipMessage);
+    }
+    
+    // Use the same pattern as other cases - wait for AI speech completion
+    if (window.speakText) {
+        window.speakText(skipMessage);
         
         const checkSpeech = setInterval(() => {
             if (!window.isSpeaking) {
                 clearInterval(checkSpeech);
                 console.log('✅ AI finished speaking - starting listening NOW');
                 
-                console.log('🎤 LEAD CAPTURE: Triggering Speak Now banner for step', data.step);
+                // 🎯 TRACKED BANNER SHOW
+                console.log('🎤 SKIP: Triggering Speak Now banner');
                 if (window.showDirectSpeakNow && typeof window.showDirectSpeakNow === 'function') {
                     window.showDirectSpeakNow();
                 }
@@ -260,9 +316,20 @@ function initiateUrgentCall() {
         setTimeout(() => {
             clearInterval(checkSpeech);
         }, 10000);
-    } else {
-        completeLeadCapture();
     }
+    
+    // Re-enable avatar auto-restart after reasonable time
+    setTimeout(() => {
+        window.suppressAvatarAutoRestart = false;
+        console.log('✅ Avatar auto-restart re-enabled');
+    }, 15000);
+    break;
+    }
+    
+    // Reset processing flag after a delay
+    setTimeout(() => {
+        window.isProcessingAction = false;
+    }, 1000);
 }
 
 // ================================
