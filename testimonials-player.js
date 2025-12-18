@@ -2,40 +2,6 @@
 // 🎬 COMPLETE TESTIMONIAL SYSTEM (SPLASH + VIDEO PLAYERS)
 // ===================================================
 
-// 🛑 STOP ALL SPEECH - JUST LIKE COMMUNICATION RELAY CENTER
-window.stopAllSpeech = function() {
-    console.log('🔇 STOPPING all speech (testimonials version)');
-    
-    // 1. Stop ElevenLabs (copy from working stopCurrentSpeech)
-    if (window.elevenLabsPlayer && window.elevenLabsPlayer.stop) {
-        console.log('🔇 Calling elevenLabsPlayer.stop()');
-        window.elevenLabsPlayer.stop();
-    }
-    
-    // 2. Stop Web Speech API
-    if (window.speechSynthesis && window.speechSynthesis.speaking) {
-        console.log('🔇 Cancelling speechSynthesis');
-        window.speechSynthesis.cancel();
-    }
-    
-    // 3. Also stop any audio elements (extra safety)
-    document.querySelectorAll('audio').forEach(audio => {
-        audio.pause();
-        audio.currentTime = 0;
-        console.log('🔇 Audio element stopped');
-    });
-    
-    // 4. Update flag
-    window.isSpeaking = false;
-    
-    console.log('✅ All speech stopped for testimonials');
-    return true;
-};
-
-// ===================================================
-// 🎬 COMPLETE TESTIMONIAL SYSTEM (SPLASH + VIDEO PLAYERS)
-// ===================================================
-
 // Video URLs - UPDATE THESE WITH YOUR ACTUAL VIDEO LINKS
 const TESTIMONIAL_VIDEOS = {
     skeptical: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982717330.mp4',
@@ -51,41 +17,6 @@ const VIDEO_DURATIONS = {
     convinced: 25000,
     excited: 20000
 };
-
-window.avatarCurrentlyPlaying = false;
-
-// 🛑🛑🛑 ADD THIS FUNCTION HERE 🛑🛑🛑
-// STOP ALL SPEECH - IDENTICAL TO COMMUNICATION RELAY CENTER
-window.stopAllSpeech = function() {
-    console.log('🔇 STOPPING all speech (testimonials version)');
-    
-    // 1. Stop ElevenLabs (copy from working stopCurrentSpeech)
-    if (window.elevenLabsPlayer && window.elevenLabsPlayer.stop) {
-        console.log('🔇 Calling elevenLabsPlayer.stop()');
-        window.elevenLabsPlayer.stop();
-    }
-    
-    // 2. Stop Web Speech API
-    if (window.speechSynthesis && window.speechSynthesis.speaking) {
-        console.log('🔇 Cancelling speechSynthesis');
-        window.speechSynthesis.cancel();
-    }
-    
-    // 3. Also stop any audio elements (extra safety)
-    document.querySelectorAll('audio').forEach(audio => {
-        audio.pause();
-        audio.currentTime = 0;
-        console.log('🔇 Audio element stopped');
-    });
-    
-    // 4. Update flag
-    window.isSpeaking = false;
-    
-    console.log('✅ All speech stopped for testimonials');
-    return true;
-};
-// 🛑🛑🛑 END OF ADDED FUNCTION 🛑🛑🛑
-
 
 window.avatarCurrentlyPlaying = false;
 
