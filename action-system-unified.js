@@ -308,9 +308,10 @@ function initializeConsultationCapture() {
         ]
     };
     
+   // ⬇️⬇️⬇️ INCREASE DELAY TO 1200ms ⬇️⬇️⬇️
     setTimeout(() => {
         askLeadQuestion();
-    }, 500);
+    }, 1200); // Changed from 500ms to 1200ms
 }
 
 // ================================
@@ -347,9 +348,10 @@ function initializeUrgentCallCapture() {
     
     console.log('🆕 Urgent Call initialized with name:', window.currentLeadData.name);
     
+   // ⬇️⬇️⬇️ INCREASE DELAY TO 1200ms ⬇️⬇️⬇️
     setTimeout(() => {
         askLeadQuestion();
-    }, 500);
+    }, 1200); // Changed from 500ms to 1200ms
 }
 
 // ================================
@@ -376,9 +378,10 @@ function initializeRequestCallCapture() {
         ]
     };
     
+   // ⬇️⬇️⬇️ INCREASE DELAY TO 1200ms ⬇️⬇️⬇️
     setTimeout(() => {
         askLeadQuestion();
-    }, 500);
+    }, 1200); // Changed from 500ms to 1200ms
 }
 
 // ================================
@@ -406,9 +409,10 @@ function initializeFreeBookCapture() {
         ]
     };
     
+   // ⬇️⬇️⬇️ INCREASE DELAY TO 1200ms ⬇️⬇️⬇️
     setTimeout(() => {
         askLeadQuestion();
-    }, 500);
+    }, 1200); // Changed from 500ms to 1200ms
 }
 
 // ================================
