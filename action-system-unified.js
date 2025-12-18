@@ -191,19 +191,40 @@ function initiateUrgentCall() {
     }, 2000);
 }
 
-function handleActionButton(action) {
-    console.log('🎯 Action button clicked:', action);
-
-    // 🛑 CALL THE GLOBAL FUNCTION
-    if (window.stopAIAudioFromVoiceChat && typeof window.stopAIAudioFromVoiceChat === 'function') {
+    function handleActionButton(action) {
+    // 🚨 NUCLEAR DEBUG - CAN'T MISS THIS
+    debugger; // This will PAUSE execution!
+    
+    console.log('🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨');
+    console.log('🚨 HANDLE ACTION BUTTON CALLED!');
+    console.log('🚨 Action:', action);
+    console.log('🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨');
+    
+    // 🚨 STEP 1: Try to stop audio
+    console.log('1️⃣ Attempting to stop audio...');
+    
+    if (window.stopAIAudioFromVoiceChat) {
+        console.log('2️⃣ Function exists, calling it...');
         window.stopAIAudioFromVoiceChat();
+        console.log('3️⃣ Function called');
     } else {
-        console.log('⚠️ Global function not found - emergency stop');
-        document.querySelectorAll('audio').forEach(a => {
+        console.log('❌ Function not found!');
+    }
+    
+    // 🚨 STEP 2: Direct kill
+    console.log('4️⃣ Direct audio kill...');
+    const audios = document.querySelectorAll('audio');
+    console.log(`   Found ${audios.length} audio elements`);
+    
+    audios.forEach((a, i) => {
+        if (!a.paused) {
+            console.log(`   💀 Killing audio ${i + 1}`);
             a.pause();
             a.currentTime = 0;
-        });
-    }
+        }
+    });
+    
+    console.log('✅✅✅ AUDIO STOP ATTEMPT COMPLETE ✅✅✅');
     
     // 🛑 CHECK IF WE'RE ALREADY PROCESSING
     if (window.isProcessingAction) {
