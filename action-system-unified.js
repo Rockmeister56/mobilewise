@@ -4,48 +4,29 @@
 // CLEANED VERSION - No restore code for old buttons
 // ================================
 
-// ============================================
-// 🔗 BRIDGE TO VOICE-CHAT-FUSION AUDIO STOPPER
-// ============================================
-
-// This function tries multiple ways to stop audio from voice-chat-fusion
-window.stopCurrentSpeech = function() {
-    console.log('🔗 BRIDGE: Trying to stop voice-chat-fusion audio...');
+// 🚨 RESTORE: Simple speech stopper that USED TO WORK
+function stopCurrentSpeech() {
+    console.log('🔇 STOPPING current speech (restored function)');
     
-    // METHOD 1: Try calling the voice-chat-fusion function directly
-    if (window.stopCurrentSpeechFromVoiceChat) {
-        console.log('🔗 Calling stopCurrentSpeechFromVoiceChat()');
-        return window.stopCurrentSpeechFromVoiceChat();
+    // 1. Stop ElevenLabs (this used to work!)
+    if (window.elevenLabsPlayer && window.elevenLabsPlayer.stop) {
+        console.log('🔇 Calling elevenLabsPlayer.stop()');
+        window.elevenLabsPlayer.stop();
     }
     
-    // METHOD 2: Dispatch event that voice-chat-fusion listens for
-    console.log('🔗 Dispatching stop-ai-audio event');
-    document.dispatchEvent(new CustomEvent('stop-ai-audio'));
+    // 2. Stop Web Speech API
+    if (window.speechSynthesis && window.speechSynthesis.speaking) {
+        console.log('🔇 Cancelling speechSynthesis');
+        window.speechSynthesis.cancel();
+    }
     
-    // METHOD 3: Direct audio kill as last resort
-    setTimeout(() => {
-        const allAudios = document.querySelectorAll('audio');
-        console.log(`🔗 Direct kill: Found ${allAudios.length} audio elements`);
-        
-        allAudios.forEach(audio => {
-            if (!audio.paused) {
-                console.log('🔗 Directly stopping audio element');
-                audio.pause();
-                audio.currentTime = 0;
-            }
-        });
-        
-        if (window.speechSynthesis) {
-            speechSynthesis.cancel();
-        }
-        
-        window.isSpeaking = false;
-    }, 50);
+    // 3. Update flag
+    window.isSpeaking = false;
     
+    console.log('✅ Speech stopped');
     return true;
-};
+}
 
-console.log('✅ Bridge function loaded in action-system-unified.js');
 
 const EMAILJS_CONFIG = {
     serviceId: 'service_b9bppgb',
@@ -195,7 +176,7 @@ function handleActionButton(action) {
     console.log('🎯 Action button clicked:', action);
 
       // 🚨 ADD THIS ONE LINE:
-    window.stopCurrentSpeech();
+    stopCurrentSpeech();
     
     // 🛑 CHECK IF WE'RE ALREADY PROCESSING
     if (window.isProcessingAction) {
@@ -2449,7 +2430,6 @@ addTestimonialAnimations();
 // Make globally accessible
 window.showThankYouSplash = showThankYouSplash;
 window.closeThankYouSplash = closeThankYouSplash;
-window.stopAIAudioFromVoiceChat = stopAIAudioFromVoiceChat;
 
 // ================================
 // GLOBAL EXPORTS
