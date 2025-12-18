@@ -4,36 +4,6 @@
 // CLEANED VERSION - No restore code for old buttons
 // ================================
 
-// 🎯 GLOBAL AUDIO COOLDOWN
-let lastAudioStopTime = 0;
-const AUDIO_COOLDOWN_MS = 1200; // 1.2 seconds
-
-function safeSpeakWithCooldown(text) {
-    const now = Date.now();
-    const timeSinceLastStop = now - lastAudioStopTime;
-    
-    if (timeSinceLastStop < AUDIO_COOLDOWN_MS) {
-        const waitTime = AUDIO_COOLDOWN_MS - timeSinceLastStop;
-        console.log(`⏳ Audio cooldown: Waiting ${waitTime}ms before speaking`);
-        
-        setTimeout(() => {
-            if (window.speakText) {
-                window.speakText(text);
-            }
-        }, waitTime);
-    } else {
-        if (window.speakText) {
-            window.speakText(text);
-        }
-    }
-}
-
-// Update when audio is stopped
-function recordAudioStop() {
-    lastAudioStopTime = Date.now();
-    console.log('📝 Audio stop recorded:', lastAudioStopTime);
-}
-
 // ============================================
 // 🔗 BRIDGE TO VOICE-CHAT-FUSION AUDIO STOPPER
 // ============================================
@@ -221,25 +191,16 @@ function initiateUrgentCall() {
     }, 2000);
 }
 
-    function handleActionButton(action) {
+function handleActionButton(action) {
     console.log('🎯 Action button clicked:', action);
-    
-    // 🛑 1. STOP CURRENT AUDIO
-    if (window.stopAIAudioFromVoiceChat) {
-        console.log('🔇 Stopping current AI audio');
-        window.stopAIAudioFromVoiceChat();
-    }
-    
-    // ⏳ 2. WAIT 800ms for audio to fully stop
-    setTimeout(() => {
-        console.log('✅ Audio cleared, processing button action');
 
-    }
-  
-        // 🛑 CHECK IF WE'RE ALREADY PROCESSING
-        if (window.isProcessingAction) {
-            console.log('🛑 Action already in progress - skipping');
-            return;
+      // 🚨 ADD THIS ONE LINE:
+    window.stopCurrentSpeech();
+    
+    // 🛑 CHECK IF WE'RE ALREADY PROCESSING
+    if (window.isProcessingAction) {
+        console.log('🛑 Action already in progress - skipping');
+        return;
     }
     
     window.isProcessingAction = true;
@@ -492,41 +453,37 @@ function askLeadQuestion() {
     console.log('🎯 Asking question for step:', data.step);
     
     if (data.step < data.questions.length) {
-        const question = data.questions[data.step]; // This defines 'question'
+        const question = data.questions[data.step];
         console.log('🎯 Question:', question);
         
         if (window.addAIMessage) {
             window.addAIMessage(question);
         }
         
-        // ⬇️⬇️⬇️ USE safeSpeakWithCooldown HERE ⬇️⬇️⬇️
-        if (window.safeSpeakWithCooldown) {
-            window.safeSpeakWithCooldown(question); // Now 'question' is defined!
-        } else if (window.speakText) {
-            // Fallback if safe function doesn't exist
+        if (window.speakText) {
             window.speakText(question);
-        }
-        
-        const checkSpeech = setInterval(() => {
-            if (!window.isSpeaking) {
-                clearInterval(checkSpeech);
-                console.log('✅ AI finished speaking - starting listening NOW');
-                
-                console.log('🎤 LEAD CAPTURE: Triggering Speak Now banner for step', data.step);
-                if (window.showDirectSpeakNow && typeof window.showDirectSpeakNow === 'function') {
-                    window.showDirectSpeakNow();
+            
+            const checkSpeech = setInterval(() => {
+                if (!window.isSpeaking) {
+                    clearInterval(checkSpeech);
+                    console.log('✅ AI finished speaking - starting listening NOW');
+                    
+                    // 🎯 TRACKED BANNER SHOW
+                    console.log('🎤 LEAD CAPTURE: Triggering Speak Now banner for step', data.step);
+                    if (window.showDirectSpeakNow && typeof window.showDirectSpeakNow === 'function') {
+                        window.showDirectSpeakNow();
+                    }
                 }
-            }
-        }, 100);
+            }, 100);
 
-        setTimeout(() => {
-            clearInterval(checkSpeech);
-        }, 10000);
+            setTimeout(() => {
+                clearInterval(checkSpeech);
+            }, 10000);
+        }
     } else {
         completeLeadCapture();
     }
 }
-
 // ================================
 // PROCESS USER RESPONSE - FIXED VERSION
 // ================================
