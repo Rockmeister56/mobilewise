@@ -75,13 +75,6 @@ window.disableSpeakNowBanner = false;
         }
     }, 500); // Check every 500ms
     
-    // Safety timeout - show after 5 seconds max
-    setTimeout(() => {
-        clearInterval(checkSpeechCompletion);
-        showSilentCommunicationRelayCenter();
-        console.log('✅ Safety timeout - showing Action Center');
-    }, 5000);
-    
     // Re-enable Speak Now banner after reasonable time
     setTimeout(() => {
         window.disableSpeakNowBanner = false;
@@ -92,6 +85,15 @@ window.disableSpeakNowBanner = false;
 // ADD THIS SIMPLE FUNCTION - COPY OF EXISTING BUT WITH DIFFERENT VIDEO
 function showSilentCommunicationRelayCenter() {
     console.log('🎯 Creating SILENT Communication Center...');
+
+     // 🛑 CHECK IF ALREADY CREATED
+    if (communicationCenterCreated) {
+        console.log('🛑 Communication Center already created - skipping duplicate');
+        return;
+    }
+    
+    console.log('🎯 Creating SILENT Communication Center...');
+    communicationCenterCreated = true; // SET FLAG
     
     const actionCenter = document.createElement('div');
     actionCenter.id = 'communication-relay-center-silent';
