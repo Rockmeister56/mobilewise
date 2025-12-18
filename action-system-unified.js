@@ -4,29 +4,6 @@
 // CLEANED VERSION - No restore code for old buttons
 // ================================
 
-// 🚨 RESTORE: Simple speech stopper that USED TO WORK
-function stopCurrentSpeech() {
-    console.log('🔇 STOPPING current speech (restored function)');
-    
-    // 1. Stop ElevenLabs (this used to work!)
-    if (window.elevenLabsPlayer && window.elevenLabsPlayer.stop) {
-        console.log('🔇 Calling elevenLabsPlayer.stop()');
-        window.elevenLabsPlayer.stop();
-    }
-    
-    // 2. Stop Web Speech API
-    if (window.speechSynthesis && window.speechSynthesis.speaking) {
-        console.log('🔇 Cancelling speechSynthesis');
-        window.speechSynthesis.cancel();
-    }
-    
-    // 3. Update flag
-    window.isSpeaking = false;
-    
-    console.log('✅ Speech stopped');
-    return true;
-}
-
 
 const EMAILJS_CONFIG = {
     serviceId: 'service_b9bppgb',
@@ -183,8 +160,10 @@ function initiateUrgentCall() {
 function handleActionButton(action) {
     console.log('🎯 Action button clicked:', action);
 
-      // 🚨 ADD THIS ONE LINE:
-    stopCurrentSpeech();
+     // To:
+if (window.stopAIAudioFromVoiceChat) {
+    window.stopAIAudioFromVoiceChat(); // NEW - the working function
+}
     
     // 🛑 CHECK IF WE'RE ALREADY PROCESSING
     if (window.isProcessingAction) {
