@@ -1282,7 +1282,7 @@ window.closeTestimonialVideo = closeTestimonialVideo;
 window.closeTestimonialNav = closeTestimonialNav;
 window.returnToVoiceChat = returnToVoiceChat;
 
-function stopAllSpeech() {
+window.stopAllSpeech = stopAllSpeech;
     console.log('🔇 Testimonials: Stopping ALL speech systems...');
     
     // 1. Stop browser speech synthesis
