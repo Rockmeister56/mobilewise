@@ -4,6 +4,49 @@
 // CLEANED VERSION - No restore code for old buttons
 // ================================
 
+// ============================================
+// 🔗 BRIDGE TO VOICE-CHAT-FUSION AUDIO STOPPER
+// ============================================
+
+// This function tries multiple ways to stop audio from voice-chat-fusion
+window.stopCurrentSpeech = function() {
+    console.log('🔗 BRIDGE: Trying to stop voice-chat-fusion audio...');
+    
+    // METHOD 1: Try calling the voice-chat-fusion function directly
+    if (window.stopCurrentSpeechFromVoiceChat) {
+        console.log('🔗 Calling stopCurrentSpeechFromVoiceChat()');
+        return window.stopCurrentSpeechFromVoiceChat();
+    }
+    
+    // METHOD 2: Dispatch event that voice-chat-fusion listens for
+    console.log('🔗 Dispatching stop-ai-audio event');
+    document.dispatchEvent(new CustomEvent('stop-ai-audio'));
+    
+    // METHOD 3: Direct audio kill as last resort
+    setTimeout(() => {
+        const allAudios = document.querySelectorAll('audio');
+        console.log(`🔗 Direct kill: Found ${allAudios.length} audio elements`);
+        
+        allAudios.forEach(audio => {
+            if (!audio.paused) {
+                console.log('🔗 Directly stopping audio element');
+                audio.pause();
+                audio.currentTime = 0;
+            }
+        });
+        
+        if (window.speechSynthesis) {
+            speechSynthesis.cancel();
+        }
+        
+        window.isSpeaking = false;
+    }, 50);
+    
+    return true;
+};
+
+console.log('✅ Bridge function loaded in action-system-unified.js');
+
 const EMAILJS_CONFIG = {
     serviceId: 'service_b9bppgb',
     publicKey: '7-9oxa3UC3uKxtqGM',

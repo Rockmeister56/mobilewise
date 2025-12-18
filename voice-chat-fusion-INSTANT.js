@@ -3,53 +3,40 @@
 // Smart Button + Lead Capture + EmailJS + Banner System
 // ===================================================
 
-// ================================
-// 🛑 GLOBAL AUDIO STOPPER
-// ================================
+// ============================================
+// 🎤 VOICE-CHAT-FUSION AUDIO CONTROLLER (USE THIS)
+// ============================================
 
-window.stopCurrentSpeech = function() {
-    console.log('🔇 GLOBAL STOP: Stopping AI speech from voice-chat-fusion');
+// Function that stops OUR audio
+window.stopCurrentSpeechFromVoiceChat = function() {
+    console.log('🔇 VOICE-CHAT-FUSION: Stopping our audio');
     
-    // 1. Stop ALL ElevenLabs audio elements
+    // Find and stop all audio elements WE created
     document.querySelectorAll('audio').forEach(audio => {
         if (!audio.paused) {
-            console.log('🔇 Stopping audio element');
+            console.log('🔇 Stopping our audio element');
             audio.pause();
             audio.currentTime = 0;
-            
-            // Try to completely remove it
-            try {
-                if (audio.parentNode) {
-                    audio.parentNode.removeChild(audio);
-                }
-            } catch(e) {}
         }
     });
     
-    // 2. Stop browser TTS
-    if (window.speechSynthesis && window.speechSynthesis.speaking) {
-        window.speechSynthesis.cancel();
-        console.log('✅ Browser TTS stopped');
+    // Stop browser TTS
+    if (window.speechSynthesis) {
+        speechSynthesis.cancel();
     }
     
-    // 3. Stop any ElevenLabs player instance
-    if (window.elevenLabsPlayer && window.elevenLabsPlayer.stop) {
-        try {
-            window.elevenLabsPlayer.stop();
-            console.log('✅ elevenLabsPlayer.stop() called');
-        } catch(e) {
-            console.log('⚠️ elevenLabsPlayer.stop() failed:', e.message);
-        }
-    }
-    
-    // 4. Update global speaking flag
     window.isSpeaking = false;
-    
-    console.log('✅ GLOBAL audio stopped');
+    console.log('✅ Voice-chat-fusion audio stopped');
     return true;
 };
 
-console.log('✅ GLOBAL stopCurrentSpeech() loaded in voice-chat-fusion');
+// Listen for stop events from other files
+document.addEventListener('stop-ai-audio', function() {
+    console.log('🔇 VOICE-CHAT-FUSION: Received stop event');
+    window.stopCurrentSpeechFromVoiceChat();
+});
+
+console.log('✅ Voice-chat-fusion audio controller loaded');
 
 // ===================================================
 // 📱 MOBILE PERMISSION BRIDGE SYSTEM - FIXED VERSION
