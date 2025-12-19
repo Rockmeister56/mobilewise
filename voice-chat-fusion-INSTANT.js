@@ -3,84 +3,6 @@
 // Smart Button + Lead Capture + EmailJS + Banner System
 // ===================================================
 
-// ============================================
-// 🎤 VOICE-CHAT-FUSION AUDIO CONTROLLER (USE THIS)
-// ============================================
-
-// ===================================================
-// 📱 MOBILE PERMISSION BRIDGE SYSTEM - FIXED VERSION
-// ===================================================
-
-console.log('=== BRIDGE SYSTEM STARTING ===');
-
-// Check parameters
-const urlParams = new URLSearchParams(window.location.search);
-const shouldAutoStart = urlParams.get('autoStartVoice') === 'true';
-const hasPermission = urlParams.get('micPermissionGranted') === 'true';
-const hasGesture = urlParams.get('gestureInitiated') === 'true';
-
-console.log('Bridge Parameters:', { shouldAutoStart, hasPermission, hasGesture });
-
-// 🆕 CRITICAL FIX: Clear Bridge flags if no parameters
-if (!shouldAutoStart && window.externalPreGrantedPermission) {
-    console.log('🔄 Clearing stale Bridge flags (no URL parameters)');
-    window.externalPreGrantedPermission = false;
-    window.bridgeShouldAutoStart = false;
-    // Don't clear micPermissionGranted - user might have granted it
-}
-
-if (shouldAutoStart && hasPermission && hasGesture) {
-    console.log('🚀🚀🚀 BRIDGE: AUTO-START CONDITIONS MET! 🚀🚀🚀');
-    
-    // Set flag IMMEDIATELY
-    window.externalPreGrantedPermission = true;
-    window.bridgeShouldAutoStart = true;
-    window.micPermissionGranted = true;
-    window.isAudioMode = true;
-    
-    console.log('✅ Bridge flags set');
-    
-    // Wait for DOM and then trigger activation
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', bridgeAutoStart);
-    } else {
-        bridgeAutoStart();
-    }
-    
-    function bridgeAutoStart() {
-        console.log('🎯 Bridge: Triggering activateMicrophone');
-        
-        // Hide initial UI
-        const centerMic = document.getElementById('centerMicActivation');
-        if (centerMic) centerMic.style.display = 'none';
-        
-        // Set conversation state
-        window.conversationState = 'getting_first_name';
-        window.waitingForName = true;
-        
-        // Initialize lead data
-        if (typeof leadData === 'undefined' || !leadData) {
-            window.leadData = { firstName: '' };
-        }
-        
-        console.log('⏩ Bridge: Using activateMicrophone for introduction');
-        
-        // Call activateMicrophone after a delay
-        setTimeout(() => {
-            if (typeof activateMicrophone === 'function') {
-                activateMicrophone();
-            } else {
-                console.error('❌ activateMicrophone function not found!');
-            }
-        }, 1000);
-    }
-    
-} else {
-    console.log('🔗 Bridge: Normal mode (no auto-start)');
-}
-
-console.log('=== BRIDGE SYSTEM COMPLETE ===');
-
 // ===========================================
 // ELEVENLABS CONFIGURATION
 // ===========================================
@@ -2010,64 +1932,69 @@ class MobileWiseVoiceSystem {
         }
     }
     
-    // ===========================================
-    // ELEVENLABS VOICE PROVIDER
-    // ===========================================
     async speakWithElevenLabs(text) {
-        if (!VOICE_CONFIG.elevenlabs.enabled) {
-            throw new Error("ElevenLabs not enabled");
-        }
-
-        window.isSpeaking = true;
-        
-        const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE_CONFIG.elevenlabs.voiceId}`, {
-            method: 'POST',
-            headers: {
-                'Accept': 'audio/mpeg',
-                'Content-Type': 'application/json',
-                'xi-api-key': VOICE_CONFIG.elevenlabs.apiKey
-            },
-            body: JSON.stringify({
-                text: text,
-                model_id: VOICE_CONFIG.elevenlabs.model,
-                voice_settings: {
-                    stability: 0.5,
-                    similarity_boost: 0.5,
-                    style: 0.0,
-                    use_speaker_boost: true
-                }
-            })
-        });
-        
-        if (!response.ok) {
-            throw new Error(`ElevenLabs API error: ${response.status}`);
-        }
-        
-        const audioBlob = await response.blob();
-        const audioUrl = URL.createObjectURL(audioBlob);
-        
-        return new Promise((resolve, reject) => {
-            const audio = new Audio();
-            audio.preload = 'auto';
-            
-            audio.oncanplaythrough = () => {
-                audio.play();
-            };
-            
-            audio.onended = () => {
-                this.handleSpeechComplete();
-                URL.revokeObjectURL(audioUrl);
-                resolve();
-            };
-            
-            audio.onerror = (error) => {
-                console.error('🚫 ElevenLabs audio error:', error);
-                reject(error);
-            };
-            
-            audio.src = audioUrl;
-        });
+    if (!VOICE_CONFIG.elevenlabs.enabled) {
+        throw new Error("ElevenLabs not enabled");
     }
+
+    window.isSpeaking = true;
+    
+    const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE_CONFIG.elevenlabs.voiceId}`, {
+        method: 'POST',
+        headers: {
+            'Accept': 'audio/mpeg',
+            'Content-Type': 'application/json',
+            'xi-api-key': VOICE_CONFIG.elevenlabs.apiKey
+        },
+        body: JSON.stringify({
+            text: text,
+            model_id: VOICE_CONFIG.elevenlabs.model,
+            voice_settings: {
+                stability: 0.5,
+                similarity_boost: 0.5,
+                style: 0.0,
+                use_speaker_boost: true
+            }
+        })
+    });
+    
+    if (!response.ok) {
+        throw new Error(`ElevenLabs API error: ${response.status}`);
+    }
+    
+    const audioBlob = await response.blob();
+    const audioUrl = URL.createObjectURL(audioBlob);
+    
+    return new Promise((resolve, reject) => {
+        const audio = new Audio();
+        audio.preload = 'auto';
+        
+        // 🎯 CRITICAL: Store audio globally so other files can access it
+        window.currentElevenLabsAudio = audio;
+        console.log("🎯 ElevenLabs audio stored globally");
+        
+        audio.oncanplaythrough = () => {
+            audio.play();
+        };
+        
+        audio.onended = () => {
+            // 🎯 CRITICAL: Clear the global reference when audio ends
+            window.currentElevenLabsAudio = null;
+            this.handleSpeechComplete();
+            URL.revokeObjectURL(audioUrl);
+            resolve();
+        };
+        
+        audio.onerror = (error) => {
+            // 🎯 CRITICAL: Clear on error too
+            window.currentElevenLabsAudio = null;
+            console.error('🚫 ElevenLabs audio error:', error);
+            reject(error);
+        };
+        
+        audio.src = audioUrl;
+    });
+}
     
     // ===========================================
     // BRITISH VOICE PROVIDER
@@ -5936,8 +5863,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 1000);
 });
 
-// EXPORT it at bottom
-window.stopAIAudioFromVoiceChat = stopAIAudioFromVoiceChat;
 
 console.log('✅ Voice chat functions exported for Action System integration');
 
