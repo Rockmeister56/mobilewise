@@ -150,9 +150,6 @@ function initiateUrgentCall() {
 
 function handleActionButton(action) {
     console.log('🎯 Action button clicked:', action);
-
-   // 🎯 FIRST THING: Stop ElevenLabs audio
-    stopElevenLabsAudio();
     
     // 🛑 CHECK IF WE'RE ALREADY PROCESSING
     if (window.isProcessingAction) {
