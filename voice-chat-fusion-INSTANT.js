@@ -3,45 +3,79 @@
 // Smart Button + Lead Capture + EmailJS + Banner System
 // ===================================================
 
-// TEMPORARY PATCH - Add at the TOP of the file
-console.log("🎯 PATCH: Monitoring ElevenLabs audio creation");
+// ===================================================
+// 📱 MOBILE PERMISSION BRIDGE SYSTEM - FIXED VERSION
+// ===================================================
 
-// Store the original function
-const originalSpeakWithElevenLabs = window.speakWithElevenLabs || 
-                                   (window.VoiceChatFusion && window.VoiceChatFusion.prototype.speakWithElevenLabs);
+console.log('=== BRIDGE SYSTEM STARTING ===');
 
-// Override to add tracking
-if (originalSpeakWithElevenLabs) {
-    const patchedFunction = function(text) {
-        console.log("🎤 ElevenLabs about to speak:", text.substring(0, 50) + "...");
+// Check parameters
+const urlParams = new URLSearchParams(window.location.search);
+const shouldAutoStart = urlParams.get('autoStartVoice') === 'true';
+const hasPermission = urlParams.get('micPermissionGranted') === 'true';
+const hasGesture = urlParams.get('gestureInitiated') === 'true';
+
+console.log('Bridge Parameters:', { shouldAutoStart, hasPermission, hasGesture });
+
+// 🆕 CRITICAL FIX: Clear Bridge flags if no parameters
+if (!shouldAutoStart && window.externalPreGrantedPermission) {
+    console.log('🔄 Clearing stale Bridge flags (no URL parameters)');
+    window.externalPreGrantedPermission = false;
+    window.bridgeShouldAutoStart = false;
+    // Don't clear micPermissionGranted - user might have granted it
+}
+
+if (shouldAutoStart && hasPermission && hasGesture) {
+    console.log('🚀🚀🚀 BRIDGE: AUTO-START CONDITIONS MET! 🚀🚀🚀');
+    
+    // Set flag IMMEDIATELY
+    window.externalPreGrantedPermission = true;
+    window.bridgeShouldAutoStart = true;
+    window.micPermissionGranted = true;
+    window.isAudioMode = true;
+    
+    console.log('✅ Bridge flags set');
+    
+    // Wait for DOM and then trigger activation
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', bridgeAutoStart);
+    } else {
+        bridgeAutoStart();
+    }
+    
+    function bridgeAutoStart() {
+        console.log('🎯 Bridge: Triggering activateMicrophone');
         
-        // Call original function
-        const result = originalSpeakWithElevenLabs.call(this, text);
+        // Hide initial UI
+        const centerMic = document.getElementById('centerMicActivation');
+        if (centerMic) centerMic.style.display = 'none';
         
-        // If it returns a promise with audio, track it
-        if (result && result.then) {
-            result.then(() => {
-                console.log("🔍 After ElevenLabs speech:");
-                console.log("   currentElevenLabsAudio:", window.currentElevenLabsAudio);
-                console.log("   Type:", typeof window.currentElevenLabsAudio);
-            }).catch(err => {
-                console.error("❌ ElevenLabs error:", err);
-            });
+        // Set conversation state
+        window.conversationState = 'getting_first_name';
+        window.waitingForName = true;
+        
+        // Initialize lead data
+        if (typeof leadData === 'undefined' || !leadData) {
+            window.leadData = { firstName: '' };
         }
         
-        return result;
-    };
-    
-    // Replace the function
-    if (window.speakWithElevenLabs) {
-        window.speakWithElevenLabs = patchedFunction;
+        console.log('⏩ Bridge: Using activateMicrophone for introduction');
+        
+        // Call activateMicrophone after a delay
+        setTimeout(() => {
+            if (typeof activateMicrophone === 'function') {
+                activateMicrophone();
+            } else {
+                console.error('❌ activateMicrophone function not found!');
+            }
+        }, 1000);
     }
-    if (window.VoiceChatFusion && window.VoiceChatFusion.prototype.speakWithElevenLabs) {
-        window.VoiceChatFusion.prototype.speakWithElevenLabs = patchedFunction;
-    }
     
-    console.log("✅ ElevenLabs patched for monitoring");
+} else {
+    console.log('🔗 Bridge: Normal mode (no auto-start)');
 }
+
+console.log('=== BRIDGE SYSTEM COMPLETE ===');
 
 // ===========================================
 // ELEVENLABS CONFIGURATION
@@ -100,13 +134,6 @@ window.leadData = window.leadData || {
     inquiryType: ''
 };
 let leadData = window.leadData;
-
-// ============================================
-// 🚨 GLOBAL STATE FLAGS - ADD THIS AT VERY TOP
-// ============================================
-
-// Prevent duplicate Communication Center triggers
-window.communicationCenterActive = false;
 
 // Global flag to prevent multiple instances
 let speakSequenceActive = false;
@@ -1415,28 +1442,6 @@ function diagnoseBlocing() {
 // Add this line right after the second "Speak Now" banner shows:
 // diagnoseBlocing();
 
-function stopAIAudioFromVoiceChat() {
-    console.log('🔇 Stopping AI audio from voice-chat-fusion');
-    
-    // Stop all audio elements (ElevenLabs uses these)
-    document.querySelectorAll('audio').forEach(audio => {
-        if (!audio.paused) {
-            console.log('🔇 Stopping audio element');
-            audio.pause();
-            audio.currentTime = 0;
-        }
-    });
-    
-    // Stop browser TTS
-    if (window.speechSynthesis) {
-        speechSynthesis.cancel();
-    }
-    
-    window.isSpeaking = false;
-    console.log('✅ AI audio stopped');
-    return true;
-}
-
 // ===================================================
 // 📧 EMAIL FORMATTING FUNCTION - FIXED
 // ===================================================
@@ -1971,73 +1976,65 @@ class MobileWiseVoiceSystem {
             }
         }
     }
-
+    
     // ===========================================
     // ELEVENLABS VOICE PROVIDER
     // ===========================================
     async speakWithElevenLabs(text) {
-    if (!VOICE_CONFIG.elevenlabs.enabled) {
-        throw new Error("ElevenLabs not enabled");
-    }
+        if (!VOICE_CONFIG.elevenlabs.enabled) {
+            throw new Error("ElevenLabs not enabled");
+        }
 
-    window.isSpeaking = true;
-    
-    const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE_CONFIG.elevenlabs.voiceId}`, {
-        method: 'POST',
-        headers: {
-            'Accept': 'audio/mpeg',
-            'Content-Type': 'application/json',
-            'xi-api-key': VOICE_CONFIG.elevenlabs.apiKey
-        },
-        body: JSON.stringify({
-            text: text,
-            model_id: VOICE_CONFIG.elevenlabs.model,
-            voice_settings: {
-                stability: 0.5,
-                similarity_boost: 0.5,
-                style: 0.0,
-                use_speaker_boost: true
-            }
-        })
-    });
-    
-    if (!response.ok) {
-        throw new Error(`ElevenLabs API error: ${response.status}`);
+        window.isSpeaking = true;
+        
+        const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE_CONFIG.elevenlabs.voiceId}`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'audio/mpeg',
+                'Content-Type': 'application/json',
+                'xi-api-key': VOICE_CONFIG.elevenlabs.apiKey
+            },
+            body: JSON.stringify({
+                text: text,
+                model_id: VOICE_CONFIG.elevenlabs.model,
+                voice_settings: {
+                    stability: 0.5,
+                    similarity_boost: 0.5,
+                    style: 0.0,
+                    use_speaker_boost: true
+                }
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`ElevenLabs API error: ${response.status}`);
+        }
+        
+        const audioBlob = await response.blob();
+        const audioUrl = URL.createObjectURL(audioBlob);
+        
+        return new Promise((resolve, reject) => {
+            const audio = new Audio();
+            audio.preload = 'auto';
+            
+            audio.oncanplaythrough = () => {
+                audio.play();
+            };
+            
+            audio.onended = () => {
+                this.handleSpeechComplete();
+                URL.revokeObjectURL(audioUrl);
+                resolve();
+            };
+            
+            audio.onerror = (error) => {
+                console.error('🚫 ElevenLabs audio error:', error);
+                reject(error);
+            };
+            
+            audio.src = audioUrl;
+        });
     }
-    
-    const audioBlob = await response.blob();
-    const audioUrl = URL.createObjectURL(audioBlob);
-    
-    return new Promise((resolve, reject) => {
-        const audio = new Audio();
-        audio.preload = 'auto';
-        
-        // 🎯 CRITICAL: Store audio globally so other files can access it
-        window.currentElevenLabsAudio = audio;
-        console.log("🎯 ElevenLabs audio stored globally");
-        
-        audio.oncanplaythrough = () => {
-            audio.play();
-        };
-        
-        audio.onended = () => {
-            // 🎯 CRITICAL: Clear the global reference when audio ends
-            window.currentElevenLabsAudio = null;
-            this.handleSpeechComplete();
-            URL.revokeObjectURL(audioUrl);
-            resolve();
-        };
-        
-        audio.onerror = (error) => {
-            // 🎯 CRITICAL: Clear on error too
-            window.currentElevenLabsAudio = null;
-            console.error('🚫 ElevenLabs audio error:', error);
-            reject(error);
-        };
-        
-        audio.src = audioUrl;
-    });
-}
     
     // ===========================================
     // BRITISH VOICE PROVIDER
@@ -3114,24 +3111,12 @@ if (urgentPatterns.some(pattern => lowerMessage.includes(pattern))) {
     console.log('🚨 URGENT INTENT DETECTED - FAST TRACKING TO BRUCE');
     
 // 🎯 TRIGGER ACTION CENTER IMMEDIATELY
-// 🛑 CHECK IF ALREADY ACTIVE FIRST
-if (window.communicationCenterActive) {
-    console.log('🛑 Communication Center already active - skipping duplicate trigger');
-    return "Let me connect you with Bruce now...";
-}
-
-// 🚨 SET FLAG TO PREVENT DUPLICATES
-window.communicationCenterActive = true;
-console.log('🚨 Setting communicationCenterActive = true');
-
 setTimeout(() => {
     if (window.triggerLeadActionCenter) {
         window.triggerLeadActionCenter(); // ✅ SILENT VERSION
         console.log('✅ SILENT Communication Relay Center triggered for urgent request');
     } else {
         console.error('❌ triggerLeadActionCenter not found - urgent system broken');
-        // RESET FLAG ON ERROR
-        window.communicationCenterActive = false;
     }
 }, 1000);
 
@@ -5907,6 +5892,131 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
+// ===== INJECT INSTANT BUBBLE CSS =====
+(function() {
+    const style = document.createElement('style');
+    style.textContent = `
+        .realtime-bubble {
+            border: 2px solid #10b981 !important;
+            animation: pulseBorder 1.5s infinite;
+            background: rgba(16, 185, 129, 0.1) !important;
+        }
+        
+        @keyframes pulseBorder {
+            0%, 100% { border-color: #10b981; }
+            50% { border-color: #34d399; }
+        }
+        
+        .typing-indicator::after {
+            content: '...';
+            animation: blink 1.5s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+    `;
+    document.head.appendChild(style);
+    console.log('✅ Instant bubble CSS injected');
+})(); // <-- THIS CLOSES THE IIFE (Immediately Invoked Function Expression)
+
+// 🆕 EXPORT FUNCTIONS FOR ACTION SYSTEM INTEGRATION
+// These allow the action-system-unified-FINAL.js to integrate with voice chat
+
+// Export addAIMessage
+if (typeof addAIMessage === 'function') {
+    window.addAIMessage = addAIMessage;
+}
+
+// Export speakText/speakResponse (use whichever function name you have)
+if (typeof speakResponse === 'function') {
+    window.speakText = speakResponse;
+} else if (typeof speakMessage === 'function') {
+    window.speakText = speakMessage;
+}
+
+// Export listening restart function
+if (typeof startRealtimeListening === 'function') {
+    window.startRealtimeListening = startRealtimeListening;
+}
+
+// Export banner system (if available)
+if (typeof showUniversalBanner === 'function') {
+    window.showUniversalBanner = showUniversalBanner;
+}
+
 console.log('✅ Voice chat functions exported for Action System integration');
+
+// ===================================================
+// 🧪 TEST SUITE - ADD AT BOTTOM OF FILE
+// ===================================================
+
+// Test 1: Automatic pre-warm test (runs on page load)
+setTimeout(() => {
+    console.log('🧪 ========== TEST SUITE STARTING ==========');
+    
+    // Test pre-warm system
+    console.log('🧪 TEST 1: Checking pre-warm status...');
+    console.log('  - recognitionPreWarmed:', recognitionPreWarmed);
+    console.log('  - preWarmAttempted:', preWarmAttempted);
+    console.log('  - recognition exists:', !!recognition);
+    
+    if (recognition) {
+        console.log('  - recognition state:', recognition.state || 'not started');
+        console.log('  - recognition lang:', recognition.lang);
+    }
+    
+    console.log('🧪 TEST 2: Speech support check...');
+    if (typeof checkSpeechSupport === 'function') {
+        console.log('  - checkSpeechSupport():', checkSpeechSupport());
+    } else {
+        console.log('  - ❌ checkSpeechSupport() not found');
+    }
+    
+    console.log('🧪 TEST 3: Mobile detection...');
+    if (typeof isMobileDevice === 'function') {
+        console.log('  - isMobileDevice():', isMobileDevice());
+    } else {
+        console.log('  - ❌ isMobileDevice() not found');
+    }
+    
+    console.log('🧪 ========== TEST SUITE COMPLETE ==========');
+}, 2000); // Wait 2 seconds after page load
+
+// ===================================================
+// 🎯 COMPREHENSIVE TEST DASHBOARD
+// ===================================================
+function runAllTests() {
+    console.log('🚀 ===== MOBILE-WISE AI VOICE TEST DASHBOARD =====');
+    
+    const tests = [
+        { name: 'Speech Support', func: () => typeof checkSpeechSupport === 'function' ? checkSpeechSupport() : 'Function missing' },
+        { name: 'Mobile Detection', func: () => typeof isMobileDevice === 'function' ? isMobileDevice() : 'Function missing' },
+        { name: 'Pre-Warm Status', func: () => recognitionPreWarmed },
+        { name: 'Recognition Instance', func: () => !!recognition },
+        { name: 'Global Variables', func: () => {
+            return `isListening:${isListening}, isSpeaking:${isSpeaking}, isAudioMode:${isAudioMode}`;
+        }}
+    ];
+    
+    tests.forEach(test => {
+        try {
+            const result = test.func();
+            console.log(`✅ ${test.name}:`, result);
+        } catch (e) {
+            console.log(`❌ ${test.name}: ERROR -`, e.message);
+        }
+    });
+    
+    console.log('📱 User Agent:', navigator.userAgent);
+    console.log('🖥️ Screen:', window.innerWidth, 'x', window.innerHeight);
+    console.log('🔊 Audio Context:', !!window.AudioContext || !!window.webkitAudioContext);
+    console.log('🎤 Speech Recognition:', !!window.SpeechRecognition || !!window.webkitSpeechRecognition);
+    console.log('🚀 ===== TEST DASHBOARD COMPLETE =====');
+}
+
+// Make it globally accessible
+window.runAllTests = runAllTests;
 
 console.log('🎯 ALL SYSTEMS INITIALIZED AND READY');

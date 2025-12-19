@@ -4,6 +4,29 @@
 // CLEANED VERSION - No restore code for old buttons
 // ================================
 
+// 🚨 RESTORE: Simple speech stopper that USED TO WORK
+function stopCurrentSpeech() {
+    console.log('🔇 STOPPING current speech (restored function)');
+    
+    // 1. Stop ElevenLabs (this used to work!)
+    if (window.elevenLabsPlayer && window.elevenLabsPlayer.stop) {
+        console.log('🔇 Calling elevenLabsPlayer.stop()');
+        window.elevenLabsPlayer.stop();
+    }
+    
+    // 2. Stop Web Speech API
+    if (window.speechSynthesis && window.speechSynthesis.speaking) {
+        console.log('🔇 Cancelling speechSynthesis');
+        window.speechSynthesis.cancel();
+    }
+    
+    // 3. Update flag
+    window.isSpeaking = false;
+    
+    console.log('✅ Speech stopped');
+    return true;
+}
+
 
 const EMAILJS_CONFIG = {
     serviceId: 'service_b9bppgb',
@@ -52,42 +75,6 @@ function formatEmailFromSpeech(speechText) {
         .replace(/,/g, '');
     console.log('📧 Email conversion:', speechText, '→', formattedEmail);
     return formattedEmail;
-}
-
-// ================================
-// STOP ALL SPEACH
-// ================================
-function stopAllAudio() {
-    console.log("🔇 STOPPING ALL AUDIO...");
-    
-    // Method 1: Stop ElevenLabs audio if it exists
-    if (window.currentElevenLabsAudio) {
-        console.log("🔇 Stopping ElevenLabs audio");
-        window.currentElevenLabsAudio.pause();
-        window.currentElevenLabsAudio.currentTime = 0;
-        window.currentElevenLabsAudio = null;
-    }
-    
-    // Method 2: Stop Web Speech API (if you use it)
-    if (window.speechSynthesis && window.speechSynthesis.speaking) {
-        console.log("🔇 Stopping Web Speech API");
-        window.speechSynthesis.cancel();
-    }
-    
-    // Method 3: Force stop any other audio elements on page
-    const allAudioElements = document.querySelectorAll('audio');
-    allAudioElements.forEach(audio => {
-        if (!audio.paused) {
-            console.log("🔇 Stopping stray audio element");
-            audio.pause();
-            audio.currentTime = 0;
-        }
-    });
-    
-    // Clear any speaking flags
-    window.isSpeaking = false;
-    
-    console.log("✅ All audio stopped");
 }
 
 // ================================
@@ -163,34 +150,127 @@ function hideCommunicationActionCenter() {
     }
 }
 
-function handleActionCenterCompletion() {
-    // 🎯 CHECK: Skip if flag is set
-    if (window.skipActionCenterCompletion) {
-        console.log('⏸️ SKIPPING: Action Center completion blocked by skipActionCenterCompletion flag');
+// ================================
+// URGENT CALL - DIRECT DIAL
+// ================================
+function initiateUrgentCall() {
+    console.log('📞 Initiating urgent call to Bruce...');
+    
+    // Show message
+    if (window.addAIMessage) {
+        window.addAIMessage("Connecting you to Bruce right now at 856-304-1035...");
+    }
+    
+    // Initiate call
+    window.location.href = 'tel:+1-856-304-1035';
+    
+    // Show follow-up message after brief delay
+    setTimeout(() => {
+        if (window.addAIMessage) {
+            window.addAIMessage("Is there anything else I can help you with while you wait?");
+        }
+    }, 2000);
+}
+
+function handleActionButton(action) {
+    console.log('🎯 Action button clicked:', action);
+
+      // 🚨 ADD THIS ONE LINE:
+    stopCurrentSpeech();
+    
+    // 🛑 CHECK IF WE'RE ALREADY PROCESSING
+    if (window.isProcessingAction) {
+        console.log('🛑 Action already in progress - skipping');
         return;
     }
     
-    console.log('✅ Action Center completed - re-enabling Speak Now banner');
+    window.isProcessingAction = true;
     
-    // Re-enable Speak Now banner
-    window.disableSpeakNowBanner = false;
+    hideCommunicationActionCenter();
     
-    // 🚀 DELAY SPEAK NOW OVERLAY UNTIL AFTER AI SPEECH COMPLETES
-    setTimeout(() => {
-        if (typeof showDirectSpeakNow === 'function' && !window.disableSpeakNowBanner) {
-            // Wait for AI speech to complete first
-            if (window.speechSynthesis && window.speechSynthesis.speaking) {
-                const speechEndHandler = function() {
-                    window.speechSynthesis.removeEventListener('end', speechEndHandler);
-                    setTimeout(() => {
-                        console.log('🎤 Speak Now overlay triggered AFTER AI speech completed');
-                        showDirectSpeakNow();
-                    }, 500);
-                };
-                window.speechSynthesis.addEventListener('end', speechEndHandler);
-                return;
+    // 🆕 CALL COMPLETION HANDLER
+    if (typeof handleActionCenterCompletion === 'function') {
+        handleActionCenterCompletion();
+    }
+    
+    switch(action) {
+        case 'click-to-call':
+            // 🆕 SHOW CLICK TO CALL BANNER (with anti-loop protection)
+            if (typeof showUniversalBanner === 'function') {
+                showUniversalBanner('clickToCall', { autoTriggerActionCenter: false });
             }
-        }
+            initializeClickToCallCapture();
+            break;
+            
+        case 'urgent-call':
+            if (typeof showUniversalBanner === 'function') {
+                showUniversalBanner('urgent', { autoTriggerActionCenter: false });
+            }
+            initiateUrgentCall();
+            break;
+            
+        case 'free-consultation':
+            if (typeof showUniversalBanner === 'function') {
+                showUniversalBanner('setAppointment', { autoTriggerActionCenter: false });
+            }
+            initializeConsultationCapture();
+            break;
+            
+        case 'pre-qualifier':
+            if (typeof showUniversalBanner === 'function') {
+                showUniversalBanner('preQualifier', { autoTriggerActionCenter: false });
+            }
+            initializePreQualifierCapture();
+            break;
+            
+        case 'skip':
+    console.log('🎯 User chose to skip - BLOCKING avatar auto-restart');
+    
+    // 🚨 CRITICAL: Prevent avatar from auto-restarting Speak Now
+    window.suppressAvatarAutoRestart = true;
+    
+    const skipMessage = "I appreciate you're not ready to get immediate help from our expert. What else can I help you with to meet your objectives?";
+    
+    // Show message
+    if (window.addSystemMessage) {
+        window.addSystemMessage(skipMessage);
+    } else if (window.addAIMessage) {
+        window.addAIMessage(skipMessage);
+    }
+    
+    // Use the same pattern as other cases - wait for AI speech completion
+    if (window.speakText) {
+        window.speakText(skipMessage);
+        
+        const checkSpeech = setInterval(() => {
+            if (!window.isSpeaking) {
+                clearInterval(checkSpeech);
+                console.log('✅ AI finished speaking - starting listening NOW');
+                
+                // 🎯 TRACKED BANNER SHOW
+                console.log('🎤 SKIP: Triggering Speak Now banner');
+                if (window.showDirectSpeakNow && typeof window.showDirectSpeakNow === 'function') {
+                    window.showDirectSpeakNow();
+                }
+            }
+        }, 100);
+
+        setTimeout(() => {
+            clearInterval(checkSpeech);
+        }, 10000);
+    }
+    
+    // Re-enable avatar auto-restart after reasonable time
+    setTimeout(() => {
+        window.suppressAvatarAutoRestart = false;
+        console.log('✅ Avatar auto-restart re-enabled');
+    }, 15000);
+    break;
+    }
+    
+    // Reset processing flag after a delay
+    setTimeout(() => {
+        window.isProcessingAction = false;
     }, 1000);
 }
 
@@ -222,9 +302,8 @@ function initializeConsultationCapture() {
     
     setTimeout(() => {
         askLeadQuestion();
-      }, 1200);
+    }, 500);
 }
-
 
 // ================================
 // LEAD CAPTURE 2: URGENT CALL
@@ -262,139 +341,8 @@ function initializeUrgentCallCapture() {
     
     setTimeout(() => {
         askLeadQuestion();
-      }, 1200);
+    }, 500);
 }
-
-
-function handleActionButton(action) {
-    console.log('🎯 Action button clicked:', action);
-    
-    // 🛑 CHECK IF WE'RE ALREADY PROCESSING - DO THIS FIRST!
-    if (window.isProcessingAction) {
-        console.log('🛑 Action already in progress - skipping');
-        return;
-    }
-    
-    // Set processing flag immediately
-    window.isProcessingAction = true;
-    
-    // 🚨 STOP AUDIO SECOND (but before anything else)
-    if (typeof stopAllAudio === 'function') {
-        stopAllAudio();
-    }
-    
-    // Hide communication center
-    if (typeof hideCommunicationActionCenter === 'function') {
-        hideCommunicationActionCenter();
-    }
-    
-    // 🎯 ADD: Set flag to prevent Communication Center retrigger
-    if (window.communicationCenterActive) {
-        window.skipActionCenterCompletion = true;
-        console.log('⏸️ Communication Center active - blocking completion triggers');
-    }
-    
-    // 🆕 CALL COMPLETION HANDLER (with protection)
-    if (typeof handleActionCenterCompletion === 'function' && !window.skipActionCenterCompletion) {
-        handleActionCenterCompletion();
-    }
-    
-    switch(action) {
-        case 'click-to-call':
-            // 🆕 SHOW CLICK TO CALL BANNER (with anti-loop protection)
-            if (typeof showUniversalBanner === 'function') {
-                showUniversalBanner('clickToCall', { autoTriggerActionCenter: false });
-            }
-            
-            // Wait for audio to fully stop before proceeding
-            setTimeout(() => {
-                initializeClickToCallCapture();
-            }, 300);
-            break;
-            
-        case 'urgent-call':
-            if (typeof showUniversalBanner === 'function') {
-                showUniversalBanner('urgent', { autoTriggerActionCenter: false });
-            }
-            
-            setTimeout(() => {
-                initiateUrgentCall();
-            }, 300);
-            break;
-            
-        case 'free-consultation':
-            if (typeof showUniversalBanner === 'function') {
-                showUniversalBanner('setAppointment', { autoTriggerActionCenter: false });
-            }
-            
-            setTimeout(() => {
-                initializeConsultationCapture();
-            }, 300);
-            break;
-            
-        case 'pre-qualifier':
-            if (typeof showUniversalBanner === 'function') {
-                showUniversalBanner('preQualifier', { autoTriggerActionCenter: false });
-            }
-            
-            setTimeout(() => {
-                initializePreQualifierCapture();
-            }, 300);
-            break;
-            
-        case 'skip':
-            console.log('🎯 User chose to skip - BLOCKING avatar auto-restart');
-            
-            // 🚨 CRITICAL: Prevent avatar from auto-restarting Speak Now
-            window.suppressAvatarAutoRestart = true;
-            
-            const skipMessage = "I appreciate you're not ready to get immediate help from our expert. What else can I help you with to meet your objectives?";
-            
-            // Show message
-            if (window.addSystemMessage) {
-                window.addSystemMessage(skipMessage);
-            } else if (window.addAIMessage) {
-                window.addAIMessage(skipMessage);
-            }
-            
-            // Use the same pattern as other cases - wait for AI speech completion
-            if (window.speakText) {
-                window.speakText(skipMessage);
-                
-                const checkSpeech = setInterval(() => {
-                    if (!window.isSpeaking) {
-                        clearInterval(checkSpeech);
-                        console.log('✅ AI finished speaking - starting listening NOW');
-                        
-                        // 🎯 TRACKED BANNER SHOW
-                        console.log('🎤 SKIP: Triggering Speak Now banner');
-                        if (window.showDirectSpeakNow && typeof window.showDirectSpeakNow === 'function') {
-                            window.showDirectSpeakNow();
-                        }
-                    }
-                }, 100);
-
-                setTimeout(() => {
-                    clearInterval(checkSpeech);
-                }, 10000);
-            }
-            
-            // Re-enable avatar auto-restart after reasonable time
-            setTimeout(() => {
-                window.suppressAvatarAutoRestart = false;
-                console.log('✅ Avatar auto-restart re-enabled');
-            }, 15000);
-            break;
-    }
-    
-    // Reset processing flag after a delay
-    setTimeout(() => {
-        window.isProcessingAction = false;
-        window.skipActionCenterCompletion = false;
-        console.log('✅ Action processing complete - flags cleared');
-    }, 3000);
-}
-
 
 // ================================
 // LEAD CAPTURE: REQUEST A CALL (NEW)
@@ -422,9 +370,8 @@ function initializeRequestCallCapture() {
     
     setTimeout(() => {
         askLeadQuestion();
-      }, 1200);
+    }, 500);
 }
-
 
 // ================================
 // LEAD CAPTURE 3: FREE BOOK
@@ -453,9 +400,8 @@ function initializeFreeBookCapture() {
     
     setTimeout(() => {
         askLeadQuestion();
-      }, 1200);
+    }, 500);
 }
-
 
 // ================================
 // 🆕 AVOID AVATAR INTERRUPTIONS DURING LEAD CAPTURE
@@ -2406,19 +2352,6 @@ function restartConversation() {
  * Re-enables Speak Now banner when user makes a selection or closes
  */
 function handleActionCenterCompletion() {
-    // 🎯 CRITICAL: Check if we should skip completion
-    if (window.skipActionCenterCompletion) {
-        console.log('⏸️ SKIPPING: Action Center completion blocked by skipActionCenterCompletion flag');
-        window.skipActionCenterCompletion = false; // Clear flag
-        return;
-    }
-    
-    // 🎯 ALSO check if Communication Center is active
-    if (window.communicationCenterActive || window.isInCommunicationRelay) {
-        console.log('⏸️ SKIPPING: Communication Relay Center is active - don\'t trigger completion');
-        return;
-    }
-    
     console.log('✅ Action Center completed - re-enabling Speak Now banner');
     
     // Re-enable Speak Now banner
@@ -2438,19 +2371,16 @@ function handleActionCenterCompletion() {
                 };
                 window.speechSynthesis.addEventListener('end', speechEndHandler);
                 
-                // Safety timeout (keep this but make it smarter)
-                const safetyTimeout = setTimeout(() => {
-                    window.speechSynthesis.removeEventListener('end', speechEndHandler);
-                    console.log('🎤 Speak Now overlay triggered via safety timeout');
-                    showDirectSpeakNow();
-                }, 5000);
-                
-                // Store timeout ID so we can clear it if needed
-                window.speechSafetyTimeout = safetyTimeout;
+                // 🗑️ DELETE THIS SAFETY TIMEOUT - IT'S CAUSING THE PROBLEM!
+                // Safety timeout
+                // setTimeout(() => {
+                //     window.speechSynthesis.removeEventListener('end', speechEndHandler);
+                //     console.log('🎤 Speak Now overlay triggered via safety timeout');
+                // }, 5000);
                 
             } else {
                 console.log('🎤 Speak Now overlay triggered (no AI speech detected)');
-                showDirectSpeakNow();
+                // showDirectSpeakNow();
             }
         }
     }, 2000);
@@ -2506,6 +2436,7 @@ window.closeThankYouSplash = closeThankYouSplash;
 // ================================
 window.showCommunicationActionCenter = showCommunicationActionCenter;
 window.hideCommunicationActionCenter = hideCommunicationActionCenter;
+window.handleActionButton = handleActionButton;
 window.initializeConsultationCapture = initializeConsultationCapture;
 window.initializeClickToCallCapture = initializeClickToCallCapture;
 window.initializeUrgentCallCapture = initializeUrgentCallCapture;
@@ -2513,32 +2444,6 @@ window.initializeRequestCallCapture = initializeRequestCallCapture;
 window.initializeFreeBookCapture = initializeFreeBookCapture;
 window.initiateUrgentCall = initiateUrgentCall;
 window.initializePreQualifierCapture = initializePreQualifierCapture; // 🎯 NOW THIS WILL BE GOLD!
-
-// ================================
-// GLOBAL FUNCTION EXPORT
-// ================================
-// Make functions available globally for button onclick handlers
-if (typeof handleActionButton !== 'undefined') {
-    window.handleActionButton = handleActionButton;
-    console.log('✅ handleActionButton attached to window');
-}
-
-if (typeof handleActionCenterCompletion !== 'undefined') {
-    window.handleActionCenterCompletion = handleActionCenterCompletion;
-    console.log('✅ handleActionCenterCompletion attached to window');
-}
-
-// ================================
-// SAFETY CLEANUP - PREVENT STUCK FLAGS
-// ================================
-setInterval(() => {
-    if (window.isProcessingAction) {
-        // If flag has been true for more than 10 seconds, something's wrong
-        console.log('⚠️ isProcessingAction flag stuck - auto-clearing');
-        window.isProcessingAction = false;
-        window.skipActionCenterCompletion = false;
-    }
-}, 10000);
 
 
 console.log('✅ ACTION SYSTEM UNIFIED - Loaded successfully (FINAL CLEANED VERSION - No restore code)');
