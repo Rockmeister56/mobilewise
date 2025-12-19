@@ -54,6 +54,38 @@ function formatEmailFromSpeech(speechText) {
 }
 
 // ================================
+// ELEVENLABS AUDIO CONTROL
+// ================================
+function stopElevenLabsAudio() {
+    console.log("🔇 EMERGENCY AUDIO STOP");
+    
+    // Method 1: Stop all audio elements
+    let audioStopped = false;
+    document.querySelectorAll('audio').forEach(audio => {
+        if (!audio.paused) {
+            console.log("✅ Found playing audio - stopping it");
+            audio.pause();
+            audio.currentTime = 0;
+            audioStopped = true;
+        }
+    });
+    
+    // Method 2: Stop Web Speech
+    if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+    }
+    
+    // Method 3: Clear flags
+    window.isSpeaking = false;
+    
+    if (!audioStopped) {
+        console.log("⚠️ No playing audio found to stop");
+    }
+    
+    console.log("✅ Audio stop complete");
+}
+
+// ================================
 // ENHANCED ORIGINAL ACTION CENTER
 // ================================
 function showCommunicationActionCenter(mode = 'default') {
@@ -150,6 +182,9 @@ function initiateUrgentCall() {
 
 function handleActionButton(action) {
     console.log('🎯 Action button clicked:', action);
+
+   // 🎯 FIRST THING: Stop ElevenLabs audio
+    stopElevenLabsAudio();
     
     // 🛑 CHECK IF WE'RE ALREADY PROCESSING
     if (window.isProcessingAction) {
@@ -161,10 +196,9 @@ function handleActionButton(action) {
     
     hideCommunicationActionCenter();
     
-    // ❌ COMMENT THIS OUT TEMPORARILY:
-    // if (typeof handleActionCenterCompletion === 'function') {
-    //     handleActionCenterCompletion();
-    // }
+      if (typeof handleActionCenterCompletion === 'function') {
+        handleActionCenterCompletion();
+        }
     
     switch(action) {
         case 'click-to-call':
