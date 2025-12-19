@@ -87,25 +87,33 @@ function stopAllAudio() {
     console.log("✅ All audio stopped");
 }
 
-// Add this somewhere in action-system-unified.js
-window.stopAllAudio = function() {
-    console.log("🔇 STOPPING ALL AUDIO...");
+// ================================
+// SYNCHRONIZE BANNER SYSTEMS
+// ================================
+window.forceDelaySpeakNow = function(milliseconds = 1500) {
+    console.log(`⏰ FORCE DELAYING Speak Now banner by ${milliseconds}ms`);
     
-    if (window.currentElevenLabsAudio) {
-        window.currentElevenLabsAudio.pause();
-        window.currentElevenLabsAudio.currentTime = 0;
-        window.currentElevenLabsAudio = null;
-    }
+    // Store original function
+    const originalShow = window.showDirectSpeakNow;
     
-    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    // Override with delayed version
+    window.showDirectSpeakNow = function() {
+        console.log(`⏰ Delayed banner triggered - waiting ${milliseconds}ms`);
+        
+        setTimeout(() => {
+            console.log("✅ Now showing delayed Speak Now banner");
+            if (originalShow) originalShow();
+            
+            // Restore original function
+            window.showDirectSpeakNow = originalShow;
+        }, milliseconds);
+    };
     
-    document.querySelectorAll('audio').forEach(audio => {
-        audio.pause();
-        audio.currentTime = 0;
-    });
-    
-    window.isSpeaking = false;
-    console.log("✅ All audio stopped");
+    // Auto-restore after delay + buffer
+    setTimeout(() => {
+        window.showDirectSpeakNow = originalShow;
+        console.log("✅ Banner delay system reset");
+    }, milliseconds + 1000);
 };
 
 // ================================
@@ -511,7 +519,12 @@ function askLeadQuestion() {
     // 🎯 STEP 2: Track start
     window.trackLeadCaptureStart();
     
-    // 🎯 STEP 3: Wait for audio to fully stop
+    // 🎯 STEP 3: FORCE DELAY on Speak Now banner
+    if (window.forceDelaySpeakNow) {
+        window.forceDelaySpeakNow(1500); // 1.5 second delay
+    }
+    
+    // 🎯 STEP 4: Wait for audio to fully stop
     setTimeout(() => {
         window.lastProcessedTranscript = null;
         if (!window.isInLeadCapture || !window.currentLeadData) return;
@@ -528,7 +541,7 @@ function askLeadQuestion() {
             }
             
             if (window.speakText) {
-                // 🎯 STEP 4: Override the banner trigger to add delay
+                // 🎯 STEP 5: Override the banner trigger to add delay
                 const originalShowBanner = window.showDirectSpeakNow;
                 let bannerDelayed = false;
                 
