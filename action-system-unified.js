@@ -87,6 +87,27 @@ function stopAllAudio() {
     console.log("✅ All audio stopped");
 }
 
+// Add this somewhere in action-system-unified.js
+window.stopAllAudio = function() {
+    console.log("🔇 STOPPING ALL AUDIO...");
+    
+    if (window.currentElevenLabsAudio) {
+        window.currentElevenLabsAudio.pause();
+        window.currentElevenLabsAudio.currentTime = 0;
+        window.currentElevenLabsAudio = null;
+    }
+    
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    
+    document.querySelectorAll('audio').forEach(audio => {
+        audio.pause();
+        audio.currentTime = 0;
+    });
+    
+    window.isSpeaking = false;
+    console.log("✅ All audio stopped");
+};
+
 // ================================
 // ENHANCED ORIGINAL ACTION CENTER
 // ================================
