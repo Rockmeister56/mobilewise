@@ -78,6 +78,32 @@ function formatEmailFromSpeech(speechText) {
 }
 
 // ================================
+// ELEVENLABS AUDIO CONTROL
+// ================================
+function stopElevenLabsAudio() {
+    console.log("🔇 STOPPING ELEVENLABS AUDIO");
+    
+    // 1. Stop the global ElevenLabs audio
+    if (window.currentElevenLabsAudio) {
+        console.log("✅ Found ElevenLabs audio - stopping it");
+        window.currentElevenLabsAudio.pause();
+        window.currentElevenLabsAudio.currentTime = 0;
+        window.currentElevenLabsAudio = null;
+    }
+    
+    // 2. Also stop Web Speech API (if you use it)
+    if (window.speechSynthesis && window.speechSynthesis.speaking) {
+        console.log("🔇 Stopping Web Speech API");
+        window.speechSynthesis.cancel();
+    }
+    
+    // 3. Clear speaking flag
+    window.isSpeaking = false;
+    
+    console.log("✅ ElevenLabs audio stopped");
+}
+
+// ================================
 // ENHANCED ORIGINAL ACTION CENTER
 // ================================
 function showCommunicationActionCenter(mode = 'default') {
@@ -175,8 +201,8 @@ function initiateUrgentCall() {
 function handleActionButton(action) {
     console.log('🎯 Action button clicked:', action);
 
-      // 🚨 ADD THIS ONE LINE:
-    stopCurrentSpeech();
+   // 🎯 FIRST THING: Stop ElevenLabs audio
+    stopElevenLabsAudio();
     
     // 🛑 CHECK IF WE'RE ALREADY PROCESSING
     if (window.isProcessingAction) {

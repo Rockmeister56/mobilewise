@@ -1977,68 +1977,72 @@ class MobileWiseVoiceSystem {
         }
     }
     
-    // ===========================================
-    // ELEVENLABS VOICE PROVIDER
-    // ===========================================
-    async speakWithElevenLabs(text) {
-        if (!VOICE_CONFIG.elevenlabs.enabled) {
-            throw new Error("ElevenLabs not enabled");
-        }
+   // ===========================================
+// ELEVENLABS VOICE PROVIDER
+// ===========================================
+async speakWithElevenLabs(text) {
+    if (!VOICE_CONFIG.elevenlabs.enabled) {
+        throw new Error("ElevenLabs not enabled");
+    }
 
-        window.isSpeaking = true;
+    window.isSpeaking = true;
+    
+    const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE_CONFIG.elevenlabs.voiceId}`, {
+        method: 'POST',
+        headers: {
+            'Accept': 'audio/mpeg',
+            'Content-Type': 'application/json',
+            'xi-api-key': VOICE_CONFIG.elevenlabs.apiKey
+        },
+        body: JSON.stringify({
+            text: text,
+            model_id: VOICE_CONFIG.elevenlabs.model,
+            voice_settings: {
+                stability: 0.5,
+                similarity_boost: 0.5,
+                style: 0.0,
+                use_speaker_boost: true
+            }
+        })
+    });
+    
+    if (!response.ok) {
+        throw new Error(`ElevenLabs API error: ${response.status}`);
+    }
+    
+    const audioBlob = await response.blob();
+    const audioUrl = URL.createObjectURL(audioBlob);
+    
+    return new Promise((resolve, reject) => {
+        const audio = new Audio();
+        audio.preload = 'auto';
         
-        const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE_CONFIG.elevenlabs.voiceId}`, {
-            method: 'POST',
-            headers: {
-                'Accept': 'audio/mpeg',
-                'Content-Type': 'application/json',
-                'xi-api-key': VOICE_CONFIG.elevenlabs.apiKey
-            },
-            body: JSON.stringify({
-                text: text,
-                model_id: VOICE_CONFIG.elevenlabs.model,
-                voice_settings: {
-                    stability: 0.5,
-                    similarity_boost: 0.5,
-                    style: 0.0,
-                    use_speaker_boost: true
-                }
-            })
-        });
-        
-        if (!response.ok) {
-            throw new Error(`ElevenLabs API error: ${response.status}`);
-        }
-        
-        const audioBlob = await response.blob();
-        const audioUrl = URL.createObjectURL(audioBlob);
-        
-        return new Promise((resolve, reject) => {
-            const audio = new Audio();
-            audio.preload = 'auto';
-
-             // 🎯 ADD THIS ONE CRITICAL LINE:
+        // 🎯 CRITICAL: Store audio globally so other files can stop it
         window.currentElevenLabsAudio = audio;
         console.log("🎯 ElevenLabs audio stored globally");
-            
-            audio.oncanplaythrough = () => {
-                audio.play();
-            };
-            
-            audio.onended = () => {
-                this.handleSpeechComplete();
-                URL.revokeObjectURL(audioUrl);
-                resolve();
-            };
-            
-            audio.onerror = (error) => {
-                console.error('🚫 ElevenLabs audio error:', error);
-                reject(error);
-            };
-            
-            audio.src = audioUrl;
-        });
-    }
+        
+        audio.oncanplaythrough = () => {
+            audio.play();
+        };
+        
+        audio.onended = () => {
+            // 🎯 CRITICAL: Clean up global reference when audio ends
+            window.currentElevenLabsAudio = null;
+            this.handleSpeechComplete();
+            URL.revokeObjectURL(audioUrl);
+            resolve();
+        };
+        
+        audio.onerror = (error) => {
+            // 🎯 CRITICAL: Clean up on error too
+            window.currentElevenLabsAudio = null;
+            console.error('🚫 ElevenLabs audio error:', error);
+            reject(error);
+        };
+        
+        audio.src = audioUrl;
+    });
+}
     
     // ===========================================
     // BRITISH VOICE PROVIDER
