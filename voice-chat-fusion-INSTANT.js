@@ -2018,7 +2018,7 @@ async speakWithElevenLabs(text) {
         audio.preload = 'auto';
         
         // 🎯 CRITICAL: Store audio globally so other files can stop it
-        window.currentElevenLabsAudio = audio;
+        // window.currentElevenLabsAudio = audio;
         console.log("🎯 ElevenLabs audio stored globally");
         
         audio.oncanplaythrough = () => {
