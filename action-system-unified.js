@@ -215,10 +215,10 @@ function handleActionButton(action) {
     
     hideCommunicationActionCenter();
     
-    // 🆕 CALL COMPLETION HANDLER
-    if (typeof handleActionCenterCompletion === 'function') {
-        handleActionCenterCompletion();
-    }
+    // ❌ COMMENT THIS OUT TEMPORARILY:
+    // if (typeof handleActionCenterCompletion === 'function') {
+    //     handleActionCenterCompletion();
+    // }
     
     switch(action) {
         case 'click-to-call':
