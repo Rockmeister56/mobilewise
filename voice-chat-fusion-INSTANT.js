@@ -1971,7 +1971,10 @@ class MobileWiseVoiceSystem {
             }
         }
     }
-    
+
+    // ===========================================
+    // ELEVENLABS VOICE PROVIDER
+    // ===========================================
     async speakWithElevenLabs(text) {
     if (!VOICE_CONFIG.elevenlabs.enabled) {
         throw new Error("ElevenLabs not enabled");

@@ -4,6 +4,7 @@
 // CLEANED VERSION - No restore code for old buttons
 // ================================
 
+
 const EMAILJS_CONFIG = {
     serviceId: 'service_b9bppgb',
     publicKey: '7-9oxa3UC3uKxtqGM',
@@ -53,7 +54,9 @@ function formatEmailFromSpeech(speechText) {
     return formattedEmail;
 }
 
-// Add this function to action-system-unified.js (anywhere near the top or with other utility functions)
+// ================================
+// STOP ALL SPEACH
+// ================================
 function stopAllAudio() {
     console.log("🔇 STOPPING ALL AUDIO...");
     
@@ -86,35 +89,6 @@ function stopAllAudio() {
     
     console.log("✅ All audio stopped");
 }
-
-// ================================
-// SYNCHRONIZE BANNER SYSTEMS
-// ================================
-window.forceDelaySpeakNow = function(milliseconds = 1500) {
-    console.log(`⏰ FORCE DELAYING Speak Now banner by ${milliseconds}ms`);
-    
-    // Store original function
-    const originalShow = window.showDirectSpeakNow;
-    
-    // Override with delayed version
-    window.showDirectSpeakNow = function() {
-        console.log(`⏰ Delayed banner triggered - waiting ${milliseconds}ms`);
-        
-        setTimeout(() => {
-            console.log("✅ Now showing delayed Speak Now banner");
-            if (originalShow) originalShow();
-            
-            // Restore original function
-            window.showDirectSpeakNow = originalShow;
-        }, milliseconds);
-    };
-    
-    // Auto-restore after delay + buffer
-    setTimeout(() => {
-        window.showDirectSpeakNow = originalShow;
-        console.log("✅ Banner delay system reset");
-    }, milliseconds + 1000);
-};
 
 // ================================
 // ENHANCED ORIGINAL ACTION CENTER
@@ -167,30 +141,6 @@ function showCommunicationActionCenter(mode = 'default') {
 // ================================
 window.trackLeadCaptureStart = function() {
     console.log('🎯 LEAD CAPTURE: Starting lead capture process');
-    
-    // 🎯 CRITICAL: STOP ALL AUDIO FIRST!
-    if (window.stopAllAudio && typeof window.stopAllAudio === 'function') {
-        window.stopAllAudio();
-    } else {
-        // Emergency stop
-        console.log('🔇 Emergency audio stop');
-        if (window.currentElevenLabsAudio) {
-            window.currentElevenLabsAudio.pause();
-            window.currentElevenLabsAudio.currentTime = 0;
-            window.currentElevenLabsAudio = null;
-        }
-        if (window.speechSynthesis) window.speechSynthesis.cancel();
-        document.querySelectorAll('audio').forEach(a => {
-            a.pause();
-            a.currentTime = 0;
-        });
-    }
-    
-    // Set flag to delay Speak Now banner
-    window._delaySpeakNow = true;
-    setTimeout(() => {
-        window._delaySpeakNow = false;
-    }, 2000);
 };
 
 window.trackLeadCaptureComplete = function() {
@@ -238,12 +188,8 @@ function initiateUrgentCall() {
 function handleActionButton(action) {
     console.log('🎯 Action button clicked:', action);
 
-     // 🎯 CRITICAL: STOP AUDIO FIRST!
-    if (typeof stopAllAudio === 'function') {
-        stopAllAudio();
-    } else if (window.stopAllAudio) {
-        window.stopAllAudio(); // Fallback
-    }
+      // 🚨 ADD THIS ONE LINE:
+    stopAllAudio()
     
     // 🛑 CHECK IF WE'RE ALREADY PROCESSING
     if (window.isProcessingAction) {
@@ -369,8 +315,9 @@ function initializeConsultationCapture() {
     
     setTimeout(() => {
         askLeadQuestion();
-    }, 500);
+      }, 1200);
 }
+
 
 // ================================
 // LEAD CAPTURE 2: URGENT CALL
@@ -408,16 +355,14 @@ function initializeUrgentCallCapture() {
     
     setTimeout(() => {
         askLeadQuestion();
-    }, 500);
+      }, 1200);
 }
+
 
 // ================================
 // LEAD CAPTURE: REQUEST A CALL (NEW)
 // ================================
 function initializeRequestCallCapture() {
-console.log("🔇 Stopping audio before request call...");
-if (window.stopAllAudio) window.stopAllAudio();
-
     console.log('🚀 Starting REQUEST A CALL capture...');
     
     if (window.isInLeadCapture) return;
@@ -440,8 +385,9 @@ if (window.stopAllAudio) window.stopAllAudio();
     
     setTimeout(() => {
         askLeadQuestion();
-    }, 500);
+      }, 1200);
 }
+
 
 // ================================
 // LEAD CAPTURE 3: FREE BOOK
@@ -470,8 +416,9 @@ function initializeFreeBookCapture() {
     
     setTimeout(() => {
         askLeadQuestion();
-    }, 500);
+      }, 1200);
 }
+
 
 // ================================
 // 🆕 AVOID AVATAR INTERRUPTIONS DURING LEAD CAPTURE
@@ -492,80 +439,49 @@ function disableAvatarDuringLeadCapture() {
 }
 
 // ================================
-// UNIVERSAL LEAD QUESTION ASKER - MODIFIED (Single Function)
+// UNIVERSAL LEAD QUESTION ASKER
 // ================================
 function askLeadQuestion() {
-    // 🎯 STEP 1: Stop all audio IMMEDIATELY
-    console.log('🔇 EMERGENCY AUDIO STOP for lead capture');
+    window.trackLeadCaptureStart(); // 🎯 TRACK THIS!
     
-    // Stop ElevenLabs
-    if (window.currentElevenLabsAudio) {
-        window.currentElevenLabsAudio.pause();
-        window.currentElevenLabsAudio.currentTime = 0;
-        window.currentElevenLabsAudio = null;
-    }
+    window.lastProcessedTranscript = null;
+    if (!window.isInLeadCapture || !window.currentLeadData) return;
     
-    // Stop Web Speech
-    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    const data = window.currentLeadData;
+    console.log('🎯 Asking question for step:', data.step);
     
-    // Stop all HTML5 audio
-    document.querySelectorAll('audio').forEach(audio => {
-        audio.pause();
-        audio.currentTime = 0;
-    });
-    
-    window.isSpeaking = false;
-    
-    // 🎯 STEP 2: Track start
-    window.trackLeadCaptureStart();
-    
-    // 🎯 STEP 3: Wait for audio to fully stop
-    setTimeout(() => {
-        window.lastProcessedTranscript = null;
-        if (!window.isInLeadCapture || !window.currentLeadData) return;
+    if (data.step < data.questions.length) {
+        const question = data.questions[data.step];
+        console.log('🎯 Question:', question);
         
-        const data = window.currentLeadData;
-        console.log('🎯 Asking question for step:', data.step);
-        
-        if (data.step < data.questions.length) {
-            const question = data.questions[data.step];
-            console.log('🎯 Question:', question);
-            
-            if (window.addAIMessage) {
-                window.addAIMessage(question);
-            }
-            
-            if (window.speakText) {
-                // 🎯 SIMPLE VERSION: Speak, wait for finish, delay, show banner
-                window.speakText(question);
-                
-                // Listen for when speech FINISHES
-                const checkSpeechEnd = setInterval(() => {
-                    if (!window.isSpeaking) {
-                        clearInterval(checkSpeechEnd);
-                        console.log('✅ AI finished speaking - starting 1.5s delay');
-                        
-                        // Wait 1.5 seconds AFTER speech finishes
-                        setTimeout(() => {
-                            console.log('✅ Delay complete - showing Speak Now banner');
-                            if (window.showDirectSpeakNow) {
-                                window.showDirectSpeakNow();
-                            }
-                        }, 1500);
-                    }
-                }, 100);
-                
-                // Safety timeout
-                setTimeout(() => {
-                    clearInterval(checkSpeechEnd);
-                }, 10000);
-            }
-        } else {
-            completeLeadCapture();
+        if (window.addAIMessage) {
+            window.addAIMessage(question);
         }
-    }, 300);
-}
+        
+        if (window.speakText) {
+            window.speakText(question);
+            
+            const checkSpeech = setInterval(() => {
+                if (!window.isSpeaking) {
+                    clearInterval(checkSpeech);
+                    console.log('✅ AI finished speaking - starting listening NOW');
+                    
+                    // 🎯 TRACKED BANNER SHOW
+                    console.log('🎤 LEAD CAPTURE: Triggering Speak Now banner for step', data.step);
+                    if (window.showDirectSpeakNow && typeof window.showDirectSpeakNow === 'function') {
+                        window.showDirectSpeakNow();
+                    }
+                }
+            }, 100);
 
+            setTimeout(() => {
+                clearInterval(checkSpeech);
+            }, 10000);
+        }
+    } else {
+        completeLeadCapture();
+    }
+}
 // ================================
 // PROCESS USER RESPONSE - FIXED VERSION
 // ================================
