@@ -519,12 +519,7 @@ function askLeadQuestion() {
     // 🎯 STEP 2: Track start
     window.trackLeadCaptureStart();
     
-    // 🎯 STEP 3: FORCE DELAY on Speak Now banner
-    if (window.forceDelaySpeakNow) {
-        window.forceDelaySpeakNow(1500); // 1.5 second delay
-    }
-    
-    // 🎯 STEP 4: Wait for audio to fully stop
+    // 🎯 STEP 3: Wait for audio to fully stop
     setTimeout(() => {
         window.lastProcessedTranscript = null;
         if (!window.isInLeadCapture || !window.currentLeadData) return;
@@ -541,33 +536,29 @@ function askLeadQuestion() {
             }
             
             if (window.speakText) {
-                // 🎯 STEP 5: Override the banner trigger to add delay
-                const originalShowBanner = window.showDirectSpeakNow;
-                let bannerDelayed = false;
-                
-                window.showDirectSpeakNow = function() {
-                    if (!bannerDelayed && data.step === 0) {
-                        // First question - ADD DELAY
-                        console.log('⏰ DELAYING Speak Now banner by 1.5 seconds for first question');
-                        bannerDelayed = true;
-                        
-                        setTimeout(() => {
-                            console.log('✅ Now showing Speak Now banner');
-                            if (originalShowBanner) originalShowBanner();
-                        }, 1500);
-                        
-                        // Restore original function after first use
-                        setTimeout(() => {
-                            window.showDirectSpeakNow = originalShowBanner;
-                        }, 2000);
-                    } else {
-                        // Subsequent questions or already delayed
-                        if (originalShowBanner) originalShowBanner();
-                    }
-                };
-                
-                // Now speak the question
+                // 🎯 SIMPLE VERSION: Speak, wait for finish, delay, show banner
                 window.speakText(question);
+                
+                // Listen for when speech FINISHES
+                const checkSpeechEnd = setInterval(() => {
+                    if (!window.isSpeaking) {
+                        clearInterval(checkSpeechEnd);
+                        console.log('✅ AI finished speaking - starting 1.5s delay');
+                        
+                        // Wait 1.5 seconds AFTER speech finishes
+                        setTimeout(() => {
+                            console.log('✅ Delay complete - showing Speak Now banner');
+                            if (window.showDirectSpeakNow) {
+                                window.showDirectSpeakNow();
+                            }
+                        }, 1500);
+                    }
+                }, 100);
+                
+                // Safety timeout
+                setTimeout(() => {
+                    clearInterval(checkSpeechEnd);
+                }, 10000);
             }
         } else {
             completeLeadCapture();
