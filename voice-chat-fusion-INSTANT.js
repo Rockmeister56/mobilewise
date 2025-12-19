@@ -3131,7 +3131,7 @@ setTimeout(() => {
     }
 }, 1000);
 
-return "I understand this is urgent! Let me bring up all the ways to connect with Bruce, the founder and CEO of NCI immediately.";
+return "I understand this is urgent! Click the urgent button to connect now";
 }
 
 // Check for APPOINTMENT second
