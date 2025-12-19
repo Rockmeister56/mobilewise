@@ -1977,8 +1977,8 @@ class MobileWiseVoiceSystem {
         }
     }
     
-   // ===========================================
-// ELEVENLABS VOICE PROVIDER
+ // ===========================================
+// ELEVENLABS VOICE PROVIDER - FIXED VERSION
 // ===========================================
 async speakWithElevenLabs(text) {
     if (!VOICE_CONFIG.elevenlabs.enabled) {
@@ -2026,16 +2026,19 @@ async speakWithElevenLabs(text) {
         };
         
         audio.onended = () => {
-            // 🎯 CRITICAL: Clean up global reference when audio ends
-            window.currentElevenLabsAudio = null;
+            // 🚨 CRITICAL CHANGE: DO NOT clean up here!
+            // Let the stopElevenLabsAudio() function handle cleanup
+            // window.currentElevenLabsAudio = null; // REMOVED!
+            
             this.handleSpeechComplete();
             URL.revokeObjectURL(audioUrl);
             resolve();
         };
         
         audio.onerror = (error) => {
-            // 🎯 CRITICAL: Clean up on error too
-            window.currentElevenLabsAudio = null;
+            // 🚨 CRITICAL CHANGE: DO NOT clean up here either!
+            // window.currentElevenLabsAudio = null; // REMOVED!
+            
             console.error('🚫 ElevenLabs audio error:', error);
             reject(error);
         };

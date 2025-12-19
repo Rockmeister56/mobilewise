@@ -84,20 +84,21 @@ function stopElevenLabsAudio() {
     console.log("🔇 STOPPING ELEVENLABS AUDIO");
     
     // 1. Stop the global ElevenLabs audio
-    if (window.currentElevenLabsAudio) {
-        console.log("✅ Found ElevenLabs audio - stopping it");
+     if (window.currentElevenLabsAudio) {
+        console.log("✅ Found audio - stopping it");
         window.currentElevenLabsAudio.pause();
         window.currentElevenLabsAudio.currentTime = 0;
-        window.currentElevenLabsAudio = null;
+        window.currentElevenLabsAudio = null; // ✅ ONLY clear when stopped by button
+        console.log("✅ Audio stopped and cleared");
+    } else {
+        console.log("❌ No audio found to stop");
     }
     
-    // 2. Also stop Web Speech API (if you use it)
-    if (window.speechSynthesis && window.speechSynthesis.speaking) {
-        console.log("🔇 Stopping Web Speech API");
+    // Also stop Web Speech
+    if (window.speechSynthesis) {
         window.speechSynthesis.cancel();
     }
     
-    // 3. Clear speaking flag
     window.isSpeaking = false;
     
     console.log("✅ ElevenLabs audio stopped");
