@@ -61,10 +61,6 @@ window.disableSpeakNowBanner = false;
     }
 
  function triggerLeadActionCenter() {
-   // 🎯 ADD THIS LINE:
-    if (window._blockRetrigger) return;
-    window._blockRetrigger = true;
-    console.log('🚀 Triggering Lead Action Center (Silent Version)...');
     
     // 🚫 CRITICAL: Prevent Speak Now banner
     window.disableSpeakNowBanner = true;

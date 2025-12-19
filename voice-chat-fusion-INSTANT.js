@@ -3265,7 +3265,7 @@ if ((lowerMessage.includes('yes') || lowerMessage.includes('yeah') || lowerMessa
     }
     
     // Return instruction speech that plays AFTER Action Center is visible
-    return "Great! I can make that painless with my assistance after clicking one of our communication relay buttons on your screen";
+    return "Great! Simply click the Consultation Button on your screen";
 }
 
 return originalGetAIResponse.apply(this, arguments);

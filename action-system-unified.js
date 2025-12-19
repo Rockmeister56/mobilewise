@@ -4,30 +4,6 @@
 // CLEANED VERSION - No restore code for old buttons
 // ================================
 
-// 🚨 RESTORE: Simple speech stopper that USED TO WORK
-function stopCurrentSpeech() {
-    console.log('🔇 STOPPING current speech (restored function)');
-    
-    // 1. Stop ElevenLabs (this used to work!)
-    if (window.elevenLabsPlayer && window.elevenLabsPlayer.stop) {
-        console.log('🔇 Calling elevenLabsPlayer.stop()');
-        window.elevenLabsPlayer.stop();
-    }
-    
-    // 2. Stop Web Speech API
-    if (window.speechSynthesis && window.speechSynthesis.speaking) {
-        console.log('🔇 Cancelling speechSynthesis');
-        window.speechSynthesis.cancel();
-    }
-    
-    // 3. Update flag
-    window.isSpeaking = false;
-    
-    console.log('✅ Speech stopped');
-    return true;
-}
-
-
 const EMAILJS_CONFIG = {
     serviceId: 'service_b9bppgb',
     publicKey: '7-9oxa3UC3uKxtqGM',
@@ -81,27 +57,32 @@ function formatEmailFromSpeech(speechText) {
 // ELEVENLABS AUDIO CONTROL
 // ================================
 function stopElevenLabsAudio() {
-    console.log("🔇 STOPPING ELEVENLABS AUDIO");
+    console.log("🔇 EMERGENCY AUDIO STOP");
     
-    // 1. Stop the global ElevenLabs audio
-     if (window.currentElevenLabsAudio) {
-        console.log("✅ Found audio - stopping it");
-        window.currentElevenLabsAudio.pause();
-        window.currentElevenLabsAudio.currentTime = 0;
-        window.currentElevenLabsAudio = null; // ✅ ONLY clear when stopped by button
-        console.log("✅ Audio stopped and cleared");
-    } else {
-        console.log("❌ No audio found to stop");
-    }
+    // Method 1: Stop all audio elements
+    let audioStopped = false;
+    document.querySelectorAll('audio').forEach(audio => {
+        if (!audio.paused) {
+            console.log("✅ Found playing audio - stopping it");
+            audio.pause();
+            audio.currentTime = 0;
+            audioStopped = true;
+        }
+    });
     
-    // Also stop Web Speech
+    // Method 2: Stop Web Speech
     if (window.speechSynthesis) {
         window.speechSynthesis.cancel();
     }
     
+    // Method 3: Clear flags
     window.isSpeaking = false;
     
-    console.log("✅ ElevenLabs audio stopped");
+    if (!audioStopped) {
+        console.log("⚠️ No playing audio found to stop");
+    }
+    
+    console.log("✅ Audio stop complete");
 }
 
 // ================================
