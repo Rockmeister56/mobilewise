@@ -2016,6 +2016,10 @@ class MobileWiseVoiceSystem {
         return new Promise((resolve, reject) => {
             const audio = new Audio();
             audio.preload = 'auto';
+
+             // 🎯 ADD THIS ONE CRITICAL LINE:
+        window.currentElevenLabsAudio = audio;
+        console.log("🎯 ElevenLabs audio stored globally");
             
             audio.oncanplaythrough = () => {
                 audio.play();
