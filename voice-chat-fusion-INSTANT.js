@@ -3,6 +3,46 @@
 // Smart Button + Lead Capture + EmailJS + Banner System
 // ===================================================
 
+// TEMPORARY PATCH - Add at the TOP of the file
+console.log("🎯 PATCH: Monitoring ElevenLabs audio creation");
+
+// Store the original function
+const originalSpeakWithElevenLabs = window.speakWithElevenLabs || 
+                                   (window.VoiceChatFusion && window.VoiceChatFusion.prototype.speakWithElevenLabs);
+
+// Override to add tracking
+if (originalSpeakWithElevenLabs) {
+    const patchedFunction = function(text) {
+        console.log("🎤 ElevenLabs about to speak:", text.substring(0, 50) + "...");
+        
+        // Call original function
+        const result = originalSpeakWithElevenLabs.call(this, text);
+        
+        // If it returns a promise with audio, track it
+        if (result && result.then) {
+            result.then(() => {
+                console.log("🔍 After ElevenLabs speech:");
+                console.log("   currentElevenLabsAudio:", window.currentElevenLabsAudio);
+                console.log("   Type:", typeof window.currentElevenLabsAudio);
+            }).catch(err => {
+                console.error("❌ ElevenLabs error:", err);
+            });
+        }
+        
+        return result;
+    };
+    
+    // Replace the function
+    if (window.speakWithElevenLabs) {
+        window.speakWithElevenLabs = patchedFunction;
+    }
+    if (window.VoiceChatFusion && window.VoiceChatFusion.prototype.speakWithElevenLabs) {
+        window.VoiceChatFusion.prototype.speakWithElevenLabs = patchedFunction;
+    }
+    
+    console.log("✅ ElevenLabs patched for monitoring");
+}
+
 // ===========================================
 // ELEVENLABS CONFIGURATION
 // ===========================================
