@@ -3,6 +3,43 @@
 // Smart Button + Lead Capture + EmailJS + Banner System
 // ===================================================
 
+// =============================================================================
+// 📱 MOBILEWISE AI CONFIGURATION (ADD THIS AT TOP OF voice-chat-fusion-INSTANT.js)
+// =============================================================================
+
+window.INDUSTRY_CONFIG = {
+    mobilewise: {
+        identity: {
+            companyName: "MobileWise AI",
+            expertName: "Brett Duncan",
+            freeOffer: "Free Mobile Report Analysis"
+        },
+        triggers: {
+            urgent: ['urgent', 'emergency', 'help now', 'asap'],
+            appointment: ['appointment', 'consultation', 'meeting', 'schedule'],
+            concern: ['expensive', 'AI is scary', 'dangerous', 'don\'t trust'],
+            buying: ['increase conversion', 'boost leads', 'more revenue'],
+            report: ['free mobile report', 'website analysis', 'conversion report']
+        },
+        bannerMapping: {
+            urgent: 'urgent_message',
+            appointment: 'schedule_appointment',
+            concern: 'show_testimonials',
+            buying_start: 'freeIncentive',
+            report_help: 'expertise'
+        },
+        responses: {
+            welcome: "Welcome to MobileWise AI! I'm your AI conversion assistant...",
+            concernAcknowledgment: "I understand your concern about {concern}...",
+            buyingPathStart: "Perfect! What's your current website conversion rate?",
+            reportExplanation: "Your Free Mobile Report analyzes the top 7 conversion limitations...",
+            fallback: "That's an excellent question about AI conversion optimization..."
+        }
+    }
+};
+window.currentIndustry = 'mobilewise';
+console.log('🎯 MobileWise AI config loaded inside voice-chat-fusion');
+
 // ===================================================
 // 📱 MOBILE PERMISSION BRIDGE SYSTEM - FIXED VERSION
 // ===================================================
@@ -2868,11 +2905,37 @@ function updateSmartButton(shouldShow, buttonText, action) {
 }
 
 // =============================================================================
-// 🎯 getAIResponse.js - COMPLETE DROP-IN REPLACEMENT
+// 🎯 MOBILEWISE TRIGGER HELPER (ADD THIS BEFORE getAIResponse FUNCTION)
 // =============================================================================
-// ✅ REPLACES YOUR ENTIRE EXISTING FILE
-// ✅ ALL FUNCTIONS PRESERVED + MOBILEWISE ENHANCEMENTS
-// =============================================================================
+
+function triggerBannerViaMapping(triggerType) {
+    if (!window.INDUSTRY_CONFIG || !window.INDUSTRY_CONFIG.mobilewise) return;
+    
+    const config = window.INDUSTRY_CONFIG.mobilewise;
+    const bannerKey = config.bannerMapping[triggerType];
+    
+    if (!bannerKey) return;
+    
+    console.log(`🎯 MobileWise banner: ${triggerType} → ${bannerKey}`);
+    
+    // Use existing banner system
+    if (window.bannerTriggers && window.bannerTriggers[bannerKey]) {
+        return;
+    }
+    
+    // Fallback to universal banner
+    if (window.showUniversalBanner) {
+        const bannerTypeMap = {
+            'urgent_message': 'urgent',
+            'schedule_appointment': 'setAppointment',
+            'show_testimonials': 'testimonialSelector',
+            'freeIncentive': 'freeIncentive',
+            'expertise': 'expertise'
+        };
+        const actualBannerType = bannerTypeMap[bannerKey] || bannerKey;
+        window.showUniversalBanner(actualBannerType);
+    }
+}
 
 // =============================================================================
 // 🎯 1. MAIN getAIResponse FUNCTION (Enhanced with MobileWise)
@@ -2919,6 +2982,40 @@ async function getAIResponse(userMessage, conversationHistory = []) {
         console.log(`🎯 Calling handleConcernWithTestimonial with type: ${concernType}`);
         handleConcernWithTestimonial(userMessage, concernType);
         return; // Stop the sales process for concerns
+    }
+
+     // =========================================================================
+    // 🎯 MOBILEWISE AI TRIGGERS (ADD THIS RIGHT HERE)
+    // =========================================================================
+    if (window.INDUSTRY_CONFIG && window.INDUSTRY_CONFIG.mobilewise) {
+        const config = window.INDUSTRY_CONFIG.mobilewise;
+        const lowerMessage = userMessage.toLowerCase();
+        
+        // Check URGENT triggers
+        if (config.triggers.urgent.some(pattern => lowerMessage.includes(pattern))) {
+            console.log('🚨 MobileWise URGENT detected');
+            setTimeout(() => { if (window.triggerLeadActionCenter) window.triggerLeadActionCenter(); }, 1000);
+            triggerBannerViaMapping('urgent');
+            return "I understand this is urgent! Click the urgent button to connect now.";
+        }
+        
+        // Check APPOINTMENT triggers  
+        if (config.triggers.appointment.some(pattern => lowerMessage.includes(pattern))) {
+            console.log('🎯 MobileWise APPOINTMENT detected');
+            setTimeout(() => { if (window.triggerLeadActionCenter) window.triggerLeadActionCenter(); }, 1000);
+            triggerBannerViaMapping('appointment');
+            return "Perfect! I've brought up all the ways to connect with our specialist.";
+        }
+        
+        // Check CONCERN triggers
+        if (config.triggers.concern.some(pattern => lowerMessage.includes(pattern))) {
+            console.log('🚨 MobileWise CONCERN detected');
+            if (window.handleConcernWithTestimonial) {
+                window.handleConcernWithTestimonial(userMessage, 'general');
+            }
+            triggerBannerViaMapping('concern');
+            return "I understand your concern. Let me show you what others experienced...";
+        }
     }
 
     // Initialize Sales AI if not exists
