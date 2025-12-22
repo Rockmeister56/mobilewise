@@ -1,0 +1,120 @@
+{
+  "industry_name": "CPA Practice Sales & Acquisitions",
+  "industry_type": "accounting_practice_brokerage",
+  "version": "1.0",
+  
+  "greeting": "Hi! I'm your AI Voice Assistant. How can I help you with buying, selling, or valuing accounting practices today?",
+  
+  "services": [
+    "Practice Sales",
+    "Practice Acquisitions", 
+    "Practice Valuations",
+    "Succession Planning",
+    "Practice Transition Consulting"
+  ],
+  
+  "questions": [
+    {
+      "id": "selling_timeline",
+      "triggers": ["how long to sell", "time to sell", "sell timeline", "selling duration", "how fast can I sell"],
+      "keywords": ["sell", "time", "how long", "duration", "timeline", "fast"],
+      "response": "Most accounting practices sell within 2-6 months. The exact timeline depends on your practice size, location, and pricing. Practices with strong financials and good client retention typically sell faster. Would you like to discuss your specific situation?",
+      "category": "selling",
+      "triggerAction": "request_selling_consultation"
+    },
+    
+    {
+      "id": "buying_timeline",
+      "triggers": ["how long to buy", "time to buy", "buying timeline", "purchase duration"],
+      "keywords": ["buy", "purchase", "time", "how long", "acquire"],
+      "response": "Most buyers find and close on a practice within 2-6 months. The timeline depends on your budget, location preferences, and due diligence process. Having financing pre-approved can speed things up significantly. Would you like to hear about available practices?",
+      "category": "buying",
+      "triggerAction": "request_buying_consultation"
+    },
+    
+    {
+      "id": "practice_valuation",
+      "triggers": ["what is my practice worth", "practice value", "how much is it worth", "valuation", "appraisal"],
+      "keywords": ["worth", "value", "price", "valuation", "appraisal", "how much"],
+      "response": "Most CPA practices sell between 100-150% of gross annual billing. The exact multiple depends on several factors: profit margins, client retention, recurring revenue mix, location, and growth potential. Higher profit margins typically command higher multiples. Would you like a professional valuation?",
+      "category": "valuation",
+      "triggerAction": "request_valuation"
+    },
+    
+    {
+      "id": "practice_pricing",
+      "triggers": ["how much does a practice cost", "practice price", "cost to buy"],
+      "keywords": ["cost", "price", "buy", "purchase", "how much", "afford"],
+      "response": "CPA practices typically sell for 100-150% of gross annual billing, with most transactions around 125%. For example, a practice with $500K in annual billing would typically sell for $625K. The exact price depends on profitability, client quality, and market conditions. What's your budget range?",
+      "category": "buying",
+      "triggerAction": "request_buying_consultation"
+    },
+    
+    {
+      "id": "financing_options",
+      "triggers": ["financing", "loan", "funding", "can I finance", "money"],
+      "keywords": ["financing", "loan", "money", "funding", "bank", "finance"],
+      "response": "Financing is available for qualified buyers, typically covering 70-90% of the purchase price. You'll generally need good credit, reasonable net worth, and cash flow to support debt service. Some sellers also offer seller financing. Would you like to discuss financing options?",
+      "category": "buying",
+      "triggerAction": "request_financing_consultation"
+    },
+    
+    {
+      "id": "sale_guarantees",
+      "triggers": ["guarantee", "protection", "refund", "what if clients leave"],
+      "keywords": ["guarantee", "protection", "refund", "assurance", "risk", "clients leave"],
+      "response": "Most practice sales include client retention guarantees, typically for one year. If collected fees don't meet the agreed amount, you may receive a refund or adjustment based on the purchase multiple. The exact terms vary by transaction. Would you like to hear more details?",
+      "category": "buying",
+      "triggerAction": "request_guarantee_details"
+    },
+    
+    {
+      "id": "seller_fees",
+      "triggers": ["what do you charge", "commission", "fees", "cost to sell"],
+      "keywords": ["charge", "commission", "fee", "cost", "price", "how much"],
+      "response": "Commission structures vary by firm and transaction size. Most brokers charge a percentage of the sale price, typically ranging from 10-15%. Some offer flat fees for smaller practices. The best approach is to discuss your specific practice to get an accurate quote. Interested in learning more?",
+      "category": "selling",
+      "triggerAction": "request_fee_consultation"
+    },
+    
+    {
+      "id": "confidentiality",
+      "triggers": ["confidential", "secret", "discreet", "privacy", "who will know"],
+      "keywords": ["confidential", "secret", "discreet", "privacy", "anonymous"],
+      "response": "Confidentiality is critical in practice sales. Qualified brokers use non-disclosure agreements, anonymous listings, and controlled information disclosure. Your clients and staff typically don't know until you're ready to announce. Would you like to discuss our confidentiality process?",
+      "category": "general",
+      "triggerAction": "request_confidentiality_consultation"
+    },
+    
+    {
+      "id": "what_services",
+      "triggers": ["what do you do", "services", "how can you help", "what help"],
+      "keywords": ["what", "do", "services", "help", "offer"],
+      "response": "Professional practice brokers typically offer: practice sales representation, buyer matching services, practice valuations, succession planning, and transaction support. We handle marketing, screening buyers, negotiations, and closing coordination. How can we help with your practice needs?",
+      "category": "general",
+      "triggerAction": "request_services_consultation"
+    },
+    
+    {
+      "id": "due_diligence",
+      "triggers": ["due diligence", "what documents", "paperwork", "information needed"],
+      "keywords": ["due diligence", "documents", "paperwork", "information", "need", "required"],
+      "response": "Typical due diligence includes: 3 years of tax returns, financial statements, client lists with revenue, fee structures, and staff information. Buyers also review your lease, software systems, and work-in-process. A good broker helps you prepare all documentation. Want to know what you'll need?",
+      "category": "general",
+      "triggerAction": "request_due_diligence_help"
+    }
+  ],
+  
+  "fallback_response": "That's a great question about accounting practice transactions. A specialist can provide detailed information specific to your situation. Would you like to schedule a consultation?",
+  
+  "lead_capture_triggers": [
+    "consultation",
+    "call me",
+    "speak to someone", 
+    "more information",
+    "contact",
+    "schedule",
+    "interested",
+    "yes"
+  ]
+}

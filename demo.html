@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NCI - New Clients, Inc.</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            overflow-x: hidden;
+            height: 100vh;
+            background: url('https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1763890085630_attachment.jpg') no-repeat center center;
+            background-size: cover;
+            position: relative;
+        }
+        
+      .ai-button-container {
+    position: fixed;
+    bottom: -50px; /* NEGATIVE value to move UP */
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    z-index: 1000;
+    transform: translateY(100%);
+    transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    padding-bottom: 50px; /* Added px units */
+}
+        
+        .ai-button-wrapper {
+            background: transparent;
+            border: none;
+            width: 85vw;
+            max-width: 430px;
+            height: auto;
+            position: relative;
+            display: block;
+        }
+        
+     .ai-button-overlay {
+    width: 100%;
+    height: auto;
+    border-radius: 15px;
+    box-shadow: 0 8px 35px rgba(0,0,0,0.4);
+    position: relative;
+    z-index: 2;
+    pointer-events: none;
+    transform: scale(1.15); /* Scale the entire image by 15% */
+    transform-origin: center center; /* Scale from center */
+}
+
+       .ai-video {
+    width: 100%;
+    height: auto;
+    border-radius: 15px;
+    position: relative;
+    z-index: 1;
+    top: 215px;
+    /* ADD THIS to reduce size by 5% */
+    transform: scale(0.90);
+    transform-origin: center center;
+}
+
+        .video-frozen {
+            filter: brightness(0.98);
+        }
+        
+/* Move text area down - 3px above Get AI Assistance button */
+.ai-text-container {
+    position: absolute;
+    bottom: 84px;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    z-index: 3;
+    padding: 0 20px;
+}
+
+/* Fix text colors - white text on dark background */
+.ai-text {
+    background: rgba(0, 0, 0, 0.85); /* Dark background */
+    color: white; /* White text */
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.3;
+}
+
+        
+        .typing-cursor {
+            display: inline-block;
+            width: 2px;
+            height: 1em;
+            background: #333;
+            margin-left: 2px;
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        
+/* Make buttons 15% smaller */
+.ai-action-btn {
+    padding: 10px 14px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    height: 40px;
+}
+        
+/* Precise positioning - 3px spacing as requested */
+.ai-action-buttons {
+    position: absolute;
+    bottom: 3px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 0 20px;
+    z-index: 3;
+}
+
+
+/* DESKTOP-ONLY adjustments for demo page (without video) */
+@media (min-width: 768px) and (hover: hover) {
+    /* Move AI video down 30px on desktop only */
+    .ai-video {
+        top: 320px !important; /* 215px + 30px = 245px */
+        transform: scale(0.85) !important; /* Slightly smaller if needed */
+    }
+    
+    /* Move text up 10px on desktop only */
+    .ai-text-container {
+        bottom: 125px !important; /* 84px + 10px = 94px (moves up) */
+    }
+    
+    /* Optional: Adjust scale for better desktop viewing */
+    .ai-video-container {
+        transform: scale(0.95);
+        transform-origin: center top;
+    }
+}
+
+
+        
+        .ai-primary-btn {
+            background: linear-gradient(135deg, #002fff 0%, #060a1c 100%);
+            color: rgb(255, 255, 255);
+        }
+        
+        .ai-secondary-btn {
+            background: rgb(89, 0, 255);
+            color: #ffffff;
+            border: 2px solid #000000;
+        }
+        
+        .ai-primary-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .ai-secondary-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            background: white;
+        }
+        .play-icon {
+    margin-left: 8px;
+    animation: blinkPlay 2s infinite;
+    display: inline-block;
+}
+
+@keyframes blinkPlay {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0.3; }
+}
+    </style>
+</head>
+<body>
+    <!-- NCI Background is set as body background -->
+    
+    <!-- AI Voice Assistant Button -->
+    <div class="ai-button-container" id="aiButton">
+        <div class="ai-button-wrapper">
+            <!-- VIDEO FROM NCI DEMO 2 - NO CONTAINER, SIMPLE VIDEO TAG -->
+            <video class="ai-video" autoplay muted playsinline id="avatarVideo">
+                <source src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1764286430873.mp4" type="video/mp4">
+            </video>
+            
+            <!-- Animated Text Area -->
+            <div class="ai-text-container">
+                <div class="ai-text" id="aiMessage"></div>
+            </div>
+            
+            <!-- Action Buttons -->
+           <div class="ai-action-buttons">
+    <button class="ai-action-btn ai-primary-btn" id="getAssistanceBtn">
+        Get AI Assistance <span class="play-icon">▶</span>
+    </button>
+                <button class="ai-action-btn ai-secondary-btn" id="justBrowsingBtn">
+    Just Browsing 👉
+</button>
+
+            </div>
+            
+            <!-- PNG overlay with transparent video window area -->
+            <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1764359060407_player3.png" class="ai-button-overlay" alt="AI Voice Assistant">
+        </div>
+    </div>
+
+    <script>
+        // Freeze video at end instead of looping
+        document.getElementById('avatarVideo').addEventListener('ended', function() {
+            this.pause();
+            this.classList.add('video-frozen');
+        });
+
+        // Animated typing text
+        function typeText(element, text, speed = 50) {
+            element.innerHTML = '';
+            let i = 0;
+            
+            function type() {
+                if (i < text.length) {
+                    element.innerHTML = text.substring(0, i + 1) + '<span class="typing-cursor"></span>';
+                    i++;
+                    setTimeout(type, speed);
+                } else {
+                    element.innerHTML = text;
+                }
+            }
+            type();
+        }
+
+        // Session management and button functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const aiButton = document.getElementById('aiButton');
+            const getAssistanceBtn = document.getElementById('getAssistanceBtn');
+            const justBrowsingBtn = document.getElementById('justBrowsingBtn');
+            const aiMessage = document.getElementById('aiMessage');
+            
+            // Check if user just finished a chat session
+            const justFinishedChat = sessionStorage.getItem('justFinishedChat');
+           const comingFromChat = document.referrer.includes('smartaivoicebot/voice-chat');
+            
+            // Show button UNLESS they just finished a chat session
+            if (!justFinishedChat && !comingFromChat) {
+                setTimeout(function() {
+                    aiButton.style.transform = 'translateY(0)';
+                    
+                    // Start typing animation after button appears
+                    setTimeout(() => {
+                        typeText(aiMessage, "Hi! I'm Botimia your Personal AI Assistant. How can I help you?");
+                    }, 500);
+                    
+                }, 1000);
+            } else {
+                // Clear the flag so button shows on next visit
+                sessionStorage.removeItem('justFinishedChat');
+            }
+            
+            // Get AI Assistance Button - with mobile permission handling
+getAssistanceBtn.addEventListener('click', async function() {
+    // Set flag that they're starting a chat session
+    sessionStorage.setItem('startingChat', 'true');
+    
+    // Update button to show we're preparing
+    const originalText = getAssistanceBtn.innerHTML;
+    getAssistanceBtn.innerHTML = '🎤 Preparing microphone...';
+    getAssistanceBtn.disabled = true;
+    
+    try {
+        // FIRST: Get microphone permission on THIS page via user gesture
+        // This is crucial for mobile browsers
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+            audio: {
+                echoCancellation: true,
+                noiseSuppression: true,
+                autoGainControl: true
+            } 
+        });
+        
+        // Permission granted - stop the stream immediately (we just needed permission)
+        stream.getTracks().forEach(track => track.stop());
+        
+        // Store that permission was granted
+        localStorage.setItem('micPermissionGranted', 'true');
+        
+        // Generate unique timestamp to prevent caching
+        const timestamp = Date.now();
+        
+        // Generic URL with permission bridge parameters
+        const url = `https://smartaivoicebot.netlify.app/voice-chat-fusion-instant?autoStartVoice=true&micPermissionGranted=true&gestureInitiated=true&timestamp=${timestamp}`;
+        
+        // Update button to show success
+        getAssistanceBtn.innerHTML = '✅ Opening voice chat...';
+        
+        // Brief delay for user feedback
+        await new Promise(resolve => setTimeout(resolve, 800));
+        
+        // Open voice chat
+        window.open(url, '_blank');
+        
+        // Reset button after delay
+        setTimeout(() => {
+            getAssistanceBtn.innerHTML = originalText;
+            getAssistanceBtn.disabled = false;
+        }, 1500);
+        
+    } catch (error) {
+        console.error("Microphone permission denied:", error);
+        
+        // Update button to show error
+        getAssistanceBtn.innerHTML = '⚠️ Mic access needed';
+        
+        // Still open voice chat but it will know mic wasn't granted
+const url = `https://mobilewise.netlify.app/voice-chat-fusion-instant?autoStartVoice=true&micPermissionGranted=false&gestureInitiated=true&source=widget-demo`;
+        window.open(url, '_blank');
+        
+        // Reset button after 3 seconds
+        setTimeout(() => {
+            getAssistanceBtn.innerHTML = originalText;
+            getAssistanceBtn.disabled = false;
+        }, 3000);
+    }
+});
+            
+            // Just Browsing Button - hides the AI interface
+            justBrowsingBtn.addEventListener('click', function() {
+                aiButton.style.transform = 'translateY(100%)';
+                // Optional: Set a flag to not show again for this session
+                sessionStorage.setItem('userBrowsing', 'true');
+            });
+        });
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,117 @@
+{
+  "client": "New Clients Inc",
+  "clientId": "new-clients-inc",
+  "version": "1.0",
+  "industry": "cpa-practice-sales",
+  "about": {
+    "companyName": "New Clients, Inc.",
+    "ceo": "Bruce J. Clark",
+    "ceoTitle": "CEO, 5th Degree Black Belt Karate Master",
+    "phone": "856-304-1035",
+    "website": "https://www.newclientsinc.com",
+    "bookingUrl": "https://calendly.com/newclientsinc",
+    "yearsInBusiness": "30+",
+    "established": "Early 1990s",
+    "mission": "To provide the finest, most effective marketing and practice sales programs to professional accountants",
+    "coreValues": [
+      "Honesty",
+      "Integrity", 
+      "Responsiveness"
+    ],
+    "tagline": "We say what we mean, and we mean what we say",
+    "location": "Based in the United States, serving accountants nationwide"
+  },
+  "services": [
+    "CPA Practice Sales and Acquisitions",
+    "Practice Valuations",
+    "Marketing and Growth Programs",
+    "Online Sales and Marketing Academy",
+    "GKM Outsourcing",
+    "Dreamfirm Marketing"
+  ],
+  "credentials": {
+    "author": [
+      "NCI Effect - Explosive Client Growth Plan for Accountants and CPAs",
+      "Beyond the NCI Effect - Sales Strategies That Matter to Grow an Accounting Practice",
+      "The Seven Secrets to Selling Your Practice on Your Terms (e-book)"
+    ],
+    "certifications": [
+      "5th Degree Black Belt in Tang Soo Do (33 years of practice)",
+      "Trained under Master C.S. Kim (8th Degree Black Belt)"
+    ]
+  },
+  "questions": [
+    {
+      "id": "about-bruce",
+      "patterns": ["who is bruce", "tell me about bruce", "bruce clark", "who are you"],
+      "keywords": ["bruce", "ceo", "owner", "background"],
+      "response": "Bruce J. Clark is the CEO of New Clients Inc with over 30 years of experience helping CPAs buy and sell practices. He's a 5th Degree Black Belt Karate Master and author of multiple books on practice sales. His core values are honesty, integrity, and responsiveness - he says what he means and means what he says.",
+      "category": "about_us",
+      "priority": "high"
+    },
+    {
+      "id": "years-experience",
+      "patterns": ["how long in business", "how long have you", "your experience", "how many years"],
+      "keywords": ["business", "experience", "years"],
+      "response": "New Clients Inc has been in business for over 30 years, since the early 1990s. Bruce has helped hundreds of accountants and CPAs successfully buy and sell practices during that time.",
+      "category": "about_us",
+      "priority": "high"
+    },
+    {
+      "id": "contact-info",
+      "patterns": ["contact", "phone", "call", "reach", "number"],
+      "keywords": ["bruce", "you", "office"],
+      "response": "You can reach Bruce directly at 856-304-1035. He's very responsive and personally handles all client relationships. You can also book an appointment directly through our calendar system.",
+      "followUp": "Would you like me to help you schedule a call with Bruce?",
+      "category": "contact",
+      "priority": "high"
+    },
+    {
+      "id": "mission-values",
+      "patterns": ["mission", "values", "principles", "philosophy"],
+      "keywords": ["core", "believe", "approach"],
+      "response": "Our mission is simple: To provide the finest, most effective marketing and practice sales programs to professional accountants. We're guided by three core principles: Honesty, Integrity, and Responsiveness. As consultants, we're not paid to tell you what you want to hear - we're paid to tell you what you need to hear.",
+      "category": "about_us",
+      "priority": "high"
+    },
+    {
+      "id": "books-author",
+      "patterns": ["book", "author", "wrote", "published"],
+      "keywords": ["bruce", "nci", "seven secrets"],
+      "response": "Bruce has authored several books including 'NCI Effect: Explosive Client Growth Plan for Accountants and CPAs', 'Beyond the NCI Effect: Sales Strategies That Matter', and the popular e-book 'The Seven Secrets to Selling Your Practice on Your Terms'. Would you like a free copy of The Seven Secrets?",
+      "followUp": "I can send you Bruce's free e-book right now if you'd like",
+      "triggerBanner": "freeBookWithConsultation",
+      "category": "resources",
+      "priority": "high"
+    },
+    {
+      "id": "services-offered",
+      "patterns": ["services", "what do you do", "what do you offer", "help with"],
+      "keywords": ["services", "programs", "offer"],
+      "response": "New Clients Inc offers comprehensive services including practice sales and acquisitions, practice valuations, marketing and growth programs, an Online Sales and Marketing Academy, GKM Outsourcing, and Dreamfirm Marketing. We're a full-service partner for accountants at every stage.",
+      "followUp": "Which of these services interests you most?",
+      "category": "services",
+      "priority": "high"
+    },
+    {
+      "id": "why-choose-nci",
+      "patterns": ["why choose", "why should i", "what makes you different", "why you"],
+      "keywords": ["different", "better", "special"],
+      "response": "What makes New Clients Inc different is Bruce's 30+ years of exclusive focus on CPA practices, his commitment to honesty and transparency, and our proven track record. We're not just brokers - we're consultants who tell you what you need to hear, not what you want to hear. That's why we've been trusted for over 30 years.",
+      "followUp": "Would you like to hear what some of our recent clients have said?",
+      "triggerTestimonial": "credibility",
+      "category": "differentiation",
+      "priority": "high"
+    },
+    {
+      "id": "martial-arts",
+      "patterns": ["martial arts", "karate", "black belt", "tang soo do"],
+      "keywords": ["karate", "black belt", "discipline"],
+      "response": "Bruce is a 5th Degree Black Belt Karate Master in Tang Soo Do with 33 years of practice under Master C.S. Kim. The discipline, dedication, and integrity he learned in martial arts directly translate to how he serves his clients - with honor, commitment, and unwavering principles.",
+      "category": "about_us",
+      "priority": "medium"
+    }
+  ],
+  "defaultGreeting": "Hi! I'm here to help you with CPA practice sales, acquisitions, and valuations. Bruce Clark and the New Clients Inc team have been doing this for over 30 years. What's your first name?",
+  "priority": "client_specific_first"
+}

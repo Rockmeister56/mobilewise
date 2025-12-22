@@ -1,0 +1,50 @@
+{
+  "industry_name": "Mortgage Brokerage",
+  "company_name": "Premier Mortgage Solutions",
+  "greeting": "Hello! I'm here to help you with mortgage questions - whether you're buying, refinancing, or exploring your options.",
+  "services": [
+    "Purchase Mortgages",
+    "Refinancing",
+    "Investment Property Loans",
+    "Commercial Mortgages"
+  ],
+  "fallback_response": "That's an excellent question that I'd love to have our mortgage specialist answer for you personally. What's the best number to reach you at?",
+  
+  "questions": {
+    "What mortgage rate can I get": {
+      "answer": "Current rates vary based on your credit score, down payment, and loan type. With excellent credit (740+), rates are typically 0.25-0.5% lower. We work with 50+ lenders to find you the best rate. Rates change daily, so let me get you a personalized quote.",
+      "keywords": ["rate", "rates", "interest", "APR"],
+      "testimonial_trigger": true,
+      "testimonial_type": "great_rate",
+      "follow_up": "I can get you rate quotes from multiple lenders in minutes. What's your estimated credit score?"
+    },
+    
+    "How much house can I afford": {
+      "answer": "Generally, you can afford a home that's 3-4 times your annual income, but it depends on your debts, down payment, and other factors. Most lenders prefer your total monthly debts (including the new mortgage) to be under 43% of your gross income. Let me run some numbers for you.",
+      "keywords": ["afford", "afford", "budget", "income"],
+      "testimonial_trigger": false,
+      "follow_up": "I can calculate your exact buying power in just a few minutes. What's your approximate annual household income?"
+    },
+    
+    "What documents do I need": {
+      "answer": "You'll need: 2 years tax returns, 2 months pay stubs, 2 months bank statements, W-2s, credit report authorization, and property information. For self-employed borrowers, we may need additional business documents. I can provide a complete checklist.",
+      "keywords": ["documents", "paperwork", "requirements", "need"],
+      "testimonial_trigger": false,
+      "follow_up": "Getting organized upfront speeds up the process significantly. Would you like me to email you our complete document checklist?"
+    }
+  },
+  
+  "testimonials": {
+    "great_rate": {
+      "title": "Saved $300/Month with Better Rate",
+      "video_url": "https://example.com/mortgage-rate-testimonial.mp4",
+      "description": "See how we found Jennifer a rate 0.75% lower than her bank offered"
+    }
+  },
+  
+  "closing_questions": [
+    "Do you have any other mortgage questions I can help with?",
+    "Would you like me to get you pre-qualified today?",
+    "Are you looking to buy or refinance?"
+  ]
+}
