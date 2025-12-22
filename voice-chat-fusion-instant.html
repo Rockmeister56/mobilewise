@@ -1112,44 +1112,52 @@ console.log('🎯 Dynamic Concern Banner System loaded!');
 
 <!-- Add this script at the top of your HTML -->
 <script>
-// ULTRA-SIMPLE AUTO-START
+// Auto-trigger function for voice activation - RUN IMMEDIATELY
 document.addEventListener('DOMContentLoaded', function() {
     const urlParams = new URLSearchParams(window.location.search);
     
     if (urlParams.get('autoStartVoice') === 'true') {
-        console.log('🚀 SIMPLE AUTO-START: Waiting for user interaction...');
+        console.log('🚀 HTML Auto-start: Adding audio permission fix...');
         
-        // Simulate clicks immediately
+        // Spinner is already visible (display: flex in CSS)
+        // Splash screen is already hidden (!important in CSS)
+        
+        // Auto-click mic button after very brief delay
         setTimeout(() => {
-            document.body.click();
-            document.documentElement.click();
-            
-            // Wait a moment, then try to start
-            setTimeout(() => {
-                console.log('🎤 Trying to start voice...');
+            const micButton = document.getElementById('mainMicButton');
+            if (micButton) {
+                // 🔥 AUDIO FIX: Simulate clicks before starting
+                document.body.click();
+                document.documentElement.click();
                 
-                // Method 1: Click mic button if exists
-                const micButton = document.getElementById('mainMicButton');
-                if (micButton) {
-                    console.log('✅ Clicking mainMicButton');
-                    micButton.click();
-                }
-                // Method 2: Call activateMicrophone
-                else if (typeof activateMicrophone === 'function') {
-                    console.log('✅ Calling activateMicrophone');
-                    activateMicrophone();
-                }
-                // Method 3: Hide preloader if stuck
-                else {
-                    console.log('⚠️ No activation method found');
-                    const preloader = document.getElementById('voicePreloader');
-                    if (preloader) preloader.style.display = 'none';
-                }
-            }, 500);
-        }, 300);
+                console.log('✅ Simulated clicks for audio, now clicking mic button...');
+                micButton.click();
+                
+                // Hide preloader when voice is ready
+                setTimeout(() => {
+                    document.getElementById('voicePreloader').style.display = 'none';
+                }, 2500); // Slightly shorter timeout
+            } else {
+                // Fallback: hide spinner after 3 seconds if mic not found
+                setTimeout(() => {
+                    document.getElementById('voicePreloader').style.display = 'none';
+                }, 3000);
+            }
+        }, 300); // Increased from 100ms to 300ms for better timing
+        
+        // Clean up URL
+        window.history.replaceState({}, '', window.location.pathname);
+    } else {
+        // If NOT auto-start, hide spinner and show splash screen
+        document.getElementById('voicePreloader').style.display = 'none';
+        const micActivation = document.getElementById('centerMicActivation');
+        if (micActivation) {
+            micActivation.style.display = 'block';
+        }
     }
 });
-</script>             
+
+</script>            
 <script src="testimonials-data.js"></script>       
 <script src="testimonials-player.js"></script>
 <script src="voice-chat-fusion-INSTANT.js"></script>
