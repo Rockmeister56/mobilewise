@@ -10,6 +10,7 @@
 console.log('=== BRIDGE SYSTEM STARTING ===');
 
 // Check parameters
+const urlParams = new URLSearchParams(window.location.search)
 const shouldAutoStart = urlParams.get('autoStartVoice') === 'true';
 const hasPermission = urlParams.get('micPermissionGranted') === 'true';
 const hasGesture = urlParams.get('gestureInitiated') === 'true';
