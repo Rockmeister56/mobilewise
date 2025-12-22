@@ -23,28 +23,27 @@
         
       .ai-button-container {
     position: fixed;
-    bottom: -50px; /* NEGATIVE value to move UP */
-    left: 0;
-    width: 100%;
+    bottom: -50px;
+    right: 20px;
+    width: auto;
     display: flex;
-    justify-content: center;
+    justify-content: flex-end;
     z-index: 1000;
     transform: translateY(100%);
     transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    padding-bottom: 50px; /* Added px units */
+    padding-bottom: 50px;
 }
-        
-        .ai-button-wrapper {
-            background: transparent;
-            border: none;
-            width: 85vw;
-            max-width: 430px;
-            height: auto;
-            position: relative;
-            display: block;
-        }
-        
-     .ai-button-overlay {
+
+.ai-button-wrapper {
+    background: transparent;
+    border: none;
+    width: 320px;
+    height: auto;
+    position: relative;
+    display: block;
+}
+
+.ai-button-overlay {
     width: 100%;
     height: auto;
     border-radius: 15px;
@@ -52,19 +51,30 @@
     position: relative;
     z-index: 2;
     pointer-events: none;
-    transform: scale(1.15); /* Scale the entire image by 15% */
-    transform-origin: center center; /* Scale from center */
+    transform: scale(1.0);
+    transform-origin: center center;
 }
 
-       .ai-video {
+.ai-video {
     width: 100%;
     height: auto;
     border-radius: 15px;
     position: relative;
     z-index: 1;
-    top: 215px;
-    /* ADD THIS to reduce size by 5% */
-    transform: scale(0.90);
+    top: 160px;
+    transform: scale(0.75);
+    transform-origin: center center;
+}
+
+.ai-button-overlay {
+    width: 100%;
+    height: auto;
+    border-radius: 15px;
+    box-shadow: 0 8px 35px rgba(0,0,0,0.4);
+    position: relative;
+    z-index: 2;
+    pointer-events: none;
+    transform: scale(1.0); /* ← Reduced from 1.15 */
     transform-origin: center center;
 }
 
@@ -75,23 +85,22 @@
 /* Move text area down - 3px above Get AI Assistance button */
 .ai-text-container {
     position: absolute;
-    bottom: 84px;
+    bottom: 70px;
     left: 0;
     width: 100%;
     text-align: center;
     z-index: 3;
-    padding: 0 20px;
+    padding: 0 15px;
 }
 
-/* Fix text colors - white text on dark background */
 .ai-text {
-    background: rgba(0, 0, 0, 0.85); /* Dark background */
-    color: white; /* White text */
-    padding: 10px 14px;
+    background: rgba(0, 0, 0, 0.85);
+    color: white;
+    padding: 8px 12px;
     border-radius: 10px;
-    font-size: 15px;
+    font-size: 14px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-    min-height: 60px;
+    min-height: 50px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -122,35 +131,34 @@
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
+    bottom: 20px;
     text-align: center;
-    height: 40px;
 }
         
 /* Precise positioning - 3px spacing as requested */
 .ai-action-buttons {
     position: absolute;
-    bottom: 3px;
+    bottom: 10px;
     left: 0;
     width: 100%;
     display: flex;
     flex-direction: column;
     gap: 3px;
-    padding: 0 20px;
+    padding: 0 15px;
     z-index: 3;
 }
 
 
 /* DESKTOP-ONLY adjustments for demo page (without video) */
 @media (min-width: 768px) and (hover: hover) {
-    /* Move AI video down 30px on desktop only */
     .ai-video {
-        top: 320px !important; /* 215px + 30px = 245px */
-        transform: scale(0.85) !important; /* Slightly smaller if needed */
+        top: 220px !important; /* ← Reduced from 320px */
+        transform: scale(0.70) !important; /* ← Reduced */
     }
     
     /* Move text up 10px on desktop only */
-    .ai-text-container {
-        bottom: 125px !important; /* 84px + 10px = 94px (moves up) */
+     .ai-text-container {
+        bottom: 90px !important; /* ← Reduced from 125px */
     }
     
     /* Optional: Adjust scale for better desktop viewing */
@@ -159,7 +167,6 @@
         transform-origin: center top;
     }
 }
-
 
         
         .ai-primary-btn {
