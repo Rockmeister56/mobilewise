@@ -3,6 +3,9 @@
 // Smart Button + Lead Capture + EmailJS + Banner System
 // ===================================================
 
+console.log('🔍 URL Parameters:', new URLSearchParams(window.location.search));
+console.log('🔍 Mic permission from URL:', new URLSearchParams(window.location.search).get('micPermissionGranted'));
+
 // =============================================================================
 // 📱 MOBILEWISE AI CONFIGURATION (ADD THIS AT TOP OF voice-chat-fusion-INSTANT.js)
 // =============================================================================
