@@ -78,6 +78,45 @@ function simulateUserInteraction() {
     console.log('✅ User interaction simulated for audio permission');
 }
 
+// ============================================
+// AUDIO PERMISSION BYPASS
+// ============================================
+
+// Store original Audio.play
+const originalAudioPlay = Audio.prototype.play;
+
+// Override Audio.play to handle permission issues
+Audio.prototype.play = function() {
+    console.log('🎵 Audio.play() called - checking permission...');
+    
+    // Try normal play first
+    return originalAudioPlay.apply(this, arguments)
+        .catch(error => {
+            if (error.name === 'NotAllowedError') {
+                console.log('⚠️ Audio blocked, simulating user interaction...');
+                
+                // Simulate a click on the body
+                document.body.click();
+                
+                // Wait a moment and try again
+                return new Promise(resolve => {
+                    setTimeout(() => {
+                        console.log('🔄 Retrying audio playback...');
+                        originalAudioPlay.apply(this, arguments)
+                            .then(resolve)
+                            .catch(err => {
+                                console.error('❌ Audio still blocked after retry:', err);
+                                throw err;
+                            });
+                    }, 100);
+                });
+            }
+            throw error;
+        });
+};
+
+console.log('✅ Audio permission bypass installed');
+
 // =============================================================================
 // 📱 MOBILEWISE AI CONFIGURATION (ADD THIS AT TOP OF voice-chat-fusion-INSTANT.js)
 // =============================================================================
