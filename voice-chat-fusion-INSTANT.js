@@ -3,6 +3,79 @@
 // Smart Button + Lead Capture + EmailJS + Banner System
 // ===================================================
 
+// ===================================================
+// 📱 MOBILE PERMISSION BRIDGE SYSTEM - FIXED VERSION
+// ===================================================
+
+console.log('=== BRIDGE SYSTEM STARTING ===');
+
+// Check parameters
+const shouldAutoStart = urlParams.get('autoStartVoice') === 'true';
+const hasPermission = urlParams.get('micPermissionGranted') === 'true';
+const hasGesture = urlParams.get('gestureInitiated') === 'true';
+
+console.log('Bridge Parameters:', { shouldAutoStart, hasPermission, hasGesture });
+
+// 🆕 CRITICAL FIX: Clear Bridge flags if no parameters
+if (!shouldAutoStart && window.externalPreGrantedPermission) {
+    console.log('🔄 Clearing stale Bridge flags (no URL parameters)');
+    window.externalPreGrantedPermission = false;
+    window.bridgeShouldAutoStart = false;
+    // Don't clear micPermissionGranted - user might have granted it
+}
+
+if (shouldAutoStart && hasPermission && hasGesture) {
+    console.log('🚀🚀🚀 BRIDGE: AUTO-START CONDITIONS MET! 🚀🚀🚀');
+    
+    // Set flag IMMEDIATELY
+    window.externalPreGrantedPermission = true;
+    window.bridgeShouldAutoStart = true;
+    window.micPermissionGranted = true;
+    window.isAudioMode = true;
+    
+    console.log('✅ Bridge flags set');
+    
+    // Wait for DOM and then trigger activation
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', bridgeAutoStart);
+    } else {
+        bridgeAutoStart();
+    }
+    
+    function bridgeAutoStart() {
+        console.log('🎯 Bridge: Triggering activateMicrophone');
+        
+        // Hide initial UI
+        const centerMic = document.getElementById('centerMicActivation');
+        if (centerMic) centerMic.style.display = 'none';
+        
+        // Set conversation state
+        window.conversationState = 'getting_first_name';
+        window.waitingForName = true;
+        
+        // Initialize lead data
+        if (typeof leadData === 'undefined' || !leadData) {
+            window.leadData = { firstName: '' };
+        }
+        
+        console.log('⏩ Bridge: Using activateMicrophone for introduction');
+        
+        // Call activateMicrophone after a delay
+        setTimeout(() => {
+            if (typeof activateMicrophone === 'function') {
+                activateMicrophone();
+            } else {
+                console.error('❌ activateMicrophone function not found!');
+            }
+        }, 1000);
+    }
+    
+} else {
+    console.log('🔗 Bridge: Normal mode (no auto-start)');
+}
+
+console.log('=== BRIDGE SYSTEM COMPLETE ===');
+
 // ============================================
 // AUDIO PERMISSION BYPASS
 // ============================================
@@ -78,79 +151,6 @@ window.INDUSTRY_CONFIG = {
 };
 window.currentIndustry = 'mobilewise';
 console.log('🎯 MobileWise AI config loaded inside voice-chat-fusion');
-
-// ===================================================
-// 📱 MOBILE PERMISSION BRIDGE SYSTEM - FIXED VERSION
-// ===================================================
-
-console.log('=== BRIDGE SYSTEM STARTING ===');
-
-// Check parameters
-const shouldAutoStart = urlParams.get('autoStartVoice') === 'true';
-const hasPermission = urlParams.get('micPermissionGranted') === 'true';
-const hasGesture = urlParams.get('gestureInitiated') === 'true';
-
-console.log('Bridge Parameters:', { shouldAutoStart, hasPermission, hasGesture });
-
-// 🆕 CRITICAL FIX: Clear Bridge flags if no parameters
-if (!shouldAutoStart && window.externalPreGrantedPermission) {
-    console.log('🔄 Clearing stale Bridge flags (no URL parameters)');
-    window.externalPreGrantedPermission = false;
-    window.bridgeShouldAutoStart = false;
-    // Don't clear micPermissionGranted - user might have granted it
-}
-
-if (shouldAutoStart && hasPermission && hasGesture) {
-    console.log('🚀🚀🚀 BRIDGE: AUTO-START CONDITIONS MET! 🚀🚀🚀');
-    
-    // Set flag IMMEDIATELY
-    window.externalPreGrantedPermission = true;
-    window.bridgeShouldAutoStart = true;
-    window.micPermissionGranted = true;
-    window.isAudioMode = true;
-    
-    console.log('✅ Bridge flags set');
-    
-    // Wait for DOM and then trigger activation
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', bridgeAutoStart);
-    } else {
-        bridgeAutoStart();
-    }
-    
-    function bridgeAutoStart() {
-        console.log('🎯 Bridge: Triggering activateMicrophone');
-        
-        // Hide initial UI
-        const centerMic = document.getElementById('centerMicActivation');
-        if (centerMic) centerMic.style.display = 'none';
-        
-        // Set conversation state
-        window.conversationState = 'getting_first_name';
-        window.waitingForName = true;
-        
-        // Initialize lead data
-        if (typeof leadData === 'undefined' || !leadData) {
-            window.leadData = { firstName: '' };
-        }
-        
-        console.log('⏩ Bridge: Using activateMicrophone for introduction');
-        
-        // Call activateMicrophone after a delay
-        setTimeout(() => {
-            if (typeof activateMicrophone === 'function') {
-                activateMicrophone();
-            } else {
-                console.error('❌ activateMicrophone function not found!');
-            }
-        }, 1000);
-    }
-    
-} else {
-    console.log('🔗 Bridge: Normal mode (no auto-start)');
-}
-
-console.log('=== BRIDGE SYSTEM COMPLETE ===');
 
 // ===========================================
 // ELEVENLABS CONFIGURATION
