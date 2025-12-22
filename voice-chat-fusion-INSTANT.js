@@ -4,25 +4,45 @@
 // ===================================================
 
 // ===================================================
-// 📱 MOBILE PERMISSION BRIDGE SYSTEM - FIXED VERSION
+// UPDATED BRIDGE - MULTI-SOURCE PARAMETERS
 // ===================================================
 
 console.log('=== BRIDGE SYSTEM STARTING ===');
 
-// Check parameters
+// Check MULTIPLE sources for parameters
+let shouldAutoStart = false;
+let hasPermission = false;
+let hasGesture = false;
+
+// Source 1: URL parameters (traditional)
 const urlParams = new URLSearchParams(window.location.search);
-const shouldAutoStart = urlParams.get('autoStartVoice') === 'true';
-const hasPermission = urlParams.get('micPermissionGranted') === 'true';
-const hasGesture = urlParams.get('gestureInitiated') === 'true';
+shouldAutoStart = urlParams.get('autoStartVoice') === 'true';
+hasPermission = urlParams.get('micPermissionGranted') === 'true';
+hasGesture = urlParams.get('gestureInitiated') === 'true';
+
+// Source 2: localStorage (from widget)
+if (!shouldAutoStart) {
+    try {
+        const storedParams = JSON.parse(localStorage.getItem('voiceChatParams') || '{}');
+        if (storedParams.autoStartVoice) {
+            console.log('📦 Using params from localStorage');
+            shouldAutoStart = storedParams.autoStartVoice === true;
+            hasPermission = storedParams.micPermissionGranted === true;
+            hasGesture = storedParams.gestureInitiated === true;
+        }
+    } catch (e) {}
+}
+
+// Source 3: window object (from postMessage)
+if (!shouldAutoStart && window.receivedVoiceChatParams) {
+    console.log('📨 Using params from postMessage');
+    const params = window.receivedVoiceChatParams;
+    shouldAutoStart = params.autoStartVoice === true;
+    hasPermission = params.micPermissionGranted === true;
+    hasGesture = params.gestureInitiated === true;
+}
 
 console.log('Bridge Parameters:', { shouldAutoStart, hasPermission, hasGesture });
-
-// 🆕 CRITICAL FIX: Clear Bridge flags if no parameters
-if (!shouldAutoStart && window.externalPreGrantedPermission) {
-    console.log('🔄 Clearing stale Bridge flags (no URL parameters)');
-    window.externalPreGrantedPermission = false;
-    window.bridgeShouldAutoStart = false;
-}
 
 if (shouldAutoStart && hasPermission && hasGesture) {
     console.log('🚀🚀🚀 BRIDGE: AUTO-START CONDITIONS MET! 🚀🚀🚀');
