@@ -309,7 +309,7 @@ getAssistanceBtn.addEventListener('click', async function() {
         const timestamp = Date.now();
         
         // Generic URL with permission bridge parameters
-        const url = `https://smartaivoicebot.netlify.app/voice-chat-fusion-instant?autoStartVoice=true&micPermissionGranted=true&gestureInitiated=true&timestamp=${timestamp}`;
+        const url = `https://mobilewise.netlify.app/voice-chat-fusion-instant?autoStartVoice=true&micPermissionGranted=true&gestureInitiated=true&timestamp=${timestamp}&source=nci-demo3`;
         
         // Update button to show success
         getAssistanceBtn.innerHTML = '✅ Opening voice chat...';
@@ -333,7 +333,7 @@ getAssistanceBtn.addEventListener('click', async function() {
         getAssistanceBtn.innerHTML = '⚠️ Mic access needed';
         
         // Still open voice chat but it will know mic wasn't granted
-        const url = `https://smartaivoicebot.netlify.app/voice-chat-fusion-instant?autoStartVoice=true&micPermissionGranted=false&gestureInitiated=true`;
+        const url = `https://mobilewise.netlify.app/voice-chat-fusion-instant?autoStartVoice=true&micPermissionGranted=false&gestureInitiated=true&source=nci-demo3`;
         window.open(url, '_blank');
         
         // Reset button after 3 seconds
