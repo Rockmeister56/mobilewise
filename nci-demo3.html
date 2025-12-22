@@ -315,8 +315,8 @@ getAssistanceBtn.addEventListener('click', async function() {
         // Generate unique timestamp to prevent caching
         const timestamp = Date.now();
         
-        // Generic URL with permission bridge parameters
-        const url = `https://mobilewise.netlify.app/voice-chat-fusion-instant?autoStartVoice=true&micPermissionGranted=true&gestureInitiated=true&timestamp=${timestamp}&source=nci-demo3`;
+        // ⭐⭐⭐ CRITICAL CHANGE: Use POPUP, not new tab ⭐⭐⭐
+        const url = `https://mobilewise.netlify.app/voice-chat-fusion-instant?autoStartVoice=true&micPermissionGranted=true&gestureInitiated=true&timestamp=${timestamp}&source=nci-demo&popup=true`;
         
         // Update button to show success
         getAssistanceBtn.innerHTML = '✅ Opening voice chat...';
@@ -324,8 +324,21 @@ getAssistanceBtn.addEventListener('click', async function() {
         // Brief delay for user feedback
         await new Promise(resolve => setTimeout(resolve, 800));
         
-        // Open voice chat
-        window.open(url, '_blank');
+        // ⭐⭐⭐ OPEN AS POPUP, NOT NEW TAB ⭐⭐⭐
+        const popupWidth = 800;
+        const popupHeight = 900;
+        const left = (window.screen.width - popupWidth) / 2;
+        const top = (window.screen.height - popupHeight) / 2;
+        
+        const popup = window.open(url, 'VoiceChatPopup', 
+            `width=${popupWidth},height=${popupHeight},left=${left},top=${top},resizable=yes,scrollbars=yes,toolbar=no,location=no,status=no,menubar=no`
+        );
+        
+        if (!popup) {
+            alert('Popup blocked! Please allow popups for this site.');
+            // Fallback to new tab
+            window.open(url, '_blank');
+        }
         
         // Reset button after delay
         setTimeout(() => {
@@ -339,9 +352,13 @@ getAssistanceBtn.addEventListener('click', async function() {
         // Update button to show error
         getAssistanceBtn.innerHTML = '⚠️ Mic access needed';
         
-        // Still open voice chat but it will know mic wasn't granted
-        const url = `https://mobilewise.netlify.app/voice-chat-fusion-instant?autoStartVoice=true&micPermissionGranted=false&gestureInitiated=true&source=nci-demo3`;
-        window.open(url, '_blank');
+        // Still try to open
+        const url = `https://mobilewise.netlify.app/voice-chat-fusion-instant?autoStartVoice=true&micPermissionGranted=false&gestureInitiated=true&source=nci-demo&popup=true`;
+        
+        const popup = window.open(url, 'VoiceChatPopup', 'width=800,height=900');
+        if (!popup) {
+            window.open(url, '_blank');
+        }
         
         // Reset button after 3 seconds
         setTimeout(() => {
