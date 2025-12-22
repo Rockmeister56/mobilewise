@@ -888,6 +888,44 @@
     </style>
 </head>
 <body>
+    <body>
+<!-- ADD THIS DEBUG SCRIPT FIRST -->
+<script>
+console.log('🎯 VOICE CHAT PAGE LOADING...');
+console.log('URL:', window.location.href);
+
+// Parse URL params
+const urlParams = new URLSearchParams(window.location.search);
+console.log('📋 URL PARAMS:');
+for (const [key, value] of urlParams.entries()) {
+    console.log(`  ${key}: ${value}`);
+}
+
+// Check auto-start conditions
+const shouldAutoStart = urlParams.get('autoStartVoice') === 'true';
+const hasPermission = urlParams.get('micPermissionGranted') === 'true';
+const hasGesture = urlParams.get('gestureInitiated') === 'true';
+
+console.log('🔍 AUTO-START CHECK:');
+console.log('  autoStartVoice === true?', shouldAutoStart);
+console.log('  micPermissionGranted === true?', hasPermission);
+console.log('  gestureInitiated === true?', hasGesture);
+console.log('  ALL CONDITIONS MET?', shouldAutoStart && hasPermission && hasGesture);
+
+// If auto-start should happen, log what happens
+if (shouldAutoStart && hasPermission && hasGesture) {
+    console.log('🚀 AUTO-START SHOULD TRIGGER!');
+    
+    // Monitor DOM loading
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('📄 DOM loaded in voice chat');
+        console.log('mainMicButton exists?', !!document.getElementById('mainMicButton'));
+        console.log('activateMicrophone function exists?', typeof activateMicrophone);
+    });
+}
+</script>
+
+<!-- REST OF YOUR EXISTING HTML... -->
     <div class="container">
         <body class="deep-blue-theme"></body>
         <!-- Header -->
