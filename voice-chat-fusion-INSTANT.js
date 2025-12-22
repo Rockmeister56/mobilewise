@@ -3,8 +3,119 @@
 // Smart Button + Lead Capture + EmailJS + Banner System
 // ===================================================
 
-console.log('🔍 URL Parameters:', new URLSearchParams(window.location.search));
-console.log('🔍 Mic permission from URL:', new URLSearchParams(window.location.search).get('micPermissionGranted'));
+// ============================================
+// AUTO-CLICK FIX FOR AUDIO PERMISSION
+// ============================================
+
+// Check if we need to simulate user interaction
+const urlParams = new URLSearchParams(window.location.search);
+const needsAutoClick = urlParams.get('autoStartVoice') === 'true' && 
+                      urlParams.get('source') && 
+                      !sessionStorage.getItem('autoClickSimulated');
+
+console.log('🔧 AUTO-CLICK FIX:', { needsAutoClick, source: urlParams.get('source') });
+
+if (needsAutoClick) {
+    console.log('🎯 Simulating user interaction for audio permission...');
+    
+    // Mark that we've done this
+    sessionStorage.setItem('autoClickSimulated', 'true');
+    
+    // Wait for DOM to be ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', simulateUserInteraction);
+    } else {
+        setTimeout(simulateUserInteraction, 100);
+    }
+}
+
+function simulateUserInteraction() {
+    console.log('🎯 Simulating clicks for audio permission...');
+    
+    // Method 1: Simulate a click on the document
+    const clickEvent = new MouseEvent('click', {
+        view: window,
+        bubbles: true,
+        cancelable: true,
+        clientX: 10,
+        clientY: 10
+    });
+    
+    // Click multiple times for good measure
+    document.documentElement.dispatchEvent(clickEvent);
+    document.body.dispatchEvent(clickEvent);
+    
+    // Method 2: Also dispatch touch events for mobile
+    const touchEvent = new TouchEvent('touchstart', {
+        bubbles: true,
+        cancelable: true,
+        touches: [new Touch({ identifier: 1, target: document.body, clientX: 10, clientY: 10 })]
+    });
+    
+    document.documentElement.dispatchEvent(touchEvent);
+    
+    // Method 3: Add a transparent overlay that gets clicked
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: transparent;
+        z-index: 999999;
+        pointer-events: none;
+    `;
+    
+    document.body.appendChild(overlay);
+    
+    // Click the overlay
+    overlay.click();
+    
+    // Remove after a moment
+    setTimeout(() => overlay.remove(), 1000);
+    
+    console.log('✅ User interaction simulated for audio permission');
+}
+
+// ============================================
+// AUDIO PERMISSION BYPASS
+// ============================================
+
+// Store original Audio.play
+const originalAudioPlay = Audio.prototype.play;
+
+// Override Audio.play to handle permission issues
+Audio.prototype.play = function() {
+    console.log('🎵 Audio.play() called - checking permission...');
+    
+    // Try normal play first
+    return originalAudioPlay.apply(this, arguments)
+        .catch(error => {
+            if (error.name === 'NotAllowedError') {
+                console.log('⚠️ Audio blocked, simulating user interaction...');
+                
+                // Simulate a click on the body
+                document.body.click();
+                
+                // Wait a moment and try again
+                return new Promise(resolve => {
+                    setTimeout(() => {
+                        console.log('🔄 Retrying audio playback...');
+                        originalAudioPlay.apply(this, arguments)
+                            .then(resolve)
+                            .catch(err => {
+                                console.error('❌ Audio still blocked after retry:', err);
+                                throw err;
+                            });
+                    }, 100);
+                });
+            }
+            throw error;
+        });
+};
+
+console.log('✅ Audio permission bypass installed');
 
 // =============================================================================
 // 📱 MOBILEWISE AI CONFIGURATION (ADD THIS AT TOP OF voice-chat-fusion-INSTANT.js)
@@ -50,7 +161,6 @@ console.log('🎯 MobileWise AI config loaded inside voice-chat-fusion');
 console.log('=== BRIDGE SYSTEM STARTING ===');
 
 // Check parameters
-const urlParams = new URLSearchParams(window.location.search);
 const shouldAutoStart = urlParams.get('autoStartVoice') === 'true';
 const hasPermission = urlParams.get('micPermissionGranted') === 'true';
 const hasGesture = urlParams.get('gestureInitiated') === 'true';
