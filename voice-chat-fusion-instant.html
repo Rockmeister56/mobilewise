@@ -1108,44 +1108,25 @@
 </div>
 
 <script>
-// Auto-trigger function for voice activation - RUN IMMEDIATELY
+// SIMPLIFIED - Just let bridge handle everything
 document.addEventListener('DOMContentLoaded', function() {
     const urlParams = new URLSearchParams(window.location.search);
     
+    // Only show/hide UI elements, don't auto-start
     if (urlParams.get('autoStartVoice') === 'true') {
-        // Spinner is already visible (display: flex in CSS)
-        // Splash screen is already hidden (!important in CSS)
-        
-        // Auto-click mic button after very brief delay
-        setTimeout(() => {
-            const micButton = document.getElementById('mainMicButton');
-            if (micButton) {
-                micButton.click();
-                
-                // Hide preloader when voice is ready
-                setTimeout(() => {
-                    document.getElementById('voicePreloader').style.display = 'none';
-                }, 2500); // Slightly shorter timeout
-            } else {
-                // Fallback: hide spinner after 3 seconds if mic not found
-                setTimeout(() => {
-                    document.getElementById('voicePreloader').style.display = 'none';
-                }, 3000);
-            }
-        }, 100); // Much shorter delay
-        
-        // Clean up URL
-        window.history.replaceState({}, '', window.location.pathname);
+        // Hide splash, show spinner - bridge will handle the rest
+        document.getElementById('voicePreloader').style.display = 'flex';
+        const micActivation = document.getElementById('centerMicActivation');
+        if (micActivation) micActivation.style.display = 'none';
     } else {
-        // If NOT auto-start, hide spinner and show splash screen
+        // Normal mode
         document.getElementById('voicePreloader').style.display = 'none';
         const micActivation = document.getElementById('centerMicActivation');
-        if (micActivation) {
-            micActivation.style.display = 'block';
-        }
+        if (micActivation) micActivation.style.display = 'block';
     }
 });
 
+</script>
 console.log('🎯 Dynamic Concern Banner System loaded!');
 </script>                           
 <script src="testimonials-data.js"></script>       

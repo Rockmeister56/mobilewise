@@ -10,6 +10,7 @@
 console.log('=== BRIDGE SYSTEM STARTING ===');
 
 // Check parameters
+const urlParams = new URLSearchParams(window.location.search);
 const shouldAutoStart = urlParams.get('autoStartVoice') === 'true';
 const hasPermission = urlParams.get('micPermissionGranted') === 'true';
 const hasGesture = urlParams.get('gestureInitiated') === 'true';
@@ -112,118 +113,7 @@ if (autoStartOk && micPermissionOk && gestureOk) {
     });
 }
 
-// ============================================
-// POPUP MODE AUDIO FIX
-// ============================================
-
-const urlParams = new URLSearchParams(window.location.search);
-const isPopup = urlParams.get('popup') === 'true';
-
-if (isPopup) {
-    console.log('🎯 POPUP MODE DETECTED - Applying audio fixes');
-    
-    // Method 1: Auto-click on load for popups
-    window.addEventListener('load', function() {
-        console.log('🎯 Popup loaded - simulating user interaction');
-        
-        // Create and click a button programmatically
-        const autoClicker = document.createElement('button');
-        autoClicker.style.cssText = 'position:absolute;left:-9999px;top:-9999px;';
-        autoClicker.textContent = 'Auto-click';
-        
-        autoClicker.onclick = function() {
-            console.log('✅ Popup auto-click executed');
-            window.popupUserInteracted = true;
-        };
-        
-        document.body.appendChild(autoClicker);
-        
-        // Click it multiple times
-        setTimeout(() => autoClicker.click(), 100);
-        setTimeout(() => autoClicker.click(), 300);
-        setTimeout(() => autoClicker.click(), 500);
-        
-        // Also click the document
-        setTimeout(() => document.body.click(), 700);
-        setTimeout(() => document.documentElement.click(), 900);
-        
-        // Remove after
-        setTimeout(() => autoClicker.remove(), 1000);
-    });
-    
-    // Method 2: Override Audio.play with aggressive retry
-    const originalPlay = Audio.prototype.play;
-    Audio.prototype.play = function() {
-        console.log('🎵 POPUP Audio.play() called');
-        
-        return originalPlay.apply(this, arguments)
-            .catch(error => {
-                console.log('⚠️ Popup audio blocked, retrying with interaction...');
-                
-                // Force user interaction simulation
-                document.body.click();
-                document.documentElement.click();
-                
-                // Wait and retry
-                return new Promise(resolve => {
-                    setTimeout(() => {
-                        console.log('🔄 Popup audio retry attempt...');
-                        originalPlay.apply(this, arguments)
-                            .then(resolve)
-                            .catch(err => {
-                                console.log('❌ Popup audio still blocked, trying silent mode...');
-                                // Try with volume 0
-                                this.volume = 0;
-                                originalPlay.apply(this, arguments)
-                                    .then(resolve)
-                                    .catch(() => {
-                                        console.log('⚠️ Giving up on audio, continuing without it');
-                                        resolve(); // Don't break the flow
-                                    });
-                            });
-                    }, 300);
-                });
-            });
-    };
-}
-
-// ============================================
-// AUDIO PERMISSION BYPASS
-// ============================================
-// Store original Audio.play
-const originalAudioPlay = Audio.prototype.play;
-
-// Override Audio.play to handle permission issues
-Audio.prototype.play = function() {
-    console.log('🎵 Audio.play() called - checking permission...');
-    
-    // Try normal play first
-    return originalAudioPlay.apply(this, arguments)
-        .catch(error => {
-            if (error.name === 'NotAllowedError') {
-                console.log('⚠️ Audio blocked, simulating user interaction...');
-                
-                // Simulate a click on the body
-                document.body.click();
-                
-                // Wait a moment and try again
-                return new Promise(resolve => {
-                    setTimeout(() => {
-                        console.log('🔄 Retrying audio playback...');
-                        originalAudioPlay.apply(this, arguments)
-                            .then(resolve)
-                            .catch(err => {
-                                console.error('❌ Audio still blocked after retry:', err);
-                                throw err;
-                            });
-                    }, 100);
-                });
-            }
-            throw error;
-        });
-};
-
-console.log('✅ Audio permission bypass installed');
+// END OF FILE - NO MORE CODE AFTER THIS
 
 // =============================================================================
 // 📱 MOBILEWISE AI CONFIGURATION (ADD THIS AT TOP OF voice-chat-fusion-INSTANT.js)
