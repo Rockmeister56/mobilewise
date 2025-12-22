@@ -77,6 +77,42 @@ if (shouldAutoStart && hasPermission && hasGesture) {
 console.log('=== BRIDGE SYSTEM COMPLETE ===');
 
 // ============================================
+// BRIDGE DEBUG - VERIFY PARAMETERS
+// ============================================
+
+console.log('🔍 BRIDGE DEBUG - All URL Parameters:');
+for (const [key, value] of urlParams.entries()) {
+    console.log(`  ${key}: ${value}`);
+}
+
+// Verify the THREE critical parameters
+console.log('🎯 BRIDGE VERIFICATION:');
+console.log(`  autoStartVoice from URL: "${urlParams.get('autoStartVoice')}"`);
+console.log(`  micPermissionGranted from URL: "${urlParams.get('micPermissionGranted')}"`);
+console.log(`  gestureInitiated from URL: "${urlParams.get('gestureInitiated')}"`);
+
+// Check if they match expected values
+const autoStartOk = urlParams.get('autoStartVoice') === 'true';
+const micPermissionOk = urlParams.get('micPermissionGranted') === 'true';
+const gestureOk = urlParams.get('gestureInitiated') === 'true';
+
+console.log('✅ Conditions met?:', {
+    autoStartVoice: autoStartOk,
+    micPermissionGranted: micPermissionOk,
+    gestureInitiated: gestureOk
+});
+
+if (autoStartOk && micPermissionOk && gestureOk) {
+    console.log('🎉 ALL BRIDGE CONDITIONS MET - Should auto-start!');
+} else {
+    console.log('❌ MISSING CONDITIONS:', {
+        missingAutoStart: !autoStartOk,
+        missingPermission: !micPermissionOk,
+        missingGesture: !gestureOk
+    });
+}
+
+// ============================================
 // POPUP MODE AUDIO FIX
 // ============================================
 
