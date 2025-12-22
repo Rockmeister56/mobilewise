@@ -888,6 +888,72 @@
     </style>
 </head>
 <body>
+    <script>
+// PARAMETER DECODER - RUNS IMMEDIATELY
+(function() {
+    console.log('🔍 Looking for voice chat parameters...');
+    
+    let params = null;
+    
+    // METHOD 1: Check URL hash (base64 encoded)
+    if (window.location.hash && window.location.hash.includes('voicechat=')) {
+        try {
+            const hash = window.location.hash.substring(1); // Remove #
+            const encoded = hash.split('voicechat=')[1];
+            params = JSON.parse(atob(encoded));
+            console.log('🔓 Decoded params from URL hash:', params);
+        } catch (e) {
+            console.log('❌ Failed to decode hash:', e.message);
+        }
+    }
+    
+    // METHOD 2: Check localStorage
+    if (!params) {
+        try {
+            const stored = localStorage.getItem('voiceChatParams');
+            if (stored) {
+                params = JSON.parse(stored);
+                console.log('📦 Found params in localStorage:', params);
+            }
+        } catch (e) {}
+    }
+    
+    // METHOD 3: Listen for postMessage from parent
+    window.addEventListener('message', function(event) {
+        if (event.data.type === 'VOICE_CHAT_PARAMS') {
+            console.log('📨 Received params via postMessage:', event.data.params);
+            params = event.data.params;
+            
+            // Store for later use
+            localStorage.setItem('voiceChatParams', JSON.stringify(params));
+        }
+    });
+    
+    // If we found params, add them to the URL for the bridge
+    if (params && params.autoStartVoice) {
+        console.log('🎯 Found auto-start parameters!');
+        
+        // Update URL without reloading
+        const url = new URL(window.location);
+        url.searchParams.set('autoStartVoice', params.autoStartVoice);
+        url.searchParams.set('micPermissionGranted', params.micPermissionGranted);
+        url.searchParams.set('gestureInitiated', params.gestureInitiated);
+        
+        if (params.timestamp) url.searchParams.set('timestamp', params.timestamp);
+        if (params.source) url.searchParams.set('source', params.source);
+        if (params.audioDelay) url.searchParams.set('audioDelay', params.audioDelay);
+        
+        window.history.replaceState({}, '', url.toString());
+        console.log('🔗 Updated URL with parameters');
+        
+        // Also set global flag
+        window.hasVoiceChatParams = true;
+    }
+    
+    // Make params available globally
+    window.voiceChatParams = params;
+})();
+</script>
     <div class="container">
         <body class="deep-blue-theme"></body>
         <!-- Header -->
