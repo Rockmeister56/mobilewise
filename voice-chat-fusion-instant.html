@@ -1097,9 +1097,7 @@
         
         <!-- Permission Status -->
         <div id="permissionStatus"></div>
-    </div>
-
-</script>                           
+    </div>                       
 
 <!-- Spinner HTML - PUT THIS AT THE VERY TOP of body -->
 <div id="voicePreloader" class="voice-preloader">
@@ -1107,8 +1105,79 @@
     <div class="voice-loading-text">Initializing Voice Assistant...</div>
 </div>
 
+<!-- ADD THIS AT THE TOP of voice-chat-fusion-instant.html -->
+<script>
+// IFRAME COMPATIBILITY LAYER
+(function() {
+    console.log('🔧 Loading iframe compatibility layer...');
+    
+    // Check if we're in an iframe
+    const isInIframe = window.self !== window.top;
+    
+    if (isInIframe) {
+        console.log('📦 Running in iframe - applying compatibility fixes');
+        
+        // FIX 1: Ensure parent window APIs exist
+        if (typeof window.parent === 'undefined') {
+            console.log('⚠️ No parent window - creating mock');
+            window.parent = window; // Mock parent as self
+        }
+        
+        // FIX 2: Handle missing opener
+        if (typeof window.opener === 'undefined') {
+            window.opener = null;
+        }
+        
+        // FIX 3: Force speech recognition initialization
+        window.addEventListener('load', function() {
+            console.log('🎯 Iframe loaded - forcing speech engine init');
+            
+            // Wait for voice system to load
+            setTimeout(() => {
+                // Check if recognition was created
+                if (!window.recognition && (window.SpeechRecognition || window.webkitSpeechRecognition)) {
+                    console.log('🔄 Creating speech recognition for iframe...');
+                    const RecognitionClass = window.SpeechRecognition || window.webkitSpeechRecognition;
+                    window.recognition = new RecognitionClass();
+                    window.recognition.continuous = true;
+                    window.recognition.interimResults = true;
+                    window.recognition.lang = 'en-US';
+                    
+                    console.log('✅ Created recognition in iframe mode');
+                }
+                
+                // Force UI to show
+                setTimeout(() => {
+                    const splash = document.getElementById('centerMicActivation');
+                    const preloader = document.getElementById('voicePreloader');
+                    
+                    if (splash && splash.style.display !== 'none') {
+                        splash.style.display = 'none';
+                    }
+                    if (preloader && preloader.style.display === 'flex') {
+                        preloader.style.display = 'none';
+                    }
+                    
+                    // Try to auto-start if URL has params
+                    const urlParams = new URLSearchParams(window.location.search);
+                    if (urlParams.get('autoStartVoice') === 'true') {
+                        console.log('🚀 Iframe auto-start triggered');
+                        setTimeout(() => {
+                            const micButton = document.getElementById('mainMicButton');
+                            if (micButton) micButton.click();
+                        }, 1000);
+                    }
+                }, 500);
+                
+            }, 1500);
+        });
+        
+        console.log('✅ Iframe compatibility layer applied');
+    } else {
+        console.log('🌐 Running in main window - no fixes needed');
+    }
+})();
 </script>
-console.log('🎯 Dynamic Concern Banner System loaded!');
 
 <!-- Add this script at the top of your HTML -->
 <script>
