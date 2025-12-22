@@ -67,7 +67,7 @@ if (shouldAutoStart && hasPermission && hasGesture) {
             } else {
                 console.error('❌ activateMicrophone function not found!');
             }
-        }, 1000);
+        }, 2000);
     }
     
 } else {
