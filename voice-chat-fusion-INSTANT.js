@@ -1553,22 +1553,55 @@ console.log('✅ activateMicrophone debug installed');
 }
 
 // ===================================================
-// 💭 MESSAGE HANDLING SYSTEM
+// 💭 MESSAGE HANDLING SYSTEM (COMPLETE FIXED VERSION)
 // ===================================================
-function addUserMessage(message) {
+async function addUserMessage(message) {
     console.log('🔍 DEBUG: addUserMessage called with:', message);
     const chatMessages = document.getElementById('chatMessages');
     if (!chatMessages) return;
     
+    // Add user message to UI (your original code)
     const messageElement = document.createElement('div');
     messageElement.className = 'message user-message';
     messageElement.textContent = message;
     
     chatMessages.appendChild(messageElement);
     scrollChatToBottom();
+    
+    // 🚀 CRITICAL FIX: Get AI response
+    try {
+        console.log('🎯 Getting AI response for:', message);
+        
+        // Check if getAIResponse exists
+        if (typeof window.getAIResponse !== 'function') {
+            console.error('❌ ERROR: getAIResponse not found on window!');
+            // Fallback with avatar
+            setTimeout(() => {
+                const fallbackResponse = `Nice to meet you, ${message}! I'm Sophia from MobileWise AI.`;
+                addAIMessage(fallbackResponse);
+            }, 800);
+            return;
+        }
+        
+        // Call the AI
+        const aiResponse = await window.getAIResponse(message);
+        console.log('✅ AI Response received:', aiResponse);
+        
+        if (aiResponse) {
+            // Add AI response with avatar
+            addAIMessage(aiResponse);
+        } else {
+            console.warn('⚠️ AI returned empty response');
+            addAIMessage("I'd love to help! Tell me more about what you're looking for.");
+        }
+    } catch (error) {
+        console.error('❌ Error getting AI response:', error);
+        addAIMessage("Let me connect you with our AI specialist...");
+    }
 }
 
 function addAIMessage(message) {
+    console.log('🎯 addAIMessage called with:', message);
     const chatMessages = document.getElementById('chatMessages');
     if (!chatMessages) return;
     
@@ -1585,9 +1618,6 @@ function addAIMessage(message) {
     avatar.className = 'ai-avatar';
     
     const messageText = document.createElement('div');
-    messageText.textContent = message;
-    
-    // TRY FORCING WIDTH
     messageText.textContent = message;
     
     messageContainer.appendChild(avatar);
