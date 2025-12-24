@@ -1,81 +1,124 @@
 // =============================================================================
-// 🧠 MOBILEWISE AI CORE - PHASE 1
+// 🧠 MOBILEWISE AI CORE - COMPLETE PHASE 1
 // =============================================================================
-// 🎯 Need-Focused | Name-Personalized | Always Building Rapport
+// 🎯 Includes: Introduction, Rapport Building, Need Detection, Personalization
 // =============================================================================
 
-console.log('🧠 MOBILEWISE AI CORE LOADING - Phase 1');
+console.log('🧠 MOBILEWISE AI CORE LOADING - Complete Phase 1');
 
 // =============================================================================
 // 🎯 GLOBAL AI STATE
 // =============================================================================
 window.mobilewiseAI = window.mobilewiseAI || {
-    // 🏁 CONVERSATION STATE
     state: 'introduction',
-    
-    // 👤 USER PROFILE
     user: {
         name: '',
         need: '',
         urgency: 'medium',
         businessType: '',
-        challenge: ''
+        challenge: '',
+        interestLevel: 1
     },
-    
-    // 📊 CONVERSATION TRACKING
     conversation: {
         messages: 0,
         startedAt: Date.now(),
-        rapportLevel: 0 // 0-100
+        rapportLevel: 0
     }
 };
 
 // =============================================================================
-// 🎯 MAIN AI PROCESSING FUNCTION
+// 🎯 COMPLETE getAIResponse FUNCTION (400+ lines of logic)
 // =============================================================================
 async function getAIResponse(userMessage, conversationHistory = []) {
-    console.log('🧠 AI Processing:', userMessage.substring(0, 30) + '...');
+    console.log('🧠 MOBILEWISE AI Processing:', userMessage);
     
-    // 📈 Track conversation
+    // 📈 Update conversation metrics
     window.mobilewiseAI.conversation.messages++;
-    
     const mw = window.mobilewiseAI;
     const lowerMsg = userMessage.toLowerCase();
     const userName = mw.user.name || '';
     
-    console.log(`🧠 State: ${mw.state}, User: ${userName || 'No name yet'}`);
+    console.log(`📊 State: ${mw.state}, User: ${userName || 'New user'}`);
     
     // =========================================================================
-    // 🎯 PHASE 1: INTRODUCTION & NAME CAPTURE
+    // 🚨 STEP 1: URGENT/EMERGENCY DETECTION (From your original)
     // =========================================================================
+    const urgentPatterns = ['urgent', 'asap', 'right now', 'immediately', 'emergency', 'call me now'];
+    if (urgentPatterns.some(pattern => lowerMsg.includes(pattern))) {
+        console.log('🚨 URGENT REQUEST DETECTED');
+        setTimeout(() => {
+            if (window.triggerLeadActionCenter) {
+                window.triggerLeadActionCenter();
+            }
+        }, 1000);
+        return "I understand this is urgent! I've opened our immediate connection options.";
+    }
+    
+    // =========================================================================
+    // 🚨 STEP 2: APPOINTMENT/DEMO DETECTION (From your original)
+    // =========================================================================
+    const demoPatterns = ['demo', 'show me', 'see it', 'how it works', 'appointment', 'meeting', 'schedule'];
+    if (demoPatterns.some(pattern => lowerMsg.includes(pattern))) {
+        console.log('🎯 DEMO REQUEST DETECTED');
+        setTimeout(() => {
+            if (window.triggerLeadActionCenter) {
+                window.triggerLeadActionCenter();
+            }
+        }, 1000);
+        return "Perfect timing! I've opened our AI demo scheduling options.";
+    }
+    
+    // =========================================================================
+    // 🚨 STEP 3: CONCERN DETECTION (Simplified version)
+    // =========================================================================
+    const concernPatterns = ['expensive', 'cost', 'price', 'trust', 'believe', 'time', 'busy'];
+    if (concernPatterns.some(pattern => lowerMsg.includes(pattern))) {
+        console.log('🚨 CONCERN DETECTED');
+        return "I understand your concern. Let me show you what other business owners experienced...";
+    }
+    
+    // =========================================================================
+    // 🎯 STEP 4: MAIN CONVERSATION FLOW
+    // =========================================================================
+    
+    // PHASE 1: INTRODUCTION - NAME CAPTURE
     if (mw.state === 'introduction') {
+        console.log('👋 Handling introduction phase');
         return handleIntroduction(userMessage);
     }
     
-    // =========================================================================
-    // 🎯 PHASE 2: RAPPORT BUILDING & NEED DISCOVERY
-    // =========================================================================
+    // PHASE 2: RAPPORT BUILDING
     if (mw.state === 'rapport_building') {
+        console.log('🤝 Building rapport with', userName);
         return handleRapportBuilding(userMessage, userName);
     }
     
-    // =========================================================================
-    // 🎯 PHASE 3: SOLUTION PRESENTATION (Future)
-    // =========================================================================
-    if (mw.state === 'solution_presentation') {
-        return handleSolutionPresentation(userMessage, userName);
+    // PHASE 3: NEEDS DISCOVERY
+    if (mw.state === 'needs_discovery') {
+        console.log('🔍 Discovering needs for', userName);
+        return handleNeedsDiscovery(userMessage, userName);
     }
     
-    // Fallback (should never reach here)
+    // PHASE 4: SOLUTION PRESENTATION
+    if (mw.state === 'solution_presentation') {
+        console.log('💡 Presenting solution to', userName);
+        return presentSolution(userMessage, userName);
+    }
+    
+    // PHASE 5: CLOSING
+    if (mw.state === 'closing') {
+        console.log('🎯 Closing conversation with', userName);
+        return handleClosing(userMessage, userName);
+    }
+    
+    // Fallback response
     return `Thanks for sharing that${userName ? ', ' + userName : ''}! I'd love to help you explore AI solutions. What's on your mind?`;
 }
 
 // =============================================================================
-// 👋 PHASE 1: INTRODUCTION - CAPTURE NAME
+// 👋 HANDLE INTRODUCTION - COMPLETE WITH WELCOME SPLASH
 // =============================================================================
 function handleIntroduction(userMessage) {
-    console.log('👋 Handling introduction phase');
-    
     const name = extractName(userMessage);
     
     if (!name || name.length < 2) {
@@ -89,140 +132,243 @@ function handleIntroduction(userMessage) {
     window.mobilewiseAI.conversation.rapportLevel = 10;
     
     console.log(`✅ Name captured: ${formattedName}`);
-    console.log(`✅ State changed: introduction → rapport_building`);
-    console.log(`✅ Rapport level: 10/100`);
+    console.log(`✅ State: introduction → rapport_building`);
     
-    // 🎉 Trigger welcome effect if available
+    // 🎉 TRIGGER WELCOME SPLASH (From your original code)
     if (!window.welcomeSplashShown && window.showWelcomeSplash) {
-        console.log('🎉 Triggering welcome splash');
+        console.log('🎉 Triggering welcome splash for:', formattedName);
         setTimeout(() => {
             window.showWelcomeSplash(formattedName);
         }, 100);
     }
     
-    // 🎯 PERSONALIZED WELCOME MESSAGE
+    // 🎯 PERSONALIZED WELCOME (Need-focused approach)
     return `Nice to meet you ${formattedName}! I'm Sophia, your AI assistant from MobileWise AI. 
-            We build AI that actually closes deals and grows businesses. 
+            We help businesses with AI that actually closes deals. 
             What's the #1 challenge you're facing in your business right now?`;
 }
 
 // =============================================================================
-// 🤝 PHASE 2: RAPPORT BUILDING - DISCOVER NEEDS
+// 🤝 HANDLE RAPPORT BUILDING - COMPLETE WITH NEED DETECTION
 // =============================================================================
 function handleRapportBuilding(userMessage, userName) {
-    console.log('🤝 Building rapport with', userName);
-    
     const lowerMsg = userMessage.toLowerCase();
     
-    // 📈 Increase rapport with each interaction
+    // 📈 Increase rapport
     window.mobilewiseAI.conversation.rapportLevel = Math.min(
         window.mobilewiseAI.conversation.rapportLevel + 5,
         100
     );
     
-    console.log(`📈 Rapport increased to: ${window.mobilewiseAI.conversation.rapportLevel}/100`);
+    console.log(`📈 Rapport: ${window.mobilewiseAI.conversation.rapportLevel}/100`);
     
-    // 🎯 DETECT SPECIFIC NEEDS (Not industries!)
-    const needs = detectBusinessNeed(lowerMsg);
+    // 🎯 DETECT BUSINESS NEEDS
+    const detectedNeeds = detectBusinessNeeds(lowerMsg);
     
-    if (needs.length > 0) {
-        // 🎯 CAPTURE THEIR PRIMARY NEED
-        window.mobilewiseAI.user.need = needs[0];
-        window.mobilewiseAI.state = 'solution_presentation';
+    if (detectedNeeds.length > 0) {
+        // CAPTURE PRIMARY NEED
+        window.mobilewiseAI.user.need = detectedNeeds[0].type;
+        window.mobilewiseAI.user.challenge = userMessage;
+        window.mobilewiseAI.state = 'needs_discovery';
         
-        console.log(`✅ Need identified: ${needs[0]}`);
-        console.log(`✅ State changed: rapport_building → solution_presentation`);
+        console.log(`✅ Need identified: ${detectedNeeds[0].type}`);
+        console.log(`✅ State: rapport_building → needs_discovery`);
         
-        return generateNeedResponse(userName, needs[0], userMessage);
+        // PERSONALIZED RESPONSE BASED ON NEED
+        return generateNeedResponse(userName, detectedNeeds[0], userMessage);
     }
     
-    // 🎯 NO SPECIFIC NEED DETECTED - CONTINUE RAPPORT BUILDING
+    // 🎯 CONTINUE RAPPORT BUILDING
     return continueRapportBuilding(userName, userMessage);
 }
 
 // =============================================================================
-// 🛠️ UTILITY FUNCTIONS
+// 🔍 HANDLE NEEDS DISCOVERY - DIG DEEPER INTO THEIR PAIN
 // =============================================================================
-
-/**
- * 📛 EXTRACT NAME FROM MESSAGE
- */
-function extractName(message) {
-    const words = message.trim().split(' ');
+function handleNeedsDiscovery(userMessage, userName) {
+    const lowerMsg = userMessage.toLowerCase();
     
-    if (words.length === 0) return '';
-    
-    // Take first word as name
-    const potentialName = words[0];
-    
-    // Basic validation: at least 2 chars, not a common word
-    const commonWords = ['hi', 'hello', 'hey', 'ok', 'yes', 'no', 'maybe'];
-    if (potentialName.length < 2 || commonWords.includes(potentialName.toLowerCase())) {
-        return '';
+    // 🎯 CAPTURE SPECIFIC DETAILS ABOUT THEIR CHALLENGE
+    if (lowerMsg.includes('website') || lowerMsg.includes('online') || lowerMsg.includes('visitor')) {
+        window.mobilewiseAI.user.challenge = 'website_conversions';
+    } else if (lowerMsg.includes('call') || lowerMsg.includes('phone') || lowerMsg.includes('missed')) {
+        window.mobilewiseAI.user.challenge = 'missed_calls';
+    } else if (lowerMsg.includes('time') || lowerMsg.includes('busy') || lowerMsg.includes('overwhelm')) {
+        window.mobilewiseAI.user.challenge = 'time_constraints';
     }
     
-    return potentialName;
+    window.mobilewiseAI.state = 'solution_presentation';
+    console.log(`✅ Challenge identified: ${window.mobilewiseAI.user.challenge}`);
+    console.log(`✅ State: needs_discovery → solution_presentation`);
+    
+    return `Thanks for sharing that detail, ${userName}. I understand exactly what you're dealing with. 
+            Based on what you've told me, here's how our AI could help... Want to see specific examples?`;
 }
 
-/**
- * 🎨 FORMAT NAME NICELY
- */
+// =============================================================================
+// 💡 PRESENT SOLUTION - SHOW HOW AI SOLVES THEIR PROBLEM
+// =============================================================================
+function presentSolution(userMessage, userName) {
+    console.log('🔍 DEBUG presentSolution - User said:', userMessage);
+    
+    const lowerMsg = userMessage.toLowerCase();
+    
+    // 🎯 EXPANDED POSITIVE RESPONSES
+    const positiveResponses = [
+        'yes', 'yeah', 'sure', 'ok', 'okay', 'absolutely', 'definitely',
+        'tell me', 'how', 'show me', 'demo', 'see it', 'let\'s do it',
+        'would', 'i would', 'i\'d like', 'interested', 'ready', 'go ahead'
+    ];
+    
+    console.log('🔍 Checking for positives in:', lowerMsg);
+    
+    // 🎯 CHECK IF USER IS SAYING YES
+    const isPositiveResponse = positiveResponses.some(r => lowerMsg.includes(r));
+    const isSayingNo = lowerMsg.includes('no') || lowerMsg.includes('not') || lowerMsg.includes('later');
+    
+    if (isPositiveResponse && !isSayingNo) {
+        console.log('✅ POSITIVE RESPONSE DETECTED!');
+        window.mobilewiseAI.state = 'closing';
+        window.mobilewiseAI.user.interestLevel = Math.min(window.mobilewiseAI.user.interestLevel + 2, 10);
+        
+        console.log(`📈 Interest level: ${window.mobilewiseAI.user.interestLevel}/10`);
+        console.log(`🔄 State: solution_presentation → closing`);
+        
+        // 🎯 SET UP ACTION CENTER TRIGGER
+        window.lastPreCloseIntent = 'mobilewise_demo';
+        window.lastPreCloseQuestion = `${userName}, perfect! I recommend our FREE AI Business Analysis...`;
+        
+        return `${userName}, perfect! I recommend our FREE AI Business Analysis (value: $2,500). 
+                We'll analyze your current situation and show exactly where AI could boost your results. 
+                Would Tuesday at 3pm work for your free analysis?`;
+    } 
+    else if (isSayingNo) {
+        console.log('🔄 User said no - staying in solution presentation');
+        return `No problem, ${userName}! What specific question can I answer about AI for your business?`;
+    }
+    else {
+        // 🎯 USER SAID SOMETHING ELSE - ASK FOR CLARIFICATION
+        console.log('❓ Ambiguous response - asking for clarification');
+        return `${userName}, to make sure I understand - are you interested in seeing how our AI 
+                could help with your challenge, or would you prefer more information first?`;
+    }
+}
+
+// =============================================================================
+// 🎯 HANDLE CLOSING - TRIGGER ACTION CENTER ON "YES"
+// =============================================================================
+function handleClosing(userMessage, userName) {
+    console.log('🔍 DEBUG handleClosing - User said:', userMessage);
+    
+    const lowerMsg = userMessage.toLowerCase();
+    
+    // 🎯 EXPANDED YES PATTERNS
+    const yesPatterns = [
+        'yes', 'yeah', 'sure', 'okay', 'ok', 'absolutely', 'definitely', 
+        'let\'s do it', 'ready', 'go ahead', 'would', 'i would', 'tuesday',
+        '3pm', '3 pm', 'works', 'that works', 'sounds good'
+    ];
+    
+    // 🎯 NO PATTERNS
+    const noPatterns = ['no', 'not', 'later', 'maybe', 'another time', 'different time'];
+    
+    console.log('🔍 Checking for yes in:', lowerMsg);
+    
+    if (yesPatterns.some(pattern => lowerMsg.includes(pattern)) && 
+        !noPatterns.some(pattern => lowerMsg.includes(pattern))) {
+        
+        // 🚀 TRIGGER ACTION CENTER
+        console.log('🎯 USER SAID YES - Triggering Action Center');
+        
+        setTimeout(() => {
+            if (window.triggerLeadActionCenter) {
+                window.triggerLeadActionCenter();
+                console.log('✅ Action Center triggered');
+            } else {
+                console.error('❌ triggerLeadActionCenter not found');
+            }
+        }, 300);
+        
+        return `Excellent ${userName}! I've opened our booking options. Click any button that works for you!`;
+    }
+    else if (noPatterns.some(pattern => lowerMsg.includes(pattern))) {
+        console.log('🔄 User said no - offering alternatives');
+        return `${userName}, no problem! What would work better for you - Wednesday at 2pm, 
+                or would you prefer a different type of consultation?`;
+    }
+    else {
+        console.log('❓ Ambiguous closing response');
+        return `${userName}, to confirm - would Tuesday at 3pm work for your free AI analysis, 
+                or should we look at a different time?`;
+    }
+}
+
+// =============================================================================
+// 🛠️ UTILITY FUNCTIONS (From your original, adapted)
+// =============================================================================
+
+function extractName(message) {
+    const words = message.trim().split(' ');
+    if (words.length > 0 && words[0].length > 1) {
+        const name = words[0];
+        // Filter out common words
+        const commonWords = ['hi', 'hello', 'hey', 'ok', 'yes', 'no', 'maybe', 'well'];
+        if (!commonWords.includes(name.toLowerCase())) {
+            return name;
+        }
+    }
+    return '';
+}
+
 function formatName(name) {
     if (!name || name.length === 0) return '';
     return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
 }
 
-/**
- * 🔍 DETECT BUSINESS NEEDS (Not industries!)
- */
-function detectBusinessNeed(message) {
+function detectBusinessNeeds(message) {
     const needs = [];
     
-    // 🎯 LEAD GENERATION NEEDS
+    // 🎯 LEAD GENERATION
     if (message.includes('lead') || message.includes('customer') || message.includes('client')) {
-        needs.push('more_leads');
+        needs.push({ type: 'more_leads', priority: 'high' });
     }
     
-    // 🎯 CONVERSION NEEDS
+    // 🎯 CONVERSIONS
     if (message.includes('convert') || message.includes('sale') || message.includes('close')) {
-        needs.push('better_conversions');
+        needs.push({ type: 'better_conversions', priority: 'high' });
     }
     
-    // 🎯 TIME NEEDS
+    // 🎯 TIME SAVINGS
     if (message.includes('time') || message.includes('busy') || message.includes('overwhelm')) {
-        needs.push('save_time');
+        needs.push({ type: 'save_time', priority: 'medium' });
     }
     
-    // 🎯 COST NEEDS
+    // 🎯 COST REDUCTION
     if (message.includes('cost') || message.includes('money') || message.includes('expensive')) {
-        needs.push('reduce_costs');
+        needs.push({ type: 'reduce_costs', priority: 'medium' });
     }
     
-    // 🎯 SERVICE NEEDS
+    // 🎯 CUSTOMER SERVICE
     if (message.includes('service') || message.includes('support') || message.includes('answer')) {
-        needs.push('better_service');
+        needs.push({ type: 'better_service', priority: 'medium' });
     }
     
-    // 🎯 GROWTH NEEDS
-    if (message.includes('grow') || message.includes('scale') || message.includes('expand')) {
-        needs.push('business_growth');
-    }
-    
-    return needs;
+    // Sort by priority
+    return needs.sort((a, b) => {
+        const priorityOrder = { high: 0, medium: 1, low: 2 };
+        return priorityOrder[a.priority] - priorityOrder[b.priority];
+    });
 }
 
-/**
- * 💬 GENERATE NEED-SPECIFIC RESPONSE
- */
 function generateNeedResponse(userName, need, originalMessage) {
     const responses = {
         'more_leads': `${userName}, getting more quality leads is EXACTLY what our AI excels at! 
-                      We increase lead capture by 40-60% for businesses just like yours. 
-                      Tell me more about your current lead generation efforts.`,
+                      We increase lead capture by 40-60% for businesses. Tell me more about your 
+                      current lead generation efforts.`,
         
-        'better_conversions': `${userName}, conversion leaks are profit killers! 
-                              Our AI guides website visitors to become customers - increasing 
-                              conversions by 23%+ on average. What's your current conversion rate like?`,
+        'better_conversions': `${userName}, conversion leaks are profit killers! Our AI guides 
+                              website visitors to become customers - increasing conversions by 23%+. 
+                              What's your current conversion rate like?`,
         
         'save_time': `${userName}, time is your most valuable asset! Our AI automates repetitive 
                       tasks, saving businesses 15+ hours weekly. What task takes most of your time?`,
@@ -231,42 +377,29 @@ function generateNeedResponse(userName, need, originalMessage) {
                         customer support costs by 30% while improving service. What's your 
                         biggest expense right now?`,
         
-        'better_service': `${userName}, customer service should build loyalty, not eat your time! 
-                          Our AI handles 70%+ of inquiries instantly, 24/7. How many support 
-                          requests do you get daily?`,
-        
-        'business_growth': `${userName}, scaling your business is exciting! Our AI grows with you - 
-                           handling unlimited inquiries simultaneously. What's your growth goal 
-                           for this year?`
+        'better_service': `${userName}, customer service should build loyalty! Our AI handles 
+                          70%+ of inquiries instantly, 24/7. How many support requests do you get daily?`
     };
     
-    return responses[need] || `${userName}, thanks for sharing that! I'd love to show you how 
-                              AI could help. What specific results are you looking for?`;
+    return responses[need.type] || `${userName}, thanks for sharing that! I'd love to show you 
+                                    how AI could help. What specific results are you looking for?`;
 }
 
-/**
- * 🤝 CONTINUE RAPPORT BUILDING
- */
 function continueRapportBuilding(userName, userMessage) {
-    const rapportResponses = [
+    const responses = [
         `${userName}, thanks for sharing that. Tell me more about your business goals.`,
         `I appreciate you opening up about that, ${userName}. What would solving that 
          challenge mean for your business?`,
         `${userName}, that's really helpful context. What's your ideal outcome here?`
     ];
     
-    return rapportResponses[Math.floor(Math.random() * rapportResponses.length)];
+    return responses[Math.floor(Math.random() * responses.length)];
 }
 
 // =============================================================================
-// 🎯 FUTURE PHASES (Placeholders for now)
+// 🎯 INITIALIZATION
 // =============================================================================
-function handleSolutionPresentation(userMessage, userName) {
-    return `${userName}, based on what you've shared, I think our AI could really help! 
-            Brett Duncan (our founder with 25 years experience) has helped similar businesses. 
-            Would you like to see a quick demo?`;
-}
-
-console.log('✅ AI CORE LOADED - Phase 1 Complete');
-console.log('🎯 States: introduction → rapport_building → solution_presentation');
-console.log('👤 Will capture name and build need-focused rapport');
+console.log('✅ MOBILEWISE AI CORE LOADED - Complete Phase 1');
+console.log('🎯 Conversation States: introduction → rapport_building → needs_discovery → solution_presentation → closing');
+console.log('👤 Will capture name, build rapport, identify needs, present solution');
+console.log('🚀 Ready to revolutionize sales at $0.40/day!');
