@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MobileWise AI | Client Dashboard</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="icon" type="image/png" href="assets/mobilewise-owl.png">
+</head>
+<body class="login-page">
+    <div class="login-container">
+        <!-- MobileWise Branding -->
+        <div class="brand-header">
+            <img src="assets/mobilewise-owl.png" alt="MobileWise Owl" class="owl-logo">
+            <h1>MobileWise AI</h1>
+            <p class="tagline">24/7 AI Sales Rep | $0.40/day</p>
+        </div>
+        
+        <!-- Login Form -->
+        <div class="login-card">
+            <h2>Client Analytics Dashboard</h2>
+            <p class="login-subtitle">Track your AI performance in real-time</p>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="clientId">Client ID</label>
+                    <input type="text" id="clientId" placeholder="e.g., johnhoward" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="apiKey">API Key</label>
+                    <input type="password" id="apiKey" placeholder="Enter your API key" required>
+                </div>
+                
+                <button type="submit" class="btn-login">
+                    <span class="btn-icon">🔐</span>
+                    Access Analytics Dashboard
+                </button>
+                
+                <div class="login-help">
+                    <p>Need access? Contact your MobileWise AI representative.</p>
+                    <p><strong>Demo Access:</strong> Use client ID: <code>demo</code> with any API key</p>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Features Preview -->
+        <div class="features-grid">
+            <div class="feature">
+                <div class="feature-icon">🤖</div>
+                <h3>AI Engagement Tracking</h3>
+                <p>See exactly how many visitors engage with your AI assistant</p>
+            </div>
+            
+            <div class="feature">
+                <div class="feature-icon">🎤</div>
+                <h3>Voice Conversation Analytics</h3>
+                <p>Track conversation length, quality, and outcomes</p>
+            </div>
+            
+            <div class="feature">
+                <div class="feature-icon">📺</div>
+                <h3>Testimonial Performance</h3>
+                <p>Monitor which testimonials convert best</p>
+            </div>
+            
+            <div class="feature">
+                <div class="feature-icon">🚀</div>
+                <h3>Action Center ROI</h3>
+                <p>Measure conversions from each contact button</p>
+            </div>
+        </div>
+    </div>
+    
+    <script src="auth.js"></script>
+    <script src="dashboard.js"></script>
+</body>
+</html>

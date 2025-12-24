@@ -122,7 +122,7 @@ function handleIntroduction(userMessage) {
     const name = extractName(userMessage);
     
     if (!name || name.length < 2) {
-        return "Hi! I'm Sophia from MobileWise AI. What's your first name?";
+        return "Hi! I'm Boteemia from MobileWise AI. What's your first name?";
     }
     
     // 🎯 CAPTURE AND FORMAT NAME
@@ -206,10 +206,42 @@ function handleNeedsDiscovery(userMessage, userName) {
 }
 
 // =============================================================================
+// 🏢 COMPANY PROFILE LOADER (Add at top of mobilewise-ai-core.js)
+// =============================================================================
+
+// Default MobileWise profile (used if no custom profile)
+const DEFAULT_COMPANY_PROFILE = {
+    identity: {
+        companyName: "MobileWise AI",
+        website: "mobilewiseai.com"
+    },
+    leadership: {
+        founderName: "Brett Duncan",
+        founderTitle: "The ROI Revolutionary",
+        founderExperience: "25 years of marketing experience"
+    },
+    offers: {
+        freeOffer: "FREE AI Business Analysis (value: $2,500)",
+        demoOffer: "15-minute demo of our deal-closing AI",
+        freeEbook: "Free copy of 'The AI-Powered Business' ebook"
+    }
+};
+
+// Load company profile (custom or default)
+window.MOBILEWISE_COMPANY = window.MOBILEWISE_COMPANY || DEFAULT_COMPANY_PROFILE;
+console.log('🏢 Company Profile:', window.MOBILEWISE_COMPANY.identity.companyName);
+
+// =============================================================================
 // 💡 PRESENT SOLUTION - SHOW HOW AI SOLVES THEIR PROBLEM
 // =============================================================================
 function presentSolution(userMessage, userName) {
     console.log('🔍 DEBUG presentSolution - User said:', userMessage);
+    
+    // 🏢 GET COMPANY PROFILE (if available)
+    const company = window.MOBILEWISE_COMPANY || {};
+    const founderName = company.leadership?.founderName || "Brett Duncan";
+    const freeOffer = company.offers?.freeOffer || "FREE AI Business Analysis (value: $2,500)";
+    const demoOffer = company.offers?.demoOffer || "15-minute demo of our deal-closing AI";
     
     const lowerMsg = userMessage.toLowerCase();
     
@@ -221,6 +253,7 @@ function presentSolution(userMessage, userName) {
     ];
     
     console.log('🔍 Checking for positives in:', lowerMsg);
+    console.log('🏢 Using company offer:', freeOffer);
     
     // 🎯 CHECK IF USER IS SAYING YES
     const isPositiveResponse = positiveResponses.some(r => lowerMsg.includes(r));
@@ -236,15 +269,28 @@ function presentSolution(userMessage, userName) {
         
         // 🎯 SET UP ACTION CENTER TRIGGER
         window.lastPreCloseIntent = 'mobilewise_demo';
-        window.lastPreCloseQuestion = `${userName}, perfect! I recommend our FREE AI Business Analysis...`;
+        window.lastPreCloseQuestion = `${userName}, perfect! I recommend our ${freeOffer}`;
         
-        return `${userName}, perfect! I recommend our FREE AI Business Analysis (value: $2,500). 
+        // 🎯 COMPANY-AWARE RESPONSE
+        return `${userName}, perfect! I recommend our ${freeOffer}. 
                 We'll analyze your current situation and show exactly where AI could boost your results. 
-                Would Tuesday at 3pm work for your free analysis?`;
+                Would Tuesday at 3pm work for your free analysis with ${founderName}?`;
     } 
     else if (isSayingNo) {
         console.log('🔄 User said no - staying in solution presentation');
-        return `No problem, ${userName}! What specific question can I answer about AI for your business?`;
+        
+        // 🎯 OFFER ALTERNATIVE BASED ON COMPANY PROFILE
+        const alternativeOffer = company.offers?.freeEbook || "Free copy of 'The AI-Powered Business' ebook";
+        return `No problem, ${userName}! Would you prefer ${alternativeOffer} first, 
+                or what specific question can I answer about AI for your business?`;
+    }
+    else if (lowerMsg.includes('demo') || lowerMsg.includes('show me') || lowerMsg.includes('see it')) {
+        // 🎯 DIRECT DEMO REQUEST
+        console.log('🎯 Direct demo request detected');
+        window.mobilewiseAI.state = 'closing';
+        
+        return `${userName}, excellent! I'd love to show you ${demoOffer} with ${founderName}. 
+                Would tomorrow at 2pm work for a quick walkthrough?`;
     }
     else {
         // 🎯 USER SAID SOMETHING ELSE - ASK FOR CLARIFICATION
@@ -260,17 +306,28 @@ function presentSolution(userMessage, userName) {
 function handleClosing(userMessage, userName) {
     console.log('🔍 DEBUG handleClosing - User said:', userMessage);
     
+    // 🏢 GET COMPANY PROFILE
+    const company = window.MOBILEWISE_COMPANY || {};
+    const founderName = company.leadership?.founderName || "our AI specialist";
+    const companyName = company.identity?.companyName || "MobileWise AI";
+    
     const lowerMsg = userMessage.toLowerCase();
     
     // 🎯 EXPANDED YES PATTERNS
     const yesPatterns = [
         'yes', 'yeah', 'sure', 'okay', 'ok', 'absolutely', 'definitely', 
         'let\'s do it', 'ready', 'go ahead', 'would', 'i would', 'tuesday',
-        '3pm', '3 pm', 'works', 'that works', 'sounds good'
+        '3pm', '3 pm', 'works', 'that works', 'sounds good', 'perfect'
     ];
     
     // 🎯 NO PATTERNS
     const noPatterns = ['no', 'not', 'later', 'maybe', 'another time', 'different time'];
+    
+    // 🎯 SCHEDULING PATTERNS
+    const schedulingPatterns = [
+        'tuesday', 'wednesday', 'thursday', 'friday', 'monday', 'tomorrow',
+        'next week', 'morning', 'afternoon', 'evening', '10am', '2pm', '4pm'
+    ];
     
     console.log('🔍 Checking for yes in:', lowerMsg);
     
@@ -289,16 +346,38 @@ function handleClosing(userMessage, userName) {
             }
         }, 300);
         
-        return `Excellent ${userName}! I've opened our booking options. Click any button that works for you!`;
+        return `Excellent ${userName}! I've opened our booking options. 
+                Click any button to schedule with ${founderName}'s team!`;
+    }
+    else if (schedulingPatterns.some(pattern => lowerMsg.includes(pattern))) {
+        console.log('🗓️ SCHEDULING MENTION DETECTED');
+        
+        // 🎯 TRIGGER ACTION CENTER FOR SCHEDULING
+        setTimeout(() => {
+            if (window.triggerLeadActionCenter) {
+                window.triggerLeadActionCenter();
+                console.log('✅ Action Center triggered for scheduling');
+            }
+        }, 300);
+        
+        return `${userName}, perfect timing! I've opened ${companyName}'s calendar. 
+                Click any option to confirm with ${founderName}'s team.`;
     }
     else if (noPatterns.some(pattern => lowerMsg.includes(pattern))) {
         console.log('🔄 User said no - offering alternatives');
-        return `${userName}, no problem! What would work better for you - Wednesday at 2pm, 
-                or would you prefer a different type of consultation?`;
+        
+        const alternatives = [
+            `I understand, ${userName}. Would a ${company.offers?.freeEbook || "free AI guide"} be helpful first?`,
+            `No problem, ${userName}! What specific information would help you feel comfortable?`,
+            `Thanks for your honesty, ${userName}. Many ${companyName} clients started with similar questions. 
+             Would you like to see their experience first?`
+        ];
+        
+        return alternatives[Math.floor(Math.random() * alternatives.length)];
     }
     else {
         console.log('❓ Ambiguous closing response');
-        return `${userName}, to confirm - would Tuesday at 3pm work for your free AI analysis, 
+        return `${userName}, to confirm - would Tuesday at 3pm work for your free analysis with ${founderName}, 
                 or should we look at a different time?`;
     }
 }
