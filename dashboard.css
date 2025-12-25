@@ -25,6 +25,7 @@ body {
     background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     min-height: 100vh;
     color: var(--dark);
+    padding: 0;
 }
 
 .dashboard-container {
@@ -611,81 +612,95 @@ body {
     }
 }
 
-/* Export Modal */
-.modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 1000;
-    align-items: center;
-    justify-content: center;
-}
-
-.modal-content {
+/* Header styles for your current HTML */
+.dashboard-header {
     background: white;
+    padding: 20px 30px;
     border-radius: 15px;
-    padding: 30px;
-    width: 90%;
-    max-width: 500px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-}
-
-.modal-header {
+    margin-bottom: 30px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    box-shadow: var(--card-shadow);
 }
 
-.modal-header h3 {
-    font-size: 22px;
-}
-
-.close-modal {
-    background: none;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
-    color: var(--gray);
-}
-
-.export-options {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    margin-bottom: 25px;
-}
-
-.export-option {
+.header-left {
     display: flex;
     align-items: center;
-    padding: 15px;
+    gap: 20px;
+}
+
+.header-logo {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    object-fit: contain;
+}
+
+.header-title h1 {
+    font-size: 28px;
+    color: var(--primary);
+    margin-bottom: 5px;
+}
+
+.client-info {
+    color: var(--gray);
+    font-size: 14px;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.date-range select {
+    padding: 10px 20px;
     border: 2px solid var(--light-gray);
-    border-radius: 10px;
+    border-radius: 8px;
+    background: white;
+    font-size: 14px;
+    color: var(--dark);
     cursor: pointer;
+}
+
+.header-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-export, .btn-refresh, .btn-logout {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
     transition: var(--transition);
 }
 
-.export-option:hover {
-    border-color: var(--primary);
-    background: #f8f9ff;
+.btn-export {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: white;
 }
 
-.export-option.selected {
-    border-color: var(--primary);
-    background: #f0f4ff;
+.btn-refresh {
+    background: var(--light-gray);
+    color: var(--dark);
 }
 
-.export-option i {
-    margin-right: 15px;
-    font-size: 24px;
-    color: var(--primary);
+.btn-logout {
+    background: var(--accent);
+    color: white;
 }
 
-.export-option span {
-    font-weight: 500;
+.btn-export:hover, .btn-refresh:hover, .btn-logout:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.btn-icon {
+    font-size: 16px;
 }
