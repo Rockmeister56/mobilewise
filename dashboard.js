@@ -1,400 +1,313 @@
-// MobileWise Dashboard - Interactive JavaScript
+// MobileWise AI Dashboard - JavaScript
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize all dashboard components
+    console.log('MobileWise AI Dashboard Loading...');
+    
+    // Initialize dashboard
     initDashboard();
+    
+    // Simulate real-time updates
+    simulateDataUpdates();
+    
+    // Update every 10 seconds
+    setInterval(simulateDataUpdates, 10000);
+    
+    // Update time every minute
+    setInterval(updateTime, 60000);
 });
 
 function initDashboard() {
-    // Set current date
-    updateDateTime();
+    // Set initial time
+    updateTime();
     
-    // Initialize charts
-    initCharts();
+    // Initialize charts if needed
+    if (typeof Chart !== 'undefined') {
+        initCharts();
+    }
     
-    // Initialize ROI calculator
-    initROICalculator();
+    // Set up event listeners
+    document.getElementById('timeRange').addEventListener('change', updateDataByTimeRange);
+    document.getElementById('adSpend').addEventListener('input', updateROICalculation);
     
-    // Initialize navigation
-    initNavigation();
-    
-    // Initialize real-time updates
-    initRealTimeUpdates();
-    
-    // Initialize export functionality
-    initExportFunctionality();
-    
-    // Simulate initial data load
-    simulateDataUpdates();
+    // Initial ROI calculation
+    updateROICalculation();
 }
 
-// Update date and time display
-function updateDateTime() {
+function updateTime() {
     const now = new Date();
-    const options = { 
-        weekday: 'long', 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-    };
-    document.getElementById('currentDateTime').textContent = 
-        now.toLocaleDateString('en-US', options);
-}
-
-// Initialize charts with Chart.js
-function initCharts() {
-    // Revenue Chart
-    const revenueCtx = document.getElementById('revenueChart').getContext('2d');
-    window.revenueChart = new Chart(revenueCtx, {
-        type: 'line',
-        data: {
-            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
-            datasets: [{
-                label: 'Revenue ($)',
-                data: [12000, 19000, 15000, 25000, 22000, 30000, 28000],
-                borderColor: '#667eea',
-                backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                borderWidth: 3,
-                fill: true,
-                tension: 0.4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    grid: {
-                        color: 'rgba(0, 0, 0, 0.05)'
-                    },
-                    ticks: {
-                        callback: function(value) {
-                            return '$' + value.toLocaleString();
-                        }
-                    }
-                },
-                x: {
-                    grid: {
-                        color: 'rgba(0, 0, 0, 0.05)'
-                    }
-                }
-            }
-        }
+    const timeString = now.toLocaleTimeString('en-US', { 
+        hour12: true, 
+        hour: '2-digit', 
+        minute: '2-digit',
+        second: '2-digit'
     });
-    
-    // User Growth Chart
-    const growthCtx = document.getElementById('growthChart').getContext('2d');
-    window.growthChart = new Chart(growthCtx, {
-        type: 'bar',
-        data: {
-            labels: ['Mobile', 'Tablet', 'Desktop', 'Wearables', 'IoT'],
-            datasets: [{
-                label: 'User Growth',
-                data: [65, 59, 80, 45, 30],
-                backgroundColor: [
-                    'rgba(102, 126, 234, 0.8)',
-                    'rgba(118, 75, 162, 0.8)',
-                    'rgba(56, 178, 172, 0.8)',
-                    'rgba(237, 137, 54, 0.8)',
-                    'rgba(255, 107, 107, 0.8)'
-                ],
-                borderColor: [
-                    '#667eea',
-                    '#764ba2',
-                    '#38b2ac',
-                    '#ed8936',
-                    '#ff6b6b'
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    grid: {
-                        color: 'rgba(0, 0, 0, 0.05)'
-                    },
-                    ticks: {
-                        callback: function(value) {
-                            return value + '%';
-                        }
-                    }
-                },
-                x: {
-                    grid: {
-                        display: false
-                    }
-                }
-            }
-        }
-    });
-}
-
-// Initialize ROI Calculator
-function initROICalculator() {
-    const calculateBtn = document.getElementById('calculateROI');
-    const resetBtn = document.getElementById('resetCalculator');
-    
-    calculateBtn.addEventListener('click', calculateROI);
-    resetBtn.addEventListener('click', resetCalculator);
-    
-    // Add input event listeners for real-time calculation
-    const inputs = ['adSpend', 'conversionRate', 'avgOrderValue', 'customers'];
-    inputs.forEach(id => {
-        document.getElementById(id).addEventListener('input', calculateROI);
-    });
-    
-    // Initial calculation
-    calculateROI();
-}
-
-function calculateROI() {
-    // Get input values
-    const adSpend = parseFloat(document.getElementById('adSpend').value) || 0;
-    const conversionRate = parseFloat(document.getElementById('conversionRate').value) || 0;
-    const avgOrderValue = parseFloat(document.getElementById('avgOrderValue').value) || 0;
-    const customers = parseInt(document.getElementById('customers').value) || 0;
-    
-    // Calculate metrics
-    const totalRevenue = customers * avgOrderValue;
-    const conversions = customers * (conversionRate / 100);
-    const revenueFromAds = conversions * avgOrderValue;
-    const profit = revenueFromAds - adSpend;
-    const roi = adSpend > 0 ? ((profit / adSpend) * 100).toFixed(1) : 0;
-    
-    // Update results
-    document.getElementById('totalRevenue').textContent = formatCurrency(totalRevenue);
-    document.getElementById('conversions').textContent = conversions.toFixed(0);
-    document.getElementById('revenueFromAds').textContent = formatCurrency(revenueFromAds);
-    document.getElementById('profit').textContent = formatCurrency(profit);
-    document.getElementById('roiPercentage').textContent = roi + '%';
-    
-    // Color code ROI
-    const roiElement = document.getElementById('roiPercentage');
-    roiElement.style.color = roi >= 100 ? '#38b2ac' : roi >= 0 ? '#667eea' : '#ff6b6b';
-}
-
-function resetCalculator() {
-    document.getElementById('adSpend').value = 5000;
-    document.getElementById('conversionRate').value = 3.5;
-    document.getElementById('avgOrderValue').value = 120;
-    document.getElementById('customers').value = 1000;
-    calculateROI();
-}
-
-function formatCurrency(value) {
-    return '$' + value.toLocaleString('en-US', {
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0
-    });
-}
-
-// Initialize navigation
-function initNavigation() {
-    const navItems = document.querySelectorAll('.nav-item');
-    navItems.forEach(item => {
-        item.addEventListener('click', function() {
-            // Remove active class from all items
-            navItems.forEach(nav => nav.classList.remove('active'));
-            // Add active class to clicked item
-            this.classList.add('active');
-            
-            // Handle navigation (simulated)
-            const section = this.getAttribute('data-section');
-            showNotification(`Navigating to ${section} section`);
-        });
-    });
-}
-
-// Initialize real-time updates
-function initRealTimeUpdates() {
-    // Update time every minute
-    setInterval(updateDateTime, 60000);
-    
-    // Simulate real-time data updates every 10 seconds
-    setInterval(simulateDataUpdates, 10000);
+    document.getElementById('lastUpdated').textContent = timeString;
 }
 
 function simulateDataUpdates() {
-    // Update stats with random fluctuations
-    const stats = ['totalUsers', 'activeSessions', 'conversionRateStat', 'revenueToday'];
+    console.log('Updating dashboard data...');
     
-    stats.forEach(statId => {
-        const element = document.getElementById(statId);
-        if (element) {
-            const currentValue = parseInt(element.textContent.replace(/,/g, '')) || 0;
-            const change = Math.floor(Math.random() * 20) - 5; // -5 to +15
-            const newValue = Math.max(0, currentValue + change);
+    // Simulate live data updates
+    updateLiveStats();
+    updateAIEngagement();
+    updateVoiceConversations();
+    updateTestimonialData();
+    updateActionCenter();
+    updateActivityTimeline();
+    updateROICalculation();
+    
+    // Add visual feedback
+    document.querySelectorAll('.live-value').forEach(el => {
+        el.classList.add('updated');
+        setTimeout(() => el.classList.remove('updated'), 1000);
+    });
+}
+
+function updateLiveStats() {
+    // Generate random but realistic data
+    const liveConvos = Math.floor(Math.random() * 5) + 1;
+    const todayLeads = Math.floor(Math.random() * 15) + 5;
+    const estimatedValue = todayLeads * 150; // $150 per lead average
+    
+    document.getElementById('liveConversations').textContent = liveConvos;
+    document.getElementById('todayLeads').textContent = todayLeads;
+    document.getElementById('estimatedValue').textContent = '$' + estimatedValue.toLocaleString();
+}
+
+function updateAIEngagement() {
+    const clicks = Math.floor(Math.random() * 50) + 20;
+    const trend = Math.floor(Math.random() * 30) - 10; // -10 to +20
+    const engagementRate = (Math.random() * 20 + 5).toFixed(1); // 5-25%
+    const avgSession = Math.floor(Math.random() * 120) + 30; // 30-150 seconds
+    const peakHour = `${Math.floor(Math.random() * 12) + 8}:${Math.floor(Math.random() * 6)}0`; // 8:00-20:00
+    
+    document.getElementById('aiClicks').textContent = clicks;
+    document.getElementById('aiTrend').textContent = `${trend >= 0 ? '+' : ''}${trend}% vs previous period`;
+    document.getElementById('aiTrend').style.color = trend >= 0 ? '#38b2ac' : '#ff6b6b';
+    document.getElementById('engagementRate').textContent = engagementRate + '%';
+    document.getElementById('avgSessionTime').textContent = avgSession + 's';
+    document.getElementById('peakHour').textContent = peakHour;
+}
+
+function updateVoiceConversations() {
+    const totalConvos = Math.floor(Math.random() * 40) + 10;
+    const avgMessages = Math.floor(Math.random() * 15) + 3;
+    const avgDuration = Math.floor(Math.random() * 180) + 60; // 60-240 seconds
+    const completionRate = (Math.random() * 40 + 50).toFixed(0); // 50-90%
+    
+    document.getElementById('totalConversations').textContent = totalConvos;
+    document.getElementById('avgMessages').textContent = avgMessages;
+    document.getElementById('avgDuration').textContent = avgDuration + 's';
+    document.getElementById('completionRate').textContent = completionRate + '%';
+}
+
+function updateTestimonialData() {
+    const viewed = Math.floor(Math.random() * 100) + 50;
+    const price = Math.floor(Math.random() * 30) + 10;
+    const time = Math.floor(Math.random() * 25) + 5;
+    const trust = Math.floor(Math.random() * 20) + 5;
+    const watchTime = Math.floor(Math.random() * 90) + 30; // 30-120 seconds
+    const postWatch = (Math.random() * 15 + 5).toFixed(1); // 5-20%
+    
+    document.getElementById('testimonialsViewed').textContent = viewed;
+    document.getElementById('priceTestimonials').textContent = price;
+    document.getElementById('timeTestimonials').textContent = time;
+    document.getElementById('trustTestimonials').textContent = trust;
+    document.getElementById('avgWatchTime').textContent = watchTime + 's';
+    document.getElementById('postWatchConversion').textContent = postWatch + '%';
+}
+
+function updateActionCenter() {
+    const totalClicks = Math.floor(Math.random() * 80) + 20;
+    const conversionRate = (Math.random() * 15 + 5).toFixed(1); // 5-20%
+    const pipelineValue = totalClicks * 250 * 0.2; // $250 avg value, 20% close rate
+    
+    // Update button stats
+    const buttons = ['callButton', 'scheduleButton', 'quoteButton', 'emailButton'];
+    buttons.forEach(buttonId => {
+        const button = document.getElementById(buttonId);
+        if (button) {
+            const count = Math.floor(Math.random() * 30) + 5;
+            const percent = Math.floor(Math.random() * 100);
             
-            element.textContent = newValue.toLocaleString();
+            const countEl = button.querySelector('.button-count');
+            const percentEl = button.querySelector('.button-percent');
             
-            // Update trend indicator
-            const trendElement = element.parentElement.querySelector('.stat-trend');
-            if (trendElement) {
-                const isPositive = change >= 0;
-                trendElement.className = `stat-trend ${isPositive ? 'positive' : 'negative'}`;
-                trendElement.innerHTML = `<i class="fas fa-${isPositive ? 'arrow-up' : 'arrow-down'}"></i> ${Math.abs(change)}%`;
+            if (countEl) countEl.textContent = count;
+            if (percentEl) {
+                percentEl.textContent = percent + '%';
+                percentEl.style.color = percent >= 30 ? '#38b2ac' : percent >= 15 ? '#ed8936' : '#ff6b6b';
             }
         }
     });
     
-    // Update charts with new data
-    if (window.revenueChart) {
-        const newData = window.revenueChart.data.datasets[0].data;
-        newData.push(Math.floor(Math.random() * 10000) + 20000);
-        newData.shift();
-        window.revenueChart.update();
-    }
-    
-    // Add new activity item
-    addActivityItem();
+    document.getElementById('actionCenterClicks').textContent = totalClicks;
+    document.getElementById('actionTrend').textContent = `Conversion Rate: ${conversionRate}%`;
+    document.getElementById('pipelineValue').textContent = '$' + Math.round(pipelineValue).toLocaleString();
 }
 
-function addActivityItem() {
+function updateActivityTimeline() {
     const activities = [
-        { type: 'lead', text: 'New high-value lead from Facebook Ads', time: 'Just now' },
-        { type: 'sale', text: 'Enterprise plan purchased by TechCorp Inc.', time: '5 min ago' },
-        { type: 'support', text: 'Customer support ticket resolved', time: '15 min ago' },
-        { type: 'lead', text: 'Mobile app demo requested', time: '30 min ago' },
-        { type: 'sale', text: 'Annual subscription renewal', time: '1 hour ago' }
+        { time: 'Just now', desc: 'Visitor engaged with AI assistant' },
+        { time: '5 min ago', desc: 'Qualified lead captured from Facebook' },
+        { time: '12 min ago', desc: 'Price concern testimonial viewed' },
+        { time: '25 min ago', desc: 'Schedule call button clicked' },
+        { time: '45 min ago', desc: 'Voice conversation completed (3.2m)' },
+        { time: '1 hour ago', desc: 'New visitor from Google search' },
+        { time: '2 hours ago', desc: 'Email contact form submitted' }
     ];
     
-    const randomActivity = activities[Math.floor(Math.random() * activities.length)];
-    const activityList = document.getElementById('activityList');
+    // Randomly select 3-5 activities
+    const numActivities = Math.floor(Math.random() * 3) + 3;
+    const selectedActivities = [];
     
-    // Create new activity item
-    const activityItem = document.createElement('div');
-    activityItem.className = 'activity-item';
-    activityItem.innerHTML = `
-        <div class="activity-icon ${randomActivity.type}">
-            <i class="fas fa-${randomActivity.type === 'lead' ? 'user-plus' : randomActivity.type === 'sale' ? 'dollar-sign' : 'headset'}"></i>
-        </div>
-        <div class="activity-details">
-            <h4>${randomActivity.text}</h4>
-            <p>${randomActivity.type.charAt(0).toUpperCase() + randomActivity.type.slice(1)}</p>
-        </div>
-        <div class="activity-time">${randomActivity.time}</div>
-    `;
+    for (let i = 0; i < numActivities; i++) {
+        selectedActivities.push(activities[Math.floor(Math.random() * activities.length)]);
+    }
     
-    // Add to top of list
-    activityList.insertBefore(activityItem, activityList.firstChild);
-    
-    // Limit list to 5 items
-    if (activityList.children.length > 5) {
-        activityList.removeChild(activityList.lastChild);
+    const timeline = document.getElementById('activityTimeline');
+    if (timeline) {
+        timeline.innerHTML = '';
+        selectedActivities.forEach(activity => {
+            const item = document.createElement('div');
+            item.className = 'activity-item';
+            item.innerHTML = `
+                <div class="activity-time">${activity.time}</div>
+                <div class="activity-desc">${activity.desc}</div>
+            `;
+            timeline.appendChild(item);
+        });
     }
 }
 
-// Initialize export functionality
-function initExportFunctionality() {
-    const exportBtn = document.getElementById('exportData');
-    const exportModal = document.getElementById('exportModal');
-    const closeModal = document.querySelector('.close-modal');
-    const exportOptions = document.querySelectorAll('.export-option');
-    const confirmExportBtn = document.getElementById('confirmExport');
+function updateROICalculation() {
+    const adSpend = parseFloat(document.getElementById('adSpend').value) || 6000;
     
-    // Open modal
-    exportBtn.addEventListener('click', () => {
-        exportModal.style.display = 'flex';
-    });
+    // Calculate based on ad spend
+    const projectedImpact = 30; // Base 30% improvement
+    const additionalLeads = Math.round(adSpend / 100 * 1.5); // 1.5 leads per $100 spend
+    const monthlyValue = additionalLeads * 150; // $150 per lead
+    const roi = ((monthlyValue * 12) / adSpend * 100).toFixed(0);
     
-    // Close modal
-    closeModal.addEventListener('click', () => {
-        exportModal.style.display = 'none';
-    });
+    document.getElementById('projectedImpact').textContent = '+' + projectedImpact + '%';
+    document.getElementById('additionalLeads').textContent = additionalLeads;
+    document.getElementById('monthlyValue').textContent = '$' + monthlyValue.toLocaleString();
+    document.getElementById('roiValue').textContent = roi + '%';
     
-    // Close modal when clicking outside
-    window.addEventListener('click', (event) => {
-        if (event.target === exportModal) {
-            exportModal.style.display = 'none';
-        }
-    });
-    
-    // Select export option
-    exportOptions.forEach(option => {
-        option.addEventListener('click', () => {
-            exportOptions.forEach(opt => opt.classList.remove('selected'));
-            option.classList.add('selected');
-        });
-    });
-    
-    // Confirm export
-    confirmExportBtn.addEventListener('click', () => {
-        const selectedOption = document.querySelector('.export-option.selected');
-        if (selectedOption) {
-            const format = selectedOption.getAttribute('data-format');
-            exportData(format);
-            exportModal.style.display = 'none';
-            showNotification(`Data exported as ${format.toUpperCase()} successfully!`);
-        } else {
-            showNotification('Please select an export format', 'warning');
-        }
-    });
+    // Color code ROI
+    const roiElement = document.getElementById('roiValue');
+    if (roi >= 200) {
+        roiElement.style.color = '#38b2ac';
+    } else if (roi >= 100) {
+        roiElement.style.color = '#667eea';
+    } else {
+        roiElement.style.color = '#ff6b6b';
+    }
 }
 
-function exportData(format) {
-    // In a real app, this would make an API call to export data
-    // For demo, we'll simulate the export
-    console.log(`Exporting data in ${format} format...`);
+function updateDataByTimeRange() {
+    const timeRange = document.getElementById('timeRange').value;
+    console.log('Updating data for:', timeRange);
     
-    // Simulate download
+    // In a real app, this would fetch new data from API
+    // For now, just simulate new data
+    simulateDataUpdates();
+    
+    // Show notification
+    showNotification(`Data updated for ${timeRange} period`);
+}
+
+function initCharts() {
+    // AI Engagement Chart
+    const ctx = document.getElementById('aiEngagementChart');
+    if (ctx) {
+        new Chart(ctx.getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [{
+                    label: 'AI Engagement',
+                    data: [12, 19, 15, 25, 22, 30, 28],
+                    borderColor: '#667eea',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' } },
+                    x: { grid: { color: 'rgba(0,0,0,0.05)' } }
+                }
+            }
+        });
+    }
+}
+
+function exportData() {
     const data = {
         timestamp: new Date().toISOString(),
-        revenue: window.revenueChart.data.datasets[0].data,
-        growth: window.growthChart.data.datasets[0].data,
-        stats: {
-            totalUsers: document.getElementById('totalUsers').textContent,
-            activeSessions: document.getElementById('activeSessions').textContent,
-            conversionRateStat: document.getElementById('conversionRateStat').textContent,
-            revenueToday: document.getElementById('revenueToday').textContent
+        liveStats: {
+            conversations: document.getElementById('liveConversations').textContent,
+            leads: document.getElementById('todayLeads').textContent,
+            value: document.getElementById('estimatedValue').textContent
+        },
+        aiEngagement: {
+            clicks: document.getElementById('aiClicks').textContent,
+            engagementRate: document.getElementById('engagementRate').textContent
         }
     };
     
     const dataStr = JSON.stringify(data, null, 2);
     const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+    const exportName = `MobileWise-Export-${new Date().toISOString().split('T')[0]}.json`;
     
-    const exportFileDefaultName = `MobileWise-Export-${new Date().toISOString().split('T')[0]}.json`;
+    const link = document.createElement('a');
+    link.setAttribute('href', dataUri);
+    link.setAttribute('download', exportName);
+    link.click();
     
-    const linkElement = document.createElement('a');
-    linkElement.setAttribute('href', dataUri);
-    linkElement.setAttribute('download', exportFileDefaultName);
-    linkElement.click();
+    showNotification('Data exported successfully!');
 }
 
-// Notification system
-function showNotification(message, type = 'success') {
-    // Remove existing notifications
-    const existingNotifications = document.querySelectorAll('.notification');
-    existingNotifications.forEach(notification => notification.remove());
+function refreshDashboard() {
+    simulateDataUpdates();
+    showNotification('Dashboard refreshed with latest data');
+}
+
+function logout() {
+    if (confirm('Are you sure you want to logout?')) {
+        showNotification('Logged out successfully');
+        // In real app: window.location.href = '/logout';
+    }
+}
+
+function showDetails(type) {
+    const details = {
+        'ai': 'AI Assistant Engagement Details',
+        'action': 'Action Center Button Breakdown'
+    };
     
-    // Create notification
+    if (details[type]) {
+        showNotification(details[type] + ' - Feature coming soon!');
+    }
+}
+
+function showNotification(message) {
+    // Create notification element
     const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
+    notification.className = 'notification';
     notification.innerHTML = `
-        <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'}"></i>
-        <span>${message}</span>
-        <button class="close-notification"><i class="fas fa-times"></i></button>
+        <div class="notification-content">
+            <span>📊 ${message}</span>
+            <button onclick="this.parentElement.parentElement.remove()">×</button>
+        </div>
     `;
     
-    // Add to body
-    document.body.appendChild(notification);
-    
-    // Add styles for notification
+    // Add styles if not already present
     if (!document.querySelector('#notification-styles')) {
         const style = document.createElement('style');
         style.id = 'notification-styles';
@@ -406,30 +319,21 @@ function showNotification(message, type = 'success') {
                 background: white;
                 padding: 15px 20px;
                 border-radius: 10px;
-                box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+                box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+                z-index: 1000;
+                animation: slideIn 0.3s ease;
+                border-left: 5px solid #667eea;
+            }
+            .notification-content {
                 display: flex;
                 align-items: center;
-                z-index: 10000;
-                animation: slideIn 0.3s ease;
-                border-left: 5px solid #38b2ac;
+                justify-content: space-between;
+                gap: 15px;
             }
-            .notification.warning {
-                border-left-color: #ed8936;
-            }
-            .notification i {
-                margin-right: 10px;
-                font-size: 20px;
-            }
-            .notification.success i {
-                color: #38b2ac;
-            }
-            .notification.warning i {
-                color: #ed8936;
-            }
-            .close-notification {
+            .notification button {
                 background: none;
                 border: none;
-                margin-left: 15px;
+                font-size: 20px;
                 cursor: pointer;
                 color: #a0aec0;
             }
@@ -441,16 +345,16 @@ function showNotification(message, type = 'success') {
         document.head.appendChild(style);
     }
     
+    // Add to page
+    document.body.appendChild(notification);
+    
     // Auto-remove after 5 seconds
     setTimeout(() => {
-        notification.style.animation = 'slideOut 0.3s ease';
-        setTimeout(() => notification.remove(), 300);
+        if (notification.parentElement) {
+            notification.style.animation = 'slideOut 0.3s ease';
+            setTimeout(() => notification.remove(), 300);
+        }
     }, 5000);
-    
-    // Close button
-    notification.querySelector('.close-notification').addEventListener('click', () => {
-        notification.remove();
-    });
 }
 
 // Add slideOut animation
@@ -462,6 +366,3 @@ slideOutStyle.textContent = `
     }
 `;
 document.head.appendChild(slideOutStyle);
-
-// Initialize the dashboard
-initDashboard();
