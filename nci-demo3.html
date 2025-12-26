@@ -105,28 +105,6 @@
     </div>
 
     <script>
-        // Freeze video at end instead of looping
-        document.getElementById('avatarVideo').addEventListener('ended', function() {
-            this.pause();
-            this.classList.add('video-frozen');
-        });
-
-        // Animated typing text
-        function typeText(element, text, speed = 50) {
-            element.innerHTML = '';
-            let i = 0;
-            
-            function type() {
-                if (i < text.length) {
-                    element.innerHTML = text.substring(0, i + 1) + '<span class="typing-cursor"></span>';
-                    i++;
-                    setTimeout(type, speed);
-                } else {
-                    element.innerHTML = text;
-                }
-            }
-            type();
-        }
 
         // Session management and button functionality
         document.addEventListener('DOMContentLoaded', function() {
