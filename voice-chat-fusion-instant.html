@@ -57,14 +57,43 @@
 
     }
     .deep-space-theme {
-    /* SOLID COLORS - NO TRANSPARENCY */
-    --client-primary: #ffffff;        /* Charcoal black background */
-    --client-secondary: #0066ff;      /* Blue interface elements */
-    --client-accent: #0044cc;         /* Darker blue accents */
-    --glow-blue: #00aaff;             /* Blue glow color */
-    --primary-gradient: linear-gradient(135deg, #0A1428, #1048c0, #003674, #1a49ae);
-    
-    }
+    /* REQUIRED VARIABLES */
+    --client-primary: #0a0a0a;
+    --client-secondary: #0066ff;
+    --client-accent: #0044cc;
+    --glow-blue: #00aaff;
+    --primary-gradient: linear-gradient(135deg, #0a0a0a, #121212, #1e1e1e);
+}
+
+.deep-space-theme .ai-button-container {
+    background: var(--client-primary) !important;
+    border: 2px solid rgba(0, 170, 255, 0.7) !important;
+    box-shadow: 0 0 40px rgba(0, 102, 255, 0.5) !important;
+}
+
+.deep-space-theme .ai-video-container {
+    background: linear-gradient(135deg, var(--client-secondary), var(--client-accent), var(--glow-blue)) !important;
+    border: 3px solid rgba(0, 170, 255, 0.8) !important;
+    box-shadow: 0 0 30px rgba(0, 102, 255, 0.8) !important;
+}
+
+.deep-space-theme .ai-text {
+    background: linear-gradient(135deg, var(--client-secondary), var(--client-accent)) !important;
+    color: white !important;
+    border: 1px solid rgba(0, 170, 255, 0.6) !important;
+}
+
+.deep-space-theme .ai-primary-btn {
+    background: linear-gradient(135deg, var(--client-secondary), var(--client-accent)) !important;
+    box-shadow: 0 0 20px rgba(0, 102, 255, 0.9) !important;
+    border: 2px solid rgba(255, 255, 255, 0.5) !important;
+}
+
+.deep-space-theme .ai-secondary-btn {
+    background: linear-gradient(135deg, #6600ff, #4400cc) !important;
+    box-shadow: 0 0 15px rgba(102, 0, 255, 0.8) !important;
+    border: 2px solid rgba(255, 255, 255, 0.4) !important;
+}
 
         /* ===================================================
            📱 CORE STYLING
@@ -78,14 +107,14 @@
 
         body {
             background: var(--primary-gradient);
-            color: rgb(0, 0, 0);
+            color: rgb(255, 255, 255);
             min-height: 110vh;
             padding: 10px;
         }
 
   .container {
     max-width: 810px;
-    background: rgba(0, 0, 0, 0.1);
+    background: rgb(255, 255, 255);
     backdrop-filter: blur(10px);
     border-radius: 10px;
     padding: 10px;
