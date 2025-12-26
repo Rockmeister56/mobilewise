@@ -57,62 +57,61 @@
 
     }
 
-    /* ===== MOBILEWISE AI THEME SYSTEM ===== */
-
-/* DEEP SPACE THEME (Fixed - No transparency) */
-.deep-space-theme {
-    /* SOLID COLORS - No transparency */
-    --client-primary: #1a1a2e;        /* Dark blue-gray - SOLID */
-    --client-secondary: #16213e;      /* Medium blue - SOLID */
-    --client-accent: #0f3460;         /* Dark blue - SOLID */
-    
-    /* GRADIENT - Solid dark to blue */
-    --primary-gradient: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
-    
-    /* GLOW EFFECTS - Separate from background */
-    --glow-color: #00ccff;
-    --glow-shadow: 0 0 20px rgba(0, 200, 255, 0.7);
-    --border-glow: 2px solid rgba(0, 200, 255, 0.6);
+    /* LAYER 1: WIDGET BACKGROUND - SOLID CHARCOAL BLACK */
+.deep-space-theme #mobilewiseAIWidget {
+    background: var(--background-base) !important; /* SOLID BLACK */
+    background-color: var(--background-base) !important;
+    position: relative;
+    z-index: 1;
 }
 
-/* Apply Deep Space Theme */
-.deep-space-theme #mobilewiseAIWidget,
-.deep-space-theme .ai-button-container {
-    background: var(--client-primary) !important; /* SOLID */
-    background-color: var(--client-primary) !important;
-    border: var(--border-glow) !important;
-    box-shadow: var(--glow-shadow) !important;
-    border-radius: 20px !important;
-}
-
+/* LAYER 2: INTERFACE ELEMENTS - BLUE GRADIENT (POPs on black) */
 .deep-space-theme .ai-video-container {
-    background: var(--client-accent) !important; /* SOLID */
-    border: 3px solid rgba(0, 200, 255, 0.9) !important;
-    box-shadow: 0 0 30px rgba(0, 200, 255, 0.8) !important;
+    background: var(--interface-gradient) !important;
+    border: var(--border-glow) !important;
+    box-shadow: var(--glow-intensity),
+                inset 0 0 20px rgba(0, 0, 0, 0.5) !important;
 }
 
 .deep-space-theme .ai-text {
-    background: rgba(10, 10, 40, 0.95) !important; /* ALMOST SOLID */
+    background: var(--interface-gradient) !important;
     color: white !important;
-    text-shadow: 0 0 15px var(--glow-color) !important;
-    border: 1px solid rgba(0, 200, 255, 0.6) !important;
+    text-shadow: 0 0 15px rgba(255, 255, 255, 0.8) !important;
+    border: 1px solid rgba(0, 170, 255, 0.6) !important;
 }
 
 .deep-space-theme .ai-primary-btn {
-    background: linear-gradient(135deg, #0066ff, #0044cc) !important;
+    background: linear-gradient(135deg, 
+        var(--interface-primary), 
+        var(--interface-secondary)
+    ) !important;
     border: 2px solid rgba(255, 255, 255, 0.5) !important;
-    box-shadow: 0 0 20px rgba(0, 102, 255, 0.9) !important;
+    box-shadow: 0 0 25px rgba(0, 102, 255, 0.9) !important;
 }
 
 .deep-space-theme .ai-secondary-btn {
-    background: linear-gradient(135deg, #6600ff, #4400cc) !important;
+    background: linear-gradient(135deg, 
+        #6600ff,  /* Purple blue */
+        #4400cc
+    ) !important;
     border: 2px solid rgba(255, 255, 255, 0.4) !important;
-    box-shadow: 0 0 15px rgba(102, 0, 255, 0.8) !important;
+    box-shadow: 0 0 20px rgba(102, 0, 255, 0.8) !important;
 }
 
+/* OVERLAY - DARK WITH BLUE TINT */
 .deep-space-theme .ai-overlay-image {
-    background: var(--client-secondary) !important; /* SOLID */
-    opacity: 1 !important;
+    background: linear-gradient(
+        rgba(0, 0, 0, 0.7),      /* Dark overlay */
+        rgba(0, 20, 40, 0.8)     /* Blue tint */
+    ) !important;
+}
+
+/* WIDGET BORDER GLOW (on black background) */
+.deep-space-theme #mobilewiseAIWidget {
+    box-shadow: 
+        0 0 0 2px rgba(0, 102, 255, 0.3),
+        0 0 40px rgba(0, 102, 255, 0.5),
+        0 0 80px rgba(0, 102, 255, 0.2) !important;
 }
 
         /* ===================================================
