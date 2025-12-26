@@ -51,19 +51,10 @@
 
      .deep-blue-theme {
     --client-primary: #052c99;        /* Deep midnight blue-black */
-    --client-secondary: #1E3A5F;      /* Rich steel blue */
+    --client-secondary: #010204;      /* Rich steel blue */
     --client-accent: #2b5adb;         /* Bright electric blue */
     --primary-gradient: linear-gradient(135deg, #0A1428, #1048c0, #003674, #1a49ae);
-
-    }
-    .deep-space-theme {
-    /* REQUIRED VARIABLES */
-    --client-primary: #06218c;
-    --client-secondary: #0066ff;
-    --client-accent: #0044cc;
-    --glow-blue: #00aaff;
-     --primary-gradient: linear-gradient(135deg, #0A1428, #1048c0, #003674, #1a49ae);
-}
+       }
 
         /* ===================================================
            📱 CORE STYLING
@@ -77,14 +68,14 @@
 
         body {
             background: var(--primary-gradient);
-            color: rgb(255, 255, 255);
+            color: white;
             min-height: 110vh;
             padding: 10px;
         }
 
   .container {
     max-width: 810px;
-    background: rgb(255, 255, 255);
+    background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
     border-radius: 10px;
     padding: 10px;
