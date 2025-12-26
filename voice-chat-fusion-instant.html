@@ -57,61 +57,29 @@
 
     }
 
-    /* LAYER 1: WIDGET BACKGROUND - SOLID CHARCOAL BLACK */
-.deep-space-theme #mobilewiseAIWidget {
-    background: var(--background-base) !important; /* SOLID BLACK */
-    background-color: var(--background-base) !important;
-    position: relative;
-    z-index: 1;
-}
+/* ===== DEEP SPACE THEME - TWO LAYERS ===== */
 
-/* LAYER 2: INTERFACE ELEMENTS - BLUE GRADIENT (POPs on black) */
-.deep-space-theme .ai-video-container {
-    background: var(--interface-gradient) !important;
-    border: var(--border-glow) !important;
-    box-shadow: var(--glow-intensity),
-                inset 0 0 20px rgba(0, 0, 0, 0.5) !important;
-}
-
-.deep-space-theme .ai-text {
-    background: var(--interface-gradient) !important;
-    color: white !important;
-    text-shadow: 0 0 15px rgba(255, 255, 255, 0.8) !important;
-    border: 1px solid rgba(0, 170, 255, 0.6) !important;
-}
-
-.deep-space-theme .ai-primary-btn {
-    background: linear-gradient(135deg, 
-        var(--interface-primary), 
-        var(--interface-secondary)
-    ) !important;
-    border: 2px solid rgba(255, 255, 255, 0.5) !important;
-    box-shadow: 0 0 25px rgba(0, 102, 255, 0.9) !important;
-}
-
-.deep-space-theme .ai-secondary-btn {
-    background: linear-gradient(135deg, 
-        #6600ff,  /* Purple blue */
-        #4400cc
-    ) !important;
-    border: 2px solid rgba(255, 255, 255, 0.4) !important;
-    box-shadow: 0 0 20px rgba(102, 0, 255, 0.8) !important;
-}
-
-/* OVERLAY - DARK WITH BLUE TINT */
-.deep-space-theme .ai-overlay-image {
-    background: linear-gradient(
-        rgba(0, 0, 0, 0.7),      /* Dark overlay */
-        rgba(0, 20, 40, 0.8)     /* Blue tint */
-    ) !important;
-}
-
-/* WIDGET BORDER GLOW (on black background) */
-.deep-space-theme #mobilewiseAIWidget {
-    box-shadow: 
-        0 0 0 2px rgba(0, 102, 255, 0.3),
-        0 0 40px rgba(0, 102, 255, 0.5),
-        0 0 80px rgba(0, 102, 255, 0.2) !important;
+.deep-space-theme {
+    /* LAYER 1: BOTTOM BACKGROUND - SOLID CHARCOAL BLACK */
+    --background-base: #0a0a0a;        /* Pure charcoal black */
+    --background-dark: #121212;        /* Dark charcoal */
+    
+    /* LAYER 2: INTERFACE - GRADIENT BLUE (POPs on black) */
+    --interface-primary: #0066ff;      /* Bright blue */
+    --interface-secondary: #0044cc;    /* Medium blue */
+    --interface-accent: #00aaff;       /* Light blue */
+    
+    /* INTERFACE GRADIENT - Blue glow effect */
+    --interface-gradient: linear-gradient(
+        135deg,
+        rgba(0, 102, 255, 0.9),    /* Bright blue */
+        rgba(0, 68, 204, 0.9),     /* Medium blue */
+        rgba(0, 170, 255, 0.9)     /* Light blue */
+    );
+    
+    /* GLOW EFFECTS */
+    --glow-intensity: 0 0 30px rgba(0, 102, 255, 0.8);
+    --border-glow: 2px solid rgba(0, 170, 255, 0.7);
 }
 
         /* ===================================================
