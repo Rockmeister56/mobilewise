@@ -49,11 +49,60 @@
             --primary-gradient: linear-gradient(135deg, #0F2027, #203A43, #2C5364);
         }
 
-        .deep-blue-theme {
-    --client-primary: #052c99;        /* Deep midnight blue-black */
-    --client-secondary: #1E3A5F;      /* Rich steel blue */
-    --client-accent: #2b5adb;         /* Bright electric blue */
-    --primary-gradient: linear-gradient(135deg, #0A1428, #1048c0, #003674, #1a49ae);
+        /* ===== COMPLETE DEEP SPACE HOLOGRAM THEME ===== */
+.deep-space-theme {
+    /* Color Variables */
+    --charcoal-black: #0a0a0a;
+    --charcoal-dark: #121212;
+    --charcoal-medium: #1e1e1e;
+    --charcoal-light: #2a2a2a;
+    --glow-blue: #0066ff;
+    --glow-cyan: #00ccff;
+    --glow-purple: #6600ff;
+}
+
+/* Main Container */
+#mobilewiseAIWidget,
+.ai-button-container {
+    background: linear-gradient(135deg, #0a0a0a, #121212, #1e1e1e) !important;
+    box-shadow: 0 0 0 1px rgba(0, 102, 255, 0.4),
+                0 0 30px rgba(0, 102, 255, 0.6),
+                0 0 60px rgba(0, 102, 255, 0.3) !important;
+    border: 1px solid rgba(0, 102, 255, 0.5) !important;
+    border-radius: 20px !important;
+}
+
+/* Video Frame */
+.ai-video-container {
+    box-shadow: 0 0 30px rgba(0, 102, 255, 0.7),
+                inset 0 0 25px rgba(0, 0, 0, 0.7) !important;
+    border: 2px solid rgba(0, 102, 255, 0.6) !important;
+    border-radius: 15px !important;
+}
+
+/* Buttons */
+.ai-primary-btn {
+    background: linear-gradient(135deg, #002fff, #0066ff) !important;
+    box-shadow: 0 0 20px rgba(0, 102, 255, 0.8),
+                inset 0 0 15px rgba(255, 255, 255, 0.15) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+}
+
+.ai-secondary-btn {
+    background: linear-gradient(135deg, #6600ff, #9900ff) !important;
+    box-shadow: 0 0 15px rgba(102, 0, 255, 0.7),
+                inset 0 0 10px rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Glow Animation */
+@keyframes hologram-flicker {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.95; }
+}
+
+#mobilewiseAIWidget {
+    animation: hologram-flicker 3s infinite;
 }
 
         /* ===================================================
