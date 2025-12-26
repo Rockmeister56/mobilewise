@@ -350,7 +350,7 @@ function showCommunicationRelayCenter() {
                 rgba(255, 255, 255, 0.25) 50%,
                 rgba(255, 255, 255, 0.15) 100%) !important;
             color: white !important;
-            border: 2px solid rgba(255, 255, 255, 0.3) !important;
+           border: 2px solid rgba(0, 102, 255, 0.8) !important; 
             border-radius: 20px !important;
             cursor: pointer !important;
             font-size: 17px !important;  /* Larger text */
