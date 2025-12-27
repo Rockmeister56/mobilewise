@@ -4489,15 +4489,15 @@ if (!window.bannerSyncInterval) {
     console.log('✅ Banner state synchronization started with safety timer');
 }
 
-// CLEAN WHITE SLIDE-UP WELCOME OVERLAY
+// CLEAN WHITE SLIDE-UP WELCOME OVERLAY - FIXED POSITION
 window.showWelcomeSplash = function(userName) {
     console.log('🎉 WHITE SLIDE-UP WELCOME: Showing for', userName);
     
     // 🎨 CONTROLS
-    const logoHeight = '40px';        // Logo size
-    const fontSize = '22px';          // Text size
-    const bannerHeight = '70px';      // Banner height
-    const displayDuration = 6000;     // How long it shows (ms)
+    const logoHeight = '40px';
+    const fontSize = '22px';
+    const bannerHeight = '70px';
+    const displayDuration = 6000;
     
     // Remove existing if any
     const existingWelcome = document.getElementById('white-welcome-overlay');
@@ -4508,16 +4508,16 @@ window.showWelcomeSplash = function(userName) {
     welcomeOverlay.id = 'white-welcome-overlay';
     welcomeOverlay.style.cssText = `
         position: fixed;
-        bottom: -${bannerHeight};          /* Start below screen */
+        bottom: 0;
         left: 0;
         width: 100%;
         height: ${bannerHeight};
         background: white;
-        color: #002fff;                    /* Blue text to match your theme */
+        color: #002fff;
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         font-size: ${fontSize};
         font-weight: 700;
-        z-index: 10002;                     /* Above widget buttons */
+        z-index: 10002;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -4525,7 +4525,8 @@ window.showWelcomeSplash = function(userName) {
         box-shadow: 0 -4px 20px rgba(0, 47, 255, 0.15);
         border-top-left-radius: 12px;
         border-top-right-radius: 12px;
-        transition: bottom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+        transform: translateY(100%); /* START OFFSCREEN BELOW */
+        transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275),
                     opacity 0.4s ease;
         opacity: 1;
         padding: 0 20px;
@@ -4544,14 +4545,17 @@ window.showWelcomeSplash = function(userName) {
     
     document.body.appendChild(welcomeOverlay);
     
-    // Slide up
+    // Force a reflow before animating
+    welcomeOverlay.offsetHeight;
+    
+    // Slide up into view
     setTimeout(() => {
-        welcomeOverlay.style.bottom = '0';
+        welcomeOverlay.style.transform = 'translateY(0)';
     }, 50);
     
     // Slide down and fade out
     setTimeout(() => {
-        welcomeOverlay.style.bottom = `-${bannerHeight}`;
+        welcomeOverlay.style.transform = 'translateY(100%)';
         welcomeOverlay.style.opacity = '0';
         
         // Remove after animation
@@ -4561,19 +4565,6 @@ window.showWelcomeSplash = function(userName) {
             }
         }, 500);
     }, displayDuration);
-
-    // OPTIONAL: Subtle confetti burst (single burst, not annoying)
-setTimeout(() => {
-    if (typeof confetti === 'function') {
-        confetti({
-            particleCount: 30,
-            spread: 60,
-            origin: { y: 0.9 },
-            colors: ['#002fff', '#6f00ff', '#ffffff'],
-            disableForReducedMotion: true
-        });
-    }
-}, 300);
     
     window.welcomeSplashShown = true;
     console.log('✅ White welcome overlay shown');
