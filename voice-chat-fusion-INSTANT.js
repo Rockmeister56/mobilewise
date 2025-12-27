@@ -1381,31 +1381,6 @@ function getApologyResponse() {
     return sorryMessages[Math.floor(Math.random() * sorryMessages.length)];
 }
 
-// 🎯 ADD THIS HELPER FUNCTION TO CHECK WHAT'S BLOCKING:
-function diagnoseBlocing() {
-    console.log('🔍 BLOCKING DIAGNOSIS:');
-    console.log('  🎤 isSpeaking:', isSpeaking);
-    console.log('  🔊 playingSorryMessage:', window.playingSorryMessage);
-    console.log('  🎬 speakSequenceActive:', speakSequenceActive);
-    console.log('  🔄 recognition state:', recognition ? recognition.state : 'no recognition');
-    console.log('  💭 conversationState:', conversationState);
-    console.log('  ⏰ lastSequenceStart:', window.lastSequenceStart);
-    console.log('  🎯 current time:', Date.now());
-    
-    // Check for any timers
-    console.log('  ⏰ speakSequenceCleanupTimer:', !!speakSequenceCleanupTimer);
-    console.log('  ⏰ restartTimeout:', !!restartTimeout);
-    
-    // Check DOM elements
-    const speakNowButton = document.querySelector('[data-speak-now]') || document.getElementById('speakSequenceButton');
-    console.log('  🎯 Speak Now button exists:', !!speakNowButton);
-    console.log('  🎯 Speak Now button visible:', speakNowButton ? speakNowButton.style.display !== 'none' : false);
-}
-
-// 🎯 CALL THIS FUNCTION WHEN SECOND SPEAK NOW APPEARS:
-// Add this line right after the second "Speak Now" banner shows:
-// diagnoseBlocing();
-
 // ===================================================
 // 📧 EMAIL FORMATTING FUNCTION - FIXED
 // ===================================================
@@ -4514,62 +4489,94 @@ if (!window.bannerSyncInterval) {
     console.log('✅ Banner state synchronization started with safety timer');
 }
 
-// ULTRA-MINIMAL WELCOME WITH LOGO & FONT SIZE CONTROLS
+// CLEAN WHITE SLIDE-UP WELCOME OVERLAY
 window.showWelcomeSplash = function(userName) {
-    console.log('🎉 ULTRA-MINIMAL WELCOME: Showing for', userName);
+    console.log('🎉 WHITE SLIDE-UP WELCOME: Showing for', userName);
     
-    // 🎨 SIZE CONTROLS - CHANGE THESE:
-    const logoHeight = '65px';   // Change logo size: '60px', '100px', '120px'
-    const fontSize = '22px';     // Change text size: '20px', '28px', '32px'
+    // 🎨 CONTROLS
+    const logoHeight = '40px';        // Logo size
+    const fontSize = '22px';          // Text size
+    const bannerHeight = '70px';      // Banner height
+    const displayDuration = 6000;     // How long it shows (ms)
     
-    const existingWelcome = document.getElementById('minimal-welcome');
+    // Remove existing if any
+    const existingWelcome = document.getElementById('white-welcome-overlay');
     if (existingWelcome) existingWelcome.remove();
     
-    const welcomeContainer = document.createElement('div');
-    welcomeContainer.id = 'minimal-welcome';
-    welcomeContainer.style.cssText = `
+    // Create overlay
+    const welcomeOverlay = document.createElement('div');
+    welcomeOverlay.id = 'white-welcome-overlay';
+    welcomeOverlay.style.cssText = `
         position: fixed;
-        top:  7px;
-        right: 20px;
-        color: #024082ff;
-        font-family: cursive, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        bottom: -${bannerHeight};          /* Start below screen */
+        left: 0;
+        width: 100%;
+        height: ${bannerHeight};
+        background: white;
+        color: #002fff;                    /* Blue text to match your theme */
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         font-size: ${fontSize};
-        font-weight: 600;
-        z-index: 10001;
-        transition: opacity 0.7s ease;
-        opacity: 0;
+        font-weight: 700;
+        z-index: 10002;                     /* Above widget buttons */
         display: flex;
         align-items: center;
-        gap: 7px;
-        background: transparent;
-}
+        justify-content: center;
+        gap: 15px;
+        box-shadow: 0 -4px 20px rgba(0, 47, 255, 0.15);
+        border-top-left-radius: 12px;
+        border-top-right-radius: 12px;
+        transition: bottom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+                    opacity 0.4s ease;
+        opacity: 1;
+        padding: 0 20px;
     `;
-
-    welcomeContainer.innerHTML = `
+    
+    // Inner content
+    welcomeOverlay.innerHTML = `
         <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1763241555499_pngegg%20(13).png" 
              alt="Welcome" 
-             style="height: ${logoHeight}; border-radius: 2px;"
+             style="height: ${logoHeight}; border-radius: 4px;"
              onerror="this.style.display='none'">
-        <span style="margin-left: 7px;">${userName}!</span>
+        <span style="letter-spacing: 0.5px;">
+            Welcome, <strong style="color: #060a1c;">${userName}</strong>!
+        </span>
     `;
     
-    document.body.appendChild(welcomeContainer);
+    document.body.appendChild(welcomeOverlay);
     
-        // Fade in
-    setTimeout(() => welcomeContainer.style.opacity = '1', 10);
-    
-    // Fade out and remove after 10 seconds (was 30)
+    // Slide up
     setTimeout(() => {
-        welcomeContainer.style.opacity = '0';
+        welcomeOverlay.style.bottom = '0';
+    }, 50);
+    
+    // Slide down and fade out
+    setTimeout(() => {
+        welcomeOverlay.style.bottom = `-${bannerHeight}`;
+        welcomeOverlay.style.opacity = '0';
+        
+        // Remove after animation
         setTimeout(() => {
-            if (welcomeContainer.parentElement) {
-                welcomeContainer.remove();
+            if (welcomeOverlay.parentElement) {
+                welcomeOverlay.remove();
             }
         }, 500);
-    }, 10000); // Changed from 30000 to 10000 (10 seconds)
+    }, displayDuration);
+
+    // OPTIONAL: Subtle confetti burst (single burst, not annoying)
+setTimeout(() => {
+    if (typeof confetti === 'function') {
+        confetti({
+            particleCount: 30,
+            spread: 60,
+            origin: { y: 0.9 },
+            colors: ['#002fff', '#6f00ff', '#ffffff'],
+            disableForReducedMotion: true
+        });
+    }
+}, 300);
     
     window.welcomeSplashShown = true;
-    console.log('✅ Ultra-minimal welcome shown');
+    console.log('✅ White welcome overlay shown');
 };
 
 // ===================================================
