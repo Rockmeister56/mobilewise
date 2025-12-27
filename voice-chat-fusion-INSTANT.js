@@ -2290,12 +2290,20 @@ setTimeout(() => {
 
 const bannerTriggers = {
     
-    // BRANDING BANNER
+    // BRANDING BANNER (shows on page load)
     branding: {
         bannerType: 'branding',
         delay: 500,
-        duration: 0,  // Persistent
-        conditions: ['page_ready']
+        duration: 0,
+        conditions: ['page_ready']  // ✅ Shows when page loads
+    },
+
+    // WELCOME BANNER (shows only after name capture)
+    welcome: {
+        bannerType: 'welcome',
+        delay: 100,               // Quicker appearance
+        duration: 0,              // Persistent
+        conditions: ['user_named']  // ✅ Custom condition — only when name is known
     },
     
     // EMAIL CONFIRMATION
@@ -2500,22 +2508,44 @@ function detectAndStoreUserName(message) {
     ];
     
     for (let pattern of namePatterns) {
-    const match = message.match(pattern);
-    if (match && match[1]) {
-        const userName = match[1].trim();
-        const formattedName = userName.charAt(0).toUpperCase() + userName.slice(1).toLowerCase();
-        
-        console.log('🎉 NAME CAPTURED FROM BUBBLE:', formattedName);
+        const match = message.match(pattern);
+        if (match && match[1]) {
+            const userName = match[1].trim();
+            const formattedName = userName.charAt(0).toUpperCase() + userName.slice(1).toLowerCase();
+            
+            console.log('🎉 NAME CAPTURED FROM BUBBLE:', formattedName);
 
-         window.userFirstName = formattedName;
-        window.lastCapturedName = formattedName; // 🆕 BACKUP
-        
-        // 🎯 STORE FOR FUTURE USE
-        window.userFirstName = formattedName;
-        
-        break;
+            window.userFirstName = formattedName;
+            window.lastCapturedName = formattedName; // 🆕 BACKUP
+            
+            // 🎯 STORE FOR FUTURE USE
+            window.userFirstName = formattedName;
+            
+            // ================================
+            // 🚀 TRIGGER WELCOME BANNER HERE
+            // ================================
+            
+            // Set banner condition
+            window.bannerConditions = window.bannerConditions || {};
+            window.bannerConditions.user_named = true;
+            
+            // Trigger welcome banner via your banner engine
+            if (window.triggerBanner) {
+                window.triggerBanner('welcome', formattedName);
+            } else if (window.showBanner) {
+                window.showBanner('welcomePersonalized', formattedName);
+            } else {
+                console.warn('Banner engine function not found');
+            }
+            
+            // Optional: Also show welcome splash (if still using)
+            if (window.showWelcomeSplash) {
+                window.showWelcomeSplash(formattedName);
+            }
+            
+            break;
+        }
     }
-}
 }
 
 function pauseSession() {
