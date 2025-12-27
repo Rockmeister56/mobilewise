@@ -403,19 +403,19 @@ body .banner-glow-container.banner-testimonial {
 }
 
 /* ===== MOBILE OVERRIDES (MINIMAL - ONLY WHEN ABSOLUTELY NECESSARY) ===== */
-@media (max-width: 850px) {
-    /* BANNER CONTAINER */
-    .banner-glow-container {
-        width: 100% !important;
-        max-width: 100% !important;
-        height: auto !important;
-        min-height: 75px !important;
-        padding: 15px 15px !important;
-        margin: 0 auto;
+@media (max-width: 768px) {
+    .banner-glow-container.branding-banner {
+        width: 95vw !important;
+        max-width: 400px !important;
+        height: 60px !important;
+        padding: 0 5px !important;
     }
-         #bannerHeaderContainer {
-        margin-top: 30px !important;
+    
+    .branding-banner img {
+        width: 250px !important;
+        max-width: 250px !important;
     }
+}
     
     /* GLOW LAYER ADJUSTMENT */
     .banner-glow-container::before {
@@ -432,14 +432,15 @@ body .banner-glow-container.banner-testimonial {
         height: 70px !important;
     }
     
-    /* BRANDING LOGO IMAGE */
-    .branding-banner img[src*="logobrand.JPG"],
-    .branding-banner img {
-        width: 200px !important;
-        height: auto !important;
-        max-width: 90px !important;
-        margin-right: -10 !important;
-    }
+    /* MOBILE BRANDING LOGO IMAGE */
+.branding-banner img[src*="logobrand.JPG"],
+.branding-banner img {
+    width: 270px !important;    /* Match your inline style */
+    max-width: 270px !important; /* Remove the 90px limit */
+    height: auto !important;
+    margin-right: -10px !important;
+}
+
     
     /* STANDARD BANNER IMAGES (EMOJIS) - 20% BIGGER */
     .banner-glow-container img:not(.branding-banner img):not(.book-white-glow) {
