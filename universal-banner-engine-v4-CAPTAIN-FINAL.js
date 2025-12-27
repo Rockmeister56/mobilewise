@@ -36,7 +36,7 @@
                 <!-- CENTER: NCI Logo -->
                 <div style="display: flex; align-items: center; justify-content: center;">
                     <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logosmall.png" 
-                         style="width: 200px; height: auto; border-radius: 8px; box-shadow: 0 0px 8px rgba(255, 255, 255, 1);">
+                         style="width: 240px; height: auto; border-radius: 8px; box-shadow: 0 0px 8px rgba(255, 255, 255, 1);">
                 </div>
             </div>
         `,
