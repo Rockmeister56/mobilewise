@@ -433,9 +433,9 @@ body .banner-glow-container.banner-testimonial {
     }
     
     /* BRANDING LOGO IMAGE */
-    .branding-banner img[src*="nci.PNG"],
+    .branding-banner img[src*="logobrand.JPG"],
     .branding-banner img {
-        width: 90px !important;
+        width: 200px !important;
         height: auto !important;
         max-width: 90px !important;
         margin-right: -10 !important;
