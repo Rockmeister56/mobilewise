@@ -4489,9 +4489,9 @@ if (!window.bannerSyncInterval) {
     console.log('✅ Banner state synchronization started with safety timer');
 }
 
-// CLEAN WHITE SLIDE-UP WELCOME OVERLAY - FIXED POSITION
+// CLEAN WHITE SLIDE-UP WELCOME OVERLAY - MOBILE FIXED
 window.showWelcomeSplash = function(userName) {
-    console.log('🎉 WHITE SLIDE-UP WELCOME: Showing for', userName);
+    console.log('🎉 SLIDE-UP WELCOME: Showing for', userName);
     
     // 🎨 CONTROLS
     const logoHeight = '40px';
@@ -4516,7 +4516,7 @@ window.showWelcomeSplash = function(userName) {
         color: #002fff;
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         font-size: ${fontSize};
-        font-weight: 700;
+        font-weight: 600; /* Normal weight, not bold */
         z-index: 10002;
         display: flex;
         align-items: center;
@@ -4530,16 +4530,18 @@ window.showWelcomeSplash = function(userName) {
                     opacity 0.4s ease;
         opacity: 1;
         padding: 0 20px;
+        /* Mobile-safe bottom */
+        bottom: env(safe-area-inset-bottom, 0);
     `;
     
-    // Inner content
+    // INNER CONTENT - NO "WELCOME" TEXT, NO BOLD
     welcomeOverlay.innerHTML = `
         <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1763241555499_pngegg%20(13).png" 
-             alt="Welcome" 
+             alt="" 
              style="height: ${logoHeight}; border-radius: 4px;"
              onerror="this.style.display='none'">
-        <span style="letter-spacing: 0.5px;">
-            Welcome, <strong style="color: #060a1c;">${userName}</strong>!
+        <span style="letter-spacing: 0.5px; color: #060a1c;">
+            ${userName}!
         </span>
     `;
     
@@ -4567,7 +4569,7 @@ window.showWelcomeSplash = function(userName) {
     }, displayDuration);
     
     window.welcomeSplashShown = true;
-    console.log('✅ White welcome overlay shown');
+    console.log('✅ Welcome overlay shown');
 };
 
 // ===================================================
