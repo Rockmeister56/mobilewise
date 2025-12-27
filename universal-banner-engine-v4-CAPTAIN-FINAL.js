@@ -35,7 +35,7 @@
             <div class="banner-glow-container branding-banner" style="width: 795px; max-width: 795px; margin: 0 auto; height: 77px; display: flex; justify-content: center; align-items: center; padding: 0 10px; border-radius: 10px; background: white; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);">
                 <!-- CENTER: NCI Logo -->
                 <div style="display: flex; align-items: center; justify-content: center;">
-                    <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logosmall.png" 
+                    <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo.png" 
                          style="width: 240px; height: auto; border-radius: 8px; box-shadow: 0 0px 8px rgba(255, 255, 255, 1);">
                 </div>
             </div>
