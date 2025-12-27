@@ -32,18 +32,26 @@
     // 1. BRANDING HEADER (NCI Logo - White background with blue glow)
     branding: {
         content: `
-            <div class="banner-glow-container branding-banner" style="width: 795px; max-width: 795px; margin: 0 auto; height: 77px; display: flex; justify-content: center; align-items: center; padding: 0 10px; border-radius: 10px; background: white; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);">
-                <!-- CENTER: NCI Logo -->
-                <div style="display: flex; align-items: center; justify-content: center;">
+            <div class="banner-glow-container" style="width: 760px; max-width: 760px; margin: 0 auto; height: 80px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #1e40af 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                <div style="display: flex; align-items: center;">
                     <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/email%20sent.png" 
-                         style="width: 80px; height: auto; border-radius: 8px; box-shadow: 0 0px 8px rgba(255, 255, 255, 1);">
+                         class="book-white-glow"
+                         style="width: 70px; height: 70px; border-radius: 0px; margin-right: 20px;">
+                    <div style="color: white; text-align: left;">
+                        <div style="font-size: 20px; font-weight: bold; margin-bottom: 5px;">
+                            EMAIL on its way!
+                        </div>
+                        <div style="font-size: 14px; opacity: 0.95;">
+                            Please check your inbox or spam folder
+                        </div>
+                    </div>
                 </div>
             </div>
         `,
-        duration: 0,
-        colorLeft: '#0080ff',
-        colorCenter: '#0080ff',
-        colorRight: '#0080ff'
+        duration: 4000,
+        colorLeft: '#1e40af',
+        colorCenter: '#3b82f6',
+        colorRight: '#1e40af'
     },
     
     // 2. EMAIL SENT CONFIRMATION
