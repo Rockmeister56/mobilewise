@@ -435,21 +435,18 @@ body .banner-glow-container.banner-testimonial {
     }
 }
 
-/* Mobile responsive welcome banner */
+/* ===== MOBILE OVERRIDES (MINIMAL - ONLY WHEN ABSOLUTELY NECESSARY) ===== */
 @media (max-width: 768px) {
     .banner-glow-container.branding-banner {
         width: 95vw !important;
         max-width: 400px !important;
         height: 60px !important;
-        padding: 0 10px !important;
+        padding: 0 5px !important;
     }
     
-    .banner-glow-container.branding-banner img {
-        width: 40px !important;  /* Smaller logo on mobile */
-    }
-    
-    .banner-glow-container.branding-banner div {
-        font-size: 18px !important;  /* Smaller text */
+    .branding-banner img {
+        width: 250px !important;
+        max-width: 250px !important;
     }
 }
     
