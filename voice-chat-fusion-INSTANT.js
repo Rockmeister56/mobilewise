@@ -4538,10 +4538,15 @@ window.showWelcomeSplash = function(userName) {
         // Update with personalized welcome
         topBanner.innerHTML = `
            <div style="width: 100%; height: auto; min-height: 50px; display: flex; align-items: center; justify-content: center; padding: 5px 10px;">
-        <!-- Logo - Responsive sizing -->
+        <!-- WELCOME IMAGE (not logo) -->
         <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/welcome4.PNG" 
-             style="width: 40px; height: auto; max-width: 50px; border-radius: 6px; margin-right: 10px; object-fit: contain;"
-             class="welcome-logo">
+             style="
+                 width: 40px;
+                 height: auto;
+                 border-radius: 6px;
+                 margin-right: 10px;
+             "
+             class="welcome-image-custom">  <!-- DIFFERENT CLASS NAME -->
                 <div style="text-align: center;">
                     <div style="font-size: 28px; font-weight: 600;">
                        <span style="color: #112475ff;">${userName}</span>!
