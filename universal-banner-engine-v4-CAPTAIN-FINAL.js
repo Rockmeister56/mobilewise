@@ -45,7 +45,7 @@
         colorCenter: '#0080ff',
         colorRight: '#0080ff'
     },
-    
+        
     // 2. EMAIL SENT CONFIRMATION
     emailSent: {
         content: `

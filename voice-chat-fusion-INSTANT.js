@@ -2837,7 +2837,7 @@ function updateSmartButton(shouldShow, buttonText, action) {
 }
 
 // =============================================================================
-// 🎯 MOBILEWISE TRIGGER HELPER (ADD THIS BEFORE getAIResponse FUNCTION)
+// 🎯 MOBILEWISE TRIGGER HELP (ADD THIS BEFORE getAIResponse FUNCTION)
 // =============================================================================
 
 function triggerBannerViaMapping(triggerType) {
