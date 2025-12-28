@@ -2892,7 +2892,7 @@ if (!document.getElementById('speakNowWholeButtonGlowAnimation')) {
     document.head.appendChild(speakNowGlowStyle);
 }
 
-// 🎨 HEADER SLIDE ANIMATION
+// 🎨 HEADER SLIDE ANIMATION CODE
 const headerBannerStyle = document.createElement('style');
 headerBannerStyle.textContent = `
     @keyframes slideDownHeader {
