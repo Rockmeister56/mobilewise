@@ -4539,7 +4539,7 @@ window.showWelcomeSplash = function(userName) {
         topBanner.innerHTML = `
            <div style="width: 100%; height: auto; min-height: 50px; display: flex; align-items: center; justify-content: center; padding: 5px 10px;">
         <!-- Logo - Responsive sizing -->
-        <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/welcome4.PNG" 
+        <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/welcome2.PNG" 
              style="width: 40px; height: auto; max-width: 150px; border-radius: 6px; margin-right: 10px; object-fit: contain;"
              class="welcome-logo">
                 <div style="text-align: center;">
