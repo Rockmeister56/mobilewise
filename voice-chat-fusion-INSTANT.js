@@ -4536,16 +4536,18 @@ window.showWelcomeSplash = function(userName) {
         }
         
         // Update with personalized welcome
-        topBanner.innerHTML = `
-           <div style="width: 50%; height: auto; min-height: 30px; display: flex; align-items: center; justify-content: center; padding: 5px 10px;">
-        <!-- WELCOME IMAGE (not logo) -->
+       topBanner.innerHTML = `
+    <div style="width: 100%; display: flex; align-items: center; padding: 5px 10px;">
         <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/welcome4.PNG" 
+             data-welcome-image="true"
              style="
                  width: 20px;
-                 height: auto;
+                 height: 20px;
                  border-radius: 6px;
                  margin-right: 10px;
-             "
+             ">
+
+
              class="welcome-image-custom">  <!-- DIFFERENT CLASS NAME -->
                 <div style="text-align: center;">
                     <div style="font-size: 28px; font-weight: 600;">
