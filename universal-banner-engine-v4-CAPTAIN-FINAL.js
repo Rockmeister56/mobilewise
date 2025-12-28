@@ -45,39 +45,6 @@
         colorCenter: '#0080ff',
         colorRight: '#0080ff'
     },
-
-    // WELCOME BANNER (Personalized with user's name)
-welcome: (userName) => ({
-    content: `
-        <div class="banner-glow-container branding-banner" style="width: 795px; max-width: 795px; margin: 0 auto; height: 77px; display: flex; justify-content: center; align-items: center; padding: 0 10px; border-radius: 10px; background: white; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);">
-            <!-- LEFT: Logo -->
-            <div style="margin-right: 20px;">
-                <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1763241555499_pngegg%20(13).png" 
-                     style="width: 60px; height: auto; border-radius: 6px;">
-            </div>
-            
-            <!-- CENTER: Welcome Message with Name -->
-            <div style="text-align: center; flex-grow: 1;">
-                <div style="font-size: 24px; font-weight: 600; color: #002fff;">
-                    Welcome, <span style="color: #060a1c;">${userName}</span>!
-                </div>
-                <div style="font-size: 16px; color: #666; margin-top: 2px;">
-                    Your AI Assistant is ready
-                </div>
-            </div>
-            
-            <!-- RIGHT: Optional small logo or icon -->
-            <div style="margin-left: 20px;">
-                <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logobrand.jpg" 
-                     style="width: 40px; height: auto; border-radius: 4px;">
-            </div>
-        </div>
-    `,
-    duration: 0,
-    colorLeft: '#0080ff',
-    colorCenter: '#0080ff',
-    colorRight: '#0080ff'
-}),
     
     // 2. EMAIL SENT CONFIRMATION
     emailSent: {
