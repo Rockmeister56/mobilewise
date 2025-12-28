@@ -4537,7 +4537,7 @@ window.showWelcomeSplash = function(userName) {
         
         // Update with personalized welcome
         topBanner.innerHTML = `
-            <div style="width: 100%; height: 20px; display: flex; align-items: center; justify-content: center; padding: 0 20px;">
+            <div style="width: 50%; height: 20px; display: flex; align-items: center; justify-content: center; padding: 0 20px;">
                 <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1763241555499_pngegg%20(13).png" 
                      style="height: 20px; border-radius: 6px; margin-right: 15px;">
                 <div style="text-align: center;">
