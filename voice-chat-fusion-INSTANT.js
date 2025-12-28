@@ -4540,7 +4540,7 @@ window.showWelcomeSplash = function(userName) {
            <div style="width: 100%; height: auto; min-height: 50px; display: flex; align-items: center; justify-content: center; padding: 5px 10px;">
         <!-- Logo - Responsive sizing -->
         <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1763241555499_pngegg%20(13).png" 
-             style="width: 120px; height: auto; max-width: 150px; border-radius: 6px; margin-right: 10px; object-fit: contain;"
+             style="width: 40px; height: auto; max-width: 150px; border-radius: 6px; margin-right: 10px; object-fit: contain;"
              class="welcome-logo">
                 <div style="text-align: center;">
                     <div style="font-size: 28px; font-weight: 600;">
