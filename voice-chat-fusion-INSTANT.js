@@ -4519,21 +4519,55 @@ if (!window.bannerSyncInterval) {
     console.log('✅ Banner state synchronization started with safety timer');
 }
 
-// CLEAN WHITE SLIDE-UP WELCOME OVERLAY - MOBILE FIXED
+// UPDATED: BOTH Bottom Overlay + Top Banner Update
 window.showWelcomeSplash = function(userName) {
-    console.log('🎉 SLIDE-UP WELCOME: Showing for', userName);
+    console.log('🎉 UPDATED WELCOME SYSTEM: Showing for', userName);
     
-    // 🎨 CONTROLS
+    // ============================================
+    // 1. UPDATE TOP BANNER (if it exists)
+    // ============================================
+    const topBanner = document.querySelector('.branding-banner');
+    if (topBanner) {
+        console.log('✅ Found top banner, updating with name');
+        
+        // Save original HTML if not saved yet
+        if (!window.originalBannerHTML) {
+            window.originalBannerHTML = topBanner.innerHTML;
+        }
+        
+        // Update with personalized welcome
+        topBanner.innerHTML = `
+            <div style="width: 100%; height: 77px; display: flex; align-items: center; justify-content: center; padding: 0 20px;">
+                <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1763241555499_pngegg%20(13).png" 
+                     style="height: 45px; border-radius: 6px; margin-right: 15px;">
+                <div style="text-align: center;">
+                    <div style="font-size: 24px; font-weight: 600; color: #002fff;">
+                        Hello, <span style="color: #060a1c;">${userName}</span>!
+                    </div>
+                    <div style="font-size: 14px; color: #666; margin-top: 2px;">
+                        Welcome to MobileWise AI
+                    </div>
+                </div>
+            </div>
+        `;
+    } else {
+        console.warn('⚠️ No .branding-banner found for top update');
+    }
+    
+    // ============================================
+    // 2. KEEP BOTTOM OVERLAY (Optional - remove if not wanted)
+    // ============================================
+    // If you DON'T want the bottom overlay anymore, DELETE everything below this line
+    // If you DO want both, keep it
+    
     const logoHeight = '40px';
     const fontSize = '22px';
     const bannerHeight = '70px';
     const displayDuration = 6000;
     
-    // Remove existing if any
     const existingWelcome = document.getElementById('white-welcome-overlay');
     if (existingWelcome) existingWelcome.remove();
     
-    // Create overlay
     const welcomeOverlay = document.createElement('div');
     welcomeOverlay.id = 'white-welcome-overlay';
     welcomeOverlay.style.cssText = `
@@ -4546,7 +4580,7 @@ window.showWelcomeSplash = function(userName) {
         color: #002fff;
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         font-size: ${fontSize};
-        font-weight: 600; /* Normal weight, not bold */
+        font-weight: 600;
         z-index: 10002;
         display: flex;
         align-items: center;
@@ -4555,16 +4589,14 @@ window.showWelcomeSplash = function(userName) {
         box-shadow: 0 -4px 20px rgba(0, 47, 255, 0.15);
         border-top-left-radius: 12px;
         border-top-right-radius: 12px;
-        transform: translateY(100%); /* START OFFSCREEN BELOW */
+        transform: translateY(100%);
         transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275),
                     opacity 0.4s ease;
         opacity: 1;
         padding: 0 20px;
-        /* Mobile-safe bottom */
         bottom: env(safe-area-inset-bottom, 0);
     `;
     
-    // INNER CONTENT - NO "WELCOME" TEXT, NO BOLD
     welcomeOverlay.innerHTML = `
         <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1763241555499_pngegg%20(13).png" 
              alt="" 
@@ -4576,21 +4608,15 @@ window.showWelcomeSplash = function(userName) {
     `;
     
     document.body.appendChild(welcomeOverlay);
-    
-    // Force a reflow before animating
     welcomeOverlay.offsetHeight;
     
-    // Slide up into view
     setTimeout(() => {
         welcomeOverlay.style.transform = 'translateY(0)';
     }, 50);
     
-    // Slide down and fade out
     setTimeout(() => {
         welcomeOverlay.style.transform = 'translateY(100%)';
         welcomeOverlay.style.opacity = '0';
-        
-        // Remove after animation
         setTimeout(() => {
             if (welcomeOverlay.parentElement) {
                 welcomeOverlay.remove();
@@ -4599,7 +4625,7 @@ window.showWelcomeSplash = function(userName) {
     }, displayDuration);
     
     window.welcomeSplashShown = true;
-    console.log('✅ Welcome overlay shown');
+    console.log('✅ Dual welcome system complete');
 };
 
 // ===================================================
