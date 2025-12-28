@@ -4542,9 +4542,10 @@ window.showWelcomeSplash = function(userName) {
         <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/welcome2.PNG" 
              style="width: 40px; height: auto; max-width: 150px; border-radius: 6px; margin-right: 10px; object-fit: contain;"
              class="welcome-logo">
-                <div style="text-align: center;">
+                
                     <div style="font-size: 28px; font-weight: 600;">
-                       <span style="color: #055df5ff;">${userName}</span>!
+                       <span style="color: #3c69b8ff;">${userName}</span>!
+                       <div style="text-align: center;">
                     </div>
                     <div style="text-align: right;">
                     <div style="font-size: 14px; color: #666; margin-top: 2px;">
