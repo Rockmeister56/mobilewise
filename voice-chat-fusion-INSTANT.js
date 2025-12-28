@@ -4542,7 +4542,7 @@ window.showWelcomeSplash = function(userName) {
                      style="height: 45px; border-radius: 6px; margin-right: 15px;">
                 <div style="text-align: center;">
                     <div style="font-size: 24px; font-weight: 600; color: #002fff;">
-                        Hello, <span style="color: #060a1c;">${userName}</span>!
+                       <span style="color: #0f1b4fff;">${userName}</span>!
                     </div>
                     <div style="font-size: 14px; color: #666; margin-top: 2px;">
                         Welcome to MobileWise AI
