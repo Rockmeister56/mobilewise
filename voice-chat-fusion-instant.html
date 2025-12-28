@@ -899,6 +899,31 @@
         0 0 0 1px rgba(34, 197, 94, 0.8),
         0 0 20px rgba(34, 197, 94, 0.9) !important;
 }
+/* NUCLEAR OPTION - Force exact dimensions */
+.welcome-image-manual {
+    width: 40px !important;      /* Change to match imageWidth */
+    height: 30px !important;     /* Change to match imageHeight */
+    min-width: 40px !important;
+    max-width: 40px !important;
+    min-height: 30px !important;
+    max-height: 30px !important;
+    flex-shrink: 0 !important;
+    display: block !important;
+    object-fit: cover !important;
+}
+
+/* Mobile version */
+@media (max-width: 768px) {
+    .welcome-image-manual {
+        width: 30px !important;    /* Smaller on mobile */
+        height: 22px !important;
+        min-width: 30px !important;
+        max-width: 30px !important;
+        min-height: 22px !important;
+        max-height: 22px !important;
+        margin-right: 8px !important;
+    }
+}
 
 }
 
