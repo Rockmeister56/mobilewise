@@ -4544,7 +4544,7 @@ window.showWelcomeSplash = function(userName) {
              class="welcome-logo">
                 <div style="text-align: center;">
                     <div style="font-size: 28px; font-weight: 600;">
-                       <span style="color: #112475ff;">${userName}</span>!
+                       <span style="color: #055df5ff;">${userName}</span>!
                     </div>
                     <div style="text-align: right;">
                     <div style="font-size: 14px; color: #666; margin-top: 2px;">
