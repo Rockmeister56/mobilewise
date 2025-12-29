@@ -123,14 +123,32 @@
         max-height: 50vh !important;
         margin-bottom: 20px !important;
     }
-    
-    /* Center the mic activation on desktop */
-    #centerMicActivation {
+
+    @media (min-width: 769px) {
+    /* Desktop specific - keep your center alignment BUT accommodate banners */
+    .chat-container {
         position: fixed !important;
-        top:  53% !important;
+        top: calc(50% + 40px) !important; /* Offset for banner space */
         left: 50% !important;
         transform: translate(-50%, -50%) !important;
+        max-height: calc(100vh - 160px) !important; /* Breathing room top/bottom */
+        overflow-y: auto !important;
+        /* Your existing desktop styles */
     }
+}
+
+/* 🎯 CONTAINER - MOVE DOWN A BIT */
+    #quickButtonsContainer {
+        position: relative !important;
+        bottom: auto !important;
+        left: auto !important;
+        transform: none !important;
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0px 0 !important;           /* Increased top margin to push down */
+        background: rgba(255, 255, 255, 0.1) !important;
+    }
+
 }
 
    
@@ -154,87 +172,25 @@
         height: 30px !important;
     }
 }
-    
-    /* 🎯 CONTAINER - MOVE DOWN A BIT */
-    #quickButtonsContainer {
-        position: relative !important;
-        bottom: auto !important;
-        left: auto !important;
-        transform: none !important;
-        width: 100% !important;
-        max-width: none !important;
-        margin: 0px 0 !important;           /* Increased top margin to push down */
-        background: rgba(255, 255, 255, 0.1) !important;
-    }
 
-/* ===== MOBILE CONTAINER FIX ===== */
+/* SIMPLE MOBILE CSS */
 @media (max-width: 768px) {
-    /* Main container - wider with padding */
+    /* The outer container is already 420px from widget */
     .container {
-        position: fixed !important;
-        top: 0 !important;
-        left: 0 !important;
-        right: 0 !important;
-        width: 100% !important;
-        max-width: 440px !important;  /* Adjust as needed: 400px-420px */
-        height: 100vh !important;
-        margin: 0 auto !important;
-        padding: 0 15px !important;
+        width: 100% !important;      /* Fill the 420px space */
+        padding: 0 15px !important;   /* Add some breathing room */
         box-sizing: border-box !important;
-        border-radius: 0 !important;
-        overflow-y: auto !important;
     }
     
-    /* Banner at top */
+    /* Banner uses full width */
     .welcome-banner {
         width: 100% !important;
-        margin-top: 10px !important;
-        padding: 15px !important;
-        border-radius: 12px !important;
-        position: relative;
     }
     
-    /* Chat area - ensure full width */
-    #chatMessages {
-        width: 100% !important;
-        padding: 0 5px !important;
-        box-sizing: border-box !important;
-    }
-    
-    /* Bottom buttons - tighter */
+    /* Buttons use full width */
     #quickButtonsContainer {
         width: 100% !important;
-        padding: 12px 8px !important;
-        gap: 10px !important;
-        margin-bottom: 15px !important;
-        box-sizing: border-box !important;
-    }
-}
-    
-    /* ✅ FORCE MOBILE CHAT TO TOP */
-    #chatMessages {
-        padding-top: 10px !important;
-        margin-top: 0 !important;
-    }
-    
-    /* ✅ MOBILE BUTTON POSITIONING */
-    .bottom-buttons {
-        position: fixed !important;
-        bottom: 0 !important;
-        left: 0 !important;
-        right: 0 !important;
-    }
-
-@media (min-width: 769px) {
-    /* Desktop specific - keep your center alignment BUT accommodate banners */
-    .chat-container {
-        position: fixed !important;
-        top: calc(50% + 40px) !important; /* Offset for banner space */
-        left: 50% !important;
-        transform: translate(-50%, -50%) !important;
-        max-height: calc(100vh - 160px) !important; /* Breathing room top/bottom */
-        overflow-y: auto !important;
-        /* Your existing desktop styles */
+        padding: 10px 5px !important;
     }
 }
 
