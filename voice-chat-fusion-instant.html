@@ -175,14 +175,16 @@
 
 /* SIMPLE MOBILE CSS */
 @media (max-width: 768px) {
-    /* The outer container is already 420px from widget */
     .container {
         max-width: 400px !important;
         width: 100% !important;
         padding: 0 15px !important;
         box-sizing: border-box !important;
         margin: 0 auto !important;
+        background-color: red !important;  /* ← ADD THIS LINE */
+        border: 5px solid yellow !important;  /* ← AND THIS */
     }
+}
     
     /* Banner uses full width */
     .welcome-banner {
