@@ -74,7 +74,7 @@
         }
 
  .container {
-    max-width: 810px;
+    /* NO max-width here - widget controls mobile, desktop gets it below */
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
     border-radius: 10px;
@@ -85,14 +85,14 @@
 /* ✅ DESKTOP STYLES */
 @media (min-width: 769px) {
     .container {
-        max-width: 830px;  /* ← DESKTOP ONLY NOW */
-        margin-top: 28px !important;
+        margin-top: 210px !important;  /* ✅ Changed from 100px */
         margin-left: auto !important;
         margin-right: auto !important;
         position: relative;
         width: auto;
         height: auto;
     }
+}
     
     /* Fix container positioning on desktop */
     #quickButtonsContainer {
