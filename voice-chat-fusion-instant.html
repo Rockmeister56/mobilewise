@@ -556,9 +556,11 @@
 }
         
 /* ===================================================
-   📱 MOBILE OPTIMIZATION - CLEAN VERSION
+   📱 MOBILE OPTIMIZATION - CLEAN & CORRECTED
    ================================================== */
-@media (max-width: 640px) {
+
+/* MAIN MOBILE BREAKPOINT (768px and below) */
+@media (max-width: 768px) {
     body {
         padding: 10px;
         min-height: 100vh;
@@ -568,46 +570,24 @@
     .chat-messages,
     .messages-container,
     #chat-area,
-    .conversation-area {
-        height: 62vh !important; /* Perfect balance */
-        max-height: 62vh !important;
+    .conversation-area,
+    #chatMessages {
+        height: 50vh !important;
+        max-height: 50vh !important;
         overflow-y: auto !important;
-        margin-bottom: -40px; /* Space for buttons */
+        margin-bottom: 10px;
     }
     
-    /* INPUT CONTROLS */
-    .text-input,
-    input[type="text"],
-    .message-input,
-    #user-input {
-        width: 85% !important;
-        max-width: 85% !important;
-    }
-    
-    /* QUICK BUTTONS AREA */
-    .quick-buttons {
-        margin-bottom: 15px;
-        height: auto;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-    }
-    
-    /* STOP BUTTON SPACE */
-    .stop-button-area {
-        height: 50px;
-        margin-top: 10px;
-    }
-    
-    /* CONTAINER FIX */
+    /* CONTAINER - LET WIDGET CONTROL WIDTH */
     .container {
-        height: auto; /* Let it flow naturally */
+        height: auto;
         padding: 10px;
+        /* NO width/max-width here - widget controls it */
     }
-}
     
+    /* HEADER */
     h1 {
-        font-size: 1.6rem; /* Slightly smaller to save space */
+        font-size: 1.6rem;
         margin-bottom: 5px;
     }
     
@@ -616,39 +596,49 @@
         margin-bottom: 5px;
     }
     
-    /* Compact spacing for mobile */
+    /* COMPACT SPACING */
     .smart-button {
-        margin-bottom: 10px; /* Reduced margin */
-        padding: 12px; /* Slightly smaller padding */
+        margin-bottom: 10px;
+        padding: 12px;
         font-size: 14px;
     }
     
     .mic-status {
-        margin-bottom: 10px; /* Reduced margin */
+        margin-bottom: 10px;
         padding: 8px;
     }
     
-    .live-transcript-area {
-        height: 45px; /* Slightly smaller */
-        margin-bottom: 10px;
+    /* INPUT CONTROLS */
+    .text-input,
+    input[type="text"],
+    .message-input,
+    #user-input {
+        width: 90% !important;
+        max-width: 90% !important;
     }
     
     .input-area {
-        margin-bottom: 10px; /* Reduced margin */
+        margin-bottom: 10px;
     }
     
+    input {
+        padding: 12px;
+        font-size: 16px; /* Prevents iOS zoom */
+    }
+    
+    /* BUTTONS */
+    .quick-buttons,
     .quick-questions {
-        margin-bottom: 10px; /* Reduced margin */
-        gap: 8px; /* Smaller gap */
+        margin-bottom: 10px;
+        gap: 8px;
     }
     
     .quick-btn {
-        font-size: 0.75rem; /* Smaller text */
-        padding: 6px 10px; /* Smaller padding */
-        min-width: 100px; /* Smaller minimum width */
+        font-size: 0.8rem;
+        padding: 6px 10px;
+        min-width: 100px;
     }
     
-    /* Make buttons more compact */
     .mic-btn {
         width: 40px;
         height: 40px;
@@ -656,28 +646,36 @@
     }
     
     button {
-        padding: 10px 18px; /* Smaller button padding */
+        padding: 10px 18px;
         font-size: 0.9rem;
     }
     
-    input {
-        padding: 12px; /* Smaller input padding */
-        font-size: 16px; /* Prevents zoom on iOS */
+    /* SPEAK NOW AREA */
+    .live-transcript-area {
+        height: 45px;
+        margin-bottom: 10px;
     }
+    
+    /* STOP BUTTON SPACE */
+    .stop-button-area {
+        height: 50px;
+        margin-top: 10px;
+    }
+}
 
-/* Extra small mobile devices */
+/* EXTRA SMALL DEVICES (400px and below) */
 @media (max-width: 400px) {
     body {
-        padding: 5px; /* Even less padding on very small screens */
+        padding: 5px;
     }
     
     .container {
         padding: 8px;
-        height: calc(100vh - 10px);
     }
     
-    .chat-messages {
-        height: 55vh; /* Even more space for chat on tiny screens */
+    .chat-messages,
+    #chatMessages {
+        height: 55vh !important;
     }
     
     h1 {
@@ -691,14 +689,15 @@
     }
 }
 
-/* Landscape mobile orientation */
+/* LANDSCAPE MOBILE */
 @media (max-width: 900px) and (orientation: landscape) {
     .container {
         height: calc(100vh - 10px);
     }
     
-    .chat-messages {
-        height: 40vh; /* Smaller in landscape to fit controls */
+    .chat-messages,
+    #chatMessages {
+        height: 40vh !important;
     }
     
     header {
