@@ -73,7 +73,8 @@
             padding: 10px;
         }
 
-  .container {
+ .container {
+    /* NO max-width here - widget controls mobile, desktop gets it below */
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
     border-radius: 10px;
@@ -84,16 +85,15 @@
 /* ✅ DESKTOP STYLES */
 @media (min-width: 769px) {
     .container {
-        margin-top: 28px !important;  /* ✅ Changed from 100px */
+        max-width: 830px;  /* ← DESKTOP ONLY NOW */
+        margin-top: 28px !important;
         margin-left: auto !important;
         margin-right: auto !important;
         position: relative;
         width: auto;
         height: auto;
     }
-}
-
-@media (min-width: 769px) {
+    
     /* Fix container positioning on desktop */
     #quickButtonsContainer {
         position: relative !important;
@@ -122,8 +122,7 @@
         max-height: 50vh !important;
         margin-bottom: 20px !important;
     }
-
-    @media (min-width: 769px) {
+    
     /* Desktop specific - keep your center alignment BUT accommodate banners */
     .chat-container {
         position: fixed !important;
@@ -134,9 +133,8 @@
         overflow-y: auto !important;
         /* Your existing desktop styles */
     }
-}
-
-/* 🎯 CONTAINER - MOVE DOWN A BIT */
+    
+    /* 🎯 CONTAINER - MOVE DOWN A BIT */
     #quickButtonsContainer {
         position: relative !important;
         bottom: auto !important;
@@ -147,10 +145,8 @@
         margin: 0px 0 !important;           /* Increased top margin to push down */
         background: rgba(255, 255, 255, 0.1) !important;
     }
-
 }
 
-   
 /* 🖥️ DESKTOP ONLY - SPEAK NOW SIZING */
 @media (min-width: 769px) {
     #liveTranscript {
@@ -172,30 +168,20 @@
     }
 }
 
-    /* ===== NUCLEAR CONTAINER FIX ===== */
+/* ===== SIMPLE MOBILE FIX ===== */
 @media (max-width: 768px) {
-  /* Target .container with maximum specificity */
-  body .container,
-  html body .container,
-  #voiceChatContainer .container,
-  .voice-chat-wrapper .container,
-  .chat-interface .container {
-    max-width: 400px !important;
-    width: 100% !important;
-    margin: 0 auto !important;
-    padding: 0 15px !important;
-    box-sizing: border-box !important;
-    background-color: rgba(255, 0, 0, 0.2) !important; /* Light red */
-    border: 3px solid #00ff00 !important; /* Green border */
-  }
-  
-  /* Also fix chat messages */
-  #chatMessages {
-    width: 100% !important;
-    max-width: 400px !important;
-    box-sizing: border-box !important;
-  }
-}
+    .container {
+        /* Widget controls width (400px), we just handle inner spacing */
+        padding: 0 15px !important;
+        box-sizing: border-box !important;
+        margin: 0 auto !important;
+    }
+    
+    /* Also fix chat messages */
+    #chatMessages {
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
     
     /* Banner uses full width */
     .welcome-banner {
@@ -207,6 +193,7 @@
         width: 100% !important;
         padding: 10px 5px !important;
     }
+}
 
         /* ===================================================
            📍 HEADER STYLING
