@@ -1103,7 +1103,7 @@
     transition: all 0.3s ease;
     text-shadow: 0 0 10px rgba(0, 255, 30, 0.5);">PAUSE SESSION</button>
         
-      <!-- Exit Button -->
+<!-- Exit Button -->
 <button class="quick-btn" onclick="sendCloseMessage()" style="
             padding: 12px 25px;
             background: linear-gradient(135deg, #ff4757, #ff3742);
@@ -1114,35 +1114,17 @@
             font-size: 14px;
             font-weight: 600;
             min-width: 80px;">EXIT</button>
- <script>
+
+<script>
 function sendCloseMessage() {
-    console.log("=== DEBUG ===");
-    console.log("1. Parent exists:", !!window.parent);
-    console.log("2. Parent location:", window.parent ? window.parent.location.href : "None");
+    console.log("Exit button clicked - sending close message");
     
-    // Try multiple methods
     if (window.parent) {
-        // Method 1: Send to specific origin
-        window.parent.postMessage('CLOSE_CHAT', 'https://mobilewise-widget.netlify.app');
-        console.log("Method 1 sent");
-        
-        // Method 2: Send to any origin
-        setTimeout(() => {
-            window.parent.postMessage('CLOSE_CHAT', '*');
-            console.log("Method 2 sent");
-        }, 100);
-        
-        // Method 3: Try to call parent function directly
-        setTimeout(() => {
-            try {
-                if (window.parent.closeOverlay) {
-                    window.parent.closeOverlay();
-                    console.log("Method 3 - called directly");
-                }
-            } catch (e) {
-                console.log("Method 3 failed:", e.message);
-            }
-        }, 200);
+        // Send to ANY origin (simpler)
+        window.parent.postMessage('CLOSE_CHAT', '*');
+        console.log("Close message sent to parent");
+    } else {
+        console.log("No parent window found");
     }
 }
 </script>
