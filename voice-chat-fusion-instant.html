@@ -1103,7 +1103,7 @@
     transition: all 0.3s ease;
     text-shadow: 0 0 10px rgba(0, 255, 30, 0.5);">PAUSE SESSION</button>
         
-        <button class="quick-btn" onclick="exitToMainSite()" style="
+        <button class="quick-btn" onclick="closeVoiceChat()" style="
             padding: 12px 25px;
             background: linear-gradient(135deg, #ff4757, #ff3742);
             color: white;
@@ -1391,6 +1391,9 @@ window.testMobileWise = function() {
     console.log('👉 Check chat for: "Nice to meet you rock!"');
     console.log('👉 Listen for voice speaking');
 };
+
+// ======== CLOSE VOICE CHAT OVERLAY ========
+    document.getElementById('closeVoiceChat').addEventListener('click', closeOverlay);
 
 // =============================================================================
 // 🎯 AUTO-RUN BASIC CHECKS ON LOAD
