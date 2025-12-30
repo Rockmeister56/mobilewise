@@ -1103,7 +1103,8 @@
     transition: all 0.3s ease;
     text-shadow: 0 0 10px rgba(0, 255, 30, 0.5);">PAUSE SESSION</button>
         
-       <button class="quick-btn" onclick="exitToMainSite()" style="
+      <!-- Exit Button -->
+<button class="quick-btn" onclick="sendCloseMessage()" style="
             padding: 12px 25px;
             background: linear-gradient(135deg, #ff4757, #ff3742);
             color: white;
@@ -1113,6 +1114,7 @@
             font-size: 14px;
             font-weight: 600;
             min-width: 80px;">EXIT</button>
+
     </div>
 </div>
         
@@ -1264,34 +1266,23 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Simple exit function - reloads parent page
-function exitToMainSite() {
-    console.log("Exit button clicked");
+<!-- JavaScript Function -->
+
+function sendCloseMessage() {
+    console.log("Exit button clicked - sending close message");
     
-    // Method 1: Try to reload parent (returns to main site)
+    // Send message to parent widget to close overlay
     if (window.parent) {
         try {
-            window.parent.location.reload();
-            return;
-        } catch (e) {
-            console.log("Couldn't reload parent:", e);
+            window.parent.postMessage('CLOSE_CHAT', 'https://mobilewise-widget.netlify.app');
+            console.log("Close message sent successfully");
+        } catch (error) {
+            console.log("Error sending message:", error);
         }
+    } else {
+        console.log("No parent window found");
     }
-    
-    // Method 2: Redirect parent to main site URL
-    if (window.parent) {
-        try {
-            window.parent.location.href = "https://free-mobile-report.netlify.app/";
-            return;
-        } catch (e) {
-            console.log("Couldn't redirect parent:", e);
-        }
-    }
-    
-    // Method 3: Fallback - reload current iframe
-    window.location.reload();
 }
-</script>
 
 </script>            
 <script src="testimonials-data.js"></script>       
