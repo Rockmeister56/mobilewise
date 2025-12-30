@@ -29,7 +29,7 @@ window.mobilewiseAI = window.mobilewiseAI || {
 // =============================================================================
 // 🎯 COMPLETE getAIResponse FUNCTION (400+ lines of logic)
 // =============================================================================
-    function getAIResponse(userMessage, conversationHistory = []) {
+async function getAIResponse(userMessage, conversationHistory = []) {
     console.log('🧠 MOBILEWISE AI Processing:', userMessage);
     
     // 📈 Update conversation metrics
