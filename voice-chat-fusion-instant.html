@@ -1103,7 +1103,7 @@
     transition: all 0.3s ease;
     text-shadow: 0 0 10px rgba(0, 255, 30, 0.5);">PAUSE SESSION</button>
         
-       <button class="quick-btn" onclick="parent.closeOverlay()" style="
+       <button class="quick-btn" onclick="exitToMainSite()" style="
             padding: 12px 25px;
             background: linear-gradient(135deg, #ff4757, #ff3742);
             color: white;
@@ -1264,16 +1264,34 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-console.log("=== DEBUG ===");
-console.log("Parent exists:", !!window.parent);
-console.log("Parent closeOverlay function:", window.parent ? typeof window.parent.closeOverlay : "N/A");
-console.log("Can we call it?", window.parent && typeof window.parent.closeOverlay === 'function');
-
-// Test calling it
-if (window.parent && typeof window.parent.closeOverlay === 'function') {
-    console.log("TEST: Calling parent.closeOverlay()");
-    // Don't actually close yet - just test
+// Simple exit function - reloads parent page
+function exitToMainSite() {
+    console.log("Exit button clicked");
+    
+    // Method 1: Try to reload parent (returns to main site)
+    if (window.parent) {
+        try {
+            window.parent.location.reload();
+            return;
+        } catch (e) {
+            console.log("Couldn't reload parent:", e);
+        }
+    }
+    
+    // Method 2: Redirect parent to main site URL
+    if (window.parent) {
+        try {
+            window.parent.location.href = "https://free-mobile-report.netlify.app/";
+            return;
+        } catch (e) {
+            console.log("Couldn't redirect parent:", e);
+        }
+    }
+    
+    // Method 3: Fallback - reload current iframe
+    window.location.reload();
 }
+</script>
 
 </script>            
 <script src="testimonials-data.js"></script>       
