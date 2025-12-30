@@ -68,14 +68,169 @@ async function getAIResponse(userMessage, conversationHistory = []) {
         return "Perfect timing! I've opened our AI demo scheduling options.";
     }
     
-    // =========================================================================
-    // 🚨 STEP 3: CONCERN DETECTION (Simplified version)
-    // =========================================================================
-    const concernPatterns = ['expensive', 'cost', 'price', 'trust', 'believe', 'time', 'busy'];
-    if (concernPatterns.some(pattern => lowerMsg.includes(pattern))) {
-        console.log('🚨 CONCERN DETECTED');
-        return "I understand your concern. Let me show you what other business owners experienced...";
+// =========================================================================
+// 🚨 STEP 3: ENHANCED CONCERN DETECTION WITH SPECIFIC RESPONSES
+// =========================================================================
+const concernPatterns = [
+    // PRICE CONCERNS
+    {pattern: 'expensive', type: 'price', response: "I understand your concern about the cost."},
+    {pattern: 'cost', type: 'price', response: "I hear you on the pricing question."},
+    {pattern: 'price', type: 'price', response: "I appreciate you mentioning the price."},
+    {pattern: 'afford', type: 'price', response: "I understand your affordability concern."},
+    {pattern: 'worth it', type: 'price', response: "I get why you're wondering if it's worth the investment."},
+    
+    // TIME CONCERNS  
+    {pattern: 'time', type: 'time', response: "I understand your concern about time."},
+    {pattern: 'busy', type: 'time', response: "I hear you're busy and don't have extra time."},
+    {pattern: 'when', type: 'time', response: "I understand your question about timing."},
+    {pattern: 'long', type: 'time', response: "I get that you're concerned about how long this takes."},
+    
+    // TRUST CONCERNS
+    {pattern: 'trust', type: 'trust', response: "I appreciate your honesty about trust."},
+    {pattern: 'believe', type: 'trust', response: "I understand you're wondering if you can believe in this."},
+    {pattern: 'skeptical', type: 'trust', response: "I get that you're feeling skeptical."},
+    {pattern: 'not sure', type: 'trust', response: "I understand you're not sure about this."},
+    {pattern: 'scam', type: 'trust', response: "I appreciate you sharing that concern about legitimacy."},
+    {pattern: 'real', type: 'trust', response: "I understand you're wondering if this is real."},
+    
+    // EFFECTIVENESS CONCERNS
+    {pattern: 'work', type: 'general', response: "I understand your question about whether this will work."},
+    {pattern: 'actually work', type: 'general', response: "I get that you're wondering if this actually works."},
+    {pattern: 'results', type: 'general', response: "I understand your concern about getting results."},
+    {pattern: 'good thing', type: 'general', response: "I appreciate you sharing your thoughts about whether AI is good."},
+    {pattern: 'bad', type: 'general', response: "I understand your concern that AI might not be good."},
+    {pattern: 'worried', type: 'general', response: "I hear you're worried about this."},
+    {pattern: 'concerned', type: 'general', response: "I appreciate you sharing your concern."}
+];
+
+for (const concern of concernPatterns) {
+    if (lowerMsg.includes(concern.pattern)) {
+        console.log(`🚨 CONCERN DETECTED: ${concern.type} (pattern: "${concern.pattern}")`);
+        
+        // Store the concern type for testimonial system
+        window.detectedConcernType = concern.type;
+        console.log(`📝 Stored concern type: ${window.detectedConcernType}`);
+        
+        // Call testimonial system if available
+        if (typeof handleConcernWithTestimonial === 'function') {
+            console.log(`✅ Calling handleConcernWithTestimonial with user message`);
+            
+            // Pass the user's exact message so testimonial system can analyze it
+            handleConcernWithTestimonial(userMessage);
+            
+            // Return a placeholder response (will be replaced by testimonial system)
+            return `${concern.response} Let me show you what other business owners experienced...`;
+        } else {
+            console.error('❌ handleConcernWithTestimonial function not found!');
+            return `${concern.response} Many clients had similar thoughts initially...`;
+        }
     }
+}
+
+// 🎯 ENHANCED CONCERN HANDLER - ECHOES SPECIFIC CONCERN
+function handleConcernWithTestimonial(userText) {
+    console.log(`🎯 handleConcernWithTestimonial called with: "${userText}"`);
+    
+    // 🎯 DETECT CONCERN TYPE FROM USER TEXT
+    const concernType = detectConcernTypeFromText(userText);
+    console.log(`🎯 Detected concern type: ${concernType}`);
+    
+    // 🎯 GENERATE CONCERN-ECHO ACKNOWLEDGMENT
+    const acknowledgment = generateConcernEchoResponse(userText, concernType);
+    
+    // 🎯 TRIGGER UNIVERSAL BANNER ENGINE (TOP BANNER)
+    if (window.showUniversalBanner) {
+        window.showUniversalBanner('testimonialSelector');
+    }
+    
+    console.log(`🎯 Handling ${concernType} concern - showing testimonial response`);
+    console.log(`🎯 Echo response: "${acknowledgment}"`);
+    
+    // 🎯 CRITICAL FIX: SHOW TESTIMONIALS IMMEDIATELY (BEFORE/AFTER VOICE)
+    
+    // 1. Add AI message to chat FIRST
+    if (window.addAIMessage && typeof window.addAIMessage === 'function') {
+        window.addAIMessage(acknowledgment);
+        console.log('✅ AI message added to chat');
+    }
+    
+    // 2. SHOW TESTIMONIALS IMMEDIATELY (NO WAITING!)
+    setTimeout(() => {
+        if (window.showTestimonialSplashScreen && typeof window.showTestimonialSplashScreen === 'function') {
+            window.showTestimonialSplashScreen();
+            console.log('✅ Testimonial splash screen launched IMMEDIATELY');
+        } else {
+            console.error('❌ showTestimonialSplashScreen not available');
+        }
+    }, 100); // Small delay to ensure chat message appears first
+    
+    // 3. START SPEAKING (testimonials are already visible)
+    if (window.speakText && typeof window.speakText === 'function') {
+        // Small delay to let testimonials render first
+        setTimeout(() => {
+            window.speakText(acknowledgment);
+            console.log('✅ AI speaking acknowledgment (testimonials already visible)');
+        }, 300);
+    }
+    
+    // Store the concern
+    window.lastDetectedConcern = {
+        text: userText,
+        type: concernType,
+        timestamp: Date.now(),
+        echoResponse: acknowledgment
+    };
+}
+
+// 🎯 DETECT CONCERN TYPE FROM TEXT
+function detectConcernTypeFromText(userText) {
+    const lowerText = userText.toLowerCase();
+    
+    if (lowerText.includes('expensive') || lowerText.includes('cost') || lowerText.includes('price') || lowerText.includes('afford')) {
+        return 'price';
+    }
+    if (lowerText.includes('time') || lowerText.includes('busy') || lowerText.includes('when') || lowerText.includes('long')) {
+        return 'time';
+    }
+    if (lowerText.includes('trust') || lowerText.includes('believe') || lowerText.includes('skeptical') || lowerText.includes('scam') || lowerText.includes('real')) {
+        return 'trust';
+    }
+    if (lowerText.includes('work') || lowerText.includes('results') || lowerText.includes('good thing') || lowerText.includes('bad') || lowerText.includes('worried')) {
+        return 'general';
+    }
+    
+    return window.detectedConcernType || 'general';
+}
+
+// 🎯 GENERATE CONCERN-ECHO RESPONSE
+function generateConcernEchoResponse(userText, concernType) {
+    const lowerText = userText.toLowerCase();
+    
+    // Extract the specific concern phrase
+    let specificConcern = '';
+    if (lowerText.includes('expensive')) specificConcern = "it's too expensive";
+    else if (lowerText.includes('cost')) specificConcern = "the cost";
+    else if (lowerText.includes('price')) specificConcern = "the price";
+    else if (lowerText.includes('afford')) specificConcern = "affordability";
+    else if (lowerText.includes('time')) specificConcern = "the time commitment";
+    else if (lowerText.includes('busy')) specificConcern = "being too busy";
+    else if (lowerText.includes('trust')) specificConcern = "trusting this";
+    else if (lowerText.includes('believe')) specificConcern = "believing in this";
+    else if (lowerText.includes('skeptical')) specificConcern = "feeling skeptical";
+    else if (lowerText.includes('work')) specificConcern = "whether this will work";
+    else if (lowerText.includes('good thing')) specificConcern = "whether AI is a good thing";
+    else specificConcern = "that";
+    
+    // Generate response based on concern type
+    const responses = {
+        price: `I completely understand your concern about ${specificConcern}. Many of our clients felt the same way initially. If you'd like to hear what they experienced, click a review below. Or click Skip to continue our conversation.`,
+        time: `I hear you on ${specificConcern}. Several of our clients had similar thoughts before working with us. Feel free to click a review to hear their experience, or hit Skip and we'll keep talking.`,
+        trust: `That's a fair concern about ${specificConcern}. You're not alone - other business owners felt the same way at first. You're welcome to check out their reviews below, or click Skip to move forward.`,
+        general: `I appreciate you sharing ${specificConcern}. Some of our valued clients started with similar hesitations. If you're curious what happened for them, click a review. Otherwise, click Skip and let's continue.`
+    };
+    
+    return responses[concernType] || responses.general;
+}
     
     // =========================================================================
     // 🎯 STEP 4: MAIN CONVERSATION FLOW
