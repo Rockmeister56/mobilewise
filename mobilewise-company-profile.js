@@ -54,25 +54,25 @@ window.MOBILEWISE_COMPANY = {
     },
     
     // =========================================================================
-    // 🎁 OFFERS & SERVICES (From services/pricing pages)
-    // =========================================================================
-    offers: {
-        primaryService: "",        // Main offering
-        freeOffer: "",             "FREE AI Business Analysis"
-        demoOffer: "",             // "15-minute demo"
-        entryLevel: "",            // Lowest tier
-        premiumService: ""         // Highest tier
-    },
-    
-    // =========================================================================
-    // 🎯 INDUSTRY-SPECIFIC CONTENT (Auto-detected)
-    // =========================================================================
-    industryContext: {
-        targetAudience: "",        "SMB owners, Marketing Directors"
-        commonPainPoints: [],      // Industry-specific challenges
-        competitors: [],           // Key competitors
-        marketPosition: ""         // "Premium", "Value", "Innovator"
-    }
+// 🎁 OFFERS & SERVICES (From services/pricing pages)
+// =========================================================================
+offers: {
+    primaryService: "",                            // Main offering
+    freeOffer: "FREE AI Business Analysis",        // ✅ FIXED: Remove empty quotes and comma
+    demoOffer: "15-minute demo",                   // ✅ FIXED: Remove empty quotes  
+    entryLevel: "",                                // Lowest tier
+    premiumService: ""                             // Highest tier
+},
+
+// =========================================================================
+// 🎯 INDUSTRY-SPECIFIC CONTENT (Auto-detected)
+// =========================================================================
+industryContext: {
+    targetAudience: "SMB owners, Marketing Directors",  // ✅ FIXED: Remove empty quotes
+    commonPainPoints: [],                               // Industry-specific challenges
+    competitors: [],                                    // Key competitors
+    marketPosition: ""                                  // "Premium", "Value", "Innovator"
+}  // ✅ FIXED: Ensure closing brace is here
 };
 
 // =============================================================================
