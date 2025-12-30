@@ -84,7 +84,7 @@
 }
 
 /* ✅ DESKTOP STYLES */
-@media (min-width: 790px) {
+@media (min-width: 780px) {
     .container {
         max-width: 850px;  /* ← DESKTOP ONLY NOW */
         margin-top: 28px !important;
@@ -1103,7 +1103,7 @@
     transition: all 0.3s ease;
     text-shadow: 0 0 10px rgba(0, 255, 30, 0.5);">PAUSE SESSION</button>
         
-        <button class="quick-btn" onclick="closeVoiceChat()" style="
+       <button class="quick-btn" onclick="parent.closeOverlay()" style="
             padding: 12px 25px;
             background: linear-gradient(135deg, #ff4757, #ff3742);
             color: white;
@@ -1198,6 +1198,23 @@
         console.log('🌐 Running in main window - no fixes needed');
     }
 })();
+</script>
+
+<script>
+document.getElementById('chatExitBtn').addEventListener('click', function() {
+    // Directly try to execute parent's close function
+    try {
+        // This assumes the iframe can access parent's functions
+        parent.closeOverlay();
+    } catch (e) {
+        console.log("Direct call failed:", e);
+        
+        // Fallback: Post a message to parent
+        if (window.parent) {
+            window.parent.postMessage('CLOSE_CHAT', '*');
+        }
+    }
+});
 </script>
 
 <!-- Add this script at the top of your HTML -->
@@ -1391,9 +1408,6 @@ window.testMobileWise = function() {
     console.log('👉 Check chat for: "Nice to meet you rock!"');
     console.log('👉 Listen for voice speaking');
 };
-
-// ======== CLOSE VOICE CHAT OVERLAY ========
-    document.getElementById('closeVoiceChat').addEventListener('click', closeOverlay);
 
 // =============================================================================
 // 🎯 AUTO-RUN BASIC CHECKS ON LOAD
