@@ -1114,6 +1114,38 @@
             font-size: 14px;
             font-weight: 600;
             min-width: 80px;">EXIT</button>
+ <script>
+function sendCloseMessage() {
+    console.log("=== DEBUG ===");
+    console.log("1. Parent exists:", !!window.parent);
+    console.log("2. Parent location:", window.parent ? window.parent.location.href : "None");
+    
+    // Try multiple methods
+    if (window.parent) {
+        // Method 1: Send to specific origin
+        window.parent.postMessage('CLOSE_CHAT', 'https://mobilewise-widget.netlify.app');
+        console.log("Method 1 sent");
+        
+        // Method 2: Send to any origin
+        setTimeout(() => {
+            window.parent.postMessage('CLOSE_CHAT', '*');
+            console.log("Method 2 sent");
+        }, 100);
+        
+        // Method 3: Try to call parent function directly
+        setTimeout(() => {
+            try {
+                if (window.parent.closeOverlay) {
+                    window.parent.closeOverlay();
+                    console.log("Method 3 - called directly");
+                }
+            } catch (e) {
+                console.log("Method 3 failed:", e.message);
+            }
+        }, 200);
+    }
+}
+</script>
 
     </div>
 </div>
@@ -1265,24 +1297,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
-
-<!-- JavaScript Function -->
-
-function sendCloseMessage() {
-    console.log("Exit button clicked - sending close message");
-    
-    // Send message to parent widget to close overlay
-    if (window.parent) {
-        try {
-            window.parent.postMessage('CLOSE_CHAT', 'https://mobilewise-widget.netlify.app');
-            console.log("Close message sent successfully");
-        } catch (error) {
-            console.log("Error sending message:", error);
-        }
-    } else {
-        console.log("No parent window found");
-    }
-}
 
 </script>            
 <script src="testimonials-data.js"></script>       
