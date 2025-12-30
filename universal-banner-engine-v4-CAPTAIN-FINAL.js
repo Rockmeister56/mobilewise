@@ -305,7 +305,7 @@ body .banner-glow-container.banner-testimonial {
 
 /* ===== POSITIONING ===== */
 #bannerHeaderContainer {
-    margin-top: 40px !important;
+    margin-top:  20px !important;
     text-align: center !important;
     width: 100% !important;
 }
