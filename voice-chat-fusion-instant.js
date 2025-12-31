@@ -2646,7 +2646,7 @@ function pauseSession() {
     document.body.appendChild(overlay);
     
     // Add click outside to close
-    overlay.addEventListener('click', function(e) {
+    if (overlay) overlay.addEventListener('click', function(e) {
         if (e.target === overlay) {
             resumeSession();
         }
@@ -4859,9 +4859,9 @@ function hideSpeakNowBanner() {
 document.addEventListener('DOMContentLoaded', function() {
     // Add event listener for the empire text input
     setTimeout(() => {
-        const textInput = document.getElementById('empireTextInput') || document.getElementById('textInput');
-        if (textInput) {
-            textInput.addEventListener('keypress', function(e) {
+       const textInput = document.getElementById('empireTextInput') || document.getElementById('textInput');
+    if (textInput) {
+    textInput.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
                     sendTextMessage();
                 }
@@ -4926,42 +4926,6 @@ if (typeof showUniversalBanner === 'function') {
 }
 
 console.log('✅ Voice chat functions exported for Action System integration');
-
-// ===================================================
-// 🧪 TEST SUITE - ADD AT BOTTOM OF FILE
-// ===================================================
-
-// Test 1: Automatic pre-warm test (runs on page load)
-setTimeout(() => {
-    console.log('🧪 ========== TEST SUITE STARTING ==========');
-    
-    // Test pre-warm system
-    console.log('🧪 TEST 1: Checking pre-warm status...');
-    console.log('  - recognitionPreWarmed:', recognitionPreWarmed);
-    console.log('  - preWarmAttempted:', preWarmAttempted);
-    console.log('  - recognition exists:', !!recognition);
-    
-    if (recognition) {
-        console.log('  - recognition state:', recognition.state || 'not started');
-        console.log('  - recognition lang:', recognition.lang);
-    }
-    
-    console.log('🧪 TEST 2: Speech support check...');
-    if (typeof checkSpeechSupport === 'function') {
-        console.log('  - checkSpeechSupport():', checkSpeechSupport());
-    } else {
-        console.log('  - ❌ checkSpeechSupport() not found');
-    }
-    
-    console.log('🧪 TEST 3: Mobile detection...');
-    if (typeof isMobileDevice === 'function') {
-        console.log('  - isMobileDevice():', isMobileDevice());
-    } else {
-        console.log('  - ❌ isMobileDevice() not found');
-    }
-    
-    console.log('🧪 ========== TEST SUITE COMPLETE ==========');
-}, 2000); // Wait 2 seconds after page load
 
 // ===================================================
 // 🎯 COMPREHENSIVE TEST DASHBOARD
