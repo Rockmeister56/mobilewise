@@ -49,7 +49,7 @@ window.mobilewiseAI = window.mobilewiseAI || {
 // =============================================================================
 // 🎯 COMPLETE getAIResponse FUNCTION (400+ lines of logic)
 // =============================================================================
-  function getAIResponse(userMessage, conversationHistory = []) {
+ function getAIResponse(userMessage, conversationHistory = []) {
     console.log('🧠 MOBILEWISE AI Processing:', userMessage);
     
     // 📈 Update conversation metrics
@@ -57,6 +57,80 @@ window.mobilewiseAI = window.mobilewiseAI || {
     const mw = window.mobilewiseAI;
     const lowerMsg = userMessage.toLowerCase();
     const userName = mw.user.name || '';
+    
+    console.log(`📊 State: ${mw.state}, User: ${userName || 'New user'}`);
+    
+    // 🎯 SIMPLE FIX: Check CURRENT STATE first
+    // ----------------------------------------------------------
+    // Are we asking about consultation? (Check state OR content)
+    const isConsultationOffer = mw.state === 'consultation_offer' || 
+                               mw.state === 'consultation_offer_response' ||
+                               (conversationHistory.length > 0 && 
+                                conversationHistory[conversationHistory.length - 1]?.content?.includes('consultation'));
+    
+    if (isConsultationOffer) {
+        // Handle YES to consultation
+        if (lowerMsg.includes('yes') || lowerMsg.includes('yeah') || lowerMsg.includes('sure')) {
+            console.log('✅ User wants consultation!');
+            mw.state = 'getting_contact_info';
+            return "Perfect! Let's get you scheduled. What's your phone number?";
+        }
+        
+        // Handle NO to consultation  
+        if (lowerMsg.includes('no') || lowerMsg.includes('nah') || lowerMsg.includes('not now')) {
+            console.log('⚠️ User declined consultation');
+            mw.state = 'general_help';
+            return "No problem. What other questions can I help you with?";
+        }
+    }
+    // ----------------------------------------------------------
+    
+    // 🎯 THEN check if we just had testimonials
+    if (window.testimonialActive === true) {
+        console.log('🔄 Processing response after testimonials');
+        
+        // Handle YES after testimonials
+        if (lowerMsg.includes('yes') || lowerMsg.includes('yeah') || lowerMsg.includes('sure')) {
+            console.log('✅ User confirmed after testimonials!');
+            mw.state = 'getting_contact_info';
+            window.testimonialActive = false;
+            return "Great! Let's schedule your consultation. What's your phone number?";
+        }
+        
+        // Handle NO after testimonials
+        if (lowerMsg.includes('no') || lowerMsg.includes('nah') || lowerMsg.includes('not now')) {
+            console.log('⚠️ User declined after testimonials');
+            mw.state = 'general_help';
+            window.testimonialActive = false;
+            
+            return `I understand. Is there anything else I can help you with today? Feel free to ask any questions about our services.`;
+        }
+    }
+    // ----------------------------------------------------------
+    
+    // 🎯 ALSO: Check if we should be in consultation offer mode
+    // (This handles the normal flow when NOT coming from testimonials)
+    if (mw.state === 'consultation_offer_response' || 
+        (mw.user.name && lowerMsg.includes('consultation') || lowerMsg.includes('free'))) {
+        
+        // Handle YES to consultation offer (normal flow)
+        const yesWords = ['yes', 'yeah', 'yep', 'sure', 'absolutely'];
+        if (yesWords.some(word => lowerMsg.includes(word))) {
+            console.log('✅ User wants consultation!');
+            mw.state = 'getting_contact_info';
+            
+            return `Great! Let's get you scheduled. What's your phone number so our team can contact you?`;
+        }
+        
+        // Handle NO to consultation offer
+        const noWords = ['no', 'nah', 'nope', 'not now'];
+        if (noWords.some(word => lowerMsg.includes(word))) {
+            console.log('⚠️ User declined consultation');
+            mw.state = 'general_help';
+            
+            return `No problem at all. What other questions can I help you with today?`;
+        }
+    }
     
     console.log(`📊 State: ${mw.state}, User: ${userName || 'New user'}`);
     
@@ -149,6 +223,7 @@ for (const concern of concernPatterns) {
 
 // 🎯 ENHANCED CONCERN HANDLER - ECHOES SPECIFIC CONCERN
 function handleConcernWithTestimonial(userText) {
+        window.testimonialActive = true;
     console.log(`🎯 handleConcernWithTestimonial called with: "${userText}"`);
     
     // 🎯 DETECT CONCERN TYPE FROM USER TEXT
