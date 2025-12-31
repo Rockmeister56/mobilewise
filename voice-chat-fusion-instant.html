@@ -1115,39 +1115,6 @@
             font-weight: 600;
             min-width: 80px;">EXIT</button>
 
-<!-- ADD THIS AS THE FIRST SCRIPT IN YOUR HTML -->
-<script>
-// 🚨 NETLIFY CASE SENSITIVITY FIX
-console.log('🔧 Applying Netlify case fix...');
-
-// Function to force lowercase loading
-function loadVoiceChatCorrectly() {
-    // Remove ANY voice-chat script (uppercase or lowercase)
-    const allScripts = document.querySelectorAll('script[src]');
-    allScripts.forEach(script => {
-        if (script.src.includes('voice-chat')) {
-            console.log(`🗑️ Removing: ${script.src.split('/').pop()}`);
-            script.remove();
-        }
-    });
-    
-    // Load lowercase version
-    const correctScript = document.createElement('script');
-    correctScript.src = 'voice-chat-fusion-instant.js';
-    correctScript.onload = () => console.log('✅ Lowercase file loaded successfully');
-    correctScript.onerror = () => console.error('❌ Failed to load lowercase file');
-    
-    document.head.appendChild(correctScript);
-    console.log('📥 Loading: voice-chat-fusion-instant.js');
-}
-
-// Run it now
-loadVoiceChatCorrectly();
-
-// Also run on DOMContentLoaded (in case other scripts try to load it)
-document.addEventListener('DOMContentLoaded', loadVoiceChatCorrectly);
-</script>
-
 <script>
 function sendCloseMessage() {
     console.log("Exit button clicked - sending close message");
