@@ -26,6 +26,26 @@ window.mobilewiseAI = window.mobilewiseAI || {
     }
 };
 
+// Add this at the TOP of your mobilewise-ai-core.js file:
+(function() {
+    console.log('🔧 Installing global speech blocker');
+    
+    const originalSpeakText = window.speakText;
+    if (originalSpeakText) {
+        window.speakText = function(text) {
+            // Block if testimonials are active
+            if (window.speechBlockedForTestimonials || window.testimonialActive) {
+                console.log('🔇 BLOCKED speech during testimonials:', text.substring(0, 50) + '...');
+                return Promise.resolve(); // Return empty promise
+            }
+            
+            // Otherwise, proceed normally
+            return originalSpeakText.apply(this, arguments);
+        };
+        console.log('✅ Global speech blocker installed');
+    }
+})();
+
 // =============================================================================
 // 🎯 COMPLETE getAIResponse FUNCTION (400+ lines of logic)
 // =============================================================================
@@ -164,6 +184,32 @@ if (window.addAIMessage && typeof window.addAIMessage === 'function') {
     window.addAIMessage(acknowledgment);
     console.log('✅ AI message added to chat (silent)');
 }
+
+// 🛑 CRITICAL FIX: Block ALL speech during testimonials
+window.speechBlockedForTestimonials = true;
+
+// Also stop any current speech immediately
+if (window.stopSpeaking) {
+    window.stopSpeaking();
+    console.log('🔇 Stopped any current speech');
+}
+
+// Set timeout to re-enable speech after testimonials
+setTimeout(() => {
+    window.speechBlockedForTestimonials = false;
+    console.log('🔓 Speech block released');
+}, 15000); // 15 seconds
+
+// 3. SHOW TESTIMONIALS IMMEDIATELY - THEY CONTROL THE FLOW NOW
+setTimeout(() => {
+    if (window.showTestimonialSplashScreen && typeof window.showTestimonialSplashScreen === 'function') {
+        window.testimonialActive = true;
+        console.log('🎬 Setting testimonialActive = true');
+        
+        window.showTestimonialSplashScreen();
+        console.log('✅ Testimonial splash screen launched');
+    }
+}, 100);
 
 // 3. SHOW TESTIMONIALS IMMEDIATELY - THEY CONTROL THE FLOW NOW
 setTimeout(() => {
