@@ -59,6 +59,23 @@ window.mobilewiseAI = window.mobilewiseAI || {
     const userName = mw.user.name || '';
     
     console.log(`📊 State: ${mw.state}, User: ${userName || 'New user'}`);
+
+    // 🎯 Handle "yes/no" in QUALIFICATION state
+if (mw.state === 'qualification') {
+    console.log('🎯 User is responding to qualification question');
+    
+    if (lowerMsg.includes('yes') || lowerMsg === 'yeah' || lowerMsg === 'yep') {
+        console.log('✅ User said YES to qualification');
+        mw.state = 'getting_contact_info';
+        return "Perfect! Let's get your consultation scheduled. What's the best phone number to reach you?";
+    }
+    
+    if (lowerMsg.includes('no') || lowerMsg === 'nah' || lowerMsg === 'nope') {
+        console.log('⚠️ User said NO to qualification');
+        mw.state = 'general_help';
+        return "I understand. What other questions can I help you with today?";
+    }
+}
     
     // 🎯 SIMPLE FIX: Check CURRENT STATE first
     // ----------------------------------------------------------
