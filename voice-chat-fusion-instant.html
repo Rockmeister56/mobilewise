@@ -1217,24 +1217,20 @@ function sendCloseMessage() {
 </script>
 
 <script>
-const chatExitBtn = document.getElementById('chatExitBtn');
-if (chatExitBtn) {
-    chatExitBtn.addEventListener('click', function() {
-        // Directly try to execute parent's close function
-        try {
-            parent.closeOverlay();
-        } catch (e) {
-            console.log("Direct call failed:", e);
-            
-            // Fallback: Post a message to parent
-            if (window.parent) {
-                window.parent.postMessage('CLOSE_CHAT', '*');
-            }
+document.getElementById('chatExitBtn').addEventListener('click', function() {
+    // Directly try to execute parent's close function
+    try {
+        // This assumes the iframe can access parent's functions
+        parent.closeOverlay();
+    } catch (e) {
+        console.log("Direct call failed:", e);
+        
+        // Fallback: Post a message to parent
+        if (window.parent) {
+            window.parent.postMessage('CLOSE_CHAT', '*');
         }
-    });
-} else {
-    console.warn('chatExitBtn not found - close functionality disabled');
-}
+    }
+});
 </script>
 
 <!-- Add this script at the top of your HTML -->
@@ -1287,7 +1283,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>            
 <script src="testimonials-data.js"></script>       
 <script src="testimonials-player.js"></script>
-<script src="voice-chat-fusion-instant.js?v=3"></script>
+<script src="voice-chat-fusion-instant.js"></script>
 <script src="action-system-unified.js"></script>
 <!-- After your existing voice scripts -->
 <script src="mobilewise-voice-engine.js"></script>
