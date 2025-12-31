@@ -2148,6 +2148,38 @@ if (VOICE_CONFIG.debug) {
     console.log('🎯 CLEAN CHAIN BYPASS: Triggering banner sequence only');
 }
 
+// 🛡️ 🎯 ADD THIS CRITICAL CHECK FOR TESTIMONIALS
+if (window.testimonialActive === true || 
+    window.speechBlockedForTestimonials === true || 
+    window.blockBannersForTestimonials === true) {
+    
+    console.log('⏸️ BANNER BLOCKED: Testimonials are currently active');
+    console.log('   testimonialActive:', window.testimonialActive);
+    console.log('   speechBlockedForTestimonials:', window.speechBlockedForTestimonials);
+    console.log('   blockBannersForTestimonials:', window.blockBannersForTestimonials);
+    
+    // Schedule a check for later when testimonials might be done
+    setTimeout(() => {
+        if (!window.testimonialActive && 
+            !window.speechBlockedForTestimonials && 
+            !window.blockBannersForTestimonials) {
+            
+            console.log('✅ Testimonials complete - now showing banner');
+            if (typeof showDirectSpeakNow === 'function') {
+                showDirectSpeakNow();
+            }
+        } else {
+            console.log('⏸️ Testimonials still active - banner remains blocked');
+        }
+    }, 5000); // Check again in 5 seconds
+    
+    return; // Exit without showing banner
+}
+
+if (VOICE_CONFIG.debug) {
+    console.log('🎯 CLEAN CHAIN BYPASS: Triggering banner sequence only');
+}
+
 // It already contains the listening start logic internally
 if (typeof showDirectSpeakNow === 'function') {
     showDirectSpeakNow();
