@@ -1,0 +1,3009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="testimonials-data.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎬 Mobile-Wise AI Testimonial Manager PRO</title>
+    <style>
+        :root {
+            --primary: #2196F3;
+            --success: #4CAF50;
+            --warning: #FF9800;
+            --danger: #f44336;
+            --dark: #1a1a2e;
+            --darker: #16213e;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #01020a;
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+        }
+        
+        .sidebar {
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 15px;
+            padding: 25px;
+            border: 2px solid var(--primary);
+        }
+        
+        .sidebar h2 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary);
+        }
+        
+        .industry-list {
+            list-style: none;
+            margin-bottom: 30px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .industry-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .industry-list::-webkit-scrollbar-track {
+            background: rgb(0, 0, 0);
+            border-radius: 3px;
+        }
+        
+        .industry-list::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 3px;
+        }
+        
+        .industry-item {
+            padding: 12px 15px;
+            margin: 8px 0;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-left: 3px solid transparent;
+        }
+        
+        .industry-item:hover {
+            background: rgba(33, 150, 243, 0.2);
+            transform: translateX(5px);
+        }
+        
+        .industry-item.active {
+            background: rgba(33, 150, 243, 0.3);
+            border-left: 3px solid var(--primary);
+        }
+        
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+        }
+        
+        .btn-success {
+            background: var(--success);
+        }
+        
+        .btn-warning {
+            background: var(--warning);
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+        }
+        
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .card {
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 15px;
+            padding: 25px;
+            border: 2px solid;
+            margin-bottom: 20px;
+        }
+        
+        .card.uploader {
+            border-color: var(--primary);
+        }
+        
+        .card.code {
+            border-color: var(--success);
+        }
+        
+        .upload-area {
+            border: 3px dashed var(--primary);
+            padding: 30px;
+            text-align: center;
+            border-radius: 12px;
+            margin: 20px 0;
+            background: rgba(33, 150, 243, 0.05);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .upload-area:hover {
+            border-color: var(--success);
+            background: rgba(76, 175, 80, 0.05);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ccc;
+            font-weight: 500;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 6px;
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
+        }
+        
+        .form-control::placeholder {
+            color: #888;
+        }
+        
+        .code-editor {
+            background: #1e1e1e;
+            border-radius: 8px;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: #d4d4d4;
+            height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            margin: 20px 0;
+            line-height: 1.5;
+        }
+
+        /* =================================================== */
+/* TRIGGER SYSTEM STYLES */
+/* =================================================== */
+
+.trigger-type-btn {
+    flex: 1;
+    padding: 8px 12px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 6px;
+    color: white;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.2s;
+}
+
+.trigger-type-btn:hover {
+    background: rgba(255,255,255,0.1);
+}
+
+.trigger-type-btn.active {
+    background: var(--primary);
+    border-color: var(--primary);
+}
+
+.trigger-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 6px;
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+}
+
+.dropdown-item {
+    padding: 10px 15px;
+    cursor: pointer;
+    border-bottom: 1px solid #333;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.dropdown-item:hover {
+    background: rgba(255,255,255,0.05);
+}
+
+.trigger-preview {
+    background: rgba(255,255,255,0.05);
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 10px;
+}
+        
+        .status-message {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            display: none;
+        }
+        
+        .status-success {
+            background: rgba(76, 175, 80, 0.1);
+            border: 1px solid var(--success);
+            color: var(--success);
+        }
+        
+        .status-error {
+            background: rgba(244, 67, 54, 0.1);
+            border: 1px solid var(--danger);
+            color: var(--danger);
+        }
+        
+        .status-warning {
+            background: rgba(255, 152, 0, 0.1);
+            border: 1px solid var(--warning);
+            color: var(--warning);
+        }
+        
+        .video-preview-container {
+            background: #000;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            display: none;
+        }
+        
+        .video-preview-container video {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 4px;
+            display: block;
+            margin: 0 auto;
+        }
+        
+        .video-info {
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(76, 175, 80, 0.1);
+            border-radius: 6px;
+            border: 1px solid var(--success);
+        }
+        
+        .video-info code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            color: #4CAF50;
+        }
+        
+        .help-box {
+            margin-top: 30px;
+            padding: 15px;
+            background: rgba(255, 193, 7, 0.1);
+            border-radius: 8px;
+            border: 1px solid #FF9800;
+        }
+        
+        .help-box h4 {
+            color: #FF9800;
+            margin-bottom: 10px;
+        }
+        
+        .help-box ol {
+            margin-left: 20px;
+            color: #ccc;
+            line-height: 1.6;
+        }
+        
+        .help-box li {
+            margin-bottom: 8px;
+        }
+        
+        .help-box code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            color: #FF9800;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .action-buttons .btn {
+            flex: 1;
+        }
+        
+        .url-input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .url-input-group .form-control {
+            flex: 1;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .stat-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #888;
+            margin-top: 5px;
+        }
+        
+        /* MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background: var(--dark);
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            border: 2px solid var(--primary);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            line-height: 1;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .url-input-group {
+                flex-direction: column;
+            }
+        }
+        /* Add to your existing CSS */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.search-wrapper {
+    position: relative;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    max-height: 200px;
+    overflow-y: auto;
+    display: none;
+    z-index: 1000;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.dropdown-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.dropdown-item:hover {
+    background-color: #f5f5f5;
+}
+
+.trigger-phrases-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.phrase-tag {
+    background: #e9ecef;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 14px;
+    color: #495057;
+}
+
+.phrase-tag.selectable {
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.phrase-tag.selectable:hover {
+    background: #007bff;
+    color: white;
+}
+
+.concern-option {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    background: #f9f9f9;
+}
+
+.concern-icon {
+    font-size: 20px;
+    margin-right: 10px;
+}
+
+.concern-title {
+    font-weight: 500;
+    flex-grow: 1;
+}
+
+.trigger-phrases-preview {
+    margin-left: 10px;
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+
+.phrase-more {
+    color: #6c757d;
+    font-size: 12px;
+    font-style: italic;
+}
+
+/* Syntax highlighting for code preview */
+.comment {
+    color: #6a9955;
+}
+
+.string {
+    color: #ce9178;
+}
+
+.keyword {
+    color: #569cd6;
+    font-weight: bold;
+}
+
+        /* Add to your existing CSS */
+html {
+    scroll-behavior: auto !important; /* Disable smooth scrolling */
+}
+
+button, input[type="button"], input[type="submit"] {
+    outline: none !important;
+}
+
+button:focus, input:focus {
+    outline: 2px solid #4CAF50 !important; /* Better than default */
+    outline-offset: 2px !important;
+}
+
+/* Prevent hash/anchor jumps */
+:target {
+    scroll-margin-top: 20px; /* Add some space */
+}
+
+/* Fix form submissions */
+form {
+    overflow-anchor: none; /* Prevents scroll anchoring */
+}
+
+/* If using anchor links */
+a[href^="#"] {
+    scroll-behavior: auto;
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <h2>🏢 Industries</h2>
+            <ul class="industry-list" id="industryList">
+                <!-- Industries loaded here -->
+            </ul>
+            
+            <button class="btn btn-success" onclick="showAddIndustryModal()" style="width: 100%;">
+                ➕ Add New Industry
+            </button>
+            
+            <div style="margin-top: 30px;">
+                <h3>📊 Statistics</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value" id="statIndustries">0</div>
+                        <div class="stat-label">Industries</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="statVideos">0</div>
+                        <div class="stat-label">Videos</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="statConcerns">0</div>
+                        <div class="stat-label">Concerns</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="statTestimonials">0</div>
+                        <div class="stat-label">Testimonials</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- In your sidebar, add this after the stats -->
+<div style="margin-top: 30px; padding: 15px; background: rgba(244, 67, 54, 0.1); border-radius: 8px; border: 1px solid var(--danger);">
+    <h4 style="color: var(--danger); margin-bottom: 10px;">⚠️ Admin Tools</h4>
+    <button class="btn btn-danger" onclick="deleteCurrentIndustry()" style="width: 100%; margin-bottom: 10px;">
+        🗑️ Delete Current Industry
+    </button>
+    <button class="btn" onclick="editCurrentIndustry()" style="background: #666; width: 100%; margin-top: 10px;">
+    ✏️ Edit Current Industry
+</button>
+</div>
+            
+            <div style="margin-top: 30px;">
+                <button class="btn btn-primary" onclick="saveAllData()" style="width: 100%; margin-bottom: 10px;">
+                    💾 Save All Changes
+                </button>
+                <button class="btn btn-warning" onclick="downloadJSFile()" style="width: 100%; margin-bottom: 10px;">
+                    📤 Download JS File
+                </button>
+                <button class="btn" onclick="loadSampleData()" style="background: #9C27B0; width: 100%;">
+                    🎯 Load Sample Data
+                </button>
+            </div>
+        </div>
+        
+        <!-- MAIN CONTENT -->
+        <div style="flex: 1;">
+            <!-- UPLOADER CARD -->
+            <div class="card uploader">
+                <h2>🎬 Add Video Testimonial</h2>
+                <p style="color: #ccc; margin-bottom: 20px;">
+                    Current Industry: <strong id="currentIndustryName" style="color: var(--primary);">None selected</strong>
+                </p>
+                
+                <!-- INDUSTRY SELECTION (if not already selected) -->
+                <div class="form-group" id="industrySelectGroup" style="display: none;">
+                    <label>Select Industry</label>
+                    <select class="form-control" id="selectIndustryDropdown">
+                        <option value="">-- Select Industry --</option>
+                    </select>
+                </div>
+                
+            
+<!-- =================================================== -->
+<!-- ENHANCED TRIGGER SELECTION SYSTEM -->
+<!-- =================================================== -->
+<div class="form-group">
+    <label>Trigger Type</label>
+    <div class="btn-group" style="display: flex; gap: 5px; margin-bottom: 10px;">
+        <button type="button" class="trigger-type-btn active" data-type="all">All</button>
+        <button type="button" class="trigger-type-btn" data-type="negative">❌ Negative</button>
+        <button type="button" class="trigger-type-btn" data-type="positive">✅ Positive</button>
+        <button type="button" class="trigger-type-btn" data-type="comparison">🤔 Comparison</button>
+        <button type="button" class="trigger-type-btn" data-type="how-to">🔍 How-To</button>
+    </div>
+    
+    <div style="position: relative;">
+        <input type="text" class="form-control" id="triggerSearch" 
+               placeholder="Search triggers (e.g., 'forms', 'cost', 'benefits', 'how to')">
+        <div id="triggerDropdown" class="trigger-dropdown">
+            <!-- Triggers will load here -->
+        </div>
+    </div>
+    
+    <small style="color: #888; font-size: 12px;">
+        Search triggers or type custom name below
+    </small>
+</div>
+
+<div class="form-group">
+    <label>Custom Trigger Name</label>
+    <input type="text" class="form-control" id="concernName" 
+           placeholder="e.g., forms-pain, pre-qual-benefits, case-value">
+    <small style="color: #888; font-size: 12px;">
+        Internal name (use hyphens, no spaces)
+    </small>
+</div>
+
+<div class="form-group">
+    <label>Trigger Display Title</label>
+    <input type="text" class="form-control" id="concernTitle" 
+           placeholder="e.g., Tired of Lengthy Forms?, Benefits of Pre-Qualification">
+</div>
+
+<div class="form-group">
+    <label>Trigger Phrases (Keywords)</label>
+    <textarea class="form-control" id="concernKeywords" rows="3"
+              placeholder="too much paperwork, complicated forms, application nightmare, document overload"></textarea>
+    <small style="color: #888; font-size: 12px;">
+        Comma-separated phrases people might use
+    </small>
+</div>
+
+<div id="triggerPreview" class="trigger-preview" style="display: none;">
+    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+        <span id="previewIcon" style="font-size: 24px;"></span>
+        <div>
+            <strong id="previewTitle"></strong>
+            <div id="previewType" style="font-size: 12px; color: #888;"></div>
+        </div>
+    </div>
+    <div style="font-size: 13px;">
+        <strong>Trigger Phrases:</strong>
+        <div id="previewPhrases" style="color: #ccc; margin-top: 5px;"></div>
+    </div>
+</div>
+                
+                <div class="form-group">
+                    <label>Concern Display Title</label>
+                    <input type="text" class="form-control" id="concernTitle" 
+                           placeholder="e.g., From Intake to High-Value Case">
+                </div>
+                
+                <div class="form-group">
+                    <label>Icon Emoji</label>
+                    <input type="text" class="form-control" id="concernIcon" 
+                           placeholder="🎯" value="🎯">
+                </div>
+                
+                <!-- VIDEO URL SECTION -->
+                <div class="form-group">
+                    <label style="display: flex; justify-content: space-between; align-items: center;">
+                        <span>Supabase Video URL</span>
+                        <button type="button" class="btn btn-primary" onclick="openSupabaseUploader()" 
+                                style="padding: 8px 12px; font-size: 12px;">
+                            📤 Open Supabase Uploader
+                        </button>
+                    </label>
+                    <div class="url-input-group">
+                        <input type="text" class="form-control" id="videoUrl" 
+                               placeholder="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/your-video.mp4"
+                               style="font-family: monospace; font-size: 13px;">
+                        <button type="button" class="btn btn-success" onclick="testVideoUrl()" 
+                                style="padding: 12px 15px; white-space: nowrap;">
+                            🔍 Test URL
+                        </button>
+                    </div>
+                    <small style="color: #888; font-size: 12px;">
+                        Paste your Supabase public URL here. The system will extract the video key automatically.
+                    </small>
+                </div>
+                
+                <!-- VIDEO PREVIEW -->
+                <div class="video-preview-container" id="videoPreview">
+                    <h4 style="color: var(--success); margin-bottom: 10px;">✅ Video Preview</h4>
+                    <video id="previewVideo" controls></video>
+                    <div class="video-info">
+                        <div>Video Key: <code id="videoKeyDisplay"></code></div>
+                        <div>Status: <span id="videoStatus" style="color: var(--success);">Ready to add</span></div>
+                    </div>
+                </div>
+                
+                <!-- TEXT TESTIMONIALS (OPTIONAL) -->
+                <div class="form-group">
+                    <label>Text Testimonial (Optional)</label>
+                    <textarea class="form-control" id="textTestimonial" rows="3"
+                              placeholder="e.g., 'This system saved us 15 hours per week...'"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Author Name</label>
+                    <input type="text" class="form-control" id="authorName" 
+                           placeholder="e.g., John D., Attorney">
+                </div>
+                
+                <!-- ACTION BUTTONS -->
+                <div class="action-buttons">
+                    <button class="btn btn-success" onclick="addVideoTestimonial()">
+                        ✅ Add Video Testimonial
+                    </button>
+                    <button class="btn btn-primary" onclick="addTextOnlyTestimonial()">
+                        💬 Add Text Only
+                    </button>
+                </div>
+                
+                <!-- QUICK HELP -->
+                <div class="help-box">
+                    <h4>💡 Quick Instructions:</h4>
+                    <ol>
+                        <li>Select an industry from the sidebar first</li>
+                        <li>Click "Open Supabase Uploader" to upload your video</li>
+                        <li>Copy the public URL from Supabase</li>
+                        <li>Paste it in the URL field and click "Test URL"</li>
+                        <li>Fill in concern details (name, title, icon)</li>
+                        <li>Optionally add text testimonial</li>
+                        <li>Click "Add Video Testimonial" or "Add Text Only"</li>
+                    </ol>
+                </div>
+            </div>
+            
+            <!-- CODE GENERATOR CARD -->
+            <div class="card code">
+                <h2>👨‍💻 Generated testimonials-data.js</h2>
+                
+                <div class="code-editor" id="codeOutput">
+// Loading testimonial data...
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="copyCode()">
+                        📋 Copy Code
+                    </button>
+                    <button class="btn btn-success" onclick="downloadJSFile()">
+                        💾 Download JS File
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ADD INDUSTRY MODAL -->
+    <div class="modal" id="addIndustryModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🏢 Add New Industry</h2>
+                <button class="close-modal" onclick="hideAddIndustryModal()">×</button>
+            </div>
+            
+            <div class="form-group">
+                <label>Industry Name</label>
+                <input type="text" class="form-control" id="newIndustryName" 
+                       placeholder="e.g., Personal Injury Attorneys">
+            </div>
+            
+            <div class="form-group">
+                <label>Industry Slug (URL-friendly)</label>
+                <input type="text" class="form-control" id="newIndustrySlug" 
+                       placeholder="e.g., personal-injury">
+                <small style="color: #888; font-size: 12px;">Use lowercase with hyphens (no spaces)</small>
+            </div>
+            
+            <div class="form-group">
+                <label>Icon Emoji</label>
+                <input type="text" class="form-control" id="newIndustryIcon" 
+                       placeholder="⚖️" value="🏢">
+            </div>
+            
+            <div class="form-group">
+                <label>Keywords (comma-separated)</label>
+                <textarea class="form-control" id="newIndustryKeywords" rows="3"
+                          placeholder="attorney, lawyer, accident, injury, legal"></textarea>
+                <small style="color: #888; font-size: 12px;">Used by AI to detect this industry</small>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="btn btn-success" onclick="addIndustry()">
+                    ✅ Add Industry
+                </button>
+                <button class="btn" onclick="hideAddIndustryModal()" style="background: #666;">
+                    Cancel
+            <!-- Industry Selection -->
+<div class="form-group">
+    <label for="industry-select">Select Industry:</label>
+    <select id="industry-select" class="form-control">
+        <option value="general">🏢 General Business</option>
+        <!-- Options will be populated by JavaScript -->
+    </select>
+</div>
+
+<!-- Concerns Checkboxes -->
+<div class="form-group">
+    <label>Select Concerns/Objections:</label>
+    <div id="concerns-container" class="concerns-grid">
+        <!-- Concerns will be populated by JavaScript -->
+    </div>
+</div>
+
+<!-- Trigger Phrase Search -->
+<div class="form-group">
+    <label for="trigger-search">Trigger Phrase:</label>
+    <input type="text" 
+           id="trigger-search" 
+           class="form-control" 
+           placeholder="Search or select a trigger phrase..."
+           autocomplete="off">
+    <div id="trigger-dropdown" class="trigger-dropdown">
+        <!-- Trigger phrases will appear here -->
+    </div>
+</div>
+
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- STATUS MESSAGES -->
+    <div class="status-message" id="successMessage"></div>
+    <div class="status-message" id="errorMessage"></div>
+    <div class="status-message" id="warningMessage"></div>
+
+    <script>
+        
+// ===================================================
+// LOAD CHECKER - Add this at the TOP of your script
+// ===================================================
+console.log('🔍 Checking script loading...');
+
+// Check if testimonials-data.js is loaded
+if (typeof window.testimonialData === 'undefined') {
+    console.warn('⚠️ testimonials-data.js not loaded yet. Creating temporary structure...');
+    
+    // Create a temporary structure
+    window.testimonialData = {
+        concerns: {
+            price: { title: 'Price', icon: '💰', videoType: 'skeptical', phrases: [] },
+            time: { title: 'Time', icon: '⏰', videoType: 'speed', phrases: [] },
+            trust: { title: 'Trust', icon: '🤝', videoType: 'skeptical', phrases: [] }
+        },
+        industries: {},
+        playerConfig: {}
+    };
+    
+    // Add helper methods
+    window.testimonialData.getAllIndustries = function() {
+        const industries = [{ slug: 'general', name: 'General Business', icon: '🏢' }];
+        
+        if (this.industries) {
+            Object.entries(this.industries).forEach(([slug, data]) => {
+                industries.push({ slug: slug, name: data.name, icon: data.icon });
+            });
+        }
+        
+        return industries;
+    };
+    
+    window.testimonialData.getIndustryTestimonials = function(industrySlug) {
+        if (this.industries && this.industries[industrySlug]) {
+            return {
+                industry: this.industries[industrySlug].name,
+                icon: this.industries[industrySlug].icon,
+                concerns: { ...this.industries[industrySlug].concerns, ...this.concerns }
+            };
+        }
+        
+        return {
+            industry: 'General Business',
+            icon: '🏢',
+            concerns: this.concerns || {}
+        };
+    };
+}
+
+        // ===================================================
+        // CORE DATA & STATE
+        // ===================================================
+        let currentData = {
+            industries: {},
+            videos: {},
+            industryKeywords: {},
+            universalConcerns: {
+                price: { 
+                    title: 'See The ROI Others Achieved', 
+                    icon: '💰', 
+                    videoType: 'universal-price', 
+                    reviews: [
+                        { text: "Paid for itself in the first 45 days", author: "Multiple Clients" },
+                        { text: "Best marketing investment we made", author: "Industry Leaders" }
+                    ] 
+                },
+                time: { 
+                    title: 'For Busy Professionals', 
+                    icon: '⏰', 
+                    videoType: 'universal-time', 
+                    reviews: [
+                        { text: "Saved our team 25 hours/week", author: "Office Managers" },
+                        { text: "Now handling 3x more leads", author: "Sales Directors" }
+                    ] 
+                },
+                trust: { 
+                    title: 'Proven Across Industries', 
+                    icon: '🤝', 
+                    videoType: 'universal-trust', 
+                    reviews: [
+                        { text: "Worked exactly as promised", author: "Skeptical Buyers" },
+                        { text: "Transformed how we handle leads", author: "Long-Term Clients" }
+                    ] 
+                }
+            },
+            playerConfig: {
+                desktop: { width: 854, height: 480, top: '50%', left: '50%', borderRadius: '12px' },
+                mobile: { fullscreen: true },
+                overlay: { background: 'rgba(0, 0, 0, 0.5)' },
+                resumeMessage: "I'm sure you can appreciate what similar businesses have achieved. Would you like to see how we can specifically help [Industry] like yours?"
+            }
+        };
+        
+        let currentIndustry = null;
+        let currentVideoKey = null;
+
+        function editCurrentIndustry() {
+    if (!currentIndustry) {
+        showMessage('Please select an industry first', 'error');
+        return;
+    }
+    
+    editIndustry(currentIndustry);
+}
+
+// ===================================================
+// COMPLETE TRIGGER MANAGEMENT SYSTEM
+// ===================================================
+
+// 1. TRIGGER TEMPLATES DATABASE
+const triggerTemplates = {
+    // UNIVERSAL TRIGGERS (All industries)
+    'universal': {
+        'price-negative': {
+            type: 'negative',
+            title: 'Cost Concerns',
+            icon: '💰',
+            phrases: ['expensive', 'cost', 'price', 'affordable', 'budget', 'investment', 'value', 'worth it'],
+            defaultResponse: "I understand cost is important. Let me show you the value our clients received..."
+        },
+        'time-negative': {
+            type: 'negative',
+            title: 'Time/Speed Concerns',
+            icon: '⏰',
+            phrases: ['time', 'busy', 'quick', 'fast', 'speed', 'how long', 'schedule', 'hours'],
+            defaultResponse: "I know your time is valuable. Here's how quickly our clients saw results..."
+        },
+        'trust-negative': {
+            type: 'negative',
+            title: 'Trust/Reliability',
+            icon: '🤝',
+            phrases: ['trust', 'reliable', 'legit', 'proven', 'results', 'reviews', 'testimonials'],
+            defaultResponse: "Trust is earned. Let me show you what our actual clients have to say..."
+        },
+        'benefits-positive': {
+            type: 'positive',
+            title: 'Benefits/Advantages',
+            icon: '✅',
+            phrases: ['benefits', 'advantages', 'why choose', 'better than', 'improve', 'help'],
+            defaultResponse: "Great question! Here are the benefits our clients experienced..."
+        },
+        'how-to-positive': {
+            type: 'how-to',
+            title: 'How It Works',
+            icon: '🔍',
+            phrases: ['how does it work', 'process', 'steps', 'what to expect', 'how to'],
+            defaultResponse: "Let me walk you through the process our clients found so effective..."
+        }
+    },
+    
+    // PERSONAL INJURY SPECIFIC
+    'personal-injury': {
+        'forms-vs-interview': {
+            type: 'comparison',
+            title: 'Forms vs. Personal Interview',
+            icon: '📋',
+            phrases: [
+                'forms vs interview', 'online forms better',
+                'why not just forms', 'automated screening',
+                'pre-qualification forms', 'digital intake'
+            ],
+            defaultResponse: "That's a smart comparison! Here's why our clients prefer the personal touch..."
+        },
+        'case-value': {
+            type: 'positive',
+            title: 'Case Value Assessment',
+            icon: '⚖️',
+            phrases: [
+                'what is my case worth', 'settlement value',
+                'compensation estimate', 'how much can I get',
+                'payout amount', 'damages calculation'
+            ],
+            defaultResponse: "Understanding case value is crucial. Here's how we helped clients maximize theirs..."
+        }
+    },
+    
+    // MORTGAGE LENDING SPECIFIC
+    'mortgage-lenders': {
+        'forms-pain': {
+            type: 'negative',
+            title: 'Paperwork Frustration',
+            icon: '😫',
+            phrases: [
+                'too much paperwork', 'complicated forms',
+                'application nightmare', 'document overload',
+                'forms frustrating', 'paperwork headache'
+            ],
+            defaultResponse: "Paperwork frustration is real! Here's how we simplified it for our clients..."
+        },
+        'pre-qual-benefits': {
+            type: 'positive',
+            title: 'Pre-Qualification Benefits',
+            icon: '🎯',
+            phrases: [
+                'benefits of pre-qual', 'why pre-qualify',
+                'pre-qual advantages', 'better than forms',
+                'interview benefits', 'personal assessment'
+            ],
+            defaultResponse: "Pre-qualification has huge benefits! Here's what our clients loved about it..."
+        },
+        'rate-inquiry': {
+            type: 'positive',
+            title: 'Rate Questions',
+            icon: '📉',
+            phrases: [
+                'what rates', 'interest rates',
+                'best rate', 'lowest rate',
+                'rate comparison', 'competitive rates'
+            ],
+            defaultResponse: "Rates are important! Here's how our clients found our rates competitive..."
+        }
+    },
+    
+    // DENTAL SPECIFIC
+    'dentists': {
+        'emergency-concern': {
+            type: 'negative',
+            title: 'Dental Emergency',
+            icon: '🚨',
+            phrases: [
+                'dental emergency', 'tooth pain', 'urgent care',
+                'broken tooth', 'severe pain', 'need help now'
+            ],
+            defaultResponse: "Dental emergencies are stressful! Here's how we helped clients in urgent situations..."
+        },
+        'cost-transparency': {
+            type: 'positive',
+            title: 'Cost Transparency',
+            icon: '💰',
+            phrases: [
+                'cost upfront', 'clear pricing',
+                'no hidden fees', 'treatment cost',
+                'insurance coverage', 'payment options'
+            ],
+            defaultResponse: "Cost transparency matters! Here's how our clients appreciated our clear pricing..."
+        }
+    }
+    // Add more industries as needed...
+};
+
+// 2. TRIGGER SYSTEM FUNCTIONS
+function initTriggerSystem() {
+    console.log('Initializing trigger system...');
+    
+    // Setup trigger type buttons
+    document.querySelectorAll('.trigger-type-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.trigger-type-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            filterTriggers(this.dataset.type);
+        });
+    });
+    
+    // Setup search input
+    const searchInput = document.getElementById('triggerSearch');
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            const activeType = document.querySelector('.trigger-type-btn.active').dataset.type;
+            filterTriggers(activeType, this.value);
+        });
+        
+        // Close dropdown when clicking elsewhere
+        document.addEventListener('click', function(e) {
+            const dropdown = document.getElementById('triggerDropdown');
+            if (dropdown && !e.target.closest('#triggerSearch') && !e.target.closest('#triggerDropdown')) {
+                dropdown.style.display = 'none';
+            }
+        });
+    }
+    
+    // Load triggers when industry is selected
+    const originalSelectIndustry = selectIndustry;
+    selectIndustry = function(slug) {
+        originalSelectIndustry(slug);
+        setTimeout(() => {
+            loadTriggerTemplates();
+            filterTriggers('all');
+        }, 100);
+    };
+}
+
+function loadTriggerTemplates() {
+    const container = document.getElementById('triggerDropdown');
+    if (!container) {
+        console.warn('Trigger dropdown container not found');
+        return;
+    }
+    
+    container.innerHTML = '';
+    
+    if (!currentIndustry) {
+        container.innerHTML = '<div class="dropdown-item">Select an industry first</div>';
+        return;
+    }
+    
+    // Get triggers for this industry + universal
+    const triggers = {
+        ...triggerTemplates.universal,
+        ...(triggerTemplates[currentIndustry] || {})
+    };
+    
+    if (Object.keys(triggers).length === 0) {
+        container.innerHTML = '<div class="dropdown-item">No triggers defined for this industry</div>';
+        return;
+    }
+    
+    Object.entries(triggers).forEach(([key, trigger]) => {
+        const item = document.createElement('div');
+        item.className = 'dropdown-item';
+        item.dataset.triggerKey = key;
+        item.dataset.triggerType = trigger.type;
+        item.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 20px;">${trigger.icon}</span>
+                <div style="flex: 1;">
+                    <div style="font-weight: 500; font-size: 14px;">${trigger.title}</div>
+                    <div style="font-size: 11px; color: #888;">
+                        ${trigger.phrases.slice(0, 3).join(', ')}...
+                    </div>
+                </div>
+                <span style="font-size: 12px; color: #666;">
+                    ${getTriggerTypeLabel(trigger.type).split(' ')[0]}
+                </span>
+            </div>
+        `;
+        
+        item.addEventListener('click', () => {
+            selectTrigger(key, trigger);
+            document.getElementById('triggerSearch').value = trigger.title;
+            container.style.display = 'none';
+        });
+        
+        container.appendChild(item);
+    });
+}
+
+function filterTriggers(type = 'all', search = '') {
+    const container = document.getElementById('triggerDropdown');
+    if (!container) return;
+    
+    const items = container.querySelectorAll('.dropdown-item');
+    const searchLower = search.toLowerCase();
+    let visibleCount = 0;
+    
+    items.forEach(item => {
+        const matchesType = type === 'all' || item.dataset.triggerType === type;
+        const matchesSearch = !searchLower || 
+            item.textContent.toLowerCase().includes(searchLower) ||
+            item.dataset.triggerKey.toLowerCase().includes(searchLower);
+        
+        if (matchesType && matchesSearch) {
+            item.style.display = 'flex';
+            visibleCount++;
+        } else {
+            item.style.display = 'none';
+        }
+    });
+    
+    container.style.display = visibleCount > 0 ? 'block' : 'none';
+}
+
+function selectTrigger(key, trigger) {
+    console.log('Selected trigger:', key, trigger);
+    
+    // Auto-fill form fields
+    document.getElementById('concernName').value = key;
+    document.getElementById('concernTitle').value = trigger.title;
+    document.getElementById('concernIcon').value = trigger.icon;
+    document.getElementById('concernKeywords').value = trigger.phrases.join(', ');
+    
+    // Show preview
+    const preview = document.getElementById('triggerPreview');
+    if (preview) {
+        document.getElementById('previewIcon').textContent = trigger.icon;
+        document.getElementById('previewTitle').textContent = trigger.title;
+        document.getElementById('previewType').textContent = `Type: ${getTriggerTypeLabel(trigger.type)}`;
+        
+        const phrasesHTML = trigger.phrases
+            .map(phrase => `<span style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 3px; margin: 2px; display: inline-block; font-size: 12px;">${phrase}</span>`)
+            .join('');
+        
+        document.getElementById('previewPhrases').innerHTML = phrasesHTML;
+        preview.style.display = 'block';
+    }
+    
+    // Show success message
+    if (typeof showMessage === 'function') {
+        showMessage(`✅ Loaded trigger: ${trigger.title}`, 'success');
+    }
+}
+
+function getTriggerTypeLabel(type) {
+    const labels = {
+        'negative': '❌ Negative Objection',
+        'positive': '✅ Positive Inquiry', 
+        'comparison': '🤔 Comparison Question',
+        'how-to': '🔍 How-To/Process'
+    };
+    return labels[type] || type;
+}
+
+// 3. UPDATE ADD TESTIMONIAL FUNCTION TO SAVE TRIGGERS
+function addVideoTestimonial() {
+    // ... your existing code ...
+    
+    // ADD THIS LINE to capture keywords/phrases
+    const triggerPhrases = document.getElementById('concernKeywords').value
+        .split(',')
+        .map(k => k.trim())
+        .filter(k => k);
+    
+    // In your concern creation, add the phrases
+    currentData.industries[targetIndustry].concerns[concernKey] = {
+        title: concernTitle,
+        icon: concernIcon,
+        videoType: videoKey,
+        phrases: triggerPhrases, // ← ADD THIS LINE
+        reviews: []
+    };
+    
+    // ... rest of your code ...
+}
+
+// 4. INITIALIZE TRIGGER SYSTEM ON PAGE LOAD
+document.addEventListener('DOMContentLoaded', function() {
+    // ... your existing initialization ...
+    
+    // ADD THIS LINE:
+    setTimeout(initTriggerSystem, 500);
+});
+        
+        // ===================================================
+        // INITIALIZATION
+        // ===================================================
+       function initialize() {
+    console.log('🚀 Initializing Testimonial Manager PRO...');
+    
+    // Load from localStorage
+    const saved = localStorage.getItem('testimonialData');
+    
+    if (saved) {
+        try {
+            currentData = JSON.parse(saved);
+            console.log('📂 Loaded saved data from localStorage');
+            
+            // 🔧 VALIDATE DATA STRUCTURE
+            validateDataStructure();
+            
+        } catch (e) {
+            console.error('Error loading data:', e);
+            showMessage('⚠️ Could not load saved data. Starting fresh.', 'warning');
+            initializeWithDefaults();
+        }
+    } else {
+        initializeWithDefaults();
+    }
+    
+    updateIndustryList();
+    updateStats();
+    updateCodePreview();
+    showMessage('✅ System ready! Paste Supabase URLs to add testimonials.', 'success');
+}
+
+function validateDataStructure() {
+    // Ensure all required objects exist
+    if (!currentData.industries) currentData.industries = {};
+    if (!currentData.videos) currentData.videos = {};
+    if (!currentData.industryKeywords) currentData.industryKeywords = {};
+    if (!currentData.universalConcerns) {
+        currentData.universalConcerns = {
+            price: { title: 'See The ROI Others Achieved', icon: '💰', videoType: 'universal-price', reviews: [] },
+            time: { title: 'For Busy Professionals', icon: '⏰', videoType: 'universal-time', reviews: [] },
+            trust: { title: 'Proven Across Industries', icon: '🤝', videoType: 'universal-trust', reviews: [] }
+        };
+    }
+    if (!currentData.playerConfig) {
+        currentData.playerConfig = {
+            desktop: { width: 854, height: 480, top: '50%', left: '50%', borderRadius: '12px' },
+            mobile: { fullscreen: true },
+            overlay: { background: 'rgba(0, 0, 0, 0.5)' },
+            resumeMessage: "I'm sure you can appreciate what similar businesses have achieved..."
+        };
+    }
+}
+
+// ===================================================
+// INDUSTRY-SPECIFIC FUNCTIONALITY
+// ===================================================
+
+function populateIndustryDropdown() {
+    const industries = window.testimonialData.getAllIndustries();
+    const dropdown = document.getElementById('industry-select');
+    
+    if (!dropdown) {
+        console.error('Industry dropdown not found');
+        return;
+    }
+    
+    // Clear existing options
+    dropdown.innerHTML = '<option value="">Select an industry...</option>';
+    
+    // Add industry options
+    industries.forEach(industry => {
+        const option = document.createElement('option');
+        option.value = industry.slug;
+        option.textContent = `${industry.icon} ${industry.name}`;
+        dropdown.appendChild(option);
+    });
+    
+    // Add change listener
+    dropdown.addEventListener('change', function() {
+        const industrySlug = this.value;
+        if (industrySlug) {
+            selectIndustry(industrySlug);
+            populateConcernsForIndustry(industrySlug);
+        }
+    });
+}
+
+function populateConcernsForIndustry(industrySlug) {
+    const industryData = window.testimonialData.getIndustryTestimonials(industrySlug);
+    const concernsContainer = document.getElementById('concerns-container');
+    
+    if (!concernsContainer) return;
+    
+    // Clear existing concerns
+    concernsContainer.innerHTML = '';
+    
+    // Add concerns for this industry
+    Object.entries(industryData.concerns).forEach(([key, concern]) => {
+        const concernId = `concern-${key}`;
+        const concernHTML = `
+            <div class="concern-option">
+                <input type="checkbox" 
+                       id="${concernId}" 
+                       name="concerns" 
+                       value="${key}"
+                       data-phrases='${JSON.stringify(concern.phrases || [])}'
+                       class="concern-checkbox">
+                <label for="${concernId}">
+                    <span class="concern-icon">${concern.icon}</span>
+                    <span class="concern-title">${concern.title}</span>
+                </label>
+                <div class="trigger-phrases-preview" id="phrases-${key}">
+                    ${(concern.phrases || []).slice(0, 3).map(phrase => 
+                        `<span class="phrase-tag">${phrase}</span>`
+                    ).join('')}
+                    ${(concern.phrases || []).length > 3 ? 
+                        `<span class="phrase-more">+${(concern.phrases || []).length - 3} more</span>` : 
+                        ''
+                    }
+                </div>
+            </div>
+        `;
+        concernsContainer.innerHTML += concernHTML;
+    });
+    
+    // Add click handlers to concerns
+    document.querySelectorAll('.concern-checkbox').forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            if (this.checked) {
+                populateTriggerPhrases(this.dataset.phrases);
+            }
+            updateCodePreview();
+        });
+    });
+}
+
+function populateTriggerPhrases(phrasesJSON) {
+    const phrases = JSON.parse(phrasesJSON || '[]');
+    const container = document.getElementById('trigger-phrases-container');
+    const searchInput = document.getElementById('trigger-search');
+    const dropdown = document.getElementById('trigger-dropdown');
+    
+    if (!container || !searchInput) return;
+    
+    // Display phrases as tags
+    container.innerHTML = phrases.map(phrase => 
+        `<span class="phrase-tag selectable" data-phrase="${phrase}">${phrase}</span>`
+    ).join('');
+    
+    // Make tags clickable
+    container.querySelectorAll('.phrase-tag.selectable').forEach(tag => {
+        tag.addEventListener('click', function() {
+            searchInput.value = this.dataset.phrase;
+            updateCodePreview();
+        });
+    });
+    
+    // Populate dropdown for search
+    if (dropdown) {
+        dropdown.innerHTML = phrases.map(phrase => 
+            `<div class="dropdown-item" data-phrase="${phrase}">${phrase}</div>`
+        ).join('');
+        
+        // Make dropdown items clickable
+        dropdown.querySelectorAll('.dropdown-item').forEach(item => {
+            item.addEventListener('click', function() {
+                searchInput.value = this.dataset.phrase;
+                dropdown.style.display = 'none';
+                updateCodePreview();
+            });
+        });
+    }
+    
+    // Setup search functionality
+    searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        
+        if (dropdown) {
+            const allItems = dropdown.querySelectorAll('.dropdown-item');
+            let hasMatches = false;
+            
+            allItems.forEach(item => {
+                const phrase = item.dataset.phrase.toLowerCase();
+                if (phrase.includes(searchTerm)) {
+                    item.style.display = 'block';
+                    hasMatches = true;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+            
+            dropdown.style.display = hasMatches ? 'block' : 'none';
+        }
+    });
+    
+    // Show dropdown on focus
+    searchInput.addEventListener('focus', function() {
+        if (dropdown && dropdown.children.length > 0) {
+            dropdown.style.display = 'block';
+        }
+    });
+    
+    // Hide dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+            dropdown.style.display = 'none';
+        }
+    });
+}
+
+// ===================================================
+// UPDATE YOUR EXISTING FUNCTIONS
+// ===================================================
+
+function updateCodePreview() {
+    // Get selected industry
+    const industrySelect = document.getElementById('industry-select');
+    const industrySlug = industrySelect ? industrySelect.value : '';
+    
+    // Get selected concerns
+    const selectedConcerns = Array.from(
+        document.querySelectorAll('.concern-checkbox:checked')
+    ).map(cb => ({
+        key: cb.value,
+        title: cb.nextElementSibling.querySelector('.concern-title').textContent,
+        phrases: JSON.parse(cb.dataset.phrases || '[]')
+    }));
+    
+    // Get trigger phrase
+    const triggerPhrase = document.getElementById('trigger-search')?.value || '';
+    
+    // Build the code output
+    let code = `// Testimonial Configuration for ${industrySlug || 'General'}\n`;
+    code += `const testimonialConfig = {\n`;
+    code += `  industry: "${industrySlug}",\n`;
+    
+    if (selectedConcerns.length > 0) {
+        code += `  concerns: [\n`;
+        selectedConcerns.forEach((concern, index) => {
+            code += `    {\n`;
+            code += `      key: "${concern.key}",\n`;
+            code += `      title: "${concern.title}",\n`;
+            code += `      phrases: ${JSON.stringify(concern.phrases, null, 6)}\n`;
+            code += `    }${index < selectedConcerns.length - 1 ? ',' : ''}\n`;
+        });
+        code += `  ],\n`;
+    }
+    
+    if (triggerPhrase) {
+        code += `  triggerPhrase: "${triggerPhrase}",\n`;
+    }
+    
+    code += `  // Add video testimonials here\n`;
+    code += `  videos: []\n`;
+    code += `};\n`;
+    
+    // Update the preview
+    const preview = document.getElementById('code-preview');
+    if (preview) {
+        preview.textContent = code;
+        
+        // Syntax highlighting (basic)
+        preview.innerHTML = code
+            .replace(/\/\/.*$/gm, '<span class="comment">$&</span>')
+            .replace(/".*?"/g, '<span class="string">$&</span>')
+            .replace(/\b(const|let|var|function|return|if|else)\b/g, '<span class="keyword">$&</span>');
+    }
+}
+
+// ===================================================
+// INITIALIZE ON PAGE LOAD
+// ===================================================
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize industry dropdown
+    populateIndustryDropdown();
+    
+    // If you have a default industry, select it
+    const defaultIndustry = 'general';
+    const industrySelect = document.getElementById('industry-select');
+    if (industrySelect) {
+        industrySelect.value = defaultIndustry;
+        populateConcernsForIndustry(defaultIndustry);
+    }
+    
+    // Initialize code preview
+    updateCodePreview();
+});
+
+// ==============================================
+// NEW: UPDATE CONCERNS BASED ON INDUSTRY
+// ==============================================
+function updateConcernsForIndustry(industrySlug) {
+    const testimonials = window.testimonialData.getIndustryTestimonials(industrySlug);
+    const concernsContainer = document.getElementById('concerns-container');
+    
+    if (!concernsContainer) return;
+    
+    // Clear existing concern checkboxes
+    concernsContainer.innerHTML = '';
+    
+    // Add checkboxes for each concern
+    Object.entries(testimonials.concerns).forEach(([key, concern]) => {
+        const concernId = `concern-${key}`;
+        
+        const concernHTML = `
+        <div class="concern-option">
+            <input type="checkbox" 
+                   id="${concernId}" 
+                   name="concerns" 
+                   value="${key}" 
+                   data-title="${concern.title}"
+                   data-icon="${concern.icon}"
+                   data-video-type="${concern.videoType}"
+                   data-phrases='${JSON.stringify(concern.phrases || [])}'
+                   class="concern-checkbox">
+            <label for="${concernId}">
+                <span class="concern-icon">${concern.icon}</span>
+                <span class="concern-title">${concern.title}</span>
+            </label>
+        </div>
+        `;
+        
+        concernsContainer.innerHTML += concernHTML;
+    });
+    
+    // Add click handlers to concern checkboxes
+    document.querySelectorAll('.concern-checkbox').forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            if (this.checked) {
+                // When checked, show trigger phrase options
+                const phrases = JSON.parse(this.dataset.phrases || '[]');
+                populateTriggerPhrases(phrases);
+            }
+            updateCodePreview();
+        });
+    });
+}
+
+// ==============================================
+// NEW: POPULATE TRIGGER PHRASES DROPDOWN
+// ==============================================
+function populateTriggerPhrases(phrases) {
+    const triggerDropdown = document.getElementById('trigger-dropdown');
+    const triggerSearch = document.getElementById('trigger-search');
+    
+    if (!triggerDropdown || !triggerSearch) return;
+    
+    // Clear existing options
+    triggerDropdown.innerHTML = '';
+    
+    // Add phrase options
+    phrases.forEach(phrase => {
+        const option = document.createElement('div');
+        option.className = 'trigger-option';
+        option.textContent = phrase;
+        option.addEventListener('click', function() {
+            triggerSearch.value = phrase;
+            triggerDropdown.style.display = 'none';
+            updateCodePreview();
+        });
+        triggerDropdown.appendChild(option);
+    });
+    
+    // Show dropdown if there are phrases
+    if (phrases.length > 0 && triggerSearch === document.activeElement) {
+        triggerDropdown.style.display = 'block';
+    }
+}
+
+// ==============================================
+// NEW: INDUSTRY DROPDOWN POPULATION
+// ==============================================
+function populateIndustryDropdown() {
+    const industries = window.testimonialData.getAllIndustries(); // ✅ FIXED
+    const dropdown = document.getElementById('industry-select');
+    
+    if (!dropdown) {
+        console.error('Industry dropdown element not found!');
+        return;
+    }
+    
+    // Clear existing options except first
+    while (dropdown.options.length > 1) {
+        dropdown.remove(1);
+    }
+    
+    // Add all industries
+    industries.forEach(industry => {
+        const option = document.createElement('option');
+        option.value = industry.slug;
+        option.innerHTML = `${industry.icon} ${industry.name}`;
+        dropdown.appendChild(option);
+    });
+    
+    // Add event listener for industry change
+    dropdown.addEventListener('change', function() {
+        const selectedIndustry = this.value;
+        updateConcernsForIndustry(selectedIndustry);
+        updateCodePreview();
+    });
+}
+
+function initializeWithDefaults() {
+    currentData = {
+        industries: {},
+        videos: {},
+        industryKeywords: {},
+        universalConcerns: {
+            price: { title: 'See The ROI Others Achieved', icon: '💰', videoType: 'universal-price', reviews: [] },
+            time: { title: 'For Busy Professionals', icon: '⏰', videoType: 'universal-time', reviews: [] },
+            trust: { title: 'Proven Across Industries', icon: '🤝', videoType: 'universal-trust', reviews: [] }
+        },
+        playerConfig: {
+            desktop: { width: 854, height: 480, top: '50%', left: '50%', borderRadius: '12px' },
+            mobile: { fullscreen: true },
+            overlay: { background: 'rgba(0, 0, 0, 0.5)' },
+            resumeMessage: "I'm sure you can appreciate what similar businesses have achieved..."
+        }
+    };
+    
+    console.log('📄 Initialized with default data structure');
+
+    function deleteCurrentIndustry() {
+    if (!currentIndustry) {
+        showMessage('No industry selected', 'error');
+        return;
+    }
+    
+    const industryName = currentData.industries[currentIndustry].name;
+    
+    if (!confirm(`⚠️ DELETE "${industryName}"?\n\nThis will remove:\n• The industry\n• All its concerns\n• All testimonials\n• Associated keywords\n\nThis cannot be undone!`)) {
+        return;
+    }
+    
+    // Delete industry
+    delete currentData.industries[currentIndustry];
+    delete currentData.industryKeywords[currentIndustry];
+    
+    // Also delete any videos that start with this industry slug
+    Object.keys(currentData.videos).forEach(videoKey => {
+        if (videoKey.startsWith(currentIndustry + '-')) {
+            delete currentData.videos[videoKey];
+        }
+    });
+    
+    currentIndustry = null;
+    document.getElementById('currentIndustryName').textContent = 'None selected';
+    
+    updateIndustryList();
+    updateStats();
+    updateCodePreview();
+    saveAllData();
+    
+    showMessage(`✅ Deleted industry: ${industryName}`, 'success');
+}
+
+function showIndustryManager() {
+    const modalHTML = `
+        <div class="modal" id="industryManagerModal" style="display: flex;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>🔧 Industry Manager</h2>
+                    <button class="close-modal" onclick="closeIndustryManager()">×</button>
+                </div>
+                
+                <div style="max-height: 400px; overflow-y: auto; margin: 20px 0;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: rgba(255,255,255,0.1);">
+                                <th style="padding: 10px; text-align: left;">Icon</th>
+                                <th style="padding: 10px; text-align: left;">Name</th>
+                                <th style="padding: 10px; text-align: left;">Slug</th>
+                                <th style="padding: 10px; text-align: left;">Concerns</th>
+                                <th style="padding: 10px; text-align: left;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="industryManagerList">
+                            <!-- Industries will be listed here -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="btn" onclick="closeIndustryManager()" style="background: #666;">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    const modalContainer = document.createElement('div');
+    modalContainer.innerHTML = modalHTML;
+    document.body.appendChild(modalContainer);
+    
+    // Populate the list
+    populateIndustryManager();
+}
+
+function populateIndustryManager() {
+    const tbody = document.getElementById('industryManagerList');
+    tbody.innerHTML = '';
+    
+    Object.entries(currentData.industries).forEach(([slug, industry]) => {
+        const concernCount = Object.keys(industry.concerns || {}).length;
+        
+        const row = document.createElement('tr');
+        row.style.borderBottom = '1px solid rgba(255,255,255,0.1)';
+        row.innerHTML = `
+            <td style="padding: 10px; font-size: 20px;">${industry.icon}</td>
+            <td style="padding: 10px;">${industry.name}</td>
+            <td style="padding: 10px; font-family: monospace; color: #888;">${slug}</td>
+            <td style="padding: 10px;">${concernCount}</td>
+            <td style="padding: 10px;">
+                <button onclick="editIndustryInManager('${slug}')" style="background: var(--primary); color: white; border: none; padding: 5px 10px; border-radius: 4px; margin-right: 5px; cursor: pointer;">
+                    ✏️ Edit
+                </button>
+                <button onclick="deleteIndustryInManager('${slug}')" style="background: var(--danger); color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">
+                    🗑️ Delete
+                </button>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+function closeIndustryManager() {
+    const modal = document.getElementById('industryManagerModal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+function editIndustryInManager(slug) {
+    closeIndustryManager();
+    selectIndustry(slug);
+    // You could also populate the edit modal here
+}
+
+function deleteIndustryInManager(slug) {
+    if (!confirm(`Delete "${currentData.industries[slug].name}"? This cannot be undone.`)) {
+        return;
+    }
+    
+    delete currentData.industries[slug];
+    delete currentData.industryKeywords[slug];
+    
+    if (currentIndustry === slug) {
+        currentIndustry = null;
+        document.getElementById('currentIndustryName').textContent = 'None selected';
+    }
+    
+    updateIndustryList();
+    updateStats();
+    updateCodePreview();
+    saveAllData();
+    populateIndustryManager(); // Refresh the manager list
+    
+    showMessage(`✅ Deleted industry`, 'success');
+}
+}
+        
+  function updateIndustryList() {
+    console.log('updateIndustryList called');
+    
+    // ⚠️ SCROLL PROTECTION: Save current position
+    const savedScroll = {
+        x: window.scrollX,
+        y: window.scrollY
+    };
+    
+    const list = document.getElementById('industryList');
+    if (!list) {
+        console.error('industryList element not found');
+        return;
+    }
+    
+    // ⚠️ Use document fragment for single reflow
+    const fragment = document.createDocumentFragment();
+    
+    Object.entries(currentData.industries).forEach(([slug, industry]) => {
+        const li = document.createElement('li');
+        li.className = `industry-item ${currentIndustry === slug ? 'active' : ''}`;
+        
+        // ⚠️ Create elements manually instead of innerHTML for better control
+        const iconSpan = document.createElement('span');
+        iconSpan.style.fontSize = '20px';
+        iconSpan.textContent = industry.icon;
+        
+        const contentDiv = document.createElement('div');
+        contentDiv.style.flex = '1';
+        
+        const nameDiv = document.createElement('div');
+        nameDiv.style.fontWeight = '500';
+        nameDiv.textContent = industry.name;
+        
+        const countDiv = document.createElement('div');
+        countDiv.style.fontSize = '11px';
+        countDiv.style.color = '#888';
+        countDiv.textContent = `${Object.keys(industry.concerns || {}).length} concerns`;
+        
+        contentDiv.appendChild(nameDiv);
+        contentDiv.appendChild(countDiv);
+        
+        const editBtn = document.createElement('button');
+        editBtn.className = 'edit-industry-btn';
+        editBtn.dataset.slug = slug;
+        editBtn.style.background = 'transparent';
+        editBtn.style.border = 'none';
+        editBtn.style.color = '#888';
+        editBtn.style.cursor = 'pointer';
+        editBtn.style.padding = '5px';
+        editBtn.style.fontSize = '12px';
+        editBtn.title = 'Edit this industry';
+        editBtn.textContent = '✏️';
+        
+        li.appendChild(iconSpan);
+        li.appendChild(contentDiv);
+        li.appendChild(editBtn);
+        
+        // Click to SELECT industry (main area)
+        li.addEventListener('click', function(e) {
+            // Don't trigger if clicking the edit button
+            if (e.target.classList.contains('edit-industry-btn')) return;
+            
+            e.preventDefault();
+            e.stopPropagation();
+            selectIndustry(slug);
+            return false;
+        });
+        
+        // Edit button handler (small pencil icon)
+        editBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            editIndustry(slug);
+            return false;
+        });
+        
+        fragment.appendChild(li);
+    });
+    
+    // ⚠️ Single DOM update
+    list.innerHTML = '';
+    list.appendChild(fragment);
+    
+    // ⚠️ Restore scroll position
+    requestAnimationFrame(() => {
+        window.scrollTo(savedScroll.x, savedScroll.y);
+    });
+    
+    console.log('Industry list updated with', list.children.length, 'items');
+}
+
+function hideAddIndustryModal() {
+    document.getElementById('addIndustryModal').style.display = 'none';
+    
+    // Reset the form fields
+    document.getElementById('newIndustryName').value = '';
+    document.getElementById('newIndustrySlug').value = '';
+    document.getElementById('newIndustryIcon').value = '🏢';
+    document.getElementById('newIndustryKeywords').value = '';
+    
+    // Reset the modal title if it was changed
+    const modalTitle = document.querySelector('#addIndustryModal h2');
+    if (modalTitle) {
+        modalTitle.textContent = '🏢 Add New Industry';
+    }
+    
+    // Reset the submit button text and handler
+    const submitBtn = document.querySelector('#addIndustryModal .btn-success');
+    if (submitBtn) {
+        submitBtn.textContent = '✅ Add Industry';
+        submitBtn.onclick = function() { addIndustry(); };
+    }
+    
+    console.log('Industry modal closed');
+}
+
+function editIndustry(slug) {
+    console.log('Editing industry:', slug);
+    
+    const industry = currentData.industries[slug];
+    if (!industry) {
+        showMessage('Industry not found', 'error');
+        return;
+    }
+    
+    // Populate the modal with existing data
+    document.getElementById('newIndustryName').value = industry.name;
+    document.getElementById('newIndustrySlug').value = slug;
+    document.getElementById('newIndustryIcon').value = industry.icon;
+    document.getElementById('newIndustryKeywords').value = 
+        (currentData.industryKeywords[slug] || []).join(', ');
+    
+    // Change button to "Update" instead of "Add"
+    const submitBtn = document.querySelector('#addIndustryModal .btn-success');
+    if (submitBtn) {
+        submitBtn.textContent = '✅ Update Industry';
+        submitBtn.onclick = function() { updateIndustry(slug); };
+    }
+    
+    // Store which industry we're editing
+    window.editingIndustry = slug;
+    
+    // Show the modal
+    document.getElementById('addIndustryModal').style.display = 'flex';
+    document.getElementById('newIndustryName').focus();
+}
+
+function updateIndustry(slug) {
+    const name = document.getElementById('newIndustryName').value.trim();
+    const newSlug = document.getElementById('newIndustrySlug').value.trim()
+        .toLowerCase()
+        .replace(/\s+/g, '-')
+        .replace(/[^a-z0-9-]/g, '');
+    const icon = document.getElementById('newIndustryIcon').value.trim();
+    const keywords = document.getElementById('newIndustryKeywords').value
+        .split(',')
+        .map(k => k.trim())
+        .filter(k => k);
+    
+    if (!name || !newSlug) {
+        showMessage('Please enter industry name and slug', 'error');
+        return;
+    }
+    
+    // If slug changed, check if new slug already exists
+    if (newSlug !== slug && currentData.industries[newSlug]) {
+        showMessage(`Slug "${newSlug}" already exists. Choose a different one.`, 'error');
+        return;
+    }
+    
+    // Get the old industry data
+    const oldIndustry = currentData.industries[slug];
+    
+    // If slug changed, we need to move data
+    if (newSlug !== slug) {
+        // 1. Copy industry to new slug
+        currentData.industries[newSlug] = {
+            ...oldIndustry,
+            name: name,
+            icon: icon
+        };
+        
+        // 2. Copy keywords
+        currentData.industryKeywords[newSlug] = keywords;
+        
+        // 3. Update video keys that start with old slug
+        Object.keys(currentData.videos).forEach(videoKey => {
+            if (videoKey.startsWith(slug + '-')) {
+                const newVideoKey = videoKey.replace(slug + '-', newSlug + '-');
+                currentData.videos[newVideoKey] = currentData.videos[videoKey];
+                delete currentData.videos[videoKey];
+            }
+        });
+        
+        // 4. Update concern videoType references
+        if (currentData.industries[newSlug].concerns) {
+            Object.values(currentData.industries[newSlug].concerns).forEach(concern => {
+                if (concern.videoType && concern.videoType.startsWith(slug + '-')) {
+                    concern.videoType = concern.videoType.replace(slug + '-', newSlug + '-');
+                }
+            });
+        }
+        
+        // 5. Delete old industry
+        delete currentData.industries[slug];
+        delete currentData.industryKeywords[slug];
+        
+        // 6. Update currentIndustry if it was this one
+        if (currentIndustry === slug) {
+            currentIndustry = newSlug;
+        }
+        
+    } else {
+        // Just update existing industry
+        currentData.industries[slug].name = name;
+        currentData.industries[slug].icon = icon;
+        currentData.industryKeywords[slug] = keywords;
+    }
+    
+    // Close modal and reset
+    hideAddIndustryModal();
+    updateIndustryList();
+    updateStats();
+    updateCodePreview();
+    saveAllData();
+    
+    showMessage(`✅ Updated industry: ${name}`, 'success');
+    
+    // Reset the button back to "Add"
+    const submitBtn = document.querySelector('#addIndustryModal .btn-success');
+    if (submitBtn) {
+        submitBtn.textContent = '✅ Add Industry';
+        submitBtn.onclick = function() { addIndustry(); };
+    }
+    
+    delete window.editingIndustry;
+}
+
+function selectIndustry(slug) {
+    console.log('selectIndustry called with:', slug);
+    
+    // 1. VALIDATION
+    if (!slug) {
+        console.error('No slug provided');
+        return;
+    }
+    
+    if (!currentData || !currentData.industries) {
+        console.error('Current data not initialized');
+        showMessage('System not initialized properly', 'error');
+        return;
+    }
+    
+    const industry = currentData.industries[slug];
+    if (!industry) {
+        console.error('Industry not found:', slug);
+        showMessage(`Industry "${slug}" not found`, 'error');
+        return;
+    }
+    
+    // 2. UPDATE CURRENT INDUSTRY
+    currentIndustry = slug;
+    
+    // 3. UPDATE UI
+    updateIndustryList(); // This highlights the active item
+    
+    // Update the top display
+    const currentIndustryEl = document.getElementById('currentIndustryName');
+    if (currentIndustryEl) {
+        currentIndustryEl.textContent = `${industry.icon} ${industry.name}`;
+    }
+    
+    // Hide industry select group if shown
+    document.getElementById('industrySelectGroup').style.display = 'none';
+    
+    // 4. UPDATE CONCERN DROPDOWN (MISSING IN YOUR VERSION!)
+    updateConcernDropdown();
+    
+    // 5. UPDATE CODE PREVIEW
+    updateCodePreview();
+    
+    // 6. SHOW SUCCESS MESSAGE
+    showMessage(`✅ Selected: ${industry.name}`, 'success');
+    
+    console.log('Industry selection complete:', industry.name);
+}
+
+// ADD THIS FUNCTION IF IT DOESN'T EXIST:
+function updateConcernDropdown() {
+    const concernSelect = document.getElementById('concernType');
+    if (!concernSelect) return;
+    
+    concernSelect.innerHTML = '<option value="">Select a concern</option>';
+    
+    if (!currentIndustry) return;
+    
+    const industry = currentData.industries[currentIndustry];
+    if (industry && industry.concerns) {
+        Object.keys(industry.concerns).forEach(concernKey => {
+            const concern = industry.concerns[concernKey];
+            const option = document.createElement('option');
+            option.value = concernKey;
+            option.textContent = `${concern.icon} ${concern.title}`;
+            concernSelect.appendChild(option);
+        });
+    }
+    
+    // Add "New Concern" option
+    const newOption = document.createElement('option');
+    newOption.value = 'new';
+    newOption.textContent = '➕ Create New Concern';
+    concernSelect.appendChild(newOption);
+}
+        // ===================================================
+// SUPABASE VIDEO MANAGEMENT
+// ===================================================
+function openSupabaseUploader() {
+    // Open the correct Supabase Storage dashboard URL
+    const supabaseUrl = 'https://supabase.com/dashboard/project/odetjszursuaxpapfwcy/storage/files/buckets/video-avatars';
+    
+    // Open in new tab
+    const newWindow = window.open(supabaseUrl, '_blank');
+    
+    if (!newWindow) {
+        showMessage('❌ Popup blocked! Please allow popups for this site or manually visit: ' + supabaseUrl, 'error');
+        return;
+    }
+    
+    showMessage('📤 Opened Supabase Storage. Upload your video there, then copy the public URL.', 'success');
+    
+    // Provide detailed instructions
+    setTimeout(() => {
+        const instructions = `
+🎬 SUPABASE UPLOAD INSTRUCTIONS:
+
+1. In the new Supabase tab, click the "Upload file" button
+2. Select your testimonial video file (MP4 format works best)
+3. Wait for upload to complete (green checkmark appears)
+4. Find your uploaded file in the list
+5. Click the three dots (...) menu on your file
+6. Select "Get public URL" from the menu
+7. Copy the URL that appears (it should look like this):
+
+   🔗 https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/your-video.mp4
+
+8. Return to this tab and paste the URL in the "Supabase Video URL" field
+9. Click "Test URL" button to preview the video
+10. Fill in the concern details
+11. Click "Add Video Testimonial"
+
+💡 TIP: Name your video files descriptively, like:
+   - personal-injury-case-screening.mp4
+   - mortgage-prequalification.mp4
+   - dental-new-patient.mp4
+        `;
+        
+        // Create a styled instruction modal
+        const instructionModal = document.createElement('div');
+        instructionModal.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--dark);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            border: 2px solid var(--primary);
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            z-index: 10000;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        `;
+        
+        instructionModal.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="color: var(--primary); margin: 0;">📋 Upload Instructions</h3>
+                <button onclick="this.parentElement.parentElement.remove()" style="background: none; border: none; color: white; font-size: 24px; cursor: pointer;">×</button>
+            </div>
+            <div style="line-height: 1.6; color: #ccc;">
+                ${instructions.replace(/\n/g, '<br>')}
+            </div>
+            <div style="margin-top: 20px; text-align: center;">
+                <button onclick="this.parentElement.parentElement.remove()" style="background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer;">
+                    Got it! I'll upload now
+                </button>
+            </div>
+        `;
+        
+        document.body.appendChild(instructionModal);
+    }, 1000);
+}
+        
+        function testVideoUrl() {
+            const urlInput = document.getElementById('videoUrl').value.trim();
+            
+            if (!urlInput) {
+                showMessage('Please enter a video URL', 'error');
+                return;
+            }
+            
+            // Validate URL format
+            if (!urlInput.startsWith('http')) {
+                showMessage('Please enter a valid URL starting with http:// or https://', 'error');
+                return;
+            }
+            
+            // Extract video key from URL
+            const videoKey = extractVideoKeyFromUrl(urlInput);
+            
+            if (!videoKey) {
+                showMessage('Could not extract video key from URL. Make sure it\'s a valid Supabase URL.', 'error');
+                return;
+            }
+            
+            // Show preview
+            const previewVideo = document.getElementById('previewVideo');
+            const videoPreview = document.getElementById('videoPreview');
+            const videoKeyDisplay = document.getElementById('videoKeyDisplay');
+            const videoStatus = document.getElementById('videoStatus');
+            
+            // Test if video loads
+            previewVideo.src = urlInput;
+            previewVideo.load();
+            
+            previewVideo.onloadeddata = () => {
+                videoKeyDisplay.textContent = videoKey;
+                videoStatus.textContent = '✅ Ready to add';
+                videoStatus.style.color = 'var(--success)';
+                videoPreview.style.display = 'block';
+                currentVideoKey = videoKey;
+                
+                // Auto-fill concern name if empty
+                const concernInput = document.getElementById('concernName');
+                if (!concernInput.value.trim()) {
+                    // Try to extract concern from video key
+                    const concernFromKey = videoKey.split('-').slice(1).join('-');
+                    if (concernFromKey) {
+                        concernInput.value = concernFromKey;
+                        
+                        // Also auto-fill title
+                        const titleInput = document.getElementById('concernTitle');
+                        if (!titleInput.value.trim()) {
+                            titleInput.value = concernFromKey.split('-')
+                                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                                .join(' ');
+                        }
+                    }
+                }
+                
+                showMessage(`✅ URL validated! Video key: ${videoKey}`, 'success');
+            };
+            
+            previewVideo.onerror = () => {
+                videoStatus.textContent = '❌ Video failed to load';
+                videoStatus.style.color = 'var(--danger)';
+                videoPreview.style.display = 'block';
+                showMessage('⚠️ URL is valid but video failed to load. Check if the file is public in Supabase.', 'warning');
+            };
+        }
+        
+        function extractVideoKeyFromUrl(url) {
+            try {
+                const urlObj = new URL(url);
+                const pathParts = urlObj.pathname.split('/');
+                const filename = pathParts[pathParts.length - 1];
+                
+                if (!filename) {
+                    return null;
+                }
+                
+                // Remove extension
+                const withoutExt = filename.replace(/\.[^/.]+$/, '');
+                
+                // Clean up common patterns
+                const cleanKey = withoutExt
+                    .replace(/^video_avatar_/, '')
+                    .replace(/^testimonial_/, '')
+                    .replace(/_\d+$/, '') // Remove timestamps
+                    .replace(/[^a-zA-Z0-9-]/g, '-') // Replace special chars with hyphens
+                    .replace(/-+/g, '-') // Remove multiple hyphens
+                    .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
+                
+                return cleanKey || 'video-testimonial';
+            } catch (e) {
+                console.error('Error parsing URL:', e);
+                return null;
+            }
+        }
+        
+        // ===================================================
+        // TESTIMONIAL MANAGEMENT
+        // ===================================================
+        function addVideoTestimonial() {
+            const concernName = document.getElementById('concernName').value.trim();
+            const concernTitle = document.getElementById('concernTitle').value.trim();
+            const concernIcon = document.getElementById('concernIcon').value.trim() || '🎯';
+            const videoUrl = document.getElementById('videoUrl').value.trim();
+            const textTestimonial = document.getElementById('textTestimonial').value.trim();
+            const authorName = document.getElementById('authorName').value.trim();
+            
+            // Determine which industry to use
+            let targetIndustry = currentIndustry;
+            
+            // If no industry selected, show dropdown
+            if (!targetIndustry) {
+                document.getElementById('industrySelectGroup').style.display = 'block';
+                updateIndustryDropdown();
+                showMessage('Please select an industry first', 'error');
+                return;
+            }
+            
+            // Validate required fields
+            if (!concernName) {
+                showMessage('Please enter a concern name', 'error');
+                document.getElementById('concernName').focus();
+                return;
+            }
+            
+            if (!concernTitle) {
+                showMessage('Please enter a concern title', 'error');
+                document.getElementById('concernTitle').focus();
+                return;
+            }
+            
+            if (!videoUrl) {
+                showMessage('Please enter a video URL', 'error');
+                document.getElementById('videoUrl').focus();
+                return;
+            }
+            
+            const concernKey = concernName.toLowerCase()
+                .replace(/\s+/g, '-')
+                .replace(/[^a-z0-9-]/g, '');
+            
+            // Use extracted video key or generate one
+            const videoKey = currentVideoKey || `${targetIndustry}-${concernKey}`;
+            
+            // Ensure industry exists in data
+            if (!currentData.industries[targetIndustry]) {
+                showMessage(`Industry "${targetIndustry}" not found in data`, 'error');
+                return;
+            }
+            
+            // Ensure industry has concerns object
+            if (!currentData.industries[targetIndustry].concerns) {
+                currentData.industries[targetIndustry].concerns = {};
+            }
+            
+            // Create or update concern
+            if (!currentData.industries[targetIndustry].concerns[concernKey]) {
+                currentData.industries[targetIndustry].concerns[concernKey] = {
+                    title: concernTitle,
+                    icon: concernIcon,
+                    videoType: videoKey,
+                    reviews: []
+                };
+            } else {
+                // Update existing concern
+                currentData.industries[targetIndustry].concerns[concernKey].title = concernTitle;
+                currentData.industries[targetIndustry].concerns[concernKey].icon = concernIcon;
+                currentData.industries[targetIndustry].concerns[concernKey].videoType = videoKey;
+            }
+            
+            // Add video URL to videos object
+            currentData.videos[videoKey] = videoUrl;
+            
+            // Add text testimonial if provided
+            if (textTestimonial && authorName) {
+                currentData.industries[targetIndustry].concerns[concernKey].reviews.push({
+                    text: textTestimonial,
+                    author: authorName
+                });
+            }
+            
+            // Clear form
+            clearForm();
+            
+            // Update displays
+            updateCodePreview();
+            updateStats();
+            showMessage(`✅ Added video testimonial to ${currentData.industries[targetIndustry].name}`, 'success');
+            saveAllData();
+        }
+        
+        function addTextOnlyTestimonial() {
+            const concernName = document.getElementById('concernName').value.trim();
+            const concernTitle = document.getElementById('concernTitle').value.trim();
+            const concernIcon = document.getElementById('concernIcon').value.trim() || '💬';
+            const textTestimonial = document.getElementById('textTestimonial').value.trim();
+            const authorName = document.getElementById('authorName').value.trim();
+            
+            // Determine which industry to use
+            let targetIndustry = currentIndustry;
+            
+            if (!targetIndustry) {
+                document.getElementById('industrySelectGroup').style.display = 'block';
+                updateIndustryDropdown();
+                showMessage('Please select an industry first', 'error');
+                return;
+            }
+            
+            // Validate required fields
+            if (!concernName || !concernTitle || !textTestimonial || !authorName) {
+                showMessage('Please fill in all fields for text testimonial', 'error');
+                return;
+            }
+            
+            const concernKey = concernName.toLowerCase()
+                .replace(/\s+/g, '-')
+                .replace(/[^a-z0-9-]/g, '');
+            
+            // Ensure industry exists
+            if (!currentData.industries[targetIndustry]) {
+                showMessage(`Industry "${targetIndustry}" not found`, 'error');
+                return;
+            }
+            
+            // Ensure industry has concerns object
+            if (!currentData.industries[targetIndustry].concerns) {
+                currentData.industries[targetIndustry].concerns = {};
+            }
+            
+            // Create or update concern
+            if (!currentData.industries[targetIndustry].concerns[concernKey]) {
+                currentData.industries[targetIndustry].concerns[concernKey] = {
+                    title: concernTitle,
+                    icon: concernIcon,
+                    videoType: '', // No video for text-only
+                    reviews: []
+                };
+            }
+            
+                        // Add text testimonial
+            currentData.industries[targetIndustry].concerns[concernKey].reviews.push({
+                text: textTestimonial,
+                author: authorName
+            });
+            
+            // Clear form
+            clearForm();
+            
+            // Update displays
+            updateCodePreview();
+            updateStats();
+            showMessage(`✅ Added text testimonial to ${currentData.industries[targetIndustry].name}`, 'success');
+            saveAllData();
+        }
+        
+        function clearForm() {
+            document.getElementById('concernName').value = '';
+            document.getElementById('concernTitle').value = '';
+            document.getElementById('concernIcon').value = '🎯';
+            document.getElementById('videoUrl').value = '';
+            document.getElementById('textTestimonial').value = '';
+            document.getElementById('authorName').value = '';
+            document.getElementById('videoPreview').style.display = 'none';
+            currentVideoKey = null;
+        }
+        
+        function updateIndustryDropdown() {
+            const dropdown = document.getElementById('selectIndustryDropdown');
+            dropdown.innerHTML = '<option value="">-- Select Industry --</option>';
+            
+            Object.entries(currentData.industries).forEach(([slug, industry]) => {
+                const option = document.createElement('option');
+                option.value = slug;
+                option.textContent = `${industry.icon} ${industry.name}`;
+                dropdown.appendChild(option);
+            });
+        }
+        
+        // ===================================================
+        // CODE GENERATION & EXPORT
+        // ===================================================
+        function updateCodePreview() {
+            const codeOutput = document.getElementById('codeOutput');
+            
+            // Create clean export data
+            const exportData = {
+                industries: JSON.parse(JSON.stringify(currentData.industries)),
+                videos: currentData.videos,
+                universalConcerns: currentData.universalConcerns,
+                industryKeywords: currentData.industryKeywords,
+                playerConfig: currentData.playerConfig
+            };
+            
+            // Generate the JS code
+            const jsCode = generateJSCode(exportData);
+            codeOutput.textContent = jsCode;
+            
+            // Simple syntax highlighting
+            const highlighted = jsCode
+                .replace(/("[^"]*":)/g, '<span style="color: #569CD6;">$1</span>')
+                .replace(/(true|false|null|undefined)/g, '<span style="color: #569CD6;">$1</span>')
+                .replace(/(\d+)/g, '<span style="color: #B5CEA8;">$1</span>')
+                .replace(/("[^"]*")/g, '<span style="color: #CE9178;">$1</span>')
+                .replace(/(\/\/.*$)/gm, '<span style="color: #6A9955;">$1</span>');
+            
+            codeOutput.innerHTML = highlighted;
+        }
+        
+        function generateJSCode(data) {
+            const date = new Date().toLocaleString();
+            return `// ===================================================
+// 🎯 MOBILE-WISE AI TESTIMONIALS DATA
+// Generated: ${date}
+// Total Industries: ${Object.keys(data.industries).length}
+// Total Videos: ${Object.keys(data.videos).length}
+// ===================================================
+
+window.testimonialData = ${JSON.stringify(data, null, 2)};
+
+console.log('✅ Testimonials Data Loaded:', Object.keys(window.testimonialData.industries).length, 'industries');
+console.log('🎬 Videos Available:', Object.keys(window.testimonialData.videos).length);
+console.log('🏢 Industry Keywords:', Object.keys(window.testimonialData.industryKeywords).length);`;
+        }
+        
+        function copyCode() {
+            const exportData = {
+                industries: JSON.parse(JSON.stringify(currentData.industries)),
+                videos: currentData.videos,
+                universalConcerns: currentData.universalConcerns,
+                industryKeywords: currentData.industryKeywords,
+                playerConfig: currentData.playerConfig
+            };
+            
+            const code = generateJSCode(exportData);
+            
+            navigator.clipboard.writeText(code)
+                .then(() => showMessage('✅ Code copied to clipboard!', 'success'))
+                .catch(err => {
+                    // Fallback for older browsers
+                    const textarea = document.createElement('textarea');
+                    textarea.value = code;
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textarea);
+                    showMessage('✅ Code copied to clipboard!', 'success');
+                });
+        }
+        
+        function downloadJSFile() {
+            const exportData = {
+                industries: JSON.parse(JSON.stringify(currentData.industries)),
+                videos: currentData.videos,
+                universalConcerns: currentData.universalConcerns,
+                industryKeywords: currentData.industryKeywords,
+                playerConfig: currentData.playerConfig
+            };
+            
+            const code = generateJSCode(exportData);
+            const blob = new Blob([code], { type: 'application/javascript' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'testimonials-data.js';
+            a.style.display = 'none';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showMessage('✅ testimonials-data.js downloaded!', 'success');
+        }
+        
+        // ===================================================
+        // UTILITY FUNCTIONS
+        // ===================================================
+        function updateStats() {
+    // Safely get counts with null checks
+    const industries = Object.keys(currentData.industries || {}).length;
+    const videos = Object.keys(currentData.videos || {}).length;
+    
+    let concerns = 0;
+    let testimonials = 0;
+    
+    // Safely iterate through industries
+    if (currentData.industries) {
+        Object.values(currentData.industries).forEach(industry => {
+            if (industry && industry.concerns) {
+                concerns += Object.keys(industry.concerns).length;
+                
+                // Safely count testimonials
+                Object.values(industry.concerns).forEach(concern => {
+                    if (concern && concern.reviews) {
+                        testimonials += concern.reviews.length;
+                    }
+                });
+            }
+        });
+    }
+    
+    // Add universal concerns testimonials
+    if (currentData.universalConcerns) {
+        Object.values(currentData.universalConcerns).forEach(concern => {
+            if (concern && concern.reviews) {
+                testimonials += concern.reviews.length;
+            }
+        });
+    }
+    
+    // Update the display
+    document.getElementById('statIndustries').textContent = industries;
+    document.getElementById('statVideos').textContent = videos;
+    document.getElementById('statConcerns').textContent = concerns;
+    document.getElementById('statTestimonials').textContent = testimonials;
+}
+        
+        function showMessage(text, type) {
+            const messageEl = document.getElementById(`${type}Message`);
+            
+            messageEl.textContent = text;
+            messageEl.className = `status-message status-${type}`;
+            messageEl.style.display = 'block';
+            
+            // Scroll to message
+            messageEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            
+            // Auto-hide success/warning messages
+            if (type !== 'error') {
+                setTimeout(() => {
+                    messageEl.style.display = 'none';
+                }, 4000);
+            }
+        }
+        
+        function saveAllData() {
+            try {
+                localStorage.setItem('testimonialData', JSON.stringify(currentData));
+                console.log('💾 Data saved to localStorage');
+                return true;
+            } catch (e) {
+                console.error('Error saving data:', e);
+                showMessage('⚠️ Could not save to localStorage. Data may be too large.', 'warning');
+                return false;
+            }
+        }
+        
+        function loadSampleData() {
+            if (!confirm('Load sample data? This will replace your current data.')) return;
+            
+            currentData = {
+                industries: {
+                    'personal-injury': {
+                        name: 'Personal Injury Attorneys',
+                        icon: '⚖️',
+                        concerns: {
+                            'case-screening': {
+                                title: 'From Intake to High-Value Case',
+                                icon: '📋',
+                                videoType: 'pi-case-screening',
+                                reviews: [
+                                    { text: "Automated screening saved us 15 hours/week on non-viable cases", author: "Mark L., PI Attorney" },
+                                    { text: "Our case acceptance rate improved from 12% to 35%", author: "Sarah J., Law Firm Partner" }
+                                ]
+                            },
+                            'lead-response': {
+                                title: 'Capture Leads Before Competitors',
+                                icon: '⚡',
+                                videoType: 'pi-lead-response',
+                                reviews: [
+                                    { text: "Now responding to web leads in 47 seconds vs. 22 minutes", author: "Jessica W., Intake Director" }
+                                ]
+                            }
+                        }
+                    },
+                    'mortgage-lenders': {
+                        name: 'Mortgage Lenders',
+                        icon: '🏠',
+                        concerns: {
+                            'pre-qualification': {
+                                title: 'From Forms to Funded Loans',
+                                icon: '📊',
+                                videoType: 'mortgage-prequal',
+                                reviews: [
+                                    { text: "Converted 42% more website visitors into pre-qualified leads", author: "Brian S., Loan Officer" },
+                                    { text: "Eliminated 90% of 'not qualified' appointments before they booked", author: "Tom R., Mortgage Broker" }
+                                ]
+                            }
+                        }
+                    }
+                },
+                videos: {
+                    'pi-case-screening': 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/pi-case-screening.mp4',
+                    'pi-lead-response': 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/pi-lead-response.mp4',
+                    'mortgage-prequal': 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/mortgage-prequal.mp4',
+                    'universal-price': 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/universal-price.mp4',
+                    'universal-time': 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/universal-time.mp4',
+                    'universal-trust': 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/universal-trust.mp4'
+                },
+                universalConcerns: currentData.universalConcerns,
+                industryKeywords: {
+                    'personal-injury': ['attorney', 'lawyer', 'accident', 'injury', 'legal', 'case', 'settlement', 'pi'],
+                    'mortgage-lenders': ['mortgage', 'loan', 'lender', 'refinance', 'rate', 'home loan', 'pre-approval', 'financing']
+                },
+                playerConfig: currentData.playerConfig
+            };
+            
+            updateIndustryList();
+            updateStats();
+            updateCodePreview();
+            showMessage('✅ Sample data loaded! Select an industry to start editing.', 'success');
+            saveAllData();
+        }
+
+        
+        // ===================================================
+        // EVENT LISTENERS & INITIALIZATION
+        // ===================================================
+        
+        // Listen for URL paste events
+        document.getElementById('videoUrl').addEventListener('paste', function(e) {
+            // Auto-test URL after paste
+            setTimeout(() => {
+                if (this.value.trim()) {
+                    testVideoUrl();
+                }
+            }, 100);
+        });
+        
+        // Auto-save when leaving page
+        window.addEventListener('beforeunload', function(e) {
+            if (Object.keys(currentData.industries).length > 0) {
+                saveAllData();
+            }
+        });
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initialize();
+            
+            // Auto-save every 30 seconds
+            setInterval(() => {
+                if (Object.keys(currentData.industries).length > 0) {
+                    saveAllData();
+                }
+            }, 30000);
+
+            // Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    // Populate industry dropdown
+    populateIndustryDropdown();
+    
+    // Initialize with first industry
+    const initialIndustry = document.getElementById('industry-select').value;
+    updateConcernsForIndustry(initialIndustry);
+
+    document.getElementById('editIndustryBtn').addEventListener('click', editCurrentIndustry);
+    
+    // Add event listener for trigger search field
+    const triggerSearch = document.getElementById('trigger-search');
+    if (triggerSearch) {
+        triggerSearch.addEventListener('focus', function() {
+            // Get selected concerns
+            const selectedConcerns = Array.from(
+                document.querySelectorAll('.concern-checkbox:checked')
+            );
+            
+            if (selectedConcerns.length > 0) {
+                // Get phrases from first selected concern
+                const phrases = JSON.parse(selectedConcerns[0].dataset.phrases || '[]');
+                populateTriggerPhrases(phrases);
+            }
+        });
+        
+        triggerSearch.addEventListener('input', function() {
+            // You can add search/filter logic here if needed
+            const dropdown = document.getElementById('trigger-dropdown');
+            if (dropdown) {
+                dropdown.style.display = this.value ? 'block' : 'none';
+            }
+        });
+    }
+});
+            
+            console.log('🚀 Testimonial Manager PRO initialized!');
+            console.log('📝 Instructions:');
+            console.log('1. Select or add an industry');
+            console.log('2. Paste Supabase video URL');
+            console.log('3. Fill in concern details');
+            console.log('4. Click "Add Video Testimonial"');
+            console.log('5. Download the JS file when ready');
+        });
+
+// ===================================================
+// DEBUG: BUTTON CLICK DIAGNOSTICS
+// ===================================================
+function diagnoseButtonIssues() {
+    console.log('🔍 STARTING BUTTON DIAGNOSTIC...');
+    
+    // Track all buttons
+    document.querySelectorAll('button').forEach((btn, index) => {
+        const originalClick = btn.onclick;
+        
+        btn.addEventListener('click', function(e) {
+            console.log('====== BUTTON CLICK DIAGNOSTIC ======');
+            console.log(`1. Button ID: ${this.id || 'no-id'}`);
+            console.log(`2. Button Class: ${this.className}`);
+            console.log(`3. Button Text: ${this.textContent.trim()}`);
+            console.log(`4. Button Type: ${this.type}`);
+            console.log(`5. Page Height Before: ${document.body.scrollHeight}px`);
+            console.log(`6. Scroll Position Before: ${window.scrollY}px`);
+            console.log(`7. Is Form Button: ${this.closest('form') ? 'YES' : 'NO'}`);
+            console.log(`8. Has preventDefault: ${e.defaultPrevented ? 'YES' : 'NO'}`);
+            
+            // Check for common issues
+            setTimeout(() => {
+                console.log(`9. Page Height After: ${document.body.scrollHeight}px`);
+                console.log(`10. Scroll Position After: ${window.scrollY}px`);
+                console.log(`11. URL Hash: ${window.location.hash}`);
+                console.log(`12. Active Element: ${document.activeElement.tagName}`);
+                
+                // Check for auto-focus elements
+                const focused = document.querySelector(':focus');
+                if (focused && focused !== this) {
+                    console.log(`⚠️  AUTO-FOCUS DETECTED on: ${focused.tagName}#${focused.id}`);
+                }
+                
+                // Check for hash/anchor jumps
+                if (window.location.hash) {
+                    console.log(`⚠️  HASH JUMP DETECTED: ${window.location.hash}`);
+                    const target = document.querySelector(window.location.hash);
+                    if (target) {
+                        console.log(`Target position: ${target.getBoundingClientRect().top}px from top`);
+                    }
+                }
+            }, 100);
+            
+            // If it's a form submit button, check the form
+            if (this.type === 'submit' || this.getAttribute('type') === 'submit') {
+                const form = this.closest('form');
+                if (form) {
+                    console.log(`13. Form Action: ${form.action || 'none'}`);
+                    console.log(`14. Form Method: ${form.method || 'GET'}`);
+                    console.log(`15. Form has validation: ${form.checkValidity ? 'YES' : 'NO'}`);
+                }
+            }
+        }, true); // Use capture phase to catch early
+    });
+    
+    // Also track form submissions
+    document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            console.log('📝 FORM SUBMIT DIAGNOSTIC');
+            console.log(`Form ID: ${this.id || 'no-id'}`);
+            console.log(`Default prevented: ${e.defaultPrevented}`);
+            console.log(`Validation: ${this.checkValidity() ? 'VALID' : 'INVALID'}`);
+        });
+    });
+    
+    console.log(`✅ Tracking ${document.querySelectorAll('button').length} buttons`);
+}
+
+// Run diagnostics when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    diagnoseButtonIssues();
+    
+    // Also add a scroll listener to detect jumps
+    let lastScroll = window.scrollY;
+    window.addEventListener('scroll', function() {
+        if (Math.abs(window.scrollY - lastScroll) > 100) {
+            console.log(`🚨 SUDDEN SCROLL JUMP: ${lastScroll}px → ${window.scrollY}px`);
+            console.log('Call stack:', new Error().stack);
+        }
+        lastScroll = window.scrollY;
+    });
+});
+
+// Add CSS to highlight problematic elements
+const style = document.createElement('style');
+style.textContent = `
+    .debug-highlight {
+        outline: 3px solid red !important;
+        background-color: rgba(255,0,0,0.1) !important;
+    }
+    .debug-form {
+        outline: 3px solid blue !important;
+    }
+`;
+document.head.appendChild(style);
+
+    </script>
+</body>
+</html>
