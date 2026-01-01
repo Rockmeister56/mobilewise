@@ -3,76 +3,448 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MobileWise AI | Client Dashboard</title>
-    <link rel="stylesheet" href="dashboard.css">
+    <title>MobileWise AI | Client Portal</title>
+    
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Dashboard CSS -->
+    <link rel="stylesheet" href="css/dashboard-hub.css">
+    
+    <!-- Favicon -->
     <link rel="icon" type="image/png" href="assets/mobilewise-owl.png">
 </head>
-<body class="login-page">
-    <div class="login-container">
-        <!-- MobileWise Branding -->
-        <div class="brand-header">
-            <img src="assets/mobilewise-owl.png" alt="MobileWise Owl" class="owl-logo">
-            <h1>MobileWise AI</h1>
-            <p class="tagline">24/7 AI Sales Rep | $0.40/day</p>
-        </div>
-        
-        <!-- Login Form -->
-        <div class="login-card">
-            <h2>Client Analytics Dashboard</h2>
-            <p class="login-subtitle">Track your AI performance in real-time</p>
+<body>
+    <!-- Top Navigation -->
+    <nav class="top-nav">
+        <div class="nav-container">
+            <div class="nav-left">
+                <a href="index.html" class="logo">
+                    <img src="assets/mobilewise-owl.png" alt="MobileWise AI">
+                    <span class="logo-text">MobileWise AI</span>
+                </a>
+            </div>
             
-            <form id="loginForm">
-                <div class="form-group">
-                    <label for="clientId">Client ID</label>
-                    <input type="text" id="clientId" placeholder="e.g., johnhoward" required>
+            <div class="nav-center">
+                <div class="nav-menu">
+                    <a href="index.html" class="nav-link active">
+                        <i class="fas fa-home"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="dashboard.html" class="nav-link">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>Analytics</span>
+                    </a>
+                    <a href="testimonial-management-system.html" class="nav-link">
+                        <i class="fas fa-video"></i>
+                        <span>Testimonials</span>
+                    </a>
+                    <div class="nav-dropdown">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-tools"></i>
+                            <span>More Tools</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </a>
+                        <div class="dropdown-menu">
+                            <a href="smart-banners.html" class="dropdown-item">
+                                <i class="fas fa-ad"></i>
+                                Smart Banners
+                                <span class="badge coming-soon">Soon</span>
+                            </a>
+                            <a href="knowledge-base.html" class="dropdown-item">
+                                <i class="fas fa-brain"></i>
+                                Knowledge Base
+                                <span class="badge coming-soon">Soon</span>
+                            </a>
+                            <a href="settings.html" class="dropdown-item">
+                                <i class="fas fa-cog"></i>
+                                Settings
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="nav-right">
+                <div class="user-menu">
+                    <div class="user-avatar" id="userAvatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="user-info">
+                        <span class="user-name" id="userName">Loading...</span>
+                        <span class="user-plan" id="userPlan">Premium Client</span>
+                    </div>
+                    <div class="user-dropdown">
+                        <a href="profile.html" class="dropdown-item">
+                            <i class="fas fa-user-circle"></i>
+                            My Profile
+                        </a>
+                        <a href="billing.html" class="dropdown-item">
+                            <i class="fas fa-credit-card"></i>
+                            Billing
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item logout-btn" id="logoutBtn">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Logout
+                        </a>
+                    </div>
                 </div>
                 
-                <div class="form-group">
-                    <label for="apiKey">API Key</label>
-                    <input type="password" id="apiKey" placeholder="Enter your API key" required>
-                </div>
-                
-                <button type="submit" class="btn-login">
-                    <span class="btn-icon">🔐</span>
-                    Access Analytics Dashboard
+                <button class="notifications-btn" id="notificationsBtn">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-count">3</span>
                 </button>
-                
-                <div class="login-help">
-                    <p>Need access? Contact your MobileWise AI representative.</p>
-                    <p><strong>Demo Access:</strong> Use client ID: <code>demo</code> with any API key</p>
-                </div>
-            </form>
+            </div>
         </div>
-        
-        <!-- Features Preview -->
-        <div class="features-grid">
-            <div class="feature">
-                <div class="feature-icon">🤖</div>
-                <h3>AI Engagement Tracking</h3>
-                <p>See exactly how many visitors engage with your AI assistant</p>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Welcome Section -->
+        <section class="welcome-section">
+            <div class="welcome-container">
+                <h1 class="welcome-title">Welcome to Your AI Marketing Hub</h1>
+                <p class="welcome-subtitle">Everything you need to manage your 24/7 AI sales assistant</p>
+                
+                <div class="welcome-stats">
+                    <div class="stat-item">
+                        <div class="stat-icon">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="stat-details">
+                            <span class="stat-value" id="aiEngagements">1,847</span>
+                            <span class="stat-label">AI Engagements Today</span>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <div class="stat-details">
+                            <span class="stat-value" id="estimatedROI">$8,420</span>
+                            <span class="stat-label">Estimated Monthly ROI</span>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-details">
+                            <span class="stat-value" id="timeSaved">127</span>
+                            <span class="stat-label">Hours Saved This Month</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tools Grid -->
+        <section class="tools-section">
+            <div class="section-header">
+                <h2><i class="fas fa-th-large"></i> Your Marketing Tools</h2>
+                <p class="section-subtitle">Access all your AI-powered marketing tools from one place</p>
             </div>
             
-            <div class="feature">
-                <div class="feature-icon">🎤</div>
-                <h3>Voice Conversation Analytics</h3>
-                <p>Track conversation length, quality, and outcomes</p>
+            <div class="tools-grid">
+                <!-- Analytics Tool -->
+                <div class="tool-card primary">
+                    <div class="tool-header">
+                        <div class="tool-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="tool-badge">
+                            <span class="badge live">Live Data</span>
+                        </div>
+                    </div>
+                    <div class="tool-content">
+                        <h3 class="tool-title">Analytics Dashboard</h3>
+                        <p class="tool-description">
+                            Track real-time performance, conversions, and ROI of your AI assistant.
+                            See what's working and optimize your strategy.
+                        </p>
+                        <div class="tool-stats">
+                            <div class="tool-stat">
+                                <i class="fas fa-eye"></i>
+                                <span>1.8K views today</span>
+                            </div>
+                            <div class="tool-stat">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>+12% this week</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tool-footer">
+                        <a href="dashboard.html" class="tool-btn">
+                            <i class="fas fa-external-link-alt"></i>
+                            Open Analytics
+                        </a>
+                        <div class="tool-meta">
+                            <i class="fas fa-clock"></i>
+                            Updated 5 min ago
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Testimonial Manager -->
+                <div class="tool-card success">
+                    <div class="tool-header">
+                        <div class="tool-icon">
+                            <i class="fas fa-video"></i>
+                        </div>
+                        <div class="tool-badge">
+                            <span class="badge featured">Featured</span>
+                        </div>
+                    </div>
+                    <div class="tool-content">
+                        <h3 class="tool-title">Testimonial Manager</h3>
+                        <p class="tool-description">
+                            Create, manage, and deploy AI-powered video testimonials that convert.
+                            Add trigger phrases and track performance.
+                        </p>
+                        <div class="tool-stats">
+                            <div class="tool-stat">
+                                <i class="fas fa-film"></i>
+                                <span id="testimonialCount">12 active</span>
+                            </div>
+                            <div class="tool-stat">
+                                <i class="fas fa-play-circle"></i>
+                                <span>892 plays today</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tool-footer">
+                        <a href="testimonial-management-system.html" class="tool-btn">
+                            <i class="fas fa-external-link-alt"></i>
+                            Manage Testimonials
+                        </a>
+                        <div class="tool-meta">
+                            <i class="fas fa-bolt"></i>
+                            AI-Powered
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Smart Banners -->
+                <div class="tool-card warning">
+                    <div class="tool-header">
+                        <div class="tool-icon">
+                            <i class="fas fa-ad"></i>
+                        </div>
+                        <div class="tool-badge">
+                            <span class="badge coming-soon">Coming Soon</span>
+                        </div>
+                    </div>
+                    <div class="tool-content">
+                        <h3 class="tool-title">Smart Banners</h3>
+                        <p class="tool-description">
+                            Create intelligent banners that adapt to user behavior.
+                            AI-powered targeting and conversion optimization.
+                        </p>
+                        <div class="tool-stats">
+                            <div class="tool-stat">
+                                <i class="fas fa-wrench"></i>
+                                <span>In development</span>
+                            </div>
+                            <div class="tool-stat">
+                                <i class="fas fa-calendar"></i>
+                                <span>Launch: Q2 2024</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tool-footer">
+                        <a href="smart-banners.html" class="tool-btn disabled">
+                            <i class="fas fa-lock"></i>
+                            Coming Soon
+                        </a>
+                        <div class="tool-meta">
+                            <i class="fas fa-hourglass-half"></i>
+                            Beta testing soon
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Knowledge Base -->
+                <div class="tool-card info">
+                    <div class="tool-header">
+                        <div class="tool-icon">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <div class="tool-badge">
+                            <span class="badge coming-soon">Coming Soon</span>
+                        </div>
+                    </div>
+                    <div class="tool-content">
+                        <h3 class="tool-title">Knowledge Base</h3>
+                        <p class="tool-description">
+                            Train your AI with industry-specific knowledge.
+                            Improve responses and handle complex queries.
+                        </p>
+                        <div class="tool-stats">
+                            <div class="tool-stat">
+                                <i class="fas fa-book"></i>
+                                <span>Training module</span>
+                            </div>
+                            <div class="tool-stat">
+                                <i class="fas fa-graduation-cap"></i>
+                                <span>AI Learning</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tool-footer">
+                        <a href="knowledge-base.html" class="tool-btn disabled">
+                            <i class="fas fa-lock"></i>
+                            Coming Soon
+                        </a>
+                        <div class="tool-meta">
+                            <i class="fas fa-hourglass-half"></i>
+                            In development
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Quick Actions -->
+                <div class="tool-card dark">
+                    <div class="tool-header">
+                        <div class="tool-icon">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                    </div>
+                    <div class="tool-content">
+                        <h3 class="tool-title">Quick Actions</h3>
+                        <p class="tool-description">
+                            Frequently used actions and shortcuts to save you time.
+                        </p>
+                        <div class="quick-actions">
+                            <button class="quick-btn" onclick="window.open('dashboard.html', '_blank')">
+                                <i class="fas fa-chart-pie"></i>
+                                View Report
+                            </button>
+                            <button class="quick-btn" onclick="window.open('testimonial-management-system.html#add', '_blank')">
+                                <i class="fas fa-plus-circle"></i>
+                                Add Testimonial
+                            </button>
+                            <button class="quick-btn" onclick="exportData()">
+                                <i class="fas fa-download"></i>
+                                Export Data
+                            </button>
+                            <button class="quick-btn" onclick="refreshAll()">
+                                <i class="fas fa-sync-alt"></i>
+                                Refresh All
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Support & Help -->
+                <div class="tool-card light">
+                    <div class="tool-header">
+                        <div class="tool-icon">
+                            <i class="fas fa-life-ring"></i>
+                        </div>
+                    </div>
+                    <div class="tool-content">
+                        <h3 class="tool-title">Support & Resources</h3>
+                        <p class="tool-description">
+                            Get help, access documentation, and contact support.
+                        </p>
+                        <div class="support-links">
+                            <a href="https://docs.mobilewise.ai" target="_blank" class="support-link">
+                                <i class="fas fa-book-open"></i>
+                                Documentation
+                            </a>
+                            <a href="mailto:support@mobilewise.ai" class="support-link">
+                                <i class="fas fa-envelope"></i>
+                                Contact Support
+                            </a>
+                            <a href="https://status.mobilewise.ai" target="_blank" class="support-link">
+                                <i class="fas fa-server"></i>
+                                System Status
+                            </a>
+                            <a href="https://community.mobilewise.ai" target="_blank" class="support-link">
+                                <i class="fas fa-users"></i>
+                                Community
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Recent Activity -->
+        <section class="activity-section">
+            <div class="section-header">
+                <h2><i class="fas fa-history"></i> Recent Activity</h2>
+                <button class="view-all-btn" onclick="viewAllActivity()">
+                    View All Activity
+                    <i class="fas fa-arrow-right"></i>
+                </button>
             </div>
             
-            <div class="feature">
-                <div class="feature-icon">📺</div>
-                <h3>Testimonial Performance</h3>
-                <p>Monitor which testimonials convert best</p>
+            <div class="activity-feed" id="activityFeed">
+                <!-- Activity items will be loaded here -->
+                <div class="activity-loading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <span>Loading recent activity...</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="dashboard-footer">
+        <div class="footer-container">
+            <div class="footer-left">
+                <div class="footer-logo">
+                    <img src="assets/mobilewise-owl.png" alt="MobileWise AI" width="24">
+                    <span>MobileWise AI</span>
+                </div>
+                <p class="footer-tagline">24/7 AI Sales Assistant | $0.40/day</p>
             </div>
             
-            <div class="feature">
-                <div class="feature-icon">🚀</div>
-                <h3>Action Center ROI</h3>
-                <p>Measure conversions from each contact button</p>
+            <div class="footer-center">
+                <div class="system-status">
+                    <div class="status-indicator active">
+                        <i class="fas fa-circle"></i>
+                        All Systems Operational
+                    </div>
+                    <div class="last-updated">
+                        Last updated: <span id="currentTime">Loading...</span>
+                    </div>
+                </div>
             </div>
+            
+            <div class="footer-right">
+                <div class="footer-links">
+                    <a href="privacy.html">Privacy Policy</a>
+                    <a href="terms.html">Terms of Service</a>
+                    <a href="https://mobilewise.ai">Website</a>
+                    <a href="mailto:contact@mobilewise.ai">Contact</a>
+                </div>
+                <div class="version-info">
+                    v2.1.0 • © 2024 MobileWise AI
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Notifications Panel (Hidden) -->
+    <div class="notifications-panel" id="notificationsPanel">
+        <div class="notifications-header">
+            <h3><i class="fas fa-bell"></i> Notifications</h3>
+            <button class="close-notifications" id="closeNotifications">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="notifications-list" id="notificationsList">
+            <!-- Notifications will be loaded here -->
         </div>
     </div>
-    
-    <script src="auth.js"></script>
-    <script src="dashboard.js"></script>
+
+    <!-- JavaScript -->
+    <script src="js/dashboard-hub.js"></script>
 </body>
 </html>
