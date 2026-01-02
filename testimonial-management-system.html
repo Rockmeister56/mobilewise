@@ -1543,33 +1543,34 @@ function populateConcernsForIndustry(industrySlug) {
     // Clear existing concerns
     concernsContainer.innerHTML = '';
     
-    // Alternative simpler fix
-Object.entries(industryData.concerns).forEach(([key, concern]) => {
-    const concernId = `concern-${key}`;
-    
-    // Make sure JSON uses double quotes throughout
-    const phrasesJson = JSON.stringify(concern.phrases || []);
-    // HTML escape the entire JSON string
-    const escapedPhrases = phrasesJson
-        .replace(/&/g, '&amp;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
-    
-    const concernHTML = `
-        <div class="concern-option">
-            <input type="checkbox" 
-                   id="${concernId}" 
-                   name="concerns" 
-                   value="${key}"
-                   data-phrases="${escapedPhrases}"
-                   class="concern-checkbox">
-            <!-- rest of your HTML -->
-        </div>
-    `;
-    concernsContainer.innerHTML += concernHTML;
-});
+    // Add concerns for this industry
+    Object.entries(industryData.concerns).forEach(([key, concern]) => {
+        const concernId = `concern-${key}`;
+        const concernHTML = `
+            <div class="concern-option">
+                <input type="checkbox" 
+                       id="${concernId}" 
+                       name="concerns" 
+                       value="${key}"
+                       data-phrases='${JSON.stringify(concern.phrases || [])}'
+                       class="concern-checkbox">
+                <label for="${concernId}">
+                    <span class="concern-icon">${concern.icon}</span>
+                    <span class="concern-title">${concern.title}</span>
+                </label>
+                <div class="trigger-phrases-preview" id="phrases-${key}">
+                    ${(concern.phrases || []).slice(0, 3).map(phrase => 
+                        `<span class="phrase-tag">${phrase}</span>`
+                    ).join('')}
+                    ${(concern.phrases || []).length > 3 ? 
+                        `<span class="phrase-more">+${(concern.phrases || []).length - 3} more</span>` : 
+                        ''
+                    }
+                </div>
+            </div>
+        `;
+        concernsContainer.innerHTML += concernHTML;
+    });
     
     // Add click handlers to concerns
     document.querySelectorAll('.concern-checkbox').forEach(checkbox => {
@@ -1731,97 +1732,91 @@ function updateConcernsForIndustry(industrySlug) {
     // Clear existing concern checkboxes
     concernsContainer.innerHTML = '';
     
-    // Alternative simpler fix
-Object.entries(industryData.concerns).forEach(([key, concern]) => {
-    const concernId = `concern-${key}`;
-    
-    // Make sure JSON uses double quotes throughout
-    const phrasesJson = JSON.stringify(concern.phrases || []);
-    // HTML escape the entire JSON string
-    const escapedPhrases = phrasesJson
-        .replace(/&/g, '&amp;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
-    
-    const concernHTML = `
+    // Add checkboxes for each concern
+    Object.entries(testimonials.concerns).forEach(([key, concern]) => {
+        const concernId = `concern-${key}`;
+        
+        const concernHTML = `
         <div class="concern-option">
             <input type="checkbox" 
                    id="${concernId}" 
                    name="concerns" 
-                   value="${key}"
-                   data-phrases="${escapedPhrases}"
+                   value="${key}" 
+                   data-title="${concern.title}"
+                   data-icon="${concern.icon}"
+                   data-video-type="${concern.videoType}"
+                   data-phrases='${JSON.stringify(concern.phrases || [])}'
                    class="concern-checkbox">
-            <!-- rest of your HTML -->
+            <label for="${concernId}">
+                <span class="concern-icon">${concern.icon}</span>
+                <span class="concern-title">${concern.title}</span>
+            </label>
         </div>
-    `;
-    concernsContainer.innerHTML += concernHTML;
-});
+        `;
+        
+        concernsContainer.innerHTML += concernHTML;
+    });
     
     // ============ FIXED: Updated click handlers ============
     document.querySelectorAll('.concern-checkbox').forEach(checkbox => {
         checkbox.addEventListener('change', function() {
-    if (this.checked) {
-        // When checked, add phrases to concernKeywords textarea
-        const phrases = JSON.parse(this.dataset.phrases || '[]');
-        const concernKeywords = document.getElementById('concernKeywords');
-        
-        if (concernKeywords && phrases.length > 0) {
-            // Get current value
-            const currentValue = concernKeywords.value.trim();
-            const newPhrases = phrases.join(', ');
-            
-            if (currentValue) {
-                // Add to existing if not already there
-                if (!currentValue.includes(newPhrases)) {
-                    concernKeywords.value = `${currentValue}, ${newPhrases}`;
+            if (this.checked) {
+                // When checked, add phrases to concernKeywords textarea
+                const phrases = JSON.parse(this.dataset.phrases || '[]');
+                const concernKeywords = document.getElementById('concernKeywords');
+                
+                if (concernKeywords && phrases.length > 0) {
+                    // Get current value
+                    const currentValue = concernKeywords.value.trim();
+                    const newPhrases = phrases.join(', ');
+                    
+                    if (currentValue) {
+                        // Add to existing if not already there
+                        if (!currentValue.includes(newPhrases)) {
+                            concernKeywords.value = `${currentValue}, ${newPhrases}`;
+                        }
+                    } else {
+                        // First time - set it
+                        concernKeywords.value = newPhrases;
+                    }
+                    
+                    console.log('✅ Added to concernKeywords:', newPhrases);
+                    
+                    // Visual feedback
+                    concernKeywords.style.border = '2px solid #4CAF50';
+                    concernKeywords.style.background = '#e8f5e8';
+                    setTimeout(() => {
+                        concernKeywords.style.border = '';
+                        concernKeywords.style.background = '';
+                    }, 1000);
                 }
+                
+                // ============ REMOVED: populateTriggerPhrases call ============
+                // This was trying to populate trigger-search which doesn't exist here
+                // ==============================================================
             } else {
-                // First time - set it
-                concernKeywords.value = newPhrases;
+                // If unchecked, remove phrases from concernKeywords
+                const concernKeywords = document.getElementById('concernKeywords');
+                if (concernKeywords) {
+                    const phrases = JSON.parse(this.dataset.phrases || '[]');
+                    const phrasesToRemove = phrases.join(', ');
+                    
+                    // Remove the specific phrases
+                    let newValue = concernKeywords.value
+                        .replace(new RegExp(phrasesToRemove.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), '')
+                        .replace(/,\s*,/g, ',')      // Clean up double commas
+                        .replace(/^\s*,\s*|\s*,\s*$/g, '')  // Clean up leading/trailing commas
+                        .replace(/\s+/g, ' ')         // Normalize spaces
+                        .trim();
+                    
+                    concernKeywords.value = newValue;
+                    console.log('❌ Removed from concernKeywords:', phrasesToRemove);
+                }
             }
             
-            console.log('✅ Added to concernKeywords:', newPhrases);
-            
-            // Visual feedback
-            concernKeywords.style.border = '2px solid #4CAF50';
-            concernKeywords.style.background = '#e8f5e8';
-            setTimeout(() => {
-                concernKeywords.style.border = '';
-                concernKeywords.style.background = '';
-            }, 1000);
-        }
-        
-        // Call populateTriggerPhrases if it exists and we need it
-        if (typeof populateTriggerPhrases === 'function') {
-            // Pass the PARSED array, not the string
-            populateTriggerPhrases(phrases);
-        }
-    } else {
-        // If unchecked, remove phrases from concernKeywords
-        const concernKeywords = document.getElementById('concernKeywords');
-        if (concernKeywords) {
-            const phrases = JSON.parse(this.dataset.phrases || '[]');
-            const phrasesToRemove = phrases.join(', ');
-            
-            // Remove the specific phrases
-            let newValue = concernKeywords.value
-                .replace(new RegExp(phrasesToRemove.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), '')
-                .replace(/,\s*,/g, ',')      // Clean up double commas
-                .replace(/^\s*,\s*|\s*,\s*$/g, '')  // Clean up leading/trailing commas
-                .replace(/\s+/g, ' ')         // Normalize spaces
-                .trim();
-            
-            concernKeywords.value = newValue;
-            console.log('❌ Removed from concernKeywords:', phrasesToRemove);
-        }
-    }
-    
-    // Update code preview if function exists
-    if (typeof updateCodePreview === 'function') {
-        updateCodePreview();
-
+            // Update code preview if function exists
+            if (typeof updateCodePreview === 'function') {
+                updateCodePreview();
             }
         });
     });
