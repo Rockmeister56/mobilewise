@@ -1543,34 +1543,33 @@ function populateConcernsForIndustry(industrySlug) {
     // Clear existing concerns
     concernsContainer.innerHTML = '';
     
-    // Add concerns for this industry
-    Object.entries(industryData.concerns).forEach(([key, concern]) => {
-        const concernId = `concern-${key}`;
-        const concernHTML = `
-            <div class="concern-option">
-                <input type="checkbox" 
-                       id="${concernId}" 
-                       name="concerns" 
-                       value="${key}"
-                       data-phrases='${JSON.stringify(concern.phrases || [])}'
-                       class="concern-checkbox">
-                <label for="${concernId}">
-                    <span class="concern-icon">${concern.icon}</span>
-                    <span class="concern-title">${concern.title}</span>
-                </label>
-                <div class="trigger-phrases-preview" id="phrases-${key}">
-                    ${(concern.phrases || []).slice(0, 3).map(phrase => 
-                        `<span class="phrase-tag">${phrase}</span>`
-                    ).join('')}
-                    ${(concern.phrases || []).length > 3 ? 
-                        `<span class="phrase-more">+${(concern.phrases || []).length - 3} more</span>` : 
-                        ''
-                    }
-                </div>
-            </div>
-        `;
-        concernsContainer.innerHTML += concernHTML;
-    });
+    // Alternative simpler fix
+Object.entries(industryData.concerns).forEach(([key, concern]) => {
+    const concernId = `concern-${key}`;
+    
+    // Make sure JSON uses double quotes throughout
+    const phrasesJson = JSON.stringify(concern.phrases || []);
+    // HTML escape the entire JSON string
+    const escapedPhrases = phrasesJson
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    
+    const concernHTML = `
+        <div class="concern-option">
+            <input type="checkbox" 
+                   id="${concernId}" 
+                   name="concerns" 
+                   value="${key}"
+                   data-phrases="${escapedPhrases}"
+                   class="concern-checkbox">
+            <!-- rest of your HTML -->
+        </div>
+    `;
+    concernsContainer.innerHTML += concernHTML;
+});
     
     // Add click handlers to concerns
     document.querySelectorAll('.concern-checkbox').forEach(checkbox => {
@@ -1732,30 +1731,33 @@ function updateConcernsForIndustry(industrySlug) {
     // Clear existing concern checkboxes
     concernsContainer.innerHTML = '';
     
-    // Add checkboxes for each concern
-    Object.entries(testimonials.concerns).forEach(([key, concern]) => {
-        const concernId = `concern-${key}`;
-        
-        const concernHTML = `
+    // Alternative simpler fix
+Object.entries(industryData.concerns).forEach(([key, concern]) => {
+    const concernId = `concern-${key}`;
+    
+    // Make sure JSON uses double quotes throughout
+    const phrasesJson = JSON.stringify(concern.phrases || []);
+    // HTML escape the entire JSON string
+    const escapedPhrases = phrasesJson
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    
+    const concernHTML = `
         <div class="concern-option">
             <input type="checkbox" 
                    id="${concernId}" 
                    name="concerns" 
-                   value="${key}" 
-                   data-title="${concern.title}"
-                   data-icon="${concern.icon}"
-                   data-video-type="${concern.videoType}"
-                   data-phrases='${JSON.stringify(concern.phrases || [])}'
+                   value="${key}"
+                   data-phrases="${escapedPhrases}"
                    class="concern-checkbox">
-            <label for="${concernId}">
-                <span class="concern-icon">${concern.icon}</span>
-                <span class="concern-title">${concern.title}</span>
-            </label>
+            <!-- rest of your HTML -->
         </div>
-        `;
-        
-        concernsContainer.innerHTML += concernHTML;
-    });
+    `;
+    concernsContainer.innerHTML += concernHTML;
+});
     
     // ============ FIXED: Updated click handlers ============
     document.querySelectorAll('.concern-checkbox').forEach(checkbox => {
