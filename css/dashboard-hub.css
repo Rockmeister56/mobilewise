@@ -408,6 +408,20 @@ body {
     box-shadow: 0 10px 25px rgba(0,0,0,0.1);
 }
 
+/* Optional: Add specific styling for video vault card */
+.tool-card.dark .tool-icon .fa-video {
+    color: #764ba2; /* Purple accent for video */
+}
+
+.video-vault-btn {
+    transition: all 0.3s ease;
+}
+
+.video-vault-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(118, 75, 162, 0.3);
+}
+
 /* Responsive adjustments */
 @media (max-width: 1200px) {
     .tools-grid {
