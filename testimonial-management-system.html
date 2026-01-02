@@ -2034,6 +2034,19 @@ function hideAddIndustryModal() {
     console.log('Industry modal closed');
 }
 
+// ADD THIS FUNCTION - It's the only missing piece!
+function showAddIndustryModal() {
+    console.log('showAddIndustryModal called');
+    
+    // Show the modal
+    document.getElementById('addIndustryModal').style.display = 'flex';
+    
+    // Focus on the first input field
+    setTimeout(() => {
+        document.getElementById('newIndustryName').focus();
+    }, 100);
+}
+
 function editIndustry(slug) {
     console.log('Editing industry:', slug);
     
