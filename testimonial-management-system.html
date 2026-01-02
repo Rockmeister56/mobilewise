@@ -1572,15 +1572,72 @@ function populateConcernsForIndustry(industrySlug) {
         concernsContainer.innerHTML += concernHTML;
     });
     
-    // Add click handlers to concerns
-    document.querySelectorAll('.concern-checkbox').forEach(checkbox => {
-        checkbox.addEventListener('change', function() {
-            if (this.checked) {
-                populateTriggerPhrases(this.dataset.phrases);
+   // FIXED: Add click handlers to concerns
+document.querySelectorAll('.concern-checkbox').forEach(checkbox => {
+    checkbox.addEventListener('change', function() {
+        if (this.checked) {
+            try {
+                // PARSE the JSON string first!
+                const phrases = JSON.parse(this.dataset.phrases || '[]');
+                
+                // Call with PARSED array, not string
+                populateTriggerPhrases(phrases);
+                
+                // Also update concernKeywords textarea
+                const concernKeywords = document.getElementById('concernKeywords');
+                if (concernKeywords && phrases.length > 0) {
+                    const current = concernKeywords.value.trim();
+                    const newPhrases = phrases.join(', ');
+                    
+                    if (current) {
+                        if (!current.includes(newPhrases)) {
+                            concernKeywords.value = `${current}, ${newPhrases}`;
+                        }
+                    } else {
+                        concernKeywords.value = newPhrases;
+                    }
+                    
+                    // Visual feedback
+                    concernKeywords.style.border = '2px solid #4CAF50';
+                    setTimeout(() => {
+                        concernKeywords.style.border = '';
+                    }, 1000);
+                }
+                
+            } catch (error) {
+                console.error('Error parsing checkbox phrases:', error);
+                console.log('Raw data:', this.dataset.phrases);
             }
+        } else {
+            // When unchecked, remove from concernKeywords
+            const concernKeywords = document.getElementById('concernKeywords');
+            if (concernKeywords) {
+                try {
+                    const phrases = JSON.parse(this.dataset.phrases || '[]');
+                    const phrasesToRemove = phrases.join(', ');
+                    let newValue = concernKeywords.value;
+                    
+                    // Simple removal logic
+                    phrases.forEach(phrase => {
+                        newValue = newValue.replace(phrase, '')
+                            .replace(/\s*,\s*,/g, ',')
+                            .replace(/^,|,$/g, '')
+                            .trim();
+                    });
+                    
+                    concernKeywords.value = newValue;
+                } catch (e) {
+                    // Ignore parse errors on uncheck
+                }
+            }
+        }
+        
+        // Always update preview
+        if (typeof updateCodePreview === 'function') {
             updateCodePreview();
-        });
+        }
     });
+});
 }
 
 // ==============================================
