@@ -1491,42 +1491,63 @@ function populateConcernsForIndustry(industrySlug) {
     });
 }
 
-function populateTriggerPhrases(phrasesJSON) {
-    const phrases = JSON.parse(phrasesJSON || '[]');
-    const container = document.getElementById('trigger-phrases-container');
-    const searchInput = document.getElementById('trigger-search');
-    const dropdown = document.getElementById('trigger-dropdown');
+// ==============================================
+// NEW: POPULATE TRIGGER PHRASES DROPDOWN
+// ==============================================
+function populateTriggerPhrases(phrases) {
+    const triggerDropdown = document.getElementById('trigger-dropdown');
+    const triggerSearch = document.getElementById('trigger-search');
     
-    if (!container || !searchInput) return;
+    if (!triggerDropdown || !triggerSearch) return;
     
-    // Display phrases as tags
-    container.innerHTML = phrases.map(phrase => 
-        `<span class="phrase-tag selectable" data-phrase="${phrase}">${phrase}</span>`
-    ).join('');
+    // Clear existing options
+    triggerDropdown.innerHTML = '';
     
-    // Make tags clickable
-    container.querySelectorAll('.phrase-tag.selectable').forEach(tag => {
-        tag.addEventListener('click', function() {
-            searchInput.value = this.dataset.phrase;
+    // Debug: Check what we're receiving
+    console.log('populateTriggerPhrases received:', phrases);
+    console.log('Type:', typeof phrases);
+    
+    // Ensure phrases is an array
+    if (!phrases) {
+        console.warn('No phrases provided');
+        return;
+    }
+    
+    // If phrases is a string, try to parse it as JSON
+    if (typeof phrases === 'string') {
+        try {
+            phrases = JSON.parse(phrases);
+        } catch (e) {
+            console.warn('Could not parse phrases string:', e);
+            console.warn('String content:', phrases);
+            return;
+        }
+    }
+    
+    // Check if it's actually an array
+    if (!Array.isArray(phrases)) {
+        console.warn('phrases is not an array:', phrases);
+        return;
+    }
+    
+    // Add phrase options
+    phrases.forEach(phrase => {
+        const option = document.createElement('div');
+        option.className = 'trigger-option';
+        option.textContent = phrase;
+        option.addEventListener('click', function() {
+            triggerSearch.value = phrase;
+            triggerDropdown.style.display = 'none';
             updateCodePreview();
         });
+        triggerDropdown.appendChild(option);
     });
     
-    // Populate dropdown for search
-    if (dropdown) {
-        dropdown.innerHTML = phrases.map(phrase => 
-            `<div class="dropdown-item" data-phrase="${phrase}">${phrase}</div>`
-        ).join('');
-        
-        // Make dropdown items clickable
-        dropdown.querySelectorAll('.dropdown-item').forEach(item => {
-            item.addEventListener('click', function() {
-                searchInput.value = this.dataset.phrase;
-                dropdown.style.display = 'none';
-                updateCodePreview();
-            });
-        });
+    // Show dropdown if there are phrases
+    if (phrases.length > 0 && triggerSearch === document.activeElement) {
+        triggerDropdown.style.display = 'block';
     }
+}
     
     // Setup search functionality
     searchInput.addEventListener('input', function() {
@@ -1705,6 +1726,28 @@ function populateTriggerPhrases(phrases) {
     
     // Clear existing options
     triggerDropdown.innerHTML = '';
+    
+    // Ensure phrases is an array
+    if (!phrases) {
+        console.warn('No phrases provided to populateTriggerPhrases');
+        return;
+    }
+    
+    // Convert to array if it's a string
+    if (typeof phrases === 'string') {
+        try {
+            phrases = JSON.parse(phrases);
+        } catch (e) {
+            console.warn('Could not parse phrases string:', e);
+            return;
+        }
+    }
+    
+    // Check if it's an array
+    if (!Array.isArray(phrases)) {
+        console.warn('phrases is not an array:', phrases);
+        return;
+    }
     
     // Add phrase options
     phrases.forEach(phrase => {
