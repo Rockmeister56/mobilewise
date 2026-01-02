@@ -1814,6 +1814,14 @@ function initializeWithDefaults() {
     updateStats();
     updateCodePreview();
     saveAllData();
+
+       // ============ ADD THIS CODE ============
+    // Auto-select first industry if none selected
+    if (!currentIndustry && Object.keys(currentData.industries).length > 0) {
+        const firstIndustrySlug = Object.keys(currentData.industries)[0];
+        selectIndustry(firstIndustrySlug);
+        console.log('✅ Auto-selected first industry:', firstIndustrySlug);
+    }
     
     showMessage(`✅ Deleted industry: ${industryName}`, 'success');
 }
@@ -2216,11 +2224,19 @@ function selectIndustry(slug) {
     
     // 4. UPDATE CONCERN DROPDOWN (MISSING IN YOUR VERSION!)
     updateConcernDropdown();
+
+    // 5. LOAD TRIGGERS FOR THIS INDUSTRY - ADD THIS!
+    if (typeof loadTriggerTemplates === 'function') {
+        loadTriggerTemplates();
+    }
+    if (typeof filterTriggers === 'function') {
+        filterTriggers('all');
+    }
     
-    // 5. UPDATE CODE PREVIEW
+    // 7. UPDATE CODE PREVIEW
     updateCodePreview();
     
-    // 6. SHOW SUCCESS MESSAGE
+    // 8. SHOW SUCCESS MESSAGE
     showMessage(`✅ Selected: ${industry.name}`, 'success');
     
     console.log('Industry selection complete:', industry.name);
