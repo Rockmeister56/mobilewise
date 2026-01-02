@@ -1548,42 +1548,6 @@ function populateTriggerPhrases(phrases) {
         triggerDropdown.style.display = 'block';
     }
 }
-    
-    // Setup search functionality
-    searchInput.addEventListener('input', function() {
-        const searchTerm = this.value.toLowerCase();
-        
-        if (dropdown) {
-            const allItems = dropdown.querySelectorAll('.dropdown-item');
-            let hasMatches = false;
-            
-            allItems.forEach(item => {
-                const phrase = item.dataset.phrase.toLowerCase();
-                if (phrase.includes(searchTerm)) {
-                    item.style.display = 'block';
-                    hasMatches = true;
-                } else {
-                    item.style.display = 'none';
-                }
-            });
-            
-            dropdown.style.display = hasMatches ? 'block' : 'none';
-        }
-    });
-    
-    // Show dropdown on focus
-    searchInput.addEventListener('focus', function() {
-        if (dropdown && dropdown.children.length > 0) {
-            dropdown.style.display = 'block';
-        }
-    });
-    
-    // Hide dropdown when clicking outside
-    document.addEventListener('click', function(e) {
-        if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
-            dropdown.style.display = 'none';
-        }
-    });
 
 // ===================================================
 // UPDATE YOUR EXISTING FUNCTIONS
