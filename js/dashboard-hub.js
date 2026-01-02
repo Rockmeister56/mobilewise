@@ -668,6 +668,47 @@ document.addEventListener('DOMContentLoaded', () => {
             margin-bottom: 15px;
             opacity: 0.5;
         }
+  /* ============================================
+   TOOLS GRID STYLES (MISSING - ADD THIS)
+   ============================================ */
+
+.tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+    gap: 25px;
+    margin-bottom: 40px;
+}
+
+/* Make sure tool cards work properly in grid */
+.tool-card {
+    width: 100%;
+    min-width: 0; /* Critical for grid items */
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    transition: transform 0.3s, box-shadow 0.3s;
+    display: flex;
+    flex-direction: column;
+}
+
+.tool-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+    .tools-grid {
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .tools-grid {
+        grid-template-columns: 1fr;
+    }
+}
     `;
     document.head.appendChild(toastStyles);
 });
