@@ -1367,71 +1367,115 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             currentData = JSON.parse(saved);
             console.log('📂 Loaded saved data from localStorage');
-            
-            // 🔧 VALIDATE DATA STRUCTURE
             validateDataStructure();
-            
         } catch (e) {
             console.error('Error loading data:', e);
-            showMessage('⚠️ Could not load saved data. Starting fresh.', 'warning');
             initializeWithDefaults();
         }
     } else {
         initializeWithDefaults();
     }
     
-    // ============ IMPORTANT: LOAD INDUSTRIES FROM TESTIMONIAL-DATA.JS ============
-    console.log('🔄 Merging industries from testimonials-data.js...');
-    
-    // Ensure currentData has the required structure
-    if (!currentData.industries) currentData.industries = {};
-    if (!currentData.industryKeywords) currentData.industryKeywords = {};
-    
-    // Check if we have window.testimonialData (loaded from external JS)
-    if (window.testimonialData && window.testimonialData.industries) {
-        const externalIndustries = window.testimonialData.industries;
-        
-        Object.entries(externalIndustries).forEach(([slug, industryData]) => {
-            // Only add if it doesn't already exist
-            if (!currentData.industries[slug]) {
-                console.log(`➕ Adding industry from JS file: ${industryData.name}`);
-                
-                currentData.industries[slug] = {
-                    name: industryData.name,
-                    icon: industryData.icon || '🏢',
-                    concerns: industryData.concerns || {}
-                };
-                
-                // Also add keywords if available
-                if (window.testimonialData.industryKeywords && window.testimonialData.industryKeywords[slug]) {
-                    currentData.industryKeywords[slug] = window.testimonialData.industryKeywords[slug];
-                }
-            }
-        });
-        
-        console.log(`✅ Added ${Object.keys(externalIndustries).length} industries from external file`);
-    }
-    // ============================================================================
+    // ============ CRITICAL: SYNC WITH TESTIMONIAL-DATA.JS ============
+    console.log('🔄 Syncing with testimonials-data.js...');
+    syncWithExternalData();
+    // =================================================================
     
     updateIndustryList();
     updateStats();
     updateCodePreview();
     
     // Auto-select first industry
-    const industrySlugs = Object.keys(currentData.industries);
-    if (industrySlugs.length > 0 && !currentIndustry) {
-        const firstSlug = industrySlugs[0];
-        selectIndustry(firstSlug);
-        console.log(`✅ Auto-selected industry: ${firstSlug}`);
-    } else if (currentIndustry) {
-        // Refresh triggers for already selected industry
-        selectIndustry(currentIndustry);
+    syncIndustrySelection();
+    
+    showMessage('✅ System ready!', 'success');
+}
+
+// NEW FUNCTION: Sync with external data
+function syncWithExternalData() {
+    if (!window.testimonialData || !window.testimonialData.industries) {
+        console.warn('No external testimonial data found');
+        return;
     }
     
-    showMessage('✅ System ready! Select an industry to see triggers.', 'success');
+    // Ensure currentData structure exists
+    if (!currentData.industries) currentData.industries = {};
+    if (!currentData.industryKeywords) currentData.industryKeywords = {};
     
-    // Save the merged data
+    const external = window.testimonialData;
+    let addedCount = 0;
+    let updatedCount = 0;
+    
+    // Sync industries
+    Object.entries(external.industries).forEach(([slug, extIndustry]) => {
+        if (!currentData.industries[slug]) {
+            // Add missing industry
+            currentData.industries[slug] = {
+                name: extIndustry.name,
+                icon: extIndustry.icon || '🏢',
+                concerns: extIndustry.concerns ? {...extIndustry.concerns} : {}
+            };
+            addedCount++;
+            console.log(`➕ Added industry: ${extIndustry.name}`);
+        } else {
+            // Update existing industry (preserve user modifications but sync basics)
+            currentData.industries[slug].name = extIndustry.name;
+            currentData.industries[slug].icon = extIndustry.icon || currentData.industries[slug].icon;
+            updatedCount++;
+        }
+    });
+    
+    // Sync keywords
+    if (external.industryKeywords) {
+        currentData.industryKeywords = {...currentData.industryKeywords, ...external.industryKeywords};
+    }
+    
+    // Sync universal concerns
+    if (external.concerns) {
+        currentData.universalConcerns = {...currentData.universalConcerns, ...external.concerns};
+    }
+    
+    // Sync player config
+    if (external.playerConfig) {
+        currentData.playerConfig = {...currentData.playerConfig, ...external.playerConfig};
+    }
+    
+    console.log(`✅ Sync complete: +${addedCount} added, ${updatedCount} updated`);
+    
+    // Save synced data
     saveAllData();
+}
+
+// NEW FUNCTION: Auto-select industry intelligently
+function syncIndustrySelection() {
+    const industrySlugs = Object.keys(currentData.industries);
+    
+    if (industrySlugs.length === 0) {
+        console.warn('No industries available');
+        return;
+    }
+    
+    // If no industry selected OR selected industry doesn't exist anymore
+    if (!currentIndustry || !currentData.industries[currentIndustry]) {
+        // Try to select 'mortgage-lending' first (most common)
+        const preferredOrder = ['mortgage-lending', 'personal-injury', 'real-estate'];
+        
+        for (const slug of preferredOrder) {
+            if (currentData.industries[slug]) {
+                selectIndustry(slug);
+                console.log(`✅ Auto-selected preferred industry: ${slug}`);
+                return;
+            }
+        }
+        
+        // Fallback to first industry
+        const firstSlug = industrySlugs[0];
+        selectIndustry(firstSlug);
+        console.log(`✅ Auto-selected first industry: ${firstSlug}`);
+    } else {
+        // Refresh current industry
+        selectIndustry(currentIndustry);
+    }
 }
 
 function validateDataStructure() {
