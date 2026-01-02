@@ -247,6 +247,32 @@ function initCharts() {
     }
 }
 
+// Video Vault function - placeholder for v2.0
+function openVideoVault(category) {
+    const categories = {
+        'overview': 'System Overview Videos',
+        'tutorials': 'Tutorial Videos', 
+        'advanced': 'Advanced Features Videos',
+        'faq': 'FAQ Explanation Videos'
+    };
+    
+    alert(`Video Vault: ${categories[category]}\n\nThis feature is coming in version 2.0!\n\nUsers will access detailed explanation videos triggered when additional information is needed.`);
+    
+    console.log(`Video Vault accessed: ${category} - Ready for v2.0 implementation`);
+}
+
+// Optional: Coming soon handler for the main button
+document.addEventListener('DOMContentLoaded', function() {
+    const videoVaultBtn = document.querySelector('a[href="video-vault-system.html"]');
+    
+    if (videoVaultBtn) {
+        videoVaultBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            alert('Video Vault System\n\nComing in version 2.0!\n\nThis will be a parallel system to Testimonial Manager for informational videos.');
+        });
+    }
+});
+
 function exportData() {
     const data = {
         timestamp: new Date().toISOString(),
@@ -296,18 +322,25 @@ function showDetails(type) {
     }
 }
 
-function openVideoVault(category) {
-    const categories = {
-        'overview': 'System Overview Videos',
-        'tutorials': 'Tutorial Videos',
-        'advanced': 'Advanced Features Videos',
-        'faq': 'FAQ Explanation Videos'
-    };
+// Placeholder for Video Vault functionality
+// Add this script tag after the card or in your JS file
+
+// You could add a click handler for the coming soon version
+document.addEventListener('DOMContentLoaded', function() {
+    const videoVaultBtn = document.querySelector('a[href="video-vault-system.html"]');
     
-    alert(`Video Vault: ${categories[category]}\n\nThis feature is coming in version 2.0!\n\nUsers will be able to access detailed video explanations and tutorials here.`);
-    
-    console.log(`Video Vault accessed: ${category} - Ready for v2.0 implementation`);
-}
+    if (videoVaultBtn) {
+        videoVaultBtn.addEventListener('click', function(e) {
+            // Prevent navigation if page doesn't exist yet
+            e.preventDefault();
+            
+            // Show coming soon modal/alert
+            alert('Video Vault System\n\nThis feature is coming in version 2.0!\n\nUsers will access detailed explanation videos and tutorials here, triggered by AI when additional information is needed.');
+            
+            console.log('Video Vault accessed - Ready for v2.0 implementation');
+        });
+    }
+});
 
 function showNotification(message) {
     // Create notification element
