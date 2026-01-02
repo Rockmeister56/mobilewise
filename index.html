@@ -308,34 +308,34 @@
     </div>
 </div>
 
-<!-- Quick Actions Card -->
+<!-- Video Vault Card -->
 <div class="tool-card dark">
     <div class="tool-header">
         <div class="tool-icon">
-            <i class="fas fa-bolt"></i>
+            <i class="fas fa-video"></i>
         </div>
     </div>
     <div class="tool-content">
-        <h3 class="tool-title">Quick Actions</h3>
+        <h3 class="tool-title">Video Vault</h3>
         <p class="tool-description">
-            Frequently used actions and shortcuts to save you time.
+            Tutorial and explanation videos for in-depth learning. Coming in v2.0.
         </p>
         <div class="quick-actions">
-            <button class="quick-btn" onclick="window.open('dashboard.html', '_blank')">
-                <i class="fas fa-chart-pie"></i>
-                View Report
+            <button class="quick-btn" onclick="openVideoVault('overview')">
+                <i class="fas fa-play-circle"></i>
+                System Overview
             </button>
-            <button class="quick-btn" onclick="window.open('testimonial-management-system.html#add', '_blank')">
-                <i class="fas fa-plus-circle"></i>
-                Add Testimonial
+            <button class="quick-btn" onclick="openVideoVault('tutorials')">
+                <i class="fas fa-graduation-cap"></i>
+                Tutorials
             </button>
-            <button class="quick-btn" onclick="exportData()">
-                <i class="fas fa-download"></i>
-                Export Data
+            <button class="quick-btn" onclick="openVideoVault('advanced')">
+                <i class="fas fa-cogs"></i>
+                Advanced Features
             </button>
-            <button class="quick-btn" onclick="refreshAll()">
-                <i class="fas fa-sync-alt"></i>
-                Refresh All
+            <button class="quick-btn" onclick="openVideoVault('faq')">
+                <i class="fas fa-question-circle"></i>
+                FAQ Explanations
             </button>
         </div>
     </div>

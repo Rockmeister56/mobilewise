@@ -296,6 +296,19 @@ function showDetails(type) {
     }
 }
 
+function openVideoVault(category) {
+    const categories = {
+        'overview': 'System Overview Videos',
+        'tutorials': 'Tutorial Videos',
+        'advanced': 'Advanced Features Videos',
+        'faq': 'FAQ Explanation Videos'
+    };
+    
+    alert(`Video Vault: ${categories[category]}\n\nThis feature is coming in version 2.0!\n\nUsers will be able to access detailed video explanations and tutorials here.`);
+    
+    console.log(`Video Vault accessed: ${category} - Ready for v2.0 implementation`);
+}
+
 function showNotification(message) {
     // Create notification element
     const notification = document.createElement('div');
