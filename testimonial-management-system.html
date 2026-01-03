@@ -2180,48 +2180,62 @@ function initializeWithDefaults() {
     console.log('📄 Initialized with default data structure');
 
    function deleteCurrentIndustry() {
-    // FIX: Add this line at the beginning to get the current industry
-    const currentIndustry = document.getElementById('industry-select')?.value || window.currentIndustry;
+    console.log('🎯 DELETE FUNCTION - Current state:');
+    console.log('   Global currentIndustry:', typeof currentIndustry !== 'undefined' ? currentIndustry : 'undefined');
+    console.log('   Displayed industry:', document.getElementById('currentIndustryName')?.textContent);
     
-    if (!currentIndustry || currentIndustry === 'general') {
+    // Get the ACTUAL current industry from the display element
+    const currentIndustryName = document.getElementById('currentIndustryName')?.textContent?.trim() || '';
+    const industrySlug = currentIndustry; // Use the global variable
+    
+    if (!industrySlug && !currentIndustryName.includes('Mortgage')) {
+        console.log('⚠️ No industry to delete');
         showMessage('No industry selected', 'error');
         return;
     }
     
-    // ... rest of your existing code remains the same ...
-    const industryName = currentData.industries[currentIndustry].name;
+    // Extract clean name (remove emoji if present)
+    const cleanName = currentIndustryName.replace(/^[^\w\s]+\s*/, '');
     
-    if (!confirm(`⚠️ DELETE "${industryName}"?\n\nThis will remove:\n• The industry\n• All its concerns\n• All testimonials\n• Associated keywords\n\nThis cannot be undone!`)) {
+    if (!confirm(`Are you sure you want to delete the industry "${cleanName}"? This will also delete all testimonials in this industry.`)) {
         return;
     }
     
-    // Delete industry
-    delete currentData.industries[currentIndustry];
-    delete currentData.industryKeywords[currentIndustry];
-    
-    // Also delete any videos that start with this industry slug
-    Object.keys(currentData.videos).forEach(videoKey => {
-        if (videoKey.startsWith(currentIndustry + '-')) {
-            delete currentData.videos[videoKey];
+    try {
+        console.log(`🗑️ Deleting industry: ${cleanName} (slug: ${industrySlug})`);
+        
+        // Delete from testimonialData
+        if (window.testimonialData && window.testimonialData.industries) {
+            delete window.testimonialData.industries[industrySlug];
+            console.log('✅ Deleted from testimonialData.industries');
         }
-    });
-    
-    currentIndustry = null;
-    document.getElementById('currentIndustryName').textContent = 'None selected';
-    
-    updateIndustryList();
-    updateStats();
-    updateCodePreview();
-    saveAllData();
-
-    // Auto-select first industry if none selected
-    if (!currentIndustry && Object.keys(currentData.industries).length > 0) {
-        const firstIndustrySlug = Object.keys(currentData.industries)[0];
-        selectIndustry(firstIndustrySlug);
-        console.log('✅ Auto-selected first industry:', firstIndustrySlug);
+        
+        // If this was the current industry, reset to default
+        if (window.testimonialData && window.testimonialData.currentIndustry === industrySlug) {
+            window.testimonialData.currentIndustry = 'general-business';
+            console.log('✅ Reset currentIndustry to general-business');
+        }
+        
+        // Update global variable if it matches
+        if (typeof currentIndustry !== 'undefined' && currentIndustry === industrySlug) {
+            // currentIndustry will be updated by the next selectIndustry call
+            console.log('✅ Will update global currentIndustry via selectIndustry');
+        }
+        
+        // Save and refresh
+        saveData();
+        updateIndustryList();
+        
+        // Select the first available industry or default
+        const firstIndustry = Object.keys(window.testimonialData.industries)[0] || 'general-business';
+        selectIndustry(firstIndustry);
+        
+        showMessage(`Industry "${cleanName}" deleted successfully`, 'success');
+        
+    } catch (error) {
+        console.error('❌ Error deleting industry:', error);
+        showMessage(`Error deleting industry: ${error.message}`, 'error');
     }
-    
-    showMessage(`✅ Deleted industry: ${industryName}`, 'success');
 }
 
 function showIndustryManager() {
