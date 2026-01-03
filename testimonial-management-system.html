@@ -2464,6 +2464,51 @@ function showAddIndustryModal() {
     }, 100);
 }
 
+// ==============================================
+// AUTO-SLUG GENERATION FOR ADD INDUSTRY MODAL
+// ==============================================
+
+document.getElementById('addIndustryModal').addEventListener('shown.bs.modal', function() {
+    console.log('Auto-slug: Modal shown, setting up...');
+    
+    const nameInput = this.querySelector('#industryName');
+    const slugInput = this.querySelector('#industrySlug');
+    
+    if (!nameInput || !slugInput) {
+        console.log('Auto-slug: Inputs not found');
+        return;
+    }
+    
+    // Generate slug when industry name changes
+    nameInput.addEventListener('input', function() {
+        // Only auto-fill if slug hasn't been manually edited
+        if (!slugInput.dataset.manualEdit) {
+            const slug = this.value
+                .toLowerCase()
+                .trim()
+                .replace(/[^\w\s-]/g, '')      // Remove special chars
+                .replace(/[\s_-]+/g, '-')      // Replace spaces/underscores with hyphens
+                .replace(/^-+|-+$/g, '');      // Remove leading/trailing hyphens
+            slugInput.value = slug;
+        }
+    });
+    
+    // Mark slug as manually edited if user changes it
+    slugInput.addEventListener('input', function() {
+        if (this.value.trim()) {
+            this.dataset.manualEdit = 'true';
+        }
+    });
+});
+
+// Reset manual edit flag when modal closes
+document.getElementById('addIndustryModal').addEventListener('hidden.bs.modal', function() {
+    const slugInput = this.querySelector('#industrySlug');
+    if (slugInput && slugInput.dataset.manualEdit) {
+        delete slugInput.dataset.manualEdit;
+    }
+});
+
 // Initialize the modal's trigger system (separate from main form)
 function initModalTriggerSystem() {
     console.log('Initializing modal trigger system...');
