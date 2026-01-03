@@ -2179,12 +2179,16 @@ function initializeWithDefaults() {
     
     console.log('📄 Initialized with default data structure');
 
-    function deleteCurrentIndustry() {
-    if (!currentIndustry) {
+   function deleteCurrentIndustry() {
+    // FIX: Add this line at the beginning to get the current industry
+    const currentIndustry = document.getElementById('industry-select')?.value || window.currentIndustry;
+    
+    if (!currentIndustry || currentIndustry === 'general') {
         showMessage('No industry selected', 'error');
         return;
     }
     
+    // ... rest of your existing code remains the same ...
     const industryName = currentData.industries[currentIndustry].name;
     
     if (!confirm(`⚠️ DELETE "${industryName}"?\n\nThis will remove:\n• The industry\n• All its concerns\n• All testimonials\n• Associated keywords\n\nThis cannot be undone!`)) {
@@ -2210,7 +2214,6 @@ function initializeWithDefaults() {
     updateCodePreview();
     saveAllData();
 
-       // ============ ADD THIS CODE ============
     // Auto-select first industry if none selected
     if (!currentIndustry && Object.keys(currentData.industries).length > 0) {
         const firstIndustrySlug = Object.keys(currentData.industries)[0];
