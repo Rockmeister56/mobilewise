@@ -3461,48 +3461,6 @@ console.log('🏢 Industry Keywords:', Object.keys(window.testimonialData.indust
             saveAllData();
         }
 
-        // SUPER SIMPLE FIX
-console.log('🔧 Applying SUPER SIMPLE fix...');
-
-// Just move the modal to the top when it opens
-document.getElementById('addIndustryModal').addEventListener('show.bs.modal', function() {
-    console.log('Modal opening, forcing to top of page...');
-    
-    // Force window to top
-    window.scrollTo(0, 0);
-    
-    // Also force modal to top visually
-    const modalDialog = this.querySelector('.modal-dialog');
-    if (modalDialog) {
-        modalDialog.style.marginTop = '20px';
-        modalDialog.style.marginBottom = 'auto';
-    }
-});
-
-// And prevent ANY scrolling when trigger-search is involved
-const triggerSearch = document.getElementById('trigger-search');
-if (triggerSearch) {
-    // Make it un-focusable
-    triggerSearch.tabIndex = -1;
-    
-    // When clicked, don't focus
-    triggerSearch.addEventListener('mousedown', function(e) {
-        e.preventDefault();
-    });
-    
-    // When touched, don't focus  
-    triggerSearch.addEventListener('touchstart', function(e) {
-        e.preventDefault();
-    });
-    
-    // If somehow it gets focus, blur immediately
-    triggerSearch.addEventListener('focus', function() {
-        setTimeout(() => this.blur(), 0);
-    });
-}
-
-console.log('✅ SUPER SIMPLE fix applied');
-
         
         // ===================================================
         // EVENT LISTENERS & INITIALIZATION
