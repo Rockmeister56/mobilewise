@@ -1552,7 +1552,7 @@ function populateConcernsForIndustry(industrySlug) {
                        id="${concernId}" 
                        name="concerns" 
                        value="${key}"
-                       data-phrases='${JSON.stringify(concern.phrases || [])}'
+                       data-phrases="${JSON.stringify(concern.phrases || []).replace(/"/g, '&quot;').replace(/'/g, '&#39;')}"
                        class="concern-checkbox">
                 <label for="${concernId}">
                     <span class="concern-icon">${concern.icon}</span>
@@ -1578,7 +1578,45 @@ document.querySelectorAll('.concern-checkbox').forEach(checkbox => {
         if (this.checked) {
             try {
                 // PARSE the JSON string first!
-                const phrases = JSON.parse(this.dataset.phrases || '[]');
+                function safeParsePhrases(jsonString) {
+    if (!jsonString) return [];
+    
+    try {
+        // First try normal parse
+        return JSON.parse(jsonString);
+    } catch (error) {
+        console.log('JSON parse failed, trying to fix...');
+        
+        // If string is truncated, try to reconstruct
+        if (jsonString.includes('[') && !jsonString.includes(']')) {
+            // Try to complete the JSON
+            let fixed = jsonString;
+            
+            // Add missing closing bracket
+            if (!fixed.endsWith(']')) {
+                // Check if we need to close a string
+                const quoteCount = (fixed.match(/"/g) || []).length;
+                if (quoteCount % 2 === 1) {
+                    fixed += '"';
+                }
+                fixed += ']';
+            }
+            
+            try {
+                return JSON.parse(fixed);
+            } catch (e) {
+                // Extract strings manually
+                const matches = fixed.match(/"([^"]+)"/g) || [];
+                return matches.map(m => m.slice(1, -1));
+            }
+        }
+        
+        return [];
+    }
+}
+
+// Then use it:
+const phrases = safeParsePhrases(this.dataset.phrases);
                 
                 // Call with PARSED array, not string
                 populateTriggerPhrases(phrases);
@@ -1613,7 +1651,45 @@ document.querySelectorAll('.concern-checkbox').forEach(checkbox => {
             const concernKeywords = document.getElementById('concernKeywords');
             if (concernKeywords) {
                 try {
-                    const phrases = JSON.parse(this.dataset.phrases || '[]');
+                    function safeParsePhrases(jsonString) {
+    if (!jsonString) return [];
+    
+    try {
+        // First try normal parse
+        return JSON.parse(jsonString);
+    } catch (error) {
+        console.log('JSON parse failed, trying to fix...');
+        
+        // If string is truncated, try to reconstruct
+        if (jsonString.includes('[') && !jsonString.includes(']')) {
+            // Try to complete the JSON
+            let fixed = jsonString;
+            
+            // Add missing closing bracket
+            if (!fixed.endsWith(']')) {
+                // Check if we need to close a string
+                const quoteCount = (fixed.match(/"/g) || []).length;
+                if (quoteCount % 2 === 1) {
+                    fixed += '"';
+                }
+                fixed += ']';
+            }
+            
+            try {
+                return JSON.parse(fixed);
+            } catch (e) {
+                // Extract strings manually
+                const matches = fixed.match(/"([^"]+)"/g) || [];
+                return matches.map(m => m.slice(1, -1));
+            }
+        }
+        
+        return [];
+    }
+}
+
+// Then use it:
+const phrases = safeParsePhrases(this.dataset.phrases);
                     const phrasesToRemove = phrases.join(', ');
                     let newValue = concernKeywords.value;
                     
@@ -1802,11 +1878,13 @@ function updateConcernsForIndustry(industrySlug) {
                    data-title="${concern.title}"
                    data-icon="${concern.icon}"
                    data-video-type="${concern.videoType}"
-                   data-phrases='${JSON.stringify(concern.phrases || [])}'
+                   data-phrases="${JSON.stringify(concern.phrases || []).replace(/"/g, '&quot;').replace(/'/g, '&#39;')}"
                    class="concern-checkbox">
             <label for="${concernId}">
                 <span class="concern-icon">${concern.icon}</span>
                 <span class="concern-title">${concern.title}</span>
+
+
             </label>
         </div>
         `;
@@ -1819,7 +1897,45 @@ function updateConcernsForIndustry(industrySlug) {
         checkbox.addEventListener('change', function() {
             if (this.checked) {
                 // When checked, add phrases to concernKeywords textarea
-                const phrases = JSON.parse(this.dataset.phrases || '[]');
+                function safeParsePhrases(jsonString) {
+    if (!jsonString) return [];
+    
+    try {
+        // First try normal parse
+        return JSON.parse(jsonString);
+    } catch (error) {
+        console.log('JSON parse failed, trying to fix...');
+        
+        // If string is truncated, try to reconstruct
+        if (jsonString.includes('[') && !jsonString.includes(']')) {
+            // Try to complete the JSON
+            let fixed = jsonString;
+            
+            // Add missing closing bracket
+            if (!fixed.endsWith(']')) {
+                // Check if we need to close a string
+                const quoteCount = (fixed.match(/"/g) || []).length;
+                if (quoteCount % 2 === 1) {
+                    fixed += '"';
+                }
+                fixed += ']';
+            }
+            
+            try {
+                return JSON.parse(fixed);
+            } catch (e) {
+                // Extract strings manually
+                const matches = fixed.match(/"([^"]+)"/g) || [];
+                return matches.map(m => m.slice(1, -1));
+            }
+        }
+        
+        return [];
+    }
+}
+
+// Then use it:
+const phrases = safeParsePhrases(this.dataset.phrases);
                 const concernKeywords = document.getElementById('concernKeywords');
                 
                 if (concernKeywords && phrases.length > 0) {
@@ -1855,7 +1971,45 @@ function updateConcernsForIndustry(industrySlug) {
                 // If unchecked, remove phrases from concernKeywords
                 const concernKeywords = document.getElementById('concernKeywords');
                 if (concernKeywords) {
-                    const phrases = JSON.parse(this.dataset.phrases || '[]');
+                    function safeParsePhrases(jsonString) {
+    if (!jsonString) return [];
+    
+    try {
+        // First try normal parse
+        return JSON.parse(jsonString);
+    } catch (error) {
+        console.log('JSON parse failed, trying to fix...');
+        
+        // If string is truncated, try to reconstruct
+        if (jsonString.includes('[') && !jsonString.includes(']')) {
+            // Try to complete the JSON
+            let fixed = jsonString;
+            
+            // Add missing closing bracket
+            if (!fixed.endsWith(']')) {
+                // Check if we need to close a string
+                const quoteCount = (fixed.match(/"/g) || []).length;
+                if (quoteCount % 2 === 1) {
+                    fixed += '"';
+                }
+                fixed += ']';
+            }
+            
+            try {
+                return JSON.parse(fixed);
+            } catch (e) {
+                // Extract strings manually
+                const matches = fixed.match(/"([^"]+)"/g) || [];
+                return matches.map(m => m.slice(1, -1));
+            }
+        }
+        
+        return [];
+    }
+}
+
+// Then use it:
+const phrases = safeParsePhrases(this.dataset.phrases);
                     const phrasesToRemove = phrases.join(', ');
                     
                     // Remove the specific phrases
@@ -3148,7 +3302,45 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (selectedConcerns.length > 0) {
                 // Get phrases from first selected concern
-                const phrases = JSON.parse(selectedConcerns[0].dataset.phrases || '[]');
+                function safeParsePhrases(jsonString) {
+    if (!jsonString) return [];
+    
+    try {
+        // First try normal parse
+        return JSON.parse(jsonString);
+    } catch (error) {
+        console.log('JSON parse failed, trying to fix...');
+        
+        // If string is truncated, try to reconstruct
+        if (jsonString.includes('[') && !jsonString.includes(']')) {
+            // Try to complete the JSON
+            let fixed = jsonString;
+            
+            // Add missing closing bracket
+            if (!fixed.endsWith(']')) {
+                // Check if we need to close a string
+                const quoteCount = (fixed.match(/"/g) || []).length;
+                if (quoteCount % 2 === 1) {
+                    fixed += '"';
+                }
+                fixed += ']';
+            }
+            
+            try {
+                return JSON.parse(fixed);
+            } catch (e) {
+                // Extract strings manually
+                const matches = fixed.match(/"([^"]+)"/g) || [];
+                return matches.map(m => m.slice(1, -1));
+            }
+        }
+        
+        return [];
+    }
+}
+
+// Then use it:
+const phrases = safeParsePhrases(this.dataset.phrases);
                 populateTriggerPhrases(phrases);
             }
         });
