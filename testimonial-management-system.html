@@ -632,8 +632,10 @@ a[href^="#"] {
             <!-- In your sidebar, add this after the stats -->
 <div style="margin-top: 30px; padding: 15px; background: rgba(244, 67, 54, 0.1); border-radius: 8px; border: 1px solid var(--danger);">
     <h4 style="color: var(--danger); margin-bottom: 10px;">⚠️ Admin Tools</h4>
-    <button class="btn btn-danger" id="testDeleteBtn" onclick="console.log('ONCLICK FIRED'); _testDelete(); return false;" style="width: 100%; margin-bottom: 10px;">
-    🧪 TEST DELETE (Diagnostic)
+    <button class="btn btn-danger" 
+        onclick="if (typeof deleteCurrentIndustry === 'function') { deleteCurrentIndustry(); } else { console.error('Function not found!'); }" 
+        style="width: 100%; margin-bottom: 10px;">
+    🗑️ Delete Current Industry
 </button>
     <button class="btn" onclick="editCurrentIndustry()" style="background: #666; width: 100%; margin-top: 10px;">
     ✏️ Edit Current Industry
@@ -922,21 +924,6 @@ a[href^="#"] {
 
     <script>
 
-        // Add at the very top of your script file
-document.addEventListener('click', function(e) {
-    if (e.target.closest('button.btn-danger')) {
-        console.log('🔄 Global click caught on delete button');
-        console.log('   Target:', e.target);
-        console.log('   Current function exists:', typeof deleteCurrentIndustry);
-        
-        // Check if default is prevented
-        setTimeout(() => {
-            console.log('   Page URL:', window.location.href);
-            console.log('   Hash:', window.location.hash);
-        }, 100);
-    }
-}, true); // Use capture phase to catch it first
-
         // ADD THIS FUNCTION AT THE TOP OF YOUR SCRIPT FILE:
 function safeParsePhrases(jsonString) {
     if (!jsonString) return [];
@@ -1217,6 +1204,48 @@ const triggerTemplates = {
     }
     // Add more industries as needed...
 };
+
+ function deleteCurrentIndustry() {
+    if (!currentIndustry) {
+        showMessage('No industry selected', 'error');
+        return;
+    }
+    
+    const industryName = currentData.industries[currentIndustry].name;
+    
+    if (!confirm(`⚠️ DELETE "${industryName}"?\n\nThis will remove:\n• The industry\n• All its concerns\n• All testimonials\n• Associated keywords\n\nThis cannot be undone!`)) {
+        return;
+    }
+    
+    // Delete industry
+    delete currentData.industries[currentIndustry];
+    delete currentData.industryKeywords[currentIndustry];
+    
+    // Also delete any videos that start with this industry slug
+    Object.keys(currentData.videos).forEach(videoKey => {
+        if (videoKey.startsWith(currentIndustry + '-')) {
+            delete currentData.videos[videoKey];
+        }
+    });
+    
+    currentIndustry = null;
+    document.getElementById('currentIndustryName').textContent = 'None selected';
+    
+    updateIndustryList();
+    updateStats();
+    updateCodePreview();
+    saveAllData();
+
+       // ============ ADD THIS CODE ============
+    // Auto-select first industry if none selected
+    if (!currentIndustry && Object.keys(currentData.industries).length > 0) {
+        const firstIndustrySlug = Object.keys(currentData.industries)[0];
+        selectIndustry(firstIndustrySlug);
+        console.log('✅ Auto-selected first industry:', firstIndustrySlug);
+    }
+    
+    showMessage(`✅ Deleted industry: ${industryName}`, 'success');
+}
 
 // 2. TRIGGER SYSTEM FUNCTIONS
 function initTriggerSystem() {
@@ -2193,83 +2222,6 @@ function initializeWithDefaults() {
     };
     
     console.log('📄 Initialized with default data structure');
-
-    // ===== CLICK DIAGNOSTIC =====
-console.log('🔍 Setting up click diagnostic...');
-
-// Override the button's onclick to see what happens
-document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(() => {
-        const deleteBtn = document.querySelector('button.btn-danger');
-        if (deleteBtn) {
-            console.log('🔍 Found delete button:', deleteBtn);
-            
-            // Save original onclick
-            const originalOnclick = deleteBtn.onclick;
-            
-            // Wrap with diagnostic
-            deleteBtn.onclick = function(e) {
-                console.log('🎯 BUTTON CLICKED - Current state:');
-                console.log('   deleteCurrentIndustry type:', typeof deleteCurrentIndustry);
-                console.log('   industry-select value:', document.getElementById('industry-select')?.value);
-                console.log('   currentIndustry variable:', typeof currentIndustry !== 'undefined' ? currentIndustry : 'undefined');
-                console.log('   event type:', e.type);
-                console.log('   event target:', e.target);
-                
-                // Call original if it exists
-                if (originalOnclick) {
-                    return originalOnclick.call(this, e);
-                }
-            };
-            
-            // Also check for event listeners
-            const listeners = getEventListeners && getEventListeners(deleteBtn);
-            console.log('🔍 Event listeners on delete button:', listeners);
-        }
-    }, 1000);
-});
-
-    function deleteCurrentIndustry() {
-    if (!currentIndustry) {
-        showMessage('No industry selected', 'error');
-        return;
-    }
-    
-    const industryName = currentData.industries[currentIndustry].name;
-    
-    if (!confirm(`⚠️ DELETE "${industryName}"?\n\nThis will remove:\n• The industry\n• All its concerns\n• All testimonials\n• Associated keywords\n\nThis cannot be undone!`)) {
-        return;
-    }
-    
-    // Delete industry
-    delete currentData.industries[currentIndustry];
-    delete currentData.industryKeywords[currentIndustry];
-    
-    // Also delete any videos that start with this industry slug
-    Object.keys(currentData.videos).forEach(videoKey => {
-        if (videoKey.startsWith(currentIndustry + '-')) {
-            delete currentData.videos[videoKey];
-        }
-    });
-    
-    currentIndustry = null;
-    document.getElementById('currentIndustryName').textContent = 'None selected';
-    
-    updateIndustryList();
-    updateStats();
-    updateCodePreview();
-    saveAllData();
-
-       // ============ ADD THIS CODE ============
-    // Auto-select first industry if none selected
-    if (!currentIndustry && Object.keys(currentData.industries).length > 0) {
-        const firstIndustrySlug = Object.keys(currentData.industries)[0];
-        selectIndustry(firstIndustrySlug);
-        console.log('✅ Auto-selected first industry:', firstIndustrySlug);
-    }
-    
-    showMessage(`✅ Deleted industry: ${industryName}`, 'success');
-}
 
 function showIndustryManager() {
     const modalHTML = `
