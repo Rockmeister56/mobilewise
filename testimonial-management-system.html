@@ -1203,6 +1203,67 @@ const triggerTemplates = {
     // Add more industries as needed...
 };
 
+// ==============================================
+// FINAL FIX: STOP SCROLL JUMP ON TRIGGER SELECTION
+// ==============================================
+
+(function() {
+    'use strict';
+    
+    console.log('🎯 Applying final scroll fix...');
+    
+    // 1. Store original scroll position when page loads
+    let originalScrollY = window.scrollY;
+    
+    // 2. When trigger is selected, lock scroll
+    document.addEventListener('change', function(e) {
+        if (e.target.id === 'trigger-search' || e.target.id === 'triggerSearch') {
+            console.log('Trigger selected, locking scroll...');
+            originalScrollY = window.scrollY;
+            
+            // Force scroll to stay in place
+            const lockScroll = setInterval(() => {
+                if (window.scrollY !== originalScrollY) {
+                    console.log(`Correcting scroll: ${window.scrollY} → ${originalScrollY}`);
+                    window.scrollTo(0, originalScrollY);
+                }
+            }, 50);
+            
+            // Stop after 2 seconds
+            setTimeout(() => {
+                clearInterval(lockScroll);
+                console.log('Scroll lock released');
+            }, 2000);
+        }
+    }, true); // Use capture phase to catch early
+    
+    // 3. Override window.scrollTo to block large jumps
+    const originalScrollTo = window.scrollTo;
+    window.scrollTo = function(x, y) {
+        const currentY = window.scrollY;
+        
+        // Block jumps larger than 100px
+        if (Math.abs(y - currentY) > 100) {
+            console.log(`🚫 Blocked large scroll: ${currentY} → ${y}`);
+            console.trace();
+            return; // Don't scroll
+        }
+        
+        return originalScrollTo.call(this, x, y);
+    };
+    
+    // 4. Also watch for scroll events and correct them
+    window.addEventListener('scroll', function() {
+        // If we scrolled more than 100px from original, go back
+        if (Math.abs(window.scrollY - originalScrollY) > 100) {
+            console.log(`🔄 Auto-correcting large scroll: ${window.scrollY} → ${originalScrollY}`);
+            window.scrollTo(0, originalScrollY);
+        }
+    });
+    
+    console.log('✅ Final scroll fix applied');
+})();
+
 // 2. TRIGGER SYSTEM FUNCTIONS
 function initTriggerSystem() {
     console.log('Initializing trigger system...');
