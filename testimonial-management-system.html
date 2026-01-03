@@ -2465,49 +2465,178 @@ function showAddIndustryModal() {
 }
 
 // ==============================================
-// AUTO-SLUG GENERATION FOR ADD INDUSTRY MODAL
+// AUTO-SLUG GENERATION (UPDATED WITH CORRECT IDs)
 // ==============================================
 
 document.getElementById('addIndustryModal').addEventListener('shown.bs.modal', function() {
-    console.log('Auto-slug: Modal shown, setting up...');
+    const nameInput = this.querySelector('#newIndustryName');
+    const slugInput = this.querySelector('#newIndustrySlug');
     
-    const nameInput = this.querySelector('#industryName');
-    const slugInput = this.querySelector('#industrySlug');
-    
-    if (!nameInput || !slugInput) {
-        console.log('Auto-slug: Inputs not found');
-        return;
+    if (nameInput && slugInput) {
+        // Generate slug when industry name changes
+        nameInput.addEventListener('input', function() {
+            if (!slugInput.dataset.manualEdit) {
+                const slug = this.value
+                    .toLowerCase()
+                    .trim()
+                    .replace(/[^\w\s-]/g, '')
+                    .replace(/[\s_-]+/g, '-')
+                    .replace(/^-+|-+$/g, '');
+                slugInput.value = slug;
+            }
+        });
+        
+        // Mark as manually edited
+        slugInput.addEventListener('input', function() {
+            if (this.value.trim()) {
+                this.dataset.manualEdit = 'true';
+            }
+        });
     }
-    
-    // Generate slug when industry name changes
-    nameInput.addEventListener('input', function() {
-        // Only auto-fill if slug hasn't been manually edited
-        if (!slugInput.dataset.manualEdit) {
-            const slug = this.value
-                .toLowerCase()
-                .trim()
-                .replace(/[^\w\s-]/g, '')      // Remove special chars
-                .replace(/[\s_-]+/g, '-')      // Replace spaces/underscores with hyphens
-                .replace(/^-+|-+$/g, '');      // Remove leading/trailing hyphens
-            slugInput.value = slug;
-        }
-    });
-    
-    // Mark slug as manually edited if user changes it
-    slugInput.addEventListener('input', function() {
-        if (this.value.trim()) {
-            this.dataset.manualEdit = 'true';
-        }
-    });
 });
 
-// Reset manual edit flag when modal closes
+// Reset on modal close
 document.getElementById('addIndustryModal').addEventListener('hidden.bs.modal', function() {
-    const slugInput = this.querySelector('#industrySlug');
+    const slugInput = this.querySelector('#newIndustrySlug');
     if (slugInput && slugInput.dataset.manualEdit) {
         delete slugInput.dataset.manualEdit;
     }
 });
+
+// ==============================================
+// KEYWORD SUGGESTIONS FOR INDUSTRY FORM
+// ==============================================
+
+document.getElementById('addIndustryModal').addEventListener('shown.bs.modal', function() {
+    const nameInput = this.querySelector('#newIndustryName');
+    const keywordsInput = this.querySelector('#newIndustryKeywords');
+    
+    if (nameInput && keywordsInput) {
+        const keywordLibrary = {
+            'attorney': ['legal', 'lawyer', 'case', 'injury', 'lawsuit'],
+            'mortgage': ['loan', 'refinance', 'interest', 'home', 'approval'],
+            'real estate': ['agent', 'property', 'home', 'sale', 'buyer'],
+            'medical': ['doctor', 'treatment', 'healthcare', 'procedure'],
+            'financial': ['advisor', 'investment', 'retirement', 'planning'],
+            'insurance': ['coverage', 'policy', 'claim', 'protection']
+        };
+        
+        nameInput.addEventListener('blur', function() {
+            if (!keywordsInput.value.trim()) {
+                const industryName = this.value.toLowerCase();
+                const suggestions = new Set();
+                
+                Object.entries(keywordLibrary).forEach(([category, keywords]) => {
+                    if (industryName.includes(category)) {
+                        keywords.forEach(keyword => suggestions.add(keyword));
+                    }
+                });
+                
+                ['consultation', 'services', 'professional'].forEach(word => 
+                    suggestions.add(word)
+                );
+                
+                if (suggestions.size > 0) {
+                    const suggestionArray = Array.from(suggestions);
+                    keywordsInput.placeholder = `e.g., ${suggestionArray.slice(0, 3).join(', ')}...`;
+                }
+            }
+        });
+    }
+});
+
+// ==============================================
+// AUTO-POPULATE CONCERNKEYWORDS FROM CONCERNS
+// ==============================================
+// This is the MAIN functionality - when checkboxes are checked,
+// their phrases go into #concernKeywords field
+
+function setupConcernKeywordsLinking() {
+    console.log('🔗 Setting up concern-to-keywords linking...');
+    
+    const concernKeywordsField = document.getElementById('concernKeywords');
+    const concernsContainer = document.getElementById('concerns-container');
+    
+    if (!concernKeywordsField) {
+        console.log('❌ #concernKeywords field not found');
+        return;
+    }
+    
+    if (!concernsContainer) {
+        console.log('❌ #concerns-container not found');
+        return;
+    }
+    
+    console.log('✅ Found #concernKeywords and #concerns-container');
+    
+    // Listen for checkbox changes
+    concernsContainer.addEventListener('change', function(e) {
+        if (e.target.classList.contains('concern-checkbox')) {
+            const checkbox = e.target;
+            const concernValue = checkbox.value;
+            
+            console.log(`Checkbox "${concernValue}" changed: ${checkbox.checked}`);
+            
+            try {
+                // Get and parse phrases
+                const rawData = checkbox.dataset.phrases || '[]';
+                const unescaped = rawData
+                    .replace(/&quot;/g, '"')
+                    .replace(/&#39;/g, "'");
+                const phrases = JSON.parse(unescaped);
+                
+                console.log(`  Parsed ${phrases.length} phrases:`, phrases);
+                
+                const currentKeywords = concernKeywordsField.value.trim();
+                
+                if (checkbox.checked) {
+                    // ADD phrases
+                    if (currentKeywords === '') {
+                        concernKeywordsField.value = phrases.join(', ');
+                        console.log(`✅ Set keywords: ${phrases.join(', ')}`);
+                    } else {
+                        const existing = currentKeywords.split(',').map(p => p.trim());
+                        const toAdd = phrases.filter(p => !existing.includes(p));
+                        
+                        if (toAdd.length > 0) {
+                            concernKeywordsField.value = currentKeywords + ', ' + toAdd.join(', ');
+                            console.log(`✅ Added: ${toAdd.join(', ')}`);
+                        }
+                    }
+                } else {
+                    // REMOVE phrases
+                    if (currentKeywords) {
+                        const currentPhrases = currentKeywords.split(',').map(p => p.trim());
+                        const remaining = currentPhrases.filter(p => !phrases.includes(p));
+                        concernKeywordsField.value = remaining.join(', ');
+                        console.log(`❌ Removed: ${phrases.join(', ')}`);
+                    }
+                }
+                
+                // Visual feedback
+                concernKeywordsField.style.border = '2px solid #4CAF50';
+                concernKeywordsField.style.backgroundColor = '#f0fff0';
+                setTimeout(() => {
+                    concernKeywordsField.style.border = '';
+                    concernKeywordsField.style.backgroundColor = '';
+                }, 1000);
+                
+                // Update code preview if function exists
+                if (typeof updateCodePreview === 'function') {
+                    updateCodePreview();
+                }
+                
+            } catch (error) {
+                console.log(`❌ Error processing ${concernValue}:`, error);
+            }
+        }
+    });
+    
+    console.log('✅ Concern-to-keywords linking setup complete');
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', setupConcernKeywordsLinking);
 
 // Initialize the modal's trigger system (separate from main form)
 function initModalTriggerSystem() {
