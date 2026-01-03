@@ -921,6 +921,46 @@ a[href^="#"] {
     <div class="status-message" id="warningMessage"></div>
 
     <script>
+
+        // ADD THIS FUNCTION AT THE TOP OF YOUR SCRIPT FILE:
+function safeParsePhrases(jsonString) {
+    if (!jsonString) return [];
+    
+    try {
+        // Try normal parse first
+        return JSON.parse(jsonString);
+    } catch (error) {
+        console.log('JSON parse failed, attempting recovery...');
+        
+        // If string appears to be truncated
+        if (jsonString.includes('[') && !jsonString.includes(']')) {
+            // Try to complete the JSON
+            let fixed = jsonString;
+            
+            // Add missing closing bracket
+            if (!fixed.endsWith(']')) {
+                // Check if we need to close a string
+                const quoteCount = (fixed.match(/"/g) || []).length;
+                if (quoteCount % 2 === 1) {
+                    fixed += '"';
+                }
+                fixed += ']';
+            }
+            
+            try {
+                return JSON.parse(fixed);
+            } catch (e) {
+                // Extract strings between quotes as last resort
+                const matches = fixed.match(/"([^"]+)"/g) || [];
+                return matches.map(m => m.slice(1, -1));
+            }
+        }
+        
+        // If no opening bracket, try to extract phrases
+        const matches = jsonString.match(/"([^"]+)"/g) || jsonString.match(/'([^']+)'/g) || [];
+        return matches.map(m => m.slice(1, -1));
+    }
+}
         
 // ===================================================
 // LOAD CHECKER - Add this at the TOP of your script
