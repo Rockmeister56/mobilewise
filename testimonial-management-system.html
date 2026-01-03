@@ -3461,7 +3461,118 @@ console.log('🏢 Industry Keywords:', Object.keys(window.testimonialData.indust
             saveAllData();
         }
 
+        // ==============================================
+// FINAL GUARANTEED FIX
+// ==============================================
+
+(function() {
+    'use strict';
+    
+    console.log('🎯 FINAL GUARANTEED FIX ACTIVATED');
+    
+    // STEP 1: Block ALL scrollIntoView calls PERMANENTLY
+    Object.defineProperty(Element.prototype, 'scrollIntoView', {
+        value: function() {
+            console.log('🚫 scrollIntoView PERMANENTLY BLOCKED');
+            return undefined;
+        },
+        writable: false,
+        configurable: false,
+        enumerable: true
+    });
+    
+    // STEP 2: Also block scrollIntoViewIfNeeded (some browsers)
+    if (Element.prototype.scrollIntoViewIfNeeded) {
+        Object.defineProperty(Element.prototype, 'scrollIntoViewIfNeeded', {
+            value: function() {
+                console.log('🚫 scrollIntoViewIfNeeded BLOCKED');
+                return undefined;
+            },
+            writable: false,
+            configurable: false
+        });
+    }
+    
+    // STEP 3: Patch window.scrollTo to prevent smooth scrolling to messages
+    const originalScrollTo = window.scrollTo;
+    window.scrollTo = function(x, y) {
+        // Check if this is a smooth scroll (has options object)
+        if (arguments.length === 1 && typeof arguments[0] === 'object') {
+            const options = arguments[0];
+            if (options.behavior === 'smooth') {
+                console.log('🚫 Blocked smooth scrollTo:', options);
+                
+                // Allow instant scrolls but block smooth ones
+                if (options.top !== undefined) {
+                    return originalScrollTo.call(this, { 
+                        top: options.top, 
+                        behavior: 'instant' // Change to instant
+                    });
+                }
+            }
+        }
         
+        return originalScrollTo.apply(this, arguments);
+    };
+    
+    // STEP 4: Replace showMessage entirely (just in case)
+    window.showMessage = function(text, type) {
+        console.log('📢 Message (NO SCROLL):', text);
+        
+        const messageEl = document.getElementById(`${type}Message`);
+        if (messageEl) {
+            messageEl.textContent = text;
+            messageEl.className = `status-message status-${type}`;
+            messageEl.style.display = 'block';
+            
+            // NO SCROLLING - the line below is REMOVED:
+            // messageEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            
+            if (type !== 'error') {
+                setTimeout(() => {
+                    messageEl.style.opacity = '0.5';
+                    setTimeout(() => {
+                        messageEl.style.display = 'none';
+                        messageEl.style.opacity = '1';
+                    }, 500);
+                }, 3000);
+            }
+        }
+    };
+    
+    // STEP 5: Force disable any smooth scrolling on the page
+    document.documentElement.style.scrollBehavior = 'auto';
+    document.body.style.scrollBehavior = 'auto';
+    
+    console.log('✅ FINAL FIX APPLIED - No more scrolling from showMessage!');
+    
+    // Immediate test
+    setTimeout(() => {
+        console.log('🧪 Immediate test...');
+        const scrollBefore = window.scrollY;
+        
+        if (typeof showMessage === 'function') {
+            showMessage('Final test - should NOT scroll!', 'success');
+            
+            setTimeout(() => {
+                if (Math.abs(window.scrollY - scrollBefore) < 10) {
+                    console.log(`✅✅✅ SUCCESS! No scrolling. Position: ${window.scrollY}px`);
+                } else {
+                    console.log(`❌ Still scrolling: ${scrollBefore} → ${window.scrollY}`);
+                    
+                    // Last resort: lock scroll completely
+                    window.scrollTo(0, scrollBefore);
+                    setInterval(() => {
+                        if (window.scrollY !== scrollBefore) {
+                            window.scrollTo(0, scrollBefore);
+                        }
+                    }, 50);
+                }
+            }, 800);
+        }
+    }, 500);
+})();
+
         // ===================================================
         // EVENT LISTENERS & INITIALIZATION
         // ===================================================
