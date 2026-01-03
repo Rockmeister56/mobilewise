@@ -179,6 +179,76 @@ if (mw.state === 'qualification') {
         return "Perfect timing! I've opened our AI demo scheduling options.";
     }
     
+// =============================================================================
+// 🎯 ENHANCED CONCERN DETECTION WITH TESTIMONIALS
+// =============================================================================
+
+// Add this near the top with other concern patterns
+const testimonialConcernPatterns = [
+    // PRICE CONCERNS
+    {pattern: 'expensive', type: 'price', response: "I understand your concern about the cost."},
+    {pattern: 'cost', type: 'price', response: "I hear you on the pricing question."},
+    {pattern: 'price', type: 'price', response: "I appreciate you mentioning the price."},
+    {pattern: 'afford', type: 'price', response: "I understand your affordability concern."},
+    
+    // TIME CONCERNS  
+    {pattern: 'time', type: 'time', response: "I understand your concern about time."},
+    {pattern: 'busy', type: 'time', response: "I hear you're busy and don't have extra time."},
+    {pattern: 'when', type: 'time', response: "I understand your question about timing."},
+    
+    // TRUST CONCERNS
+    {pattern: 'trust', type: 'trust', response: "I appreciate your honesty about trust."},
+    {pattern: 'believe', type: 'trust', response: "I understand you're wondering if you can believe in this."},
+    {pattern: 'skeptical', type: 'trust', response: "I get that you're feeling skeptical."},
+    {pattern: 'scam', type: 'trust', response: "I appreciate you sharing that concern about legitimacy."},
+    
+    // EFFECTIVENESS CONCERNS
+    {pattern: 'work', type: 'general', response: "I understand your question about whether this will work."},
+    {pattern: 'results', type: 'general', response: "I understand your concern about getting results."},
+    {pattern: 'worried', type: 'general', response: "I hear you're worried about this."}
+];
+
+// Replace or enhance the concern detection section
+for (const concern of testimonialConcernPatterns) {
+    if (lowerMsg.includes(concern.pattern)) {
+        console.log(`🚨 CONCERN DETECTED: ${concern.type} (pattern: "${concern.pattern}")`);
+        
+        // Store the concern type
+        window.detectedConcernType = concern.type;
+        
+        // 🎯 NEW: Check for specific industry testimonials
+        if (window.checkTestimonialTriggers) {
+            const testimonialMatch = window.checkTestimonialTriggers(userMessage);
+            if (testimonialMatch && testimonialMatch.videos.length > 0) {
+                console.log('✅ Found matching testimonials!');
+                
+                // Call your existing testimonial handler
+                if (typeof handleConcernWithTestimonial === 'function') {
+                    // Pass both the message and matched testimonials
+                    const enhancedMessage = `${concern.response} Let me show you what other business owners experienced...`;
+                    
+                    // Store the matched testimonials
+                    window.matchedTestimonials = testimonialMatch.videos;
+                    window.currentTestimonialConcern = testimonialMatch.concern;
+                    
+                    handleConcernWithTestimonial(userMessage);
+                    
+                    // Return the enhanced message
+                    return enhancedMessage;
+                }
+            }
+        }
+        
+        // Fallback to original concern handling
+        if (typeof handleConcernWithTestimonial === 'function') {
+            handleConcernWithTestimonial(userMessage);
+            return `${concern.response} Let me show you what other business owners experienced...`;
+        }
+        
+        return `${concern.response} Many clients had similar thoughts initially...`;
+    }
+}
+
 // =========================================================================
 // 🚨 STEP 3: ENHANCED CONCERN DETECTION WITH SPECIFIC RESPONSES
 // =========================================================================
@@ -221,6 +291,16 @@ for (const concern of concernPatterns) {
         // Store the concern type for testimonial system
         window.detectedConcernType = concern.type;
         console.log(`📝 Stored concern type: ${window.detectedConcernType}`);
+        
+        // 🎯 NEW: Check for specific industry testimonials BEFORE calling handleConcernWithTestimonial
+        if (window.checkTestimonialTriggers && window.testimonialData) {
+            const testimonialMatch = window.checkTestimonialTriggers(userMessage);
+            if (testimonialMatch && testimonialMatch.videos.length > 0) {
+                console.log(`✅ Found ${testimonialMatch.videos.length} matching testimonials`);
+                window.matchedTestimonials = testimonialMatch.videos;
+                window.currentTestimonialConcern = testimonialMatch.concern;
+            }
+        }
         
         // Call testimonial system if available
         if (typeof handleConcernWithTestimonial === 'function') {
@@ -790,3 +870,63 @@ console.log('✅ MOBILEWISE AI CORE LOADED - Complete Phase 1');
 console.log('🎯 Conversation States: introduction → rapport_building → needs_discovery → solution_presentation → closing');
 console.log('👤 Will capture name, build rapport, identify needs, present solution');
 console.log('🚀 Ready to revolutionize sales at $0.40/day!');
+
+// =============================================================================
+// 🎯 TESTIMONIAL TRIGGER CHECKER
+// =============================================================================
+
+// This function helps find industry-specific testimonials
+window.checkTestimonialTriggers = function(userMessage) {
+    console.log('🔍 checkTestimonialTriggers called for:', userMessage);
+    
+    // Check if testimonial data is available
+    if (!window.testimonialData || !window.testimonialData.industries) {
+        console.log('❌ No testimonial data available');
+        return null;
+    }
+    
+    const currentIndustrySlug = window.testimonialData.currentIndustry;
+    const industry = window.testimonialData.industries[currentIndustrySlug];
+    
+    if (!industry || !industry.concerns) {
+        console.log('❌ No industry data or concerns found');
+        return null;
+    }
+    
+    const lowerMsg = userMessage.toLowerCase();
+    
+    // Check each industry concern against the user's message
+    for (const concern of industry.concerns) {
+        if (lowerMsg.includes(concern.toLowerCase())) {
+            console.log(`✅ Found matching concern: "${concern}"`);
+            
+            // Find videos related to this concern
+            const matchingVideos = [];
+            if (industry.videos) {
+                Object.entries(industry.videos).forEach(([videoId, video]) => {
+                    const videoText = (video.title + ' ' + (video.tags || []).join(' ')).toLowerCase();
+                    if (videoText.includes(concern.toLowerCase())) {
+                        matchingVideos.push({
+                            id: videoId,
+                            ...video,
+                            industry: currentIndustrySlug,
+                            concern: concern
+                        });
+                    }
+                });
+            }
+            
+            return {
+                industry: currentIndustrySlug,
+                concern: concern,
+                videos: matchingVideos,
+                message: `I understand your concern about ${concern}. Here's what other clients experienced:`
+            };
+        }
+    }
+    
+    console.log('❌ No industry concern match found');
+    return null;
+};
+
+console.log('✅ checkTestimonialTriggers function added to mobilewise-ai-core.js');
