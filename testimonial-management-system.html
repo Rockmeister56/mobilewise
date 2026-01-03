@@ -632,9 +632,9 @@ a[href^="#"] {
             <!-- In your sidebar, add this after the stats -->
 <div style="margin-top: 30px; padding: 15px; background: rgba(244, 67, 54, 0.1); border-radius: 8px; border: 1px solid var(--danger);">
     <h4 style="color: var(--danger); margin-bottom: 10px;">⚠️ Admin Tools</h4>
-    <button class="btn btn-danger" onclick="deleteCurrentIndustry()" style="width: 100%; margin-bottom: 10px;">
-        🗑️ Delete Current Industry
-    </button>
+    <button class="btn btn-danger" id="testDeleteBtn" onclick="console.log('ONCLICK FIRED'); _testDelete(); return false;" style="width: 100%; margin-bottom: 10px;">
+    🧪 TEST DELETE (Diagnostic)
+</button>
     <button class="btn" onclick="editCurrentIndustry()" style="background: #666; width: 100%; margin-top: 10px;">
     ✏️ Edit Current Industry
 </button>
