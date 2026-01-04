@@ -1970,6 +1970,272 @@ document.addEventListener('DOMContentLoaded', function() {
     // ADD THIS LINE:
     setTimeout(initTriggerSystem, 500);
 });
+
+// 📋 ENHANCED CONNECTION SCRIPT - Replace your existing one with this
+function connectTestimonialAI() {
+    console.log('🔗 Connecting testimonial AI to management system...');
+    
+    // 1. Make sure our function exists
+    if (!window.testimonialData || !window.testimonialData.findRelevantTestimonial) {
+        console.error('❌ Testimonial AI not loaded!');
+        return false;
+    }
+    
+    console.log('✅ Testimonial AI functions are available');
+    
+    // 2. Check for existing concern detection (from your original script)
+    let concernDetected = false;
+    
+    // Method A: Check URL parameters for concerns
+    const urlParams = new URLSearchParams(window.location.search);
+    const concernFromUrl = urlParams.get('concern');
+    if (concernFromUrl) {
+        console.log('🔍 Concern from URL:', concernFromUrl);
+        showRelevantTestimonial(concernFromUrl);
+        concernDetected = true;
+    }
+    
+    // Method B: Listen for form submissions (from your original script)
+    document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            const textarea = this.querySelector('textarea');
+            if (textarea && textarea.value) {
+                console.log('📝 Form submission detected:', textarea.value.substring(0, 50));
+                const result = window.testimonialData.findRelevantTestimonial(textarea.value);
+                if (result) {
+                    e.preventDefault(); // Stop form submission
+                    showRelevantTestimonial(result);
+                }
+            }
+        });
+    });
+    
+    // Method C: Intercept button clicks (from my enhanced script)
+    document.addEventListener('click', function(event) {
+        const button = event.target.closest('button');
+        if (button) {
+            const buttonText = button.textContent.toLowerCase().trim();
+            
+            // Check if this button might be related to concerns
+            const concernKeywords = [
+                'price', 'expensive', 'cost', 'afford', 'budget',
+                'time', 'long', 'fast', 'quick', 'speed', 'minutes', 'hours',
+                'trust', 'scam', 'reliable', 'skeptical', 'believe',
+                'results', 'work', 'effective', 'outcome', 'success',
+                'concern', 'worry', 'doubt', 'question', 'unsure'
+            ];
+            
+            for (const keyword of concernKeywords) {
+                if (buttonText.includes(keyword)) {
+                    console.log(`🎯 Concern button detected: "${button.textContent.trim()}"`);
+                    
+                    // Find relevant testimonial
+                    const result = window.testimonialData.findRelevantTestimonial(buttonText);
+                    if (result) {
+                        console.log('✅ Found matching testimonial:', result);
+                        
+                        // Try to trigger your existing system
+                        if (window.showTestimonialForConcern) {
+                            window.showTestimonialForConcern(result.concernType || result.type);
+                        } else if (window.displayRelevantTestimonial) {
+                            window.displayRelevantTestimonial(result);
+                        } else {
+                            // Fallback: Show it ourselves
+                            showTestimonialPopup(result);
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+    });
+    
+    // Method D: Add debug panel (from my enhanced script)
+    addDebugPanel();
+    
+    console.log('✅ Testimonial AI fully connected!');
+    console.log('   - URL parameter detection ✓');
+    console.log('   - Form submission detection ✓');
+    console.log('   - Button click detection ✓');
+    console.log('   - Debug panel enabled ✓');
+    
+    return true;
+}
+
+// Function to display the testimonial result (enhanced version)
+function showRelevantTestimonial(dataOrText) {
+    console.log('📺 Showing testimonial:', dataOrText);
+    
+    // If it's text, find matching testimonial
+    let result;
+    if (typeof dataOrText === 'string') {
+        result = window.testimonialData.findRelevantTestimonial(dataOrText);
+    } else {
+        result = dataOrText;
+    }
+    
+    if (!result) {
+        console.log('❌ No testimonial found for:', dataOrText);
+        return;
+    }
+    
+    // Call the enhanced display function
+    showTestimonialPopup(result);
+}
+
+// Enhanced display function (from my script)
+function showTestimonialPopup(testimonial) {
+    console.log('📺 Showing testimonial popup:', testimonial);
+    
+    const popup = document.createElement('div');
+    popup.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        z-index: 10000;
+        max-width: 500px;
+        width: 90%;
+        text-align: center;
+        border-top: 5px solid #007bff;
+        animation: fadeIn 0.3s ease-out;
+    `;
+    
+    popup.innerHTML = `
+        <div style="font-size: 48px; margin-bottom: 10px;">${testimonial.icon}</div>
+        <h3 style="margin: 0 0 10px; color: #333;">${testimonial.concern}</h3>
+        <p style="font-size: 18px; font-style: italic; color: #555; margin: 20px 0;">"${testimonial.review}"</p>
+        <p style="color: #777; font-weight: bold; margin-bottom: 25px;">- ${testimonial.author}</p>
+        <button onclick="closeTestimonialPopup()" style="
+            padding: 10px 30px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        ">Continue</button>
+    `;
+    
+    // Add overlay
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 9999;
+        animation: fadeIn 0.3s ease-out;
+    `;
+    overlay.id = 'testimonial-overlay';
+    
+    // Add CSS animation
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    `;
+    document.head.appendChild(style);
+    
+    // Close function
+    window.closeTestimonialPopup = function() {
+        if (document.getElementById('testimonial-overlay')) {
+            document.body.removeChild(document.getElementById('testimonial-overlay'));
+        }
+        if (popup.parentNode === document.body) {
+            document.body.removeChild(popup);
+        }
+    };
+    
+    overlay.onclick = window.closeTestimonialPopup;
+    
+    document.body.appendChild(overlay);
+    document.body.appendChild(popup);
+    
+    // Auto-close after 8 seconds
+    setTimeout(window.closeTestimonialPopup, 8000);
+}
+
+// Debug panel function (from my script)
+function addDebugPanel() {
+    const panel = document.createElement('div');
+    panel.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        background: white;
+        padding: 15px;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        z-index: 9998;
+        font-family: Arial, sans-serif;
+        max-width: 300px;
+        animation: slideInLeft 0.5s ease-out;
+    `;
+    
+    panel.innerHTML = `
+        <h4 style="margin-top: 0; color: #007bff;">🎯 Testimonial AI Debug</h4>
+        <p style="margin: 10px 0; font-size: 12px; color: #666;">Click buttons below to test:</p>
+        <div style="display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px;">
+            <button onclick="testConcern('price')" style="padding: 5px 10px; background: #28a745; color: white; border: none; border-radius: 3px; cursor: pointer;">💰 Price</button>
+            <button onclick="testConcern('time')" style="padding: 5px 10px; background: #17a2b8; color: white; border: none; border-radius: 3px; cursor: pointer;">⏰ Time</button>
+            <button onclick="testConcern('trust')" style="padding: 5px 10px; background: #dc3545; color: white; border: none; border-radius: 3px; cursor: pointer;">🤝 Trust</button>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 5px;">
+            <button onclick="testConcern('general')" style="padding: 5px 10px; background: #6c757d; color: white; border: none; border-radius: 3px; cursor: pointer;">⭐ General</button>
+            <button onclick="testConcern('results')" style="padding: 5px 10px; background: #ffc107; color: #333; border: none; border-radius: 3px; cursor: pointer;">📈 Results</button>
+        </div>
+        <p style="margin: 10px 0 0; font-size: 10px; color: #999;">AI Matching: ACTIVE</p>
+    `;
+    
+    // Add animation CSS
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideInLeft {
+            from { transform: translateX(-100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    `;
+    document.head.appendChild(style);
+    
+    document.body.appendChild(panel);
+    
+    // Add test function to window
+    window.testConcern = function(type) {
+        const messages = {
+            price: 'This is too expensive for my budget',
+            time: 'The process takes too long to implement',
+            trust: 'I\'m not sure if I can trust this company',
+            general: 'I\'m on the fence about this decision',
+            results: 'Does this actually work and get results?'
+        };
+        
+        const message = messages[type] || 'Test concern';
+        console.log(`🧪 Testing ${type}: "${message}"`);
+        
+        const result = window.testimonialData.findRelevantTestimonial(message);
+        if (result) {
+            showTestimonialPopup(result);
+        } else {
+            alert(`❌ No testimonial found for "${type}" concern`);
+        }
+    };
+}
+
+// Initialize when page loads
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', connectTestimonialAI);
+} else {
+    connectTestimonialAI();
+}
         
         // ===================================================
         // INITIALIZATION
