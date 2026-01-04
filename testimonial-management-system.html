@@ -3664,36 +3664,116 @@ console.log('🏢 Industry Keywords:', Object.keys(window.testimonialData.indust
         }
         
         function saveAllData() {
-            console.log('💾 SAVING DATA...');
+    console.log('💾 SAVING DATA...');
     
-    // Save to localStorage
-    localStorage.setItem('testimonialData', JSON.stringify(currentData));
+    // Make sure currentIndustry is set
+    if (!currentIndustry && Object.keys(currentData.industries).length > 0) {
+        currentIndustry = Object.keys(currentData.industries)[0];
+        console.log('   Auto-set currentIndustry to:', currentIndustry);
+    }
     
-      // 🎯 ALSO UPDATE window.testimonialData to match
-    window.testimonialData = {
-        currentIndustry: currentIndustry,
-        industries: currentData.industries,
-        industryKeywords: currentData.industryKeywords,
-        videos: currentData.videos
-    };
+    try {
+        // 1. Save to localStorage
+        localStorage.setItem('testimonialData', JSON.stringify(currentData));
+        console.log('💾 Data saved to localStorage');
+        
+        // 2. Update window.testimonialData to match
+        window.testimonialData = {
+            currentIndustry: currentIndustry,
+            industries: currentData.industries,
+            industryKeywords: currentData.industryKeywords,
+            videos: currentData.videos,
+            universalConcerns: currentData.universalConcerns || {},
+            playerConfig: currentData.playerConfig || {}
+        };
+        
+        console.log('✅ Data saved to localStorage AND window.testimonialData');
+        console.log('   Total industries:', Object.keys(currentData.industries).length);
+        
+        // 3. Generate downloadable file
+        generateDownloadableFile();
+        
+        return true;
+        
+    } catch (e) {
+        console.error('Error saving data:', e);
+        showMessage('⚠️ Could not save to localStorage. Data may be too large.', 'warning');
+        return false;
+    }
+}
 
-     // 🎯 NEW: 3. Update the generated JS file
-    updateTestimonialsDataFile();
+// ===================================================
+// 📥 GENERATE DOWNLOADABLE FILE FUNCTION
+// ===================================================
+function generateDownloadableFile() {
+    console.log('📝 Generating updated testimonials-data.js file...');
     
-    console.log('✅ Data saved to localStorage AND window.testimonialData');
-          
-           try {
-                localStorage.setItem('testimonialData', JSON.stringify(currentData));
-                console.log('💾 Data saved to localStorage');
-                return true;
-            } catch (e) {
-                console.error('Error saving data:', e);
-                showMessage('⚠️ Could not save to localStorage. Data may be too large.', 'warning');
-                return false;
+    const data = {
+        currentIndustry: currentIndustry || Object.keys(currentData.industries)[0] || 'general',
+        industries: currentData.industries,
+        industryKeywords: currentData.industryKeywords || {},
+        videos: currentData.videos || {},
+        universalConcerns: currentData.universalConcerns || {},
+        playerConfig: currentData.playerConfig || {}
+    };
+    
+    const fileContent = `// ===================================================
+// 🎬 MOBILE-WISE AI TESTIMONIALS DATA
+// Generated: ${new Date().toLocaleString()}
+// Total Industries: ${Object.keys(data.industries).length}
+// ===================================================
+
+window.testimonialData = ${JSON.stringify(data, null, 2)};`;
+    
+    // Create or update download button
+    let downloadBtn = document.getElementById('downloadUpdatedFileBtn');
+    if (!downloadBtn) {
+        downloadBtn = document.createElement('button');
+        downloadBtn.id = 'downloadUpdatedFileBtn';
+        downloadBtn.innerHTML = '📥 Download Updated<br>testimonials-data.js';
+        downloadBtn.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 10px;
+            z-index: 99999;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            text-align: center;
+            line-height: 1.2;
+        `;
+        document.body.appendChild(downloadBtn);
+    }
+    
+    downloadBtn.onclick = function() {
+        const blob = new Blob([fileContent], { type: 'application/javascript' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'testimonials-data.js';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        console.log('✅ File downloaded: testimonials-data.js');
+        console.log('⚠️ IMPORTANT: Replace the file on Netlify!');
+        
+        // Show alert
+        setTimeout(() => {
+            if (confirm('📥 File downloaded!\n\nIMPORTANT: Replace testimonials-data.js on Netlify with this file.\n\nOtherwise, deleted industries will come back on page refresh.\n\nClick OK to continue.')) {
+                console.log('✅ User acknowledged file update');
             }
-            console.log('✅ Data saved to localStorage AND window.testimonialData');
-    console.log('   Total industries:', Object.keys(currentData.industries).length);
-        }
+        }, 300);
+    };
+    
+    console.log('✅ Download button ready. Click to save updated file.');
+}
         
         function loadSampleData() {
             if (!confirm('Load sample data? This will replace your current data.')) return;
