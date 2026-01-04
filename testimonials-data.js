@@ -71,7 +71,12 @@ window.testimonialData = {
                 'not reliable',
                 'questionable reputation',
                 'heard bad things',
-                'too good to be true'
+                'too good to be true',
+                'not sure if i can trust', // ADDED: Better matching
+                'trust issues', // ADDED: Better matching
+                'can i trust', // ADDED: Better matching
+                'is this trustworthy', // ADDED: Better matching
+                'skeptical' // ADDED: Better matching
             ],
             reviews: [
                 { 
@@ -108,6 +113,38 @@ window.testimonialData = {
                     text: "Highly recommend to anyone considering this.", 
                     author: "Amanda G.",
                     videoType: "skeptical"
+                }
+            ]
+        },
+        
+        // ADDED: Missing "results" concern
+        results: {
+            title: 'See The Results Others Got',
+            icon: '📈',
+            videoType: 'results',
+            phrases: [
+                'does it work',
+                'effective',
+                'results',
+                'outcomes',
+                'success', // ADDED: Better matching
+                'improvement' // ADDED: Better matching
+            ],
+            reviews: [  // ADDED: Was missing reviews array
+                {
+                    text: "Exceeded all our expectations. Results were better than promised.",
+                    author: "Michael T.",
+                    videoType: "results"
+                },
+                {
+                    text: "We saw a 40% improvement in just 30 days. Incredible results.",
+                    author: "Jennifer K.",
+                    videoType: "results"
+                },
+                {
+                    text: "The outcomes were transformative for our business.",
+                    author: "Robert P.",
+                    videoType: "results"
                 }
             ]
         }
@@ -178,29 +215,60 @@ window.testimonialData = {
     // 🎯 AI INTEGRATION - FIND MATCHING TESTIMONIALS
     // ===================================================
     findRelevantTestimonial: function(userMessage) {
-        console.log('🔍 Searching testimonials for:', userMessage.substring(0, 50));
+        console.log('🎯 AI Matching for:', userMessage.substring(0, 50));
         
         const message = userMessage.toLowerCase();
         
-        // 1. Check universal concerns (price, time, trust, results, general)
+        // 1. First check exact phrase matches
         if (this.concerns) {
-            for (const [key, concern] of Object.entries(this.concerns)) {
-                if (concern.phrases && Array.isArray(concern.phrases)) {
-                    for (const phrase of concern.phrases) {
+            for (const [concernKey, concernData] of Object.entries(this.concerns)) {
+                // Skip concerns with no reviews
+                if (!concernData.reviews || concernData.reviews.length === 0) {
+                    continue;
+                }
+                
+                // Check each phrase
+                if (concernData.phrases && Array.isArray(concernData.phrases)) {
+                    for (const phrase of concernData.phrases) {
                         if (phrase && message.includes(phrase.toLowerCase())) {
-                            console.log(`✅ Matched "${phrase}" in ${concern.title}`);
+                            console.log('✅ Matched phrase:', phrase, 'in', concernData.title);
                             
-                            if (concern.reviews && concern.reviews.length > 0) {
-                                const randomReview = concern.reviews[Math.floor(Math.random() * concern.reviews.length)];
-                                return {
-                                    type: 'universal',
-                                    concern: concern.title,
-                                    review: randomReview.text,
-                                    author: randomReview.author,
-                                    icon: concern.icon,
-                                    videoType: concern.videoType
-                                };
-                            }
+                            const randomReview = concernData.reviews[Math.floor(Math.random() * concernData.reviews.length)];
+                            return {
+                                type: 'universal',
+                                concern: concernData.title,
+                                review: randomReview.text,
+                                author: randomReview.author,
+                                icon: concernData.icon,
+                                videoType: concernData.videoType
+                            };
+                        }
+                    }
+                }
+                
+                // 2. Also check for keyword matches (SMARTER MATCHING)
+                const keywords = {
+                    trust: ['trust', 'skeptical', 'believe', 'reliable', 'scam', 'doubt', 'confidence'],
+                    results: ['result', 'work', 'effective', 'outcome', 'success', 'improve', 'achievement'],
+                    price: ['expensive', 'cost', 'price', 'budget', 'afford', 'value', 'money'],
+                    time: ['time', 'long', 'quick', 'fast', 'speed', 'minutes', 'hours', 'duration'],
+                    general: ['unsure', 'fence', 'convince', 'decide', 'mixed', 'certain', 'opinion']
+                };
+                
+                if (keywords[concernKey]) {
+                    for (const keyword of keywords[concernKey]) {
+                        if (message.includes(keyword)) {
+                            console.log('✅ Matched keyword:', keyword, 'for', concernKey);
+                            
+                            const randomReview = concernData.reviews[Math.floor(Math.random() * concernData.reviews.length)];
+                            return {
+                                type: 'universal',
+                                concern: concernData.title,
+                                review: randomReview.text,
+                                author: randomReview.author,
+                                icon: concernData.icon,
+                                videoType: concernData.videoType
+                            };
                         }
                     }
                 }
@@ -235,7 +303,7 @@ window.testimonialData = {
     // METADATA
     // ===================================================
     __loadedFromFile: true,
-    __version: "3.0-clean-" + new Date().toISOString().split('T')[0]
+    __version: "4.0-ai-enhanced-" + new Date().toISOString().split('T')[0]
 };
 // ===================================================
 // END OF window.testimonialData OBJECT
