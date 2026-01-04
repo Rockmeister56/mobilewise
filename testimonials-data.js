@@ -1,45 +1,87 @@
-// MINIMAL CLEAN testimonials-data.js
-// Upload this to Netlify
+// 🧹 CLEAN TESTIMONIALS DATA FILE
+// Upload this to Netlify to replace the existing one
 
 window.testimonialData = {
-    // Core data structures (all empty)
-    industries: {},
-    industryKeywords: {},
-    videos: {},
-    
-    // Universal concerns (minimal set)
+    // ===================================================
+    // UNIVERSAL CONCERNS
+    // ===================================================
     concerns: {
         price: {
-            title: 'Price Concerns',
+            title: 'See What Others Say About Value',
             icon: '💰',
             videoType: 'skeptical',
-            phrases: ['expensive', 'cost', 'price', 'budget']
+            phrases: [
+                'too expensive',
+                'high cost',
+                'not worth the price',
+                'budget constraints'
+            ]
         },
         time: {
-            title: 'Time Concerns', 
+            title: 'See How Others Saved Time',
             icon: '⏰',
             videoType: 'speed',
-            phrases: ['takes too long', 'slow', 'time', 'waiting']
+            phrases: [
+                'takes too long',
+                'time consuming',
+                'lengthy process',
+                'waste of time'
+            ]
+        },
+        trust: {
+            title: 'See Why Others Trusted Us',
+            icon: '🤝',
+            videoType: 'skeptical',
+            phrases: [
+                'not trustworthy',
+                'scam',
+                'doubtful',
+                'skeptical'
+            ]
+        },
+        results: {
+            title: 'See The Results Others Got',
+            icon: '📈',
+            videoType: 'results',
+            phrases: [
+                'does it work',
+                'effective',
+                'results',
+                'outcomes'
+            ]
         }
     },
     
-    // Player config
+    // ===================================================
+    // INDUSTRIES (EMPTY - Add your own)
+    // ===================================================
+    industries: {},
+    
+    // ===================================================
+    // KEYWORDS FOR AUTO-DETECTION
+    // ===================================================
+    industryKeywords: {},
+    
+    // ===================================================
+    // ALL VIDEOS
+    // ===================================================
+    videos: {},
+    
+    // ===================================================
+    // PLAYER CONFIGURATION
+    // ===================================================
     playerConfig: {
         autoPlay: false,
         loop: true,
-        controls: true
+        controls: true,
+        muted: false,
+        preload: 'auto',
+        responsive: true
     },
     
-    // Metadata
+    // ===================================================
+    // METADATA
+    // ===================================================
     __loadedFromFile: true,
-    __version: "clean-" + new Date().toISOString().split('T')[0]
-};
-
-// Add helper methods
-window.testimonialData.getAllIndustries = function() {
-    return Object.keys(this.industries || {});
-};
-
-window.testimonialData.getIndustry = function(slug) {
-    return this.industries?.[slug] || null;
+    __version: "3.0-clean"
 };
