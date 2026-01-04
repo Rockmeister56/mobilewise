@@ -676,51 +676,104 @@ a[href^="#"] {
     <div id="currentIndustryName">None selected</div>
 </div>
     
-    <!-- TESTIMONIALS AT A GLANCE -->
-    <div id="testimonialsGlance" style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px;">
-        <h4 style="margin-top: 0; margin-bottom: 15px; color: #e9ecef; display: flex; align-items: center; gap: 8px;">
-            <span>🎬</span> 
-            <span>Testimonials At a Glance</span>
-            <span id="testimonialCountBadge" style="background: #007bff; color: white; padding: 2px 8px; border-radius: 12px; font-size: 12px; margin-left: auto;">0</span>
-        </h4>
-        
-        <!-- TESTIMONIAL TYPES GRID -->
-        <div id="testimonialTypesGrid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px;">
-            <div style="text-align: center; padding: 10px; background: rgba(33,37,41,0.5); border-radius: 6px; font-size: 12px; border: 1px solid rgba(255,255,255,0.1); color: #adb5bd;">
-                <div style="font-size: 20px;">💰</div>
-                <div>Price</div>
-                <div style="font-weight: bold; color: #80bdff;">0</div>
-            </div>
-            <div style="text-align: center; padding: 10px; background: rgba(33,37,41,0.5); border-radius: 6px; font-size: 12px; border: 1px solid rgba(255,255,255,0.1); color: #adb5bd;">
-                <div style="font-size: 20px;">⏰</div>
-                <div>Time</div>
-                <div style="font-weight: bold; color: #80bdff;">0</div>
-            </div>
-            <div style="text-align: center; padding: 10px; background: rgba(33,37,41,0.5); border-radius: 6px; font-size: 12px; border: 1px solid rgba(255,255,255,0.1); color: #adb5bd;">
-                <div style="font-size: 20px;">🤝</div>
-                <div>Trust</div>
-                <div style="font-weight: bold; color: #80bdff;">0</div>
-            </div>
-            <div style="text-align: center; padding: 10px; background: rgba(33,37,41,0.5); border-radius: 6px; font-size: 12px; border: 1px solid rgba(255,255,255,0.1); color: #adb5bd;">
-                <div style="font-size: 20px;">📈</div>
-                <div>Results</div>
-                <div style="font-weight: bold; color: #80bdff;">0</div>
-            </div>
-        </div>
+    <!-- TESTIMONIALS OVERVIEW -->
+<div id="testimonialsOverview" style="background: transparent; padding: 0; margin-bottom: 25px;">
     
-    <!-- RECENT TESTIMONIALS -->
-    <div id="recentTestimonials" style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
-        <h4 style="margin-top: 0; margin-bottom: 15px; color: #e9ecef; display: flex; align-items: center; gap: 8px;">
-            <span>📋</span> 
-            <span>Recent Testimonials</span>
-        </h4>
-        
-        <button class="btn" onclick="showAllTestimonials()" 
-                style="width: 100%; margin-top: 10px; background: rgba(33,37,41,0.5); color: #adb5bd; border: 1px solid rgba(255,255,255,0.1); padding: 8px;">
-            👁️ View All Testimonials
-        </button>
+    <!-- TESTIMONIAL CARDS (Rectangular, vertical layout) -->
+    <div id="testimonialCardsContainer" style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 15px;">
+        <!-- Cards will be dynamically inserted here -->
+        <div class="testimonial-card-empty" style="text-align: center; padding: 20px; background: rgba(33,37,41,0.3); border-radius: 8px; border: 1px dashed rgba(255,255,255,0.1); color: #6c757d;">
+            <div style="font-size: 24px; margin-bottom: 8px;">🎬</div>
+            <div>No testimonials yet</div>
+            <div style="font-size: 12px; margin-top: 5px;">Add your first testimonial</div>
+        </div>
     </div>
     
+    <!-- VIEW ALL BUTTON -->
+    <button class="btn" onclick="showAllTestimonialsModal()" 
+            style="width: 100%; background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 500; cursor: pointer; transition: all 0.2s;"
+            onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 15px rgba(0,123,255,0.3)';"
+            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+        <span style="font-size: 16px; margin-right: 8px;">👁️</span>
+        View All Testimonials
+    </button>
+</div>
+
+<!-- VIEW ALL TESTIMONIALS MODAL -->
+<div id="allTestimonialsModal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10000; overflow-y: auto;">
+    <div class="modal-content" style="background: #1a1d21; max-width: 900px; margin: 40px auto; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 60px rgba(0,0,0,0.5);">
+        <div class="modal-header" style="padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: space-between;">
+            <h2 style="margin: 0; color: #e9ecef; display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 24px;">🎬</span>
+                <span>All Testimonials</span>
+                <span id="totalTestimonialsCount" style="background: #007bff; color: white; padding: 4px 12px; border-radius: 20px; font-size: 14px;">0</span>
+            </h2>
+            <button class="close-modal" onclick="hideAllTestimonialsModal()" 
+                    style="background: transparent; border: none; color: #adb5bd; font-size: 24px; cursor: pointer; padding: 0; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.2s;"
+                    onmouseover="this.style.background='rgba(255,255,255,0.1)'; this.style.color='white';">
+                ×
+            </button>
+        </div>
+        
+        <div class="modal-body" style="padding: 0;">
+            <!-- FILTERS -->
+            <div style="padding: 20px; background: rgba(0,0,0,0.2); border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <select id="testimonialFilterIndustry" style="flex: 1; min-width: 200px; padding: 10px; background: rgba(33,37,41,0.5); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: #e9ecef;">
+                        <option value="">All Industries</option>
+                    </select>
+                    <select id="testimonialFilterType" style="flex: 1; min-width: 200px; padding: 10px; background: rgba(33,37,41,0.5); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: #e9ecef;">
+                        <option value="">All Concern Types</option>
+                        <option value="price">💰 Price</option>
+                        <option value="time">⏰ Time</option>
+                        <option value="trust">🤝 Trust</option>
+                        <option value="results">📈 Results</option>
+                    </select>
+                    <button onclick="filterTestimonials()" 
+                            style="padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                        🔍 Filter
+                    </button>
+                    <button onclick="resetTestimonialFilters()" 
+                            style="padding: 10px 20px; background: transparent; color: #adb5bd; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; cursor: pointer;">
+                        ↻ Reset
+                    </button>
+                </div>
+            </div>
+            
+            <!-- TESTIMONIALS GRID -->
+            <div id="allTestimonialsGrid" style="padding: 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; max-height: 500px; overflow-y: auto;">
+                <!-- Testimonials will be dynamically inserted here -->
+                <div class="testimonial-empty-state" style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #6c757d;">
+                    <div style="font-size: 48px; margin-bottom: 20px;">🎬</div>
+                    <h3 style="color: #adb5bd;">No testimonials found</h3>
+                    <p>Add testimonials to see them here</p>
+                </div>
+            </div>
+            
+            <!-- VIDEO PLAYER MODAL -->
+            <div id="videoPlayerModal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 10001; align-items: center; justify-content: center;">
+                <div style="background: #1a1d21; border-radius: 12px; max-width: 800px; width: 90%; max-height: 90vh; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
+                    <div style="padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: space-between;">
+                        <h3 id="videoPlayerTitle" style="margin: 0; color: #e9ecef;">Video Testimonial</h3>
+                        <button onclick="hideVideoPlayer()" 
+                                style="background: transparent; border: none; color: #adb5bd; font-size: 24px; cursor: pointer; padding: 0; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 50%;">
+                            ×
+                        </button>
+                    </div>
+                    <div style="padding: 20px;">
+                        <video id="testimonialVideoPlayer" controls style="width: 100%; border-radius: 8px; background: black;">
+                            Your browser does not support the video tag.
+                        </video>
+                        <div id="videoPlayerInfo" style="margin-top: 15px; color: #adb5bd; font-size: 14px;">
+                            <div><strong>Author:</strong> <span id="videoAuthor">Unknown</span></div>
+                            <div><strong>Concern:</strong> <span id="videoConcern">General</span></div>
+                            <div><strong>Industry:</strong> <span id="videoIndustry">General Business</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
    <div style="margin-top: 30px;">
@@ -1557,6 +1610,336 @@ function getTriggerTypeLabel(type) {
     };
     return labels[type] || type;
 }
+
+// 🎬 TESTIMONIAL VIEWER FUNCTIONS
+
+// 1. Update testimonial cards in sidebar
+function updateTestimonialCards() {
+    const container = document.getElementById('testimonialCardsContainer');
+    if (!container) return;
+    
+    // Get all testimonials
+    const allTestimonials = getAllTestimonials();
+    
+    if (allTestimonials.length === 0) {
+        container.innerHTML = `
+            <div class="testimonial-card-empty" style="text-align: center; padding: 20px; background: rgba(33,37,41,0.3); border-radius: 8px; border: 1px dashed rgba(255,255,255,0.1); color: #6c757d;">
+                <div style="font-size: 24px; margin-bottom: 8px;">🎬</div>
+                <div>No testimonials yet</div>
+                <div style="font-size: 12px; margin-top: 5px;">Add your first testimonial</div>
+            </div>
+        `;
+        return;
+    }
+    
+    // Show latest 3 testimonials
+    const latestTestimonials = allTestimonials.slice(0, 3);
+    container.innerHTML = '';
+    
+    latestTestimonials.forEach(testimonial => {
+        const card = document.createElement('div');
+        card.className = 'testimonial-card';
+        card.style.cssText = `
+            background: rgba(33,37,41,0.5);
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        `;
+        card.onmouseover = () => {
+            card.style.background = 'rgba(33,37,41,0.8)';
+            card.style.transform = 'translateY(-2px)';
+        };
+        card.onmouseout = () => {
+            card.style.background = 'rgba(33,37,41,0.5)';
+            card.style.transform = 'translateY(0)';
+        };
+        card.onclick = () => playTestimonialVideo(testimonial);
+        
+        card.innerHTML = `
+            <div style="display: flex; align-items: flex-start; gap: 12px;">
+                <div style="font-size: 20px; color: #80bdff;">${testimonial.icon || '🎬'}</div>
+                <div style="flex: 1;">
+                    <div style="font-weight: 500; color: #e9ecef; font-size: 14px; margin-bottom: 4px;">
+                        ${testimonial.title || testimonial.concern || 'Testimonial'}
+                    </div>
+                    <div style="color: #adb5bd; font-size: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                        "${testimonial.text}"
+                    </div>
+                    <div style="color: #6c757d; font-size: 11px; margin-top: 6px;">
+                        ${testimonial.author || 'Anonymous'}
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        container.appendChild(card);
+    });
+}
+
+// 2. Get all testimonials from all industries
+function getAllTestimonials() {
+    const allTestimonials = [];
+    
+    // Get from currentData if available
+    if (window.currentData && window.currentData.industries) {
+        Object.values(window.currentData.industries).forEach(industry => {
+            if (industry.concerns) {
+                Object.values(industry.concerns).forEach(concern => {
+                    if (concern.reviews) {
+                        concern.reviews.forEach(review => {
+                            allTestimonials.push({
+                                ...review,
+                                concern: concern.title,
+                                icon: concern.icon,
+                                concernType: concern.videoType,
+                                industry: industry.name,
+                                industrySlug: Object.keys(window.currentData.industries).find(
+                                    slug => window.currentData.industries[slug] === industry
+                                )
+                            });
+                        });
+                    }
+                });
+            }
+        });
+    }
+    
+    // Get from universal concerns
+    if (window.testimonialData && window.testimonialData.concerns) {
+        Object.entries(window.testimonialData.concerns).forEach(([key, concern]) => {
+            if (concern.reviews) {
+                concern.reviews.forEach(review => {
+                    allTestimonials.push({
+                        ...review,
+                        concern: concern.title,
+                        icon: concern.icon,
+                        concernType: concern.videoType,
+                        industry: 'General Business',
+                        industrySlug: 'general'
+                    });
+                });
+            }
+        });
+    }
+    
+    return allTestimonials;
+}
+
+// 3. Show all testimonials modal
+function showAllTestimonialsModal() {
+    const modal = document.getElementById('allTestimonialsModal');
+    if (!modal) return;
+    
+    // Update count
+    const allTestimonials = getAllTestimonials();
+    document.getElementById('totalTestimonialsCount').textContent = allTestimonials.length;
+    
+    // Populate industry filter
+    const industryFilter = document.getElementById('testimonialFilterIndustry');
+    industryFilter.innerHTML = '<option value="">All Industries</option>';
+    
+    if (window.currentData && window.currentData.industries) {
+        Object.entries(window.currentData.industries).forEach(([slug, industry]) => {
+            const option = document.createElement('option');
+            option.value = slug;
+            option.textContent = industry.name;
+            industryFilter.appendChild(option);
+        });
+    }
+    
+    // Show testimonials
+    renderAllTestimonials(allTestimonials);
+    
+    // Show modal
+    modal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+}
+
+// 4. Hide all testimonials modal
+function hideAllTestimonialsModal() {
+    const modal = document.getElementById('allTestimonialsModal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+}
+
+// 5. Render testimonials in grid
+function renderAllTestimonials(testimonials) {
+    const grid = document.getElementById('allTestimonialsGrid');
+    if (!grid) return;
+    
+    if (testimonials.length === 0) {
+        grid.innerHTML = `
+            <div class="testimonial-empty-state" style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #6c757d;">
+                <div style="font-size: 48px; margin-bottom: 20px;">🎬</div>
+                <h3 style="color: #adb5bd;">No testimonials found</h3>
+                <p>Add testimonials to see them here</p>
+            </div>
+        `;
+        return;
+    }
+    
+    grid.innerHTML = '';
+    
+    testimonials.forEach(testimonial => {
+        const card = document.createElement('div');
+        card.className = 'testimonial-grid-card';
+        card.style.cssText = `
+            background: rgba(33,37,41,0.5);
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+        `;
+        card.onmouseover = () => {
+            card.style.background = 'rgba(33,37,41,0.8)';
+            card.style.transform = 'translateY(-2px)';
+            card.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
+        };
+        card.onmouseout = () => {
+            card.style.background = 'rgba(33,37,41,0.5)';
+            card.style.transform = 'translateY(0)';
+            card.style.boxShadow = 'none';
+        };
+        card.onclick = () => playTestimonialVideo(testimonial);
+        
+        card.innerHTML = `
+            <div style="display: flex; align-items: flex-start; gap: 12px;">
+                <div style="font-size: 24px; color: #80bdff;">${testimonial.icon || '🎬'}</div>
+                <div style="flex: 1;">
+                    <div style="font-weight: 500; color: #e9ecef; font-size: 14px; margin-bottom: 6px;">
+                        ${testimonial.concern || 'Testimonial'}
+                    </div>
+                    <div style="color: #adb5bd; font-size: 13px; margin-bottom: 8px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
+                        "${testimonial.text}"
+                    </div>
+                    <div style="color: #6c757d; font-size: 12px; margin-bottom: 4px;">
+                        👤 ${testimonial.author || 'Anonymous'}
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 11px; color: #6c757d;">
+                        <span>🏢 ${testimonial.industry || 'General'}</span>
+                        <button onclick="event.stopPropagation(); playTestimonialVideo(${JSON.stringify(testimonial)})" 
+                                style="background: rgba(0,123,255,0.2); color: #80bdff; border: none; padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor: pointer;">
+                            ▶️ Play
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        grid.appendChild(card);
+    });
+}
+
+// 6. Filter testimonials
+function filterTestimonials() {
+    const industry = document.getElementById('testimonialFilterIndustry').value;
+    const type = document.getElementById('testimonialFilterType').value;
+    
+    let filtered = getAllTestimonials();
+    
+    if (industry) {
+        filtered = filtered.filter(t => t.industrySlug === industry);
+    }
+    
+    if (type) {
+        filtered = filtered.filter(t => {
+            if (type === 'price') return t.icon === '💰' || t.concernType === 'skeptical';
+            if (type === 'time') return t.icon === '⏰' || t.concernType === 'speed';
+            if (type === 'trust') return t.icon === '🤝' || t.concernType === 'skeptical';
+            if (type === 'results') return t.icon === '📈' || t.concernType === 'results';
+            return true;
+        });
+    }
+    
+    renderAllTestimonials(filtered);
+}
+
+// 7. Reset filters
+function resetTestimonialFilters() {
+    document.getElementById('testimonialFilterIndustry').value = '';
+    document.getElementById('testimonialFilterType').value = '';
+    renderAllTestimonials(getAllTestimonials());
+}
+
+// 8. Play testimonial video
+function playTestimonialVideo(testimonial) {
+    const modal = document.getElementById('videoPlayerModal');
+    const videoPlayer = document.getElementById('testimonialVideoPlayer');
+    const videoTitle = document.getElementById('videoPlayerTitle');
+    const videoAuthor = document.getElementById('videoAuthor');
+    const videoConcern = document.getElementById('videoConcern');
+    const videoIndustry = document.getElementById('videoIndustry');
+    
+    if (!modal || !videoPlayer) return;
+    
+    // Set video info
+    videoTitle.textContent = testimonial.concern || 'Testimonial';
+    videoAuthor.textContent = testimonial.author || 'Unknown';
+    videoConcern.textContent = testimonial.concern || 'General';
+    videoIndustry.textContent = testimonial.industry || 'General Business';
+    
+    // Set video source (you'll need to adjust this based on your video storage)
+    if (testimonial.videoUrl) {
+        videoPlayer.src = testimonial.videoUrl;
+    } else if (window.currentData && window.currentData.videos && testimonial.videoType) {
+        videoPlayer.src = window.currentData.videos[testimonial.videoType] || '';
+    }
+    
+    // Show modal
+    modal.style.display = 'flex';
+    
+    // Play video
+    videoPlayer.play().catch(e => console.log('Autoplay prevented:', e));
+}
+
+// 9. Hide video player
+function hideVideoPlayer() {
+    const modal = document.getElementById('videoPlayerModal');
+    const videoPlayer = document.getElementById('testimonialVideoPlayer');
+    
+    if (modal) modal.style.display = 'none';
+    if (videoPlayer) {
+        videoPlayer.pause();
+        videoPlayer.currentTime = 0;
+    }
+}
+
+// 10. Initialize
+function initTestimonialViewer() {
+    // Update cards on load
+    updateTestimonialCards();
+    
+    // Close modals on ESC key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            hideAllTestimonialsModal();
+            hideVideoPlayer();
+        }
+    });
+    
+    // Close modal when clicking outside
+    document.getElementById('allTestimonialsModal')?.addEventListener('click', (e) => {
+        if (e.target.id === 'allTestimonialsModal') {
+            hideAllTestimonialsModal();
+        }
+    });
+    
+    document.getElementById('videoPlayerModal')?.addEventListener('click', (e) => {
+        if (e.target.id === 'videoPlayerModal') {
+            hideVideoPlayer();
+        }
+    });
+    
+    console.log('✅ Testimonial viewer initialized');
+}
+
+// Run initialization
+setTimeout(initTestimonialViewer, 500);
 
 // 3. UPDATE ADD TESTIMONIAL FUNCTION TO SAVE TRIGGERS
 function addVideoTestimonial() {
