@@ -1217,8 +1217,20 @@ const triggerTemplates = {
  function deleteCurrentIndustry() {
     console.log('🎯 DELETE FUNCTION CALLED - currentIndustry:', currentIndustry);
     
-    if (!currentIndustry) {
-        showMessage('No industry selected', 'error');
+    // 🎯 FIX: Check if industry still exists
+    if (!currentIndustry || !currentData.industries[currentIndustry]) {
+        console.log('⚠️ Industry already deleted or not found:', currentIndustry);
+        showMessage('Industry not found or already deleted', 'error');
+        
+        // Auto-select first available industry
+        if (Object.keys(currentData.industries).length > 0) {
+            const firstIndustry = Object.keys(currentData.industries)[0];
+            selectIndustry(firstIndustry);
+        } else {
+            currentIndustry = null;
+            document.getElementById('currentIndustryName').textContent = 'None selected';
+        }
+        
         return;
     }
     
@@ -1241,6 +1253,8 @@ const triggerTemplates = {
         }
     });
     
+    // 🎯 FIX: Clear currentIndustry BEFORE updating UI
+    const deletedIndustrySlug = currentIndustry;
     currentIndustry = null;
     document.getElementById('currentIndustryName').textContent = 'None selected';
     
@@ -1251,7 +1265,7 @@ const triggerTemplates = {
 
     // 🎯 CRITICAL FIX: Also update window.testimonialData
     if (window.testimonialData && window.testimonialData.industries) {
-        delete window.testimonialData.industries[currentIndustry];
+        delete window.testimonialData.industries[deletedIndustrySlug];
         console.log('✅ Also deleted from window.testimonialData');
     }
     
@@ -1260,12 +1274,6 @@ const triggerTemplates = {
         const firstIndustrySlug = Object.keys(currentData.industries)[0];
         selectIndustry(firstIndustrySlug);
         console.log('✅ Auto-selected first industry:', firstIndustrySlug);
-    }
-
-        // After deleting from currentData, also delete from window.testimonialData
-    if (window.testimonialData && window.testimonialData.industries) {
-        delete window.testimonialData.industries[currentIndustry];
-        console.log('✅ Also deleted from window.testimonialData');
     }
     
     showMessage(`✅ Deleted industry: ${industryName}`, 'success');
