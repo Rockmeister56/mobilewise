@@ -1,9 +1,11 @@
-// 🧹 CLEAN TESTIMONIALS DATA FILE
-// Upload this to Netlify to replace the existing one
+// ===================================================
+// 🎬 MOBILE-WISE AI TESTIMONIALS DATA
+// Centralized testimonial content for all clients
+// ===================================================
 
 window.testimonialData = {
     // ===================================================
-    // UNIVERSAL CONCERNS
+    // UNIVERSAL CONCERNS (Fallback for all industries)
     // ===================================================
     concerns: {
         price: {
@@ -14,74 +16,189 @@ window.testimonialData = {
                 'too expensive',
                 'high cost',
                 'not worth the price',
-                'budget constraints'
+                'budget constraints',
+                'expensive for what you get',
+                'can find cheaper elsewhere'
+            ],
+            reviews: [
+                { 
+                    text: "Worth every penny. The ROI was visible within the first month.", 
+                    author: "John D.",
+                    videoType: "skeptical"
+                },
+                { 
+                    text: "Best investment we made this year. Price seemed high at first but value is clear.", 
+                    author: "Sarah M.",
+                    videoType: "skeptical"
+                }
             ]
         },
+        
         time: {
-            title: 'See How Others Saved Time',
+            title: 'Hear From Busy Professionals',
             icon: '⏰',
             videoType: 'speed',
             phrases: [
                 'takes too long',
-                'time consuming',
-                'lengthy process',
-                'waste of time'
+                'time-consuming process',
+                'don\'t have time for this',
+                'lengthy setup',
+                'slow service',
+                'delayed implementation'
+            ],
+            reviews: [
+                { 
+                    text: "Process was incredibly quick. Done in minutes, not hours.", 
+                    author: "Emily R.",
+                    videoType: "speed"
+                },
+                { 
+                    text: "As a busy executive, I appreciated how streamlined everything was.", 
+                    author: "David L.",
+                    videoType: "speed"
+                }
             ]
         },
+        
         trust: {
-            title: 'See Why Others Trusted Us',
+            title: 'Real Client Experiences',
             icon: '🤝',
             videoType: 'skeptical',
             phrases: [
-                'not trustworthy',
-                'scam',
-                'doubtful',
-                'skeptical'
+                'don\'t trust this',
+                'scam warning',
+                'not reliable',
+                'questionable reputation',
+                'heard bad things',
+                'too good to be true'
+            ],
+            reviews: [
+                { 
+                    text: "Results exceeded my expectations. They delivered exactly what they promised.", 
+                    author: "Tom B.",
+                    videoType: "skeptical"
+                },
+                { 
+                    text: "I was skeptical at first, but they proved me wrong in the best way.", 
+                    author: "Jessica W.",
+                    videoType: "skeptical"
+                }
             ]
         },
-        results: {
-            title: 'See The Results Others Got',
-            icon: '📈',
-            videoType: 'results',
+        
+        general: {
+            title: 'What Our Clients Say',
+            icon: '⭐',
+            videoType: 'skeptical',
             phrases: [
-                'does it work',
-                'effective',
-                'results',
-                'outcomes'
+                'mixed reviews',
+                'uncertain about this',
+                'on the fence',
+                'need convincing',
+                'not sure about this'
+            ],
+            reviews: [
+                { 
+                    text: "Professional service exceeded expectations.", 
+                    author: "Christopher N.",
+                    videoType: "skeptical"
+                },
+                { 
+                    text: "Highly recommend to anyone considering this.", 
+                    author: "Amanda G.",
+                    videoType: "skeptical"
+                }
             ]
         }
     },
-    
+
     // ===================================================
-    // INDUSTRIES (EMPTY - Add your own)
+    // INDUSTRY-SPECIFIC TESTIMONIALS (EMPTY - ADD YOUR OWN)
     // ===================================================
     industries: {},
     
     // ===================================================
-    // KEYWORDS FOR AUTO-DETECTION
+    // INDUSTRY KEYWORDS FOR AUTO-DETECTION
     // ===================================================
     industryKeywords: {},
     
     // ===================================================
-    // ALL VIDEOS
+    // VIDEOS LIBRARY
     // ===================================================
     videos: {},
-    
+
     // ===================================================
-    // PLAYER CONFIGURATION
+    // HELPER FUNCTIONS
+    // ===================================================
+    getIndustryTestimonials: function(industrySlug) {
+        // Return industry-specific testimonials if available
+        if (this.industries[industrySlug]) {
+            return {
+                industry: this.industries[industrySlug].name,
+                icon: this.industries[industrySlug].icon,
+                concerns: {
+                    ...this.industries[industrySlug].concerns,
+                    ...this.concerns // Merge with universal concerns
+                }
+            };
+        }
+        
+        // Fallback to universal concerns for unknown industries
+        return {
+            industry: 'General Business',
+            icon: '🏢',
+            concerns: this.concerns
+        };
+    },
+
+    getAllIndustries: function() {
+        const industries = [];
+        for (const [slug, data] of Object.entries(this.industries)) {
+            industries.push({
+                slug: slug,
+                name: data.name,
+                icon: data.icon
+            });
+        }
+        // Add "General Business" option
+        industries.unshift({
+            slug: 'general',
+            name: 'General Business',
+            icon: '🏢'
+        });
+        return industries;
+    },
+    
+    getIndustry: function(slug) {
+        return this.industries[slug] || null;
+    },
+
+    // ===================================================
+    // VIDEO PLAYER CONFIGURATION
     // ===================================================
     playerConfig: {
-        autoPlay: false,
-        loop: true,
-        controls: true,
-        muted: false,
-        preload: 'auto',
-        responsive: true
+        desktop: {
+            width: 854,  // Updated to 16:9
+            height: 480, // Updated to 16:9  
+            top: '50%',
+            left: '50%',
+            borderRadius: '12px'
+        },
+        mobile: {
+            fullscreen: true
+        },
+        overlay: {
+            background: 'rgba(0, 0, 0, 0.5)' // 50% black
+        },
+        resumeMessage: "I'm sure you can appreciate what our clients have to say. So let's get back on track with helping you sell your practice. Would you like a free consultation with Bruce that can analyze your particular situation?"
     },
     
     // ===================================================
     // METADATA
     // ===================================================
     __loadedFromFile: true,
-    __version: "3.0-clean"
+    __version: "3.0-clean-" + new Date().toISOString().split('T')[0]
 };
+
+console.log('✅ Testimonials Data Loaded:', Object.keys(window.testimonialData.concerns).length, 'concern types');
+console.log('✅ Industries Loaded:', Object.keys(window.testimonialData.industries).length, 'industry types');
