@@ -1113,25 +1113,6 @@ function safeParsePhrases(jsonString) {
         return matches.map(m => m.slice(1, -1));
     }
 }
-
-// 🛠️ FIX FOR MISSING FUNCTIONS - Add this at the TOP of your JS file
-(function() {
-    // Ensure window.testimonialData exists
-    window.testimonialData = window.testimonialData || {};
-    
-    // Add missing functions if they don't exist
-    if (!window.testimonialData.getAllIndustries) {
-        window.testimonialData.getAllIndustries = function() {
-            return Object.keys(this.industries || {});
-        };
-    }
-    
-    if (!window.testimonialData.getIndustry) {
-        window.testimonialData.getIndustry = function(slug) {
-            return this.industries?.[slug] || null;
-        };
-    }
-})();
         
 // ===================================================
 // LOAD CHECKER - Add this at the TOP of your script
@@ -1742,13 +1723,23 @@ function syncIndustrySelection() {
     
     if (industrySlugs.length === 0) {
         console.warn('No industries available');
-        currentIndustry = null;
         return;
     }
     
     // If no industry selected OR selected industry doesn't exist anymore
     if (!currentIndustry || !currentData.industries[currentIndustry]) {
-        // Select first available industry
+        // Try to select 'mortgage-lending' first (most common)
+        const preferredOrder = ['mortgage-lending', 'personal-injury', 'real-estate'];
+        
+        for (const slug of preferredOrder) {
+            if (currentData.industries[slug]) {
+                selectIndustry(slug);
+                console.log(`✅ Auto-selected preferred industry: ${slug}`);
+                return;
+            }
+        }
+        
+        // Fallback to first industry
         const firstSlug = industrySlugs[0];
         selectIndustry(firstSlug);
         console.log(`✅ Auto-selected first industry: ${firstSlug}`);
