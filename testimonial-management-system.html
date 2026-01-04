@@ -210,6 +210,43 @@
             line-height: 1.5;
         }
 
+        /* Add to your CSS file */
+.testimonial-type-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+}
+
+.testimonial-type-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.recent-testimonial-item {
+    transition: background-color 0.2s;
+}
+
+.recent-testimonial-item:hover {
+    background-color: #f8f9fa;
+}
+
+#recentTestimonialsList::-webkit-scrollbar {
+    width: 6px;
+}
+
+#recentTestimonialsList::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+#recentTestimonialsList::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+#recentTestimonialsList::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
         /* =================================================== */
 /* TRIGGER SYSTEM STYLES */
 /* =================================================== */
@@ -604,7 +641,7 @@ a[href^="#"] {
             </ul>
             
             <button class="btn btn-success" onclick="showAddIndustryModal()" style="width: 100%;">
-                ➕ Add New Industry
+                ➕ Add Industry
             </button>
             
             <div style="margin-top: 30px;">
@@ -630,16 +667,96 @@ a[href^="#"] {
             </div>
 
             <!-- In your sidebar, add this after the stats -->
-<div style="margin-top: 30px; padding: 15px; background: rgba(244, 67, 54, 0.1); border-radius: 8px; border: 1px solid var(--danger);">
-    <h4 style="color: var(--danger); margin-bottom: 10px;">⚠️ Admin Tools</h4>
-    <button class="btn btn-danger" 
-        onclick="if (typeof deleteCurrentIndustry === 'function') { deleteCurrentIndustry(); } else { console.error('Function not found!'); }" 
-        style="width: 100%; margin-bottom: 10px;">
-    🗑️ Delete Current Industry
-</button>
-    <button class="btn" onclick="editCurrentIndustry()" style="background: #666; width: 100%; margin-top: 10px;">
-    ✏️ Edit Current Industry
-</button>
+<div style="margin-top: 30px; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px solid #dee2e6;">
+    
+    <!-- CURRENT INDUSTRY CARD -->
+    <div id="currentIndustryCard" style="background: white; padding: 15px; border-radius: 8px; border: 2px solid #007bff; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <div style="display: flex; align-items: center; margin-bottom: 10px;">
+            <div id="industryIconDisplay" style="font-size: 24px; margin-right: 10px;">🏢</div>
+            <div style="flex: 1;">
+                <h4 style="margin: 0; color: #333; font-size: 16px;">Current Industry</h4>
+                <p id="currentIndustryName" style="margin: 0; color: #007bff; font-weight: bold; font-size: 18px;">None selected</p>
+            </div>
+        </div>
+        
+        <div style="display: flex; gap: 10px; margin-top: 10px;">
+            <button class="btn" onclick="editCurrentIndustry()" 
+                    style="flex: 1; background: #6c757d; color: white; padding: 8px;">
+                ✏️ Edit Industry
+            </button>
+            <button class="btn" onclick="$('#addIndustryModal').modal('show')" 
+                    style="flex: 1; background: #28a745; color: white; padding: 8px;">
+                🏢 Change Industry
+            </button>
+        </div>
+    </div>
+    
+    <!-- TESTIMONIALS AT A GLANCE -->
+    <div id="testimonialsGlance" style="background: white; padding: 15px; border-radius: 8px; border: 1px solid #dee2e6; margin-bottom: 20px;">
+        <h4 style="margin-top: 0; margin-bottom: 15px; color: #333; display: flex; align-items: center; gap: 8px;">
+            <span>🎬</span> 
+            <span>Testimonials At a Glance</span>
+            <span id="testimonialCountBadge" style="background: #007bff; color: white; padding: 2px 8px; border-radius: 12px; font-size: 12px; margin-left: auto;">0</span>
+        </h4>
+        
+        <!-- TESTIMONIAL TYPES GRID -->
+        <div id="testimonialTypesGrid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px;">
+            <!-- Will be populated by JavaScript -->
+            <div style="text-align: center; padding: 10px; background: #e9ecef; border-radius: 6px; font-size: 12px;">
+                <div style="font-size: 20px;">💰</div>
+                <div>Price</div>
+                <div style="font-weight: bold; color: #007bff;">0</div>
+            </div>
+            <div style="text-align: center; padding: 10px; background: #e9ecef; border-radius: 6px; font-size: 12px;">
+                <div style="font-size: 20px;">⏰</div>
+                <div>Time</div>
+                <div style="font-weight: bold; color: #007bff;">0</div>
+            </div>
+            <div style="text-align: center; padding: 10px; background: #e9ecef; border-radius: 6px; font-size: 12px;">
+                <div style="font-size: 20px;">🤝</div>
+                <div>Trust</div>
+                <div style="font-weight: bold; color: #007bff;">0</div>
+            </div>
+            <div style="text-align: center; padding: 10px; background: #e9ecef; border-radius: 6px; font-size: 12px;">
+                <div style="font-size: 20px;">📈</div>
+                <div>Results</div>
+                <div style="font-weight: bold; color: #007bff;">0</div>
+            </div>
+        </div>
+        
+        <!-- QUICK ACTIONS -->
+        <div style="display: flex; gap: 10px;">
+            <button class="btn" onclick="showAddVideoModal()" 
+                    style="flex: 1; background: #17a2b8; color: white; padding: 8px; font-size: 12px;">
+                🎬 Add Video
+            </button>
+            <button class="btn" onclick="showAddTextModal()" 
+                    style="flex: 1; background: #6c757d; color: white; padding: 8px; font-size: 12px;">
+                📝 Add Text
+            </button>
+        </div>
+    </div>
+    
+    <!-- RECENT TESTIMONIALS -->
+    <div id="recentTestimonials" style="background: white; padding: 15px; border-radius: 8px; border: 1px solid #dee2e6;">
+        <h4 style="margin-top: 0; margin-bottom: 15px; color: #333; display: flex; align-items: center; gap: 8px;">
+            <span>📋</span> 
+            <span>Recent Testimonials</span>
+        </h4>
+        
+        <div id="recentTestimonialsList" style="max-height: 200px; overflow-y: auto;">
+            <!-- Will be populated by JavaScript -->
+            <div style="text-align: center; padding: 20px; color: #6c757d; font-style: italic;">
+                No testimonials yet. Add your first one!
+            </div>
+        </div>
+        
+        <button class="btn" onclick="showAllTestimonials()" 
+                style="width: 100%; margin-top: 10px; background: #f8f9fa; color: #333; border: 1px solid #dee2e6; padding: 8px;">
+            👁️ View All Testimonials
+        </button>
+    </div>
+    
 </div>
             
             <div style="margin-top: 30px;">
@@ -2540,40 +2657,213 @@ function deleteIndustryInManager(slug) {
     console.log('Industry list updated with', list.children.length, 'items');
 }
 
-// =============================================================================
-// 🏢 ADD INDUSTRY FUNCTION (COMPLETE - WITH ICON SUPPORT)
-// =============================================================================
-function addIndustry() {
-    console.log('🎯 addIndustry function called');
+// ===================================================
+// 🎯 UPDATE TESTIMONIALS GLANCE DISPLAY
+// ===================================================
+
+function updateTestimonialsGlance() {
+    console.log('👁️ Updating testimonials glance...');
     
-    // Get form values - CHECK YOUR ACTUAL INPUT IDs!
-    const nameInput = document.getElementById('newIndustryName');
-    const slugInput = document.getElementById('newIndustrySlug');
-    const iconInput = document.getElementById('newIndustryIcon'); // ADDED THIS
-    const concernsInput = document.getElementById('newIndustryKeywords'); // This might be 'newIndustryConcerns' instead
-    
-    if (!nameInput || !concernsInput) {
-        console.error('❌ Form inputs not found!');
-        console.log('Available inputs:', {
-            name: nameInput,
-            slug: slugInput,
-            icon: iconInput, // ADDED THIS
-            concerns: concernsInput
-        });
-        showMessage('Form error - check console', 'error');
+    if (!currentIndustry || !currentData.industries[currentIndustry]) {
+        console.log('No industry selected');
         return;
     }
     
-    const name = nameInput.value.trim();
-    const slug = slugInput ? slugInput.value.trim() : '';
-    const icon = iconInput ? iconInput.value.trim() || '🏢' : '🏢'; // ADDED THIS
-    const concernsText = concernsInput.value.trim();
+    const industry = currentData.industries[currentIndustry];
+    const videos = industry.videos || {};
+    const videoCount = Object.keys(videos).length;
     
-    // Generate slug if empty
-    const finalSlug = slug || name.toLowerCase()
-        .replace(/[^\w\s]/g, '')
-        .replace(/\s+/g, '-')
-        .replace(/--+/g, '-');
+    // Update testimonial count badge
+    const countBadge = document.getElementById('testimonialCountBadge');
+    if (countBadge) {
+        countBadge.textContent = videoCount;
+    }
+    
+    // Update industry icon
+    const iconDisplay = document.getElementById('industryIconDisplay');
+    if (iconDisplay && industry.icon) {
+        iconDisplay.textContent = industry.icon;
+    }
+    
+    // Count testimonials by type
+    const typeCounts = {
+        'price': 0,
+        'time': 0,
+        'trust': 0,
+        'results': 0,
+        'skeptical': 0,
+        'speed': 0,
+        'universal': 0
+    };
+    
+    // Count by tags and video types
+    Object.values(videos).forEach(video => {
+        // Check video tags
+        if (video.tags) {
+            video.tags.forEach(tag => {
+                const lowerTag = tag.toLowerCase();
+                if (lowerTag.includes('price') || lowerTag.includes('cost')) typeCounts.price++;
+                if (lowerTag.includes('time') || lowerTag.includes('busy')) typeCounts.time++;
+                if (lowerTag.includes('trust') || lowerTag.includes('skeptical')) typeCounts.trust++;
+                if (lowerTag.includes('result') || lowerTag.includes('success')) typeCounts.results++;
+                if (lowerTag.includes('skeptical')) typeCounts.skeptical++;
+                if (lowerTag.includes('speed') || lowerTag.includes('fast')) typeCounts.speed++;
+            });
+        }
+        
+        // Check video type
+        if (video.videoType) {
+            const type = video.videoType.toLowerCase();
+            if (type.includes('price')) typeCounts.price++;
+            if (type.includes('time') || type.includes('speed')) typeCounts.time++;
+            if (type.includes('trust') || type.includes('skeptical')) typeCounts.trust++;
+            if (type.includes('result') || type.includes('success')) typeCounts.results++;
+        }
+    });
+    
+    // Update the grid
+    const grid = document.getElementById('testimonialTypesGrid');
+    if (grid) {
+        grid.innerHTML = `
+            <div style="text-align: center; padding: 10px; background: #e3f2fd; border-radius: 6px; font-size: 12px; border: 1px solid #bbdefb;">
+                <div style="font-size: 20px;">💰</div>
+                <div>Price</div>
+                <div style="font-weight: bold; color: #1976d2;">${typeCounts.price}</div>
+            </div>
+            <div style="text-align: center; padding: 10px; background: #f3e5f5; border-radius: 6px; font-size: 12px; border: 1px solid #e1bee7;">
+                <div style="font-size: 20px;">⏰</div>
+                <div>Time</div>
+                <div style="font-weight: bold; color: #7b1fa2;">${typeCounts.time}</div>
+            </div>
+            <div style="text-align: center; padding: 10px; background: #e8f5e8; border-radius: 6px; font-size: 12px; border: 1px solid #c8e6c9;">
+                <div style="font-size: 20px;">🤝</div>
+                <div>Trust</div>
+                <div style="font-weight: bold; color: #388e3c;">${typeCounts.trust}</div>
+            </div>
+            <div style="text-align: center; padding: 10px; background: #fff3e0; border-radius: 6px; font-size: 12px; border: 1px solid #ffe0b2;">
+                <div style="font-size: 20px;">📈</div>
+                <div>Results</div>
+                <div style="font-weight: bold; color: #f57c00;">${typeCounts.results}</div>
+            </div>
+            ${typeCounts.skeptical > 0 ? `
+            <div style="text-align: center; padding: 10px; background: #ffebee; border-radius: 6px; font-size: 12px; border: 1px solid #ffcdd2; grid-column: span 2;">
+                <div style="font-size: 20px;">🤔</div>
+                <div>Skeptical/Concerns</div>
+                <div style="font-weight: bold; color: #d32f2f;">${typeCounts.skeptical}</div>
+            </div>
+            ` : ''}
+        `;
+    }
+    
+    // Update recent testimonials list
+    updateRecentTestimonialsList();
+}
+
+function updateRecentTestimonialsList() {
+    const container = document.getElementById('recentTestimonialsList');
+    if (!container || !currentIndustry || !currentData.industries[currentIndustry]) return;
+    
+    const videos = currentData.industries[currentIndustry].videos || {};
+    const videoEntries = Object.entries(videos);
+    
+    if (videoEntries.length === 0) {
+        container.innerHTML = `
+            <div style="text-align: center; padding: 20px; color: #6c757d; font-style: italic;">
+                No testimonials yet. Add your first one!
+            </div>
+        `;
+        return;
+    }
+    
+    // Get 5 most recent (or all if less than 5)
+    const recentVideos = videoEntries.slice(-5).reverse();
+    
+    container.innerHTML = recentVideos.map(([videoId, video]) => `
+        <div style="padding: 10px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 10px;">
+            <div style="width: 40px; height: 40px; background: #f8f9fa; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+                ${getVideoIcon(video)}
+            </div>
+            <div style="flex: 1;">
+                <div style="font-weight: 500; font-size: 13px; color: #333;">${video.title || 'Untitled'}</div>
+                <div style="font-size: 11px; color: #6c757d;">
+                    ${(video.tags || []).slice(0, 2).join(', ')}${(video.tags || []).length > 2 ? '...' : ''}
+                </div>
+            </div>
+            <button class="btn" onclick="playTestimonial('${videoId}')" 
+                    style="background: none; border: none; color: #007bff; font-size: 20px; cursor: pointer; padding: 0;">
+                ▶️
+            </button>
+        </div>
+    `).join('');
+}
+
+function getVideoIcon(video) {
+    if (video.videoType) {
+        const type = video.videoType.toLowerCase();
+        if (type.includes('price')) return '💰';
+        if (type.includes('time')) return '⏰';
+        if (type.includes('trust') || type.includes('skeptical')) return '🤝';
+        if (type.includes('speed')) return '⚡';
+    }
+    
+    if (video.tags) {
+        if (video.tags.some(t => t.toLowerCase().includes('price'))) return '💰';
+        if (video.tags.some(t => t.toLowerCase().includes('time'))) return '⏰';
+        if (video.tags.some(t => t.toLowerCase().includes('trust'))) return '🤝';
+    }
+    
+    return '🎬';
+}
+
+function playTestimonial(videoId) {
+    console.log('Playing testimonial:', videoId);
+    // You can implement your video player here
+    alert(`Play video: ${videoId}`);
+}
+
+function showAllTestimonials() {
+    console.log('Show all testimonials');
+    // Scroll to testimonials section or open modal
+    const testimonialsSection = document.querySelector('.testimonials-section');
+    if (testimonialsSection) {
+        testimonialsSection.scrollIntoView({ behavior: 'smooth' });
+    }
+}
+
+// Call this when industry changes or testimonials are added
+function refreshTestimonialsDisplay() {
+    updateTestimonialsGlance();
+    updateRecentTestimonialsList();
+}
+
+// Add to your existing update functions
+function enhanceUpdateFunctions() {
+    // Wrap existing selectIndustry function
+    const originalSelectIndustry = window.selectIndustry;
+    window.selectIndustry = function(slug) {
+        originalSelectIndustry(slug);
+        setTimeout(() => {
+            refreshTestimonialsDisplay();
+        }, 100);
+    };
+    
+    // Call after page loads
+    setTimeout(() => {
+        refreshTestimonialsDisplay();
+    }, 1000);
+}
+
+// Initialize
+enhanceUpdateFunctions();
+
+function addIndustry() {
+    console.log('🎯 ADD INDUSTRY (ONE-INDUSTRY MODE)...');
+    
+    // Get form values
+    const name = document.getElementById('newIndustryName').value.trim();
+    const slug = document.getElementById('newIndustrySlug').value.trim();
+    const keywordsText = document.getElementById('newIndustryKeywords').value.trim();
+    const icon = document.getElementById('newIndustryIcon').value.trim() || '🏢';
     
     // Validate
     if (!name) {
@@ -2581,86 +2871,78 @@ function addIndustry() {
         return;
     }
     
-    // Convert concerns to array
+    // 🎯 ONLY ONE INDUSTRY ALLOWED
+    const existingIndustries = Object.keys(currentData.industries || {});
+    if (existingIndustries.length >= 1) {
+        const currentIndustryName = Object.values(currentData.industries)[0]?.name || 'Unknown';
+        
+        if (!confirm(`⚠️ ONE-INDUSTRY LIMIT\n\nYou already have: "${currentIndustryName}"\n\nDo you want to REPLACE it with: "${name}"?`)) {
+            return;
+        }
+        
+        // Clear existing industry
+        currentData.industries = {};
+        currentData.industryKeywords = {};
+        console.log('🧹 Cleared existing industry to make room for new one');
+    }
+    
+    // Generate slug if empty
+    const finalSlug = slug || name.toLowerCase()
+        .replace(/[^\w\s]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/--+/g, '-');
+    
+    // Convert keywords to array
     let concerns = [];
-    if (concernsText) {
-        concerns = concernsText.split(',')
+    if (keywordsText) {
+        concerns = keywordsText.split(',')
             .map(c => c.trim())
             .filter(c => c.length > 0);
     }
     
-    // 🎯 AUTO-ADD POSITIVE TRIGGERS TO EVERY INDUSTRY
+    // 🎯 AUTO-ADD POSITIVE TRIGGERS
     const positiveTriggers = [
-        // Comparison questions
         'compare with others',
         'how do you compare',
         'better than competitors',
-        'vs other companies',
-        
-        // Success/reassurance
         'success stories', 
         'positive results',
-        'good outcomes',
-        'happy customers',
-        
-        // Validation questions
         'why choose you',
-        'advantages',
         'benefits',
-        'best solution',
-        
-        // Reconfirmation
-        'reconfirming positives',
-        'tell me more good',
-        'more success stories',
-        'other happy clients',
-        
-        // General positive
-        'impressed',
-        'love it',
-        'great results',
-        'works well'
+        'advantages',
+        'reconfirming positives'
     ];
     
     // Combine user concerns with positive triggers
     concerns = [...new Set([...concerns, ...positiveTriggers])];
     
-    // Create the industry in currentData
+    // Create the ONE industry
     currentData.industries[finalSlug] = {
         name: name,
-        icon: icon, // ADDED THIS
+        icon: icon,
         concerns: concerns,
         videos: {}
     };
     
-    // Also add to industryKeywords
     currentData.industryKeywords[finalSlug] = concerns;
     
-    // Auto-select the new industry
+    // Auto-select it
     selectIndustry(finalSlug);
     
     // Close modal and reset form
     $('#addIndustryModal').modal('hide');
-    nameInput.value = '';
-    if (slugInput) slugInput.value = '';
-    if (iconInput) iconInput.value = '🏢'; // ADDED THIS
-    concernsInput.value = '';
+    document.getElementById('newIndustryName').value = '';
+    document.getElementById('newIndustrySlug').value = '';
+    document.getElementById('newIndustryKeywords').value = '';
+    document.getElementById('newIndustryIcon').value = '🏢';
     
     // Update UI
     updateIndustryList();
     updateStats();
     saveAllData();
     
-    showMessage(`✅ Added industry: ${icon} ${name}`, 'success'); // UPDATED THIS
-    console.log('Industry added:', { 
-        name: name, 
-        slug: finalSlug, 
-        icon: icon, // ADDED THIS
-        concerns: concerns.length,
-        sampleConcerns: concerns.slice(0, 5) 
-    });
-    
-    return false; // Prevent form submission
+    showMessage(`✅ ONE Industry Set: ${icon} ${name}`, 'success');
+    console.log('✅ ONE industry set:', { name, concerns: concerns.length });
 }
 
 function hideAddIndustryModal() {
