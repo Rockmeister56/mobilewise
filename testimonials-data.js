@@ -1,87 +1,45 @@
-// 🧹 CLEAN TESTIMONIALS DATA FILE
-// Upload this to Netlify to replace the existing one
+// MINIMAL CLEAN testimonials-data.js
+// Upload this to Netlify
 
 window.testimonialData = {
-    // ===================================================
-    // UNIVERSAL CONCERNS
-    // ===================================================
+    // Core data structures (all empty)
+    industries: {},
+    industryKeywords: {},
+    videos: {},
+    
+    // Universal concerns (minimal set)
     concerns: {
         price: {
-            title: 'See What Others Say About Value',
+            title: 'Price Concerns',
             icon: '💰',
             videoType: 'skeptical',
-            phrases: [
-                'too expensive',
-                'high cost',
-                'not worth the price',
-                'budget constraints'
-            ]
+            phrases: ['expensive', 'cost', 'price', 'budget']
         },
         time: {
-            title: 'See How Others Saved Time',
+            title: 'Time Concerns', 
             icon: '⏰',
             videoType: 'speed',
-            phrases: [
-                'takes too long',
-                'time consuming',
-                'lengthy process',
-                'waste of time'
-            ]
-        },
-        trust: {
-            title: 'See Why Others Trusted Us',
-            icon: '🤝',
-            videoType: 'skeptical',
-            phrases: [
-                'not trustworthy',
-                'scam',
-                'doubtful',
-                'skeptical'
-            ]
-        },
-        results: {
-            title: 'See The Results Others Got',
-            icon: '📈',
-            videoType: 'results',
-            phrases: [
-                'does it work',
-                'effective',
-                'results',
-                'outcomes'
-            ]
+            phrases: ['takes too long', 'slow', 'time', 'waiting']
         }
     },
     
-    // ===================================================
-    // INDUSTRIES (EMPTY - Add your own)
-    // ===================================================
-    industries: {},
-    
-    // ===================================================
-    // KEYWORDS FOR AUTO-DETECTION
-    // ===================================================
-    industryKeywords: {},
-    
-    // ===================================================
-    // ALL VIDEOS
-    // ===================================================
-    videos: {},
-    
-    // ===================================================
-    // PLAYER CONFIGURATION
-    // ===================================================
+    // Player config
     playerConfig: {
         autoPlay: false,
         loop: true,
-        controls: true,
-        muted: false,
-        preload: 'auto',
-        responsive: true
+        controls: true
     },
     
-    // ===================================================
-    // METADATA
-    // ===================================================
+    // Metadata
     __loadedFromFile: true,
-    __version: "3.0-clean"
+    __version: "clean-" + new Date().toISOString().split('T')[0]
+};
+
+// Add helper methods
+window.testimonialData.getAllIndustries = function() {
+    return Object.keys(this.industries || {});
+};
+
+window.testimonialData.getIndustry = function(slug) {
+    return this.industries?.[slug] || null;
 };
