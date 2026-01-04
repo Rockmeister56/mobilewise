@@ -4,6 +4,7 @@
 // ===================================================
 
 window.testimonialData = {
+    
     // ===================================================
     // UNIVERSAL CONCERNS (Fallback for all industries)
     // ===================================================
@@ -174,6 +175,43 @@ window.testimonialData = {
     },
 
     // ===================================================
+    // 🎯 AI INTEGRATION - FIND MATCHING TESTIMONIALS
+    // ===================================================
+    findRelevantTestimonial: function(userMessage) {
+        console.log('🔍 Searching testimonials for:', userMessage.substring(0, 50));
+        
+        const message = userMessage.toLowerCase();
+        
+        // 1. Check universal concerns (price, time, trust, results, general)
+        if (this.concerns) {
+            for (const [key, concern] of Object.entries(this.concerns)) {
+                if (concern.phrases && Array.isArray(concern.phrases)) {
+                    for (const phrase of concern.phrases) {
+                        if (phrase && message.includes(phrase.toLowerCase())) {
+                            console.log(`✅ Matched "${phrase}" in ${concern.title}`);
+                            
+                            if (concern.reviews && concern.reviews.length > 0) {
+                                const randomReview = concern.reviews[Math.floor(Math.random() * concern.reviews.length)];
+                                return {
+                                    type: 'universal',
+                                    concern: concern.title,
+                                    review: randomReview.text,
+                                    author: randomReview.author,
+                                    icon: concern.icon,
+                                    videoType: concern.videoType
+                                };
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        console.log('❌ No testimonial match found');
+        return null;
+    },
+
+    // ===================================================
     // VIDEO PLAYER CONFIGURATION
     // ===================================================
     playerConfig: {
@@ -199,6 +237,9 @@ window.testimonialData = {
     __loadedFromFile: true,
     __version: "3.0-clean-" + new Date().toISOString().split('T')[0]
 };
+// ===================================================
+// END OF window.testimonialData OBJECT
+// ===================================================
 
 console.log('✅ Testimonials Data Loaded:', Object.keys(window.testimonialData.concerns).length, 'concern types');
 console.log('✅ Industries Loaded:', Object.keys(window.testimonialData.industries).length, 'industry types');
