@@ -2422,6 +2422,123 @@ function deleteIndustryInManager(slug) {
     console.log('Industry list updated with', list.children.length, 'items');
 }
 
+// =============================================================================
+// 🏢 ADD INDUSTRY FUNCTION (COMPLETE)
+// =============================================================================
+function addIndustry() {
+    console.log('🎯 addIndustry function called');
+    
+    // Get form values - CHECK YOUR ACTUAL INPUT IDs!
+    const nameInput = document.getElementById('newIndustryName');
+    const slugInput = document.getElementById('newIndustrySlug');
+    const concernsInput = document.getElementById('newIndustryKeywords'); // This might be 'newIndustryConcerns' instead
+    
+    if (!nameInput || !concernsInput) {
+        console.error('❌ Form inputs not found!');
+        console.log('Available inputs:', {
+            name: nameInput,
+            slug: slugInput,
+            concerns: concernsInput
+        });
+        showMessage('Form error - check console', 'error');
+        return;
+    }
+    
+    const name = nameInput.value.trim();
+    const slug = slugInput ? slugInput.value.trim() : '';
+    const concernsText = concernsInput.value.trim();
+    
+    // Generate slug if empty
+    const finalSlug = slug || name.toLowerCase()
+        .replace(/[^\w\s]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/--+/g, '-');
+    
+    // Validate
+    if (!name) {
+        showMessage('Please enter industry name', 'error');
+        return;
+    }
+    
+    // Convert concerns to array
+    let concerns = [];
+    if (concernsText) {
+        concerns = concernsText.split(',')
+            .map(c => c.trim())
+            .filter(c => c.length > 0);
+    }
+    
+    // 🎯 AUTO-ADD POSITIVE TRIGGERS TO EVERY INDUSTRY
+    const positiveTriggers = [
+        // Comparison questions
+        'compare with others',
+        'how do you compare',
+        'better than competitors',
+        'vs other companies',
+        
+        // Success/reassurance
+        'success stories', 
+        'positive results',
+        'good outcomes',
+        'happy customers',
+        
+        // Validation questions
+        'why choose you',
+        'advantages',
+        'benefits',
+        'best solution',
+        
+        // Reconfirmation
+        'reconfirming positives',
+        'tell me more good',
+        'more success stories',
+        'other happy clients',
+        
+        // General positive
+        'impressed',
+        'love it',
+        'great results',
+        'works well'
+    ];
+    
+    // Combine user concerns with positive triggers
+    concerns = [...new Set([...concerns, ...positiveTriggers])];
+    
+    // Create the industry in currentData
+    currentData.industries[finalSlug] = {
+        name: name,
+        concerns: concerns,
+        videos: {}
+    };
+    
+    // Also add to industryKeywords
+    currentData.industryKeywords[finalSlug] = concerns;
+    
+    // Auto-select the new industry
+    selectIndustry(finalSlug);
+    
+    // Close modal and reset form
+    $('#addIndustryModal').modal('hide');
+    nameInput.value = '';
+    if (slugInput) slugInput.value = '';
+    concernsInput.value = '';
+    
+    // Update UI
+    updateIndustryList();
+    updateStats();
+    saveAllData();
+    
+    showMessage(`✅ Added industry: ${name}`, 'success');
+    console.log('Industry added:', { 
+        name: name, 
+        slug: finalSlug, 
+        concerns: concerns.length,
+        sampleConcerns: concerns.slice(0, 5) 
+    });
+    
+    return false; // Prevent form submission
+}
+
 function hideAddIndustryModal() {
     document.getElementById('addIndustryModal').style.display = 'none';
     
