@@ -971,45 +971,54 @@ console.log('🔍 Checking script loading...');
 
 // Check if testimonials-data.js is loaded
 if (typeof window.testimonialData === 'undefined') {
-    console.warn('⚠️ testimonials-data.js not loaded yet. Creating temporary structure...');
+    console.log('🔍 testimonials-data.js not loaded, checking localStorage...');
     
-    // Create a temporary structure
-    window.testimonialData = {
-        concerns: {
-            price: { title: 'Price', icon: '💰', videoType: 'skeptical', phrases: [] },
-            time: { title: 'Time', icon: '⏰', videoType: 'speed', phrases: [] },
-            trust: { title: 'Trust', icon: '🤝', videoType: 'skeptical', phrases: [] }
-        },
-        industries: {},
-        playerConfig: {}
-    };
-    
-    // Add helper methods
-    window.testimonialData.getAllIndustries = function() {
-        const industries = [{ slug: 'general', name: 'General Business', icon: '🏢' }];
-        
-        if (this.industries) {
-            Object.entries(this.industries).forEach(([slug, data]) => {
-                industries.push({ slug: slug, name: data.name, icon: data.icon });
-            });
-        }
-        
-        return industries;
-    };
-    
-    window.testimonialData.getIndustryTestimonials = function(industrySlug) {
-        if (this.industries && this.industries[industrySlug]) {
-            return {
-                industry: this.industries[industrySlug].name,
-                icon: this.industries[industrySlug].icon,
-                concerns: { ...this.industries[industrySlug].concerns, ...this.concerns }
+    // Try to load from localStorage FIRST
+    const saved = localStorage.getItem('testimonialData');
+    if (saved) {
+        try {
+            const savedData = JSON.parse(saved);
+            
+            // Only use localStorage data if it has industries
+            if (savedData.industries && Object.keys(savedData.industries).length > 0) {
+                window.testimonialData = savedData;
+                console.log('✅ Loaded testimonialData from localStorage');
+                console.log('   Industries:', Object.keys(savedData.industries));
+            } else {
+                // Empty localStorage, wait for file to load
+                console.log('⚠️ localStorage empty, creating temporary structure');
+                window.testimonialData = {
+                    concerns: {
+                        price: { title: 'Price', icon: '💰', videoType: 'skeptical', phrases: [] },
+                        time: { title: 'Time', icon: '⏰', videoType: 'speed', phrases: [] },
+                        trust: { title: 'Trust', icon: '🤝', videoType: 'skeptical', phrases: [] }
+                    },
+                    industries: {},
+                    playerConfig: {}
+                };
+            }
+        } catch (e) {
+            console.log('❌ Error loading from localStorage:', e);
+            window.testimonialData = {
+                concerns: {
+                    price: { title: 'Price', icon: '💰', videoType: 'skeptical', phrases: [] },
+                    time: { title: 'Time', icon: '⏰', videoType: 'speed', phrases: [] },
+                    trust: { title: 'Trust', icon: '🤝', videoType: 'skeptical', phrases: [] }
+                },
+                industries: {},
+                playerConfig: {}
             };
         }
-        
-        return {
-            industry: 'General Business',
-            icon: '🏢',
-            concerns: this.concerns || {}
+    } else {
+        console.log('⚠️ No saved data, creating temporary structure');
+        window.testimonialData = {
+            concerns: {
+                price: { title: 'Price', icon: '💰', videoType: 'skeptical', phrases: [] },
+                time: { title: 'Time', icon: '⏰', videoType: 'speed', phrases: [] },
+                trust: { title: 'Trust', icon: '🤝', videoType: 'skeptical', phrases: [] }
+            },
+            industries: {},
+            playerConfig: {}
         };
     };
 }
@@ -2220,24 +2229,106 @@ function populateIndustryDropdown() {
 }
 
 function initializeWithDefaults() {
-    currentData = {
-        industries: {},
-        videos: {},
-        industryKeywords: {},
-        universalConcerns: {
-            price: { title: 'See The ROI Others Achieved', icon: '💰', videoType: 'universal-price', reviews: [] },
-            time: { title: 'For Busy Professionals', icon: '⏰', videoType: 'universal-time', reviews: [] },
-            trust: { title: 'Proven Across Industries', icon: '🤝', videoType: 'universal-trust', reviews: [] }
-        },
-        playerConfig: {
-            desktop: { width: 854, height: 480, top: '50%', left: '50%', borderRadius: '12px' },
-            mobile: { fullscreen: true },
-            overlay: { background: 'rgba(0, 0, 0, 0.5)' },
-            resumeMessage: "I'm sure you can appreciate what similar businesses have achieved..."
-        }
-    };
+    console.log('🚀 INITIALIZING DATA SYSTEM...');
     
-    console.log('📄 Initialized with default data structure');
+    // FIRST: Try to load from localStorage (user's saved data)
+    const saved = localStorage.getItem('testimonialData');
+    
+    if (saved) {
+        try {
+            const savedData = JSON.parse(saved);
+            
+            // Check if saved data is valid
+            if (savedData.industries && Object.keys(savedData.industries).length > 0) {
+                currentData = savedData;
+                console.log('✅ Loaded user data from localStorage');
+                console.log('   Industries:', Object.keys(savedData.industries));
+                
+                // Make sure we have required structures
+                ensureDataStructure();
+                return;
+            } else {
+                // Saved but empty - use defaults
+                console.log('⚠️ localStorage empty, using defaults');
+                useDefaultData();
+            }
+        } catch (e) {
+            console.log('❌ Error loading from localStorage:', e);
+            useDefaultData();
+        }
+    } else {
+        // No localStorage data - use defaults
+        console.log('📄 No localStorage data, using defaults');
+        useDefaultData();
+    }
+    
+    // Helper function for default data
+    function useDefaultData() {
+        currentData = {
+            industries: {},
+            videos: {},
+            industryKeywords: {},
+            universalConcerns: {
+                price: { title: 'See The ROI Others Achieved', icon: '💰', videoType: 'universal-price', reviews: [] },
+                time: { title: 'For Busy Professionals', icon: '⏰', videoType: 'universal-time', reviews: [] },
+                trust: { title: 'Proven Across Industries', icon: '🤝', videoType: 'universal-trust', reviews: [] }
+            },
+            playerConfig: {
+                desktop: { width: 854, height: 480, top: '50%', left: '50%', borderRadius: '12px' },
+                mobile: { fullscreen: true },
+                overlay: { background: 'rgba(0, 0, 0, 0.5)' },
+                resumeMessage: "I'm sure you can appreciate what similar businesses have achieved..."
+            }
+        };
+        
+        // Check if testimonials-data.js has data
+        if (window.testimonialData && window.testimonialData.industries) {
+            console.log('📄 Merging data from testimonials-data.js...');
+            
+            // Merge industries from external file
+            Object.keys(window.testimonialData.industries).forEach(slug => {
+                if (!currentData.industries[slug]) {
+                    currentData.industries[slug] = window.testimonialData.industries[slug];
+                }
+            });
+            
+            // Merge other data
+            if (window.testimonialData.industryKeywords) {
+                currentData.industryKeywords = window.testimonialData.industryKeywords;
+            }
+            if (window.testimonialData.videos) {
+                currentData.videos = window.testimonialData.videos;
+            }
+        }
+        
+        console.log('📄 Initialized with default data structure');
+    }
+    
+    // Ensure required structures exist
+    function ensureDataStructure() {
+        if (!currentData.industries) currentData.industries = {};
+        if (!currentData.videos) currentData.videos = {};
+        if (!currentData.industryKeywords) currentData.industryKeywords = {};
+        if (!currentData.universalConcerns) {
+            currentData.universalConcerns = {
+                price: { title: 'See The ROI Others Achieved', icon: '💰', videoType: 'universal-price', reviews: [] },
+                time: { title: 'For Busy Professionals', icon: '⏰', videoType: 'universal-time', reviews: [] },
+                trust: { title: 'Proven Across Industries', icon: '🤝', videoType: 'universal-trust', reviews: [] }
+            };
+        }
+        if (!currentData.playerConfig) {
+            currentData.playerConfig = {
+                desktop: { width: 854, height: 480, top: '50%', left: '50%', borderRadius: '12px' },
+                mobile: { fullscreen: true },
+                overlay: { background: 'rgba(0, 0, 0, 0.5)' },
+                resumeMessage: "I'm sure you can appreciate what similar businesses have achieved..."
+            };
+        }
+    }
+    
+    console.log('🚀 INITIALIZATION COMPLETE');
+    console.log('   Total industries:', Object.keys(currentData.industries).length);
+}
 
 function showIndustryManager() {
     const modalHTML = `
@@ -2342,7 +2433,6 @@ function deleteIndustryInManager(slug) {
     populateIndustryManager(); // Refresh the manager list
     
     showMessage(`✅ Deleted industry`, 'success');
-}
 }
         
   function updateIndustryList() {
@@ -3365,6 +3455,48 @@ function openSupabaseUploader() {
                 dropdown.appendChild(option);
             });
         }
+
+        // NEW FUNCTION: Update the testimonials-data.js file
+function updateTestimonialsDataFile() {
+    console.log('📝 Updating testimonials-data.js file...');
+    
+    const dataToSave = {
+        currentIndustry: currentIndustry,
+        industries: currentData.industries,
+        industryKeywords: currentData.industryKeywords,
+        videos: currentData.videos,
+        universalConcerns: currentData.universalConcerns,
+        playerConfig: currentData.playerConfig
+    };
+    
+    // Create the file content
+    const fileContent = `window.testimonialData = ${JSON.stringify(dataToSave, null, 2)};`;
+    
+    // Create a download link (for testing)
+    const blob = new Blob([fileContent], { type: 'application/javascript' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'testimonials-data.js';
+    a.textContent = '📥 Download updated testimonials-data.js';
+    a.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: #28a745;
+        color: white;
+        padding: 10px 15px;
+        border-radius: 5px;
+        z-index: 99999;
+    `;
+    document.body.appendChild(a);
+    
+    console.log('✅ Created updated testimonials-data.js file');
+    console.log('   Click the green download button to save it');
+    console.log('   Replace your current testimonials-data.js with this file');
+    
+    return fileContent;
+}
         
         // ===================================================
         // CODE GENERATION & EXPORT
@@ -3536,6 +3668,9 @@ console.log('🏢 Industry Keywords:', Object.keys(window.testimonialData.indust
         industryKeywords: currentData.industryKeywords,
         videos: currentData.videos
     };
+
+     // 🎯 NEW: 3. Update the generated JS file
+    updateTestimonialsDataFile();
     
     console.log('✅ Data saved to localStorage AND window.testimonialData');
           
