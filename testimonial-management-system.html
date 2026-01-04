@@ -1206,6 +1206,8 @@ const triggerTemplates = {
 };
 
  function deleteCurrentIndustry() {
+    console.log('🎯 DELETE FUNCTION CALLED - currentIndustry:', currentIndustry);
+    
     if (!currentIndustry) {
         showMessage('No industry selected', 'error');
         return;
@@ -1216,6 +1218,8 @@ const triggerTemplates = {
     if (!confirm(`⚠️ DELETE "${industryName}"?\n\nThis will remove:\n• The industry\n• All its concerns\n• All testimonials\n• Associated keywords\n\nThis cannot be undone!`)) {
         return;
     }
+    
+    console.log('🗑️ Proceeding with delete of:', industryName);
     
     // Delete industry
     delete currentData.industries[currentIndustry];
@@ -1236,15 +1240,27 @@ const triggerTemplates = {
     updateCodePreview();
     saveAllData();
 
-       // ============ ADD THIS CODE ============
+    // 🎯 CRITICAL FIX: Also update window.testimonialData
+    if (window.testimonialData && window.testimonialData.industries) {
+        delete window.testimonialData.industries[currentIndustry];
+        console.log('✅ Also deleted from window.testimonialData');
+    }
+    
     // Auto-select first industry if none selected
     if (!currentIndustry && Object.keys(currentData.industries).length > 0) {
         const firstIndustrySlug = Object.keys(currentData.industries)[0];
         selectIndustry(firstIndustrySlug);
         console.log('✅ Auto-selected first industry:', firstIndustrySlug);
     }
+
+        // After deleting from currentData, also delete from window.testimonialData
+    if (window.testimonialData && window.testimonialData.industries) {
+        delete window.testimonialData.industries[currentIndustry];
+        console.log('✅ Also deleted from window.testimonialData');
+    }
     
     showMessage(`✅ Deleted industry: ${industryName}`, 'success');
+    console.log('✅ Delete completed successfully');
 }
 
 // 2. TRIGGER SYSTEM FUNCTIONS
@@ -2423,7 +2439,7 @@ function deleteIndustryInManager(slug) {
 }
 
 // =============================================================================
-// 🏢 ADD INDUSTRY FUNCTION (COMPLETE)
+// 🏢 ADD INDUSTRY FUNCTION (COMPLETE - WITH ICON SUPPORT)
 // =============================================================================
 function addIndustry() {
     console.log('🎯 addIndustry function called');
@@ -2431,6 +2447,7 @@ function addIndustry() {
     // Get form values - CHECK YOUR ACTUAL INPUT IDs!
     const nameInput = document.getElementById('newIndustryName');
     const slugInput = document.getElementById('newIndustrySlug');
+    const iconInput = document.getElementById('newIndustryIcon'); // ADDED THIS
     const concernsInput = document.getElementById('newIndustryKeywords'); // This might be 'newIndustryConcerns' instead
     
     if (!nameInput || !concernsInput) {
@@ -2438,6 +2455,7 @@ function addIndustry() {
         console.log('Available inputs:', {
             name: nameInput,
             slug: slugInput,
+            icon: iconInput, // ADDED THIS
             concerns: concernsInput
         });
         showMessage('Form error - check console', 'error');
@@ -2446,6 +2464,7 @@ function addIndustry() {
     
     const name = nameInput.value.trim();
     const slug = slugInput ? slugInput.value.trim() : '';
+    const icon = iconInput ? iconInput.value.trim() || '🏢' : '🏢'; // ADDED THIS
     const concernsText = concernsInput.value.trim();
     
     // Generate slug if empty
@@ -2507,6 +2526,7 @@ function addIndustry() {
     // Create the industry in currentData
     currentData.industries[finalSlug] = {
         name: name,
+        icon: icon, // ADDED THIS
         concerns: concerns,
         videos: {}
     };
@@ -2521,6 +2541,7 @@ function addIndustry() {
     $('#addIndustryModal').modal('hide');
     nameInput.value = '';
     if (slugInput) slugInput.value = '';
+    if (iconInput) iconInput.value = '🏢'; // ADDED THIS
     concernsInput.value = '';
     
     // Update UI
@@ -2528,10 +2549,11 @@ function addIndustry() {
     updateStats();
     saveAllData();
     
-    showMessage(`✅ Added industry: ${name}`, 'success');
+    showMessage(`✅ Added industry: ${icon} ${name}`, 'success'); // UPDATED THIS
     console.log('Industry added:', { 
         name: name, 
         slug: finalSlug, 
+        icon: icon, // ADDED THIS
         concerns: concerns.length,
         sampleConcerns: concerns.slice(0, 5) 
     });
@@ -3502,7 +3524,22 @@ console.log('🏢 Industry Keywords:', Object.keys(window.testimonialData.indust
         }
         
         function saveAllData() {
-            try {
+            console.log('💾 SAVING DATA...');
+    
+    // Save to localStorage
+    localStorage.setItem('testimonialData', JSON.stringify(currentData));
+    
+      // 🎯 ALSO UPDATE window.testimonialData to match
+    window.testimonialData = {
+        currentIndustry: currentIndustry,
+        industries: currentData.industries,
+        industryKeywords: currentData.industryKeywords,
+        videos: currentData.videos
+    };
+    
+    console.log('✅ Data saved to localStorage AND window.testimonialData');
+          
+           try {
                 localStorage.setItem('testimonialData', JSON.stringify(currentData));
                 console.log('💾 Data saved to localStorage');
                 return true;
@@ -3511,6 +3548,8 @@ console.log('🏢 Industry Keywords:', Object.keys(window.testimonialData.indust
                 showMessage('⚠️ Could not save to localStorage. Data may be too large.', 'warning');
                 return false;
             }
+            console.log('✅ Data saved to localStorage AND window.testimonialData');
+    console.log('   Total industries:', Object.keys(currentData.industries).length);
         }
         
         function loadSampleData() {
