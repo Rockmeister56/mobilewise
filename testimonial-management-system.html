@@ -668,6 +668,29 @@ a[href^="#"] {
 
             <!-- UPDATED SIDEBAR CODE - DARK THEME -->
 <div style="margin-top: 30px; padding: 15px; border-radius: 8px;">
+
+    <!-- CLEAN INDUSTRY HEADER -->
+<div style="margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+    <div style="display: flex; align-items: center; justify-content: space-between;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <div id="industryIconDisplay" style="font-size: 24px;">🏢</div>
+            <div>
+                <div style="font-size: 12px; color: #adb5bd;">CURRENT INDUSTRY</div>
+                <div id="currentIndustryName" style="font-size: 16px; font-weight: 500; color: #e9ecef;">None selected</div>
+            </div>
+        </div>
+        <div style="display: flex; gap: 5px;">
+            <button onclick="editCurrentIndustry()" 
+                    style="background: transparent; color: #80bdff; border: 1px solid rgba(128,189,255,0.3); padding: 4px 8px; border-radius: 4px; font-size: 12px; cursor: pointer;">
+                Edit
+            </button>
+            <button onclick="$('#addIndustryModal').modal('show')" 
+                    style="background: rgba(40,167,69,0.2); color: #28a745; border: 1px solid rgba(40,167,69,0.3); padding: 4px 8px; border-radius: 4px; font-size: 12px; cursor: pointer;">
+                + New
+            </button>
+        </div>
+    </div>
+</div>
     
     <!-- TESTIMONIALS AT A GLANCE -->
     <div id="testimonialsGlance" style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px;">
