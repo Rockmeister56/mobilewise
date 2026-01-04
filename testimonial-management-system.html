@@ -669,27 +669,28 @@ a[href^="#"] {
             <!-- UPDATED SIDEBAR CODE - DARK THEME -->
 <div style="margin-top: 30px; padding: 15px; border-radius: 8px;">
 
-    <!-- CURRENT INDUSTRY CARD -->
-    <div id="currentIndustryCard" style="background: rgba(0,123,255,0.15); padding: 15px; border-radius: 8px; border: 1px solid rgba(0,123,255,0.3); margin-bottom: 20px;">
-        <div style="display: flex; align-items: center; margin-bottom: 10px;">
-            <div id="industryIconDisplay" style="font-size: 24px; margin-right: 10px; color: #fff;">🏢</div>
-            <div style="flex: 1;">
-                <h4 style="margin: 0; color: #e9ecef; font-size: 16px;">Current Industry</h4>
-                <p id="currentIndustryName" style="margin: 0; color: #80bdff; font-weight: bold; font-size: 18px;">None selected</p>
+    <!-- CLEAN INDUSTRY HEADER -->
+<div style="margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+    <div style="display: flex; align-items: center; justify-content: space-between;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <div id="industryIconDisplay" style="font-size: 24px;">🏢</div>
+            <div>
+                <div style="font-size: 12px; color: #adb5bd;">CURRENT INDUSTRY</div>
+                <div id="currentIndustryName" style="font-size: 16px; font-weight: 500; color: #e9ecef;">None selected</div>
             </div>
         </div>
-        
-        <div style="display: flex; gap: 10px; margin-top: 10px;">
-            <button class="btn" onclick="editCurrentIndustry()" 
-                    style="flex: 1; background: rgba(108,117,125,0.8); color: white; padding: 8px; border: 1px solid rgba(255,255,255,0.1);">
-                ✏️ Edit Industry
+        <div style="display: flex; gap: 5px;">
+            <button onclick="editCurrentIndustry()" 
+                    style="background: transparent; color: #80bdff; border: 1px solid rgba(128,189,255,0.3); padding: 4px 8px; border-radius: 4px; font-size: 12px; cursor: pointer;">
+                Edit
             </button>
-            <button class="btn" onclick="$('#addIndustryModal').modal('show')" 
-                    style="flex: 1; background: rgba(40,167,69,0.8); color: white; padding: 8px; border: 1px solid rgba(255,255,255,0.1);">
-                🏢 Change Industry
+            <button onclick="$('#addIndustryModal').modal('show')" 
+                    style="background: rgba(40,167,69,0.2); color: #28a745; border: 1px solid rgba(40,167,69,0.3); padding: 4px 8px; border-radius: 4px; font-size: 12px; cursor: pointer;">
+                + New
             </button>
         </div>
     </div>
+</div>
     
     <!-- TESTIMONIALS AT A GLANCE -->
     <div id="testimonialsGlance" style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px;">
