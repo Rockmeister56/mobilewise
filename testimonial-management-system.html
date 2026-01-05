@@ -2101,7 +2101,7 @@ function initTestimonialAI() {
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', connectTestimonialAI);
     } else {
-        connectTestimonialAI();
+        // connectTestimonialAI();
     }
 }
 
@@ -5168,5 +5168,67 @@ style.textContent = `
 document.head.appendChild(style);
 
     </script>
+    <script>
+// ===================================================
+// 🎯 SIMPLE TESTIMONIAL SYSTEM - JUST WORKS
+// ===================================================
+
+// 1. Make sure AI function exists
+if (window.testimonialData && !window.testimonialData.findRelevantTestimonial) {
+    window.testimonialData.findRelevantTestimonial = function(userMessage) {
+        const msg = userMessage.toLowerCase();
+        if (this.concerns) {
+            for (const [key, concern] of Object.entries(this.concerns)) {
+                if (concern.phrases) {
+                    for (const phrase of concern.phrases) {
+                        if (phrase && msg.includes(phrase.toLowerCase())) {
+                            if (concern.reviews && concern.reviews.length > 0) {
+                                const review = concern.reviews[Math.floor(Math.random() * concern.reviews.length)];
+                                return {
+                                    concern: concern.title,
+                                    review: review.text,
+                                    author: review.author,
+                                    icon: concern.icon
+                                };
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    };
+}
+
+// 2. Make buttons work
+document.addEventListener('click', function(e) {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    
+    const text = btn.textContent || '';
+    
+    // Map emojis to search phrases
+    const buttonMap = {
+        '💰': 'too expensive',
+        '⏰': 'takes too long',
+        '🤝': 'dont trust this',
+        '⭐': 'on the fence',
+        '📈': 'get results'
+    };
+    
+    for (const [emoji, phrase] of Object.entries(buttonMap)) {
+        if (text.includes(emoji)) {
+            const result = window.testimonialData?.findRelevantTestimonial?.(phrase);
+            if (result) {
+                // Show simple alert (or replace with your popup)
+                alert(`${result.icon} ${result.concern}\n\n"${result.review}"\n\n- ${result.author}`);
+            }
+            break;
+        }
+    }
+});
+
+console.log('✅ Testimonial system READY! Click 💰⏰🤝⭐📈 buttons.');
+</script>
 </body>
 </html>
