@@ -390,6 +390,70 @@ window.testimonialData = {
     __loadedFromFile: true,
     __version: "5.0-complete-" + new Date().toISOString().split('T')[0]
 };
+
+// ============================================
+// 🎯 BRIDGE COMPATIBILITY FUNCTIONS
+// ============================================
+
+// Make sure testimonialData has the functions the bridge expects
+if (window.testimonialData) {
+    // Add getCompleteTestimonial if it doesn't exist
+    if (!window.testimonialData.getCompleteTestimonial) {
+        window.testimonialData.getCompleteTestimonial = function(message) {
+            console.log('🎯 getCompleteTestimonial called via bridge:', message);
+            
+            // Use existing function if available
+            if (typeof findRelevantTestimonial === 'function') {
+                return findRelevantTestimonial(message);
+            }
+            
+            // Fallback to keyword matching
+            const lowerMsg = message.toLowerCase();
+            
+            // Check universal concerns first
+            for (const [key, concern] of Object.entries(window.testimonialData.universalConcerns || {})) {
+                if (concern.keywords && concern.keywords.some(kw => 
+                    lowerMsg.includes(kw.toLowerCase()))) {
+                    return {
+                        concern: concern.title,
+                        review: concern.quote,
+                        author: concern.author,
+                        icon: concern.icon || "⭐",
+                        videoType: concern.videoType || "general",
+                        video: {
+                            duration: concern.duration || 30000,
+                            url: concern.videoUrl || "#"
+                        }
+                    };
+                }
+            }
+            
+            // Default fallback
+            return {
+                concern: "Customer Concern",
+                review: "We have a testimonial that addresses this exact concern!",
+                author: "Satisfied Client",
+                icon: "✅",
+                videoType: "general",
+                video: { duration: 30000, url: "#" }
+            };
+        };
+        
+        console.log('✅ Added getCompleteTestimonial to testimonialData');
+    }
+    
+    // Also add playTestimonialVideo if needed
+    if (!window.testimonialData.playTestimonialVideo && typeof playTestimonial === 'function') {
+        window.testimonialData.playTestimonialVideo = playTestimonial;
+        console.log('✅ Added playTestimonialVideo to testimonialData');
+    }
+    
+    console.log('🎯 Bridge compatibility layer ready');
+    console.log('Methods available:', 
+        Object.keys(window.testimonialData)
+            .filter(k => typeof window.testimonialData[k] === 'function'));
+}
+
 // ===================================================
 // END OF window.testimonialData OBJECT
 // ===================================================
