@@ -5513,21 +5513,45 @@ document.addEventListener('DOMContentLoaded', function() {
                         
                         console.log(`🎯 ${config.concern} button clicked`);
                         
-                        // SAFETY CHECK: Ensure functions exist
-                        if (!window.testimonialData?.getCompleteTestimonial) {
-                            console.error('❌ getCompleteTestimonial not found!');
-                            alert('Testimonial system still loading...');
-                            return;
-                        }
                         
-                        if (!window.testimonialData.findRelevantTestimonial || 
-                            typeof window.testimonialData.findRelevantTestimonial !== 'function') {
-                            console.error('❌ findRelevantTestimonial not a function!');
-                            return;
-                        }
+                        // SAFETY CHECK: Ensure functions exist - FIXED VERSION
+if (!window.testimonialData) {
+    console.error('❌ testimonialData not found!');
+    alert('Testimonial system still loading...');
+    return;
+}
+
+// Check for ANY testimonial function
+const hasTestimonialFunction = 
+    (window.testimonialData.getCompleteTestimonial && 
+     typeof window.testimonialData.getCompleteTestimonial === 'function') ||
+    (window.testimonialData.findRelevantTestimonial && 
+     typeof window.testimonialData.findRelevantTestimonial === 'function');
+
+if (!hasTestimonialFunction) {
+    console.error('❌ No testimonial function found!');
+    console.log('Available methods:', 
+        Object.keys(window.testimonialData)
+            .filter(k => typeof window.testimonialData[k] === 'function'));
+    alert('Testimonial functions not available yet. Please wait...');
+    return;
+}
+
+// Log which function we're using
+if (window.testimonialData.getCompleteTestimonial) {
+    console.log('✅ Using getCompleteTestimonial');
+} else if (window.testimonialData.findRelevantTestimonial) {
+    console.log('✅ Using findRelevantTestimonial');
+}
                         
                         // Get complete testimonial
-                        const testimonial = window.testimonialData.getCompleteTestimonial(config.search);
+                        // Get testimonial - use whichever function is available
+let testimonial = null;
+if (window.testimonialData.getCompleteTestimonial) {
+    testimonial = window.testimonialData.getCompleteTestimonial(config.search);
+} else if (window.testimonialData.findRelevantTestimonial) {
+    testimonial = window.testimonialData.findRelevantTestimonial(config.search);
+}
                         
                         if (testimonial) {
                             console.log('✅ Found testimonial:', testimonial.concern);
