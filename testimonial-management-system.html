@@ -1970,10 +1970,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // ADD THIS LINE:
     setTimeout(initTriggerSystem, 500);
 });
-
-// 📋 ENHANCED CONNECTION SCRIPT - Replace your existing one with this
-// 📋 FIXED CONNECTION SCRIPT - WITH LOAD WAITING
-function connectTestimonialAI() {
+// 📋 FIXED CONNECTION SCRIPT - WITH LOAD WAITINGfunction connectTestimonialAI() {
     console.log('🔗 Connecting testimonial AI to management system...');
     
     // Wait for testimonialData to be fully loaded
@@ -2026,11 +2023,11 @@ function connectTestimonialAI() {
         
         // Continue with the rest of the connection...
         setupConnection();
+
+         // Start checking
+    checkDataLoaded();
     };
     
-    // Start checking
-    checkDataLoaded();
-}
 
 function setupConnection() {
     console.log('🔧 Setting up testimonial connections...');
