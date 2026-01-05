@@ -5231,49 +5231,6 @@ if (window.testimonialData.getCompleteTestimonial) {
         }
     };
     
-    // 7. Test panel
-    function addTestPanel() {
-        const panel = document.createElement('div');
-        panel.style.cssText = `
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            z-index: 99999;
-            border-left: 5px solid #28a745;
-        `;
-        
-        panel.innerHTML = `
-            <h4 style="margin: 0 0 10px; color: #28a745;">🧪 Test Bridge</h4>
-            <p style="margin: 0 0 10px; font-size: 12px; color: #666;">Test the AI → Video bridge:</p>
-            <div style="display: flex; gap: 5px; flex-wrap: wrap;">
-                <button class="bridge-test" data-search="too expensive">💰 Price</button>
-                <button class="bridge-test" data-search="takes too long">⏰ Time</button>
-                <button class="bridge-test" data-search="dont trust">🤝 Trust</button>
-                <button class="bridge-test" data-search="on the fence">⭐ General</button>
-                <button class="bridge-test" data-search="get results">📈 Results</button>
-            </div>
-        `;
-        
-        document.body.appendChild(panel);
-        
-        // Add test button handlers
-        document.querySelectorAll('.bridge-test').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const search = this.getAttribute('data-search');
-                if (window.testimonialData?.getCompleteTestimonial) {
-                    const testimonial = window.testimonialData.getCompleteTestimonial(search);
-                    if (testimonial) {
-                        alert(`✅ Bridge Working!\n\n${testimonial.concern}\n\n"${testimonial.review}"\n\nVideo: ${testimonial.video?.url ? '✅' : '❌'}`);
-                    }
-                }
-            });
-        });
-    }
-    
     // 8. Initialize bridge - FIXED VERSION
     function initializeBridge() {
         console.log('🎯 Initializing FIXED bridge...');
