@@ -2419,9 +2419,12 @@ function validateDataStructure() {
 // ===================================================
 // INDUSTRY-SPECIFIC FUNCTIONALITY
 // ===================================================
-
 function populateIndustryDropdown() {
-    const industries = window.testimonialData.getAllIndustries();
+    // FIX: Check if getAllIndustries exists, use fallback
+    const industries = window.testimonialData.getAllIndustries ? 
+        window.testimonialData.getAllIndustries() : 
+        [];
+    
     const dropdown = document.getElementById('industry-select');
     
     if (!dropdown) {
@@ -2432,13 +2435,22 @@ function populateIndustryDropdown() {
     // Clear existing options
     dropdown.innerHTML = '<option value="">Select an industry...</option>';
     
-    // Add industry options
-    industries.forEach(industry => {
+    // Add industry options (if any)
+    if (industries && industries.length > 0) {
+        industries.forEach(industry => {
+            const option = document.createElement('option');
+            option.value = industry.slug;
+            option.textContent = `${industry.icon} ${industry.name}`;
+            dropdown.appendChild(option);
+        });
+    } else {
+        // Add default option
         const option = document.createElement('option');
-        option.value = industry.slug;
-        option.textContent = `${industry.icon} ${industry.name}`;
+        option.value = "universal";
+        option.textContent = "⭐ Universal Concerns";
         dropdown.appendChild(option);
-    });
+        console.log('⚠️ No industries found, using universal concerns');
+    }
     
     // Add change listener
     dropdown.addEventListener('change', function() {
@@ -3000,39 +3012,6 @@ function populateTriggerPhrases(phrases) {
     if (phrases.length > 0 && triggerSearch === document.activeElement) {
         triggerDropdown.style.display = 'block';
     }
-}
-
-// ==============================================
-// NEW: INDUSTRY DROPDOWN POPULATION
-// ==============================================
-function populateIndustryDropdown() {
-    const industries = window.testimonialData.getAllIndustries(); // ✅ FIXED
-    const dropdown = document.getElementById('industry-select');
-    
-    if (!dropdown) {
-        console.error('Industry dropdown element not found!');
-        return;
-    }
-    
-    // Clear existing options except first
-    while (dropdown.options.length > 1) {
-        dropdown.remove(1);
-    }
-    
-    // Add all industries
-    industries.forEach(industry => {
-        const option = document.createElement('option');
-        option.value = industry.slug;
-        option.innerHTML = `${industry.icon} ${industry.name}`;
-        dropdown.appendChild(option);
-    });
-    
-    // Add event listener for industry change
-    dropdown.addEventListener('change', function() {
-        const selectedIndustry = this.value;
-        updateConcernsForIndustry(selectedIndustry);
-        updateCodePreview();
-    });
 }
 
 function initializeWithDefaults() {
