@@ -2129,11 +2129,15 @@ function showRelevantTestimonial(dataOrText) {
     showTestimonialPopup(result);
 }
 
-// Enhanced display function (from my script)
+// Enhanced display function (FIXED VERSION)
 function showTestimonialPopup(testimonial) {
     console.log('📺 Showing testimonial popup:', testimonial);
     
+    // FIRST: Remove any existing popups to prevent duplicates
+    closeTestimonialPopup();
+    
     const popup = document.createElement('div');
+    popup.className = 'testimonial-popup'; // ADD CLASS
     popup.style.cssText = `
         position: fixed;
         top: 50%;
@@ -2167,8 +2171,10 @@ function showTestimonialPopup(testimonial) {
         ">Continue</button>
     `;
     
-    // Add overlay
+    // Add overlay with CLASS instead of just ID
     const overlay = document.createElement('div');
+    overlay.className = 'testimonial-overlay'; // ADD CLASS
+    overlay.id = 'testimonial-overlay'; // Keep ID for backward compatibility
     overlay.style.cssText = `
         position: fixed;
         top: 0;
@@ -2179,25 +2185,39 @@ function showTestimonialPopup(testimonial) {
         z-index: 9999;
         animation: fadeIn 0.3s ease-out;
     `;
-    overlay.id = 'testimonial-overlay';
     
     // Add CSS animation
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-    `;
-    document.head.appendChild(style);
+    if (!document.querySelector('#testimonial-animations')) {
+        const style = document.createElement('style');
+        style.id = 'testimonial-animations';
+        style.textContent = `
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
     
-    // Close function
+    // SAFE Close function
     window.closeTestimonialPopup = function() {
-        if (document.getElementById('testimonial-overlay')) {
-            document.body.removeChild(document.getElementById('testimonial-overlay'));
-        }
-        if (popup.parentNode === document.body) {
-            document.body.removeChild(popup);
+        // Remove by CLASS (more reliable)
+        document.querySelectorAll('.testimonial-overlay').forEach(overlay => {
+            if (overlay.parentNode) {
+                overlay.parentNode.removeChild(overlay);
+            }
+        });
+        
+        document.querySelectorAll('.testimonial-popup').forEach(popup => {
+            if (popup.parentNode) {
+                popup.parentNode.removeChild(popup);
+            }
+        });
+        
+        // Also remove by ID for backward compatibility
+        const overlayById = document.getElementById('testimonial-overlay');
+        if (overlayById && overlayById.parentNode) {
+            overlayById.parentNode.removeChild(overlayById);
         }
     };
     
@@ -2209,6 +2229,25 @@ function showTestimonialPopup(testimonial) {
     // Auto-close after 8 seconds
     setTimeout(window.closeTestimonialPopup, 8000);
 }
+    
+    // Close function
+    window.closeTestimonialPopup = function() {
+        if (document.getElementById('testimonial-overlay')) {
+            document.body.removeChild(document.getElementById('testimonial-overlay'));
+        }
+        if (popup.parentNode === document.body) {
+            document.body.removeChild(popup);
+        }
+    };
+
+     overlay.onclick = window.closeTestimonialPopup;
+    
+    document.body.appendChild(overlay);
+    document.body.appendChild(popup);
+    
+    // Auto-close after 8 seconds
+    setTimeout(window.closeTestimonialPopup, 8000);
+    
 
 // Debug panel function (from my script)
 function addDebugPanel() {
