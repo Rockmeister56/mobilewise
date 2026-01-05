@@ -1,12 +1,12 @@
 // ===================================================
 // 🎬 MOBILE-WISE AI TESTIMONIALS DATA
-// Centralized testimonial content for all clients
+// Complete working version with AI + Video integration
 // ===================================================
 
 window.testimonialData = {
 
     // ===================================================
-    // VIDEO URLS FROM TESTIMONIAL PLAYER (CRITICAL!)
+    // VIDEO URLS (CRITICAL - FROM TESTIMONIAL PLAYER)
     // ===================================================
     videoUrls: {
         skeptical: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982717330.mp4',
@@ -23,7 +23,7 @@ window.testimonialData = {
     },
     
     // ===================================================
-    // UNIVERSAL CONCERNS (MUST BE CALLED 'concerns' NOT 'universalConcerns')
+    // UNIVERSAL CONCERNS (WITH VIDEO TYPE MAPPING)
     // ===================================================
     concerns: {
         price: {
@@ -137,7 +137,7 @@ window.testimonialData = {
         results: {
             title: 'See The Results Others Got',
             icon: '📈',
-            videoType: 'results',
+            videoType: 'convinced',  // CHANGED from 'results' to match videoUrls
             phrases: [
                 'does it work',
                 'effective',
@@ -150,17 +150,17 @@ window.testimonialData = {
                 {
                     text: "Exceeded all our expectations. Results were better than promised.",
                     author: "Michael T.",
-                    videoType: "results"
+                    videoType: "convinced"
                 },
                 {
                     text: "We saw a 40% improvement in just 30 days. Incredible results.",
                     author: "Jennifer K.",
-                    videoType: "results"
+                    videoType: "convinced"
                 },
                 {
                     text: "The outcomes were transformative for our business.",
                     author: "Robert P.",
-                    videoType: "results"
+                    videoType: "convinced"
                 }
             ]
         }
@@ -238,10 +238,38 @@ window.testimonialData = {
                     continue;
                 }
                 
+                // Check phrases
                 if (concernData.phrases && Array.isArray(concernData.phrases)) {
                     for (const phrase of concernData.phrases) {
                         if (phrase && message.includes(phrase.toLowerCase())) {
                             console.log('✅ Matched phrase:', phrase, 'in', concernData.title);
+                            
+                            const randomReview = concernData.reviews[Math.floor(Math.random() * concernData.reviews.length)];
+                            return {
+                                type: 'universal',
+                                concern: concernData.title,
+                                review: randomReview.text,
+                                author: randomReview.author,
+                                icon: concernData.icon,
+                                videoType: concernData.videoType
+                            };
+                        }
+                    }
+                }
+                
+                // Check keywords as fallback
+                const keywords = {
+                    trust: ['trust', 'skeptical', 'believe', 'reliable', 'scam', 'doubt'],
+                    results: ['result', 'work', 'effective', 'outcome', 'success', 'improve'],
+                    price: ['expensive', 'cost', 'price', 'budget', 'afford', 'value'],
+                    time: ['time', 'long', 'quick', 'fast', 'speed', 'minutes'],
+                    general: ['unsure', 'fence', 'convince', 'decide', 'mixed']
+                };
+                
+                if (keywords[concernKey]) {
+                    for (const keyword of keywords[concernKey]) {
+                        if (message.includes(keyword)) {
+                            console.log('✅ Matched keyword:', keyword, 'for', concernKey);
                             
                             const randomReview = concernData.reviews[Math.floor(Math.random() * concernData.reviews.length)];
                             return {
@@ -262,14 +290,85 @@ window.testimonialData = {
         return null;
     },
 
+    // ===================================================
+    // VIDEO PLAYER INTEGRATION FUNCTIONS
+    // ===================================================
+    playTestimonialVideo: function(videoType) {
+        console.log('🎬 Getting video for type:', videoType);
+        
+        // Validate videoType
+        if (!videoType || typeof videoType !== 'string') {
+            console.warn('⚠️ Invalid videoType, using skeptical');
+            videoType = 'skeptical';
+        }
+        
+        // Check if video type exists
+        if (!this.videoUrls || !this.videoUrls[videoType]) {
+            console.warn(`⚠️ No video URL for "${videoType}", available types:`, Object.keys(this.videoUrls || {}));
+            
+            // Try fallback types
+            const fallbackOrder = ['skeptical', 'speed', 'convinced', 'excited'];
+            for (const fallback of fallbackOrder) {
+                if (this.videoUrls && this.videoUrls[fallback]) {
+                    console.log(`   Using fallback: ${fallback}`);
+                    videoType = fallback;
+                    break;
+                }
+            }
+        }
+        
+        const videoUrl = this.videoUrls?.[videoType];
+        const duration = this.videoDurations?.[videoType];
+        
+        if (!videoUrl) {
+            console.error('❌ No video URL available at all!');
+            return null;
+        }
+        
+        return {
+            url: videoUrl,
+            duration: duration || 20000,
+            type: videoType,
+            success: true
+        };
+    },
+    
+    getCompleteTestimonial: function(userMessage) {
+        console.log('🔍 Finding complete testimonial for:', userMessage);
+        
+        // Get AI result
+        const aiResult = this.findRelevantTestimonial(userMessage);
+        if (!aiResult) {
+            console.log('❌ No AI result');
+            return null;
+        }
+        
+        console.log('✅ AI found:', aiResult.concern, 'videoType:', aiResult.videoType);
+        
+        // Get video
+        const videoData = this.playTestimonialVideo(aiResult.videoType);
+        
+        if (!videoData) {
+            console.error('❌ No video data');
+            return null;
+        }
+        
+        // Return complete package
+        return {
+            ...aiResult,
+            video: videoData,
+            timestamp: new Date().toISOString(),
+            status: 'complete'
+        };
+    },
 
     // ===================================================
     // VIDEO PLAYER CONFIGURATION
     // ===================================================
     playerConfig: {
         desktop: {
-            width: 854,  // Updated to 16:9
-            height: 480, // Updated to 16:9  
+            width: 854,
+            height: 480,
             top: '50%',
             left: '50%',
             borderRadius: '12px'
@@ -278,20 +377,24 @@ window.testimonialData = {
             fullscreen: true
         },
         overlay: {
-            background: 'rgba(0, 0, 0, 0.5)' // 50% black
+            background: 'rgba(0, 0, 0, 0.5)'
         },
         resumeMessage: "I'm sure you can appreciate what our clients have to say. So let's get back on track with helping you sell your practice. Would you like a free consultation with Bruce that can analyze your particular situation?"
     },
     
     // ===================================================
-    // METADATA
+    // INITIALIZATION
     // ===================================================
+    currentIndustry: null,
+    
     __loadedFromFile: true,
-    __version: "4.0-ai-enhanced-" + new Date().toISOString().split('T')[0]
+    __version: "5.0-complete-" + new Date().toISOString().split('T')[0]
 };
 // ===================================================
 // END OF window.testimonialData OBJECT
 // ===================================================
 
 console.log('✅ Testimonials Data Loaded:', Object.keys(window.testimonialData.concerns).length, 'concern types');
-console.log('✅ Industries Loaded:', Object.keys(window.testimonialData.industries).length, 'industry types');
+console.log('✅ Video URLs loaded:', Object.keys(window.testimonialData.videoUrls).length);
+console.log('✅ AI Functions: findRelevantTestimonial, playTestimonialVideo, getCompleteTestimonial');
+console.log('🎉 System ready! Connect to testimonial-player.js using getCompleteTestimonial()');
