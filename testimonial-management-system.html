@@ -4806,33 +4806,6 @@ window.testimonialData = ${JSON.stringify(data, null, 2)};`;
             saveAllData();
         }
 
-// 7. Initialize when page loads
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('🎯 Initializing testimonial testing system...');
-    
-    // Wait a moment for everything to load
-    setTimeout(() => {
-        // Check if testimonialData is available
-        if (window.testimonialData && window.testimonialData.getCompleteTestimonial) {
-            console.log('✅ Testimonial system ready for testing');
-            addTestButtonsToInterface();
-            
-            // Auto-run a quick test
-            setTimeout(() => {
-                console.log('🧪 Auto-running quick test...');
-                window.testTestimonial('price');
-            }, 2000);
-        } else {
-            console.warn('⚠️ Testimonial data not ready yet, retrying...');
-            setTimeout(() => {
-                if (window.testimonialData && window.testimonialData.getCompleteTestimonial) {
-                    addTestButtonsToInterface();
-                }
-            }, 2000);
-        }
-    }, 1000);
-});
-
 console.log('🎯 Testimonial testing functions loaded');
 console.log('Available functions:');
 console.log('  testTestimonial("price|time|trust|general|results")');
