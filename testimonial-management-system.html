@@ -2191,23 +2191,27 @@ function showTestimonialPopup(testimonial) {
     setTimeout(() => container.remove(), 8000);
 }
     
-    // Close function
-    window.closeTestimonialPopup = function() {
-        if (document.getElementById('testimonial-overlay')) {
-            document.body.removeChild(document.getElementById('testimonial-overlay'));
-        }
-        if (popup.parentNode === document.body) {
-            document.body.removeChild(popup);
-        }
-    };
-
-     overlay.onclick = window.closeTestimonialPopup;
+    // SAFE Close function (REPLACE YOUR CURRENT ONE)
+window.closeTestimonialPopup = function() {
+    // Find overlay by ID AND by class
+    const overlay = document.getElementById('testimonial-overlay');
+    if (overlay && overlay.parentNode) {
+        overlay.parentNode.removeChild(overlay);
+    }
     
-    document.body.appendChild(overlay);
-    document.body.appendChild(popup);
-    
-    // Auto-close after 8 seconds
-    setTimeout(window.closeTestimonialPopup, 8000);
+    // Find popup by looking for its unique style
+    const popups = document.querySelectorAll('div');
+    popups.forEach(div => {
+        const style = div.getAttribute('style') || '';
+        if (style.includes('top: 50%') && 
+            style.includes('left: 50%') && 
+            style.includes('transform: translate(-50%, -50%)')) {
+            if (div.parentNode) {
+                div.parentNode.removeChild(div);
+            }
+        }
+    });
+};
     
 
 // Debug panel function (from my script)
