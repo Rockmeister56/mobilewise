@@ -6,7 +6,7 @@
 window.testimonialData = {
 
     // ===================================================
-    // VIDEO URLS FROM TESTIMONIAL PLAYER (ADD THIS!)
+    // VIDEO URLS FROM TESTIMONIAL PLAYER (CRITICAL!)
     // ===================================================
     videoUrls: {
         skeptical: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982717330.mp4',
@@ -23,7 +23,7 @@ window.testimonialData = {
     },
     
     // ===================================================
-    // UNIVERSAL CONCERNS (Fallback for all industries)
+    // UNIVERSAL CONCERNS (MUST BE CALLED 'concerns' NOT 'universalConcerns')
     // ===================================================
     concerns: {
         price: {
@@ -89,11 +89,11 @@ window.testimonialData = {
                 'questionable reputation',
                 'heard bad things',
                 'too good to be true',
-                'not sure if i can trust', // ADDED: Better matching
-                'trust issues', // ADDED: Better matching
-                'can i trust', // ADDED: Better matching
-                'is this trustworthy', // ADDED: Better matching
-                'skeptical' // ADDED: Better matching
+                'not sure if i can trust',
+                'trust issues',
+                'can i trust',
+                'is this trustworthy',
+                'skeptical'
             ],
             reviews: [
                 { 
@@ -134,7 +134,6 @@ window.testimonialData = {
             ]
         },
         
-        // ADDED: Missing "results" concern
         results: {
             title: 'See The Results Others Got',
             icon: '📈',
@@ -144,10 +143,10 @@ window.testimonialData = {
                 'effective',
                 'results',
                 'outcomes',
-                'success', // ADDED: Better matching
-                'improvement' // ADDED: Better matching
+                'success',
+                'improvement'
             ],
-            reviews: [  // ADDED: Was missing reviews array
+            reviews: [
                 {
                     text: "Exceeded all our expectations. Results were better than promised.",
                     author: "Michael T.",
@@ -186,19 +185,17 @@ window.testimonialData = {
     // HELPER FUNCTIONS
     // ===================================================
     getIndustryTestimonials: function(industrySlug) {
-        // Return industry-specific testimonials if available
         if (this.industries[industrySlug]) {
             return {
                 industry: this.industries[industrySlug].name,
                 icon: this.industries[industrySlug].icon,
                 concerns: {
                     ...this.industries[industrySlug].concerns,
-                    ...this.concerns // Merge with universal concerns
+                    ...this.concerns
                 }
             };
         }
         
-        // Fallback to universal concerns for unknown industries
         return {
             industry: 'General Business',
             icon: '🏢',
@@ -215,7 +212,6 @@ window.testimonialData = {
                 icon: data.icon
             });
         }
-        // Add "General Business" option
         industries.unshift({
             slug: 'general',
             name: 'General Business',
@@ -236,46 +232,16 @@ window.testimonialData = {
         
         const message = userMessage.toLowerCase();
         
-        // 1. First check exact phrase matches
         if (this.concerns) {
             for (const [concernKey, concernData] of Object.entries(this.concerns)) {
-                // Skip concerns with no reviews
                 if (!concernData.reviews || concernData.reviews.length === 0) {
                     continue;
                 }
                 
-                // Check each phrase
                 if (concernData.phrases && Array.isArray(concernData.phrases)) {
                     for (const phrase of concernData.phrases) {
                         if (phrase && message.includes(phrase.toLowerCase())) {
                             console.log('✅ Matched phrase:', phrase, 'in', concernData.title);
-                            
-                            const randomReview = concernData.reviews[Math.floor(Math.random() * concernData.reviews.length)];
-                            return {
-                                type: 'universal',
-                                concern: concernData.title,
-                                review: randomReview.text,
-                                author: randomReview.author,
-                                icon: concernData.icon,
-                                videoType: concernData.videoType
-                            };
-                        }
-                    }
-                }
-                
-                // 2. Also check for keyword matches (SMARTER MATCHING)
-                const keywords = {
-                    trust: ['trust', 'skeptical', 'believe', 'reliable', 'scam', 'doubt', 'confidence'],
-                    results: ['result', 'work', 'effective', 'outcome', 'success', 'improve', 'achievement'],
-                    price: ['expensive', 'cost', 'price', 'budget', 'afford', 'value', 'money'],
-                    time: ['time', 'long', 'quick', 'fast', 'speed', 'minutes', 'hours', 'duration'],
-                    general: ['unsure', 'fence', 'convince', 'decide', 'mixed', 'certain', 'opinion']
-                };
-                
-                if (keywords[concernKey]) {
-                    for (const keyword of keywords[concernKey]) {
-                        if (message.includes(keyword)) {
-                            console.log('✅ Matched keyword:', keyword, 'for', concernKey);
                             
                             const randomReview = concernData.reviews[Math.floor(Math.random() * concernData.reviews.length)];
                             return {
@@ -295,6 +261,7 @@ window.testimonialData = {
         console.log('❌ No testimonial match found');
         return null;
     },
+
 
     // ===================================================
     // VIDEO PLAYER CONFIGURATION
