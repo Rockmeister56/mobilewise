@@ -5133,5 +5133,268 @@ style.textContent = `
 document.head.appendChild(style);
 
     </script>
+    <!-- Add this BEFORE the closing </body> tag of your management page -->
+<script>
+// ===================================================
+// 🎯 BRIDGE: Connect Testimonial Data to Player
+// ===================================================
+
+console.log('🔗 Loading testimonial bridge...');
+
+// Wait for everything to load
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('✅ Page loaded, creating bridge...');
+    
+    // 1. Make sure we have testimonialData
+    if (!window.testimonialData) {
+        console.error('❌ testimonialData not found!');
+        return;
+    }
+    
+    // 2. Add video player functions to testimonialData
+    if (!window.testimonialData.playTestimonialVideo) {
+        window.testimonialData.playTestimonialVideo = function(videoType) {
+            console.log('🎬 Getting video for type:', videoType);
+            
+            const videoUrl = this.videoUrls?.[videoType];
+            const duration = this.videoDurations?.[videoType];
+            
+            if (!videoUrl) {
+                console.error('❌ No video URL for type:', videoType);
+                return null;
+            }
+            
+            return {
+                url: videoUrl,
+                duration: duration,
+                type: videoType,
+                timestamp: new Date().toISOString()
+            };
+        };
+        console.log('✅ Added playTestimonialVideo function');
+    }
+    
+    // 3. Add complete testimonial finder
+    if (!window.testimonialData.getCompleteTestimonial) {
+        window.testimonialData.getCompleteTestimonial = function(userMessage) {
+            console.log('🔍 Finding complete testimonial for:', userMessage);
+            
+            // Use existing AI function
+            const aiResult = this.findRelevantTestimonial(userMessage);
+            if (!aiResult) return null;
+            
+            // Add video data
+            const videoData = this.playTestimonialVideo(aiResult.videoType);
+            
+            return {
+                ...aiResult,
+                video: videoData,
+                complete: true
+            };
+        };
+        console.log('✅ Added getCompleteTestimonial function');
+    }
+    
+    // 4. Connect buttons to the bridge
+    function connectTestimonialButtons() {
+        console.log('🔌 Connecting buttons...');
+        
+        // Button configuration
+        const buttonConfig = [
+            { 
+                emoji: '💰', 
+                text: 'Price', 
+                search: 'too expensive for my budget',
+                concern: 'price'
+            },
+            { 
+                emoji: '⏰', 
+                text: 'Time', 
+                search: 'takes too long to implement',
+                concern: 'time'
+            },
+            { 
+                emoji: '🤝', 
+                text: 'Trust', 
+                search: 'not sure if I can trust this company',
+                concern: 'trust'
+            },
+            { 
+                emoji: '⭐', 
+                text: 'General', 
+                search: 'on the fence about this decision',
+                concern: 'general'
+            },
+            { 
+                emoji: '📈', 
+                text: 'Results', 
+                search: 'does this actually get results',
+                concern: 'results'
+            }
+        ];
+        
+        let connected = 0;
+        
+        // Find and connect ALL buttons
+        document.querySelectorAll('button').forEach(button => {
+            const buttonText = button.textContent.trim();
+            
+            buttonConfig.forEach(config => {
+                if (buttonText.includes(config.emoji) || 
+                    buttonText.toLowerCase().includes(config.text.toLowerCase())) {
+                    
+                    console.log(`   Found ${config.concern} button: "${buttonText}"`);
+                    
+                    // Remove any existing handlers to avoid conflicts
+                    const newButton = button.cloneNode(true);
+                    button.parentNode.replaceChild(newButton, button);
+                    
+                    // Add our handler
+                    newButton.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        console.log(`🎯 ${config.concern} button clicked`);
+                        
+                        // Get complete testimonial
+                        const testimonial = window.testimonialData.getCompleteTestimonial(config.search);
+                        
+                        if (testimonial) {
+                            console.log('✅ Found testimonial:', testimonial);
+                            
+                            // TWO OPTIONS:
+                            
+                            // OPTION A: If you have playTestimonial() function
+                            if (typeof window.playTestimonial === 'function') {
+                                console.log(`🎬 Calling playTestimonial("${testimonial.videoType}")`);
+                                window.playTestimonial(testimonial.videoType);
+                            }
+                            
+                            // OPTION B: Show in chat interface (you'll need to adapt this)
+                            showTestimonialInChat(testimonial);
+                            
+                            // Store for reference
+                            window.lastTestimonial = testimonial;
+                        } else {
+                            console.log('❌ No testimonial found');
+                        }
+                    });
+                    
+                    connected++;
+                }
+            });
+        });
+        
+        console.log(`✅ Connected ${connected} testimonial buttons`);
+        
+        // Add test panel if no buttons found
+        if (connected === 0) {
+            addTestPanel();
+        }
+    }
+    
+    // 5. Function to display testimonial in chat (ADAPT THIS TO YOUR SYSTEM)
+    function showTestimonialInChat(testimonial) {
+        console.log('💬 Showing testimonial in chat:', testimonial.concern);
+        
+        // THIS IS WHERE YOU NEED TO ADAPT TO YOUR CHAT INTERFACE
+        // Example: Create a chat message with the testimonial
+        
+        const chatContainer = document.querySelector('.chat-container, #chat, [class*="chat"], [id*="chat"]') || 
+                              document.body;
+        
+        const message = document.createElement('div');
+        message.style.cssText = `
+            background: #f0f7ff;
+            border-left: 4px solid #007bff;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            max-width: 80%;
+            align-self: flex-start;
+        `;
+        
+        message.innerHTML = `
+            <div style="font-size: 24px; margin-bottom: 5px;">${testimonial.icon}</div>
+            <strong>${testimonial.concern}</strong>
+            <p style="margin: 10px 0; font-style: italic;">"${testimonial.review}"</p>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="color: #666;">- ${testimonial.author}</span>
+                <button onclick="playTestimonialVideo('${testimonial.videoType}')" 
+                        style="padding: 5px 10px; background: #007bff; color: white; 
+                               border: none; border-radius: 4px; font-size: 12px; cursor: pointer;">
+                    ▶ Play Video
+                </button>
+            </div>
+        `;
+        
+        chatContainer.appendChild(message);
+    }
+    
+    // 6. Helper to play video directly
+    window.playTestimonialVideo = function(videoType) {
+        const videoData = window.testimonialData.playTestimonialVideo(videoType);
+        if (videoData && videoData.url) {
+            console.log('🎥 Playing video:', videoData.url);
+            // Open video in new tab or embed - adapt to your needs
+            window.open(videoData.url, '_blank');
+        }
+    };
+    
+    // 7. Test panel
+    function addTestPanel() {
+        const panel = document.createElement('div');
+        panel.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            z-index: 99999;
+            border-left: 5px solid #28a745;
+        `;
+        
+        panel.innerHTML = `
+            <h4 style="margin: 0 0 10px; color: #28a745;">🧪 Test Bridge</h4>
+            <p style="margin: 0 0 10px; font-size: 12px; color: #666;">Test the AI → Video bridge:</p>
+            <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+                <button class="bridge-test" data-search="too expensive">💰 Price</button>
+                <button class="bridge-test" data-search="takes too long">⏰ Time</button>
+                <button class="bridge-test" data-search="dont trust">🤝 Trust</button>
+                <button class="bridge-test" data-search="on the fence">⭐ General</button>
+                <button class="bridge-test" data-search="get results">📈 Results</button>
+            </div>
+        `;
+        
+        document.body.appendChild(panel);
+        
+        // Add test button handlers
+        document.querySelectorAll('.bridge-test').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const search = this.getAttribute('data-search');
+                const testimonial = window.testimonialData.getCompleteTestimonial(search);
+                if (testimonial) {
+                    alert(`✅ Bridge Working!\n\n${testimonial.concern}\n\n"${testimonial.review}"\n\nVideo: ${testimonial.video?.url ? '✅' : '❌'}`);
+                }
+            });
+        });
+    }
+    
+    // 8. Initialize
+    setTimeout(connectTestimonialButtons, 500);
+    
+    console.log('\n🎉 BRIDGE LOADED SUCCESSFULLY!');
+    console.log('================================');
+    console.log('🤖 AI System: ✅ Ready');
+    console.log('🎬 Video URLs: ✅ Loaded');
+    console.log('🔗 Bridge Functions: ✅ Active');
+    console.log('💰 Buttons: Will connect automatically');
+    console.log('================================\n');
+});
+
+console.log('🔗 Bridge script loaded, waiting for page...');
+</script>
 </body>
 </html>

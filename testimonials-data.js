@@ -4,6 +4,23 @@
 // ===================================================
 
 window.testimonialData = {
+
+    // ===================================================
+    // VIDEO URLS FROM TESTIMONIAL PLAYER (ADD THIS!)
+    // ===================================================
+    videoUrls: {
+        skeptical: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982717330.mp4',
+        speed: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982877040.mp4',
+        convinced: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1763530566773.mp4',
+        excited: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1763531028258.mp4'
+    },
+    
+    videoDurations: {
+        skeptical: 22000,
+        speed: 18000, 
+        convinced: 25000,
+        excited: 20000
+    },
     
     // ===================================================
     // UNIVERSAL CONCERNS (Fallback for all industries)
