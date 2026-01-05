@@ -2117,30 +2117,53 @@ function showRelevantTestimonial(dataOrText) {
     showTestimonialPopup(result);
 }
 
-// Enhanced display function (FIXED VERSION)
+// SIMPLIFIED & WORKING VERSION
 function showTestimonialPopup(testimonial) {
-    console.log('📺 Showing testimonial popup:', testimonial);
+    console.log('📺 Showing testimonial:', testimonial.concern);
     
-    // FIRST: Remove any existing popups to prevent duplicates
-    closeTestimonialPopup();
+    // Remove any existing
+    document.querySelectorAll('.testimonial-container').forEach(el => el.remove());
     
-    const popup = document.createElement('div');
-    popup.className = 'testimonial-popup'; // ADD CLASS
-    popup.style.cssText = `
+    // Create container
+    const container = document.createElement('div');
+    container.className = 'testimonial-container';
+    container.style.cssText = `
         position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    `;
+    
+    // Create overlay
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+    `;
+    overlay.onclick = () => container.remove();
+    
+    // Create popup
+    const popup = document.createElement('div');
+    popup.style.cssText = `
+        position: relative;
         background: white;
         padding: 30px;
         border-radius: 15px;
         box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        z-index: 10000;
         max-width: 500px;
         width: 90%;
         text-align: center;
         border-top: 5px solid #007bff;
-        animation: fadeIn 0.3s ease-out;
+        z-index: 10001;
     `;
     
     popup.innerHTML = `
@@ -2148,7 +2171,7 @@ function showTestimonialPopup(testimonial) {
         <h3 style="margin: 0 0 10px; color: #333;">${testimonial.concern}</h3>
         <p style="font-size: 18px; font-style: italic; color: #555; margin: 20px 0;">"${testimonial.review}"</p>
         <p style="color: #777; font-weight: bold; margin-bottom: 25px;">- ${testimonial.author}</p>
-        <button onclick="closeTestimonialPopup()" style="
+        <button onclick="this.closest('.testimonial-container').remove()" style="
             padding: 10px 30px;
             background: #007bff;
             color: white;
@@ -2159,63 +2182,13 @@ function showTestimonialPopup(testimonial) {
         ">Continue</button>
     `;
     
-    // Add overlay with CLASS instead of just ID
-    const overlay = document.createElement('div');
-    overlay.className = 'testimonial-overlay'; // ADD CLASS
-    overlay.id = 'testimonial-overlay'; // Keep ID for backward compatibility
-    overlay.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0,0,0,0.5);
-        z-index: 9999;
-        animation: fadeIn 0.3s ease-out;
-    `;
+    // Assemble
+    container.appendChild(overlay);
+    container.appendChild(popup);
+    document.body.appendChild(container);
     
-    // Add CSS animation
-    if (!document.querySelector('#testimonial-animations')) {
-        const style = document.createElement('style');
-        style.id = 'testimonial-animations';
-        style.textContent = `
-            @keyframes fadeIn {
-                from { opacity: 0; }
-                to { opacity: 1; }
-            }
-        `;
-        document.head.appendChild(style);
-    }
-    
-    // SAFE Close function
-    window.closeTestimonialPopup = function() {
-        // Remove by CLASS (more reliable)
-        document.querySelectorAll('.testimonial-overlay').forEach(overlay => {
-            if (overlay.parentNode) {
-                overlay.parentNode.removeChild(overlay);
-            }
-        });
-        
-        document.querySelectorAll('.testimonial-popup').forEach(popup => {
-            if (popup.parentNode) {
-                popup.parentNode.removeChild(popup);
-            }
-        });
-        
-        // Also remove by ID for backward compatibility
-        const overlayById = document.getElementById('testimonial-overlay');
-        if (overlayById && overlayById.parentNode) {
-            overlayById.parentNode.removeChild(overlayById);
-        }
-    };
-    
-    overlay.onclick = window.closeTestimonialPopup;
-    
-    document.body.appendChild(overlay);
-    document.body.appendChild(popup);
-    
-    // Auto-close after 8 seconds
-    setTimeout(window.closeTestimonialPopup, 8000);
+    // Auto-close
+    setTimeout(() => container.remove(), 8000);
 }
     
     // Close function
