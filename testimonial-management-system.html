@@ -5159,10 +5159,12 @@ document.addEventListener('DOMContentLoaded', function() {
             const videoUrl = this.videoUrls?.[videoType];
             const duration = this.videoDurations?.[videoType];
             
-            if (!videoUrl) {
-                console.error('❌ No video URL for type:', videoType);
-                return null;
-            }
+           if (!videoUrl) {
+    console.warn('⚠️ No video URL for type:', videoType, '- using skeptical as fallback');
+    videoType = 'skeptical'; // Fallback
+    videoUrl = this.videoUrls[videoType];
+    duration = this.videoDurations[videoType];
+}
             
             return {
                 url: videoUrl,
