@@ -4,33 +4,70 @@
     <script src="testimonials-data.js"></script>
     
     <script>
-    // 🛡️ EMERGENCY PROTECTION - ADD THIS
-    console.log('🛡️ PROTECTING testimonialData...');
-    
-    // Save IMMEDIATELY after testimonials-data.js loads
-    if (window.testimonialData && !window._testimonialDataBackup) {
-        window._testimonialDataBackup = {
-            concerns: window.testimonialData.concerns,
-            videoUrls: window.testimonialData.videoUrls,
-            videoDurations: window.testimonialData.videoDurations,
-            getIndustryTestimonials: window.testimonialData.getIndustryTestimonials,
-            getAllIndustries: window.testimonialData.getAllIndustries,
-            findRelevantTestimonial: window.testimonialData.findRelevantTestimonial
-        };
-        console.log('💾 Backup saved');
-    }
-    
-    // Block overwrites
-    Object.defineProperty(window, 'testimonialData', {
-        set: function(newValue) {
-            console.error('🚨 BLOCKED overwrite! Keeping original data.');
-            // Ignore the overwrite - keep original
-        },
-        get: function() {
-            return window._testimonialDataBackup || window.testimonialData;
+    // 🛡️ SMART PROTECTION - ALLOWS SAVES, BLOCKS DESTRUCTION
+console.log('🛡️ SMART Protection active...');
+
+// Save original IMMEDIATELY after testimonials-data.js loads
+if (window.testimonialData && !window._testimonialDataBackup) {
+    window._testimonialDataBackup = {
+        concerns: window.testimonialData.concerns,
+        videoUrls: window.testimonialData.videoUrls,
+        videoDurations: window.testimonialData.videoDurations,
+        getIndustryTestimonials: window.testimonialData.getIndustryTestimonials,
+        getAllIndustries: window.testimonialData.getAllIndustries,
+        findRelevantTestimonial: window.testimonialData.findRelevantTestimonial,
+        playTestimonialVideo: window.testimonialData.playTestimonialVideo,
+        getCompleteTestimonial: window.testimonialData.getCompleteTestimonial
+    };
+    console.log('💾 Saved original core data');
+}
+
+// SMART setter - allows updates but protects core data
+Object.defineProperty(window, 'testimonialData', {
+    set: function(newValue) {
+        console.log('🔧 testimonialData setter called');
+        
+        // Start with new value
+        const merged = { ...newValue };
+        
+        // PRESERVE original core data if it would be destroyed
+        if (window._testimonialDataBackup) {
+            // Keep original concerns if new would empty them
+            if ((!newValue.concerns || Object.keys(newValue.concerns || {}).length === 0) && 
+                window._testimonialDataBackup.concerns) {
+                merged.concerns = window._testimonialDataBackup.concerns;
+                console.log('✅ Preserved original concerns');
+            }
+            
+            // Keep original video URLs
+            if ((!newValue.videoUrls || Object.keys(newValue.videoUrls || {}).length === 0) && 
+                window._testimonialDataBackup.videoUrls) {
+                merged.videoUrls = window._testimonialDataBackup.videoUrls;
+                merged.videoDurations = window._testimonialDataBackup.videoDurations;
+                console.log('✅ Preserved original video URLs');
+            }
+            
+            // Keep original functions
+            Object.keys(window._testimonialDataBackup).forEach(key => {
+                if (typeof window._testimonialDataBackup[key] === 'function') {
+                    merged[key] = window._testimonialDataBackup[key];
+                }
+            });
         }
-    });
-    console.log('🛡️ Protection active');
+        
+        window._testimonialData = merged;
+        console.log('✅ Smart merge complete');
+    },
+    get: function() {
+        return window._testimonialData || window.testimonialData;
+    }
+});
+
+// Initialize
+if (window._testimonialDataBackup) {
+    window._testimonialData = { ...window._testimonialDataBackup };
+}
+console.log('🛡️ SMART protection ready');
     </script>
 
     <meta charset="UTF-8">
@@ -5013,25 +5050,44 @@ window.testimonialData = ${JSON.stringify(data, null, 2)};`;
 })();
 
 
-        // ===================================================
+// ===================================================
 // EVENT LISTENERS & INITIALIZATION
 // ===================================================
 
-// Listen for URL paste events
-document.getElementById('videoUrl').addEventListener('paste', function(e) {
-    // Auto-test URL after paste
-    setTimeout(() => {
-        if (this.value.trim()) {
-            testVideoUrl();
-        }
-    }, 100);
+// 1. Industry select dropdown (error on line 5059)
+const industrySelect = document.getElementById('industry-select');
+if (industrySelect) {
+    industrySelect.addEventListener('change', function() {
+        // Your change handler
+    });
+} else {
+    console.log('⚠️ industry-select element not found');
+}
+
+// 2. Save buttons
+const saveButton = document.getElementById('save-button') || 
+                   document.querySelector('button[onclick*="save"]');
+if (saveButton) {
+    saveButton.addEventListener('click', function() {
+        // Save handler
+    });
+}
+
+// 3. Form submissions
+const forms = document.querySelectorAll('form');
+forms.forEach(form => {
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        // Submit handler
+    });
 });
 
-// Auto-save when leaving page
-window.addEventListener('beforeunload', function(e) {
-    if (Object.keys(currentData.industries).length > 0) {
-        saveAllData();
-    }
+// 4. Test buttons
+const testButtons = document.querySelectorAll('[onclick*="test"]');
+testButtons.forEach(button => {
+    button.addEventListener('click', function() {
+        // Test handler
+    });
 });
 
 // SINGLE INITIALIZATION - Fixed version
