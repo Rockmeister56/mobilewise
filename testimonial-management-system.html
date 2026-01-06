@@ -2929,8 +2929,36 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // ==============================================
 // NEW: UPDATE CONCERNS BASED ON INDUSTRY
-// ==============================================
+// =============================================
 function updateConcernsForIndustry(industrySlug) {
+    console.log(`🔍 Updating concerns for industry: ${industrySlug}`);
+    
+    // Check if function exists
+    if (!window.testimonialData || !window.testimonialData.getIndustryTestimonials) {
+        console.error('❌ getIndustryTestimonials function not found!');
+        console.log('Available methods:', Object.keys(window.testimonialData || {}));
+        return;
+    }
+    
+    // Call the function and log the result
+    const result = window.testimonialData.getIndustryTestimonials(industrySlug);
+    console.log('📊 Result from getIndustryTestimonials:', result);
+    console.log('Type of result:', typeof result);
+    
+    concernsContainer.innerHTML = '';
+    
+    // Show debug info
+    const debugDiv = document.createElement('div');
+    debugDiv.style.cssText = 'background: #f0f0f0; padding: 10px; margin: 10px 0; border-radius: 5px;';
+    debugDiv.innerHTML = `
+        <strong>Debug Info:</strong><br>
+        Industry: ${industrySlug}<br>
+        Result type: ${typeof result}<br>
+        Is array: ${Array.isArray(result)}<br>
+        Concerns property exists: ${result && result.concerns ? 'Yes' : 'No'}
+    `;
+    concernsContainer.appendChild(debugDiv);
+
     const testimonials = window.testimonialData && window.testimonialData.getIndustryTestimonials ? 
     window.testimonialData.getIndustryTestimonials(industrySlug) : [];
     
@@ -2942,7 +2970,7 @@ function updateConcernsForIndustry(industrySlug) {
     concernsContainer.innerHTML = '';
     
     // Add checkboxes for each concern
-    Object.entries(testimonials.concerns).forEach(([key, concern]) => {
+    Object.entries(testimonials.concerns).forEach(([key, concern]) => {  
         const concernId = `concern-${key}`;
         
         const concernHTML = `
