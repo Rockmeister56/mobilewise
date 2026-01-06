@@ -1112,97 +1112,56 @@ function safeParsePhrases(jsonString) {
 }
 
 // ===================================================
-// CRITICAL FIX: PRESERVE ORIGINAL FUNCTIONS
+// FIXED: PRESERVE ALL FUNCTIONS FROM testimonials-data.js
 // ===================================================
 
-// Save original functions BEFORE they get overwritten
-window._originalTestimonialData = window.testimonialData;
+console.log('🔗 Setting up testimonialData with preserved functions...');
 
-// Function to ensure critical functions exist
-function ensureTestimonialFunctions() {
-    console.log('🔧 Ensuring testimonial functions exist...');
-    
-    if (!window.testimonialData) {
-        window.testimonialData = {};
-    }
-    
-    // List of critical functions that MUST exist
-    const criticalFunctions = {
-        getAllIndustries: function() {
-            console.log('🏭 getAllIndustries called');
-            // Return industries from management system OR empty array
-            const industries = this.industries || {};
-            const industryList = [];
-            
-            for (const [slug, data] of Object.entries(industries)) {
-                industryList.push({
-                    slug: slug,
-                    name: data.name || slug,
-                    icon: data.icon || '🏢'
-                });
-            }
-            
-            // Always include "general" as first option
-            industryList.unshift({
-                slug: 'general',
-                name: 'General Business',
-                icon: '🏢'
-            });
-            
-            console.log(`   Found ${industryList.length} industries`);
-            return industryList;
-        },
-        
-        getIndustryTestimonials: function(industrySlug) {
-            console.log('🎯 getIndustryTestimonials called for:', industrySlug);
-            
-            if (this.industries && this.industries[industrySlug]) {
-                return {
-                    industry: this.industries[industrySlug].name,
-                    icon: this.industries[industrySlug].icon,
-                    concerns: this.universalConcerns || {}
-                };
-            }
-            
-            // Fallback to universal concerns
-            return {
-                industry: 'General Business',
-                icon: '🏢',
-                concerns: this.universalConcerns || {}
-            };
-        },
-        
-        getIndustry: function(slug) {
-            return this.industries ? this.industries[slug] || null : null;
-        }
-    };
-    
-    // Add missing functions
-    Object.entries(criticalFunctions).forEach(([funcName, funcImpl]) => {
-        if (!window.testimonialData[funcName] || typeof window.testimonialData[funcName] !== 'function') {
-            window.testimonialData[funcName] = funcImpl.bind(window.testimonialData);
-            console.log(`✅ Added function: ${funcName}`);
+// Save ORIGINAL functions if they exist (from testimonials-data.js)
+const originalTestimonialData = window.testimonialData;
+const originalFunctions = {};
+
+if (originalTestimonialData) {
+    // Save ALL functions from original
+    Object.keys(originalTestimonialData).forEach(key => {
+        if (typeof originalTestimonialData[key] === 'function') {
+            originalFunctions[key] = originalTestimonialData[key];
         }
     });
-    
-    // Also copy any original functions that exist
-    if (window._originalTestimonialData) {
-        Object.keys(window._originalTestimonialData).forEach(key => {
-            if (typeof window._originalTestimonialData[key] === 'function' && 
-                !window.testimonialData[key]) {
-                window.testimonialData[key] = window._originalTestimonialData[key];
-                console.log(`📋 Copied original function: ${key}`);
-            }
-        });
-    }
-    
-    console.log('🔧 Available functions:', 
-        Object.keys(window.testimonialData)
-            .filter(k => typeof window.testimonialData[k] === 'function'));
+    console.log('💾 Saved original functions:', Object.keys(originalFunctions));
 }
 
-// Run this early
-ensureTestimonialFunctions();
+// Create management system data structure
+const managementSystemData = {
+    // Your management system's data
+    currentIndustry: null,
+    industries: loadIndustriesFromStorage(), // Your function
+    industryKeywords: {},
+    videos: {},
+    universalConcerns: loadUniversalConcernsFromStorage(), // Your function
+    playerConfig: {},
+    
+    // Add video URLs if you have them
+    videoUrls: {
+        skeptical: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982717330.mp4',
+        speed: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982877040.mp4',
+        convinced: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1763530566773.mp4',
+        excited: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1763531028258.mp4'
+    },
+    
+    videoDurations: {
+        skeptical: 22000,
+        speed: 18000,
+        convinced: 25000,
+        excited: 20000
+    }
+};
+
+// MERGE: Start with management data, then add ALL original functions
+window.testimonialData = Object.assign(managementSystemData, originalFunctions);
+
+console.log('✅ testimonialData created with', 
+    Object.keys(originalFunctions).length, 'preserved functions');
         
 // ===================================================
 // LOAD CHECKER - Add this at the TOP of your script
