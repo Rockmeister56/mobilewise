@@ -1070,6 +1070,7 @@ a[href^="#"] {
     <div class="status-message" id="warningMessage"></div>
 
     <script>
+        
 
         // ADD THIS FUNCTION AT THE TOP OF YOUR SCRIPT FILE:
 function safeParsePhrases(jsonString) {
@@ -1110,58 +1111,6 @@ function safeParsePhrases(jsonString) {
         return matches.map(m => m.slice(1, -1));
     }
 }
-
-// ===================================================
-// FIXED: PRESERVE ALL FUNCTIONS FROM testimonials-data.js
-// ===================================================
-
-console.log('🔗 Setting up testimonialData with preserved functions...');
-
-// Save ORIGINAL functions if they exist (from testimonials-data.js)
-const originalTestimonialData = window.testimonialData;
-const originalFunctions = {};
-
-if (originalTestimonialData) {
-    // Save ALL functions from original
-    Object.keys(originalTestimonialData).forEach(key => {
-        if (typeof originalTestimonialData[key] === 'function') {
-            originalFunctions[key] = originalTestimonialData[key];
-        }
-    });
-    console.log('💾 Saved original functions:', Object.keys(originalFunctions));
-}
-
-// Create management system data structure
-const managementSystemData = {
-    // Your management system's data
-    currentIndustry: null,
-    industries: loadIndustriesFromStorage(), // Your function
-    industryKeywords: {},
-    videos: {},
-    universalConcerns: loadUniversalConcernsFromStorage(), // Your function
-    playerConfig: {},
-    
-    // Add video URLs if you have them
-    videoUrls: {
-        skeptical: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982717330.mp4',
-        speed: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982877040.mp4',
-        convinced: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1763530566773.mp4',
-        excited: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1763531028258.mp4'
-    },
-    
-    videoDurations: {
-        skeptical: 22000,
-        speed: 18000,
-        convinced: 25000,
-        excited: 20000
-    }
-};
-
-// MERGE: Start with management data, then add ALL original functions
-window.testimonialData = Object.assign(managementSystemData, originalFunctions);
-
-console.log('✅ testimonialData created with', 
-    Object.keys(originalFunctions).length, 'preserved functions');
         
 // ===================================================
 // LOAD CHECKER - Add this at the TOP of your script
