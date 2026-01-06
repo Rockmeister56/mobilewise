@@ -2,6 +2,37 @@
 <html lang="en">
 <head>
     <script src="testimonials-data.js"></script>
+    
+    <script>
+    // 🛡️ EMERGENCY PROTECTION - ADD THIS
+    console.log('🛡️ PROTECTING testimonialData...');
+    
+    // Save IMMEDIATELY after testimonials-data.js loads
+    if (window.testimonialData && !window._testimonialDataBackup) {
+        window._testimonialDataBackup = {
+            concerns: window.testimonialData.concerns,
+            videoUrls: window.testimonialData.videoUrls,
+            videoDurations: window.testimonialData.videoDurations,
+            getIndustryTestimonials: window.testimonialData.getIndustryTestimonials,
+            getAllIndustries: window.testimonialData.getAllIndustries,
+            findRelevantTestimonial: window.testimonialData.findRelevantTestimonial
+        };
+        console.log('💾 Backup saved');
+    }
+    
+    // Block overwrites
+    Object.defineProperty(window, 'testimonialData', {
+        set: function(newValue) {
+            console.error('🚨 BLOCKED overwrite! Keeping original data.');
+            // Ignore the overwrite - keep original
+        },
+        get: function() {
+            return window._testimonialDataBackup || window.testimonialData;
+        }
+    });
+    console.log('🛡️ Protection active');
+    </script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🎬 Mobile-Wise AI Testimonial Manager PRO</title>
@@ -1071,81 +1102,6 @@ a[href^="#"] {
 
     <script>
 
-        // ADD TO testimonial-management-system.js (at the top):
-console.log('🔗 Adding compatibility layer...');
-
-// Make sure testimonialData has universalConcerns alias
-if (window.testimonialData && window.testimonialData.concerns) {
-    window.testimonialData.universalConcerns = window.testimonialData.concerns;
-    console.log('✅ Linked universalConcerns to existing concerns');
-}
-
-// Remove duplicate property if exists
-if (window.testimonialData && window.testimonialData._industries) {
-    delete window.testimonialData._industries;
-    console.log('✅ Removed duplicate _industries');
-}
-
-// ADD TO testimonial-management-system.js:
-// This tells the management system how to trigger testimonials
-window.testimonialManager = {
-    playTestimonial: function(concernType) {
-        console.log('🎬 Management system playing testimonial:', concernType);
-        
-        // Use EXISTING testimonial player
-        if (window.showTestimonialSplashScreen) {
-            return window.showTestimonialSplashScreen(concernType);
-        }
-        return null;
-    },
-    
-    testConnection: function() {
-        console.log('🔗 Testing connection to testimonial player...');
-        return typeof window.showTestimonialSplashScreen === 'function';
-    }
-};
-
-// ADD THIS TO THE TOP OF YOUR INLINE SCRIPT (management system):
-
-console.log('🔧 FIXING OVERWRITTEN DATA...');
-
-// 1. RESTORE ORIGINAL DATA from testimonials-data.js
-if (window._originalTestimonialData) {
-    // Restore concerns if empty
-    if (window.testimonialData && 
-        (!window.testimonialData.concerns || Object.keys(window.testimonialData.concerns).length === 0) &&
-        window._originalTestimonialData.concerns) {
-        window.testimonialData.concerns = window._originalTestimonialData.concerns;
-        console.log('✅ Restored concerns:', Object.keys(window.testimonialData.concerns));
-    }
-    
-    // Restore videoUrls if empty
-    if (window.testimonialData && 
-        (!window.testimonialData.videoUrls || Object.keys(window.testimonialData.videoUrls).length === 0) &&
-        window._originalTestimonialData.videoUrls) {
-        window.testimonialData.videoUrls = window._originalTestimonialData.videoUrls;
-        console.log('✅ Restored videoUrls:', Object.keys(window.testimonialData.videoUrls));
-    }
-    
-    // Restore getIndustryTestimonials function
-    if (window.testimonialData && 
-        typeof window.testimonialData.getIndustryTestimonials !== 'function' &&
-        typeof window._originalTestimonialData.getIndustryTestimonials === 'function') {
-        window.testimonialData.getIndustryTestimonials = window._originalTestimonialData.getIndustryTestimonials;
-        console.log('✅ Restored getIndustryTestimonials function');
-    }
-}
-
-// 2. CONNECT TO PLAYER
-if (typeof window.showTestimonialSplashScreen === 'undefined') {
-    console.log('⚠️ showTestimonialSplashScreen not found - testimonial-player.js may not be loaded');
-    // Create temporary stub
-    window.showTestimonialSplashScreen = function() {
-        console.log('🎬 showTestimonialSplashScreen (stub)');
-        return { success: true };
-    };
-}
-
         // ADD THIS FUNCTION AT THE TOP OF YOUR SCRIPT FILE:
 function safeParsePhrases(jsonString) {
     if (!jsonString) return [];
@@ -1280,62 +1236,58 @@ function ensureTestimonialFunctions() {
 ensureTestimonialFunctions();
         
 // ===================================================
-// LOAD CHECKER - Add this at the TOP of your script
+// FIXED: LOAD CHECKER - DON'T OVERWRITE!
 // ===================================================
-console.log('🔍 Checking script loading...');
+console.log('🔍 Checking testimonialData...');
 
-// Check if testimonials-data.js is loaded
-if (typeof window.testimonialData === 'undefined') {
-    console.log('🔍 testimonials-data.js not loaded, checking localStorage...');
+// Check if testimonials-data.js loaded it
+if (window.testimonialData) {
+    console.log('✅ testimonials-data.js loaded successfully!');
+    console.log('   Concerns:', Object.keys(window.testimonialData.concerns || {}).length);
+    console.log('   Video URLs:', Object.keys(window.testimonialData.videoUrls || {}).length);
+    console.log('   Functions:', Object.keys(window.testimonialData).filter(k => typeof window.testimonialData[k] === 'function'));
     
-    // Try to load from localStorage FIRST
-    const saved = localStorage.getItem('testimonialData');
-    if (saved) {
-        try {
-            const savedData = JSON.parse(saved);
-            
-            // Only use localStorage data if it has industries
-            if (savedData.industries && Object.keys(savedData.industries).length > 0) {
-                window.testimonialData = savedData;
-                console.log('✅ Loaded testimonialData from localStorage');
-                console.log('   Industries:', Object.keys(savedData.industries));
-            } else {
-                // Empty localStorage, wait for file to load
-                console.log('⚠️ localStorage empty, creating temporary structure');
-                window.testimonialData = {
-                    concerns: {
-                        price: { title: 'Price', icon: '💰', videoType: 'skeptical', phrases: [] },
-                        time: { title: 'Time', icon: '⏰', videoType: 'speed', phrases: [] },
-                        trust: { title: 'Trust', icon: '🤝', videoType: 'skeptical', phrases: [] }
-                    },
-                    industries: {},
-                    playerConfig: {}
-                };
-            }
-        } catch (e) {
-            console.log('❌ Error loading from localStorage:', e);
-            window.testimonialData = {
-                concerns: {
-                    price: { title: 'Price', icon: '💰', videoType: 'skeptical', phrases: [] },
-                    time: { title: 'Time', icon: '⏰', videoType: 'speed', phrases: [] },
-                    trust: { title: 'Trust', icon: '🤝', videoType: 'skeptical', phrases: [] }
-                },
-                industries: {},
-                playerConfig: {}
-            };
-        }
-    } else {
-        console.log('⚠️ No saved data, creating temporary structure');
-        window.testimonialData = {
-            concerns: {
-                price: { title: 'Price', icon: '💰', videoType: 'skeptical', phrases: [] },
-                time: { title: 'Time', icon: '⏰', videoType: 'speed', phrases: [] },
-                trust: { title: 'Trust', icon: '🤝', videoType: 'skeptical', phrases: [] }
-            },
-            industries: {},
-            playerConfig: {}
-        };
+    // Make sure it has universalConcerns alias
+    if (window.testimonialData.concerns && !window.testimonialData.universalConcerns) {
+        window.testimonialData.universalConcerns = window.testimonialData.concerns;
+        console.log('✅ Added universalConcerns alias');
+    }
+} else {
+    console.log('⚠️ testimonialData not loaded yet');
+    // Create minimal structure WITHOUT overwriting
+    window.testimonialData = window.testimonialData || {
+        concerns: {
+            price: { title: 'Price', icon: '💰', videoType: 'skeptical', phrases: [] },
+            time: { title: 'Time', icon: '⏰', videoType: 'speed', phrases: [] },
+            trust: { title: 'Trust', icon: '🤝', videoType: 'skeptical', phrases: [] },
+            general: { title: 'General', icon: '⭐', videoType: 'skeptical', phrases: [] },
+            results: { title: 'Results', icon: '📈', videoType: 'convinced', phrases: [] }
+        },
+        industries: {},
+        playerConfig: {}
     };
+}
+
+// Also check localStorage for saved management data
+const saved = localStorage.getItem('testimonialData');
+if (saved && window.testimonialData) {
+    try {
+        const savedData = JSON.parse(saved);
+        console.log('📂 Found saved data in localStorage');
+        
+        // Merge saved data WITHOUT overwriting existing
+        Object.assign(window.testimonialData, {
+            industries: savedData.industries || window.testimonialData.industries || {},
+            industryKeywords: savedData.industryKeywords || window.testimonialData.industryKeywords || {},
+            videos: savedData.videos || window.testimonialData.videos || {},
+            universalConcerns: savedData.universalConcerns || window.testimonialData.universalConcerns || window.testimonialData.concerns || {},
+            playerConfig: savedData.playerConfig || window.testimonialData.playerConfig || {}
+        });
+        
+        console.log('✅ Merged localStorage data');
+    } catch (e) {
+        console.log('❌ Error loading localStorage:', e);
+    }
 }
 
         // ===================================================
