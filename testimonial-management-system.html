@@ -1105,6 +1105,47 @@ window.testimonialManager = {
     }
 };
 
+// ADD THIS TO THE TOP OF YOUR INLINE SCRIPT (management system):
+
+console.log('🔧 FIXING OVERWRITTEN DATA...');
+
+// 1. RESTORE ORIGINAL DATA from testimonials-data.js
+if (window._originalTestimonialData) {
+    // Restore concerns if empty
+    if (window.testimonialData && 
+        (!window.testimonialData.concerns || Object.keys(window.testimonialData.concerns).length === 0) &&
+        window._originalTestimonialData.concerns) {
+        window.testimonialData.concerns = window._originalTestimonialData.concerns;
+        console.log('✅ Restored concerns:', Object.keys(window.testimonialData.concerns));
+    }
+    
+    // Restore videoUrls if empty
+    if (window.testimonialData && 
+        (!window.testimonialData.videoUrls || Object.keys(window.testimonialData.videoUrls).length === 0) &&
+        window._originalTestimonialData.videoUrls) {
+        window.testimonialData.videoUrls = window._originalTestimonialData.videoUrls;
+        console.log('✅ Restored videoUrls:', Object.keys(window.testimonialData.videoUrls));
+    }
+    
+    // Restore getIndustryTestimonials function
+    if (window.testimonialData && 
+        typeof window.testimonialData.getIndustryTestimonials !== 'function' &&
+        typeof window._originalTestimonialData.getIndustryTestimonials === 'function') {
+        window.testimonialData.getIndustryTestimonials = window._originalTestimonialData.getIndustryTestimonials;
+        console.log('✅ Restored getIndustryTestimonials function');
+    }
+}
+
+// 2. CONNECT TO PLAYER
+if (typeof window.showTestimonialSplashScreen === 'undefined') {
+    console.log('⚠️ showTestimonialSplashScreen not found - testimonial-player.js may not be loaded');
+    // Create temporary stub
+    window.showTestimonialSplashScreen = function() {
+        console.log('🎬 showTestimonialSplashScreen (stub)');
+        return { success: true };
+    };
+}
+
         // ADD THIS FUNCTION AT THE TOP OF YOUR SCRIPT FILE:
 function safeParsePhrases(jsonString) {
     if (!jsonString) return [];
