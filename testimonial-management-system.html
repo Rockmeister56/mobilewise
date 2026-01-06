@@ -1153,97 +1153,65 @@ if (originalTestimonialData) {
 // ===================================================
 console.log('🔍 Checking script loading...');
 
-// ==========================================
-// NEW CODE (REPLACE WITH THIS):
-// ==========================================
-console.log('🔧 Setting up testimonialData...');
-
-// STEP 1: Check if testimonials-data.js already created it
-if (window.testimonialData) {
-    console.log('✅ testimonialData already exists from testimonials-data.js');
-    console.log('   Functions present:', 
-        Object.keys(window.testimonialData)
-            .filter(k => typeof window.testimonialData[k] === 'function'));
+// Check if testimonials-data.js is loaded
+if (typeof window.testimonialData === 'undefined') {
+    console.log('🔍 testimonials-data.js not loaded, checking localStorage...');
     
-    // Ensure it has the management system properties
-    window.testimonialData.currentIndustry = window.testimonialData.currentIndustry || null;
-    window.testimonialData.industries = window.testimonialData.industries || {};
-    window.testimonialData.industryKeywords = window.testimonialData.industryKeywords || {};
-    window.testimonialData.videos = window.testimonialData.videos || {};
-    window.testimonialData.playerConfig = window.testimonialData.playerConfig || {};
-    
-    // CRITICAL: Convert 'concerns' to 'universalConcerns' if needed
-    if (window.testimonialData.concerns && !window.testimonialData.universalConcerns) {
-        window.testimonialData.universalConcerns = window.testimonialData.concerns;
-        console.log('✅ Moved concerns → universalConcerns');
-    } else if (!window.testimonialData.universalConcerns) {
-        window.testimonialData.universalConcerns = {
-            price: { title: 'Price', icon: '💰', videoType: 'skeptical', phrases: [] },
-            time: { title: 'Time', icon: '⏰', videoType: 'speed', phrases: [] },
-            trust: { title: 'Trust', icon: '🤝', videoType: 'skeptical', phrases: [] },
-            general: { title: 'General', icon: '⭐', videoType: 'skeptical', phrases: [] },
-            results: { title: 'Results', icon: '📈', videoType: 'convinced', phrases: [] }
-        };
-    }
-    
-} else {
-    // STEP 2: Load from localStorage if exists
+    // Try to load from localStorage FIRST
     const saved = localStorage.getItem('testimonialData');
     if (saved) {
         try {
             const savedData = JSON.parse(saved);
-            console.log('✅ Loaded testimonialData from localStorage');
             
-            // Create fresh object with saved data
-            window.testimonialData = savedData;
-            
-            // Ensure correct property names
-            if (window.testimonialData.concerns && !window.testimonialData.universalConcerns) {
-                window.testimonialData.universalConcerns = window.testimonialData.concerns;
+            // Only use localStorage data if it has industries
+            if (savedData.industries && Object.keys(savedData.industries).length > 0) {
+                window.testimonialData = window.testimonialData || {};
+Object.assign(window.testimonialData, savedData);
+
+// Also fix key name if needed
+if (window.testimonialData.concerns && !window.testimonialData.universalConcerns) {
+    window.testimonialData.universalConcerns = window.testimonialData.concerns;
+}
+                console.log('✅ Loaded testimonialData from localStorage');
+                console.log('   Industries:', Object.keys(savedData.industries));
+            } else {
+                // Empty localStorage, wait for file to load
+                console.log('⚠️ localStorage empty, creating temporary structure');
+                window.testimonialData = {
+                    concerns: {
+                        price: { title: 'Price', icon: '💰', videoType: 'skeptical', phrases: [] },
+                        time: { title: 'Time', icon: '⏰', videoType: 'speed', phrases: [] },
+                        trust: { title: 'Trust', icon: '🤝', videoType: 'skeptical', phrases: [] }
+                    },
+                    industries: {},
+                    playerConfig: {}
+                };
             }
-            
         } catch (e) {
             console.log('❌ Error loading from localStorage:', e);
-            // Create minimal structure
             window.testimonialData = {
-                currentIndustry: null,
-                industries: {},
-                industryKeywords: {},
-                videos: {},
-                universalConcerns: {  // ← CORRECT NAME!
+                concerns: {
                     price: { title: 'Price', icon: '💰', videoType: 'skeptical', phrases: [] },
                     time: { title: 'Time', icon: '⏰', videoType: 'speed', phrases: [] },
-                    trust: { title: 'Trust', icon: '🤝', videoType: 'skeptical', phrases: [] },
-                    general: { title: 'General', icon: '⭐', videoType: 'skeptical', phrases: [] },
-                    results: { title: 'Results', icon: '📈', videoType: 'convinced', phrases: [] }
+                    trust: { title: 'Trust', icon: '🤝', videoType: 'skeptical', phrases: [] }
                 },
+                industries: {},
                 playerConfig: {}
             };
         }
     } else {
-        // STEP 3: Create fresh structure
-        console.log('⚠️ No saved data, creating fresh structure');
+        console.log('⚠️ No saved data, creating temporary structure');
         window.testimonialData = {
-            currentIndustry: null,
-            industries: {},
-            industryKeywords: {},
-            videos: {},
-            universalConcerns: {  // ← CORRECT NAME!
+            concerns: {
                 price: { title: 'Price', icon: '💰', videoType: 'skeptical', phrases: [] },
                 time: { title: 'Time', icon: '⏰', videoType: 'speed', phrases: [] },
-                trust: { title: 'Trust', icon: '🤝', videoType: 'skeptical', phrases: [] },
-                general: { title: 'General', icon: '⭐', videoType: 'skeptical', phrases: [] },
-                results: { title: 'Results', icon: '📈', videoType: 'convinced', phrases: [] }
+                trust: { title: 'Trust', icon: '🤝', videoType: 'skeptical', phrases: [] }
             },
+            industries: {},
             playerConfig: {}
         };
-    }
+    };
 }
-
-console.log('🔧 testimonialData setup complete');
-console.log('   Has functions?:', 
-    Object.keys(window.testimonialData)
-        .filter(k => typeof window.testimonialData[k] === 'function').length > 0);
 
         // ===================================================
         // CORE DATA & STATE
