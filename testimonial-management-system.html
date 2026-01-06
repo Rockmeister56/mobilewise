@@ -2929,212 +2929,286 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // ==============================================
 // NEW: UPDATE CONCERNS BASED ON INDUSTRY
-// =============================================
+// ==============================================
 function updateConcernsForIndustry(industrySlug) {
     console.log(`🔍 Updating concerns for industry: ${industrySlug}`);
     
-    // Check if function exists
-    if (!window.testimonialData || !window.testimonialData.getIndustryTestimonials) {
-        console.error('❌ getIndustryTestimonials function not found!');
-        console.log('Available methods:', Object.keys(window.testimonialData || {}));
+    const concernsContainer = document.getElementById('concerns-container');
+    if (!concernsContainer) {
+        console.error('❌ concerns-container element not found');
         return;
     }
     
-    // Call the function and log the result
-    const result = window.testimonialData.getIndustryTestimonials(industrySlug);
-    console.log('📊 Result from getIndustryTestimonials:', result);
-    console.log('Type of result:', typeof result);
-    
+    // Clear container
     concernsContainer.innerHTML = '';
     
-    // Show debug info
-    const debugDiv = document.createElement('div');
-    debugDiv.style.cssText = 'background: #f0f0f0; padding: 10px; margin: 10px 0; border-radius: 5px;';
-    debugDiv.innerHTML = `
-        <strong>Debug Info:</strong><br>
-        Industry: ${industrySlug}<br>
-        Result type: ${typeof result}<br>
-        Is array: ${Array.isArray(result)}<br>
-        Concerns property exists: ${result && result.concerns ? 'Yes' : 'No'}
-    `;
-    concernsContainer.appendChild(debugDiv);
-
-    const testimonials = window.testimonialData && window.testimonialData.getIndustryTestimonials ? 
-    window.testimonialData.getIndustryTestimonials(industrySlug) : [];
+    // Show loading state
+    concernsContainer.innerHTML = '<p style="color: #666; font-style: italic;">Loading concerns...</p>';
     
-    const concernsContainer = document.getElementById('concerns-container');
+    // Check which source has getIndustryTestimonials
+    let testimonialSource = null;
+    if (window.testimonialData && typeof window.testimonialData.getIndustryTestimonials === 'function') {
+        testimonialSource = window.testimonialData;
+        console.log('✅ Using testimonials-data.js');
+    } else if (typeof getIndustryTestimonials === 'function') {
+        testimonialSource = { getIndustryTestimonials: getIndustryTestimonials };
+        console.log('✅ Using global getIndustryTestimonials');
+    } else {
+        console.error('❌ No getIndustryTestimonials function found');
+        concernsContainer.innerHTML = '<p style="color: #ff6b6b;">⚠️ Industry data not available</p>';
+        return;
+    }
     
-    if (!concernsContainer) return;
+    // Get testimonials for the industry
+    const testimonials = testimonialSource.getIndustryTestimonials(industrySlug);
+    console.log('📊 Testimonials result:', testimonials);
     
-    // Clear existing concern checkboxes
+    // Clear container again
     concernsContainer.innerHTML = '';
     
-    // Add checkboxes for each concern
-    Object.entries(testimonials.concerns).forEach(([key, concern]) => {  
-        const concernId = `concern-${key}`;
+    // Check if we have valid data
+    if (!testimonials || (Array.isArray(testimonials) && testimonials.length === 0)) {
+        console.log('📭 No industry-specific testimonials, using universal concerns');
         
-        const concernHTML = `
-        <div class="concern-option">
-            <input type="checkbox" 
-                   id="${concernId}" 
-                   name="concerns" 
-                   value="${key}" 
-                   data-title="${concern.title}"
-                   data-icon="${concern.icon}"
-                   data-video-type="${concern.videoType}"
-                   data-phrases="${JSON.stringify(concern.phrases || []).replace(/"/g, '&quot;').replace(/'/g, '&#39;')}"
-                   class="concern-checkbox">
-            <label for="${concernId}">
-                <span class="concern-icon">${concern.icon}</span>
-                <span class="concern-title">${concern.title}</span>
-
-
-            </label>
-        </div>
-        `;
-        
-        concernsContainer.innerHTML += concernHTML;
-    });
-    
-    // ============ FIXED: Updated click handlers ============
-    document.querySelectorAll('.concern-checkbox').forEach(checkbox => {
-        checkbox.addEventListener('change', function() {
-            if (this.checked) {
-                // When checked, add phrases to concernKeywords textarea
-                function safeParsePhrases(jsonString) {
-    if (!jsonString) return [];
-    
-    try {
-        // First try normal parse
-        return JSON.parse(jsonString);
-    } catch (error) {
-        console.log('JSON parse failed, trying to fix...');
-        
-        // If string is truncated, try to reconstruct
-        if (jsonString.includes('[') && !jsonString.includes(']')) {
-            // Try to complete the JSON
-            let fixed = jsonString;
-            
-            // Add missing closing bracket
-            if (!fixed.endsWith(']')) {
-                // Check if we need to close a string
-                const quoteCount = (fixed.match(/"/g) || []).length;
-                if (quoteCount % 2 === 1) {
-                    fixed += '"';
-                }
-                fixed += ']';
+        // Use universal concerns as fallback
+        const universalConcerns = {
+            price: { 
+                title: "Too Expensive", 
+                icon: "💰",
+                videoType: "price-testimonial",
+                phrases: ["too expensive", "cost too much", "not in budget", "pricey", "affordability"]
+            },
+            time: { 
+                title: "Takes Too Long", 
+                icon: "⏰",
+                videoType: "time-testimonial",
+                phrases: ["takes too long", "time-consuming", "quick implementation", "fast results"]
+            },
+            trust: { 
+                title: "Can I Trust?", 
+                icon: "🤝",
+                videoType: "trust-testimonial",
+                phrases: ["trust issues", "skeptical", "reliable", "credible", "proven track record"]
+            },
+            general: { 
+                title: "On the Fence", 
+                icon: "⭐",
+                videoType: "general-testimonial",
+                phrases: ["on the fence", "unsure", "can't decide", "need more info", "hesitant"]
+            },
+            results: { 
+                title: "Will It Work?", 
+                icon: "📈",
+                videoType: "results-testimonial",
+                phrases: ["get results", "does it work", "effective", "ROI", "outcomes"]
             }
-            
-            try {
-                return JSON.parse(fixed);
-            } catch (e) {
-                // Extract strings manually
-                const matches = fixed.match(/"([^"]+)"/g) || [];
-                return matches.map(m => m.slice(1, -1));
-            }
-        }
+        };
         
-        return [];
+        // Create checkboxes for universal concerns
+        Object.entries(universalConcerns).forEach(([key, concern]) => {
+            createConcernCheckbox(concernsContainer, key, concern);
+        });
+        
+        return;
     }
-}
-
-// Then use it:
-const phrases = safeParsePhrases(this.dataset.phrases);
-                const concernKeywords = document.getElementById('concernKeywords');
-                
-                if (concernKeywords && phrases.length > 0) {
-                    // Get current value
-                    const currentValue = concernKeywords.value.trim();
-                    const newPhrases = phrases.join(', ');
-                    
-                    if (currentValue) {
-                        // Add to existing if not already there
-                        if (!currentValue.includes(newPhrases)) {
-                            concernKeywords.value = `${currentValue}, ${newPhrases}`;
-                        }
-                    } else {
-                        // First time - set it
-                        concernKeywords.value = newPhrases;
-                    }
-                    
-                    console.log('✅ Added to concernKeywords:', newPhrases);
-                    
-                    // Visual feedback
-                    concernKeywords.style.border = '2px solid #4CAF50';
-                    concernKeywords.style.background = '#e8f5e8';
-                    setTimeout(() => {
-                        concernKeywords.style.border = '';
-                        concernKeywords.style.background = '';
-                    }, 1000);
-                }
-                
-                // ============ REMOVED: populateTriggerPhrases call ============
-                // This was trying to populate trigger-search which doesn't exist here
-                // ==============================================================
-            } else {
-                // If unchecked, remove phrases from concernKeywords
-                const concernKeywords = document.getElementById('concernKeywords');
-                if (concernKeywords) {
-                    function safeParsePhrases(jsonString) {
-    if (!jsonString) return [];
     
-    try {
-        // First try normal parse
-        return JSON.parse(jsonString);
-    } catch (error) {
-        console.log('JSON parse failed, trying to fix...');
+    // Process the testimonials based on structure
+    if (Array.isArray(testimonials) && testimonials.length > 0) {
+        console.log(`📋 Processing ${testimonials.length} testimonials`);
         
-        // If string is truncated, try to reconstruct
-        if (jsonString.includes('[') && !jsonString.includes(']')) {
-            // Try to complete the JSON
-            let fixed = jsonString;
-            
-            // Add missing closing bracket
-            if (!fixed.endsWith(']')) {
-                // Check if we need to close a string
-                const quoteCount = (fixed.match(/"/g) || []).length;
-                if (quoteCount % 2 === 1) {
-                    fixed += '"';
+        // Group by concern
+        const concernsMap = {};
+        testimonials.forEach(testimonial => {
+            if (testimonial.concern) {
+                const concernKey = testimonial.concern.toLowerCase().replace(/\s+/g, '-');
+                if (!concernsMap[concernKey]) {
+                    concernsMap[concernKey] = {
+                        title: testimonial.concern,
+                        icon: testimonial.icon || getIconForConcern(testimonial.concern),
+                        videoType: testimonial.videoType || `${concernKey}-testimonial`,
+                        phrases: testimonial.phrases || [testimonial.concern.toLowerCase()],
+                        count: 0
+                    };
                 }
-                fixed += ']';
-            }
-            
-            try {
-                return JSON.parse(fixed);
-            } catch (e) {
-                // Extract strings manually
-                const matches = fixed.match(/"([^"]+)"/g) || [];
-                return matches.map(m => m.slice(1, -1));
-            }
-        }
-        
-        return [];
-    }
-}
-
-// Then use it:
-const phrases = safeParsePhrases(this.dataset.phrases);
-                    const phrasesToRemove = phrases.join(', ');
-                    
-                    // Remove the specific phrases
-                    let newValue = concernKeywords.value
-                        .replace(new RegExp(phrasesToRemove.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), '')
-                        .replace(/,\s*,/g, ',')      // Clean up double commas
-                        .replace(/^\s*,\s*|\s*,\s*$/g, '')  // Clean up leading/trailing commas
-                        .replace(/\s+/g, ' ')         // Normalize spaces
-                        .trim();
-                    
-                    concernKeywords.value = newValue;
-                    console.log('❌ Removed from concernKeywords:', phrasesToRemove);
+                concernsMap[concernKey].count++;
+                
+                // Merge phrases if available
+                if (testimonial.phrases && Array.isArray(testimonial.phrases)) {
+                    concernsMap[concernKey].phrases = [
+                        ...new Set([...concernsMap[concernKey].phrases, ...testimonial.phrases])
+                    ];
                 }
-            }
-            
-            // Update code preview if function exists
-            if (typeof updateCodePreview === 'function') {
-                updateCodePreview();
             }
         });
+        
+        // Create checkboxes
+        Object.entries(concernsMap).forEach(([key, concern]) => {
+            createConcernCheckbox(concernsContainer, key, concern);
+        });
+        
+    } else if (testimonials.concerns && typeof testimonials.concerns === 'object') {
+        console.log('📋 Processing concerns object');
+        Object.entries(testimonials.concerns).forEach(([key, concern]) => {
+            createConcernCheckbox(concernsContainer, key, concern);
+        });
+    } else {
+        console.error('❌ Unexpected structure:', testimonials);
+        concernsContainer.innerHTML = '<p style="color: #666; font-style: italic;">No concerns available for this industry</p>';
+    }
+}
+
+// ==============================================
+// CREATE CONCERN CHECKBOX (with all original features)
+// ==============================================
+function createConcernCheckbox(container, key, concern) {
+    const concernId = `concern-${key}`;
+    
+    // Prepare data-phrases JSON string
+    const phrasesArray = Array.isArray(concern.phrases) ? concern.phrases : [concern.title || key];
+    const phrasesJson = JSON.stringify(phrasesArray)
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    
+    const checkboxDiv = document.createElement('div');
+    checkboxDiv.className = 'concern-option';
+    checkboxDiv.innerHTML = `
+        <input type="checkbox" 
+               id="${concernId}" 
+               name="concerns" 
+               value="${key}" 
+               data-title="${concern.title || key}"
+               data-icon="${concern.icon || '💭'}"
+               data-video-type="${concern.videoType || key}"
+               data-phrases="${phrasesJson}"
+               class="concern-checkbox">
+        <label for="${concernId}">
+            <span class="concern-icon">${concern.icon || '💭'}</span>
+            <span class="concern-title">${concern.title || key}</span>
+            ${concern.count > 1 ? `<span class="concern-count">(${concern.count})</span>` : ''}
+        </label>
+    `;
+    
+    container.appendChild(checkboxDiv);
+    
+    // Add event listener to the new checkbox
+    const checkbox = checkboxDiv.querySelector('.concern-checkbox');
+    setupConcernCheckboxListener(checkbox);
+}
+
+// ==============================================
+// SETUP CHECKBOX LISTENER (with concernKeywords integration)
+// ==============================================
+function setupConcernCheckboxListener(checkbox) {
+    checkbox.addEventListener('change', function() {
+        const concernKeywords = document.getElementById('concernKeywords');
+        
+        if (this.checked) {
+            // When checked, add phrases to concernKeywords textarea
+            const phrases = safeParsePhrases(this.dataset.phrases);
+            
+            if (concernKeywords && phrases.length > 0) {
+                const currentValue = concernKeywords.value.trim();
+                const newPhrases = phrases.join(', ');
+                
+                if (currentValue) {
+                    if (!currentValue.includes(newPhrases)) {
+                        concernKeywords.value = `${currentValue}, ${newPhrases}`;
+                    }
+                } else {
+                    concernKeywords.value = newPhrases;
+                }
+                
+                console.log('✅ Added to concernKeywords:', newPhrases);
+                
+                // Visual feedback
+                concernKeywords.style.border = '2px solid #4CAF50';
+                concernKeywords.style.background = '#e8f5e8';
+                setTimeout(() => {
+                    concernKeywords.style.border = '';
+                    concernKeywords.style.background = '';
+                }, 1000);
+            }
+        } else {
+            // When unchecked, remove phrases from concernKeywords
+            if (concernKeywords) {
+                const phrases = safeParsePhrases(this.dataset.phrases);
+                const phrasesToRemove = phrases.join(', ');
+                
+                // Remove the specific phrases
+                let newValue = concernKeywords.value
+                    .replace(new RegExp(phrasesToRemove.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), '')
+                    .replace(/,\s*,/g, ',')
+                    .replace(/^\s*,\s*|\s*,\s*$/g, '')
+                    .replace(/\s+/g, ' ')
+                    .trim();
+                
+                concernKeywords.value = newValue;
+                console.log('❌ Removed from concernKeywords:', phrasesToRemove);
+            }
+        }
+        
+        // Update code preview if function exists
+        if (typeof updateCodePreview === 'function') {
+            updateCodePreview();
+        }
     });
+}
+
+// ==============================================
+// SAFE PARSE PHRASES (kept from original)
+// ==============================================
+function safeParsePhrases(jsonString) {
+    if (!jsonString) return [];
+    
+    try {
+        return JSON.parse(jsonString);
+    } catch (error) {
+        console.log('JSON parse failed, trying to fix...');
+        
+        if (jsonString.includes('[') && !jsonString.includes(']')) {
+            let fixed = jsonString;
+            
+            if (!fixed.endsWith(']')) {
+                const quoteCount = (fixed.match(/"/g) || []).length;
+                if (quoteCount % 2 === 1) {
+                    fixed += '"';
+                }
+                fixed += ']';
+            }
+            
+            try {
+                return JSON.parse(fixed);
+            } catch (e) {
+                const matches = fixed.match(/"([^"]+)"/g) || [];
+                return matches.map(m => m.slice(1, -1));
+            }
+        }
+        
+        return [];
+    }
+}
+
+// ==============================================
+// GET ICON FOR CONCERN (helper)
+// ==============================================
+function getIconForConcern(concern) {
+    const iconMap = {
+        'price': '💰', 'expensive': '💰', 'cost': '💰',
+        'time': '⏰', 'long': '⏰', 'quick': '⚡',
+        'trust': '🤝', 'skeptical': '🤝', 'doubt': '❓',
+        'general': '⭐', 'fence': '⭐', 'unsure': '🤔',
+        'results': '📈', 'work': '📈', 'effect': '📈',
+        'quality': '🏆', 'service': '👨‍💼', 'support': '🛟'
+    };
+    
+    const lowerConcern = concern.toLowerCase();
+    for (const [keyword, icon] of Object.entries(iconMap)) {
+        if (lowerConcern.includes(keyword)) {
+            return icon;
+        }
+    }
+    
+    return '💭';
 }
 
 // ==============================================
