@@ -2495,33 +2495,59 @@ function validateDataStructure() {
 // ===================================================
 
 function populateIndustryDropdown() {
-    const industries = window.testimonialData.getAllIndustries();
-    const dropdown = document.getElementById('industry-select');
+    console.log('🏭 Populating industry dropdown...');
     
-    if (!dropdown) {
-        console.error('Industry dropdown not found');
+    const industrySelect = document.getElementById('industry-select');
+    if (!industrySelect) {
+        console.error('❌ industry-select element not found');
         return;
     }
     
     // Clear existing options
-    dropdown.innerHTML = '<option value="">Select an industry...</option>';
+    industrySelect.innerHTML = '';
     
-    // Add industry options
-    industries.forEach(industry => {
-        const option = document.createElement('option');
-        option.value = industry.slug;
-        option.textContent = `${industry.icon} ${industry.name}`;
-        dropdown.appendChild(option);
-    });
+    // Check if we have the function
+    if (!window.testimonialData || typeof window.testimonialData.getAllIndustries !== 'function') {
+        console.error('❌ getAllIndustries function not available');
+        // Add at least a default option
+        const defaultOption = document.createElement('option');
+        defaultOption.value = 'general';
+        defaultOption.textContent = 'General Business 🏢';
+        industrySelect.appendChild(defaultOption);
+        return;
+    }
     
-    // Add change listener
-    dropdown.addEventListener('change', function() {
-        const industrySlug = this.value;
-        if (industrySlug) {
-            selectIndustry(industrySlug);
-            populateConcernsForIndustry(industrySlug);
+    try {
+        // Get industries
+        const industries = window.testimonialData.getAllIndustries();
+        console.log(`📋 Got ${industries.length} industries`);
+        
+        if (industries.length === 0) {
+            console.log('📭 No industries, adding default');
+            const defaultOption = document.createElement('option');
+            defaultOption.value = 'general';
+            defaultOption.textContent = 'General Business 🏢';
+            industrySelect.appendChild(defaultOption);
+        } else {
+            // Add all industries
+            industries.forEach(industry => {
+                const option = document.createElement('option');
+                option.value = industry.slug;
+                option.textContent = `${industry.name} ${industry.icon || ''}`;
+                industrySelect.appendChild(option);
+            });
         }
-    });
+        
+        console.log('✅ Industry dropdown populated');
+        
+    } catch (error) {
+        console.error('❌ Error populating industry dropdown:', error);
+        // Add fallback option
+        const defaultOption = document.createElement('option');
+        defaultOption.value = 'general';
+        defaultOption.textContent = 'General Business 🏢';
+        industrySelect.appendChild(defaultOption);
+    }
 }
 
 function populateConcernsForIndustry(industrySlug) {
