@@ -3625,10 +3625,10 @@ function addIndustry() {
             return;
         }
         
-        // Clear existing industry
-        currentData.industries = {};
-        currentData.industryKeywords = {};
-        console.log('🧹 Cleared existing industry to make room for new one');
+       // Don't clear industries - they might be needed by other systems
+console.log('⚠️ Industry clearing disabled to preserve system');
+// currentData.industries = {}; // COMMENTED OUT
+// currentData.industryKeywords = {}; // COMMENTED OUT
     }
     
     // Generate slug if empty
