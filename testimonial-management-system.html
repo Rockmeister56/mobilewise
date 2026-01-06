@@ -1111,6 +1111,42 @@ function safeParsePhrases(jsonString) {
         return matches.map(m => m.slice(1, -1));
     }
 }
+
+// PROTECT testimonialData from being overwritten
+const originalTestimonialData = window.testimonialData;
+
+// Hook the setter
+Object.defineProperty(window, 'testimonialData', {
+    set: function(newValue) {
+        console.log('⚠️ Attempt to overwrite testimonialData blocked!');
+        
+        // Merge instead of replace
+        if (originalTestimonialData && newValue) {
+            // Keep original functions, add new data
+            const merged = Object.assign({}, newValue);
+            
+            // Copy all functions from original
+            Object.keys(originalTestimonialData).forEach(key => {
+                if (typeof originalTestimonialData[key] === 'function') {
+                    merged[key] = originalTestimonialData[key];
+                }
+            });
+            
+            window._testimonialData = merged;
+            console.log('✅ Merged instead of overwritten');
+        } else {
+            window._testimonialData = newValue;
+        }
+    },
+    get: function() {
+        return window._testimonialData;
+    }
+});
+
+// Initialize
+if (originalTestimonialData) {
+    window._testimonialData = originalTestimonialData;
+}
         
 // ===================================================
 // LOAD CHECKER - Add this at the TOP of your script
