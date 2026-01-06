@@ -1086,6 +1086,25 @@ if (window.testimonialData && window.testimonialData._industries) {
     console.log('✅ Removed duplicate _industries');
 }
 
+// ADD TO testimonial-management-system.js:
+// This tells the management system how to trigger testimonials
+window.testimonialManager = {
+    playTestimonial: function(concernType) {
+        console.log('🎬 Management system playing testimonial:', concernType);
+        
+        // Use EXISTING testimonial player
+        if (window.showTestimonialSplashScreen) {
+            return window.showTestimonialSplashScreen(concernType);
+        }
+        return null;
+    },
+    
+    testConnection: function() {
+        console.log('🔗 Testing connection to testimonial player...');
+        return typeof window.showTestimonialSplashScreen === 'function';
+    }
+};
+
         // ADD THIS FUNCTION AT THE TOP OF YOUR SCRIPT FILE:
 function safeParsePhrases(jsonString) {
     if (!jsonString) return [];
