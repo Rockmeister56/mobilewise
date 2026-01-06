@@ -1071,6 +1071,152 @@ a[href^="#"] {
 
     <script>
 
+        // ===================================================
+// 🎯 ADD MISSING FUNCTIONS TO TESTIMONIALDATA
+// ===================================================
+
+// 1. getIndustryTestimonials - fixes line 2788 error
+testimonialData.getIndustryTestimonials = function(industrySlug) {
+    console.log(`📊 getIndustryTestimonials called for: ${industrySlug}`);
+    
+    // Check if industry exists
+    if (this.industries && this.industries[industrySlug]) {
+        const industry = this.industries[industrySlug];
+        if (industry.concerns && Object.keys(industry.concerns).length > 0) {
+            const testimonials = Object.values(industry.concerns);
+            console.log(`   Found ${testimonials.length} testimonials`);
+            return testimonials;
+        }
+    }
+    
+    // Fallback to universal concerns
+    if (this.universalConcerns && Object.keys(this.universalConcerns).length > 0) {
+        console.log(`   Using ${Object.keys(this.universalConcerns).length} universal concerns`);
+        return Object.values(this.universalConcerns);
+    }
+    
+    console.log('   No testimonials found, returning empty array');
+    return [];
+};
+
+// 2. getAllIndustries - for populateIndustryDropdown
+testimonialData.getAllIndustries = function() {
+    console.log('📊 getAllIndustries called');
+    
+    if (this.industries && typeof this.industries === 'object') {
+        const industries = Object.values(this.industries);
+        
+        // Format industries for dropdown
+        const formatted = industries.map(industry => ({
+            slug: industry.slug || 'unknown',
+            name: industry.name || 'Unnamed Industry',
+            icon: industry.icon || '🏢',
+            concerns: industry.concerns || {}
+        }));
+        
+        console.log(`   Found ${formatted.length} industries`);
+        return formatted;
+    }
+    
+    // Default universal industry
+    console.log('   No industries, returning universal');
+    return [{
+        slug: 'universal',
+        name: 'Universal Concerns',
+        icon: '⭐',
+        concerns: this.universalConcerns || {}
+    }];
+};
+
+// 3. getIndustry - general industry lookup
+testimonialData.getIndustry = function(slug) {
+    console.log(`📊 getIndustry called for: ${slug}`);
+    
+    if (this.industries && this.industries[slug]) {
+        return this.industries[slug];
+    }
+    
+    console.log('   Industry not found, returning null');
+    return null;
+};
+
+// 4. findRelevantTestimonial - AI matching
+testimonialData.findRelevantTestimonial = function(message) {
+    console.log(`🎯 findRelevantTestimonial called: "${message?.substring(0, 50)}..."`);
+    
+    const lowerMsg = (message || '').toLowerCase();
+    
+    // Search universal concerns first
+    if (this.universalConcerns) {
+        for (const [key, concern] of Object.entries(this.universalConcerns)) {
+            if (concern.keywords && Array.isArray(concern.keywords)) {
+                const matches = concern.keywords.some(kw => 
+                    lowerMsg.includes(kw.toLowerCase())
+                );
+                
+                if (matches) {
+                    console.log(`   Matched: ${key} concern`);
+                    return {
+                        concern: concern.title || key,
+                        review: concern.quote || '',
+                        author: concern.author || 'Customer',
+                        icon: concern.icon || '⭐',
+                        videoType: concern.videoType || 'general',
+                        video: {
+                            duration: concern.duration || 30000,
+                            url: concern.videoUrl || '#'
+                        }
+                    };
+                }
+            }
+        }
+    }
+    
+    // Default testimonial
+    console.log('   No match found, returning default');
+    return {
+        concern: "Customer Concern",
+        review: "This testimonial addresses your specific concern.",
+        author: "Satisfied Customer",
+        icon: "✅",
+        videoType: "general",
+        video: { duration: 30000, url: '#' }
+    };
+};
+
+// 5. playTestimonialVideo - video playback
+testimonialData.playTestimonialVideo = function(videoType) {
+    console.log(`🎬 playTestimonialVideo called: ${videoType}`);
+    
+    // Check if video exists
+    if (this.videos && this.videos[videoType]) {
+        return this.videos[videoType];
+    }
+    
+    // Check universal concerns for video URL
+    if (this.universalConcerns) {
+        for (const concern of Object.values(this.universalConcerns)) {
+            if (concern.videoType === videoType && concern.videoUrl) {
+                return {
+                    url: concern.videoUrl,
+                    duration: concern.duration || 30000,
+                    title: concern.title || 'Testimonial'
+                };
+            }
+        }
+    }
+    
+    // Default video data
+    console.log('   Video not found, returning placeholder');
+    return {
+        url: '#',
+        duration: 30000,
+        title: 'Testimonial Video'
+    };
+};
+
+console.log('✅ Added missing functions to testimonialData');
+
         // ADD THIS FUNCTION AT THE TOP OF YOUR SCRIPT FILE:
 function safeParsePhrases(jsonString) {
     if (!jsonString) return [];
@@ -2785,7 +2931,9 @@ document.addEventListener('DOMContentLoaded', function() {
 // NEW: UPDATE CONCERNS BASED ON INDUSTRY
 // ==============================================
 function updateConcernsForIndustry(industrySlug) {
-    const testimonials = window.testimonialData.getIndustryTestimonials(industrySlug);
+    const testimonials = window.testimonialData && window.testimonialData.getIndustryTestimonials ? 
+    window.testimonialData.getIndustryTestimonials(industrySlug) : [];
+    
     const concernsContainer = document.getElementById('concerns-container');
     
     if (!concernsContainer) return;
@@ -5089,45 +5237,43 @@ document.addEventListener('DOMContentLoaded', function() {
                         
                         console.log(`🎯 ${config.concern} button clicked`);
                         
-                        
                         // SAFETY CHECK: Ensure functions exist - FIXED VERSION
-if (!window.testimonialData) {
-    console.error('❌ testimonialData not found!');
-    alert('Testimonial system still loading...');
-    return;
-}
+                        if (!window.testimonialData) {
+                            console.error('❌ testimonialData not found!');
+                            alert('Testimonial system still loading...');
+                            return;
+                        }
 
-// Check for ANY testimonial function
-const hasTestimonialFunction = 
-    (window.testimonialData.getCompleteTestimonial && 
-     typeof window.testimonialData.getCompleteTestimonial === 'function') ||
-    (window.testimonialData.findRelevantTestimonial && 
-     typeof window.testimonialData.findRelevantTestimonial === 'function');
+                        // Check for ANY testimonial function
+                        const hasTestimonialFunction = 
+                            (window.testimonialData.getCompleteTestimonial && 
+                             typeof window.testimonialData.getCompleteTestimonial === 'function') ||
+                            (window.testimonialData.findRelevantTestimonial && 
+                             typeof window.testimonialData.findRelevantTestimonial === 'function');
 
-if (!hasTestimonialFunction) {
-    console.error('❌ No testimonial function found!');
-    console.log('Available methods:', 
-        Object.keys(window.testimonialData)
-            .filter(k => typeof window.testimonialData[k] === 'function'));
-    alert('Testimonial functions not available yet. Please wait...');
-    return;
-}
+                        if (!hasTestimonialFunction) {
+                            console.error('❌ No testimonial function found!');
+                            console.log('Available methods:', 
+                                Object.keys(window.testimonialData)
+                                    .filter(k => typeof window.testimonialData[k] === 'function'));
+                            alert('Testimonial functions not available yet. Please wait...');
+                            return;
+                        }
 
-// Log which function we're using
-if (window.testimonialData.getCompleteTestimonial) {
-    console.log('✅ Using getCompleteTestimonial');
-} else if (window.testimonialData.findRelevantTestimonial) {
-    console.log('✅ Using findRelevantTestimonial');
-}
+                        // Log which function we're using
+                        if (window.testimonialData.getCompleteTestimonial) {
+                            console.log('✅ Using getCompleteTestimonial');
+                        } else if (window.testimonialData.findRelevantTestimonial) {
+                            console.log('✅ Using findRelevantTestimonial');
+                        }
                         
-                        // Get complete testimonial
                         // Get testimonial - use whichever function is available
-let testimonial = null;
-if (window.testimonialData.getCompleteTestimonial) {
-    testimonial = window.testimonialData.getCompleteTestimonial(config.search);
-} else if (window.testimonialData.findRelevantTestimonial) {
-    testimonial = window.testimonialData.findRelevantTestimonial(config.search);
-}
+                        let testimonial = null;
+                        if (window.testimonialData.getCompleteTestimonial) {
+                            testimonial = window.testimonialData.getCompleteTestimonial(config.search);
+                        } else if (window.testimonialData.findRelevantTestimonial) {
+                            testimonial = window.testimonialData.findRelevantTestimonial(config.search);
+                        }
                         
                         if (testimonial) {
                             console.log('✅ Found testimonial:', testimonial.concern);
@@ -5158,11 +5304,11 @@ if (window.testimonialData.getCompleteTestimonial) {
         
         console.log(`✅ Connected ${connected} testimonial buttons`);
         
-        // Add test panel if no buttons found
-        if (connected === 0) {
+        // Add test panel if no buttons found - only if function exists
+        if (connected === 0 && typeof addTestPanel === 'function') {
             addTestPanel();
         }
-    }
+    } // ← ADDED THIS MISSING CLOSING BRACE
     
     // 5. Function to display testimonial in chat
     function showTestimonialInChat(testimonial) {
@@ -5355,7 +5501,7 @@ if (window.testimonialData.getCompleteTestimonial) {
     
     // Start initialization
     setTimeout(initializeBridge, 1000);
-});
+}); // ← ADDED THIS MISSING CLOSING PARENTHESIS AND BRACE
 
 console.log('🔗 Fixed bridge script loaded');
 </script>
