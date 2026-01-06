@@ -1071,6 +1071,21 @@ a[href^="#"] {
 
     <script>
 
+        // ADD TO testimonial-management-system.js (at the top):
+console.log('🔗 Adding compatibility layer...');
+
+// Make sure testimonialData has universalConcerns alias
+if (window.testimonialData && window.testimonialData.concerns) {
+    window.testimonialData.universalConcerns = window.testimonialData.concerns;
+    console.log('✅ Linked universalConcerns to existing concerns');
+}
+
+// Remove duplicate property if exists
+if (window.testimonialData && window.testimonialData._industries) {
+    delete window.testimonialData._industries;
+    console.log('✅ Removed duplicate _industries');
+}
+
         // ADD THIS FUNCTION AT THE TOP OF YOUR SCRIPT FILE:
 function safeParsePhrases(jsonString) {
     if (!jsonString) return [];
