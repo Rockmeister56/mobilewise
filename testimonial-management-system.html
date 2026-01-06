@@ -1111,24 +1111,98 @@ function safeParsePhrases(jsonString) {
     }
 }
 
-// 🛠️ FIX FOR MISSING FUNCTIONS - Add this at the TOP of your JS file
-(function() {
-    // Ensure window.testimonialData exists
-    window.testimonialData = window.testimonialData || {};
+// ===================================================
+// CRITICAL FIX: PRESERVE ORIGINAL FUNCTIONS
+// ===================================================
+
+// Save original functions BEFORE they get overwritten
+window._originalTestimonialData = window.testimonialData;
+
+// Function to ensure critical functions exist
+function ensureTestimonialFunctions() {
+    console.log('🔧 Ensuring testimonial functions exist...');
     
-    // Add missing functions if they don't exist
-    if (!window.testimonialData.getAllIndustries) {
-        window.testimonialData.getAllIndustries = function() {
-            return Object.keys(this.industries || {});
-        };
+    if (!window.testimonialData) {
+        window.testimonialData = {};
     }
     
-    if (!window.testimonialData.getIndustry) {
-        window.testimonialData.getIndustry = function(slug) {
-            return this.industries?.[slug] || null;
-        };
+    // List of critical functions that MUST exist
+    const criticalFunctions = {
+        getAllIndustries: function() {
+            console.log('🏭 getAllIndustries called');
+            // Return industries from management system OR empty array
+            const industries = this.industries || {};
+            const industryList = [];
+            
+            for (const [slug, data] of Object.entries(industries)) {
+                industryList.push({
+                    slug: slug,
+                    name: data.name || slug,
+                    icon: data.icon || '🏢'
+                });
+            }
+            
+            // Always include "general" as first option
+            industryList.unshift({
+                slug: 'general',
+                name: 'General Business',
+                icon: '🏢'
+            });
+            
+            console.log(`   Found ${industryList.length} industries`);
+            return industryList;
+        },
+        
+        getIndustryTestimonials: function(industrySlug) {
+            console.log('🎯 getIndustryTestimonials called for:', industrySlug);
+            
+            if (this.industries && this.industries[industrySlug]) {
+                return {
+                    industry: this.industries[industrySlug].name,
+                    icon: this.industries[industrySlug].icon,
+                    concerns: this.universalConcerns || {}
+                };
+            }
+            
+            // Fallback to universal concerns
+            return {
+                industry: 'General Business',
+                icon: '🏢',
+                concerns: this.universalConcerns || {}
+            };
+        },
+        
+        getIndustry: function(slug) {
+            return this.industries ? this.industries[slug] || null : null;
+        }
+    };
+    
+    // Add missing functions
+    Object.entries(criticalFunctions).forEach(([funcName, funcImpl]) => {
+        if (!window.testimonialData[funcName] || typeof window.testimonialData[funcName] !== 'function') {
+            window.testimonialData[funcName] = funcImpl.bind(window.testimonialData);
+            console.log(`✅ Added function: ${funcName}`);
+        }
+    });
+    
+    // Also copy any original functions that exist
+    if (window._originalTestimonialData) {
+        Object.keys(window._originalTestimonialData).forEach(key => {
+            if (typeof window._originalTestimonialData[key] === 'function' && 
+                !window.testimonialData[key]) {
+                window.testimonialData[key] = window._originalTestimonialData[key];
+                console.log(`📋 Copied original function: ${key}`);
+            }
+        });
     }
-})();
+    
+    console.log('🔧 Available functions:', 
+        Object.keys(window.testimonialData)
+            .filter(k => typeof window.testimonialData[k] === 'function'));
+}
+
+// Run this early
+ensureTestimonialFunctions();
         
 // ===================================================
 // LOAD CHECKER - Add this at the TOP of your script
@@ -5146,9 +5220,10 @@ if (window.testimonialData.getCompleteTestimonial) {
         
         console.log(`✅ Connected ${connected} testimonial buttons`);
         
-        // Add test panel if no buttons found
-        if (connected === 0) {
-            addTestPanel();
+        // Add test panel if no buttons found - only if function exists
+if (connected === 0) {
+    console.log('⚠️ No testimonial buttons found');
+    // Don't call addTestPanel - it doesn't exist in this context
         }
     }
     
