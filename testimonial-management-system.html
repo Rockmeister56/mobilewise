@@ -1070,7 +1070,40 @@ a[href^="#"] {
     <div class="status-message" id="warningMessage"></div>
 
     <script>
+
+        // ADD TO testimonial-management-system.js (at the top):
+console.log('🔗 Adding compatibility layer...');
+
+// Make sure testimonialData has universalConcerns alias
+if (window.testimonialData && window.testimonialData.concerns) {
+    window.testimonialData.universalConcerns = window.testimonialData.concerns;
+    console.log('✅ Linked universalConcerns to existing concerns');
+}
+
+// Remove duplicate property if exists
+if (window.testimonialData && window.testimonialData._industries) {
+    delete window.testimonialData._industries;
+    console.log('✅ Removed duplicate _industries');
+}
+
+// ADD TO testimonial-management-system.js:
+// This tells the management system how to trigger testimonials
+window.testimonialManager = {
+    playTestimonial: function(concernType) {
+        console.log('🎬 Management system playing testimonial:', concernType);
         
+        // Use EXISTING testimonial player
+        if (window.showTestimonialSplashScreen) {
+            return window.showTestimonialSplashScreen(concernType);
+        }
+        return null;
+    },
+    
+    testConnection: function() {
+        console.log('🔗 Testing connection to testimonial player...');
+        return typeof window.showTestimonialSplashScreen === 'function';
+    }
+};      
 
         // ADD THIS FUNCTION AT THE TOP OF YOUR SCRIPT FILE:
 function safeParsePhrases(jsonString) {
@@ -3585,7 +3618,7 @@ function addIndustry() {
             return;
         }
         
-        // Clear existing industry
+       // Don't clear existing industry
         currentData.industries = {};
         currentData.industryKeywords = {};
         console.log('🧹 Cleared existing industry to make room for new one');
