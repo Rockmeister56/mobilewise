@@ -734,124 +734,79 @@ a[href^="#"] {
                 </div>
             </div>
 
-            <div style="margin-top: 30px; padding: 15px; border-radius: 8px; background: rgba(33, 37, 41, 0.3); border: 1px solid rgba(255, 255, 255, 0.1);">
+            <!-- UPDATED SIDEBAR CODE - DARK THEME -->
+<div style="margin-top: 30px; padding: 15px; border-radius: 8px;">
 
-    <!-- ADD TESTIMONIAL GROUP BUTTON (Blue) -->
-    <button id="addTestimonialGroupBtn" 
-            style="width: 100%; background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); color: white; border: none; padding: 14px; border-radius: 8px; font-weight: 600; cursor: pointer; margin-bottom: 25px; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px;"
-            onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 15px rgba(0,123,255,0.4)';"
-            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';"
-            onclick="showAddTestimonialGroupModal()">
-        <span style="font-size: 20px;">+</span>
-        <span>Add Testimonial Group</span>
+    <!-- CLEAN INDUSTRY HEADER -->
+<div style="display: none;">
+    <!-- These elements MUST exist for JavaScript to work -->
+    <div id="industryIconDisplay">🏢</div>
+    <div id="currentIndustryName">None selected</div>
+</div>
+    
+    <!-- TESTIMONIALS OVERVIEW -->
+<div id="testimonialsOverview" style="background: transparent; padding: 0; margin-bottom: 25px;">
+    
+    <!-- TESTIMONIAL CARDS (Rectangular, vertical layout) -->
+    <div id="testimonialCardsContainer" style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 15px;">
+        <!-- Cards will be dynamically inserted here -->
+        <div class="testimonial-card-empty" style="text-align: center; padding: 20px; background: rgba(33,37,41,0.3); border-radius: 8px; border: 1px dashed rgba(255,255,255,0.1); color: #6c757d;">
+            <div style="font-size: 24px; margin-bottom: 8px;">🎬</div>
+            <div>No testimonials yet</div>
+            <div style="font-size: 12px; margin-top: 5px;">Add your first testimonial</div>
+        </div>
+    </div>
+    
+    <!-- VIEW ALL BUTTON -->
+    <button class="btn" onclick="showAllTestimonialsModal()" 
+            style="width: 100%; background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 500; cursor: pointer; transition: all 0.2s;"
+            onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 15px rgba(0,123,255,0.3)';"
+            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+        <span style="font-size: 16px; margin-right: 8px;">👁️</span>
+        View All Testimonials
     </button>
-
-    <!-- SELECT A GROUP HEADER -->
-    <div style="color: #adb5bd; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 15px; padding-left: 5px;">
-        Select a Group
-    </div>
-
-    <!-- TESTIMONIAL GROUP BUTTON AREA -->
-    <div id="testimonialGroupsContainer" 
-         style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 25px; min-height: 100px;">
-        <!-- Group buttons will be dynamically inserted here -->
-        <!-- SAMPLE GROUP BUTTON (will be generated dynamically) -->
-        <div class="testimonial-group-btn" 
-             style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); padding: 12px 15px; border-radius: 8px; color: #e9ecef; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: space-between;"
-             onmouseover="this.style.background='rgba(255, 255, 255, 0.1)'; this.style.borderColor='rgba(255, 255, 255, 0.2)';"
-             onmouseout="this.style.background='rgba(255, 255, 255, 0.05)'; this.style.borderColor='rgba(255, 255, 255, 0.1)';"
-             onclick="loadTestimonialGroup('group1')">
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <span style="font-size: 16px;">📁</span>
-                <span style="font-weight: 500;">GROUP 1</span>
-            </div>
-            <span style="background: rgba(0, 123, 255, 0.2); color: #007bff; font-size: 12px; padding: 2px 8px; border-radius: 10px;">3</span>
-        </div>
-    </div>
-            
-            <!-- Total Views -->
-            <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; background: rgba(0, 0, 0, 0.2); border-radius: 6px;">
-                <div style="display: flex; align-items: center; gap: 10px; color: #e9ecef;">
-                    <span style="font-size: 18px;">👁️</span>
-                    <span>Total Views</span>
-                </div>
-                <span id="totalViewsCount" style="font-weight: 700; font-size: 18px; color: #28a745;">0</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- ACTION BUTTONS -->
-    <div style="margin-top: 25px; display: flex; flex-direction: column; gap: 12px;">
-        <!-- Save Data Button -->
-        <button class="btn" onclick="saveAllChanges()"
-                style="width: 100%; background: rgba(40, 167, 69, 0.9); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 500; cursor: pointer; transition: all 0.2s;"
-                onmouseover="this.style.background='#28a745'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(40,167,69,0.3)';"
-                onmouseout="this.style.background='rgba(40, 167, 69, 0.9)'; this.style.transform='translateY(0)'; this.style.boxShadow='none';">
-            <span style="font-size: 16px; margin-right: 8px;">💾</span>
-            Save Data
-        </button>
-        
-        <!-- Download JS File Button -->
-        <button class="btn" onclick="downloadJSFile()"
-                style="width: 100%; background: rgba(108, 117, 125, 0.7); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 500; cursor: pointer; transition: all 0.2s;"
-                onmouseover="this.style.background='#6c757d'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(108,117,125,0.3)';"
-                onmouseout="this.style.background='rgba(108, 117, 125, 0.7)'; this.style.transform='translateY(0)'; this.style.boxShadow='none';">
-            <span style="font-size: 16px; margin-right: 8px;">⬇️</span>
-            Download JS File
-        </button>
-    </div>
 </div>
 
-<!-- ADD TESTIMONIAL GROUP MODAL -->
-<div id="addTestimonialGroupModal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10000; overflow-y: auto;">
-    <div class="modal-content" style="background: #1a1d21; max-width: 500px; margin: 40px auto; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 60px rgba(0,0,0,0.5);">
+<!-- VIEW ALL TESTIMONIALS MODAL -->
+<div id="allTestimonialsModal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10000; overflow-y: auto;">
+    <div class="modal-content" style="background: #1a1d21; max-width: 900px; margin: 40px auto; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 60px rgba(0,0,0,0.5);">
         <div class="modal-header" style="padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: space-between;">
             <h2 style="margin: 0; color: #e9ecef; display: flex; align-items: center; gap: 10px;">
-                <span style="font-size: 24px;">➕</span>
-                <span>Add Testimonial Group</span>
+                <span style="font-size: 24px;">🎬</span>
+                <span>All Testimonials</span>
+                <span id="totalTestimonialsCount" style="background: #007bff; color: white; padding: 4px 12px; border-radius: 20px; font-size: 14px;">0</span>
             </h2>
-            <button class="close-modal" onclick="hideAddTestimonialGroupModal()" 
+            <button class="close-modal" onclick="hideAllTestimonialsModal()" 
                     style="background: transparent; border: none; color: #adb5bd; font-size: 24px; cursor: pointer; padding: 0; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.2s;"
                     onmouseover="this.style.background='rgba(255,255,255,0.1)'; this.style.color='white';">
                 ×
             </button>
         </div>
         
-        <div class="modal-body" style="padding: 20px;">
-            <div style="margin-bottom: 20px;">
-                <label style="display: block; color: #adb5bd; font-size: 14px; margin-bottom: 8px; font-weight: 500;">
-                    Group Name
-                </label>
-                <input type="text" id="newGroupName" 
-                       style="width: 100%; padding: 12px 15px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; color: white; font-size: 16px;"
-                       placeholder="Enter group name (e.g., Price Concerns)">
+        <div class="modal-body" style="padding: 0;">
+            <!-- FILTERS -->
+            <div style="padding: 20px; background: rgba(0,0,0,0.2); border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <select id="testimonialFilterIndustry" style="flex: 1; min-width: 200px; padding: 10px; background: rgba(33,37,41,0.5); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: #e9ecef;">
+                        <option value="">All Industries</option>
+                    </select>
+                    <select id="testimonialFilterType" style="flex: 1; min-width: 200px; padding: 10px; background: rgba(33,37,41,0.5); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: #e9ecef;">
+                        <option value="">All Concern Types</option>
+                        <option value="price">💰 Price</option>
+                        <option value="time">⏰ Time</option>
+                        <option value="trust">🤝 Trust</option>
+                        <option value="results">📈 Results</option>
+                    </select>
+                    <button onclick="filterTestimonials()" 
+                            style="padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                        🔍 Filter
+                    </button>
+                    <button onclick="resetTestimonialFilters()" 
+                            style="padding: 10px 20px; background: transparent; color: #adb5bd; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; cursor: pointer;">
+                        ↻ Reset
+                    </button>
+                </div>
             </div>
-            
-            <div style="margin-bottom: 25px;">
-                <label style="display: block; color: #adb5bd; font-size: 14px; margin-bottom: 8px; font-weight: 500;">
-                    Description (Optional)
-                </label>
-                <textarea id="newGroupDescription" 
-                          style="width: 100%; padding: 12px 15px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; color: white; font-size: 16px; min-height: 80px; resize: vertical;"
-                          placeholder="Describe this testimonial group..."></textarea>
-            </div>
-            
-            <div style="display: flex; gap: 10px; justify-content: flex-end;">
-                <button onclick="hideAddTestimonialGroupModal()"
-                        style="padding: 10px 20px; background: rgba(108,117,125,0.5); color: white; border: none; border-radius: 6px; cursor: pointer; transition: all 0.2s;"
-                        onmouseover="this.style.background='#6c757d';">
-                    Cancel
-                </button>
-                <button onclick="createTestimonialGroup()"
-                        style="padding: 10px 20px; background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s;"
-                        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(0,123,255,0.3)';"
-                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
-                    Create Group
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
             
             <!-- TESTIMONIALS GRID -->
             <div id="allTestimonialsGrid" style="padding: 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; max-height: 500px; overflow-y: auto;">
