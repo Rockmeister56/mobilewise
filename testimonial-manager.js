@@ -317,22 +317,21 @@ function updateGroupsDisplay() {
     if (noGroupsMessage) noGroupsMessage.style.display = 'none';
     
     // Create group buttons
-container.innerHTML = groupIds.map(groupId => {
-    const group = groups[groupId];
-    const isActive = currentSelectedGroupId === groupId;
-    
-    return `
-        <div class="testimonial-group-btn ${isActive ? 'active' : ''}" 
-             onclick="selectGroup('${groupId}')"
-             data-description="${group.description || 'No description provided'}">
-            <div class="group-info">
-                <span class="group-icon">${group.icon || '📁'}</span>
-                <span class="group-name">${group.name}</span>
+    container.innerHTML = groupIds.map(groupId => {
+        const group = groups[groupId];
+        const isActive = currentSelectedGroupId === groupId;
+        
+        return `
+            <div class="testimonial-group-btn ${isActive ? 'active' : ''}" 
+                 onclick="selectGroup('${groupId}')">
+                <div class="group-info">
+                    <span class="group-icon">${group.icon || '📁'}</span>
+                    <span class="group-name">${group.name}</span>
+                </div>
+                <span class="group-count">${group.testimonials ? group.testimonials.length : 0}</span>
             </div>
-            <span class="group-count">${group.testimonials ? group.testimonials.length : 0}</span>
-        </div>
-    `;
-}).join('');
+        `;
+    }).join('');
 }
 
 function selectGroup(groupId) {
