@@ -1584,18 +1584,6 @@ textarea.form-control {
     color: white;
 }
 
-/* Current Group Display */
-.current-group-display {
-    background: rgba(33, 150, 243, 0.1);
-    border-radius: var(--radius-md);
-    padding: var(--spacing-md);
-    margin-bottom: var(--spacing-lg);
-    border: 1px solid rgba(33, 150, 243, 0.3);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
 .current-group-label {
     color: var(--text-secondary);
     font-size: 0.875rem;
@@ -1606,6 +1594,184 @@ textarea.form-control {
     color: var(--primary);
     font-weight: 600;
     font-size: 1rem;
+}
+
+.current-group-description {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-sm);
+    padding: var(--spacing-md);
+    margin-top: var(--spacing-sm);
+    margin-bottom: var(--spacing-lg);
+    border-left: 3px solid var(--primary);
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+/* =================================================== */
+/* GROUP BUTTON TOOLTIPS */
+/* =================================================== */
+
+.testimonial-group-btn {
+    position: relative; /* Needed for tooltip positioning */
+}
+
+/* Tooltip container */
+.testimonial-group-btn::after {
+    content: attr(data-description);
+    position: absolute;
+    left: 50%;
+    bottom: 100%; /* Position above the button */
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.95);
+    color: white;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    line-height: 1.4;
+    width: 250px;
+    max-width: 300px;
+    white-space: normal;
+    text-align: left;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    pointer-events: none;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+/* Tooltip arrow */
+.testimonial-group-btn::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 100%;
+    transform: translateX(-50%) translateY(8px);
+    border: 6px solid transparent;
+    border-top-color: rgba(0, 0, 0, 0.95);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 1001;
+    pointer-events: none;
+}
+
+/* Show tooltip on hover */
+.testimonial-group-btn:hover::after,
+.testimonial-group-btn:hover::before {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(-8px);
+}
+
+.testimonial-group-btn:hover::before {
+    transform: translateX(-50%) translateY(0);
+}
+
+/* Tooltip styling for empty descriptions */
+.testimonial-group-btn[data-description="No description provided"]::after {
+    color: #888;
+    font-style: italic;
+}
+
+/* Make sure tooltip doesn't get cut off */
+.testimonial-group-btn {
+    overflow: visible !important;
+}
+
+/* Adjust for first/last buttons so tooltip doesn't get cut off */
+.testimonial-group-btn:first-child::after {
+    left: 0;
+    transform: translateX(0);
+}
+
+.testimonial-group-btn:first-child::before {
+    left: 20px;
+    transform: translateX(0) translateY(8px);
+}
+
+.testimonial-group-btn:first-child:hover::after {
+    transform: translateX(0) translateY(-8px);
+}
+
+.testimonial-group-btn:first-child:hover::before {
+    transform: translateX(0) translateY(0);
+}
+
+.testimonial-group-btn:last-child::after {
+    left: auto;
+    right: 0;
+    transform: translateX(0);
+}
+
+.testimonial-group-btn:last-child::before {
+    left: auto;
+    right: 20px;
+    transform: translateX(0) translateY(8px);
+}
+
+.testimonial-group-btn:last-child:hover::after {
+    transform: translateX(0) translateY(-8px);
+}
+
+.testimonial-group-btn:last-child:hover::before {
+    transform: translateX(0) translateY(0);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .testimonial-group-btn::after {
+        width: 200px;
+        font-size: 0.8125rem;
+        padding: 10px 14px;
+    }
+    
+    /* On mobile, show tooltip below instead of above */
+    .testimonial-group-btn::after {
+        top: 100%;
+        bottom: auto;
+        margin-top: 8px;
+    }
+    
+    .testimonial-group-btn::before {
+        top: 100%;
+        bottom: auto;
+        transform: translateX(-50%) translateY(-8px);
+        border-top-color: transparent;
+        border-bottom-color: rgba(0, 0, 0, 0.95);
+    }
+    
+    .testimonial-group-btn:hover::after {
+        transform: translateX(-50%) translateY(8px);
+    }
+    
+    .testimonial-group-btn:hover::before {
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+/* For very small screens */
+@media (max-width: 480px) {
+    .testimonial-group-btn::after {
+        width: 180px;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    
+    .testimonial-group-btn::before {
+        left: 50%;
+        transform: translateX(-50%) translateY(-8px);
+    }
+    
+    .testimonial-group-btn:hover::after {
+        transform: translateX(-50%) translateY(8px);
+    }
+    
+    .testimonial-group-btn:hover::before {
+        transform: translateX(-50%) translateY(0);
+    }
 }
 
 /* =================================================== */
