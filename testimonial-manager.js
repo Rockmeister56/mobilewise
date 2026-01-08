@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function initializeTestimonialData() {
     // Ensure testimonialData has the right structure
     if (!testimonialData.testimonialGroups) {
-        testimonialData.testimonialGroups = {};
+        testimonialData.testimonialGroups = {}; // EMPTY - NO SAMPLE GROUPS
     }
     
     if (!testimonialData.statistics) {
@@ -41,6 +41,17 @@ function initializeTestimonialData() {
             totalGroups: 0,
             totalVideos: 0,
             totalViews: 0
+        };
+    }
+    
+    // Ensure concerns exist (for the form dropdown)
+    if (!testimonialData.concerns) {
+        testimonialData.concerns = {
+            price: { title: 'Price Concerns', icon: '💰', videoType: 'skeptical' },
+            time: { title: 'Time/Speed', icon: '⏰', videoType: 'speed' },
+            trust: { title: 'Trust/Reliability', icon: '🤝', videoType: 'skeptical' },
+            results: { title: 'Results/Effectiveness', icon: '📈', videoType: 'convinced' },
+            general: { title: 'General Feedback', icon: '⭐', videoType: 'skeptical' }
         };
     }
     
@@ -57,10 +68,7 @@ function initializeTestimonialData() {
         }
     }
     
-    // If no data exists, initialize with sample groups
-    if (Object.keys(testimonialData.testimonialGroups).length === 0) {
-        initializeSampleGroups();
-    }
+    // NO SAMPLE GROUPS - Start fresh
 }
 
 function initializeSampleGroups() {
@@ -243,9 +251,10 @@ function createTestimonialGroup() {
     // Save to localStorage
     saveToLocalStorage();
     
-    // Update UI
+    // Update ALL UI components
     updateGroupsDisplay();
-    updateCurrentGroupDisplay(null); // Clear current selection
+    updateGroupDropdown();
+    selectGroup(groupId); // Auto-select the new group
     
     // Close modal and show success
     hideAddTestimonialGroupModal();
@@ -254,11 +263,39 @@ function createTestimonialGroup() {
     console.log('Created new group:', newGroup);
 }
 
+// NEW FUNCTION: UPDATE GROUP DROPDOWN
+function updateGroupDropdown() {
+    const dropdown = document.getElementById('selectGroupDropdown');
+    if (!dropdown) return;
+    
+    dropdown.innerHTML = '<option value="">-- Select a Group to Add Testimonials --</option>';
+    
+    if (!testimonialData.testimonialGroups || Object.keys(testimonialData.testimonialGroups).length === 0) {
+        dropdown.innerHTML = '<option value="">No groups yet - Create one first</option>';
+        return;
+    }
+    
+    // Add all groups to dropdown
+    for (const [groupId, group] of Object.entries(testimonialData.testimonialGroups)) {
+        const option = document.createElement('option');
+        option.value = groupId;
+        option.textContent = `${group.icon || '📁'} ${group.name}`;
+        
+        // Select if this is the current group
+        if (groupId === currentSelectedGroupId) {
+            option.selected = true;
+        }
+        
+        dropdown.appendChild(option);
+    }
+}
+
 // ===================================================
 // UI UPDATES
 // ===================================================
 function loadAndDisplayData() {
     updateGroupsDisplay();
+    updateGroupDropdown(); // NEW LINE - Initialize dropdown
     updateStatisticsDisplay();
 }
 
@@ -298,18 +335,21 @@ function updateGroupsDisplay() {
 }
 
 function selectGroup(groupId) {
-    if (!testimonialData.testimonialGroups[groupId]) return;
+    if (!testimonialData.testimonialGroups[groupId]) {
+        showError('Group not found');
+        return;
+    }
     
     currentSelectedGroupId = groupId;
     const group = testimonialData.testimonialGroups[groupId];
     
-    // Update UI
+    // Update ALL UI components
     updateGroupsDisplay();
     updateCurrentGroupDisplay(group);
-    displayGroupTestimonials(group);
+    updateGroupDropdown(); // NEW LINE - Update dropdown selection
     
     console.log('Selected group:', group.name);
-    showSuccess(`📂 Loaded: ${group.name}`);
+    showSuccess(`📂 Selected: ${group.name}`);
 }
 
 function updateCurrentGroupDisplay(group) {
@@ -335,8 +375,12 @@ function displayGroupTestimonials(group) {
 // TESTIMONIAL MANAGEMENT
 // ===================================================
 function addVideoTestimonial() {
-    if (!currentSelectedGroupId) {
-        showError('Please select a group first');
+    // Use dropdown value instead of currentSelectedGroupId
+    const dropdown = document.getElementById('selectGroupDropdown');
+    const groupId = dropdown ? dropdown.value : currentSelectedGroupId;
+    
+    if (!groupId) {
+        showError('Please select a group from the dropdown first');
         return;
     }
     
@@ -363,9 +407,12 @@ function addVideoTestimonial() {
         return;
     }
     
-    // Get current group
-    const group = testimonialData.testimonialGroups[currentSelectedGroupId];
-    if (!group) return;
+    // Get selected group
+    const group = testimonialData.testimonialGroups[groupId];
+    if (!group) {
+        showError('Selected group not found');
+        return;
+    }
     
     // Create testimonial object
     const testimonial = {
@@ -389,7 +436,7 @@ function addVideoTestimonial() {
     // Save to localStorage
     saveToLocalStorage();
     
-    // Update UI
+    // Update ALL UI components
     updateGroupsDisplay();
     updateCodeOutput();
     
@@ -403,11 +450,20 @@ function addVideoTestimonial() {
     const videoPreview = document.getElementById('videoPreview');
     if (videoPreview) videoPreview.style.display = 'none';
     
-    showSuccess('✅ Video testimonial added!');
-    console.log('Added testimonial:', testimonial);
+    showSuccess(`✅ Video testimonial added to "${group.name}"!`);
+    console.log('Added testimonial to group:', group.name, testimonial);
 }
 
 function addTextTestimonial() {
+// Use dropdown value instead of currentSelectedGroupId
+    const dropdown = document.getElementById('selectGroupDropdown');
+    const groupId = dropdown ? dropdown.value : currentSelectedGroupId;
+    
+    if (!groupId) {
+        showError('Please select a group from the dropdown first');
+        return;
+    }
+
     if (!currentSelectedGroupId) {
         showError('Please select a group first');
         return;
@@ -754,9 +810,57 @@ function copyCode() {
 
 function downloadJSFile() {
     updateCodeOutput();
-    const code = document.getElementById('codeOutput').textContent;
+    let code = document.getElementById('codeOutput').textContent;
     
-    const blob = new Blob([code], { type: 'application/javascript' });
+    // Add player integration functions to the downloaded file
+    const playerIntegrationCode = `
+
+// ===================================================
+// PLAYER INTEGRATION FUNCTIONS (ADDED BY MANAGER)
+// ===================================================
+
+// Get testimonials for a specific concern
+window.testimonialData.getConcernTestimonials = function(concernKey) {
+    const results = [];
+    
+    if (!this.testimonialGroups) return results;
+    
+    for (const [groupId, group] of Object.entries(this.testimonialGroups)) {
+        if (group.concerns && group.concerns.includes(concernKey)) {
+            if (group.testimonials) {
+                results.push(...group.testimonials.map(t => ({
+                    ...t,
+                    groupName: group.name,
+                    groupIcon: group.icon
+                })));
+            }
+        }
+    }
+    
+    return results;
+};
+
+// Get all available concerns for button display
+window.testimonialData.getAvailableConcerns = function() {
+    const concerns = [];
+    for (const [key, data] of Object.entries(this.concerns)) {
+        concerns.push({
+            key: key,
+            title: data.buttonText || data.title,
+            icon: data.icon,
+            videoType: data.videoType
+        });
+    }
+    return concerns;
+};
+
+console.log('🎬 Testimonial Player Integration Ready');
+console.log('💰 Available concerns:', window.testimonialData.getAvailableConcerns().length);
+`;
+    
+    const fullCode = code + playerIntegrationCode;
+    
+    const blob = new Blob([fullCode], { type: 'application/javascript' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -766,7 +870,7 @@ function downloadJSFile() {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
     
-    showSuccess('✅ JS file downloaded!');
+    showSuccess('✅ JS file downloaded with player integration!');
 }
 
 function loadSampleData() {
@@ -811,6 +915,7 @@ function showWarning(message) {
 // ===================================================
 // EXPORT FUNCTIONS TO WINDOW OBJECT
 // ===================================================
+window.updateGroupDropdown = updateGroupDropdown; // ADD THIS LINE
 window.selectGroup = selectGroup;
 window.showAddTestimonialGroupModal = showAddTestimonialGroupModal;
 window.hideAddTestimonialGroupModal = hideAddTestimonialGroupModal;
