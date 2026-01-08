@@ -237,88 +237,133 @@
     <!-- =========================================== -->
     
     <!-- ADD TESTIMONIAL GROUP MODAL -->
-    <div id="addTestimonialGroupModal" class="modal">
-        <div class="modal-backdrop" onclick="hideAddTestimonialGroupModal()"></div>
-        <div class="modal-dialog">
-            <div class="modal-header">
-                <h2 class="modal-title">
-                    <span class="modal-icon">➕</span>
-                    Add Testimonial Group
-                </h2>
-                <button class="modal-close" onclick="hideAddTestimonialGroupModal()">×</button>
+<div id="addTestimonialGroupModal" class="modal">
+    <div class="modal-backdrop" onclick="hideAddTestimonialGroupModal()"></div>
+    <div class="modal-dialog">
+        <div class="modal-header">
+            <h2 class="modal-title">
+                <span class="modal-icon">➕</span>
+                Add Testimonial Group
+            </h2>
+            <button class="modal-close" onclick="hideAddTestimonialGroupModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label for="newGroupName" class="form-label">Group Name</label>
+                <input type="text" id="newGroupName" class="form-control" 
+                       placeholder="Enter group name (e.g., Price Concerns)">
             </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label for="newGroupName" class="form-label">Group Name</label>
-                    <input type="text" id="newGroupName" class="form-control" 
-                           placeholder="Enter group name (e.g., Price Concerns)">
+            
+            <div class="form-group">
+                <label for="newGroupSlug" class="form-label">Group Slug</label>
+                <input type="text" id="newGroupSlug" class="form-control" 
+                       placeholder="price-concerns (URL-friendly, lowercase)">
+                <small class="form-help">Use lowercase with hyphens, no spaces</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="newGroupIcon" class="form-label">Icon Emoji</label>
+                <input type="text" id="newGroupIcon" class="form-control" 
+                       placeholder="💰" value="📁">
+            </div>
+            
+            <div class="form-group">
+                <label for="newGroupDescription" class="form-label">Description (Optional)</label>
+                <textarea id="newGroupDescription" class="form-control" rows="3"
+                          placeholder="Describe this testimonial group..."></textarea>
+            </div>
+            
+            <!-- CONCERNS SELECTION -->
+            <div class="form-group">
+                <label class="form-label">Select Trigger Phrases</label>
+                <div id="concernsCheckboxContainer" class="concerns-checkbox-container">
+                    <!-- Checkboxes will be populated by JavaScript -->
+                    <div class="concern-checkbox-item">
+                        <input type="checkbox" id="concern_price" class="concern-checkbox" value="price">
+                        <label for="concern_price" class="concern-checkbox-label">
+                            💰 See What Others Say About Value
+                        </label>
+                    </div>
+                    <div class="concern-checkbox-item">
+                        <input type="checkbox" id="concern_time" class="concern-checkbox" value="time">
+                        <label for="concern_time" class="concern-checkbox-label">
+                            ⏰ Hear From Busy Professionals
+                        </label>
+                    </div>
+                    <div class="concern-checkbox-item">
+                        <input type="checkbox" id="concern_trust" class="concern-checkbox" value="trust">
+                        <label for="concern_trust" class="concern-checkbox-label">
+                            🤝 Real Client Experiences
+                        </label>
+                    </div>
+                    <div class="concern-checkbox-item">
+                        <input type="checkbox" id="concern_general" class="concern-checkbox" value="general">
+                        <label for="concern_general" class="concern-checkbox-label">
+                            ⭐ What Our Clients Say
+                        </label>
+                    </div>
+                    <div class="concern-checkbox-item">
+                        <input type="checkbox" id="concern_results" class="concern-checkbox" value="results">
+                        <label for="concern_results" class="concern-checkbox-label">
+                            📈 See The Results Others Got
+                        </label>
+                    </div>
                 </div>
-                
-                <div class="form-group">
-                    <label for="newGroupIcon" class="form-label">Icon Emoji</label>
-                    <input type="text" id="newGroupIcon" class="form-control" 
-                           placeholder="💰" value="📁">
-                </div>
-                
-                <div class="form-group">
-                    <label for="newGroupDescription" class="form-label">Description (Optional)</label>
-                    <textarea id="newGroupDescription" class="form-control" rows="3"
-                              placeholder="Describe this testimonial group..."></textarea>
-                </div>
-                
-                <div class="modal-actions">
-                    <button class="btn btn-secondary" onclick="hideAddTestimonialGroupModal()">
-                        Cancel
-                    </button>
-                    <button class="btn btn-primary" onclick="createTestimonialGroup()">
-                        Create Group
-                    </button>
-                </div>
+            </div>
+            
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="hideAddTestimonialGroupModal()">
+                    Cancel
+                </button>
+                <button class="btn btn-primary" onclick="createTestimonialGroup()">
+                    Create Testimonial Group
+                </button>
             </div>
         </div>
     </div>
-    
-    <!-- VIEW ALL TESTIMONIALS MODAL -->
-    <div id="allTestimonialsModal" class="modal">
-        <div class="modal-backdrop" onclick="hideAllTestimonialsModal()"></div>
-        <div class="modal-dialog large-modal">
-            <div class="modal-header">
-                <h2 class="modal-title">
-                    <span class="modal-icon">👁️</span>
-                    All Testimonials
-                    <span id="totalTestimonialsCount" class="badge">0</span>
-                </h2>
-                <button class="modal-close" onclick="hideAllTestimonialsModal()">×</button>
-            </div>
-            <div class="modal-body">
-                <!-- Filters and testimonials grid will be populated by JavaScript -->
-                <div id="allTestimonialsContent" class="testimonials-grid-container">
-                    <!-- Content loaded dynamically -->
-                </div>
+</div>
+
+<!-- VIEW ALL TESTIMONIALS MODAL -->
+<div id="allTestimonialsModal" class="modal">
+    <div class="modal-backdrop" onclick="hideAllTestimonialsModal()"></div>
+    <div class="modal-dialog large-modal">
+        <div class="modal-header">
+            <h2 class="modal-title">
+                <span class="modal-icon">👁️</span>
+                All Testimonials
+                <span id="totalTestimonialsCount" class="badge">0</span>
+            </h2>
+            <button class="modal-close" onclick="hideAllTestimonialsModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <!-- Testimonials grid will be populated by JavaScript -->
+            <div id="allTestimonialsContent" class="testimonials-grid-container">
+                <!-- Content loaded dynamically -->
             </div>
         </div>
     </div>
-    
-    <!-- VIDEO PLAYER MODAL -->
-    <div id="videoPlayerModal" class="modal">
-        <div class="modal-backdrop" onclick="hideVideoPlayerModal()"></div>
-        <div class="modal-dialog video-modal">
-            <div class="modal-header">
-                <h2 class="modal-title" id="videoPlayerTitle">Video Testimonial</h2>
-                <button class="modal-close" onclick="hideVideoPlayerModal()">×</button>
+</div>
+
+<!-- VIDEO PLAYER MODAL -->
+<div id="videoPlayerModal" class="modal">
+    <div class="modal-backdrop" onclick="hideVideoPlayerModal()"></div>
+    <div class="modal-dialog video-modal">
+        <div class="modal-header">
+            <h2 class="modal-title" id="videoPlayerTitle">Video Testimonial</h2>
+            <button class="modal-close" onclick="hideVideoPlayerModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="video-player-container">
+                <video id="testimonialVideoPlayer" controls class="full-video-player">
+                    Your browser does not support the video tag.
+                </video>
             </div>
-            <div class="modal-body">
-                <div class="video-player-container">
-                    <video id="testimonialVideoPlayer" controls class="full-video-player">
-                        Your browser does not support the video tag.
-                    </video>
-                </div>
-                <div class="video-info" id="videoPlayerInfo">
-                    <!-- Video info loaded dynamically -->
-                </div>
+            <div class="video-info" id="videoPlayerInfo">
+                <!-- Video info loaded dynamically -->
             </div>
         </div>
     </div>
+</div>
     
     <!-- =========================================== -->
     <!-- STATUS MESSAGES -->
