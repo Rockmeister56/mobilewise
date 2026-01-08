@@ -382,18 +382,13 @@ body::before {
     gap: var(--spacing-xl);
 }
 
-/* Current Group Banner */
-.current-group-banner {
-    background: linear-gradient(135deg, rgba(33, 150, 243, 0.15) 0%, rgba(76, 175, 80, 0.15) 100%);
+/* CURRENT GROUP DISPLAY - SIMPLE VERSION */
+.current-group-display {
+    background: rgba(33, 150, 243, 0.1);
     border-radius: var(--radius-md);
-    padding: var(--spacing-lg);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border: 1px solid var(--border-color);
-}
-
-.current-group-info {
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+    border: 1px solid rgba(33, 150, 243, 0.3);
     display: flex;
     align-items: center;
     gap: var(--spacing-sm);
@@ -402,12 +397,19 @@ body::before {
 .current-group-label {
     color: var(--text-secondary);
     font-size: 0.875rem;
+    font-weight: 500;
 }
 
 .current-group-name {
     color: var(--primary);
     font-weight: 600;
-    font-size: 1.125rem;
+    font-size: 1rem;
+    flex: 1;
+}
+
+/* Remove the old banner styles */
+.current-group-banner {
+    display: none;
 }
 
 .btn-small {
