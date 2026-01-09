@@ -356,6 +356,66 @@ function selectGroup(groupId) {
     showSuccess(`📂 Selected: ${group.name}`);
 }
 
+function showTestimonialOverlay(groupId) {
+    const group = testimonialData.testimonialGroups[groupId];
+    if (!group) return;
+    
+    // 1. Update overlay header
+    document.getElementById('overlayGroupName').textContent = group.name;
+    document.getElementById('overlayGroupDescription').textContent = 
+        group.description || 'Click a testimonial to play';
+    
+    // 2. Load testimonials grid
+    const container = document.getElementById('overlayTestimonialsGrid');
+    
+    if (!group.testimonials || group.testimonials.length === 0) {
+        // 3. Show empty state
+        container.innerHTML = `
+            <div class="no-testimonials-message">
+                <div class="no-testimonials-icon">🎬</div>
+                <h3>No testimonials yet</h3>
+                <p>Add testimonials to this group to see them here</p>
+            </div>
+        `;
+    } else {
+        // 4. Create all testimonial cards
+        container.innerHTML = group.testimonials.map(testimonial => `
+            <div class="testimonial-selection-card" onclick="playTestimonialVideo('${testimonial.id}')">
+                <div class="testimonial-card-header">
+                    <span class="testimonial-card-icon">
+                        ${testimonial.concernType === 'price' ? '💰' : 
+                          testimonial.concernType === 'time' ? '⏰' :
+                          testimonial.concernType === 'trust' ? '🤝' :
+                          testimonial.concernType === 'results' ? '📈' : '⭐'}
+                    </span>
+                    <span class="testimonial-card-concern">
+                        ${testimonial.concernType === 'price' ? 'Price Concern' :
+                          testimonial.concernType === 'time' ? 'Time/Speed' :
+                          testimonial.concernType === 'trust' ? 'Trust/Reliability' :
+                          testimonial.concernType === 'results' ? 'Results' : 'General Feedback'}
+                    </span>
+                </div>
+                <h4 class="testimonial-card-title">${testimonial.title || 'Untitled Testimonial'}</h4>
+                <p class="testimonial-card-author">👤 ${testimonial.author || 'Anonymous'}</p>
+                ${testimonial.text ? `
+                    <p class="testimonial-card-excerpt">
+                        ${testimonial.text.substring(0, 100)}${testimonial.text.length > 100 ? '...' : ''}
+                    </p>
+                ` : ''}
+                <div class="testimonial-card-footer">
+                    <button class="btn-play-testimonial">
+                        ▶️ Play Video
+                    </button>
+                    <span class="testimonial-views">👁️ ${testimonial.views || 0} views</span>
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    // 5. Show overlay
+    document.getElementById('testimonialOverlay').style.display = 'flex';
+}
+
 function updateCurrentGroupDisplay(group) {
     const display = document.getElementById('currentGroupName');
     if (display) {

@@ -60,6 +60,44 @@
                     </div>
                 </div>
             </div>
+
+            <!-- TESTIMONIAL OVERLAY -->
+<div id="testimonialOverlay" class="testimonial-overlay" style="display: none;">
+    <div class="testimonial-container">
+        <div class="testimonial-header">
+            <button class="btn-close-overlay" onclick="hideTestimonialOverlay()">×</button>
+            <h2 id="overlayGroupName">Group Testimonials</h2>
+            <p id="overlayGroupDescription">Click a testimonial to play</p>
+        </div>
+        
+        <div id="overlayTestimonialsGrid" class="testimonial-selection-grid">
+            <!-- Testimonials will be loaded here -->
+            <!-- Example of one testimonial card:
+            <div class="testimonial-selection-card">
+                <div class="testimonial-card-header">
+                    <span class="testimonial-card-icon">💰</span>
+                    <span class="testimonial-card-concern">Price Concern</span>
+                </div>
+                <h4 class="testimonial-card-title">312% conversion increase from a form</h4>
+                <p class="testimonial-card-author">👤 Ted Johnson, Esq</p>
+                <p class="testimonial-card-excerpt">Amazing results with the AI voice chat system...</p>
+                <div class="testimonial-card-footer">
+                    <button class="btn-play-testimonial">
+                        ▶️ Play Video
+                    </button>
+                    <span class="testimonial-views">👁️ 5 views</span>
+                </div>
+            </div>
+            -->
+        </div>
+        
+        <div class="testimonial-footer">
+            <button class="btn-skip-testimonials" onclick="hideTestimonialOverlay()">
+                Skip Testimonials
+            </button>
+        </div>
+    </div>
+</div>
             
             <!-- ACTION BUTTONS -->
             <div class="sidebar-section action-buttons-section">
