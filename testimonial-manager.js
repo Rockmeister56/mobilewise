@@ -416,6 +416,14 @@ function showTestimonialOverlay(groupId) {
     document.getElementById('testimonialOverlay').style.display = 'flex';
 }
 
+function hideTestimonialOverlay() {
+    const overlay = document.getElementById('testimonialOverlay');
+    if (overlay) {
+        overlay.style.display = 'none';
+        console.log('✅ Hiding testimonial overlay');
+    }
+}
+
 function updateCurrentGroupDisplay(group) {
     const display = document.getElementById('currentGroupName');
     if (display) {
@@ -715,66 +723,132 @@ function createTestimonialCard(testimonial) {
 }
 
 function playTestimonialVideo(testimonialId) {
-    // Find testimonial in current group
-    if (!currentSelectedGroupId) return;
+    console.log('🎬 Attempting to play testimonial:', testimonialId);
     
-    const group = testimonialData.testimonialGroups[currentSelectedGroupId];
-    if (!group || !group.testimonials) return;
+    // Search for testimonial in ALL groups (since overlay might show testimonials from any group)
+    let foundTestimonial = null;
+    let foundGroup = null;
     
-    const testimonial = group.testimonials.find(t => t.id === testimonialId);
-    if (!testimonial || !testimonial.videoUrl) return;
+    // First, check current selected group
+    if (currentSelectedGroupId && testimonialData.testimonialGroups[currentSelectedGroupId]) {
+        const group = testimonialData.testimonialGroups[currentSelectedGroupId];
+        if (group.testimonials) {
+            foundTestimonial = group.testimonials.find(t => t.id === testimonialId);
+            if (foundTestimonial) foundGroup = group;
+        }
+    }
+    
+    // If not found, search all groups
+    if (!foundTestimonial) {
+        for (const [groupId, group] of Object.entries(testimonialData.testimonialGroups)) {
+            if (group.testimonials) {
+                const testimonial = group.testimonials.find(t => t.id === testimonialId);
+                if (testimonial) {
+                    foundTestimonial = testimonial;
+                    foundGroup = group;
+                    break;
+                }
+            }
+        }
+    }
+    
+    if (!foundTestimonial) {
+        console.error('❌ Testimonial not found:', testimonialId);
+        showError('Testimonial not found');
+        return;
+    }
+    
+    if (!foundTestimonial.videoUrl) {
+        console.error('❌ No video URL for testimonial:', testimonialId);
+        showError('No video available for this testimonial');
+        return;
+    }
+    
+    console.log('✅ Found testimonial:', foundTestimonial.title);
+    console.log('✅ Video URL:', foundTestimonial.videoUrl);
     
     // Increment view count
-    testimonial.views = (testimonial.views || 0) + 1;
-    group.viewCount = (group.viewCount || 0) + 1;
+    foundTestimonial.views = (foundTestimonial.views || 0) + 1;
+    if (foundGroup) {
+        foundGroup.viewCount = (foundGroup.viewCount || 0) + 1;
+    }
     
     // Update statistics
     updateStatistics();
     saveToLocalStorage();
     
-    // Show video player
+    // Get video player elements
     const videoPlayer = document.getElementById('testimonialVideoPlayer');
     const videoTitle = document.getElementById('videoPlayerTitle');
     const videoInfo = document.getElementById('videoPlayerInfo');
     
-    if (videoPlayer) {
-        videoPlayer.src = testimonial.videoUrl;
-        videoPlayer.load();
+    if (!videoPlayer) {
+        console.error('❌ Video player element not found!');
+        showError('Video player not available');
+        return;
     }
     
+    // Set video source
+    videoPlayer.src = foundTestimonial.videoUrl;
+    videoPlayer.load();
+    
+    // Update video info
     if (videoTitle) {
-        videoTitle.textContent = testimonial.title || 'Video Testimonial';
+        videoTitle.textContent = foundTestimonial.title || 'Video Testimonial';
     }
     
     if (videoInfo) {
         videoInfo.innerHTML = `
             <div class="video-info-item">
-                <strong>Author:</strong> ${testimonial.author || 'Unknown'}
+                <strong>Author:</strong> ${foundTestimonial.author || 'Unknown'}
             </div>
             <div class="video-info-item">
-                <strong>Concern:</strong> ${testimonial.concernType || 'General'}
+                <strong>Concern:</strong> ${foundTestimonial.concernType || 'General'}
             </div>
-            ${testimonial.text ? `
+            ${foundTestimonial.text ? `
             <div class="video-info-item">
-                <strong>Testimonial:</strong> ${testimonial.text}
+                <strong>Testimonial:</strong> ${foundTestimonial.text}
+            </div>` : ''}
+            ${foundGroup ? `
+            <div class="video-info-item">
+                <strong>Group:</strong> ${foundGroup.name}
             </div>` : ''}
         `;
     }
     
-    document.getElementById('videoPlayerModal').style.display = 'flex';
+    // Hide overlay if it's open
+    const overlay = document.getElementById('testimonialOverlay');
+    if (overlay && overlay.style.display === 'flex') {
+        hideTestimonialOverlay();
+    }
+    
+    // Show video modal
+    const videoModal = document.getElementById('videoPlayerModal');
+    if (videoModal) {
+        videoModal.style.display = 'flex';
+        
+        // Auto-play when modal is shown (optional)
+        setTimeout(() => {
+            videoPlayer.play().catch(e => {
+                console.log('Note: Autoplay prevented by browser. User must click play.');
+            });
+        }, 500);
+    }
+    
+    console.log('✅ Video player launched');
 }
 
-function hideAllTestimonialsModal() {
-    document.getElementById('allTestimonialsModal').style.display = 'none';
-}
-
+// Also add a helper function to close video player
 function hideVideoPlayerModal() {
     const videoPlayer = document.getElementById('testimonialVideoPlayer');
     if (videoPlayer) {
         videoPlayer.pause();
         videoPlayer.src = '';
     }
-    document.getElementById('videoPlayerModal').style.display = 'none';
+    const videoModal = document.getElementById('videoPlayerModal');
+    if (videoModal) {
+        videoModal.style.display = 'none';
+    }
 }
 
 // ===================================================
@@ -1022,6 +1096,8 @@ function showWarning(message) {
 // ===================================================
 // EXPORT FUNCTIONS TO WINDOW OBJECT
 // ===================================================
+window.showTestimonialOverlay = showTestimonialOverlay;
+window.hideTestimonialOverlay = hideTestimonialOverlay; // ADD THIS LINE
 window.updateGroupDropdown = updateGroupDropdown; // ADD THIS LINE
 window.selectGroup = selectGroup;
 window.showAddTestimonialGroupModal = showAddTestimonialGroupModal;
