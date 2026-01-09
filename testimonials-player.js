@@ -4,17 +4,23 @@
 
 window.avatarCurrentlyPlaying = false;
 
+// FALLBACK VIDEO URLs (in case your data has empty URLs)
+const FALLBACK_VIDEO_URLS = {
+    skeptical: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982717330.mp4',
+    speed: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982877040.mp4',
+    convinced: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1763530566773.mp4',
+    excited: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1763531028258.mp4'
+};
+
 // ================================
-// 🎬 UPDATED: DYNAMIC SPLASH SCREEN FOR YOUR ACTUAL DATA STRUCTURE
+// 🎬 DYNAMIC SPLASH SCREEN - WITH FALLBACK SUPPORT
 // ================================
 function showTestimonialSplashScreen() {
     console.log('🎬 TESTIMONIAL SPLASH: Loading complete system');
 
-    // 🛡️ SET PROTECTION FLAG - BLOCK SPEAK NOW
     window.testimonialSessionActive = true;
-    console.log('🛡️ Testimonial protection activated - Speak Now blocked');
+    console.log('🛡️ Testimonial protection activated');
     
-    // Stop any current listening first
     if (window.stopListening && typeof window.stopListening === 'function') {
         window.stopListening();
     }
@@ -23,13 +29,13 @@ function showTestimonialSplashScreen() {
     splashScreen.id = 'testimonial-splash-screen';
     splashScreen.style.animation = 'fadeInSplash 0.5s ease-in';
     
-    // Try to get testimonials from your actual structure
-    const testimonials = extractTestimonialsFromYourData();
+    // Get testimonials from your data
+    const testimonials = extractTestimonials();
     
     if (testimonials.length > 0) {
         createDynamicSplashScreen(splashScreen, testimonials);
     } else {
-        console.error('❌ No testimonials found! Using fallback buttons.');
+        console.log('🔄 Using fallback buttons (no testimonials found)');
         createFallbackSplashScreen(splashScreen);
     }
     
@@ -42,9 +48,9 @@ function showTestimonialSplashScreen() {
     }
 }
 
-// EXTRACT TESTIMONIALS FROM YOUR ACTUAL DATA STRUCTURE
-function extractTestimonialsFromYourData() {
-    console.log('🔍 Extracting testimonials from your data structure...');
+// SIMPLIFIED EXTRACTION FUNCTION
+function extractTestimonials() {
+    console.log('🔍 Extracting testimonials...');
     
     if (!window.testimonialData) {
         console.log('❌ No testimonialData found');
@@ -54,75 +60,37 @@ function extractTestimonialsFromYourData() {
     const data = window.testimonialData;
     let testimonials = [];
     
-    // YOUR STRUCTURE: data.testimonialGroups contains the groups
-    if (data.testimonialGroups && typeof data.testimonialGroups === 'object') {
-        console.log('📊 Found testimonialData.testimonialGroups');
-        
+    // Try to get testimonials from testimonialGroups
+    if (data.testimonialGroups) {
         Object.keys(data.testimonialGroups).forEach(groupKey => {
             const group = data.testimonialGroups[groupKey];
-            console.log(`📦 Group ${groupKey}:`, group);
             
-            // Check if group has testimonials
             if (group.testimonials && Array.isArray(group.testimonials)) {
-                console.log(`   Found ${group.testimonials.length} testimonials in group`);
-                
                 group.testimonials.forEach((testimonial, index) => {
                     testimonials.push({
                         id: `${groupKey}_${index}`,
-                        name: testimonial.name || group.name || groupKey,
+                        name: testimonial.name || group.name || 'Client Story',
                         emoji: testimonial.emoji || getEmojiForGroup(groupKey),
                         group: groupKey,
                         index: index,
                         data: testimonial
                     });
                 });
-            } else {
-                console.log(`   No testimonials array found in group ${groupKey}`);
             }
         });
     }
     
-    // If no testimonials found in groups, try using the concerns
-    if (testimonials.length === 0 && data.concerns) {
-        console.log('📊 Trying concerns structure...');
-        Object.keys(data.concerns).forEach(concernKey => {
-            const concern = data.concerns[concernKey];
-            console.log(`   Concern: ${concernKey}`, concern);
-            
-            // You might need to call getConcernTestimonials function
-            if (typeof data.getConcernTestimonials === 'function') {
-                console.log(`   Getting testimonials for concern: ${concernKey}`);
-                const concernTestimonials = data.getConcernTestimonials(concernKey);
-                if (concernTestimonials && Array.isArray(concernTestimonials)) {
-                    concernTestimonials.forEach((testimonial, index) => {
-                        testimonials.push({
-                            id: `${concernKey}_${index}`,
-                            name: testimonial.name || concern.name || concernKey,
-                            emoji: testimonial.emoji || getEmojiForGroup(concernKey),
-                            group: concernKey,
-                            index: index,
-                            data: testimonial
-                        });
-                    });
-                }
-            }
-        });
-    }
-    
-    console.log(`✅ Extracted ${testimonials.length} testimonials`);
+    console.log(`✅ Found ${testimonials.length} testimonials`);
     return testimonials;
 }
 
-// CREATE DYNAMIC SPLASH SCREEN (SAME AS BEFORE BUT FIXED)
+// SIMPLIFIED DYNAMIC SPLASH CREATION
 function createDynamicSplashScreen(splashScreen, testimonials) {
     console.log('🔄 Creating dynamic buttons from', testimonials.length, 'testimonials');
     
-    // Create buttons HTML dynamically
-    let buttonsHTML = '';
-    let buttonCount = 0;
-    
-    // Take up to 4 testimonials
+    // Take max 4 testimonials
     const displayTestimonials = testimonials.slice(0, 4);
+    let buttonsHTML = '';
     
     displayTestimonials.forEach(testimonial => {
         const videoKey = getVideoKeyForTestimonial(testimonial.group, testimonial.index);
@@ -140,16 +108,10 @@ function createDynamicSplashScreen(splashScreen, testimonials) {
                 <span style="flex: 1;">${testimonial.name}</span>
             </button>
         `;
-        
-        // Store mapping for video playback
-        if (!window.testimonialVideoMap) window.testimonialVideoMap = {};
-        window.testimonialVideoMap[videoKey] = testimonial;
-        
-        buttonCount++;
     });
     
-    // Determine grid layout (2x2 or 1x4)
-    const gridColumns = buttonCount <= 2 ? '1fr' : '1fr 1fr';
+    // Grid layout
+    const gridColumns = displayTestimonials.length <= 2 ? '1fr' : '1fr 1fr';
     
     splashScreen.innerHTML = `
     <div style="
@@ -180,12 +142,12 @@ function createDynamicSplashScreen(splashScreen, testimonials) {
         </div>
     </div>
 
-    <!-- DYNAMIC TESTIMONIAL BUTTONS GRID -->
+    <!-- BUTTONS GRID -->
     <div style="display: grid; grid-template-columns: ${gridColumns}; gap: 12px; margin-bottom: 15px;">
         ${buttonsHTML}
     </div>
 
-    <!-- Skip Button -->
+    <!-- SKIP BUTTON -->
     <button onclick="handleTestimonialSkip()" style="
         display: flex; align-items: center; gap: 10px;
         background: rgba(0, 0, 0, 0.6); color: rgba(255, 255, 255, 0.8);
@@ -199,25 +161,108 @@ function createDynamicSplashScreen(splashScreen, testimonials) {
     </div>
     `;
     
-    console.log(`✅ Created ${buttonCount} dynamic testimonial buttons`);
+    console.log(`✅ Created ${displayTestimonials.length} testimonial buttons`);
 }
 
-// GET EMOJI BASED ON GROUP/CONCERN KEY
-function getEmojiForGroup(groupKey) {
-    const emojiMap = {
-        price: '💰',
-        time: '⏰',
-        trust: '🤝',
-        results: '📈',
-        general: '🎯',
-        conversion: '🚀',
-        web: '🌐',
-        form: '📝',
-        alternative: '🔄',
-        default: '🎬'
-    };
+// FALLBACK SPLASH (original 4 buttons)
+function createFallbackSplashScreen(splashScreen) {
+    splashScreen.innerHTML = `
+    <div style="
+        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.9)),
+                    url('https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1762038349654_action-bg.jpg');
+        background-size: cover;
+        background-position: center;
+        background-blend-mode: overlay;
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 30px 25px;
+        margin: 20px 0;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        color: white;
+        font-family: 'Segoe UI', system-ui, sans-serif;
+        max-width: 750px;
+    ">
     
-    // Check for keywords in the group key
+    <!-- HEADER -->
+    <div style="display: flex; align-items: center; margin-bottom: 5px; gap: 15px; margin-top: 5px;">
+        <video autoplay loop muted playsinline style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255, 255, 255, 0.2); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);">
+            <source src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1764614255102.mp4" type="video/mp4">
+        </video>
+        <div>
+            <h3 style="margin: 0 0 5px 0; font-size: 22px; font-weight: 600; color: white;">Client Testimonials</h3>
+            <p style="margin: 0; opacity: 0.8; font-size: 13px; font-weight: 300; letter-spacing: 0.5px;">Real stories from satisfied clients</p>
+        </div>
+    </div>
+
+    <!-- FALLBACK BUTTONS -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px;">
+        <button onclick="handleTestimonialButton('skeptical')" style="
+            display: flex; align-items: center; gap: 12px;
+            background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white; padding: 18px 15px; border-radius: 10px; cursor: pointer;
+            font-weight: 600; font-size: 17px; text-align: left; transition: all 0.3s ease;
+            backdrop-filter: blur(10px); width: 100%; height: 84px;
+        " onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.borderColor='rgba(255, 255, 255, 0.3)'; this.style.transform='translateY(-2px)';" 
+        onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.borderColor='rgba(255, 255, 255, 0.2)'; this.style.transform='translateY(0)';">
+            <div style="font-size: 28px;">🤔</div>
+            <span style="flex: 1;">Skeptical Client</span>
+        </button>
+        
+        <button onclick="handleTestimonialButton('speed')" style="
+            display: flex; align-items: center; gap: 12px;
+            background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white; padding: 18px 15px; border-radius: 10px; cursor: pointer;
+            font-weight: 600; font-size: 17px; text-align: left; transition: all 0.3s ease;
+            backdrop-filter: blur(10px); width: 100%; height: 84px;
+        " onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.borderColor='rgba(255, 255, 255, 0.3)'; this.style.transform='translateY(-2px)';" 
+        onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.borderColor='rgba(255, 255, 255, 0.2)'; this.style.transform='translateY(0)';">
+            <div style="font-size: 28px;">⚡</div>
+            <span style="flex: 1;">Speed Results</span>
+        </button>
+        
+        <button onclick="handleTestimonialButton('convinced')" style="
+            display: flex; align-items: center; gap: 12px;
+            background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white; padding: 18px 15px; border-radius: 10px; cursor: pointer;
+            font-weight: 600; font-size: 17px; text-align: left; transition: all 0.3s ease;
+            backdrop-filter: blur(10px); width: 100%; height: 84px;
+        " onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.borderColor='rgba(255, 255, 255, 0.3)'; this.style.transform='translateY(-2px)';" 
+        onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.borderColor='rgba(255, 255, 255, 0.2)'; this.style.transform='translateY(0)';">
+            <div style="font-size: 28px;">😊</div>
+            <span style="flex: 1;">Convinced Client</span>
+        </button>
+        
+        <button onclick="handleTestimonialButton('excited')" style="
+            display: flex; align-items: center; gap: 12px;
+            background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white; padding: 18px 15px; border-radius: 10px; cursor: pointer;
+            font-weight: 600; font-size: 17px; text-align: left; transition: all 0.3s ease;
+            backdrop-filter: blur(10px); width: 100%; height: 84px;
+        " onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.borderColor='rgba(255, 255, 255, 0.3)'; this.style.transform='translateY(-2px)';" 
+        onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.borderColor='rgba(255, 255, 255, 0.2)'; this.style.transform='translateY(0)';">
+            <div style="font-size: 28px;">🎉</div>
+            <span style="flex: 1;">Excited Results</span>
+        </button>
+    </div>
+
+    <!-- SKIP BUTTON -->
+    <button onclick="handleTestimonialSkip()" style="
+        display: flex; align-items: center; gap: 10px;
+        background: rgba(0, 0, 0, 0.6); color: rgba(255, 255, 255, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.2); padding: 15px 20px;
+        border-radius: 10px; cursor: pointer; font-size: 16px; font-weight: 500;
+        transition: all 0.3s ease; width: 100%; justify-content: center; margin-top: 5px;
+    " onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.color='white';" 
+    onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.color='rgba(255, 255, 255, 0.8)';">
+        <span>⏭️ Skip Testimonials</span>
+    </button>
+    </div>
+    `;
+}
+
+// SIMPLE EMOJI HELPER
+function getEmojiForGroup(groupKey) {
     const key = groupKey.toLowerCase();
     if (key.includes('price') || key.includes('cost')) return '💰';
     if (key.includes('time') || key.includes('speed')) return '⏰';
@@ -226,119 +271,255 @@ function getEmojiForGroup(groupKey) {
     if (key.includes('conversion')) return '🚀';
     if (key.includes('web')) return '🌐';
     if (key.includes('form')) return '📝';
-    if (key.includes('alternative')) return '🔄';
-    
-    return emojiMap[groupKey] || emojiMap.default;
+    return '🎬';
 }
 
-// GET VIDEO KEY FOR TESTIMONIAL
+// SIMPLE VIDEO KEY MAPPING
 function getVideoKeyForTestimonial(groupKey, index) {
-    // Map testimonial to available videos
-    const videoMap = {
-        'price_0': 'skeptical',
-        'price_1': 'speed',
-        'time_0': 'speed',
-        'time_1': 'excited',
-        'trust_0': 'skeptical',
-        'trust_1': 'convinced',
-        'results_0': 'convinced',
-        'results_1': 'excited',
-        'general_0': 'skeptical',
-        'general_1': 'convinced',
-        // Your specific groups
-        'group_conversion_boost_1767901787532_0': 'skeptical',
-        'group_conversion_boost_1767901787532_1': 'convinced',
-        'group_web_form_aternative_1767919446882_0': 'speed',
-        'group_web_form_aternative_1767919446882_1': 'excited'
-    };
-    
-    const key = `${groupKey}_${index}`;
-    return videoMap[key] || 'skeptical'; // Default to skeptical video
+    // Simple rotation through 4 video types
+    const videos = ['skeptical', 'speed', 'convinced', 'excited'];
+    const videoIndex = (groupKey.length + index) % 4;
+    return videos[videoIndex];
 }
 
-// ================================
-// 🎬 CONTINUE WITH THE REST OF YOUR FILE...
-// ================================
-// [KEEP ALL YOUR EXISTING FUNCTIONS BELOW - closeTestimonialVideo, showTestimonialSpinner, etc.]
-// ================================
-
-// [I'll continue with the rest of your file, keeping all existing functionality]
-
-function closeTestimonialVideo() {
-    console.log('🎬 Closing testimonial video - showing navigation options');
-
-    // 🛑 CRITICAL: Reset playing flags
-    window.avatarCurrentlyPlaying = false;
-    if (window.testimonialVideoActive !== undefined) {
-        window.testimonialVideoActive = false;
+// UPDATED PLAY FUNCTION WITH FALLBACK SUPPORT
+function playTestimonialVideo(videoKey) {
+    console.log(`🎬 Playing ${videoKey} testimonial`);
+    
+    // Get video URL - first try your data, then fallback
+    let videoUrl = '';
+    
+    if (window.testimonialData && 
+        window.testimonialData.videoUrls && 
+        window.testimonialData.videoUrls[videoKey]) {
+        
+        videoUrl = window.testimonialData.videoUrls[videoKey];
+        console.log('🎬 Using URL from testimonialData:', videoUrl);
     }
     
-    // 🛡️ KEEP PROTECTION ACTIVE
+    // If URL is empty, use fallback
+    if (!videoUrl || videoUrl.trim() === '') {
+        console.log('🔄 Using fallback URL');
+        videoUrl = FALLBACK_VIDEO_URLS[videoKey];
+    }
+    
+    if (!videoUrl) {
+        console.error('❌ No video URL found for:', videoKey);
+        return;
+    }
+    
+    console.log('✅ Final video URL:', videoUrl);
+    
+    // 🚨 IMPORTANT: Now call your ORIGINAL playTestimonialVideo function
+    // But pass it the correct video URL
+    window.avatarCurrentlyPlaying = true;
+    
+    // You'll need to update your original function to accept a URL parameter
+    // OR we can create a wrapper
+    playVideoWithUrl(videoKey, videoUrl);
+}
+
+// NEW FUNCTION TO PLAY VIDEO WITH SPECIFIC URL
+function playVideoWithUrl(videoKey, videoUrl) {
+    console.log(`🎬 Playing video: ${videoKey}`, videoUrl);
+    
+    // 🌀 SHOW SPINNER
+    showTestimonialSpinner();
+    
+    // 🛡️ PROTECTION FLAGS
     window.testimonialSessionActive = true;
     window.testimonialProtectionActive = true;
     
-    // 🎯 SIMPLY REMOVE THE VIDEO PLAYER - NO NEW CREATION!
+    // Remove splash screen
+    const splashScreen = document.getElementById('testimonial-splash-screen');
+    if (splashScreen) splashScreen.remove();
+    
+    // CREATE VIDEO PLAYER (simplified version)
+    const videoOverlay = document.createElement('div');
+    videoOverlay.id = 'testimonial-video-player';
+    videoOverlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.85);
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        backdrop-filter: blur(10px);
+        animation: fadeInSplash 0.5s ease-in;
+        padding: 20px;
+    `;
+    
+    videoOverlay.innerHTML = `
+        <!-- VIDEO PLAYER SIMPLIFIED -->
+        <div style="position: relative; width: 854px; height: 480px; background: #000; border-radius: 20px; overflow: hidden;">
+            <video id="testimonialVideo" autoplay style="width: 100%; height: 100%; object-fit: contain;">
+                <source src="${videoUrl}" type="video/mp4">
+            </video>
+            <button onclick="closeTestimonialVideo()" style="
+                position: absolute;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                padding: 12px 32px;
+                background: rgba(0, 0, 0, 0.6);
+                color: white;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                border-radius: 25px;
+                font-size: 14px;
+                font-weight: 600;
+                cursor: pointer;
+                backdrop-filter: blur(10px);
+                transition: all 0.3s ease;
+                z-index: 10001;
+            " onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.borderColor='rgba(255, 255, 255, 0.3)';" 
+            onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.borderColor='rgba(255, 255, 255, 0.2)';">
+                ✕ Close & Continue
+            </button>
+        </div>
+    `;
+    
+    document.body.appendChild(videoOverlay);
+    
+    // Hide spinner and play
+    setTimeout(() => {
+        hideTestimonialSpinner();
+        const video = document.getElementById('testimonialVideo');
+        if (video) video.play();
+    }, 100);
+}
+
+// ================================
+// 🎬 MISSING FUNCTIONS THAT CAUSED THE ERROR
+// ================================
+
+// SKIP TESTIMONIALS FUNCTION
+function handleTestimonialSkip() {
+    console.log('⏭️ Skipping testimonials');
+    
+    // Remove splash screen
+    const splashScreen = document.getElementById('testimonial-splash-screen');
+    if (splashScreen) {
+        splashScreen.remove();
+        console.log('✅ Removed testimonial splash screen');
+    }
+    
+    // Reset flags
+    window.testimonialSessionActive = false;
+    window.avatarCurrentlyPlaying = false;
+    
+    // Return to voice chat
+    if (typeof returnToVoiceChat === 'function') {
+        returnToVoiceChat();
+    } else {
+        console.log('🎤 Returning to main chat interface');
+        // Add your logic to return to main chat here
+    }
+}
+
+// SPINNER FUNCTIONS
+function showTestimonialSpinner() {
+    console.log('🌀 Showing spinner');
+    
+    // Remove existing spinner
+    const existingSpinner = document.getElementById('testimonial-spinner');
+    if (existingSpinner) existingSpinner.remove();
+    
+    const spinner = document.createElement('div');
+    spinner.id = 'testimonial-spinner';
+    spinner.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.9);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+        backdrop-filter: blur(5px);
+    `;
+    
+    spinner.innerHTML = `
+        <div style="text-align: center; color: white;">
+            <div style="width: 60px; height: 60px; border: 4px solid rgba(255, 255, 255, 0.2);
+                border-radius: 50%; border-top-color: #007AFF;
+                animation: testimonial-spin 1s linear infinite; margin: 0 auto 20px;"></div>
+            <div style="font-size: 18px; font-weight: 500; opacity: 0.9;">Loading testimonial...</div>
+        </div>
+    `;
+    
+    document.body.appendChild(spinner);
+}
+
+function hideTestimonialSpinner() {
+    const spinner = document.getElementById('testimonial-spinner');
+    if (spinner) {
+        spinner.style.opacity = '0';
+        spinner.style.transition = 'opacity 0.3s ease';
+        setTimeout(() => {
+            if (spinner.parentNode) spinner.remove();
+        }, 300);
+    }
+}
+
+// CLOSE VIDEO FUNCTION
+function closeTestimonialVideo() {
+    console.log('🎬 Closing testimonial video');
+    
+    window.avatarCurrentlyPlaying = false;
+    
     const videoPlayer = document.getElementById('testimonial-video-player');
     if (videoPlayer) {
-        // Stop any playing video first
         const video = videoPlayer.querySelector('video');
         if (video) {
             video.pause();
             video.currentTime = 0;
         }
-        // Remove the player
         videoPlayer.remove();
         console.log('✅ Video player removed');
     }
     
-    // 🎯 SHOW NAVIGATION OPTIONS
-    showTestimonialNavigationOptions();
-    console.log('✅ Navigation options shown');
+    // Show navigation or return to chat
+    if (typeof showTestimonialNavigationOptions === 'function') {
+        showTestimonialNavigationOptions();
+    } else {
+        handleTestimonialSkip(); // Just skip if no navigation
+    }
 }
 
-// [CONTINUE WITH THE REST OF YOUR ORIGINAL FILE...]
+// RETURN TO VOICE CHAT (SIMPLIFIED VERSION)
+function returnToVoiceChat() {
+    console.log('🎤 Returning to voice chat');
+    
+    // Reset flags
+    window.testimonialSessionActive = false;
+    window.avatarCurrentlyPlaying = false;
+    
+    // Remove any remaining testimonial elements
+    ['testimonial-splash-screen', 'testimonial-video-player', 'testimonial-nav-options'].forEach(id => {
+        const element = document.getElementById(id);
+        if (element) element.remove();
+    });
+    
+    console.log('✅ Ready for voice chat');
+}
+
+// ================================
+// 🎬 GLOBAL EXPORTS
 // ================================
 
-// REMOVE THE DUPLICATE FUNCTION AT THE BOTTOM
-// Comment out or remove this duplicate function:
-// function emergencyStopAllSpeech() { ... } // This appears twice
-
-// KEEP YOUR ORIGINAL GLOBAL EXPORTS BUT ADD NEW FUNCTIONS:
-
-// ================================
-// GLOBAL EXPORTS - TESTIMONIAL SYSTEM
-// ================================
-
-// 1. CORE TESTIMONIAL FUNCTIONS (ADD THE NEW ONES)
-window.handleTestimonialButton = handleTestimonialButton;
 window.showTestimonialSplashScreen = showTestimonialSplashScreen;
-window.playTestimonialVideo = playTestimonialVideo; 
+window.handleTestimonialButton = playTestimonialVideo;
 window.handleTestimonialSkip = handleTestimonialSkip;
-window.hideTestimonialSplash = hideTestimonialSplash;
+window.closeTestimonialVideo = closeTestimonialVideo;
+window.returnToVoiceChat = returnToVoiceChat;
 window.showTestimonialSpinner = showTestimonialSpinner;
 window.hideTestimonialSpinner = hideTestimonialSpinner;
-window.showTestimonialNavigationOptions = showTestimonialNavigationOptions;
 
-// ADD THE NEW DYNAMIC FUNCTIONS
-window.createDynamicSplashScreen = createDynamicSplashScreen;
-window.createFallbackSplashScreen = createFallbackSplashScreen;
-window.getEmojiForGroup = getEmojiForGroup;
-window.getVideoKeyForTestimonial = getVideoKeyForTestimonial;
-
-// 2. CLOSING/NAVIGATION FUNCTIONS
-window.closeTestimonialVideo = closeTestimonialVideo;
-window.closeTestimonialNav = closeTestimonialNav;
-window.returnToVoiceChat = returnToVoiceChat;
-
-// 3. STATE FLAGS
-window.avatarCurrentlyPlaying = false;
-window.consultationOfferActive = false;
-
-// ✅ INITIALIZE
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeTestimonialSystem);
-} else {
-    initializeTestimonialSystem();
-}
-
-console.log('✅ DYNAMIC Testimonials Player Loaded - Ready for concerns!');
+console.log('✅ Testimonials Player Loaded with Fallback Support');
