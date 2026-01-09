@@ -159,5 +159,34 @@ window.testimonialData.getAvailableConcerns = function() {
     return concerns;
 };
 
+// Add this function to testimonials-data.js:
+
+// Get testimonials for a specific concern FROM ALL GROUPS
+window.testimonialData.getTestimonialsByConcern = function(concernKey) {
+    const allTestimonials = [];
+    
+    // Check if we have groups
+    if (!this.testimonialGroups) return allTestimonials;
+    
+    for (const [groupId, group] of Object.entries(this.testimonialGroups)) {
+        // Check if this group has the concern
+        if (group.concerns && group.concerns.includes(concernKey)) {
+            // Add all testimonials from this group
+            if (group.testimonials && group.testimonials.length > 0) {
+                // Add group info to each testimonial
+                const groupTestimonials = group.testimonials.map(t => ({
+                    ...t,
+                    groupId: group.id,
+                    groupName: group.name,
+                    groupIcon: group.icon
+                }));
+                allTestimonials.push(...groupTestimonials);
+            }
+        }
+    }
+    
+    return allTestimonials;
+};
+
 console.log('🎬 Testimonial Player Integration Ready');
 console.log('💰 Available concerns:', window.testimonialData.getAvailableConcerns().length);
