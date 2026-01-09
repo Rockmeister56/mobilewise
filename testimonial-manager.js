@@ -317,37 +317,22 @@ function updateGroupsDisplay() {
     if (noGroupsMessage) noGroupsMessage.style.display = 'none';
     
     // Create group buttons
-container.innerHTML = groupIds.map(groupId => {
-    const group = groups[groupId];
-    const isActive = currentSelectedGroupId === groupId;
-    
-    return `
-        <div class="testimonial-group-btn ${isActive ? 'active' : ''}" 
-             onclick="selectGroup('${groupId}')"
-             data-description="${group.description || 'No description provided'}">
-            <div class="group-info">
-                <span class="group-icon">${group.icon || '📁'}</span>
-                <span class="group-name">${group.name}</span>
+    container.innerHTML = groupIds.map(groupId => {
+        const group = groups[groupId];
+        const isActive = currentSelectedGroupId === groupId;
+        
+        return `
+            <div class="testimonial-group-btn ${isActive ? 'active' : ''}" 
+                 onclick="selectGroup('${groupId}', true)"  <!-- ✅ ADDED , true -->
+                 data-description="${group.description || 'No description provided'}">
+                <div class="group-info">
+                    <span class="group-icon">${group.icon || '📁'}</span>
+                    <span class="group-name">${group.name}</span>
+                </div>
+                <span class="group-count">${group.testimonials ? group.testimonials.length : 0}</span>
             </div>
-            <span class="group-count">${group.testimonials ? group.testimonials.length : 0}</span>
-        </div>
-    `;
-}).join('');
-}
-
-function populateFormWithGroupInfo(groupId) {
-    const group = testimonialData.testimonialGroups[groupId];
-    if (!group) return;
-    
-    // You could auto-populate form fields here if needed
-    console.log('Selected group for editing:', group.name);
-    
-    // Example: Update a field to show selected group
-    const groupInfoSpan = document.getElementById('currentEditingGroup');
-    if (groupInfoSpan) {
-        groupInfoSpan.textContent = `Editing: ${group.name}`;
-        groupInfoSpan.style.color = '#2196F3';
-    }
+        `;
+    }).join('');
 }
 
 function selectGroup(groupId, showOverlay = false) {
@@ -364,16 +349,18 @@ function selectGroup(groupId, showOverlay = false) {
     updateCurrentGroupDisplay(group);
     updateGroupDropdown();
     
-    // ✅ Auto-populate form with group info
-    populateFormWithGroupInfo(groupId);
+    // ❌ REMOVE THIS LINE - we don't need to populate form with group info
+    // populateFormWithGroupInfo(groupId);
     
     // ✅ ONLY show overlay if explicitly requested
     if (showOverlay === true) {
         showTestimonialOverlay(groupId);
+    } else {
+        // Optional: Show a simple success message for dropdown selection
+        showSuccess(`✅ Group selected: ${group.name}`);
     }
     
     console.log('Selected group:', group.name);
-    showSuccess(`📂 Selected: ${group.name}`);
 }
 
 function showTestimonialOverlay(groupId) {
