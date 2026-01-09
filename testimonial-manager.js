@@ -321,25 +321,138 @@ function updateGroupsDisplay() {
         const group = groups[groupId];
         const isActive = currentSelectedGroupId === groupId;
         
-        // ✅ FIX: Escape quotes in description
+        // Escape description for HTML safety
         const safeDescription = (group.description || 'No description provided')
-            .replace(/"/g, '&quot;')    // Escape double quotes
-            .replace(/'/g, '&#39;')     // Escape single quotes
-            .replace(/</g, '&lt;')      // Escape <
-            .replace(/>/g, '&gt;');     // Escape >
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+        
+        // Truncate long names for display
+        const displayName = group.name.length > 20 
+            ? group.name.substring(0, 18) + '...' 
+            : group.name;
         
         return `
             <div class="testimonial-group-btn ${isActive ? 'active' : ''}" 
                  onclick="selectGroup('${groupId}', true)"
-                 data-description="${safeDescription}">  <!-- ✅ USE ESCAPED VERSION -->
+                 data-description="${safeDescription}">
                 <div class="group-info">
                     <span class="group-icon">${group.icon || '📁'}</span>
-                    <span class="group-name">${group.name}</span>
+                    <span class="group-name" title="${group.name}">${displayName}</span>
                 </div>
-                <span class="group-count">${group.testimonials ? group.testimonials.length : 0}</span>
+                <div class="group-actions">
+                    <span class="group-count">${group.testimonials ? group.testimonials.length : 0}</span>
+                    <button class="btn-edit-group" onclick="editGroup('${groupId}', event)">
+                        ✏️
+                    </button>
+                </div>
             </div>
         `;
     }).join('');
+}
+
+function editGroup(groupId, event) {
+    // Stop the click from triggering the group button click
+    if (event) {
+        event.stopPropagation();
+        event.preventDefault();
+    }
+    
+    const group = testimonialData.testimonialGroups[groupId];
+    if (!group) {
+        showError('Group not found');
+        return;
+    }
+    
+    // Populate the edit modal with group data
+    document.getElementById('editGroupId').value = groupId;
+    document.getElementById('editGroupName').value = group.name;
+    document.getElementById('editGroupSlug').value = group.slug;
+    document.getElementById('editGroupIcon').value = group.icon || '📁';
+    document.getElementById('editGroupDescription').value = group.description || '';
+    
+    // Populate concern checkboxes
+    const concernsContainer = document.getElementById('editConcernsCheckboxContainer');
+    if (concernsContainer) {
+        const concerns = {
+            'price': '💰 See What Others Say About Value',
+            'time': '⏰ Hear From Busy Professionals',
+            'trust': '🤝 Real Client Experiences',
+            'general': '⭐ What Our Clients Say',
+            'results': '📈 See The Results Others Got'
+        };
+        
+        concernsContainer.innerHTML = '';
+        
+        for (const [key, label] of Object.entries(concerns)) {
+            const isChecked = group.concerns && group.concerns.includes(key);
+            const checkboxId = `edit_concern_${key}`;
+            
+            concernsContainer.innerHTML += `
+                <div class="concern-checkbox-item">
+                    <input type="checkbox" 
+                           id="${checkboxId}" 
+                           class="concern-checkbox" 
+                           value="${key}"
+                           ${isChecked ? 'checked' : ''}>
+                    <label for="${checkboxId}" class="concern-checkbox-label">
+                        ${label}
+                    </label>
+                </div>
+            `;
+        }
+    }
+    
+    // Show the edit modal
+    document.getElementById('editTestimonialGroupModal').style.display = 'flex';
+    
+    console.log('Editing group:', group.name);
+}
+
+function saveGroupEdit() {
+    const groupId = document.getElementById('editGroupId').value;
+    const name = document.getElementById('editGroupName').value.trim();
+    const slug = document.getElementById('editGroupSlug').value.trim();
+    const icon = document.getElementById('editGroupIcon').value.trim() || '📁';
+    const description = document.getElementById('editGroupDescription').value.trim();
+    
+    if (!name) {
+        showError('Please enter a group name');
+        return;
+    }
+    
+    if (!slug) {
+        showError('Please enter a group slug');
+        return;
+    }
+    
+    const group = testimonialData.testimonialGroups[groupId];
+    if (!group) {
+        showError('Group not found');
+        return;
+    }
+    
+    // Get selected concerns
+    const selectedConcerns = [];
+    const checkboxes = document.querySelectorAll('#editConcernsCheckboxContainer .concern-checkbox:checked');
+    checkboxes.forEach(cb => selectedConcerns.push(cb.value));
+    
+    // Update group
+    group.name = name;
+    group.slug = slug;
+    group.icon = icon;
+    group.description = description;
+    group.concerns = selectedConcerns;
+    group.updatedAt = new Date().toISOString();
+    
+    // Save and update UI
+    saveToLocalStorage();
+    updateGroupsDisplay();
+    updateGroupDropdown();
+    
+    // Close modal
+    hideEditGroupModal();
+    
+    showSuccess(`✅ Group "${name}" updated successfully!`);
 }
 
 function selectGroup(groupId, showOverlay = false) {

@@ -785,6 +785,42 @@ textarea.form-control {
     background: var(--primary-dark);
 }
 
+/* Add to testimonial-manager.css */
+
+.group-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-edit-group {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: var(--text-secondary);
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.2s ease;
+    padding: 0;
+}
+
+.btn-edit-group:hover {
+    background: rgba(33, 150, 243, 0.2);
+    color: var(--primary);
+    transform: scale(1.1);
+}
+
+/* Prevent the group button click when editing */
+.btn-edit-group {
+    position: relative;
+    z-index: 2;
+}
+
 /* =================================================== */
 /* MODALS */
 /* =================================================== */
