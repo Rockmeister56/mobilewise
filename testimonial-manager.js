@@ -347,7 +347,10 @@ function selectGroup(groupId) {
     // Update ALL UI components
     updateGroupsDisplay();
     updateCurrentGroupDisplay(group);
-    updateGroupDropdown(); // NEW LINE - Update dropdown selection
+    updateGroupDropdown();
+    
+    // ✅ ADD THIS LINE TO SHOW TESTIMONIALS:
+    showTestimonialsForGroup(groupId);
     
     console.log('Selected group:', group.name);
     showSuccess(`📂 Selected: ${group.name}`);
