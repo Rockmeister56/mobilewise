@@ -455,6 +455,16 @@ function saveGroupEdit() {
     showSuccess(`✅ Group "${name}" updated successfully!`);
 }
 
+function hideEditGroupModal() {
+    const modal = document.getElementById('editTestimonialGroupModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+// And export it
+window.hideEditGroupModal = hideEditGroupModal;
+
 function selectGroup(groupId, showOverlay = false) {
     if (!testimonialData.testimonialGroups[groupId]) {
         showError('Group not found');

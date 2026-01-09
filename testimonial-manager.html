@@ -113,6 +113,65 @@
     </select>
     <small class="form-help">Select a group from this dropdown to add testimonials to it</small>
 </div>
+
+<!-- EDIT GROUP MODAL -->
+<div id="editTestimonialGroupModal" class="modal">
+    <div class="modal-backdrop" onclick="hideEditGroupModal()"></div>
+    <div class="modal-dialog">
+        <div class="modal-header">
+            <h2 class="modal-title">
+                <span class="modal-icon">✏️</span>
+                Edit Testimonial Group
+            </h2>
+            <button class="modal-close" onclick="hideEditGroupModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" id="editGroupId">
+            
+            <div class="form-group">
+                <label for="editGroupName" class="form-label">Group Name</label>
+                <input type="text" id="editGroupName" class="form-control" 
+                       placeholder="Enter group name">
+            </div>
+            
+            <div class="form-group">
+                <label for="editGroupSlug" class="form-label">Group Slug</label>
+                <input type="text" id="editGroupSlug" class="form-control" 
+                       placeholder="group-slug">
+                <small class="form-help">URL-friendly, lowercase with hyphens</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="editGroupIcon" class="form-label">Icon Emoji</label>
+                <input type="text" id="editGroupIcon" class="form-control" 
+                       placeholder="📁">
+            </div>
+            
+            <div class="form-group">
+                <label for="editGroupDescription" class="form-label">Description</label>
+                <textarea id="editGroupDescription" class="form-control" rows="3"
+                          placeholder="Describe this testimonial group..."></textarea>
+            </div>
+            
+            <!-- CONCERNS SELECTION -->
+            <div class="form-group">
+                <label class="form-label">Select Trigger Phrases</label>
+                <div id="editConcernsCheckboxContainer" class="concerns-checkbox-container">
+                    <!-- Checkboxes will be populated by JavaScript -->
+                </div>
+            </div>
+            
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="hideEditGroupModal()">
+                    Cancel
+                </button>
+                <button class="btn btn-primary" onclick="saveGroupEdit()">
+                    Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
                 
                 <!-- TESTIMONIAL FORM -->
                 <div class="form-row">
