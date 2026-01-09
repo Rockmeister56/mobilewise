@@ -110,9 +110,20 @@ body::before {
     max-width: 1400px;
     margin: 0 auto;
     display: grid;
-    grid-template-columns: 320px 1fr;
+    grid-template-columns: minmax(200px, 320px) minmax(0, 1fr); /* EDGE FIX */
     gap: var(--spacing-xl);
     min-height: calc(100vh - 40px);
+    width: 100%;
+    overflow: hidden; /* Prevent any overflow */
+}
+
+/* ADD THIS NEW RULE FOR MAIN-CONTENT */
+.main-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xl);
+    min-width: 0; /* CRITICAL for grid/flex children in Edge */
+    max-width: 100%; /* Prevent expansion beyond container */
 }
 
 @media (max-width: 1024px) {
@@ -120,6 +131,50 @@ body::before {
         grid-template-columns: 1fr;
         gap: var(--spacing-lg);
     }
+}
+
+/* ADD THESE RULES TO YOUR CSS */
+
+/* Fix for form elements */
+.form-control, textarea.form-control, select.form-control {
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* Fix for form rows */
+.form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-lg);
+}
+
+.form-row > .form-group {
+    flex: 1;
+    min-width: 200px;
+    max-width: 100%;
+}
+
+/* Fix for cards */
+.card {
+    max-width: 100%;
+    overflow: hidden;
+}
+
+/* Fix for input-with-button */
+.input-with-button {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    align-items: center;
+}
+
+.input-with-button .form-control {
+    flex: 1;
+    min-width: 200px;
+}
+
+.input-with-button .btn-test-url {
+    white-space: nowrap;
 }
 
 /* =================================================== */
