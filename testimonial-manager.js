@@ -358,15 +358,32 @@ function selectGroup(groupId) {
 
 function showTestimonialOverlay(groupId) {
     const group = testimonialData.testimonialGroups[groupId];
-    if (!group) return;
+    if (!group) {
+        console.error('Group not found:', groupId);
+        return;
+    }
     
-    // 1. Update overlay header
-    document.getElementById('overlayGroupName').textContent = group.name;
-    document.getElementById('overlayGroupDescription').textContent = 
-        group.description || 'Click a testimonial to play';
+    // 1. Update overlay header with ACTUAL group name and description
+    const groupNameEl = document.getElementById('overlayGroupName');
+    const groupDescEl = document.getElementById('overlayGroupDescription');
+    
+    if (groupNameEl) groupNameEl.textContent = group.name || 'Group Testimonials';
+    if (groupDescEl) {
+        groupDescEl.textContent = group.description || 
+                                 'Click a testimonial below to watch the video';
+        // If no description, you could hide it or show a default message
+        if (!group.description) {
+            groupDescEl.style.opacity = '0.7';
+            groupDescEl.style.fontStyle = 'italic';
+        }
+    }
     
     // 2. Load testimonials grid
     const container = document.getElementById('overlayTestimonialsGrid');
+    if (!container) {
+        console.error('overlayTestimonialsGrid element not found!');
+        return;
+    }
     
     if (!group.testimonials || group.testimonials.length === 0) {
         // 3. Show empty state
@@ -374,7 +391,11 @@ function showTestimonialOverlay(groupId) {
             <div class="no-testimonials-message">
                 <div class="no-testimonials-icon">🎬</div>
                 <h3>No testimonials yet</h3>
-                <p>Add testimonials to this group to see them here</p>
+                <p>Add testimonials to "${group.name}" to see them here</p>
+                <button class="btn btn-primary" onclick="hideTestimonialOverlay()" 
+                        style="margin-top: 20px; padding: 10px 20px;">
+                    Go Back
+                </button>
             </div>
         `;
     } else {
@@ -413,8 +434,22 @@ function showTestimonialOverlay(groupId) {
     }
     
     // 5. Show overlay
-    document.getElementById('testimonialOverlay').style.display = 'flex';
+    const overlay = document.getElementById('testimonialOverlay');
+    if (overlay) {
+        overlay.style.display = 'flex';
+        console.log('✅ Showing overlay for group:', group.name);
+    }
 }
+
+
+function hideTestimonialOverlay() {
+    const overlay = document.getElementById('testimonialOverlay');
+    if (overlay) {
+        overlay.style.display = 'none';
+        console.log('✅ Hiding testimonial overlay');
+    }
+}
+    
 
 function updateCurrentGroupDisplay(group) {
     const display = document.getElementById('currentGroupName');
