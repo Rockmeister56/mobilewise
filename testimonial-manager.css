@@ -79,7 +79,7 @@ html {
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #000000 0%, #02002d 100%);
+    background: linear-gradient(135deg, #000000 0%, #0c1327 100%);
     color: var(--text-primary);
     min-height: 100vh;
     line-height: 1.6;
