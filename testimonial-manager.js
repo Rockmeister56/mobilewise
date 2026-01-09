@@ -946,6 +946,49 @@ function loadSampleData() {
     }
 }
 
+// In testimonials-data.js, add these functions:
+
+// Get testimonials for a concern FROM ALL GROUPS
+window.testimonialData.getTestimonialsByConcern = function(concernKey) {
+    const allTestimonials = [];
+    
+    for (const [groupId, group] of Object.entries(this.testimonialGroups)) {
+        if (group.concerns && group.concerns.includes(concernKey)) {
+            if (group.testimonials) {
+                // Add group info to each testimonial
+                const groupTestimonials = group.testimonials.map(t => ({
+                    ...t,
+                    groupId: group.id,
+                    groupName: group.name,
+                    groupIcon: group.icon
+                }));
+                allTestimonials.push(...groupTestimonials);
+            }
+        }
+    }
+    
+    return allTestimonials;
+};
+
+// Get all unique concerns from all groups
+window.testimonialData.getAllUniqueConcerns = function() {
+    const concernsSet = new Set();
+    
+    for (const [groupId, group] of Object.entries(this.testimonialGroups)) {
+        if (group.concerns) {
+            group.concerns.forEach(concern => concernsSet.add(concern));
+        }
+    }
+    
+    return Array.from(concernsSet).map(concernKey => ({
+        key: concernKey,
+        title: this.concerns[concernKey]?.title || concernKey,
+        icon: this.concerns[concernKey]?.icon || '⭐',
+        videoType: this.concerns[concernKey]?.videoType || 'skeptical',
+        count: this.getTestimonialsByConcern(concernKey).length
+    }));
+};
+
 // ===================================================
 // UTILITY FUNCTIONS
 // ===================================================

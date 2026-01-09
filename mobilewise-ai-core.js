@@ -46,6 +46,22 @@ window.mobilewiseAI = window.mobilewiseAI || {
     }
 })();
 
+// Instead of: testimonialData.getCompleteTestimonial(userMessage)
+// Use: testimonialData.getTestimonialsByConcern(detectedConcern)
+
+function handleUserConcern(concernKey) {
+    // Get ALL testimonials for this concern from ALL groups
+    const testimonials = window.testimonialData.getTestimonialsByConcern(concernKey);
+    
+    if (testimonials.length === 0) {
+        // Fallback
+        return testimonialData.getFallbackTestimonial();
+    }
+    
+    // Show selection UI with all testimonials
+    showTestimonialSelection(concernKey, testimonials);
+}
+
 // =============================================================================
 // 🎯 COMPLETE getAIResponse FUNCTION (400+ lines of logic)
 // =============================================================================
@@ -59,6 +75,14 @@ window.mobilewiseAI = window.mobilewiseAI || {
     const userName = mw.user.name || '';
     
     console.log(`📊 State: ${mw.state}, User: ${userName || 'New user'}`);
+
+     if (window.testimonialData && window.testimonialData.findRelevantTestimonial) {
+        const testimonial = window.testimonialData.findRelevantTestimonial(userMessage);
+        if (testimonial) {
+            // Incorporate testimonial into your response
+            return `I understand your concern about ${testimonial.concern.toLowerCase()}. Here's what others have said: "${testimonial.review}" - ${testimonial.author}`;
+        }
+    }
 
     // 🎯 Handle "yes/no" in QUALIFICATION state
 if (mw.state === 'qualification') {
