@@ -321,10 +321,17 @@ function updateGroupsDisplay() {
         const group = groups[groupId];
         const isActive = currentSelectedGroupId === groupId;
         
+        // ✅ FIX: Escape quotes in description
+        const safeDescription = (group.description || 'No description provided')
+            .replace(/"/g, '&quot;')    // Escape double quotes
+            .replace(/'/g, '&#39;')     // Escape single quotes
+            .replace(/</g, '&lt;')      // Escape <
+            .replace(/>/g, '&gt;');     // Escape >
+        
         return `
             <div class="testimonial-group-btn ${isActive ? 'active' : ''}" 
-                 onclick="selectGroup('${groupId}', true)"  <!-- ✅ ADDED , true -->
-                 data-description="${group.description || 'No description provided'}">
+                 onclick="selectGroup('${groupId}', true)"
+                 data-description="${safeDescription}">  <!-- ✅ USE ESCAPED VERSION -->
                 <div class="group-info">
                     <span class="group-icon">${group.icon || '📁'}</span>
                     <span class="group-name">${group.name}</span>
