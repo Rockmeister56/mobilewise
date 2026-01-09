@@ -101,13 +101,13 @@
                     Video Testimonial Manager
                 </h2>
                 
-             <!-- GROUP SELECTION DROPDOWN -->
+           <!-- GROUP SELECTION DROPDOWN -->
 <div class="form-group">
     <label for="selectGroupDropdown" class="form-label">
         <span class="label-icon">📁</span>
         Select Group for Testimonials
     </label>
-    <select id="selectGroupDropdown" class="form-control" onchange="selectGroup(this.value)">
+    <select id="selectGroupDropdown" class="form-control" onchange="selectGroup(this.value, false)">
         <option value="">-- Select a Group to Add Testimonials --</option>
         <!-- Groups will be dynamically populated by updateGroupDropdown() -->
     </select>

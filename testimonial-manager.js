@@ -335,7 +335,22 @@ container.innerHTML = groupIds.map(groupId => {
 }).join('');
 }
 
-function selectGroup(groupId) {
+function populateFormWithGroupInfo(groupId) {
+    const group = testimonialData.testimonialGroups[groupId];
+    if (!group) return;
+    
+    // You could auto-populate form fields here if needed
+    console.log('Selected group for editing:', group.name);
+    
+    // Example: Update a field to show selected group
+    const groupInfoSpan = document.getElementById('currentEditingGroup');
+    if (groupInfoSpan) {
+        groupInfoSpan.textContent = `Editing: ${group.name}`;
+        groupInfoSpan.style.color = '#2196F3';
+    }
+}
+
+function selectGroup(groupId, showOverlay = false) {
     if (!testimonialData.testimonialGroups[groupId]) {
         showError('Group not found');
         return;
@@ -349,8 +364,13 @@ function selectGroup(groupId) {
     updateCurrentGroupDisplay(group);
     updateGroupDropdown();
     
-    // ✅ SHOW THE OVERLAY with proper header
-    showTestimonialOverlay(groupId);
+    // ✅ Auto-populate form with group info
+    populateFormWithGroupInfo(groupId);
+    
+    // ✅ ONLY show overlay if explicitly requested
+    if (showOverlay === true) {
+        showTestimonialOverlay(groupId);
+    }
     
     console.log('Selected group:', group.name);
     showSuccess(`📂 Selected: ${group.name}`);
