@@ -349,8 +349,8 @@ function selectGroup(groupId) {
     updateCurrentGroupDisplay(group);
     updateGroupDropdown();
     
-    // ✅ ADD THIS LINE TO SHOW TESTIMONIALS:
-    showTestimonialsForGroup(groupId);
+    // ✅ SHOW THE OVERLAY with proper header
+    showTestimonialOverlay(groupId);
     
     console.log('Selected group:', group.name);
     showSuccess(`📂 Selected: ${group.name}`);
