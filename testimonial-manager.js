@@ -201,6 +201,16 @@ function populateConcernCheckboxes() {
     }
 }
 
+function hideAllTestimonialsModal() {
+    const modal = document.getElementById('allTestimonialsModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+// Export to window
+window.hideAllTestimonialsModal = hideAllTestimonialsModal;
+
 function createTestimonialGroup() {
     // Get form values
     const name = document.getElementById('newGroupName').value.trim();
