@@ -60,27 +60,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- TESTIMONIAL OVERLAY -->
-<div id="testimonialOverlay" class="testimonial-overlay" style="display: none;">
-    <div class="testimonial-container">
-        <div class="testimonial-header">
-            <button class="btn-close-overlay" onclick="hideTestimonialOverlay()">×</button>
-            <h2 id="overlayGroupName">Group Testimonials</h2> <!-- PLACEHOLDER TEXT ONLY -->
-            <p id="overlayGroupDescription">Click a testimonial to play</p> <!-- PLACEHOLDER TEXT ONLY -->
-        </div>
-        
-        <div id="overlayTestimonialsGrid" class="testimonial-selection-grid">
-            <!-- EMPTY - Will be populated by JavaScript -->
-        </div>
-        
-        <div class="testimonial-footer">
-            <button class="btn-skip-testimonials" onclick="hideTestimonialOverlay()">
-                Skip Testimonials
-            </button>
-        </div>
-    </div>
-</div>
             
             <!-- ACTION BUTTONS -->
             <div class="sidebar-section action-buttons-section">
@@ -383,6 +362,27 @@
             <div class="video-info" id="videoPlayerInfo">
                 <!-- Video info loaded dynamically -->
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- TESTIMONIAL OVERLAY -->
+<div id="testimonialOverlay" class="testimonial-overlay" style="display: none;">
+    <div class="testimonial-container">
+        <div class="testimonial-header">
+            <button class="btn-close-overlay" onclick="hideTestimonialOverlay()">×</button>
+            <h2 id="overlayGroupName">Group Testimonials</h2>
+            <p id="overlayGroupDescription">Click a testimonial to play</p>
+        </div>
+        
+        <div id="overlayTestimonialsGrid" class="testimonial-selection-grid">
+            <!-- Testimonials will be loaded here -->
+        </div>
+        
+        <div class="testimonial-footer">
+            <button class="btn-skip-testimonials" onclick="hideTestimonialOverlay()">
+                Skip Testimonials
+            </button>
         </div>
     </div>
 </div>
