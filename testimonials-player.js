@@ -2,26 +2,10 @@
 // 🎬 COMPLETE TESTIMONIAL SYSTEM (SPLASH + VIDEO PLAYERS)
 // ===================================================
 
-// Video URLs - UPDATE THESE WITH YOUR ACTUAL VIDEO LINKS
-const TESTIMONIAL_VIDEOS = {
-    skeptical: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982717330.mp4',
-    speed: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1759982877040.mp4',
-    convinced: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1763530566773.mp4',
-    excited: 'https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1763531028258.mp4'
-};
-
-// Video durations in milliseconds
-const VIDEO_DURATIONS = {
-    skeptical: 22000,
-    speed: 18000, 
-    convinced: 25000,
-    excited: 20000
-};
-
 window.avatarCurrentlyPlaying = false;
 
 // ================================
-// 🎬 DYNAMIC SPLASH SCREEN - FIXED VERSION
+// 🎬 UPDATED: DYNAMIC SPLASH SCREEN FOR YOUR ACTUAL DATA STRUCTURE
 // ================================
 function showTestimonialSplashScreen() {
     console.log('🎬 TESTIMONIAL SPLASH: Loading complete system');
@@ -39,12 +23,14 @@ function showTestimonialSplashScreen() {
     splashScreen.id = 'testimonial-splash-screen';
     splashScreen.style.animation = 'fadeInSplash 0.5s ease-in';
     
-    // Check if we have testimonialData
-    if (!window.testimonialData || !window.testimonialData.groups) {
-        console.error('❌ testimonialData not found! Using fallback buttons.');
-        createFallbackSplashScreen(splashScreen);
+    // Try to get testimonials from your actual structure
+    const testimonials = extractTestimonialsFromYourData();
+    
+    if (testimonials.length > 0) {
+        createDynamicSplashScreen(splashScreen, testimonials);
     } else {
-        createDynamicSplashScreen(splashScreen);
+        console.error('❌ No testimonials found! Using fallback buttons.');
+        createFallbackSplashScreen(splashScreen);
     }
     
     const chatContainer = document.getElementById('chatMessages') || document.querySelector('.chat-messages');
@@ -56,64 +42,111 @@ function showTestimonialSplashScreen() {
     }
 }
 
-// CREATE DYNAMIC BUTTONS FROM TESTIMONIAL DATA
-function createDynamicSplashScreen(splashScreen) {
-    console.log('🔄 Creating dynamic buttons from testimonialData');
+// EXTRACT TESTIMONIALS FROM YOUR ACTUAL DATA STRUCTURE
+function extractTestimonialsFromYourData() {
+    console.log('🔍 Extracting testimonials from your data structure...');
     
-    const groups = window.testimonialData.groups;
-    console.log('📊 Available groups:', Object.keys(groups));
+    if (!window.testimonialData) {
+        console.log('❌ No testimonialData found');
+        return [];
+    }
+    
+    const data = window.testimonialData;
+    let testimonials = [];
+    
+    // YOUR STRUCTURE: data.testimonialGroups contains the groups
+    if (data.testimonialGroups && typeof data.testimonialGroups === 'object') {
+        console.log('📊 Found testimonialData.testimonialGroups');
+        
+        Object.keys(data.testimonialGroups).forEach(groupKey => {
+            const group = data.testimonialGroups[groupKey];
+            console.log(`📦 Group ${groupKey}:`, group);
+            
+            // Check if group has testimonials
+            if (group.testimonials && Array.isArray(group.testimonials)) {
+                console.log(`   Found ${group.testimonials.length} testimonials in group`);
+                
+                group.testimonials.forEach((testimonial, index) => {
+                    testimonials.push({
+                        id: `${groupKey}_${index}`,
+                        name: testimonial.name || group.name || groupKey,
+                        emoji: testimonial.emoji || getEmojiForGroup(groupKey),
+                        group: groupKey,
+                        index: index,
+                        data: testimonial
+                    });
+                });
+            } else {
+                console.log(`   No testimonials array found in group ${groupKey}`);
+            }
+        });
+    }
+    
+    // If no testimonials found in groups, try using the concerns
+    if (testimonials.length === 0 && data.concerns) {
+        console.log('📊 Trying concerns structure...');
+        Object.keys(data.concerns).forEach(concernKey => {
+            const concern = data.concerns[concernKey];
+            console.log(`   Concern: ${concernKey}`, concern);
+            
+            // You might need to call getConcernTestimonials function
+            if (typeof data.getConcernTestimonials === 'function') {
+                console.log(`   Getting testimonials for concern: ${concernKey}`);
+                const concernTestimonials = data.getConcernTestimonials(concernKey);
+                if (concernTestimonials && Array.isArray(concernTestimonials)) {
+                    concernTestimonials.forEach((testimonial, index) => {
+                        testimonials.push({
+                            id: `${concernKey}_${index}`,
+                            name: testimonial.name || concern.name || concernKey,
+                            emoji: testimonial.emoji || getEmojiForGroup(concernKey),
+                            group: concernKey,
+                            index: index,
+                            data: testimonial
+                        });
+                    });
+                }
+            }
+        });
+    }
+    
+    console.log(`✅ Extracted ${testimonials.length} testimonials`);
+    return testimonials;
+}
+
+// CREATE DYNAMIC SPLASH SCREEN (SAME AS BEFORE BUT FIXED)
+function createDynamicSplashScreen(splashScreen, testimonials) {
+    console.log('🔄 Creating dynamic buttons from', testimonials.length, 'testimonials');
     
     // Create buttons HTML dynamically
     let buttonsHTML = '';
     let buttonCount = 0;
     
-    // Get all testimonials across all groups
-    const allTestimonials = [];
+    // Take up to 4 testimonials
+    const displayTestimonials = testimonials.slice(0, 4);
     
-    Object.keys(groups).forEach(groupKey => {
-        const group = groups[groupKey];
-        console.log(`📦 Group: ${groupKey}`, group.name, 'has', group.testimonials.length, 'testimonials');
+    displayTestimonials.forEach(testimonial => {
+        const videoKey = getVideoKeyForTestimonial(testimonial.group, testimonial.index);
         
-        group.testimonials.forEach((testimonial, index) => {
-            if (buttonCount < 4) { // Show max 4 buttons
-                const buttonId = `${groupKey}_${index}`;
-                const buttonName = testimonial.name || group.name;
-                const buttonEmoji = testimonial.emoji || getEmojiForGroup(groupKey);
-                const videoKey = getVideoKeyForTestimonial(groupKey, index);
-                
-                buttonsHTML += `
-                    <button onclick="handleTestimonialButton('${videoKey}')" style="
-                        display: flex; align-items: center; gap: 12px;
-                        background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(255, 255, 255, 0.2);
-                        color: white; padding: 18px 15px; border-radius: 10px; cursor: pointer;
-                        font-weight: 600; font-size: 17px; text-align: left; transition: all 0.3s ease;
-                        backdrop-filter: blur(10px); width: 100%; height: 84px;
-                    " onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.borderColor='rgba(255, 255, 255, 0.3)'; this.style.transform='translateY(-2px)';" 
-                    onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.borderColor='rgba(255, 255, 255, 0.2)'; this.style.transform='translateY(0)';">
-                        <div style="font-size: 28px;">${buttonEmoji}</div>
-                        <span style="flex: 1;">${buttonName}</span>
-                    </button>
-                `;
-                
-                // Store mapping for video playback
-                if (!window.testimonialVideoMap) window.testimonialVideoMap = {};
-                window.testimonialVideoMap[videoKey] = {
-                    group: groupKey,
-                    index: index,
-                    testimonial: testimonial
-                };
-                
-                buttonCount++;
-            }
-        });
+        buttonsHTML += `
+            <button onclick="handleTestimonialButton('${videoKey}')" style="
+                display: flex; align-items: center; gap: 12px;
+                background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(255, 255, 255, 0.2);
+                color: white; padding: 18px 15px; border-radius: 10px; cursor: pointer;
+                font-weight: 600; font-size: 17px; text-align: left; transition: all 0.3s ease;
+                backdrop-filter: blur(10px); width: 100%; height: 84px;
+            " onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.borderColor='rgba(255, 255, 255, 0.3)'; this.style.transform='translateY(-2px)';" 
+            onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.borderColor='rgba(255, 255, 255, 0.2)'; this.style.transform='translateY(0)';">
+                <div style="font-size: 28px;">${testimonial.emoji}</div>
+                <span style="flex: 1;">${testimonial.name}</span>
+            </button>
+        `;
+        
+        // Store mapping for video playback
+        if (!window.testimonialVideoMap) window.testimonialVideoMap = {};
+        window.testimonialVideoMap[videoKey] = testimonial;
+        
+        buttonCount++;
     });
-    
-    // If no buttons were created, use fallback
-    if (buttonCount === 0) {
-        console.log('⚠️ No testimonials found, using fallback');
-        createFallbackSplashScreen(splashScreen);
-        return;
-    }
     
     // Determine grid layout (2x2 or 1x4)
     const gridColumns = buttonCount <= 2 ? '1fr' : '1fr 1fr';
@@ -169,135 +202,54 @@ function createDynamicSplashScreen(splashScreen) {
     console.log(`✅ Created ${buttonCount} dynamic testimonial buttons`);
 }
 
-// FALLBACK FOR WHEN TESTIMONIAL DATA ISN'T AVAILABLE
-function createFallbackSplashScreen(splashScreen) {
-    console.log('🔄 Creating fallback buttons');
-    
-    splashScreen.innerHTML = `
-    <div style="
-        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.9)),
-                    url('https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1762038349654_action-bg.jpg');
-        background-size: cover;
-        background-position: center;
-        background-blend-mode: overlay;
-        backdrop-filter: blur(10px);
-        border-radius: 20px;
-        padding: 30px 25px;
-        margin: 20px 0;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        color: white;
-        font-family: 'Segoe UI', system-ui, sans-serif;
-        max-width: 750px;
-    ">
-    
-    <!-- HEADER -->
-    <div style="display: flex; align-items: center; margin-bottom: 5px; gap: 15px; margin-top: 5px;">
-        <video autoplay loop muted playsinline style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255, 255, 255, 0.2); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);">
-            <source src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1764614255102.mp4" type="video/mp4">
-        </video>
-        <div>
-            <h3 style="margin: 0 0 5px 0; font-size: 22px; font-weight: 600; color: white;">Client Testimonials</h3>
-            <p style="margin: 0; opacity: 0.8; font-size: 13px; font-weight: 300; letter-spacing: 0.5px;">Real stories from satisfied clients</p>
-        </div>
-    </div>
-
-    <!-- FALLBACK TESTIMONIAL BUTTONS -->
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px;">
-        <!-- Skeptical Client -->
-        <button onclick="handleTestimonialButton('skeptical')" style="
-            display: flex; align-items: center; gap: 12px;
-            background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(255, 255, 255, 0.2);
-            color: white; padding: 18px 15px; border-radius: 10px; cursor: pointer;
-            font-weight: 600; font-size: 17px; text-align: left; transition: all 0.3s ease;
-            backdrop-filter: blur(10px); width: 100%; height: 84px;
-        " onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.borderColor='rgba(255, 255, 255, 0.3)'; this.style.transform='translateY(-2px)';" 
-        onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.borderColor='rgba(255, 255, 255, 0.2)'; this.style.transform='translateY(0)';">
-            <div style="font-size: 28px;">🤔</div>
-            <span style="flex: 1;">Skeptical Client</span>
-        </button>
-
-        <!-- Speed Results -->
-        <button onclick="handleTestimonialButton('speed')" style="
-            display: flex; align-items: center; gap: 12px;
-            background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(255, 255, 255, 0.2);
-            color: white; padding: 18px 15px; border-radius: 10px; cursor: pointer;
-            font-weight: 600; font-size: 17px; text-align: left; transition: all 0.3s ease;
-            backdrop-filter: blur(10px); width: 100%; height: 84px;
-        " onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.borderColor='rgba(255, 255, 255, 0.3)'; this.style.transform='translateY(-2px)';" 
-        onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.borderColor='rgba(255, 255, 255, 0.2)'; this.style.transform='translateY(0)';">
-            <div style="font-size: 28px;">⚡</div>
-            <span style="flex: 1;">Speed Results</span>
-        </button>
-
-        <!-- Convinced Client -->
-        <button onclick="handleTestimonialButton('convinced')" style="
-            display: flex; align-items: center; gap: 12px;
-            background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(255, 255, 255, 0.2);
-            color: white; padding: 18px 15px; border-radius: 10px; cursor: pointer;
-            font-weight: 600; font-size: 17px; text-align: left; transition: all 0.3s ease;
-            backdrop-filter: blur(10px); width: 100%; height: 84px;
-        " onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.borderColor='rgba(255, 255, 255, 0.3)'; this.style.transform='translateY(-2px)';" 
-        onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.borderColor='rgba(255, 255, 255, 0.2)'; this.style.transform='translateY(0)';">
-            <div style="font-size: 28px;">😊</div>
-            <span style="flex: 1;">Convinced Client</span>
-        </button>
-
-        <!-- Excited Results -->
-        <button onclick="handleTestimonialButton('excited')" style="
-            display: flex; align-items: center; gap: 12px;
-            background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(255, 255, 255, 0.2);
-            color: white; padding: 18px 15px; border-radius: 10px; cursor: pointer;
-            font-weight: 600; font-size: 17px; text-align: left; transition: all 0.3s ease;
-            backdrop-filter: blur(10px); width: 100%; height: 84px;
-        " onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.borderColor='rgba(255, 255, 255, 0.3)'; this.style.transform='translateY(-2px)';" 
-        onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.borderColor='rgba(255, 255, 255, 0.2)'; this.style.transform='translateY(0)';">
-            <div style="font-size: 28px;">🎉</div>
-            <span style="flex: 1;">Excited Results</span>
-        </button>
-    </div>
-
-    <!-- Skip Button -->
-    <button onclick="handleTestimonialSkip()" style="
-        display: flex; align-items: center; gap: 10px;
-        background: rgba(0, 0, 0, 0.6); color: rgba(255, 255, 255, 0.8);
-        border: 1px solid rgba(255, 255, 255, 0.2); padding: 15px 20px;
-        border-radius: 10px; cursor: pointer; font-size: 16px; font-weight: 500;
-        transition: all 0.3s ease; width: 100%; justify-content: center; margin-top: 5px;
-    " onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.color='white';" 
-    onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.color='rgba(255, 255, 255, 0.8)';">
-        <span>⏭️ Skip Testimonials</span>
-    </button>
-    </div>
-    `;
-}
-
-// HELPER FUNCTIONS
+// GET EMOJI BASED ON GROUP/CONCERN KEY
 function getEmojiForGroup(groupKey) {
     const emojiMap = {
         price: '💰',
-        quality: '⭐',
+        time: '⏰',
         trust: '🤝',
         results: '📈',
-        process: '⚙️',
-        time: '⏰',
-        skeptic: '🤔',
+        general: '🎯',
+        conversion: '🚀',
+        web: '🌐',
+        form: '📝',
+        alternative: '🔄',
         default: '🎬'
     };
+    
+    // Check for keywords in the group key
+    const key = groupKey.toLowerCase();
+    if (key.includes('price') || key.includes('cost')) return '💰';
+    if (key.includes('time') || key.includes('speed')) return '⏰';
+    if (key.includes('trust')) return '🤝';
+    if (key.includes('result') || key.includes('success')) return '📈';
+    if (key.includes('conversion')) return '🚀';
+    if (key.includes('web')) return '🌐';
+    if (key.includes('form')) return '📝';
+    if (key.includes('alternative')) return '🔄';
+    
     return emojiMap[groupKey] || emojiMap.default;
 }
 
+// GET VIDEO KEY FOR TESTIMONIAL
 function getVideoKeyForTestimonial(groupKey, index) {
     // Map testimonial to available videos
     const videoMap = {
         'price_0': 'skeptical',
         'price_1': 'speed',
-        'quality_0': 'convinced',
-        'quality_1': 'excited',
+        'time_0': 'speed',
+        'time_1': 'excited',
         'trust_0': 'skeptical',
         'trust_1': 'convinced',
-        'results_0': 'speed',
-        'results_1': 'excited'
+        'results_0': 'convinced',
+        'results_1': 'excited',
+        'general_0': 'skeptical',
+        'general_1': 'convinced',
+        // Your specific groups
+        'group_conversion_boost_1767901787532_0': 'skeptical',
+        'group_conversion_boost_1767901787532_1': 'convinced',
+        'group_web_form_aternative_1767919446882_0': 'speed',
+        'group_web_form_aternative_1767919446882_1': 'excited'
     };
     
     const key = `${groupKey}_${index}`;
