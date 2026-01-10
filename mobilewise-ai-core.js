@@ -67,6 +67,17 @@ function handleUserConcern(concernKey) {
 // =============================================================================
  function getAIResponse(userMessage, conversationHistory = []) {
     console.log('🧠 MOBILEWISE AI Processing:', userMessage);
+
+    // 🎯 POST-TESTIMONIAL RESPONSE HANDLER - ADD THIS FIRST
+    if (window.lastQuestionContext === 'post-testimonial') {
+        console.log('🎯 Post-testimonial response detected in main AI handler');
+        window.lastQuestionContext = null; // Reset immediately
+        
+        if (window.handlePostTestimonialResponse) {
+            window.handlePostTestimonialResponse(userMessage);  // ✅ FIXED: userMessage
+            return; // STOP - don't process with normal AI
+        }
+    }
     
     // 📈 Update conversation metrics
     window.mobilewiseAI.conversation.messages++;

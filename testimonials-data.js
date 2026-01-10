@@ -375,7 +375,7 @@ window.triggerPostTestimonialSpeech = function() {
         // Check if we have voice system available
         if (window.speakText) {
             // Generic call-to-action message
-            const message = "If we could get you similar results to what our clients have achieved, would you be interested in a free consultation to explore how we can help you?";
+            const message = "Based on what you've seen from our clients' results, would you like to connect and get more information about how this could work for you?";
             
             console.log('💬 Post-testimonial CTA:', message);
             
@@ -395,6 +395,73 @@ window.triggerPostTestimonialSpeech = function() {
     }, 800);
 };
 
+// ===================================================
+// 🎯 DIRECT LEAD CAPTURE FOR POST-TESTIMONIAL
+// ===================================================
+
+window.handlePostTestimonialResponse = function(userResponse) {
+    console.log('🎯 Handling post-testimonial response:', userResponse);
+    
+    // Convert response to lowercase for easier matching
+    const response = userResponse.toLowerCase().trim();
+    
+    // Positive responses that should trigger lead capture
+    const positiveResponses = [
+        'yes', 'yes please', 'yes i would', 'sure', 'absolutely',
+        'that sounds good', 'i\'m interested', 'let\'s do it',
+        'i\'d like that', 'please', 'ok', 'okay', 'yeah', 'yep',
+        'connect', 'more information', 'tell me more'
+    ];
+    
+    // Negative responses
+    const negativeResponses = [
+        'no', 'no thanks', 'not now', 'maybe later', 'i\'m not interested',
+        'not really', 'pass', 'skip', 'later'
+    ];
+    
+    // Check if it's a positive response
+    const isPositive = positiveResponses.some(positive => 
+        response.includes(positive) || positive.includes(response)
+    );
+    
+    // Check if it's a negative response  
+    const isNegative = negativeResponses.some(negative =>
+        response.includes(negative) || negative.includes(response)
+    );
+    
+    if (isPositive) {
+        console.log('✅ Positive response - triggering lead capture');
+        
+        // Trigger your action system
+        if (window.showActionCenter) {
+            window.showActionCenter();
+        } else if (window.showContactOptions) {
+            window.showContactOptions();
+        } else if (window.initiateLeadCapture) {
+            window.initiateLeadCapture();
+        } else {
+            console.error('❌ No lead capture function found');
+            // Fallback - ask for name
+            if (window.speakText) {
+                window.speakText("Great! Could I get your first name to get you started?");
+            }
+        }
+        
+    } else if (isNegative) {
+        console.log('❌ Negative response - continuing conversation');
+        
+        if (window.speakText) {
+            window.speakText("No problem. Is there anything else you'd like to know about our services?");
+        }
+        
+    } else {
+        console.log('❓ Unclear response - asking for clarification');
+        
+        if (window.speakText) {
+            window.speakText("I'm not sure I understood. Would you like to connect for more information, or should we continue our conversation?");
+        }
+    }
+};
 
 // ===================================================
 // 🧪 TEST FUNCTION - CHECK FLOW CONNECTION

@@ -647,6 +647,7 @@ setTimeout(() => {
         }
     }
 }, 500);
+
 }
 
 function showMoreTestimonials() {
