@@ -207,7 +207,7 @@ window.playTestimonialVideoWithOverlay = function(testimonial) {
     const container = document.createElement('div');
     container.style.cssText = `
         position: relative;
-        width: 380px;                 /* Mobile-like width */
+        width: 350px;                 /* Mobile-like width */
         max-width: 90vw;              /* Responsive */
         background: rgba(20,20,30,0.9);
         border-radius: 20px;
