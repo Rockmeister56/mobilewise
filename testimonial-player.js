@@ -148,6 +148,125 @@ function showTestimonialSplashScreen() {
 }
 
 // ================================
+// 🎯 NEW FUNCTION: Close Video & Show Navigation
+// ================================
+function closeVideoAndShowNavigation() {
+    console.log('🎬 Closing video and showing navigation options');
+    
+    // 🛑 CRITICAL: Reset playing flag
+    window.avatarCurrentlyPlaying = false;
+    
+    // Remove video overlay
+    const overlay = document.getElementById('testimonial-video-overlay');
+    if (overlay) {
+        const video = overlay.querySelector('video');
+        if (video) {
+            video.pause();
+            video.currentTime = 0;
+        }
+        overlay.remove();
+        console.log('✅ Video player removed');
+    }
+    
+    // 🎯 SHOW NAVIGATION/DECISION PANEL
+    showTestimonialNavigationOptions();
+}
+
+// ================================
+// 🎯 UPDATED NAVIGATION OPTIONS (DECISION PANEL)
+// ================================
+function showTestimonialNavigationOptions() {
+    console.log('🎯 Showing testimonial decision panel');
+    
+    // Create decision panel
+    const navScreen = document.createElement('div');
+    navScreen.id = 'testimonial-nav-options';
+    navScreen.style.cssText = `
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: rgba(0,0,0,0.95);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+        backdrop-filter: blur(10px);
+        animation: fadeIn 0.3s ease-in;
+    `;
+    
+    navScreen.innerHTML = `
+        <div style="
+            background: linear-gradient(135deg, #001885ff 0%, #764ba2 100%);
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+            color: white;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        ">
+            <h2 style="margin-bottom: 30px; font-size: 28px; font-weight: 600;">
+                🎬 What would you like to do?
+            </h2>
+            
+            <p style="margin-bottom: 30px; opacity: 0.9; font-size: 16px; line-height: 1.5;">
+                Would you like to watch more testimonials or return to the conversation?
+            </p>
+            
+            <div style="display: flex; flex-direction: column; gap: 20px;">
+                <!-- Continue Watching Button -->
+                <button onclick="showMoreTestimonials()" style="
+                    background: linear-gradient(135deg, #0f6bd4ff 0%, #04b3eeff 100%);
+                    color: white; border: none; padding: 18px 30px;
+                    border-radius: 12px; font-size: 18px; font-weight: 600;
+                    cursor: pointer; transition: all 0.3s ease;
+                    display: flex; align-items: center; justify-content: center; gap: 10px;
+                ">
+                    <span style="font-size: 24px;">📺</span>
+                    <span>Continue Watching Testimonials</span>
+                </button>
+                
+                <!-- Return to Chat Button -->
+                <button onclick="returnToVoiceChat()" style="
+                    background: linear-gradient(135deg, #7700ffff 0%, #001effff 100%);
+                    color: white; border: none; padding: 18px 30px;
+                    border-radius: 12px; font-size: 18px; font-weight: 600;
+                    cursor: pointer; transition: all 0.3s ease;
+                    display: flex; align-items: center; justify-content: center; gap: 10px;
+                ">
+                    <span style="font-size: 24px;">🎤</span>
+                    <span>Return to Voice Chat</span>
+                </button>
+            </div>
+        </div>
+    `;
+    
+    // Remove any existing nav screen
+    const existingNav = document.getElementById('testimonial-nav-options');
+    if (existingNav) existingNav.remove();
+    
+    document.body.appendChild(navScreen);
+    
+    // Add hover effects
+    setTimeout(() => {
+        const buttons = navScreen.querySelectorAll('button');
+        buttons.forEach(btn => {
+            btn.onmouseenter = function() {
+                this.style.transform = 'translateY(-3px)';
+                this.style.boxShadow = '0 15px 30px rgba(0,0,0,0.4)';
+            };
+            btn.onmouseleave = function() {
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = 'none';
+            };
+        });
+    }, 100);
+}
+
+
+// ================================
 // 🌀 UNIVERSAL TESTIMONIAL SPINNER
 // ================================
 function showTestimonialSpinner() {
@@ -332,28 +451,51 @@ function handleTestimonialSkip() {
 
 function closeTestimonialVideo() {
     console.log('🎬 Closing testimonial video - showing navigation options');
-    
+
     // 🛑 CRITICAL: Reset playing flags
     window.avatarCurrentlyPlaying = false;
+    if (window.testimonialVideoActive !== undefined) {
+        window.testimonialVideoActive = false;
+    }
     
-    // 🛡️ KEEP PROTECTION ACTIVE for navigation screen
+    // 🛡️ KEEP PROTECTION ACTIVE
     window.testimonialSessionActive = true;
+    window.testimonialProtectionActive = true;
     
-    // Remove video overlay
-    const overlay = document.getElementById('testimonial-video-overlay');
-    if (overlay) {
-        const video = overlay.querySelector('video');
+    // 🎯 REMOVE THE VIDEO PLAYER
+    const videoOverlay = document.getElementById('testimonial-video-overlay');
+    if (videoOverlay) {
+        // Stop any playing video first
+        const video = videoOverlay.querySelector('video');
         if (video) {
             video.pause();
             video.currentTime = 0;
         }
-        overlay.remove();
+        // Remove the overlay
+        videoOverlay.remove();
         console.log('✅ Video player removed');
     }
     
-    // 🎯 SHOW NAVIGATION OPTIONS
+    // Also check for any other video player IDs
+    const videoPlayer = document.getElementById('testimonial-video-player');
+    if (videoPlayer) {
+        const video = videoPlayer.querySelector('video');
+        if (video) {
+            video.pause();
+            video.currentTime = 0;
+        }
+        videoPlayer.remove();
+        console.log('✅ Alternative video player removed');
+    }
+    
+    // Hide spinner if it's showing
+    hideTestimonialSpinner();
+    
+    // 🎯 SHOW NAVIGATION/DECISION PANEL
     showTestimonialNavigationOptions();
+    console.log('✅ Navigation options shown');
 }
+
 
 // ================================
 // 🎯 NAVIGATION OPTIONS (MISSING FROM MINIMAL VERSION)
@@ -535,6 +677,7 @@ function initializeTestimonialSystem() {
 
 // 1. CORE TESTIMONIAL FUNCTIONS
 window.showTestimonialSplashScreen = showTestimonialSplashScreen;
+window.closeVideoAndShowNavigation = closeVideoAndShowNavigation;
 window.playTestimonialVideo = playTestimonialVideo;
 window.handleTestimonialButton = handleTestimonialButton;
 window.handleTestimonialSkip = handleTestimonialSkip;
