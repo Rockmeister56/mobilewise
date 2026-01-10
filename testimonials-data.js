@@ -159,5 +159,135 @@ window.testimonialData.getAvailableConcerns = function() {
     return concerns;
 };
 
+// ===================================================
+// 🎬 VIDEO PLAYER WITH CLOSE BUTTON (ADDED TO DATA FILE)
+// ===================================================
+
+// Function to play testimonial video WITH proper close button
+window.playTestimonialVideoWithOverlay = function(testimonial) {
+    console.log('🎬 Playing video from data file:', testimonial.title);
+    
+    if (!testimonial.videoUrl) {
+        console.error('❌ No video URL');
+        return;
+    }
+    
+    // Create overlay
+    const overlay = document.createElement('div');
+    overlay.id = 'testimonial-video-overlay';
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.95);
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        backdrop-filter: blur(10px);
+    `;
+    
+    // Create video container with 9:16 aspect ratio
+    const videoContainer = document.createElement('div');
+    videoContainer.style.cssText = `
+        position: relative;
+        width: 360px;   /* 9:16 aspect ratio */
+        height: 640px;
+        background: #000;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+        border: 1px solid rgba(255,255,255,0.1);
+    `;
+    
+    // Create video element
+    const video = document.createElement('video');
+    video.style.cssText = `
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    `;
+    video.controls = true;
+    video.autoplay = true;
+    
+    const source = document.createElement('source');
+    source.src = testimonial.videoUrl;
+    source.type = 'video/mp4';
+    video.appendChild(source);
+    
+    // Create CLOSE BUTTON with navigation to decision panel
+    const closeButton = document.createElement('button');
+    closeButton.textContent = '✕ Close & Choose Next Step';
+    closeButton.style.cssText = `
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 12px 32px;
+        background: rgba(0,0,0,0.7);
+        color: white;
+        border: 1px solid rgba(255,255,255,0.3);
+        border-radius: 25px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        backdrop-filter: blur(10px);
+        z-index: 10001;
+        transition: all 0.3s ease;
+    `;
+    
+    // Add hover effects
+    closeButton.onmouseenter = function() {
+        this.style.background = 'rgba(0,0,0,0.9)';
+        this.style.borderColor = 'rgba(255,255,255,0.5)';
+        this.style.transform = 'translateX(-50%) translateY(-2px)';
+    };
+    
+    closeButton.onmouseleave = function() {
+        this.style.background = 'rgba(0,0,0,0.7)';
+        this.style.borderColor = 'rgba(255,255,255,0.3)';
+        this.style.transform = 'translateX(-50%) translateY(0)';
+    };
+    
+    // 🎯 CRITICAL: Close button shows decision panel
+    closeButton.onclick = function() {
+        console.log('🎯 Close button clicked - showing decision panel');
+        
+        // Remove video overlay
+        overlay.remove();
+        
+        // Show decision panel (from testimonial-player.js)
+        if (window.showTestimonialNavigationOptions) {
+            window.showTestimonialNavigationOptions();
+        } else {
+            console.error('❌ Decision panel function not found!');
+            // Fallback: Return to voice chat
+            if (window.returnToVoiceChat) {
+                window.returnToVoiceChat();
+            }
+        }
+    };
+    
+    // Assemble everything
+    videoContainer.appendChild(video);
+    videoContainer.appendChild(closeButton);
+    overlay.appendChild(videoContainer);
+    document.body.appendChild(overlay);
+    
+    // Handle video end - also show decision panel
+    video.addEventListener('ended', function() {
+        console.log('✅ Video ended - showing decision panel');
+        closeButton.click(); // Trigger the close button logic
+    });
+    
+    console.log('✅ Video player created with close button');
+};
+
+// Make it globally available
+console.log('✅ Added playTestimonialVideoWithOverlay to testimonial data file');
+
 console.log('🎬 Testimonial Player Integration Ready');
 console.log('💰 Available concerns:', window.testimonialData.getAvailableConcerns().length);
