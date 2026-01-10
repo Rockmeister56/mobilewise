@@ -1,6 +1,6 @@
 // ===================================================
 // 🎬 TESTIMONIALS DATA - GENERATED
-// Generated: 1/8/2026, 9:20:31 PM
+// Generated: 1/10/2026, 8:13:40 AM
 // Total Groups: 2
 // Total Videos: 1
 // ===================================================
@@ -67,11 +67,11 @@ window.testimonialData = {
           "author": "Ted Johnson, Esq",
           "text": "",
           "addedAt": "2026-01-08T19:58:24.439Z",
-          "views": 9
+          "views": 10
         }
       ],
       "createdAt": "2026-01-08T19:49:47.532Z",
-      "viewCount": 9
+      "viewCount": 10
     },
     "group_web_form_aternative_1767919446882": {
       "id": "group_web_form_aternative_1767919446882",
@@ -93,7 +93,7 @@ window.testimonialData = {
   "statistics": {
     "totalGroups": 2,
     "totalVideos": 1,
-    "totalViews": 9
+    "totalViews": 10
   },
   "playerConfig": {
     "desktop": {
@@ -112,7 +112,7 @@ window.testimonialData = {
     "resumeMessage": "I'm sure you can appreciate what our clients have to say. So let's get back on track with helping you sell your practice. Would you like a free consultation with Bruce that can analyze your particular situation?"
   },
   "__version": "2.0-groups-system",
-  "__generated": "2026-01-09T05:20:31.386Z",
+  "__generated": "2026-01-10T16:13:40.650Z",
   "__notes": "COMPLETELY CLEAN - No video URLs, no testimonials, no groups"
 };
 
@@ -157,35 +157,6 @@ window.testimonialData.getAvailableConcerns = function() {
         });
     }
     return concerns;
-};
-
-// Add this function to testimonials-data.js:
-
-// Get testimonials for a specific concern FROM ALL GROUPS
-window.testimonialData.getTestimonialsByConcern = function(concernKey) {
-    const allTestimonials = [];
-    
-    // Check if we have groups
-    if (!this.testimonialGroups) return allTestimonials;
-    
-    for (const [groupId, group] of Object.entries(this.testimonialGroups)) {
-        // Check if this group has the concern
-        if (group.concerns && group.concerns.includes(concernKey)) {
-            // Add all testimonials from this group
-            if (group.testimonials && group.testimonials.length > 0) {
-                // Add group info to each testimonial
-                const groupTestimonials = group.testimonials.map(t => ({
-                    ...t,
-                    groupId: group.id,
-                    groupName: group.name,
-                    groupIcon: group.icon
-                }));
-                allTestimonials.push(...groupTestimonials);
-            }
-        }
-    }
-    
-    return allTestimonials;
 };
 
 console.log('🎬 Testimonial Player Integration Ready');
