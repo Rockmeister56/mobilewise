@@ -164,13 +164,25 @@ window.testimonialData.getAvailableConcerns = function() {
 // ===================================================
 
 // Function to play testimonial video WITH proper close button
+// ===================================================
+// 🎬 VIDEO PLAYER WITH PROPER SIZE & VISIBLE CLOSE BUTTON
+// ===================================================
+
 window.playTestimonialVideoWithOverlay = function(testimonial) {
-    console.log('🎬 Playing video from data file:', testimonial.title);
+    console.log('🎬 Playing video with proper size:', testimonial.title);
     
     if (!testimonial.videoUrl) {
         console.error('❌ No video URL');
         return;
     }
+    
+    // 🛡️ Set protection flags
+    window.avatarCurrentlyPlaying = true;
+    window.testimonialSessionActive = true;
+    
+    // Remove any existing overlay first
+    const existingOverlay = document.getElementById('testimonial-video-overlay');
+    if (existingOverlay) existingOverlay.remove();
     
     // Create overlay
     const overlay = document.createElement('div');
@@ -188,27 +200,75 @@ window.playTestimonialVideoWithOverlay = function(testimonial) {
         justify-content: center;
         align-items: center;
         backdrop-filter: blur(10px);
+        animation: fadeIn 0.3s ease;
     `;
     
-    // Create video container with 9:16 aspect ratio
+    // Create MAIN CONTAINER (properly sized)
+    const container = document.createElement('div');
+    container.style.cssText = `
+        position: relative;
+        width: 380px;                 /* Mobile-like width */
+        max-width: 90vw;              /* Responsive */
+        background: rgba(20,20,30,0.9);
+        border-radius: 20px;
+        padding: 25px;
+        box-shadow: 0 30px 80px rgba(0,0,0,0.8);
+        border: 1px solid rgba(255,255,255,0.15);
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    `;
+    
+    // Create HEADER with title
+    const header = document.createElement('div');
+    header.style.cssText = `
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        color: white;
+        font-family: 'Segoe UI', sans-serif;
+    `;
+    
+    header.innerHTML = `
+        <div style="
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        ">🎬</div>
+        <div>
+            <h3 style="margin: 0 0 5px 0; font-size: 18px; font-weight: 600;">
+                ${testimonial.title || 'Client Testimonial'}
+            </h3>
+            <p style="margin: 0; opacity: 0.7; font-size: 13px;">
+                Real story from a satisfied client
+            </p>
+        </div>
+    `;
+    
+    // Create VIDEO CONTAINER (proper aspect ratio)
     const videoContainer = document.createElement('div');
     videoContainer.style.cssText = `
         position: relative;
-        width: 360px;   /* 9:16 aspect ratio */
-        height: 640px;
+        width: 100%;
         background: #000;
-        border-radius: 20px;
+        border-radius: 12px;
         overflow: hidden;
-        box-shadow: 0 20px 60px rgba(0,0,0,0.7);
-        border: 1px solid rgba(255,255,255,0.1);
+        border: 2px solid rgba(255,255,255,0.1);
     `;
     
-    // Create video element
+    // Create VIDEO element
     const video = document.createElement('video');
     video.style.cssText = `
         width: 100%;
-        height: 100%;
-        object-fit: cover;
+        height: auto;
+        display: block;
+        border-radius: 10px;
     `;
     video.controls = true;
     video.autoplay = true;
@@ -218,72 +278,85 @@ window.playTestimonialVideoWithOverlay = function(testimonial) {
     source.type = 'video/mp4';
     video.appendChild(source);
     
-    // Create CLOSE BUTTON with navigation to decision panel
+    // Create CLOSE BUTTON (VISIBLE - outside video container)
     const closeButton = document.createElement('button');
-    closeButton.textContent = '✕ Close & Choose Next Step';
+    closeButton.innerHTML = `
+        <span style="font-size: 16px; margin-right: 8px;">✕</span>
+        Close & Choose Next Step
+    `;
     closeButton.style.cssText = `
-        position: absolute;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        padding: 12px 32px;
-        background: rgba(0,0,0,0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        padding: 16px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
-        border: 1px solid rgba(255,255,255,0.3);
-        border-radius: 25px;
-        font-size: 14px;
+        border: none;
+        border-radius: 12px;
+        font-size: 16px;
         font-weight: 600;
         cursor: pointer;
-        backdrop-filter: blur(10px);
-        z-index: 10001;
         transition: all 0.3s ease;
+        margin-top: 10px;
     `;
     
     // Add hover effects
     closeButton.onmouseenter = function() {
-        this.style.background = 'rgba(0,0,0,0.9)';
-        this.style.borderColor = 'rgba(255,255,255,0.5)';
-        this.style.transform = 'translateX(-50%) translateY(-2px)';
+        this.style.transform = 'translateY(-2px)';
+        this.style.boxShadow = '0 10px 30px rgba(102, 126, 234, 0.4)';
+        this.style.opacity = '0.95';
     };
     
     closeButton.onmouseleave = function() {
-        this.style.background = 'rgba(0,0,0,0.7)';
-        this.style.borderColor = 'rgba(255,255,255,0.3)';
-        this.style.transform = 'translateX(-50%) translateY(0)';
+        this.style.transform = 'translateY(0)';
+        this.style.boxShadow = 'none';
+        this.style.opacity = '1';
     };
     
-    // 🎯 CRITICAL: Close button shows decision panel
+    // 🎯 CLOSE BUTTON ACTION
     closeButton.onclick = function() {
-        console.log('🎯 Close button clicked - showing decision panel');
+        console.log('🎯 Close button clicked');
         
-        // Remove video overlay
+        // Stop video
+        video.pause();
+        video.currentTime = 0;
+        
+        // Remove overlay
         overlay.remove();
         
-        // Show decision panel (from testimonial-player.js)
+        // Show decision panel
         if (window.showTestimonialNavigationOptions) {
-            window.showTestimonialNavigationOptions();
+            setTimeout(() => {
+                window.showTestimonialNavigationOptions();
+            }, 300);
         } else {
-            console.error('❌ Decision panel function not found!');
-            // Fallback: Return to voice chat
-            if (window.returnToVoiceChat) {
-                window.returnToVoiceChat();
-            }
+            console.log('❌ Navigation function not found');
+            // Reset flags and return to chat
+            window.avatarCurrentlyPlaying = false;
+            window.testimonialSessionActive = false;
         }
     };
     
     // Assemble everything
     videoContainer.appendChild(video);
-    videoContainer.appendChild(closeButton);
-    overlay.appendChild(videoContainer);
+    container.appendChild(header);
+    container.appendChild(videoContainer);
+    container.appendChild(closeButton);
+    overlay.appendChild(container);
+    
+    // Add to page
     document.body.appendChild(overlay);
     
-    // Handle video end - also show decision panel
+    // Handle video end
     video.addEventListener('ended', function() {
-        console.log('✅ Video ended - showing decision panel');
-        closeButton.click(); // Trigger the close button logic
+        console.log('✅ Video ended');
+        setTimeout(() => {
+            closeButton.click(); // Trigger close button
+        }, 1000);
     });
     
-    console.log('✅ Video player created with close button');
+    console.log('✅ Video player created with proper size and visible button');
 };
 
 

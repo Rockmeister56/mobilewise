@@ -437,12 +437,32 @@ function playTestimonialVideo(buttonId) {
 function handleTestimonialButton(buttonId) {
     console.log(`🎬 Button clicked: ${buttonId}`);
     
-    // 🛡️ Ensure buttons can be clicked
-    if (window.avatarCurrentlyPlaying) {
-        console.log('🔄 Force-resetting avatarCurrentlyPlaying flag');
-        window.avatarCurrentlyPlaying = false;
+    // Reset flags
+    window.avatarCurrentlyPlaying = false;
+    
+    // Get testimonial data
+    const testimonial = window.testimonialVideos[buttonId];
+    if (!testimonial) {
+        console.error('❌ No testimonial data for:', buttonId);
+        console.log('Available testimonials:', window.testimonialVideos);
+        return;
     }
-    playTestimonialVideo(buttonId);
+    
+    console.log('📊 Testimonial data:', {
+        title: testimonial.title,
+        hasVideoUrl: !!testimonial.videoUrl,
+        videoUrl: testimonial.videoUrl ? testimonial.videoUrl.substring(0, 50) + '...' : 'none'
+    });
+    
+    // 🎯 USE OUR NEW FUNCTION
+    if (typeof window.playTestimonialVideoWithOverlay === 'function') {
+        console.log('✅ Calling playTestimonialVideoWithOverlay()');
+        window.playTestimonialVideoWithOverlay(testimonial);
+    } else {
+        console.error('❌ playTestimonialVideoWithOverlay not available');
+        console.log('Falling back to old player...');
+        playTestimonialVideo(buttonId);
+    }
 }
 
 function handleTestimonialSkip() {
