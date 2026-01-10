@@ -63,19 +63,30 @@ function handleUserConcern(concernKey) {
 }
 
 // =============================================================================
-// 🎯 COMPLETE getAIResponse FUNCTION (400+ lines of logic)
+// 🎯 COMPLETE getAIResponse FUNCTION
 // =============================================================================
- function getAIResponse(userMessage, conversationHistory = []) {
+function getAIResponse(userMessage, conversationHistory = []) {
     console.log('🧠 MOBILEWISE AI Processing:', userMessage);
 
-    // 🎯 POST-TESTIMONIAL RESPONSE HANDLER - ADD THIS FIRST
-    if (window.lastQuestionContext === 'post-testimonial') {
-        console.log('🎯 Post-testimonial response detected in main AI handler');
-        window.lastQuestionContext = null; // Reset immediately
+    // 🎯 ENHANCED POST-TESTIMONIAL RESPONSE HANDLER
+    if (window.lastQuestionContext === 'post-testimonial' || 
+        window.postTestimonialActive === true) {
+        
+        console.log('🎯 POST-TESTIMONIAL RESPONSE DETECTED!');
+        console.log('   Context:', window.lastQuestionContext);
+        console.log('   Active:', window.postTestimonialActive);
+        
+        // Clear ALL context flags
+        window.lastQuestionContext = null;
+        window.postTestimonialActive = false;
         
         if (window.handlePostTestimonialResponse) {
-            window.handlePostTestimonialResponse(userMessage);  // ✅ FIXED: userMessage
+            console.log('✅ Calling response handler with:', userMessage);
+            window.handlePostTestimonialResponse(userMessage);
             return; // STOP - don't process with normal AI
+        } else {
+            console.error('❌ Response handler not found!');
+            // Continue with normal AI processing
         }
     }
     
@@ -87,7 +98,8 @@ function handleUserConcern(concernKey) {
     
     console.log(`📊 State: ${mw.state}, User: ${userName || 'New user'}`);
 
-     if (window.testimonialData && window.testimonialData.findRelevantTestimonial) {
+    // 🎯 Testimonial integration
+    if (window.testimonialData && window.testimonialData.findRelevantTestimonial) {
         const testimonial = window.testimonialData.findRelevantTestimonial(userMessage);
         if (testimonial) {
             // Incorporate testimonial into your response
@@ -96,21 +108,21 @@ function handleUserConcern(concernKey) {
     }
 
     // 🎯 Handle "yes/no" in QUALIFICATION state
-if (mw.state === 'qualification') {
-    console.log('🎯 User is responding to qualification question');
-    
-    if (lowerMsg.includes('yes') || lowerMsg === 'yeah' || lowerMsg === 'yep') {
-        console.log('✅ User said YES to qualification');
-        mw.state = 'getting_contact_info';
-        return "Perfect! Let's get your consultation scheduled. What's the best phone number to reach you?";
+    if (mw.state === 'qualification') {
+        console.log('🎯 User is responding to qualification question');
+        
+        if (lowerMsg.includes('yes') || lowerMsg === 'yeah' || lowerMsg === 'yep') {
+            console.log('✅ User said YES to qualification');
+            mw.state = 'getting_contact_info';
+            return "Perfect! Let's get your consultation scheduled. What's the best phone number to reach you?";
+        }
+        
+        if (lowerMsg.includes('no') || lowerMsg === 'nah' || lowerMsg === 'nope') {
+            console.log('⚠️ User said NO to qualification');
+            mw.state = 'general_help';
+            return "I understand. What other questions can I help you with today?";
+        }
     }
-    
-    if (lowerMsg.includes('no') || lowerMsg === 'nah' || lowerMsg === 'nope') {
-        console.log('⚠️ User said NO to qualification');
-        mw.state = 'general_help';
-        return "I understand. What other questions can I help you with today?";
-    }
-}
     
     // 🎯 SIMPLE FIX: Check CURRENT STATE first
     // ----------------------------------------------------------

@@ -366,28 +366,24 @@ window.playTestimonialVideoWithOverlay = function(testimonial) {
 window.triggerPostTestimonialSpeech = function() {
     console.log('🎤 Post-testimonial speech triggered');
     
-    // Reset flags first
+    // Reset flags
     window.avatarCurrentlyPlaying = false;
     window.testimonialSessionActive = false;
     
-    // Delay a bit for smooth transition
     setTimeout(() => {
-        // Check if we have voice system available
         if (window.speakText) {
-            // Generic call-to-action message
             const message = "Based on what you've seen from our clients' results, would you like to connect and get more information about how this could work for you?";
             
             console.log('💬 Post-testimonial CTA:', message);
             
-            // Speak the message
-            window.speakText(message);
+            // 🎯 SET BOTH CONTEXT FLAGS FOR RELIABILITY
+            window.lastQuestionContext = 'post-testimonial';
+            window.postTestimonialActive = true;
             
-            // If you have a specific consultation offer, you could use:
-            // const message = "I'm sure you can appreciate what our clients have to say. So let's get back on track with helping you sell your practice. Would you like a free consultation with Bruce that can analyze your particular situation?";
+            window.speakText(message);
             
         } else {
             console.log('❌ Voice system not available');
-            // Fallback to showing banner
             if (window.showDirectSpeakNow) {
                 window.showDirectSpeakNow();
             }
@@ -399,66 +395,51 @@ window.triggerPostTestimonialSpeech = function() {
 // 🎯 DIRECT LEAD CAPTURE FOR POST-TESTIMONIAL
 // ===================================================
 
-window.handlePostTestimonialResponse = function(userResponse) {
-    console.log('🎯 Handling post-testimonial response:', userResponse);
+window.handlePostTestimonialResponse = function(response) {
+    console.log('🎯 Handling post-testimonial response:', response);
     
-    // Convert response to lowercase for easier matching
-    const response = userResponse.toLowerCase().trim();
+    const lowerResponse = response.toLowerCase();
     
-    // Positive responses that should trigger lead capture
-    const positiveResponses = [
-        'yes', 'yes please', 'yes i would', 'sure', 'absolutely',
-        'that sounds good', 'i\'m interested', 'let\'s do it',
-        'i\'d like that', 'please', 'ok', 'okay', 'yeah', 'yep',
-        'connect', 'more information', 'tell me more'
-    ];
-    
-    // Negative responses
-    const negativeResponses = [
-        'no', 'no thanks', 'not now', 'maybe later', 'i\'m not interested',
-        'not really', 'pass', 'skip', 'later'
-    ];
-    
-    // Check if it's a positive response
-    const isPositive = positiveResponses.some(positive => 
-        response.includes(positive) || positive.includes(response)
-    );
-    
-    // Check if it's a negative response  
-    const isNegative = negativeResponses.some(negative =>
-        response.includes(negative) || negative.includes(response)
-    );
+    // SIMPLIFIED: Just check for key words (more reliable)
+    const isPositive = 
+        lowerResponse.includes('yes') || 
+        lowerResponse.includes('sure') || 
+        lowerResponse.includes('okay') ||
+        lowerResponse.includes('yeah') ||
+        lowerResponse.includes('interested') ||
+        lowerResponse.includes('connect') ||
+        lowerResponse.includes('please') ||
+        lowerResponse.includes('go ahead') ||
+        lowerResponse.includes('let\'s do it') ||
+        lowerResponse === 'yep' ||
+        lowerResponse === 'ok' ||
+        lowerResponse === 'y';
     
     if (isPositive) {
-        console.log('✅ Positive response - triggering lead capture');
+        console.log('✅ Positive response - showing action center');
         
-        // Trigger your action system
+        // Try your lead capture functions IN ORDER
         if (window.showActionCenter) {
             window.showActionCenter();
+        } else if (window.showScheduleForm) {
+            window.showScheduleForm();
         } else if (window.showContactOptions) {
             window.showContactOptions();
         } else if (window.initiateLeadCapture) {
             window.initiateLeadCapture();
         } else {
-            console.error('❌ No lead capture function found');
-            // Fallback - ask for name
+            console.log('⚠️ No lead capture function found');
+            // Fallback
             if (window.speakText) {
-                window.speakText("Great! Could I get your first name to get you started?");
+                window.speakText("Great! Could I get your name to get you started?");
             }
         }
         
-    } else if (isNegative) {
-        console.log('❌ Negative response - continuing conversation');
-        
-        if (window.speakText) {
-            window.speakText("No problem. Is there anything else you'd like to know about our services?");
-        }
-        
     } else {
-        console.log('❓ Unclear response - asking for clarification');
-        
+        console.log('❌ Negative or unclear response');
+        // Continue conversation
         if (window.speakText) {
-            window.speakText("I'm not sure I understood. Would you like to connect for more information, or should we continue our conversation?");
+            window.speakText("No problem. What else would you like to know about our services?");
         }
     }
 };
