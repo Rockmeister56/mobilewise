@@ -286,6 +286,59 @@ window.playTestimonialVideoWithOverlay = function(testimonial) {
     console.log('✅ Video player created with close button');
 };
 
+
+// ===================================================
+// 🧪 TEST FUNCTION - CHECK FLOW CONNECTION
+// ===================================================
+
+window.testTestimonialFlow = function() {
+    console.log('🔍 TESTING TESTIMONIAL FLOW');
+    
+    // 1. Check if we have testimonial data
+    if (!window.testimonialData || !window.testimonialData.testimonialGroups) {
+        console.error('❌ No testimonial data');
+        return;
+    }
+    
+    // 2. Get first testimonial
+    const groups = window.testimonialData.testimonialGroups;
+    const firstGroupKey = Object.keys(groups)[0];
+    const firstGroup = groups[firstGroupKey];
+    
+    if (!firstGroup.testimonials || firstGroup.testimonials.length === 0) {
+        console.error('❌ No testimonials in first group');
+        return;
+    }
+    
+    const firstTestimonial = firstGroup.testimonials[0];
+    
+    console.log('📊 Testimonial found:', {
+        title: firstTestimonial.title,
+        videoUrl: firstTestimonial.videoUrl ? '✅ Has URL' : '❌ No URL',
+        videoUrlLength: firstTestimonial.videoUrl?.length || 0
+    });
+    
+    // 3. Test if our function exists
+    console.log('🔧 Function check:', {
+        playTestimonialVideoWithOverlay: typeof window.playTestimonialVideoWithOverlay,
+        handleTestimonialButton: typeof window.handleTestimonialButton
+    });
+    
+    // 4. DIRECT TEST: Call our function with the testimonial
+    if (typeof window.playTestimonialVideoWithOverlay === 'function') {
+        console.log('🎬 DIRECT TEST: Calling playTestimonialVideoWithOverlay()');
+        
+        // Show a confirmation before playing
+        if (confirm('Test the video player? This will play: ' + firstTestimonial.title)) {
+            window.playTestimonialVideoWithOverlay(firstTestimonial);
+        }
+    } else {
+        console.error('❌ playTestimonialVideoWithOverlay function not found!');
+    }
+};
+
+console.log('✅ Test function added: testTestimonialFlow() is available');
+
 // Make it globally available
 console.log('✅ Added playTestimonialVideoWithOverlay to testimonial data file');
 

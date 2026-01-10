@@ -436,6 +436,7 @@ function playTestimonialVideo(buttonId) {
 // ================================
 function handleTestimonialButton(buttonId) {
     console.log(`🎬 Button clicked: ${buttonId}`);
+    
     // 🛡️ Ensure buttons can be clicked
     if (window.avatarCurrentlyPlaying) {
         console.log('🔄 Force-resetting avatarCurrentlyPlaying flag');
