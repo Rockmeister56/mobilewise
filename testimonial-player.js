@@ -618,20 +618,35 @@ function returnToVoiceChat() {
     
     console.log('✅ Testimonial system closed - ready for voice chat');
     
-    // Trigger consultation offer or return to main flow
-    setTimeout(() => {
-        if (window.triggerPostTestimonialSpeech) {
-            window.triggerPostTestimonialSpeech();
-        } else if (window.continueConversation) {
-            window.continueConversation();
+   // Trigger consultation offer or return to main flow
+setTimeout(() => {
+    console.log('🔄 Looking for post-testimonial function...');
+    
+    // Try our new function first
+    if (typeof window.triggerPostTestimonialSpeech === 'function') {
+        console.log('✅ Found triggerPostTestimonialSpeech');
+        window.triggerPostTestimonialSpeech();
+    }
+    // Try AI system continuation
+    else if (typeof window.continueConversation === 'function') {
+        console.log('✅ Found continueConversation');
+        window.continueConversation();
+    }
+    // Try MobileWise AI specific function
+    else if (typeof window.mobilewiseContinueAfterTestimonial === 'function') {
+        console.log('✅ Found mobilewiseContinueAfterTestimonial');
+        window.mobilewiseContinueAfterTestimonial();
+    }
+    // Last resort: show banner
+    else {
+        console.log('⚠️ No post-testimonial function found - showing banner');
+        if (typeof window.showDirectSpeakNow === 'function') {
+            window.showDirectSpeakNow();
         } else {
-            console.log('⚠️ No post-testimonial function found');
-            // Trigger banner system
-            if (window.showDirectSpeakNow) {
-                window.showDirectSpeakNow();
-            }
+            console.error('❌ No fallback available');
         }
-    }, 500);
+    }
+}, 500);
 }
 
 function showMoreTestimonials() {

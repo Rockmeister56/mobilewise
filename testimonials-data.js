@@ -359,6 +359,42 @@ window.playTestimonialVideoWithOverlay = function(testimonial) {
     console.log('✅ Video player created with proper size and visible button');
 };
 
+// ===================================================
+// 🎤 POST-TESTIMONIAL SPEECH FUNCTION
+// ===================================================
+
+window.triggerPostTestimonialSpeech = function() {
+    console.log('🎤 Post-testimonial speech triggered');
+    
+    // Reset flags first
+    window.avatarCurrentlyPlaying = false;
+    window.testimonialSessionActive = false;
+    
+    // Delay a bit for smooth transition
+    setTimeout(() => {
+        // Check if we have voice system available
+        if (window.speakText) {
+            // Generic call-to-action message
+            const message = "If we could get you similar results to what our clients have achieved, would you be interested in a free consultation to explore how we can help you?";
+            
+            console.log('💬 Post-testimonial CTA:', message);
+            
+            // Speak the message
+            window.speakText(message);
+            
+            // If you have a specific consultation offer, you could use:
+            // const message = "I'm sure you can appreciate what our clients have to say. So let's get back on track with helping you sell your practice. Would you like a free consultation with Bruce that can analyze your particular situation?";
+            
+        } else {
+            console.log('❌ Voice system not available');
+            // Fallback to showing banner
+            if (window.showDirectSpeakNow) {
+                window.showDirectSpeakNow();
+            }
+        }
+    }, 800);
+};
+
 
 // ===================================================
 // 🧪 TEST FUNCTION - CHECK FLOW CONNECTION
