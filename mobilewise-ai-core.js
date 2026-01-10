@@ -342,9 +342,23 @@ for (const concern of concernPatterns) {
     }
 }
 
-// 🎯 ENHANCED CONCERN HANDLER - ECHOES SPECIFIC CONCERN
+// 🎯 CORRECTED VERSION - Remove duplicate
 function handleConcernWithTestimonial(userText) {
-        window.testimonialActive = true;
+    window.testimonialActive = true;
+
+    // 🛑 PREVENT DUPLICATE SPLASH SCREENS
+    const existingSplash = document.getElementById('testimonial-splash-screen');
+    if (existingSplash) {
+        console.log('⚠️ Splash screen already exists - removing duplicate');
+        existingSplash.remove();
+    }
+    
+    // 🛑 CHECK IF ALREADY PLAYING
+    if (window.avatarCurrentlyPlaying) {
+        console.log('🚫 Video already playing - skipping new splash screen');
+        return;
+    }
+
     console.log(`🎯 handleConcernWithTestimonial called with: "${userText}"`);
     
     // 🎯 DETECT CONCERN TYPE FROM USER TEXT
@@ -360,82 +374,59 @@ function handleConcernWithTestimonial(userText) {
     }
     
     console.log(`🎯 Handling ${concernType} concern - showing testimonial response`);
-console.log(`🎯 Echo response: "${acknowledgment}"`);
+    console.log(`🎯 Echo response: "${acknowledgment}"`);
 
-// 🎯 UPDATED FLOW: TESTIMONIALS FIRST, THEN SPEECH
-
-// 1. STOP ANY CURRENT SPEECH IMMEDIATELY
-if (window.stopSpeaking && typeof window.stopSpeaking === 'function') {
-    window.stopSpeaking();
-    console.log('🔇 Stopped any current speech');
-}
-
-if (window.stopListening && typeof window.stopListening === 'function') {
-    window.stopListening();
-    console.log('🔇 Stopped any current listening');
-}
-
-// 2. Add AI message to chat (SILENTLY - no speech yet)
-if (window.addAIMessage && typeof window.addAIMessage === 'function') {
-    window.addAIMessage(acknowledgment);
-    console.log('✅ AI message added to chat (silent)');
-}
-
-// 🛑 CRITICAL FIX: Block ALL speech during testimonials
-window.speechBlockedForTestimonials = true;
-
-// Also stop any current speech immediately
-if (window.stopSpeaking) {
-    window.stopSpeaking();
-    console.log('🔇 Stopped any current speech');
-}
-
-// Set timeout to re-enable speech after testimonials
-setTimeout(() => {
-    window.speechBlockedForTestimonials = false;
-    console.log('🔓 Speech block released');
-}, 15000); // 15 seconds
-
-// 3. SHOW TESTIMONIALS IMMEDIATELY - THEY CONTROL THE FLOW NOW
-setTimeout(() => {
-    if (window.showTestimonialSplashScreen && typeof window.showTestimonialSplashScreen === 'function') {
-        window.testimonialActive = true;
-        console.log('🎬 Setting testimonialActive = true');
-        
-        window.showTestimonialSplashScreen();
-        console.log('✅ Testimonial splash screen launched');
+    // 1. STOP ANY CURRENT SPEECH IMMEDIATELY
+    if (window.stopSpeaking && typeof window.stopSpeaking === 'function') {
+        window.stopSpeaking();
+        console.log('🔇 Stopped any current speech');
     }
-}, 100);
 
-// 3. SHOW TESTIMONIALS IMMEDIATELY - THEY CONTROL THE FLOW NOW
-setTimeout(() => {
-    if (window.showTestimonialSplashScreen && typeof window.showTestimonialSplashScreen === 'function') {
-        // Set flag that testimonials are active
-        window.testimonialActive = true;
-        console.log('🎬 Setting testimonialActive = true');
-        
-        window.showTestimonialSplashScreen();
-        console.log('✅ Testimonial splash screen launched - THEY control speech flow');
-    } else {
-        console.error('❌ showTestimonialSplashScreen not available');
-        // Fallback: speak after delay
-        setTimeout(() => {
-            if (window.speakText) window.speakText(acknowledgment);
-        }, 1000);
+    if (window.stopListening && typeof window.stopListening === 'function') {
+        window.stopListening();
+        console.log('🔇 Stopped any current listening');
     }
-}, 100);
 
-// 4. DELAY SPEECH UNTIL TESTIMONIALS ARE DONE
-// Testimonials should trigger their OWN speech at the right time
-// Remove this entire speakText block - testimonials will handle it
+    // 2. Add AI message to chat (SILENTLY - no speech yet)
+    if (window.addAIMessage && typeof window.addAIMessage === 'function') {
+        window.addAIMessage(acknowledgment);
+        console.log('✅ AI message added to chat (silent)');
+    }
 
-// 5. Store the concern
-window.lastDetectedConcern = {
-    text: userText,
-    type: concernType,
-    timestamp: Date.now(),
-    echoResponse: acknowledgment,
-    testimonialTriggered: true  // Add this flag
+    // 🛑 CRITICAL FIX: Block ALL speech during testimonials
+    window.speechBlockedForTestimonials = true;
+
+    // Set timeout to re-enable speech after testimonials
+    setTimeout(() => {
+        window.speechBlockedForTestimonials = false;
+        console.log('🔓 Speech block released');
+    }, 15000); // 15 seconds
+
+    // 3. SHOW TESTIMONIALS IMMEDIATELY - THEY CONTROL THE FLOW NOW
+    setTimeout(() => {
+        if (window.showTestimonialSplashScreen && typeof window.showTestimonialSplashScreen === 'function') {
+            // Set flag that testimonials are active
+            window.testimonialActive = true;
+            console.log('🎬 Setting testimonialActive = true');
+            
+            window.showTestimonialSplashScreen();
+            console.log('✅ Testimonial splash screen launched - THEY control speech flow');
+        } else {
+            console.error('❌ showTestimonialSplashScreen not available');
+            // Fallback: speak after delay
+            setTimeout(() => {
+                if (window.speakText) window.speakText(acknowledgment);
+            }, 1000);
+        }
+    }, 100);
+
+    // 5. Store the concern
+    window.lastDetectedConcern = {
+        text: userText,
+        type: concernType,
+        timestamp: Date.now(),
+        echoResponse: acknowledgment,
+        testimonialTriggered: true  // Add this flag
     };
 }
 
