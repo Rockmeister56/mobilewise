@@ -885,13 +885,42 @@ function handleConsultationResponse(userInput) {
     const userInputLower = userInput.toLowerCase().trim();
     
     // Check if this is a positive response to consultation offer
-    const isConsultationResponse = window.expectingConsultationResponse || window.consultationQuestionActive;
+    const isConsultationContext = window.expectingConsultationResponse || window.consultationQuestionActive;
     
-    if (isConsultationResponse) {
-        // Check if ANY positive response word is in the user input
-        const hasPositiveResponse = positiveResponses.some(response => 
-            userInputLower.includes(response)
-        );
+    if (isConsultationContext) {
+        // IMPROVED MATCHING: Check multiple ways
+        let hasPositiveResponse = false;
+        
+        // First check exact matches
+        if (positiveResponses.includes(userInputLower)) {
+            hasPositiveResponse = true;
+        } else {
+            // Check for partial matches
+            for (const response of positiveResponses) {
+                // Create regex for word boundary matching
+                const regex = new RegExp(`\\b${response}\\b`, 'i');
+                if (regex.test(userInputLower)) {
+                    hasPositiveResponse = true;
+                    break;
+                }
+                
+                // Also check if response is at the beginning
+                if (userInputLower.startsWith(response) && 
+                    (userInputLower.length === response.length || 
+                     userInputLower[response.length] === ' ' ||
+                     userInputLower[response.length] === ',' ||
+                     userInputLower[response.length] === '.')) {
+                    hasPositiveResponse = true;
+                    break;
+                }
+                
+                // Check if it's in the string (more lenient)
+                if (userInputLower.includes(response) && response.length > 2) {
+                    hasPositiveResponse = true;
+                    break;
+                }
+            }
+        }
         
         if (hasPositiveResponse) {
             console.log('🎯 POSITIVE CONSULTATION RESPONSE DETECTED - Triggering action panel');
@@ -904,41 +933,38 @@ function handleConsultationResponse(userInput) {
             window.testimonialSessionActive = false;
             window.isInTestimonialMode = false;
             
-            // Trigger action panel - TRY ALL POSSIBLE METHODS
+            // Trigger action panel
             setTimeout(() => {
                 console.log('🎯 Attempting to trigger action center...');
                 
-                // Method 1: Try showActionPanel
-                if (typeof window.showActionPanel === 'function') {
-                    window.showActionPanel();
-                    console.log('✅ showActionPanel() called');
+                // Try multiple methods to ensure we trigger the action center
+                const actionMethods = [
+                    () => typeof window.showActionPanel === 'function' && window.showActionPanel(),
+                    () => typeof window.triggerActionCenter === 'function' && window.triggerActionCenter(),
+                    () => window.universalBannerEngine && typeof window.universalBannerEngine.showBanner === 'function' && window.universalBannerEngine.showBanner('set_appointment'),
+                    () => typeof window.showCommunicationRelayCenter === 'function' && window.showCommunicationRelayCenter(),
+                    () => typeof window.showUniversalBanner === 'function' && window.showUniversalBanner(),
+                    () => typeof window.openActionCenter === 'function' && window.openActionCenter(),
+                    () => typeof window.launchActionPanel === 'function' && window.launchActionPanel()
+                ];
+                
+                let triggered = false;
+                for (const method of actionMethods) {
+                    try {
+                        if (method()) {
+                            console.log('✅ Action center triggered successfully');
+                            triggered = true;
+                            break;
+                        }
+                    } catch (e) {
+                        // Continue to next method
+                    }
                 }
-                // Method 2: Try triggerActionCenter
-                else if (typeof window.triggerActionCenter === 'function') {
-                    window.triggerActionCenter();
-                    console.log('✅ triggerActionCenter() called');
-                }
-                // Method 3: Try universalBannerEngine
-                else if (window.universalBannerEngine && typeof window.universalBannerEngine.showBanner === 'function') {
-                    window.universalBannerEngine.showBanner('set_appointment');
-                    console.log('✅ universalBannerEngine.showBanner() called');
-                }
-                // Method 4: Try direct function from unified system
-                else if (typeof window.showCommunicationRelayCenter === 'function') {
-                    window.showCommunicationRelayCenter();
-                    console.log('✅ showCommunicationRelayCenter() called');
-                }
-                // Method 5: Try the universal banner function
-                else if (typeof window.showUniversalBanner === 'function') {
-                    window.showUniversalBanner();
-                    console.log('✅ showUniversalBanner() called');
-                }
-                else {
-                    console.error('❌ No action center function found!');
-                    console.log('Available functions:', Object.keys(window).filter(key => 
-                        typeof window[key] === 'function' && 
-                        (key.includes('action') || key.includes('center') || key.includes('panel'))
-                    ));
+                
+                if (!triggered) {
+                    console.error('❌ No action center function worked!');
+                    // Emergency fallback - just show a button or something
+                    alert('Action center would open here! (Fallback)');
                 }
             }, 1000);
             
