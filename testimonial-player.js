@@ -599,6 +599,19 @@ function showTestimonialNavigationOptions() {
 
 function returnToVoiceChat() {
     console.log('🎯🎯🎯 RETURN TO VOICE CHAT 🎯🎯🎯');
+
+     // 🚨 TURN OFF ALL TESTIMONIAL SWITCHES
+    window.testimonialActive = false;
+    window.speechBlockedForTestimonials = false;
+    window.testimonialSessionActive = false;
+    window.avatarCurrentlyPlaying = false;
+    
+    if (window.mobilewiseAI) {
+        window.mobilewiseAI.testimonialActive = false;
+        window.mobilewiseAI.speechBlocked = false;
+    }
+    
+    console.log('🔓 All switches OFF - AI can speak now');
     
     // Remove all testimonial elements
     const elementsToRemove = [
