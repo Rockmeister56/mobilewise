@@ -8,6 +8,7 @@ window.testimonialVideos = {};
 window.consultationOfferActive = false;
 window.expectingConsultationResponse = false;
 window.consultationQuestionActive = false;
+window.consultationResponseProcessed = false;
 
 // ================================
 // 🎬 SPLASH SCREEN (WORKING VERSION)
@@ -720,6 +721,9 @@ function returnToVoiceChat() {
     // 4. Set consultation flag
     window.consultationOfferActive = true;
     console.log('🎯 Consultation offer active - emergency Bruce detection enabled');
+
+    window.consultationResponseProcessed = false;
+console.log('🔄 Reset consultationResponseProcessed flag for new consultation');
     
     // 5. 🚨🚨🚨 CRITICAL: CLEAR ALL TESTIMONIAL FLAGS 🚨🚨🚨
     console.log('🧹 CLEARING ALL TESTIMONIAL FLAGS:');
@@ -874,6 +878,12 @@ function initializeTestimonialSystem() {
 // 🎯 CONSULTATION RESPONSE HANDLER (ADD THIS TO YOUR testimonialplayer.js)
 // ================================
 function handleConsultationResponse(userInput) {
+    // 🛡️ PROTECTION: Don't handle if we're already processing
+    if (window.consultationResponseProcessed) {
+        console.log('🛡️ Consultation response already processed - skipping');
+        return false;
+    }
+    
     console.log('🎯 Checking consultation response:', userInput);
     
     const positiveResponses = [
