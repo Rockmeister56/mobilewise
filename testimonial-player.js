@@ -1,5 +1,5 @@
 // ===================================================
-// 🎬 COMPLETE TESTIMONIAL SYSTEM WITH NEW FORMAT
+// 🎬 COMPLETE TESTIMONIAL SYSTEM WITH NEW FORMAT + OLD FUNCTIONALITY
 // ===================================================
 
 window.avatarCurrentlyPlaying = false;
@@ -25,12 +25,28 @@ function showTestimonialSplashScreen() {
     window.testimonialSessionActive = true;
     console.log('🛡️ Testimonial protection activated - Speak Now blocked');
     
+    // 🚫 CANCEL VOICE SYSTEM TIMERS (FROM OLD CODE)
+    if (window.directSpeakNowTimeout) {
+        clearTimeout(window.directSpeakNowTimeout);
+        console.log('✅ Cancelled directSpeakNow timeout');
+    }
+    if (window.speakSequenceTimeout) {
+        clearTimeout(window.speakSequenceTimeout);
+        console.log('✅ Cancelled speakSequence timeout');
+    }
+    
+    // 🚫 BLOCK BANNER SYSTEM (FROM OLD CODE)
+    if (window.bannerCooldown !== undefined) {
+        window.bannerCooldown = true; // Force banner cooldown
+        console.log('✅ Forced banner cooldown active');
+    }
+    
     // Create container
     const splashScreen = document.createElement('div');
     splashScreen.id = 'testimonial-splash-screen';
     splashScreen.style.cssText = `
         margin: 20px 0;
-        animation: fadeIn 0.5s ease-in;
+        animation: fadeInSplash 0.5s ease-in;
     `;
     
     // Get testimonials from first group that has them
@@ -98,21 +114,29 @@ function showTestimonialSplashScreen() {
         
         splashScreen.innerHTML = `
             <div style="
-                background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.9));
+                background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.9)),
+                            url('https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1762038349654_action-bg.jpg');
+                background-size: cover;
+                background-position: center;
+                background-blend-mode: overlay;
+                backdrop-filter: blur(10px);
                 border-radius: 20px;
                 padding: 30px 25px;
+                margin: 20px 0;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
                 color: white;
-                font-family: 'Segoe UI', sans-serif;
+                font-family: 'Segoe UI', system-ui, sans-serif;
                 max-width: 750px;
             ">
                 <!-- Header matching action buttons style -->
-                <div style="display: flex; align-items: center; margin-bottom: 20px; gap: 15px;">
-                    <video autoplay loop muted playsinline style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.2);">
+                <div style="display: flex; align-items: center; margin-bottom: 5px; gap: 15px; margin-top: 5px;">
+                    <video autoplay loop muted playsinline style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255, 255, 255, 0.2); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);">
                         <source src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1764614255102.mp4" type="video/mp4">
                     </video>
                     <div>
-                        <h3 style="margin: 0 0 5px 0; font-size: 22px; font-weight: 600;">Client Testimonials</h3>
-                        <p style="margin: 0; opacity: 0.8; font-size: 13px; font-weight: 300;">Real stories from satisfied clients</p>
+                        <h3 style="margin: 0 0 5px 0; font-size: 22px; font-weight: 600; color: white;">Client Testimonials</h3>
+                        <p style="margin: 0; opacity: 0.8; font-size: 13px; font-weight: 300; letter-spacing: 0.5px;">Real stories from satisfied clients</p>
                     </div>
                 </div>
                 
@@ -122,13 +146,12 @@ function showTestimonialSplashScreen() {
                 
                 <button onclick="handleTestimonialSkip()" style="
                     display: flex; align-items: center; gap: 10px;
-                    background: rgba(0,0,0,0.6); color: rgba(255,255,255,0.8);
-                    border: 1px solid rgba(255,255,255,0.2); padding: 15px 20px;
-                    border-radius: 10px; cursor: pointer; font-size: 16px; width: 100%;
-                    justify-content: center; margin-top: 5px;
-                    transition: all 0.3s ease;
-                " onmouseover="this.style.background='rgba(0,0,0,0.8)'; this.style.color='white';" 
-                onmouseout="this.style.background='rgba(0,0,0,0.6)'; this.style.color='rgba(255,255,255,0.8)';">
+                    background: rgba(0, 0, 0, 0.6); color: rgba(255, 255, 255, 0.8);
+                    border: 1px solid rgba(255, 255, 255, 0.2); padding: 15px 20px;
+                    border-radius: 10px; cursor: pointer; font-size: 16px; font-weight: 500;
+                    transition: all 0.3s ease; width: 100%; justify-content: center; margin-top: 5px;
+                " onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.color='white';" 
+                onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.color='rgba(255, 255, 255, 0.8)';">
                     <span>⏭️ Skip Testimonials</span>
                 </button>
             </div>
@@ -138,14 +161,67 @@ function showTestimonialSplashScreen() {
     // Add to chat
     const chatContainer = document.getElementById('chatMessages') || document.querySelector('.chat-messages');
     if (chatContainer) {
+        // Use the same positioning as action buttons - NO padding-top
+        splashScreen.style.marginTop = '20px'; // Natural spacing like action buttons
+        splashScreen.style.marginBottom = '20px';
         chatContainer.appendChild(splashScreen);
-        splashScreen.scrollIntoView({ behavior: 'smooth' });
+        splashScreen.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         console.log('✅ Splash screen added to chat');
     } else {
         console.log('❌ Chat container not found, adding to body');
         document.body.appendChild(splashScreen);
     }
 }
+
+// ================================
+// 🚨 EMERGENCY SPEECH STOPPER (FROM OLD CODE)
+// ================================
+function emergencyStopAllSpeech() {
+    console.log('🔇 EMERGENCY STOP - Killing all speech for testimonial');
+    
+    // 1. Cancel all browser speech synthesis
+    if (window.speechSynthesis) {
+        speechSynthesis.cancel();
+        console.log('✅ Browser TTS stopped');
+    }
+    
+    // 2. Stop any custom TTS systems
+    const stopFunctions = [
+        'stopAllSpeech', 'stopCurrentSpeech', 'stopVoiceResponse', 
+        'stopElevenLabsSpeech', 'stopBritishSpeech', 'stopTTS'
+    ];
+    
+    stopFunctions.forEach(funcName => {
+        if (window[funcName] && typeof window[funcName] === 'function') {
+            try {
+                window[funcName]();
+                console.log(`✅ ${funcName} stopped`);
+            } catch (e) {
+                // Function doesn't exist - that's fine
+            }
+        }
+    });
+    
+    // 3. Pause all audio/video elements (except testimonials)
+    document.querySelectorAll('audio, video').forEach(media => {
+        if (!media.paused && !media.closest('#testimonial-video-player') && !media.closest('#testimonial-video-overlay')) {
+            media.pause();
+        }
+    });
+}
+
+// 🎯 AUTO-STOP AI SPEECH WHEN TESTIMONIAL STARTS - CLEAN VERSION (FROM OLD CODE)
+const originalHandleTestimonialButton = window.handleTestimonialButton;
+window.handleTestimonialButton = function(buttonId) {
+    console.log(`🎬🛑 AUTO-STOP: Stopping AI speech for testimonial`);
+    emergencyStopAllSpeech();
+    
+    // Wait a tiny moment to ensure speech is fully stopped, then play video
+    setTimeout(() => {
+        window.avatarCurrentlyPlaying = false; // Reset flag
+        originalHandleTestimonialButton(buttonId);
+    }, 50);
+};
 
 // ================================
 // 🎯 NEW FUNCTION: Close Video & Show Navigation
@@ -168,6 +244,18 @@ function closeVideoAndShowNavigation() {
         console.log('✅ Video player removed');
     }
     
+    // Also check for old video player ID
+    const oldVideoPlayer = document.getElementById('testimonial-video-player');
+    if (oldVideoPlayer) {
+        const video = oldVideoPlayer.querySelector('video');
+        if (video) {
+            video.pause();
+            video.currentTime = 0;
+        }
+        oldVideoPlayer.remove();
+        console.log('✅ Old video player removed');
+    }
+    
     // 🎯 SHOW NAVIGATION/DECISION PANEL
     showTestimonialNavigationOptions();
 }
@@ -177,6 +265,17 @@ function closeVideoAndShowNavigation() {
 // ================================
 function showTestimonialNavigationOptions() {
     console.log('🎯 Showing testimonial decision panel');
+    
+    // 🛡️ CRITICAL: Cancel any pending decision panel timeouts (FROM OLD CODE)
+    if (window.decisionPanelTimeout) {
+        clearTimeout(window.decisionPanelTimeout);
+        console.log('✅ Cancelled decision panel timeout');
+    }
+    
+    // 🛡️ STRONG PROTECTION: Keep testimonial mode active (FROM OLD CODE)
+    window.testimonialSessionActive = true;
+    window.testimonialProtectionActive = true;
+    window.disableSpeakNowBanner = true;
     
     // Create decision panel
     const navScreen = document.createElement('div');
@@ -192,7 +291,7 @@ function showTestimonialNavigationOptions() {
         align-items: center;
         z-index: 10000;
         backdrop-filter: blur(10px);
-        animation: fadeIn 0.3s ease-in;
+        animation: fadeInSplash 0.3s ease-in;
     `;
     
     navScreen.innerHTML = `
@@ -265,7 +364,6 @@ function showTestimonialNavigationOptions() {
     }, 100);
 }
 
-
 // ================================
 // 🌀 UNIVERSAL TESTIMONIAL SPINNER
 // ================================
@@ -334,9 +432,17 @@ function playTestimonialVideo(buttonId) {
         return;
     }
     
-    // 🛡️ ULTRA-STRONG PROTECTION
+    // 🛡️ ULTRA-STRONG PROTECTION (FROM OLD CODE)
     window.testimonialSessionActive = true;
+    window.testimonialProtectionActive = true;
+    window.disableSpeakNowBanner = true;
     window.avatarCurrentlyPlaying = true;
+    
+    // 🚫 PREVENT DOUBLE CALLS (FROM OLD CODE)
+    if (window.avatarCurrentlyPlaying) {
+        console.log('🚫 Video already playing - skipping');
+        return;
+    }
     
     // 🌀 SHOW SPINNER
     showTestimonialSpinner();
@@ -345,9 +451,10 @@ function playTestimonialVideo(buttonId) {
     const splashScreen = document.getElementById('testimonial-splash-screen');
     if (splashScreen) splashScreen.remove();
     
-    // Create video overlay
+    // Create video overlay - USE BOTH IDs FOR COMPATIBILITY
     const overlay = document.createElement('div');
     overlay.id = 'testimonial-video-overlay';
+    overlay.className = 'testimonial-video-player'; // Also add class for old code compatibility
     overlay.style.cssText = `
         position: fixed;
         top: 0; left: 0;
@@ -359,49 +466,91 @@ function playTestimonialVideo(buttonId) {
         justify-content: center;
         align-items: center;
         backdrop-filter: blur(10px);
-        animation: fadeIn 0.5s ease-in;
+        animation: fadeInSplash 0.5s ease-in;
     `;
+    
+    const testimonialTitles = {
+        skeptical: 'Skeptical Client Testimonial',
+        speed: 'Speed Results Testimonial', 
+        convinced: 'Convinced Client Testimonial',
+        excited: 'Excited Results Testimonial'
+    };
+    
+    const title = testimonial.title || testimonialTitles[testimonial.concernType] || 'Client Testimonial';
     
     overlay.innerHTML = `
         <!-- Header -->
         <div style="
-            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.9));
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.9)),
+                        url('https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/form-assets/logos/logo_5f42f026-051a-42c7-833d-375fcac74252_1762038349654_action-bg.jpg');
+            background-size: cover;
+            background-position: center;
+            background-blend-mode: overlay;
+            backdrop-filter: blur(10px);
             border-radius: 20px;
             padding: 20px 25px;
             margin-bottom: 20px;
-            border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
             color: white;
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Segoe UI', system-ui, sans-serif;
             max-width: 854px;
             width: 100%;
         ">
-            <div style="display: flex; align-items: center; gap: 15px;">
-                <video autoplay loop muted playsinline style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.2);">
+            <div style="display: flex; align-items: center; margin-bottom: 5px; gap: 15px; margin-top: 5px;">
+                <video autoplay loop muted playsinline style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255, 255, 255, 0.2); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);">
                     <source src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/video-avatars/video_avatar_1764614255102.mp4" type="video/mp4">
                 </video>
                 <div>
-                    <h3 style="margin: 0 0 5px 0; font-size: 22px; font-weight: 600;">${testimonial.title || 'Client Testimonial'}</h3>
-                    <p style="margin: 0; opacity: 0.8; font-size: 13px;">Real story from a satisfied client</p>
+                    <h3 style="margin: 0 0 5px 0; font-size: 22px; font-weight: 600; color: white;">${title}</h3>
+                    <p style="margin: 0; opacity: 0.8; font-size: 13px; font-weight: 300; letter-spacing: 0.5px;">Real story from a satisfied client</p>
                 </div>
             </div>
         </div>
         
         <!-- Video Player -->
-        <div style="position: relative; width: 854px; max-width: 90%;">
-            <video id="testimonial-video" controls autoplay style="width: 100%; border-radius: 10px; box-shadow: 0 20px 60px rgba(0,0,0,0.7);">
+        <div style="
+            position: relative;
+            width: 854px;
+            height: 480px;
+            background: #000;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: slideInFromBottom 0.5s ease-out;
+            max-width: 90%;
+        ">
+            <video id="testimonialVideo" autoplay style="
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+                background: #000;
+            ">
                 <source src="${videoUrl}" type="video/mp4">
+                Your browser does not support the video tag.
             </video>
             
             <!-- Close Button -->
-            <button onclick="closeTestimonialVideo()" style="
-                position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-                padding: 12px 32px; background: rgba(0,0,0,0.6); color: white;
-                border: 1px solid rgba(255,255,255,0.2); border-radius: 25px;
-                font-size: 14px; font-weight: 600; cursor: pointer; backdrop-filter: blur(10px);
-                transition: all 0.3s ease; z-index: 10001;
-            " onmouseover="this.style.background='rgba(0,0,0,0.8)'; this.style.borderColor='rgba(255,255,255,0.3)';" 
-            onmouseout="this.style.background='rgba(0,0,0,0.6)'; this.style.borderColor='rgba(255,255,255,0.2)';">
+            <button onclick="emergencyStopAllSpeech(); closeTestimonialVideo()" class="testimonial-close-btn" style="
+                position: absolute;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                padding: 12px 32px;
+                background: rgba(0, 0, 0, 0.6);
+                color: white;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                border-radius: 25px;
+                font-size: 14px;
+                font-weight: 600;
+                cursor: pointer;
+                backdrop-filter: blur(10px);
+                transition: all 0.3s ease;
+                z-index: 10001;
+            " 
+            onmouseover="this.style.background='rgba(0, 0, 0, 0.8)'; this.style.borderColor='rgba(255, 255, 255, 0.3)'; this.style.transform='translateX(-50%) translateY(-2px)';" 
+            onmouseout="this.style.background='rgba(0, 0, 0, 0.6)'; this.style.borderColor='rgba(255, 255, 255, 0.2)'; this.style.transform='translateX(-50%) translateY(0)';">
                 ✕ Close & Continue
             </button>
         </div>
@@ -409,23 +558,35 @@ function playTestimonialVideo(buttonId) {
     
     document.body.appendChild(overlay);
     
-    // 🌀 HIDE SPINNER when video loads
+    // 🌀 HIDE SPINNER when video is loaded
     setTimeout(() => {
         hideTestimonialSpinner();
-        const video = document.getElementById('testimonial-video');
-        if (video) video.play().catch(e => {
-            console.error('❌ Video play failed:', e);
-            hideTestimonialSpinner();
-        });
-    }, 100);
-    
-    // Handle video end
-    setTimeout(() => {
-        const video = document.getElementById('testimonial-video');
+        const video = document.getElementById('testimonialVideo');
         if (video) {
+            video.play().catch(e => {
+                console.error('❌ Video play failed:', e);
+                hideTestimonialSpinner();
+            });
+            
+            // ✅ SAFE EVENT LISTENERS - PREVENT DOUBLE CALLS (FROM OLD CODE)
+            let videoEnded = false;
+            
             video.addEventListener('ended', function() {
-                console.log('✅ Video ended - showing navigation');
-                closeTestimonialVideo();
+                if (!videoEnded) {
+                    videoEnded = true;
+                    console.log('✅ Video ended naturally - showing navigation');
+                    window.avatarCurrentlyPlaying = false;
+                    closeTestimonialVideo();
+                }
+            });
+            
+            video.addEventListener('error', function(e) {
+                if (!videoEnded) {
+                    videoEnded = true;
+                    console.error('❌ Video error - safe close:', e);
+                    window.avatarCurrentlyPlaying = false;
+                    hideTestimonialSpinner();
+                }
             });
         }
     }, 100);
@@ -459,8 +620,7 @@ function handleTestimonialButton(buttonId) {
         console.log('✅ Calling playTestimonialVideoWithOverlay()');
         window.playTestimonialVideoWithOverlay(testimonial);
     } else {
-        console.error('❌ playTestimonialVideoWithOverlay not available');
-        console.log('Falling back to old player...');
+        console.log('Using built-in player...');
         playTestimonialVideo(buttonId);
     }
 }
@@ -517,150 +677,132 @@ function closeTestimonialVideo() {
     console.log('✅ Navigation options shown');
 }
 
-
 // ================================
-// 🎯 NAVIGATION OPTIONS (MISSING FROM MINIMAL VERSION)
+// 🎯 RETURN TO VOICE CHAT (FIXED)
 // ================================
-function showTestimonialNavigationOptions() {
-    console.log('🎯 Showing testimonial navigation options');
-    
-    // Create navigation screen
-    const navScreen = document.createElement('div');
-    navScreen.id = 'testimonial-nav-options';
-    navScreen.style.cssText = `
-        position: fixed;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
-        background: rgba(0,0,0,0.9);
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        z-index: 10000;
-        backdrop-filter: blur(5px);
-    `;
-    
-    navScreen.innerHTML = `
-        <div style="
-            background: linear-gradient(135deg, rgba(0,24,133,0.9) 0%, rgba(118,75,162,0.9) 100%);
-            padding: 30px;
-            border-radius: 15px;
-            border: 1px solid rgba(255,255,255,0.2);
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-            color: white;
-            max-width: 500px;
-            width: 90%;
-        ">
-            <h2 style="margin-bottom: 25px; font-size: 24px; text-align: center;">🎬 What would you like to do next?</h2>
-            
-            <div style="display: flex; flex-direction: column; gap: 15px;">
-                <button onclick="showMoreTestimonials()" style="
-                    background: linear-gradient(135deg, rgba(15,107,212,0.9) 0%, rgba(4,179,238,0.9) 100%);
-                    color: white; border: none; padding: 15px; border-radius: 10px;
-                    font-size: 16px; cursor: pointer; transition: all 0.3s ease;
-                    font-weight: 500;
-                ">
-                    📺 Watch More Testimonials
-                </button>
-                
-                <button onclick="returnToVoiceChat()" style="
-                    background: linear-gradient(135deg, rgba(119,0,255,0.9) 0%, rgba(0,30,255,0.9) 100%);
-                    color: white; border: none; padding: 15px; border-radius: 10px;
-                    font-size: 16px; cursor: pointer; transition: all 0.3s ease;
-                    font-weight: 500;
-                ">
-                    🎤 Return to Voice Chat
-                </button>
-            </div>
-        </div>
-    `;
-    
-    // Remove any existing nav screen
-    const existingNav = document.getElementById('testimonial-nav-options');
-    if (existingNav) existingNav.remove();
-    
-    document.body.appendChild(navScreen);
-    
-    // Add hover effects
-    setTimeout(() => {
-        const buttons = navScreen.querySelectorAll('button');
-        buttons.forEach(btn => {
-            btn.onmouseenter = function() {
-                this.style.transform = 'translateY(-2px)';
-                this.style.boxShadow = '0 10px 20px rgba(0,0,0,0.3)';
-            };
-            btn.onmouseleave = function() {
-                this.style.transform = 'translateY(0)';
-                this.style.boxShadow = 'none';
-            };
-        });
-    }, 100);
-}
-
 function returnToVoiceChat() {
-    console.log('🎯🎯🎯 RETURN TO VOICE CHAT 🎯🎯🎯');
+    console.log('🎯🎯🎯 RETURN TO VOICE CHAT CLICKED 🎯🎯🎯');
 
-     // 🚨 TURN OFF ALL TESTIMONIAL SWITCHES
-    window.testimonialActive = false;
-    window.speechBlockedForTestimonials = false;
-    window.testimonialSessionActive = false;
-    window.avatarCurrentlyPlaying = false;
+    const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+    console.log(`📱 Device: ${isMobile ? 'Mobile' : 'Desktop'}`);
+
+    // 1. STOP ALL SPEECH FIRST
+    emergencyStopAllSpeech();
+    console.log('✅ All speech stopped');
     
-    if (window.mobilewiseAI) {
-        window.mobilewiseAI.testimonialActive = false;
-        window.mobilewiseAI.speechBlocked = false;
+    // 2. 🎯 SET THE EXACT SAME STATE AS NORMAL CONSULTATION FLOW
+    if (window.salesAI) {
+        window.salesAI.state = 'qualification'; // This triggers emergency Bruce detection
+        console.log('✅ Sales AI state set to qualification');
     }
     
-    console.log('🔓 All switches OFF - AI can speak now');
+    // Also set the global conversation state
+    if (window.conversationState !== undefined) {
+        window.conversationState = 'qualification';
+        console.log('✅ Global conversation state set to qualification');
+    }
     
-    // Remove all testimonial elements
+    // 3. Clear the OLD transcript that causes testimonials to re-appear
+    window.lastCapturedTranscript = '';
+    window.lastCapturedTime = 0;
+    
+    // Also clear any input fields
+    const userInput = document.getElementById('userInput');
+    if (userInput) {
+        userInput.value = '';
+    }
+    
+    console.log('🛑 Cleared old transcript to prevent testimonial re-trigger');
+    
+    // 4. Set consultation flag
+    window.consultationOfferActive = true;
+    console.log('🎯 Consultation offer active - emergency Bruce detection enabled');
+    
+    // 5. 🚨🚨🚨 CRITICAL: CLEAR ALL TESTIMONIAL FLAGS 🚨🚨🚨
+    console.log('🧹 CLEARING ALL TESTIMONIAL FLAGS:');
+    const testimonialFlags = [
+        'testimonialSessionActive',
+        'isInTestimonialMode', 
+        'concernBannerActive',
+        'isTestimonialActive',
+        'testimonialMode',
+        'testimonialsPlaying',
+        'testimonialActive',
+        'testimonialVideoActive',
+        'avatarCurrentlyPlaying',
+        'testimonialProtectionActive',
+        'disableSpeakNowBanner'
+    ];
+    
+    testimonialFlags.forEach(flag => {
+        window[flag] = false;
+        console.log(`  ✅ ${flag} = false`);
+    });
+    
+    console.log('🛡️🛡️ DOUBLE Testimonial protection deactivated');
+    
+    // 6. REMOVE ALL testimonial elements
     const elementsToRemove = [
         'testimonial-nav-options',
+        'testimonial-video-overlay', 
         'testimonial-splash-screen',
-        'testimonial-video-overlay'
+        'testimonial-splash',
+        'testimonial-video-container',
+        'testimonial-video-player'
     ];
     
     elementsToRemove.forEach(id => {
         const element = document.getElementById(id);
-        if (element) element.remove();
+        if (element) {
+            element.remove();
+            console.log('✅ Removed:', id);
+        }
     });
     
-    // Reset flags
-    window.avatarCurrentlyPlaying = false;
-    window.testimonialSessionActive = false;
-    
-    console.log('✅ Testimonial system closed - ready for voice chat');
-    
-   // Trigger consultation offer or return to main flow
-setTimeout(() => {
-    console.log('🔄 Looking for post-testimonial function...');
-    
-    // Try our new function first
-    if (typeof window.triggerPostTestimonialSpeech === 'function') {
-        console.log('✅ Found triggerPostTestimonialSpeech');
-        window.triggerPostTestimonialSpeech();
+    // 7. Clear any cooldowns that might block voice chat
+    if (window.cooldownActive !== undefined) {
+        window.cooldownActive = false;
+        console.log('🛡️ Cooldown cleared for voice chat');
     }
-    // Try AI system continuation
-    else if (typeof window.continueConversation === 'function') {
-        console.log('✅ Found continueConversation');
-        window.continueConversation();
-    }
-    // Try MobileWise AI specific function
-    else if (typeof window.mobilewiseContinueAfterTestimonial === 'function') {
-        console.log('✅ Found mobilewiseContinueAfterTestimonial');
-        window.mobilewiseContinueAfterTestimonial();
-    }
-    // Last resort: show banner
-    else {
-        console.log('⚠️ No post-testimonial function found - showing banner');
-        if (typeof window.showDirectSpeakNow === 'function') {
-            window.showDirectSpeakNow();
-        } else {
-            console.error('❌ No fallback available');
+    
+    // 8. PLAY THE CONSULTATION OFFER PROPERLY
+    setTimeout(() => {
+        console.log('🗣️ Playing consultation offer...');
+        
+        const consultationText = "If we can get you the same results as our previous customers, would you be interested in that consultation?";
+        
+        // A. FIRST add message to chat bubble (VISIBLE)
+        if (window.addAIMessage && typeof window.addAIMessage === 'function') {
+            window.addAIMessage(consultationText);
+            console.log('✅ AI message added to chat bubble');
         }
-    }
-}, 500);
-
+        
+        // B. THEN speak it (AUDIBLE)
+        if (window.speakText) {
+            window.speakText(consultationText);
+            
+            // C. WAIT FOR SPEECH TO COMPLETE
+            const speechDuration = 10000; // 10 seconds buffer
+            
+            setTimeout(() => {
+                console.log('🎯 Speech complete - Main system will handle banners');
+                
+                // Clear any partial transcript from during speech
+                if (window.lastCapturedTranscript) {
+                    window.lastCapturedTranscript = '';
+                    console.log('🧹 Cleared transcript captured during speech');
+                }
+                
+                // Set post-testimonial context for AI responses
+                window.lastQuestionContext = 'post-testimonial';
+                window.postTestimonialActive = true;
+                
+                console.log('✅ Consultation offer complete - post-testimonial context set');
+            }, speechDuration);
+        }
+    }, 500);
+    
+    console.log('✅ SUCCESSFULLY RETURNED TO VOICE CHAT');
 }
 
 function showMoreTestimonials() {
