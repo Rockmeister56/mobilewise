@@ -884,38 +884,31 @@ function handleConsultationResponse(userInput) {
     
     const userInputLower = userInput.toLowerCase().trim();
     
+    // Clean up the input - remove punctuation
+    const cleanInput = userInputLower.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, '');
+    
     // Check if this is a positive response to consultation offer
     const isConsultationContext = window.expectingConsultationResponse || window.consultationQuestionActive;
     
     if (isConsultationContext) {
-        // IMPROVED MATCHING: Check multiple ways
+        // SIMPLE APPROACH: Check if ANY positive response word appears in the input
         let hasPositiveResponse = false;
         
-        // First check exact matches
-        if (positiveResponses.includes(userInputLower)) {
-            hasPositiveResponse = true;
-        } else {
-            // Check for partial matches
+        // Split input into words
+        const words = cleanInput.split(/\s+/);
+        
+        // Check each word against positive responses
+        for (const word of words) {
+            if (positiveResponses.includes(word)) {
+                hasPositiveResponse = true;
+                break;
+            }
+        }
+        
+        // Also check if the entire input contains any positive response
+        if (!hasPositiveResponse) {
             for (const response of positiveResponses) {
-                // Create regex for word boundary matching
-                const regex = new RegExp(`\\b${response}\\b`, 'i');
-                if (regex.test(userInputLower)) {
-                    hasPositiveResponse = true;
-                    break;
-                }
-                
-                // Also check if response is at the beginning
-                if (userInputLower.startsWith(response) && 
-                    (userInputLower.length === response.length || 
-                     userInputLower[response.length] === ' ' ||
-                     userInputLower[response.length] === ',' ||
-                     userInputLower[response.length] === '.')) {
-                    hasPositiveResponse = true;
-                    break;
-                }
-                
-                // Check if it's in the string (more lenient)
-                if (userInputLower.includes(response) && response.length > 2) {
+                if (cleanInput.includes(response) && response.length > 2) {
                     hasPositiveResponse = true;
                     break;
                 }
@@ -933,40 +926,36 @@ function handleConsultationResponse(userInput) {
             window.testimonialSessionActive = false;
             window.isInTestimonialMode = false;
             
-            // Trigger action panel
+            // Trigger action panel - SIMPLIFIED
             setTimeout(() => {
-                console.log('🎯 Attempting to trigger action center...');
+                console.log('🎯 Triggering Communication Center...');
                 
-                // Try multiple methods to ensure we trigger the action center
-                const actionMethods = [
-                    () => typeof window.showActionPanel === 'function' && window.showActionPanel(),
-                    () => typeof window.triggerActionCenter === 'function' && window.triggerActionCenter(),
-                    () => window.universalBannerEngine && typeof window.universalBannerEngine.showBanner === 'function' && window.universalBannerEngine.showBanner('set_appointment'),
-                    () => typeof window.showCommunicationRelayCenter === 'function' && window.showCommunicationRelayCenter(),
-                    () => typeof window.showUniversalBanner === 'function' && window.showUniversalBanner(),
-                    () => typeof window.openActionCenter === 'function' && window.openActionCenter(),
-                    () => typeof window.launchActionPanel === 'function' && window.launchActionPanel()
+                // DIRECT METHOD: Use the function we KNOW works
+                if (typeof window.showCommunicationRelayCenter === 'function') {
+                    window.showCommunicationRelayCenter();
+                    console.log('✅ showCommunicationRelayCenter() called directly');
+                    return;
+                }
+                
+                // Fallback: Try to find the right function
+                const possibleFunctions = [
+                    'showCommunicationRelayCenter',
+                    'openActionCenter', 
+                    'showActionPanel',
+                    'triggerActionCenter',
+                    'launchActionPanel'
                 ];
                 
-                let triggered = false;
-                for (const method of actionMethods) {
-                    try {
-                        if (method()) {
-                            console.log('✅ Action center triggered successfully');
-                            triggered = true;
-                            break;
-                        }
-                    } catch (e) {
-                        // Continue to next method
+                for (const funcName of possibleFunctions) {
+                    if (typeof window[funcName] === 'function') {
+                        window[funcName]();
+                        console.log(`✅ ${funcName}() called`);
+                        return;
                     }
                 }
                 
-                if (!triggered) {
-                    console.error('❌ No action center function worked!');
-                    // Emergency fallback - just show a button or something
-                    alert('Action center would open here! (Fallback)');
-                }
-            }, 1000);
+                console.error('❌ No action center function found');
+            }, 500); // Reduced delay
             
             return true; // Handled
         }
