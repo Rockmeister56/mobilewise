@@ -5,6 +5,9 @@
 window.avatarCurrentlyPlaying = false;
 window.testimonialSessionActive = false;
 window.testimonialVideos = {};
+window.consultationOfferActive = false;
+window.expectingConsultationResponse = false;
+window.consultationQuestionActive = false;
 
 // ================================
 // 🎬 SPLASH SCREEN (WORKING VERSION)
@@ -876,38 +879,71 @@ function handleConsultationResponse(userInput) {
     const positiveResponses = [
         'yes', 'yeah', 'yep', 'sure', 'okay', 'ok', 'absolutely', 'definitely',
         'of course', 'why not', 'let\'s do it', 'i\'m interested', 'interested',
-        'yes please', 'please', 'go ahead', 'continue', 'proceed'
+        'yes please', 'please', 'go ahead', 'continue', 'proceed', 'do it'
     ];
     
     const userInputLower = userInput.toLowerCase().trim();
     
     // Check if this is a positive response to consultation offer
-    if (window.expectingConsultationResponse && positiveResponses.some(response => 
-        userInputLower.includes(response) || userInputLower === response)) {
+    const isConsultationResponse = window.expectingConsultationResponse || window.consultationQuestionActive;
+    
+    if (isConsultationResponse) {
+        // Check if ANY positive response word is in the user input
+        const hasPositiveResponse = positiveResponses.some(response => 
+            userInputLower.includes(response)
+        );
         
-        console.log('🎯 POSITIVE CONSULTATION RESPONSE DETECTED - Triggering action panel');
-        
-        // Reset the flag
-        window.expectingConsultationResponse = false;
-        window.consultationQuestionActive = false;
-        
-        // 🚨 CRITICAL: Clear testimonial flags so we don't loop back
-        window.testimonialSessionActive = false;
-        window.isInTestimonialMode = false;
-        
-        // Trigger action panel
-        setTimeout(() => {
-            if (window.showActionPanel) {
-                window.showActionPanel();
-            } else if (window.triggerActionCenter) {
-                window.triggerActionCenter();
-            } else if (window.universalBannerEngine) {
-                window.universalBannerEngine.showBanner('set_appointment');
-            }
-            console.log('✅ Action panel triggered for consultation response');
-        }, 1000);
-        
-        return true; // Handled
+        if (hasPositiveResponse) {
+            console.log('🎯 POSITIVE CONSULTATION RESPONSE DETECTED - Triggering action panel');
+            
+            // Reset the flags
+            window.expectingConsultationResponse = false;
+            window.consultationQuestionActive = false;
+            
+            // 🚨 CRITICAL: Clear testimonial flags so we don't loop back
+            window.testimonialSessionActive = false;
+            window.isInTestimonialMode = false;
+            
+            // Trigger action panel - TRY ALL POSSIBLE METHODS
+            setTimeout(() => {
+                console.log('🎯 Attempting to trigger action center...');
+                
+                // Method 1: Try showActionPanel
+                if (typeof window.showActionPanel === 'function') {
+                    window.showActionPanel();
+                    console.log('✅ showActionPanel() called');
+                }
+                // Method 2: Try triggerActionCenter
+                else if (typeof window.triggerActionCenter === 'function') {
+                    window.triggerActionCenter();
+                    console.log('✅ triggerActionCenter() called');
+                }
+                // Method 3: Try universalBannerEngine
+                else if (window.universalBannerEngine && typeof window.universalBannerEngine.showBanner === 'function') {
+                    window.universalBannerEngine.showBanner('set_appointment');
+                    console.log('✅ universalBannerEngine.showBanner() called');
+                }
+                // Method 4: Try direct function from unified system
+                else if (typeof window.showCommunicationRelayCenter === 'function') {
+                    window.showCommunicationRelayCenter();
+                    console.log('✅ showCommunicationRelayCenter() called');
+                }
+                // Method 5: Try the universal banner function
+                else if (typeof window.showUniversalBanner === 'function') {
+                    window.showUniversalBanner();
+                    console.log('✅ showUniversalBanner() called');
+                }
+                else {
+                    console.error('❌ No action center function found!');
+                    console.log('Available functions:', Object.keys(window).filter(key => 
+                        typeof window[key] === 'function' && 
+                        (key.includes('action') || key.includes('center') || key.includes('panel'))
+                    ));
+                }
+            }, 1000);
+            
+            return true; // Handled
+        }
     }
     
     return false; // Not a consultation response
