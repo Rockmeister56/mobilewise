@@ -888,7 +888,7 @@ function handleConsultationResponse(userInput) {
     const isConsultationContext = window.expectingConsultationResponse || window.consultationQuestionActive;
     
     if (isConsultationContext) {
-        // ULTRA-SIMPLE MATCHING: Remove all punctuation, keep only words
+        // Clean the text: remove punctuation, keep words
         const cleanText = userInputLower
             .replace(/[^\w\s]/g, ' ')  // Replace punctuation with spaces
             .replace(/\s+/g, ' ')      // Collapse multiple spaces
@@ -896,27 +896,35 @@ function handleConsultationResponse(userInput) {
         
         console.log('🧹 Cleaned text:', cleanText);
         
+        // Split into individual words
+        const words = cleanText.split(' ');
+        
+        // Check EACH WORD against positive responses
         let hasPositiveResponse = false;
         
-        // Check each positive response
-        for (const response of positiveResponses) {
-            // Create a simple check: response is in the text OR text is the response
-            if (cleanText === response || cleanText.includes(response)) {
-                hasPositiveResponse = true;
-                console.log(`✅ Found match: "${response}" in "${cleanText}"`);
-                break;
-            }
-            
-            // Also check individual words
-            const words = cleanText.split(' ');
-            for (const word of words) {
-                if (word === response || response.includes(word) || word.includes(response)) {
+        for (const word of words) {
+            for (const response of positiveResponses) {
+                // Check if response matches or contains the word
+                if (word === response || 
+                    response.includes(word) || 
+                    word.includes(response)) {
                     hasPositiveResponse = true;
-                    console.log(`✅ Word match: "${word}" matches "${response}"`);
+                    console.log(`✅ Word "${word}" matches response "${response}"`);
                     break;
                 }
             }
             if (hasPositiveResponse) break;
+        }
+        
+        // Also check multi-word responses
+        if (!hasPositiveResponse) {
+            for (const response of positiveResponses) {
+                if (cleanText.includes(response)) {
+                    hasPositiveResponse = true;
+                    console.log(`✅ Multi-word match: "${response}" in "${cleanText}"`);
+                    break;
+                }
+            }
         }
         
         if (hasPositiveResponse) {
@@ -930,7 +938,7 @@ function handleConsultationResponse(userInput) {
             window.testimonialSessionActive = false;
             window.isInTestimonialMode = false;
             
-            // Trigger action panel - SIMPLIFIED
+            // Trigger action panel
             setTimeout(() => {
                 console.log('🎯 Triggering Communication Center...');
                 
@@ -942,7 +950,7 @@ function handleConsultationResponse(userInput) {
                 }
                 
                 console.error('❌ No action center function found');
-            }, 500); // Reduced delay
+            }, 500);
             
             return true; // Handled
         }
