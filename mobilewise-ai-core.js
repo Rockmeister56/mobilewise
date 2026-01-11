@@ -365,6 +365,90 @@ for (const concern of concernPatterns) {
     }
 }
 
+// 🆕 ADD THIS DETECTION FUNCTION (add it near other detection functions)
+function detectInformationalVideoRequest(transcript) {
+    console.log('🎓 Checking for informational video request:', transcript);
+    
+    const informationalTriggers = [
+        // Conversion & Results
+        '300%', 'triple', 'more conversions', 'increase conversion', 'boost sales',
+        'higher conversion', 'better results', 'improve roi', 'more sales',
+        
+        // Leads & Quality
+        'pre qualified', 'qualified leads', 'hot leads', 'sales ready', 
+        'better leads', 'quality leads', 'stop wasting time', 'tire kickers',
+        
+        // Testimonials & Trust
+        'testimonials', 'social proof', 'trust', 'social validation', 
+        'proof', 'evidence', 'case studies', 'success stories',
+        
+        // Implementation & Ease
+        'setup', 'implement', 'install', 'add to website', 'integration',
+        'easy', 'simple', 'technical', 'skills', 'difficult', 'hard',
+        '5 minutes', 'quick', 'fast', 'time', 'effort',
+        
+        // How It Works
+        'how does it work', 'process', 'step by step', 'explain', 'show me',
+        'demonstrate', 'walk through', 'guide', 'tutorial',
+        
+        // Podcast Specific
+        'podcast', 'listeners', 'audience', 'episode', 'show',
+        'monetize', 'make money', 'income', 'revenue', 'profit',
+        
+        // Business Types
+        'service business', 'consultant', 'agency', 'freelancer', 'b2b',
+        'ecommerce', 'online store', 'shopify', 'woocommerce', 'cart',
+        
+        // General Info
+        'information', 'details', 'more about', 'learn more',
+        'understand better', 'see how', 'watch demo', 'demo'
+    ];
+    
+    const transcriptLower = transcript.toLowerCase().trim();
+    
+    return informationalTriggers.some(trigger => 
+        transcriptLower.includes(trigger.toLowerCase())
+    );
+}
+
+// 🆕 ADD THIS CHECK in your main processing function
+// Find where you process user voice input (look for something like):
+// function processVoiceInput(transcript) { ... }
+// OR
+// function handleUserMessage(message) { ... }
+
+// INSIDE THAT FUNCTION, ADD THIS AT THE BEGINNING:
+if (detectInformationalVideoRequest(transcript)) {
+    console.log('🎬 Informational video request detected!');
+    if (typeof window.showInformationalVideos === 'function') {
+        window.showInformationalVideos();
+        return true; // Stop further processing
+    }
+}
+
+// It should look like this:
+function processUserVoiceInput(transcript) {
+    // 🆕 NEW CHECK - ADD THIS FIRST
+    if (detectInformationalVideoRequest(transcript)) {
+        console.log('🎬 Triggering informational videos...');
+        if (typeof window.showInformationalVideos === 'function') {
+            window.showInformationalVideos();
+            return true;
+        }
+    }
+    
+    // ... your EXISTING testimonial detection code ...
+    if (detectTestimonialNeed(transcript)) {
+        console.log('🎬 Triggering testimonials...');
+        if (typeof window.showTestimonialSplashScreen === 'function') {
+            window.showTestimonialSplashScreen();
+            return true;
+        }
+    }
+    
+    // ... rest of your existing code ...
+}
+
 // 🎯 CORRECTED VERSION - Remove duplicate
 function handleConcernWithTestimonial(userText) {
     window.testimonialActive = true;

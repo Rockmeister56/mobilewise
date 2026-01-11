@@ -580,6 +580,33 @@ function displayGroupTestimonials(group) {
     updateCodeOutput(); // For now, update the code output
 }
 
+// Add this helper function to get all video triggers for debugging
+function getAllVideoTriggers() {
+    const triggers = [];
+    
+    // Get testimonial triggers from existing system
+    if (window.testimonialData && window.testimonialData.testimonialGroups) {
+        Object.values(window.testimonialData.testimonialGroups).forEach(group => {
+            if (group.testimonials) {
+                group.testimonials.forEach(testimonial => {
+                    if (testimonial.concernType) triggers.push(testimonial.concernType);
+                    if (testimonial.tags) triggers.push(...testimonial.tags);
+                });
+            }
+            if (group.videos) {
+                group.videos.forEach(video => {
+                    if (video.tags) triggers.push(...video.tags);
+                });
+            }
+        });
+    }
+    
+    return [...new Set(triggers)]; // Remove duplicates
+}
+
+// Export it
+window.getAllVideoTriggers = getAllVideoTriggers;
+
 // ===================================================
 // TESTIMONIAL MANAGEMENT
 // ===================================================

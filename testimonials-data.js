@@ -88,11 +88,84 @@ window.testimonialData = {
       "testimonials": [],
       "createdAt": "2026-01-09T00:44:06.883Z",
       "viewCount": 0
+    },
+    // 🆕 ADDED INFORMATIONAL VIDEOS SECTION
+    "group_informational_1768137920000": {
+      "id": "group_informational_1768137920000",
+      "name": "📚 How It Works",
+      "slug": "informational",
+      "icon": "📚",
+      "description": "Watch our explainer videos",
+      "concerns": ["general", "results", "time", "trust"],
+      "testimonials": [
+        {
+          "id": "testimonial_informational_300_conversions",
+          "title": "300% More Conversions",
+          "concernType": "results",
+          "videoUrl": "", // Will be populated by testimonial manager
+          "author": "System Explanation",
+          "text": "How AI transforms your conversion rates overnight",
+          "addedAt": "2026-01-10T16:13:40.650Z",
+          "views": 0
+        },
+        {
+          "id": "testimonial_informational_pre_qualified_leads",
+          "title": "Pre-Qualified Hot Leads",
+          "concernType": "general",
+          "videoUrl": "", // Will be populated by testimonial manager
+          "author": "System Explanation",
+          "text": "Stop wasting time on tire-kickers",
+          "addedAt": "2026-01-10T16:13:40.650Z",
+          "views": 0
+        },
+        {
+          "id": "testimonial_informational_ai_process",
+          "title": "AI Conversion Process",
+          "concernType": "general",
+          "videoUrl": "", // Will be populated by testimonial manager
+          "author": "System Explanation",
+          "text": "Step-by-step: How AI identifies and converts visitors",
+          "addedAt": "2026-01-10T16:13:40.650Z",
+          "views": 0
+        },
+        {
+          "id": "testimonial_informational_testimonial_leverage",
+          "title": "Testimonials → Sales",
+          "concernType": "trust",
+          "videoUrl": "", // Will be populated by testimonial manager
+          "author": "System Explanation",
+          "text": "Using social proof to close skeptical buyers",
+          "addedAt": "2026-01-10T16:13:40.650Z",
+          "views": 0
+        },
+        {
+          "id": "testimonial_informational_easy_setup",
+          "title": "5-Minute Website Setup",
+          "concernType": "time",
+          "videoUrl": "", // Will be populated by testimonial manager
+          "author": "System Explanation",
+          "text": "No tech skills needed - copy, paste, done",
+          "addedAt": "2026-01-10T16:13:40.650Z",
+          "views": 0
+        },
+        {
+          "id": "testimonial_informational_podcast_leads",
+          "title": "Podcast → Leads Automatically",
+          "concernType": "general",
+          "videoUrl": "", // Will be populated by testimonial manager
+          "author": "System Explanation",
+          "text": "Turn listeners into booked appointments while you sleep",
+          "addedAt": "2026-01-10T16:13:40.650Z",
+          "views": 0
+        }
+      ],
+      "createdAt": "2026-01-10T16:13:40.650Z",
+      "viewCount": 0
     }
   },
   "statistics": {
-    "totalGroups": 2,
-    "totalVideos": 1,
+    "totalGroups": 3, // Updated from 2 to 3
+    "totalVideos": 7, // Updated from 1 to 7 (1 existing + 6 informational)
     "totalViews": 10
   },
   "playerConfig": {
@@ -113,7 +186,7 @@ window.testimonialData = {
   },
   "__version": "2.0-groups-system",
   "__generated": "2026-01-10T16:13:40.650Z",
-  "__notes": "COMPLETELY CLEAN - No video URLs, no testimonials, no groups"
+  "__notes": "Added informational videos as testimonials with empty videoUrls for system population"
 };
 
 console.log('✅ Testimonials Data Loaded:', 
@@ -159,11 +232,6 @@ window.testimonialData.getAvailableConcerns = function() {
     return concerns;
 };
 
-// ===================================================
-// 🎬 VIDEO PLAYER WITH CLOSE BUTTON (ADDED TO DATA FILE)
-// ===================================================
-
-// Function to play testimonial video WITH proper close button
 // ===================================================
 // 🎬 VIDEO PLAYER WITH PROPER SIZE & VISIBLE CLOSE BUTTON
 // ===================================================

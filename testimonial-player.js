@@ -850,6 +850,114 @@ function getEmojiForTestimonial(testimonial) {
     return '🎬';
 }
 
+// ============================================
+// 🎓 INFORMATIONAL VIDEO SYSTEM
+// ============================================
+
+// 🆕 ADD THIS FUNCTION
+function showInformationalVideos() {
+    console.log('🎓 Loading informational videos...');
+    
+    // 🛡️ PROTECTION: Block voice system during videos
+    window.testimonialSessionActive = true;
+    
+    // Check if we have informational videos
+    if (!window.testimonialData || !window.testimonialData.testimonialGroups || 
+        !window.testimonialData.testimonialGroups.informational) {
+        console.error('❌ No informational videos found in data');
+        // Fallback to regular testimonials
+        showTestimonialSplashScreen();
+        return;
+    }
+    
+    const infoGroup = window.testimonialData.testimonialGroups.informational;
+    console.log('📚 Found informational group:', infoGroup.title, 'with', infoGroup.videos.length, 'videos');
+    
+    // Store original data temporarily
+    if (!window.originalTestimonialData) {
+        window.originalTestimonialData = window.testimonialData;
+    }
+    
+    // Create filtered data with ONLY informational videos
+    const filteredData = {
+        testimonialGroups: {
+            informational: infoGroup
+        }
+    };
+    
+    // Temporarily replace global data
+    window.tempTestimonialData = window.testimonialData;
+    window.testimonialData = filteredData;
+    window.currentVideoMode = 'informational';
+    
+    // Show the splash screen
+    showTestimonialSplashScreen(true);
+    
+    // Restore original data after video session ends
+    setTimeout(() => {
+        if (window.tempTestimonialData) {
+            window.testimonialData = window.tempTestimonialData;
+            delete window.tempTestimonialData;
+            console.log('✅ Restored original testimonial data');
+        }
+    }, 5000);
+}
+
+// 🆕 ADD THIS FUNCTION (for styling)
+function applyInformationalStyling() {
+    const splashScreen = document.getElementById('testimonial-splash-screen');
+    if (!splashScreen) return;
+    
+    // Update header
+    const header = splashScreen.querySelector('h3');
+    const subheader = splashScreen.querySelector('p');
+    
+    if (header) {
+        header.textContent = '📚 How It Works';
+        header.style.color = '#4FC3F7';
+    }
+    
+    if (subheader) {
+        subheader.textContent = 'Watch our explainer videos';
+    }
+    
+    // Update buttons with durations
+    const buttons = splashScreen.querySelectorAll('button[id^="testimonial_"]');
+    buttons.forEach((button, index) => {
+        const infoGroup = window.testimonialData?.testimonialGroups?.informational;
+        if (infoGroup && infoGroup.videos && infoGroup.videos[index]) {
+            const video = infoGroup.videos[index];
+            const emoji = video.emoji || '📹';
+            const duration = video.duration ? ` (${video.duration})` : '';
+            
+            button.innerHTML = `
+                <div style="font-size: 28px;">${emoji}</div>
+                <div style="flex: 1; text-align: left;">
+                    <div style="font-weight: 600; font-size: 17px;">${video.title}</div>
+                    <div style="font-size: 13px; opacity: 0.8; margin-top: 2px;">${video.description}${duration}</div>
+                </div>
+            `;
+        }
+    });
+}
+
+// 🆕 MODIFY THE SPLASH SCREEN FUNCTION
+// Find the existing showTestimonialSplashScreen function and ADD this at the beginning:
+window.originalShowTestimonialSplashScreen = window.showTestimonialSplashScreen;
+
+window.showTestimonialSplashScreen = function(isInformational = false) {
+    console.log('🎬 Showing video selection (mode:', isInformational ? 'Informational' : 'Testimonial', ')');
+    
+    window.currentVideoMode = isInformational ? 'informational' : 'testimonial';
+    window.originalShowTestimonialSplashScreen();
+    
+    if (isInformational) {
+        setTimeout(() => {
+            applyInformationalStyling();
+        }, 100);
+    }
+};
+
 // ================================
 // 🎬 INITIALIZE THE SYSTEM
 // ================================
