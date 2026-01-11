@@ -770,6 +770,10 @@ function returnToVoiceChat() {
         console.log('🗣️ Playing consultation offer...');
         
         const consultationText = "If we can get you the same results as our previous customers, would you be interested in that consultation?";
+
+          // 🎯 SET THE CONSULTATION RESPONSE EXPECTATION FLAG
+    window.expectingConsultationResponse = true;
+    window.consultationQuestionActive = true;
         
         // A. FIRST add message to chat bubble (VISIBLE)
         if (window.addAIMessage && typeof window.addAIMessage === 'function') {
@@ -864,6 +868,52 @@ function initializeTestimonialSystem() {
 }
 
 // ================================
+// 🎯 CONSULTATION RESPONSE HANDLER (ADD THIS TO YOUR testimonialplayer.js)
+// ================================
+function handleConsultationResponse(userInput) {
+    console.log('🎯 Checking consultation response:', userInput);
+    
+    const positiveResponses = [
+        'yes', 'yeah', 'yep', 'sure', 'okay', 'ok', 'absolutely', 'definitely',
+        'of course', 'why not', 'let\'s do it', 'i\'m interested', 'interested',
+        'yes please', 'please', 'go ahead', 'continue', 'proceed'
+    ];
+    
+    const userInputLower = userInput.toLowerCase().trim();
+    
+    // Check if this is a positive response to consultation offer
+    if (window.expectingConsultationResponse && positiveResponses.some(response => 
+        userInputLower.includes(response) || userInputLower === response)) {
+        
+        console.log('🎯 POSITIVE CONSULTATION RESPONSE DETECTED - Triggering action panel');
+        
+        // Reset the flag
+        window.expectingConsultationResponse = false;
+        window.consultationQuestionActive = false;
+        
+        // 🚨 CRITICAL: Clear testimonial flags so we don't loop back
+        window.testimonialSessionActive = false;
+        window.isInTestimonialMode = false;
+        
+        // Trigger action panel
+        setTimeout(() => {
+            if (window.showActionPanel) {
+                window.showActionPanel();
+            } else if (window.triggerActionCenter) {
+                window.triggerActionCenter();
+            } else if (window.universalBannerEngine) {
+                window.universalBannerEngine.showBanner('set_appointment');
+            }
+            console.log('✅ Action panel triggered for consultation response');
+        }, 1000);
+        
+        return true; // Handled
+    }
+    
+    return false; // Not a consultation response
+}
+
+// ================================
 // GLOBAL EXPORTS - COMPLETE SET
 // ================================
 
@@ -885,6 +935,7 @@ window.showMoreTestimonials = showMoreTestimonials;
 window.getEmojiForTestimonial = getEmojiForTestimonial;
 window.showTestimonialSpinner = showTestimonialSpinner;
 window.hideTestimonialSpinner = hideTestimonialSpinner;
+window.handleConsultationResponse = handleConsultationResponse;
 
 // 4. STATE FLAGS
 window.avatarCurrentlyPlaying = false;
