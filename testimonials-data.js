@@ -292,27 +292,41 @@ window.playTestimonialVideoWithOverlay = function(testimonial) {
         font-family: 'Segoe UI', sans-serif;
     `;
     
-    header.innerHTML = `
-        <div style="
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            flex-shrink: 0;
-        ">🎬</div>
-        <div>
-            <h3 style="margin: 0 0 5px 0; font-size: 18px; font-weight: 600;">
-                ${testimonial.title || 'Client Testimonial'}
-            </h3>
-            <p style="margin: 0; opacity: 0.7; font-size: 13px;">
-                Real story from a satisfied client
-            </p>
-        </div>
-    `;
+    // Determine if this is testimonial or informational
+let videoType = 'testimonial';
+let icon = '🎬';
+let subtitle = 'Real story from a satisfied client';
+let gradient = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+
+// Check if this is informational (has 'description' field instead of 'text')
+if (testimonial.description || testimonial.author === 'System Explanation') {
+    videoType = 'informational';
+    icon = '📚';
+    subtitle = 'Educational video & system explanation';
+    gradient = 'linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%)';
+}
+
+header.innerHTML = `
+    <div style="
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: ${gradient};
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        flex-shrink: 0;
+    ">${icon}</div>
+    <div>
+        <h3 style="margin: 0 0 5px 0; font-size: 18px; font-weight: 600;">
+            ${testimonial.title || (videoType === 'informational' ? 'How It Works' : 'Client Testimonial')}
+        </h3>
+        <p style="margin: 0; opacity: 0.7; font-size: 13px;">
+            ${subtitle}
+        </p>
+    </div>
+`;
     
     // Create VIDEO CONTAINER (proper aspect ratio)
     const videoContainer = document.createElement('div');
