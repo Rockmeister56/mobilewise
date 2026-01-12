@@ -101,6 +101,34 @@ function initializeSampleGroups() {
     console.log('📊 Initialized with sample groups');
 }
 
+// Add to testimonial-manager.js for modal functionality
+function selectVideoType(type) {
+    document.querySelectorAll('.type-option').forEach(opt => {
+        opt.classList.toggle('active', opt.dataset.type === type);
+    });
+    document.getElementById('newGroupType').value = type;
+    
+    // Toggle trigger sections
+    document.getElementById('testimonialTriggers').style.display = 
+        type === 'testimonial' ? 'block' : 'none';
+    document.getElementById('informationalTriggers').style.display = 
+        type === 'informational' ? 'block' : 'none';
+}
+
+function selectIcon(icon) {
+    document.querySelectorAll('.icon-option').forEach(opt => {
+        opt.classList.toggle('active', opt.dataset.icon === icon);
+    });
+    document.getElementById('newGroupIcon').value = icon;
+}
+
+// Initialize when showing modal
+function showAddTestimonialGroupModal() {
+    selectVideoType('testimonial'); // Default
+    selectIcon('📁'); // Default
+    document.getElementById('addTestimonialGroupModal').style.display = 'flex';
+}
+
 // ===================================================
 // EVENT LISTENERS SETUP
 // ===================================================

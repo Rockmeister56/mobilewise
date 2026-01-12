@@ -822,9 +822,10 @@ textarea.form-control {
 }
 
 /* =================================================== */
-/* MODALS */
+/* MODALS - CLEANED & ORGANIZED */
 /* =================================================== */
 
+/* Base Modal */
 .modal {
     display: none;
     position: fixed;
@@ -863,14 +864,10 @@ textarea.form-control {
     animation: slideUp 0.3s ease;
 }
 
-.large-modal {
-    max-width: 900px;
-}
+.large-modal { max-width: 900px; }
+.video-modal { max-width: 800px; }
 
-.video-modal {
-    max-width: 800px;
-}
-
+/* Modal Header */
 .modal-header {
     padding: var(--spacing-lg) var(--spacing-xl);
     border-bottom: 1px solid var(--border-light);
@@ -889,9 +886,7 @@ textarea.form-control {
     flex: 1;
 }
 
-.modal-icon {
-    font-size: 1.5rem;
-}
+.modal-icon { font-size: 1.5rem; }
 
 .badge {
     background: var(--primary);
@@ -925,6 +920,7 @@ textarea.form-control {
     color: var(--text-primary);
 }
 
+/* Modal Body */
 .modal-body {
     padding: var(--spacing-xl);
     flex: 1;
@@ -938,6 +934,7 @@ textarea.form-control {
     margin-top: var(--spacing-xl);
 }
 
+/* Buttons */
 .btn-secondary {
     background: rgba(255, 255, 255, 0.1);
     color: var(--text-primary);
@@ -968,7 +965,282 @@ textarea.form-control {
     object-fit: contain;
 }
 
-/* Delete Button Styling */
+/* =================================================== */
+/* GROUP CREATION MODAL SPECIFIC STYLES */
+/* =================================================== */
+
+/* Form Elements */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    color: white;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #667eea;
+    background: rgba(102, 126, 234, 0.1);
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+}
+
+.form-control::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+}
+
+/* Select Dropdown */
+select.form-control {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='white' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: 12px;
+    padding-right: 40px;
+}
+
+/* Textarea */
+textarea.form-control {
+    min-height: 100px;
+    resize: vertical;
+    font-family: inherit;
+    line-height: 1.5;
+}
+
+/* Video Type Selection */
+.video-type-section {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 25px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.type-options {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.type-option {
+    flex: 1;
+    text-align: center;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid transparent;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.type-option:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+}
+
+.type-option.active {
+    border-color: #667eea;
+    background: rgba(102, 126, 234, 0.1);
+}
+
+.type-option .icon {
+    font-size: 24px;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.type-option .label {
+    font-size: 14px;
+    color: white;
+}
+
+/* Icon Selection */
+.icon-options {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+}
+
+.icon-option {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid transparent;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.icon-option:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(1.1);
+}
+
+.icon-option.active {
+    border-color: #667eea;
+    background: rgba(102, 126, 234, 0.1);
+    transform: scale(1.1);
+}
+
+/* Triggers/Concerns Selection */
+.triggers-section {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 25px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.triggers-section h4 {
+    margin: 0 0 15px 0;
+    color: white;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#testimonialTriggers h4::before { content: '⭐'; }
+#informationalTriggers h4::before { content: '📚'; }
+
+.concerns-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
+}
+
+.concern-checkbox { display: none; }
+
+.concern-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.concern-label:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.concern-checkbox:checked + .concern-label {
+    background: rgba(102, 126, 234, 0.1);
+    border-color: #667eea;
+    color: #667eea;
+}
+
+.concern-icon { font-size: 18px; }
+.concern-text {
+    font-size: 14px;
+    color: white;
+}
+
+/* Type-specific trigger visibility */
+#newGroupType[value="testimonial"] ~ #testimonialTriggers { display: block; }
+#newGroupType[value="testimonial"] ~ #informationalTriggers { display: none; }
+#newGroupType[value="informational"] ~ #testimonialTriggers { display: none; }
+#newGroupType[value="informational"] ~ #informationalTriggers { display: block; }
+
+/* =================================================== */
+/* TYPE BADGES - UNIFIED */
+/* =================================================== */
+
+.type-badge {
+    font-size: 12px;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: 8px;
+}
+
+.type-badge.informational {
+    background: rgba(79, 195, 247, 0.2);
+    color: #4FC3F7;
+    border: 1px solid rgba(79, 195, 247, 0.3);
+}
+
+.type-badge.testimonial {
+    background: rgba(255, 152, 0, 0.2);
+    color: #FF9800;
+    border: 1px solid rgba(255, 152, 0, 0.3);
+}
+
+/* Dropdown options */
+select option[data-type="informational"] {
+    background-color: rgba(79, 195, 247, 0.1);
+}
+
+select option[data-type="testimonial"] {
+    background-color: rgba(255, 152, 0, 0.1);
+}
+
+/* =================================================== */
+/* CONTENT HEADER */
+/* =================================================== */
+
+.content-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.content-header h2 {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.group-icon { font-size: 24px; }
+
+.header-actions {
+    display: flex;
+    gap: 10px;
+}
+
+/* Alert for group type */
+.alert.alert-info {
+    background: rgba(79, 195, 247, 0.1);
+    border: 1px solid rgba(79, 195, 247, 0.2);
+    border-radius: 8px;
+    padding: 12px 15px;
+    margin-bottom: 20px;
+}
+
+/* =================================================== */
+/* DELETE BUTTON */
+/* =================================================== */
+
 .btn-delete-group {
     background: none;
     border: none;
@@ -987,93 +1259,36 @@ textarea.form-control {
     background: rgba(255, 107, 107, 0.1);
 }
 
-/* Video Type Badge Styling */
-.type-badge {
-    font-size: 10px;
-    padding: 2px 6px;
-    border-radius: 10px;
-    margin-left: 8px;
-    font-weight: 500;
-    display: inline-block;
+/* =================================================== */
+/* RESPONSIVE */
+/* =================================================== */
+
+@media (max-width: 600px) {
+    .modal-dialog {
+        width: 95%;
+        padding: 15px;
+    }
+    
+    .concerns-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .modal-actions {
+        flex-direction: column;
+    }
+    
+    .type-options {
+        flex-direction: column;
+    }
+    
+    .icon-options {
+        justify-content: center;
+    }
 }
 
-.type-badge.informational {
-    background: rgba(79, 195, 247, 0.2);
-    color: #4FC3F7;
-    border: 1px solid rgba(79, 195, 247, 0.3);
-}
-
-.type-badge.testimonial {
-    background: rgba(255, 152, 0, 0.2);
-    color: #FF9800;
-    border: 1px solid rgba(255, 152, 0, 0.3);
-}
-
-/* Type badges for dropdown options */
-select option[data-type="informational"] {
-    background-color: rgba(79, 195, 247, 0.1);
-}
-
-select option[data-type="testimonial"] {
-    background-color: rgba(255, 152, 0, 0.1);
-}
-
-/* Content header styling */
-.content-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-}
-
-.content-header h2 {
-    margin: 0;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.group-icon {
-    font-size: 24px;
-}
-
-.header-actions {
-    display: flex;
-    gap: 10px;
-}
-
-/* Alert styling for group type */
-.alert.alert-info {
-    background: rgba(79, 195, 247, 0.1);
-    border: 1px solid rgba(79, 195, 247, 0.2);
-    border-radius: 8px;
-    padding: 12px 15px;
-    margin-bottom: 20px;
-}
-
-/* Type badge variations */
-.type-badge {
-    font-size: 12px;
-    padding: 3px 8px;
-    border-radius: 12px;
-    font-weight: 500;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-}
-
-.type-badge.informational {
-    background: rgba(79, 195, 247, 0.2);
-    color: #4FC3F7;
-    border: 1px solid rgba(79, 195, 247, 0.3);
-}
-
-.type-badge.testimonial {
-    background: rgba(255, 152, 0, 0.2);
-    color: #FF9800;
-    border: 1px solid rgba(255, 152, 0, 0.3);
+/* Hide/show triggers based on type (JavaScript fallback) */
+.triggers-section[style*="display: none"] {
+    display: none !important;
 }
 
 /* =================================================== */
