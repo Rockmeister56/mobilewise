@@ -1299,26 +1299,26 @@ function addTypeBadgesToGroups() {
         const groupIdMatch = onclickAttr?.match(/selectGroup\('([^']+)'/);
         const groupId = groupIdMatch ? groupIdMatch[1] : null;
         
-        if (!groupId || !window.testimonialData?.testimonialGroups?.[groupId]) return;
+        // FIXED LINE 1302: Check BOTH data sources
+        if (!groupId || (!window.testimonialManagerData?.testimonialGroups?.[groupId] && 
+                         !window.testimonialData?.testimonialGroups?.[groupId])) return;
         
-        const group = window.testimonialData.testimonialGroups[groupId];
+        // FIXED LINE 1304: Try testimonialManagerData first, fallback to testimonialData
+        const group = window.testimonialManagerData?.testimonialGroups?.[groupId] || 
+                      window.testimonialData?.testimonialGroups?.[groupId];
+        
         const videoType = group.type || 'testimonial'; // Default to testimonial
         
         // Check if badge already exists
         if (groupBtn.querySelector('.type-badge')) return;
         
-        // Create badge
-        const badge = document.createElement('span');
+        // Create badge element
+        const badge = document.createElement('div');
         badge.className = `type-badge ${videoType}`;
-        badge.innerHTML = videoType === 'informational' ? '📚 Info' : '🎬 Testimonial';
-        badge.title = videoType === 'informational' ? 'Informational/How-to Videos' : 'Client Testimonial Videos';
+        badge.textContent = videoType === 'informational' ? '📚 Info' : '🎬 Testimonial';
         
-        // Find where to insert (after group name)
-        const groupName = groupBtn.querySelector('.group-name');
-        if (groupName) {
-            // Insert after group name
-            groupName.parentNode.insertBefore(badge, groupName.nextSibling);
-        }
+        // Add to button
+        groupBtn.appendChild(badge);
     });
 }
 
