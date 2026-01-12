@@ -292,18 +292,18 @@
         </div>
     </div>
     
-    <!-- =========================================== -->
-    <!-- MODALS -->
-    <!-- =========================================== -->
-    
-    <!-- ADD TESTIMONIAL GROUP MODAL -->
+   <!-- =========================================== -->
+<!-- MODALS -->
+<!-- =========================================== -->
+
+<!-- ADD VIDEO GROUP MODAL -->
 <div id="addTestimonialGroupModal" class="modal">
     <div class="modal-backdrop" onclick="hideAddTestimonialGroupModal()"></div>
     <div class="modal-dialog">
         <div class="modal-header">
             <h2 class="modal-title">
                 <span class="modal-icon">➕</span>
-                Add Testimonial Group
+                Add Video Group
             </h2>
             <button class="modal-close" onclick="hideAddTestimonialGroupModal()">×</button>
         </div>
@@ -318,66 +318,113 @@
                 <label for="newGroupSlug" class="form-label">Group Slug</label>
                 <input type="text" id="newGroupSlug" class="form-control" 
                        placeholder="price-concerns (URL-friendly, lowercase)">
-                <small class="form-help">Use lowercase with hyphens, no spaces</small>
+                <small class="form-help">Use lowercase with hypheres, no spaces</small>
+            </div>
+            
+            <!-- 🆕 VIDEO TYPE SELECTOR -->
+            <div class="form-group">
+                <label for="newGroupType" class="form-label">Video Type</label>
+                <select id="newGroupType" class="form-control">
+                    <option value="testimonial">🎬 Testimonial Video</option>
+                    <option value="informational">📚 Informational Video</option>
+                </select>
+                <small class="form-help">
+                    Testimonial: Real client stories | Informational: How-to & educational
+                </small>
             </div>
             
             <div class="form-group">
                 <label for="newGroupIcon" class="form-label">Icon Emoji</label>
                 <input type="text" id="newGroupIcon" class="form-control" 
                        placeholder="💰" value="📁">
+                <small class="form-help">Changes automatically based on video type</small>
             </div>
             
             <div class="form-group">
                 <label for="newGroupDescription" class="form-label">Description (Optional)</label>
                 <textarea id="newGroupDescription" class="form-control" rows="3"
-                          placeholder="Describe this testimonial group..."></textarea>
+                          placeholder="Describe this video group..."></textarea>
             </div>
             
-            <!-- CONCERNS SELECTION -->
+            <!-- CONCERNS/TRIGGERS SELECTION -->
             <div class="form-group">
                 <label class="form-label">Select Trigger Phrases</label>
                 <div id="concernsCheckboxContainer" class="concerns-checkbox-container">
-                    <!-- Checkboxes will be populated by JavaScript -->
-                    <div class="concern-checkbox-item">
-                        <input type="checkbox" id="concern_price" class="concern-checkbox" value="price">
-                        <label for="concern_price" class="concern-checkbox-label">
-                            💰 See What Others Say About Value
-                        </label>
+                    <!-- Testimonial triggers -->
+                    <div class="concern-section" id="testimonialTriggers">
+                        <div class="concern-section-title">🎬 Testimonial Triggers</div>
+                        <div class="concern-checkbox-item">
+                            <input type="checkbox" id="concern_price" class="concern-checkbox" value="price">
+                            <label for="concern_price" class="concern-checkbox-label">
+                                💰 See What Others Say About Value
+                            </label>
+                        </div>
+                        <div class="concern-checkbox-item">
+                            <input type="checkbox" id="concern_time" class="concern-checkbox" value="time">
+                            <label for="concern_time" class="concern-checkbox-label">
+                                ⏰ Hear From Busy Professionals
+                            </label>
+                        </div>
+                        <div class="concern-checkbox-item">
+                            <input type="checkbox" id="concern_trust" class="concern-checkbox" value="trust">
+                            <label for="concern_trust" class="concern-checkbox-label">
+                                🤝 Real Client Experiences
+                            </label>
+                        </div>
+                        <div class="concern-checkbox-item">
+                            <input type="checkbox" id="concern_general" class="concern-checkbox" value="general">
+                            <label for="concern_general" class="concern-checkbox-label">
+                                ⭐ What Our Clients Say
+                            </label>
+                        </div>
+                        <div class="concern-checkbox-item">
+                            <input type="checkbox" id="concern_results" class="concern-checkbox" value="results">
+                            <label for="concern_results" class="concern-checkbox-label">
+                                📈 See The Results Others Got
+                            </label>
+                        </div>
                     </div>
-                    <div class="concern-checkbox-item">
-                        <input type="checkbox" id="concern_time" class="concern-checkbox" value="time">
-                        <label for="concern_time" class="concern-checkbox-label">
-                            ⏰ Hear From Busy Professionals
-                        </label>
-                    </div>
-                    <div class="concern-checkbox-item">
-                        <input type="checkbox" id="concern_trust" class="concern-checkbox" value="trust">
-                        <label for="concern_trust" class="concern-checkbox-label">
-                            🤝 Real Client Experiences
-                        </label>
-                    </div>
-                    <div class="concern-checkbox-item">
-                        <input type="checkbox" id="concern_general" class="concern-checkbox" value="general">
-                        <label for="concern_general" class="concern-checkbox-label">
-                            ⭐ What Our Clients Say
-                        </label>
-                    </div>
-                    <div class="concern-checkbox-item">
-                        <input type="checkbox" id="concern_results" class="concern-checkbox" value="results">
-                        <label for="concern_results" class="concern-checkbox-label">
-                            📈 See The Results Others Got
-                        </label>
+                    
+                    <!-- Informational triggers -->
+                    <div class="concern-section" id="informationalTriggers" style="display: none;">
+                        <div class="concern-section-title">📚 Informational Triggers</div>
+                        <div class="concern-checkbox-item">
+                            <input type="checkbox" id="info_how" class="concern-checkbox" value="how">
+                            <label for="info_how" class="concern-checkbox-label">
+                                ❓ How Does It Work?
+                            </label>
+                        </div>
+                        <div class="concern-checkbox-item">
+                            <input type="checkbox" id="info_conversions" class="concern-checkbox" value="conversions">
+                            <label for="info_conversions" class="concern-checkbox-label">
+                                📈 Get More Conversions
+                            </label>
+                        </div>
+                        <div class="concern-checkbox-item">
+                            <input type="checkbox" id="info_leads" class="concern-checkbox" value="leads">
+                            <label for="info_leads" class="concern-checkbox-label">
+                                🔥 Pre-Qualified Leads
+                            </label>
+                        </div>
+                        <div class="concern-checkbox-item">
+                            <input type="checkbox" id="info_setup" class="concern-checkbox" value="setup">
+                            <label for="info_setup" class="concern-checkbox-label">
+                                ⚡ Easy Setup Process
+                            </label>
+                        </div>
+                        <div class="concern-checkbox-item">
+                            <input type="checkbox" id="info_podcast" class="concern-checkbox" value="podcast">
+                            <label for="info_podcast" class="concern-checkbox-label">
+                                🎙️ For Podcasters
+                            </label>
+                        </div>
                     </div>
                 </div>
             </div>
             
             <div class="modal-actions">
-                <button class="btn btn-secondary" onclick="hideAddTestimonialGroupModal()">
-                    Cancel
-                </button>
-                <button class="btn btn-primary" onclick="createTestimonialGroup()">
-                    Create Testimonial Group
-                </button>
+                <button class="btn btn-secondary" onclick="hideAddTestimonialGroupModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="addNewTestimonialGroup()">Create Video Group</button>
             </div>
         </div>
     </div>

@@ -968,6 +968,114 @@ textarea.form-control {
     object-fit: contain;
 }
 
+/* Delete Button Styling */
+.btn-delete-group {
+    background: none;
+    border: none;
+    color: #ff6b6b;
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    opacity: 0.5;
+    transition: all 0.2s ease;
+    margin-left: 5px;
+}
+
+.btn-delete-group:hover {
+    opacity: 1;
+    background: rgba(255, 107, 107, 0.1);
+}
+
+/* Video Type Badge Styling */
+.type-badge {
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 10px;
+    margin-left: 8px;
+    font-weight: 500;
+    display: inline-block;
+}
+
+.type-badge.informational {
+    background: rgba(79, 195, 247, 0.2);
+    color: #4FC3F7;
+    border: 1px solid rgba(79, 195, 247, 0.3);
+}
+
+.type-badge.testimonial {
+    background: rgba(255, 152, 0, 0.2);
+    color: #FF9800;
+    border: 1px solid rgba(255, 152, 0, 0.3);
+}
+
+/* Type badges for dropdown options */
+select option[data-type="informational"] {
+    background-color: rgba(79, 195, 247, 0.1);
+}
+
+select option[data-type="testimonial"] {
+    background-color: rgba(255, 152, 0, 0.1);
+}
+
+/* Content header styling */
+.content-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.content-header h2 {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.group-icon {
+    font-size: 24px;
+}
+
+.header-actions {
+    display: flex;
+    gap: 10px;
+}
+
+/* Alert styling for group type */
+.alert.alert-info {
+    background: rgba(79, 195, 247, 0.1);
+    border: 1px solid rgba(79, 195, 247, 0.2);
+    border-radius: 8px;
+    padding: 12px 15px;
+    margin-bottom: 20px;
+}
+
+/* Type badge variations */
+.type-badge {
+    font-size: 12px;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.type-badge.informational {
+    background: rgba(79, 195, 247, 0.2);
+    color: #4FC3F7;
+    border: 1px solid rgba(79, 195, 247, 0.3);
+}
+
+.type-badge.testimonial {
+    background: rgba(255, 152, 0, 0.2);
+    color: #FF9800;
+    border: 1px solid rgba(255, 152, 0, 0.3);
+}
+
 /* =================================================== */
 /* STATUS MESSAGES */
 /* =================================================== */

@@ -268,26 +268,44 @@ function updateGroupDropdown() {
     const dropdown = document.getElementById('selectGroupDropdown');
     if (!dropdown) return;
     
-    dropdown.innerHTML = '<option value="">-- Select a Group to Add Testimonials --</option>';
+    // Clear existing options except the first one
+    while (dropdown.options.length > 1) {
+        dropdown.remove(1);
+    }
     
-    if (!testimonialData.testimonialGroups || Object.keys(testimonialData.testimonialGroups).length === 0) {
-        dropdown.innerHTML = '<option value="">No groups yet - Create one first</option>';
+    if (!window.testimonialData || !window.testimonialData.testimonialGroups) {
         return;
     }
     
-    // Add all groups to dropdown
-    for (const [groupId, group] of Object.entries(testimonialData.testimonialGroups)) {
+    // Sort groups: Informational first, then Testimonial
+    const groups = Object.entries(window.testimonialData.testimonialGroups);
+    groups.sort(([keyA, groupA], [keyB, groupB]) => {
+        const typeA = groupA.type || 'testimonial';
+        const typeB = groupB.type || 'testimonial';
+        if (typeA === 'informational' && typeB !== 'informational') return -1;
+        if (typeA !== 'informational' && typeB === 'informational') return 1;
+        return 0;
+    });
+    
+    // Add options with type badges
+    groups.forEach(([groupId, group]) => {
         const option = document.createElement('option');
         option.value = groupId;
-        option.textContent = `${group.icon || '📁'} ${group.name}`;
         
-        // Select if this is the current group
-        if (groupId === currentSelectedGroupId) {
-            option.selected = true;
-        }
+        const videoType = group.type || 'testimonial';
+        const typeBadge = videoType === 'informational' ? '📚' : '🎬';
+        const typeText = videoType === 'informational' ? ' (Informational)' : ' (Testimonial)';
+        
+        option.textContent = `${typeBadge} ${group.title || groupId}${typeText}`;
+        option.title = group.description || `Type: ${videoType} videos`;
+        
+        // Add data attribute for type
+        option.setAttribute('data-type', videoType);
         
         dropdown.appendChild(option);
-    }
+    });
+    
+    console.log(`✅ Updated dropdown with ${groups.length} groups`);
 }
 
 // ===================================================
@@ -465,32 +483,91 @@ function hideEditGroupModal() {
 // And export it
 window.hideEditGroupModal = hideEditGroupModal;
 
-function selectGroup(groupId, showOverlay = false) {
-    if (!testimonialData.testimonialGroups[groupId]) {
-        showError('Group not found');
+function selectGroup(groupId, scroll = false) {
+    console.log('🎬 Selecting group:', groupId);
+    
+    window.selectedGroupId = groupId;
+    
+    if (!groupId) {
+        // Clear the main content area
+        document.getElementById('mainContent').innerHTML = `
+            <div class="empty-state">
+                <div class="empty-icon">📁</div>
+                <h3>No Group Selected</h3>
+                <p>Select a group from the dropdown or sidebar to view and manage testimonials.</p>
+            </div>
+        `;
         return;
     }
     
-    currentSelectedGroupId = groupId;
-    const group = testimonialData.testimonialGroups[groupId];
-    
-    // Update ALL UI components
-    updateGroupsDisplay();
-    updateCurrentGroupDisplay(group);
-    updateGroupDropdown();
-    
-    // ❌ REMOVE THIS LINE - we don't need to populate form with group info
-    // populateFormWithGroupInfo(groupId);
-    
-    // ✅ ONLY show overlay if explicitly requested
-    if (showOverlay === true) {
-        showTestimonialOverlay(groupId);
-    } else {
-        // Optional: Show a simple success message for dropdown selection
-        showSuccess(`✅ Group selected: ${group.name}`);
+    const group = window.testimonialData.testimonialGroups[groupId];
+    if (!group) {
+        console.error('❌ Group not found:', groupId);
+        return;
     }
     
-    console.log('Selected group:', group.name);
+    // Update dropdown selection
+    const dropdown = document.getElementById('selectGroupDropdown');
+    if (dropdown) {
+        dropdown.value = groupId;
+    }
+    
+    // Update main content header with type badge
+    const mainContent = document.getElementById('mainContent');
+    const videoType = group.type || 'testimonial';
+    const typeBadge = videoType === 'informational' ? 
+        '<span class="type-badge informational" title="Informational Videos">📚 Informational</span>' : 
+        '<span class="type-badge testimonial" title="Testimonial Videos">🎬 Testimonial</span>';
+    
+    mainContent.innerHTML = `
+        <div class="content-header">
+            <h2>
+                <span class="group-icon">${group.icon || '📁'}</span>
+                ${group.title || groupId}
+                ${typeBadge}
+            </h2>
+            <div class="header-actions">
+                <button class="btn btn-primary btn-sm" onclick="showAddTestimonialModal('${groupId}')">
+                    <span class="btn-icon">➕</span> Add Video
+                </button>
+                <button class="btn btn-warning btn-sm" onclick="editGroup('${groupId}')">
+                    <span class="btn-icon">✏️</span> Edit Group
+                </button>
+                <!-- 🆕 DELETE BUTTON -->
+                <button class="btn btn-danger btn-sm" onclick="deleteGroup('${groupId}')" 
+                        title="Delete this group and all its videos">
+                    <span class="btn-icon">🗑️</span> Delete Group
+                </button>
+            </div>
+        </div>
+        <div class="content-body">
+            <p class="group-description">${group.description || 'No description provided.'}</p>
+            
+            <!-- Video Type Info -->
+            <div class="alert alert-info">
+                <strong>📋 Group Type:</strong> ${videoType === 'informational' ? 
+                    '📚 <strong>Informational Videos</strong> - How-to, explainer, and educational content' : 
+                    '🎬 <strong>Testimonial Videos</strong> - Real client stories and social proof'}
+            </div>
+            
+            <!-- Videos/Testimonials will be rendered here -->
+            <div id="groupContentContainer"></div>
+        </div>
+    `;
+    
+    // Render the appropriate content
+    if (videoType === 'informational') {
+        renderInformationalVideos(groupId);
+    } else {
+        renderTestimonials(groupId);
+    }
+    
+    // Add type badges to sidebar groups
+    addTypeBadgesToGroups();
+    
+    if (scroll) {
+        mainContent.scrollIntoView({ behavior: 'smooth' });
+    }
 }
 
 function showTestimonialOverlay(groupId) {
@@ -765,50 +842,86 @@ function addTextTestimonial() {
     console.log('Added text testimonial:', testimonial);
 }
 
-function testVideoUrl() {
-    const videoUrl = document.getElementById('videoUrl').value.trim();
-    const videoPreview = document.getElementById('videoPreview');
-    const previewPlayer = document.getElementById('previewVideoPlayer');
-    const videoStatus = document.getElementById('videoStatus');
+// Add this to your testimonial-manager.js file:
+
+// Function to toggle trigger sections based on video type
+function updateTriggerSections() {
+    const videoType = document.getElementById('newGroupType').value;
+    const testimonialSection = document.getElementById('testimonialTriggers');
+    const informationalSection = document.getElementById('informationalTriggers');
+    const iconField = document.getElementById('newGroupIcon');
     
-    if (!videoUrl) {
-        showError('Please enter a video URL');
-        return;
+    // Show/hide sections
+    if (videoType === 'testimonial') {
+        testimonialSection.style.display = 'block';
+        informationalSection.style.display = 'none';
+        // Set default icon for testimonials
+        iconField.value = '🎬';
+    } else {
+        testimonialSection.style.display = 'none';
+        informationalSection.style.display = 'block';
+        // Set default icon for informational
+        iconField.value = '📚';
     }
     
-    // Simple URL validation
-    if (!videoUrl.startsWith('http')) {
-        showError('Please enter a valid URL starting with http:// or https://');
-        return;
-    }
-    
-    // Try to load video
-    if (previewPlayer) {
-        previewPlayer.src = videoUrl;
-        previewPlayer.load();
-        
-        previewPlayer.onloadeddata = function() {
-            if (videoPreview) {
-                videoPreview.style.display = 'block';
-                videoPreview.scrollIntoView({ behavior: 'smooth' });
-            }
-            if (videoStatus) {
-                videoStatus.textContent = '✅ Video loaded successfully';
-                videoStatus.className = 'info-value status-ready';
-            }
-            showSuccess('✅ Video URL is valid!');
-        };
-        
-        previewPlayer.onerror = function() {
-            if (videoPreview) videoPreview.style.display = 'none';
-            if (videoStatus) {
-                videoStatus.textContent = '❌ Failed to load video';
-                videoStatus.className = 'info-value status-error';
-            }
-            showError('❌ Could not load video. Please check the URL.');
-        };
-    }
+    // Uncheck all checkboxes when switching types
+    const checkboxes = document.querySelectorAll('.concern-checkbox');
+    checkboxes.forEach(checkbox => checkbox.checked = false);
 }
+
+// Function to save the group with video type
+function addNewTestimonialGroup() {
+    const groupName = document.getElementById('newGroupName').value;
+    const groupSlug = document.getElementById('newGroupSlug').value;
+    const videoType = document.getElementById('newGroupType').value;
+    const groupIcon = document.getElementById('newGroupIcon').value;
+    const groupDescription = document.getElementById('newGroupDescription').value;
+    
+    // Get selected triggers
+    const selectedTriggers = [];
+    const activeSection = videoType === 'testimonial' ? 'testimonialTriggers' : 'informationalTriggers';
+    const activeCheckboxes = document.querySelectorAll(`#${activeSection} .concern-checkbox:checked`);
+    
+    activeCheckboxes.forEach(checkbox => {
+        selectedTriggers.push(checkbox.value);
+    });
+    
+    // Create the group object
+    const newGroup = {
+        id: groupSlug,
+        title: groupName,
+        type: videoType, // 🆕 CRITICAL: Save the video type
+        icon: groupIcon,
+        description: groupDescription,
+        triggers: selectedTriggers,
+        // Use different array names based on type
+        [videoType === 'testimonial' ? 'testimonials' : 'videos']: [] // Empty array for content
+    };
+    
+    console.log('🎬 Creating new video group:', newGroup);
+    
+    // Save to your data structure
+    if (!window.testimonialData.testimonialGroups) {
+        window.testimonialData.testimonialGroups = {};
+    }
+    
+    window.testimonialData.testimonialGroups[groupSlug] = newGroup;
+    
+    // Update UI
+    renderTestimonialGroups();
+    hideAddTestimonialGroupModal();
+    showNotification(`✅ ${videoType === 'testimonial' ? 'Testimonial' : 'Informational'} group created!`);
+}
+
+// Initialize the event listener
+document.addEventListener('DOMContentLoaded', function() {
+    const videoTypeSelect = document.getElementById('newGroupType');
+    if (videoTypeSelect) {
+        videoTypeSelect.addEventListener('change', updateTriggerSections);
+        // Set initial state
+        updateTriggerSections();
+    }
+});
 
 // ===================================================
 // TESTIMONIAL DISPLAY (CARD VIEW)
@@ -1013,6 +1126,208 @@ function hideVideoPlayerModal() {
     if (videoModal) {
         videoModal.style.display = 'none';
     }
+}
+
+// Add this to your testimonial-manager.js file
+function addDeleteButtonsToGroups() {
+    console.log('🗑️ Adding delete buttons to groups...');
+    
+    // Find all group buttons
+    const groupButtons = document.querySelectorAll('.testimonial-group-btn');
+    
+    groupButtons.forEach(groupBtn => {
+        // Get the group ID from the onclick attribute
+        const onclickAttr = groupBtn.getAttribute('onclick');
+        const groupIdMatch = onclickAttr?.match(/selectGroup\('([^']+)'/);
+        const groupId = groupIdMatch ? groupIdMatch[1] : null;
+        
+        if (!groupId) return;
+        
+        // Check if delete button already exists
+        const actionsDiv = groupBtn.querySelector('.group-actions');
+        if (!actionsDiv || actionsDiv.querySelector('.btn-delete-group')) return;
+        
+        // Create delete button
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'btn-delete-group';
+        deleteBtn.innerHTML = '🗑️';
+        deleteBtn.title = 'Delete this group and all its videos';
+        deleteBtn.setAttribute('data-group-id', groupId);
+        
+        // Add click handler
+        deleteBtn.onclick = function(e) {
+            e.stopPropagation(); // Prevent triggering group selection
+            deleteGroup(groupId);
+        };
+        
+        // Add to actions div (after edit button)
+        actionsDiv.appendChild(deleteBtn);
+    });
+}
+
+function saveGroupChanges(groupId = null) {
+    // Your existing code to get form values...
+    
+    // 🆕 ADD THIS: Get video type
+    const videoType = document.getElementById('editGroupType')?.value || 'testimonial';
+    
+    // Create/update group object
+    const groupData = {
+        id: groupId || newGroupId,
+        title: groupName,
+        type: videoType, // 🆕 SAVE THE TYPE
+        description: groupDescription,
+        icon: groupIcon,
+        // ... other existing properties
+    };
+    
+    // Update data structure
+    window.testimonialData.testimonialGroups[groupId || newGroupId] = groupData;
+    
+    // Update UI
+    updateGroupDropdown();
+    
+    // Show appropriate message
+    const typeText = videoType === 'informational' ? 'Informational video' : 'Testimonial';
+    showNotification(`✅ ${typeText} group ${groupId ? 'updated' : 'created'} successfully`);
+}
+
+// Function to add type badges to all groups in sidebar
+function addTypeBadgesToGroups() {
+    const groupElements = document.querySelectorAll('.testimonial-group-btn, [id*="group-btn"]');
+    
+    groupElements.forEach(element => {
+        // Extract group ID
+        const onclickAttr = element.getAttribute('onclick');
+        const match = onclickAttr?.match(/selectGroup\('([^']+)'/);
+        const groupId = match ? match[1] : null;
+        
+        if (!groupId || !window.testimonialData?.testimonialGroups?.[groupId]) return;
+        
+        const group = window.testimonialData.testimonialGroups[groupId];
+        const videoType = group.type || 'testimonial';
+        
+        // Check if badge already exists
+        if (element.querySelector('.type-badge')) return;
+        
+        // Create and add badge
+        const badge = document.createElement('span');
+        badge.className = `type-badge ${videoType}`;
+        badge.innerHTML = videoType === 'informational' ? '📚' : '🎬';
+        badge.title = videoType === 'informational' ? 'Informational Videos' : 'Testimonial Videos';
+        badge.style.cssText = `
+            margin-left: 8px;
+            font-size: 12px;
+            vertical-align: middle;
+        `;
+        
+        const groupName = element.querySelector('.group-name, [class*="name"]');
+        if (groupName) {
+            groupName.appendChild(badge);
+        }
+    });
+}
+
+// Call this after any data changes
+function refreshGroupUI() {
+    updateGroupDropdown();
+    addTypeBadgesToGroups();
+}
+
+// Function to delete a group
+function deleteGroup(groupId) {
+    if (!groupId || !window.testimonialData?.testimonialGroups?.[groupId]) {
+        console.error('❌ Cannot delete: Group not found');
+        return;
+    }
+    
+    const group = window.testimonialData.testimonialGroups[groupId];
+    const videoType = group.type || 'testimonial';
+    const videoCount = (videoType === 'informational' ? group.videos : group.testimonials)?.length || 0;
+    
+    const confirmation = confirm(`🗑️ DELETE "${group.title || groupId}" GROUP?\n\n` +
+                               `Type: ${videoType === 'informational' ? 'Informational Videos' : 'Testimonial Videos'}\n` +
+                               `Videos: ${videoCount}\n\n` +
+                               `This will permanently delete the group and all ${videoCount} videos inside it.\n` +
+                               `This action cannot be undone!`);
+    
+    if (!confirmation) return;
+    
+    console.log(`🗑️ Deleting ${videoType} group "${groupId}" with ${videoCount} videos`);
+    
+    // Remove from data structure
+    delete window.testimonialData.testimonialGroups[groupId];
+    
+    // Clear selection if this was the selected group
+    if (window.selectedGroupId === groupId) {
+        window.selectedGroupId = null;
+    }
+    
+    // Update UI
+    updateGroupDropdown();
+    selectGroup(null); // Clear the main content
+    
+    // If you have a sidebar render function, update it too
+    if (typeof renderGroups === 'function') {
+        renderGroups();
+    }
+    
+    // Save changes
+    saveAllData();
+    
+    // Show notification
+    showNotification(`✅ ${videoType === 'informational' ? 'Informational' : 'Testimonial'} group deleted successfully`, 'success');
+}
+
+// Call this after groups are rendered
+function renderGroups() {
+    // Your existing render code...
+    
+    // Add delete buttons
+    setTimeout(addDeleteButtonsToGroups, 100);
+}
+
+// Add this to your testimonial-manager.js
+function addTypeBadgesToGroups() {
+    console.log('🎯 Adding video type badges...');
+    
+    const groupButtons = document.querySelectorAll('.testimonial-group-btn');
+    
+    groupButtons.forEach(groupBtn => {
+        // Get group ID
+        const onclickAttr = groupBtn.getAttribute('onclick');
+        const groupIdMatch = onclickAttr?.match(/selectGroup\('([^']+)'/);
+        const groupId = groupIdMatch ? groupIdMatch[1] : null;
+        
+        if (!groupId || !window.testimonialData?.testimonialGroups?.[groupId]) return;
+        
+        const group = window.testimonialData.testimonialGroups[groupId];
+        const videoType = group.type || 'testimonial'; // Default to testimonial
+        
+        // Check if badge already exists
+        if (groupBtn.querySelector('.type-badge')) return;
+        
+        // Create badge
+        const badge = document.createElement('span');
+        badge.className = `type-badge ${videoType}`;
+        badge.innerHTML = videoType === 'informational' ? '📚 Info' : '🎬 Testimonial';
+        badge.title = videoType === 'informational' ? 'Informational/How-to Videos' : 'Client Testimonial Videos';
+        
+        // Find where to insert (after group name)
+        const groupName = groupBtn.querySelector('.group-name');
+        if (groupName) {
+            // Insert after group name
+            groupName.parentNode.insertBefore(badge, groupName.nextSibling);
+        }
+    });
+}
+
+// Update your existing group rendering to include type
+function updateGroupRendering() {
+    // Your existing render code...
+    
+    // Add type badges
+    setTimeout(addTypeBadgesToGroups, 100);
 }
 
 // ===================================================
