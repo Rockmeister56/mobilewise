@@ -1291,6 +1291,13 @@ function renderGroups() {
 function addTypeBadgesToGroups() {
     console.log('🎯 Adding video type badges...');
     
+    // WAIT for data to be loaded
+    if (!window.testimonialManagerData && !window.testimonialData) {
+        console.log('⏳ Data not loaded yet, will retry...');
+        setTimeout(addTypeBadgesToGroups, 500); // Retry in 500ms
+        return;
+    }
+    
     const groupButtons = document.querySelectorAll('.testimonial-group-btn');
     
     groupButtons.forEach(groupBtn => {
@@ -1299,13 +1306,21 @@ function addTypeBadgesToGroups() {
         const groupIdMatch = onclickAttr?.match(/selectGroup\('([^']+)'/);
         const groupId = groupIdMatch ? groupIdMatch[1] : null;
         
-        // FIXED LINE 1302: Check BOTH data sources
-        if (!groupId || (!window.testimonialManagerData?.testimonialGroups?.[groupId] && 
-                         !window.testimonialData?.testimonialGroups?.[groupId])) return;
+        // Check BOTH data sources
+        if (!groupId) return;
         
-        // FIXED LINE 1304: Try testimonialManagerData first, fallback to testimonialData
-        const group = window.testimonialManagerData?.testimonialGroups?.[groupId] || 
-                      window.testimonialData?.testimonialGroups?.[groupId];
+        // Try testimonialManagerData first, then testimonialData
+        let group = null;
+        if (window.testimonialManagerData?.testimonialGroups?.[groupId]) {
+            group = window.testimonialManagerData.testimonialGroups[groupId];
+        } else if (window.testimonialData?.testimonialGroups?.[groupId]) {
+            group = window.testimonialData.testimonialGroups[groupId];
+        }
+        
+        if (!group) {
+            console.log(`⚠️ Group ${groupId} not found in any data source`);
+            return;
+        }
         
         const videoType = group.type || 'testimonial'; // Default to testimonial
         
@@ -1319,7 +1334,11 @@ function addTypeBadgesToGroups() {
         
         // Add to button
         groupBtn.appendChild(badge);
+        
+        console.log(`✅ Added ${videoType} badge to "${group.title || groupId}"`);
     });
+    
+    console.log(`✅ Processed ${groupButtons.length} group buttons`);
 }
 
 // Update your existing group rendering to include type
