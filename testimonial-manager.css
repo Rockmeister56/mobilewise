@@ -965,6 +965,68 @@ textarea.form-control {
     object-fit: contain;
 }
 
+/* ============================================
+   TRIGGERS/CONCERNS STYLES
+   ============================================ */
+
+.triggers-section {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 25px 0;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.triggers-section h4 {
+    margin: 0 0 15px 0;
+    color: white;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.concerns-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
+}
+
+.concern-checkbox {
+    display: none;
+}
+
+.concern-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.concern-label:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.concern-checkbox:checked + .concern-label {
+    background: rgba(102, 126, 234, 0.1);
+    border-color: #667eea;
+    color: #667eea;
+}
+
+.concern-icon {
+    font-size: 18px;
+}
+
+.concern-text {
+    font-size: 14px;
+    color: white;
+}
+
 /* =================================================== */
 /* GROUP CREATION MODAL SPECIFIC STYLES */
 /* =================================================== */

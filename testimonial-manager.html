@@ -318,13 +318,13 @@
                 <label for="newGroupSlug" class="form-label">Group Slug</label>
                 <input type="text" id="newGroupSlug" class="form-control" 
                        placeholder="price-concerns (URL-friendly, lowercase)">
-                <small class="form-help">Use lowercase with hypheres, no spaces</small>
+                <small class="form-help">Use lowercase with hyphens, no spaces</small>
             </div>
             
             <!-- 🆕 VIDEO TYPE SELECTOR -->
             <div class="form-group">
                 <label for="newGroupType" class="form-label">Video Type</label>
-                <select id="newGroupType" class="form-control">
+                <select id="newGroupType" class="form-control" onchange="updateGroupType(this.value)">
                     <option value="testimonial">🎬 Testimonial Video</option>
                     <option value="informational">📚 Informational Video</option>
                 </select>
@@ -336,8 +336,8 @@
             <div class="form-group">
                 <label for="newGroupIcon" class="form-label">Icon Emoji</label>
                 <input type="text" id="newGroupIcon" class="form-control" 
-                       placeholder="💰" value="📁">
-                <small class="form-help">Changes automatically based on video type</small>
+                       placeholder="💰" value="📁" readonly>
+                <small class="form-help">Auto-sets based on video type (editable if needed)</small>
             </div>
             
             <div class="form-group">
@@ -345,6 +345,38 @@
                 <textarea id="newGroupDescription" class="form-control" rows="3"
                           placeholder="Describe this video group..."></textarea>
             </div>
+            
+            <!-- ============================================
+                 🆕 TRIGGERS/CONCERNS SECTIONS
+            ============================================ -->
+            
+            <!-- TESTIMONIAL TRIGGERS (Visible by default) -->
+            <div id="testimonialTriggers" class="triggers-section">
+                <h4>🎯 When to Show These Testimonials</h4>
+                <div class="concerns-grid">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+                <small class="form-help">Select when these client stories should appear</small>
+            </div>
+            
+            <!-- INFORMATIONAL TRIGGERS (Hidden by default) -->
+            <div id="informationalTriggers" class="triggers-section" style="display: none;">
+                <h4>📚 When to Show These Educational Videos</h4>
+                <div class="concerns-grid">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+                <small class="form-help">Select when these how-to videos should appear</small>
+            </div>
+            
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" 
+                        onclick="hideAddTestimonialGroupModal()">Cancel</button>
+                <button type="button" class="btn btn-primary" 
+                        onclick="addNewTestimonialGroup()">Create Group</button>
+            </div>
+        </div>
+    </div>
+</div>
             
             <!-- CONCERNS/TRIGGERS SELECTION -->
             <div class="form-group">
