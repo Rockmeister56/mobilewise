@@ -68,7 +68,7 @@ function initializeTestimonialData() {
         }
     }
     
-    // NO SAMPLE GROUPS - Start fresh
+    setTimeout(() => { if (window.refreshGroupUI) refreshGroupUI(); }, 100);
 }
 
 function initializeSampleGroups() {
