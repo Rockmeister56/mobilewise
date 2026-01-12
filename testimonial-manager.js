@@ -595,15 +595,22 @@ function selectGroup(groupId, scroll = false) {
     
     window.selectedGroupId = groupId;
     
+    // GET mainContent ONCE at the start
+    const mainContent = document.getElementById('mainContent');
+    
     if (!groupId) {
-        // Clear the main content area
-        document.getElementById('mainContent').innerHTML = `
-            <div class="empty-state">
-                <div class="empty-icon">📁</div>
-                <h3>No Group Selected</h3>
-                <p>Select a group from the dropdown or sidebar to view and manage testimonials.</p>
-            </div>
-        `;
+        // Clear the main content area IF IT EXISTS
+        if (mainContent) {
+            mainContent.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">📁</div>
+                    <h3>No Group Selected</h3>
+                    <p>Select a group from the dropdown or sidebar to view and manage testimonials.</p>
+                </div>
+            `;
+        } else {
+            console.log('⚠️ mainContent not found, cannot show empty state');
+        }
         return;
     }
     
@@ -619,50 +626,58 @@ function selectGroup(groupId, scroll = false) {
         dropdown.value = groupId;
     }
     
-    // Update main content header with type badge
-    const mainContent = document.getElementById('mainContent');
-    const videoType = group.type || 'testimonial';
-    const typeBadge = videoType === 'informational' ? 
-        '<span class="type-badge informational" title="Informational Videos">📚 Informational</span>' : 
-        '<span class="type-badge testimonial" title="Testimonial Videos">🎬 Testimonial</span>';
-    
-    mainContent.innerHTML = `
-        <div class="content-header">
-            <h2>
-                <span class="group-icon">${group.icon || '📁'}</span>
-                ${group.title || groupId}
-                ${typeBadge}
-            </h2>
-            <div class="header-actions">
-                <button class="btn btn-primary btn-sm" onclick="showAddTestimonialModal('${groupId}')">
-                    <span class="btn-icon">➕</span> Add Video
-                </button>
-                <button class="btn btn-warning btn-sm" onclick="editGroup('${groupId}')">
-                    <span class="btn-icon">✏️</span> Edit Group
-                </button>
-                <!-- 🆕 DELETE BUTTON -->
-                <button class="btn btn-danger btn-sm" onclick="deleteGroup('${groupId}')" 
-                        title="Delete this group and all its videos">
-                    <span class="btn-icon">🗑️</span> Delete Group
-                </button>
+    // Update main content header with type badge - ONLY IF mainContent EXISTS
+    if (mainContent) {
+        const videoType = group.type || 'testimonial';
+        const typeBadge = videoType === 'informational' ? 
+            '<span class="type-badge informational" title="Informational Videos">📚 Informational</span>' : 
+            '<span class="type-badge testimonial" title="Testimonial Videos">🎬 Testimonial</span>';
+        
+        mainContent.innerHTML = `
+            <div class="content-header">
+                <h2>
+                    <span class="group-icon">${group.icon || '📁'}</span>
+                    ${group.title || groupId}
+                    ${typeBadge}
+                </h2>
+                <div class="header-actions">
+                    <button class="btn btn-primary btn-sm" onclick="showAddTestimonialModal('${groupId}')">
+                        <span class="btn-icon">➕</span> Add Video
+                    </button>
+                    <button class="btn btn-warning btn-sm" onclick="editGroup('${groupId}')">
+                        <span class="btn-icon">✏️</span> Edit Group
+                    </button>
+                    <!-- 🆕 DELETE BUTTON -->
+                    <button class="btn btn-danger btn-sm" onclick="deleteGroup('${groupId}')" 
+                            title="Delete this group and all its videos">
+                        <span class="btn-icon">🗑️</span> Delete Group
+                    </button>
+                </div>
             </div>
-        </div>
-        <div class="content-body">
-            <p class="group-description">${group.description || 'No description provided.'}</p>
-            
-            <!-- Video Type Info -->
-            <div class="alert alert-info">
-                <strong>📋 Group Type:</strong> ${videoType === 'informational' ? 
-                    '📚 <strong>Informational Videos</strong> - How-to, explainer, and educational content' : 
-                    '🎬 <strong>Testimonial Videos</strong> - Real client stories and social proof'}
+            <div class="content-body">
+                <p class="group-description">${group.description || 'No description provided.'}</p>
+                
+                <!-- Video Type Info -->
+                <div class="alert alert-info">
+                    <strong>📋 Group Type:</strong> ${videoType === 'informational' ? 
+                        '📚 <strong>Informational Videos</strong> - How-to, explainer, and educational content' : 
+                        '🎬 <strong>Testimonial Videos</strong> - Real client stories and social proof'}
+                </div>
+                
+                <!-- Videos/Testimonials will be rendered here -->
+                <div id="groupContentContainer"></div>
             </div>
-            
-            <!-- Videos/Testimonials will be rendered here -->
-            <div id="groupContentContainer"></div>
-        </div>
-    `;
+        `;
+        
+        if (scroll) {
+            mainContent.scrollIntoView({ behavior: 'smooth' });
+        }
+    } else {
+        console.log('⚠️ mainContent element not found, skipping UI update');
+    }
     
     // Render the appropriate content
+    const videoType = group.type || 'testimonial';
     if (videoType === 'informational') {
         renderInformationalVideos(groupId);
     } else {
@@ -671,10 +686,6 @@ function selectGroup(groupId, scroll = false) {
     
     // Add type badges to sidebar groups
     addTypeBadgesToGroups();
-    
-    if (scroll) {
-        mainContent.scrollIntoView({ behavior: 'smooth' });
-    }
 }
 
 function showTestimonialOverlay(groupId) {
