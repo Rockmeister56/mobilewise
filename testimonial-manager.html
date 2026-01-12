@@ -310,27 +310,16 @@
         <div class="modal-body">
             <div class="form-group">
                 <label for="newGroupName" class="form-label">Group Name</label>
-                <input type="text" id="newGroupName" placeholder="Group Name">
-<input type="text" id="newGroupSlug" placeholder="Group ID/Slug">
-<select id="newGroupType">
-    <option value="testimonial">⭐ Testimonial</option>
-    <option value="informational">📚 Informational</option>
-</select>
-<select id="newGroupIcon">
-    <option value="📁">📁 Folder</option>
-    <option value="🎬">🎬 Video</option>
-    <option value="📚">📚 Book</option>
-    <option value="⭐">⭐ Star</option>
-</select>
-<textarea id="newGroupDescription" placeholder="Description"></textarea>
-
-<!-- Two separate trigger sections (toggle based on type) -->
-<div id="testimonialTriggers" style="display: none;">
-    <!-- Testimonial triggers/concerns checkboxes -->
-</div>
-<div id="informationalTriggers" style="display: none;">
-    <!-- Informational triggers/concerns checkboxes -->
-</div>
+                <input type="text" id="newGroupName" class="form-control" 
+                       placeholder="Enter group name (e.g., Price Concerns)">
+            </div>
+            
+            <div class="form-group">
+                <label for="newGroupSlug" class="form-label">Group Slug</label>
+                <input type="text" id="newGroupSlug" class="form-control" 
+                       placeholder="price-concerns (URL-friendly, lowercase)">
+                <small class="form-help">Use lowercase with hypheres, no spaces</small>
+            </div>
             
             <!-- 🆕 VIDEO TYPE SELECTOR -->
             <div class="form-group">
