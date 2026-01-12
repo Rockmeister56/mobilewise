@@ -345,9 +345,10 @@ function updateGroupsDisplay() {
             .replace(/'/g, '&#39;');
         
         // Truncate long names for display
-        const displayName = group.name.length > 20 
-            ? group.name.substring(0, 18) + '...' 
-            : group.name;
+const groupName = group.name || group.title || group.id || '';
+const displayName = groupName.length > 20 
+    ? groupName.substring(0, 18) + '...' 
+    : groupName;
         
         return `
             <div class="testimonial-group-btn ${isActive ? 'active' : ''}" 
