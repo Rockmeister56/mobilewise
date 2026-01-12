@@ -426,6 +426,113 @@ function editGroup(groupId, event) {
     console.log('Editing group:', group.name);
 }
 
+// ============================================
+// ADD DELETE BUTTON TO EDIT MODAL
+// ============================================
+
+// Wait for modal to be in DOM, then add delete button
+function setupDeleteButtonInModal() {
+    const modal = document.getElementById('editTestimonialGroupModal');
+    if (!modal) {
+        console.log('⚠️ Edit modal not found yet, will retry');
+        setTimeout(setupDeleteButtonInModal, 500);
+        return;
+    }
+    
+    // Check if delete button already exists
+    if (modal.querySelector('.btn-delete-group-in-modal')) {
+        return; // Already set up
+    }
+    
+    // Find the modal footer or actions area
+    const modalFooter = modal.querySelector('.modal-footer, .modal-actions');
+    const form = modal.querySelector('form');
+    
+    let container = modalFooter;
+    if (!container && form) {
+        // Create footer if it doesn't exist
+        container = document.createElement('div');
+        container.className = 'modal-footer';
+        form.appendChild(container);
+    }
+    
+    if (!container) {
+        // Last resort: add to end of modal
+        container = document.createElement('div');
+        container.className = 'modal-footer';
+        modal.appendChild(container);
+    }
+    
+    // Create delete button
+    const deleteBtn = document.createElement('button');
+    deleteBtn.type = 'button'; // Important: not submit type!
+    deleteBtn.className = 'btn-delete-group-in-modal';
+    deleteBtn.textContent = 'Delete Group';
+    deleteBtn.style.cssText = `
+        background: #dc3545;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 8px 16px;
+        cursor: pointer;
+        margin-top: 10px;
+        width: 100%;
+        font-size: 14px;
+    `;
+    
+    deleteBtn.onclick = function() {
+        const groupIdInput = document.getElementById('editGroupId');
+        const groupId = groupIdInput ? groupIdInput.value : null;
+        
+        if (!groupId) {
+            alert('Cannot delete: Group ID not found');
+            return;
+        }
+        
+        const group = window.testimonialData?.testimonialGroups?.[groupId] || 
+                     window.testimonialManagerData?.testimonialGroups?.[groupId];
+        const groupName = group?.title || 'this group';
+        
+        if (confirm(`⚠️ DELETE CONFIRMATION\n\nAre you sure you want to delete "${groupName}"?\n\nThis will delete ALL testimonials in this group permanently.`)) {
+            if (window.deleteGroup) {
+                window.deleteGroup(groupId);
+                // Close the modal
+                if (window.hideEditGroupModal) {
+                    window.hideEditGroupModal();
+                } else {
+                    modal.style.display = 'none';
+                }
+            } else {
+                alert('Delete function not available');
+            }
+        }
+    };
+    
+    // Add delete button to container
+    container.appendChild(deleteBtn);
+    console.log('✅ Delete button added to edit modal');
+}
+
+// Set it up when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupDeleteButtonInModal);
+} else {
+    setupDeleteButtonInModal();
+}
+
+// Also set up whenever editGroup is called (in case modal is recreated)
+const originalEditGroup = window.editGroup;
+if (originalEditGroup) {
+    window.editGroup = function(groupId, event) {
+        const result = originalEditGroup.apply(this, arguments);
+        
+        // Add delete button after modal is shown
+        setTimeout(setupDeleteButtonInModal, 100);
+        
+        return result;
+    };
+}
+
 function saveGroupEdit() {
     const groupId = document.getElementById('editGroupId').value;
     const name = document.getElementById('editGroupName').value.trim();
