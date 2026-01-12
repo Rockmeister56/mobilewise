@@ -1594,7 +1594,6 @@ window.hideAddTestimonialGroupModal = hideAddTestimonialGroupModal;
 window.createTestimonialGroup = createTestimonialGroup;
 window.addVideoTestimonial = addVideoTestimonial;
 window.addTextTestimonial = addTextTestimonial;
-window.testVideoUrl = testVideoUrl;
 window.playTestimonialVideo = playTestimonialVideo;
 window.hideAllTestimonialsModal = hideAllTestimonialsModal;
 window.hideVideoPlayerModal = hideVideoPlayerModal;
