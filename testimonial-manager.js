@@ -676,12 +676,23 @@ function selectGroup(groupId, scroll = false) {
         console.log('⚠️ mainContent element not found, skipping UI update');
     }
     
-    // Render the appropriate content
+    // ============================================
+    // FIXED: Use existing functions instead of non-existent ones
+    // ============================================
     const videoType = group.type || 'testimonial';
-    if (videoType === 'informational') {
-        renderInformationalVideos(groupId);
+    
+    // Update current group display (if function exists)
+    if (typeof updateCurrentGroupDisplay === 'function') {
+        updateCurrentGroupDisplay(group);
+    }
+    
+    // Show testimonials for the group
+    if (typeof showTestimonialsForGroup === 'function') {
+        showTestimonialsForGroup(groupId);
+    } else if (typeof displayGroupTestimonials === 'function') {
+        displayGroupTestimonials(group);
     } else {
-        renderTestimonials(groupId);
+        console.log('⚠️ No function found to display group testimonials');
     }
     
     // Add type badges to sidebar groups
