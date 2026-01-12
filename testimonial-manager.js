@@ -1010,15 +1010,31 @@ function updateTriggerSections() {
     checkboxes.forEach(checkbox => checkbox.checked = false);
 }
 
-// Function to save the group with video type
+// Function to save the group with video type - UPDATED FOR DUAL SYSTEM
 function addNewTestimonialGroup() {
-    const groupName = document.getElementById('newGroupName').value;
-    const groupSlug = document.getElementById('newGroupSlug').value;
-    const videoType = document.getElementById('newGroupType').value;
+    const groupName = document.getElementById('newGroupName').value.trim();
+    const groupSlug = document.getElementById('newGroupSlug').value.trim();
+    const videoType = document.getElementById('newGroupType').value; // 'testimonial' or 'informational'
     const groupIcon = document.getElementById('newGroupIcon').value;
-    const groupDescription = document.getElementById('newGroupDescription').value;
+    const groupDescription = document.getElementById('newGroupDescription').value.trim();
     
-    // Get selected triggers
+    // VALIDATION
+    if (!groupName) {
+        showNotification('❌ Please enter a group name', 'error');
+        return;
+    }
+    
+    if (!groupSlug) {
+        showNotification('❌ Please enter a group slug/ID', 'error');
+        return;
+    }
+    
+    if (!['testimonial', 'informational'].includes(videoType)) {
+        showNotification('❌ Please select a valid video type', 'error');
+        return;
+    }
+    
+    // Get selected triggers/concerns
     const selectedTriggers = [];
     const activeSection = videoType === 'testimonial' ? 'testimonialTriggers' : 'informationalTriggers';
     const activeCheckboxes = document.querySelectorAll(`#${activeSection} .concern-checkbox:checked`);
@@ -1034,24 +1050,116 @@ function addNewTestimonialGroup() {
         type: videoType, // 🆕 CRITICAL: Save the video type
         icon: groupIcon,
         description: groupDescription,
-        triggers: selectedTriggers,
-        // Use different array names based on type
-        [videoType === 'testimonial' ? 'testimonials' : 'videos']: [] // Empty array for content
+        concerns: selectedTriggers, // Changed from 'triggers' to 'concerns' to match your data
+        createdAt: new Date().toISOString(),
+        viewCount: 0
     };
+    
+    // Add empty array for content based on type
+    if (videoType === 'testimonial') {
+        newGroup.testimonials = [];
+    } else {
+        newGroup.videos = []; // Note: 'videos' not 'testimonials' for informational
+    }
     
     console.log('🎬 Creating new video group:', newGroup);
     
-    // Save to your data structure
-    if (!window.testimonialData.testimonialGroups) {
-        window.testimonialData.testimonialGroups = {};
+    // ============================================
+    // 🆕 CRITICAL FIX: Save to CORRECT location based on type
+    // ============================================
+    
+    if (videoType === 'informational') {
+        // Save to INFORMATIONAL GROUPS
+        if (!window.testimonialData.informationalGroups) {
+            window.testimonialData.informationalGroups = {};
+        }
+        
+        // Check if group already exists
+        if (window.testimonialData.informationalGroups[groupSlug]) {
+            showNotification('❌ Informational group with this ID already exists', 'error');
+            return;
+        }
+        
+        window.testimonialData.informationalGroups[groupSlug] = newGroup;
+        
+        // Update statistics
+        if (!window.testimonialData.statistics) {
+            window.testimonialData.statistics = {};
+        }
+        window.testimonialData.statistics.totalInformationalGroups = 
+            (window.testimonialData.statistics.totalInformationalGroups || 0) + 1;
+            
+        console.log(`✅ Saved to informationalGroups (total: ${window.testimonialData.statistics.totalInformationalGroups})`);
+    } else {
+        // Save to TESTIMONIAL GROUPS (default)
+        if (!window.testimonialData.testimonialGroups) {
+            window.testimonialData.testimonialGroups = {};
+        }
+        
+        // Check if group already exists
+        if (window.testimonialData.testimonialGroups[groupSlug]) {
+            showNotification('❌ Testimonial group with this ID already exists', 'error');
+            return;
+        }
+        
+        window.testimonialData.testimonialGroups[groupSlug] = newGroup;
+        
+        // Update statistics
+        if (!window.testimonialData.statistics) {
+            window.testimonialData.statistics = {};
+        }
+        window.testimonialData.statistics.totalTestimonialGroups = 
+            (window.testimonialData.statistics.totalTestimonialGroups || 0) + 1;
+            
+        console.log(`✅ Saved to testimonialGroups (total: ${window.testimonialData.statistics.totalTestimonialGroups})`);
     }
     
-    window.testimonialData.testimonialGroups[groupSlug] = newGroup;
+    // Save data
+    if (window.saveTestimonialData) {
+        window.saveTestimonialData();
+    } else if (window.saveAllData) {
+        window.saveAllData();
+    }
     
+    // Clear form
+    document.getElementById('newGroupName').value = '';
+    document.getElementById('newGroupSlug').value = '';
+    document.getElementById('newGroupDescription').value = '';
+    
+    // ============================================
     // Update UI
-    renderTestimonialGroups();
+    // ============================================
+    
+    // FIXED: Try different possible render functions
+    if (typeof renderGroups === 'function') {
+        renderGroups();
+        console.log('✅ Called renderGroups()');
+    } else if (typeof refreshGroupUI === 'function') {
+        refreshGroupUI();
+        console.log('✅ Called refreshGroupUI()');
+    } else if (typeof updateGroupRendering === 'function') {
+        updateGroupRendering();
+        console.log('✅ Called updateGroupRendering()');
+    } else {
+        console.log('⚠️ No standard render function found, manually updating UI');
+        
+        // Manual UI update
+        setTimeout(() => {
+            if (window.addTypeBadgesToGroups) {
+                window.addTypeBadgesToGroups();
+            }
+            
+            // Update dropdown
+            if (window.updateGroupDropdown) {
+                window.updateGroupDropdown();
+            }
+            
+            console.log('✅ Manually updated UI');
+        }, 500);
+    }
+    
     hideAddTestimonialGroupModal();
-    showNotification(`✅ ${videoType === 'testimonial' ? 'Testimonial' : 'Informational'} group created!`);
+    showNotification(`✅ ${videoType === 'testimonial' ? 'Testimonial' : 'Informational'} group "${groupName}" created!`);
 }
 
 // Initialize the event listener
