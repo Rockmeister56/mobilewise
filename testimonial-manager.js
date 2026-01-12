@@ -430,11 +430,23 @@ function editGroup(groupId, event) {
 // ADD DELETE BUTTON TO EDIT MODAL
 // ============================================
 
+// Add retry counter to prevent infinite loops
+let deleteButtonSetupAttempts = 0;
+const MAX_SETUP_ATTEMPTS = 5;
+
 // Wait for modal to be in DOM, then add delete button
 function setupDeleteButtonInModal() {
     const modal = document.getElementById('editTestimonialGroupModal');
+    
+    // Stop retrying after max attempts
+    deleteButtonSetupAttempts++;
+    if (deleteButtonSetupAttempts > MAX_SETUP_ATTEMPTS) {
+        console.log('❌ Could not find edit modal after', MAX_SETUP_ATTEMPTS, 'attempts. Giving up.');
+        return;
+    }
+    
     if (!modal) {
-        console.log('⚠️ Edit modal not found yet, will retry');
+        console.log('⚠️ Edit modal not found (attempt', deleteButtonSetupAttempts, 'of', MAX_SETUP_ATTEMPTS, '), will retry');
         setTimeout(setupDeleteButtonInModal, 500);
         return;
     }
