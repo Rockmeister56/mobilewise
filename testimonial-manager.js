@@ -233,7 +233,6 @@ function setupCheckboxListeners() {
 }
 
 function populateTriggersSections() {
-    setupCheckboxListeners();
     console.log('🔧 Populating triggers sections...');
     
     const testimonialContainer = document.querySelector('#testimonialTriggers .concerns-grid');
@@ -253,20 +252,25 @@ function populateTriggersSections() {
         // Convert object to array
         const concernsArray = Object.values(testimonialData.concerns);
         console.log(`✅ Adding ${concernsArray.length} concerns`);
+        console.log('Sample concern:', concernsArray[0]); // DEBUG
         
-        // Create checkboxes for each concern - SIMPLE version
-        concernsArray.forEach(concern => {
-            // Simple checkbox without complex classes
+        // Create checkboxes for each concern
+        concernsArray.forEach((concern, index) => {
+            // FIX: Use concern.key or index if id is undefined
+            const concernId = concern.id || concern.key || `concern_${index}`;
+            const concernName = concern.name || 'Unknown';
+            const concernEmoji = concern.emoji || '🔘';
+            
             const checkboxHtml = `
                 <div class="concern-item">
                     <input type="checkbox" 
-                           id="concern_${concern.id}" 
+                           id="${concernId}" 
                            name="concerns" 
-                           value="${concern.id}"
+                           value="${concernId}"
                            class="concern-checkbox">
-                    <label for="concern_${concern.id}" class="concern-label">
-                        <span class="concern-emoji">${concern.emoji}</span>
-                        <span class="concern-name">${concern.name}</span>
+                    <label for="${concernId}" class="concern-label">
+                        <span class="concern-emoji">${concernEmoji}</span>
+                        <span class="concern-name">${concernName}</span>
                         ${concern.description ? `<small class="concern-desc">${concern.description}</small>` : ''}
                     </label>
                 </div>

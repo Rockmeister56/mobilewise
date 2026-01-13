@@ -1254,8 +1254,6 @@ textarea.form-control {
     gap: 10px;
 }
 
-.concern-checkbox { display: none; }
-
 .concern-label {
     display: flex;
     align-items: center;
