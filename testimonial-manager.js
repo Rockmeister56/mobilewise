@@ -233,7 +233,7 @@ function setupCheckboxListeners() {
 }
 
 function populateTriggersSections() {
-    console.log('🔧 Populating triggers sections - USING WORKING LOGIC');
+    console.log('🔧 NUCLEAR OPTION: Simple divs instead of grid');
     
     const testimonialContainer = document.querySelector('#testimonialTriggers .concerns-grid');
     const informationalContainer = document.querySelector('#informationalTriggers .concerns-grid');
@@ -243,65 +243,84 @@ function populateTriggersSections() {
         return;
     }
     
+    // CHANGE: Remove grid class
+    testimonialContainer.className = 'concerns-list';
+    informationalContainer.className = 'concerns-list';
+    
     // Clear existing content
     testimonialContainer.innerHTML = '';
     informationalContainer.innerHTML = '';
     
-    // USE THE SAME DATA AS THE WORKING FUNCTION
+    // Use the working data
     const concerns = window.testimonialData?.concerns || {};
     console.log(`📦 Loading ${Object.keys(concerns).length} concerns`);
     
-    // Create checkboxes using the WORKING pattern
+    // Create SIMPLE checkboxes without complex HTML
     Object.entries(concerns).forEach(([key, concernData]) => {
-        // Use the EXACT same logic as populateConcernsCheckboxes
         const concernId = `triggers_${key}`;
         
-        const checkboxHtml = `
-            <div class="concern-checkbox-item">
-                <input type="checkbox" 
-                       id="${concernId}" 
-                       name="concerns" 
-                       value="${key}"
-                       class="concern-checkbox">
-                <label for="${concernId}" class="concern-label">
-                    <span class="concern-icon">${concernData.emoji || '🔘'}</span>
-                    <span class="concern-text">${concernData.name || key}</span>
-                </label>
-            </div>
-        `;
+        // Create elements manually (not with innerHTML)
+        const container = document.createElement('div');
+        container.className = 'concern-item-simple';
+        container.style.cssText = 'display: flex; align-items: center; padding: 10px; margin-bottom: 8px; background: rgba(255,255,255,0.05); border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);';
         
-        testimonialContainer.innerHTML += checkboxHtml;
-        informationalContainer.innerHTML += checkboxHtml;
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.id = concernId;
+        checkbox.name = 'concerns';
+        checkbox.value = key;
+        checkbox.className = 'concern-checkbox-simple';
+        checkbox.style.cssText = 'width: 20px; height: 20px; margin-right: 10px; display: block; flex-shrink: 0;';
+        
+        const label = document.createElement('label');
+        label.htmlFor = concernId;
+        label.style.cssText = 'display: flex; align-items: center; gap: 8px; cursor: pointer; flex: 1;';
+        
+        const emoji = document.createElement('span');
+        emoji.textContent = concernData.emoji || '🔘';
+        emoji.style.cssText = 'font-size: 1.2em;';
+        
+        const text = document.createElement('span');
+        text.textContent = concernData.name || key;
+        text.style.cssText = 'color: white; font-weight: 500;';
+        
+        // Build DOM
+        label.appendChild(emoji);
+        label.appendChild(text);
+        container.appendChild(checkbox);
+        container.appendChild(label);
+        
+        // Clone for both containers
+        testimonialContainer.appendChild(container.cloneNode(true));
+        informationalContainer.appendChild(container.cloneNode(true));
     });
     
-    console.log(`✅ Added ${Object.keys(concerns).length} concerns to triggers sections`);
+    console.log(`✅ Added ${Object.keys(concerns).length} concerns with manual DOM creation`);
     
-    // CRITICAL: Remove display: none from checkboxes
-    document.querySelectorAll('#testimonialTriggers .concern-checkbox, #informationalTriggers .concern-checkbox').forEach(cb => {
-        cb.style.display = 'inline-block';
-        cb.style.width = '18px';
-        cb.style.height = '18px';
-        cb.style.minWidth = '18px';
-        cb.style.minHeight = '18px';
-        cb.style.visibility = 'visible';
-        cb.style.opacity = '1';
-    });
+    // Setup listeners
+    setupCheckboxListeners();
 }
 
-// Also update setupCheckboxListeners to match
+// Update setupCheckboxListeners for new class
 function setupCheckboxListeners() {
-    console.log('🔧 Setting up checkbox listeners for triggers...');
+    console.log('🔧 Setting up checkbox listeners...');
     
-    // Remove any existing listeners by cloning
-    document.querySelectorAll('#testimonialTriggers input[type="checkbox"], #informationalTriggers input[type="checkbox"]').forEach(checkbox => {
+    document.querySelectorAll('.concern-checkbox-simple').forEach(checkbox => {
+        // Remove old listeners
         const newCheckbox = checkbox.cloneNode(true);
         checkbox.parentNode.replaceChild(newCheckbox, checkbox);
     });
     
-    // Add fresh listeners
-    document.querySelectorAll('#testimonialTriggers input[type="checkbox"], #informationalTriggers input[type="checkbox"]').forEach(checkbox => {
+    // Add new listeners
+    document.querySelectorAll('.concern-checkbox-simple').forEach(checkbox => {
         checkbox.addEventListener('change', function() {
-            console.log(`✅ TRIGGER CHECKBOX: ${this.id} = ${this.checked ? 'checked' : 'unchecked'}`);
+            console.log(`✅ CHECKBOX WORKING: ${this.id} = ${this.checked}`);
+        });
+        
+        // Also add click for debugging
+        checkbox.addEventListener('click', function(e) {
+            console.log('🎯 CLICK EVENT FIRED on', this.id);
+            e.stopPropagation();
         });
     });
 }
