@@ -523,10 +523,44 @@ function updateGroupsDisplay() {
     
     if (!container) return;
     
-    const groups = testimonialData.testimonialGroups;
-    const groupIds = Object.keys(groups);
+    // GET ALL GROUPS FROM BOTH COLLECTIONS
+    const allGroups = [];
     
-    if (groupIds.length === 0) {
+    // 1. Get testimonial groups (ORIGINAL LOGIC)
+    if (testimonialData.testimonialGroups) {
+        Object.entries(testimonialData.testimonialGroups).forEach(([groupId, group]) => {
+            allGroups.push({
+                id: groupId,
+                type: 'testimonial',
+                name: group.name || group.title || groupId,
+                title: group.title || group.name || groupId,
+                icon: group.icon || '📁', // PRESERVE ORIGINAL ICON LOGIC
+                description: group.description || '',
+                count: group.testimonials ? group.testimonials.length : 0,
+                isActive: currentSelectedGroupId === groupId,
+                data: group // Keep original group data
+            });
+        });
+    }
+    
+    // 2. Get informational groups (NEW - THIS IS WHAT WAS MISSING!)
+    if (testimonialData.informationalGroups) {
+        Object.entries(testimonialData.informationalGroups).forEach(([groupId, group]) => {
+            allGroups.push({
+                id: groupId,
+                type: 'informational',
+                name: group.name || group.title || groupId,
+                title: group.title || group.name || groupId,
+                icon: group.icon || '📁', // USE SAME LOGIC AS ORIGINAL
+                description: group.description || '',
+                count: group.videos ? group.videos.length : 0, // Different property name
+                isActive: currentSelectedGroupId === groupId,
+                data: group // Keep original group data
+            });
+        });
+    }
+    
+    if (allGroups.length === 0) {
         if (noGroupsMessage) noGroupsMessage.style.display = 'block';
         container.innerHTML = '';
         return;
@@ -534,39 +568,53 @@ function updateGroupsDisplay() {
     
     if (noGroupsMessage) noGroupsMessage.style.display = 'none';
     
-    // Create group buttons
-    container.innerHTML = groupIds.map(groupId => {
-        const group = groups[groupId];
-        const isActive = currentSelectedGroupId === groupId;
+    // Create group buttons - USING ORIGINAL TEMPLATE LOGIC
+    container.innerHTML = allGroups.map(group => {
+        const isActive = group.isActive;
         
-        // Escape description for HTML safety
+        // Escape description for HTML safety (ORIGINAL LOGIC)
         const safeDescription = (group.description || 'No description provided')
             .replace(/"/g, '&quot;')
             .replace(/'/g, '&#39;');
         
-        // Truncate long names for display
-const groupName = group.name || group.title || group.id || '';
-const displayName = groupName.length > 20 
-    ? groupName.substring(0, 18) + '...' 
-    : groupName;
+        // Truncate long names for display (ORIGINAL LOGIC)
+        const groupName = group.name || '';
+        const displayName = groupName.length > 20 
+            ? groupName.substring(0, 18) + '...' 
+            : groupName;
         
+        // ORIGINAL TEMPLATE - just added data-group-type attribute
         return `
             <div class="testimonial-group-btn ${isActive ? 'active' : ''}" 
-                 onclick="selectGroup('${groupId}', true)"
-                 data-description="${safeDescription}">
+                 onclick="selectGroup('${group.id}', true)"
+                 data-description="${safeDescription}"
+                 data-group-type="${group.type}">
                 <div class="group-info">
-                    <span class="group-icon">${group.icon || '📁'}</span>
+                    <span class="group-icon">${group.icon}</span>
                     <span class="group-name" title="${group.name}">${displayName}</span>
                 </div>
                 <div class="group-actions">
-                    <span class="group-count">${group.testimonials ? group.testimonials.length : 0}</span>
-                    <button class="btn-edit-group" onclick="editGroup('${groupId}', event)">
+                    <span class="group-count">${group.count}</span>
+                    <button class="btn-edit-group" onclick="editGroup('${group.id}', event)">
                         ✏️
                     </button>
                 </div>
             </div>
         `;
     }).join('');
+    
+    // AFTER rendering, add badges and delete buttons if those functions exist
+    // This keeps the original HTML clean and adds features separately
+    
+    // Add type badges if function exists
+    if (typeof addTypeBadgesToGroups === 'function') {
+        setTimeout(() => addTypeBadgesToGroups(), 50);
+    }
+    
+    // Add delete buttons if function exists
+    if (typeof addDeleteButtonsToGroups === 'function') {
+        setTimeout(() => addDeleteButtonsToGroups(), 100);
+    }
 }
 
 function editGroup(groupId, event) {
