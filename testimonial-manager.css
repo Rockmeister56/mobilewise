@@ -1007,10 +1007,6 @@ textarea.form-control {
     gap: 8px;
 }
 
-.concern-checkbox {
-    display: none;
-}
-
 .form-check.concern-checkbox {
     padding: 12px;
     border: 1px solid #dee2e6;
