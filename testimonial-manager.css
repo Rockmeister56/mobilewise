@@ -969,7 +969,7 @@ textarea.form-control {
    TRIGGERS/CONCERNS STYLES
    ============================================ */
 
-   /* Make sure d-none class exists */
+/* Make sure d-none class exists */
 .d-none {
     display: none !important;
 }
@@ -983,34 +983,29 @@ textarea.form-control {
     border: 1px solid #e9ecef;
 }
 
-.concerns-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 12px;
-    max-height: 300px;
-    overflow-y: auto;
-    padding: 10px;
-}
-
 .triggers-section h4 {
     margin: 0 0 15px 0;
-    color: white;
+    color: #333; /* Changed from white for visibility */
     font-size: 16px;
     display: flex;
     align-items: center;
     gap: 8px;
 }
 
+/* FIXED: Single concerns-grid rule */
 .concerns-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 10px;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Keep this one */
+    gap: 12px;
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 10px;
+    background: white;
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
 }
 
-.concern-checkbox {
-    display: none;
-}
-
+/* Bootstrap checkbox styling */
 .form-check.concern-checkbox {
     padding: 12px;
     border: 1px solid #dee2e6;
@@ -1029,37 +1024,32 @@ textarea.form-control {
     margin-top: 0.5em;
     width: 1.2em;
     height: 1.2em;
-}
-
-.concern-label {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 15px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
     cursor: pointer;
-    transition: all 0.2s ease;
 }
 
-.concern-label:hover {
-    background: rgba(255, 255, 255, 0.1);
+/* Label styling */
+.form-check-label {
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    width: 100%;
 }
 
-.concern-checkbox:checked + .concern-label {
-    background: rgba(102, 126, 234, 0.1);
-    border-color: #667eea;
-    color: #667eea;
+.concern-emoji {
+    font-size: 1.2em;
+    margin-right: 8px;
 }
 
-.concern-icon {
-    font-size: 18px;
+.concern-name {
+    font-weight: 500;
+    color: #212529;
+    margin-bottom: 4px;
 }
 
-.concern-text {
-    font-size: 14px;
-    color: white;
+.concern-desc {
+    color: #6c757d;
+    font-size: 0.85em;
+    line-height: 1.3;
 }
 
 /* =================================================== */
