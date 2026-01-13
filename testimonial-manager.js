@@ -96,20 +96,10 @@ function updateGroupType(value) {
     const testimonialTriggers = document.getElementById('testimonialTriggers');
     const informationalTriggers = document.getElementById('informationalTriggers');
     
-    console.log('Elements:', {
-        icon: newGroupIcon?.value,
-        testimonialVisible: testimonialTriggers?.style.display,
-        infoVisible: informationalTriggers?.style.display
-    });
-    
     if (!newGroupIcon || !testimonialTriggers || !informationalTriggers) {
         console.error('❌ Required elements not found');
         return;
     }
-    
-    // Clear any inline styles first
-    testimonialTriggers.style.display = '';
-    informationalTriggers.style.display = '';
     
     // Set icon based on type
     if (value === '3' || value === 'informational') {
@@ -123,13 +113,6 @@ function updateGroupType(value) {
         testimonialTriggers.classList.remove('d-none');
         informationalTriggers.classList.add('d-none');
     }
-    
-    // Double-check
-    console.log('After update:', {
-        icon: newGroupIcon.value,
-        testimonialHasDNone: testimonialTriggers.classList.contains('d-none'),
-        infoHasDNone: informationalTriggers.classList.contains('d-none')
-    });
 }
 
 function clearGroupForm() {
@@ -313,14 +296,14 @@ function updateGroupType(value) {
 
 // Add this function to populate the triggers/concerns
 function populateTriggersSections() {
-    console.log('Populating triggers sections...');
+    console.log('🔧 Populating triggers sections...');
     
     // Get the containers
     const testimonialContainer = document.querySelector('#testimonialTriggers .concerns-grid');
     const informationalContainer = document.querySelector('#informationalTriggers .concerns-grid');
     
     if (!testimonialContainer || !informationalContainer) {
-        console.error('Triggers containers not found');
+        console.error('❌ Triggers containers not found');
         return;
     }
     
@@ -328,11 +311,17 @@ function populateTriggersSections() {
     testimonialContainer.innerHTML = '';
     informationalContainer.innerHTML = '';
     
-    // Check if testimonialData exists
+    // Check if testimonialData exists - FIXED: concerns is an OBJECT
     if (window.testimonialData && testimonialData.concerns) {
-        // Create checkboxes for each concern
-        testimonialData.concerns.forEach(concern => {
-            // Create checkbox HTML
+        console.log('📦 Concerns data found (object):', testimonialData.concerns);
+        
+        // FIX: Convert object to array using Object.values()
+        const concernsArray = Object.values(testimonialData.concerns);
+        console.log(`✅ Converted to array with ${concernsArray.length} items`);
+        
+        // Create checkboxes for each concern - FIXED: Use the array
+        concernsArray.forEach(concern => {
+            // Create checkbox HTML - KEEPING your exact HTML structure
             const checkboxHtml = `
                 <div class="concern-checkbox">
                     <input type="checkbox" 
@@ -346,14 +335,15 @@ function populateTriggersSections() {
                 </div>
             `;
             
-            // Add to both sections (same concerns for both)
+            // Add to both sections (same concerns for both) - KEEPING your logic
             testimonialContainer.innerHTML += checkboxHtml;
             informationalContainer.innerHTML += checkboxHtml;
         });
         
-        console.log(`Added ${testimonialData.concerns.length} concerns to triggers sections`);
+        // FIXED: Use array length, not object
+        console.log(`✅ Added ${concernsArray.length} concerns to triggers sections`);
     } else {
-        console.error('testimonialData.concerns not found');
+        console.error('❌ testimonialData.concerns not found');
         testimonialContainer.innerHTML = '<p class="text-muted">No concerns loaded</p>';
         informationalContainer.innerHTML = '<p class="text-muted">No concerns loaded</p>';
     }
