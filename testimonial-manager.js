@@ -1700,32 +1700,67 @@ function addDeleteButtonsToGroups() {
 }
 
 function saveGroupChanges(groupId = null) {
-    // Your existing code to get form values...
+    console.log('💾 SAVING GROUP CHANGES - DEBUG');
     
-    // 🆕 ADD THIS: Get video type
+    // Get form values
+    const groupName = document.getElementById('editGroupName')?.value.trim() || 'Unnamed Group';
+    const groupDescription = document.getElementById('editGroupDescription')?.value.trim() || '';
+    const groupIcon = document.getElementById('editGroupIcon')?.value || '📁';
     const videoType = document.getElementById('editGroupType')?.value || 'testimonial';
+    
+    console.log('📝 Form values:', {
+        groupName,
+        groupDescription,
+        groupIcon,
+        videoType
+    });
     
     // Create/update group object
     const groupData = {
-        id: groupId || newGroupId,
+        id: groupId || 'group_' + Date.now(),
         title: groupName,
-        type: videoType, // 🆕 SAVE THE TYPE
+        type: videoType,
         description: groupDescription,
         icon: groupIcon,
-        // ... other existing properties
+        testimonials: [],
+        videos: []
     };
     
-    // Update data structure
-    window.testimonialData.testimonialGroups[groupId || newGroupId] = groupData;
+    console.log('💾 Group data to save:', groupData);
+    
+    // 🚨 CRITICAL: Check where to save based on type
+    if (videoType === 'informational') {
+        console.log('📚 Saving as INFORMATIONAL group');
+        // Initialize if not exists
+        if (!window.testimonialData.informationalGroups) {
+            window.testimonialData.informationalGroups = {};
+            console.log('✅ Created informationalGroups object');
+        }
+        // Save to informationalGroups
+        window.testimonialData.informationalGroups[groupData.id] = groupData;
+        console.log('✅ Saved to informationalGroups:', window.testimonialData.informationalGroups);
+    } else {
+        console.log('🎬 Saving as TESTIMONIAL group');
+        // Initialize if not exists
+        if (!window.testimonialData.testimonialGroups) {
+            window.testimonialData.testimonialGroups = {};
+            console.log('✅ Created testimonialGroups object');
+        }
+        // Save to testimonialGroups
+        window.testimonialData.testimonialGroups[groupData.id] = groupData;
+        console.log('✅ Saved to testimonialGroups:', window.testimonialData.testimonialGroups);
+    }
     
     // Update UI
-    updateGroupDropdown();
+    renderGroups();
     
-    // Show appropriate message
+    // Show notification
     const typeText = videoType === 'informational' ? 'Informational video' : 'Testimonial';
     showNotification(`✅ ${typeText} group ${groupId ? 'updated' : 'created'} successfully`);
+    
+    // Save to storage
+    saveAllData();
 }
-
 // Function to add type badges to all groups in sidebar
 function addTypeBadgesToGroups() {
     const groupElements = document.querySelectorAll('.testimonial-group-btn, [id*="group-btn"]');
@@ -1813,11 +1848,11 @@ function deleteGroup(groupId) {
     showNotification(`✅ ${videoType === 'informational' ? 'Informational' : 'Testimonial'} group deleted successfully`, 'success');
 }
 
-// 🔧 CORRECTED renderGroups() FUNCTION
+// 🔧 DEBUG & FIXED renderGroups() FUNCTION
 function renderGroups() {
-    console.log('🎨 RENDERING GROUPS TO SIDEBAR');
+    console.log('🔍 DEBUG RENDERING GROUPS');
     
-    // 1. Find sidebar container - use the specific ID from your HTML
+    // 1. Find sidebar container
     const sidebar = document.getElementById('testimonialGroupsContainer');
     if (!sidebar) {
         console.error('❌ Sidebar container not found! Looking for #testimonialGroupsContainer');
@@ -1828,36 +1863,68 @@ function renderGroups() {
     const existingGroups = sidebar.querySelectorAll('.testimonial-group-btn');
     existingGroups.forEach(group => group.remove());
     
-    // 3. Get groups - ONLY from testimonialGroups
-    const groups = window.testimonialData?.testimonialGroups;
-    if (!groups) {
+    // 3. DEBUG: Check what data we have
+    console.log('📊 Window data:', window.testimonialData);
+    console.log('🎬 Testimonial groups:', window.testimonialData?.testimonialGroups);
+    console.log('📚 Informational groups:', window.testimonialData?.informationalGroups);
+    
+    // 4. Get ALL groups from both collections
+    const allGroups = [];
+    
+    // Testimonial groups
+    if (window.testimonialData?.testimonialGroups) {
+        Object.entries(window.testimonialData.testimonialGroups).forEach(([id, group]) => {
+            console.log(`🎬 Found testimonial group: ${id}`, group);
+            allGroups.push({
+                id: id,
+                title: group.title || id,
+                icon: group.icon || '📁',
+                type: 'testimonial', // Explicitly set type
+                description: group.description || '',
+                videoCount: group.testimonials?.length || 0
+            });
+        });
+    }
+    
+    // Informational groups - CHECK DIFFERENT POSSIBLE LOCATIONS
+    if (window.testimonialData?.informationalGroups) {
+        console.log('✅ Found informationalGroups object');
+        Object.entries(window.testimonialData.informationalGroups).forEach(([id, group]) => {
+            console.log(`📚 Found informational group: ${id}`, group);
+            allGroups.push({
+                id: id,
+                title: group.title || id,
+                icon: group.icon || '📁',
+                type: 'informational', // Explicitly set type
+                description: group.description || '',
+                videoCount: group.videos?.length || 0
+            });
+        });
+    }
+    
+    // Also check if informational groups are stored in a different way
+    console.log('🔍 All data keys:', Object.keys(window.testimonialData || {}));
+    
+    console.log(`📊 Total groups found: ${allGroups.length}`);
+    
+    if (allGroups.length === 0) {
         console.log('📭 No groups data found');
-        // Show empty state message if it exists
         const noGroupsMessage = document.getElementById('noGroupsMessage');
         if (noGroupsMessage) noGroupsMessage.style.display = 'block';
         return;
     }
     
-    console.log(`📊 Found ${Object.keys(groups).length} groups to render`);
-    
-    // 4. Convert to array and sort
-    const groupsArray = Object.entries(groups).map(([id, group]) => ({
-        id: id,
-        title: group.title || id,
-        icon: group.icon || '📁',
-        type: group.type || 'testimonial',
-        description: group.description || '',
-        videoCount: group.testimonials?.length || 0
-    }));
-    
-    groupsArray.sort((a, b) => a.title.localeCompare(b.title));
-    
     // 5. Hide empty state message
     const noGroupsMessage = document.getElementById('noGroupsMessage');
     if (noGroupsMessage) noGroupsMessage.style.display = 'none';
     
-    // 6. Render each group as a button
-    groupsArray.forEach(group => {
+    // 6. Sort alphabetically
+    allGroups.sort((a, b) => a.title.localeCompare(b.title));
+    
+    // 7. Render each group as a button
+    allGroups.forEach(group => {
+        console.log(`🎨 Rendering group: ${group.title} (${group.type})`);
+        
         const button = document.createElement('button');
         button.className = 'testimonial-group-btn';
         button.setAttribute('onclick', `selectGroup('${group.id}')`);
@@ -1865,30 +1932,30 @@ function renderGroups() {
         
         // Create badge HTML
         const badgeIcon = group.type === 'informational' ? '📚' : '🎬';
+        const badgeClass = group.type === 'informational' ? 'informational' : 'testimonial';
         const badgeTitle = group.type === 'informational' ? 'Informational Videos' : 'Testimonial Videos';
         
         button.innerHTML = `
-            <div class="group-content">
-                <div class="group-left">
-                    <span class="group-icon">${group.icon}</span>
-                    <span class="group-title">${group.title}</span>
-                </div>
-                <div class="group-right">
-                    <span class="type-badge" title="${badgeTitle}">${badgeIcon}</span>
-                    <span class="group-count">${group.videoCount}</span>
-                </div>
-            </div>
+            <span class="group-icon">${group.icon}</span>
+            <span class="group-title">
+                ${group.title}
+                <span class="type-badge ${badgeClass}" style="margin-left: 25px;">
+                    ${badgeIcon}
+                </span>
+            </span>
+            <span class="group-count">${group.videoCount}</span>
         `;
         
         sidebar.appendChild(button);
     });
     
-    // 7. Update dropdown if function exists
+    console.log(`✅ Rendered ${allGroups.length} groups in sidebar`);
+    
+    // 8. Update dropdown
     if (typeof updateGroupDropdown === 'function') {
+        console.log('🔄 Calling updateGroupDropdown');
         updateGroupDropdown();
     }
-    
-    console.log(`✅ Rendered ${groupsArray.length} groups in sidebar`);
 }
 
 function updateGroupDropdown() {
