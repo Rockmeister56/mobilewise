@@ -808,8 +808,9 @@ function selectGroup(groupId, scroll = false) {
     
     window.selectedGroupId = groupId;
     
-    // GET mainContent ONCE at the start
+    // GET mainContent ONCE at the start - BUT ALSO CHECK FOR MANAGER CONTEXT
     const mainContent = document.getElementById('mainContent');
+    const isInManagerContext = document.querySelector('.sidebar-right, #testimonialManager, .manager-container, .testimonial-manager') !== null;
     
     if (!groupId) {
         // Clear the main content area IF IT EXISTS
@@ -839,9 +840,10 @@ function selectGroup(groupId, scroll = false) {
         dropdown.value = groupId;
     }
     
+    const videoType = group.type || 'testimonial'; // MOVED HERE - used in multiple places
+    
     // Update main content header with type badge - ONLY IF mainContent EXISTS
     if (mainContent) {
-        const videoType = group.type || 'testimonial';
         const typeBadge = videoType === 'informational' ? 
             '<span class="type-badge informational" title="Informational Videos">📚 Informational</span>' : 
             '<span class="type-badge testimonial" title="Testimonial Videos">🎬 Testimonial</span>';
@@ -885,14 +887,28 @@ function selectGroup(groupId, scroll = false) {
         if (scroll) {
             mainContent.scrollIntoView({ behavior: 'smooth' });
         }
+    } else if (isInManagerContext) {
+        // 🆕 MANAGER MODE: Just update manager UI, don't trigger modals
+        console.log('✅ Manager mode: Group selected for testimonial addition');
+        console.log('   Group:', group.title || groupId);
+        console.log('   Type:', videoType);
+        
+        // Update manager header if it exists
+        const managerHeader = document.querySelector('.manager-header, .selected-group-header');
+        if (managerHeader) {
+            managerHeader.innerHTML = `
+                <h3>${group.icon || '📁'} ${group.title || groupId}</h3>
+                <p class="text-muted">${group.description || 'Ready to add testimonials'}</p>
+            `;
+        }
     } else {
         console.log('⚠️ mainContent element not found, skipping UI update');
+        // 🆕 CRITICAL: Don't trigger any modals here!
     }
     
     // ============================================
     // FIXED: Use existing functions instead of non-existent ones
     // ============================================
-    const videoType = group.type || 'testimonial';
     
     // Update current group display (if function exists)
     if (typeof updateCurrentGroupDisplay === 'function') {
