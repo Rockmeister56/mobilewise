@@ -1062,32 +1062,6 @@ textarea.form-control {
     color: white;
 }
 
-/* NUCLEAR OPTION: Override everything for triggers */
-#testimonialTriggers .concerns-list,
-#informationalTriggers .concerns-list {
-    display: block !important;
-    max-height: 300px;
-    overflow-y: auto;
-    padding: 10px;
-}
-
-.concern-checkbox-simple {
-    display: block !important;
-    width: 20px !important;
-    height: 20px !important;
-    min-width: 20px !important;
-    min-height: 20px !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    position: relative !important;
-    z-index: 1000 !important;
-}
-
-.concern-item-simple {
-    display: flex !important;
-    align-items: center !important;
-}
-
 /* =================================================== */
 /* GROUP CREATION MODAL SPECIFIC STYLES */
 /* =================================================== */

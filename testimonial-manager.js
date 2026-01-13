@@ -233,96 +233,55 @@ function setupCheckboxListeners() {
 }
 
 function populateTriggersSections() {
-    console.log('🔧 NUCLEAR OPTION: Simple divs instead of grid');
+    console.log('🔧 Populating triggers sections (original working version)...');
     
+    // Get the containers - they should exist when modal is open
     const testimonialContainer = document.querySelector('#testimonialTriggers .concerns-grid');
     const informationalContainer = document.querySelector('#informationalTriggers .concerns-grid');
     
     if (!testimonialContainer || !informationalContainer) {
-        console.error('❌ Triggers containers not found');
+        console.warn('⚠️ Containers not found yet. Will try again.');
+        
+        // Try again in 200ms if modal is still opening
+        setTimeout(() => {
+            const retryTestimonial = document.querySelector('#testimonialTriggers .concerns-grid');
+            const retryInformational = document.querySelector('#informationalTriggers .concerns-grid');
+            if (retryTestimonial && retryInformational) {
+                console.log('✅ Containers found on retry');
+                populateTriggersSections();
+            }
+        }, 200);
+        
         return;
     }
-    
-    // CHANGE: Remove grid class
-    testimonialContainer.className = 'concerns-list';
-    informationalContainer.className = 'concerns-list';
     
     // Clear existing content
     testimonialContainer.innerHTML = '';
     informationalContainer.innerHTML = '';
     
-    // Use the working data
+    // Use the working concerns data
     const concerns = window.testimonialData?.concerns || {};
-    console.log(`📦 Loading ${Object.keys(concerns).length} concerns`);
     
-    // Create SIMPLE checkboxes without complex HTML
+    // Use the SAME HTML that was working before
     Object.entries(concerns).forEach(([key, concernData]) => {
-        const concernId = `triggers_${key}`;
+        const checkboxHtml = `
+            <div class="concern-checkbox">
+                <input type="checkbox" 
+                       id="concern_${key}" 
+                       name="concerns" 
+                       value="${key}">
+                <label for="concern_${key}">
+                    ${concernData.emoji} ${concernData.name}
+                    <small>${concernData.description}</small>
+                </label>
+            </div>
+        `;
         
-        // Create elements manually (not with innerHTML)
-        const container = document.createElement('div');
-        container.className = 'concern-item-simple';
-        container.style.cssText = 'display: flex; align-items: center; padding: 10px; margin-bottom: 8px; background: rgba(255,255,255,0.05); border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);';
-        
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.id = concernId;
-        checkbox.name = 'concerns';
-        checkbox.value = key;
-        checkbox.className = 'concern-checkbox-simple';
-        checkbox.style.cssText = 'width: 20px; height: 20px; margin-right: 10px; display: block; flex-shrink: 0;';
-        
-        const label = document.createElement('label');
-        label.htmlFor = concernId;
-        label.style.cssText = 'display: flex; align-items: center; gap: 8px; cursor: pointer; flex: 1;';
-        
-        const emoji = document.createElement('span');
-        emoji.textContent = concernData.emoji || '🔘';
-        emoji.style.cssText = 'font-size: 1.2em;';
-        
-        const text = document.createElement('span');
-        text.textContent = concernData.name || key;
-        text.style.cssText = 'color: white; font-weight: 500;';
-        
-        // Build DOM
-        label.appendChild(emoji);
-        label.appendChild(text);
-        container.appendChild(checkbox);
-        container.appendChild(label);
-        
-        // Clone for both containers
-        testimonialContainer.appendChild(container.cloneNode(true));
-        informationalContainer.appendChild(container.cloneNode(true));
+        testimonialContainer.innerHTML += checkboxHtml;
+        informationalContainer.innerHTML += checkboxHtml;
     });
     
-    console.log(`✅ Added ${Object.keys(concerns).length} concerns with manual DOM creation`);
-    
-    // Setup listeners
-    setupCheckboxListeners();
-}
-
-// Update setupCheckboxListeners for new class
-function setupCheckboxListeners() {
-    console.log('🔧 Setting up checkbox listeners...');
-    
-    document.querySelectorAll('.concern-checkbox-simple').forEach(checkbox => {
-        // Remove old listeners
-        const newCheckbox = checkbox.cloneNode(true);
-        checkbox.parentNode.replaceChild(newCheckbox, checkbox);
-    });
-    
-    // Add new listeners
-    document.querySelectorAll('.concern-checkbox-simple').forEach(checkbox => {
-        checkbox.addEventListener('change', function() {
-            console.log(`✅ CHECKBOX WORKING: ${this.id} = ${this.checked}`);
-        });
-        
-        // Also add click for debugging
-        checkbox.addEventListener('click', function(e) {
-            console.log('🎯 CLICK EVENT FIRED on', this.id);
-            e.stopPropagation();
-        });
-    });
+    console.log(`✅ Added ${Object.keys(concerns).length} concerns`);
 }
 
 // Also update your clearGroupForm function to handle these checkboxes
