@@ -205,7 +205,26 @@ function updateGroupType(value) {
     console.log('Informational display:', informationalTriggers.style.display);
 }
 
+function setupCheckboxListeners() {
+    console.log('🔧 Setting up checkbox listeners...');
+    
+    // Setup for testimonial checkboxes
+    document.querySelectorAll('#testimonialTriggers input[type="checkbox"]').forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            console.log(`Testimonial checkbox ${this.value}: ${this.checked ? 'checked' : 'unchecked'}`);
+        });
+    });
+    
+    // Setup for informational checkboxes  
+    document.querySelectorAll('#informationalTriggers input[type="checkbox"]').forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            console.log(`Informational checkbox ${this.value}: ${this.checked ? 'checked' : 'unchecked'}`);
+        });
+    });
+}
+
 function populateTriggersSections() {
+    setupCheckboxListeners();
     console.log('🔧 Populating triggers sections...');
     
     const testimonialContainer = document.querySelector('#testimonialTriggers .concerns-grid');
