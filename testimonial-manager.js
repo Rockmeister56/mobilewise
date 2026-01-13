@@ -179,28 +179,33 @@ function initializeSampleGroups() {
 // Update icon based on type
 function updateGroupType(selectedType) {
     console.log('🎯 Group type changed to:', selectedType);
+
+    const newGroupIcon = document.getElementById('newGroupIcon');
+    const testimonialTriggers = document.getElementById('testimonialTriggers');
+    const informationalTriggers = document.getElementById('informationalTriggers');
     
-    // Auto-set icon based on type
-    const iconField = document.getElementById('newGroupIcon');
-    if (selectedType === 'informational') {
-        iconField.value = '📚';
-    } else {
-        iconField.value = '🎬';
+    if (!newGroupIcon || !testimonialTriggers || !informationalTriggers) {
+        console.error('❌ Required elements not found');
+        return;
     }
     
-    // Show/hide appropriate trigger section
-    document.getElementById('testimonialTriggers').style.display = 
-        selectedType === 'testimonial' ? 'block' : 'none';
-    document.getElementById('informationalTriggers').style.display = 
-        selectedType === 'informational' ? 'block' : 'none';
+    console.log('DEBUG - Checking condition...');
+    console.log('value === "informational":', value === 'informational');
+    console.log('value === "3":', value === '3');
+    console.log('value:', JSON.stringify(value));
     
-    // Update help text
-    const helpText = selectedType === 'informational' 
-        ? 'How-to, explainer, and educational content'
-        : 'Real client stories and social proof';
-    
-    document.querySelector('[for="newGroupType"] + .form-help').textContent = 
-        `Testimonial: Real client stories | Informational: ${helpText}`;
+    // Set icon based on type
+    if (value === '3' || value === 'informational') {
+        console.log('✅ EXECUTING INFORMATIONAL BRANCH');
+        newGroupIcon.value = '📚';
+        testimonialTriggers.classList.add('d-none');
+        informationalTriggers.classList.remove('d-none');
+    } else {
+        console.log('✅ EXECUTING TESTIMONIAL BRANCH');
+        newGroupIcon.value = '🎬';
+        testimonialTriggers.classList.remove('d-none');
+        informationalTriggers.classList.add('d-none');
+    }
 }
 
 // Populate concerns checkboxes
@@ -353,32 +358,31 @@ function populateTriggersSections() {
 function clearGroupForm() {
     console.log('🧹 Clearing group form');
     
-    // Clear basic inputs
-    const inputs = ['newGroupName', 'newGroupIcon', 'newGroupType', 'newGroupConcern', 'newGroupTags'];
+    // Clear inputs
+    const inputs = ['newGroupName', 'newGroupIcon', 'newGroupConcern', 'newGroupTags'];
     inputs.forEach(id => {
         const el = document.getElementById(id);
         if (el) el.value = '';
     });
     
-    // Set defaults
+    // SET TYPE TO "testimonial" NOT EMPTY
+    const typeSelect = document.getElementById('newGroupType');
+    if (typeSelect) {
+        typeSelect.value = 'testimonial';
+    }
+    
+    // Set icon default
     if (document.getElementById('newGroupIcon')) {
         document.getElementById('newGroupIcon').value = '🎬';
     }
-    if (document.getElementById('newGroupType')) {
-        document.getElementById('newGroupType').value = '2';
-    }
     
-    // Uncheck ALL checkboxes in both sections
-    document.querySelectorAll('#testimonialTriggers input[type="checkbox"]').forEach(cb => {
+    // Clear checkboxes
+    document.querySelectorAll('#testimonialTriggers input[type="checkbox"], #informationalTriggers input[type="checkbox"]').forEach(cb => {
         cb.checked = false;
     });
     
-    document.querySelectorAll('#informationalTriggers input[type="checkbox"]').forEach(cb => {
-        cb.checked = false;
-    });
-    
-    // Call updateGroupType to set initial visibility
-    updateGroupType('2');
+    // Call updateGroupType to set visibility
+    updateGroupType('testimonial');
 }
 
 // Add this to initialize when page loads
