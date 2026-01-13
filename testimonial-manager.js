@@ -208,20 +208,19 @@ function updateGroupType(value) {
     if (value === '3' || value === 'informational') {
         console.log('🔄 Switching to INFORMATIONAL');
         newGroupIcon.value = '📚';
-        testimonialTriggers.classList.add('d-none');
-        informationalTriggers.classList.remove('d-none');
+        testimonialTriggers.style.display = 'none'; // Use inline style
+        informationalTriggers.style.display = 'block'; // Use inline style
     } else {
         console.log('🔄 Switching to TESTIMONIAL');
         newGroupIcon.value = '🎬';
-        testimonialTriggers.classList.remove('d-none');
-        informationalTriggers.classList.add('d-none');
+        testimonialTriggers.style.display = 'block'; // Use inline style
+        informationalTriggers.style.display = 'none'; // Use inline style
     }
 }
 
 function populateTriggersSections() {
     console.log('🔧 Populating triggers sections...');
     
-    // Get the containers
     const testimonialContainer = document.querySelector('#testimonialTriggers .concerns-grid');
     const informationalContainer = document.querySelector('#informationalTriggers .concerns-grid');
     
@@ -240,19 +239,20 @@ function populateTriggersSections() {
         const concernsArray = Object.values(testimonialData.concerns);
         console.log(`✅ Adding ${concernsArray.length} concerns`);
         
-        // Create PROPER Bootstrap checkboxes
+        // Create checkboxes for each concern - SIMPLE version
         concernsArray.forEach(concern => {
-            // FIXED: Add Bootstrap classes and correct structure
+            // Simple checkbox without complex classes
             const checkboxHtml = `
-                <div class="form-check concern-checkbox">
-                    <input class="form-check-input" type="checkbox" 
+                <div class="concern-item">
+                    <input type="checkbox" 
                            id="concern_${concern.id}" 
                            name="concerns" 
-                           value="${concern.id}">
-                    <label class="form-check-label" for="concern_${concern.id}">
+                           value="${concern.id}"
+                           class="concern-checkbox">
+                    <label for="concern_${concern.id}" class="concern-label">
                         <span class="concern-emoji">${concern.emoji}</span>
                         <span class="concern-name">${concern.name}</span>
-                        ${concern.description ? `<small class="concern-desc d-block">${concern.description}</small>` : ''}
+                        ${concern.description ? `<small class="concern-desc">${concern.description}</small>` : ''}
                     </label>
                 </div>
             `;
