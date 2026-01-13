@@ -96,21 +96,40 @@ function updateGroupType(value) {
     const testimonialTriggers = document.getElementById('testimonialTriggers');
     const informationalTriggers = document.getElementById('informationalTriggers');
     
+    console.log('Elements:', {
+        icon: newGroupIcon?.value,
+        testimonialVisible: testimonialTriggers?.style.display,
+        infoVisible: informationalTriggers?.style.display
+    });
+    
     if (!newGroupIcon || !testimonialTriggers || !informationalTriggers) {
-        console.error('Required elements not found');
+        console.error('❌ Required elements not found');
         return;
     }
     
-    // Set icon based on type - handle BOTH number and text values
-    if (value === '3' || value === 'informational') { // informational
+    // Clear any inline styles first
+    testimonialTriggers.style.display = '';
+    informationalTriggers.style.display = '';
+    
+    // Set icon based on type
+    if (value === '3' || value === 'informational') {
+        console.log('🔄 Switching to INFORMATIONAL');
         newGroupIcon.value = '📚';
         testimonialTriggers.classList.add('d-none');
         informationalTriggers.classList.remove('d-none');
-    } else { // testimonial (covers '2', 'testimonial', or anything else)
+    } else {
+        console.log('🔄 Switching to TESTIMONIAL');
         newGroupIcon.value = '🎬';
         testimonialTriggers.classList.remove('d-none');
         informationalTriggers.classList.add('d-none');
     }
+    
+    // Double-check
+    console.log('After update:', {
+        icon: newGroupIcon.value,
+        testimonialHasDNone: testimonialTriggers.classList.contains('d-none'),
+        infoHasDNone: informationalTriggers.classList.contains('d-none')
+    });
 }
 
 function clearGroupForm() {
@@ -123,26 +142,20 @@ function clearGroupForm() {
         if (el) el.value = '';
     });
     
-    // Set DEFAULTS - Use TEXT VALUES to match your HTML
+    // Set defaults
     if (document.getElementById('newGroupIcon')) {
         document.getElementById('newGroupIcon').value = '🎬';
     }
     if (document.getElementById('newGroupType')) {
-        document.getElementById('newGroupType').value = 'testimonial'; // TEXT VALUE
+        document.getElementById('newGroupType').value = 'testimonial';
     }
     
-    // Reset visibility
-    const testimonialTriggers = document.getElementById('testimonialTriggers');
-    const informationalTriggers = document.getElementById('informationalTriggers');
-    
-    if (testimonialTriggers) testimonialTriggers.classList.remove('d-none');
-    if (informationalTriggers) informationalTriggers.classList.add('d-none');
-    
     // Clear checkboxes
-    document.querySelectorAll('#testimonialTriggers input[type="checkbox"]').forEach(cb => cb.checked = false);
-    document.querySelectorAll('#informationalTriggers input[type="checkbox"]').forEach(cb => cb.checked = false);
+    document.querySelectorAll('#testimonialTriggers input[type="checkbox"], #informationalTriggers input[type="checkbox"]').forEach(cb => {
+        cb.checked = false;
+    });
     
-    // Also call updateGroupType to ensure everything is in sync
+    // IMPORTANT: Force update the type
     updateGroupType('testimonial');
 }
 
