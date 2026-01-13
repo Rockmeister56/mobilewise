@@ -71,6 +71,53 @@ function initializeTestimonialData() {
     setTimeout(() => { if (window.refreshGroupUI) refreshGroupUI(); }, 100);
 }
 
+// Add this function near the top of your file, perhaps after your other functions
+function updateGroupType(value) {
+    const newGroupIcon = document.getElementById('newGroupIcon');
+    const testimonialTriggers = document.getElementById('testimonialTriggers');
+    const informationalTriggers = document.getElementById('informationalTriggers');
+    
+    console.log('updateGroupType called with:', value);
+    
+    if (!newGroupIcon || !testimonialTriggers || !informationalTriggers) {
+        console.error('Required elements not found');
+        return;
+    }
+    
+    // Set icon based on type
+    if (value === '3') { // informational
+        newGroupIcon.value = '📚';
+        testimonialTriggers.classList.add('d-none');
+        informationalTriggers.classList.remove('d-none');
+    } else { // testimonial
+        newGroupIcon.value = '🎬';
+        testimonialTriggers.classList.remove('d-none');
+        informationalTriggers.classList.add('d-none');
+    }
+}
+
+function clearGroupForm() {
+    console.log('Clearing group form...');
+    
+    // Clear inputs - check if these IDs exist in your modal
+    if (document.getElementById('newGroupName')) document.getElementById('newGroupName').value = '';
+    if (document.getElementById('newGroupIcon')) document.getElementById('newGroupIcon').value = '🎬';
+    if (document.getElementById('newGroupType')) document.getElementById('newGroupType').value = '2';
+    if (document.getElementById('newGroupConcern')) document.getElementById('newGroupConcern').value = '';
+    if (document.getElementById('newGroupTags')) document.getElementById('newGroupTags').value = '';
+    
+    // Reset visibility
+    const testimonialTriggers = document.getElementById('testimonialTriggers');
+    const informationalTriggers = document.getElementById('informationalTriggers');
+    
+    if (testimonialTriggers) testimonialTriggers.classList.remove('d-none');
+    if (informationalTriggers) informationalTriggers.classList.add('d-none');
+    
+    // Clear checkboxes
+    document.querySelectorAll('#testimonialTriggers input[type="checkbox"]').forEach(cb => cb.checked = false);
+    document.querySelectorAll('#informationalTriggers input[type="checkbox"]').forEach(cb => cb.checked = false);
+}
+
 function initializeSampleGroups() {
     testimonialData.testimonialGroups = {
         "group_price": {
@@ -101,33 +148,107 @@ function initializeSampleGroups() {
     console.log('📊 Initialized with sample groups');
 }
 
-// Add to testimonial-manager.js for modal functionality
-function selectVideoType(type) {
-    document.querySelectorAll('.type-option').forEach(opt => {
-        opt.classList.toggle('active', opt.dataset.type === type);
-    });
-    document.getElementById('newGroupType').value = type;
+// ============================================
+// GROUP CREATION MODAL FUNCTIONS
+// ============================================
+
+// Update icon based on type
+function updateGroupType(selectedType) {
+    console.log('🎯 Group type changed to:', selectedType);
     
-    // Toggle trigger sections
+    // Auto-set icon based on type
+    const iconField = document.getElementById('newGroupIcon');
+    if (selectedType === 'informational') {
+        iconField.value = '📚';
+    } else {
+        iconField.value = '🎬';
+    }
+    
+    // Show/hide appropriate trigger section
     document.getElementById('testimonialTriggers').style.display = 
-        type === 'testimonial' ? 'block' : 'none';
+        selectedType === 'testimonial' ? 'block' : 'none';
     document.getElementById('informationalTriggers').style.display = 
-        type === 'informational' ? 'block' : 'none';
+        selectedType === 'informational' ? 'block' : 'none';
+    
+    // Update help text
+    const helpText = selectedType === 'informational' 
+        ? 'How-to, explainer, and educational content'
+        : 'Real client stories and social proof';
+    
+    document.querySelector('[for="newGroupType"] + .form-help').textContent = 
+        `Testimonial: Real client stories | Informational: ${helpText}`;
 }
 
-function selectIcon(icon) {
-    document.querySelectorAll('.icon-option').forEach(opt => {
-        opt.classList.toggle('active', opt.dataset.icon === icon);
+// Populate concerns checkboxes
+function populateConcernsCheckboxes() {
+    console.log('🎯 Populating concerns checkboxes...');
+    
+    const concerns = window.testimonialData?.concerns || {};
+    const testimonialGrid = document.querySelector('#testimonialTriggers .concerns-grid');
+    const informationalGrid = document.querySelector('#informationalTriggers .concerns-grid');
+    
+    if (!testimonialGrid || !informationalGrid) {
+        console.log('⚠️ Trigger grids not found');
+        return;
+    }
+    
+    // Clear existing
+    testimonialGrid.innerHTML = '';
+    informationalGrid.innerHTML = '';
+    
+    // Add each concern
+    Object.entries(concerns).forEach(([key, concern]) => {
+        const checkboxId = `concern_${key}`;
+        const checkboxHtml = `
+            <input type="checkbox" id="${checkboxId}" class="concern-checkbox" value="${key}">
+            <label for="${checkboxId}" class="concern-label">
+                <span class="concern-icon">${concern.icon}</span>
+                <span class="concern-text">${concern.title}</span>
+            </label>
+        `;
+        
+        testimonialGrid.innerHTML += checkboxHtml;
+        informationalGrid.innerHTML += checkboxHtml;
     });
-    document.getElementById('newGroupIcon').value = icon;
+    
+    console.log(`✅ Added ${Object.keys(concerns).length} concerns to each section`);
 }
 
-// Initialize when showing modal
-function showAddTestimonialGroupModal() {
-    selectVideoType('testimonial'); // Default
-    selectIcon('📁'); // Default
-    document.getElementById('addTestimonialGroupModal').style.display = 'flex';
+// Initialize modal when shown
+function initGroupCreationModal() {
+    console.log('🎯 Initializing group creation modal...');
+    
+    // Set default type
+    const typeSelect = document.getElementById('newGroupType');
+    if (typeSelect) {
+        updateGroupType(typeSelect.value);
+    }
+    
+    // Populate concerns
+    populateConcernsCheckboxes();
+    
+    // Clear form
+    document.getElementById('newGroupName').value = '';
+    document.getElementById('newGroupSlug').value = '';
+    document.getElementById('newGroupDescription').value = '';
+    
+    // Uncheck all checkboxes
+    document.querySelectorAll('.concern-checkbox').forEach(cb => {
+        cb.checked = false;
+    });
 }
+
+// Hook into existing show function
+const originalShowModal = window.showAddTestimonialGroupModal;
+if (originalShowModal) {
+    window.showAddTestimonialGroupModal = function() {
+        originalShowModal();
+        setTimeout(initGroupCreationModal, 50); // Wait for modal to be visible
+    };
+}
+
+// Also run on page load to pre-populate
+setTimeout(populateConcernsCheckboxes, 2000);
 
 // ===================================================
 // EVENT LISTENERS SETUP
