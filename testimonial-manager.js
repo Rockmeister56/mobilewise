@@ -187,71 +187,32 @@ function updateGroupType(value) {
         return;
     }
     
-    // Set icon based on type
+    // Set icon based on type - FIXED LOGIC!
     if (value === '3' || value === 'informational') {
         console.log('🔄 Switching to INFORMATIONAL');
         newGroupIcon.value = '📚';
-        testimonialTriggers.style.display = 'none';
-        informationalTriggers.style.display = 'block';
-        
-        // FIX: Force recreate checkboxes for informational section
-        setTimeout(() => {
-            populateTriggersSections();
-            setupCheckboxListeners();
-        }, 50);
-        
+        testimonialTriggers.style.display = 'none';   // HIDE testimonial
+        informationalTriggers.style.display = 'block'; // SHOW informational
     } else {
         console.log('🔄 Switching to TESTIMONIAL');
         newGroupIcon.value = '🎬';
-        testimonialTriggers.style.display = 'block';
-        informationalTriggers.style.display = 'none';
-        
-        // FIX: Force recreate checkboxes for testimonial section
-        setTimeout(() => {
-            populateTriggersSections();
-            setupCheckboxListeners();
-        }, 50);
+        testimonialTriggers.style.display = 'block';  // SHOW testimonial
+        informationalTriggers.style.display = 'none';  // HIDE informational
     }
-}
-
-function setupCheckboxListeners() {
-    console.log('🔧 Setting up checkbox listeners...');
     
-    // Setup for testimonial checkboxes
-    document.querySelectorAll('#testimonialTriggers input[type="checkbox"]').forEach(checkbox => {
-        checkbox.addEventListener('change', function() {
-            console.log(`Testimonial checkbox ${this.value}: ${this.checked ? 'checked' : 'unchecked'}`);
-        });
-    });
-    
-    // Setup for informational checkboxes  
-    document.querySelectorAll('#informationalTriggers input[type="checkbox"]').forEach(checkbox => {
-        checkbox.addEventListener('change', function() {
-            console.log(`Informational checkbox ${this.value}: ${this.checked ? 'checked' : 'unchecked'}`);
-        });
-    });
+    // Debug: Verify
+    console.log('Testimonial display:', testimonialTriggers.style.display);
+    console.log('Informational display:', informationalTriggers.style.display);
 }
 
 function populateTriggersSections() {
-    console.log('🔧 Populating triggers sections (original working version)...');
+    console.log('🔧 Populating triggers sections...');
     
-    // Get the containers - they should exist when modal is open
     const testimonialContainer = document.querySelector('#testimonialTriggers .concerns-grid');
     const informationalContainer = document.querySelector('#informationalTriggers .concerns-grid');
     
     if (!testimonialContainer || !informationalContainer) {
-        console.warn('⚠️ Containers not found yet. Will try again.');
-        
-        // Try again in 200ms if modal is still opening
-        setTimeout(() => {
-            const retryTestimonial = document.querySelector('#testimonialTriggers .concerns-grid');
-            const retryInformational = document.querySelector('#informationalTriggers .concerns-grid');
-            if (retryTestimonial && retryInformational) {
-                console.log('✅ Containers found on retry');
-                populateTriggersSections();
-            }
-        }, 200);
-        
+        console.error('❌ Triggers containers not found');
         return;
     }
     
@@ -259,29 +220,38 @@ function populateTriggersSections() {
     testimonialContainer.innerHTML = '';
     informationalContainer.innerHTML = '';
     
-    // Use the working concerns data
-    const concerns = window.testimonialData?.concerns || {};
-    
-    // Use the SAME HTML that was working before
-    Object.entries(concerns).forEach(([key, concernData]) => {
-        const checkboxHtml = `
-            <div class="concern-checkbox">
-                <input type="checkbox" 
-                       id="concern_${key}" 
-                       name="concerns" 
-                       value="${key}">
-                <label for="concern_${key}">
-                    ${concernData.emoji} ${concernData.name}
-                    <small>${concernData.description}</small>
-                </label>
-            </div>
-        `;
+    // Check if testimonialData exists
+    if (window.testimonialData && testimonialData.concerns) {
+        // Convert object to array
+        const concernsArray = Object.values(testimonialData.concerns);
+        console.log(`✅ Adding ${concernsArray.length} concerns`);
         
-        testimonialContainer.innerHTML += checkboxHtml;
-        informationalContainer.innerHTML += checkboxHtml;
-    });
-    
-    console.log(`✅ Added ${Object.keys(concerns).length} concerns`);
+        // Create checkboxes for each concern - SIMPLE version
+        concernsArray.forEach(concern => {
+            // Simple checkbox without complex classes
+            const checkboxHtml = `
+                <div class="concern-item">
+                    <input type="checkbox" 
+                           id="concern_${concern.id}" 
+                           name="concerns" 
+                           value="${concern.id}"
+                           class="concern-checkbox">
+                    <label for="concern_${concern.id}" class="concern-label">
+                        <span class="concern-emoji">${concern.emoji}</span>
+                        <span class="concern-name">${concern.name}</span>
+                        ${concern.description ? `<small class="concern-desc">${concern.description}</small>` : ''}
+                    </label>
+                </div>
+            `;
+            
+            // Add to both sections
+            testimonialContainer.innerHTML += checkboxHtml;
+            informationalContainer.innerHTML += checkboxHtml;
+        });
+    } else {
+        testimonialContainer.innerHTML = '<p class="text-muted">No concerns loaded</p>';
+        informationalContainer.innerHTML = '<p class="text-muted">No concerns loaded</p>';
+    }
 }
 
 // Also update your clearGroupForm function to handle these checkboxes
