@@ -27,6 +27,23 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('✅ Testimonial Manager Ready');
 });
 
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() {
+        const typeSelect = document.getElementById('newGroupType');
+        if (typeSelect) {
+            console.log('Setting up type select listener');
+            
+            typeSelect.addEventListener('change', function() {
+                console.log('Type changed to:', this.value);
+                updateGroupType(this.value);
+            });
+            
+            // Set initial state based on current value
+            updateGroupType(typeSelect.value);
+        }
+    }, 500);
+});
+
 // ===================================================
 // DATA INITIALIZATION
 // ===================================================
@@ -73,23 +90,23 @@ function initializeTestimonialData() {
 
 // Add this function near the top of your file, perhaps after your other functions
 function updateGroupType(value) {
+    console.log('🎯 updateGroupType called with:', value);
+    
     const newGroupIcon = document.getElementById('newGroupIcon');
     const testimonialTriggers = document.getElementById('testimonialTriggers');
     const informationalTriggers = document.getElementById('informationalTriggers');
-    
-    console.log('updateGroupType called with:', value);
     
     if (!newGroupIcon || !testimonialTriggers || !informationalTriggers) {
         console.error('Required elements not found');
         return;
     }
     
-    // Set icon based on type
-    if (value === '3') { // informational
+    // Set icon based on type - handle BOTH number and text values
+    if (value === '3' || value === 'informational') { // informational
         newGroupIcon.value = '📚';
         testimonialTriggers.classList.add('d-none');
         informationalTriggers.classList.remove('d-none');
-    } else { // testimonial
+    } else { // testimonial (covers '2', 'testimonial', or anything else)
         newGroupIcon.value = '🎬';
         testimonialTriggers.classList.remove('d-none');
         informationalTriggers.classList.add('d-none');
@@ -97,14 +114,22 @@ function updateGroupType(value) {
 }
 
 function clearGroupForm() {
-    console.log('Clearing group form...');
+    console.log('🧹 Clearing group form');
     
-    // Clear inputs - check if these IDs exist in your modal
-    if (document.getElementById('newGroupName')) document.getElementById('newGroupName').value = '';
-    if (document.getElementById('newGroupIcon')) document.getElementById('newGroupIcon').value = '🎬';
-    if (document.getElementById('newGroupType')) document.getElementById('newGroupType').value = '2';
-    if (document.getElementById('newGroupConcern')) document.getElementById('newGroupConcern').value = '';
-    if (document.getElementById('newGroupTags')) document.getElementById('newGroupTags').value = '';
+    // Clear inputs
+    const inputs = ['newGroupName', 'newGroupIcon', 'newGroupType', 'newGroupConcern', 'newGroupTags'];
+    inputs.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+    
+    // Set DEFAULTS - Use TEXT VALUES to match your HTML
+    if (document.getElementById('newGroupIcon')) {
+        document.getElementById('newGroupIcon').value = '🎬';
+    }
+    if (document.getElementById('newGroupType')) {
+        document.getElementById('newGroupType').value = 'testimonial'; // TEXT VALUE
+    }
     
     // Reset visibility
     const testimonialTriggers = document.getElementById('testimonialTriggers');
@@ -116,6 +141,9 @@ function clearGroupForm() {
     // Clear checkboxes
     document.querySelectorAll('#testimonialTriggers input[type="checkbox"]').forEach(cb => cb.checked = false);
     document.querySelectorAll('#informationalTriggers input[type="checkbox"]').forEach(cb => cb.checked = false);
+    
+    // Also call updateGroupType to ensure everything is in sync
+    updateGroupType('testimonial');
 }
 
 function initializeSampleGroups() {
@@ -269,6 +297,102 @@ function updateGroupType(value) {
         if (informationalTriggers) informationalTriggers.classList.add('d-none');
     }
 }
+
+// Add this function to populate the triggers/concerns
+function populateTriggersSections() {
+    console.log('Populating triggers sections...');
+    
+    // Get the containers
+    const testimonialContainer = document.querySelector('#testimonialTriggers .concerns-grid');
+    const informationalContainer = document.querySelector('#informationalTriggers .concerns-grid');
+    
+    if (!testimonialContainer || !informationalContainer) {
+        console.error('Triggers containers not found');
+        return;
+    }
+    
+    // Clear existing content
+    testimonialContainer.innerHTML = '';
+    informationalContainer.innerHTML = '';
+    
+    // Check if testimonialData exists
+    if (window.testimonialData && testimonialData.concerns) {
+        // Create checkboxes for each concern
+        testimonialData.concerns.forEach(concern => {
+            // Create checkbox HTML
+            const checkboxHtml = `
+                <div class="concern-checkbox">
+                    <input type="checkbox" 
+                           id="concern_${concern.id}" 
+                           name="concerns" 
+                           value="${concern.id}">
+                    <label for="concern_${concern.id}">
+                        ${concern.emoji} ${concern.name}
+                        <small>${concern.description}</small>
+                    </label>
+                </div>
+            `;
+            
+            // Add to both sections (same concerns for both)
+            testimonialContainer.innerHTML += checkboxHtml;
+            informationalContainer.innerHTML += checkboxHtml;
+        });
+        
+        console.log(`Added ${testimonialData.concerns.length} concerns to triggers sections`);
+    } else {
+        console.error('testimonialData.concerns not found');
+        testimonialContainer.innerHTML = '<p class="text-muted">No concerns loaded</p>';
+        informationalContainer.innerHTML = '<p class="text-muted">No concerns loaded</p>';
+    }
+}
+
+// Also update your clearGroupForm function to handle these checkboxes
+function clearGroupForm() {
+    console.log('🧹 Clearing group form');
+    
+    // Clear basic inputs
+    const inputs = ['newGroupName', 'newGroupIcon', 'newGroupType', 'newGroupConcern', 'newGroupTags'];
+    inputs.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+    
+    // Set defaults
+    if (document.getElementById('newGroupIcon')) {
+        document.getElementById('newGroupIcon').value = '🎬';
+    }
+    if (document.getElementById('newGroupType')) {
+        document.getElementById('newGroupType').value = '2';
+    }
+    
+    // Uncheck ALL checkboxes in both sections
+    document.querySelectorAll('#testimonialTriggers input[type="checkbox"]').forEach(cb => {
+        cb.checked = false;
+    });
+    
+    document.querySelectorAll('#informationalTriggers input[type="checkbox"]').forEach(cb => {
+        cb.checked = false;
+    });
+    
+    // Call updateGroupType to set initial visibility
+    updateGroupType('2');
+}
+
+// Add this to initialize when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() {
+        // Populate triggers sections
+        populateTriggersSections();
+        
+        // Set up dropdown listener
+        const typeSelect = document.getElementById('newGroupType');
+        if (typeSelect) {
+            typeSelect.addEventListener('change', function() {
+                updateGroupType(this.value);
+            });
+        }
+    }, 500);
+});
 
 function clearGroupForm() {
     console.log('🧹 Clearing group form');
