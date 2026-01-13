@@ -250,6 +250,40 @@ if (originalShowModal) {
 // Also run on page load to pre-populate
 setTimeout(populateConcernsCheckboxes, 2000);
 
+// ADD THESE TWO FUNCTIONS AT THE VERY TOP OF THE FILE
+// (before any other code)
+
+function updateGroupType(value) {
+    console.log('🎯 updateGroupType called with:', value);
+    const icon = document.getElementById('newGroupIcon');
+    const testimonialTriggers = document.getElementById('testimonialTriggers');
+    const informationalTriggers = document.getElementById('informationalTriggers');
+    
+    if (value === '3') { // informational
+        if (icon) icon.value = '📚';
+        if (testimonialTriggers) testimonialTriggers.classList.add('d-none');
+        if (informationalTriggers) informationalTriggers.classList.remove('d-none');
+    } else { // testimonial (default)
+        if (icon) icon.value = '🎬';
+        if (testimonialTriggers) testimonialTriggers.classList.remove('d-none');
+        if (informationalTriggers) informationalTriggers.classList.add('d-none');
+    }
+}
+
+function clearGroupForm() {
+    console.log('🧹 Clearing group form');
+    // Just reset the basics
+    const name = document.getElementById('newGroupName');
+    const icon = document.getElementById('newGroupIcon');
+    const type = document.getElementById('newGroupType');
+    if (name) name.value = '';
+    if (icon) icon.value = '🎬';
+    if (type) type.value = '2';
+    
+    // Call updateGroupType to set initial visibility
+    updateGroupType('2');
+}
+
 // ===================================================
 // EVENT LISTENERS SETUP
 // ===================================================
