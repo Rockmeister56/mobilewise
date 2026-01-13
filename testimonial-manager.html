@@ -321,30 +321,40 @@
                 <small class="form-help">Use lowercase with hyphens, no spaces</small>
             </div>
             
-            <!-- 🆕 VIDEO TYPE SELECTOR -->
-            <div class="form-group">
-                <label for="newGroupType" class="form-label">Video Type</label>
-                <select class="form-select" id="newGroupType" name="type">
-                    <option value="testimonial">🎬 Testimonial Video</option>
-                    <option value="informational">📚 Informational Video</option>
-                </select>
-                <small class="form-help">
-                    Testimonial: Real client stories | Informational: How-to & educational
-                </small>
-            </div>
-            
-            <div class="form-group">
-                <label for="newGroupIcon" class="form-label">Icon Emoji</label>
-                <input type="text" id="newGroupIcon" class="form-control" 
-                       placeholder="💰" value="📁" readonly>
-                <small class="form-help">Auto-sets based on video type (editable if needed)</small>
-            </div>
-            
-            <div class="form-group">
-                <label for="newGroupDescription" class="form-label">Description (Optional)</label>
-                <textarea id="newGroupDescription" class="form-control" rows="3"
-                          placeholder="Describe this video group..."></textarea>
-            </div>
+           <!-- 🆕 VIDEO TYPE SELECTOR -->
+<div class="form-group">
+    <label for="newGroupType" class="form-label">Video Type</label>
+    <select class="form-select" id="newGroupType" name="type">
+        <option value="testimonial">🎬 Testimonial Video</option>
+        <option value="informational">📚 Informational Video</option>
+    </select>
+    <small class="form-help">
+        Testimonial: Real client stories | Informational: How-to & educational
+    </small>
+</div>
+
+<div class="form-group">
+    <label for="newGroupIcon" class="form-label">Icon Emoji</label>
+    <input type="text" id="newGroupIcon" class="form-control" 
+           placeholder="💰" value="🎬" readonly>
+    <small class="form-help">Auto-sets based on video type (editable if needed)</small>
+</div>
+
+<div class="form-group">
+    <label for="newGroupDescription" class="form-label">Description (Optional)</label>
+    <textarea id="newGroupDescription" class="form-control" rows="3"
+              placeholder="Describe this video group..."></textarea>
+</div>
+
+<!-- ADD THIS FIELD -->
+<div class="form-group">
+    <label for="newGroupConcern" class="form-label">Primary Concern/Tag</label>
+    <select class="form-select" id="newGroupConcern">
+        <option value="">Select a concern...</option>
+        <!-- Options will be populated by JavaScript -->
+    </select>
+    <small class="form-help">Main topic this group addresses</small>
+</div>
             
             <!-- ============================================
                  🆕 TRIGGERS/CONCERNS SECTIONS
