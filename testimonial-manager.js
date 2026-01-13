@@ -88,60 +88,6 @@ function initializeTestimonialData() {
     setTimeout(() => { if (window.refreshGroupUI) refreshGroupUI(); }, 100);
 }
 
-// Add this function near the top of your file, perhaps after your other functions
-function updateGroupType(value) {
-    console.log('🎯 updateGroupType called with:', value);
-    
-    const newGroupIcon = document.getElementById('newGroupIcon');
-    const testimonialTriggers = document.getElementById('testimonialTriggers');
-    const informationalTriggers = document.getElementById('informationalTriggers');
-    
-    if (!newGroupIcon || !testimonialTriggers || !informationalTriggers) {
-        console.error('❌ Required elements not found');
-        return;
-    }
-    
-    // Set icon based on type
-    if (value === '3' || value === 'informational') {
-        console.log('🔄 Switching to INFORMATIONAL');
-        newGroupIcon.value = '📚';
-        testimonialTriggers.classList.add('d-none');
-        informationalTriggers.classList.remove('d-none');
-    } else {
-        console.log('🔄 Switching to TESTIMONIAL');
-        newGroupIcon.value = '🎬';
-        testimonialTriggers.classList.remove('d-none');
-        informationalTriggers.classList.add('d-none');
-    }
-}
-
-function clearGroupForm() {
-    console.log('🧹 Clearing group form');
-    
-    // Clear inputs
-    const inputs = ['newGroupName', 'newGroupIcon', 'newGroupType', 'newGroupConcern', 'newGroupTags'];
-    inputs.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.value = '';
-    });
-    
-    // Set defaults
-    if (document.getElementById('newGroupIcon')) {
-        document.getElementById('newGroupIcon').value = '🎬';
-    }
-    if (document.getElementById('newGroupType')) {
-        document.getElementById('newGroupType').value = 'testimonial';
-    }
-    
-    // Clear checkboxes
-    document.querySelectorAll('#testimonialTriggers input[type="checkbox"], #informationalTriggers input[type="checkbox"]').forEach(cb => {
-        cb.checked = false;
-    });
-    
-    // IMPORTANT: Force update the type
-    updateGroupType('testimonial');
-}
-
 function initializeSampleGroups() {
     testimonialData.testimonialGroups = {
         "group_price": {
@@ -170,42 +116,6 @@ function initializeSampleGroups() {
     
     updateStatistics();
     console.log('📊 Initialized with sample groups');
-}
-
-// ============================================
-// GROUP CREATION MODAL FUNCTIONS
-// ============================================
-
-// Update icon based on type
-function updateGroupType(selectedType) {
-    console.log('🎯 Group type changed to:', selectedType);
-
-    const newGroupIcon = document.getElementById('newGroupIcon');
-    const testimonialTriggers = document.getElementById('testimonialTriggers');
-    const informationalTriggers = document.getElementById('informationalTriggers');
-    
-    if (!newGroupIcon || !testimonialTriggers || !informationalTriggers) {
-        console.error('❌ Required elements not found');
-        return;
-    }
-    
-    console.log('DEBUG - Checking condition...');
-    console.log('value === "informational":', value === 'informational');
-    console.log('value === "3":', value === '3');
-    console.log('value:', JSON.stringify(value));
-    
-    // Set icon based on type
-    if (value === '3' || value === 'informational') {
-        console.log('✅ EXECUTING INFORMATIONAL BRANCH');
-        newGroupIcon.value = '📚';
-        testimonialTriggers.classList.add('d-none');
-        informationalTriggers.classList.remove('d-none');
-    } else {
-        console.log('✅ EXECUTING TESTIMONIAL BRANCH');
-        newGroupIcon.value = '🎬';
-        testimonialTriggers.classList.remove('d-none');
-        informationalTriggers.classList.add('d-none');
-    }
 }
 
 // Populate concerns checkboxes
@@ -284,18 +194,27 @@ setTimeout(populateConcernsCheckboxes, 2000);
 
 function updateGroupType(value) {
     console.log('🎯 updateGroupType called with:', value);
-    const icon = document.getElementById('newGroupIcon');
+    
+    const newGroupIcon = document.getElementById('newGroupIcon');
     const testimonialTriggers = document.getElementById('testimonialTriggers');
     const informationalTriggers = document.getElementById('informationalTriggers');
     
-    if (value === '3') { // informational
-        if (icon) icon.value = '📚';
-        if (testimonialTriggers) testimonialTriggers.classList.add('d-none');
-        if (informationalTriggers) informationalTriggers.classList.remove('d-none');
-    } else { // testimonial (default)
-        if (icon) icon.value = '🎬';
-        if (testimonialTriggers) testimonialTriggers.classList.remove('d-none');
-        if (informationalTriggers) informationalTriggers.classList.add('d-none');
+    if (!newGroupIcon || !testimonialTriggers || !informationalTriggers) {
+        console.error('❌ Required elements not found');
+        return;
+    }
+    
+    // Set icon based on type
+    if (value === '3' || value === 'informational') {
+        console.log('🔄 Switching to INFORMATIONAL');
+        newGroupIcon.value = '📚';
+        testimonialTriggers.classList.add('d-none');
+        informationalTriggers.classList.remove('d-none');
+    } else {
+        console.log('🔄 Switching to TESTIMONIAL');
+        newGroupIcon.value = '🎬';
+        testimonialTriggers.classList.remove('d-none');
+        informationalTriggers.classList.add('d-none');
     }
 }
 
@@ -400,20 +319,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }, 500);
 });
-
-function clearGroupForm() {
-    console.log('🧹 Clearing group form');
-    // Just reset the basics
-    const name = document.getElementById('newGroupName');
-    const icon = document.getElementById('newGroupIcon');
-    const type = document.getElementById('newGroupType');
-    if (name) name.value = '';
-    if (icon) icon.value = '🎬';
-    if (type) type.value = '2';
-    
-    // Call updateGroupType to set initial visibility
-    updateGroupType('2');
-}
 
 // ===================================================
 // EVENT LISTENERS SETUP
