@@ -969,12 +969,27 @@ textarea.form-control {
    TRIGGERS/CONCERNS STYLES
    ============================================ */
 
+   /* Make sure d-none class exists */
+.d-none {
+    display: none !important;
+}
+
+/* Triggers sections styling */
 .triggers-section {
-    background: rgba(255, 255, 255, 0.03);
-    border-radius: 12px;
+    background: #f8f9fa;
+    border-radius: 8px;
     padding: 20px;
-    margin: 25px 0;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    margin: 20px 0;
+    border: 1px solid #e9ecef;
+}
+
+.concerns-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 12px;
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 10px;
 }
 
 .triggers-section h4 {
@@ -994,6 +1009,26 @@ textarea.form-control {
 
 .concern-checkbox {
     display: none;
+}
+
+.form-check.concern-checkbox {
+    padding: 12px;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    background: #f8f9fa;
+    transition: all 0.2s;
+    margin: 0;
+}
+
+.form-check.concern-checkbox:hover {
+    background: #e9ecef;
+    border-color: #adb5bd;
+}
+
+.form-check-input {
+    margin-top: 0.5em;
+    width: 1.2em;
+    height: 1.2em;
 }
 
 .concern-label {
