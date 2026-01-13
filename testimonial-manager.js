@@ -218,7 +218,6 @@ function updateGroupType(value) {
     }
 }
 
-// Add this function to populate the triggers/concerns
 function populateTriggersSections() {
     console.log('🔧 Populating triggers sections...');
     
@@ -235,39 +234,34 @@ function populateTriggersSections() {
     testimonialContainer.innerHTML = '';
     informationalContainer.innerHTML = '';
     
-    // Check if testimonialData exists - FIXED: concerns is an OBJECT
+    // Check if testimonialData exists
     if (window.testimonialData && testimonialData.concerns) {
-        console.log('📦 Concerns data found (object):', testimonialData.concerns);
-        
-        // FIX: Convert object to array using Object.values()
+        // Convert object to array
         const concernsArray = Object.values(testimonialData.concerns);
-        console.log(`✅ Converted to array with ${concernsArray.length} items`);
+        console.log(`✅ Adding ${concernsArray.length} concerns`);
         
-        // Create checkboxes for each concern - FIXED: Use the array
+        // Create PROPER Bootstrap checkboxes
         concernsArray.forEach(concern => {
-            // Create checkbox HTML - KEEPING your exact HTML structure
+            // FIXED: Add Bootstrap classes and correct structure
             const checkboxHtml = `
-                <div class="concern-checkbox">
-                    <input type="checkbox" 
+                <div class="form-check concern-checkbox">
+                    <input class="form-check-input" type="checkbox" 
                            id="concern_${concern.id}" 
                            name="concerns" 
                            value="${concern.id}">
-                    <label for="concern_${concern.id}">
-                        ${concern.emoji} ${concern.name}
-                        <small>${concern.description}</small>
+                    <label class="form-check-label" for="concern_${concern.id}">
+                        <span class="concern-emoji">${concern.emoji}</span>
+                        <span class="concern-name">${concern.name}</span>
+                        ${concern.description ? `<small class="concern-desc d-block">${concern.description}</small>` : ''}
                     </label>
                 </div>
             `;
             
-            // Add to both sections (same concerns for both) - KEEPING your logic
+            // Add to both sections
             testimonialContainer.innerHTML += checkboxHtml;
             informationalContainer.innerHTML += checkboxHtml;
         });
-        
-        // FIXED: Use array length, not object
-        console.log(`✅ Added ${concernsArray.length} concerns to triggers sections`);
     } else {
-        console.error('❌ testimonialData.concerns not found');
         testimonialContainer.innerHTML = '<p class="text-muted">No concerns loaded</p>';
         informationalContainer.innerHTML = '<p class="text-muted">No concerns loaded</p>';
     }
