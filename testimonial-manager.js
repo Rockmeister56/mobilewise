@@ -27,6 +27,10 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('✅ Testimonial Manager Ready');
 });
 
+function isInManagerContext() {
+    return document.querySelector('.sidebar-right, #testimonialManager, .manager-container, .testimonial-manager') !== null;
+}
+
 // ===================================================
 // DATA INITIALIZATION
 // ===================================================
