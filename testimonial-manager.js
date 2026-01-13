@@ -27,23 +27,6 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('✅ Testimonial Manager Ready');
 });
 
-document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(function() {
-        const typeSelect = document.getElementById('newGroupType');
-        if (typeSelect) {
-            console.log('Setting up type select listener');
-            
-            typeSelect.addEventListener('change', function() {
-                console.log('Type changed to:', this.value);
-                updateGroupType(this.value);
-            });
-            
-            // Set initial state based on current value
-            updateGroupType(typeSelect.value);
-        }
-    }, 500);
-});
-
 // ===================================================
 // DATA INITIALIZATION
 // ===================================================
