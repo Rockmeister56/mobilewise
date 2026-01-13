@@ -233,7 +233,7 @@ function setupCheckboxListeners() {
 }
 
 function populateTriggersSections() {
-    console.log('🔧 Populating triggers sections...');
+    console.log('🔧 Populating triggers sections - USING WORKING LOGIC');
     
     const testimonialContainer = document.querySelector('#testimonialTriggers .concerns-grid');
     const informationalContainer = document.querySelector('#informationalTriggers .concerns-grid');
@@ -247,43 +247,63 @@ function populateTriggersSections() {
     testimonialContainer.innerHTML = '';
     informationalContainer.innerHTML = '';
     
-    // Check if testimonialData exists
-    if (window.testimonialData && testimonialData.concerns) {
-        // Convert object to array
-        const concernsArray = Object.values(testimonialData.concerns);
-        console.log(`✅ Adding ${concernsArray.length} concerns`);
-        console.log('Sample concern:', concernsArray[0]); // DEBUG
+    // USE THE SAME DATA AS THE WORKING FUNCTION
+    const concerns = window.testimonialData?.concerns || {};
+    console.log(`📦 Loading ${Object.keys(concerns).length} concerns`);
+    
+    // Create checkboxes using the WORKING pattern
+    Object.entries(concerns).forEach(([key, concernData]) => {
+        // Use the EXACT same logic as populateConcernsCheckboxes
+        const concernId = `triggers_${key}`;
         
-        // Create checkboxes for each concern
-        concernsArray.forEach((concern, index) => {
-            // FIX: Use concern.key or index if id is undefined
-            const concernId = concern.id || concern.key || `concern_${index}`;
-            const concernName = concern.name || 'Unknown';
-            const concernEmoji = concern.emoji || '🔘';
-            
-            const checkboxHtml = `
-                <div class="concern-item">
-                    <input type="checkbox" 
-                           id="${concernId}" 
-                           name="concerns" 
-                           value="${concernId}"
-                           class="concern-checkbox">
-                    <label for="${concernId}" class="concern-label">
-                        <span class="concern-emoji">${concernEmoji}</span>
-                        <span class="concern-name">${concernName}</span>
-                        ${concern.description ? `<small class="concern-desc">${concern.description}</small>` : ''}
-                    </label>
-                </div>
-            `;
-            
-            // Add to both sections
-            testimonialContainer.innerHTML += checkboxHtml;
-            informationalContainer.innerHTML += checkboxHtml;
+        const checkboxHtml = `
+            <div class="concern-checkbox-item">
+                <input type="checkbox" 
+                       id="${concernId}" 
+                       name="concerns" 
+                       value="${key}"
+                       class="concern-checkbox">
+                <label for="${concernId}" class="concern-label">
+                    <span class="concern-icon">${concernData.emoji || '🔘'}</span>
+                    <span class="concern-text">${concernData.name || key}</span>
+                </label>
+            </div>
+        `;
+        
+        testimonialContainer.innerHTML += checkboxHtml;
+        informationalContainer.innerHTML += checkboxHtml;
+    });
+    
+    console.log(`✅ Added ${Object.keys(concerns).length} concerns to triggers sections`);
+    
+    // CRITICAL: Remove display: none from checkboxes
+    document.querySelectorAll('#testimonialTriggers .concern-checkbox, #informationalTriggers .concern-checkbox').forEach(cb => {
+        cb.style.display = 'inline-block';
+        cb.style.width = '18px';
+        cb.style.height = '18px';
+        cb.style.minWidth = '18px';
+        cb.style.minHeight = '18px';
+        cb.style.visibility = 'visible';
+        cb.style.opacity = '1';
+    });
+}
+
+// Also update setupCheckboxListeners to match
+function setupCheckboxListeners() {
+    console.log('🔧 Setting up checkbox listeners for triggers...');
+    
+    // Remove any existing listeners by cloning
+    document.querySelectorAll('#testimonialTriggers input[type="checkbox"], #informationalTriggers input[type="checkbox"]').forEach(checkbox => {
+        const newCheckbox = checkbox.cloneNode(true);
+        checkbox.parentNode.replaceChild(newCheckbox, checkbox);
+    });
+    
+    // Add fresh listeners
+    document.querySelectorAll('#testimonialTriggers input[type="checkbox"], #informationalTriggers input[type="checkbox"]').forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            console.log(`✅ TRIGGER CHECKBOX: ${this.id} = ${this.checked ? 'checked' : 'unchecked'}`);
         });
-    } else {
-        testimonialContainer.innerHTML = '<p class="text-muted">No concerns loaded</p>';
-        informationalContainer.innerHTML = '<p class="text-muted">No concerns loaded</p>';
-    }
+    });
 }
 
 // Also update your clearGroupForm function to handle these checkboxes
