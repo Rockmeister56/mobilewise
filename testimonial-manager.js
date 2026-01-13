@@ -1813,9 +1813,150 @@ function deleteGroup(groupId) {
     showNotification(`✅ ${videoType === 'informational' ? 'Informational' : 'Testimonial'} group deleted successfully`, 'success');
 }
 
-// Call this after groups are rendered
+// 🔧 COMPLETE WORKING renderGroups() FUNCTION
 function renderGroups() {
-    // Your existing render code...
+    console.log('🎨 RENDERING ALL GROUPS TO SIDEBAR');
+    
+    // 1. Find sidebar container
+    const sidebar = document.querySelector('.sidebar .groups-container, #groupsContainer, .groups-container');
+    if (!sidebar) {
+        console.error('❌ Sidebar container not found!');
+        return;
+    }
+    
+    // 2. Clear existing group buttons (keep header and add button)
+    const existingGroups = sidebar.querySelectorAll('.testimonial-group-btn, .group-item, .group-btn');
+    existingGroups.forEach(group => {
+        if (!group.id.includes('add') && !group.classList.contains('btn-add-group')) {
+            group.remove();
+        }
+    });
+    
+    // 3. Get ALL groups from both collections
+    const allGroups = [];
+    
+    // Testimonial groups (object)
+    if (window.testimonialData?.testimonialGroups) {
+        Object.entries(window.testimonialData.testimonialGroups).forEach(([id, group]) => {
+            allGroups.push({
+                id: id,
+                title: group.title || id,
+                icon: group.icon || '📁',
+                type: group.type || 'testimonial',
+                description: group.description || ''
+            });
+        });
+    }
+    
+    // Informational groups (object)
+    if (window.testimonialData?.informationalGroups) {
+        Object.entries(window.testimonialData.informationalGroups).forEach(([id, group]) => {
+            allGroups.push({
+                id: id,
+                title: group.title || id,
+                icon: group.icon || '📁',
+                type: group.type || 'informational',
+                description: group.description || ''
+            });
+        });
+    }
+    
+    console.log(`📊 Found ${allGroups.length} total groups to render`);
+    
+    // 4. Sort alphabetically
+    allGroups.sort((a, b) => (a.title || a.id).localeCompare(b.title || b.id));
+    
+    // 5. Render each group as a button
+    allGroups.forEach(group => {
+        const button = document.createElement('button');
+        button.className = `testimonial-group-btn ${group.type}-group`;
+        button.setAttribute('onclick', `selectGroup('${group.id}', true, 'sidebar')`);
+        button.setAttribute('title', group.description);
+        
+        button.innerHTML = `
+            <span class="group-icon">${group.icon}</span>
+            <span class="group-title">${group.title}</span>
+            <span class="group-type-badge ${group.type}">
+                ${group.type === 'informational' ? '📚' : '🎬'}
+            </span>
+        `;
+        
+        sidebar.appendChild(button);
+    });
+    
+    // 6. Update dropdown
+    if (typeof updateGroupDropdown === 'function') {
+        updateGroupDropdown();
+    }
+    
+    // 7. Add delete buttons if function exists
+    setTimeout(() => {
+        if (typeof addDeleteButtonsToGroups === 'function') {
+            addDeleteButtonsToGroups();
+        }
+    }, 100);
+    
+    console.log('✅ All groups rendered successfully!');
+    
+    // 8. Visual confirmation
+    const renderedButtons = sidebar.querySelectorAll('.testimonial-group-btn');
+    console.log(`🎯 Now showing ${renderedButtons.length} groups in sidebar`);
+}
+
+// Also ensure updateGroupDropdown handles BOTH group types
+function updateGroupDropdown() {
+    console.log('🔄 Updating group dropdown with ALL groups...');
+    
+    const dropdown = document.getElementById('selectGroupDropdown');
+    if (!dropdown) return;
+    
+    const currentValue = dropdown.value;
+    
+    // Clear except first option
+    while (dropdown.options.length > 1) {
+        dropdown.remove(1);
+    }
+    
+    const allGroups = [];
+    
+    // Add testimonial groups
+    if (window.testimonialData?.testimonialGroups) {
+        Object.entries(window.testimonialData.testimonialGroups).forEach(([id, group]) => {
+            allGroups.push({
+                id: id,
+                title: group.title || id,
+                type: group.type || 'testimonial'
+            });
+        });
+    }
+    
+    // Add informational groups
+    if (window.testimonialData?.informationalGroups) {
+        Object.entries(window.testimonialData.informationalGroups).forEach(([id, group]) => {
+            allGroups.push({
+                id: id,
+                title: group.title || id,
+                type: group.type || 'informational'
+            });
+        });
+    }
+    
+    // Sort and add options
+    allGroups.sort((a, b) => a.title.localeCompare(b.title));
+    
+    allGroups.forEach(group => {
+        const option = document.createElement('option');
+        option.value = group.id;
+        option.textContent = `${group.type === 'informational' ? '📚' : '🎬'} ${group.title}`;
+        dropdown.appendChild(option);
+    });
+    
+    // Restore selection
+    if (currentValue && allGroups.some(g => g.id === currentValue)) {
+        dropdown.value = currentValue;
+    }
+    
+    console.log(`✅ Dropdown updated with ${allGroups.length} groups`);
     
     // Add delete buttons
     setTimeout(addDeleteButtonsToGroups, 100);
