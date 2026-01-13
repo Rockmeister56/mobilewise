@@ -1446,6 +1446,77 @@ select option[data-type="testimonial"] {
     color: #212529;
 }
 
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.section-title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+}
+
+.btn-add-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    font-size: 14px;
+    background: #4f46e5;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-add-group:hover {
+    background: #4338ca;
+}
+
+.btn-icon {
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.btn-text {
+    white-space: nowrap;
+}
+
+.groups-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 30px 20px;
+    background: #f9fafb;
+    border-radius: 8px;
+    border: 2px dashed #e5e7eb;
+}
+
+.empty-icon {
+    font-size: 32px;
+    margin-bottom: 10px;
+}
+
+.empty-title {
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 5px;
+}
+
+.empty-subtitle {
+    font-size: 14px;
+    color: #6b7280;
+}
+
 /* =================================================== */
 /* CONCERNS CHECKBOXES */
 /* =================================================== */
