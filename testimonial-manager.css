@@ -1066,27 +1066,36 @@ textarea.form-control {
 /* GROUP CREATION MODAL SPECIFIC STYLES */
 /* =================================================== */
 
-/* FIX: Make checkboxes always visible when container is visible */
+/* FORCE checkbox dimensions */
 #informationalTriggers input[type="checkbox"],
 #testimonialTriggers input[type="checkbox"] {
+    width: 20px !important;
+    height: 20px !important;
+    min-width: 20px !important;
+    min-height: 20px !important;
+    max-width: 20px !important;
+    max-height: 20px !important;
     opacity: 1 !important;
     visibility: visible !important;
     display: inline-block !important;
     pointer-events: auto !important;
+    -webkit-appearance: checkbox !important;
+    -moz-appearance: checkbox !important;
+    appearance: checkbox !important;
 }
 
-/* Override any parent hiding */
-#informationalTriggers:not([style*="display: none"]) *,
-#testimonialTriggers:not([style*="display: none"]) * {
-    visibility: visible !important;
-    opacity: 1 !important;
-}
-
-/* Specific fix for concern items */
+/* Also fix the container */
 .concern-item {
     display: flex !important;
-    visibility: visible !important;
-    opacity: 1 !important;
+    align-items: center !important;
+    min-height: 40px !important;
+}
+
+.concern-checkbox {
+    flex-shrink: 0 !important;
+    width: 20px !important;
+    height: 20px !important;
+    margin: 0 10px 0 0 !important;
 }
 
 /* Fix the video type dropdown */
