@@ -204,18 +204,22 @@ function updateGroupType(value) {
         return;
     }
     
-    // Set icon based on type
+    // Set icon based on type - FIXED LOGIC!
     if (value === '3' || value === 'informational') {
         console.log('🔄 Switching to INFORMATIONAL');
         newGroupIcon.value = '📚';
-        testimonialTriggers.style.display = 'none'; // Use inline style
-        informationalTriggers.style.display = 'block'; // Use inline style
+        testimonialTriggers.style.display = 'none';   // HIDE testimonial
+        informationalTriggers.style.display = 'block'; // SHOW informational
     } else {
         console.log('🔄 Switching to TESTIMONIAL');
         newGroupIcon.value = '🎬';
-        testimonialTriggers.style.display = 'block'; // Use inline style
-        informationalTriggers.style.display = 'none'; // Use inline style
+        testimonialTriggers.style.display = 'block';  // SHOW testimonial
+        informationalTriggers.style.display = 'none';  // HIDE informational
     }
+    
+    // Debug: Verify
+    console.log('Testimonial display:', testimonialTriggers.style.display);
+    console.log('Informational display:', informationalTriggers.style.display);
 }
 
 function populateTriggersSections() {
@@ -278,10 +282,10 @@ function clearGroupForm() {
         if (el) el.value = '';
     });
     
-    // SET TYPE TO "testimonial" NOT EMPTY
+    // SET TYPE DEFAULT
     const typeSelect = document.getElementById('newGroupType');
     if (typeSelect) {
-        typeSelect.value = 'testimonial';
+        typeSelect.value = 'testimonial'; // This should match your dropdown
     }
     
     // Set icon default
@@ -294,7 +298,7 @@ function clearGroupForm() {
         cb.checked = false;
     });
     
-    // Call updateGroupType to set visibility
+    // IMPORTANT: This should show testimonial, hide informational
     updateGroupType('testimonial');
 }
 
