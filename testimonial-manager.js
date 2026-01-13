@@ -803,14 +803,132 @@ function hideEditGroupModal() {
 // And export it
 window.hideEditGroupModal = hideEditGroupModal;
 
-// 🚨 DON'T show testimonials in manager context!
-if (!isInManagerContext) {
-    // Show testimonials for the group - but NOT in manager!
-    if (typeof showTestimonialsForGroup === 'function') {
-        showTestimonialsForGroup(groupId);  // ← THIS opens the modal!
+function selectGroup(groupId, scroll = false) {
+    console.log('🎬 Selecting group:', groupId);
+    
+    window.selectedGroupId = groupId;
+    
+    // GET mainContent ONCE at the start
+    const mainContent = document.getElementById('mainContent');
+    const inManager = isInManagerContext(); // Use the GLOBAL function
+    
+    console.log('🔄 Context check - mainContent:', !!mainContent, 'isInManagerContext:', inManager);
+    
+    if (!groupId) {
+        // Clear the main content area IF IT EXISTS
+        if (mainContent) {
+            mainContent.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">📁</div>
+                    <h3>No Group Selected</h3>
+                    <p>Select a group from the dropdown or sidebar to view and manage testimonials.</p>
+                </div>
+            `;
+        } else {
+            console.log('⚠️ mainContent not found, cannot show empty state');
+        }
+        return;
     }
-} else {
-    console.log('🛑 Manager context: Skipping showTestimonialsForGroup() to prevent modal');
+    
+    const group = window.testimonialData.testimonialGroups[groupId];
+    if (!group) {
+        console.error('❌ Group not found:', groupId);
+        return;
+    }
+    
+    // Update dropdown selection
+    const dropdown = document.getElementById('selectGroupDropdown');
+    if (dropdown) {
+        dropdown.value = groupId;
+    }
+    
+    const videoType = group.type || 'testimonial';
+    
+    // Update main content header with type badge - ONLY IF mainContent EXISTS
+    if (mainContent) {
+        const typeBadge = videoType === 'informational' ? 
+            '<span class="type-badge informational" title="Informational Videos">📚 Informational</span>' : 
+            '<span class="type-badge testimonial" title="Testimonial Videos">🎬 Testimonial</span>';
+        
+        mainContent.innerHTML = `
+            <div class="content-header">
+                <h2>
+                    <span class="group-icon">${group.icon || '📁'}</span>
+                    ${group.title || groupId}
+                    ${typeBadge}
+                </h2>
+                <div class="header-actions">
+                    <button class="btn btn-primary btn-sm" onclick="showAddTestimonialModal('${groupId}')">
+                        <span class="btn-icon">➕</span> Add Video
+                    </button>
+                    <button class="btn btn-warning btn-sm" onclick="editGroup('${groupId}')">
+                        <span class="btn-icon">✏️</span> Edit Group
+                    </button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteGroup('${groupId}')" 
+                            title="Delete this group and all its videos">
+                        <span class="btn-icon">🗑️</span> Delete Group
+                    </button>
+                </div>
+            </div>
+            <div class="content-body">
+                <p class="group-description">${group.description || 'No description provided.'}</p>
+                
+                <div class="alert alert-info">
+                    <strong>📋 Group Type:</strong> ${videoType === 'informational' ? 
+                        '📚 <strong>Informational Videos</strong> - How-to, explainer, and educational content' : 
+                        '🎬 <strong>Testimonial Videos</strong> - Real client stories and social proof'}
+                </div>
+                
+                <div id="groupContentContainer"></div>
+            </div>
+        `;
+        
+        if (scroll) {
+            mainContent.scrollIntoView({ behavior: 'smooth' });
+        }
+    } else if (inManager) {
+        // 🆕 MANAGER MODE: Just update manager UI
+        console.log('✅ Manager mode: Group selected for testimonial addition');
+        console.log('   Group:', group.title || groupId);
+        console.log('   Type:', videoType);
+        
+        // Update manager header if it exists
+        const managerHeader = document.querySelector('.manager-header, .selected-group-header');
+        if (managerHeader) {
+            managerHeader.innerHTML = `
+                <h3>${group.icon || '📁'} ${group.title || groupId}</h3>
+                <p class="text-muted">${group.description || 'Ready to add testimonials'}</p>
+            `;
+        }
+    } else {
+        console.log('⚠️ mainContent element not found, skipping UI update');
+    }
+    
+    // ============================================
+    // 🚨 CRITICAL FIX: ONLY call these in NON-MANAGER context!
+    // ============================================
+    
+    // Update current group display (if function exists)
+    if (typeof updateCurrentGroupDisplay === 'function') {
+        updateCurrentGroupDisplay(group);
+    }
+    
+    // 🚨 DON'T show testimonials in manager context!
+    if (!inManager) {
+        // Show testimonials for the group - but NOT in manager!
+        if (typeof showTestimonialsForGroup === 'function') {
+            showTestimonialsForGroup(groupId);
+        } else if (typeof displayGroupTestimonials === 'function') {
+            displayGroupTestimonials(group);
+        } else {
+            console.log('⚠️ No function found to display group testimonials');
+        }
+    } else {
+        console.log('🛑 Manager context: Skipping showTestimonialsForGroup() to prevent modal');
+    }
+    
+    // Add type badges to sidebar groups
+    addTypeBadgesToGroups();
 }
 
 function showTestimonialOverlay(groupId) {
