@@ -1066,6 +1066,29 @@ textarea.form-control {
 /* GROUP CREATION MODAL SPECIFIC STYLES */
 /* =================================================== */
 
+/* FIX: Make checkboxes always visible when container is visible */
+#informationalTriggers input[type="checkbox"],
+#testimonialTriggers input[type="checkbox"] {
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: inline-block !important;
+    pointer-events: auto !important;
+}
+
+/* Override any parent hiding */
+#informationalTriggers:not([style*="display: none"]) *,
+#testimonialTriggers:not([style*="display: none"]) * {
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Specific fix for concern items */
+.concern-item {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
 /* Fix the video type dropdown */
 #newGroupType {
     width: 100% !important;
