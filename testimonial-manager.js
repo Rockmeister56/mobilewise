@@ -28,8 +28,201 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ===================================================
-// DATA INITIALIZATION
+// 🎯 ENHANCED CONCERNS DATA (MUST BE AT TOP OF FILE)
 // ===================================================
+
+const ENHANCED_CONCERNS = {
+    // TESTIMONIAL CONCERNS
+    "price_expensive": {
+        title: "Expensive",
+        icon: "💰",
+        type: "testimonial",
+        triggers: ["expensive", "too much", "high price", "overpriced"],
+        description: "See what others say about expensive concerns"
+    },
+    "price_cost": {
+        title: "Cost/Price",
+        icon: "💰",
+        type: "testimonial",
+        triggers: ["cost", "price", "pricing", "how much"],
+        description: "Hear from clients about pricing questions"
+    },
+    "price_affordability": {
+        title: "Affordability",
+        icon: "💰",
+        type: "testimonial",
+        triggers: ["afford", "budget", "money", "worth it"],
+        description: "Hear from clients about affordability"
+    },
+    "time_busy": {
+        title: "Too Busy",
+        icon: "⏰",
+        type: "testimonial",
+        triggers: ["busy", "no time", "hectic", "overwhelmed"],
+        description: "Hear from busy professionals"
+    },
+    "time_speed": {
+        title: "Speed/Timing",
+        icon: "⏰",
+        type: "testimonial",
+        triggers: ["time", "when", "long", "fast", "quick"],
+        description: "Hear about time-saving experiences"
+    },
+    "trust_skepticism": {
+        title: "Skepticism",
+        icon: "🤝",
+        type: "testimonial",
+        triggers: ["skeptical", "not sure", "doubt", "unsure"],
+        description: "Real stories from former skeptics"
+    },
+    "trust_legitimacy": {
+        title: "Legitimacy",
+        icon: "🤝",
+        type: "testimonial",
+        triggers: ["scam", "real", "legit", "trust", "believe"],
+        description: "Real client trust experiences"
+    },
+    "results_effectiveness": {
+        title: "Effectiveness",
+        icon: "📈",
+        type: "testimonial",
+        triggers: ["work", "actually work", "results", "effective"],
+        description: "See the results others got"
+    },
+    "results_worry": {
+        title: "Worry/Concern",
+        icon: "📈",
+        type: "testimonial",
+        triggers: ["worried", "concerned", "afraid", "nervous"],
+        description: "How others overcame concerns"
+    },
+    "general_info": {
+        title: "General Information",
+        icon: "⭐",
+        type: "testimonial",
+        triggers: ["information", "details", "explain", "how it works", "what is"],
+        description: "What our clients say generally"
+    },
+    "general_demo": {
+        title: "Demo Request",
+        icon: "⭐",
+        type: "testimonial",
+        triggers: ["show me", "demonstrate", "demo", "see it", "watch"],
+        description: "Client demo experiences"
+    },
+    
+    // INFORMATIONAL CONCERNS (Add at least 2 for testing)
+    "info_conversions_boost": {
+        title: "Conversion Boost",
+        icon: "📈",
+        type: "informational",
+        triggers: ["300%", "triple", "more conversions", "boost sales"],
+        description: "How to get 300% more conversions"
+    },
+    "info_pre_qualified": {
+        title: "Pre-Qualified Leads",
+        icon: "🔥",
+        type: "informational",
+        triggers: ["pre qualified", "qualified leads", "hot leads"],
+        description: "How to get pre-qualified hot leads"
+    }
+};
+
+// ===================================================
+// 🔧 AUTO-FIX FOR testimonials-data.js
+// ===================================================
+function fixTestimonialDataStructure() {
+    console.log('🔧 Fixing testimonial data structure...');
+    
+    // Ensure basic structure exists
+    if (!window.testimonialData) {
+        window.testimonialData = {};
+        console.log('✅ Created testimonialData object');
+    }
+    
+    // Add statistics if missing
+    if (!testimonialData.statistics) {
+        testimonialData.statistics = {
+            totalGroups: 0,
+            totalTestimonialGroups: 0,
+            totalInformationalGroups: 0,
+            totalVideos: 0,
+            totalTestimonials: 0,
+            totalInformationalVideos: 0,
+            totalViews: 0
+        };
+        console.log('✅ Added statistics object');
+    }
+    
+    // Add version if missing
+    if (!testimonialData.__version) {
+        testimonialData.__version = "5.0-enhanced-concerns";
+        console.log('✅ Added version');
+    }
+    
+    // Ensure groups structure exists
+    if (!testimonialData.groups) {
+        testimonialData.groups = {};
+        console.log('✅ Created unified groups object');
+    }
+    
+    // Ensure videos structure exists
+    if (!testimonialData.videos) {
+        testimonialData.videos = {};
+        console.log('✅ Created videos object');
+    }
+    
+    // Migrate old structure if it exists
+    if ((testimonialData.testimonialGroups || testimonialData.informationalGroups) && Object.keys(testimonialData.groups).length === 0) {
+        console.log('🔄 Migrating old structure to unified groups...');
+        
+        if (testimonialData.testimonialGroups) {
+            Object.entries(testimonialData.testimonialGroups).forEach(([id, group]) => {
+                testimonialData.groups[id] = {
+                    ...group,
+                    type: group.type || 'testimonial',
+                    videoIds: group.videoIds || []
+                };
+            });
+        }
+        
+        if (testimonialData.informationalGroups) {
+            Object.entries(testimonialData.informationalGroups).forEach(([id, group]) => {
+                testimonialData.groups[id] = {
+                    ...group,
+                    type: group.type || 'informational',
+                    videoIds: group.videoIds || []
+                };
+            });
+        }
+        
+        console.log(`✅ Migrated ${Object.keys(testimonialData.groups).length} groups`);
+    }
+    
+    // Update statistics with actual counts
+    const totalGroups = Object.keys(testimonialData.groups).length;
+    const totalTestimonialGroups = Object.values(testimonialData.groups).filter(g => g.type === 'testimonial').length;
+    const totalInformationalGroups = Object.values(testimonialData.groups).filter(g => g.type === 'informational').length;
+    const totalVideos = Object.keys(testimonialData.videos).length;
+    
+    testimonialData.statistics.totalGroups = totalGroups;
+    testimonialData.statistics.totalTestimonialGroups = totalTestimonialGroups;
+    testimonialData.statistics.totalInformationalGroups = totalInformationalGroups;
+    testimonialData.statistics.totalVideos = totalVideos;
+    
+    console.log('📊 Statistics updated:', testimonialData.statistics);
+    console.log('✅ Data structure fixed!');
+    
+    return testimonialData;
+}
+
+// Run the fix on page load
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(() => {
+        fixTestimonialDataStructure();
+    }, 500);
+});
+
 // ===================================================
 // DATA INITIALIZATION (ENHANCED)
 // ===================================================
