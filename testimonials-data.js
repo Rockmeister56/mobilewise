@@ -1,7 +1,7 @@
 // ===================================================
 // 🎬 ENHANCED TESTIMONIAL SYSTEM DATA
 // Generated: 1/14/2026
-// Version: 5.0-enhanced-concerns
+// Version: 5.0-enhanced-concerns-complete
 // ===================================================
 
 window.testimonialData = {
@@ -233,9 +233,9 @@ window.testimonialData = {
   // ========================
   // 🛠️ HELPER FUNCTIONS
   // ========================
-  "__version": "5.0-enhanced-concerns",
+  "__version": "5.0-enhanced-concerns-complete",
   "__generated": "2026-01-14T00:00:00.000Z",
-  "__notes": "Enhanced concerns system with 12 detailed types"
+  "__notes": "Enhanced concerns system with complete functionality"
 };
 
 // ===================================================
@@ -433,34 +433,432 @@ window.testimonialData.detectConcerns = function(userMessage) {
 };
 
 // ===================================================
+// 🎬 VIDEO PLAYER & UI FUNCTIONS (From Original File)
+// ===================================================
+
+// 🎬 Main video player function
+window.playTestimonialVideoWithOverlay = function(videoData, autoClose = true) {
+  console.log('🎬 Playing video:', videoData.title);
+  
+  // Check if video exists
+  if (!videoData || !videoData.videoUrl) {
+    console.error('❌ Invalid video data provided');
+    return;
+  }
+  
+  // Create overlay container
+  const overlay = document.createElement('div');
+  overlay.id = 'testimonialVideoOverlay';
+  overlay.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999999;
+    backdrop-filter: blur(5px);
+  `;
+  
+  // Create video container
+  const videoContainer = document.createElement('div');
+  videoContainer.style.cssText = `
+    position: relative;
+    max-width: 90%;
+    max-height: 90%;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  `;
+  
+  // Create close button
+  const closeBtn = document.createElement('button');
+  closeBtn.innerHTML = '×';
+  closeBtn.style.cssText = `
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 40px;
+    height: 40px;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  `;
+  
+  closeBtn.onmouseover = () => closeBtn.style.background = 'rgba(0, 0, 0, 0.8)';
+  closeBtn.onmouseout = () => closeBtn.style.background = 'rgba(0, 0, 0, 0.6)';
+  
+  // Create video element
+  const video = document.createElement('video');
+  video.src = videoData.videoUrl;
+  video.controls = true;
+  video.autoplay = true;
+  video.style.cssText = `
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 80vh;
+  `;
+  
+  // Create info panel
+  const infoPanel = document.createElement('div');
+  infoPanel.style.cssText = `
+    background: #f8f9fa;
+    padding: 20px;
+    border-top: 1px solid #e9ecef;
+  `;
+  
+  // Add title and author
+  infoPanel.innerHTML = `
+    <h3 style="margin: 0 0 5px 0; color: #333; font-size: 18px;">${videoData.title}</h3>
+    <p style="margin: 0; color: #666; font-size: 14px; font-weight: 500;">${videoData.author}</p>
+    ${videoData.description ? `<p style="margin: 10px 0 0 0; color: #777; font-size: 14px;">${videoData.description}</p>` : ''}
+  `;
+  
+  // Assemble components
+  videoContainer.appendChild(closeBtn);
+  videoContainer.appendChild(video);
+  videoContainer.appendChild(infoPanel);
+  overlay.appendChild(videoContainer);
+  document.body.appendChild(overlay);
+  
+  // Close functionality
+  const closeVideo = () => {
+    video.pause();
+    document.body.removeChild(overlay);
+    document.body.style.overflow = 'auto';
+  };
+  
+  closeBtn.onclick = closeVideo;
+  overlay.onclick = (e) => {
+    if (e.target === overlay) closeVideo();
+  };
+  
+  // Auto-close after video ends if enabled
+  if (autoClose) {
+    video.onended = closeVideo;
+  }
+  
+  // Prevent body scrolling
+  document.body.style.overflow = 'hidden';
+  
+  // Increment view count
+  if (videoData.id) {
+    const videoEntry = window.testimonialData.videos[videoData.id];
+    if (videoEntry) {
+      videoEntry.views = (videoEntry.views || 0) + 1;
+      // Also update group view count
+      const group = window.testimonialData.groups[videoEntry.groupId];
+      if (group) {
+        group.viewCount = (group.viewCount || 0) + 1;
+      }
+      // Update statistics
+      window.testimonialData.statistics.totalViews += 1;
+    }
+  }
+  
+  // Escape key to close
+  document.addEventListener('keydown', function escHandler(e) {
+    if (e.key === 'Escape') {
+      closeVideo();
+      document.removeEventListener('keydown', escHandler);
+    }
+  });
+};
+
+// 📱 Responsive video player
+window.showResponsiveTestimonial = function(videoId) {
+  const videoData = window.testimonialData.videos[videoId];
+  if (!videoData) {
+    console.error('Video not found:', videoId);
+    return;
+  }
+  
+  const isMobile = window.innerWidth <= 768;
+  const config = window.testimonialData.playerConfig;
+  
+  if (isMobile && config.mobile.fullscreen) {
+    // Use fullscreen mobile player
+    const video = document.createElement('video');
+    video.src = videoData.videoUrl;
+    video.controls = true;
+    video.autoplay = true;
+    video.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 999999;
+      background: #000;
+    `;
+    
+    const closeBtn = document.createElement('button');
+    closeBtn.innerHTML = '×';
+    closeBtn.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      width: 50px;
+      height: 50px;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      font-size: 28px;
+      z-index: 1000000;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    `;
+    
+    const container = document.createElement('div');
+    container.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 999999;
+      background: #000;
+    `;
+    
+    container.appendChild(video);
+    container.appendChild(closeBtn);
+    document.body.appendChild(container);
+    
+    closeBtn.onclick = () => document.body.removeChild(container);
+    document.body.style.overflow = 'hidden';
+    
+  } else {
+    // Use overlay player for desktop
+    window.playTestimonialVideoWithOverlay(videoData);
+  }
+};
+
+// 🎯 AI Response Integration
+window.getVideoResponseForMessage = function(userMessage) {
+  const concerns = window.testimonialData.detectConcerns(userMessage);
+  
+  if (concerns.length === 0) {
+    console.log('No concerns detected, showing general info');
+    return {
+      video: window.testimonialData.getConcernVideos('general_info')[0],
+      concern: window.testimonialData.concerns.general_info,
+      confidence: 0.3
+    };
+  }
+  
+  // Sort by confidence (all are 1.0 but we might add scoring later)
+  concerns.sort((a, b) => b.confidence - a.confidence);
+  
+  const topConcern = concerns[0];
+  const videos = window.testimonialData.getConcernVideos(topConcern.concernKey);
+  
+  if (videos.length > 0) {
+    return {
+      video: videos[0],
+      concern: topConcern,
+      confidence: topConcern.confidence,
+      alternatives: videos.slice(1)
+    };
+  }
+  
+  // Fallback to informational video if no testimonial found
+  const infoVideos = Object.values(window.testimonialData.videos)
+    .filter(v => v.type === 'informational');
+    
+  if (infoVideos.length > 0) {
+    return {
+      video: infoVideos[0],
+      concern: topConcern,
+      confidence: 0.5,
+      isFallback: true
+    };
+  }
+  
+  return null;
+};
+
+// 🎬 Play video based on user message
+window.playRelevantTestimonial = function(userMessage) {
+  const response = window.getVideoResponseForMessage(userMessage);
+  
+  if (response && response.video) {
+    console.log('🎯 Playing relevant testimonial:', {
+      concern: response.concern.concernTitle,
+      video: response.video.title,
+      confidence: response.confidence
+    });
+    
+    window.showResponsiveTestimonial(response.video.id);
+    
+    return {
+      success: true,
+      concern: response.concern,
+      video: response.video,
+      confidence: response.confidence
+    };
+  }
+  
+  console.log('❌ No relevant video found for message:', userMessage);
+  return { success: false, message: 'No relevant video found' };
+};
+
+// 📊 Get statistics for dashboard
+window.getTestimonialStats = function() {
+  return {
+    ...window.testimonialData.statistics,
+    concerns: Object.keys(window.testimonialData.concerns).length,
+    groupsByType: {
+      testimonial: Object.values(window.testimonialData.groups).filter(g => g.type === 'testimonial').length,
+      informational: Object.values(window.testimonialData.groups).filter(g => g.type === 'informational').length
+    },
+    mostViewed: Object.values(window.testimonialData.videos)
+      .sort((a, b) => (b.views || 0) - (a.views || 0))
+      .slice(0, 5)
+  };
+};
+
+// 🔄 Update video data
+window.updateTestimonialVideo = function(videoId, updates) {
+  const video = window.testimonialData.videos[videoId];
+  if (!video) {
+    console.error('Video not found:', videoId);
+    return false;
+  }
+  
+  Object.assign(video, updates);
+  console.log('✅ Updated video:', videoId, updates);
+  return true;
+};
+
+// ➕ Add new video
+window.addTestimonialVideo = function(videoData) {
+  if (!videoData.id) {
+    videoData.id = `video_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  }
+  
+  if (window.testimonialData.videos[videoData.id]) {
+    console.error('Video ID already exists:', videoData.id);
+    return false;
+  }
+  
+  // Set default values
+  videoData.views = videoData.views || 0;
+  videoData.addedAt = videoData.addedAt || new Date().toISOString();
+  
+  window.testimonialData.videos[videoData.id] = videoData;
+  
+  // Add to group if specified
+  if (videoData.groupId && window.testimonialData.groups[videoData.groupId]) {
+    const group = window.testimonialData.groups[videoData.groupId];
+    if (!group.videoIds.includes(videoData.id)) {
+      group.videoIds.push(videoData.id);
+    }
+  }
+  
+  // Update statistics
+  window.testimonialData.statistics.totalVideos += 1;
+  if (videoData.type === 'testimonial') {
+    window.testimonialData.statistics.totalTestimonials += 1;
+  } else if (videoData.type === 'informational') {
+    window.testimonialData.statistics.totalInformationalVideos += 1;
+  }
+  
+  console.log('✅ Added new video:', videoData.id);
+  return videoData.id;
+};
+
+// 🗑️ Remove video
+window.removeTestimonialVideo = function(videoId) {
+  const video = window.testimonialData.videos[videoId];
+  if (!video) {
+    console.error('Video not found:', videoId);
+    return false;
+  }
+  
+  // Remove from group
+  if (video.groupId && window.testimonialData.groups[video.groupId]) {
+    const group = window.testimonialData.groups[video.groupId];
+    group.videoIds = group.videoIds.filter(id => id !== videoId);
+  }
+  
+  // Remove video
+  delete window.testimonialData.videos[videoId];
+  
+  // Update statistics
+  window.testimonialData.statistics.totalVideos -= 1;
+  if (video.type === 'testimonial') {
+    window.testimonialData.statistics.totalTestimonials -= 1;
+  } else if (video.type === 'informational') {
+    window.testimonialData.statistics.totalInformationalVideos -= 1;
+  }
+  
+  console.log('🗑️ Removed video:', videoId);
+  return true;
+};
+
+// 🔧 Initialize testimonial system
+window.initializeTestimonialSystem = function() {
+  console.log('🚀 Initializing Enhanced Testimonial System v5.0');
+  
+  // Validate data
+  const validation = window.testimonialData.validateData();
+  
+  if (!validation.valid) {
+    console.error('❌ Testimonial system initialization failed due to data errors:', validation.errors);
+    return false;
+  }
+  
+  // Set up global shortcut (if needed)
+  window.showTestimonial = window.showResponsiveTestimonial;
+  window.findTestimonial = window.getVideoResponseForMessage;
+  
+  console.log('✅ Testimonial system initialized successfully');
+  console.log('   Available concerns:', Object.keys(window.testimonialData.concerns).length);
+  console.log('   Available videos:', window.testimonialData.statistics.totalVideos);
+  console.log('   Total views:', window.testimonialData.statistics.totalViews);
+  
+  return true;
+};
+
+// ===================================================
 // 📝 INITIALIZATION & LOGGING
 // ===================================================
 
-// Auto-validate on load
+// Auto-initialize on load
 setTimeout(() => {
   console.log('🚀 ENHANCED TESTIMONIAL SYSTEM LOADED');
-  console.log(`   Version: ${this.__version}`);
-  console.log(`   Groups: ${this.statistics.totalGroups} (${this.statistics.totalTestimonialGroups} testimonial, ${this.statistics.totalInformationalGroups} informational)`);
-  console.log(`   Videos: ${this.statistics.totalVideos} (${this.statistics.totalTestimonials} testimonials, ${this.statistics.totalInformationalVideos} informational)`);
-  console.log(`   Views: ${this.statistics.totalViews}`);
-  console.log(`   Enhanced Concerns: ${Object.keys(this.concerns).length} detailed types`);
+  console.log(`   Version: ${window.testimonialData.__version}`);
+  console.log(`   Groups: ${window.testimonialData.statistics.totalGroups} (${window.testimonialData.statistics.totalTestimonialGroups} testimonial, ${window.testimonialData.statistics.totalInformationalGroups} informational)`);
+  console.log(`   Videos: ${window.testimonialData.statistics.totalVideos} (${window.testimonialData.statistics.totalTestimonials} testimonials, ${window.testimonialData.statistics.totalInformationalVideos} informational)`);
+  console.log(`   Views: ${window.testimonialData.statistics.totalViews}`);
+  console.log(`   Enhanced Concerns: ${Object.keys(window.testimonialData.concerns).length} detailed types`);
   
-  // Run validation
-  const validation = this.validateData();
-  if (!validation.valid) {
-    console.error('❌ Data validation failed!', validation.errors);
-  }
+  // Initialize system
+  window.initializeTestimonialSystem();
 }, 100);
 
 // ===================================================
-// 🎬 VIDEO PLAYER FUNCTION (From your existing file)
+// 📋 EXPORT FOR MODULE SYSTEMS
 // ===================================================
 
-window.playTestimonialVideoWithOverlay = function(testimonial) {
-  // Keep your existing video player function here
-  // (It should remain exactly as in your current file)
-  console.log('🎬 Playing video:', testimonial.title);
-  // ... rest of your existing function ...
-};
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = window.testimonialData;
+}
 
-console.log('✅ Enhanced testimonial-data.js loaded successfully!');
+console.log('✅ Enhanced testimonial-data.js loaded successfully with complete functionality!');
