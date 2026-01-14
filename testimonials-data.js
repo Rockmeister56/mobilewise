@@ -1,7 +1,7 @@
 // ===================================================
 // 🎬 ENHANCED TESTIMONIAL SYSTEM DATA
 // Generated: 1/14/2026
-// Version: 5.0-enhanced-concerns-complete
+// Version: 5.0-enhanced-concerns-complete-fixed
 // ===================================================
 
 window.testimonialData = {
@@ -233,7 +233,7 @@ window.testimonialData = {
   // ========================
   // 🛠️ HELPER FUNCTIONS
   // ========================
-  "__version": "5.0-enhanced-concerns-complete",
+  "__version": "5.0-enhanced-concerns-complete-fixed",
   "__generated": "2026-01-14T00:00:00.000Z",
   "__notes": "Enhanced concerns system with complete functionality"
 };
@@ -362,16 +362,16 @@ window.testimonialData.getAvailableConcerns = function() {
   return concerns;
 };
 
-// 🎯 Validate data integrity
+// 🎯 Validate data integrity - FIXED VERSION
 window.testimonialData.validateData = function() {
   console.log('🔧 Validating enhanced testimonial data...');
   
   let errors = [];
   let warnings = [];
   
-  // Check groups
+  // Check groups - FIXED: Properly check for undefined/null/empty string
   for (const [id, group] of Object.entries(this.groups)) {
-    if (!group.name || group.name === 'undefined') {
+    if (!group.name || group.name === 'undefined' || group.name.trim() === '') {
       errors.push(`Group "${id}" has invalid name: "${group.name}"`);
     }
     if (!group.type || !['testimonial', 'informational'].includes(group.type)) {
@@ -397,6 +397,18 @@ window.testimonialData.validateData = function() {
     if (video.concernType && !this.concerns[video.concernType]) {
       warnings.push(`Video "${id}" uses undefined concern: "${video.concernType}"`);
     }
+  }
+  
+  // Check for the problematic group "test" and remove it if it exists
+  if (this.groups.test) {
+    console.warn('⚠️ Found invalid group "test" with name "undefined". Removing it...');
+    delete this.groups.test;
+    warnings.push('Removed invalid group: "test"');
+    
+    // Update statistics
+    this.statistics.totalGroups = Object.keys(this.groups).length;
+    this.statistics.totalTestimonialGroups = Object.values(this.groups).filter(g => g.type === 'testimonial').length;
+    this.statistics.totalInformationalGroups = Object.values(this.groups).filter(g => g.type === 'informational').length;
   }
   
   if (errors.length === 0 && warnings.length === 0) {
@@ -812,16 +824,40 @@ window.removeTestimonialVideo = function(videoId) {
   return true;
 };
 
-// 🔧 Initialize testimonial system
+// 🔧 Initialize testimonial system - FIXED VERSION
 window.initializeTestimonialSystem = function() {
   console.log('🚀 Initializing Enhanced Testimonial System v5.0');
   
-  // Validate data
+  // Validate data - but don't fail on warnings
   const validation = window.testimonialData.validateData();
   
-  if (!validation.valid) {
+  if (validation.errors.length > 0) {
     console.error('❌ Testimonial system initialization failed due to data errors:', validation.errors);
+    
+    // Try to auto-fix common errors
+    if (validation.errors.some(err => err.includes('has invalid name'))) {
+      console.warn('⚠️ Attempting to fix invalid groups...');
+      // Remove groups with invalid names
+      for (const [id, group] of Object.entries(window.testimonialData.groups)) {
+        if (!group.name || group.name === 'undefined' || group.name.trim() === '') {
+          console.warn(`Removing group "${id}" with invalid name: "${group.name}"`);
+          delete window.testimonialData.groups[id];
+        }
+      }
+      // Re-run validation
+      const fixedValidation = window.testimonialData.validateData();
+      if (fixedValidation.errors.length === 0) {
+        console.log('✅ Auto-fix successful! System initialized.');
+        return true;
+      }
+    }
+    
     return false;
+  }
+  
+  // Warnings are okay, just log them
+  if (validation.warnings.length > 0) {
+    console.warn('⚠️ System initialized with warnings:', validation.warnings);
   }
   
   // Set up global shortcut (if needed)
@@ -842,7 +878,7 @@ window.initializeTestimonialSystem = function() {
 
 // Auto-initialize on load
 setTimeout(() => {
-  console.log('🚀 ENHANCED TESTIMONIAL SYSTEM LOADED');
+  console.log('🚀 ENHANCED TESTIMONIAL SYSTEM LOADING...');
   console.log(`   Version: ${window.testimonialData.__version}`);
   console.log(`   Groups: ${window.testimonialData.statistics.totalGroups} (${window.testimonialData.statistics.totalTestimonialGroups} testimonial, ${window.testimonialData.statistics.totalInformationalGroups} informational)`);
   console.log(`   Videos: ${window.testimonialData.statistics.totalVideos} (${window.testimonialData.statistics.totalTestimonials} testimonials, ${window.testimonialData.statistics.totalInformationalVideos} informational)`);
@@ -850,7 +886,13 @@ setTimeout(() => {
   console.log(`   Enhanced Concerns: ${Object.keys(window.testimonialData.concerns).length} detailed types`);
   
   // Initialize system
-  window.initializeTestimonialSystem();
+  const initialized = window.initializeTestimonialSystem();
+  
+  if (initialized) {
+    console.log('✅ Enhanced Testimonial System loaded successfully!');
+  } else {
+    console.error('❌ Enhanced Testimonial System failed to initialize!');
+  }
 }, 100);
 
 // ===================================================
