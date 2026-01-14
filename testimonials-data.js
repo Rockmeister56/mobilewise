@@ -239,6 +239,29 @@ window.testimonialData = {
 };
 
 // ===================================================
+// 🎯 IMMEDIATE CLEANUP: REMOVE "TEST" GROUP IF IT EXISTS
+// ===================================================
+
+// Remove any lingering "test" group immediately
+if (window.testimonialData.groups && window.testimonialData.groups.test) {
+  console.log('🧹 Removing lingering "test" group from data...');
+  delete window.testimonialData.groups.test;
+  
+  // Update statistics
+  window.testimonialData.statistics.totalGroups = Object.keys(window.testimonialData.groups).length;
+  const testimonialGroups = Object.values(window.testimonialData.groups).filter(g => g.type === 'testimonial').length;
+  const informationalGroups = Object.values(window.testimonialData.groups).filter(g => g.type === 'informational').length;
+  window.testimonialData.statistics.totalTestimonialGroups = testimonialGroups;
+  window.testimonialData.statistics.totalInformationalGroups = informationalGroups;
+  
+  console.log('✅ "test" group removed. Updated stats:', {
+    totalGroups: window.testimonialData.statistics.totalGroups,
+    testimonialGroups: window.testimonialData.statistics.totalTestimonialGroups,
+    informationalGroups: window.testimonialData.statistics.totalInformationalGroups
+  });
+}
+
+// ===================================================
 // 🔧 HELPER FUNCTIONS FOR AI INTEGRATION
 // ===================================================
 
