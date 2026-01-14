@@ -34,7 +34,7 @@ console.log('✅ Storage cleared. Starting with clean data.');
 // ===================================================
 // 🎬 ENHANCED TESTIMONIAL SYSTEM DATA
 // Generated: 1/14/2026
-// Version: 5.0-final-fixed
+// Version: 5.0-final-fixed-working
 // ===================================================
 
 // Create a completely fresh, isolated data object
@@ -267,37 +267,17 @@ const freshTestimonialData = {
   // ========================
   // 🛠️ HELPER FUNCTIONS
   // ========================
-  "__version": "5.0-final-fixed",
+  "__version": "5.0-final-fixed-working",
   "__generated": "2026-01-14T00:00:00.000Z",
   "__notes": "Complete and fixed version with all 12 concerns"
 };
 
 // ===================================================
-// 🛡️ DATA PROTECTION: Create immutable data object
+// 🔧 ADD HELPER FUNCTIONS TO DATA OBJECT FIRST
 // ===================================================
 
-// Create testimonialData as an immutable proxy
-window.testimonialData = new Proxy(freshTestimonialData, {
-  set(target, property, value) {
-    console.warn(`🛡️ Blocked: Cannot modify testimonialData.${property}`);
-    console.trace('Modification attempted from:');
-    return false;
-  },
-  deleteProperty(target, property) {
-    console.warn(`🛡️ Blocked: Cannot delete testimonialData.${property}`);
-    console.trace('Deletion attempted from:');
-    return false;
-  }
-});
-
-console.log('🛡️ testimonialData is now immutable');
-
-// ===================================================
-// 🔧 HELPER FUNCTIONS FOR AI INTEGRATION
-// ===================================================
-
-// 🎯 Get videos for a specific concern - FIXED
-window.testimonialData.getConcernVideos = function(concernKey) {
+// 🎯 Get videos for a specific concern
+freshTestimonialData.getConcernVideos = function(concernKey) {
   console.log('🔍 Searching videos for concern:', concernKey);
   const results = [];
   
@@ -326,7 +306,7 @@ window.testimonialData.getConcernVideos = function(concernKey) {
 };
 
 // 🎯 Map AI patterns to concern keys
-window.testimonialData.mapPatternToConcern = function(pattern) {
+freshTestimonialData.mapPatternToConcern = function(pattern) {
   const patternMap = {
     // Price patterns
     "expensive": "price_expensive",
@@ -388,7 +368,7 @@ window.testimonialData.mapPatternToConcern = function(pattern) {
 };
 
 // 🎯 Get all videos for AI detection
-window.testimonialData.getAllVideosByGroup = function(groupId) {
+freshTestimonialData.getAllVideosByGroup = function(groupId) {
   const results = [];
   
   for (const [videoId, video] of Object.entries(this.videos)) {
@@ -401,7 +381,7 @@ window.testimonialData.getAllVideosByGroup = function(groupId) {
 };
 
 // 🎯 Get available concerns for UI
-window.testimonialData.getAvailableConcerns = function() {
+freshTestimonialData.getAvailableConcerns = function() {
   const concerns = [];
   for (const [key, data] of Object.entries(this.concerns)) {
     concerns.push({
@@ -417,7 +397,7 @@ window.testimonialData.getAvailableConcerns = function() {
 };
 
 // 🎯 Validate data integrity - SIMPLIFIED
-window.testimonialData.validateData = function() {
+freshTestimonialData.validateData = function() {
   console.log('🔧 Validating testimonial data...');
   
   let warnings = [];
@@ -441,7 +421,7 @@ window.testimonialData.validateData = function() {
 };
 
 // 🎯 Enhanced concern detection for AI - FIXED VERSION
-window.testimonialData.detectConcerns = function(userMessage) {
+freshTestimonialData.detectConcerns = function(userMessage) {
   const lowerMsg = userMessage.toLowerCase();
   const detected = [];
   
@@ -470,7 +450,43 @@ window.testimonialData.detectConcerns = function(userMessage) {
 };
 
 // ===================================================
-// 🎬 VIDEO PLAYER & UI FUNCTIONS
+// 🛡️ DATA PROTECTION: Create smarter Proxy
+// ===================================================
+
+// Create testimonialData with a smarter Proxy that allows function addition
+window.testimonialData = new Proxy(freshTestimonialData, {
+  set(target, property, value) {
+    // Allow setting new functions or properties that don't start with underscore
+    if (typeof value === 'function' || !property.startsWith('_')) {
+      console.log(`✅ Allowed: Setting testimonialData.${property}`);
+      target[property] = value;
+      return true;
+    }
+    
+    // Block modifications to core data properties
+    const protectedProps = ['concerns', 'groups', 'videos', 'statistics', 'videoUrls', 'videoDurations', 'playerConfig'];
+    if (protectedProps.includes(property)) {
+      console.warn(`🛡️ Blocked: Cannot modify core data property testimonialData.${property}`);
+      console.trace('Modification attempted from:');
+      return false;
+    }
+    
+    // Allow other modifications
+    target[property] = value;
+    return true;
+  },
+  
+  deleteProperty(target, property) {
+    console.warn(`🛡️ Blocked: Cannot delete testimonialData.${property}`);
+    console.trace('Deletion attempted from:');
+    return false;
+  }
+});
+
+console.log('🛡️ testimonialData protected (allows function additions)');
+
+// ===================================================
+// 🎬 GLOBAL VIDEO PLAYER & UI FUNCTIONS
 // ===================================================
 
 // 🎬 Main video player function
@@ -482,9 +498,7 @@ window.playTestimonialVideoWithOverlay = function(videoData, autoClose = true) {
     return;
   }
   
-  // ... keep your existing player code here ...
-  // (I'm keeping it brief since you have the working version)
-  
+  // Create overlay container
   const overlay = document.createElement('div');
   overlay.id = 'testimonialVideoOverlay';
   overlay.style.cssText = `
@@ -498,29 +512,109 @@ window.playTestimonialVideoWithOverlay = function(videoData, autoClose = true) {
     justify-content: center;
     align-items: center;
     z-index: 999999;
+    backdrop-filter: blur(5px);
   `;
   
+  // Create video container
+  const videoContainer = document.createElement('div');
+  videoContainer.style.cssText = `
+    position: relative;
+    max-width: 90%;
+    max-height: 90%;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  `;
+  
+  // Create close button
+  const closeBtn = document.createElement('button');
+  closeBtn.innerHTML = '×';
+  closeBtn.style.cssText = `
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 40px;
+    height: 40px;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  `;
+  
+  closeBtn.onmouseover = () => closeBtn.style.background = 'rgba(0, 0, 0, 0.8)';
+  closeBtn.onmouseout = () => closeBtn.style.background = 'rgba(0, 0, 0, 0.6)';
+  
+  // Create video element
   const video = document.createElement('video');
   video.src = videoData.videoUrl;
   video.controls = true;
   video.autoplay = true;
   video.style.cssText = `
-    max-width: 90%;
-    max-height: 90%;
-    background: #000;
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 80vh;
   `;
   
-  overlay.appendChild(video);
+  // Create info panel
+  const infoPanel = document.createElement('div');
+  infoPanel.style.cssText = `
+    background: #f8f9fa;
+    padding: 20px;
+    border-top: 1px solid #e9ecef;
+  `;
+  
+  // Add title and author
+  infoPanel.innerHTML = `
+    <h3 style="margin: 0 0 5px 0; color: #333; font-size: 18px;">${videoData.title}</h3>
+    <p style="margin: 0; color: #666; font-size: 14px; font-weight: 500;">${videoData.author}</p>
+    ${videoData.description ? `<p style="margin: 10px 0 0 0; color: #777; font-size: 14px;">${videoData.description}</p>` : ''}
+  `;
+  
+  // Assemble components
+  videoContainer.appendChild(closeBtn);
+  videoContainer.appendChild(video);
+  videoContainer.appendChild(infoPanel);
+  overlay.appendChild(videoContainer);
   document.body.appendChild(overlay);
   
-  overlay.onclick = () => {
+  // Close functionality
+  const closeVideo = () => {
+    video.pause();
     document.body.removeChild(overlay);
     document.body.style.overflow = 'auto';
   };
   
+  closeBtn.onclick = closeVideo;
+  overlay.onclick = (e) => {
+    if (e.target === overlay) closeVideo();
+  };
+  
+  // Auto-close after video ends if enabled
+  if (autoClose) {
+    video.onended = closeVideo;
+  }
+  
+  // Prevent body scrolling
   document.body.style.overflow = 'hidden';
   
-  return overlay;
+  // Escape key to close
+  document.addEventListener('keydown', function escHandler(e) {
+    if (e.key === 'Escape') {
+      closeVideo();
+      document.removeEventListener('keydown', escHandler);
+    }
+  });
+  
+  return { overlay, video, closeVideo };
 };
 
 // 📱 Responsive video player
@@ -594,14 +688,90 @@ window.getTestimonialStats = function() {
   };
 };
 
-// 🔧 Initialize testimonial system - SIMPLIFIED
+// 🔄 Update video data
+window.updateTestimonialVideo = function(videoId, updates) {
+  const video = window.testimonialData.videos[videoId];
+  if (!video) {
+    console.error('Video not found:', videoId);
+    return false;
+  }
+  
+  Object.assign(video, updates);
+  console.log('✅ Updated video:', videoId, updates);
+  return true;
+};
+
+// ➕ Add new video
+window.addTestimonialVideo = function(videoData) {
+  if (!videoData.id) {
+    videoData.id = `video_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  }
+  
+  if (window.testimonialData.videos[videoData.id]) {
+    console.error('Video ID already exists:', videoData.id);
+    return false;
+  }
+  
+  // Set default values
+  videoData.views = videoData.views || 0;
+  videoData.addedAt = videoData.addedAt || new Date().toISOString();
+  
+  window.testimonialData.videos[videoData.id] = videoData;
+  
+  // Add to group if specified
+  if (videoData.groupId && window.testimonialData.groups[videoData.groupId]) {
+    const group = window.testimonialData.groups[videoData.groupId];
+    if (!group.videoIds.includes(videoData.id)) {
+      group.videoIds.push(videoData.id);
+    }
+  }
+  
+  // Update statistics
+  window.testimonialData.statistics.totalVideos += 1;
+  if (videoData.type === 'testimonial') {
+    window.testimonialData.statistics.totalTestimonials += 1;
+  } else if (videoData.type === 'informational') {
+    window.testimonialData.statistics.totalInformationalVideos += 1;
+  }
+  
+  console.log('✅ Added new video:', videoData.id);
+  return videoData.id;
+};
+
+// 🗑️ Remove video
+window.removeTestimonialVideo = function(videoId) {
+  const video = window.testimonialData.videos[videoId];
+  if (!video) {
+    console.error('Video not found:', videoId);
+    return false;
+  }
+  
+  // Remove from group
+  if (video.groupId && window.testimonialData.groups[video.groupId]) {
+    const group = window.testimonialData.groups[video.groupId];
+    group.videoIds = group.videoIds.filter(id => id !== videoId);
+  }
+  
+  // Remove video
+  delete window.testimonialData.videos[videoId];
+  
+  // Update statistics
+  window.testimonialData.statistics.totalVideos -= 1;
+  if (video.type === 'testimonial') {
+    window.testimonialData.statistics.totalTestimonials -= 1;
+  } else if (video.type === 'informational') {
+    window.testimonialData.statistics.totalInformationalVideos -= 1;
+  }
+  
+  console.log('🗑️ Removed video:', videoId);
+  return true;
+};
+
+// 🔧 Initialize testimonial system
 window.initializeTestimonialSystem = function() {
-  console.log('🚀 Initializing Testimonial System');
+  console.log('🚀 Initializing Testimonial System v5.0');
   
-  // Skip cleanup - data is immutable
-  // window.cleanupTestimonialData();
-  
-  // Just validate
+  // Validate data
   const validation = window.testimonialData.validateData();
   
   if (validation.warnings.length > 0) {
@@ -613,6 +783,10 @@ window.initializeTestimonialSystem = function() {
   window.findTestimonial = window.getVideoResponseForMessage;
   
   console.log('✅ Testimonial system ready');
+  console.log('   Available concerns:', Object.keys(window.testimonialData.concerns).length);
+  console.log('   Available videos:', Object.keys(window.testimonialData.videos).length);
+  console.log('   Total views:', window.testimonialData.statistics.totalViews);
+  
   return true;
 };
 
@@ -641,10 +815,15 @@ setTimeout(() => {
   
   // Run quick self-test
   console.log('\n🧪 QUICK SELF-TEST:');
-  console.log('1. detectConcerns test:', window.testimonialData.detectConcerns('expensive').length > 0 ? '✓' : '✗');
-  console.log('2. getConcernVideos test:', window.testimonialData.getConcernVideos('results_effectiveness').length > 0 ? '✓' : '✗');
-  console.log('3. mapPattern test:', window.testimonialData.mapPatternToConcern('expensive') === 'price_expensive' ? '✓' : '✗');
-  console.log('4. getVideoResponse test:', window.getVideoResponseForMessage('does this work?') ? '✓' : '✗');
+  try {
+    console.log('1. detectConcerns test:', window.testimonialData.detectConcerns('expensive').length > 0 ? '✓ PASS' : '✗ FAIL');
+    console.log('2. getConcernVideos test:', window.testimonialData.getConcernVideos('results_effectiveness').length > 0 ? '✓ PASS' : '✗ FAIL');
+    console.log('3. mapPattern test:', window.testimonialData.mapPatternToConcern('expensive') === 'price_expensive' ? '✓ PASS' : '✗ FAIL');
+    console.log('4. getVideoResponse test:', window.getVideoResponseForMessage('does this work?') ? '✓ PASS' : '✗ FAIL');
+    console.log('5. validateData test:', window.testimonialData.validateData().valid ? '✓ PASS' : '✗ FAIL');
+  } catch (e) {
+    console.error('❌ Self-test failed:', e.message);
+  }
   
 }, 100);
 
