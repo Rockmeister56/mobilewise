@@ -239,6 +239,18 @@ window.testimonialData = {
 };
 
 // ===================================================
+// 🎯 IMMEDIATE DEBUG: CHECK DATA ON LOAD
+// ===================================================
+
+console.log('🔍 DEBUG ON LOAD: Checking initial data state...');
+console.log('Groups:', window.testimonialData.groups);
+console.log('group_conversion_boost exists?:', 'group_conversion_boost' in window.testimonialData.groups);
+console.log('group_how_it_works exists?:', 'group_how_it_works' in window.testimonialData.groups);
+console.log('Concerns:', window.testimonialData.concerns);
+console.log('results_effectiveness exists?:', 'results_effectiveness' in window.testimonialData.concerns);
+console.log('info_conversions_boost exists?:', 'info_conversions_boost' in window.testimonialData.concerns);
+
+// ===================================================
 // 🔧 HELPER FUNCTIONS FOR AI INTEGRATION
 // ===================================================
 
@@ -857,37 +869,23 @@ window.removeTestimonialGroup = function(groupId) {
 };
 
 // 🔍 Clean up invalid groups (call this manually if needed)
-// 🔍 Clean up invalid groups (call this manually if needed) - SAFE VERSION
 window.cleanupTestimonialData = function() {
   console.log('🧹 Cleaning up testimonial data...');
   let removedCount = 0;
   
-  // Only remove groups that are explicitly "test" or have name "undefined"
-  const groupsToCheck = Object.entries(window.testimonialData.groups);
-  console.log('Checking', groupsToCheck.length, 'groups...');
-  
-  for (const [id, group] of groupsToCheck) {
-    if (!group) {
-      console.log(`Removing null group: "${id}"`);
-      delete window.testimonialData.groups[id];
-      removedCount++;
-      continue;
-    }
-    
-    // ONLY remove groups with ID "test" or name literally "undefined"
-    if (id === 'test' || (group.name && group.name === 'undefined')) {
-      console.log(`Removing invalid group: "${id}" with name: "${group.name}"`);
+  for (const [id, group] of Object.entries(window.testimonialData.groups)) {
+    if (!group || !group.name || group.name === 'undefined' || String(group.name).trim() === '') {
+      console.log(`Removing invalid group: "${id}"`);
       delete window.testimonialData.groups[id];
       removedCount++;
     }
-    // Don't remove groups with valid names!
   }
   
   if (removedCount > 0) {
     // Update statistics
     window.testimonialData.statistics.totalGroups = Object.keys(window.testimonialData.groups).length;
-    window.testimonialData.statistics.totalTestimonialGroups = Object.values(window.testimonialData.groups).filter(g => g && g.type === 'testimonial').length;
-    window.testimonialData.statistics.totalInformationalGroups = Object.values(window.testimonialData.groups).filter(g => g && g.type === 'informational').length;
+    window.testimonialData.statistics.totalTestimonialGroups = Object.values(window.testimonialData.groups).filter(g => g.type === 'testimonial').length;
+    window.testimonialData.statistics.totalInformationalGroups = Object.values(window.testimonialData.groups).filter(g => g.type === 'informational').length;
     
     console.log(`✅ Removed ${removedCount} invalid groups`);
   } else {
@@ -897,12 +895,12 @@ window.cleanupTestimonialData = function() {
   return removedCount;
 };
 
-// 🔧 Initialize testimonial system - SIMPLE STABLE VERSION
+// 🔧 Initialize testimonial system - FIXED VERSION
 window.initializeTestimonialSystem = function() {
   console.log('🚀 Initializing Enhanced Testimonial System v5.0');
   
-  // Skip cleanup - our data is clean
-  // window.cleanupTestimonialData();
+  // Clean up any invalid data first
+  window.cleanupTestimonialData();
   
   // Run validation (just for logging)
   const validation = window.testimonialData.validateData();
