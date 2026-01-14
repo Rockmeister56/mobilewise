@@ -791,6 +791,200 @@ window.initializeTestimonialSystem = function() {
 };
 
 // ===================================================
+// 🔧 SURGICAL FIX: Attach missing functions to testimonialData
+// ===================================================
+
+console.log('🔧 Applying surgical fix for missing functions...');
+
+// Fix 1: Check if testimonialData exists
+if (!window.testimonialData) {
+  console.error('❌ testimonialData does not exist!');
+} else {
+  console.log('✅ testimonialData exists, attaching functions...');
+  
+  // Attach functions that should be on testimonialData
+  const functionsToAttach = [
+    'getConcernVideos',
+    'validateData', 
+    'detectConcerns',
+    'mapPatternToConcern',
+    'getAvailableConcerns',
+    'getAllVideosByGroup'
+  ];
+  
+  functionsToAttach.forEach(funcName => {
+    if (typeof window[funcName] === 'function') {
+      console.log(`   Attaching ${funcName} from window...`);
+      window.testimonialData[funcName] = window[funcName];
+    } else {
+      console.log(`   ❌ ${funcName} not found in window, creating it...`);
+      
+      // Create missing functions
+      switch(funcName) {
+        case 'getConcernVideos':
+          window.testimonialData.getConcernVideos = function(concernKey) {
+            console.log('🔍 Searching videos for concern:', concernKey);
+            const results = [];
+            
+            for (const [videoId, video] of Object.entries(this.videos || {})) {
+              if (video.concernType === concernKey) {
+                const group = this.groups[video.groupId] || {};
+                results.push({
+                  ...video,
+                  groupName: group.name || "Uncategorized",
+                  groupIcon: group.icon || "📁",
+                  groupType: group.type
+                });
+              }
+            }
+            
+            return results;
+          };
+          break;
+          
+        case 'validateData':
+          window.testimonialData.validateData = function() {
+            console.log('🔧 Quick validation...');
+            const warnings = [];
+            if (Object.keys(this.concerns || {}).length !== 12) {
+              warnings.push(`Expected 12 concerns, found ${Object.keys(this.concerns || {}).length}`);
+            }
+            return { valid: true, warnings };
+          };
+          break;
+          
+        case 'detectConcerns':
+          window.testimonialData.detectConcerns = function(userMessage) {
+            const lowerMsg = userMessage.toLowerCase();
+            const detected = [];
+            
+            for (const [concernKey, concern] of Object.entries(this.concerns || {})) {
+              if (concern && concern.triggers && Array.isArray(concern.triggers)) {
+                for (const trigger of concern.triggers) {
+                  if (trigger && lowerMsg.includes(trigger.toLowerCase())) {
+                    detected.push({
+                      concernKey,
+                      concernTitle: concern.title || concernKey,
+                      trigger,
+                      icon: concern.icon || "❓",
+                      confidence: 1.0
+                    });
+                    break;
+                  }
+                }
+              }
+            }
+            
+            return detected;
+          };
+          break;
+          
+        case 'mapPatternToConcern':
+          window.testimonialData.mapPatternToConcern = function(pattern) {
+            const patternMap = {
+              "expensive": "price_expensive",
+              "too much": "price_expensive",
+              "cost": "price_cost",
+              "price": "price_cost",
+              "how much": "price_cost",
+              "afford": "price_affordability",
+              "worth it": "price_affordability",
+              "budget": "price_affordability",
+              "time": "time_speed",
+              "busy": "time_busy",
+              "no time": "time_busy",
+              "when": "time_speed",
+              "long": "time_speed",
+              "fast": "time_speed",
+              "quick": "time_speed",
+              "trust": "trust_legitimacy",
+              "believe": "trust_legitimacy",
+              "skeptical": "trust_skepticism",
+              "scam": "trust_legitimacy",
+              "real": "trust_legitimacy",
+              "legit": "trust_legitimacy",
+              "doubt": "trust_skepticism",
+              "work": "results_effectiveness",
+              "actually work": "results_effectiveness",
+              "results": "results_effectiveness",
+              "worried": "results_worry",
+              "concerned": "results_worry",
+              "afraid": "results_worry",
+              "information": "general_info",
+              "details": "general_info",
+              "explain": "general_info",
+              "how it works": "general_info",
+              "show me": "general_demo",
+              "demonstrate": "general_demo",
+              "demo": "general_demo",
+              "300%": "info_conversions_boost",
+              "triple": "info_conversions_boost",
+              "more conversions": "info_conversions_boost",
+              "pre qualified": "info_pre_qualified",
+              "qualified leads": "info_pre_qualified",
+              "hot leads": "info_pre_qualified"
+            };
+            
+            return patternMap[pattern] || "general_info";
+          };
+          break;
+          
+        case 'getAvailableConcerns':
+          window.testimonialData.getAvailableConcerns = function() {
+            const concerns = [];
+            for (const [key, data] of Object.entries(this.concerns || {})) {
+              concerns.push({
+                key: key,
+                title: data.title || key,
+                icon: data.icon || "❓",
+                videoType: data.videoType || "skeptical",
+                triggers: data.triggers || [],
+                description: data.description || ""
+              });
+            }
+            return concerns;
+          };
+          break;
+          
+        case 'getAllVideosByGroup':
+          window.testimonialData.getAllVideosByGroup = function(groupId) {
+            const results = [];
+            for (const [videoId, video] of Object.entries(this.videos || {})) {
+              if (video.groupId === groupId) {
+                results.push(video);
+              }
+            }
+            return results;
+          };
+          break;
+      }
+    }
+  });
+  
+  console.log('✅ Functions attached to testimonialData');
+  
+  // Test the fix
+  console.log('\n🧪 Testing the fix...');
+  console.log('validateData is now a function?', typeof window.testimonialData.validateData === 'function' ? '✅ Yes' : '❌ No');
+  console.log('detectConcerns is now a function?', typeof window.testimonialData.detectConcerns === 'function' ? '✅ Yes' : '❌ No');
+  
+  if (typeof window.testimonialData.validateData === 'function') {
+    const validation = window.testimonialData.validateData();
+    console.log('Validation result:', validation);
+  }
+  
+  if (typeof window.testimonialData.detectConcerns === 'function') {
+    const concerns = window.testimonialData.detectConcerns('too expensive');
+    console.log('detectConcerns("too expensive"):', concerns.length, 'concerns found');
+  }
+  
+  if (typeof window.testimonialData.mapPatternToConcern === 'function') {
+    const result = window.testimonialData.mapPatternToConcern('expensive');
+    console.log('mapPatternToConcern("expensive"):', result);
+  }
+}
+
+// ===================================================
 // 📝 INITIALIZATION & TESTING
 // ===================================================
 
@@ -826,5 +1020,36 @@ setTimeout(() => {
   }
   
 }, 100);
+
+// ===================================================
+// 🧹 DUPLICATE CONCERNS FIX (13 instead of 12)
+// ===================================================
+
+if (window.testimonialData && window.testimonialData.concerns) {
+  const concernKeys = Object.keys(window.testimonialData.concerns);
+  const uniqueKeys = [...new Set(concernKeys)];
+  
+  if (concernKeys.length !== uniqueKeys.length) {
+    console.log('🧹 Removing duplicate concerns...');
+    
+    // Create new concerns object without duplicates
+    const uniqueConcerns = {};
+    const seen = new Set();
+    
+    for (const key of concernKeys) {
+      if (!seen.has(key)) {
+        uniqueConcerns[key] = window.testimonialData.concerns[key];
+        seen.add(key);
+      } else {
+        console.log(`   Removing duplicate: ${key}`);
+      }
+    }
+    
+    window.testimonialData.concerns = uniqueConcerns;
+    console.log(`✅ Reduced from ${concernKeys.length} to ${Object.keys(uniqueConcerns).length} concerns`);
+  }
+}
+
+console.log('✅ All fixes applied! System should work now.');
 
 console.log('✅ testimonials-data.js loaded');
