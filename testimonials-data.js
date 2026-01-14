@@ -883,12 +883,12 @@ window.cleanupTestimonialData = function() {
   return removedCount;
 };
 
-// 🔧 Initialize testimonial system - FIXED VERSION
+// 🔧 Initialize testimonial system - SIMPLE STABLE VERSION
 window.initializeTestimonialSystem = function() {
   console.log('🚀 Initializing Enhanced Testimonial System v5.0');
   
-  // Clean up any invalid data first
-  window.cleanupTestimonialData();
+  // Skip cleanup - our data is clean
+  // window.cleanupTestimonialData();
   
   // Run validation (just for logging)
   const validation = window.testimonialData.validateData();
