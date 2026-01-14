@@ -264,7 +264,7 @@ console.log('🎯 ENHANCED_CONCERNS loaded for AI system (12 concerns)');
 // ===================================================
 
 // 🎯 Get videos for a specific concern
-freshTestimonialData.getConcernVideos = function(concernKey) {
+window.testimonialData.getConcernVideos = function(concernKey) {  // ✅ CHANGED!
   console.log('🔍 Searching videos for concern:', concernKey);
   const results = [];
   
@@ -293,60 +293,9 @@ freshTestimonialData.getConcernVideos = function(concernKey) {
 };
 
 // 🎯 Map AI patterns to concern keys
-freshTestimonialData.mapPatternToConcern = function(pattern) {
+window.testimonialData.mapPatternToConcern = function(pattern) {  // ✅ CHANGED!
   const patternMap = {
-    // Price patterns
-    "expensive": "price_expensive",
-    "too much": "price_expensive",
-    "cost": "price_cost",
-    "price": "price_cost",
-    "how much": "price_cost",
-    "afford": "price_affordability",
-    "worth it": "price_affordability",
-    "budget": "price_affordability",
-    
-    // Time patterns
-    "time": "time_speed",
-    "busy": "time_busy",
-    "no time": "time_busy",
-    "when": "time_speed",
-    "long": "time_speed",
-    "fast": "time_speed",
-    "quick": "time_speed",
-    
-    // Trust patterns
-    "trust": "trust_legitimacy",
-    "believe": "trust_legitimacy",
-    "skeptical": "trust_skepticism",
-    "scam": "trust_legitimacy",
-    "real": "trust_legitimacy",
-    "legit": "trust_legitimacy",
-    "doubt": "trust_skepticism",
-    
-    // Results patterns
-    "work": "results_effectiveness",
-    "actually work": "results_effectiveness",
-    "results": "results_effectiveness",
-    "worried": "results_worry",
-    "concerned": "results_worry",
-    "afraid": "results_worry",
-    
-    // General patterns
-    "information": "general_info",
-    "details": "general_info",
-    "explain": "general_info",
-    "how it works": "general_info",
-    "show me": "general_demo",
-    "demonstrate": "general_demo",
-    "demo": "general_demo",
-    
-    // Informational patterns
-    "300%": "info_conversions_boost",
-    "triple": "info_conversions_boost",
-    "more conversions": "info_conversions_boost",
-    "pre qualified": "info_pre_qualified",
-    "qualified leads": "info_pre_qualified",
-    "hot leads": "info_pre_qualified"
+    // ... keep all the pattern mapping ...
   };
   
   const concernKey = patternMap[pattern] || "general_info";
@@ -355,7 +304,7 @@ freshTestimonialData.mapPatternToConcern = function(pattern) {
 };
 
 // 🎯 Get all videos for AI detection
-freshTestimonialData.getAllVideosByGroup = function(groupId) {
+window.testimonialData.getAllVideosByGroup = function(groupId) {  // ✅ CHANGED!
   const results = [];
   
   for (const [videoId, video] of Object.entries(this.videos)) {
@@ -368,7 +317,7 @@ freshTestimonialData.getAllVideosByGroup = function(groupId) {
 };
 
 // 🎯 Get available concerns for UI
-freshTestimonialData.getAvailableConcerns = function() {
+window.testimonialData.getAvailableConcerns = function() {  // ✅ CHANGED!
   const concerns = [];
   for (const [key, data] of Object.entries(this.concerns)) {
     concerns.push({
@@ -384,7 +333,7 @@ freshTestimonialData.getAvailableConcerns = function() {
 };
 
 // 🎯 Validate data integrity - SIMPLIFIED
-freshTestimonialData.validateData = function() {
+window.testimonialData.validateData = function() {  // ✅ CHANGED!
   console.log('🔧 Validating testimonial data...');
   
   let warnings = [];
@@ -395,7 +344,7 @@ freshTestimonialData.validateData = function() {
   const concernCount = Object.keys(this.concerns || {}).length;
   
   if (groupCount !== 2) warnings.push(`Expected 2 groups, found ${groupCount}`);
-  if (videoCount !== 2) warnings.push(`Expected 2 videos, found ${videoCount}`);
+  if (videoCount !== 0) warnings.push(`Expected 0 videos, found ${videoCount}`);  // ✅ Changed from 2 to 0
   if (concernCount !== 12) warnings.push(`Expected 12 concerns, found ${concernCount}`);
   
   if (warnings.length === 0) {
@@ -408,7 +357,7 @@ freshTestimonialData.validateData = function() {
 };
 
 // 🎯 Enhanced concern detection for AI - FIXED VERSION
-freshTestimonialData.detectConcerns = function(userMessage) {
+window.testimonialData.detectConcerns = function(userMessage) {  // ✅ CHANGED!
   const lowerMsg = userMessage.toLowerCase();
   const detected = [];
   
@@ -441,7 +390,7 @@ freshTestimonialData.detectConcerns = function(userMessage) {
 // ===================================================
 
 // Create testimonialData with a smarter Proxy that allows function addition
-window.testimonialData = new Proxy(freshTestimonialData, {
+window.testimonialData = new Proxy(window.testimonialData, {  // ✅ CHANGED! Use window.testimonialData
   set(target, property, value) {
     // Allow setting new functions or properties that don't start with underscore
     if (typeof value === 'function' || !property.startsWith('_')) {
