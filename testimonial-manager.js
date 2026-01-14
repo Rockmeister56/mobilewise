@@ -2810,7 +2810,10 @@ function saveToLocalStorage() {
             savedAt: new Date().toISOString()
         };
         
-        localStorage.setItem('testimonialManagerData', JSON.stringify(dataToSave));
+        // Only save if data is valid
+if (window.testimonialData && window.testimonialData.__version === '5.0-complete-fixed') {
+  localStorage.setItem('enhancedTestimonialData', JSON.stringify(window.testimonialData));
+}
         console.log('💾 Data saved to localStorage');
     } catch (e) {
         console.error('❌ Error saving to localStorage:', e);

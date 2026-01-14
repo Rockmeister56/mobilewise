@@ -4,6 +4,25 @@
 // Version: 5.0-complete-fixed
 // ===================================================
 
+// ===================================================
+// 🚫 STOP testimonial-manager from corrupting data
+// ===================================================
+
+// If testimonial-manager already created a messed up testimonialData, fix it
+if (window.testimonialData && window.testimonialData.__version !== '5.0-complete-fixed') {
+  console.log('🚫 Detected corrupted testimonialData from manager. Resetting...');
+  window.testimonialData = null; // Clear it so we can set fresh data
+}
+
+// Clear localStorage to prevent reloading of corrupted data
+try {
+  localStorage.removeItem('enhancedTestimonialData');
+  localStorage.removeItem('testimonialData');
+  console.log('🧹 Cleared corrupted localStorage data');
+} catch (e) {
+  // Ignore
+}
+
 window.testimonialData = {
   "videoUrls": {
     "skeptical": "",
