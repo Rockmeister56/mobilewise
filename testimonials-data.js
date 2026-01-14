@@ -857,23 +857,37 @@ window.removeTestimonialGroup = function(groupId) {
 };
 
 // 🔍 Clean up invalid groups (call this manually if needed)
+// 🔍 Clean up invalid groups (call this manually if needed) - SAFE VERSION
 window.cleanupTestimonialData = function() {
   console.log('🧹 Cleaning up testimonial data...');
   let removedCount = 0;
   
-  for (const [id, group] of Object.entries(window.testimonialData.groups)) {
-    if (!group || !group.name || group.name === 'undefined' || String(group.name).trim() === '') {
-      console.log(`Removing invalid group: "${id}"`);
+  // Only remove groups that are explicitly "test" or have name "undefined"
+  const groupsToCheck = Object.entries(window.testimonialData.groups);
+  console.log('Checking', groupsToCheck.length, 'groups...');
+  
+  for (const [id, group] of groupsToCheck) {
+    if (!group) {
+      console.log(`Removing null group: "${id}"`);
+      delete window.testimonialData.groups[id];
+      removedCount++;
+      continue;
+    }
+    
+    // ONLY remove groups with ID "test" or name literally "undefined"
+    if (id === 'test' || (group.name && group.name === 'undefined')) {
+      console.log(`Removing invalid group: "${id}" with name: "${group.name}"`);
       delete window.testimonialData.groups[id];
       removedCount++;
     }
+    // Don't remove groups with valid names!
   }
   
   if (removedCount > 0) {
     // Update statistics
     window.testimonialData.statistics.totalGroups = Object.keys(window.testimonialData.groups).length;
-    window.testimonialData.statistics.totalTestimonialGroups = Object.values(window.testimonialData.groups).filter(g => g.type === 'testimonial').length;
-    window.testimonialData.statistics.totalInformationalGroups = Object.values(window.testimonialData.groups).filter(g => g.type === 'informational').length;
+    window.testimonialData.statistics.totalTestimonialGroups = Object.values(window.testimonialData.groups).filter(g => g && g.type === 'testimonial').length;
+    window.testimonialData.statistics.totalInformationalGroups = Object.values(window.testimonialData.groups).filter(g => g && g.type === 'informational').length;
     
     console.log(`✅ Removed ${removedCount} invalid groups`);
   } else {
