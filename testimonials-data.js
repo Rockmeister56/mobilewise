@@ -162,11 +162,11 @@ const freshTestimonialData = {
     }
   },
 
-  // ========================
-  // 📁 UNIFIED GROUPS (Both Testimonial & Informational - COMPLETE)
+    // ========================
+  // 📁 UNIFIED GROUPS (Both Testimonial & Informational)
   // ========================
   "groups": {
-    // EXAMPLE: Testimonial Group
+    // Testimonial Group
     "group_conversion_boost": {
       "id": "group_conversion_boost",
       "type": "testimonial",
@@ -181,7 +181,7 @@ const freshTestimonialData = {
       "viewCount": 11
     },
     
-    // EXAMPLE: Informational Group
+    // Informational Group
     "group_how_it_works": {
       "id": "group_how_it_works",
       "type": "informational",
@@ -394,89 +394,7 @@ window.ENHANCED_CONCERNS = {
         "triggers": ["pre qualified", "qualified leads", "hot leads", "sales ready"],
         "description": "How to get pre-qualified hot leads",
         "isInformational": true
-    },
-
-      // ========================
-  // 📁 UNIFIED GROUPS (Both Testimonial & Informational)
-  // ========================
-  "groups": {
-    // Testimonial Group
-    "group_conversion_boost": {
-      "id": "group_conversion_boost",
-      "type": "testimonial",
-      "name": "PPC Conversion Boost",
-      "slug": "conversion-boost",
-      "icon": "📁",
-      "description": "Real stories from clients who got 300%+ conversion increases",
-      "primaryConcern": "results_effectiveness",
-      "concerns": ["results_effectiveness", "price_affordability", "trust_legitimacy"],
-      "videoIds": [], // EMPTY - you'll add videos through manager
-      "createdAt": "2026-01-08T19:49:47.532Z",
-      "viewCount": 0
-    },
-    
-    // Informational Group
-    "group_how_it_works": {
-      "id": "group_how_it_works",
-      "type": "informational",
-      "name": "How It Works",
-      "slug": "how-it-works",
-      "icon": "📚",
-      "description": "Educational videos explaining our system",
-      "primaryConcern": "general_info",
-      "concerns": ["general_info", "general_demo", "info_conversions_boost"],
-      "videoIds": [], // EMPTY - you'll add videos through manager
-      "createdAt": "2026-01-14T00:00:00.000Z",
-      "viewCount": 0
     }
-  },
-
-  // ========================
-  // 🎬 ALL VIDEOS (EMPTY - Start Fresh)
-  // ========================
-  "videos": {
-    // NO VIDEOS - you'll add them through the manager
-  },
-
-  // ========================
-  // 📊 STATISTICS (UPDATED for empty videos)
-  // ========================
-  "statistics": {
-    "totalGroups": 2,
-    "totalTestimonialGroups": 1,
-    "totalInformationalGroups": 1,
-    "totalVideos": 0, // Changed from 2 to 0
-    "totalTestimonials": 0, // Changed from 1 to 0
-    "totalInformationalVideos": 0, // Changed from 1 to 0
-    "totalViews": 0 // Changed from 11 to 0
-  },
-
-  // ========================
-  // ⚙️ PLAYER CONFIGURATION
-  // ========================
-  "playerConfig": {
-    "desktop": {
-      "width": 854,
-      "height": 480,
-      "top": "50%",
-      "left": "50%",
-      "borderRadius": "12px"
-    },
-    "mobile": {
-      "fullscreen": true
-    },
-    "overlay": {
-      "background": "rgba(0, 0, 0, 0.5)"
-    },
-    "resumeMessage": "I'm sure you can appreciate what our clients have to say. So let's get back on track with helping you sell your practice. Would you like a free consultation with Bruce that can analyze your particular situation?"
-  },
-
-  // ========================
-  // 🛠️ HELPER FUNCTIONS
-  // ========================
-  "__version": "5.0-final-fixed-working",
-  "__generated": "2026-01-14T00:00:00.000Z",
-  "__notes": "Complete and fixed version with all 12 concerns - FRESH START"
 };
 
 console.log('🎯 ENHANCED_CONCERNS loaded for AI system (12 concerns)');
@@ -1260,5 +1178,15 @@ setTimeout(() => {
   }
   
 }, 100);
+
+// ===================================================
+// 🛡️ PROTECTION: Block manager from overwriting groups
+// ===================================================
+
+// Make groups object IMMUTABLE
+Object.freeze(window.testimonialData.groups);
+Object.seal(window.testimonialData.groups);
+
+console.log('🛡️ Groups object locked - manager cannot overwrite');
 
 console.log('✅ testimonials-data.js loaded');
