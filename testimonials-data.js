@@ -985,6 +985,37 @@ if (!window.testimonialData) {
 }
 
 // ===================================================
+// 🧹 DUPLICATE CONCERNS FIX (13 instead of 12)
+// ===================================================
+
+if (window.testimonialData && window.testimonialData.concerns) {
+  const concernKeys = Object.keys(window.testimonialData.concerns);
+  const uniqueKeys = [...new Set(concernKeys)];
+  
+  if (concernKeys.length !== uniqueKeys.length) {
+    console.log('🧹 Removing duplicate concerns...');
+    
+    // Create new concerns object without duplicates
+    const uniqueConcerns = {};
+    const seen = new Set();
+    
+    for (const key of concernKeys) {
+      if (!seen.has(key)) {
+        uniqueConcerns[key] = window.testimonialData.concerns[key];
+        seen.add(key);
+      } else {
+        console.log(`   Removing duplicate: ${key}`);
+      }
+    }
+    
+    window.testimonialData.concerns = uniqueConcerns;
+    console.log(`✅ Reduced from ${concernKeys.length} to ${Object.keys(uniqueConcerns).length} concerns`);
+  }
+}
+
+console.log('✅ All fixes applied! System should work now.');
+
+// ===================================================
 // 📝 INITIALIZATION & TESTING
 // ===================================================
 
@@ -1020,36 +1051,5 @@ setTimeout(() => {
   }
   
 }, 100);
-
-// ===================================================
-// 🧹 DUPLICATE CONCERNS FIX (13 instead of 12)
-// ===================================================
-
-if (window.testimonialData && window.testimonialData.concerns) {
-  const concernKeys = Object.keys(window.testimonialData.concerns);
-  const uniqueKeys = [...new Set(concernKeys)];
-  
-  if (concernKeys.length !== uniqueKeys.length) {
-    console.log('🧹 Removing duplicate concerns...');
-    
-    // Create new concerns object without duplicates
-    const uniqueConcerns = {};
-    const seen = new Set();
-    
-    for (const key of concernKeys) {
-      if (!seen.has(key)) {
-        uniqueConcerns[key] = window.testimonialData.concerns[key];
-        seen.add(key);
-      } else {
-        console.log(`   Removing duplicate: ${key}`);
-      }
-    }
-    
-    window.testimonialData.concerns = uniqueConcerns;
-    console.log(`✅ Reduced from ${concernKeys.length} to ${Object.keys(uniqueConcerns).length} concerns`);
-  }
-}
-
-console.log('✅ All fixes applied! System should work now.');
 
 console.log('✅ testimonials-data.js loaded');
