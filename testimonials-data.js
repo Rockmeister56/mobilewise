@@ -273,6 +273,133 @@ const freshTestimonialData = {
 };
 
 // ===================================================
+// 🎯 ESSENTIAL: ENHANCED_CONCERNS for AI Trigger System
+// ===================================================
+
+// This is CRITICAL for mobile wise AI to know when to show testimonials!
+window.ENHANCED_CONCERNS = {
+    // 💰 PRICE CONCERNS
+    "price_expensive": {
+        "title": "Expensive",
+        "icon": "💰",
+        "videoType": "skeptical", 
+        "type": "testimonial",
+        "triggers": ["expensive", "too much", "high price", "overpriced"],
+        "description": "When users say it's too expensive"
+    },
+    "price_cost": {
+        "title": "Cost/Price",
+        "icon": "💰", 
+        "videoType": "skeptical",
+        "type": "testimonial",
+        "triggers": ["cost", "price", "pricing", "how much"],
+        "description": "When users ask about cost or pricing"
+    },
+    "price_affordability": {
+        "title": "Affordability",
+        "icon": "💰",
+        "videoType": "skeptical",
+        "type": "testimonial", 
+        "triggers": ["afford", "budget", "money", "worth it"],
+        "description": "When users worry about affordability"
+    },
+    
+    // ⏰ TIME CONCERNS  
+    "time_busy": {
+        "title": "Too Busy",
+        "icon": "⏰",
+        "videoType": "speed",
+        "type": "testimonial",
+        "triggers": ["busy", "no time", "hectic", "overwhelmed"],
+        "description": "When users say they're too busy"
+    },
+    "time_speed": {
+        "title": "Speed/Timing", 
+        "icon": "⏰",
+        "videoType": "speed",
+        "type": "testimonial",
+        "triggers": ["time", "when", "long", "fast", "quick"],
+        "description": "When users ask about timing or speed"
+    },
+    
+    // 🤝 TRUST CONCERNS
+    "trust_skepticism": {
+        "title": "Skepticism",
+        "icon": "🤝",
+        "videoType": "skeptical",
+        "type": "testimonial", 
+        "triggers": ["skeptical", "not sure", "doubt", "unsure"],
+        "description": "When users express skepticism or doubt"
+    },
+    "trust_legitimacy": {
+        "title": "Legitimacy",
+        "icon": "🤝",
+        "videoType": "skeptical",
+        "type": "testimonial",
+        "triggers": ["scam", "real", "legit", "trust", "believe"],
+        "description": "When users question legitimacy or trust"
+    },
+    
+    // 📈 RESULTS CONCERNS
+    "results_effectiveness": {
+        "title": "Effectiveness",
+        "icon": "📈", 
+        "videoType": "convinced",
+        "type": "testimonial",
+        "triggers": ["work", "actually work", "results", "effective"],
+        "description": "When users ask if it works or gets results"
+    },
+    "results_worry": {
+        "title": "Worry/Concern",
+        "icon": "📈",
+        "videoType": "convinced", 
+        "type": "testimonial",
+        "triggers": ["worried", "concerned", "afraid", "nervous"],
+        "description": "When users express worry or concern"
+    },
+    
+    // ⭐ GENERAL CONCERNS
+    "general_info": {
+        "title": "General Information", 
+        "icon": "⭐",
+        "videoType": "skeptical",
+        "type": "testimonial",
+        "triggers": ["information", "details", "explain", "how it works", "what is"],
+        "description": "When users ask for general information"
+    },
+    "general_demo": {
+        "title": "Demo Request",
+        "icon": "⭐",
+        "videoType": "skeptical", 
+        "type": "testimonial",
+        "triggers": ["show me", "demonstrate", "demo", "see it", "watch"],
+        "description": "When users ask to see a demo"
+    },
+    
+    // 📚 INFORMATIONAL CONCERNS
+    "info_conversions_boost": {
+        "title": "Conversion Boost",
+        "icon": "📈",
+        "videoType": "convinced", 
+        "type": "informational",
+        "triggers": ["300%", "triple", "more conversions", "boost sales"],
+        "description": "How to get 300% more conversions",
+        "isInformational": true
+    },
+    "info_pre_qualified": {
+        "title": "Pre-Qualified Leads",
+        "icon": "🔥", 
+        "videoType": "convinced",
+        "type": "informational", 
+        "triggers": ["pre qualified", "qualified leads", "hot leads", "sales ready"],
+        "description": "How to get pre-qualified hot leads",
+        "isInformational": true
+    }
+};
+
+console.log('🎯 ENHANCED_CONCERNS loaded for AI system (12 concerns)');
+
+// ===================================================
 // 🔧 ADD HELPER FUNCTIONS TO DATA OBJECT FIRST
 // ===================================================
 
