@@ -356,113 +356,269 @@
     <small class="form-help">Main topic this group addresses</small>
 </div>
             
-            <!-- ============================================
+           <!-- ============================================
                  🆕 TRIGGERS/CONCERNS SECTIONS
             ============================================ -->
+
+<!-- TESTIMONIAL TRIGGERS (Visible by default) -->
+<div id="testimonialTriggers" class="triggers-section">
+    <h4>🎯 When to Show These Testimonials</h4>
+    <div class="concerns-grid">
+        <!-- Will be populated by JavaScript -->
+    </div>
+    <small class="form-help">Select when these client stories should appear</small>
+</div>
+
+<!-- INFORMATIONAL TRIGGERS (Hidden by default) -->
+<div id="informationalTriggers" class="triggers-section" style="display: none;">
+    <h4>📚 When to Show These Educational Videos</h4>
+    <div class="concerns-grid">
+        <!-- Will be populated by JavaScript -->
+    </div>
+    <small class="form-help">Select when these how-to videos should appear</small>
+</div>
+
+<div class="modal-actions">
+    <button type="button" class="btn btn-secondary" 
+            onclick="hideAddTestimonialGroupModal()">Cancel</button>
+    <button type="button" class="btn btn-primary" 
+            onclick="addNewTestimonialGroup()">Create Group</button>
+</div>
+
+<!-- CONCERNS/TRIGGERS SELECTION (ENHANCED VERSION) -->
+<div class="form-group">
+    <label class="form-label">Select Trigger Phrases</label>
+    <div id="concernsCheckboxContainer" class="concerns-checkbox-container">
+        
+        <!-- TESTIMONIAL TRIGGERS (ENHANCED) -->
+        <div class="concern-section" id="testimonialTriggersCheckboxes">
+            <div class="concern-section-title">🎬 Testimonial Triggers</div>
             
-            <!-- TESTIMONIAL TRIGGERS (Visible by default) -->
-            <div id="testimonialTriggers" class="triggers-section">
-                <h4>🎯 When to Show These Testimonials</h4>
-                <div class="concerns-grid">
-                    <!-- Will be populated by JavaScript -->
+            <!-- 💰 PRICE CONCERNS -->
+            <div class="concern-subgroup">
+                <div class="concern-subgroup-title">💰 Price Concerns</div>
+                
+                <div class="concern-checkbox-item">
+                    <input type="checkbox" id="concern_price_expensive" class="concern-checkbox" value="price_expensive">
+                    <label for="concern_price_expensive" class="concern-checkbox-label">
+                        💰 Expensive (expensive, too much)
+                    </label>
+                    <div class="concern-keywords">Triggers: expensive, too much, high price</div>
                 </div>
-                <small class="form-help">Select when these client stories should appear</small>
+                
+                <div class="concern-checkbox-item">
+                    <input type="checkbox" id="concern_price_cost" class="concern-checkbox" value="price_cost">
+                    <label for="concern_price_cost" class="concern-checkbox-label">
+                        💰 Cost/Price (cost, price, how much)
+                    </label>
+                    <div class="concern-keywords">Triggers: cost, price, pricing, how much</div>
+                </div>
+                
+                <div class="concern-checkbox-item">
+                    <input type="checkbox" id="concern_price_affordability" class="concern-checkbox" value="price_affordability">
+                    <label for="concern_price_affordability" class="concern-checkbox-label">
+                        💰 Affordability (afford, worth it, budget)
+                    </label>
+                    <div class="concern-keywords">Triggers: afford, budget, money, worth it</div>
+                </div>
             </div>
             
-            <!-- INFORMATIONAL TRIGGERS (Hidden by default) -->
-            <div id="informationalTriggers" class="triggers-section" style="display: none;">
-                <h4>📚 When to Show These Educational Videos</h4>
-                <div class="concerns-grid">
-                    <!-- Will be populated by JavaScript -->
+            <!-- ⏰ TIME CONCERNS -->
+            <div class="concern-subgroup">
+                <div class="concern-subgroup-title">⏰ Time Concerns</div>
+                
+                <div class="concern-checkbox-item">
+                    <input type="checkbox" id="concern_time_busy" class="concern-checkbox" value="time_busy">
+                    <label for="concern_time_busy" class="concern-checkbox-label">
+                        ⏰ Too Busy (busy, no time, overwhelmed)
+                    </label>
+                    <div class="concern-keywords">Triggers: busy, no time, hectic, overwhelmed</div>
                 </div>
-                <small class="form-help">Select when these how-to videos should appear</small>
+                
+                <div class="concern-checkbox-item">
+                    <input type="checkbox" id="concern_time_speed" class="concern-checkbox" value="time_speed">
+                    <label for="concern_time_speed" class="concern-checkbox-label">
+                        ⏰ Speed/Timing (time, when, long, fast)
+                    </label>
+                    <div class="concern-keywords">Triggers: time, when, long, fast, quick</div>
+                </div>
             </div>
             
-            <div class="modal-actions">
-                <button type="button" class="btn btn-secondary" 
-                        onclick="hideAddTestimonialGroupModal()">Cancel</button>
-                <button type="button" class="btn btn-primary" 
-                        onclick="addNewTestimonialGroup()">Create Group</button>
+            <!-- 🤝 TRUST CONCERNS -->
+            <div class="concern-subgroup">
+                <div class="concern-subgroup-title">🤝 Trust Concerns</div>
+                
+                <div class="concern-checkbox-item">
+                    <input type="checkbox" id="concern_trust_skepticism" class="concern-checkbox" value="trust_skepticism">
+                    <label for="concern_trust_skepticism" class="concern-checkbox-label">
+                        🤝 Skepticism (skeptical, not sure, doubt)
+                    </label>
+                    <div class="concern-keywords">Triggers: skeptical, not sure, doubt, unsure</div>
+                </div>
+                
+                <div class="concern-checkbox-item">
+                    <input type="checkbox" id="concern_trust_legitimacy" class="concern-checkbox" value="trust_legitimacy">
+                    <label for="concern_trust_legitimacy" class="concern-checkbox-label">
+                        🤝 Legitimacy (scam, real, trust, believe)
+                    </label>
+                    <div class="concern-keywords">Triggers: scam, real, legit, trust, believe</div>
+                </div>
+            </div>
+            
+            <!-- 📈 RESULTS CONCERNS -->
+            <div class="concern-subgroup">
+                <div class="concern-subgroup-title">📈 Results Concerns</div>
+                
+                <div class="concern-checkbox-item">
+                    <input type="checkbox" id="concern_results_effectiveness" class="concern-checkbox" value="results_effectiveness">
+                    <label for="concern_results_effectiveness" class="concern-checkbox-label">
+                        📈 Effectiveness (work, results, effective)
+                    </label>
+                    <div class="concern-keywords">Triggers: work, actually work, results, effective</div>
+                </div>
+                
+                <div class="concern-checkbox-item">
+                    <input type="checkbox" id="concern_results_worry" class="concern-checkbox" value="results_worry">
+                    <label for="concern_results_worry" class="concern-checkbox-label">
+                        📈 Worry/Concern (worried, concerned, afraid)
+                    </label>
+                    <div class="concern-keywords">Triggers: worried, concerned, afraid, nervous</div>
+                </div>
+            </div>
+            
+            <!-- ⭐ GENERAL CONCERNS -->
+            <div class="concern-subgroup">
+                <div class="concern-subgroup-title">⭐ General Feedback</div>
+                
+                <div class="concern-checkbox-item">
+                    <input type="checkbox" id="concern_general_info" class="concern-checkbox" value="general_info">
+                    <label for="concern_general_info" class="concern-checkbox-label">
+                        ⭐ General Information (information, explain)
+                    </label>
+                    <div class="concern-keywords">Triggers: information, details, explain, how it works</div>
+                </div>
+                
+                <div class="concern-checkbox-item">
+                    <input type="checkbox" id="concern_general_demo" class="concern-checkbox" value="general_demo">
+                    <label for="concern_general_demo" class="concern-checkbox-label">
+                        ⭐ Demo Request (show me, demonstrate, demo)
+                    </label>
+                    <div class="concern-keywords">Triggers: show me, demonstrate, demo, see it, watch</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- INFORMATIONAL TRIGGERS (ENHANCED) -->
+        <div class="concern-section" id="informationalTriggersCheckboxes" style="display: none;">
+            <div class="concern-section-title">📚 Informational Triggers</div>
+            
+            <!-- 📊 CONVERSION & RESULTS -->
+            <div class="concern-subgroup">
+                <div class="concern-subgroup-title">📊 Conversion & Results</div>
+                
+                <div class="concern-checkbox-item">
+                    <input type="checkbox" id="info_conversions_boost" class="concern-checkbox" value="info_conversions_boost">
+                    <label for="info_conversions_boost" class="concern-checkbox-label">
+                        📈 Conversion Boost (300%, triple, more conversions)
+                    </label>
+                    <div class="concern-keywords">Triggers: 300%, triple, more conversions, boost sales</div>
+                </div>
+                
+                <div class="concern-checkbox-item">
+                    <input type="checkbox" id="info_roi_improvement" class="concern-checkbox" value="info_roi_improvement">
+                    <label for="info_roi_improvement" class="concern-checkbox-label">
+                        📈 ROI Improvement (better results, improve ROI)
+                    </label>
+                    <div class="concern-keywords">Triggers: better results, improve roi, more sales</div>
+                </div>
+            </div>
+            
+            <!-- 🔥 LEADS & QUALITY -->
+            <div class="concern-subgroup">
+                <div class="concern-subgroup-title">🔥 Leads & Quality</div>
+                
+                <div class="concern-checkbox-item">
+                    <input type="checkbox" id="info_pre_qualified" class="concern-checkbox" value="info_pre_qualified">
+                    <label for="info_pre_qualified" class="concern-checkbox-label">
+                        🔥 Pre-Qualified Leads (hot leads, sales ready)
+                    </label>
+                    <div class="concern-keywords">Triggers: pre qualified, qualified leads, hot leads</div>
+                </div>
+                
+                <div class="concern-checkbox-item">
+                    <input type="checkbox" id="info_lead_quality" class="concern-checkbox" value="info_lead_quality">
+                    <label for="info_lead_quality" class="concern-checkbox-label">
+                        🔥 Lead Quality (stop wasting time, tire kickers)
+                    </label>
+                    <div class="concern-keywords">Triggers: stop wasting time, tire kickers, quality leads</div>
+                </div>
+            </div>
+            
+            <!-- 🏗️ IMPLEMENTATION & SETUP -->
+            <div class="concern-subgroup">
+                <div class="concern-subgroup-title">🏗️ Implementation & Setup</div>
+                
+                <div class="concern-checkbox-item">
+                    <input type="checkbox" id="info_easy_setup" class="concern-checkbox" value="info_easy_setup">
+                    <label for="info_easy_setup" class="concern-checkbox-label">
+                        ⚡ Easy Setup (5 minutes, no tech skills)
+                    </label>
+                    <div class="concern-keywords">Triggers: setup, easy, 5 minutes, no tech skills</div>
+                </div>
+                
+                <div class="concern-checkbox-item">
+                    <input type="checkbox" id="info_integration" class="concern-checkbox" value="info_integration">
+                    <label for="info_integration" class="concern-checkbox-label">
+                        ⚡ Website Integration (add to website, Shopify)
+                    </label>
+                    <div class="concern-keywords">Triggers: website, shopify, woocommerce, integration</div>
+                </div>
+            </div>
+            
+            <!-- 🎙️ PODCAST & CONTENT -->
+            <div class="concern-subgroup">
+                <div class="concern-subgroup-title">🎙️ Podcast & Content</div>
+                
+                <div class="concern-checkbox-item">
+                    <input type="checkbox" id="info_podcast_leads" class="concern-checkbox" value="info_podcast_leads">
+                    <label for="info_podcast_leads" class="concern-checkbox-label">
+                        🎙️ Podcast Lead Generation (listeners, episodes)
+                    </label>
+                    <div class="concern-keywords">Triggers: podcast, listeners, episodes, monetize</div>
+                </div>
+                
+                <div class="concern-checkbox-item">
+                    <input type="checkbox" id="info_content_monetization" class="concern-checkbox" value="info_content_monetization">
+                    <label for="info_content_monetization" class="concern-checkbox-label">
+                        🎙️ Content Monetization (audience, revenue)
+                    </label>
+                    <div class="concern-keywords">Triggers: audience, revenue, profit, make money</div>
+                </div>
+            </div>
+            
+            <!-- ❓ HOW IT WORKS -->
+            <div class="concern-subgroup">
+                <div class="concern-subgroup-title">❓ How It Works</div>
+                
+                <div class="concern-checkbox-item">
+                    <input type="checkbox" id="info_process_explanation" class="concern-checkbox" value="info_process_explanation">
+                    <label for="info_process_explanation" class="concern-checkbox-label">
+                        ❓ Process Explanation (step by step, walkthrough)
+                    </label>
+                    <div class="concern-keywords">Triggers: how does it work, process, step by step</div>
+                </div>
+                
+                <div class="concern-checkbox-item">
+                    <input type="checkbox" id="info_testimonial_leverage" class="concern-checkbox" value="info_testimonial_leverage">
+                    <label for="info_testimonial_leverage" class="concern-checkbox-label">
+                        ❓ Using Social Proof (testimonials, case studies)
+                    </label>
+                    <div class="concern-keywords">Triggers: testimonials, social proof, case studies</div>
+                </div>
             </div>
         </div>
     </div>
 </div>
-            
-            <!-- CONCERNS/TRIGGERS SELECTION -->
-            <div class="form-group">
-                <label class="form-label">Select Trigger Phrases</label>
-                <div id="concernsCheckboxContainer" class="concerns-checkbox-container">
-                    <!-- Testimonial triggers -->
-                    <div class="concern-section" id="testimonialTriggers">
-                        <div class="concern-section-title">🎬 Testimonial Triggers</div>
-                        <div class="concern-checkbox-item">
-                            <input type="checkbox" id="concern_price" class="concern-checkbox" value="price">
-                            <label for="concern_price" class="concern-checkbox-label">
-                                💰 See What Others Say About Value
-                            </label>
-                        </div>
-                        <div class="concern-checkbox-item">
-                            <input type="checkbox" id="concern_time" class="concern-checkbox" value="time">
-                            <label for="concern_time" class="concern-checkbox-label">
-                                ⏰ Hear From Busy Professionals
-                            </label>
-                        </div>
-                        <div class="concern-checkbox-item">
-                            <input type="checkbox" id="concern_trust" class="concern-checkbox" value="trust">
-                            <label for="concern_trust" class="concern-checkbox-label">
-                                🤝 Real Client Experiences
-                            </label>
-                        </div>
-                        <div class="concern-checkbox-item">
-                            <input type="checkbox" id="concern_general" class="concern-checkbox" value="general">
-                            <label for="concern_general" class="concern-checkbox-label">
-                                ⭐ What Our Clients Say
-                            </label>
-                        </div>
-                        <div class="concern-checkbox-item">
-                            <input type="checkbox" id="concern_results" class="concern-checkbox" value="results">
-                            <label for="concern_results" class="concern-checkbox-label">
-                                📈 See The Results Others Got
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <!-- Informational triggers -->
-                    <div class="concern-section" id="informationalTriggers" style="display: none;">
-                        <div class="concern-section-title">📚 Informational Triggers</div>
-                        <div class="concern-checkbox-item">
-                            <input type="checkbox" id="info_how" class="concern-checkbox" value="how">
-                            <label for="info_how" class="concern-checkbox-label">
-                                ❓ How Does It Work?
-                            </label>
-                        </div>
-                        <div class="concern-checkbox-item">
-                            <input type="checkbox" id="info_conversions" class="concern-checkbox" value="conversions">
-                            <label for="info_conversions" class="concern-checkbox-label">
-                                📈 Get More Conversions
-                            </label>
-                        </div>
-                        <div class="concern-checkbox-item">
-                            <input type="checkbox" id="info_leads" class="concern-checkbox" value="leads">
-                            <label for="info_leads" class="concern-checkbox-label">
-                                🔥 Pre-Qualified Leads
-                            </label>
-                        </div>
-                        <div class="concern-checkbox-item">
-                            <input type="checkbox" id="info_setup" class="concern-checkbox" value="setup">
-                            <label for="info_setup" class="concern-checkbox-label">
-                                ⚡ Easy Setup Process
-                            </label>
-                        </div>
-                        <div class="concern-checkbox-item">
-                            <input type="checkbox" id="info_podcast" class="concern-checkbox" value="podcast">
-                            <label for="info_podcast" class="concern-checkbox-label">
-                                🎙️ For Podcasters
-                            </label>
-                        </div>
-                    </div>
-                </div>
-            </div>
             
             <div class="modal-actions">
                 <button class="btn btn-secondary" onclick="hideAddTestimonialGroupModal()">Cancel</button>

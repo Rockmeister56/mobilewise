@@ -330,18 +330,6 @@ body::before {
     text-align: center;
 }
 
-/* BADGE STYLES - This is what you need! */
-.type-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    background: #f3f4f6;
-    border-radius: 4px;
-    padding: 2px 6px;
-    color: #6b7280;
-}
-
 /* Empty State */
 .empty-state {
     text-align: center;
@@ -1330,6 +1318,38 @@ select option[data-type="informational"] {
 
 select option[data-type="testimonial"] {
     background-color: rgba(255, 152, 0, 0.1);
+}
+
+/* Enhanced concern styling */
+.concern-subgroup {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: rgba(0,0,0,0.03);
+    border-radius: 8px;
+    border-left: 4px solid #667eea;
+}
+
+.concern-subgroup-title {
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #333;
+    font-size: 15px;
+}
+
+.concern-checkbox-item {
+    margin-bottom: 8px;
+    padding: 8px;
+    background: white;
+    border-radius: 6px;
+    border: 1px solid #eaeaea;
+}
+
+.concern-keywords {
+    font-size: 11px;
+    color: #666;
+    margin-top: 4px;
+    font-family: monospace;
+    padding-left: 28px;
 }
 
 /* =================================================== */
