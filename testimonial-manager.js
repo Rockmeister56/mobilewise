@@ -3,6 +3,167 @@
 // ===================================================
 
 // ===================================================
+// 🧩 COMPATIBILITY LAYER FOR TESTIMONIAL MANAGER
+// Add this to the TOP of testimonial-manager.js
+// ===================================================
+
+console.log('🔄 Loading compatibility layer...');
+
+// 1. BACKWARD COMPATIBILITY: Convert old format to new format if needed
+function ensureCompatibleStructure(existingData) {
+    console.log('🔄 Checking data compatibility...');
+    
+    if (!existingData) {
+        console.log('✅ No existing data, using new structure');
+        return {
+            concerns: {},  // Will be populated by ENHANCED_CONCERNS
+            groups: {},    // New unified groups structure
+            videos: {},    // Separate videos collection
+            statistics: {
+                totalGroups: 0,
+                totalTestimonialGroups: 0,
+                totalInformationalGroups: 0,
+                totalVideos: 0,
+                totalTestimonials: 0,
+                totalInformationalVideos: 0,
+                totalViews: 0
+            }
+        };
+    }
+    
+    // Check if this is OLD format (concerns have .reviews)
+    const isOldFormat = Object.values(existingData.concerns || {}).some(
+        concern => concern.reviews && Array.isArray(concern.reviews)
+    );
+    
+    if (!isOldFormat) {
+        console.log('✅ Data is already in new format');
+        return existingData;
+    }
+    
+    console.log('🔄 Converting old format to new format...');
+    
+    // Convert OLD → NEW format
+    const convertedData = {
+        concerns: {},
+        groups: {},
+        videos: {},
+        statistics: existingData.statistics || {
+            totalGroups: 0,
+            totalVideos: 0,
+            totalViews: 0
+        }
+    };
+    
+    // Convert concerns (old simple → new enhanced)
+    Object.entries(existingData.concerns || {}).forEach(([key, oldConcern]) => {
+        const newKey = convertConcernKey(key); // e.g., "price" → "price_cost"
+        
+        convertedData.concerns[newKey] = {
+            title: oldConcern.title || key,
+            icon: oldConcern.icon || '❓',
+            type: 'testimonial', // Default
+            triggers: oldConcern.phrases || [],
+            description: oldConcern.description || oldConcern.title || key
+        };
+        
+        // Convert old reviews to videos
+        if (oldConcern.reviews && Array.isArray(oldConcern.reviews)) {
+            oldConcern.reviews.forEach((review, index) => {
+                const videoId = `video_${newKey}_${index}`;
+                
+                convertedData.videos[videoId] = {
+                    id: videoId,
+                    title: `Testimonial: ${oldConcern.title}`,
+                    author: review.author || 'Anonymous',
+                    text: review.text || '',
+                    type: 'testimonial',
+                    concernType: newKey,
+                    videoType: oldConcern.videoType || 'skeptical',
+                    groupId: 'legacy_group', // Put in a legacy group
+                    views: 0,
+                    addedAt: new Date().toISOString()
+                };
+            });
+        }
+    });
+    
+    // Create a legacy group to hold converted videos
+    convertedData.groups.legacy_group = {
+        id: 'legacy_group',
+        type: 'testimonial',
+        name: 'Legacy Testimonials',
+        slug: 'legacy-testimonials',
+        icon: '📼',
+        description: 'Converted from old testimonial system',
+        primaryConcern: 'general_info',
+        concerns: Object.keys(convertedData.concerns),
+        videoIds: Object.keys(convertedData.videos),
+        createdAt: new Date().toISOString(),
+        viewCount: 0
+    };
+    
+    // Update statistics
+    convertedData.statistics.totalGroups = 1;
+    convertedData.statistics.totalTestimonialGroups = 1;
+    convertedData.statistics.totalVideos = Object.keys(convertedData.videos).length;
+    convertedData.statistics.totalTestimonials = Object.keys(convertedData.videos).length;
+    
+    console.log(`✅ Converted: ${Object.keys(existingData.concerns).length} concerns → ${Object.keys(convertedData.concerns).length} concerns`);
+    console.log(`✅ Converted: ${oldReviewCount} reviews → ${Object.keys(convertedData.videos).length} videos`);
+    
+    return convertedData;
+}
+
+// Helper: Convert old concern keys to new ones
+function convertConcernKey(oldKey) {
+    const mapping = {
+        'price': 'price_cost',
+        'time': 'time_speed', 
+        'trust': 'trust_legitimacy',
+        'general': 'general_info',
+        'results': 'results_effectiveness'
+    };
+    return mapping[oldKey] || oldKey;
+}
+
+// 2. INTEGRATE WITH MANAGER'S initializeTestimonialData()
+const originalInitializeTestimonialData = window.initializeTestimonialData;
+window.initializeTestimonialData = function() {
+    console.log('🚀 Initializing with compatibility layer...');
+    
+    // First, apply compatibility fix
+    if (window.testimonialData) {
+        window.testimonialData = ensureCompatibleStructure(window.testimonialData);
+    }
+    
+    // Then run the original initialization
+    if (typeof originalInitializeTestimonialData === 'function') {
+        return originalInitializeTestimonialData();
+    }
+    
+    // Fallback if original doesn't exist
+    console.log('⚠️ Using compatibility layer fallback initialization');
+    
+    // Ensure ENHANCED_CONCERNS exists
+    if (!window.ENHANCED_CONCERNS) {
+        window.ENHANCED_CONCERNS = window.testimonialData?.concerns || {};
+    }
+    
+    // Merge concerns (ENHANCED_CONCERNS takes priority)
+    if (window.testimonialData) {
+        window.testimonialData.concerns = {
+            ...window.testimonialData.concerns,
+            ...window.ENHANCED_CONCERNS
+        };
+    }
+    
+    return window.testimonialData;
+};
+
+console.log('✅ Compatibility layer loaded');
+
+// ===================================================
 // 🩹 MINIMAL DATA STRUCTURE PATCH
 // (Add this to the TOP of your existing file)
 // ===================================================
@@ -1064,6 +1225,27 @@ function updateSelectedGroupInfo(groupId) {
             updateVideoFormForType(group.type);
         }
     }
+}
+
+// FIX: Display group names, not IDs
+function displayGroupsInUI() {
+    const groups = window.testimonialData?.groups || {};
+    const container = document.getElementById('groupsContainer');
+    
+    if (!container) return;
+    
+    container.innerHTML = '';
+    
+    Object.values(groups).forEach(group => {
+        // USE group.name NOT group.id for display!
+        const button = document.createElement('button');
+        button.textContent = group.name || group.id; // Prefer name
+        button.title = group.description || '';
+        button.dataset.groupId = group.id;
+        
+        // Add button to container
+        container.appendChild(button);
+    });
 }
 
 // ===================================================
