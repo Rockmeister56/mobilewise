@@ -110,7 +110,11 @@ function ensureCompatibleStructure(existingData) {
     convertedData.statistics.totalTestimonials = Object.keys(convertedData.videos).length;
     
     console.log(`✅ Converted: ${Object.keys(existingData.concerns).length} concerns → ${Object.keys(convertedData.concerns).length} concerns`);
-    console.log(`✅ Converted: ${oldReviewCount} reviews → ${Object.keys(convertedData.videos).length} videos`);
+    const oldReviewCount = Object.values(existingData.concerns || {}).reduce(
+    (total, concern) => total + (concern.reviews?.length || 0), 
+    0
+);
+console.log(`✅ Converted: ${oldReviewCount} reviews → ${Object.keys(convertedData.videos).length} videos`);
     
     return convertedData;
 }
@@ -125,6 +129,27 @@ function convertConcernKey(oldKey) {
         'results': 'results_effectiveness'
     };
     return mapping[oldKey] || oldKey;
+}
+
+// Add to the top of your compatibility layer
+function ensureConcernTypes() {
+    console.log('🔧 Ensuring concern types...');
+    
+    if (!window.testimonialData?.concerns) return;
+    
+    Object.values(window.testimonialData.concerns).forEach(concern => {
+        // Add 'type' property if missing
+        if (!concern.type) {
+            concern.type = concern.isInformational ? 'informational' : 'testimonial';
+        }
+        
+        // Also ensure triggers exist
+        if (!concern.triggers) {
+            concern.triggers = concern.phrases || [];
+        }
+    });
+    
+    console.log('✅ Concern types updated');
 }
 
 // 2. INTEGRATE WITH MANAGER'S initializeTestimonialData()
