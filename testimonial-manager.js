@@ -2691,7 +2691,7 @@ function renderGroups() {
     existingGroups.forEach(group => group.remove());
     
     // 3. Get groups - ONLY from testimonialGroups
-    const groups = window.testimonialData?.testimonialGroups;
+    const groups = window.testimonialData?.groups || {};
     if (!groups) {
         console.log('📭 No groups data found');
         // Show empty state message if it exists
@@ -2709,7 +2709,7 @@ function renderGroups() {
         icon: group.icon || '📁',
         type: group.type || 'testimonial',
         description: group.description || '',
-        videoCount: group.testimonials?.length || 0
+        videoCount: group.videoIds?.length || 0
     }));
     
     groupsArray.sort((a, b) => a.title.localeCompare(b.title));
@@ -2755,7 +2755,7 @@ function renderGroups() {
 
 // CORRECTED updateGroupDropdown() - Shows BOTH types
 function updateGroupDropdown() {
-    console.log('🔄 Updating group dropdown with ALL groups...');
+    console.log('🔄 Updating group dropdown from UNIFIED groups...');
     
     const dropdown = document.getElementById('selectGroupDropdown');
     if (!dropdown) return;
@@ -2769,24 +2769,13 @@ function updateGroupDropdown() {
     
     const allGroups = [];
     
-    // Add testimonial groups
-    if (window.testimonialData?.testimonialGroups) {
-        Object.entries(window.testimonialData.testimonialGroups).forEach(([id, group]) => {
+    // ✅ FIXED: Get from UNIFIED groups (not testimonialGroups/informationalGroups)
+    if (window.testimonialData?.groups) {
+        Object.entries(window.testimonialData.groups).forEach(([id, group]) => {
             allGroups.push({
                 id: id,
-                title: group.title || id,
+                title: group.name || group.title || id,  // ✅ Use group.name
                 type: group.type || 'testimonial'
-            });
-        });
-    }
-    
-    // Add informational groups
-    if (window.testimonialData?.informationalGroups) {
-        Object.entries(window.testimonialData.informationalGroups).forEach(([id, group]) => {
-            allGroups.push({
-                id: id,
-                title: group.title || id,
-                type: group.type || 'informational'
             });
         });
     }
