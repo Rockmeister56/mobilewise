@@ -3559,6 +3559,55 @@ setTimeout(() => {
     }
 }, 1000);
 
+// ===================================================
+// 🩹 PERMANENT FIX FOR GROUP BUTTON DISPLAY
+// ===================================================
+
+// Fix button display whenever groups are updated
+function fixGroupButtonDisplays() {
+    console.log('🔧 Fixing group button displays...');
+    
+    document.querySelectorAll('.testimonial-group-btn').forEach(btn => {
+        const onclick = btn.getAttribute('onclick') || '';
+        const match = onclick.match(/selectGroup\('([^']+)'\)/);
+        
+        if (match) {
+            const groupId = match[1];
+            const group = window.testimonialData?.groups?.[groupId];
+            
+            if (group && group.name) {
+                btn.textContent = `${group.type === 'informational' ? '📚' : '🎬'} ${group.name}`;
+            }
+        }
+    });
+}
+
+// Run on page load
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(fixGroupButtonDisplays, 1000);
+});
+
+// Hook into any group update functions
+const originalUpdateGroupsDisplay = window.updateGroupsDisplay;
+if (originalUpdateGroupsDisplay) {
+    window.updateGroupsDisplay = function() {
+        const result = originalUpdateGroupsDisplay.apply(this, arguments);
+        setTimeout(fixGroupButtonDisplays, 100);
+        return result;
+    };
+}
+
+const originalCreateTestimonialGroup = window.createTestimonialGroup;
+if (originalCreateTestimonialGroup) {
+    window.createTestimonialGroup = function() {
+        const result = originalCreateTestimonialGroup.apply(this, arguments);
+        setTimeout(fixGroupButtonDisplays, 100);
+        return result;
+    };
+}
+
+console.log('✅ Permanent button display fix loaded');
+
 // Export to window
 window.hideAllTestimonialsModal = hideAllTestimonialsModal;
 
