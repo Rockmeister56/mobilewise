@@ -2,6 +2,82 @@
 // TESTIMONIAL MANAGER JS - GROUPS SYSTEM
 // ===================================================
 
+// ===================================================
+// 🩹 MINIMAL DATA STRUCTURE PATCH
+// (Add this to the TOP of your existing file)
+// ===================================================
+
+// Fix: Always use unified 'groups' structure
+window.fixTestimonialData = function() {
+    console.log('🔧 Applying minimal data fixes...');
+    
+    if (!window.testimonialData) {
+        window.testimonialData = {};
+    }
+    
+    const data = window.testimonialData;
+    
+    // 1. Ensure groups exists
+    if (!data.groups) {
+        data.groups = {};
+    }
+    
+    // 2. Migrate testimonialGroups if exists
+    if (data.testimonialGroups) {
+        Object.entries(data.testimonialGroups).forEach(([id, group]) => {
+            if (!data.groups[id]) {
+                data.groups[id] = {
+                    ...group,
+                    type: group.type || 'testimonial',
+                    videoIds: group.videoIds || group.testimonials || []
+                };
+            }
+        });
+        console.log('✅ Migrated testimonialGroups to unified groups');
+    }
+    
+    // 3. Migrate informationalGroups if exists
+    if (data.informationalGroups) {
+        Object.entries(data.informationalGroups).forEach(([id, group]) => {
+            if (!data.groups[id]) {
+                data.groups[id] = {
+                    ...group,
+                    type: 'informational',
+                    videoIds: group.videoIds || group.testimonials || []
+                };
+            }
+        });
+        console.log('✅ Migrated informationalGroups to unified groups');
+    }
+    
+    // 4. Clean up any group with old structure
+    Object.values(data.groups).forEach(group => {
+        // Fix: testimonials → videoIds
+        if (group.testimonials && !group.videoIds) {
+            group.videoIds = group.testimonials;
+            delete group.testimonials;
+        }
+        
+        // Fix: title → name
+        if (group.title && !group.name) {
+            group.name = group.title;
+        }
+        
+        // Ensure type
+        if (!group.type) {
+            group.type = 'testimonial';
+        }
+    });
+    
+    console.log('✅ Data structure fixed. Total groups:', Object.keys(data.groups).length);
+    return data;
+};
+
+// Run on load
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(window.fixTestimonialData, 100);
+});
+
 // Global variables
 let currentSelectedGroupId = null;
 let testimonialData = window.testimonialData || {};
