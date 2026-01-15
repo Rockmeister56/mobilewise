@@ -339,12 +339,6 @@ function fixTestimonialDataStructure() {
         console.log('✅ Created unified groups object');
     }
     
-    // Ensure videos structure exists
-    if (!testimonialData.videos) {
-        testimonialData.videos = {};
-        console.log('✅ Created videos object');
-    }
-    
     // Migrate old structure if it exists
     if ((testimonialData.testimonialGroups || testimonialData.informationalGroups) && Object.keys(testimonialData.groups).length === 0) {
         console.log('🔄 Migrating old structure to unified groups...');
@@ -397,40 +391,60 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ===================================================
-// DATA INITIALIZATION (ENHANCED)
+// DATA INITIALIZATION (FIXED - PRESERVES EXISTING DATA)
 // ===================================================
 function initializeTestimonialData() {
-    console.log('🚀 Initializing enhanced testimonial data...');
+    console.log('🚀 Initializing testimonial data (PRESERVING existing data)...');
     
-    // Use ENHANCED_CONCERNS if available, otherwise fallback
-    if (window.ENHANCED_CONCERNS) {
-        testimonialData.concerns = ENHANCED_CONCERNS;
-        console.log('✅ Using ENHANCED_CONCERNS data');
+    // 1. Ensure testimonialData exists
+    if (!window.testimonialData) {
+        window.testimonialData = {};
+    }
+    
+    // Use existing testimonialData
+    testimonialData = window.testimonialData;
+    
+    // 2. Set concerns ONLY if they don't exist
+    if (!testimonialData.concerns || Object.keys(testimonialData.concerns).length === 0) {
+        if (window.ENHANCED_CONCERNS) {
+            testimonialData.concerns = window.ENHANCED_CONCERNS;
+            console.log('✅ Set concerns from ENHANCED_CONCERNS');
+        } else {
+            // Fallback to basic concerns
+            testimonialData.concerns = {
+                price_expensive: { title: 'Expensive', icon: '💰', videoType: 'skeptical', type: 'testimonial' },
+                price_cost: { title: 'Cost/Price', icon: '💰', videoType: 'skeptical', type: 'testimonial' },
+                time_busy: { title: 'Too Busy', icon: '⏰', videoType: 'speed', type: 'testimonial' }
+            };
+            console.log('⚠️ Created fallback concerns');
+        }
     } else {
-        // Fallback to basic concerns
-        testimonialData.concerns = {
-            price_expensive: { title: 'Expensive', icon: '💰', videoType: 'skeptical', type: 'testimonial' },
-            price_cost: { title: 'Cost/Price', icon: '💰', videoType: 'skeptical', type: 'testimonial' },
-            time_busy: { title: 'Too Busy', icon: '⏰', videoType: 'speed', type: 'testimonial' },
-            // ... add other enhanced concerns
-        };
-        console.log('⚠️ Using fallback concerns (ENHANCED_CONCERNS not found)');
+        console.log('✅ Using existing concerns:', Object.keys(testimonialData.concerns).length);
     }
     
-    // Ensure unified groups structure (not separate testimonialGroups/informationalGroups)
+    // 3. Ensure groups structure (DON'T overwrite if exists!)
     if (!testimonialData.groups) {
-    testimonialData.groups = {};
-    console.log('✅ Created unified groups object');
-} else if (testimonialData.groups.test) {
-    // 🚨 Remove "test" group if it somehow got created here
-    console.log('🧹 Removing "test" group from fixTestimonialDataStructure');
-    delete testimonialData.groups.test;
-}
-    
-    if (!testimonialData.videos) {
-        testimonialData.videos = {}; // UNIFIED VIDEOS
+        testimonialData.groups = {};
+        console.log('✅ Created empty groups object');
+    } else {
+        console.log('✅ Using existing groups:', Object.keys(testimonialData.groups).length);
+        
+        // Remove "test" group if it exists
+        if (testimonialData.groups.test) {
+            console.log('🧹 Removing "test" group');
+            delete testimonialData.groups.test;
+        }
     }
     
+    // 4. Ensure videos structure (DON'T overwrite!)
+    if (!testimonialData.videos) {
+        testimonialData.videos = {};
+        console.log('✅ Created empty videos object');
+    } else {
+        console.log('✅ Using existing videos:', Object.keys(testimonialData.videos).length);
+    }
+    
+    // 5. Ensure statistics structure (DON'T overwrite!)
     if (!testimonialData.statistics) {
         testimonialData.statistics = {
             totalGroups: 0,
@@ -441,36 +455,46 @@ function initializeTestimonialData() {
             totalInformationalVideos: 0,
             totalViews: 0
         };
+        console.log('✅ Created statistics object');
+    } else {
+        console.log('✅ Using existing statistics');
     }
     
-    // Load from localStorage if available
+    // 6. Load from localStorage (MERGE, don't overwrite!)
     const savedData = localStorage.getItem('testimonialManagerData');
     if (savedData) {
         try {
             const parsedData = JSON.parse(savedData);
             
-            // Handle migration from old structure to new
-            if (parsedData.testimonialGroups || parsedData.informationalGroups) {
-                console.log('🔄 Migrating from old structure to unified groups...');
-                testimonialData.groups = migrateToUnifiedGroups(parsedData);
-            } else if (parsedData.groups) {
-                testimonialData.groups = parsedData.groups;
-            }
-            
-            if (parsedData.videos) {
+            // MERGE videos (only if we don't have them)
+            if (parsedData.videos && (!testimonialData.videos || Object.keys(testimonialData.videos).length === 0)) {
                 testimonialData.videos = parsedData.videos;
+                console.log('📂 Loaded videos from localStorage');
             }
             
+            // MERGE statistics (update counts)
             if (parsedData.statistics) {
-                testimonialData.statistics = parsedData.statistics;
+                // Update with saved statistics, but keep existing if they're better
+                testimonialData.statistics = {
+                    ...testimonialData.statistics,
+                    ...parsedData.statistics
+                };
+                console.log('📂 Merged statistics from localStorage');
             }
             
-            console.log('📂 Loaded enhanced data from localStorage');
+            console.log('📂 Loaded manager data from localStorage (safely merged)');
         } catch (e) {
             console.error('❌ Error loading from localStorage:', e);
         }
     }
     
+    // 7. Final check
+    console.log('✅ Initialization complete:');
+    console.log('   Groups:', Object.keys(testimonialData.groups || {}).length);
+    console.log('   Videos:', Object.keys(testimonialData.videos || {}).length);
+    console.log('   Concerns:', Object.keys(testimonialData.concerns || {}).length);
+    
+    // 8. Update UI
     setTimeout(() => { 
         if (window.refreshGroupUI) refreshGroupUI(); 
         if (window.populateConcernsCheckboxes) populateConcernsCheckboxes();
