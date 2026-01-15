@@ -3290,6 +3290,92 @@ function hideAllTestimonialsModal() {
     }
 }
 
+// ===================================================
+// 🚀 TEMPORARY FIX: Override broken functions
+// ===================================================
+setTimeout(() => {
+    console.log('🔧 Applying temporary fixes for broken functions...');
+    
+    // FIX renderGroups
+    if (window.renderGroups) {
+        const originalRenderGroups = window.renderGroups;
+        window.renderGroups = function() {
+            console.log('🔧 TEMP FIX: renderGroups() using unified groups');
+            
+            const sidebar = document.getElementById('testimonialGroupsContainer');
+            if (!sidebar) return originalRenderGroups();
+            
+            const groups = window.testimonialData?.groups || {};
+            const groupIds = Object.keys(groups);
+            
+            if (groupIds.length === 0) {
+                console.log('⚠️ No groups found to render');
+                return originalRenderGroups();
+            }
+            
+            console.log(`🔧 Rendering ${groupIds.length} groups temporarily`);
+            
+            // Simple rendering
+            sidebar.innerHTML = '';
+            groupIds.forEach(groupId => {
+                const group = groups[groupId];
+                const button = document.createElement('button');
+                button.className = 'testimonial-group-btn';
+                button.innerHTML = `
+                    <span class="group-icon">${group.icon || '📁'}</span>
+                    <span class="group-name">${group.name || groupId}</span>
+                    <span class="group-count">${group.videoIds?.length || 0}</span>
+                `;
+                button.onclick = () => { if (window.selectGroup) window.selectGroup(groupId); };
+                sidebar.appendChild(button);
+            });
+            
+            return originalRenderGroups();
+        };
+        console.log('✅ Temporary fix for renderGroups applied');
+        
+        // Trigger it
+        window.renderGroups();
+    }
+    
+    // FIX updateGroupDropdown  
+    if (window.updateGroupDropdown) {
+        const originalUpdate = window.updateGroupDropdown;
+        window.updateGroupDropdown = function() {
+            console.log('🔧 TEMP FIX: updateGroupDropdown() using unified groups');
+            
+            const dropdown = document.getElementById('selectGroupDropdown');
+            if (!dropdown) return originalUpdate();
+            
+            const groups = window.testimonialData?.groups || {};
+            const groupIds = Object.keys(groups);
+            
+            if (groupIds.length === 0) {
+                console.log('⚠️ No groups found for dropdown');
+                return originalUpdate();
+            }
+            
+            // Clear and add
+            while (dropdown.options.length > 1) dropdown.remove(1);
+            
+            groupIds.forEach(groupId => {
+                const group = groups[groupId];
+                const option = document.createElement('option');
+                option.value = groupId;
+                option.textContent = `${group.icon || '📁'} ${group.name || groupId}`;
+                dropdown.appendChild(option);
+            });
+            
+            console.log(`🔧 Updated dropdown with ${groupIds.length} groups`);
+            return originalUpdate();
+        };
+        console.log('✅ Temporary fix for updateGroupDropdown applied');
+        
+        // Trigger it
+        window.updateGroupDropdown();
+    }
+}, 1000);
+
 // Export to window
 window.hideAllTestimonialsModal = hideAllTestimonialsModal;
 
