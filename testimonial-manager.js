@@ -542,6 +542,317 @@ const ENHANCED_CONCERNS = {
     }
 };
 
+// ===================================================
+// 🎯 UNIFIED TRIGGER SYSTEM (ADD THIS AFTER ENHANCED_CONCERNS)
+// ===================================================
+
+window.triggerSystem = {
+  // These will be populated from your ENHANCED_CONCERNS
+  testimonialTriggers: {},
+  informationalTriggers: {},
+  
+  // METHODS
+  getTriggersByType: function(type) {
+    return type === 'testimonial' ? this.testimonialTriggers : this.informationalTriggers;
+  },
+  
+  initialize: function() {
+    console.log('🎯 Initializing trigger system...');
+    
+    // First ensure ENHANCED_CONCERNS exists
+    ensureCleanConcerns();
+    
+    // Then populate triggers
+    this.populateFromEnhancedConcerns();
+    
+    console.log(`✅ Trigger system ready: ${Object.keys(this.testimonialTriggers).length} testimonial, ${Object.keys(this.informationalTriggers).length} informational triggers`);
+  },
+  
+  populateFromEnhancedConcerns: function() {
+    console.log('📥 Loading triggers from ENHANCED_CONCERNS...');
+    
+    // Clear existing
+    this.testimonialTriggers = {};
+    this.informationalTriggers = {};
+    
+    // Get concerns from ENHANCED_CONCERNS
+    const concerns = window.ENHANCED_CONCERNS || window.testimonialData?.concerns || {};
+    
+    for (const [key, concern] of Object.entries(concerns)) {
+      // Determine type
+      const isInformational = concern.type === 'informational' || key.startsWith('info_');
+      
+      const triggerData = {
+        label: `${concern.icon || (isInformational ? '📚' : '🎬')} ${concern.title}`,
+        keywords: concern.triggers || [],
+        emoji: concern.icon || (isInformational ? '📚' : '🎬'),
+        type: isInformational ? 'informational' : 'testimonial',
+        description: concern.description || ''
+      };
+      
+      // Add to appropriate category
+      if (isInformational) {
+        this.informationalTriggers[key] = triggerData;
+      } else {
+        this.testimonialTriggers[key] = triggerData;
+      }
+    }
+    
+    // Also add MobileWise AI triggers (if not already in ENHANCED_CONCERNS)
+    this.addMobileWiseTriggers();
+  },
+  
+  addMobileWiseTriggers: function() {
+    // Add informational triggers from MobileWise AI that might not be in ENHANCED_CONCERNS
+    const additionalTriggers = {
+      // Conversion & Results
+      "how_it_works": {
+        label: "⚙️ How It Works",
+        keywords: ["how does it work", "process", "step by step", "explain", "show me"],
+        emoji: "⚙️",
+        type: 'informational'
+      },
+      "podcast": {
+        label: "🎙️ Podcast/Audience",
+        keywords: ["podcast", "listeners", "audience", "episode", "show"],
+        emoji: "🎙️",
+        type: 'informational'
+      },
+      "service_business": {
+        label: "🏢 Service Business",
+        keywords: ["service business", "consultant", "agency", "freelancer", "b2b"],
+        emoji: "🏢",
+        type: 'informational'
+      },
+      "ecommerce": {
+        label: "🛒 E-commerce",
+        keywords: ["ecommerce", "online store", "shopify", "woocommerce", "cart"],
+        emoji: "🛒",
+        type: 'informational'
+      },
+      "setup_easy": {
+        label: "🚀 Easy Setup",
+        keywords: ["setup", "implement", "install", "add to website", "easy", "simple", "5 minutes"],
+        emoji: "🚀",
+        type: 'informational'
+      }
+    };
+    
+    // Merge with existing (don't overwrite)
+    for (const [key, trigger] of Object.entries(additionalTriggers)) {
+      if (!this.informationalTriggers[key]) {
+        this.informationalTriggers[key] = trigger;
+      }
+    }
+  },
+  
+  // Detect which triggers match a message
+  detectTriggers: function(message) {
+    const lowerMsg = message.toLowerCase();
+    const matches = [];
+    
+    // Check all triggers
+    const allTriggers = {
+      ...this.testimonialTriggers,
+      ...this.informationalTriggers
+    };
+    
+    for (const [key, trigger] of Object.entries(allTriggers)) {
+      if (trigger.keywords.some(keyword => 
+        keyword && lowerMsg.includes(keyword.toLowerCase())
+      )) {
+        matches.push({
+          key: key,
+          label: trigger.label,
+          type: trigger.type,
+          emoji: trigger.emoji
+        });
+      }
+    }
+    
+    return matches;
+  },
+  
+  // Get all triggers for display (grouped by type)
+  getAllTriggersForDisplay: function() {
+    return {
+      testimonial: this.testimonialTriggers,
+      informational: this.informationalTriggers
+    };
+  }
+};
+
+// Initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+  if (window.triggerSystem) {
+    window.triggerSystem.initialize();
+  }
+});
+
+// ===================================================
+// 🎨 GROUP CREATOR CLASS (ADD THIS AFTER TRIGGER SYSTEM)
+// ===================================================
+
+class GroupCreator {
+    constructor() {
+        this.selectedTriggers = [];
+        this.currentType = 'testimonial';
+        this.groupName = '';
+    }
+    
+    show() {
+        // Check if overlay already exists
+        if (document.getElementById('group-creator-overlay')) {
+            return;
+        }
+        
+        const html = this.generateHTML();
+        document.body.insertAdjacentHTML('beforeend', html);
+        this.bindEvents();
+        
+        // Focus on name input
+        setTimeout(() => {
+            const nameInput = document.getElementById('group-name-input');
+            if (nameInput) nameInput.focus();
+        }, 100);
+    }
+    
+    generateHTML() {
+        const triggers = window.triggerSystem.getAllTriggersForDisplay();
+        const currentTriggers = triggers[this.currentType];
+        
+        return `
+        <div class="group-creator-overlay" id="group-creator-overlay">
+            <div class="overlay-backdrop"></div>
+            <div class="overlay-content">
+                <div class="overlay-header">
+                    <h2><span class="header-emoji">🎬</span> Create Video Group</h2>
+                    <button class="close-btn" aria-label="Close">&times;</button>
+                </div>
+
+                <div class="form-sections">
+                    <!-- GROUP NAME -->
+                    <div class="form-section">
+                        <label for="group-name-input" class="form-label">
+                            <span class="label-emoji">📝</span> Group Name
+                        </label>
+                        <input type="text" 
+                               id="group-name-input" 
+                               class="form-input"
+                               placeholder="e.g., Price Concerns or Conversion Boost"
+                               value="${this.groupName}">
+                        <p class="helper-text">What should this group be called?</p>
+                    </div>
+
+                    <!-- VIDEO TYPE SELECTOR -->
+                    <div class="form-section">
+                        <label class="form-label">
+                            <span class="label-emoji">🎯</span> Video Type
+                        </label>
+                        <div class="type-selector">
+                            <button class="type-btn ${this.currentType === 'testimonial' ? 'active' : ''}" 
+                                    data-type="testimonial">
+                                <span class="btn-emoji">🎬</span>
+                                <div class="btn-content">
+                                    <strong>Testimonial Videos</strong>
+                                    <small>Real client stories addressing concerns</small>
+                                </div>
+                            </button>
+                            <button class="type-btn ${this.currentType === 'informational' ? 'active' : ''}" 
+                                    data-type="informational">
+                                <span class="btn-emoji">📚</span>
+                                <div class="btn-content">
+                                    <strong>Informational Videos</strong>
+                                    <small>How-to & educational content</small>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- TRIGGER SELECTION -->
+                    <div class="form-section">
+                        <label class="form-label">
+                            <span class="label-emoji">🔔</span> When to Show These Videos
+                        </label>
+                        <p class="helper-text">Click triggers to select (choose multiple)</p>
+                        
+                        <div class="triggers-container" id="triggers-container">
+                            ${this.generateTriggerButtons(currentTriggers)}
+                        </div>
+
+                        <!-- SELECTED TRIGGERS PREVIEW -->
+                        <div class="selected-triggers ${this.selectedTriggers.length > 0 ? 'has-selection' : ''}" 
+                             id="selected-triggers">
+                            <h4>Selected Triggers:</h4>
+                            <div class="selected-tags" id="selected-tags">
+                                ${this.generateSelectedTags(currentTriggers)}
+                            </div>
+                            ${this.selectedTriggers.length === 0 ? 
+                                '<p class="empty-message">No triggers selected yet</p>' : ''}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BUTTONS -->
+                <div class="form-buttons">
+                    <button class="btn btn-secondary cancel-btn">
+                        <span class="btn-emoji">❌</span> Cancel
+                    </button>
+                    <button class="btn btn-primary create-btn">
+                        <span class="btn-emoji">✅</span> Create Group
+                    </button>
+                </div>
+            </div>
+        </div>`;
+    }
+    
+    generateTriggerButtons(triggers) {
+        if (!triggers || Object.keys(triggers).length === 0) {
+            return '<div class="no-triggers">No triggers available for this type</div>';
+        }
+        
+        let html = '';
+        for (const [key, trigger] of Object.entries(triggers)) {
+            const isSelected = this.selectedTriggers.includes(key);
+            html += `
+                <button class="trigger-btn ${isSelected ? 'selected' : ''}" 
+                        data-trigger="${key}" 
+                        data-type="${trigger.type}"
+                        title="${trigger.description || trigger.label}">
+                    <span class="trigger-emoji">${trigger.emoji}</span>
+                    <span class="trigger-label">${trigger.label.replace(trigger.emoji, '').trim()}</span>
+                </button>`;
+        }
+        return html;
+    }
+    
+    generateSelectedTags(triggers) {
+        if (this.selectedTriggers.length === 0) return '';
+        
+        let html = '';
+        for (const triggerKey of this.selectedTriggers) {
+            const trigger = triggers[triggerKey];
+            if (trigger) {
+                html += `
+                    <span class="tag">
+                        <span class="tag-emoji">${trigger.emoji}</span>
+                        <span class="tag-text">${trigger.label.replace(trigger.emoji, '').trim()}</span>
+                        <button class="remove-tag" data-trigger="${triggerKey}" aria-label="Remove">
+                            &times;
+                        </button>
+                    </span>`;
+            }
+        }
+        return html;
+    }
+    
+    // [Rest of the methods: bindEvents(), toggleTrigger(), etc.]
+    // Add all the methods from the previous Group Creator class
+}
+
+// Make it globally available
+window.GroupCreator = GroupCreator;
+
 // At the top of testimonial-manager.js, after ENHANCED_CONCERNS is defined:
 function ensureCleanConcerns() {
     if (!window.ENHANCED_CONCERNS || Object.keys(window.ENHANCED_CONCERNS).length === 0) {
