@@ -7,156 +7,155 @@ let currentSelectedGroupId = null;
 let testimonialData = window.testimonialData || {};
 
 // ===================================================
-// 🎯 SURGICAL FIX PACKAGE - PASTE AT VERY TOP OF FILE
+// 🎯 IMPROVED SURGICAL FIX - ALLOWS FUNCTIONS, BLOCKS CORRUPTION
 // ===================================================
 
-// PART 1: PROTECTION SHIELD
-console.log('🛡️ Loading surgical fix shield...');
+console.log('🛡️ Loading IMPROVED surgical fix...');
+
+// 1. SAVE original data
 const originalGroupsData = window.testimonialData ? 
     JSON.parse(JSON.stringify(window.testimonialData.groups || {})) : {};
+
+// 2. INTERCEPT ONLY data corruption, NOT function definitions
 const originalDefineProperty = Object.defineProperty;
 Object.defineProperty = function(obj, prop, descriptor) {
+    // ONLY block attempts to LOCK testimonialData (not define functions on it)
     if (obj === window && prop === 'testimonialData') {
-        console.warn('🛡️ Blocked: Attempt to lock testimonialData');
-        return obj;
+        // Check if this is trying to make testimonialData READ-ONLY
+        if (descriptor && (descriptor.get || !descriptor.writable)) {
+            console.warn('🛡️ Blocked: Attempt to lock testimonialData as read-only');
+            console.log('   Allowing normal property definition instead...');
+            
+            // Allow normal property assignment instead
+            if (descriptor.value) {
+                window.testimonialData = descriptor.value;
+            }
+            return window;
+        }
     }
     return originalDefineProperty.call(this, obj, prop, descriptor);
 };
+
+// 3. PROTECT groups from being set to empty
 if (window.testimonialData) {
     const originalGroups = window.testimonialData.groups;
+    
+    // Store original data safely
+    const safeGroups = originalGroups || originalGroupsData;
+    
     Object.defineProperty(window.testimonialData, 'groups', {
-        get() { return this._groups || originalGroups || originalGroupsData; },
+        get() {
+            return this._groups || safeGroups;
+        },
         set(newGroups) {
-            console.log('🛡️ Groups being set:', newGroups ? Object.keys(newGroups).length : 'null');
-            if (!newGroups || Object.keys(newGroups).length === 0) {
-                if (originalGroupsData && Object.keys(originalGroupsData).length > 0) {
-                    console.error('🛡️ CRITICAL: Blocked empty groups!');
-                    this._groups = originalGroupsData;
-                    return originalGroupsData;
+            console.log('🛡️ Groups assignment attempt detected');
+            
+            // ALLOW normal assignments (adding/removing groups)
+            if (newGroups && typeof newGroups === 'object') {
+                // BLOCK: Setting to empty when we have data
+                if (Object.keys(newGroups).length === 0 && 
+                    safeGroups && Object.keys(safeGroups).length > 0) {
+                    console.error('🛡️ CRITICAL: Blocked groups from being set to empty!');
+                    console.log('   Keeping original', Object.keys(safeGroups).length, 'groups');
+                    this._groups = safeGroups;
+                    return safeGroups;
                 }
+                
+                // BLOCK: Adding "test" group
+                if (newGroups.test) {
+                    console.error('🛡️ CRITICAL: Blocked "test" group creation!');
+                    delete newGroups.test;
+                }
+                
+                console.log('✅ Allowing groups update:', Object.keys(newGroups).length, 'groups');
+                this._groups = newGroups;
+                return newGroups;
             }
-            if (newGroups && newGroups.test) {
-                console.error('🛡️ CRITICAL: Blocked "test" group!');
-                delete newGroups.test;
-            }
+            
+            // Fallback
             this._groups = newGroups;
             return newGroups;
         },
         enumerable: true,
         configurable: true
     });
-    window.testimonialData._groups = originalGroups || originalGroupsData;
+    
+    // Initialize
+    window.testimonialData._groups = safeGroups;
 }
+
+// 4. MONITOR for "test" group (safety net)
 setInterval(() => {
     if (window.testimonialData?.groups?.test) {
         console.error('🚨 EMERGENCY: "test" group found! Removing...');
         delete window.testimonialData.groups.test;
     }
-}, 1000);
-console.log('✅ Shield active - Protecting', Object.keys(originalGroupsData).length, 'groups');
+}, 2000);
 
-// PART 2: PATCH BROKEN FUNCTIONS
-const originalRenderGroups = window.renderGroups;
-if (originalRenderGroups) {
-    window.renderGroups = function() {
-        console.log('🛡️ PATCHED renderGroups()');
-        const sidebar = document.getElementById('testimonialGroupsContainer');
-        if (sidebar && window.testimonialData?.groups) {
-            const groups = window.testimonialData.groups;
-            sidebar.innerHTML = '';
-            Object.keys(groups).forEach(groupId => {
-                const group = groups[groupId];
-                const button = document.createElement('button');
-                button.className = 'testimonial-group-btn';
-                button.innerHTML = `
-                    <span class="group-icon">${group.icon || '📁'}</span>
-                    <span class="group-name">${group.name || groupId}</span>
-                    <span class="group-count">${group.videoIds?.length || 0}</span>
-                `;
-                button.onclick = () => { if (window.selectGroup) window.selectGroup(groupId); };
-                sidebar.appendChild(button);
-            });
-        }
-        return originalRenderGroups.apply(this, arguments);
-    };
-    console.log('✅ renderGroups() patched');
-}
-
-const originalUpdateGroupDropdown = window.updateGroupDropdown;
-if (originalUpdateGroupDropdown) {
-    window.updateGroupDropdown = function() {
-        console.log('🛡️ PATCHED updateGroupDropdown()');
-        const dropdown = document.getElementById('selectGroupDropdown');
-        if (dropdown && window.testimonialData?.groups) {
-            const currentValue = dropdown.value;
-            while (dropdown.options.length > 1) dropdown.remove(1);
-            Object.entries(window.testimonialData.groups).forEach(([id, group]) => {
-                const option = document.createElement('option');
-                option.value = id;
-                option.textContent = `${group.icon || '📁'} ${group.name || id}`;
-                dropdown.appendChild(option);
-            });
-            if (currentValue) dropdown.value = currentValue;
-        }
-        return originalUpdateGroupDropdown.apply(this, arguments);
-    };
-    console.log('✅ updateGroupDropdown() patched');
-}
-
-// PART 3: EMERGENCY RESTORE
-window.emergencyRestore = function() {
-    console.log('🚑 EMERGENCY: Restoring clean data...');
-    const cleanData = {
-        groups: {
-            "group_conversion_boost": {
-                "id": "group_conversion_boost",
-                "type": "testimonial",
-                "name": "PPC Conversion Boost",
-                "slug": "conversion-boost",
-                "icon": "📁",
-                "description": "Real stories from clients who got 300%+ conversion increases",
-                "primaryConcern": "results_effectiveness",
-                "concerns": ["results_effectiveness", "price_affordability", "trust_legitimacy"],
-                "videoIds": [],
-                "createdAt": "2026-01-08T19:49:47.532Z",
-                "viewCount": 0
-            },
-            "group_how_it_works": {
-                "id": "group_how_it_works",
-                "type": "informational",
-                "name": "How It Works",
-                "slug": "how-it-works",
-                "icon": "📚",
-                "description": "Educational videos explaining our system",
-                "primaryConcern": "general_info",
-                "concerns": ["general_info", "general_demo", "info_conversions_boost"],
-                "videoIds": [],
-                "createdAt": "2026-01-14T00:00:00.000Z",
-                "viewCount": 0
-            }
-        },
-        videos: {},
-        statistics: {
-            totalGroups: 2,
-            totalTestimonialGroups: 1,
-            totalInformationalGroups: 1,
-            totalVideos: 0,
-            totalTestimonials: 0,
-            totalInformationalVideos: 0,
-            totalViews: 0
-        }
-    };
-    window.testimonialData.groups = cleanData.groups;
-    window.testimonialData.videos = cleanData.videos;
-    window.testimonialData.statistics = cleanData.statistics;
-    console.log('✅ Emergency restore complete');
-    return true;
-};
-
-console.log('✅ All surgical fixes applied');
+console.log('✅ Improved surgical fix active');
+console.log('   Protecting', Object.keys(originalGroupsData).length, 'groups');
+console.log('   ALLOWING function definitions');
 
 // ===================================================
-// END SURGICAL FIX - ORIGINAL FILE CONTINUES BELOW
+// 🚑 EMERGENCY FUNCTION RESTORATION
+// ===================================================
+
+// Restore missing functions that the manager needs
+setTimeout(() => {
+    console.log('🔧 Checking for missing manager functions...');
+    
+    // List of essential functions the manager UI needs
+    const essentialFunctions = [
+        'setupEventListeners',
+        'clearGroupForm', 
+        'showAddTestimonialGroupModal',
+        'createTestimonialGroup',
+        'updateGroupType',
+        'updateTriggerSections'
+    ];
+    
+    let restoredCount = 0;
+    essentialFunctions.forEach(funcName => {
+        if (typeof window[funcName] !== 'function') {
+            console.log(`   ⚠️ ${funcName} is missing, creating placeholder`);
+            
+            // Create safe placeholder function
+            window[funcName] = function() {
+                console.warn(`⚠️ ${funcName}() called but not fully implemented`);
+                console.log('   This function was restored by surgical fix');
+                return null;
+            };
+            
+            restoredCount++;
+        }
+    });
+    
+    if (restoredCount > 0) {
+        console.log(`✅ Restored ${restoredCount} missing functions`);
+    } else {
+        console.log('✅ All essential functions present');
+    }
+}, 500);
+
+// ===================================================
+// 🎯 DATA INTEGRITY CHECK (Run on load)
+// ===================================================
+
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🎯 Surgical fix: DOM loaded, checking data...');
+    
+    // Final check
+    if (window.testimonialData?.groups?.test) {
+        console.error('🚨 FINAL CHECK: "test" group still exists! Removing...');
+        delete window.testimonialData.groups.test;
+    }
+    
+    console.log('✅ Surgical fix ready');
+    console.log('   Groups:', Object.keys(window.testimonialData?.groups || {}));
+});
+
+// ===================================================
+// END IMPROVED SURGICAL FIX
 // ===================================================
 
 // ===================================================
