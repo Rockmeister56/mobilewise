@@ -2,6 +2,180 @@
 // TESTIMONIAL MANAGER JS - GROUPS SYSTEM
 // ===================================================
 
+// ===================================================
+// 🕵️ CONFLICT DETECTOR - Find what's breaking the manager
+// ===================================================
+console.log('🔍 === MANAGER CONFLICT DETECTOR START ===');
+
+// Track ALL modifications to testimonialData
+const modificationLog = [];
+const originalTestimonialData = window.testimonialData ? { ...window.testimonialData } : null;
+
+// 1. Catch ALL assignments to testimonialData
+Object.defineProperty(window, 'testimonialData', {
+  get() {
+    return window._actualTestimonialData;
+  },
+  set(newValue) {
+    const stack = new Error().stack;
+    const timestamp = new Date().toISOString();
+    
+    console.log(`🚨 CAUGHT: testimonialData being set at ${timestamp}`);
+    console.log('   New value keys:', newValue ? Object.keys(newValue) : 'null');
+    
+    // Check for "test" group
+    if (newValue && newValue.groups && newValue.groups.test) {
+      console.error('🚨🚨🚨 "test" GROUP BEING CREATED! 🚨🚨🚨');
+      console.error('   Stack trace:', stack);
+      console.error('   Full "test" group:', newValue.groups.test);
+    }
+    
+    modificationLog.push({
+      timestamp,
+      action: 'SET testimonialData',
+      hasTestGroup: !!(newValue && newValue.groups && newValue.groups.test),
+      stack: stack.split('\n').slice(0, 5).join('\n'),
+      keys: newValue ? Object.keys(newValue) : []
+    });
+    
+    window._actualTestimonialData = newValue;
+    return newValue;
+  }
+});
+
+// Initialize with current value
+window._actualTestimonialData = window.testimonialData;
+
+// 2. Catch ALL modifications to testimonialData properties
+if (window._actualTestimonialData) {
+  const originalGroups = window._actualTestimonialData.groups;
+  
+  Object.defineProperty(window._actualTestimonialData, 'groups', {
+    get() {
+      return this._groups;
+    },
+    set(newGroups) {
+      const stack = new Error().stack;
+      const timestamp = new Date().toISOString();
+      
+      console.log(`🚨 CAUGHT: testimonialData.groups being set at ${timestamp}`);
+      console.log('   New group IDs:', newGroups ? Object.keys(newGroups) : 'null');
+      
+      // Check for "test" group
+      if (newGroups && newGroups.test) {
+        console.error('🚨🚨🚨 "test" GROUP BEING ADDED TO GROUPS! 🚨🚨🚨');
+        console.error('   Stack trace:', stack);
+        
+        // REMOVE IT RIGHT AWAY
+        delete newGroups.test;
+        console.log('   🧹 Removed "test" group immediately');
+      }
+      
+      modificationLog.push({
+        timestamp,
+        action: 'SET testimonialData.groups',
+        hasTestGroup: !!(newGroups && newGroups.test),
+        stack: stack.split('\n').slice(0, 5).join('\n'),
+        groupIds: newGroups ? Object.keys(newGroups) : []
+      });
+      
+      this._groups = newGroups;
+      return newGroups;
+    },
+    enumerable: true,
+    configurable: true
+  });
+  
+  // Initialize
+  window._actualTestimonialData._groups = originalGroups;
+}
+
+// 3. Catch localStorage writes
+const originalSetItem = localStorage.setItem;
+localStorage.setItem = function(key, value) {
+  if (key.includes('testimonial') || key.includes('group')) {
+    console.log(`📝 CAUGHT: localStorage.setItem("${key}")`);
+    
+    try {
+      const parsed = JSON.parse(value);
+      if (parsed.groups && parsed.groups.test) {
+        console.error('🚨🚨🚨 Writing "test" group to localStorage! 🚨🚨🚨');
+        console.error('   Stack:', new Error().stack);
+        
+        // Remove "test" group before saving
+        delete parsed.groups.test;
+        value = JSON.stringify(parsed);
+        console.log('   🧹 Cleaned before saving');
+      }
+    } catch(e) {
+      // Not JSON
+    }
+  }
+  
+  return originalSetItem.call(this, key, value);
+};
+
+// 4. Catch function redefinitions
+const originalDefineProperty = Object.defineProperty;
+Object.defineProperty = function(obj, prop, descriptor) {
+  if (obj === window && (prop === 'testimonialData' || prop === 'ENHANCED_CONCERNS')) {
+    console.error(`🚨 CAUGHT: Object.defineProperty(window, "${prop}")`);
+    console.error('   Stack:', new Error().stack);
+    
+    modificationLog.push({
+      timestamp: new Date().toISOString(),
+      action: `DEFINE PROPERTY ${prop}`,
+      stack: new Error().stack.split('\n').slice(0, 5).join('\n')
+    });
+  }
+  
+  return originalDefineProperty.call(this, obj, prop, descriptor);
+};
+
+// 5. Report function
+window.reportConflicts = function() {
+  console.log('='.repeat(60));
+  console.log('📊 CONFLICT REPORT');
+  console.log('='.repeat(60));
+  
+  console.log(`Total modifications caught: ${modificationLog.length}`);
+  
+  const testGroupCreations = modificationLog.filter(m => m.hasTestGroup);
+  if (testGroupCreations.length > 0) {
+    console.error(`\n🚨 ${testGroupCreations.length} "test" group creations caught:`);
+    testGroupCreations.forEach((log, i) => {
+      console.error(`\n${i + 1}. ${log.timestamp} - ${log.action}`);
+      console.error('   Stack:', log.stack);
+    });
+  } else {
+    console.log('\n✅ No "test" group creations detected');
+  }
+  
+  console.log('\n📋 All modifications:');
+  modificationLog.forEach((log, i) => {
+    console.log(`${i + 1}. ${log.timestamp.slice(11, 19)} - ${log.action}`);
+    if (log.groupIds) console.log('   Groups:', log.groupIds);
+  });
+  
+  console.log('\n🎯 Current state:');
+  console.log('testimonialData exists?', !!window._actualTestimonialData);
+  console.log('Groups:', window._actualTestimonialData?.groups ? 
+    Object.keys(window._actualTestimonialData.groups) : 'none');
+  console.log('Has "test" group?', window._actualTestimonialData?.groups?.test ? 'YES 😱' : 'NO ✅');
+  
+  return modificationLog;
+};
+
+console.log('✅ Conflict detector active');
+console.log('Run window.reportConflicts() to see all caught modifications');
+console.log('🔍 === DETECTOR READY ===');
+
+// Auto-report after 5 seconds
+setTimeout(() => {
+  console.log('\n📊 AUTO-REPORT (after 5 seconds):');
+  window.reportConflicts();
+}, 5000);
+
 // Global variables
 let currentSelectedGroupId = null;
 let testimonialData = window.testimonialData || {};
@@ -128,6 +302,27 @@ const ENHANCED_CONCERNS = {
     }
 };
 
+// At the top of testimonial-manager.js, after ENHANCED_CONCERNS is defined:
+function ensureCleanConcerns() {
+    if (!window.ENHANCED_CONCERNS || Object.keys(window.ENHANCED_CONCERNS).length === 0) {
+        console.log('⚠️ ENHANCED_CONCERNS is empty, using concerns from testimonialData');
+        window.ENHANCED_CONCERNS = window.testimonialData?.concerns || {};
+    }
+    
+    // Log concern counts for debugging
+    const testimonialCount = Object.values(window.ENHANCED_CONCERNS).filter(c => 
+        c.type === 'testimonial' || !c.type
+    ).length;
+    const infoCount = Object.values(window.ENHANCED_CONCERNS).filter(c => 
+        c.type === 'informational'
+    ).length;
+    
+    console.log(`📊 Concerns: ${testimonialCount} testimonial, ${infoCount} informational`);
+}
+
+// Call it when DOM loads
+document.addEventListener('DOMContentLoaded', ensureCleanConcerns);
+
 // ===================================================
 // 🔧 AUTO-FIX FOR testimonials-data.js
 // ===================================================
@@ -246,8 +441,13 @@ function initializeTestimonialData() {
     
     // Ensure unified groups structure (not separate testimonialGroups/informationalGroups)
     if (!testimonialData.groups) {
-        testimonialData.groups = {}; // UNIFIED GROUPS
-    }
+    testimonialData.groups = {};
+    console.log('✅ Created unified groups object');
+} else if (testimonialData.groups.test) {
+    // 🚨 Remove "test" group if it somehow got created here
+    console.log('🧹 Removing "test" group from fixTestimonialDataStructure');
+    delete testimonialData.groups.test;
+}
     
     if (!testimonialData.videos) {
         testimonialData.videos = {}; // UNIFIED VIDEOS
@@ -1922,7 +2122,6 @@ function addNewTestimonialGroup() {
     
     console.log('📝 New group created:', newGroup);
     
-    // 5. 🆕 ENHANCED: Save to UNIFIED groups structure
     // Ensure unified structure exists
     if (!window.testimonialData.groups) {
         window.testimonialData.groups = {};

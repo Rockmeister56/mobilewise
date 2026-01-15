@@ -2,36 +2,6 @@
 // 🧹 CLEAN START: Ensure clean data loading
 // ===================================================
 
-// ===================================================
-// 🚫 BLOCK MANAGER FROM MODIFYING GROUPS
-// ===================================================
-
-// Override Object.defineProperty to block manager
-const originalDefineProperty = Object.defineProperty;
-Object.defineProperty = function(obj, prop, descriptor) {
-  if (obj === window && prop === 'testimonialData') {
-    console.log('🚫 BLOCKED: Manager trying to redefine testimonialData');
-    return obj; // Block it!
-  }
-  return originalDefineProperty.call(this, obj, prop, descriptor);
-};
-
-// Also prevent direct assignment
-const originalTestimonialData = window.testimonialData;
-Object.defineProperty(window, 'testimonialData', {
-  get() {
-    return originalTestimonialData;
-  },
-  set(value) {
-    console.log('🚫 BLOCKED: Manager trying to overwrite testimonialData');
-    return false; // Don't allow overwrite
-  },
-  configurable: false,
-  enumerable: true
-});
-
-console.log('🔒 Manager blocking enabled');
-
 // FIRST: Clear any existing corrupted data
 window.testimonialData = null;
 window.ENHANCED_CONCERNS = null;
@@ -1075,29 +1045,6 @@ setTimeout(() => {
     } else {
       console.log('✅ Data is clean! Groups:', Object.keys(groups));
     }
-  }
-  
-  // Fix ENHANCED_CONCERNS if empty
-  if (window.ENHANCED_CONCERNS && Object.keys(window.ENHANCED_CONCERNS).length === 0) {
-    console.log('🔧 Fixing empty ENHANCED_CONCERNS...');
-    window.ENHANCED_CONCERNS = window.testimonialData.concerns;
-    console.log('✅ ENHANCED_CONCERNS fixed. Count:', Object.keys(window.ENHANCED_CONCERNS).length);
-  }
-  
-  // Remove duplicate concern if needed (13 instead of 12)
-  if (window.testimonialData.concerns && Object.keys(window.testimonialData.concerns).length === 13) {
-    console.log('🔧 Removing duplicate concern...');
-    // Keep only unique concerns
-    const seen = new Set();
-    const uniqueConcerns = {};
-    for (const [key, value] of Object.entries(window.testimonialData.concerns)) {
-      if (!seen.has(key)) {
-        uniqueConcerns[key] = value;
-        seen.add(key);
-      }
-    }
-    window.testimonialData.concerns = uniqueConcerns;
-    console.log('✅ Duplicate removed. Concerns now:', Object.keys(window.testimonialData.concerns).length);
   }
   
   // FINAL VERIFICATION
